@@ -488,8 +488,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         internal static bool IsReservedWord(string text)
         {
-            int pos = Array.IndexOf(DefaultCompletionText, text.ToLower());
-            return pos > -1;
+            return DefaultCompletionText.Contains(text, StringComparer.InvariantCultureIgnoreCase);
         }
 
         /// <summary>

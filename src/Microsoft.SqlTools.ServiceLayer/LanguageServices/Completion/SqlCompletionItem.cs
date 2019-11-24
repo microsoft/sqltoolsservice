@@ -20,6 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
     {
         private static Regex ValidSqlNameRegex = new Regex(@"^[\p{L}_@#][\p{L}\p{N}@$#_]{0,127}$");
         private static DelimitedIdentifier BracketedIdentifiers = new DelimitedIdentifier { Start = "[", End = "]"};
+        private static DelimitedIdentifier FunctionIdentifiers = new DelimitedIdentifier { Start = "", End = "()" };
         private static DelimitedIdentifier[] DelimitedIdentifiers =
             new DelimitedIdentifier[] { BracketedIdentifiers, new DelimitedIdentifier {Start = "\"", End = "\"" } };
 
@@ -51,10 +52,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
             DelimitedIdentifier delimitedIdentifier = GetDelimitedIdentifier(TokenText);
             Label = DeclarationTitle;
 
+            // Bracket quote valid SQL names that aren't specified as reserved keywords already
             if (delimitedIdentifier == null && !string.IsNullOrEmpty(DeclarationTitle) && 
-                (!ValidSqlNameRegex.IsMatch(DeclarationTitle) || AutoCompleteHelper.IsReservedWord(InsertText)))
+                !ValidSqlNameRegex.IsMatch(DeclarationTitle) &&
+                !AutoCompleteHelper.IsReservedWord(InsertText))
             {
                 InsertText = WithDelimitedIdentifier(BracketedIdentifiers, DeclarationTitle);
+            }
+            else if (this.DeclarationType == DeclarationType.BuiltInFunction || 
+                this.DeclarationType == DeclarationType.ScalarValuedFunction ||
+                this.DeclarationType == DeclarationType.TableValuedFunction)
+            {
+                InsertText = WithDelimitedIdentifier(FunctionIdentifiers, DeclarationTitle);
             }
             if (delimitedIdentifier != null)
             {
@@ -193,11 +202,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
             return text != null ? DelimitedIdentifiers.FirstOrDefault(x => text.StartsWith(x.Start)) : null;
         }
 
-        private string WithDelimitedIdentifier(DelimitedIdentifier delimiteIidentifier, string text)
+        private string WithDelimitedIdentifier(DelimitedIdentifier delimitedIdentifier, string text)
         {
-            if (!HasDelimitedIdentifier(delimiteIidentifier, text))
+            if (!HasDelimitedIdentifier(delimitedIdentifier, text))
             {
-                return string.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", delimiteIidentifier.Start, text, delimiteIidentifier.End);
+                return string.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", delimitedIdentifier.Start, text, delimitedIdentifier.End);
             }
             else
             {

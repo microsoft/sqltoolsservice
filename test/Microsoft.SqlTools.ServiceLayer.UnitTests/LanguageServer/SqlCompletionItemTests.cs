@@ -477,19 +477,18 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         }
 
         [Fact]
-        public void InsertTextShouldIncludeBracketGivenReservedName()
+        public void InsertTextShouldNotIncludeBracketGivenReservedName()
         {
             foreach (string word in ReservedWords)
             {
                 string declarationTitle = word;
-                string expected = "[" + declarationTitle + "]";
                 DeclarationType declarationType = DeclarationType.Table;
                 string tokenText = "";
                 SqlCompletionItem item = new SqlCompletionItem(declarationTitle, declarationType, tokenText);
                 CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
 
                 Assert.Equal(completionItem.Label, word);
-                Assert.Equal(completionItem.InsertText, expected);
+                Assert.Equal(completionItem.InsertText, word);
                 Assert.Equal(completionItem.Detail, word);
             }
         }
@@ -530,6 +529,36 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             string declarationTitle = "#TestTable";
             string expected = declarationTitle;
             DeclarationType declarationType = DeclarationType.Table;
+            string tokenText = "";
+            SqlCompletionItem item = new SqlCompletionItem(declarationTitle, declarationType, tokenText);
+            CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
+
+            Assert.Equal(completionItem.Label, expected);
+            Assert.Equal(completionItem.InsertText, expected);
+            Assert.Equal(completionItem.Detail, expected);
+        }
+
+        [Theory]
+        [InlineData(DeclarationType.BuiltInFunction)]
+        [InlineData(DeclarationType.ScalarValuedFunction)]
+        [InlineData(DeclarationType.TableValuedFunction)]
+        public void FunctionsShouldHaveParenthesesAdded(DeclarationType declarationType)
+        {
+            string declarationTitle = declarationType.ToString();
+            string tokenText = "";
+            SqlCompletionItem item = new SqlCompletionItem(declarationTitle, declarationType, tokenText);
+            CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
+
+            Assert.Equal(declarationTitle, completionItem.Label);
+            Assert.Equal($"{declarationTitle}()", completionItem.InsertText);
+            Assert.Equal(declarationTitle, completionItem.Detail);
+        }
+
+        public void BuiltInFunctionsShouldHaveParenthesesAdded()
+        {
+            string declarationTitle = "MyFunction";
+            string expected = $"{declarationTitle}()";
+            DeclarationType declarationType = DeclarationType.TableValuedFunction;
             string tokenText = "";
             SqlCompletionItem item = new SqlCompletionItem(declarationTitle, declarationType, tokenText);
             CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
