@@ -54,8 +54,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
 
             // Bracket quote valid SQL names that aren't specified as reserved keywords already
             if (delimitedIdentifier == null && !string.IsNullOrEmpty(DeclarationTitle) && 
-                !ValidSqlNameRegex.IsMatch(DeclarationTitle) &&
-                !AutoCompleteHelper.IsReservedWord(InsertText))
+                (!ValidSqlNameRegex.IsMatch(DeclarationTitle) ||
+                AutoCompleteHelper.IsReservedWord(InsertText) && )
+                // https://github.com/Microsoft/vscode-mssql/issues/473
             {
                 InsertText = WithDelimitedIdentifier(BracketedIdentifiers, DeclarationTitle);
             }
