@@ -67,15 +67,10 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <param name="commandRetryPolicy">The retry policy defining whether to retry a request if a command fails to be executed.</param>
         public ReliableKustoClient(string connectionString, RetryPolicy connectionRetryPolicy, RetryPolicy commandRetryPolicy, string azureAccountToken)
         {
-            var clusterName = GetClusterName(connectionString);
-            var kcsb = new KustoConnectionStringBuilder(string.Format(
-                            "{0};fed=true;UserToken={1}", 
-                            clusterName, 
-                            azureAccountToken));
-            _client = KustoClientFactory.CreateCslQueryProvider(kcsb);
-
-            var query = ".show databases" + (clusterName.IndexOf(KustoHelperQueries.AriaProxyURL, StringComparison.CurrentCultureIgnoreCase) == -1 ? " | project DatabaseName, PrettyName" : "");
-            var reader = _client.ExecuteQuery(query);
+            _client = CreateKustoClient(connectionString, azureAccountToken);
+            
+            //var query = ".show databases" + (clusterName.IndexOf(KustoHelperQueries.AriaProxyURL, StringComparison.CurrentCultureIgnoreCase) == -1 ? " | project DatabaseName, PrettyName" : "");
+            //var reader = _client.ExecuteQuery(query);
             
             _underlyingConnection = new SqlConnection(connectionString);
             _connectionRetryPolicy = connectionRetryPolicy ?? RetryPolicyFactory.CreateNoRetryPolicy();
@@ -89,6 +84,16 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             {
                 _underlyingConnection.AccessToken = azureAccountToken;
             }
+        }
+
+        public static ICslQueryProvider CreateKustoClient(string connectionString, string azureAccountToken)
+        {
+            var clusterName = GetClusterName(connectionString);
+            var kcsb = new KustoConnectionStringBuilder(string.Format(
+                            "{0};fed=true;UserToken={1}", 
+                            clusterName, 
+                            azureAccountToken));
+            return KustoClientFactory.CreateCslQueryProvider(kcsb);
         }
 
         /*public static System.Data.IDataReader QueryKusto(
@@ -147,12 +152,20 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// "Data Source=clustername.kusto.windows.net;User ID=;Password=;Pooling=False;Application Name=azdata-GeneralConnection"
         /// <summary>
         /// <param name="dmpConnectionString">A connection string coming over the Data management protocol</param>
-        private string GetClusterName(string dmpConnectionString)
+        static private string GetClusterName(string dmpConnectionString)
         {
             // TODOKusto: Unit test
             var csb = new SqlConnectionStringBuilder(dmpConnectionString);
 
-            return csb.DataSource;
+            // If there is no https:// prefix add it
+            Uri uri;
+            if ((Uri.TryCreate(csb.DataSource, UriKind.Absolute, out uri) || Uri.TryCreate("https://" + csb.DataSource, UriKind.Absolute, out uri)) &&
+                (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
+            {
+                return uri.AbsoluteUri;
+            }
+
+            throw new ArgumentException("Expected a URL of the form clustername.kusto.windows.net");
         }
 
         /// <summary>

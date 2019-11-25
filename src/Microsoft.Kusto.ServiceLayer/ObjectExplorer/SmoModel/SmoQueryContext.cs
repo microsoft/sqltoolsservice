@@ -8,6 +8,9 @@ using System.Globalization;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes;
+using Kusto.Data.Net.Client;
+using Kusto.Data.Common;
+using Kusto.Data;
 
 namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 {
@@ -17,6 +20,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
     public class SmoQueryContext
     {
         private Server server;
+        private ICslQueryProvider _cslClient;
         private Database database;
         private SmoObjectBase parent;
         private SmoWrapper smoWrapper;
@@ -26,14 +30,15 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
         /// Creates a context object with a server to use as the basis for any queries
         /// </summary>
         /// <param name="server"></param>
-        public SmoQueryContext(Server server, IMultiServiceProvider serviceProvider)
-            : this(server, serviceProvider, null)
+        public SmoQueryContext(Server server, ICslQueryProvider cslClient, IMultiServiceProvider serviceProvider)
+            : this(server, cslClient, serviceProvider, null)
         {
         }
 
-        internal SmoQueryContext(Server server, IMultiServiceProvider serviceProvider, SmoWrapper serverManager)
+        internal SmoQueryContext(Server server, ICslQueryProvider cslClient, IMultiServiceProvider serviceProvider, SmoWrapper serverManager)
         {
             this.server = server;
+            this._cslClient = cslClient;
             ServiceProvider = serviceProvider;
             this.smoWrapper = serverManager ?? new SmoWrapper();
         }
@@ -130,7 +135,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
         /// <returns>new <see cref="SmoQueryContext"/> with all fields except <see cref="Parent"/> the same</returns>
         public SmoQueryContext CopyWithParent(SmoObjectBase parent)
         {
-            SmoQueryContext context = new SmoQueryContext(this.Server, this.ServiceProvider, this.smoWrapper)
+            SmoQueryContext context = new SmoQueryContext(this.Server, this._cslClient, this.ServiceProvider, this.smoWrapper)
             {
                 database = this.Database,
                 Parent = parent,

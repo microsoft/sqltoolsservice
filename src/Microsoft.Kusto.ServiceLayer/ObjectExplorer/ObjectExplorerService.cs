@@ -27,6 +27,9 @@ using Microsoft.Kusto.ServiceLayer.SqlContext;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.Kusto.ServiceLayer.Workspace;
 using Microsoft.SqlTools.Utility;
+using Kusto.Data.Net.Client;
+using Kusto.Data.Common;
+using Kusto.Data;
 
 namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
 {
@@ -41,6 +44,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
 
         // Instance of the connection service, used to get the connection info for a given owner URI
         private ConnectionService connectionService;
+        private ICslQueryProvider _cslClient;
         private IProtocolEndpoint serviceHost;
         private ConcurrentDictionary<string, ObjectExplorerSession> sessionMap;
         private readonly Lazy<Dictionary<string, HashSet<ChildFactory>>> applicableNodeChildFactories;
@@ -482,6 +486,14 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
         {
             try
             {
+                try 
+                {
+                    // TODOKusto: Remove if not needed. Fails here.
+                    _cslClient = ReliableKustoClient.CreateKustoClient(connectionDetails.ConnectionString, connectionDetails.AzureAccountToken);
+                }
+                catch(Exception)
+                {}
+
                 ObjectExplorerSession session = null;
                 connectionDetails.PersistSecurityInfo = true;
                 ConnectParams connectParams = new ConnectParams() { OwnerUri = uri, Connection = connectionDetails, Type = Connection.ConnectionType.ObjectExplorer };
@@ -507,7 +519,13 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
                            waitForLockTimeout: timeout,
                            bindOperation: (bindingContext, cancelToken) =>
                            {
-                               session = ObjectExplorerSession.CreateSession(connectionResult, serviceProvider, bindingContext.ServerConnection, isDefaultOrSystemDatabase);
+                               try 
+                                {
+                                    _cslClient = ReliableKustoClient.CreateKustoClient(connectionInfo.ConnectionDetails.ConnectionString, connectionDetails.AzureAccountToken);
+                                }
+                                catch(Exception)
+                                {}
+                               session = ObjectExplorerSession.CreateSession(connectionResult, serviceProvider, bindingContext.ServerConnection, _cslClient, isDefaultOrSystemDatabase);
                                session.ConnectionInfo = connectionInfo;
 
                                sessionMap.AddOrUpdate(uri, session, (key, oldSession) => session);
@@ -788,7 +806,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
         {
             private ConnectionService connectionService;
             private IMultiServiceProvider serviceProvider;
-
+            
             // TODO decide whether a cache is needed to handle lookups in elements with a large # children
             //private const int Cachesize = 10000;
             //private Cache<string, NodeMapping> cache;
@@ -810,9 +828,10 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
 
             public string ErrorMessage { get; set; }
 
-            public static ObjectExplorerSession CreateSession(ConnectionCompleteParams response, IMultiServiceProvider serviceProvider, ServerConnection serverConnection, bool isDefaultOrSystemDatabase)
+            public static ObjectExplorerSession CreateSession(ConnectionCompleteParams response, IMultiServiceProvider serviceProvider, ServerConnection serverConnection, ICslQueryProvider cslClient, bool isDefaultOrSystemDatabase)
             {
-                ServerNode rootNode = new ServerNode(response, serviceProvider, serverConnection);
+                ServerNode rootNode = new ServerNode(response, serviceProvider, serverConnection, cslClient);
+                
                 var session = new ObjectExplorerSession(response.OwnerUri, rootNode, serviceProvider, serviceProvider.GetService<ConnectionService>());
                 if (!isDefaultOrSystemDatabase)
                 {

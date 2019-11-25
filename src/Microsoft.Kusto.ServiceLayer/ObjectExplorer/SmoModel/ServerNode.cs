@@ -17,6 +17,10 @@ using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
+using Kusto.Data.Net.Client;
+using Kusto.Data.Common;
+using Kusto.Data;
+
 
 namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 {
@@ -31,14 +35,16 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
         private SmoWrapper smoWrapper;
         private SqlServerType sqlServerType;
         private ServerConnection serverConnection;
+        private ICslQueryProvider _cslClient;
 
-        public ServerNode(ConnectionCompleteParams connInfo, IMultiServiceProvider serviceProvider, ServerConnection serverConnection)
+        public ServerNode(ConnectionCompleteParams connInfo, IMultiServiceProvider serviceProvider, ServerConnection serverConnection, ICslQueryProvider cslClient)
             : base()
         {
             Validate.IsNotNull(nameof(connInfo), connInfo);
             Validate.IsNotNull("connInfo.ConnectionSummary", connInfo.ConnectionSummary);
             Validate.IsNotNull(nameof(serviceProvider), serviceProvider);
 
+            this._cslClient = cslClient;
             this.connectionSummary = connInfo.ConnectionSummary;
             this.serverInfo = connInfo.ServerInfo;
             this.sqlServerType = ServerVersionHelper.CalculateServerType(this.serverInfo);
@@ -122,8 +128,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
             return label;
         }
 
-       
-
         private SmoQueryContext CreateContext(IMultiServiceProvider serviceProvider)
         {
             string exceptionMessage;
@@ -133,7 +137,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
                 Server server = SmoWrapper.CreateServer(this.serverConnection);
                 if (server != null)
                 {
-                    return new SmoQueryContext(server, serviceProvider, SmoWrapper)
+                    return new SmoQueryContext(server, this._cslClient, serviceProvider, SmoWrapper)
                     {
                         Parent = server,
                         SqlServerType = this.sqlServerType
