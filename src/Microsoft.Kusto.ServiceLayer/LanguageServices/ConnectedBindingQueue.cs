@@ -176,7 +176,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                 return string.Empty;
             }
 
-            // lookup the current binding context
+            // lookup the current binding contextna
             string connectionKey = GetConnectionContextKey(connInfo.ConnectionDetails);
             if (BindingContextExists(connectionKey))
             {
@@ -200,6 +200,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                    
                     // populate the binding context to work with the SMO metadata provider
                     bindingContext.ServerConnection = connectionOpener.OpenServerConnection(connInfo, featureName);
+                    bindingContext.CslClient = ConnectionService.OpenKqlConnection(connInfo, featureName);
 
                     if (this.needsMetadata)
                     {

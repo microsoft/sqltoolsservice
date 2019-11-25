@@ -44,7 +44,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
 
         // Instance of the connection service, used to get the connection info for a given owner URI
         private ConnectionService connectionService;
-        private ICslQueryProvider _cslClient;
         private IProtocolEndpoint serviceHost;
         private ConcurrentDictionary<string, ObjectExplorerSession> sessionMap;
         private readonly Lazy<Dictionary<string, HashSet<ChildFactory>>> applicableNodeChildFactories;
@@ -486,14 +485,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
         {
             try
             {
-                try 
-                {
-                    // TODOKusto: Remove if not needed. Fails here.
-                    _cslClient = ReliableKustoClient.CreateKustoClient(connectionDetails.ConnectionString, connectionDetails.AzureAccountToken);
-                }
-                catch(Exception)
-                {}
-
                 ObjectExplorerSession session = null;
                 connectionDetails.PersistSecurityInfo = true;
                 ConnectParams connectParams = new ConnectParams() { OwnerUri = uri, Connection = connectionDetails, Type = Connection.ConnectionType.ObjectExplorer };
@@ -519,13 +510,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
                            waitForLockTimeout: timeout,
                            bindOperation: (bindingContext, cancelToken) =>
                            {
-                               try 
-                                {
-                                    _cslClient = ReliableKustoClient.CreateKustoClient(connectionInfo.ConnectionDetails.ConnectionString, connectionDetails.AzureAccountToken);
-                                }
-                                catch(Exception)
-                                {}
-                               session = ObjectExplorerSession.CreateSession(connectionResult, serviceProvider, bindingContext.ServerConnection, _cslClient, isDefaultOrSystemDatabase);
+                               session = ObjectExplorerSession.CreateSession(connectionResult, serviceProvider, bindingContext.ServerConnection, bindingContext.CslClient, isDefaultOrSystemDatabase);
                                session.ConnectionInfo = connectionInfo;
 
                                sessionMap.AddOrUpdate(uri, session, (key, oldSession) => session);

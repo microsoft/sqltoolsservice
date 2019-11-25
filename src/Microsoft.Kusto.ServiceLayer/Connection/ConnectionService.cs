@@ -23,6 +23,9 @@ using Microsoft.SqlTools.Utility;
 using System.Diagnostics;
 using System.Data.SqlClient;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
+using Kusto.Data.Net.Client;
+using Kusto.Data.Common;
+using Kusto.Data;
 
 namespace Microsoft.Kusto.ServiceLayer.Connection
 {
@@ -1514,6 +1517,34 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             {
                 string error = string.Format(CultureInfo.InvariantCulture,
                     "Failed opening a SqlConnection: error:{0} inner:{1} stacktrace:{2}",
+                    ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty, ex.StackTrace);
+                Logger.Write(TraceEventType.Error, error);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Create and open a new SqlConnection from a ConnectionInfo object
+        /// Note: we need to audit all uses of this method to determine why we're
+        /// bypassing normal ConnectionService connection management
+        /// </summary>
+        /// <param name="connInfo">The connection info to connect with</param>
+        /// <param name="featureName">A plaintext string that will be included in the application name for the connection</param>
+        /// <returns>A SqlConnection created with the given connection info</returns>
+        internal static ICslQueryProvider OpenKqlConnection(ConnectionInfo connInfo, string featureName = null)
+        {
+            try
+            {
+                // generate connection string
+                string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
+
+                return ReliableKustoClient.CreateKustoClient(connectionString, connInfo.ConnectionDetails.AzureAccountToken);
+            }
+            catch (Exception ex)
+            {
+                string error = string.Format(CultureInfo.InvariantCulture,
+                    "Failed opening a KqlConnection: error:{0} inner:{1} stacktrace:{2}",
                     ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty, ex.StackTrace);
                 Logger.Write(TraceEventType.Error, error);
             }

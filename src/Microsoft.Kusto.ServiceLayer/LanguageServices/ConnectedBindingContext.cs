@@ -11,6 +11,9 @@ using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
+using Kusto.Data.Net.Client;
+using Kusto.Data.Common;
+using Kusto.Data;
 
 namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 {
@@ -24,6 +27,8 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         private ManualResetEvent bindingLock;
 
         private ServerConnection serverConnection;
+
+        private ICslQueryProvider cslClient;
 
         /// <summary>
         /// Connected binding context constructor
@@ -55,6 +60,21 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 
                 // reset the parse options so the get recreated for the current connection
                 this.parseOptions = null;
+            } 
+        }
+
+        /// <summary>
+        /// Gets or sets the binding Csl client
+        /// </summary>
+        public ICslQueryProvider CslClient 
+        { 
+            get
+            {
+                return this.cslClient;
+            }
+            set
+            {
+                this.cslClient = value;
             } 
         }
 

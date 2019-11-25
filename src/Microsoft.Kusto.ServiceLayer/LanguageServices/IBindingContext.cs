@@ -10,6 +10,9 @@ using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
+using Kusto.Data.Net.Client;
+using Kusto.Data.Common;
+using Kusto.Data;
 
 namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 {
@@ -27,6 +30,11 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// Gets or sets the binding server connection
         /// </summary>
         ServerConnection ServerConnection { get; set; }
+
+        /// <summary>
+        /// Gets or sets the binding server connection
+        /// </summary>
+        ICslQueryProvider CslClient { get; set; }
 
         /// <summary>
         /// Gets or sets the metadata display info provider
