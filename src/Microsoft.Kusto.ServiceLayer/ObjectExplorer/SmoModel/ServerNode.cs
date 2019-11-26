@@ -16,13 +16,10 @@ using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.Kusto.ServiceLayer.Utility;
+using Microsoft.Kusto.ServiceLayer.Utils;
 using Microsoft.SqlTools.Utility;
-using Kusto.Data.Net.Client;
-using Kusto.Data.Common;
-using Kusto.Data;
 
-
-namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
 {
     /// <summary>
     /// Server node implementation 
@@ -31,25 +28,25 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
     {
         private ConnectionSummary connectionSummary;
         private ServerInfo serverInfo;
-        private Lazy<SmoQueryContext> context;
+        private Lazy<OEQueryContext> context;
         private SmoWrapper smoWrapper;
         private SqlServerType sqlServerType;
         private ServerConnection serverConnection;
-        private ICslQueryProvider _cslClient;
+        private KustoUtils kustoUtils;
 
-        public ServerNode(ConnectionCompleteParams connInfo, IMultiServiceProvider serviceProvider, ServerConnection serverConnection, ICslQueryProvider cslClient)
+        public ServerNode(ConnectionCompleteParams connInfo, IMultiServiceProvider serviceProvider, ServerConnection serverConnection, KustoUtils kustoUtils)
             : base()
         {
             Validate.IsNotNull(nameof(connInfo), connInfo);
             Validate.IsNotNull("connInfo.ConnectionSummary", connInfo.ConnectionSummary);
             Validate.IsNotNull(nameof(serviceProvider), serviceProvider);
 
-            this._cslClient = cslClient;
+            this.kustoUtils = kustoUtils;
             this.connectionSummary = connInfo.ConnectionSummary;
             this.serverInfo = connInfo.ServerInfo;
             this.sqlServerType = ServerVersionHelper.CalculateServerType(this.serverInfo);
 
-            this.context = new Lazy<SmoQueryContext>(() => CreateContext(serviceProvider));
+            this.context = new Lazy<OEQueryContext>(() => CreateContext(serviceProvider));
             this.serverConnection = serverConnection;
 
             NodeValue = connectionSummary.ServerName;
@@ -128,7 +125,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
             return label;
         }
 
-        private SmoQueryContext CreateContext(IMultiServiceProvider serviceProvider)
+        private OEQueryContext CreateContext(IMultiServiceProvider serviceProvider)
         {
             string exceptionMessage;
    
@@ -137,7 +134,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
                 Server server = SmoWrapper.CreateServer(this.serverConnection);
                 if (server != null)
                 {
-                    return new SmoQueryContext(server, this._cslClient, serviceProvider, SmoWrapper)
+                    return new OEQueryContext(server, this.kustoUtils, serviceProvider, SmoWrapper)
                     {
                         Parent = server,
                         SqlServerType = this.sqlServerType

@@ -7,7 +7,7 @@ using System.Data.SqlClient;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 
-namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
 {
     /// <summary>
     /// Internal for testing purposes only. This class provides wrapper functionality
@@ -20,7 +20,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
             return serverConn == null ? null : new Server(serverConn);
         }
 
-        public virtual bool IsConnectionOpen(SmoObjectBase smoObj)
+        public virtual bool IsConnectionOpen(OEObjectBase smoObj)
         {
             SqlSmoObject sqlObj = smoObj as SqlSmoObject;
             return sqlObj != null
@@ -29,7 +29,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
                 && sqlObj.ExecutionManager.ConnectionContext.IsOpen;
         }
 
-        public virtual void OpenConnection(SmoObjectBase smoObj)
+        public virtual void OpenConnection(OEObjectBase smoObj)
         {
             SqlSmoObject sqlObj = smoObj as SqlSmoObject;
             if (sqlObj != null

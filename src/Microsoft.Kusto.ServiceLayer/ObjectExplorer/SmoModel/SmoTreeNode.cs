@@ -7,19 +7,19 @@ using System.Globalization;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes;
 
-namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
 {
     /// <summary>
     /// A Node in the tree representing a SMO-based object
     /// </summary>
-    public class SmoTreeNode : TreeNode
+    public class OETreeNode : TreeNode
     {
         public static int FolderSortPriority = 0;
         private static int _nextSortPriority = FolderSortPriority + 1; // 0 is reserved for folders
 
-        protected SmoQueryContext context;
+        protected OEQueryContext context;
 
-        public SmoTreeNode() : base()
+        public OETreeNode() : base()
         {
         }
 
@@ -50,46 +50,22 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
             }
         }
 
-        public NamedSmoObject SmoObject { get; private set; }
+        public Metadata.Contracts.ObjectMetadata OEObjectMetadata { get; private set; }
 
-        public virtual void CacheInfoFromModel(NamedSmoObject smoObject)
+        public virtual void CacheInfoFromModel(ObjectMetadata oeObject)
         {
-            SmoObject = smoObject;
-            NodeValue = smoObject.Name;
-            ScriptSchemaObjectBase schemaBasecObject = smoObject as ScriptSchemaObjectBase;
-            ObjectMetadata = new Metadata.Contracts.ObjectMetadata();
-            ObjectMetadata.Name = smoObject.Name;
-
-            try
-            {
-                if(smoObject.Urn != null)
-                {
-                    ObjectMetadata.MetadataTypeName = smoObject.Urn.Type;
-                }
-            }
-            catch
-            {
-                //Ignore the exception, sometimes the urn returns exception and I' not sure why
-            }
-            
-            if (schemaBasecObject != null)
-            {
-                ObjectMetadata.Schema = schemaBasecObject.Schema;
-                if (!string.IsNullOrEmpty(ObjectMetadata.Schema))
-                {
-                    NodeValue = $"{ObjectMetadata.Schema}.{smoObject.Name}";
-                }
-            }
+            ObjectMetadata = oeObject;
+            NodeValue = oeObject.Name;
         }
         
-        public virtual NamedSmoObject GetParentSmoObject()
+        public virtual KustoMetadata GetParentSmoObject()
         {
-            if (SmoObject != null)
+            if (OEObjectMetadata != null)
             {
-                return SmoObject;
+                return OEObjectMetadata;
             }
-            // Return the parent's object, or null if it's not set / not a SmoTreeNode
-            return ParentAs<SmoTreeNode>()?.GetParentSmoObject();
+            // Return the parent's object, or null if it's not set / not a OETreeNode
+            return ParentAs<OETreeNode>()?.GetParentSmoObject();
         }
 
         public override object GetContext()
@@ -102,11 +78,11 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
         {
             if (context == null)
             {
-                SmoObjectBase smoParent = GetParentSmoObject();
-                SmoQueryContext parentContext = Parent?.GetContextAs<SmoQueryContext>();
-                if (smoParent != null && parentContext != null)
+                OEObjectBase oeParent = GetParentSmoObject();
+                OEQueryContext parentContext = Parent?.GetContextAs<OEQueryContext>();
+                if (oeParent != null && parentContext != null)
                 {
-                    context = parentContext.CopyWithParent(smoParent);
+                    context = parentContext.CopyWithParent(oeParent);
                 }
             }
         }

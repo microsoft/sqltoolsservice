@@ -13,6 +13,7 @@ using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 using Microsoft.Kusto.ServiceLayer.SqlContext;
 using Microsoft.Kusto.ServiceLayer.Workspace;
+using Microsoft.Kusto.ServiceLayer.Utils;
 using System.Threading;
 
 namespace Microsoft.Kusto.ServiceLayer.LanguageServices
@@ -200,7 +201,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                    
                     // populate the binding context to work with the SMO metadata provider
                     bindingContext.ServerConnection = connectionOpener.OpenServerConnection(connInfo, featureName);
-                    bindingContext.CslClient = ConnectionService.OpenKqlConnection(connInfo, featureName);
+                    bindingContext.KustoUtils = new KustoUtils(connInfo, featureName);
 
                     if (this.needsMetadata)
                     {

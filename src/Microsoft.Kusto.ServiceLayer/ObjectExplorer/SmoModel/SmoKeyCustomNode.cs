@@ -8,16 +8,16 @@ using System.Collections.Generic;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes;
 
-namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
 {
     /// <summary>
     /// Subtye for keys
     /// </summary>
     internal partial class KeysChildFactory : SmoChildFactoryBase
     {
-        public override string GetNodeSubType(object smoObject, SmoQueryContext smoContext)
+        public override string GetNodeSubType(object oeObject, OEQueryContext oeContext)
         {
-            return IndexCustomeNodeHelper.GetSubType(smoObject);
+            return IndexCustomeNodeHelper.GetSubType(oeObject);
         }
     }
 
@@ -47,14 +47,14 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override IEnumerable<NodeSmoProperty> SmoProperties => smoPropertiesLazy.Value;
 
-        public override string GetNodeSubType(object smoObject, SmoQueryContext smoContext)
+        public override string GetNodeSubType(object oeObject, OEQueryContext oeContext)
         {
-            return IndexCustomeNodeHelper.GetSubType(smoObject);
+            return IndexCustomeNodeHelper.GetSubType(oeObject);
         }
 
-        public override string GetNodeCustomName(object smoObject, SmoQueryContext smoContext)
+        public override string GetNodeCustomName(object oeObject, OEQueryContext oeContext)
         {
-            return IndexCustomeNodeHelper.GetCustomLabel(smoObject);
+            return IndexCustomeNodeHelper.GetCustomLabel(oeObject);
         }
     }
 
@@ -63,9 +63,9 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
     /// </summary>
     internal partial class UserDefinedTableTypeKeysChildFactory : SmoChildFactoryBase
     {
-        public override string GetNodeSubType(object smoObject, SmoQueryContext smoContext)
+        public override string GetNodeSubType(object oeObject, OEQueryContext oeContext)
         {
-            return IndexCustomeNodeHelper.GetSubType(smoObject);
+            return IndexCustomeNodeHelper.GetSubType(oeObject);
         }
     }
 

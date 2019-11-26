@@ -9,7 +9,7 @@ using System.Data;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Extensibility;
 
-namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
 {
     /// <summary>
     /// A <see cref="SmoQuerier"/> handles SMO queries for one or more SMO object types.
@@ -23,11 +23,11 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
         private static object lockObject = new object();
         
         /// <summary>
-        /// Queries SMO for a collection of objects using the <see cref="SmoQueryContext"/> 
+        /// Queries SMO for a collection of objects using the <see cref="OEQueryContext"/> 
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        public abstract IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties);
+        public abstract IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties);
 
         internal IMultiServiceProvider ServiceProvider
         {
@@ -67,7 +67,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
         /// <summary>
         /// Mthod used to do custom filtering on smo objects if cannot be implemented using the filters
         /// </summary>
-        protected virtual bool PassesFinalFilters(SqlSmoObject parent, SqlSmoObject smoObject)
+        protected virtual bool PassesFinalFilters(SqlSmoObject parent, SqlSmoObject oeObject)
         {
             return true;
         }

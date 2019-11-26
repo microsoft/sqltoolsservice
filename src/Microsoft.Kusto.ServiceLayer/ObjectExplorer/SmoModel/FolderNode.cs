@@ -5,12 +5,12 @@
 
 using Microsoft.SqlServer.Management.Smo;
 
-namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
 {
     /// <summary>
     /// Represents a folder node in the tree
     /// </summary>
-    public class FolderNode : SmoTreeNode
+    public class FolderNode : OETreeNode
     {
         /// <summary>
         /// For folders, this copies the context of its parent if available
@@ -24,10 +24,10 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
         /// <summary>
         /// For folders, searches for its parent's SMO object rather than copying for itself
         /// </summary>
-        /// <returns><see cref="NamedSmoObject"/> from this parent's parent, or null if not found</returns>
-        public override NamedSmoObject GetParentSmoObject()
+        /// <returns><see cref="KustoMetadata"/> from this parent's parent, or null if not found</returns>
+        public override KustoMetadata GetParentSmoObject()
         {
-            return ParentAs<SmoTreeNode>()?.GetParentSmoObject();
+            return ParentAs<OETreeNode>()?.GetParentSmoObject();
         }
     }
 }

@@ -28,7 +28,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 
         private ServerConnection serverConnection;
 
-        private ICslQueryProvider cslClient;
+        private KustoUtils kustoUtils;
 
         /// <summary>
         /// Connected binding context constructor
@@ -66,15 +66,15 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// <summary>
         /// Gets or sets the binding Csl client
         /// </summary>
-        public ICslQueryProvider CslClient 
+        public KustoUtils KustoUtils 
         { 
             get
             {
-                return this.cslClient;
+                return this.kustoUtils;
             }
             set
             {
-                this.cslClient = value;
+                this.kustoUtils = value;
             } 
         }
 

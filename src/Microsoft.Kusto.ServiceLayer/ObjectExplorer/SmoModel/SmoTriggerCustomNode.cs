@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes;
 
-namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
 {
     /// <summary>
     /// Status for triggers
@@ -24,9 +24,9 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
             }
         });
 
-        public override string GetNodeStatus(object smoObject, SmoQueryContext smoContext)
+        public override string GetNodeStatus(object oeObject, OEQueryContext oeContext)
         {
-            return TriggersCustomeNodeHelper.GetStatus(smoObject);
+            return TriggersCustomeNodeHelper.GetStatus(oeObject);
         }
 
         public override IEnumerable<NodeSmoProperty> SmoProperties => SmoPropertiesLazy.Value;
@@ -34,9 +34,9 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
     internal partial class ServerLevelServerTriggersChildFactory : SmoChildFactoryBase
     {
-        public override string GetNodeStatus(object smoObject, SmoQueryContext smoContext)
+        public override string GetNodeStatus(object oeObject, OEQueryContext oeContext)
         {
-            return TriggersCustomeNodeHelper.GetStatus(smoObject);
+            return TriggersCustomeNodeHelper.GetStatus(oeObject);
         }
 
         public override IEnumerable<NodeSmoProperty> SmoProperties
@@ -50,9 +50,9 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
     internal partial class DatabaseTriggersChildFactory : SmoChildFactoryBase
     {
-        public override string GetNodeStatus(object smoObject, SmoQueryContext smoContext)
+        public override string GetNodeStatus(object oeObject, OEQueryContext oeContext)
         {
-            return TriggersCustomeNodeHelper.GetStatus(smoObject);
+            return TriggersCustomeNodeHelper.GetStatus(oeObject);
         }
 
         public override IEnumerable<NodeSmoProperty> SmoProperties

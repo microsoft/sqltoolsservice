@@ -6,21 +6,21 @@
 using System.Globalization;
 using Microsoft.SqlServer.Management.Smo;
 
-namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
 {
     /// <summary>
     /// Custom name for parameters
     /// </summary>
     internal partial class TableValuedFunctionParametersChildFactory : SmoChildFactoryBase
     {
-        public override string GetNodeCustomName(object smoObject, SmoQueryContext smoContext)
+        public override string GetNodeCustomName(object oeObject, OEQueryContext oeContext)
         {
-            return ParameterCustomeNodeHelper.GetCustomLabel(smoObject, smoContext);
+            return ParameterCustomeNodeHelper.GetCustomLabel(oeObject, oeContext);
         }
 
-        public override string GetNodeSubType(object smoObject, SmoQueryContext smoContext)
+        public override string GetNodeSubType(object oeObject, OEQueryContext oeContext)
         {
-            return ParameterCustomeNodeHelper.GetSubType(smoObject);
+            return ParameterCustomeNodeHelper.GetSubType(oeObject);
         }
     }
 
@@ -29,13 +29,13 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
     /// </summary>
     internal partial class ScalarValuedFunctionParametersChildFactory : SmoChildFactoryBase
     {
-        public override string GetNodeCustomName(object smoObject, SmoQueryContext smoContext)
+        public override string GetNodeCustomName(object oeObject, OEQueryContext oeContext)
         {
-            return ParameterCustomeNodeHelper.GetCustomLabel(smoObject, smoContext);
+            return ParameterCustomeNodeHelper.GetCustomLabel(oeObject, oeContext);
         }
-        public override string GetNodeSubType(object smoObject, SmoQueryContext smoContext)
+        public override string GetNodeSubType(object oeObject, OEQueryContext oeContext)
         {
-            return ParameterCustomeNodeHelper.GetSubType(smoObject);
+            return ParameterCustomeNodeHelper.GetSubType(oeObject);
         }
     }
 
@@ -44,13 +44,13 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
     /// </summary>
     internal partial class AggregateFunctionParametersChildFactory : SmoChildFactoryBase
     {
-        public override string GetNodeCustomName(object smoObject, SmoQueryContext smoContext)
+        public override string GetNodeCustomName(object oeObject, OEQueryContext oeContext)
         {
-            return ParameterCustomeNodeHelper.GetCustomLabel(smoObject, smoContext);
+            return ParameterCustomeNodeHelper.GetCustomLabel(oeObject, oeContext);
         }
-        public override string GetNodeSubType(object smoObject, SmoQueryContext smoContext)
+        public override string GetNodeSubType(object oeObject, OEQueryContext oeContext)
         {
-            return ParameterCustomeNodeHelper.GetSubType(smoObject);
+            return ParameterCustomeNodeHelper.GetSubType(oeObject);
         }
     }
 
@@ -59,13 +59,13 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
     /// </summary>
     internal partial class StoredProcedureParametersChildFactory : SmoChildFactoryBase
     {
-        public override string GetNodeCustomName(object smoObject, SmoQueryContext smoContext)
+        public override string GetNodeCustomName(object oeObject, OEQueryContext oeContext)
         {
-            return ParameterCustomeNodeHelper.GetCustomLabel(smoObject, smoContext);
+            return ParameterCustomeNodeHelper.GetCustomLabel(oeObject, oeContext);
         }
-        public override string GetNodeSubType(object smoObject, SmoQueryContext smoContext)
+        public override string GetNodeSubType(object oeObject, OEQueryContext oeContext)
         {
-            return ParameterCustomeNodeHelper.GetSubType(smoObject);
+            return ParameterCustomeNodeHelper.GetSubType(oeObject);
         }
     }
 
@@ -88,7 +88,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         }
 
-        internal static string GetCustomLabel(object context, SmoQueryContext smoContext)
+        internal static string GetCustomLabel(object context, OEQueryContext oeContext)
         {
             Parameter parameter = context as Parameter;
             if (parameter != null)

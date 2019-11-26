@@ -11,16 +11,16 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
 {
     /// <summary>
     /// Custom name for Columns
     /// </summary>
     internal partial class ColumnsChildFactory : SmoChildFactoryBase
     {
-        public override string GetNodeCustomName(object smoObject, SmoQueryContext smoContext)
+        public override string GetNodeCustomName(object oeObject, OEQueryContext oeContext)
         {
-            return SmoColumnCustomNodeHelper.CalculateCustomLabel(smoObject, smoContext);
+            return SmoColumnCustomNodeHelper.CalculateCustomLabel(oeObject, oeContext);
         }
 
         private readonly Lazy<List<NodeSmoProperty>> smoPropertiesLazy = new Lazy<List<NodeSmoProperty>>(() => new List<NodeSmoProperty>
@@ -100,9 +100,9 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
     /// </summary>
     internal partial class UserDefinedTableTypeColumnsChildFactory : SmoChildFactoryBase
     {
-        public override string GetNodeCustomName(object smoObject, SmoQueryContext smoContext)
+        public override string GetNodeCustomName(object oeObject, OEQueryContext oeContext)
         {
-            return SmoColumnCustomNodeHelper.CalculateCustomLabel(smoObject, smoContext);
+            return SmoColumnCustomNodeHelper.CalculateCustomLabel(oeObject, oeContext);
         }
     }
 
@@ -112,12 +112,12 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
         private const string SimpleColumnLabelWithoutType = "{0} ({1})";
         private const string SimpleColumnLabelWithTypeAndKeyString = "{0} ({1}, {2}, {3})";
 
-        internal static string CalculateCustomLabel(object context, SmoQueryContext smoContext)
+        internal static string CalculateCustomLabel(object context, OEQueryContext oeContext)
         {
             UserDefinedDataTypeCollection uddts = null;
-            if (smoContext != null)
+            if (oeContext != null)
             {
-                uddts = smoContext.Database.UserDefinedDataTypes;
+                uddts = oeContext.Database.UserDefinedDataTypes;
             }
             Column column = context as Column;
             if(column != null)

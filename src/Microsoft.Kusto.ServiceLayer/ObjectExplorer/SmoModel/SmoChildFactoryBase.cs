@@ -14,7 +14,7 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
 {
     public class SmoChildFactoryBase : ChildFactory
     {
@@ -50,7 +50,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         private void OnExpandPopulateFoldersAndFilter(List<TreeNode> allChildren, TreeNode parent, bool includeSystemObjects)
         {
-            SmoQueryContext context = parent.GetContextAs<SmoQueryContext>();
+            OEQueryContext context = parent.GetContextAs<OEQueryContext>();
             OnExpandPopulateFolders(allChildren, parent);
             if (!includeSystemObjects)
             {
@@ -93,7 +93,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
                 // This node does not support non-folder children
                 return;
             }
-            SmoQueryContext context = parent.GetContextAs<SmoQueryContext>();
+            OEQueryContext context = parent.GetContextAs<OEQueryContext>();
             Validate.IsNotNull(nameof(context), context);
 
             var serverValidFor = context.ValidFor;
@@ -124,16 +124,16 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
                 string propertyFilter = GetProperyFilter(filters, querier.GetType(), serverValidFor);
                 try
                 {
-                    var smoObjectList = querier.Query(context, propertyFilter, refresh, smoProperties).ToList();
-                    foreach (var smoObject in smoObjectList)
+                    var kustoMetadataList = querier.Query(context, propertyFilter, refresh, smoProperties).ToList();
+                    foreach (var kustoMetadata in kustoMetadataList)
                     {
                         cancellationToken.ThrowIfCancellationRequested();
-                        if (smoObject == null)
+                        if (kustoMetadata == null)
                         {
-                            Logger.Write(TraceEventType.Error, "smoObject should not be null");
+                            Logger.Write(TraceEventType.Error, "kustoMetadata should not be null");
                         }
-                        TreeNode childNode = CreateChild(parent, smoObject);
-                        if (childNode != null && PassesFinalFilters(childNode, smoObject) && !ShouldFilterNode(childNode, serverValidFor))
+                        TreeNode childNode = CreateChild(parent, kustoMetadata);
+                        if (childNode != null && PassesFinalFilters(childNode, kustoMetadata) && !ShouldFilterNode(childNode, serverValidFor))
                         {
                             allChildren.Add(childNode);
                         }
@@ -153,10 +153,10 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
         private bool ShouldFilterNode(TreeNode childNode, ValidForFlag validForFlag)
         {
             bool filterTheNode = false;
-            SmoTreeNode smoTreeNode = childNode as SmoTreeNode;
-            if (smoTreeNode != null)
+            OETreeNode oeTreeNode = childNode as OETreeNode;
+            if (oeTreeNode != null)
             {
-                if (!ServerVersionHelper.IsValidFor(validForFlag, smoTreeNode.ValidFor))
+                if (!ServerVersionHelper.IsValidFor(validForFlag, oeTreeNode.ValidFor))
                 {
                     filterTheNode = true;
                 }
@@ -227,28 +227,28 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         protected virtual void InitializeChild(TreeNode parent, TreeNode child, object context)
         {
-            NamedSmoObject smoObj = context as NamedSmoObject;
-            if (smoObj == null)
+            KustoMetadata kustoMetadata = context as KustoMetadata;
+            if (kustoMetadata == null)
             {
-                Debug.WriteLine("context is not a NamedSmoObject. type: " + context.GetType());
+                Debug.WriteLine("context is not a kustoMetadata. type: " + context.GetType());
             }
             else
             {
                 smoProperties = SmoProperties;
-                SmoTreeNode childAsMeItem = (SmoTreeNode)child;
-                childAsMeItem.CacheInfoFromModel(smoObj);
-                SmoQueryContext smoContext = parent.GetContextAs<SmoQueryContext>();
+                OETreeNode childAsMeItem = (OETreeNode)child;
+                childAsMeItem.CacheInfoFromModel(kustoMetadata);
+                OEQueryContext oeContext = parent.GetContextAs<OEQueryContext>();
 
                 // If node has custom name, replaced it with the name already set
-                string customizedName = GetNodeCustomName(context, smoContext);
+                string customizedName = GetNodeCustomName(context, oeContext);
                 if (!string.IsNullOrEmpty(customizedName))
                 {
                     childAsMeItem.NodeValue = customizedName;
                     childAsMeItem.NodePathName = GetNodePathName(context);
                 }
 
-                childAsMeItem.NodeSubType = GetNodeSubType(context, smoContext);
-                childAsMeItem.NodeStatus = GetNodeStatus(context, smoContext);
+                childAsMeItem.NodeSubType = GetNodeSubType(context, oeContext);
+                childAsMeItem.NodeStatus = GetNodeStatus(context, oeContext);
             }
         }
 
@@ -296,17 +296,17 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
             return true;
         }
 
-        public override string GetNodeSubType(object smoObject, SmoQueryContext smoContext)
+        public override string GetNodeSubType(object oeObject, OEQueryContext oeContext)
         {
             return string.Empty;
         }
 
-        public override string GetNodeStatus(object smoObject, SmoQueryContext smoContext)
+        public override string GetNodeStatus(object oeObject, OEQueryContext oeContext)
         {
             return string.Empty;
         }
 
-        public static bool IsPropertySupported(string propertyName, SmoQueryContext context, NamedSmoObject smoObj, IEnumerable<NodeSmoProperty> supportedProperties)
+        public static bool IsPropertySupported(string propertyName, OEQueryContext context, KustoMetadata smoObj, IEnumerable<NodeSmoProperty> supportedProperties)
         {
             var property = supportedProperties.FirstOrDefault(x => string.Compare(x.Name, propertyName, StringComparison.InvariantCultureIgnoreCase) == 0);
             if (property != null)
@@ -321,14 +321,14 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
             }
         }
 
-        public override string GetNodeCustomName(object smoObject, SmoQueryContext smoContext)
+        public override string GetNodeCustomName(object oeObject, OEQueryContext oeContext)
         {
             return string.Empty;
         }
 
-        public override string GetNodePathName(object smoObject)
+        public override string GetNodePathName(object oeObject)
         {
-            return (smoObject as NamedSmoObject).Name;
+            return (oeObject as KustoMetadata).Name;
         }
     }
 }

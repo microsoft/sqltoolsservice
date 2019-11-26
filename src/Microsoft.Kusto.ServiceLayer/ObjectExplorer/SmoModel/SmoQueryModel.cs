@@ -8,8 +8,9 @@ using System.Composition;
 using System.Linq;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Broker;
+using Microsoft.Kusto.ServiceLayer.Utils;
 
-namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
 {
 
     [Export(typeof(SmoQuerier))]
@@ -19,19 +20,13 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<KustoMetadata> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
-            Server parentServer = context.Parent as Server;
-            if (parentServer != null)
+            if (context.KustoUtils != null)
             {
-                var retValue = parentServer.Databases;
-                if (retValue != null)
-                {
-                    retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<Database>(retValue).Where(c => PassesFinalFilters(parentServer, c));
-                }
+                return context.KustoUtils.GetDatabaseMetadata();
             }
-            return Enumerable.Empty<SqlSmoObject>();
+            return Enumerable.Empty<KustoMetadata>();
         }
     }
 
@@ -42,7 +37,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
@@ -65,7 +60,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
@@ -88,7 +83,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
@@ -111,7 +106,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
@@ -134,7 +129,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
@@ -157,7 +152,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
@@ -180,7 +175,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
@@ -203,7 +198,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
@@ -226,7 +221,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
@@ -252,7 +247,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
@@ -275,7 +270,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
@@ -298,7 +293,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
@@ -321,7 +316,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Table parentTable = context.Parent as Table;
             if (parentTable != null)
@@ -344,7 +339,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
@@ -370,7 +365,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
@@ -393,7 +388,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             TableViewTableTypeBase parentTableViewTableTypeBase = context.Parent as TableViewTableTypeBase;
             if (parentTableViewTableTypeBase != null)
@@ -416,7 +411,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             TableViewTableTypeBase parentTableViewTableTypeBase = context.Parent as TableViewTableTypeBase;
             if (parentTableViewTableTypeBase != null)
@@ -439,7 +434,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Table parentTable = context.Parent as Table;
             if (parentTable != null)
@@ -462,7 +457,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Table parentTable = context.Parent as Table;
             if (parentTable != null)
@@ -485,7 +480,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Table parentTable = context.Parent as Table;
             if (parentTable != null)
@@ -539,7 +534,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Table parentTable = context.Parent as Table;
             if (parentTable != null)
@@ -575,7 +570,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Table parentTable = context.Parent as Table;
             if (parentTable != null)
@@ -601,7 +596,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             TableViewBase parentTableViewBase = context.Parent as TableViewBase;
             if (parentTableViewBase != null)
@@ -627,7 +622,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
@@ -650,7 +645,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
@@ -673,7 +668,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
@@ -699,7 +694,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
@@ -722,7 +717,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
@@ -745,7 +740,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
@@ -768,7 +763,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
@@ -791,7 +786,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
@@ -814,7 +809,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
@@ -837,7 +832,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
@@ -860,7 +855,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             FileGroup parentFileGroup = context.Parent as FileGroup;
             if (parentFileGroup != null)
@@ -883,7 +878,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
@@ -906,7 +901,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
@@ -929,7 +924,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
@@ -952,7 +947,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
@@ -975,7 +970,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
@@ -998,7 +993,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
@@ -1021,7 +1016,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
@@ -1044,7 +1039,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
@@ -1067,7 +1062,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
@@ -1090,7 +1085,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
@@ -1113,7 +1108,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
@@ -1139,7 +1134,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
@@ -1165,7 +1160,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
@@ -1188,7 +1183,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
@@ -1211,7 +1206,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
@@ -1234,7 +1229,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
@@ -1257,7 +1252,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
@@ -1280,7 +1275,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
@@ -1303,7 +1298,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
@@ -1326,7 +1321,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
@@ -1352,7 +1347,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
             if (parentServiceBroker != null)
@@ -1375,7 +1370,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
             if (parentServiceBroker != null)
@@ -1398,7 +1393,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
             if (parentServiceBroker != null)
@@ -1421,7 +1416,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
             if (parentServiceBroker != null)
@@ -1444,7 +1439,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
             if (parentServiceBroker != null)
@@ -1467,7 +1462,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
             if (parentServiceBroker != null)
@@ -1490,7 +1485,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
@@ -1513,7 +1508,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
@@ -1536,7 +1531,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
@@ -1559,7 +1554,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
@@ -1582,7 +1577,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             StoredProcedure parentStoredProcedure = context.Parent as StoredProcedure;
             if (parentStoredProcedure != null)
@@ -1625,7 +1620,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             PartitionFunction parentPartitionFunction = context.Parent as PartitionFunction;
             if (parentPartitionFunction != null)
@@ -1648,7 +1643,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)

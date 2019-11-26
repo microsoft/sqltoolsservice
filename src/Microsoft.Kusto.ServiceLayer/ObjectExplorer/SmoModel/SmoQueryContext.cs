@@ -8,21 +8,18 @@ using System.Globalization;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes;
-using Kusto.Data.Net.Client;
-using Kusto.Data.Common;
-using Kusto.Data;
+using Microsoft.Kusto.ServiceLayer.Utils;
 
-namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
 {
     /// <summary>
     /// Context object containing key properties needed to query for SMO objects
     /// </summary>
-    public class SmoQueryContext
+    public class OEQueryContext
     {
         private Server server;
-        private ICslQueryProvider _cslClient;
         private Database database;
-        private SmoObjectBase parent;
+        private OEObjectBase parent;
         private SmoWrapper smoWrapper;
         private ValidForFlag validFor = 0;
 
@@ -30,18 +27,23 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
         /// Creates a context object with a server to use as the basis for any queries
         /// </summary>
         /// <param name="server"></param>
-        public SmoQueryContext(Server server, ICslQueryProvider cslClient, IMultiServiceProvider serviceProvider)
-            : this(server, cslClient, serviceProvider, null)
+        public OEQueryContext(Server server, KustoUtils kustoUtils, IMultiServiceProvider serviceProvider)
+            : this(server, kustoUtils, serviceProvider, null)
         {
         }
 
-        internal SmoQueryContext(Server server, ICslQueryProvider cslClient, IMultiServiceProvider serviceProvider, SmoWrapper serverManager)
+        internal OEQueryContext(Server server, KustoUtils kustoUtils, IMultiServiceProvider serviceProvider, SmoWrapper serverManager)
         {
             this.server = server;
-            this._cslClient = cslClient;
+            KustoUtils = kustoUtils;
             ServiceProvider = serviceProvider;
             this.smoWrapper = serverManager ?? new SmoWrapper();
         }
+
+        /// <summary>
+        /// The Kusto cluster hostname, for example "lens.kusto.windows.net";
+        /// </summary>
+        public KustoUtils KustoUtils { get; private set; }
 
         /// <summary>
         /// The server type 
@@ -75,7 +77,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
         /// <summary>
         /// Parent of a give node to use for queries
         /// </summary>
-        public SmoObjectBase Parent { 
+        public OEObjectBase Parent { 
             get
             {
                 return GetObjectWithOpenedConnection(parent);
@@ -132,10 +134,10 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
         /// Copies the context for use by another node
         /// </summary>
         /// <param name="parent">New Parent to set</param>
-        /// <returns>new <see cref="SmoQueryContext"/> with all fields except <see cref="Parent"/> the same</returns>
-        public SmoQueryContext CopyWithParent(SmoObjectBase parent)
+        /// <returns>new <see cref="OEQueryContext"/> with all fields except <see cref="Parent"/> the same</returns>
+        public OEQueryContext CopyWithParent(OEObjectBase parent)
         {
-            SmoQueryContext context = new SmoQueryContext(this.Server, this._cslClient, this.ServiceProvider, this.smoWrapper)
+            OEQueryContext context = new OEQueryContext(this.Server, this.kustoUtils, this.ServiceProvider, this.smoWrapper)
             {
                 database = this.Database,
                 Parent = parent,
@@ -165,7 +167,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
         }
 
         private T GetObjectWithOpenedConnection<T>(T smoObj)
-            where T : SmoObjectBase
+            where T : OEObjectBase
         {
             if (smoObj != null)
             {
@@ -179,7 +181,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
         /// the only way to easily access is via the server object. This should be called during access of
         /// any of the object properties
         /// </summary>
-        public void EnsureConnectionOpen(SmoObjectBase smoObj)
+        public void EnsureConnectionOpen(OEObjectBase smoObj)
         {
             if (!smoWrapper.IsConnectionOpen(smoObj))
             {

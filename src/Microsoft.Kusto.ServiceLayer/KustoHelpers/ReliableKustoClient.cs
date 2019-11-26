@@ -35,9 +35,6 @@ using System.Text;
 using System.Threading;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Kusto.Data.Net.Client;
-using Kusto.Data.Common;
-using Kusto.Data;
 using Microsoft.SqlTools.Utility;
 using Microsoft.Kusto.ServiceLayer.KustoConstants;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
@@ -52,7 +49,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
     public sealed partial class ReliableKustoClient : DbConnection, IDisposable
     {
         private readonly SqlConnection _underlyingConnection;
-        private readonly ICslQueryProvider _client;
+        private readonly KustoUtils _kustoUtils;
         private readonly RetryPolicy _connectionRetryPolicy;
         private RetryPolicy _commandRetryPolicy;
         private Guid _azureSessionId;
@@ -67,10 +64,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <param name="commandRetryPolicy">The retry policy defining whether to retry a request if a command fails to be executed.</param>
         public ReliableKustoClient(string connectionString, RetryPolicy connectionRetryPolicy, RetryPolicy commandRetryPolicy, string azureAccountToken)
         {
-            _client = CreateKustoClient(connectionString, azureAccountToken);
-            
-            //var query = ".show databases" + (clusterName.IndexOf(KustoHelperQueries.AriaProxyURL, StringComparison.CurrentCultureIgnoreCase) == -1 ? " | project DatabaseName, PrettyName" : "");
-            //var reader = _client.ExecuteQuery(query);
+            _kustoUtils = new KustoUtils(connectionString, azureAccountToken);
             
             _underlyingConnection = new SqlConnection(connectionString);
             _connectionRetryPolicy = connectionRetryPolicy ?? RetryPolicyFactory.CreateNoRetryPolicy();
@@ -84,88 +78,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             {
                 _underlyingConnection.AccessToken = azureAccountToken;
             }
-        }
-
-        public static ICslQueryProvider CreateKustoClient(string connectionString, string azureAccountToken)
-        {
-            var clusterName = GetClusterName(connectionString);
-            var kcsb = new KustoConnectionStringBuilder(string.Format(
-                            "{0};fed=true;UserToken={1}", 
-                            clusterName, 
-                            azureAccountToken));
-            return KustoClientFactory.CreateCslQueryProvider(kcsb);
-        }
-
-        /*public static System.Data.IDataReader QueryKusto(
-            Kusto.Data.Common.ICslQueryProvider queryProvider,
-            string databaseName,
-            string query)
-        {
-            var queryParameters = new Dictionary<String, String>()
-            {
-                { "xIntValue", "111" },
-                { "xStrValue", "abc" },
-                { "xDoubleValue", "11.1" }
-            };
-
-            // Query parameters (and many other properties) are provided
-            // by a ClientRequestProperties object handed alongside
-            // the query:
-            var clientRequestProperties = new Kusto.Data.Common.ClientRequestProperties(
-                principalIdentity: null,
-                options: null,
-                parameters: queryParameters);
-
-            // Having client code provide its own ClientRequestId is
-            // highly recommended. It not only allows the caller to
-            // cancel the query, but also makes it possible for the Kusto
-            // team to investigate query failures end-to-end:
-            clientRequestProperties.ClientRequestId
-                = "MyApp.MyActivity;"
-                + Guid.NewGuid().ToString();
-
-            // This is an example for setting an option
-            // ("notruncation", in this case). In most cases this is not
-            // needed, but it's included here for completeness:
-            clientRequestProperties.SetOption(
-                Kusto.Data.Common.ClientRequestProperties.OptionNoTruncation,
-                true);
-        
-            try
-            {
-                return queryProvider.ExecuteQuery(query, clientRequestProperties);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(
-                    "Failed invoking query '{0}' against Kusto."
-                    + " To have the Kusto team investigate this failure,"
-                    + " please open a ticket @ https://aka.ms/kustosupport,"
-                    + " and provide: ClientRequestId={1}",
-                    query, clientRequestProperties.ClientRequestId);
-                return null;
-            }
-        }*/
-
-        /// <summary>
-        /// Extracts the cluster name from the connectionstring. The string looks like the following:
-        /// "Data Source=clustername.kusto.windows.net;User ID=;Password=;Pooling=False;Application Name=azdata-GeneralConnection"
-        /// <summary>
-        /// <param name="dmpConnectionString">A connection string coming over the Data management protocol</param>
-        static private string GetClusterName(string dmpConnectionString)
-        {
-            // TODOKusto: Unit test
-            var csb = new SqlConnectionStringBuilder(dmpConnectionString);
-
-            // If there is no https:// prefix add it
-            Uri uri;
-            if ((Uri.TryCreate(csb.DataSource, UriKind.Absolute, out uri) || Uri.TryCreate("https://" + csb.DataSource, UriKind.Absolute, out uri)) &&
-                (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
-            {
-                return uri.AbsoluteUri;
-            }
-
-            throw new ArgumentException("Expected a URL of the form clustername.kusto.windows.net");
         }
 
         /// <summary>

@@ -5,27 +5,27 @@
 
 using Microsoft.SqlServer.Management.Smo;
 
-namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
 {
     /// <summary>
     /// Custom name for table
     /// </summary>
     internal partial class TablesChildFactory : SmoChildFactoryBase
     {
-        public override string GetNodeCustomName(object smoObject, SmoQueryContext smoContext)
+        public override string GetNodeCustomName(object oeObject, OEQueryContext oeContext)
         {
             try
             {
-                Table table = smoObject as Table;
-                if (table != null && IsPropertySupported("IsSystemVersioned", smoContext, table, CachedSmoProperties) && table.IsSystemVersioned)
+                Table table = oeObject as Table;
+                if (table != null && IsPropertySupported("IsSystemVersioned", oeContext, table, CachedSmoProperties) && table.IsSystemVersioned)
                 {
                     return $"{table.Schema}.{table.Name} ({SR.SystemVersioned_LabelPart})";
                 }
-                else if (table != null && IsPropertySupported("IsExternal", smoContext, table, CachedSmoProperties) && table.IsExternal)
+                else if (table != null && IsPropertySupported("IsExternal", oeContext, table, CachedSmoProperties) && table.IsExternal)
                 {
                     return $"{table.Schema}.{table.Name} ({SR.External_LabelPart})"; 
                 }
-                else if (table != null && IsPropertySupported("IsFileTable", smoContext, table, CachedSmoProperties) && table.IsFileTable)
+                else if (table != null && IsPropertySupported("IsFileTable", oeContext, table, CachedSmoProperties) && table.IsFileTable)
                 {
                     return $"{table.Schema}.{table.Name} ({SR.FileTable_LabelPart})"; 
                 }
@@ -38,17 +38,17 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
             return string.Empty;
         }
 
-        public override string GetNodeSubType(object smoObject, SmoQueryContext smoContext)
+        public override string GetNodeSubType(object oeObject, OEQueryContext oeContext)
         {
             try
             {
-                Table table = smoObject as Table;
-                if (table != null && IsPropertySupported("TemporalType", smoContext, table, CachedSmoProperties) && table.TemporalType != TableTemporalType.None)
+                Table table = oeObject as Table;
+                if (table != null && IsPropertySupported("TemporalType", oeContext, table, CachedSmoProperties) && table.TemporalType != TableTemporalType.None)
                 {
                     return "Temporal";
                 }
                 // TODO carbon issue 3125 enable "External" subtype once icon is ready. Otherwise will get missing icon here.
-                // else if (table != null && IsPropertySupported("IsExternal", smoContext, table, CachedSmoProperties) && table.IsExternal)
+                // else if (table != null && IsPropertySupported("IsExternal", oeContext, table, CachedSmoProperties) && table.IsExternal)
                 // {
                 //     return "External";
                 // }
@@ -63,9 +63,9 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
             return string.Empty;
         }
 
-        public override string GetNodePathName(object smoObject)
+        public override string GetNodePathName(object oeObject)
         {
-            return TableCustomNodeHelper.GetPathName(smoObject);
+            return TableCustomNodeHelper.GetPathName(oeObject);
         }
     }
 
@@ -74,9 +74,9 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
     /// </summary>
     internal partial class TableChildFactory : SmoChildFactoryBase
     {
-        public override string GetNodeCustomName(object smoObject, SmoQueryContext smoContext)
+        public override string GetNodeCustomName(object oeObject, OEQueryContext oeContext)
         {
-            Table table = smoObject as Table;
+            Table table = oeObject as Table;
             if (table != null)
             {
                 return $"{table.Schema}.{table.Name} ({SR.History_LabelPart})";
@@ -85,17 +85,17 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
             return string.Empty;
         }
 
-        public override string GetNodePathName(object smoObject)
+        public override string GetNodePathName(object oeObject)
         {
-            return TableCustomNodeHelper.GetPathName(smoObject);
+            return TableCustomNodeHelper.GetPathName(oeObject);
         }
     }
 
     internal static class TableCustomNodeHelper
     {
-        internal static string GetPathName(object smoObject)
+        internal static string GetPathName(object oeObject)
         {
-            Table table = smoObject as Table;
+            Table table = oeObject as Table;
             if (table != null)
             {
                 return $"{table.Schema}.{table.Name}";

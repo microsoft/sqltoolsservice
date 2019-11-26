@@ -22,14 +22,12 @@ using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes;
-using Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel;
+using Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel;
 using Microsoft.Kusto.ServiceLayer.SqlContext;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.Kusto.ServiceLayer.Workspace;
+using Microsoft.Kusto.ServiceLayer.Utils;
 using Microsoft.SqlTools.Utility;
-using Kusto.Data.Net.Client;
-using Kusto.Data.Common;
-using Kusto.Data;
 
 namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
 {
@@ -510,7 +508,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
                            waitForLockTimeout: timeout,
                            bindOperation: (bindingContext, cancelToken) =>
                            {
-                               session = ObjectExplorerSession.CreateSession(connectionResult, serviceProvider, bindingContext.ServerConnection, bindingContext.CslClient, isDefaultOrSystemDatabase);
+                               session = ObjectExplorerSession.CreateSession(connectionResult, serviceProvider, bindingContext.ServerConnection, bindingContext.KustoUtils, isDefaultOrSystemDatabase);
                                session.ConnectionInfo = connectionInfo;
 
                                sessionMap.AddOrUpdate(uri, session, (key, oldSession) => session);
@@ -813,9 +811,9 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
 
             public string ErrorMessage { get; set; }
 
-            public static ObjectExplorerSession CreateSession(ConnectionCompleteParams response, IMultiServiceProvider serviceProvider, ServerConnection serverConnection, ICslQueryProvider cslClient, bool isDefaultOrSystemDatabase)
+            public static ObjectExplorerSession CreateSession(ConnectionCompleteParams response, IMultiServiceProvider serviceProvider, ServerConnection serverConnection, KustoUtils kustoUtils, bool isDefaultOrSystemDatabase)
             {
-                ServerNode rootNode = new ServerNode(response, serviceProvider, serverConnection, cslClient);
+                ServerNode rootNode = new ServerNode(response, serviceProvider, serverConnection, kustoUtils);
                 
                 var session = new ObjectExplorerSession(response.OwnerUri, rootNode, serviceProvider, serviceProvider.GetService<ConnectionService>());
                 if (!isDefaultOrSystemDatabase)

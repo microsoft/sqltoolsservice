@@ -6,17 +6,17 @@
 using System;
 using Microsoft.SqlServer.Management.Smo;
 
-namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
 {
     /// <summary>
     /// Filters the history tables to only return ones related to the parent table
     /// </summary>
     internal partial class SqlHistoryTableQuerier : SmoQuerier
     {
-        protected override bool PassesFinalFilters(SqlSmoObject parent, SqlSmoObject smoObject)
+        protected override bool PassesFinalFilters(SqlSmoObject parent, SqlSmoObject oeObject)
         {
             Table parentTable = parent as Table;
-            Table historyTable = smoObject as Table;
+            Table historyTable = oeObject as Table;
             if (parentTable != null && historyTable != null)
             {
                 try

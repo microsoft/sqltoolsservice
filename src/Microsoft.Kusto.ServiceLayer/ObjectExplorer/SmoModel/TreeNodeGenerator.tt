@@ -61,7 +61,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 	foreach (var TreeNode in allTreeNodes)
 	{
 		var name = TreeNode.GetAttribute("Name");
-		WriteLine(string.Format("    internal sealed partial class {0} : SmoTreeNode", name));
+		WriteLine(string.Format("    internal sealed partial class {0} : OETreeNode", name));
 		WriteLine("    {");
 		WriteLine(string.Format("    	public {0}() : base()", name));
 		WriteLine("    	{");
@@ -235,7 +235,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 
 					if (TreeNodeExists(xmlFile, child.GetAttribute("Name") + "TreeNode"))
 					{
-						WriteLine(string.Format("            currentChildren.Add(new {0}TreeNode {{ SortPriority = SmoTreeNode.NextSortPriority }} );", child.GetAttribute("Name")));
+						WriteLine(string.Format("            currentChildren.Add(new {0}TreeNode {{ SortPriority = OETreeNode.NextSortPriority }} );", child.GetAttribute("Name")));
 					}
 					else
 					{
@@ -253,7 +253,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 						{
 							WriteLine(string.Format("                ValidFor = {0},", GetValidForFlags(validFor)));
 						}
-						WriteLine("                SortPriority = SmoTreeNode.NextSortPriority,");
+						WriteLine("                SortPriority = OETreeNode.NextSortPriority,");
 					    WriteLine("            });");
 					}
 				}
@@ -290,7 +290,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 				WriteLine("        {");
 				if (string.IsNullOrWhiteSpace(TreeNode))
 				{
-					WriteLine("            var child = new SmoTreeNode();");
+					WriteLine("            var child = new OETreeNode();");
 					WriteLine("            child.IsAlwaysLeaf = true;");
 					
 					if (!string.IsNullOrEmpty(nodeType)) 
@@ -311,7 +311,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.SmoModel
 				}
 				if (disableSort != null)
 				{
-					WriteLine("            child.SortPriority = SmoTreeNode.NextSortPriority;");
+					WriteLine("            child.SortPriority = OETreeNode.NextSortPriority;");
 				}
 				WriteLine("            InitializeChild(parent, child, context);");
 				
