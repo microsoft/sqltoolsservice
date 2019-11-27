@@ -161,10 +161,10 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         #region IDataSourceUtils
 
         /// <inheritdoc/>
-        public abstract Task<IDataReader> ExecuteQueryAsync(string query);
+        public abstract Task<IDataReader> ExecuteQueryAsync(string query, string databaseName);
 
         /// <inheritdoc/>
-        public async Task<T> ExecuteScalarQueryAsync<T>(string query)
+        public async Task<T> ExecuteScalarQueryAsync<T>(string query, string databaseName)
         {
             ValidationUtils.IsArgumentNotNullOrWhiteSpace(query, nameof(query));
 

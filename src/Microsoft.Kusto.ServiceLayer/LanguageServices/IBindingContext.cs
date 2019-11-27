@@ -31,9 +31,9 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         ServerConnection ServerConnection { get; set; }
 
         /// <summary>
-        /// Gets or sets the binding server connection
+        /// Gets or sets data source interface
         /// </summary>
-        IDataSource KustoUtils { get; set; }
+        public IDataSource DataSource { get; set; }
 
         /// <summary>
         /// Gets or sets the metadata display info provider

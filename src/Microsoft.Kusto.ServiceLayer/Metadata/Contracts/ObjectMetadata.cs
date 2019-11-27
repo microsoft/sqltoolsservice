@@ -33,4 +33,29 @@ namespace Microsoft.Kusto.ServiceLayer.Metadata.Contracts
         
         public string Urn { get; set; }
     }
+
+    /// <summary>
+    /// Database metadata information
+    /// </summary>
+    public class DatabaseMetadata : ObjectMetadata
+    {
+        public string ClusterName { get; set; }
+    }
+
+    /// <summary>
+    /// Database metadata information
+    /// </summary>
+    public class TableMetadata : DatabaseMetadata
+    {
+        public string DatabaseName { get; set; }
+    }
+
+    /// <summary>
+    /// Column metadata information
+    /// </summary>
+    public class ColumnMetadata : TableMetadata
+    {
+        public string TableName { get; set; }
+        public string DataType { get; set; }
+    }
 }

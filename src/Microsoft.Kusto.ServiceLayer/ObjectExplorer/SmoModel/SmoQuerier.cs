@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Data;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Extensibility;
+using Microsoft.Kusto.ServiceLayer.Metadata.Contracts;
 
 namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 {

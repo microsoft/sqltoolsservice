@@ -28,7 +28,8 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 
         private ServerConnection serverConnection;
 
-        private KustoUtils kustoUtils;
+        /// <inheritdoc/>
+        public IDataSource DataSource { get; set; }
 
         /// <summary>
         /// Connected binding context constructor
@@ -60,21 +61,6 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 
                 // reset the parse options so the get recreated for the current connection
                 this.parseOptions = null;
-            } 
-        }
-
-        /// <summary>
-        /// Gets or sets the binding Csl client
-        /// </summary>
-        public KustoUtils KustoUtils 
-        { 
-            get
-            {
-                return this.kustoUtils;
-            }
-            set
-            {
-                this.kustoUtils = value;
             } 
         }
 

@@ -38,10 +38,10 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
         {
         }
 
-        internal QueryContext(Server server, KustoDataSI kustoUtils, IMultiServiceProvider serviceProvider, SmoWrapper serverManager)
+        internal QueryContext(Server server, IDataSource dataSource, IMultiServiceProvider serviceProvider, SmoWrapper serverManager)
         {
             this.server = server;
-            dataSource = kustoUtils;
+            this.dataSource = dataSource;
             ServiceProvider = serviceProvider;
             this.smoWrapper = serverManager ?? new SmoWrapper();
         }
