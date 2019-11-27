@@ -11,7 +11,7 @@ using System.Threading;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 {
     internal partial class DatabaseTreeNode
     {
@@ -19,7 +19,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
         {
             Parent = serverNode;
             NodeValue = databaseName;
-            var db = new Database(serverNode.GetContextAs<OEQueryContext>().Server, this.NodeValue);
+            var db = new Database(serverNode.GetContextAs<QueryContext>().Server, this.NodeValue);
             db.Refresh();
             // If we got this far, the connection is valid. However, it's possible
             // the user connected directly to the master of a readable secondary
@@ -27,7 +27,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
             // We detect that here and fall back to master
             if (db.State == SqlSmoState.Creating)
             {
-                db = new Database(serverNode.GetContextAs<OEQueryContext>().Server, "master");
+                db = new Database(serverNode.GetContextAs<QueryContext>().Server, "master");
                 db.Refresh();
             }
             CacheInfoFromModel(db);
@@ -41,7 +41,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
             if (context == null)
             {
                 base.EnsureContextInitialized();
-                var db = OEObjectMetadata as Database;
+                var db = ObjectMetadata as Database;
                 if (db != null)
                 {
                     context.Database = db;
@@ -52,7 +52,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
 
         protected override void PopulateChildren(bool refresh, string name, CancellationToken cancellationToken)
         {
-            var smoQueryContext = this.GetContextAs<OEQueryContext>();
+            var smoQueryContext = this.GetContextAs<QueryContext>();
             if (IsAccessible(smoQueryContext))
             {
                 base.PopulateChildren(refresh, name, cancellationToken);
@@ -67,7 +67,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
             }
         }
 
-        public bool IsAccessible(OEQueryContext context)
+        public bool IsAccessible(QueryContext context)
         {
             try
             {

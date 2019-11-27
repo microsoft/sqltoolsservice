@@ -7,24 +7,24 @@ using System.Collections.Generic;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes;
 
-namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 {
     /// <summary>
     /// Status for databases
     /// </summary>
-    internal partial class DatabasesChildFactory : SmoChildFactoryBase
+    internal partial class DatabasesChildFactory : DataSourceChildFactoryBase
     {
-        public override string GetNodeStatus(object oeObject, OEQueryContext oeContext)
+        public override string GetNodeStatus(object objectMetadata, QueryContext oeContext)
         {
-            return DatabasesCustomNodeHelper.GetStatus(oeObject, oeContext, CachedSmoProperties);
+            return DatabasesCustomNodeHelper.GetStatus(objectMetadata, oeContext, CachedSmoProperties);
         }
 
         protected override void InitializeChild(TreeNode parent, TreeNode child, object context)
         {
             base.InitializeChild(parent, child, context);
-            var oeTreeNode = child as OETreeNode;
-            if (oeTreeNode != null && oeTreeNode.OEObjectMetadata != null
-                && DatabasesCustomNodeHelper.GetDatabaseIsUnavailable(oeTreeNode.OEObjectMetadata, parent.GetContextAs<OEQueryContext>(), CachedSmoProperties))
+            var oeTreeNode = child as DataSourceTreeNode;
+            if (oeTreeNode != null && oeTreeNode.ObjectMetadata != null
+                && DatabasesCustomNodeHelper.GetDatabaseIsUnavailable(oeTreeNode.ObjectMetadata, parent.GetContextAs<QueryContext>(), CachedSmoProperties))
             {
                 child.IsAlwaysLeaf = true;
             }
@@ -36,10 +36,10 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
         private static readonly DatabaseStatus[] UnavailableDatabaseStatuses = { DatabaseStatus.Inaccessible, DatabaseStatus.Offline, DatabaseStatus.Recovering,
             DatabaseStatus.RecoveryPending, DatabaseStatus.Restoring, DatabaseStatus.Suspect, DatabaseStatus.Shutdown };
 
-        internal static bool GetDatabaseIsUnavailable(object oeObject, OEQueryContext oeContext, IEnumerable<NodeSmoProperty> supportedProperties)
+        internal static bool GetDatabaseIsUnavailable(object objectMetadata, QueryContext oeContext, IEnumerable<NodeSmoProperty> supportedProperties)
         {
-            Database db = oeObject as Database;
-            if (db != null && SmoChildFactoryBase.IsPropertySupported("Status", oeContext, db, supportedProperties))
+            Database db = objectMetadata as Database;
+            if (db != null && DataSourceChildFactoryBase.IsPropertySupported("Status", oeContext, db, supportedProperties))
             {
                 DatabaseStatus status;
                 try
@@ -64,10 +64,10 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
             return false;
         }
 
-        internal static string GetStatus(object oeObject, OEQueryContext oeContext, IEnumerable<NodeSmoProperty> supportedProperties)
+        internal static string GetStatus(object objectMetadata, QueryContext oeContext, IEnumerable<NodeSmoProperty> supportedProperties)
         {
-            Database db = oeObject as Database;
-            if (db != null && SmoChildFactoryBase.IsPropertySupported("Status", oeContext, db, supportedProperties))
+            Database db = objectMetadata as Database;
+            if (db != null && DataSourceChildFactoryBase.IsPropertySupported("Status", oeContext, db, supportedProperties))
             {
                 DatabaseStatus status;
                 try

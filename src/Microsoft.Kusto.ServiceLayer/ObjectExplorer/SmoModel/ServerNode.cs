@@ -16,10 +16,10 @@ using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.Kusto.ServiceLayer.Utility;
-using Microsoft.Kusto.ServiceLayer.Utils;
+using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 {
     /// <summary>
     /// Server node implementation 
@@ -28,13 +28,13 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
     {
         private ConnectionSummary connectionSummary;
         private ServerInfo serverInfo;
-        private Lazy<OEQueryContext> context;
+        private Lazy<QueryContext> context;
         private SmoWrapper smoWrapper;
         private SqlServerType sqlServerType;
         private ServerConnection serverConnection;
-        private KustoUtils kustoUtils;
+        private IDataSource kustoUtils;
 
-        public ServerNode(ConnectionCompleteParams connInfo, IMultiServiceProvider serviceProvider, ServerConnection serverConnection, KustoUtils kustoUtils)
+        public ServerNode(ConnectionCompleteParams connInfo, IMultiServiceProvider serviceProvider, ServerConnection serverConnection, IDataSource kustoUtils)
             : base()
         {
             Validate.IsNotNull(nameof(connInfo), connInfo);
@@ -46,7 +46,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
             this.serverInfo = connInfo.ServerInfo;
             this.sqlServerType = ServerVersionHelper.CalculateServerType(this.serverInfo);
 
-            this.context = new Lazy<OEQueryContext>(() => CreateContext(serviceProvider));
+            this.context = new Lazy<QueryContext>(() => CreateContext(serviceProvider));
             this.serverConnection = serverConnection;
 
             NodeValue = connectionSummary.ServerName;
@@ -125,7 +125,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
             return label;
         }
 
-        private OEQueryContext CreateContext(IMultiServiceProvider serviceProvider)
+        private QueryContext CreateContext(IMultiServiceProvider serviceProvider)
         {
             string exceptionMessage;
    
@@ -134,7 +134,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
                 Server server = SmoWrapper.CreateServer(this.serverConnection);
                 if (server != null)
                 {
-                    return new OEQueryContext(server, this.kustoUtils, serviceProvider, SmoWrapper)
+                    return new QueryContext(server, this.kustoUtils, serviceProvider, SmoWrapper)
                     {
                         Parent = server,
                         SqlServerType = this.sqlServerType

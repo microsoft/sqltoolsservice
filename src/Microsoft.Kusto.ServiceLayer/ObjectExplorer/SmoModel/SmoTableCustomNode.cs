@@ -5,18 +5,18 @@
 
 using Microsoft.SqlServer.Management.Smo;
 
-namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 {
     /// <summary>
     /// Custom name for table
     /// </summary>
-    internal partial class TablesChildFactory : SmoChildFactoryBase
+    internal partial class TablesChildFactory : DataSourceChildFactoryBase
     {
-        public override string GetNodeCustomName(object oeObject, OEQueryContext oeContext)
+        public override string GetNodeCustomName(object objectMetadata, QueryContext oeContext)
         {
             try
             {
-                Table table = oeObject as Table;
+                Table table = objectMetadata as Table;
                 if (table != null && IsPropertySupported("IsSystemVersioned", oeContext, table, CachedSmoProperties) && table.IsSystemVersioned)
                 {
                     return $"{table.Schema}.{table.Name} ({SR.SystemVersioned_LabelPart})";
@@ -38,11 +38,11 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
             return string.Empty;
         }
 
-        public override string GetNodeSubType(object oeObject, OEQueryContext oeContext)
+        public override string GetNodeSubType(object objectMetadata, QueryContext oeContext)
         {
             try
             {
-                Table table = oeObject as Table;
+                Table table = objectMetadata as Table;
                 if (table != null && IsPropertySupported("TemporalType", oeContext, table, CachedSmoProperties) && table.TemporalType != TableTemporalType.None)
                 {
                     return "Temporal";
@@ -63,20 +63,20 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
             return string.Empty;
         }
 
-        public override string GetNodePathName(object oeObject)
+        public override string GetNodePathName(object objectMetadata)
         {
-            return TableCustomNodeHelper.GetPathName(oeObject);
+            return TableCustomNodeHelper.GetPathName(objectMetadata);
         }
     }
 
     /// <summary>
     /// Custom name for history table
     /// </summary>
-    internal partial class TableChildFactory : SmoChildFactoryBase
+    internal partial class TableChildFactory : DataSourceChildFactoryBase
     {
-        public override string GetNodeCustomName(object oeObject, OEQueryContext oeContext)
+        public override string GetNodeCustomName(object objectMetadata, QueryContext oeContext)
         {
-            Table table = oeObject as Table;
+            Table table = objectMetadata as Table;
             if (table != null)
             {
                 return $"{table.Schema}.{table.Name} ({SR.History_LabelPart})";
@@ -85,17 +85,17 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
             return string.Empty;
         }
 
-        public override string GetNodePathName(object oeObject)
+        public override string GetNodePathName(object objectMetadata)
         {
-            return TableCustomNodeHelper.GetPathName(oeObject);
+            return TableCustomNodeHelper.GetPathName(objectMetadata);
         }
     }
 
     internal static class TableCustomNodeHelper
     {
-        internal static string GetPathName(object oeObject)
+        internal static string GetPathName(object objectMetadata)
         {
-            Table table = oeObject as Table;
+            Table table = objectMetadata as Table;
             if (table != null)
             {
                 return $"{table.Schema}.{table.Name}";

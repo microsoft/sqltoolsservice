@@ -8,42 +8,43 @@ using System.Globalization;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes;
-using Microsoft.Kusto.ServiceLayer.Utils;
+using Microsoft.Kusto.ServiceLayer.DataSource;
+using Microsoft.Kusto.ServiceLayer.Metadata.Contracts;
 
-namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 {
     /// <summary>
     /// Context object containing key properties needed to query for SMO objects
     /// </summary>
-    public class OEQueryContext
+    public class QueryContext
     {
         private Server server;
         private Database database;
-        private OEObjectBase parent;
+        private ObjectMetadata parent;
         private SmoWrapper smoWrapper;
         private ValidForFlag validFor = 0;
+
+        /// <summary>
+        /// The Kusto cluster hostname, for example "lens.kusto.windows.net";
+        /// </summary>
+        public IDataSource dataSource { get; private set; }
 
         /// <summary>
         /// Creates a context object with a server to use as the basis for any queries
         /// </summary>
         /// <param name="server"></param>
-        public OEQueryContext(Server server, KustoUtils kustoUtils, IMultiServiceProvider serviceProvider)
+        public QueryContext(Server server, KustoDataSI kustoUtils, IMultiServiceProvider serviceProvider)
             : this(server, kustoUtils, serviceProvider, null)
         {
         }
 
-        internal OEQueryContext(Server server, KustoUtils kustoUtils, IMultiServiceProvider serviceProvider, SmoWrapper serverManager)
+        internal QueryContext(Server server, KustoDataSI kustoUtils, IMultiServiceProvider serviceProvider, SmoWrapper serverManager)
         {
             this.server = server;
-            KustoUtils = kustoUtils;
+            dataSource = kustoUtils;
             ServiceProvider = serviceProvider;
             this.smoWrapper = serverManager ?? new SmoWrapper();
         }
-
-        /// <summary>
-        /// The Kusto cluster hostname, for example "lens.kusto.windows.net";
-        /// </summary>
-        public KustoUtils KustoUtils { get; private set; }
 
         /// <summary>
         /// The server type 
@@ -77,7 +78,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
         /// <summary>
         /// Parent of a give node to use for queries
         /// </summary>
-        public OEObjectBase Parent { 
+        public ObjectMetadata Parent { 
             get
             {
                 return GetObjectWithOpenedConnection(parent);
@@ -89,7 +90,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
         }
 
         /// <summary>
-        /// A query loader that can be used to find <see cref="SmoQuerier"/> objects
+        /// A query loader that can be used to find <see cref="DataSourceQuerier"/> objects
         /// for specific SMO types
         /// </summary>
         public IMultiServiceProvider ServiceProvider { get; private set; }
@@ -134,10 +135,10 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
         /// Copies the context for use by another node
         /// </summary>
         /// <param name="parent">New Parent to set</param>
-        /// <returns>new <see cref="OEQueryContext"/> with all fields except <see cref="Parent"/> the same</returns>
-        public OEQueryContext CopyWithParent(OEObjectBase parent)
+        /// <returns>new <see cref="QueryContext"/> with all fields except <see cref="Parent"/> the same</returns>
+        public QueryContext CopyWithParent(ObjectMetadata parent)
         {
-            OEQueryContext context = new OEQueryContext(this.Server, this.kustoUtils, this.ServiceProvider, this.smoWrapper)
+            QueryContext context = new QueryContext(this.Server, this.kustoUtils, this.ServiceProvider, this.smoWrapper)
             {
                 database = this.Database,
                 Parent = parent,
@@ -167,7 +168,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
         }
 
         private T GetObjectWithOpenedConnection<T>(T smoObj)
-            where T : OEObjectBase
+            where T : ObjectMetadata
         {
             if (smoObj != null)
             {
@@ -181,7 +182,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
         /// the only way to easily access is via the server object. This should be called during access of
         /// any of the object properties
         /// </summary>
-        public void EnsureConnectionOpen(OEObjectBase smoObj)
+        public void EnsureConnectionOpen(ObjectMetadata smoObj)
         {
             if (!smoWrapper.IsConnectionOpen(smoObj))
             {

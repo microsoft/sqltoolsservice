@@ -6,66 +6,66 @@
 using System.Globalization;
 using Microsoft.SqlServer.Management.Smo;
 
-namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 {
     /// <summary>
     /// Custom name for parameters
     /// </summary>
-    internal partial class TableValuedFunctionParametersChildFactory : SmoChildFactoryBase
+    internal partial class TableValuedFunctionParametersChildFactory : DataSourceChildFactoryBase
     {
-        public override string GetNodeCustomName(object oeObject, OEQueryContext oeContext)
+        public override string GetNodeCustomName(object objectMetadata, QueryContext oeContext)
         {
-            return ParameterCustomeNodeHelper.GetCustomLabel(oeObject, oeContext);
+            return ParameterCustomeNodeHelper.GetCustomLabel(objectMetadata, oeContext);
         }
 
-        public override string GetNodeSubType(object oeObject, OEQueryContext oeContext)
+        public override string GetNodeSubType(object objectMetadata, QueryContext oeContext)
         {
-            return ParameterCustomeNodeHelper.GetSubType(oeObject);
+            return ParameterCustomeNodeHelper.GetSubType(objectMetadata);
         }
     }
 
     /// <summary>
     /// Custom name for parameters
     /// </summary>
-    internal partial class ScalarValuedFunctionParametersChildFactory : SmoChildFactoryBase
+    internal partial class ScalarValuedFunctionParametersChildFactory : DataSourceChildFactoryBase
     {
-        public override string GetNodeCustomName(object oeObject, OEQueryContext oeContext)
+        public override string GetNodeCustomName(object objectMetadata, QueryContext oeContext)
         {
-            return ParameterCustomeNodeHelper.GetCustomLabel(oeObject, oeContext);
+            return ParameterCustomeNodeHelper.GetCustomLabel(objectMetadata, oeContext);
         }
-        public override string GetNodeSubType(object oeObject, OEQueryContext oeContext)
+        public override string GetNodeSubType(object objectMetadata, QueryContext oeContext)
         {
-            return ParameterCustomeNodeHelper.GetSubType(oeObject);
+            return ParameterCustomeNodeHelper.GetSubType(objectMetadata);
         }
     }
 
     /// <summary>
     /// Custom name for parameters
     /// </summary>
-    internal partial class AggregateFunctionParametersChildFactory : SmoChildFactoryBase
+    internal partial class AggregateFunctionParametersChildFactory : DataSourceChildFactoryBase
     {
-        public override string GetNodeCustomName(object oeObject, OEQueryContext oeContext)
+        public override string GetNodeCustomName(object objectMetadata, QueryContext oeContext)
         {
-            return ParameterCustomeNodeHelper.GetCustomLabel(oeObject, oeContext);
+            return ParameterCustomeNodeHelper.GetCustomLabel(objectMetadata, oeContext);
         }
-        public override string GetNodeSubType(object oeObject, OEQueryContext oeContext)
+        public override string GetNodeSubType(object objectMetadata, QueryContext oeContext)
         {
-            return ParameterCustomeNodeHelper.GetSubType(oeObject);
+            return ParameterCustomeNodeHelper.GetSubType(objectMetadata);
         }
     }
 
     /// <summary>
     /// Custom name for parameters
     /// </summary>
-    internal partial class StoredProcedureParametersChildFactory : SmoChildFactoryBase
+    internal partial class StoredProcedureParametersChildFactory : DataSourceChildFactoryBase
     {
-        public override string GetNodeCustomName(object oeObject, OEQueryContext oeContext)
+        public override string GetNodeCustomName(object objectMetadata, QueryContext oeContext)
         {
-            return ParameterCustomeNodeHelper.GetCustomLabel(oeObject, oeContext);
+            return ParameterCustomeNodeHelper.GetCustomLabel(objectMetadata, oeContext);
         }
-        public override string GetNodeSubType(object oeObject, OEQueryContext oeContext)
+        public override string GetNodeSubType(object objectMetadata, QueryContext oeContext)
         {
-            return ParameterCustomeNodeHelper.GetSubType(oeObject);
+            return ParameterCustomeNodeHelper.GetSubType(objectMetadata);
         }
     }
 
@@ -88,7 +88,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
 
         }
 
-        internal static string GetCustomLabel(object context, OEQueryContext oeContext)
+        internal static string GetCustomLabel(object context, QueryContext oeContext)
         {
             Parameter parameter = context as Parameter;
             if (parameter != null)

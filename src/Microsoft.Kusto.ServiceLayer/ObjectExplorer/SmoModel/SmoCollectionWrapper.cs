@@ -8,7 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Microsoft.SqlServer.Management.Smo;
 
-namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 {
     /// <summary>
     /// Wrapper to convert non-generic Smo enumerables to generic enumerable types for easier use in 

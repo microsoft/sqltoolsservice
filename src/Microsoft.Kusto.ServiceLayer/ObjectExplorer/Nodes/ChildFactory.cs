@@ -5,7 +5,7 @@
 
 using System.Collections.Generic;
 using System.Threading;
-using Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel;
+using Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel;
 
 namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
 {
@@ -46,22 +46,22 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
         /// <summary>
         /// Returns the node sub type if the object can have sub types otehr wise returns empty string
         /// </summary>
-        public abstract string GetNodeSubType(object oeObject, OEQueryContext oeContext);
+        public abstract string GetNodeSubType(object objectMetadata, QueryContext oeContext);
 
         /// <summary>
         /// Returns the status of the object assigned to node. If the object doesn't spport status returns empty string
         /// </summary>
-        public abstract string GetNodeStatus(object oeObject, OEQueryContext oeContext);
+        public abstract string GetNodeStatus(object objectMetadata, QueryContext oeContext);
 
         /// <summary>
         /// Returns the custom name of the object assigned to the node. If the object doesn't have custom name, returns empty string
         /// </summary>
-        public abstract string GetNodeCustomName(object oeObject, OEQueryContext oeContext);
+        public abstract string GetNodeCustomName(object objectMetadata, QueryContext oeContext);
         
         /// <summary>
         /// Returns the name of the object as shown in its Object Explorer node path
         /// </summary>
-        public abstract string GetNodePathName(object oeObject);
+        public abstract string GetNodePathName(object objectMetadata);
 
         public abstract bool CanCreateChild(TreeNode parent, object context);
         public abstract TreeNode CreateChild(TreeNode parent, object context);

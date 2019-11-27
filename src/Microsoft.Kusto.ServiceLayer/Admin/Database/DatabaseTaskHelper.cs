@@ -63,7 +63,7 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
                 {
                     this.prototype = new DatabasePrototypeAzure(context);
                 }
-                else if (Utils.IsSql11OrLater(context.Server.Version.Major))
+                else if (DataSource.IsSql11OrLater(context.Server.Version.Major))
                 {
                     this.prototype = new DatabasePrototype110(context);
                 }

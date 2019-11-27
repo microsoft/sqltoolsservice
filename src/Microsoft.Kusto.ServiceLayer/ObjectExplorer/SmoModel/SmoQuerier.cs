@@ -9,25 +9,25 @@ using System.Data;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Extensibility;
 
-namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 {
     /// <summary>
-    /// A <see cref="SmoQuerier"/> handles SMO queries for one or more SMO object types.
+    /// A <see cref="DataSourceQuerier"/> handles SMO queries for one or more SMO object types.
     /// The <see cref="SupportedObjectTypes"/> property defines which types can be queried.
     /// 
     /// To query multiple 
     /// </summary>
-    public abstract class SmoQuerier : IComposableService
+    public abstract class DataSourceQuerier : IComposableService
     {
         public abstract Type[] SupportedObjectTypes { get;  }
         private static object lockObject = new object();
         
         /// <summary>
-        /// Queries SMO for a collection of objects using the <see cref="OEQueryContext"/> 
+        /// Queries SMO for a collection of objects using the <see cref="QueryContext"/> 
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        public abstract IEnumerable<SqlSmoObject> Query(OEQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties);
+        public abstract IEnumerable<ObjectMetadata> Query(QueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties);
 
         internal IMultiServiceProvider ServiceProvider
         {
@@ -67,7 +67,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
         /// <summary>
         /// Mthod used to do custom filtering on smo objects if cannot be implemented using the filters
         /// </summary>
-        protected virtual bool PassesFinalFilters(SqlSmoObject parent, SqlSmoObject oeObject)
+        protected virtual bool PassesFinalFilters(SqlSmoObject parent, SqlSmoObject objectMetadata)
         {
             return true;
         }

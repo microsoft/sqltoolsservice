@@ -49,7 +49,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
     public sealed partial class ReliableKustoClient : DbConnection, IDisposable
     {
         private readonly SqlConnection _underlyingConnection;
-        private readonly KustoUtils _kustoUtils;
+        private readonly IDataSource _dataSource;
         private readonly RetryPolicy _connectionRetryPolicy;
         private RetryPolicy _commandRetryPolicy;
         private Guid _azureSessionId;
@@ -64,7 +64,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <param name="commandRetryPolicy">The retry policy defining whether to retry a request if a command fails to be executed.</param>
         public ReliableKustoClient(string connectionString, RetryPolicy connectionRetryPolicy, RetryPolicy commandRetryPolicy, string azureAccountToken)
         {
-            _kustoUtils = new KustoUtils(connectionString, azureAccountToken);
+            _dataSource = new KustoUtils(connectionString, azureAccountToken);
             
             _underlyingConnection = new SqlConnection(connectionString);
             _connectionRetryPolicy = connectionRetryPolicy ?? RetryPolicyFactory.CreateNoRetryPolicy();

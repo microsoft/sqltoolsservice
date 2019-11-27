@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel;
+using Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -35,7 +35,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
             get
             {
                 // SMO objects are already sorted so no need to sort them again
-                return this.FirstOrDefault() is OETreeNode;
+                return this.FirstOrDefault() is DataSourceTreeNode;
             }
         }
 

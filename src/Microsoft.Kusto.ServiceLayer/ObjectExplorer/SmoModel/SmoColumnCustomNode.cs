@@ -11,16 +11,16 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 {
     /// <summary>
     /// Custom name for Columns
     /// </summary>
-    internal partial class ColumnsChildFactory : SmoChildFactoryBase
+    internal partial class ColumnsChildFactory : DataSourceChildFactoryBase
     {
-        public override string GetNodeCustomName(object oeObject, OEQueryContext oeContext)
+        public override string GetNodeCustomName(object objectMetadata, QueryContext oeContext)
         {
-            return SmoColumnCustomNodeHelper.CalculateCustomLabel(oeObject, oeContext);
+            return SmoColumnCustomNodeHelper.CalculateCustomLabel(objectMetadata, oeContext);
         }
 
         private readonly Lazy<List<NodeSmoProperty>> smoPropertiesLazy = new Lazy<List<NodeSmoProperty>>(() => new List<NodeSmoProperty>
@@ -98,11 +98,11 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
     /// <summary>
     /// Custom name for UserDefinedTableTypeColumn
     /// </summary>
-    internal partial class UserDefinedTableTypeColumnsChildFactory : SmoChildFactoryBase
+    internal partial class UserDefinedTableTypeColumnsChildFactory : DataSourceChildFactoryBase
     {
-        public override string GetNodeCustomName(object oeObject, OEQueryContext oeContext)
+        public override string GetNodeCustomName(object objectMetadata, QueryContext oeContext)
         {
-            return SmoColumnCustomNodeHelper.CalculateCustomLabel(oeObject, oeContext);
+            return SmoColumnCustomNodeHelper.CalculateCustomLabel(objectMetadata, oeContext);
         }
     }
 
@@ -112,7 +112,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
         private const string SimpleColumnLabelWithoutType = "{0} ({1})";
         private const string SimpleColumnLabelWithTypeAndKeyString = "{0} ({1}, {2}, {3})";
 
-        internal static string CalculateCustomLabel(object context, OEQueryContext oeContext)
+        internal static string CalculateCustomLabel(object context, QueryContext oeContext)
         {
             UserDefinedDataTypeCollection uddts = null;
             if (oeContext != null)

@@ -457,10 +457,10 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                     options.ScriptForAlter = true;
                     foreach (var urn in urns)
                     {
-                        SqlSmoObject oeObject = server.GetSmoObject(urn);
+                        SqlSmoObject objectMetadata = server.GetSmoObject(urn);
 
                         // without calling the toch method, no alter script get generated from smo
-                        oeObject.Touch();
+                        objectMetadata.Touch();
                     }
                 }
 

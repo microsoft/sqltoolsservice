@@ -11,7 +11,7 @@ using System.Globalization;
 using System.Threading;
 using Microsoft.Kusto.ServiceLayer.Metadata.Contracts;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Contracts;
-using Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel;
+using Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 
@@ -321,7 +321,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
             Logger.Write(TraceEventType.Verbose, string.Format(CultureInfo.InvariantCulture, "Populating oe node :{0}", this.GetNodePath()));
             Debug.Assert(IsAlwaysLeaf == false);
 
-            OEQueryContext context = this.GetContextAs<OEQueryContext>();
+            QueryContext context = this.GetContextAs<QueryContext>();
             bool includeSystemObjects = context != null && context.Database != null ? DatabaseUtils.IsSystemDatabaseConnection(context.Database.Name) : true;
 
             if (children.IsPopulating || context == null)

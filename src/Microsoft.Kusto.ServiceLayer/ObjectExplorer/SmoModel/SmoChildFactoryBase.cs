@@ -13,10 +13,11 @@ using System.Threading;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.Utility;
+using Microsoft.Kusto.ServiceLayer.Metadata.Contracts;
 
-namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 {
-    public class SmoChildFactoryBase : ChildFactory
+    public class DataSourceChildFactoryBase : ChildFactory
     {
         private IEnumerable<NodeSmoProperty> smoProperties;
         public override IEnumerable<string> ApplicableParents()
@@ -50,7 +51,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
 
         private void OnExpandPopulateFoldersAndFilter(List<TreeNode> allChildren, TreeNode parent, bool includeSystemObjects)
         {
-            OEQueryContext context = parent.GetContextAs<OEQueryContext>();
+            QueryContext context = parent.GetContextAs<QueryContext>();
             OnExpandPopulateFolders(allChildren, parent);
             if (!includeSystemObjects)
             {
@@ -93,7 +94,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
                 // This node does not support non-folder children
                 return;
             }
-            OEQueryContext context = parent.GetContextAs<OEQueryContext>();
+            QueryContext context = parent.GetContextAs<QueryContext>();
             Validate.IsNotNull(nameof(context), context);
 
             var serverValidFor = context.ValidFor;
@@ -102,7 +103,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
                 return;
             }
 
-            IEnumerable<SmoQuerier> queriers = context.ServiceProvider.GetServices<SmoQuerier>(q => IsCompatibleQuerier(q));
+            IEnumerable<DataSourceQuerier> queriers = context.ServiceProvider.GetServices<DataSourceQuerier>(q => IsCompatibleQuerier(q));
             var filters = this.Filters.ToList();
             var smoProperties = this.SmoProperties.Where(p => ServerVersionHelper.IsValidFor(serverValidFor, p.ValidFor)).Select(x => x.Name);
             if (!string.IsNullOrEmpty(name))
@@ -153,7 +154,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
         private bool ShouldFilterNode(TreeNode childNode, ValidForFlag validForFlag)
         {
             bool filterTheNode = false;
-            OETreeNode oeTreeNode = childNode as OETreeNode;
+            DataSourceTreeNode oeTreeNode = childNode as DataSourceTreeNode;
             if (oeTreeNode != null)
             {
                 if (!ServerVersionHelper.IsValidFor(validForFlag, oeTreeNode.ValidFor))
@@ -181,7 +182,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
             return filter;
         }
 
-        private bool IsCompatibleQuerier(SmoQuerier querier)
+        private bool IsCompatibleQuerier(DataSourceQuerier querier)
         {
             if (ChildQuerierTypes == null)
             {
@@ -235,9 +236,9 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
             else
             {
                 smoProperties = SmoProperties;
-                OETreeNode childAsMeItem = (OETreeNode)child;
+                DataSourceTreeNode childAsMeItem = (DataSourceTreeNode)child;
                 childAsMeItem.CacheInfoFromModel(kustoMetadata);
-                OEQueryContext oeContext = parent.GetContextAs<OEQueryContext>();
+                QueryContext oeContext = parent.GetContextAs<QueryContext>();
 
                 // If node has custom name, replaced it with the name already set
                 string customizedName = GetNodeCustomName(context, oeContext);
@@ -296,17 +297,17 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
             return true;
         }
 
-        public override string GetNodeSubType(object oeObject, OEQueryContext oeContext)
+        public override string GetNodeSubType(object objectMetadata, QueryContext oeContext)
         {
             return string.Empty;
         }
 
-        public override string GetNodeStatus(object oeObject, OEQueryContext oeContext)
+        public override string GetNodeStatus(object objectMetadata, QueryContext oeContext)
         {
             return string.Empty;
         }
 
-        public static bool IsPropertySupported(string propertyName, OEQueryContext context, KustoMetadata smoObj, IEnumerable<NodeSmoProperty> supportedProperties)
+        public static bool IsPropertySupported(string propertyName, QueryContext context, ObjectMetadata objectMetadata, IEnumerable<NodeSmoProperty> supportedProperties)
         {
             var property = supportedProperties.FirstOrDefault(x => string.Compare(x.Name, propertyName, StringComparison.InvariantCultureIgnoreCase) == 0);
             if (property != null)
@@ -316,19 +317,19 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
             else
             {
                 // Return true if cannot find the proeprty, SMO still tries to get that property but adding the property to supported list can make loading the nodes faster
-                Logger.Write(TraceEventType.Verbose, $"Smo property name {propertyName} for Smo type {smoObj.GetType()} is not added as supported properties. This can cause the performance of loading the OE nodes");
+                Logger.Write(TraceEventType.Verbose, $"Smo property name {propertyName} for Smo type {objectMetadata.GetType()} is not added as supported properties. This can cause the performance of loading the OE nodes");
                 return true;
             }
         }
 
-        public override string GetNodeCustomName(object oeObject, OEQueryContext oeContext)
+        public override string GetNodeCustomName(object objectMetadata, QueryContext oeContext)
         {
             return string.Empty;
         }
 
-        public override string GetNodePathName(object oeObject)
+        public override string GetNodePathName(object objectMetadata)
         {
-            return (oeObject as KustoMetadata).Name;
+            return (objectMetadata as KustoMetadata).Name;
         }
     }
 }

@@ -8,16 +8,16 @@ using System.Collections.Generic;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes;
 
-namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 {
     /// <summary>
     /// Status for logins
     /// </summary>
-    internal partial class ServerLevelLoginsChildFactory : SmoChildFactoryBase
+    internal partial class ServerLevelLoginsChildFactory : DataSourceChildFactoryBase
     {
-        public override string GetNodeStatus(object oeObject, OEQueryContext oeContext)
+        public override string GetNodeStatus(object objectMetadata, QueryContext oeContext)
         {
-            return LoginCustomNodeHelper.GetStatus(oeObject);
+            return LoginCustomNodeHelper.GetStatus(objectMetadata);
         }
         
         private readonly Lazy<List<NodeSmoProperty>> smoPropertiesLazy = new Lazy<List<NodeSmoProperty>>(() => new List<NodeSmoProperty>

@@ -6,20 +6,21 @@
 using System.Globalization;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes;
+using Microsoft.Kusto.ServiceLayer.Metadata.Contracts;
 
-namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 {
     /// <summary>
     /// A Node in the tree representing a SMO-based object
     /// </summary>
-    public class OETreeNode : TreeNode
+    public class DataSourceTreeNode : TreeNode
     {
         public static int FolderSortPriority = 0;
         private static int _nextSortPriority = FolderSortPriority + 1; // 0 is reserved for folders
 
-        protected OEQueryContext context;
+        protected QueryContext context;
 
-        public OETreeNode() : base()
+        public DataSourceTreeNode() : base()
         {
         }
 
@@ -50,22 +51,22 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
             }
         }
 
-        public Metadata.Contracts.ObjectMetadata OEObjectMetadata { get; private set; }
+        public Metadata.Contracts.ObjectMetadata ObjectMetadata { get; private set; }
 
-        public virtual void CacheInfoFromModel(ObjectMetadata oeObject)
+        public virtual void CacheInfoFromModel(ObjectMetadata objectMetadata)
         {
-            ObjectMetadata = oeObject;
-            NodeValue = oeObject.Name;
+            base.ObjectMetadata = objectMetadata;
+            NodeValue = objectMetadata.Name;
         }
         
-        public virtual KustoMetadata GetParentSmoObject()
+        public virtual ObjectMetadata GetParentObjectMetadata()
         {
-            if (OEObjectMetadata != null)
+            if (ObjectMetadata != null)
             {
-                return OEObjectMetadata;
+                return ObjectMetadata;
             }
             // Return the parent's object, or null if it's not set / not a OETreeNode
-            return ParentAs<OETreeNode>()?.GetParentSmoObject();
+            return ParentAs<DataSourceTreeNode>()?.GetParentObjectMetadata();
         }
 
         public override object GetContext()
@@ -78,8 +79,8 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
         {
             if (context == null)
             {
-                OEObjectBase oeParent = GetParentSmoObject();
-                OEQueryContext parentContext = Parent?.GetContextAs<OEQueryContext>();
+                ObjectMetadata oeParent = GetParentObjectMetadata();
+                QueryContext parentContext = Parent?.GetContextAs<QueryContext>();
                 if (oeParent != null && parentContext != null)
                 {
                     context = parentContext.CopyWithParent(oeParent);

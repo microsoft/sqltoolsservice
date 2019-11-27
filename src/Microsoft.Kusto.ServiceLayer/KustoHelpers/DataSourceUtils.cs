@@ -2,21 +2,22 @@
 // Copyright (c) Microsoft. All Rights Reserved.
 // </copyright>
 
-namespace Microsoft.Kusto.ServiceLayer.Utils
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Data;
-    using System.Linq;
-    using System.Security.Claims;
-    using System.Threading.Tasks;
-    using LEWeb.Models;
-    using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using LEWeb.Models;
+using Newtonsoft.Json;
+using Microsoft.Kusto.ServiceLayer.Metadata.Contracts;
 
+namespace Microsoft.Kusto.ServiceLayer.DataSource
+{
     /// <summary>
     /// Represents data source utilities.
     /// </summary>
-    public interface IDataSourceUtils : IDisposable
+    public interface IDataSource : IDisposable
     {
         /// <summary>
         /// Executes a query.
@@ -122,18 +123,18 @@ namespace Microsoft.Kusto.ServiceLayer.Utils
         /// Gets the databases.
         /// </summary>
         /// <returns>The databases.</returns>
-        Task<IEnumerable<DatabaseMetadata>> GetDatabaseMetadata();
+        Task<IEnumerable<ObjectMetadata>> GetDatabaseMetadata();
     }
 
-    /// <inheritdoc cref="IDataSourceUtils"/>
-    public abstract class DataSourceUtils : IDataSourceUtils, IDataSourceSchema
+    /// <inheritdoc cref="IDataSource"/>
+    public abstract class DataSourceBase : IDataSource, IDataSourceSchema
     {
         #region IDisposable
 
         /// <summary>
-        /// Finalizes an instance of the <see cref="DataSourceUtils"/> class.
+        /// Finalizes an instance of the <see cref="DataSourceBase"/> class.
         /// </summary>
-        ~DataSourceUtils()
+        ~DataSourceBase()
         {
             Dispose(false);
         }

@@ -2,7 +2,7 @@
 // Copyright (c) Microsoft. All Rights Reserved.
 // </copyright>
 
-namespace Microsoft.Kusto.ServiceLayer.Utils
+namespace Microsoft.Kusto.ServiceLayer.DataSource
 {
     using System;
     using System.Collections.Generic;
@@ -21,7 +21,7 @@ namespace Microsoft.Kusto.ServiceLayer.Utils
     /// <summary>
     /// Represents Kusto utilities.
     /// </summary>
-    public class KustoUtils : DataSourceUtils
+    public class IDataSource : DataSourceBase
     {
         private ICslQueryProvider kustoQueryProvider;
 
@@ -30,9 +30,9 @@ namespace Microsoft.Kusto.ServiceLayer.Utils
         private IEnumerable<DatabaseMetadata> databaseMetadata;
 
         /// <summary>
-        /// Prevents a default instance of the <see cref="KustoUtils"/> class from being created.
+        /// Prevents a default instance of the <see cref="IDataSource"/> class from being created.
         /// </summary>
-        private KustoUtils(string connectionString, string azureAccountToken)
+        private IDataSource(string connectionString, string azureAccountToken)
         {
             Cluster = GetClusterName(connectionString);
             DatabaseName = GetDatabaseName(connectionString);
@@ -278,7 +278,84 @@ namespace Microsoft.Kusto.ServiceLayer.Utils
                 }
             }
 
+            return Task.FromResult(databaseMetadata);
+        }
+
+        /// <inheritdoc/>
+        public override Task<IEnumerable<ObjectMetadata>> GetTableMetadata(string databaseName)
+        {
+            if (tableMetadata == null)
+            {
+                // Getting database names when we are connected to a specific database should not happen.
+                ValidationUtils.IsNotNullOrWhitespace(databaseName, nameof(databaseName)); 
+
+                var query = ".show databases" + (clusterName.IndexOf(KustoHelperQueries.AriaProxyURL, StringComparison.CurrentCultureIgnoreCase) == -1 ? " | project DatabaseName, PrettyName" : "");
+                using (var reader = ExecuteQuery(query))
+                {
+                    var schemaTable = reader.GetSchemaTable();
+                    var databaseNameProperty = schemaTable.Columns["DatabaseName"];
+                    var prettyNameProperty = schemaTable.Columns["PrettyName"];
+
+                    databaseMetadata = reader.ToEnumerable()
+                        .Select(row => new ObjectMetadata
+                        {
+                            MetadataType = MetadataType.Database,
+                            MetadataTypeName = MetadataType.ToString(),
+                            Name = row[databaseNameProperty]?.ToString(),
+                            PrettyName = row[prettyNameProperty]?.ToString(),
+                            Urn = $"{Cluster}.{Name}"
+                        });
+                }
+            }
+
             return Task.FromResult(syncSchema);
+        }
+
+        public class ColumnMetadata
+        {
+            /// <summary>
+            /// The table name.
+            /// </summary>
+            public string Table { get; set; }
+
+            /// <summary>
+            /// The column name.
+            /// </summary>
+            public string Name { get; set; }
+
+            /// <summary>
+            /// The data type.
+            /// </summary>
+            public string DataType { get; set; }
+        }
+
+        protected override Task<SyncSchema> GetSyncSchema()
+        {
+            if (syncSchema == null)
+            {
+                ValidationUtils.IsNotNull(DatabaseName, nameof(DatabaseName));
+
+                const string SystemPrefix = "System.";
+                var query = string.Format(CultureInfo.InvariantCulture, ShowDatabaseSchema, DatabaseName)
+                    + " | project TableName, ColumnName, ColumnType";
+                using (var reader = ExecuteQuery(query))
+                {
+                    var schemaTable = reader.GetSchemaTable();
+                    var tableNameProperty = schemaTable.Columns["TableName"];
+                    var columnNameProperty = schemaTable.Columns["ColumnName"];
+                    var ColumnTypeProperty = schemaTable.Columns["ColumnType"];
+
+                    var columns = reader.ToEnumerable()
+                        .Select(row => new ColumnMetadata
+                        {
+                            Table = row[tableNameProperty]?.ToString(),
+                            Name = row[columnNameProperty]?.ToString(),
+                            DataType = row[ColumnTypeProperty]?.ToString().TrimPrefix(SystemPrefix)
+                        })
+                        .Where(c => c.Table == null || !c.Table.StartsWith(Constants.LensTempTablePrefix, StringComparison.OrdinalIgnoreCase));
+                    syncSchema = GetSyncSchema(columns);
+                }
+            }
         }
 
         #endregion

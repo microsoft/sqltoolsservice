@@ -4,13 +4,14 @@
 //
 
 using Microsoft.SqlServer.Management.Smo;
+using Microsoft.Kusto.ServiceLayer.Metadata.Contracts;
 
-namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 {
     /// <summary>
     /// Represents a folder node in the tree
     /// </summary>
-    public class FolderNode : OETreeNode
+    public class FolderNode : DataSourceTreeNode
     {
         /// <summary>
         /// For folders, this copies the context of its parent if available
@@ -25,9 +26,9 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
         /// For folders, searches for its parent's SMO object rather than copying for itself
         /// </summary>
         /// <returns><see cref="KustoMetadata"/> from this parent's parent, or null if not found</returns>
-        public override KustoMetadata GetParentSmoObject()
+        public override ObjectMetadata GetParentObjectMetadata()
         {
-            return ParentAs<OETreeNode>()?.GetParentSmoObject();
+            return ParentAs<DataSourceTreeNode>()?.GetParentObjectMetadata();
         }
     }
 }

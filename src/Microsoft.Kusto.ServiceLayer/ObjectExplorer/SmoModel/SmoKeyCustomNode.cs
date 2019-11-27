@@ -8,23 +8,23 @@ using System.Collections.Generic;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes;
 
-namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 {
     /// <summary>
     /// Subtye for keys
     /// </summary>
-    internal partial class KeysChildFactory : SmoChildFactoryBase
+    internal partial class KeysChildFactory : DataSourceChildFactoryBase
     {
-        public override string GetNodeSubType(object oeObject, OEQueryContext oeContext)
+        public override string GetNodeSubType(object objectMetadata, QueryContext oeContext)
         {
-            return IndexCustomeNodeHelper.GetSubType(oeObject);
+            return IndexCustomeNodeHelper.GetSubType(objectMetadata);
         }
     }
 
     /// <summary>
     /// Sub types and custom name for indexes
     /// </summary>
-    internal partial class IndexesChildFactory : SmoChildFactoryBase
+    internal partial class IndexesChildFactory : DataSourceChildFactoryBase
     {
         private readonly Lazy<List<NodeSmoProperty>> smoPropertiesLazy = new Lazy<List<NodeSmoProperty>>(() => new List<NodeSmoProperty>
         {
@@ -47,25 +47,25 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
 
         public override IEnumerable<NodeSmoProperty> SmoProperties => smoPropertiesLazy.Value;
 
-        public override string GetNodeSubType(object oeObject, OEQueryContext oeContext)
+        public override string GetNodeSubType(object objectMetadata, QueryContext oeContext)
         {
-            return IndexCustomeNodeHelper.GetSubType(oeObject);
+            return IndexCustomeNodeHelper.GetSubType(objectMetadata);
         }
 
-        public override string GetNodeCustomName(object oeObject, OEQueryContext oeContext)
+        public override string GetNodeCustomName(object objectMetadata, QueryContext oeContext)
         {
-            return IndexCustomeNodeHelper.GetCustomLabel(oeObject);
+            return IndexCustomeNodeHelper.GetCustomLabel(objectMetadata);
         }
     }
 
     /// <summary>
     /// sub type for UserDefinedTableTypeKeys
     /// </summary>
-    internal partial class UserDefinedTableTypeKeysChildFactory : SmoChildFactoryBase
+    internal partial class UserDefinedTableTypeKeysChildFactory : DataSourceChildFactoryBase
     {
-        public override string GetNodeSubType(object oeObject, OEQueryContext oeContext)
+        public override string GetNodeSubType(object objectMetadata, QueryContext oeContext)
         {
-            return IndexCustomeNodeHelper.GetSubType(oeObject);
+            return IndexCustomeNodeHelper.GetSubType(objectMetadata);
         }
     }
 

@@ -8,12 +8,12 @@ using System.Collections.Generic;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes;
 
-namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
+namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 {
     /// <summary>
     /// Status for triggers
     /// </summary>
-    internal partial class TriggersChildFactory : SmoChildFactoryBase
+    internal partial class TriggersChildFactory : DataSourceChildFactoryBase
     {
         public static readonly Lazy<List<NodeSmoProperty>> SmoPropertiesLazy = new Lazy<List<NodeSmoProperty>>(() => new List<NodeSmoProperty>
         {
@@ -24,19 +24,19 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
             }
         });
 
-        public override string GetNodeStatus(object oeObject, OEQueryContext oeContext)
+        public override string GetNodeStatus(object objectMetadata, QueryContext oeContext)
         {
-            return TriggersCustomeNodeHelper.GetStatus(oeObject);
+            return TriggersCustomeNodeHelper.GetStatus(objectMetadata);
         }
 
         public override IEnumerable<NodeSmoProperty> SmoProperties => SmoPropertiesLazy.Value;
     }
 
-    internal partial class ServerLevelServerTriggersChildFactory : SmoChildFactoryBase
+    internal partial class ServerLevelServerTriggersChildFactory : DataSourceChildFactoryBase
     {
-        public override string GetNodeStatus(object oeObject, OEQueryContext oeContext)
+        public override string GetNodeStatus(object objectMetadata, QueryContext oeContext)
         {
-            return TriggersCustomeNodeHelper.GetStatus(oeObject);
+            return TriggersCustomeNodeHelper.GetStatus(objectMetadata);
         }
 
         public override IEnumerable<NodeSmoProperty> SmoProperties
@@ -48,11 +48,11 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.OEModel
         }
     }
 
-    internal partial class DatabaseTriggersChildFactory : SmoChildFactoryBase
+    internal partial class DatabaseTriggersChildFactory : DataSourceChildFactoryBase
     {
-        public override string GetNodeStatus(object oeObject, OEQueryContext oeContext)
+        public override string GetNodeStatus(object objectMetadata, QueryContext oeContext)
         {
-            return TriggersCustomeNodeHelper.GetStatus(oeObject);
+            return TriggersCustomeNodeHelper.GetStatus(objectMetadata);
         }
 
         public override IEnumerable<NodeSmoProperty> SmoProperties
