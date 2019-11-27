@@ -28,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     {
         private static CompletionItem[] emptyCompletionList = new CompletionItem[0];
 
-        private static readonly string[] DefaultCompletionText = new string[]
+        public static readonly string[] DefaultCompletionText = new string[]
         {
             "abs",
             "acos",
@@ -488,8 +488,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         internal static bool IsReservedWord(string text)
         {
-            int pos = Array.IndexOf(DefaultCompletionText, text.ToLower());
-            return pos > -1;
+            return DefaultCompletionText.Contains(text, StringComparer.InvariantCultureIgnoreCase);
         }
 
         /// <summary>
