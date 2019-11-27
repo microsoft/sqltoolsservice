@@ -66,7 +66,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
                     case DeclarationType.Schema:
                         // Only quote if we need to - i.e. if this isn't a valid name (has characters that need escaping such as [) 
                         // or if it's a reserved word
-                        if (!ValidSqlNameRegex.IsMatch(DeclarationTitle) || AutoCompleteHelper.IsReservedWord(InsertText)) {
+                        if (!ValidSqlNameRegex.IsMatch(DeclarationTitle) || AutoCompleteHelper.IsReservedWord(InsertText))
+                        {
                             InsertText = WithDelimitedIdentifier(BracketedIdentifiers, DeclarationTitle);
                         }
                         break;
@@ -209,7 +210,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
 
         private bool HasDelimitedIdentifier(DelimitedIdentifier delimiteIidentifier, string text)
         {
-            return text != null && delimiteIidentifier != null && text.StartsWith(delimiteIidentifier.Start) 
+            return text != null && delimiteIidentifier != null && text.StartsWith(delimiteIidentifier.Start)
                 && text.EndsWith(delimiteIidentifier.End);
         }
 

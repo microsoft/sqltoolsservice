@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Linq;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
@@ -259,7 +260,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                 Assert.Equal($"{declarationTitle}()", completionItem.InsertText);
                 Assert.Equal(declarationTitle, completionItem.Detail);
             }
-            
+
         }
 
         [Theory]
@@ -272,13 +273,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         public void NamedIdentifiersShouldBeBracketQuoted(DeclarationType declarationType)
         {
             string declarationTitle = declarationType.ToString();
-            string tokenText = "";
-            SqlCompletionItem item = new SqlCompletionItem(declarationTitle, declarationType, tokenText);
-            CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
+            // All words - both reserved and not - should be bracket quoted for these types
+            foreach (string word in AutoCompleteHelper.DefaultCompletionText.ToList().Append("NonReservedWord"))
+            {
+                string tokenText = "";
+                SqlCompletionItem item = new SqlCompletionItem(declarationTitle, declarationType, tokenText);
+                CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
 
-            Assert.Equal(declarationTitle, completionItem.Label);
-            Assert.Equal($"[{declarationTitle}]", completionItem.InsertText);
-            Assert.Equal(declarationTitle, completionItem.Detail);
+                Assert.Equal(declarationTitle, completionItem.Label);
+                Assert.Equal($"[{declarationTitle}]", completionItem.InsertText);
+                Assert.Equal(declarationTitle, completionItem.Detail);
+            }
         }
 
         [Fact]
