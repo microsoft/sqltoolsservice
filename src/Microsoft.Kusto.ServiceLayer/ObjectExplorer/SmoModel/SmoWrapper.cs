@@ -6,7 +6,7 @@
 using System.Data.SqlClient;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.Kusto.ServiceLayer.Metadata.Contracts;
+using Microsoft.Kusto.ServiceLayer.DataSource;
 
 namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 {
@@ -21,7 +21,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
             return serverConn == null ? null : new Server(serverConn);
         }
 
-        public virtual bool IsConnectionOpen(ObjectMetadata smoObj)
+        public virtual bool IsConnectionOpen(DataSourceObjectMetadata smoObj)
         {
             SqlSmoObject sqlObj = smoObj as SqlSmoObject;
             return sqlObj != null
@@ -30,7 +30,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
                 && sqlObj.ExecutionManager.ConnectionContext.IsOpen;
         }
 
-        public virtual void OpenConnection(ObjectMetadata smoObj)
+        public virtual void OpenConnection(DataSourceObjectMetadata smoObj)
         {
             SqlSmoObject sqlObj = smoObj as SqlSmoObject;
             if (sqlObj != null

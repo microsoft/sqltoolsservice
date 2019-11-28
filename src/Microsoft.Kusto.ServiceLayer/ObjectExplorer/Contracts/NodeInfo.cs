@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.Kusto.ServiceLayer.Metadata.Contracts;
+using Microsoft.Kusto.ServiceLayer.DataSource;
 
 namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Contracts
 {
@@ -52,7 +52,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Contracts
         /// <summary>
         /// Object Metadata for smo objects to be used for scripting
         /// </summary>
-        public ObjectMetadata Metadata { get; set; }
+        public DataSourceObjectMetadata Metadata { get; set; }
 
         /// <summary>
         /// Error message returned from the engine for a object explorer node failure reason, if any.

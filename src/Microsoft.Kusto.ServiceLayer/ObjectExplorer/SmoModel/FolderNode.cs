@@ -4,7 +4,7 @@
 //
 
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.Kusto.ServiceLayer.Metadata.Contracts;
+using Microsoft.Kusto.ServiceLayer.DataSource;
 
 namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 {
@@ -26,7 +26,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
         /// For folders, searches for its parent's SMO object rather than copying for itself
         /// </summary>
         /// <returns><see cref="KustoMetadata"/> from this parent's parent, or null if not found</returns>
-        public override ObjectMetadata GetParentObjectMetadata()
+        public override DataSourceObjectMetadata GetParentObjectMetadata()
         {
             return ParentAs<DataSourceTreeNode>()?.GetParentObjectMetadata();
         }

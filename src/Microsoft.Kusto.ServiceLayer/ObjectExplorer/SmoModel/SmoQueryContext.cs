@@ -9,7 +9,6 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.Kusto.ServiceLayer.DataSource;
-using Microsoft.Kusto.ServiceLayer.Metadata.Contracts;
 
 namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 {
@@ -20,28 +19,25 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
     {
         private Server server;
         private Database database;
-        private ObjectMetadata parent;
+        private DataSourceObjectMetadata parent;
         private SmoWrapper smoWrapper;
         private ValidForFlag validFor = 0;
 
-        /// <summary>
-        /// The Kusto cluster hostname, for example "lens.kusto.windows.net";
-        /// </summary>
-        public IDataSource dataSource { get; private set; }
+        public IDataSource DataSource { get; private set; }
 
         /// <summary>
         /// Creates a context object with a server to use as the basis for any queries
         /// </summary>
         /// <param name="server"></param>
-        public QueryContext(Server server, KustoDataSI kustoUtils, IMultiServiceProvider serviceProvider)
-            : this(server, kustoUtils, serviceProvider, null)
+        public QueryContext(Server server, IDataSource dataSource, IMultiServiceProvider serviceProvider)
+            : this(server, dataSource, serviceProvider, null)
         {
         }
 
         internal QueryContext(Server server, IDataSource dataSource, IMultiServiceProvider serviceProvider, SmoWrapper serverManager)
         {
             this.server = server;
-            this.dataSource = dataSource;
+            this.DataSource = dataSource;
             ServiceProvider = serviceProvider;
             this.smoWrapper = serverManager ?? new SmoWrapper();
         }
@@ -78,7 +74,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
         /// <summary>
         /// Parent of a give node to use for queries
         /// </summary>
-        public ObjectMetadata Parent { 
+        public DataSourceObjectMetadata Parent { 
             get
             {
                 return GetObjectWithOpenedConnection(parent);
@@ -136,7 +132,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
         /// </summary>
         /// <param name="parent">New Parent to set</param>
         /// <returns>new <see cref="QueryContext"/> with all fields except <see cref="Parent"/> the same</returns>
-        public QueryContext CopyWithParent(ObjectMetadata parent)
+        public QueryContext CopyWithParent(DataSourceObjectMetadata parent)
         {
             QueryContext context = new QueryContext(this.Server, this.kustoUtils, this.ServiceProvider, this.smoWrapper)
             {
@@ -168,7 +164,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
         }
 
         private T GetObjectWithOpenedConnection<T>(T smoObj)
-            where T : ObjectMetadata
+            where T : DataSourceObjectMetadata
         {
             if (smoObj != null)
             {
@@ -182,7 +178,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
         /// the only way to easily access is via the server object. This should be called during access of
         /// any of the object properties
         /// </summary>
-        public void EnsureConnectionOpen(ObjectMetadata smoObj)
+        public void EnsureConnectionOpen(DataSourceObjectMetadata smoObj)
         {
             if (!smoWrapper.IsConnectionOpen(smoObj))
             {

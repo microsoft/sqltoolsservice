@@ -39,6 +39,7 @@ using Microsoft.SqlTools.Utility;
 using Microsoft.Kusto.ServiceLayer.KustoConstants;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlServer.Management.Common;
+using Microsoft.Kusto.ServiceLayer.DataSource;
 
 namespace Microsoft.Kusto.ServiceLayer.Connection
 {
@@ -64,7 +65,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <param name="commandRetryPolicy">The retry policy defining whether to retry a request if a command fails to be executed.</param>
         public ReliableKustoClient(string connectionString, RetryPolicy connectionRetryPolicy, RetryPolicy commandRetryPolicy, string azureAccountToken)
         {
-            _dataSource = new KustoUtils(connectionString, azureAccountToken);
+            _dataSource = new DataSourceFactory.Create(DataSourceType.Kusto, connectionString, azureAccountToken);
             
             _underlyingConnection = new SqlConnection(connectionString);
             _connectionRetryPolicy = connectionRetryPolicy ?? RetryPolicyFactory.CreateNoRetryPolicy();

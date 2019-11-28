@@ -9,7 +9,6 @@ using System.Linq;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Broker;
 using Microsoft.Kusto.ServiceLayer.DataSource;
-using Microsoft.Kusto.ServiceLayer.Metadata.Contracts;
 
 namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 {
@@ -21,13 +20,13 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<ObjectMetadata> Query(QueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<DataSourceObjectMetadata> Query(QueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             if (context.KustoUtils != null)
             {
-                return context.dataSource.GetDatabaseMetadata();
+                return context.DataSource.GetDatabaseMetadata();
             }
-            return Enumerable.Empty<ObjectMetadata>();
+            return Enumerable.Empty<DataSourceObjectMetadata>();
         }
     }
 
@@ -38,14 +37,14 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<ObjectMetadata> Query(QueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<DataSourceObjectMetadata> Query(QueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             if (context.Parent != null)
             {
                 ValidationUtils.IsArgumentEqual(context.Parent.MetadataType, MetadataType.Database, nameof(context.Parent.MetadataType), StringComparer.Ordinal);
-                return context.dataSource.GetTableMetadata(context.Parent.Name);
+                return context.DataSource.GetTableMetadata(context.Parent.Name);
             }
-            return Enumerable.Empty<ObjectMetadata>();
+            return Enumerable.Empty<DataSourceObjectMetadata>();
         }
     }
 
@@ -58,14 +57,14 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 
         public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
 
-        public override  IEnumerable<ObjectMetadata> Query(QueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
+        public override  IEnumerable<DataSourceObjectMetadata> Query(QueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             if (context.Parent != null)
             {
                 ValidationUtils.IsArgumentEqual(context.Parent.MetadataType, MetadataType.Table, nameof(context.Parent.MetadataType), StringComparer.Ordinal);
-                return context.dataSource.GetColumnMetadata(context.Parent.Name);
+                return context.DataSource.GetColumnMetadata(context.Parent.Name);
             }
-            return Enumerable.Empty<ObjectMetadata>();
+            return Enumerable.Empty<DataSourceObjectMetadata>();
         }
     }
 }

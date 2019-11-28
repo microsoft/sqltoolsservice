@@ -6,7 +6,7 @@
 using System.Globalization;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes;
-using Microsoft.Kusto.ServiceLayer.Metadata.Contracts;
+using Microsoft.Kusto.ServiceLayer.DataSource;
 
 namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 {
@@ -51,19 +51,17 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
             }
         }
 
-        public Metadata.Contracts.ObjectMetadata ObjectMetadata { get; private set; }
-
-        public virtual void CacheInfoFromModel(ObjectMetadata objectMetadata)
+        public virtual void CacheInfoFromModel(DataSourceObjectMetadata objectMetadata)
         {
-            base.ObjectMetadata = objectMetadata;
+            base.DataSourceObjectMetadata = objectMetadata;
             NodeValue = objectMetadata.Name;
         }
         
-        public virtual ObjectMetadata GetParentObjectMetadata()
+        public virtual DataSourceObjectMetadata GetParentObjectMetadata()
         {
-            if (ObjectMetadata != null)
+            if (DataSourceObjectMetadata != null)
             {
-                return ObjectMetadata;
+                return DataSourceObjectMetadata;
             }
             // Return the parent's object, or null if it's not set / not a OETreeNode
             return ParentAs<DataSourceTreeNode>()?.GetParentObjectMetadata();
@@ -79,7 +77,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
         {
             if (context == null)
             {
-                ObjectMetadata oeParent = GetParentObjectMetadata();
+                DataSourceObjectMetadata oeParent = GetParentObjectMetadata();
                 QueryContext parentContext = Parent?.GetContextAs<QueryContext>();
                 if (oeParent != null && parentContext != null)
                 {

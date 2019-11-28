@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Data;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Extensibility;
-using Microsoft.Kusto.ServiceLayer.Metadata.Contracts;
+using Microsoft.Kusto.ServiceLayer.DataSource;
 
 namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 {
@@ -28,7 +28,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        public abstract IEnumerable<ObjectMetadata> Query(QueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties);
+        public abstract IEnumerable<DataSourceObjectMetadata> Query(QueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties);
 
         internal IMultiServiceProvider ServiceProvider
         {

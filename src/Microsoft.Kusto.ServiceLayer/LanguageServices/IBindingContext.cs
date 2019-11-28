@@ -33,7 +33,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// <summary>
         /// Gets or sets data source interface
         /// </summary>
-        public IDataSource DataSource { get; set; }
+        IDataSource DataSource { get; set; }
 
         /// <summary>
         /// Gets or sets the metadata display info provider

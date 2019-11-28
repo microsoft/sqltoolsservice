@@ -9,7 +9,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Threading;
-using Microsoft.Kusto.ServiceLayer.Metadata.Contracts;
+using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel;
 using Microsoft.Kusto.ServiceLayer.Utility;
@@ -85,7 +85,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
         /// <summary>
         /// Object metadata for smo objects
         /// </summary>
-        public ObjectMetadata ObjectMetadata { get; set; }
+        public DataSourceObjectMetadata DataSourceObjectMetadata { get; set; }
 
         /// <summary>
         /// The type of the node - for example Server, Database, Folder, Table
@@ -226,7 +226,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
                 Label = this.Label,
                 NodePath = this.GetNodePath(),
                 NodeType = this.NodeType,
-                Metadata = this.ObjectMetadata,
+                Metadata = this.DataSourceObjectMetadata,
                 NodeStatus = this.NodeStatus,
                 NodeSubType = this.NodeSubType,
                 ErrorMessage = this.ErrorMessage

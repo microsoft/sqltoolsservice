@@ -13,7 +13,7 @@ using System.Threading;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.Utility;
-using Microsoft.Kusto.ServiceLayer.Metadata.Contracts;
+using Microsoft.Kusto.ServiceLayer.DataSource;
 
 namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 {
@@ -307,7 +307,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
             return string.Empty;
         }
 
-        public static bool IsPropertySupported(string propertyName, QueryContext context, ObjectMetadata objectMetadata, IEnumerable<NodeSmoProperty> supportedProperties)
+        public static bool IsPropertySupported(string propertyName, QueryContext context, DataSourceObjectMetadata objectMetadata, IEnumerable<NodeSmoProperty> supportedProperties)
         {
             var property = supportedProperties.FirstOrDefault(x => string.Compare(x.Name, propertyName, StringComparison.InvariantCultureIgnoreCase) == 0);
             if (property != null)

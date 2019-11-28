@@ -2,7 +2,7 @@
 // Copyright (c) Microsoft. All Rights Reserved.
 // </copyright>
 
-namespace Microsoft.Kusto.ServiceLayer.DataSource
+namespace Microsoft.Kusto.ServiceLayer.Utility
 {
     using System;
     using System.Collections.Generic;

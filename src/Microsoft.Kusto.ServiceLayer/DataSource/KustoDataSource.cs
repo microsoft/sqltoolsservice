@@ -1,27 +1,26 @@
 // <copyright file="KustoUtils.cs" company="Microsoft">
 // Copyright (c) Microsoft. All Rights Reserved.
 // </copyright>
+using System;
+using System.Collections.Generic;
+using System.Collections.Concurrent;
+using System.Data;
+using System.Diagnostics;
+using System.Globalization;
+using System.Linq;
+using System.Threading.Tasks;
+using Kusto.Data;
+using Kusto.Data.Common;
+using Kusto.Data.Net.Client;
+using Microsoft.SqlServer.Management.Common;
+using Microsoft.Kusto.ServiceLayer.Utility;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Data;
-    using System.Diagnostics;
-    using System.Globalization;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using Kusto.Data;
-    using Kusto.Data.Common;
-    using Kusto.Data.Net.Client;
-    using Kusto.Ingest;
-    using Microsoft.SqlServer.Management.Common;
-    using Microsoft.Kusto.ServiceLayer.Metadata.Contracts;
-    
     /// <summary>
     /// Represents Kusto utilities.
     /// </summary>
-    public class KustoSource : DataSourceBase
+    public class KustoDataSource : DataSourceBase
     {
         private ICslQueryProvider kustoQueryProvider;
 
@@ -30,22 +29,22 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// <summary>
         /// List of databases.
         /// </summary>
-        private IEnumerable<ObjectMetadata> databaseMetadata;
+        private IEnumerable<DataSourceObjectMetadata> databaseMetadata;
 
         /// <summary>
         /// List of tables per database. Key - DatabaseName
         /// </summary>
-        private ConcurrentDictionary<string, IEnumerable<ObjectMetadata>> tableMetadata = new ConcurrentDictionary<string, IEnumerable<ObjectMetadata>>();
+        private ConcurrentDictionary<string, IEnumerable<DataSourceObjectMetadata>> tableMetadata = new ConcurrentDictionary<string, IEnumerable<DataSourceObjectMetadata>>();
 
         /// <summary>
         /// List of columns per table. Key - DatabaseName.TableName
         /// </summary>
-        private ConcurrentDictionary<string, IEnumerable<ObjectMetadata>> columnMetadata = ConcurrentDictionary<string, IEnumerable<ObjectMetadata>>();
+        private ConcurrentDictionary<string, IEnumerable<DataSourceObjectMetadata>> columnMetadata = new ConcurrentDictionary<string, IEnumerable<DataSourceObjectMetadata>>();
 
         /// <summary>
         /// Prevents a default instance of the <see cref="IDataSource"/> class from being created.
         /// </summary>
-        private KustoSource(string connectionString, string azureAccountToken)
+        public KustoDataSource(string connectionString, string azureAccountToken)
         {
             Cluster = GetClusterName(connectionString);
             DatabaseName = GetDatabaseName(connectionString);
@@ -85,11 +84,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
             return uri.InitialCatalog;
         }
-
-        /// <summary>
-        /// The Kusto cluster hostname, for example "lens.kusto.windows.net";
-        /// </summary>
-        public string Cluster { get; private set; }
 
         /// <summary>
         /// The AAD user token.
@@ -263,10 +257,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         #region IDataSource
 
         /// <inheritdoc/>
-        public override DataSourceType DataSourceTypeEnum => DataSourceType.Kusto;
-
-        /// <inheritdoc/>
-        public override Task<IEnumerable<ObjectMetadata>> GetDatabaseMetadata()
+        public override Task<IEnumerable<DataSourceObjectMetadata>> GetDatabaseMetadata()
         {
             if (databaseMetadata == null)
             {
@@ -296,7 +287,19 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             return Task.FromResult(databaseMetadata);
         }
 
-        public override async Task<bool> Exists(string databaseName)
+        /// <inheritdoc/>
+        public override async Task<bool> Exists(DataSourceObjectMetadata objectMetadata)
+        {
+            ValidationUtils.IsNotNull(objectMetadata);
+
+            switch(objectMetadata.MetadataType)
+            {
+                case MetadataType.Database: return DatabaseExists(objectMetadata.Name);
+                default: throw new ArgumentException($"Unexpected type {objectMetadata.MetadataType}.");
+            }
+        }
+
+        public async Task<bool> DatabaseExists(string databaseName)
         {
             ValidationUtils.IsArgumentNotNullOrWhiteSpace(databaseName, nameof(databaseName));
 
@@ -312,7 +315,81 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         }
 
         /// <inheritdoc/>
-        public override Task<IEnumerable<ObjectMetadata>> GetTableMetadata(string databaseName)
+        public override void Refresh()
+        {
+            // This class caches objects. Throw them away so that the next call will re-query the data source for the objects.
+            databaseMetadata = null;
+            tableMetadata = new ConcurrentDictionary<string, IEnumerable<DataSourceObjectMetadata>>();
+            columnMetadata  = new ConcurrentDictionary<string, IEnumerable<DataSourceObjectMetadata>>();
+        }
+
+        /// <inheritdoc/>
+        public override void Refresh(DataSourceObjectMetadata objectMetadata)
+        {
+            ValidationUtils.IsNotNull(objectMetadata);
+
+            switch(objectMetadata.MetadataType)
+            {
+                case MetadataType.Cluster:
+                    Refresh();
+                    break;
+
+                case MetadataType.Database:
+                    this.tableMetadata.Remove(objectMetadata.Name);
+                    break;
+
+                case MetadataType.Table:
+                    TableMetadata tm = objectMetadata as TableMetadata;
+                    this.columnMetadata.Remove(GenerateColumnMetadataKey(tm.DatabaseName, tm.Name));
+                    break;
+
+                case MetadataType.Column:
+                    // Remove column metadata for the whole table
+                    ColumnMetadata cm = objectMetadata as ColumnMetadata;
+                    this.columnMetadata.Remove(GenerateColumnMetadataKey(cm.DatabaseName, cm.TableName));
+                    break;
+
+                default:
+                    throw new ArgumentException($"Unexpected type {objectMetadata.MetadataType}.");
+            }
+        }
+
+        /// <inheritdoc/>
+        public override Task<IEnumerable<DataSourceObjectMetadata>> GetChildObjects(DataSourceObjectMetadata parentMetadata)
+        {
+            ValidationUtils.IsNotNull(objectMetadata);
+
+            switch(objectMetadata.MetadataType)
+            {
+                case MetadataType.Cluster:
+                    return GetDatabaseMetadata();
+                    
+                case MetadataType.Database:
+                    return GetTableMetadata(objectMetadata.Name);
+
+                case MetadataType.Table:
+                    TableMetadata tm = objectMetadata as TableMetadata;
+                    return GetColumnMetadata((tm.DatabaseName, tm.Name));
+
+                default:
+                    throw new ArgumentException($"Unexpected type {objectMetadata.MetadataType}.");
+            }
+        }
+
+        /// <summary>
+        /// Get folders of the  given parent
+        /// </summary>
+        /// <param name="parentMetadata">Parent object metadata.</param>
+        /// <returns>List of all children.</returns>
+        public override Task<IEnumerable<DataSourceObjectMetadata>> GetChildFolders(DataSourceObjectMetadata parentMetadata)
+        {
+            // TODO: Add logic to add folders if they are defined in the Kusto schema
+            Enumerable.Empty<DataSourceObjectMetadata>();   
+        }
+
+
+        /// <inheritdoc/>
+        public override Task<IEnumerable<DataSourceObjectMetadata>> GetTableMetadata(string databaseName)
         {
             if (!tableMetadata.ContainsKey(databaseName))
             {
@@ -386,7 +463,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             
             if (!columns.Any())
             {
-                tableMetadata[databaseName] = Enumerable.Empty<ObjectMetadata>();
+                tableMetadata[databaseName] = Enumerable.Empty<DataSourceObjectMetadata>();
             }
 
             var tableGroups = columns

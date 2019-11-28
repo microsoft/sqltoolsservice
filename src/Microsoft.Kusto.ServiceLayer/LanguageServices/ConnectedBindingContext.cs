@@ -14,6 +14,7 @@ using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Kusto.Data.Net.Client;
 using Kusto.Data.Common;
 using Kusto.Data;
+using Microsoft.Kusto.ServiceLayer.DataSource;
 
 namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 {
@@ -29,7 +30,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         private ServerConnection serverConnection;
 
         /// <inheritdoc/>
-        public IDataSource DataSource { get; set; }
+        public override IDataSource DataSource { get; set; }
 
         /// <summary>
         /// Connected binding context constructor
