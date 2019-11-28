@@ -23,9 +23,7 @@ using Microsoft.SqlTools.Utility;
 using System.Diagnostics;
 using System.Data.SqlClient;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
-using Kusto.Data.Net.Client;
-using Kusto.Data.Common;
-using Kusto.Data;
+using Microsoft.Kusto.ServiceLayer.DataSource;
 
 namespace Microsoft.Kusto.ServiceLayer.Connection
 {
@@ -1532,20 +1530,21 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <param name="connInfo">The connection info to connect with</param>
         /// <param name="featureName">A plaintext string that will be included in the application name for the connection</param>
         /// <returns>A SqlConnection created with the given connection info</returns>
-        internal static ICslQueryProvider OpenKqlConnection(ConnectionInfo connInfo, string featureName = null)
+        internal static IDataSource OpenDataSourceConnection(ConnectionInfo connInfo, string featureName = null)
         {
             try
             {
                 // generate connection string
                 string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
 
-                return ReliableKustoClient.CreateKustoClient(connectionString, connInfo.ConnectionDetails.AzureAccountToken);
+                // TODOKusto: Pass in type of DataSource needed to make this generic. Hard coded to Kusto right now.
+                return DataSourceFactory.Create(DataSourceType.Kusto, connectionString, connInfo.ConnectionDetails.AzureAccountToken);
             }
             catch (Exception ex)
             {
                 string error = string.Format(CultureInfo.InvariantCulture,
-                    "Failed opening a KqlConnection: error:{0} inner:{1} stacktrace:{2}",
-                    ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty, ex.StackTrace);
+                    "Failed opening a DataSource of type {0}: error:{1} inner:{2} stacktrace:{3}",
+                    DataSourceType.Kusto, ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty, ex.StackTrace);
                 Logger.Write(TraceEventType.Error, error);
             }
 

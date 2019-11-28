@@ -30,7 +30,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         private ServerConnection serverConnection;
 
         /// <inheritdoc/>
-        public override IDataSource DataSource { get; set; }
+        public IDataSource DataSource { get; set; }
 
         /// <summary>
         /// Connected binding context constructor

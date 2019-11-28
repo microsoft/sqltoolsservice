@@ -397,7 +397,7 @@ WHERE do.database_id = @DbID
                     this.lastLogBackupDate = db.LastLogBackupDate;
                 }
 
-                if (DataSource.IsSql12OrLater(context.Server.Information.Version.Major))
+                if (Utils.IsSql12OrLater(context.Server.Information.Version.Major))
                 {
                     this.autoCreateStatisticsIncremental = db.DatabaseOptions.AutoCreateStatisticsIncremental;
                 }
@@ -639,7 +639,7 @@ WHERE do.database_id = @DbID
                 Database db = context.Server.Databases[this.name];
 
                 //For Azure v12 or later we can use SMO (the property doesn't exist prior to v12)
-                if (DataSource.IsSql12OrLater(context.Server.Information.Version.Major))
+                if (Utils.IsSql12OrLater(context.Server.Information.Version.Major))
                 {
                     //Currently the only way to get the configured service level objective is to use the REST API. 
                     //Since SSMS doesn't currently support that we'll leave it blank for now until support is 
@@ -1697,7 +1697,7 @@ WHERE do.database_id = @DbID
 
             dataFileFields.AddRange(new string[] { "IsPrimaryFile", "GrowthType", "FileName", "Size", "MaxSize", "Name", "ID", "Urn", "Growth" });
 
-            if (DataSource.IsYukonOrAbove(server))
+            if (Utils.IsYukonOrAbove(server))
             {
                 dataFileFields.AddRange(new string[] { "IsReadOnlyMedia", "IsReadOnly", "IsOffline", "IsSparse" });
             }
@@ -1712,7 +1712,7 @@ WHERE do.database_id = @DbID
             logFileFields.AddRange(new string[] { "UsedSpace", "GrowthType", "FileName", "Size", "MaxSize", "Name", "ID"
                     , "Urn", "Growth" });
 
-            if (DataSource.IsYukonOrAbove(server))
+            if (Utils.IsYukonOrAbove(server))
             {
                 logFileFields.AddRange(new string[] { "IsReadOnlyMedia", "IsReadOnly", "IsOffline", "IsSparse" });
             }
@@ -1729,7 +1729,7 @@ WHERE do.database_id = @DbID
             this.context = context;
             this.serverVersion = context.Server.ConnectionContext.ServerVersion;
             this.databaseEngineType = context.Server.DatabaseEngineType;
-            this.isFilestreamEnabled = DataSource.FilestreamEnabled(this.context.Server);
+            this.isFilestreamEnabled = Utils.FilestreamEnabled(this.context.Server);
             this.files = new List<DatabaseFilePrototype>();
             this.filegroups = new List<FilegroupPrototype>();
             this.removedFilegroups = new List<FilegroupPrototype>();

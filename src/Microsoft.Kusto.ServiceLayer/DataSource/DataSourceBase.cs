@@ -210,7 +210,22 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         }
 
         /// <inheritdoc/>
+        public abstract Task<IEnumerable<DataSourceObjectMetadata>> GetChildObjects(DataSourceObjectMetadata parentMetadata);
+
+        /// <inheritdoc/>
+        public abstract Task<IEnumerable<DataSourceObjectMetadata>> GetChildFolders(DataSourceObjectMetadata parentMetadata);
+
+        /// <inheritdoc/>
+        public abstract void Refresh();
+
+        /// <inheritdoc/>
+        public abstract void Refresh(DataSourceObjectMetadata objectMetadata);
+
+        /// <inheritdoc/>
         public abstract Task<bool> Exists();
+
+        /// <inheritdoc/>
+        public abstract Task<bool> Exists(DataSourceObjectMetadata objectMetadata);
 
         /// <inheritdoc/>
         public DataSourceType DataSourceType { get; private set; }

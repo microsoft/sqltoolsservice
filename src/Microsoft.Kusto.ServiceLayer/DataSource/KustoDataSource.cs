@@ -257,7 +257,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         #region IDataSource
 
         /// <inheritdoc/>
-        public override Task<IEnumerable<DataSourceObjectMetadata>> GetDatabaseMetadata()
+        protected Task<IEnumerable<DataSourceObjectMetadata>> GetDatabaseMetadata()
         {
             if (databaseMetadata == null)
             {
@@ -288,7 +288,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         }
 
         /// <inheritdoc/>
-        public override async Task<bool> Exists(DataSourceObjectMetadata objectMetadata)
+        public override Task<bool> Exists(DataSourceObjectMetadata objectMetadata)
         {
             ValidationUtils.IsNotNull(objectMetadata);
 
@@ -296,21 +296,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             {
                 case MetadataType.Database: return DatabaseExists(objectMetadata.Name);
                 default: throw new ArgumentException($"Unexpected type {objectMetadata.MetadataType}.");
-            }
-        }
-
-        public async Task<bool> DatabaseExists(string databaseName)
-        {
-            ValidationUtils.IsArgumentNotNullOrWhiteSpace(databaseName, nameof(databaseName));
-
-            try
-            {
-                var count = await ExecuteScalarQueryAsync<long>(".show tables | count", databaseName);
-                return count >= 0;
-            }
-            catch
-            {
-                return false;
             }
         }
 
@@ -387,9 +372,24 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             Enumerable.Empty<DataSourceObjectMetadata>();   
         }
 
+        internal async Task<bool> DatabaseExists(string databaseName)
+        {
+            ValidationUtils.IsArgumentNotNullOrWhiteSpace(databaseName, nameof(databaseName));
+
+            try
+            {
+                var count = await ExecuteScalarQueryAsync<long>(".show tables | count", databaseName);
+                return count >= 0;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
 
         /// <inheritdoc/>
-        public override Task<IEnumerable<DataSourceObjectMetadata>> GetTableMetadata(string databaseName)
+        internal Task<IEnumerable<DataSourceObjectMetadata>> GetTableMetadata(string databaseName)
         {
             if (!tableMetadata.ContainsKey(databaseName))
             {
@@ -420,7 +420,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             public string DataType { get; set; }
         }
 
-        protected override IEnumerable<ColumnInfo> GetColumnMetadata(string databaseName, string tableName)
+        internal IEnumerable<ColumnInfo> GetColumnMetadata(string databaseName, string tableName)
         {
             ValidationUtils.IsNotNullOrWhitespace(databaseName, nameof(databaseName));
             ValidationUtils.IsNotNullOrWhitespace(tableName, nameof(tableName));
@@ -455,7 +455,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// </summary>
         /// <param name="databaseName">The database for which Schema needs to be pulled.</param>
         /// <returns>The schema.</returns>
-        protected override void GetSchema(string databaseName)
+        internal void GetSchema(string databaseName)
         {
             ValidationUtils.IsNotNull(databaseName, nameof(databaseName));
 

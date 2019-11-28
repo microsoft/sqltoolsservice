@@ -1388,7 +1388,7 @@ namespace Microsoft.Kusto.ServiceLayer.Agent
         {
             get
             {
-                return DataSource.GetMaxCultureDateTime().Date;
+                return Utils.GetMaxCultureDateTime().Date;
             }
         }
         /// <summary>
