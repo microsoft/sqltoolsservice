@@ -2,16 +2,14 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+using System;
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 {
-    public class SqlCmdCommand
+    public class SqlCmdException : Exception
     {
-        public SqlCmdCommand(LexerTokenType tokenType)
+        public SqlCmdException(string message) : base(message)
         {
-            this.LexerTokenType = tokenType;
         }
-    
-        public LexerTokenType LexerTokenType { get; private set; }
     }
 }

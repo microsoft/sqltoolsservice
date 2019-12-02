@@ -5,13 +5,13 @@
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 {
-    public class SqlCmdCommand
+    public class OnErrorSqlCmdCommand : SqlCmdCommand
     {
-        public SqlCmdCommand(LexerTokenType tokenType)
+        public OnErrorSqlCmdCommand(OnErrorAction action) : base(LexerTokenType.OnError)
         {
-            this.LexerTokenType = tokenType;
+            Action = action;
         }
-    
-        public LexerTokenType LexerTokenType { get; private set; }
+
+        public OnErrorAction Action { get; private set; }
     }
 }

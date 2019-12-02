@@ -146,6 +146,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// called from the Batch but from the ResultSet instance.
         /// </summary>
         public event ResultSet.ResultSetAsyncEventHandler ResultSetUpdated;
+
+        /// <summary>
+        /// Event that will be called when additional rows in the result set are available (rowCount available has increased). It will not be
+        /// called from the Batch but from the ResultSet instance.
+        /// </summary>
+        public event EventHandler<bool> HandleOnErrorAction;
         #endregion
 
         #region Properties
@@ -261,6 +267,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="cancellationToken">Token for cancelling the execution</param>
         public async Task Execute(DbConnection conn, CancellationToken cancellationToken)
         {
+            await Execute(conn, cancellationToken, OnErrorAction.Ignore);
+        }
+
+        /// <summary>
+        /// Executes this batch and captures any server messages that are returned.
+        /// </summary>
+        /// <param name="conn">The connection to use to execute the batch</param>
+        /// <param name="cancellationToken">Token for cancelling the execution</param>
+        /// <param name="onErrorAction">Continue (Ignore) or Exit on Error. This comes only in SQLCMD mode</param>
+        public async Task Execute(DbConnection conn, CancellationToken cancellationToken, OnErrorAction onErrorAction = OnErrorAction.Ignore)
+        {
             // Sanity check to make sure we haven't already run this batch
             if (HasExecuted)
             {
@@ -283,7 +300,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             try
             {
-                await DoExecute(conn, cancellationToken);
+                await DoExecute(conn, cancellationToken, onErrorAction);
             }
             catch (TaskCanceledException)
             {
@@ -318,7 +335,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         }
 
-        private async Task DoExecute(DbConnection conn, CancellationToken cancellationToken)
+        private async Task DoExecute(DbConnection conn, CancellationToken cancellationToken, OnErrorAction onErrorAction = OnErrorAction.Ignore)
         {
             bool canContinue = true;
             int timesLoop = this.BatchExecutionCount;
@@ -336,6 +353,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 catch (DbException dbe)
                 {
                     HasError = true;
+                    if (onErrorAction == OnErrorAction.Exit)
+                    {
+                        throw new SqlCmdException(dbe.Message);
+                    }
                     canContinue = await UnwrapDbException(dbe);
                     if (canContinue)
                     {
@@ -689,6 +710,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 this.HasError = true;
             }
+
+            if (this.HandleOnErrorAction != null)
+            {
+                HandleOnErrorAction(this, isError);
+            }
         }
 
         /// <summary>
@@ -703,6 +729,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {
             bool canIgnore = true;
             SqlException se = dbe as SqlException;
+
             if (se != null)
             {
                 var errors = se.Errors.Cast<SqlError>().ToList();

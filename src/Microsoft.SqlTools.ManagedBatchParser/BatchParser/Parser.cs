@@ -127,7 +127,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                 if (state == 0 && ch == '$')
                 {
                     state = 1;
-                } 
+                }
                 else if (state == 1)
                 {
                     if (ch == '(')
@@ -293,8 +293,8 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             if (tokenText.IndexOf('"') != -1)
             {
                 tokens = SplitQuotedTextToken(token);
-            } 
-            else 
+            }
+            else
             {
                 tokens = new[] { token };
             }
@@ -349,7 +349,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                     tokens.Add(GetSubToken(token, quotePos + 1, closingQuotePos, LexerTokenType.TextVerbatim));
                 }
                 offset = closingQuotePos + 1;
-                
+
                 quotePos = tokenText.IndexOf('"', offset);
             }
             if (offset != tokenText.Length)
@@ -478,6 +478,8 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 
             parserAction = commandHandler.OnError(onErrorToken, onErrorAction);
 
+            this.sqlCmdCommand = new OnErrorSqlCmdCommand(onErrorAction);
+
             if (parserAction == BatchParserAction.Abort)
             {
                 RaiseError(ErrorCode.Aborted);
@@ -531,15 +533,73 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 
         private void ParseConnect(Token connectToken)
         {
-            string serverName;
+            string serverName = null;
+            string userName = null;
+            string password = null;
             Accept(LexerTokenType.Whitespace);
             Expect(LexerTokenType.Text);
 
-            serverName = LookaheadToken.Text;
+            serverName = ResolveVariables(LookaheadToken, 0, null);
 
             Accept();
             Accept(LexerTokenType.Whitespace);
-            this.sqlCmdCommand = new SqlCmdCommand(LexerTokenType.Connect, serverName);
+
+            switch (LookaheadTokenType)
+            {
+                case LexerTokenType.Text:
+                    userName = ParseUserName();
+                    password = ParsePassword();
+                    if(userName == null || password == null)
+                    {
+                        //found text but wrong text
+                        RaiseError(ErrorCode.UnrecognizedToken);
+                    }
+                    break;
+                case LexerTokenType.NewLine:
+                case LexerTokenType.Eof:
+                    Accept();
+                    break;
+                default:
+                    RaiseError(ErrorCode.UnrecognizedToken);
+                    break;
+            }
+
+            this.sqlCmdCommand = new ConnectSqlCmdCommand(serverName, userName, password);
+
+        }
+
+        private string ParseUserName()
+        {
+            string username = null;
+            if (LookaheadToken.Text == "-U")
+            {
+                Accept();
+                Accept(LexerTokenType.Whitespace);
+                if (LookaheadTokenType == LexerTokenType.Text)
+                {
+                    username = ResolveVariables(LookaheadToken, 0, null);
+                    Accept();
+                    Accept(LexerTokenType.Whitespace);
+                }
+            }
+            return username;
+        }
+
+        private string ParsePassword()
+        {
+            string password = null;
+            if (LookaheadToken.Text == "-P")
+            {
+                Accept();
+                Accept(LexerTokenType.Whitespace);
+                if (LookaheadTokenType == LexerTokenType.Text)
+                {
+                    password = ResolveVariables(LookaheadToken, 0, null);
+                    Accept();
+                    Accept(LexerTokenType.Whitespace);
+                }
+            }
+            return password;
         }
 
         private void ConnectAction()
@@ -583,8 +643,8 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 
                 if (variablePos != null)
                 {
-                    LineInfo.CalculateLineColumnForOffset(inputToken.Text, reference.Start - offset, 
-                        variablePos.Value.Offset, variablePos.Value.Line, variablePos.Value.Column, 
+                    LineInfo.CalculateLineColumnForOffset(inputToken.Text, reference.Start - offset,
+                        variablePos.Value.Offset, variablePos.Value.Line, variablePos.Value.Column,
                         out line, out column);
                 }
                 else
