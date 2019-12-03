@@ -261,6 +261,30 @@ namespace Microsoft.SqlTools.ManagedBatchParser
             }
         }
 
+        public static string SqlCmd_PathInvalid
+        {
+            get
+            {
+                return Keys.GetString(Keys.SqlCmd_PathInvalid);
+            }
+        }
+
+        public static string SqlCmd_PathLong
+        {
+            get
+            {
+                return Keys.GetString(Keys.SqlCmd_PathLong);
+            }
+        }
+
+        public static string SqlCmd_FailedInclude
+        {
+            get
+            {
+                return Keys.GetString(Keys.SqlCmd_FailedInclude);
+            }
+        }
+
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class Keys
         {
@@ -355,6 +379,14 @@ namespace Microsoft.SqlTools.ManagedBatchParser
 
             public const string BatchParser_VariableNotDefined = "BatchParser_VariableNotDefined";
 
+
+            public const string SqlCmd_PathInvalid = "SqlCmd_PathInvalid";
+
+
+            public const string SqlCmd_PathLong = "SqlCmd_PathLong";
+
+
+            public const string SqlCmd_FailedInclude = "SqlCmd_FailedInclude";
 
             private Keys()
             { }

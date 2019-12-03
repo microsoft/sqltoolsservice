@@ -82,3 +82,9 @@ BatchParser_IncorrectSyntax = Incorrect syntax was encountered while parsing '{0
 
 BatchParser_VariableNotDefined = Variable {0} is not defined.
 
+SqlCmd_PathInvalid = Path contains invalid characters.
+
+SqlCmd_PathLong = Path too long.
+
+SqlCmd_FailedInclude = Could not find included file.
+

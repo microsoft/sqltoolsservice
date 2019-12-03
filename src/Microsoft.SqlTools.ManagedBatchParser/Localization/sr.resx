@@ -233,4 +233,16 @@
     <value>Variable {0} is not defined.</value>
     <comment></comment>
   </data>
+  <data name="SqlCmd_PathInvalid" xml:space="preserve">
+    <value>Path contains invalid characters.</value>
+    <comment></comment>
+  </data>
+  <data name="SqlCmd_PathLong" xml:space="preserve">
+    <value>Path too long.</value>
+    <comment></comment>
+  </data>
+  <data name="SqlCmd_FailedInclude" xml:space="preserve">
+    <value>Could not find included file.</value>
+    <comment></comment>
+  </data>
 </root>

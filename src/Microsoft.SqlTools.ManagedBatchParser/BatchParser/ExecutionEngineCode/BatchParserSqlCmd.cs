@@ -158,17 +158,17 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             catch (ArgumentException)
             {
                 //path contains invalid path characters.
-                throw new SqlCmdException("Path contains invalid characters");
+                throw new SqlCmdException(SR.SqlCmd_PathInvalid);
             }
             catch (PathTooLongException)
             {
                 //path is too long
-                throw new SqlCmdException("Path too long");
+                throw new SqlCmdException(SR.SqlCmd_PathLong);
             }
             catch (Exception)
             {
                 //catch all other exceptions and report generic error
-                throw new SqlCmdException("Could not get the included file");
+                throw new SqlCmdException(SR.SqlCmd_FailedInclude);
             }
         }
 

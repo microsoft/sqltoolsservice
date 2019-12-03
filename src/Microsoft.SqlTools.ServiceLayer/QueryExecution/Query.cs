@@ -515,7 +515,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             if (CancelledBySqlCmd)
             {
-                throw new SqlCmdException("An error was encountered during execution of batch.Exiting.");
+                throw new SqlCmdException(SR.SqlCmdExitOnError);
             }
         }
 
@@ -533,7 +533,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         onErrorAction = (b.SqlCmdCommand as OnErrorSqlCmdCommand).Action;
                         break;
                     default:
-                        throw new SqlCmdException($"Encountered unsupported token {b.SqlCmdCommand.LexerTokenType}");
+                        throw new SqlCmdException(string.Format(SR.SqlCmdUnsupportedToken, b.SqlCmdCommand.LexerTokenType));
                 }
             }
             catch (Exception ex)
@@ -545,7 +545,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     HasCancelled = true;
                     CancelledBySqlCmd = true;
                     cancellationSource.Cancel();
-                    throw new SqlCmdException("An error was encountered during execution of batch.Exiting.");
+                    throw new SqlCmdException(SR.SqlCmdExitOnError);
                 }
 
             }

@@ -357,6 +357,21 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string SqlCmdExitOnError
+        {
+            get
+            {
+                return Keys.GetString(Keys.SqlCmdExitOnError);
+            }
+        }
+        public static string SqlCmdUnsupportedToken
+        {
+            get
+            {
+                return Keys.GetString(Keys.SqlCmdUnsupportedToken);
+            }
+        }
+
         public static string PeekDefinitionNoResultsError
         {
             get
@@ -3278,6 +3293,12 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string QueryServiceExecutionPlanNotFound = "QueryServiceExecutionPlanNotFound";
+
+            
+            public const string SqlCmdExitOnError = "SqlCmdExitOnError";
+
+
+            public const string SqlCmdUnsupportedToken = "SqlCmdUnsupportedToken";
 
 
             public const string SerializationServiceUnsupportedFormat = "SerializationServiceUnsupportedFormat";
