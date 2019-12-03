@@ -55,7 +55,7 @@ stages:
       displayName: 'PowerShell Script'
       inputs:
         targetType: filePath
-        filePath: './$(Agent.TempDirectory)/CrossPlatBuildScripts/AutomatedReleases/AutomatedReleases/sqltoolsserviceRelease.ps1'
+        filePath: '$(Agent.TempDirectory)/CrossPlatBuildScripts/AutomatedReleases/AutomatedReleases/sqltoolsserviceRelease.ps1'
         arguments: '-workspace $(System.DefaultWorkingDirectory)/sqltoolsservice -minTag v2.0.0.0 -target master -tagFormat release'
         workingDirectory: '$(System.DefaultWorkingDirectory)/sqltoolsservice'
       env:
