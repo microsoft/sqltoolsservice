@@ -16,7 +16,7 @@ stages:
       inputs:
         targetType: 'inline'
         script: |
-          echo $PSScriptRoot
+          dir
           git clone https://$(ado-crossplatbuildscripts-password)@dev.azure.com/mssqltools/_git/CrossPlatBuildScripts
       displayName: Clone CrossPlatBuildScripts
     - task: DownloadPipelineArtifact@2
