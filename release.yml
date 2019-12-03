@@ -16,8 +16,8 @@ stages:
       inputs:
         targetType: 'inline'
         script: |
-          dir
           git clone https://$(ado-crossplatbuildscripts-password)@dev.azure.com/mssqltools/_git/CrossPlatBuildScripts
+          dir
       displayName: Clone CrossPlatBuildScripts
     - task: DownloadPipelineArtifact@2
       displayName: 'Download pipeline source artifacts'
@@ -54,8 +54,7 @@ stages:
     - task: PowerShell@2
       displayName: 'PowerShell Script'
       inputs:
-        targetType: filePath
-        filePath: '$(Agent.TempDirectory)/CrossPlatBuildScripts/AutomatedReleases/sqltoolsserviceRelease.ps1'
+        filePath: '$(System.DefaultWorkingDirectory)/CrossPlatBuildScripts/AutomatedReleases/sqltoolsserviceRelease.ps1'
         arguments: '-workspace $(System.DefaultWorkingDirectory)/sqltoolsservice -minTag v2.0.0.0 -target master -tagFormat release'
         workingDirectory: '$(System.DefaultWorkingDirectory)/sqltoolsservice'
       env:
