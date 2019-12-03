@@ -53,15 +53,15 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 
         public virtual void CacheInfoFromModel(DataSourceObjectMetadata objectMetadata)
         {
-            base.DataSourceObjectMetadata = objectMetadata;
+            base.ObjectMetadata = objectMetadata;
             NodeValue = objectMetadata.Name;
         }
         
         public virtual DataSourceObjectMetadata GetParentObjectMetadata()
         {
-            if (DataSourceObjectMetadata != null)
+            if (ObjectMetadata != null)
             {
-                return DataSourceObjectMetadata;
+                return ObjectMetadata;
             }
             // Return the parent's object, or null if it's not set / not a OETreeNode
             return ParentAs<DataSourceTreeNode>()?.GetParentObjectMetadata();

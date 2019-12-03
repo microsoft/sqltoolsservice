@@ -74,7 +74,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
         /// <summary>
         /// Parent of a give node to use for queries
         /// </summary>
-        public DataSourceObjectMetadata Parent { 
+        public DataSourceObjectMetadata ParentObjectMetadata { 
             get
             {
                 return GetObjectWithOpenedConnection(parent);
@@ -99,7 +99,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
         public T ParentAs<T>()
             where T : TreeNode
         {
-            return Parent as T;
+            return ParentObjectMetadata as T;
         }
 
         /// <summary>
@@ -131,13 +131,13 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
         /// Copies the context for use by another node
         /// </summary>
         /// <param name="parent">New Parent to set</param>
-        /// <returns>new <see cref="QueryContext"/> with all fields except <see cref="Parent"/> the same</returns>
+        /// <returns>new <see cref="QueryContext"/> with all fields except <see cref="ParentObjectMetadata"/> the same</returns>
         public QueryContext CopyWithParent(DataSourceObjectMetadata parent)
         {
             QueryContext context = new QueryContext(this.Server, this.kustoUtils, this.ServiceProvider, this.smoWrapper)
             {
                 database = this.Database,
-                Parent = parent,
+                ParentObjectMetadata = parent,
                 SqlServerType = this.SqlServerType,
                 ValidFor = ValidFor
             };

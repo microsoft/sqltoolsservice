@@ -85,7 +85,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
         /// <summary>
         /// Object metadata for smo objects
         /// </summary>
-        public DataSourceObjectMetadata DataSourceObjectMetadata { get; set; }
+        public DataSourceObjectMetadata ObjectMetadata { get; set; }
 
         /// <summary>
         /// The type of the node - for example Server, Database, Folder, Table
@@ -226,7 +226,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
                 Label = this.Label,
                 NodePath = this.GetNodePath(),
                 NodeType = this.NodeType,
-                Metadata = this.DataSourceObjectMetadata,
+                Metadata = this.ObjectMetadata,
                 NodeStatus = this.NodeStatus,
                 NodeSubType = this.NodeSubType,
                 ErrorMessage = this.ErrorMessage

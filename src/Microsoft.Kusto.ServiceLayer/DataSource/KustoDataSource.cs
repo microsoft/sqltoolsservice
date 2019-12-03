@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Data;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
@@ -41,17 +42,26 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// </summary>
         private ConcurrentDictionary<string, IEnumerable<DataSourceObjectMetadata>> columnMetadata = new ConcurrentDictionary<string, IEnumerable<DataSourceObjectMetadata>>();
 
+        // Some clusters have this signature. Queries might slightly differ for Aria
+        public const string AriaProxyURL = "kusto.aria.microsoft.com"; 
+
+        /// <summary>
+        /// The database schema query.  Performance: ".show database schema" is more efficient than ".show schema",
+        /// especially for large clusters with many databases or tables.
+        /// </summary>
+        public const string ShowDatabaseSchema = ".show database [{0}] schema";
+
         /// <summary>
         /// Prevents a default instance of the <see cref="IDataSource"/> class from being created.
         /// </summary>
         public KustoDataSource(string connectionString, string azureAccountToken)
         {
-            Cluster = GetClusterName(connectionString);
+            ClusterName = GetClusterName(connectionString);
             DatabaseName = GetDatabaseName(connectionString);
             UserToken = azureAccountToken;
 
             // Check if a connection can be made
-            Exists();
+            ValidationUtils.IsTrue<ArgumentException>(Exists().Result, $"Unable to connect. ClusterName = {ClusterName}, DatabaseName = {DatabaseName}");
         }
 
         /// <summary>
@@ -82,7 +92,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         {
             var csb = new SqlConnectionStringBuilder(connectionString);
 
-            return uri.InitialCatalog;
+            return csb.InitialCatalog;
         }
 
         /// <summary>
@@ -166,13 +176,13 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// </summary>
         /// <param name="query">The query.</param>
         /// <returns>The results.</returns>
-        public override Task<IDataReader> ExecuteQueryAsync(string query, string databaseName)
+        public override Task<IDataReader> ExecuteQueryAsync(string query, string databaseName = null)
         {
             var reader = ExecuteQuery(query, databaseName);
             return Task.FromResult(reader);
         }
 
-        private IDataReader ExecuteQuery(string query, string databaseName)
+        private IDataReader ExecuteQuery(string query, string databaseName = null)
         {
             ValidationUtils.IsArgumentNotNullOrWhiteSpace(query, nameof(query));
             ValidationUtils.IsArgumentNotNullOrWhiteSpace(databaseName, nameof(databaseName));
@@ -217,7 +227,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
         private KustoConnectionStringBuilder GetKustoConnectionStringBuilder()
         {
-            ValidationUtils.IsNotNull(Cluster, nameof(Cluster));
+            ValidationUtils.IsNotNull(ClusterName, nameof(ClusterName));
             ValidationUtils.IsTrue<ArgumentException>(
                 !string.IsNullOrWhiteSpace(UserToken)
                 || (!string.IsNullOrWhiteSpace(ApplicationClientId) && !string.IsNullOrWhiteSpace(ApplicationKey)),
@@ -225,7 +235,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
             var kcsb = new KustoConnectionStringBuilder
             {
-                DataSource = Cluster,
+                DataSource = ClusterName,
 
                 // Perform federated auth based on the AAD user token, or based on the AAD application client id and key.
                 FederatedSecurity = true
@@ -257,44 +267,46 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         #region IDataSource
 
         /// <inheritdoc/>
-        protected Task<IEnumerable<DataSourceObjectMetadata>> GetDatabaseMetadata()
+        protected IEnumerable<DataSourceObjectMetadata> GetDatabaseMetadata()
         {
             if (databaseMetadata == null)
             {
                 // Getting database names when we are connected to a specific database should not happen.
                 ValidationUtils.IsNotNull(DatabaseName, nameof(DatabaseName)); 
 
-                var query = ".show databases" + (clusterName.IndexOf(KustoHelperQueries.AriaProxyURL, StringComparison.CurrentCultureIgnoreCase) == -1 ? " | project DatabaseName, PrettyName" : "");
+                var query = ".show databases" + (this.ClusterName.IndexOf(AriaProxyURL, StringComparison.CurrentCultureIgnoreCase) == -1 ? " | project DatabaseName, PrettyName" : "");
                 using (var reader = ExecuteQuery(query))
                 {
                     var schemaTable = reader.GetSchemaTable();
+                    // TODOKusto: Remove if not needed. Index using the name directly.
                     var databaseNameProperty = schemaTable.Columns["DatabaseName"];
                     var prettyNameProperty = schemaTable.Columns["PrettyName"];
 
                     databaseMetadata = reader.ToEnumerable()
+                        .Where(row => !string.IsNullOrWhiteSpace(row[databaseNameProperty.ColumnName].ToString()))
                         .Select(row => new DatabaseMetadata
                         {
-                            ClusterName = Cluster,
-                            MetadataType = MetadataType.Database,
-                            MetadataTypeName = MetadataType.ToString(),
-                            Name = row[databaseNameProperty]?.ToString(),
-                            PrettyName = row[prettyNameProperty]?.ToString(),
-                            Urn = $"{Cluster}.{Name}"
+                            ClusterName = this.ClusterName,
+                            MetadataType = DataSourceMetadataType.Database,
+                            MetadataTypeName = DataSourceMetadataType.Database.ToString(),
+                            Name = row[databaseNameProperty.ColumnName].ToString(),
+                            PrettyName = row[prettyNameProperty.ColumnName]?.ToString(),
+                            Urn = $"{this.ClusterName}.{row[databaseNameProperty.ColumnName].ToString()}"
                         });
                 }
             }
 
-            return Task.FromResult(databaseMetadata);
+            return databaseMetadata;
         }
 
         /// <inheritdoc/>
-        public override Task<bool> Exists(DataSourceObjectMetadata objectMetadata)
+        public override bool Exists(DataSourceObjectMetadata objectMetadata)
         {
-            ValidationUtils.IsNotNull(objectMetadata);
+            ValidationUtils.IsNotNull(objectMetadata, "Need a datasource object");
 
             switch(objectMetadata.MetadataType)
             {
-                case MetadataType.Database: return DatabaseExists(objectMetadata.Name);
+                case DataSourceMetadataType.Database: return DatabaseExists(objectMetadata.Name).Result;
                 default: throw new ArgumentException($"Unexpected type {objectMetadata.MetadataType}.");
             }
         }
@@ -311,27 +323,29 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// <inheritdoc/>
         public override void Refresh(DataSourceObjectMetadata objectMetadata)
         {
-            ValidationUtils.IsNotNull(objectMetadata);
+            ValidationUtils.IsNotNull(objectMetadata, nameof(objectMetadata));
+
+            IEnumerable<DataSourceObjectMetadata> discardOutput = null;
 
             switch(objectMetadata.MetadataType)
             {
-                case MetadataType.Cluster:
+                case DataSourceMetadataType.Cluster:
                     Refresh();
                     break;
 
-                case MetadataType.Database:
-                    this.tableMetadata.Remove(objectMetadata.Name);
+                case DataSourceMetadataType.Database:
+                    this.tableMetadata.TryRemove(objectMetadata.Name, out discardOutput);
                     break;
 
-                case MetadataType.Table:
+                case DataSourceMetadataType.Table:
                     TableMetadata tm = objectMetadata as TableMetadata;
-                    this.columnMetadata.Remove(GenerateColumnMetadataKey(tm.DatabaseName, tm.Name));
+                    this.columnMetadata.TryRemove(GenerateColumnMetadataKey(tm.DatabaseName, tm.Name), out discardOutput);
                     break;
 
-                case MetadataType.Column:
+                case DataSourceMetadataType.Column:
                     // Remove column metadata for the whole table
                     ColumnMetadata cm = objectMetadata as ColumnMetadata;
-                    this.columnMetadata.Remove(GenerateColumnMetadataKey(cm.DatabaseName, cm.TableName));
+                    this.columnMetadata.TryRemove(GenerateColumnMetadataKey(cm.DatabaseName, cm.TableName), out discardOutput);
                     break;
 
                 default:
@@ -340,21 +354,22 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         }
 
         /// <inheritdoc/>
-        public override Task<IEnumerable<DataSourceObjectMetadata>> GetChildObjects(DataSourceObjectMetadata parentMetadata)
+        public override IEnumerable<DataSourceObjectMetadata> GetChildObjects(DataSourceObjectMetadata objectMetadata)
         {
-            ValidationUtils.IsNotNull(objectMetadata);
+            ValidationUtils.IsNotNull(objectMetadata, nameof(objectMetadata));
 
             switch(objectMetadata.MetadataType)
             {
-                case MetadataType.Cluster:
+                case DataSourceMetadataType.Cluster:
                     return GetDatabaseMetadata();
                     
-                case MetadataType.Database:
+                case DataSourceMetadataType.Database:
                     return GetTableMetadata(objectMetadata.Name);
 
-                case MetadataType.Table:
+                case DataSourceMetadataType.Table:
                     TableMetadata tm = objectMetadata as TableMetadata;
-                    return GetColumnMetadata((tm.DatabaseName, tm.Name));
+                    GetSchema(tm.DatabaseName);
+                    return columnMetadata[GenerateColumnMetadataKey(tm.DatabaseName, tm.Name)];
 
                 default:
                     throw new ArgumentException($"Unexpected type {objectMetadata.MetadataType}.");
@@ -366,10 +381,10 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// </summary>
         /// <param name="parentMetadata">Parent object metadata.</param>
         /// <returns>List of all children.</returns>
-        public override Task<IEnumerable<DataSourceObjectMetadata>> GetChildFolders(DataSourceObjectMetadata parentMetadata)
+        public override IEnumerable<DataSourceObjectMetadata> GetChildFolders(DataSourceObjectMetadata objectMetadata)
         {
             // TODO: Add logic to add folders if they are defined in the Kusto schema
-            Enumerable.Empty<DataSourceObjectMetadata>();   
+            return Enumerable.Empty<DataSourceObjectMetadata>();   
         }
 
         internal async Task<bool> DatabaseExists(string databaseName)
@@ -389,17 +404,17 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
 
         /// <inheritdoc/>
-        internal Task<IEnumerable<DataSourceObjectMetadata>> GetTableMetadata(string databaseName)
+        internal IEnumerable<DataSourceObjectMetadata> GetTableMetadata(string databaseName)
         {
             if (!tableMetadata.ContainsKey(databaseName))
             {
                 // Check if the database exists
-                ValidationUtils.IsTrue(Exists(databaseName) == true, $"Database '{databaseName}' does not exist.");
+                ValidationUtils.IsTrue<ArgumentException>(DatabaseExists(databaseName).Result == true, $"Database '{databaseName}' does not exist.");
 
                 GetSchema(databaseName);
             }
 
-            return Task.FromResult(tableMetadata[databaseName]);
+            return tableMetadata[databaseName];
         }
 
         public class ColumnInfo
@@ -420,10 +435,9 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             public string DataType { get; set; }
         }
 
-        internal IEnumerable<ColumnInfo> GetColumnMetadata(string databaseName, string tableName)
+        internal IEnumerable<ColumnInfo> GetColumnMetadata(string databaseName)
         {
             ValidationUtils.IsNotNullOrWhitespace(databaseName, nameof(databaseName));
-            ValidationUtils.IsNotNullOrWhitespace(tableName, nameof(tableName));
 
             const string SystemPrefix = "System.";
             var query = string.Format(CultureInfo.InvariantCulture, ShowDatabaseSchema, databaseName)
@@ -431,6 +445,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             using (var reader = ExecuteQuery(query, databaseName))
             {
                 var schemaTable = reader.GetSchemaTable();
+                // TODOKusto: Remove if not needed. We could index using the names directly.
                 var tableNameProperty = schemaTable.Columns["TableName"];
                 var columnNameProperty = schemaTable.Columns["ColumnName"];
                 var ColumnTypeProperty = schemaTable.Columns["ColumnType"];
@@ -438,9 +453,9 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 var columns = reader.ToEnumerable()
                     .Select(row => new ColumnInfo
                     {
-                        Table = row[tableNameProperty]?.ToString(),
-                        Name = row[columnNameProperty]?.ToString(),
-                        DataType = row[ColumnTypeProperty]?.ToString().TrimPrefix(SystemPrefix)
+                        Table = row[tableNameProperty.ColumnName]?.ToString(),
+                        Name = row[columnNameProperty.ColumnName]?.ToString(),
+                        DataType = row[ColumnTypeProperty.ColumnName]?.ToString().TrimPrefix(SystemPrefix)
                     })
                     .Where(row =>
                         !string.IsNullOrWhiteSpace(row.Table)
@@ -459,47 +474,55 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         {
             ValidationUtils.IsNotNull(databaseName, nameof(databaseName));
 
-            var columns = GetColumnMetadata(databaseName).Materialize();
-            
-            if (!columns.Any())
+            if(!tableMetadata.ContainsKey(databaseName))
             {
-                tableMetadata[databaseName] = Enumerable.Empty<DataSourceObjectMetadata>();
+                var columns = GetColumnMetadata(databaseName).Materialize();
+                
+                if (!columns.Any())
+                {
+                    tableMetadata[databaseName] = Enumerable.Empty<DataSourceObjectMetadata>();
+                }
+
+                var tableGroups = columns
+                    .GroupBy(row => row.Table, StringComparer.Ordinal); // case-sensitive
+
+                // Get all table names
+                tableMetadata[databaseName] = tableGroups
+                    .Select(grouping => new TableMetadata
+                            {
+                                ClusterName = this.ClusterName,
+                                DatabaseName = databaseName,
+                                MetadataType = DataSourceMetadataType.Table,
+                                MetadataTypeName = DataSourceMetadataType.Table.ToString(),
+                                Name = grouping.Key, // table name
+                                PrettyName = grouping.Key,
+                                Urn = $"{this.ClusterName}.{databaseName}.{grouping.Key}"
+                            })
+                    .OrderBy(row => row.Name, StringComparer.Ordinal); // case-sensitive
+
+                // Fill in all column metadata
+                tableGroups.Select(grouping => {
+                    columnMetadata[GenerateColumnMetadataKey(databaseName, grouping.Key)] = grouping.ToList()
+                        .Select(row => new ColumnMetadata
+                            {
+                                ClusterName = this.ClusterName,
+                                DatabaseName = databaseName,
+                                TableName = grouping.Key,
+                                MetadataType = DataSourceMetadataType.Column,
+                                MetadataTypeName = DataSourceMetadataType.Column.ToString(),
+                                Name = row.Name, // column name
+                                PrettyName = row.Name,
+                                Urn = $"{this.ClusterName}.{databaseName}.{grouping.Key}.{row.Name}",
+                                DataType = row.DataType
+                            })
+                        .OrderBy(row => row.Name, StringComparer.OrdinalIgnoreCase); // case-insensitive
+                });
             }
+        }
 
-            var tableGroups = columns
-                .GroupBy(row => row.Table, StringComparer.Ordinal); // case-sensitive
-
-            // Get all table names
-            tableMetadata[databaseName] = tableGroups
-                .Select(grouping => new TableMetadata
-                        {
-                            ClusterName = Cluster,
-                            DatabaseName = databaseName,
-                            MetadataType = MetadataType.Table,
-                            MetadataTypeName = MetadataType.ToString(),
-                            Name = grouping.Key, // table name
-                            PrettyName = Name,
-                            Urn = $"{Cluster}.{databaseName}.{Name}"
-                        })
-                .OrderBy(row => row.Name, StringComparer.Ordinal); // case-sensitive
-
-            // Fill in all column metadata
-            tableGroups.Select(grouping => {
-                columnMetadata[$"{databaseName}.{grouping.Key}"] = grouping
-                    .Select(row => new ColumnMetadata
-                        {
-                            ClusterName = Cluster,
-                            DatabaseName = databaseName,
-                            TableName = grouping.Key,
-                            MetadataType = MetadataType.Column,
-                            MetadataTypeName = MetadataType.ToString(),
-                            Name = row.Name, // column name
-                            PrettyName = Name,
-                            Urn = $"{Cluster}.{databaseName}.{grouping.Key}.{Name}",
-                            DataType = row.DataType
-                        })
-                    .OrderBy(row => row.Name, StringComparer.OrdinalIgnoreCase);
-            });
+        private string GenerateColumnMetadataKey(string databaseName, string tableName)
+        {
+            return $"{databaseName}.{tableName}";
         }
         #endregion
     }

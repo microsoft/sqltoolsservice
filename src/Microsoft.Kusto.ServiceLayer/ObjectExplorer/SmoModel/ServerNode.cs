@@ -32,7 +32,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
         private SmoWrapper smoWrapper;
         private SqlServerType sqlServerType;
         private ServerConnection serverConnection;
-        private IDataSource kustoUtils;
+        private IDataSource dataSource;
 
         public ServerNode(ConnectionCompleteParams connInfo, IMultiServiceProvider serviceProvider, ServerConnection serverConnection, IDataSource kustoUtils)
             : base()
@@ -41,7 +41,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
             Validate.IsNotNull("connInfo.ConnectionSummary", connInfo.ConnectionSummary);
             Validate.IsNotNull(nameof(serviceProvider), serviceProvider);
 
-            this.kustoUtils = kustoUtils;
+            this.dataSource = kustoUtils;
             this.connectionSummary = connInfo.ConnectionSummary;
             this.serverInfo = connInfo.ServerInfo;
             this.sqlServerType = ServerVersionHelper.CalculateServerType(this.serverInfo);
@@ -134,9 +134,9 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
                 Server server = SmoWrapper.CreateServer(this.serverConnection);
                 if (server != null)
                 {
-                    return new QueryContext(server, this.kustoUtils, serviceProvider, SmoWrapper)
+                    return new QueryContext(server, this.dataSource, serviceProvider, SmoWrapper)
                     {
-                        Parent = server,
+                        ParentObjectMetadata = DataSourceFactory.CreateClusterMetadata(this.dataSource.ClusterName),
                         SqlServerType = this.sqlServerType
                     };
                 }

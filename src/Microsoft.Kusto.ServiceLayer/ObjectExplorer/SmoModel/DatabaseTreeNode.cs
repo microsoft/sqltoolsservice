@@ -10,6 +10,7 @@ using System.Globalization;
 using System.Threading;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Utility;
+using Microsoft.Kusto.ServiceLayer.DataSource;
 
 namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 {
@@ -19,18 +20,8 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
         {
             Parent = serverNode;
             NodeValue = databaseName;
-            var db = new Database(serverNode.GetContextAs<QueryContext>().Server, this.NodeValue);
-            db.Refresh();
-            // If we got this far, the connection is valid. However, it's possible
-            // the user connected directly to the master of a readable secondary
-            // In that case, the name in the connection string won't be found in sys.databases
-            // We detect that here and fall back to master
-            if (db.State == SqlSmoState.Creating)
-            {
-                db = new Database(serverNode.GetContextAs<QueryContext>().Server, "master");
-                db.Refresh();
-            }
-            CacheInfoFromModel(db);
+
+            CacheInfoFromModel(DataSourceFactory.CreateDatabaseMetadata(serverNode.ObjectMetadata, databaseName));
         }
 
         /// <summary>
@@ -38,16 +29,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
         /// </summary>
         protected override void EnsureContextInitialized()
         {
-            if (context == null)
-            {
-                base.EnsureContextInitialized();
-                var db = ObjectMetadata as Database;
-                if (db != null)
-                {
-                    context.Database = db;
-                }
-                context.ValidFor = ServerVersionHelper.GetValidForFlag(context.SqlServerType, db);
-            }
         }
 
         protected override void PopulateChildren(bool refresh, string name, CancellationToken cancellationToken)

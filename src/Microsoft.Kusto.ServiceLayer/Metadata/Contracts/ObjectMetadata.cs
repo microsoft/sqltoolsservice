@@ -27,6 +27,8 @@ namespace Microsoft.Kusto.ServiceLayer.Metadata.Contracts
     
         public string MetadataTypeName { get; set; }
 
+        public string Schema { get; set; }
+
         public string Name { get; set; }
 
         public string PrettyName { get; set; }

@@ -201,7 +201,9 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                    
                     // populate the binding context to work with the SMO metadata provider
                     bindingContext.ServerConnection = connectionOpener.OpenServerConnection(connInfo, featureName);
-                    bindingContext.KustoUtils = new IDataSource(connInfo, featureName);
+
+                    string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
+                    bindingContext.DataSource = DataSourceFactory.Create(DataSourceType.Kusto, connectionString, connInfo.ConnectionDetails.AzureAccountToken);
 
                     if (this.needsMetadata)
                     {

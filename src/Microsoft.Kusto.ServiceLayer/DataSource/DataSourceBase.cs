@@ -44,12 +44,11 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
     /// </summary>
     public enum DataSourceMetadataType
     {
-        Table = 0,
-        View = 1,
-        SProc = 2,
-        Function = 3,
-        Schema = 4,
-        Database = 5
+        Cluster = 0,
+        Database = 1,
+        Table = 2,
+        Column = 3,
+        Function = 4
     }
 
     /// <summary>
@@ -106,14 +105,14 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// <summary>
         /// The cluster/server name.
         /// </summary>
-        string Cluster { get; }
+        string ClusterName { get; }
 
         /// <summary>
         /// Executes a query.
         /// </summary>
         /// <param name="query">The query.</param>
         /// <returns>The results.</returns>
-        Task<IDataReader> ExecuteQueryAsync(string query, string database);
+        Task<IDataReader> ExecuteQueryAsync(string query, string databaseName = null);
 
         /// <summary>
         /// Executes a Kusto query that returns a scalar value.
@@ -121,21 +120,21 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// <typeparam name="T">The type of the result.</typeparam>
         /// <param name="query">The query.</param>
         /// <returns>The result.</returns>
-        Task<T> ExecuteScalarQueryAsync<T>(string query, string database);
+        Task<T> ExecuteScalarQueryAsync<T>(string query, string databaseName = null);
 
         /// <summary>
         /// Get children of the  given parent
         /// </summary>
         /// <param name="parentMetadata">Parent object metadata.</param>
         /// <returns>Metadata for all children.</returns>
-        Task<IEnumerable<DataSourceObjectMetadata>> GetChildObjects(DataSourceObjectMetadata parentMetadata);
+        IEnumerable<DataSourceObjectMetadata> GetChildObjects(DataSourceObjectMetadata parentMetadata);
 
         /// <summary>
         /// Get folders of the  given parent
         /// </summary>
         /// <param name="parentMetadata">Parent object metadata.</param>
         /// <returns>List of all children.</returns>
-        Task<IEnumerable<DataSourceObjectMetadata>> GetChildFolders(DataSourceObjectMetadata parentMetadata);
+        IEnumerable<DataSourceObjectMetadata> GetChildFolders(DataSourceObjectMetadata parentMetadata);
 
         /// <summary>
         /// Refresh object list for entire cluster.
@@ -158,7 +157,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// Tells whether the object exists.
         /// </summary>
         /// <returns>true if it exists; false otherwise.</returns>
-        Task<bool> Exists(DataSourceObjectMetadata objectMetadata);
+        bool Exists(DataSourceObjectMetadata objectMetadata);
     }
 
     /// <inheritdoc cref="IDataSource"/>
@@ -196,24 +195,24 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         #region IDataSource
 
         /// <inheritdoc/>
-        public abstract Task<IDataReader> ExecuteQueryAsync(string query, string databaseName);
+        public abstract Task<IDataReader> ExecuteQueryAsync(string query, string databaseName = null);
 
         /// <inheritdoc/>
-        public async Task<T> ExecuteScalarQueryAsync<T>(string query, string databaseName)
+        public async Task<T> ExecuteScalarQueryAsync<T>(string query, string databaseName = null)
         {
             ValidationUtils.IsArgumentNotNullOrWhiteSpace(query, nameof(query));
 
-            using (var records = await ExecuteQueryAsync(query))
+            using (var records = await ExecuteQueryAsync(query, databaseName))
             {
                 return records.ToScalar<T>();
             }
         }
 
         /// <inheritdoc/>
-        public abstract Task<IEnumerable<DataSourceObjectMetadata>> GetChildObjects(DataSourceObjectMetadata parentMetadata);
+        public abstract IEnumerable<DataSourceObjectMetadata> GetChildObjects(DataSourceObjectMetadata parentMetadata);
 
         /// <inheritdoc/>
-        public abstract Task<IEnumerable<DataSourceObjectMetadata>> GetChildFolders(DataSourceObjectMetadata parentMetadata);
+        public abstract IEnumerable<DataSourceObjectMetadata> GetChildFolders(DataSourceObjectMetadata parentMetadata);
 
         /// <inheritdoc/>
         public abstract void Refresh();
@@ -225,13 +224,13 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         public abstract Task<bool> Exists();
 
         /// <inheritdoc/>
-        public abstract Task<bool> Exists(DataSourceObjectMetadata objectMetadata);
+        public abstract bool Exists(DataSourceObjectMetadata objectMetadata);
 
         /// <inheritdoc/>
-        public DataSourceType DataSourceType { get; private set; }
+        public DataSourceType DataSourceType { get; protected set; }
 
         /// <inheritdoc/>
-        public string Cluster { get; private set; }
+        public string ClusterName { get; protected set; }
 
         #endregion
     }
@@ -241,10 +240,10 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
     /// </summary>
     public static class DataSourceFactory
     {
-        public static async Task<IDataSource> Create(DataSourceType dataSourceType, string connectionString, string azureAccountToken)
+        public static IDataSource Create(DataSourceType dataSourceType, string connectionString, string azureAccountToken)
         {
-            ValidationUtils.IsArgumentNotNullOrWhiteSpace(cluster, nameof(cluster));
-            ValidationUtils.IsArgumentNotNull(azureAccountToken, nameof(azureAccountToken));
+            ValidationUtils.IsArgumentNotNullOrWhiteSpace(connectionString, nameof(connectionString));
+            ValidationUtils.IsArgumentNotNullOrWhiteSpace(azureAccountToken, nameof(azureAccountToken));
 
             switch (dataSourceType)
             {
@@ -256,6 +255,34 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 default:
                     throw new ArgumentException($"Unsupported data source type \"{dataSourceType}\"", nameof(dataSourceType));
             }
+        }
+
+        public static DataSourceObjectMetadata CreateClusterMetadata(string clusterName)
+        {
+            ValidationUtils.IsArgumentNotNullOrWhiteSpace(clusterName, nameof(clusterName));
+
+            return new DataSourceObjectMetadata{
+                MetadataType = DataSourceMetadataType.Cluster,
+                MetadataTypeName = DataSourceMetadataType.Cluster.ToString(),
+                Name = clusterName,
+                PrettyName = clusterName,
+                Urn = $"{clusterName}"
+            };
+        }
+
+        public static DataSourceObjectMetadata CreateDatabaseMetadata(DataSourceObjectMetadata clusterMetadata, string databaseName)
+        {
+            ValidationUtils.IsTrue<ArgumentException>(clusterMetadata.MetadataType == DataSourceMetadataType.Cluster, nameof(clusterMetadata));
+            ValidationUtils.IsArgumentNotNullOrWhiteSpace(databaseName, nameof(databaseName));
+
+            return new DatabaseMetadata{
+                ClusterName = clusterMetadata.Name,
+                MetadataType = DataSourceMetadataType.Database,
+                MetadataTypeName = DataSourceMetadataType.Database.ToString(),
+                Name = databaseName,
+                PrettyName = databaseName,
+                Urn = $"{clusterMetadata.Name}.{databaseName}"
+            };
         }
     }
 }

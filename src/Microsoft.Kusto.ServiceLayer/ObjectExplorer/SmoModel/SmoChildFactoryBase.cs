@@ -125,16 +125,22 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
                 string propertyFilter = GetProperyFilter(filters, querier.GetType(), serverValidFor);
                 try
                 {
-                    var kustoMetadataList = querier.Query(context, propertyFilter, refresh, smoProperties).ToList();
-                    foreach (var kustoMetadata in kustoMetadataList)
+                    var objectMetadataList = Enumerable.Empty<DataSourceObjectMetadata>();
+
+                    if (context.DataSource != null)
+                    {
+                        objectMetadataList = context.DataSource.GetChildObjects(context.ParentObjectMetadata);
+                    }
+
+                    foreach (var objectMetadata in objectMetadataList)
                     {
                         cancellationToken.ThrowIfCancellationRequested();
-                        if (kustoMetadata == null)
+                        if (objectMetadata == null)
                         {
                             Logger.Write(TraceEventType.Error, "kustoMetadata should not be null");
                         }
-                        TreeNode childNode = CreateChild(parent, kustoMetadata);
-                        if (childNode != null && PassesFinalFilters(childNode, kustoMetadata) && !ShouldFilterNode(childNode, serverValidFor))
+                        TreeNode childNode = CreateChild(parent, objectMetadata);
+                        if (childNode != null && PassesFinalFilters(childNode, objectMetadata) && !ShouldFilterNode(childNode, serverValidFor))
                         {
                             allChildren.Add(childNode);
                         }
@@ -228,16 +234,16 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 
         protected virtual void InitializeChild(TreeNode parent, TreeNode child, object context)
         {
-            KustoMetadata kustoMetadata = context as KustoMetadata;
-            if (kustoMetadata == null)
+            DataSourceObjectMetadata objectMetadata = context as DataSourceObjectMetadata;
+            if (objectMetadata == null)
             {
-                Debug.WriteLine("context is not a kustoMetadata. type: " + context.GetType());
+                Debug.WriteLine("context is not a DataSourceObjectMetadata type: " + context.GetType());
             }
             else
             {
                 smoProperties = SmoProperties;
                 DataSourceTreeNode childAsMeItem = (DataSourceTreeNode)child;
-                childAsMeItem.CacheInfoFromModel(kustoMetadata);
+                childAsMeItem.CacheInfoFromModel(objectMetadata);
                 QueryContext oeContext = parent.GetContextAs<QueryContext>();
 
                 // If node has custom name, replaced it with the name already set
@@ -329,7 +335,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 
         public override string GetNodePathName(object objectMetadata)
         {
-            return (objectMetadata as KustoMetadata).Name;
+            return (objectMetadata as DataSourceObjectMetadata).Name;
         }
     }
 }

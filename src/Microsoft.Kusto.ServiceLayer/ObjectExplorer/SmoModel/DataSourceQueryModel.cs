@@ -13,6 +13,7 @@ using Microsoft.Kusto.ServiceLayer.DataSource;
 namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 {
 
+    // TODOKusto: Do we need the Querier. This has been short circuited in smoChildFactoryBase. There is no caller to the "Query" function.
     [Export(typeof(DataSourceQuerier))]
     internal partial class DatabaseQuerier: DataSourceQuerier
     {
@@ -22,9 +23,9 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 
         public override  IEnumerable<DataSourceObjectMetadata> Query(QueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
-            if (context.KustoUtils != null)
+            if (context.DataSource != null)
             {
-                return context.DataSource.GetDatabaseMetadata();
+                return context.DataSource.GetChildObjects(context.ParentObjectMetadata);
             }
             return Enumerable.Empty<DataSourceObjectMetadata>();
         }
@@ -39,17 +40,14 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 
         public override  IEnumerable<DataSourceObjectMetadata> Query(QueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
-            if (context.Parent != null)
+            if (context.ParentObjectMetadata != null)
             {
-                ValidationUtils.IsArgumentEqual(context.Parent.MetadataType, MetadataType.Database, nameof(context.Parent.MetadataType), StringComparer.Ordinal);
-                return context.DataSource.GetTableMetadata(context.Parent.Name);
+                return context.DataSource.GetChildObjects(context.ParentObjectMetadata);
             }
             return Enumerable.Empty<DataSourceObjectMetadata>();
         }
     }
-
     
-
     [Export(typeof(DataSourceQuerier))]
     internal partial class ColumnQuerier: DataSourceQuerier
     {
@@ -59,10 +57,9 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 
         public override  IEnumerable<DataSourceObjectMetadata> Query(QueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
-            if (context.Parent != null)
+            if (context.ParentObjectMetadata != null)
             {
-                ValidationUtils.IsArgumentEqual(context.Parent.MetadataType, MetadataType.Table, nameof(context.Parent.MetadataType), StringComparer.Ordinal);
-                return context.DataSource.GetColumnMetadata(context.Parent.Name);
+                return context.DataSource.GetChildObjects(context.ParentObjectMetadata);
             }
             return Enumerable.Empty<DataSourceObjectMetadata>();
         }

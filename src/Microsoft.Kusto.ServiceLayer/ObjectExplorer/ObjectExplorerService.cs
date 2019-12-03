@@ -508,7 +508,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
                            waitForLockTimeout: timeout,
                            bindOperation: (bindingContext, cancelToken) =>
                            {
-                               session = ObjectExplorerSession.CreateSession(connectionResult, serviceProvider, bindingContext.ServerConnection, bindingContext.KustoUtils, isDefaultOrSystemDatabase);
+                               session = ObjectExplorerSession.CreateSession(connectionResult, serviceProvider, bindingContext.ServerConnection, bindingContext.DataSource, isDefaultOrSystemDatabase);
                                session.ConnectionInfo = connectionInfo;
 
                                sessionMap.AddOrUpdate(uri, session, (key, oldSession) => session);
