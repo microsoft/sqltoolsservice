@@ -7,7 +7,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 {
     public class OnErrorSqlCmdCommand : SqlCmdCommand
     {
-        public OnErrorSqlCmdCommand(OnErrorAction action) : base(LexerTokenType.OnError)
+        internal OnErrorSqlCmdCommand(OnErrorAction action) : base(LexerTokenType.OnError)
         {
             Action = action;
         }

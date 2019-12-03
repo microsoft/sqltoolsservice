@@ -114,6 +114,13 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             stream = null;
             newFilename = null;
             LineInfo lineInfo;
+
+            if (filename == null)
+            {
+                stream = null;
+                return BatchParserAction.Abort;
+            }
+
             filename.GetText(resolveVariables: true, text: out newFilename, lineInfo: out lineInfo);
             string resolvedFileNameWithFullPath = GetFilePath(newFilename);
 

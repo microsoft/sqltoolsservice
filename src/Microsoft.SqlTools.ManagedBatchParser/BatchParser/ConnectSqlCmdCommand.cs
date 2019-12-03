@@ -12,7 +12,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 {
     public class ConnectSqlCmdCommand : SqlCmdCommand
     {
-        public ConnectSqlCmdCommand(string server, string username, string password) : base(LexerTokenType.Connect)
+        internal ConnectSqlCmdCommand(string server, string username, string password) : base(LexerTokenType.Connect)
         {
             Server = server;
             UserName = username;
@@ -30,9 +30,6 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
         /// <returns>returns the connection object is successful, throws otherwise</returns>
         public DbConnection Connect()
         {
-            //close existing batch connection if needed
-            //CloseCurrentConnIfNeeded();
-
             //create SqlConnectionInfo object
             SqlConnectionInfo tempConnectionInfo = new SqlConnectionInfo();
             if (Server != null && Server.Length > 0)
@@ -71,7 +68,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             try
             {
                 string connString = ci.ConnectionString;
-                connString += ";Pooling=false"; //turn off connection pooling
+                connString += ";Pooling=false"; //turn off connection pooling (this is done in other tools so following the same pattern)
 
                 conn = new SqlConnection(connString);
                 conn.Open();

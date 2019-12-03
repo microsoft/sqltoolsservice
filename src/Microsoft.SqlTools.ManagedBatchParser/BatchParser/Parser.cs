@@ -540,6 +540,11 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             Expect(LexerTokenType.Text);
 
             serverName = ResolveVariables(LookaheadToken, 0, null);
+            if (serverName == null)
+            {
+                //found some text but couldn't parse for servername
+                RaiseError(ErrorCode.UnrecognizedToken);
+            }
 
             Accept();
             Accept(LexerTokenType.Whitespace);
@@ -551,7 +556,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                     password = ParsePassword();
                     if(userName == null || password == null)
                     {
-                        //found text but wrong text
+                        //found some text but couldn't parse for user/password
                         RaiseError(ErrorCode.UnrecognizedToken);
                     }
                     break;

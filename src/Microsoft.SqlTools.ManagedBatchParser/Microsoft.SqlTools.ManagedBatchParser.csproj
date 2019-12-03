@@ -20,9 +20,4 @@
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Reference Include="Microsoft.SqlServer.BatchParser">
-      <HintPath>..\..\..\..\SourceTfs\DataTools\SSMS_Main\Externals\Sql\Microsoft.SqlServer.BatchParser.Applocal.x64\lib\native\Microsoft.SqlServer.BatchParser.dll</HintPath>
-    </Reference>
-  </ItemGroup>
 </Project>

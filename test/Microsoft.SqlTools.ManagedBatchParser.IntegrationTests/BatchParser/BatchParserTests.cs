@@ -372,8 +372,16 @@ GO";
             {
                 var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo("master");
                 string serverName = liveConnection.ConnectionInfo.ConnectionDetails.ServerName;
+                string userName = liveConnection.ConnectionInfo.ConnectionDetails.UserName;
+                string password = liveConnection.ConnectionInfo.ConnectionDetails.Password;
                 string sqlCmdQuery = $@"
-:Connect {serverName}
+:Connect {serverName} -U {userName} -P {password}
+GO
+select * from sys.databases where name = 'master'
+GO";
+
+                string sqlCmdQueryIncorrect = $@"
+:Connect {serverName} -u {userName} -p {password}
 GO
 select * from sys.databases where name = 'master'
 GO";
@@ -382,9 +390,17 @@ GO";
                 using (TestExecutor testExecutor = new TestExecutor(sqlCmdQuery, sqlConn, condition))
                 {
                     testExecutor.Run();
-
-                    Assert.True(testExecutor.ResultCountQueue.Count == 1, $"Unexpected number of ResultCount items - expected 0 but got {testExecutor.ResultCountQueue.Count}");
+                    Assert.True(testExecutor.ParserExecutionError == false, "Parse Execution error should be false");
+                    Assert.True(testExecutor.ResultCountQueue.Count == 1, $"Unexpected number of ResultCount items - expected 1 but got {testExecutor.ResultCountQueue.Count}");
                     Assert.True(testExecutor.ErrorMessageQueue.Count == 0, $"Unexpected error messages from test executor : {string.Join(Environment.NewLine, testExecutor.ErrorMessageQueue)}");
+                }
+
+                using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(liveConnection.ConnectionInfo))
+                using (TestExecutor testExecutor = new TestExecutor(sqlCmdQueryIncorrect, sqlConn, condition))
+                {
+                    testExecutor.Run();
+
+                    Assert.True(testExecutor.ParserExecutionError == true, "Parse Execution error should be true");
                 }
             }
         }

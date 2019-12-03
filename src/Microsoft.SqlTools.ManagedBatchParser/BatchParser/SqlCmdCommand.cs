@@ -5,9 +5,12 @@
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 {
+    /// <summary>
+    /// Class to pass back SqlCmd specific properties from Parser to Query Execution
+    /// </summary>
     public class SqlCmdCommand
     {
-        public SqlCmdCommand(LexerTokenType tokenType)
+        internal SqlCmdCommand(LexerTokenType tokenType)
         {
             this.LexerTokenType = tokenType;
         }

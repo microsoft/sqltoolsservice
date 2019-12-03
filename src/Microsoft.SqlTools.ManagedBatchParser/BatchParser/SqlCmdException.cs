@@ -6,6 +6,9 @@ using System;
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 {
+    /// <summary>
+    /// Specific exception type for SQLCMD related issues
+    /// </summary>
     public class SqlCmdException : Exception
     {
         public SqlCmdException(string message) : base(message)

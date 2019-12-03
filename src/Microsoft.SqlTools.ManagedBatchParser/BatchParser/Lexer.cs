@@ -328,10 +328,6 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                 case LexerTokenType.Setvar:
                     SetState(RuleSetvar);
                     break;
-                case LexerTokenType.Connect:
-                    //Sample
-                    SetTextState(TextRuleFlags.ReportWhitespace);
-                    break;
                 case LexerTokenType.Go:
                     SetTextState(TextRuleFlags.ReportWhitespace | TextRuleFlags.RecognizeLineComment);
                     break;
