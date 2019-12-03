@@ -6,6 +6,11 @@ stages:
       vmImage: 'Ubuntu-16.04'
     continueOnError: true
     steps:
+    - task: PowerShell@2
+      inputs:
+        targetType: 'inline'
+        script: 'git clone https://mssqltools.visualstudio.com/CrossPlatBuildScripts/_git/CrossPlatBuildScripts'
+      displayName: Clone CrossPlatBuildScripts
     - task: DownloadPipelineArtifact@2
       displayName: 'Download pipeline source artifacts'
       inputs:
@@ -48,7 +53,7 @@ stages:
       displayName: 'PowerShell Script'
       inputs:
         targetType: filePath
-        filePath: './$(System.DefaultWorkingDirectory)/AutomatedReleases/AutomatedReleases/sqltoolsserviceRelease.ps1'
+        filePath: './$(System.DefaultWorkingDirectory)/CrossPlatBuildScripts/AutomatedReleases/AutomatedReleases/sqltoolsserviceRelease.ps1'
         arguments: '-workspace $(System.DefaultWorkingDirectory)/sqltoolsservice -minTag v2.0.0.0 -target master -tagFormat release'
         workingDirectory: '$(System.DefaultWorkingDirectory)/sqltoolsservice'
       env:
