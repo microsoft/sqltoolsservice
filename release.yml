@@ -6,15 +6,35 @@ stages:
       vmImage: 'Ubuntu-16.04'
     continueOnError: true
     steps:
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        buildType: 'specific'
+        project: 'ae14e11c-7eb2-46af-b588-471e6116d635'
+        definition: '60'
+        specificBuildWithTriggering: true
+        buildVersionToDownload: 'latest'
+        artifactName: 'source'
+        itemPattern: '**/source.tar.gz'
+        targetPath: '$(Agent.TempDirectory)/source'
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        buildType: 'specific'
+        project: 'ae14e11c-7eb2-46af-b588-471e6116d635'
+        definition: '60'
+        specificBuildWithTriggering: true
+        buildVersionToDownload: 'latest'
+        artifactName: 'drop'
+        itemPattern: '**/*'
+        targetPath: '$(Agent.TempDirectory)/drop'
     - task: ExtractFiles@1
       displayName: 'Extract files '
       inputs:
-        archiveFilePatterns: '$(System.DefaultWorkingDirectory)/SQL Tools Service/source/source.tar.gz'
+        archiveFilePatterns: '$(Agent.TempDirectory)/source/source.tar.gz'
         destinationFolder: '$(System.DefaultWorkingDirectory)/sqltoolsservice'
     - task: CopyFiles@2
       displayName: 'Copy Files to: $(System.DefaultWorkingDirectory)/sqltoolsservice/artifacts/package'
       inputs:
-        SourceFolder: '$(System.DefaultWorkingDirectory)/SQL Tools Service/drop'
+        SourceFolder: '$(Agent.TempDirectory)/drop'
         TargetFolder: '$(System.DefaultWorkingDirectory)/sqltoolsservice/artifacts/package'
     - task: AzureKeyVault@1
       displayName: 'Azure Key Vault: ado-secrets'
