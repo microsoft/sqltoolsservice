@@ -114,11 +114,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 
         internal static string CalculateCustomLabel(object context, QueryContext oeContext)
         {
-            UserDefinedDataTypeCollection uddts = null;
-            if (oeContext != null)
-            {
-                uddts = oeContext.Database.UserDefinedDataTypes;
-            }
+            UserDefinedDataTypeCollection uddts = null; // TODOKusto: Remove. Not needed.
             Column column = context as Column;
             if(column != null)
             {

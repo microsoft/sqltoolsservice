@@ -6,6 +6,7 @@
 using System.Collections.Generic;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes;
+using Microsoft.Kusto.ServiceLayer.DataSource;
 
 namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 {
@@ -40,14 +41,14 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
         {
             if(oeContext.DataSource == null) return false; // Assume that database is available
 
-            return !oeContext.DataSource.Exists(objectMetadata);
+            return !oeContext.DataSource.Exists(objectMetadata as DataSourceObjectMetadata);
         }
 
         internal static string GetStatus(object objectMetadata, QueryContext oeContext, IEnumerable<NodeSmoProperty> supportedProperties)
         {
             if(oeContext.DataSource == null) return "Unknown"; // Assume that database is available
 
-            if(oeContext.DataSource.Exists(objectMetadata)) return "Online";
+            if(oeContext.DataSource.Exists(objectMetadata as DataSourceObjectMetadata)) return "Online";
 
             return "Offline";
         }

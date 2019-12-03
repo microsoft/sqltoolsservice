@@ -29,8 +29,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
         private ConnectionSummary connectionSummary;
         private ServerInfo serverInfo;
         private Lazy<QueryContext> context;
-        private SmoWrapper smoWrapper;
-        private SqlServerType sqlServerType;
         private ServerConnection serverConnection;
         private IDataSource dataSource;
 
@@ -44,7 +42,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
             this.dataSource = kustoUtils;
             this.connectionSummary = connInfo.ConnectionSummary;
             this.serverInfo = connInfo.ServerInfo;
-            this.sqlServerType = ServerVersionHelper.CalculateServerType(this.serverInfo);
 
             this.context = new Lazy<QueryContext>(() => CreateContext(serviceProvider));
             this.serverConnection = serverConnection;
@@ -54,22 +51,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
             NodeType = NodeTypes.Server.ToString();
             NodeTypeId = NodeTypes.Server;
             Label = GetConnectionLabel();
-        }
-
-        internal SmoWrapper SmoWrapper
-        {
-            get
-            {
-                if (smoWrapper == null)
-                {
-                    smoWrapper = new SmoWrapper();
-                }
-                return smoWrapper;
-            }
-            set
-            {
-                this.smoWrapper = value;
-            }
         }
 
         /// <summary>
@@ -131,23 +112,10 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
    
             try
             {
-                Server server = SmoWrapper.CreateServer(this.serverConnection);
-                if (server != null)
+                return new QueryContext(this.dataSource, serviceProvider)
                 {
-                    return new QueryContext(server, this.dataSource, serviceProvider, SmoWrapper)
-                    {
-                        ParentObjectMetadata = DataSourceFactory.CreateClusterMetadata(this.dataSource.ClusterName),
-                        SqlServerType = this.sqlServerType
-                    };
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            catch (ConnectionFailureException cfe)
-            {
-                exceptionMessage = cfe.Message;
+                    ParentObjectMetadata = DataSourceFactory.CreateClusterMetadata(this.dataSource.ClusterName),
+                };
             }
             catch (Exception ex)
             {

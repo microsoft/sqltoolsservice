@@ -5,6 +5,8 @@
 
 using Microsoft.SqlServer.Management.Smo;
 
+
+// TODOKusto: Remove this file. These classes might not be needed.
 namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 {
     /// <summary>
@@ -12,60 +14,9 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
     /// </summary>
     internal partial class TablesChildFactory : DataSourceChildFactoryBase
     {
-        public override string GetNodeCustomName(object objectMetadata, QueryContext oeContext)
-        {
-            try
-            {
-                Table table = objectMetadata as Table;
-                if (table != null && IsPropertySupported("IsSystemVersioned", oeContext, table, CachedSmoProperties) && table.IsSystemVersioned)
-                {
-                    return $"{table.Schema}.{table.Name} ({SR.SystemVersioned_LabelPart})";
-                }
-                else if (table != null && IsPropertySupported("IsExternal", oeContext, table, CachedSmoProperties) && table.IsExternal)
-                {
-                    return $"{table.Schema}.{table.Name} ({SR.External_LabelPart})"; 
-                }
-                else if (table != null && IsPropertySupported("IsFileTable", oeContext, table, CachedSmoProperties) && table.IsFileTable)
-                {
-                    return $"{table.Schema}.{table.Name} ({SR.FileTable_LabelPart})"; 
-                }
-            }
-            catch
-            {
-                //Ignore the exception and just not change create custom name
-            }
-
-            return string.Empty;
-        }
-
-        public override string GetNodeSubType(object objectMetadata, QueryContext oeContext)
-        {
-            try
-            {
-                Table table = objectMetadata as Table;
-                if (table != null && IsPropertySupported("TemporalType", oeContext, table, CachedSmoProperties) && table.TemporalType != TableTemporalType.None)
-                {
-                    return "Temporal";
-                }
-                // TODO carbon issue 3125 enable "External" subtype once icon is ready. Otherwise will get missing icon here.
-                // else if (table != null && IsPropertySupported("IsExternal", oeContext, table, CachedSmoProperties) && table.IsExternal)
-                // {
-                //     return "External";
-                // }
-               // return string.Empty;
-
-            }
-            catch
-            {
-                //Ignore the exception and just not change create custom name
-            }
-
-            return string.Empty;
-        }
-
         public override string GetNodePathName(object objectMetadata)
         {
-            return TableCustomNodeHelper.GetPathName(objectMetadata);
+            return base.GetNodePathName(objectMetadata);
         }
     }
 
@@ -74,34 +25,9 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
     /// </summary>
     internal partial class TableChildFactory : DataSourceChildFactoryBase
     {
-        public override string GetNodeCustomName(object objectMetadata, QueryContext oeContext)
-        {
-            Table table = objectMetadata as Table;
-            if (table != null)
-            {
-                return $"{table.Schema}.{table.Name} ({SR.History_LabelPart})";
-            }
-
-            return string.Empty;
-        }
-
         public override string GetNodePathName(object objectMetadata)
         {
-            return TableCustomNodeHelper.GetPathName(objectMetadata);
-        }
-    }
-
-    internal static class TableCustomNodeHelper
-    {
-        internal static string GetPathName(object objectMetadata)
-        {
-            Table table = objectMetadata as Table;
-            if (table != null)
-            {
-                return $"{table.Schema}.{table.Name}";
-            }
-
-            return string.Empty;
+            return base.GetNodePathName(objectMetadata);
         }
     }
 }

@@ -33,35 +33,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 
         protected override void PopulateChildren(bool refresh, string name, CancellationToken cancellationToken)
         {
-            var smoQueryContext = this.GetContextAs<QueryContext>();
-            if (IsAccessible(smoQueryContext))
-            {
-                base.PopulateChildren(refresh, name, cancellationToken);
-            }
-            else
-            {
-                if (string.IsNullOrEmpty(ErrorMessage))
-                {
-                    // Write error message if it wasn't already set during IsAccessible check
-                    ErrorMessage = string.Format(CultureInfo.InvariantCulture, SR.DatabaseNotAccessible, this.NodeValue);
-                }
-            }
-        }
-
-        public bool IsAccessible(QueryContext context)
-        {
-            try
-            {
-                return context?.Database == null || context.Database.IsAccessible;
-            }
-            catch (Exception ex)
-            {
-                var error = string.Format(CultureInfo.InvariantCulture, "Failed to get IsAccessible. error:{0} inner:{1} stacktrace:{2}",
-                    ex.Message, ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);
-                Logger.Write(TraceEventType.Error, error);
-                ErrorMessage = ex.Message;
-                return false;
-            }
+            base.PopulateChildren(refresh, name, cancellationToken);
         }
     }
 }

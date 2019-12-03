@@ -17,60 +17,19 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
     /// </summary>
     public class QueryContext
     {
-        private Server server;
-        private Database database;
         private DataSourceObjectMetadata parent;
-        private SmoWrapper smoWrapper;
-        private ValidForFlag validFor = 0;
-
         public IDataSource DataSource { get; private set; }
 
         /// <summary>
         /// Creates a context object with a server to use as the basis for any queries
         /// </summary>
         /// <param name="server"></param>
-        public QueryContext(Server server, IDataSource dataSource, IMultiServiceProvider serviceProvider)
-            : this(server, dataSource, serviceProvider, null)
+        public QueryContext(IDataSource dataSource, IMultiServiceProvider serviceProvider)
         {
-        }
-
-        internal QueryContext(Server server, IDataSource dataSource, IMultiServiceProvider serviceProvider, SmoWrapper serverManager)
-        {
-            this.server = server;
-            this.DataSource = dataSource;
+            DataSource = dataSource;
             ServiceProvider = serviceProvider;
-            this.smoWrapper = serverManager ?? new SmoWrapper();
         }
-
-        /// <summary>
-        /// The server type 
-        /// </summary>
-        public SqlServerType SqlServerType { get; set; }
-
-        /// <summary>
-        /// The server SMO will query against
-        /// </summary>
-        public Server Server { 
-            get
-            {
-                return GetObjectWithOpenedConnection(server);
-            } 
-        }
-
-        /// <summary>
-        /// Optional Database context object to query against
-        /// </summary>
-        public Database Database { 
-            get
-            {
-                return GetObjectWithOpenedConnection(database);
-            }
-            set
-            {
-                database = value;
-            }
-        }
-
+        
         /// <summary>
         /// Parent of a give node to use for queries
         /// </summary>
@@ -134,33 +93,11 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
         /// <returns>new <see cref="QueryContext"/> with all fields except <see cref="ParentObjectMetadata"/> the same</returns>
         public QueryContext CopyWithParent(DataSourceObjectMetadata parent)
         {
-            QueryContext context = new QueryContext(this.Server, this.kustoUtils, this.ServiceProvider, this.smoWrapper)
+            QueryContext context = new QueryContext(this.DataSource, this.ServiceProvider)
             {
-                database = this.Database,
-                ParentObjectMetadata = parent,
-                SqlServerType = this.SqlServerType,
-                ValidFor = ValidFor
+                ParentObjectMetadata = parent
             };
             return context;
-        }
-
-        /// <summary>
-        /// Indicates which platforms the server and database is valid for
-        /// </summary>
-        public ValidForFlag ValidFor
-        {
-            get
-            {
-                if(validFor == 0)
-                {
-                    validFor = ServerVersionHelper.GetValidForFlag(SqlServerType, Database);
-                }
-                return validFor;
-            }
-            set
-            {
-                validFor = value;
-            }
         }
 
         private T GetObjectWithOpenedConnection<T>(T smoObj)
@@ -180,13 +117,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
         /// </summary>
         public void EnsureConnectionOpen(DataSourceObjectMetadata smoObj)
         {
-            if (!smoWrapper.IsConnectionOpen(smoObj))
-            {
-                // We have a closed server connection. Reopen this
-                // Note: not currently catching connection exceptions. Expect this to bubble
-                // up to calling methods and be logged there as this would be happening there in any case
-                smoWrapper.OpenConnection(smoObj);
-            }
         }
     }
 }

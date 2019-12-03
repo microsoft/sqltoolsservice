@@ -322,8 +322,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
             Debug.Assert(IsAlwaysLeaf == false);
 
             QueryContext context = this.GetContextAs<QueryContext>();
-            bool includeSystemObjects = context != null && context.Database != null ? DatabaseUtils.IsSystemDatabaseConnection(context.Database.Name) : true;
-
+            
             if (children.IsPopulating || context == null)
             {
                 return;
@@ -343,7 +342,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
                         cancellationToken.ThrowIfCancellationRequested();
                         try
                         {
-                            IEnumerable<TreeNode> items = factory.Expand(this, refresh, name, includeSystemObjects, cancellationToken);
+                            IEnumerable<TreeNode> items = factory.Expand(this, refresh, name, true, cancellationToken);
                             if (items != null)
                             {
                                 foreach (TreeNode item in items)

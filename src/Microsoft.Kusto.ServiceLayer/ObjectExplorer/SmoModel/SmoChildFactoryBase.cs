@@ -53,22 +53,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
         {
             QueryContext context = parent.GetContextAs<QueryContext>();
             OnExpandPopulateFolders(allChildren, parent);
-            if (!includeSystemObjects)
-            {
-                allChildren.RemoveAll(x => x.IsSystemObject);
-            }
-            if (context != null && context.ValidFor != 0 && context.ValidFor != ValidForFlag.All)
-            {
-                allChildren.RemoveAll(x =>
-                {
-                    FolderNode folderNode = x as FolderNode;
-                    if (folderNode != null && !ServerVersionHelper.IsValidFor(context.ValidFor, folderNode.ValidFor))
-                    {
-                        return true;
-                    }
-                    return false;
-                });
-            }
         }
 
         /// <summary>
@@ -97,15 +81,8 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
             QueryContext context = parent.GetContextAs<QueryContext>();
             Validate.IsNotNull(nameof(context), context);
 
-            var serverValidFor = context.ValidFor;
-            if (ShouldFilterNode(parent, serverValidFor))
-            {
-                return;
-            }
-
             IEnumerable<DataSourceQuerier> queriers = context.ServiceProvider.GetServices<DataSourceQuerier>(q => IsCompatibleQuerier(q));
             var filters = this.Filters.ToList();
-            var smoProperties = this.SmoProperties.Where(p => ServerVersionHelper.IsValidFor(serverValidFor, p.ValidFor)).Select(x => x.Name);
             if (!string.IsNullOrEmpty(name))
             {
                 filters.Add(new NodeFilter
@@ -118,11 +95,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
             foreach (var querier in queriers)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                if (!querier.IsValidFor(serverValidFor))
-                {
-                    continue;
-                }
-                string propertyFilter = GetProperyFilter(filters, querier.GetType(), serverValidFor);
+
                 try
                 {
                     var objectMetadataList = Enumerable.Empty<DataSourceObjectMetadata>();
@@ -140,7 +113,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
                             Logger.Write(TraceEventType.Error, "kustoMetadata should not be null");
                         }
                         TreeNode childNode = CreateChild(parent, objectMetadata);
-                        if (childNode != null && PassesFinalFilters(childNode, objectMetadata) && !ShouldFilterNode(childNode, serverValidFor))
+                        if (childNode != null)
                         {
                             allChildren.Add(childNode);
                         }
@@ -160,15 +133,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
         private bool ShouldFilterNode(TreeNode childNode, ValidForFlag validForFlag)
         {
             bool filterTheNode = false;
-            DataSourceTreeNode oeTreeNode = childNode as DataSourceTreeNode;
-            if (oeTreeNode != null)
-            {
-                if (!ServerVersionHelper.IsValidFor(validForFlag, oeTreeNode.ValidFor))
-                {
-                    filterTheNode = true;
-                }
-            }
-
+            
             return filterTheNode;
         }
 
@@ -315,27 +280,17 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 
         public static bool IsPropertySupported(string propertyName, QueryContext context, DataSourceObjectMetadata objectMetadata, IEnumerable<NodeSmoProperty> supportedProperties)
         {
-            var property = supportedProperties.FirstOrDefault(x => string.Compare(x.Name, propertyName, StringComparison.InvariantCultureIgnoreCase) == 0);
-            if (property != null)
-            {
-                return ServerVersionHelper.IsValidFor(context.ValidFor, property.ValidFor);
-            }
-            else
-            {
-                // Return true if cannot find the proeprty, SMO still tries to get that property but adding the property to supported list can make loading the nodes faster
-                Logger.Write(TraceEventType.Verbose, $"Smo property name {propertyName} for Smo type {objectMetadata.GetType()} is not added as supported properties. This can cause the performance of loading the OE nodes");
-                return true;
-            }
+            return true;
         }
 
         public override string GetNodeCustomName(object objectMetadata, QueryContext oeContext)
         {
-            return string.Empty;
+            return (objectMetadata as DataSourceObjectMetadata).PrettyName;
         }
 
         public override string GetNodePathName(object objectMetadata)
         {
-            return (objectMetadata as DataSourceObjectMetadata).Name;
+            return (objectMetadata as DataSourceObjectMetadata).Urn;
         }
     }
 }
