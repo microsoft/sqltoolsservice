@@ -1023,6 +1023,9 @@ namespace Microsoft.SqlTools.CoreServices.Connection
                         break;
                     case "SqlLogin":
                         break;
+                    case "ActiveDirectoryPassword":
+                        connectionBuilder.Authentication = SqlAuthenticationMethod.ActiveDirectoryPassword;
+                        break;
                     default:
                         throw new ArgumentException(SR.ConnectionServiceConnStringInvalidAuthType(connectionDetails.AuthenticationType));
                 }
