@@ -14,6 +14,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
     /// </summary>
     internal partial class TablesChildFactory : DataSourceChildFactoryBase
     {
+        // TODOKusto: If we are always passing DataSourceMetadataObject, stop passing object. Make it type safe.
         public override string GetNodePathName(object objectMetadata)
         {
             return base.GetNodePathName(objectMetadata);

@@ -185,7 +185,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         private IDataReader ExecuteQuery(string query, string databaseName = null)
         {
             ValidationUtils.IsArgumentNotNullOrWhiteSpace(query, nameof(query));
-            ValidationUtils.IsArgumentNotNullOrWhiteSpace(databaseName, nameof(databaseName));
 
             var clientRequestProperties = new ClientRequestProperties
             {
@@ -501,8 +500,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                     .OrderBy(row => row.Name, StringComparer.Ordinal); // case-sensitive
 
                 // Fill in all column metadata
-                tableGroups.Select(grouping => {
-                    columnMetadata[GenerateColumnMetadataKey(databaseName, grouping.Key)] = grouping.ToList()
+                tableGroups.ToList().ForEach(grouping => {
+                    columnMetadata[GenerateColumnMetadataKey(databaseName, grouping.Key)] = grouping
                         .Select(row => new ColumnMetadata
                             {
                                 ClusterName = this.ClusterName,
