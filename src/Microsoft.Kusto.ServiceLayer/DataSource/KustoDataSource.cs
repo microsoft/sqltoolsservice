@@ -282,16 +282,17 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                     var prettyNameProperty = schemaTable.Columns["PrettyName"];
 
                     databaseMetadata = reader.ToEnumerable()
-                        .Where(row => !string.IsNullOrWhiteSpace(row[databaseNameProperty.ColumnName].ToString()))
+                        .Where(row => !string.IsNullOrWhiteSpace(row["DatabaseName"].ToString()))
                         .Select(row => new DatabaseMetadata
                         {
                             ClusterName = this.ClusterName,
                             MetadataType = DataSourceMetadataType.Database,
                             MetadataTypeName = DataSourceMetadataType.Database.ToString(),
-                            Name = row[databaseNameProperty.ColumnName].ToString(),
-                            PrettyName = row[prettyNameProperty.ColumnName]?.ToString(),
-                            Urn = $"{this.ClusterName}.{row[databaseNameProperty.ColumnName].ToString()}"
-                        });
+                            Name = row["DatabaseName"].ToString(),
+                            PrettyName = row["PrettyName"]?.ToString(),
+                            Urn = $"{this.ClusterName}.{row["DatabaseName"].ToString()}"
+                        })
+                        .Materialize();
                 }
             }
 
@@ -452,14 +453,16 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 var columns = reader.ToEnumerable()
                     .Select(row => new ColumnInfo
                     {
-                        Table = row[tableNameProperty.ColumnName]?.ToString(),
-                        Name = row[columnNameProperty.ColumnName]?.ToString(),
-                        DataType = row[ColumnTypeProperty.ColumnName]?.ToString().TrimPrefix(SystemPrefix)
+                        Table = row["TableName"]?.ToString(),
+                        Name = row["ColumnName"]?.ToString(),
+                        DataType = row["ColumnType"]?.ToString().TrimPrefix(SystemPrefix)
                     })
                     .Where(row =>
                         !string.IsNullOrWhiteSpace(row.Table)
                         && !string.IsNullOrWhiteSpace(row.Name)
-                        && !string.IsNullOrWhiteSpace(row.DataType));
+                        && !string.IsNullOrWhiteSpace(row.DataType))
+                    .Materialize();
+
                 return columns;
             }
         }

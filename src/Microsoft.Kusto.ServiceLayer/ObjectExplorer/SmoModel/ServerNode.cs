@@ -32,14 +32,14 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
         private ServerConnection serverConnection;
         private IDataSource dataSource;
 
-        public ServerNode(ConnectionCompleteParams connInfo, IMultiServiceProvider serviceProvider, ServerConnection serverConnection, IDataSource kustoUtils)
+        public ServerNode(ConnectionCompleteParams connInfo, IMultiServiceProvider serviceProvider, ServerConnection serverConnection, IDataSource dataSource)
             : base()
         {
             Validate.IsNotNull(nameof(connInfo), connInfo);
             Validate.IsNotNull("connInfo.ConnectionSummary", connInfo.ConnectionSummary);
             Validate.IsNotNull(nameof(serviceProvider), serviceProvider);
 
-            this.dataSource = kustoUtils;
+            this.dataSource = dataSource;
             this.connectionSummary = connInfo.ConnectionSummary;
             this.serverInfo = connInfo.ServerInfo;
 

@@ -811,9 +811,9 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
 
             public string ErrorMessage { get; set; }
 
-            public static ObjectExplorerSession CreateSession(ConnectionCompleteParams response, IMultiServiceProvider serviceProvider, ServerConnection serverConnection, IDataSource kustoUtils, bool isDefaultOrSystemDatabase)
+            public static ObjectExplorerSession CreateSession(ConnectionCompleteParams response, IMultiServiceProvider serviceProvider, ServerConnection serverConnection, IDataSource dataSource, bool isDefaultOrSystemDatabase)
             {
-                ServerNode rootNode = new ServerNode(response, serviceProvider, serverConnection, kustoUtils);
+                ServerNode rootNode = new ServerNode(response, serviceProvider, serverConnection, dataSource);
                 
                 var session = new ObjectExplorerSession(response.OwnerUri, rootNode, serviceProvider, serviceProvider.GetService<ConnectionService>());
                 if (!isDefaultOrSystemDatabase)

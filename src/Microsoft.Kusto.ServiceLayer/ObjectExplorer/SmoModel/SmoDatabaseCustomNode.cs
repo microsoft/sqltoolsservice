@@ -46,11 +46,10 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 
         internal static string GetStatus(object objectMetadata, QueryContext oeContext, IEnumerable<NodeSmoProperty> supportedProperties)
         {
-            if(oeContext.DataSource == null) return "Unknown"; // Assume that database is available
+            // TODOKusto: Remove if not needed. Returning a value appends it to the database name
+            // if(oeContext.DataSource.Exists(objectMetadata as DataSourceObjectMetadata)) return "Online";
 
-            if(oeContext.DataSource.Exists(objectMetadata as DataSourceObjectMetadata)) return "Online";
-
-            return "Offline";
+            return string.Empty;
         }
     }
 }

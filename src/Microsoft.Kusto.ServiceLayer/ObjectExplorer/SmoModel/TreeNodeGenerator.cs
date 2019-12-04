@@ -91,7 +91,8 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
         {
            get
            {
-              return new Type[0];           }
+              return new Type[0];           
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
