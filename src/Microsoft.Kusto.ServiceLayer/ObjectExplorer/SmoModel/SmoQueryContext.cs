@@ -17,7 +17,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
     /// </summary>
     public class QueryContext
     {
-        private DataSourceObjectMetadata parent;
         public IDataSource DataSource { get; private set; }
 
         /// <summary>
@@ -33,16 +32,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
         /// <summary>
         /// Parent of a give node to use for queries
         /// </summary>
-        public DataSourceObjectMetadata ParentObjectMetadata { 
-            get
-            {
-                return GetObjectWithOpenedConnection(parent);
-            }
-            set
-            {
-                parent = value;
-            }
-        }
+        public DataSourceObjectMetadata ParentObjectMetadata { get; set; }
 
         /// <summary>
         /// A query loader that can be used to find <see cref="DataSourceQuerier"/> objects
@@ -62,31 +52,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
         }
 
         /// <summary>
-        /// Gets the <see cref="ObjectExplorerService"/> if available, by looking it up
-        /// from the <see cref="ServiceProvider"/>
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="InvalidOperationException">
-        /// Thrown if the <see cref="ServiceProvider"/> is not set or the <see cref="ObjectExplorerService"/>
-        /// isn't available from that provider
-        /// </exception>
-        public ObjectExplorerService GetObjectExplorerService()
-        {
-            if (ServiceProvider == null)
-            {
-                throw new InvalidOperationException(SqlTools.Hosting.SR.ServiceProviderNotSet);
-            }
-            ObjectExplorerService service = ServiceProvider.GetService<ObjectExplorerService>();
-            if (service == null)
-            {
-                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, 
-                    SqlTools.Hosting.SR.ServiceNotFound, nameof(ObjectExplorerService)));
-            }
-
-            return service;
-        }
-
-        /// <summary>
         /// Copies the context for use by another node
         /// </summary>
         /// <param name="parent">New Parent to set</param>
@@ -98,25 +63,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
                 ParentObjectMetadata = parent
             };
             return context;
-        }
-
-        private T GetObjectWithOpenedConnection<T>(T smoObj)
-            where T : DataSourceObjectMetadata
-        {
-            if (smoObj != null)
-            {
-                EnsureConnectionOpen(smoObj);
-            }
-            return smoObj;
-        }
-
-        /// <summary>
-        /// Ensures the server objects connection context is open. This is used by all child objects, and 
-        /// the only way to easily access is via the server object. This should be called during access of
-        /// any of the object properties
-        /// </summary>
-        public void EnsureConnectionOpen(DataSourceObjectMetadata smoObj)
-        {
         }
     }
 }

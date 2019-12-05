@@ -371,6 +371,10 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                     GetSchema(tm.DatabaseName);
                     return columnMetadata[GenerateColumnMetadataKey(tm.DatabaseName, tm.Name)];
 
+                case DataSourceMetadataType.Folder:
+                    FolderMetadata fm = objectMetadata as FolderMetadata;
+                    return GetFolderChildrenMetadata(fm);
+
                 default:
                     throw new ArgumentException($"Unexpected type {objectMetadata.MetadataType}.");
             }
@@ -415,6 +419,12 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             }
 
             return tableMetadata[databaseName];
+        }
+
+        internal IEnumerable<DataSourceObjectMetadata> GetFolderChildrenMetadata(DataSourceObjectMetadata objectMetadata)
+        {
+            // TODOKusto: Process folders
+            return Enumerable.Empty<DataSourceObjectMetadata>();
         }
 
         public class ColumnInfo

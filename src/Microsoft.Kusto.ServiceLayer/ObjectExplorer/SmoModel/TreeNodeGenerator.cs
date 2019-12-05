@@ -5,6 +5,8 @@ using Microsoft.Kusto.ServiceLayer;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 
+// TODOKusto: This file is not needed.
+
 namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 {
 	
@@ -37,19 +39,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
     internal partial class ServerChildFactory : DataSourceChildFactoryBase
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { "Server" }; }
-
-        protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
-        {
-            DataSourceObjectMetadata folderMetadata = DataSourceFactory.CreateFolderMetadata(parent.ObjectMetadata, SR.SchemaHierarchy_Databases);
-
-            currentChildren.Add(new FolderNode(parent.DataSource, folderMetadata) {
-                NodeValue = SR.SchemaHierarchy_Databases,
-                NodeType = "Folder",
-                NodeTypeId = NodeTypes.Databases,
-                IsSystemObject = false,
-                SortPriority = DataSourceTreeNode.NextSortPriority,
-            });
-        }
     }
 
     [Export(typeof(ChildFactory))]
@@ -80,19 +69,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { "Database" }; }
 
-        protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
-        {
-            DataSourceObjectMetadata folderMetadata = DataSourceFactory.CreateFolderMetadata(parent.ObjectMetadata, SR.SchemaHierarchy_Tables);
-
-            currentChildren.Add(new FolderNode(parent.DataSource, folderMetadata) {
-                NodeValue = SR.SchemaHierarchy_Tables,
-                NodeType = "Folder",
-                NodeTypeId = NodeTypes.Tables,
-                IsSystemObject = false,
-                SortPriority = DataSourceTreeNode.NextSortPriority,
-            });            
-        }
-
         internal override Type[] ChildQuerierTypes
         {
            get
@@ -116,21 +92,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
     internal partial class TablesChildFactory : DataSourceChildFactoryBase
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { "Tables" }; }
-
-        protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
-        {
-            DataSourceObjectMetadata folderMetadata = DataSourceFactory.CreateFolderMetadata(parent.ObjectMetadata, SR.SchemaHierarchy_SystemTables);
-
-            currentChildren.Add(new FolderNode(parent.DataSource, folderMetadata) {
-                NodeValue = SR.SchemaHierarchy_SystemTables,
-                NodeType = "Folder",
-                NodeTypeId = NodeTypes.SystemTables,
-                IsSystemObject = true,
-                IsMsShippedOwned = true,
-                SortPriority = DataSourceTreeNode.NextSortPriority,
-            });
-        }
-
         internal override Type[] ChildQuerierTypes
         {
            get
@@ -152,19 +113,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
     internal partial class TableChildFactory : DataSourceChildFactoryBase
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { "Table" }; }
-
-        protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
-        {
-            DataSourceObjectMetadata folderMetadata = DataSourceFactory.CreateFolderMetadata(parent.ObjectMetadata, SR.SchemaHierarchy_Columns);
-
-            currentChildren.Add(new FolderNode(parent.DataSource, folderMetadata) {
-                NodeValue = SR.SchemaHierarchy_Columns,
-                NodeType = "Folder",
-                NodeTypeId = NodeTypes.Columns,
-                IsSystemObject = false,
-                SortPriority = DataSourceTreeNode.NextSortPriority,
-            });
-        }
     }
     
     [Export(typeof(ChildFactory))]

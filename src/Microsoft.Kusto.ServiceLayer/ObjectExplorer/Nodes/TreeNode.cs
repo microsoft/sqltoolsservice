@@ -9,6 +9,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Threading;
+using System.Linq;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel;
@@ -47,6 +48,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
         {
             DataSource = dataSource;
             ObjectMetadata = objectMetadata;
+            NodeValue = objectMetadata.Name;
         }
 
         /// <summary>
@@ -341,33 +343,16 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
             try
             {
                 ErrorMessage = null;
-                IEnumerable<ChildFactory> childFactories = context.GetObjectExplorerService().GetApplicableChildFactories(this);
-                if (childFactories != null)
+                cancellationToken.ThrowIfCancellationRequested();
+                IEnumerable<TreeNode> items = ExpandChildren(this, refresh, name, true, cancellationToken);
+                if (items != null)
                 {
-                    foreach (var factory in childFactories)
+                    foreach (TreeNode item in items)
                     {
-                        cancellationToken.ThrowIfCancellationRequested();
-                        try
-                        {
-                            IEnumerable<TreeNode> items = factory.Expand(this, refresh, name, true, cancellationToken);
-                            if (items != null)
-                            {
-                                foreach (TreeNode item in items)
-                                {
-                                    children.Add(item);
-                                    item.Parent = this;
-                                }
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            string error = string.Format(CultureInfo.InvariantCulture, "Failed populating oe children. error:{0} inner:{1} stacktrace:{2}",
-                            ex.Message, ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);
-                            Logger.Write(TraceEventType.Error, error);
-                            ErrorMessage = ex.Message;
-                        }
+                        children.Add(item);
+                        item.Parent = this;
                     }
-                }
+                }    
             }
             catch (Exception ex)
             {
@@ -379,6 +364,136 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
             finally
             {
                 EndChildrenInit();
+            }
+        }
+
+        protected IEnumerable<TreeNode> ExpandChildren(TreeNode parent, bool refresh, string name, bool includeSystemObjects, CancellationToken cancellationToken)
+        {
+            List<TreeNode> allChildren = new List<TreeNode>();
+
+            try
+            {
+                OnExpandPopulateFolders(allChildren, parent, cancellationToken);
+                OnExpandPopulateNonFolders(allChildren, parent, refresh, name, cancellationToken);
+            }
+            catch(Exception ex)
+            {
+                string error = string.Format(CultureInfo.InvariantCulture, "Failed expanding oe children. parent:{0} error:{1} inner:{2} stacktrace:{3}", 
+                    parent != null ? parent.GetNodePath() : "", ex.Message, ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);
+                Logger.Write(TraceEventType.Error, error);
+                throw ex;
+            }
+            finally
+            {
+            }
+            return allChildren;
+        }
+
+        /// <summary>
+        /// Populates any folders for a given parent node 
+        /// </summary>
+        /// <param name="allChildren">List to which nodes should be added</param>
+        /// <param name="parent">Parent the nodes are being added to</param>
+        protected void OnExpandPopulateFolders(IList<TreeNode> allChildren, TreeNode parent, CancellationToken cancellationToken)
+        {
+            var folderMetadataList = Enumerable.Empty<DataSourceObjectMetadata>();
+
+            if (parent.DataSource != null)
+            {
+                folderMetadataList = parent.DataSource.GetChildFolders(parent.ObjectMetadata);
+            }
+
+            foreach (var folderMetadata in folderMetadataList)
+            {
+                ValidationUtils.IsNotNull(folderMetadata, nameof(folderMetadata));
+                cancellationToken.ThrowIfCancellationRequested();
+
+                allChildren.Add(new FolderNode(parent.DataSource, folderMetadata) {
+                    NodeValue = folderMetadata.Name,
+                    NodeType = "Folder",
+                    NodeTypeId = NodeTypes.Folder,
+                    IsSystemObject = false,
+                    SortPriority = DataSourceTreeNode.NextSortPriority
+                });
+            }
+        }
+
+        /// <summary>
+        /// Populates any non-folder nodes such as specific items in the tree.
+        /// </summary>
+        /// <param name="allChildren">List to which nodes should be added</param>
+        /// <param name="parent">Parent the nodes are being added to</param>
+        protected void OnExpandPopulateNonFolders(IList<TreeNode> allChildren, TreeNode parent, bool refresh, string name, CancellationToken cancellationToken)
+        {
+            Logger.Write(TraceEventType.Verbose, string.Format(CultureInfo.InvariantCulture, "child factory parent :{0}", parent.GetNodePath()));
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            try
+            {
+                var objectMetadataList = Enumerable.Empty<DataSourceObjectMetadata>();
+
+                if (parent.DataSource != null)
+                {
+                    objectMetadataList = parent.DataSource.GetChildObjects(parent.ObjectMetadata);
+                }
+
+                foreach (var objectMetadata in objectMetadataList)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    if (objectMetadata == null)
+                    {
+                        Logger.Write(TraceEventType.Error, "kustoMetadata should not be null");
+                    }
+                    TreeNode childNode = CreateChild(parent, objectMetadata);
+                    if (childNode != null)
+                    {
+                        allChildren.Add(childNode);
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                string error = string.Format(CultureInfo.InvariantCulture, "Failed getting child objects. parent:{0} error:{1} inner:{2} stacktrace:{3}",
+                parent != null ? parent.GetNodePath() : "", ex.Message, ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);
+                Logger.Write(TraceEventType.Error, error);
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// The glue between the DataSource and the Object Explorer models. Creates the right tree node for each data source type
+        /// </summary>
+        protected TreeNode CreateChild(TreeNode parent, DataSourceObjectMetadata childMetadata)
+        {
+            ValidationUtils.IsNotNull(parent, nameof(parent));
+            ValidationUtils.IsNotNull(childMetadata, nameof(childMetadata));
+
+            switch(childMetadata.MetadataType)
+            {
+                 case DataSourceMetadataType.Database:
+                    return new DataSourceTreeNode(parent.DataSource, childMetadata) {
+                        Parent = parent as ServerNode,
+                        NodeType = "Database",
+    		            NodeTypeId = NodeTypes.Database
+                    };
+
+                case DataSourceMetadataType.Table:
+                    return new DataSourceTreeNode(parent.DataSource, childMetadata) {
+                        NodeType = "Table",
+    		            NodeTypeId = NodeTypes.Table
+                    };
+
+                case DataSourceMetadataType.Column:
+                    return new DataSourceTreeNode(parent.DataSource, childMetadata) {
+                        IsAlwaysLeaf = true,
+                        NodeType = "Column",
+                        SortPriority = DataSourceTreeNode.NextSortPriority
+                    };
+
+                default:
+                    throw new ArgumentException($"Unexpected type {childMetadata.MetadataType}.");
             }
         }
 

@@ -290,7 +290,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 MetadataTypeName = DataSourceMetadataType.Database.ToString(),
                 Name = databaseName,
                 PrettyName = databaseName,
-                Urn = $"{clusterMetadata.Name}.{databaseName}"
+                Urn = $"{clusterMetadata.Urn}.{databaseName}"
             };
         }
 

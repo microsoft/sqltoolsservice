@@ -14,6 +14,7 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.Utility;
 using Microsoft.Kusto.ServiceLayer.DataSource;
+using Microsoft.Kusto.ServiceLayer.Utility;
 
 namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 {
@@ -27,107 +28,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 
         public override IEnumerable<TreeNode> Expand(TreeNode parent, bool refresh, string name, bool includeSystemObjects, CancellationToken cancellationToken)
         {
-            List<TreeNode> allChildren = new List<TreeNode>();
-
-            try
-            {
-                OnExpandPopulateFoldersAndFilter(allChildren, parent, includeSystemObjects);
-                RemoveFoldersFromInvalidSqlServerVersions(allChildren, parent);
-                OnExpandPopulateNonFolders(allChildren, parent, refresh, name, cancellationToken);
-                OnBeginAsyncOperations(parent);
-            }
-            catch(Exception ex)
-            {
-                string error = string.Format(CultureInfo.InvariantCulture, "Failed expanding oe children. parent:{0} error:{1} inner:{2} stacktrace:{3}", 
-                    parent != null ? parent.GetNodePath() : "", ex.Message, ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);
-                Logger.Write(TraceEventType.Error, error);
-                throw ex;
-            }
-            finally
-            {
-            }
-            return allChildren;
-        }
-
-        private void OnExpandPopulateFoldersAndFilter(List<TreeNode> allChildren, TreeNode parent, bool includeSystemObjects)
-        {
-            QueryContext context = parent.GetContextAs<QueryContext>();
-            OnExpandPopulateFolders(allChildren, parent);
-        }
-
-        /// <summary>
-        /// Populates any folders for a given parent node 
-        /// </summary>
-        /// <param name="allChildren">List to which nodes should be added</param>
-        /// <param name="parent">Parent the nodes are being added to</param>
-        protected virtual void OnExpandPopulateFolders(IList<TreeNode> allChildren, TreeNode parent)
-        {
-        }
-
-        /// <summary>
-        /// Populates any non-folder nodes such as specific items in the tree.
-        /// </summary>
-        /// <param name="allChildren">List to which nodes should be added</param>
-        /// <param name="parent">Parent the nodes are being added to</param>
-        protected virtual void OnExpandPopulateNonFolders(IList<TreeNode> allChildren, TreeNode parent, bool refresh, string name, CancellationToken cancellationToken)
-        {
-            Logger.Write(TraceEventType.Verbose, string.Format(CultureInfo.InvariantCulture, "child factory parent :{0}", parent.GetNodePath()));
-
-            if (ChildQuerierTypes == null)
-            {
-                // This node does not support non-folder children
-                return;
-            }
-            QueryContext context = parent.GetContextAs<QueryContext>();
-            Validate.IsNotNull(nameof(context), context);
-
-            IEnumerable<DataSourceQuerier> queriers = context.ServiceProvider.GetServices<DataSourceQuerier>(q => IsCompatibleQuerier(q));
-            var filters = this.Filters.ToList();
-            if (!string.IsNullOrEmpty(name))
-            {
-                filters.Add(new NodeFilter
-                {
-                    Property = "Name",
-                    Type = typeof(string),
-                    Values = new List<object> { name },
-                });
-            }
-            foreach (var querier in queriers)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                try
-                {
-                    var objectMetadataList = Enumerable.Empty<DataSourceObjectMetadata>();
-
-                    if (context.DataSource != null)
-                    {
-                        objectMetadataList = context.DataSource.GetChildObjects(context.ParentObjectMetadata);
-                    }
-
-                    foreach (var objectMetadata in objectMetadataList)
-                    {
-                        cancellationToken.ThrowIfCancellationRequested();
-                        if (objectMetadata == null)
-                        {
-                            Logger.Write(TraceEventType.Error, "kustoMetadata should not be null");
-                        }
-                        TreeNode childNode = CreateChild(parent, objectMetadata);
-                        if (childNode != null)
-                        {
-                            allChildren.Add(childNode);
-                        }
-                    }
-
-                }
-                catch (Exception ex)
-                {
-                    string error = string.Format(CultureInfo.InvariantCulture, "Failed getting smo objects. parent:{0} querier: {1} error:{2} inner:{3} stacktrace:{4}",
-                    parent != null ? parent.GetNodePath() : "", querier.GetType(), ex.Message, ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);
-                    Logger.Write(TraceEventType.Error, error);
-                    throw ex;
-                }
-            }
+            throw new NotImplementedException(); // Moved to TreeNode.cs
         }
 
         private bool ShouldFilterNode(TreeNode childNode, ValidForFlag validForFlag)
@@ -171,20 +72,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
             }
             return false;
 
-        }
-
-        /// <summary>
-        /// Filters out invalid folders if they cannot be displayed for the current server version
-        /// </summary>
-        /// <param name="allChildren">List to which nodes should be added</param>
-        /// <param name="parent">Parent the nodes are being added to</param>
-        protected virtual void RemoveFoldersFromInvalidSqlServerVersions(IList<TreeNode> allChildren, TreeNode parent)
-        {
-        }
-
-        // TODO Assess whether async operations node is required
-        protected virtual void OnBeginAsyncOperations(TreeNode parent)
-        {
         }
 
         public override bool CanCreateChild(TreeNode parent, object context)
