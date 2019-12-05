@@ -813,13 +813,16 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
 
             public static ObjectExplorerSession CreateSession(ConnectionCompleteParams response, IMultiServiceProvider serviceProvider, ServerConnection serverConnection, IDataSource dataSource, bool isDefaultOrSystemDatabase)
             {
-                ServerNode rootNode = new ServerNode(response, serviceProvider, serverConnection, dataSource);
+                DataSourceObjectMetadata objectMetadata = DataSourceFactory.CreateClusterMetadata(dataSource.ClusterName);
+                ServerNode rootNode = new ServerNode(response, serviceProvider, serverConnection, dataSource, objectMetadata);
                 
                 var session = new ObjectExplorerSession(response.OwnerUri, rootNode, serviceProvider, serviceProvider.GetService<ConnectionService>());
                 if (!isDefaultOrSystemDatabase)
                 {
+                    DataSourceObjectMetadata databaseMetadata = DataSourceFactory.CreateDatabaseMetadata(objectMetadata, response.ConnectionSummary.DatabaseName);
+
                     // Assuming the databases are in a folder under server node
-                    DatabaseTreeNode databaseNode = new DatabaseTreeNode(rootNode, response.ConnectionSummary.DatabaseName);
+                    DatabaseTreeNode databaseNode = new DatabaseTreeNode(rootNode, dataSource, databaseMetadata);
                     session.Root = databaseNode;
                 }
 

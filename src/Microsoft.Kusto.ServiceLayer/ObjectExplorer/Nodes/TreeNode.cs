@@ -31,18 +31,30 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
         public const char PathPartSeperator = '/';
 
         /// <summary>
+        /// Object metadata
+        /// </summary>
+        public DataSourceObjectMetadata ObjectMetadata { get; set; }
+
+        /// <summary>
+        /// The DataSource this tree node is representing
+        /// </summary>
+        public IDataSource DataSource { get; set; }
+
+        /// <summary>
         /// Constructor with no required inputs
         /// </summary>
-        public TreeNode()
+        public TreeNode(IDataSource dataSource, DataSourceObjectMetadata objectMetadata)
         {
-
+            DataSource = dataSource;
+            ObjectMetadata = objectMetadata;
         }
 
         /// <summary>
         /// Constructor that accepts a label to identify the node
         /// </summary>
         /// <param name="value">Label identifying the node</param>
-        public TreeNode(string value)
+        public TreeNode(string value, IDataSource dataSource, DataSourceObjectMetadata objectMetadata)
+            : this(dataSource, objectMetadata)
         {
             // We intentionally do not valid this being null or empty since
             // some nodes may need to set it 
@@ -81,11 +93,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
                 nodePathName = value;
             }
         }
-
-        /// <summary>
-        /// Object metadata for smo objects
-        /// </summary>
-        public DataSourceObjectMetadata ObjectMetadata { get; set; }
 
         /// <summary>
         /// The type of the node - for example Server, Database, Folder, Table

@@ -192,7 +192,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
             return false;
         }
 
-        public override TreeNode CreateChild(TreeNode parent, object context)
+        public override TreeNode CreateChild(TreeNode parent, DataSourceObjectMetadata childMetadata)
         {
             throw new NotImplementedException();
         }

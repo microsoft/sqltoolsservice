@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Composition;
-using Microsoft.SqlServer.Management.Smo;
 using Microsoft.Kusto.ServiceLayer;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes;
+using Microsoft.Kusto.ServiceLayer.DataSource;
 
 namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 {
 	
     internal sealed partial class DatabaseTreeNode : DataSourceTreeNode
     {
-    	public DatabaseTreeNode() : base()
+    	public DatabaseTreeNode(IDataSource dataSource, DataSourceObjectMetadata objectMetadata) 
+            : base(dataSource, objectMetadata)
     	{
     		NodeValue = string.Empty;
     		this.NodeType = "Database";
@@ -21,7 +22,8 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 
     internal sealed partial class TableTreeNode : DataSourceTreeNode
     {
-    	public TableTreeNode() : base()
+    	public TableTreeNode(IDataSource dataSource, DataSourceObjectMetadata objectMetadata) 
+            : base(dataSource, objectMetadata)
     	{
     		NodeValue = string.Empty;
     		this.NodeType = "Table";
@@ -38,7 +40,9 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
         {
-            currentChildren.Add(new FolderNode {
+            DataSourceObjectMetadata folderMetadata = DataSourceFactory.CreateFolderMetadata(parent.ObjectMetadata, SR.SchemaHierarchy_Databases);
+
+            currentChildren.Add(new FolderNode(parent.DataSource, folderMetadata) {
                 NodeValue = SR.SchemaHierarchy_Databases,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Databases,
@@ -62,10 +66,10 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
            }
         }
 
-        public override TreeNode CreateChild(TreeNode parent, object context)
+        public override TreeNode CreateChild(TreeNode parent, DataSourceObjectMetadata childMetadata)
         {
-            var child = new DatabaseTreeNode();
-            InitializeChild(parent, child, context);
+            var child = new DatabaseTreeNode(parent as ServerNode, parent.DataSource, childMetadata);
+            InitializeChild(parent, child, childMetadata);
             return child;
         }
     }
@@ -78,7 +82,9 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
         {
-            currentChildren.Add(new FolderNode {
+            DataSourceObjectMetadata folderMetadata = DataSourceFactory.CreateFolderMetadata(parent.ObjectMetadata, SR.SchemaHierarchy_Tables);
+
+            currentChildren.Add(new FolderNode(parent.DataSource, folderMetadata) {
                 NodeValue = SR.SchemaHierarchy_Tables,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Tables,
@@ -95,12 +101,12 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
             }
         }
 
-        public override TreeNode CreateChild(TreeNode parent, object context)
+        public override TreeNode CreateChild(TreeNode parent, DataSourceObjectMetadata childMetadata)
         {
-            var child = new DataSourceTreeNode();
+            var child = new DataSourceTreeNode(parent.DataSource, childMetadata);
             child.IsAlwaysLeaf = true;
             child.NodeType = "Database";
-            InitializeChild(parent, child, context);
+            InitializeChild(parent, child, childMetadata);
             return child;
         }
     }
@@ -113,7 +119,9 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
         {
-            currentChildren.Add(new FolderNode {
+            DataSourceObjectMetadata folderMetadata = DataSourceFactory.CreateFolderMetadata(parent.ObjectMetadata, SR.SchemaHierarchy_SystemTables);
+
+            currentChildren.Add(new FolderNode(parent.DataSource, folderMetadata) {
                 NodeValue = SR.SchemaHierarchy_SystemTables,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.SystemTables,
@@ -131,10 +139,10 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
            }
         }
 
-        public override TreeNode CreateChild(TreeNode parent, object context)
+        public override TreeNode CreateChild(TreeNode parent, DataSourceObjectMetadata childMetadata)
         {
-            var child = new TableTreeNode();
-            InitializeChild(parent, child, context);
+            var child = new TableTreeNode(parent.DataSource, childMetadata);
+            InitializeChild(parent, child, childMetadata);
             return child;
         }
     }
@@ -147,7 +155,9 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
         {
-            currentChildren.Add(new FolderNode {
+            DataSourceObjectMetadata folderMetadata = DataSourceFactory.CreateFolderMetadata(parent.ObjectMetadata, SR.SchemaHierarchy_Columns);
+
+            currentChildren.Add(new FolderNode(parent.DataSource, folderMetadata) {
                 NodeValue = SR.SchemaHierarchy_Columns,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Columns,
@@ -171,13 +181,13 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
            }
         }
 
-        public override TreeNode CreateChild(TreeNode parent, object context)
+        public override TreeNode CreateChild(TreeNode parent, DataSourceObjectMetadata childMetadata)
         {
-            var child = new DataSourceTreeNode();
+            var child = new DataSourceTreeNode(parent.DataSource, childMetadata);
             child.IsAlwaysLeaf = true;
             child.NodeType = "Column";
             child.SortPriority = DataSourceTreeNode.NextSortPriority;
-            InitializeChild(parent, child, context);
+            InitializeChild(parent, child, childMetadata);
             return child;
         }
     }

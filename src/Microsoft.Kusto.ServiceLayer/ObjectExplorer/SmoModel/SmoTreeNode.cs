@@ -20,7 +20,8 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 
         protected QueryContext context;
 
-        public DataSourceTreeNode() : base()
+        public DataSourceTreeNode(IDataSource dataSource, DataSourceObjectMetadata objectMetadata) 
+            : base(dataSource, objectMetadata)
         {
         }
 

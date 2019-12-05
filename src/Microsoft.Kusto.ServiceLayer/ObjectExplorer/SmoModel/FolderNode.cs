@@ -13,6 +13,11 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
     /// </summary>
     public class FolderNode : DataSourceTreeNode
     {
+        public FolderNode(IDataSource dataSource, DataSourceObjectMetadata objectMetadata) 
+            : base(dataSource, objectMetadata)
+        {
+        }
+
         /// <summary>
         /// For folders, this copies the context of its parent if available
         /// </summary>

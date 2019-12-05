@@ -48,7 +48,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         Database = 1,
         Table = 2,
         Column = 3,
-        Function = 4
+        Function = 4,
+        Folder = 5
     }
 
     /// <summary>
@@ -90,6 +91,14 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
     {
         public string TableName { get; set; }
         public string DataType { get; set; }
+    }
+
+    /// <summary>
+    /// Folder metadata information
+    /// </summary>
+    public class FolderMetadata : DataSourceObjectMetadata
+    {
+        public DataSourceObjectMetadata ParentMetadata { get; set; }
     }
     
     /// <summary>
@@ -282,6 +291,20 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 Name = databaseName,
                 PrettyName = databaseName,
                 Urn = $"{clusterMetadata.Name}.{databaseName}"
+            };
+        }
+
+        public static DataSourceObjectMetadata CreateFolderMetadata(DataSourceObjectMetadata parentMetadata, string name)
+        {
+            ValidationUtils.IsNotNull(parentMetadata, nameof(parentMetadata));
+
+            return new FolderMetadata{
+                MetadataType = DataSourceMetadataType.Folder,
+                MetadataTypeName = DataSourceMetadataType.Folder.ToString(),
+                Name = name,
+                PrettyName = name,
+                ParentMetadata = parentMetadata,
+                Urn = $"{parentMetadata.Urn}.Folder_{name}"
             };
         }
     }

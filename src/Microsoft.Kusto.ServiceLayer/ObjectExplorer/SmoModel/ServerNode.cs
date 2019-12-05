@@ -30,16 +30,14 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
         private ServerInfo serverInfo;
         private Lazy<QueryContext> context;
         private ServerConnection serverConnection;
-        private IDataSource dataSource;
 
-        public ServerNode(ConnectionCompleteParams connInfo, IMultiServiceProvider serviceProvider, ServerConnection serverConnection, IDataSource dataSource)
-            : base()
+        public ServerNode(ConnectionCompleteParams connInfo, IMultiServiceProvider serviceProvider, ServerConnection serverConnection, IDataSource dataSource, DataSourceObjectMetadata objectMetadata)
+            : base(dataSource, objectMetadata)
         {
             Validate.IsNotNull(nameof(connInfo), connInfo);
             Validate.IsNotNull("connInfo.ConnectionSummary", connInfo.ConnectionSummary);
             Validate.IsNotNull(nameof(serviceProvider), serviceProvider);
 
-            this.dataSource = dataSource;
             this.connectionSummary = connInfo.ConnectionSummary;
             this.serverInfo = connInfo.ServerInfo;
 
@@ -112,9 +110,9 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
    
             try
             {
-                return new QueryContext(this.dataSource, serviceProvider)
+                return new QueryContext(DataSource, serviceProvider)
                 {
-                    ParentObjectMetadata = DataSourceFactory.CreateClusterMetadata(this.dataSource.ClusterName),
+                    ParentObjectMetadata = this.ObjectMetadata
                 };
             }
             catch (Exception ex)

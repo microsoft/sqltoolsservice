@@ -6,6 +6,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel;
+using Microsoft.Kusto.ServiceLayer.DataSource;
 
 namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
 {
@@ -63,8 +64,8 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
         /// </summary>
         public abstract string GetNodePathName(object objectMetadata);
 
-        public abstract bool CanCreateChild(TreeNode parent, object context);
-        public abstract TreeNode CreateChild(TreeNode parent, object context);
+        public abstract bool CanCreateChild(TreeNode parent, object context); // TODOKusto: Can this context be changed to DataSourceObjectMetadata
+        public abstract TreeNode CreateChild(TreeNode parent, DataSourceObjectMetadata childMetadata);
 
         // TODO Consider whether Remove operations need to be supported
         //public abstract bool CanRemoveChild(TreeNode parent, object context);

@@ -16,12 +16,13 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 {
     internal partial class DatabaseTreeNode
     {
-        public DatabaseTreeNode(ServerNode serverNode, string databaseName): this()
+        public DatabaseTreeNode(ServerNode serverNode, IDataSource dataSource, DataSourceObjectMetadata objectMetadata)
+            : this(dataSource, objectMetadata)
         {
             Parent = serverNode;
-            NodeValue = databaseName;
+            NodeValue = objectMetadata.Name;
 
-            CacheInfoFromModel(DataSourceFactory.CreateDatabaseMetadata(serverNode.ObjectMetadata, databaseName));
+            CacheInfoFromModel(objectMetadata);
         }
 
         /// <summary>
