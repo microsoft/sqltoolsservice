@@ -822,7 +822,11 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
                     DataSourceObjectMetadata databaseMetadata = DataSourceFactory.CreateDatabaseMetadata(objectMetadata, response.ConnectionSummary.DatabaseName);
 
                     // Assuming the databases are in a folder under server node
-                    DatabaseTreeNode databaseNode = new DatabaseTreeNode(rootNode, dataSource, databaseMetadata);
+                    DataSourceTreeNode databaseNode = new DataSourceTreeNode(dataSource, databaseMetadata) {
+                        Parent = rootNode,
+                        NodeType = "Database",
+    		            NodeTypeId = NodeTypes.Database
+                    };
                     session.Root = databaseNode;
                 }
 

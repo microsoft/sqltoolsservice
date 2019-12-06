@@ -25,16 +25,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
         {
         }
 
-        protected virtual void OnInitialize()
-        {
-            // TODO setup initialization
-        }
-        
-        /// <summary>
-        /// Is this a system (MSShipped) object?
-        /// </summary>
-        public bool IsMsShippedOwned { get; set; }
-
         /// <summary>
         /// Indicates which platforms a node is valid for
         /// </summary>
