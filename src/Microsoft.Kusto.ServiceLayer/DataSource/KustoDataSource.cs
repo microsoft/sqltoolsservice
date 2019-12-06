@@ -486,6 +486,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         {
             ValidationUtils.IsNotNull(databaseName, nameof(databaseName));
 
+            // TODOKusto: Get folders and functions
+
             if(!tableMetadata.ContainsKey(databaseName))
             {
                 var columns = GetColumnMetadata(databaseName).Materialize();
