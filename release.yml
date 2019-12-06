@@ -57,3 +57,14 @@ stages:
         workingDirectory: '$(System.DefaultWorkingDirectory)/sqltoolsservice'
       env:
         GITHUB_DISTRO_MIXIN_PASSWORD: $(github-distro-mixin-password)
+
+
+trigger: none
+pr: none
+
+schedules:
+- cron: "0 7 * * Mon-Fri"
+  displayName: Mon-Fri at 7:00
+  branches:
+    include:
+    - master
