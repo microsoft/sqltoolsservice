@@ -12,10 +12,8 @@ stages:
         azureSubscription: 'ClientToolsInfra_670062 (88d5392f-a34f-4769-b405-f597fc533613)'
         KeyVaultName: 'ado-secrets'
         SecretsFilter: 'github-distro-mixin-password,ado-crossplatbuildscripts-password'
-    - task: PowerShell@2
-      inputs:
-        targetType: 'inline'
-        script: 'git clone https://$(ado-crossplatbuildscripts-password)@dev.azure.com/mssqltools/_git/CrossPlatBuildScripts'
+    - powershell: |
+        git clone https://$(ado-crossplatbuildscripts-password)@dev.azure.com/mssqltools/_git/CrossPlatBuildScripts
       displayName: Clone CrossPlatBuildScripts
     - task: DownloadPipelineArtifact@2
       displayName: 'Download pipeline source artifacts'
