@@ -363,7 +363,7 @@ GO";
         }
 
         /// <summary>
-        /// Verify whether the batchParser parsed connect command successfully
+        /// Verify whether the batchParser parsed :connect command successfully
         /// </summary>
         [Fact]
         public void VerifyConnectSqlCmd()
@@ -406,7 +406,7 @@ GO";
         }
         
         /// <summary>
-        /// Verify whether the batchParser parsed on error successfully
+        /// Verify whether the batchParser parsed :on error successfully
         /// </summary>
         [Fact]
         public void VerifyOnErrorSqlCmd()
@@ -441,7 +441,7 @@ GO";
         }
 
         /// <summary>
-        /// Verify whether the batchParser parses Include command successfully
+        /// Verify whether the batchParser parses Include command i.e. :r successfully
         /// </summary>
         [Fact]
         public void VerifyIncludeSqlCmd()
