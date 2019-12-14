@@ -9,7 +9,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 {
     public static class KustoQueryUtils
     {
-        public const string StatementSeparator = "\\n | "; // Start each statement on a new line. Not required by Kusto, but doing this for readability of scripts generated from here.
+        public const string StatementSeparator = "\n | "; // Start each statement on a new line. Not required by Kusto, but doing this for readability of scripts generated from here.
 
         /// <summary>
         /// Escape table/column/database names for a Kusto query.
