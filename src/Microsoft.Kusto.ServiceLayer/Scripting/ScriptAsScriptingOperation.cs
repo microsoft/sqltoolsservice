@@ -144,10 +144,9 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
             string script = string.Empty;
             ScriptingObject scriptingObject = this.Parameters.ScriptingObjects[0];
             Urn objectUrn = urns[0];
-            string typeName = objectUrn.GetNameForType(scriptingObject.Type);
 
             // select from table
-            if (string.Compare(typeName, "Table", StringComparison.CurrentCultureIgnoreCase) == 0)
+            if (string.Compare(scriptingObject.Type, "Table", StringComparison.CurrentCultureIgnoreCase) == 0)
             {
                 script = new Scripter().SelectFromTableOrView(dataSource, objectUrn);
             }

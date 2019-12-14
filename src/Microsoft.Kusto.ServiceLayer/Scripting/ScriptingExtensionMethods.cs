@@ -94,7 +94,6 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         {
             Validate.IsNotNull("scriptingObject", scriptingObject);
             Validate.IsNotNullOrEmptyString("server", server);
-            Validate.IsNotNullOrWhitespaceString("database", database);
 
             Validate.IsNotNullOrWhitespaceString("scriptingObject.Name", scriptingObject.Name);
             Validate.IsNotNullOrWhitespaceString("scriptingObject.Type", scriptingObject.Type);
