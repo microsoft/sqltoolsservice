@@ -1244,7 +1244,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                 {
                     string schemaName = this.GetSchemaName(scriptParseInfo, textDocumentPosition.Position, scriptFile);
                     // Script object using SMO
-                    Scripter scripter = new Scripter(bindingContext.ServerConnection, connInfo);
+                    Scripter scripter = new Scripter(bindingContext.DataSource, connInfo);
                     return scripter.GetScript(
                         scriptParseInfo.ParseResult,
                         textDocumentPosition.Position,

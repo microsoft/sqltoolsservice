@@ -19,6 +19,7 @@ using Microsoft.Kusto.ServiceLayer.LanguageServices;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
 using Microsoft.Kusto.ServiceLayer.Scripting.Contracts;
+using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.SqlTools.Utility;
 using ConnectionType = Microsoft.Kusto.ServiceLayer.Connection.ConnectionType;
 using Location = Microsoft.Kusto.ServiceLayer.Workspace.Contracts.Location;
@@ -33,9 +34,8 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
     {
         private bool error;
         private string errorMessage;
-        private ServerConnection serverConnection;
+        private IDataSource DataSource { get; set; }
         private ConnectionInfo connectionInfo;
-        private Database database;
         private string tempPath;
 
         // Dictionary that holds the object name (as appears on the TSQL create statement)
@@ -54,65 +54,15 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         /// <summary>
         /// Initialize a Peek Definition helper object
         /// </summary>
-        /// <param name="serverConnection">SMO Server connection</param>
-        internal Scripter(ServerConnection serverConnection, ConnectionInfo connInfo)
+        /// <param name="dataSource">Data Source</param>
+        internal Scripter(IDataSource dataSource, ConnectionInfo connInfo)
         {
-            this.serverConnection = serverConnection;
+            this.DataSource = dataSource;
             this.connectionInfo = connInfo;
             this.tempPath = FileUtilities.GetPeekDefinitionTempFolder();
             Initialize();
         }
         
-        internal Database Database
-        {
-            get
-            {
-                if (this.database == null)
-                {
-                    if (this.serverConnection != null && !string.IsNullOrEmpty(this.serverConnection.DatabaseName))
-                    {
-                        try
-                        {
-                            // Reuse existing connection
-                            Server server = new Server(this.serverConnection);
-                            // The default database name is the database name of the server connection
-                            string dbName = this.serverConnection.DatabaseName;
-                            if (this.connectionInfo != null)
-                            {
-                                // If there is a query DbConnection, use that connection to get the database name
-                                // This is preferred since it has the most current database name (in case of database switching)
-                                DbConnection connection;
-                                if (connectionInfo.TryGetConnection(ConnectionType.Query, out connection))
-                                {
-                                    if (!string.IsNullOrEmpty(connection.Database))
-                                    {
-                                        dbName = connection.Database;
-                                    }
-                                }
-                            }
-                            this.database = new Database(server, dbName);
-                            this.database.Refresh();
-                        }
-                        catch (ConnectionFailureException cfe)
-                        {
-                            Logger.Write(TraceEventType.Error, "Exception at PeekDefinition Database.get() : " + cfe.Message);
-                            this.error = true;
-                            this.errorMessage = (connectionInfo != null && connectionInfo.IsCloud) ? SR.PeekDefinitionAzureError(cfe.Message) : SR.PeekDefinitionError(cfe.Message);
-                            return null;
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.Write(TraceEventType.Error, "Exception at PeekDefinition Database.get() : " + ex.Message);
-                            this.error = true;
-                            this.errorMessage = SR.PeekDefinitionError(ex.Message);
-                            return null;
-                        }
-                    }
-                }
-                return this.database;
-            }
-        }
-
         /// <summary>
         /// Add the given type, scriptgetter and the typeName string to the respective dictionaries
         /// </summary>
@@ -146,11 +96,8 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                     {
                         continue;
                     }
-                    if (this.Database == null)
-                    {
-                        return GetDefinitionErrorResult(SR.PeekDefinitionDatabaseError);
-                    }
-                    StringComparison caseSensitivity = this.Database.CaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
+                    
+                    StringComparison caseSensitivity = StringComparison.OrdinalIgnoreCase;
                     // if declarationItem matches the selected token, script SMO using that type
 
                     if (declarationItem.Title.Equals(tokenText, caseSensitivity))
@@ -178,11 +125,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         /// <returns></returns>
         internal DefinitionResult GetDefinitionUsingQuickInfoText(string quickInfoText, string tokenText, string schemaName)
         {
-            if (this.Database == null)
-            {
-                return GetDefinitionErrorResult(SR.PeekDefinitionDatabaseError);
-            }
-            StringComparison caseSensitivity = this.Database.CaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
+            StringComparison caseSensitivity = StringComparison.OrdinalIgnoreCase;
             string tokenType = GetTokenTypeFromQuickInfo(quickInfoText, tokenText, caseSensitivity);
             if (tokenType != null)
             {
@@ -475,9 +418,6 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                 ScriptCreateDrop = "ScriptCreate",
                 TypeOfDataToScript = "SchemaOnly",
                 ScriptStatistics = "ScriptStatsNone",
-                TargetDatabaseEngineEdition = GetTargetDatabaseEngineEdition(),
-                TargetDatabaseEngineType = GetTargetDatabaseEngineType(),
-                ScriptCompatibilityOption = GetScriptCompatibilityOption(),
                 ScriptExtendedProperties = false,
                 ScriptUseDatabase = false,
                 IncludeIfNotExists = false,
@@ -508,27 +448,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                 ScriptDestination = "ToEditor"
             };
 
-            return new ScriptAsScriptingOperation(parameters, serverConnection);
-        }
-
-        internal string GetTargetDatabaseEngineEdition() 
-        {
-            DatabaseEngineEdition dbEngineEdition = this.serverConnection.DatabaseEngineEdition;
-            string dbEngineEditionString;
-            targetDatabaseEngineEditionMap.TryGetValue(dbEngineEdition, out dbEngineEditionString);
-            return (dbEngineEditionString != null) ? dbEngineEditionString : "SqlServerEnterpriseEdition";
-        }
-
-        internal string GetScriptCompatibilityOption()
-        {
-            int serverVersion = this.serverConnection.ServerVersion.Major;
-            string dbEngineTypeString = serverVersionMap[serverVersion];
-            return (dbEngineTypeString != null) ? dbEngineTypeString : "Script140Compat";
-        }
-
-        internal string GetTargetDatabaseEngineType()
-        {
-           return connectionInfo.IsCloud ? "SqlAzure" : "SingleInstance";
+            return new ScriptAsScriptingOperation(parameters, DataSource);
         }
 
         internal bool LineContainsObject(string line, string objectName, string createSyntax)
@@ -754,78 +674,15 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
             return dt;    
         }
 
-        internal string SelectFromTableOrView(Server server, Urn urn, bool isDw)
+        internal string SelectFromTableOrView(IDataSource dataSource, Urn urn)
         {
-            DataTable dt = GetColumnNames(server, urn, isDw);
             StringBuilder selectQuery = new StringBuilder();
 
-            // build the first line
-            if (dt != null && dt.Rows.Count > 0)
-            {
-
-                selectQuery.Append("SELECT TOP (1000) ");
-
-                // first column
-                selectQuery.AppendFormat("{0}{1}{2}\r\n",
-                                         ScriptingGlobals.LeftDelimiter,
-                                         ScriptingUtils.QuoteObjectName(dt.Rows[0][0] as string, ScriptingGlobals.RightDelimiter),
-                                         ScriptingGlobals.RightDelimiter);
-                // add all other columns on separate lines. Make the names align.
-                for (int i = 1; i < dt.Rows.Count; i++)
-                {
-                    selectQuery.AppendFormat("      ,{0}{1}{2}\r\n",
-                                             ScriptingGlobals.LeftDelimiter,
-                                             ScriptingUtils.QuoteObjectName(dt.Rows[i][0] as string, ScriptingGlobals.RightDelimiter),
-                                             ScriptingGlobals.RightDelimiter);
-                }
-            }
-            else 
-            {
-                selectQuery.Append("SELECT TOP (1000) * ");
-            }
-
-            // from clause
-            selectQuery.Append("  FROM ");
-
-            if(server.ServerType != DatabaseEngineType.SqlAzureDatabase)
-            {   
-                // Azure doesn't allow qualifying object names with the DB, so only add it on if we're not in Azure database URN
-                Urn dbUrn = urn.Parent;
-                selectQuery.AppendFormat("{0}{1}{2}.",
-                                     ScriptingGlobals.LeftDelimiter,
-                                     ScriptingUtils.QuoteObjectName(dbUrn.GetAttribute("Name"), ScriptingGlobals.RightDelimiter),
-                                     ScriptingGlobals.RightDelimiter);
-            }
-
-            // schema
-            selectQuery.AppendFormat("{0}{1}{2}.",
-                                     ScriptingGlobals.LeftDelimiter,
-                                     ScriptingUtils.QuoteObjectName(urn.GetAttribute("Schema"), ScriptingGlobals.RightDelimiter),
-                                     ScriptingGlobals.RightDelimiter);
-            // object
-            selectQuery.AppendFormat("{0}{1}{2}",
-                                     ScriptingGlobals.LeftDelimiter,
-                                     ScriptingUtils.QuoteObjectName(urn.GetAttribute("Name"), ScriptingGlobals.RightDelimiter),
-                                     ScriptingGlobals.RightDelimiter);
-
-            // In Hekaton M5, if it's a memory optimized table, we need to provide SNAPSHOT hint for SELECT.
-            if (urn.Type.Equals("Table") && ScriptingUtils.IsXTPSupportedOnServer(server))
-            {
-                try
-                {
-                    Table table = (Table)server.GetSmoObject(urn);
-                    table.Refresh();
-                    if (table.IsMemoryOptimized)
-                    {
-                        selectQuery.Append(" WITH (SNAPSHOT)");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    // log any exceptions determining if InMemory, but don't treat as fatal exception
-                    Logger.Write(TraceEventType.Error, "Could not determine if is InMemory table " + ex.ToString());
-                }
-            }
+            // TODOKusto: Can we combine this with snippets. All queries generated here could also be snippets.
+            // TODOKusto: Extract into the Kusto folder.
+            selectQuery.Append($"{KustoQueryUtils.EscapeName(urn.GetAttribute("Name"))}");
+            selectQuery.Append($"{KustoQueryUtils.StatementSeparator}");
+            selectQuery.Append("limit 1000");
 
             return selectQuery.ToString();
         }

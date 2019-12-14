@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.Scripting.Contracts;
+using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
@@ -37,30 +38,18 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         /// </summary>
         public const char RightDelimiter = ']';
 
-        public ScriptAsScriptingOperation(ScriptingParams parameters, ServerConnection serverConnection): base(parameters)
+        public ScriptAsScriptingOperation(ScriptingParams parameters, IDataSource dataSource): base(parameters)
         {
-            Validate.IsNotNull("serverConnection", serverConnection);
-            ServerConnection = serverConnection;
+            Validate.IsNotNull("dataSource", dataSource);
+            DataSource = dataSource;
         }
 
         public ScriptAsScriptingOperation(ScriptingParams parameters, string azureAccountToken) : base(parameters)
         {
-            SqlConnection sqlConnection = new SqlConnection(this.Parameters.ConnectionString);
-            if (azureAccountToken != null)
-            {
-                sqlConnection.AccessToken = azureAccountToken;
-            }
-
-            ServerConnection = new ServerConnection(sqlConnection);
-            if (azureAccountToken != null)
-            {
-                ServerConnection.AccessToken = new AzureAccessToken(azureAccountToken);
-            }
-
-            disconnectAtDispose = true;
+            DataSource = DataSourceFactory.Create(DataSourceType.Kusto, this.Parameters.ConnectionString, azureAccountToken);
         }
 
-        internal ServerConnection ServerConnection { get; set; }
+        internal IDataSource DataSource { get; set; }
 
         private string serverName;
         private string databaseName;
@@ -76,15 +65,8 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
 
                 this.CancellationToken.ThrowIfCancellationRequested();
                 string resultScript = string.Empty;
-                // TODO: try to use one of the existing connections
-
-                Server server = new Server(ServerConnection);
-                if (!ServerConnection.IsOpen)
-                {
-                    ServerConnection.Connect();
-                }
                 
-                UrnCollection urns = CreateUrns(ServerConnection);
+                UrnCollection urns = CreateUrns(DataSource);
                 ScriptingOptions options = new ScriptingOptions();
                 SetScriptBehavior(options);
                 ScriptAsOptions scriptAsOptions = new ScriptAsOptions(this.Parameters.ScriptOptions);
@@ -99,16 +81,8 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
 
                 switch (this.Parameters.Operation)
                 {
-                    case ScriptingOperationType.Create:
-                    case ScriptingOperationType.Alter:
-                    case ScriptingOperationType.Delete: // Using Delete here is wrong. delete usually means delete rows from table but sqlopsstudio sending the operation name as delete instead of drop
-                        resultScript = GenerateScriptAs(server, urns, options);
-                        break;
                     case ScriptingOperationType.Select:
-                        resultScript = GenerateScriptSelect(server, urns);
-                        break;
-                    case ScriptingOperationType.Execute:
-                        resultScript = GenerareScriptAsExecute(server, urns, options);
+                        resultScript = GenerateScriptSelect(DataSource, urns);
                         break;
                 }
 
@@ -158,124 +132,29 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
             }
             finally
             {
-                if (disconnectAtDispose && ServerConnection != null && ServerConnection.IsOpen)
+                if (disconnectAtDispose && DataSource != null)
                 {
-                    ServerConnection.Disconnect();
+                    DataSource.Dispose();
                 }
             }
         }
 
-        private string GenerateScriptSelect(Server server, UrnCollection urns)
+        private string GenerateScriptSelect(IDataSource dataSource, UrnCollection urns)
         {
             string script = string.Empty;
             ScriptingObject scriptingObject = this.Parameters.ScriptingObjects[0];
             Urn objectUrn = urns[0];
             string typeName = objectUrn.GetNameForType(scriptingObject.Type);
 
-            // select from service broker
-            if (string.Compare(typeName, "ServiceBroker", StringComparison.CurrentCultureIgnoreCase) == 0)
+            // select from table
+            if (string.Compare(typeName, "Table", StringComparison.CurrentCultureIgnoreCase) == 0)
             {
-                script = Scripter.SelectAllValuesFromTransmissionQueue(objectUrn);
-            }
-
-            // select from queues
-            else if (string.Compare(typeName, "Queues", StringComparison.CurrentCultureIgnoreCase) == 0 ||
-                     string.Compare(typeName, "SystemQueues", StringComparison.CurrentCultureIgnoreCase) == 0)
-            {
-                script = Scripter.SelectAllValues(objectUrn);
-            }
-
-            // select from table or view
-            else
-            {
-                Database db = server.Databases[databaseName];
-                bool isDw = db.IsSqlDw;
-                script = new Scripter().SelectFromTableOrView(server, objectUrn, isDw);
+                script = new Scripter().SelectFromTableOrView(dataSource, objectUrn);
             }
 
             return script;
         }
 
-        private string GenerareScriptAsExecute(Server server, UrnCollection urns, ScriptingOptions options)
-        {
-            string script = string.Empty;
-            ScriptingObject scriptingObject = this.Parameters.ScriptingObjects[0];
-            Urn urn = urns[0];
-
-            // get the object
-            StoredProcedure sp = server.GetSmoObject(urn) as StoredProcedure;
-
-            Database parentObject = server.GetSmoObject(urn.Parent) as Database;
-
-            StringBuilder executeStatement = new StringBuilder();
-
-            // list of DECLARE <variable> <type>
-            StringBuilder declares = new StringBuilder();
-            // Parameters to be passed
-            StringBuilder parameterList = new StringBuilder();
-            if (sp == null || parentObject == null)
-            {
-                throw new InvalidOperationException(SR.ScriptingExecuteNotSupportedError);
-            }
-            WriteUseDatabase(parentObject, executeStatement, options);
-
-            // character string to put in front of each parameter. First one is just carriage return
-            // the rest will have a "," in front as well.
-            string newLine = Environment.NewLine;
-            string paramListPreChar = $"{newLine}   ";
-            for (int i = 0; i < sp.Parameters.Count; i++)
-            {
-                StoredProcedureParameter spp = sp.Parameters[i];
-
-                declares.AppendFormat("DECLARE {0} {1}{2}"
-                                      , QuoteObjectName(spp.Name)
-                                      , GetDatatype(spp.DataType, options)
-                                      , newLine);
-
-                parameterList.AppendFormat("{0}{1}"
-                                           , paramListPreChar
-                                           , QuoteObjectName(spp.Name));
-
-                // if this is the first time through change the prefix to include a ","
-                if (i == 0)
-                {
-                    paramListPreChar = $"{newLine}  ,";
-                }
-
-                // mark any output parameters as such.
-                if (spp.IsOutputParameter)
-                {
-                    parameterList.Append(" OUTPUT");
-                }
-            }
-
-            // build the execute statement
-            if (sp.ImplementationType == ImplementationType.TransactSql)
-            {
-                executeStatement.Append("EXECUTE @RC = ");
-            }
-            else
-            {
-                executeStatement.Append("EXECUTE ");
-            }
-
-            // get the object name
-            executeStatement.Append(GenerateSchemaQualifiedName(sp.Schema, sp.Name, options.SchemaQualify));
-
-            string formatString = sp.ImplementationType == ImplementationType.TransactSql
-                                  ? "DECLARE @RC int{5}{0}{5}{1}{5}{5}{2} {3}{5}{4}"
-                                  : "{0}{5}{1}{5}{5}{2} {3}{5}{4}";
-
-            script = string.Format(CultureInfo.InvariantCulture, formatString,
-                declares,
-                SR.StoredProcedureScriptParameterComment,
-                executeStatement,
-                parameterList,
-                CommonConstants.DefaultBatchSeperator,
-                newLine);
-
-            return script;
-        }
 
         /// <summary>
         /// Generate a schema qualified name (e.g. [schema].[objectName]) for an object if the option for SchemaQualify is true
@@ -445,45 +324,6 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
             }
         }
 
-        private string GenerateScriptAs(Server server, UrnCollection urns, ScriptingOptions options)
-        {
-            SqlServer.Management.Smo.Scripter scripter = null;
-            string resultScript = string.Empty;
-            try
-            {
-                scripter = new SqlServer.Management.Smo.Scripter(server);
-                if(this.Parameters.Operation == ScriptingOperationType.Alter)
-                {
-                    options.ScriptForAlter = true;
-                    foreach (var urn in urns)
-                    {
-                        SqlSmoObject objectMetadata = server.GetSmoObject(urn);
-
-                        // without calling the toch method, no alter script get generated from smo
-                        objectMetadata.Touch();
-                    }
-                }
-
-                scripter.Options = options;
-                scripter.ScriptingError += ScripterScriptingError;
-                var result = scripter.Script(urns);
-                resultScript = GetScript(options, result);
-            }
-            catch
-            {
-                throw;
-            }
-            finally
-            {
-                if (scripter != null)
-                {
-                    scripter.ScriptingError -= this.ScripterScriptingError;
-                }
-            }
-
-            return resultScript;
-        }
-
         private string GetScript(ScriptingOptions options, StringCollection stringCollection)
         {
             StringBuilder sb = new StringBuilder();
@@ -510,11 +350,11 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
             return sb.ToString();
         }
 
-        private UrnCollection CreateUrns(ServerConnection serverConnection)
+        private UrnCollection CreateUrns(IDataSource dataSource)
         {
             IEnumerable<ScriptingObject> selectedObjects = new List<ScriptingObject>(this.Parameters.ScriptingObjects);
 
-            serverName = serverConnection.TrueName;
+            serverName = dataSource.ClusterName;
             databaseName = new SqlConnectionStringBuilder(this.Parameters.ConnectionString).InitialCatalog;
             UrnCollection urnCollection = new UrnCollection();
             foreach (var scriptingObject in selectedObjects)

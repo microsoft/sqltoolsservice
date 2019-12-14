@@ -6,6 +6,7 @@
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.Scripting.Contracts;
+using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.SqlTools.Utility;
 using System;
 using System.Data.SqlClient;
@@ -74,34 +75,11 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
 
         protected string GetServerNameFromLiveInstance(string connectionString, string azureAccessToken)
         {
-            string serverName = null;
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            string serverName = string.Empty;
+            
+            using(var dataSource = DataSourceFactory.Create(DataSourceType.Kusto, connectionString, azureAccessToken))
             {
-                if (azureAccessToken != null)
-                {
-                    connection.AccessToken = azureAccessToken;
-                }
-                connection.Open();
-
-                try
-                {
-                    ServerConnection serverConnection;
-                    if (azureAccessToken == null)
-                    {
-                        serverConnection = new ServerConnection(connection);
-                    }
-                    else
-                    {
-                        serverConnection = new ServerConnection(connection, new AzureAccessToken(azureAccessToken));
-                    }
-                    serverName = serverConnection.TrueName;
-                }
-                catch (SqlException e)
-                {
-                    Logger.Write(
-                        TraceEventType.Verbose,
-                        string.Format("Exception getting server name", e));
-                }
+                serverName = dataSource.ClusterName;
             }
 
             Logger.Write(TraceEventType.Verbose, string.Format("Resolved server name '{0}'", serverName));
