@@ -1,0 +1,209 @@
+pool:
+  name: Hosted VS2017
+  demands:
+  - Cmd
+  - npm
+
+steps:
+- task: ArchiveFiles@1
+  displayName: 'Archive source '
+  inputs:
+    rootFolder: '$(Build.SourcesDirectory)'
+    includeRootFolder: false
+    archiveType: tar
+    archiveFile: '$(Build.ArtifactStagingDirectory)/source.tar.gz'
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact: source'
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)/source.tar.gz'
+    ArtifactName: source
+
+- task: UseDotNet@2
+  displayName: 'Use .NET Core sdk 2.2.108'
+  inputs:
+    version: 2.2.108
+
+- task: DotNetCoreCLI@1
+  displayName: 'dotnet restore src/Microsoft.SqlTools.Credentials'
+  inputs:
+    command: restore
+    projects: '$(Build.SourcesDirectory)/src/Microsoft.SqlTools.Credentials'
+    arguments: '--configfile $(Build.SourcesDirectory)/nuget.config'
+
+- task: DotNetCoreCLI@1
+  displayName: 'dotnet restore src/Microsoft.SqlTools.Hosting'
+  inputs:
+    command: restore
+    projects: '$(Build.SourcesDirectory)/src/Microsoft.SqlTools.Hosting'
+    arguments: '--configfile $(Build.SourcesDirectory)/nuget.config'
+
+- task: DotNetCoreCLI@1
+  displayName: 'dotnet restore src/Microsoft.SqlTools.ServiceLayer'
+  inputs:
+    command: restore
+    projects: '$(Build.SourcesDirectory)/src/Microsoft.SqlTools.ServiceLayer'
+    arguments: '--configfile $(Build.SourcesDirectory)/nuget.config'
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet build src/Microsoft.SqlTools.ServiceLayer'
+  inputs:
+    projects: '$(Build.SourcesDirectory)/src/Microsoft.SqlTools.ServiceLayer'
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet build src/Microsoft.SqlTools.ServiceLayer --configuration Release'
+  inputs:
+    projects: '$(Build.SourcesDirectory)/src/Microsoft.SqlTools.ServiceLayer '
+    arguments: '--configuration Release'
+
+- task: BatchScript@1
+  displayName: 'Run script build.cmd'
+  inputs:
+    filename: build.cmd
+    arguments: '-target=all -mono'
+  continueOnError: true
+
+- task: DotNetCoreCLI@1
+  displayName: 'dotnet restore test/Microsoft.SqlTools.ServiceLayer.UnitTests'
+  inputs:
+    command: restore
+    projects: test/Microsoft.SqlTools.ServiceLayer.UnitTests
+
+- task: DotNetCoreCLI@1
+  displayName: 'dotnet test test/Microsoft.SqlTools.ServiceLayer.UnitTests'
+  inputs:
+    command: test
+    projects: test/Microsoft.SqlTools.ServiceLayer.UnitTests
+    arguments: '--logger "trx;LogFileName=xunit.trx"'
+
+- task: Npm@1
+  displayName: 'npm install -g gulp-cli'
+  inputs:
+    command: custom
+    verbose: false
+    customCommand: 'install -g gulp-cli'
+
+- task: BatchScript@1
+  displayName: 'Run script test/CodeCoverage/runintegration.bat'
+  inputs:
+    filename: test/CodeCoverage/runintegration.bat
+    workingFolder: test/CodeCoverage
+  enabled: false
+
+- script: |
+   copy /Y $(Build.SourcesDirectory)\bin\patch\*  $(Build.SourcesDirectory)\artifacts\publish\Microsoft.SqlTools.ServiceLayer\osx.10.11-x64\netcoreapp2.2\
+   
+  displayName: 'Copy SqlClient KeepAlive patch to macOS archive'
+
+- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+  displayName: 'ESRP CodeSigning - sha256 only'
+  inputs:
+    ConnectedServiceName: 'Code Signing'
+    FolderPath: '$(Build.SourcesDirectory)/artifacts/publish'
+    Pattern: 'Microsoft.SqlTools.ManagedBatchParser.dll,MicrosoftSqlToolsCredentials.exe,MicrosoftSqlToolsServiceLayer.exe,SqlSerializationService.exe,SqlToolsResourceProviderService.exe,Microsoft.SqlTools.Hosting.dll,Microsoft.SqlTools.ResourceProvider.Core.dll,Microsoft.SqlTools.ResourceProvider.DefaultImpl.dll,MicrosoftSqlToolsCredentials.dll,MicrosoftSqlToolsServiceLayer.dll,Newtonsoft.Json.dll,SqlSerializationService.dll,SqlToolsResourceProviderService.dll,System.Data.SqlClient.dll,System.Net.Sockets.dll'
+    signConfigType: inlineSignParams
+    inlineOperation: |
+     [
+       {
+         "keyCode": "CP-230012",
+         "operationSetCode": "SigntoolSign",
+         "parameters": [
+         {
+           "parameterName": "OpusName",
+           "parameterValue": "SQL Tools Service"
+         },
+         {
+           "parameterName": "OpusInfo",
+           "parameterValue": "https://github.com/microsoft/sqltoolsservice"
+         },
+         {
+           "parameterName": "PageHash",
+           "parameterValue": "/NPH"
+         },
+         {
+           "parameterName": "FileDigest",
+           "parameterValue": "/fd sha256"
+         },
+         {
+           "parameterName": "TimeStamp",
+           "parameterValue": "/tr \"http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer\" /td sha256"
+         }
+         ],
+         "toolName": "signtool.exe",
+         "toolVersion": "6.2.9304.0"
+       },
+       {
+         "keyCode": "CP-230012",
+         "operationSetCode": "SigntoolVerify",
+         "parameters": [
+         {
+           "parameterName": "VerifyAll",
+           "parameterValue": "/all"
+         }
+             ],
+         "toolName": "signtool.exe",
+         "toolVersion": "6.2.9304.0"
+       }
+     ]
+    SessionTimeout: 600
+    MaxConcurrency: 5
+  condition: and(succeeded(), eq(variables['signed'], true))
+
+- task: ArchiveFiles@1
+  displayName: 'Archive osx build'
+  inputs:
+    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/osx.10.11-x64/netcoreapp2.2'
+    includeRootFolder: false
+    archiveType: tar
+    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-osx-x64-netcoreapp2.2.tar.gz'
+
+- task: ArchiveFiles@1
+  displayName: 'Archive rhel build'
+  inputs:
+    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/rhel.7.2-x64/netcoreapp2.2'
+    includeRootFolder: false
+    archiveType: tar
+    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-rhel-x64-netcoreapp2.2.tar.gz'
+
+- task: ArchiveFiles@1
+  displayName: 'Archive windows 64 bit build'
+  inputs:
+    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win7-x64/netcoreapp2.2'
+    includeRootFolder: false
+    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win-x64-netcoreapp2.2.zip'
+
+- task: ArchiveFiles@1
+  displayName: 'Archive windows 32 bit build'
+  inputs:
+    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win7-x86/netcoreapp2.2'
+    includeRootFolder: false
+    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win-x86-netcoreapp2.2.zip'
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact: drop'
+  inputs:
+    PathtoPublish: '$(Build.SourcesDirectory)/artifacts/package'
+
+- task: NuGetCommand@2
+  displayName: 'NuGet push'
+  inputs:
+    command: push
+    packagesToPush: '$(Build.SourcesDirectory)/artifacts/nugetPackages/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
+    publishVstsFeed: '2191dd5f-4aec-491b-ac50-568bbc331c8a'
+    allowPackageConflicts: true
+
+- task: PublishTestResults@2
+  displayName: 'Publish Test Results **/xunit.trx'
+  inputs:
+    testResultsFormat: VSTest
+    testResultsFiles: '**/xunit.trx'
+
+trigger: none
+pr: none
+
+schedules:
+- cron: "0 5 * * Mon-Fri"
+  displayName: Mon-Fri at 5:00AM
+  branches:
+    include:
+    - master
