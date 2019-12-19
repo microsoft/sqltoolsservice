@@ -8,7 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data.Common;
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 using System.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility

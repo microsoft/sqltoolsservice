@@ -10,7 +10,7 @@ using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined;
 using System;
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 using System.Globalization;
 using System.IO;
 using System.Text;
