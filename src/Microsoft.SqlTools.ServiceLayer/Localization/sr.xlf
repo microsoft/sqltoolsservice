@@ -1590,7 +1590,7 @@
         <source>Azure SQL Stretch Database</source>
         <target state="new">Azure SQL Stretch Database</target>
         <note></note>
-      </trans-unit>	  
+      </trans-unit>
       <trans-unit id="AzureSqlAnalyticsOnDemandEdition">
         <source>Azure SQL Analytics on-demand</source>
         <target state="new">Azure SQL Analytics on-demand</target>
