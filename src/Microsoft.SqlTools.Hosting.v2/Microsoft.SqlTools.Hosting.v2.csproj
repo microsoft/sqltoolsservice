@@ -31,5 +31,4 @@
     <EmbeddedResource Include="Localization\sr.resx" />
     <None Include="Localization\sr.strings" />
   </ItemGroup>
-  <Import Project="..\sqltools.common.targets" />
 </Project>

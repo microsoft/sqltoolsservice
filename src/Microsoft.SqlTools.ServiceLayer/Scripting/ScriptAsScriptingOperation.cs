@@ -5,7 +5,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
     /// </summary>
     public class ScriptAsScriptingOperation : SmoScriptingOperation
     {
-        private static Dictionary<string, SqlServerVersion> scriptCompatabilityMap = LoadScriptCompatabilityMap();
+        private static readonly Dictionary<string, SqlServerVersion> scriptCompatibilityMap = LoadScriptCompatibilityMap();
         /// <summary>
         /// Left delimiter for an named object
         /// </summary>
@@ -548,7 +548,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             }
         }
 
-        private static Dictionary<string, SqlServerVersion> LoadScriptCompatabilityMap()
+        private static Dictionary<string, SqlServerVersion> LoadScriptCompatibilityMap()
         {
             return new Dictionary<string, SqlServerVersion>
             {
@@ -561,6 +561,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 {SqlScriptOptions.ScriptCompatibilityOptions.Script100Compat.ToString(), SqlServerVersion.Version100},
                 {SqlScriptOptions.ScriptCompatibilityOptions.Script90Compat.ToString(), SqlServerVersion.Version90}
             };
+
         }
 
         private void SetScriptingOptions(ScriptingOptions scriptingOptions)
@@ -573,7 +574,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             //We always want role memberships for users and database roles to be scripted
             scriptingOptions.IncludeDatabaseRoleMemberships = true;
             SqlServerVersion targetServerVersion;
-            if(scriptCompatabilityMap.TryGetValue(this.Parameters.ScriptOptions.ScriptCompatibilityOption, out targetServerVersion))
+            if(scriptCompatibilityMap.TryGetValue(this.Parameters.ScriptOptions.ScriptCompatibilityOption, out targetServerVersion))
             {
                 scriptingOptions.TargetServerVersion = targetServerVersion;
             }

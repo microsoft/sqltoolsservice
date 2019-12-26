@@ -185,11 +185,24 @@ namespace Microsoft.SqlTools.Utility
             {
                 Write(TraceEventType.Information, LogEvent.OsSubSystem, $"Unable to get process id of current running process\nException encountered:{ex}");
                 // if the pid look up fails for any reason, just use a random number
-                uniqueId = new Random().Next(1000, 9999);
+                uniqueId = new Random().Next(10000, 99999);
+            }
+
+            string fileName;
+            try 
+            {
+                var now = DateTime.Now;
+                fileName = string.Format(CultureInfo.InvariantCulture,
+                    "{0}_{1,4:D4}{2,2:D2}{3,2:D2}{4,2:D2}{5,2:D2}{6,2:D2}_{7}.log",
+                    logFilePrefix, now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second, uniqueId);
+            }
+            catch (Exception)
+            {
+                fileName = string.Format(CultureInfo.InvariantCulture, "{0}_{1}.log", logFilePrefix, uniqueId);
             }
 
             // make the log path unique
-            return $"{logFilePrefix}_{DateTime.Now.Year,4:D4}{DateTime.Now.Month,2:D2}{DateTime.Now.Day,2:D2}{DateTime.Now.Hour,2:D2}{DateTime.Now.Minute,2:D2}{DateTime.Now.Second,2:D2}_{uniqueId}.log";
+            return fileName;
         }
 
         private static void ConfigureListener()

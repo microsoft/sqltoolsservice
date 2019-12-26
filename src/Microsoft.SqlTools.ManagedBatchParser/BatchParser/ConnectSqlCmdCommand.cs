@@ -6,7 +6,7 @@ using Microsoft.SqlServer.Management.Common;
 using System;
 using System.Data;
 using System.Data.Common;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 {

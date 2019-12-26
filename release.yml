@@ -1,0 +1,68 @@
+stages:
+- stage: Release
+  jobs:
+  - job: Release
+    pool:
+      vmImage: 'Ubuntu-16.04'
+    continueOnError: true
+    steps:
+    - task: AzureKeyVault@1
+      displayName: 'Azure Key Vault: ado-secrets'
+      inputs:
+        azureSubscription: 'ClientToolsInfra_670062 (88d5392f-a34f-4769-b405-f597fc533613)'
+        KeyVaultName: 'ado-secrets'
+        SecretsFilter: 'github-distro-mixin-password,ado-crossplatbuildscripts-password'
+    - powershell: |
+        git clone https://$(ado-crossplatbuildscripts-password)@dev.azure.com/mssqltools/_git/CrossPlatBuildScripts
+      displayName: Clone CrossPlatBuildScripts
+    - task: DownloadPipelineArtifact@2
+      displayName: 'Download pipeline source artifacts'
+      inputs:
+        buildType: 'specific'
+        project: 'ae14e11c-7eb2-46af-b588-471e6116d635'
+        definition: '60'
+        specificBuildWithTriggering: true
+        buildVersionToDownload: 'latest'
+        artifactName: 'source'
+        itemPattern: '**/source.tar.gz'
+        targetPath: '$(Agent.TempDirectory)/source'
+    - task: DownloadPipelineArtifact@2
+      displayName: 'Download pipeline drop artifacts'
+      inputs:
+        buildType: 'specific'
+        project: 'ae14e11c-7eb2-46af-b588-471e6116d635'
+        definition: '60'
+        specificBuildWithTriggering: true
+        buildVersionToDownload: 'latest'
+        artifactName: 'drop'
+        itemPattern: '**/*'
+        targetPath: '$(Agent.TempDirectory)/drop'
+    - task: ExtractFiles@1
+      displayName: 'Extract files '
+      inputs:
+        archiveFilePatterns: '$(Agent.TempDirectory)/source/source.tar.gz'
+        destinationFolder: '$(System.DefaultWorkingDirectory)/sqltoolsservice'
+    - task: CopyFiles@2
+      displayName: 'Copy Files to: $(System.DefaultWorkingDirectory)/sqltoolsservice/artifacts/package'
+      inputs:
+        SourceFolder: '$(Agent.TempDirectory)/drop'
+        TargetFolder: '$(System.DefaultWorkingDirectory)/sqltoolsservice/artifacts/package'
+    - task: PowerShell@2
+      displayName: 'PowerShell Script'
+      inputs:
+        filePath: '$(System.DefaultWorkingDirectory)/CrossPlatBuildScripts/AutomatedReleases/sqltoolsserviceRelease.ps1'
+        arguments: '-workspace $(System.DefaultWorkingDirectory)/sqltoolsservice -minTag v2.0.0.0 -target master -tagFormat release'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/sqltoolsservice'
+      env:
+        GITHUB_DISTRO_MIXIN_PASSWORD: $(github-distro-mixin-password)
+
+
+trigger: none
+pr: none
+
+schedules:
+- cron: "0 7 * * Mon-Fri"
+  displayName: Mon-Fri at 7:00
+  branches:
+    include:
+    - master

@@ -5,7 +5,7 @@
 
 
 using System.Data.Common;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.CoreServices.Connection.ReliableConnection;
 
 public static class ConnectionUtils
