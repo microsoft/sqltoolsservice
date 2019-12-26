@@ -31,23 +31,23 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
         public DbConnection Connect()
         {
             //create SqlConnectionInfo object
-            SqlConnectionInfo tempConnectionInfo = new SqlConnectionInfo();
+            SqlConnectionInfo connectionInfo = new SqlConnectionInfo();
             if (Server != null && Server.Length > 0)
             {
-                tempConnectionInfo.ServerName = Server;
+                connectionInfo.ServerName = Server;
             }
             if (UserName != null && UserName.Length > 0)
             {
-                tempConnectionInfo.UseIntegratedSecurity = false;
-                tempConnectionInfo.UserName = UserName;
-                tempConnectionInfo.Password = Password;
+                connectionInfo.UseIntegratedSecurity = false;
+                connectionInfo.UserName = UserName;
+                connectionInfo.Password = Password;
             }
             else
             {
-                tempConnectionInfo.UseIntegratedSecurity = true;
+                connectionInfo.UseIntegratedSecurity = true;
             }
 
-            DbConnection dbConnection = AttemptToEstablishCurConnection(tempConnectionInfo);
+            DbConnection dbConnection = AttemptToEstablishCurConnection(connectionInfo);
             return dbConnection;
         }
 

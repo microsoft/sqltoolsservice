@@ -502,7 +502,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             }
             else
             {
-                ExecuteBatchInternal(script, /* num */ 1, /* lineNumber */ 0, /* sqlcmdCommand required for parsing only*/ null);
+                ExecuteBatchInternal(script, num: 1, lineNumber: 0, /* sqlcmdCommand required for parsing only*/ sqlCmdCommand: null);
             }
 
         }
