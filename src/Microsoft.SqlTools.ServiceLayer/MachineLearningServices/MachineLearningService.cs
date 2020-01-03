@@ -18,6 +18,10 @@ namespace Microsoft.SqlTools.ServiceLayer.MachineLearningServices
 {
     public class MachineLearningService
     {
+        private const int ExternalScriptConfigNumber = 1586;
+        private const string LanguageStatusScript = @"SELECT is_installed
+FROM sys.dm_db_external_language_stats s, sys.external_languages l
+WHERE s.external_language_id = l.external_language_id AND language = @LanguageName";
         private ConnectionService connectionService = null;
         private static readonly Lazy<MachineLearningService> instance = new Lazy<MachineLearningService>(() => new MachineLearningService());
 
@@ -195,10 +199,7 @@ namespace Microsoft.SqlTools.ServiceLayer.MachineLearningServices
                 using (IDbCommand command = connection.CreateCommand())
                 {
                     
-                    command.CommandText = 
-                        @"SELECT is_installed
-FROM sys.dm_db_external_language_stats s, sys.external_languages l
-WHERE s.external_language_id = l.external_language_id AND language = @LanguageName";
+                    command.CommandText = LanguageStatusScript;
                     var parameter = command.CreateParameter();
                     parameter.ParameterName = "@LanguageName";
                     parameter.Value = languageName;
@@ -229,7 +230,7 @@ WHERE s.external_language_id = l.external_language_id AND language = @LanguageNa
             ConfigProperty externalScriptConfig = null;
             foreach (ConfigProperty configProperty in server.Configuration.Properties)
             {
-                if (configProperty.Number == 1586)
+                if (configProperty.Number == ExternalScriptConfigNumber)
                 {
                     externalScriptConfig = configProperty;
                     break;
