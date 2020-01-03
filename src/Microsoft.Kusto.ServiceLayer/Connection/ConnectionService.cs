@@ -886,37 +886,13 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             }
             ConnectionDetails connectionDetails = info.ConnectionDetails.Clone();
 
-            // Connect to master and query sys.databases
-            connectionDetails.DatabaseName = "master";
-            var connection = this.ConnectionFactory.CreateSqlConnection(BuildConnectionString(connectionDetails), connectionDetails.AzureAccountToken);
-            connection.Open();
+            IDataSource dataSource = OpenDataSourceConnection(info);
+            DataSourceObjectMetadata objectMetadata = DataSourceFactory.CreateClusterMetadata(info.ConnectionDetails.ServerName);
 
-            List<string> results = new List<string>();
-            var systemDatabases = new[] { "master", "model", "msdb", "tempdb" };
-            using (DbCommand command = connection.CreateCommand())
-            {
-                command.CommandText = @"SELECT name FROM sys.databases WHERE state_desc='ONLINE' ORDER BY name ASC";
-                command.CommandTimeout = 15;
-                command.CommandType = CommandType.Text;
-
-                using (var reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        results.Add(reader[0].ToString());
-                    }
-                }
-            }
-
-            // Put system databases at the top of the list
-            results =
-                results.Where(s => systemDatabases.Any(s.Equals)).Concat(
-                results.Where(s => systemDatabases.All(x => !s.Equals(x)))).ToList();
-
-            connection.Close();
+            IEnumerable<DataSourceObjectMetadata> databaseMetadata = dataSource.GetChildObjects(objectMetadata);
 
             ListDatabasesResponse response = new ListDatabasesResponse();
-            response.DatabaseNames = results.ToArray();
+            if(databaseMetadata != null) response.DatabaseNames = databaseMetadata.Select(objMeta => objMeta.PrettyName).ToArray();
 
             return response;
         }

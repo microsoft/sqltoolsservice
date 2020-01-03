@@ -277,10 +277,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 using (var reader = ExecuteQuery(query))
                 {
                     var schemaTable = reader.GetSchemaTable();
-                    // TODOKusto: Remove if not needed. Index using the name directly.
-                    var databaseNameProperty = schemaTable.Columns["DatabaseName"];
-                    var prettyNameProperty = schemaTable.Columns["PrettyName"];
-
+                    
                     databaseMetadata = reader.ToEnumerable()
                         .Where(row => !string.IsNullOrWhiteSpace(row["DatabaseName"].ToString()))
                         .Select(row => new DatabaseMetadata
@@ -289,7 +286,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                             MetadataType = DataSourceMetadataType.Database,
                             MetadataTypeName = DataSourceMetadataType.Database.ToString(),
                             Name = row["DatabaseName"].ToString(),
-                            PrettyName = row["PrettyName"]?.ToString(),
+                            PrettyName = String.IsNullOrEmpty(row["PrettyName"]?.ToString()) ? row["DatabaseName"].ToString() : row["PrettyName"].ToString(),
                             Urn = $"{this.ClusterName}.{row["DatabaseName"].ToString()}"
                         })
                         .Materialize();
