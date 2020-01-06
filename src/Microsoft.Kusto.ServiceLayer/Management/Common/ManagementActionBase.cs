@@ -15,8 +15,6 @@ using System.Xml;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Diagnostics;
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.Kusto.ServiceLayer.Admin;
-using Microsoft.Kusto.ServiceLayer.Agent;
 
 namespace Microsoft.Kusto.ServiceLayer.Management
 {

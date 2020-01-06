@@ -20,7 +20,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <summary>
         /// Constructor
         /// </summary>
-        public ConnectionInfo(ISqlConnectionFactory factory, string ownerUri, ConnectionDetails details)
+        public ConnectionInfo(IDataSourceConnectionFactory factory, string ownerUri, ConnectionDetails details)
         {
             Factory = factory;
             OwnerUri = ownerUri;
@@ -42,7 +42,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <summary>
         /// Factory used for creating the SQL connection associated with the connection info.
         /// </summary>
-        public ISqlConnectionFactory Factory { get; private set; }
+        public IDataSourceConnectionFactory Factory { get; private set; }
 
         /// <summary>
         /// Properties used for creating/opening the SQL connection.
@@ -54,8 +54,8 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// this ConnectionInfo's OwnerUri.
         /// This is internal for testing access only
         /// </summary>
-        internal readonly ConcurrentDictionary<string, DbConnection> ConnectionTypeToConnectionMap =
-            new ConcurrentDictionary<string, DbConnection>();
+        internal readonly ConcurrentDictionary<string, ReliableDataSourceConnection> ConnectionTypeToConnectionMap =
+            new ConcurrentDictionary<string, ReliableDataSourceConnection>();
 
         /// <summary>
         /// Intellisense Metrics
@@ -68,15 +68,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         public bool IsCloud { get; set; }
 
         /// <summary>
-        /// Returns true if the db connection is to a SQL db instance
-        /// </summary>
-        public bool IsSqlDb { get; set; }
-        
-        /// Returns true if the sql connection is to a DW instance
-        /// </summary>
-        public bool IsSqlDW { get; set; }
-
-        /// <summary>
         /// Returns the major version number of the db we are connected to 
         /// </summary>
         public int MajorVersion { get; set; }
@@ -84,7 +75,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <summary>
         /// All DbConnection instances held by this ConnectionInfo
         /// </summary>
-        public ICollection<DbConnection> AllConnections
+        public ICollection<ReliableDataSourceConnection> AllConnections
         {
             get
             {
@@ -127,7 +118,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <returns>true if a connection with type connectionType was located and out connection was set, 
         /// false otherwise </returns>
         /// <exception cref="ArgumentException">Thrown when connectionType is null or empty</exception>
-        public bool TryGetConnection(string connectionType, out DbConnection connection)
+        public bool TryGetConnection(string connectionType, out ReliableDataSourceConnection connection)
         {
             Validate.IsNotNullOrEmptyString("Connection Type", connectionType);
             return ConnectionTypeToConnectionMap.TryGetValue(connectionType, out connection);
@@ -139,7 +130,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// connection type string, it is not overwritten. Ignores calls where connectionType = null
         /// </summary>
         /// <exception cref="ArgumentException">Thrown when connectionType is null or empty</exception>
-        public void AddConnection(string connectionType, DbConnection connection)
+        public void AddConnection(string connectionType, ReliableDataSourceConnection connection)
         {
             Validate.IsNotNullOrEmptyString("Connection Type", connectionType);
             ConnectionTypeToConnectionMap.TryAdd(connectionType, connection);
@@ -152,7 +143,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         public void RemoveConnection(string connectionType)
         {
             Validate.IsNotNullOrEmptyString("Connection Type", connectionType);
-            DbConnection connection;
+            ReliableDataSourceConnection connection;
             ConnectionTypeToConnectionMap.TryRemove(connectionType, out connection);
         }
 
@@ -163,7 +154,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         {
             foreach (var type in AllConnectionTypes)
             {
-                DbConnection connection;
+                ReliableDataSourceConnection connection;
                 ConnectionTypeToConnectionMap.TryRemove(type, out connection);
             }
         } 

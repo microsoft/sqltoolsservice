@@ -506,18 +506,6 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                 }
                 return result.ToString();
             }
-
-            /// <summary>
-            /// Returns the value whether the server supports XTP or not s
-            internal static bool IsXTPSupportedOnServer(Server server)
-            {
-                bool isXTPSupported = false;
-                if (server.ConnectionContext.ExecuteScalar("SELECT SERVERPROPERTY('IsXTPSupported')") != DBNull.Value)
-                {
-                    isXTPSupported = server.IsXTPSupported;
-                }
-                return isXTPSupported;
-            }
         }
 
         internal static string SelectAllValuesFromTransmissionQueue(Urn urn)

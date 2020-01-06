@@ -14,16 +14,16 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
     /// The purpose of the factory is to make it easier to mock out the database
     /// in 'offline' unit test scenarios.
     /// </summary>
-    public class SqlConnectionFactory : ISqlConnectionFactory
+    public class DataSourceConnectionFactory : IDataSourceConnectionFactory
     {
         /// <summary>
         /// Creates a new SqlConnection object
         /// </summary>
-        public DbConnection CreateSqlConnection(string connectionString, string azureAccountToken)
+        public ReliableDataSourceConnection CreateDataSourceConnection(string connectionString, string azureAccountToken)
         {
             RetryPolicy connectionRetryPolicy = RetryPolicyFactory.CreateDefaultConnectionRetryPolicy();
             RetryPolicy commandRetryPolicy = RetryPolicyFactory.CreateDefaultConnectionRetryPolicy();
-            return new ReliableKustoClient(connectionString, connectionRetryPolicy, commandRetryPolicy, azureAccountToken);
+            return new ReliableDataSourceConnection(connectionString, connectionRetryPolicy, commandRetryPolicy, azureAccountToken);
         }
     }
 }

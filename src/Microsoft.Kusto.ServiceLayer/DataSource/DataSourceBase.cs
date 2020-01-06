@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Data;
 using System.Linq;
 using System.Security.Claims;
@@ -117,11 +118,16 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         string ClusterName { get; }
 
         /// <summary>
+        /// The current database name, if there is one.
+        /// </summary>
+        string DatabaseName { get; set; }
+
+        /// <summary>
         /// Executes a query.
         /// </summary>
         /// <param name="query">The query.</param>
         /// <returns>The results.</returns>
-        Task<IDataReader> ExecuteQueryAsync(string query, string databaseName = null);
+        Task<IDataReader> ExecuteQueryAsync(string query, CancellationToken cancellationToken, string databaseName = null);
 
         /// <summary>
         /// Executes a Kusto query that returns a scalar value.
@@ -129,7 +135,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// <typeparam name="T">The type of the result.</typeparam>
         /// <param name="query">The query.</param>
         /// <returns>The result.</returns>
-        Task<T> ExecuteScalarQueryAsync<T>(string query, string databaseName = null);
+        Task<T> ExecuteScalarQueryAsync<T>(string query, CancellationToken cancellationToken, string databaseName = null);
 
         /// <summary>
         /// Get children of the  given parent
@@ -172,6 +178,10 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
     /// <inheritdoc cref="IDataSource"/>
     public abstract class DataSourceBase : IDataSource
     {
+        protected Object dataSourceLock = new Object();
+
+        private string _database;
+
         #region IDisposable
 
         /// <summary>
@@ -204,14 +214,14 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         #region IDataSource
 
         /// <inheritdoc/>
-        public abstract Task<IDataReader> ExecuteQueryAsync(string query, string databaseName = null);
+        public abstract Task<IDataReader> ExecuteQueryAsync(string query, CancellationToken cancellationToken, string databaseName = null);
 
         /// <inheritdoc/>
-        public async Task<T> ExecuteScalarQueryAsync<T>(string query, string databaseName = null)
+        public async Task<T> ExecuteScalarQueryAsync<T>(string query, CancellationToken cancellationToken, string databaseName = null)
         {
             ValidationUtils.IsArgumentNotNullOrWhiteSpace(query, nameof(query));
 
-            using (var records = await ExecuteQueryAsync(query, databaseName))
+            using (var records = await ExecuteQueryAsync(query, cancellationToken, databaseName))
             {
                 return records.ToScalar<T>();
             }
@@ -240,6 +250,22 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
         /// <inheritdoc/>
         public string ClusterName { get; protected set; }
+
+        /// <inheritdoc/>
+        public string DatabaseName { 
+            get
+            {
+                return _database;
+            }
+            
+            set
+            {
+                lock(dataSourceLock)
+                {
+                    _database = value;
+                }
+            }
+        }
 
         #endregion
     }

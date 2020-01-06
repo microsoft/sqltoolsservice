@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Kusto.ServiceLayer.Agent;
 
 namespace Microsoft.Kusto.ServiceLayer.Security.Contracts
 {

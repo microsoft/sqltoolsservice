@@ -15,7 +15,6 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Hosting.Protocol.Channel;
 using Microsoft.SqlTools.Utility;
 using Microsoft.Kusto.ServiceLayer.Connection;
-using Microsoft.Kusto.ServiceLayer.Admin;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using System.Diagnostics;
 
@@ -209,9 +208,7 @@ namespace Microsoft.Kusto.ServiceLayer.Hosting
                         ProtocolVersion = ServiceHost.ProviderProtocolVersion,
                         ProviderName = ServiceHost.ProviderName,
                         ProviderDisplayName = ServiceHost.ProviderDescription,
-                        ConnectionProvider = ConnectionProviderOptionsHelper.BuildConnectionProviderOptions(),
-                        AdminServicesProvider = AdminServicesProviderOptionsHelper.BuildAdminServicesProviderOptions(),
-                        Features = FeaturesMetadataProviderHelper.CreateFeatureMetadataProviders()
+                        ConnectionProvider = ConnectionProviderOptionsHelper.BuildConnectionProviderOptions()
                     }
                 }
             );            

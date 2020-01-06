@@ -6,7 +6,6 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.Kusto.ServiceLayer.Admin;
 using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.Hosting;
 using Microsoft.Kusto.ServiceLayer.Management;

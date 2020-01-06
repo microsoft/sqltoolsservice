@@ -50,13 +50,13 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <summary>
         /// The SQL connection factory object
         /// </summary>
-        private ISqlConnectionFactory connectionFactory;
+        private IDataSourceConnectionFactory connectionFactory;
 
         private DatabaseLocksManager lockedDatabaseManager;
 
         /// <summary>
         /// A map containing all CancellationTokenSource objects that are associated with a given URI/ConnectionType pair. 
-        /// Entries in this map correspond to DbConnection instances that are in the process of connecting. 
+        /// Entries in this map correspond to ReliableDataSourceClient instances that are in the process of connecting. 
         /// </summary>
         private readonly ConcurrentDictionary<CancelTokenKey, CancellationTokenSource> cancelTupleToCancellationTokenSourceMap =
                     new ConcurrentDictionary<CancelTokenKey, CancellationTokenSource>();
@@ -182,13 +182,13 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <summary>
         /// Gets the SQL connection factory instance
         /// </summary>
-        public ISqlConnectionFactory ConnectionFactory
+        public IDataSourceConnectionFactory ConnectionFactory
         {
             get
             {
                 if (this.connectionFactory == null)
                 {
-                    this.connectionFactory = new SqlConnectionFactory();
+                    this.connectionFactory = new DataSourceConnectionFactory();
                 }
                 return this.connectionFactory;
             }
@@ -200,7 +200,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// Test constructor that injects dependency interfaces
         /// </summary>
         /// <param name="testFactory"></param>
-        public ConnectionService(ISqlConnectionFactory testFactory) => this.connectionFactory = testFactory;
+        public ConnectionService(IDataSourceConnectionFactory testFactory) => this.connectionFactory = testFactory;
 
         // Attempts to link a URI to an actively used connection for this URI
         public virtual bool TryFindConnection(string ownerUri, out ConnectionInfo connectionInfo) => this.OwnerToConnectionMap.TryGetValue(ownerUri, out connectionInfo);
@@ -301,7 +301,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             {
                 if (connectionParams.Purpose == ConnectionType.ObjectExplorer || connectionParams.Purpose == ConnectionType.Dashboard || connectionParams.Purpose == ConnectionType.GeneralConnection)
                 {
-                    DbConnection connection;
+                    ReliableDataSourceConnection connection;
                     string type = connectionParams.Type;
                     if (connectionInfo.TryGetConnection(type, out connection))
                     {
@@ -372,7 +372,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         {
             // Resolve if it is an existing connection
             // Disconnect active connection if the URI is already connected for this connection type
-            DbConnection existingConnection;
+            ReliableDataSourceConnection existingConnection;
             if (connectionInfo.TryGetConnection(connectionParams.Type, out existingConnection))
             {
                 var disconnectParams = new DisconnectParams()
@@ -395,7 +395,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
             try
             {
-                DbConnection connection;
+                ReliableDataSourceConnection connection;
                 connectionInfo.TryGetConnection(connectionType, out connection);
 
                 // Update with the actual database name in connectionInfo and result
@@ -424,31 +424,12 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
                 response.ConnectionId = connectionInfo.ConnectionId.ToString();
 
-                var reliableConnection = connection as ReliableKustoClient;
-                DbConnection underlyingConnection = reliableConnection != null
-                    ? reliableConnection.GetUnderlyingConnection()
-                    : connection;
+                var reliableConnection = connection as ReliableDataSourceConnection;
+                IDataSource dataSource = reliableConnection.GetUnderlyingConnection();
 
-                ReliableConnectionHelper.ServerInfo serverInfo = ReliableConnectionHelper.GetServerVersion(underlyingConnection);
-                response.ServerInfo = new ServerInfo
-                {
-                    ServerMajorVersion = serverInfo.ServerMajorVersion,
-                    ServerMinorVersion = serverInfo.ServerMinorVersion,
-                    ServerReleaseVersion = serverInfo.ServerReleaseVersion,
-                    EngineEditionId = serverInfo.EngineEditionId,
-                    ServerVersion = serverInfo.ServerVersion,
-                    ServerLevel = serverInfo.ServerLevel,
-                    ServerEdition = MapServerEdition(serverInfo),
-                    IsCloud = serverInfo.IsCloud,
-                    AzureVersion = serverInfo.AzureVersion,
-                    OsVersion = serverInfo.OsVersion,
-                    MachineName = serverInfo.MachineName,
-                    Options = serverInfo.Options,
-                };
-                connectionInfo.IsCloud = serverInfo.IsCloud;
-                connectionInfo.MajorVersion = serverInfo.ServerMajorVersion;
-                connectionInfo.IsSqlDb = serverInfo.EngineEditionId == (int)DatabaseEngineEdition.SqlDatabase;
-                connectionInfo.IsSqlDW = (serverInfo.EngineEditionId == (int)DatabaseEngineEdition.SqlDataWarehouse);
+                response.ServerInfo = new ServerInfo();
+                connectionInfo.IsCloud = response.ServerInfo.IsCloud;
+                connectionInfo.MajorVersion = response.ServerInfo.ServerMajorVersion;
             }
             catch (Exception ex)
             {
@@ -458,31 +439,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             return response;
         }
 
-        private string MapServerEdition(ReliableConnectionHelper.ServerInfo serverInfo)
-        {
-            string serverEdition = serverInfo.ServerEdition;
-            if (string.IsNullOrWhiteSpace(serverEdition))
-            {
-                return string.Empty;
-            }
-            if (SqlAzureEdition.Equals(serverEdition, StringComparison.OrdinalIgnoreCase))
-            {
-                switch (serverInfo.EngineEditionId)
-                {
-                    case (int)DatabaseEngineEdition.SqlDataWarehouse:
-                        serverEdition = SR.AzureSqlDwEdition;
-                        break;
-                    case (int)DatabaseEngineEdition.SqlStretchDatabase:
-                        serverEdition = SR.AzureSqlStretchEdition;
-                        break;
-                    default:
-                        serverEdition = SR.AzureSqlDbEdition;
-                        break;
-                }
-            }
-            return serverEdition;
-        }
-
         /// <summary>
         /// Tries to create and open a connection with the given ConnectParams.
         /// </summary>
@@ -490,7 +446,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         private async Task<ConnectionCompleteParams> TryOpenConnection(ConnectionInfo connectionInfo, ConnectParams connectionParams)
         {
             CancellationTokenSource source = null;
-            DbConnection connection = null;
+            ReliableDataSourceConnection connection = null;
             CancelTokenKey cancelKey = new CancelTokenKey { OwnerUri = connectionParams.OwnerUri, Type = connectionParams.Type };
             ConnectionCompleteParams response = new ConnectionCompleteParams { OwnerUri = connectionInfo.OwnerUri, Type = connectionParams.Type };
             bool? currentPooling = connectionInfo.ConnectionDetails.Pooling;
@@ -502,7 +458,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                 string connectionString = BuildConnectionString(connectionInfo.ConnectionDetails);
 
                 // create a sql connection instance
-                connection = connectionInfo.Factory.CreateSqlConnection(connectionString, connectionInfo.ConnectionDetails.AzureAccountToken);
+                connection = connectionInfo.Factory.CreateDataSourceConnection(connectionString, connectionInfo.ConnectionDetails.AzureAccountToken);
                 connectionInfo.AddConnection(connectionParams.Type, connection);
 
                 // Add a cancellation token source so that the connection OpenAsync() can be cancelled
@@ -581,7 +537,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// This should be removed once the core issue is resolved and clone works as expected
         /// </param>
         /// <returns>A DB connection for the connection type requested</returns>
-        public virtual async Task<DbConnection> GetOrOpenConnection(string ownerUri, string connectionType, bool alwaysPersistSecurity = false)
+        public virtual async Task<ReliableDataSourceConnection> GetOrOpenConnection(string ownerUri, string connectionType, bool alwaysPersistSecurity = false)
         {
             Validate.IsNotNullOrEmptyString(nameof(ownerUri), ownerUri);
             Validate.IsNotNullOrEmptyString(nameof(connectionType), connectionType);
@@ -594,8 +550,8 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             }
 
             // Make sure a default connection exists
-            DbConnection connection;
-            DbConnection defaultConnection;
+            ReliableDataSourceConnection connection;
+            ReliableDataSourceConnection defaultConnection;
             if (!connectionInfo.TryGetConnection(ConnectionType.Default, out defaultConnection))
             {
                 throw new InvalidOperationException(SR.ConnectionServiceDbErrorDefaultNotConnected(ownerUri));
@@ -608,22 +564,20 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             }
             else
             {
-                // Try to get the DbConnection and create if it doesn't already exist
+                // Try to get the ReliableDataSourceClient and create if it doesn't already exist
                 if (!connectionInfo.TryGetConnection(connectionType, out connection) && ConnectionType.Default != connectionType)
                 {
                     connection = await TryOpenConnectionForConnectionType(ownerUri, connectionType, alwaysPersistSecurity, connectionInfo);
                 }
             }
 
-            VerifyConnectionOpen(connection);
-
             return connection;
         }
 
-        private async Task<DbConnection> TryOpenConnectionForConnectionType(string ownerUri, string connectionType,
+        private async Task<ReliableDataSourceConnection> TryOpenConnectionForConnectionType(string ownerUri, string connectionType,
             bool alwaysPersistSecurity, ConnectionInfo connectionInfo)
         {
-            // If the DbConnection does not exist and is not the default connection, create one.
+            // If the ReliableDataSourceClient does not exist and is not the default connection, create one.
             // We can't create the default (initial) connection here because we won't have a ConnectionDetails 
             // if Connect() has not yet been called.
             bool? originalPersistSecurityInfo = connectionInfo.ConnectionDetails.PersistSecurityInfo;
@@ -646,55 +600,9 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                 connectionInfo.ConnectionDetails.PersistSecurityInfo = originalPersistSecurityInfo;
             }
 
-            DbConnection connection;
+            ReliableDataSourceConnection connection;
             connectionInfo.TryGetConnection(connectionType, out connection);
             return connection;
-        }
-
-        private void VerifyConnectionOpen(DbConnection connection)
-        {
-            if (connection == null)
-            {
-                // Ignore this connection
-                return;
-            }
-
-            if (connection.State != ConnectionState.Open)
-            {
-                // Note: this will fail and throw to the caller if something goes wrong.
-                // This seems the right thing to do but if this causes serviceability issues where stack trace
-                // is unexpected, might consider catching and allowing later code to fail. But given we want to get
-                // an opened connection for any action using this, it seems OK to handle in this manner
-                ClearPool(connection);
-                connection.Open();
-            }
-        }
-
-        /// <summary>
-        /// Clears the connection pool if this is a SqlConnection of some kind.
-        /// </summary>
-        private void ClearPool(DbConnection connection)
-        {
-            SqlConnection sqlConn;
-            if (TryGetAsSqlConnection(connection, out sqlConn))
-            {
-                SqlConnection.ClearPool(sqlConn);
-            }
-        }
-
-        private bool TryGetAsSqlConnection(DbConnection dbConn, out SqlConnection sqlConn)
-        {
-            ReliableKustoClient reliableConn = dbConn as ReliableKustoClient;
-            if (reliableConn != null)
-            {
-                sqlConn = reliableConn.GetUnderlyingConnection();
-            }
-            else
-            {
-                sqlConn = dbConn as SqlConnection;
-            }
-
-            return sqlConn != null;
         }
 
         /// <summary>
@@ -823,14 +731,14 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
         /// <summary>
         /// Closes DbConnections associated with the given ConnectionInfo. 
-        /// If connectionType is not null, closes the DbConnection with the type given by connectionType.
+        /// If connectionType is not null, closes the ReliableDataSourceClient with the type given by connectionType.
         /// If connectionType is null, closes all DbConnections.
         /// </summary>
         /// <returns>true if connections were found and attempted to be closed,
         /// false if no connections were found</returns>
         private bool CloseConnections(ConnectionInfo connectionInfo, string connectionType)
         {
-            ICollection<DbConnection> connectionsToDisconnect = new List<DbConnection>();
+            ICollection<ReliableDataSourceConnection> connectionsToDisconnect = new List<ReliableDataSourceConnection>();
             if (connectionType == null)
             {
                 connectionsToDisconnect = connectionInfo.AllConnections;
@@ -838,7 +746,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             else
             {
                 // Make sure there is an existing connection of this type
-                DbConnection connection;
+                ReliableDataSourceConnection connection;
                 if (!connectionInfo.TryGetConnection(connectionType, out connection))
                 {
                     return false;
@@ -851,7 +759,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                 return false;
             }
 
-            foreach (DbConnection connection in connectionsToDisconnect)
+            foreach (ReliableDataSourceConnection connection in connectionsToDisconnect)
             {
                 try
                 {
@@ -1333,9 +1241,9 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
                     foreach (string key in info.AllConnectionTypes)
                     {
-                        DbConnection conn;
+                        ReliableDataSourceConnection conn;
                         info.TryGetConnection(key, out conn);
-                        if (conn != null && conn.Database != newDatabaseName && conn.State == ConnectionState.Open)
+                        if (conn != null && conn.Database != newDatabaseName)
                         {
                             if (info.IsCloud && force)
                             {
@@ -1346,7 +1254,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                                 string connectionString = BuildConnectionString(info.ConnectionDetails);
 
                                 // create a sql connection instance
-                                DbConnection connection = info.Factory.CreateSqlConnection(connectionString, info.ConnectionDetails.AzureAccountToken);
+                                ReliableDataSourceConnection connection = info.Factory.CreateDataSourceConnection(connectionString, info.ConnectionDetails.AzureAccountToken);
                                 connection.Open();
                                 info.AddConnection(key, connection);
                             }
@@ -1551,10 +1459,10 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             return serverConnection;
         }
 
-        public static void EnsureConnectionIsOpen(DbConnection conn, bool forceReopen = false)
+        public static void EnsureConnectionIsOpen(ReliableDataSourceConnection conn, bool forceReopen = false)
         {
             // verify that the connection is open
-            if (conn.State != ConnectionState.Open || forceReopen)
+            if (forceReopen)
             {
                 try
                 {

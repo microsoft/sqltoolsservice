@@ -28,35 +28,6 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
     /// </summary>
     public class Query : IDisposable
     {
-        #region Constants
-        
-        /// <summary>
-        /// "Error" code produced by SQL Server when the database context (name) for a connection changes.
-        /// </summary>
-        private const int DatabaseContextChangeErrorNumber = 5701;
-        
-        /// <summary>
-        /// ON keyword
-        /// </summary>
-        private const string On = "ON";
-
-        /// <summary>
-        /// OFF keyword
-        /// </summary>
-        private const string Off = "OFF";
-        
-        /// <summary>
-        /// showplan_xml statement
-        /// </summary>
-        private const string SetShowPlanXml = "SET SHOWPLAN_XML {0}";
-
-        /// <summary>
-        /// statistics xml statement
-        /// </summary>
-        private const string SetStatisticsXml = "SET STATISTICS XML {0}";
-        
-        #endregion
-
         #region Member Variables
 
         /// <summary>
@@ -78,12 +49,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
         /// <summary>
         /// Whether or not the execute method has been called for this query
         /// </summary>
-        private bool hasExecuteBeenCalled;
-
-        /// <summary>
-        /// Name of the new database if the database name was changed in the query
-        /// </summary>
-        private string newDatabaseName;        
+        private bool hasExecuteBeenCalled;     
 
         #endregion
 
@@ -116,10 +82,6 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
             // Process the query into batches 
             BatchParserWrapper parser = new BatchParserWrapper();
             ExecutionEngineConditions conditions = null;
-            if (settings.IsSqlCmdMode)
-            {
-                conditions = new ExecutionEngineConditions() { IsSqlCmd = settings.IsSqlCmdMode };
-            }
             List<BatchDefinition> parserResult = parser.GetBatches(queryText, conditions);
 
             var batchSelection = parserResult
@@ -139,11 +101,6 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
             // Create our batch lists
             BeforeBatches = new List<Batch>();
             AfterBatches = new List<Batch>();
-
-            if (applyExecutionSettings)
-            {
-                ApplyExecutionSettings(connection, settings, outputFactory);
-            }
         }
 
         #region Events
@@ -376,7 +333,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
         /// </summary>
         private async Task ExecuteInternal()
         {
-            ReliableKustoClient sqlConn = null;
+            ReliableDataSourceConnection sqlConn = null;
             try
             {
                 // check for cancellation token before actually making connection
@@ -400,16 +357,8 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                 }
                 
                 // Locate and setup the connection
-                DbConnection queryConnection = await ConnectionService.Instance.GetOrOpenConnection(editorConnection.OwnerUri, ConnectionType.Query);
-                sqlConn = queryConnection as ReliableKustoClient;
-                if (sqlConn != null)
-                {
-                    // Subscribe to database informational messages
-                    sqlConn.GetUnderlyingConnection().FireInfoMessageEventOnUserErrors = true;
-                    sqlConn.GetUnderlyingConnection().InfoMessage += OnInfoMessage;
-                }
-
-            
+                ReliableDataSourceConnection queryConnection = await ConnectionService.Instance.GetOrOpenConnection(editorConnection.OwnerUri, ConnectionType.Query);
+                
                 // Execute beforeBatches synchronously, before the user defined batches 
                 foreach (Batch b in BeforeBatches)
                 {
@@ -455,20 +404,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                 }
             }
             finally
-            {
-                // Remove the message handler from the connection
-                if (sqlConn != null)
-                {
-                    // Subscribe to database informational messages
-                    sqlConn.GetUnderlyingConnection().InfoMessage -= OnInfoMessage;
-                }
-                
-                // If any message notified us we had changed databases, then we must let the connection service know 
-                if (newDatabaseName != null)
-                {
-                    ConnectionService.Instance.ChangeConnectionDatabaseContext(editorConnection.OwnerUri, newDatabaseName);
-                }
-
+            {                
                 foreach (Batch b in Batches)
                 {
                     if (b.HasError)
@@ -481,146 +417,12 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
         }
 
         /// <summary>
-        /// Handler for database messages during query execution
-        /// </summary>
-        private void OnInfoMessage(object sender, SqlInfoMessageEventArgs args)
-        {
-            SqlConnection conn = sender as SqlConnection;
-            if (conn == null)
-            {
-                throw new InvalidOperationException(SR.QueryServiceMessageSenderNotSql);
-            }
-
-            foreach (SqlError error in args.Errors)
-            {
-                // Did the database context change (error code 5701)?
-                if (error.Number == DatabaseContextChangeErrorNumber)
-                {
-                    newDatabaseName = conn.Database;
-                }
-            }
-        }
-
-        /// <summary>
         /// Function to add a new batch to a Batch set
         /// </summary>
         private static void AddBatch(string query, ICollection<Batch> batchSet, IFileStreamFactory outputFactory)
         {
             batchSet.Add(new Batch(query, null, batchSet.Count, outputFactory, 1));
         }
-
-        private void ApplyExecutionSettings(
-            ConnectionInfo connection, 
-            QueryExecutionSettings settings, 
-            IFileStreamFactory outputFactory)
-        {
-            QuerySettingsHelper helper = new QuerySettingsHelper(settings);
-
-            // set query execution plan options
-            if (DoesSupportExecutionPlan(connection))
-            {
-                // Checking settings for execution plan options 
-                if (settings.ExecutionPlanOptions.IncludeEstimatedExecutionPlanXml)
-                {
-                    // Enable set showplan xml
-                    AddBatch(string.Format(SetShowPlanXml, On), BeforeBatches, outputFactory);
-                    AddBatch(string.Format(SetShowPlanXml, Off), AfterBatches, outputFactory);
-                }
-                else if (settings.ExecutionPlanOptions.IncludeActualExecutionPlanXml)
-                {
-                    AddBatch(string.Format(SetStatisticsXml, On), BeforeBatches, outputFactory);
-                    AddBatch(string.Format(SetStatisticsXml, Off), AfterBatches, outputFactory);
-                }
-            }
-
-            StringBuilder builderBefore = new StringBuilder(512);
-            StringBuilder builderAfter = new StringBuilder(512);
-
-            if (!connection.IsSqlDW)
-            {
-                // "set noexec off" should be the very first command, cause everything after 
-                // corresponding "set noexec on" is not executed until "set noexec off"
-                // is encounted
-                if (!settings.NoExec)
-                {
-                    builderBefore.AppendFormat("{0} ", helper.SetNoExecString);
-                }
-
-                if (settings.StatisticsIO)
-                {                 
-                    builderBefore.AppendFormat("{0} ", helper.GetSetStatisticsIOString(true));
-                    builderAfter.AppendFormat("{0} ", helper.GetSetStatisticsIOString (false));
-                }
-
-                if (settings.StatisticsTime)
-                {
-                    builderBefore.AppendFormat("{0} ", helper.GetSetStatisticsTimeString (true));
-                    builderAfter.AppendFormat("{0} ", helper.GetSetStatisticsTimeString(false));
-                }
-            }
-
-            if (settings.ParseOnly)
-            {               
-                builderBefore.AppendFormat("{0} ", helper.GetSetParseOnlyString(true));
-                builderAfter.AppendFormat("{0} ", helper.GetSetParseOnlyString(false));
-            }
-
-            // append first part of exec options
-            builderBefore.AppendFormat("{0} {1} {2}", 
-                helper.SetRowCountString,  helper.SetTextSizeString,  helper.SetNoCountString);
-
-            if (!connection.IsSqlDW)
-            {
-                // append second part of exec options
-                builderBefore.AppendFormat(" {0} {1} {2} {3} {4} {5} {6}",
-                                        helper.SetConcatenationNullString, 
-                                        helper.SetArithAbortString, 
-                                        helper.SetLockTimeoutString, 
-                                        helper.SetQueryGovernorCostString, 
-                                        helper.SetDeadlockPriorityString, 
-                                        helper.SetTransactionIsolationLevelString,
-                                        // We treat XACT_ABORT special in that we don't add anything if the option
-                                        // isn't checked. This is because we don't want to be overwriting the server
-                                        // if it has a default of ON since that's something people would specifically
-                                        // set and having a client change it could be dangerous (the reverse is much
-                                        // less risky)
- 
-                                        // The full fix would probably be to make the options tri-state instead of 
-                                        // just on/off, where the default is to use the servers default. Until that
-                                        // happens though this is the best solution we came up with. See TFS#7937925
- 
-                                        // Note that users can always specifically add SET XACT_ABORT OFF to their 
-                                        // queries if they do truly want to set it off. We just don't want  to
-                                        // do it silently (since the default is going to be off)
-                                        settings.XactAbortOn ? helper.SetXactAbortString : string.Empty);
-
-                // append Ansi options
-                builderBefore.AppendFormat(" {0} {1} {2} {3} {4} {5} {6}",
-                                        helper.SetAnsiNullsString, helper.SetAnsiNullDefaultString, helper.SetAnsiPaddingString,
-                                        helper.SetAnsiWarningsString, helper.SetCursorCloseOnCommitString,
-                                        helper.SetImplicitTransactionString, helper.SetQuotedIdentifierString);
-
-                // "set noexec on" should be the very last command, cause everything after it is not
-                // being executed unitl "set noexec off" is encounered
-                if (settings.NoExec)
-                {
-                    builderBefore.AppendFormat("{0} ", helper.SetNoExecString);
-                }
-            }
-
-            // add connection option statements before query execution
-            if (builderBefore.Length > 0)
-            {
-                AddBatch(builderBefore.ToString(), BeforeBatches, outputFactory);
-            }
-
-            // add connection option statements after query execution
-            if (builderAfter.Length > 0)
-            {
-                AddBatch(builderAfter.ToString(), AfterBatches, outputFactory);
-            }
-        }
-
         #endregion
 
         #region IDisposable Implementation
@@ -649,16 +451,6 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
 
             disposed = true;
         }
-
-        /// <summary>
-        /// Does this connection support XML Execution plans
-        /// </summary>
-        private bool DoesSupportExecutionPlan(ConnectionInfo connectionInfo) 
-        {
-            // Determining which execution plan options may be applied (may be added to for pre-yukon support)
-            return (!connectionInfo.IsSqlDW && connectionInfo.MajorVersion >= 9);
-        }
-
         #endregion
     }
 }

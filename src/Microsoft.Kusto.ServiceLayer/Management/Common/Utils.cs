@@ -167,42 +167,6 @@ namespace Microsoft.Kusto.ServiceLayer.Management
             return (version >= new Version(13, 0, 3510));
         }
 
-        public static bool IsXTPSupportedOnServer(SMO.Server server)
-        {
-            bool isXTPSupported = false;
-
-            if (server.ConnectionContext.ExecuteScalar("SELECT SERVERPROPERTY('IsXTPSupported')") != DBNull.Value)
-            {
-                isXTPSupported = server.IsXTPSupported;
-            }
-
-            return isXTPSupported;
-        }
-
-        /// <summary>
-        /// Returns true if given database has memory optimized filegroup on given server.
-        /// </summary>
-        /// <param name="server"></param>
-        /// <param name="dbName"></param>
-        /// <returns></returns>
-        public static bool HasMemoryOptimizedFileGroup(SMO.Server server, string dbName)
-        {
-            bool hasMemoryOptimizedFileGroup = false;
-
-            if (server.ServerType != DatabaseEngineType.SqlAzureDatabase)
-            {
-                string query = string.Format(CultureInfo.InvariantCulture,
-                                                            "select top 1 1 from [{0}].sys.filegroups where type = 'FX'",
-                                                            CUtils.EscapeString(dbName, ']'));
-                if (server.ConnectionContext.ExecuteScalar(query) != null)
-                {
-                    hasMemoryOptimizedFileGroup = true;
-                }
-            }
-
-            return hasMemoryOptimizedFileGroup;
-        }
-
         public static bool IsPolybasedInstalledOnServer(SMO.Server server)
         {
             bool isPolybaseInstalled = false;
@@ -213,20 +177,6 @@ namespace Microsoft.Kusto.ServiceLayer.Management
             }
 
             return isPolybaseInstalled;
-        }
-
-        /// <summary>
-        /// Returns true if current user has given permission on given server.
-        /// </summary>
-        /// <param name="server"></param>
-        /// <param name="permissionName"></param>
-        /// <returns></returns>
-        public static bool HasPermissionOnServer(SMO.Server server, string permissionName)
-        {
-            return Convert.ToBoolean(server.ConnectionContext.ExecuteScalar(
-                                                    string.Format(CultureInfo.InvariantCulture,
-                                                    "SELECT HAS_PERMS_BY_NAME(null, null, '{0}');",
-                                                    permissionName)));
         }
 
         public static bool FilestreamEnabled(SMO.Server svr)
@@ -314,11 +264,6 @@ namespace Microsoft.Kusto.ServiceLayer.Management
             //
             // TODO: Add constructor logic here
             //
-        }
-
-        public static void UseMaster(SMO.Server server)
-        {
-            server.ConnectionContext.ExecuteNonQuery("use master");
         }
 
         /// <summary>

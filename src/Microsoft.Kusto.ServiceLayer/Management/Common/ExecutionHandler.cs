@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Text;
 using Microsoft.SqlServer.Management.Diagnostics;
-using Microsoft.Kusto.ServiceLayer.Agent;
 
 namespace Microsoft.Kusto.ServiceLayer.Management
 {

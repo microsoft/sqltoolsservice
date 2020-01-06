@@ -52,5 +52,16 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             return result;
         }
 
+        
+        public static bool  IsClusterLevelQuery(string query) 
+        {
+            string [] clusterLevelQueryPrefixes = {
+                ".show databases",
+                ".show schema"
+            };
+
+            return clusterLevelQueryPrefixes.Any(query.StartsWith);
+        }
+
     }
 }

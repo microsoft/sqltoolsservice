@@ -8,18 +8,12 @@ using Microsoft.SqlTools.Credentials;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.Kusto.ServiceLayer.Admin;
-using Microsoft.Kusto.ServiceLayer.Agent;
 using Microsoft.Kusto.ServiceLayer.Cms;
 using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.DacFx;
-using Microsoft.Kusto.ServiceLayer.DisasterRecovery;
-using Microsoft.Kusto.ServiceLayer.EditData;
 using Microsoft.Kusto.ServiceLayer.FileBrowser;
 using Microsoft.Kusto.ServiceLayer.Hosting;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
-using Microsoft.Kusto.ServiceLayer.Metadata;
-using Microsoft.Kusto.ServiceLayer.Profiler;
 using Microsoft.Kusto.ServiceLayer.QueryExecution;
 using Microsoft.Kusto.ServiceLayer.SchemaCompare;
 using Microsoft.Kusto.ServiceLayer.Scripting;
@@ -79,6 +73,7 @@ namespace Microsoft.Kusto.ServiceLayer
             // Initialize and register singleton services so they're accessible for any MEF service. In the future, these
             // could be updated to be IComposableServices, which would avoid the requirement to define a singleton instance
             // and instead have MEF handle discovery & loading
+            // TODOKusto: Complete review of all services below. Do we need these for Kusto.
             WorkspaceService<SqlToolsSettings>.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(WorkspaceService<SqlToolsSettings>.Instance);
 
@@ -94,29 +89,11 @@ namespace Microsoft.Kusto.ServiceLayer
             QueryExecutionService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(QueryExecutionService.Instance);
 
-            EditDataService.Instance.InitializeService(serviceHost);
-            serviceProvider.RegisterSingleService(EditDataService.Instance);
-
-            MetadataService.Instance.InitializeService(serviceHost);
-            serviceProvider.RegisterSingleService(MetadataService.Instance);
-
             ScriptingService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(ScriptingService.Instance);
 
-            AdminService.Instance.InitializeService(serviceHost);
-            serviceProvider.RegisterSingleService(AdminService.Instance);
-
-            AgentService.Instance.InitializeService(serviceHost);
-            serviceProvider.RegisterSingleService(AgentService.Instance);
-
-            DisasterRecoveryService.Instance.InitializeService(serviceHost);
-            serviceProvider.RegisterSingleService(DisasterRecoveryService.Instance);
-
             FileBrowserService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(FileBrowserService.Instance);
-
-            ProfilerService.Instance.InitializeService(serviceHost);
-            serviceProvider.RegisterSingleService(ProfilerService.Instance);
 
             SecurityService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(SecurityService.Instance);

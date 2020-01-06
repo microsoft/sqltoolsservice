@@ -10,11 +10,11 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
     /// <summary>
     /// Interface for the SQL Connection factory
     /// </summary>
-    public interface ISqlConnectionFactory
+    public interface IDataSourceConnectionFactory
     {
         /// <summary>
         /// Create a new SQL Connection object
         /// </summary>
-        DbConnection CreateSqlConnection(string connectionString, string azureAccountToken);
+        ReliableDataSourceConnection CreateDataSourceConnection(string connectionString, string azureAccountToken);
     }
 }

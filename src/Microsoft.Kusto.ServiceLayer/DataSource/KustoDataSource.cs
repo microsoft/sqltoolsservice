@@ -3,6 +3,7 @@
 // </copyright>
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Collections.Concurrent;
 using System.Data;
 using System.Data.SqlClient;
@@ -110,11 +111,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// </summary>
         public string ApplicationKey { get; private set; }
 
-        /// <summary>
-        /// The Kusto database name.
-        /// </summary>
-        public string DatabaseName { get; private set; }
-
         // The Kusto query provider.
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private ICslQueryProvider KustoQueryProvider
@@ -176,13 +172,13 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// </summary>
         /// <param name="query">The query.</param>
         /// <returns>The results.</returns>
-        public override Task<IDataReader> ExecuteQueryAsync(string query, string databaseName = null)
+        public override Task<IDataReader> ExecuteQueryAsync(string query, CancellationToken cancellationToken, string databaseName = null)
         {
-            var reader = ExecuteQuery(query, databaseName);
+            var reader = ExecuteQuery(query, cancellationToken, databaseName);
             return Task.FromResult(reader);
         }
 
-        private IDataReader ExecuteQuery(string query, string databaseName = null)
+        private IDataReader ExecuteQuery(string query, CancellationToken cancellationToken, string databaseName = null)
         {
             ValidationUtils.IsArgumentNotNullOrWhiteSpace(query, nameof(query));
 
@@ -192,7 +188,27 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             };
             clientRequestProperties.SetOption(ClientRequestProperties.OptionNoTruncation, true);
 
-            return KustoQueryProvider.ExecuteQuery(databaseName, query, clientRequestProperties);
+            if(cancellationToken != null)
+            {
+                cancellationToken.Register(() => CancelQuery(clientRequestProperties.ClientRequestId));
+            }
+
+            return KustoQueryProvider.ExecuteQuery(
+                KustoQueryUtils.IsClusterLevelQuery(query) ? "" : databaseName, 
+                query, 
+                clientRequestProperties);
+        }
+
+        private void CancelQuery(string clientRequestId)
+        {
+            var query = ".cancel query " + clientRequestId;
+            CancellationTokenSource source = new CancellationTokenSource();
+            CancellationToken token = source.Token;
+
+            using (var reader = ExecuteQuery(query, token))
+            {
+                // No-op
+            }
         }
 
         /// <inheritdoc/>
@@ -200,7 +216,10 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         {
             try
             {
-                var count = await ExecuteScalarQueryAsync<long>(".show databases | count");
+                CancellationTokenSource source = new CancellationTokenSource();
+                CancellationToken token = source.Token;
+
+                var count = await ExecuteScalarQueryAsync<long>(".show databases | count", token);
                 return count >= 0;
             }
             catch
@@ -270,11 +289,14 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         {
             if (databaseMetadata == null)
             {
+                CancellationTokenSource source = new CancellationTokenSource();
+                CancellationToken token = source.Token;
+
                 // Getting database names when we are connected to a specific database should not happen.
                 ValidationUtils.IsNotNull(DatabaseName, nameof(DatabaseName)); 
 
                 var query = ".show databases" + (this.ClusterName.IndexOf(AriaProxyURL, StringComparison.CurrentCultureIgnoreCase) == -1 ? " | project DatabaseName, PrettyName" : "");
-                using (var reader = ExecuteQuery(query))
+                using (var reader = ExecuteQuery(query, token))
                 {
                     var schemaTable = reader.GetSchemaTable();
                     
@@ -394,7 +416,10 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
             try
             {
-                var count = await ExecuteScalarQueryAsync<long>(".show tables | count", databaseName);
+                CancellationTokenSource source = new CancellationTokenSource();
+                CancellationToken token = source.Token;
+
+                var count = await ExecuteScalarQueryAsync<long>(".show tables | count", token, databaseName);
                 return count >= 0;
             }
             catch
@@ -446,10 +471,13 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         {
             ValidationUtils.IsNotNullOrWhitespace(databaseName, nameof(databaseName));
 
+            CancellationTokenSource source = new CancellationTokenSource();
+            CancellationToken token = source.Token;
+
             const string SystemPrefix = "System.";
             var query = string.Format(CultureInfo.InvariantCulture, ShowDatabaseSchema, databaseName)
                 + " | project TableName, ColumnName, ColumnType";
-            using (var reader = ExecuteQuery(query, databaseName))
+            using (var reader = ExecuteQuery(query, token, databaseName))
             {
                 var schemaTable = reader.GetSchemaTable();
                 // TODOKusto: Remove if not needed. We could index using the names directly.

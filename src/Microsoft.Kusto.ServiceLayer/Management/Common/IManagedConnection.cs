@@ -153,22 +153,7 @@ namespace Microsoft.Kusto.ServiceLayer.Management
                     disp.Dispose();
                 }
             }
-            else
-            {
-                // if we are not closing the connection and it is a sql connection then ensure it
-                // is left in the master database.
-                SqlConnectionInfoWithConnection sqlConnection = this.connection as SqlConnectionInfoWithConnection;
-                if (sqlConnection != null && sqlConnection.ServerConnection.DatabaseEngineType == DatabaseEngineType.Standalone)
-                {
-                    try
-                    {
-                        sqlConnection.ServerConnection.ExecuteNonQuery("use [master]");
-                    }
-                    // don't error if this fails
-                    catch
-                    { }
-                }
-            }
+            
             if (this.connectionAddedToActiveConnections)
             {
                 lock (ActiveConnections)
