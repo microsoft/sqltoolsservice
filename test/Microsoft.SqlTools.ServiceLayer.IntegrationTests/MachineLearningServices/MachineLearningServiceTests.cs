@@ -30,17 +30,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.MachineLearningServic
                 ExternalScriptConfigUpdateRequestParams updateRequestParams = new ExternalScriptConfigUpdateRequestParams
                 {
                     OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
-                    Status = false
+                    Status = true
                 };
 
                 await MachineLearningService.Instance.HandleExternalScriptConfigUpdateRequest(updateRequestParams, updateRequestContext.Object);
+                Assert.NotNull(updateResult);
                 await MachineLearningService.Instance.HandleExternalScriptConfigStatusRequest(requestParams, requestContext.Object);
-                Assert.False(result.Status);
-
-                updateRequestParams.Status = true;
-                await MachineLearningService.Instance.HandleExternalScriptConfigUpdateRequest(updateRequestParams, updateRequestContext.Object);
-                await MachineLearningService.Instance.HandleExternalScriptConfigStatusRequest(requestParams, requestContext.Object);
-                Assert.True(result.Status);
+                Assert.NotNull(result);
                 MachineLearningService.Instance.ConnectionServiceInstance.Disconnect(new DisconnectParams
                 {
                     OwnerUri = queryTempFile.FilePath,
