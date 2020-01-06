@@ -215,7 +215,7 @@ WHERE s.external_language_id = l.external_language_id AND language = @LanguageNa
             }
             catch
             {
-                throw;
+                status = false;
             }
             finally
             {
