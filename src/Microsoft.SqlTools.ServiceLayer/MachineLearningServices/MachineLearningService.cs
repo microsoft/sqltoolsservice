@@ -18,10 +18,7 @@ namespace Microsoft.SqlTools.ServiceLayer.MachineLearningServices
 {
     public class MachineLearningService
     {
-        private const int ExternalScriptConfigNumber = 1586;
-        private const string LanguageStatusScript = @"SELECT is_installed
-FROM sys.dm_db_external_language_stats s, sys.external_languages l
-WHERE s.external_language_id = l.external_language_id AND language = @LanguageName";
+        private MachineLearningServcieOperations servcieOperations = new MachineLearningServcieOperations();
         private ConnectionService connectionService = null;
         private static readonly Lazy<MachineLearningService> instance = new Lazy<MachineLearningService>(() => new MachineLearningService());
 
@@ -82,8 +79,7 @@ WHERE s.external_language_id = l.external_language_id AND language = @LanguageNa
                 else
                 {
                     var serverConnection = ConnectionService.OpenServerConnection(connInfo);
-                    Server server = new Server(serverConnection);
-                    ConfigProperty serverConfig = GetExternalScriptConfig(server);
+                    ConfigProperty serverConfig = servcieOperations.GetExternalScriptConfig(serverConnection);
                     await requestContext.SendResult(new ExternalScriptConfigStatusResponseParams
                     {
                         Status = serverConfig != null && serverConfig.ConfigValue == 1
@@ -125,22 +121,15 @@ WHERE s.external_language_id = l.external_language_id AND language = @LanguageNa
                 else
                 {
                     var serverConnection = ConnectionService.OpenServerConnection(connInfo);
-                    Server server = new Server(serverConnection);
-                    ConfigProperty serverConfig = GetExternalScriptConfig(server);
-
-                    if (serverConfig != null)
+                    try
                     {
-                        try
-                        {
-                            serverConfig.ConfigValue = parameters.Status ? 1 : 0;
-                            server.Configuration.Alter(true);
-                            response.Result = true;
-                        }
-                        catch(FailedOperationException ex)
-                        {
-                            response.Result = false;
-                            response.Message = ex.Message;
-                        }
+                        servcieOperations.UpdateExternalScriptConfig(serverConnection, parameters.Status);
+                        response.Result = true;
+                    }
+                    catch (MachineLearningServicesException ex)
+                    {
+                        response.Result = false;
+                        response.Message = ex.Message;
                     }
                     await requestContext.SendResult(response);
                 }
@@ -178,7 +167,11 @@ WHERE s.external_language_id = l.external_language_id AND language = @LanguageNa
                 }
                 else
                 {
-                    response.Status = GetLanguageStatus(connInfo, parameters.LanguageName);
+                    using (IDbConnection dbConnection = ConnectionService.OpenSqlConnection(connInfo))
+                    {
+                        response.Status = servcieOperations.GetLanguageStatus(dbConnection, parameters.LanguageName);
+                    }
+                    
                     await requestContext.SendResult(response);
                 }
             }
@@ -187,57 +180,6 @@ WHERE s.external_language_id = l.external_language_id AND language = @LanguageNa
                 // Exception related to run task will be captured here
                 await requestContext.SendError(e);
             }
-        }
-
-        private bool GetLanguageStatus(ConnectionInfo connectionInfo, string languageName)
-        {
-            IDbConnection connection = null;
-            bool status = false;
-            try
-            {
-                connection = ConnectionService.OpenSqlConnection(connectionInfo);
-                using (IDbCommand command = connection.CreateCommand())
-                {
-                    
-                    command.CommandText = LanguageStatusScript;
-                    var parameter = command.CreateParameter();
-                    parameter.ParameterName = "@LanguageName";
-                    parameter.Value = languageName;
-                    command.Parameters.Add(parameter);
-                    using (IDataReader reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            status = (reader[0].ToString() == "True");
-                        }
-                    }
-                }
-            }
-            catch
-            {
-                status = false;
-            }
-            finally
-            {
-                connection.Close();
-            }
-
-            return status;
-        }
-
-        private ConfigProperty GetExternalScriptConfig(Server server)
-        {
-            ConfigProperty externalScriptConfig = null;
-            foreach (ConfigProperty configProperty in server.Configuration.Properties)
-            {
-                if (configProperty.Number == ExternalScriptConfigNumber)
-                {
-                    externalScriptConfig = configProperty;
-                    break;
-                }
-            }
-
-            return externalScriptConfig;
         }
     }
 }

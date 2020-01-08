@@ -4,6 +4,8 @@ using Microsoft.SqlTools.ServiceLayer.MachineLearningServices;
 using Microsoft.SqlTools.ServiceLayer.MachineLearningServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
+using Moq;
+using System;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.MachineLearningServices
@@ -69,6 +71,56 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.MachineLearningServic
                     Type = ServiceLayer.Connection.ConnectionType.Default
                 });
             }
+        }
+
+        [Fact]
+        public async void VerifyExternalLanguageStatusRequestSendErrorGivenInvalidConnection()
+        {
+            ExternalLanguageStatusResponseParams result = null;
+            var requestContext = RequestContextMocks.Create<ExternalLanguageStatusResponseParams>(r => result = r).AddErrorHandling(null);
+            requestContext.Setup(x => x.SendError(It.IsAny<Exception>())).Returns(System.Threading.Tasks.Task.FromResult(true));
+
+            ExternalLanguageStatusRequestParams requestParams = new ExternalLanguageStatusRequestParams
+            {
+                OwnerUri = "invalid uri",
+                LanguageName = "Python"
+            };
+
+            await MachineLearningService.Instance.HandleExternalLanguageStatusRequest(requestParams, requestContext.Object);
+            requestContext.Verify(x => x.SendError(It.IsAny<Exception>()));
+        }
+
+        [Fact]
+        public async void VerifyExternalScriptConfigStatusRequestSendErrorGivenInvalidConnection()
+        {
+            ExternalScriptConfigStatusResponseParams result = null;
+            var requestContext = RequestContextMocks.Create<ExternalScriptConfigStatusResponseParams>(r => result = r).AddErrorHandling(null);
+            requestContext.Setup(x => x.SendError(It.IsAny<Exception>())).Returns(System.Threading.Tasks.Task.FromResult(true));
+
+            ExternalScriptConfigStatusRequestParams requestParams = new ExternalScriptConfigStatusRequestParams
+            {
+                OwnerUri = "invalid uri"
+            };
+
+            await MachineLearningService.Instance.HandleExternalScriptConfigStatusRequest(requestParams, requestContext.Object);
+            requestContext.Verify(x => x.SendError(It.IsAny<Exception>()));
+        }
+
+        [Fact]
+        public async void VerifyExternalScriptConfigUpdateRequestSendErrorGivenInvalidConnection()
+        {
+            ExternalScriptConfigUpdateResponseParams result = null;
+            var requestContext = RequestContextMocks.Create<ExternalScriptConfigUpdateResponseParams>(r => result = r).AddErrorHandling(null);
+            requestContext.Setup(x => x.SendError(It.IsAny<Exception>())).Returns(System.Threading.Tasks.Task.FromResult(true));
+
+            ExternalScriptConfigUpdateRequestParams requestParams = new ExternalScriptConfigUpdateRequestParams
+            {
+                OwnerUri = "invalid uri",
+                Status = true
+            };
+
+            await MachineLearningService.Instance.HandleExternalScriptConfigUpdateRequest(requestParams, requestContext.Object);
+            requestContext.Verify(x => x.SendError(It.IsAny<Exception>()));
         }
 
         [Fact]
