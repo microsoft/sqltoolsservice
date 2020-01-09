@@ -11,6 +11,7 @@ using Microsoft.SqlTools.Utility;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
@@ -64,11 +65,6 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
         /// Set when all results have been read for this resultSet from the server
         /// </summary>
         private bool hasCompletedRead = false;
-
-        /// <summary>
-        /// Whether resultSet is a 'for xml' or 'for json' result
-        /// </summary>
-        private bool isSingleColumnXmlJsonResultSet;
 
         /// <summary>
         /// The name of the temporary file we're using to output these results in
@@ -266,36 +262,16 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
             return Task.Factory.StartNew(() =>
             {
 
-                DbCellValue[][] rows;
+                DbCellValue[][] rows = null;
 
                 using (IFileStreamReader fileStreamReader = fileStreamFactory.GetReader(outputFileName))
                 {
-                    // If result set is 'for xml' or 'for json',
-                    // Concatenate all the rows together into one row
-                    if (isSingleColumnXmlJsonResultSet)
-                    {
-                        // Iterate over all the rows and process them into a list of string builders
-                        // ReSharper disable once AccessToDisposedClosure   The lambda is used immediately in string.Join call
-                        IEnumerable<string> rowValues = fileOffsets.Select(rowOffset => fileStreamReader.ReadRow(rowOffset, 0, Columns)[0].DisplayValue);
-                        string singleString = string.Join(string.Empty, rowValues);
-                        DbCellValue cellValue = new DbCellValue
-                        {
-                            DisplayValue = singleString,
-                            IsNull = false,
-                            RawObject = singleString,
-                            RowId = 0
-                        };
-                        rows = new[] { new[] { cellValue } };
-                    }
-                    else
-                    {
-                        // Figure out which rows we need to read back
-                        IEnumerable<long> rowOffsets = fileOffsets.LongSkip(startRow).Take(rowCount);
+                    // Figure out which rows we need to read back
+                    IEnumerable<long> rowOffsets = fileOffsets.LongSkip(startRow).Take(rowCount);
 
-                        // Iterate over the rows we need and process them into output
-                        // ReSharper disable once AccessToDisposedClosure   The lambda is used immediately in .ToArray call
-                        rows = rowOffsets.Select((offset, id) => fileStreamReader.ReadRow(offset, id, Columns).ToArray()).ToArray();
-                    }
+                    // Iterate over the rows we need and process them into output
+                    // ReSharper disable once AccessToDisposedClosure   The lambda is used immediately in .ToArray call
+                    rows = rowOffsets.Select((offset, id) => fileStreamReader.ReadRow(offset, id, Columns).ToArray()).ToArray();
                 }
                 // Retrieve the subset of the results as per the request
                 return new ResultSetSubset
@@ -356,7 +332,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
         /// </summary>
         /// <param name="dbDataReader">The data reader for getting results from the db</param>
         /// <param name="cancellationToken">Cancellation token for cancelling the query</param>
-        public async Task ReadResultToEnd(DbDataReader dbDataReader, CancellationToken cancellationToken)
+        public async Task ReadResultToEnd(IDataReader dbDataReader, CancellationToken cancellationToken)
         {
             // Sanity check to make sure we got a reader
             //
@@ -375,16 +351,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                 var fileWriter = fileStreamFactory.GetWriter(outputFileName);
                 using (fileWriter)
                 {
-                    // If we can initialize the columns using the column schema, use that
-                    //
-                    if (!dataReader.DbDataReader.CanGetColumnSchema())
-                    {
-                        throw new InvalidOperationException(SR.QueryServiceResultSetNoColumnSchema);
-                    }
                     Columns = dataReader.Columns;
-                    // Check if result set is 'for xml/json'. If it is, set isJson/isXml value in column metadata
-                    //
-                    SingleColumnXmlJsonResultSet();
 
                     // Mark that read of result has started
                     //
@@ -400,7 +367,6 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                         fileOffsets.Add(totalBytesWritten);
                         totalBytesWritten += fileWriter.WriteRow(dataReader);
                     }
-                    CheckForIsJson();
                 }
             }
             finally
@@ -704,32 +670,6 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
         internal uint ResultTimerInterval => Math.Max(Math.Min(MaxResultsTimerPulseMilliseconds, (uint)RowCount / 500 /* 1 millisec per 500 rows*/), MinResultTimerPulseMilliseconds * ResultsIntervalMultiplier);
 
         internal ResultSetSummary LastUpdatedSummary { get; set; } = null;
-
-        /// <summary>
-        /// If the result set represented by this class corresponds to a single XML
-        /// column that contains results of "for xml" query, set isXml = true 
-        /// If the result set represented by this class corresponds to a single JSON
-        /// column that contains results of "for json" query, set isJson = true
-        /// </summary>
-        private void SingleColumnXmlJsonResultSet()
-        {
-
-            if (Columns?.Length == 1)
-            {
-                if (Columns[0].ColumnName.Equals(NameOfForXmlColumn, StringComparison.Ordinal))
-                {
-                    Columns[0].IsXml = true;
-                    isSingleColumnXmlJsonResultSet = true;
-                    rowCountOverride = 1;
-                }
-                else if (Columns[0].ColumnName.Equals(NameOfForJsonColumn, StringComparison.Ordinal))
-                {
-                    Columns[0].IsJson = true;
-                    isSingleColumnXmlJsonResultSet = true;
-                    rowCountOverride = 1;
-                }
-            }
-        }
 
         /// <summary>
         /// Check columns for json type and set isJson if needed

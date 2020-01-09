@@ -345,19 +345,12 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
             ConnectionService.EnsureConnectionIsOpen(conn);
 
             // Execute the command to get back a reader
-            using (IDataReader dataReader = await conn.GetUnderlyingConnection().ExecuteQueryAsync(BatchText, cancellationToken))
+            using (IDataReader reader = await conn.GetUnderlyingConnection().ExecuteQueryAsync(BatchText, cancellationToken, conn.Database))
             {
-                DbDataReader reader = dataReader as DbDataReader;
-                do
-                {
+                //do
+                //{
                     // Verify that the cancellation token hasn't been canceled
                     cancellationToken.ThrowIfCancellationRequested();
-
-                    // Skip this result set if there aren't any rows (i.e. UPDATE/DELETE/etc queries)
-                    if (!reader.HasRows && reader.FieldCount == 0)
-                    {
-                        continue;
-                    }
 
                     // This resultset has results (i.e. SELECT/etc queries)
                     ResultSet resultSet = new ResultSet(resultSets.Count, Id, outputFileFactory);
@@ -374,47 +367,13 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                     // Read until we hit the end of the result set
                     await resultSet.ReadResultToEnd(reader, cancellationToken);
 
-                } while (await reader.NextResultAsync(cancellationToken));
+                //} while (reader.NextResult()); // TODOKusto: How do you figure out which resuts to read?
 
                 // If there were no messages, for whatever reason (NO COUNT set, messages 
                 // were emitted, records returned), output a "successful" message
                 if (!messagesSent)
                 {
                     await SendMessage(SR.QueryServiceCompletedSuccessfully, false);
-                }
-            }
-        }
-
-        private void ExtendResultMetadata(List<DbColumn[]> columnSchemas, List<ResultSet> results)
-        {
-            if (columnSchemas.Count != results.Count)
-            {   
-                return;
-            }
-
-            for (int i = 0; i < results.Count; i++)
-            {
-                ResultSet result = results[i];
-                DbColumn[] columnSchema = columnSchemas[i];
-                if (result.Columns.Length > columnSchema.Length)
-                {
-                    throw new InvalidOperationException("Did not receive enough metadata columns.");
-                }
-
-                for (int j = 0; j < result.Columns.Length; j++)
-                {
-                    DbColumnWrapper resultCol = result.Columns[j];
-                    DbColumn schemaCol = columnSchema[j];
-
-                    if (!string.Equals(resultCol.DataTypeName, schemaCol.DataTypeName, StringComparison.OrdinalIgnoreCase)
-                        || (!string.Equals(resultCol.ColumnName, schemaCol.ColumnName)
-                            && !string.IsNullOrEmpty(schemaCol.ColumnName)
-                            && !string.Equals(resultCol, SR.QueryServiceColumnNull)))
-                    {
-                        throw new InvalidOperationException("Inconsistent column metadata.");
-                    }
-
-                    result.Columns[j] = new DbColumnWrapper(schemaCol);
                 }
             }
         }

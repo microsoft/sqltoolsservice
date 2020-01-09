@@ -4,6 +4,8 @@
 //
 
 using System;
+using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
@@ -23,40 +25,27 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage
     /// </summary>
     public class StorageDataReader
     {
-        // This code is based on code from Microsoft.SqlServer.Management.UI.Grid, SSMS DataStorage,
-        // StorageDataReader
-        // $\Data Tools\SSMS_XPlat\sql\ssms\core\DataStorage\src\StorageDataReader.cs
-
-        #region Member Variables
-
-        /// <summary>
-        /// If the DbDataReader is a SqlDataReader, it will be set here
-        /// </summary>
-        private readonly SqlDataReader sqlDataReader;
-
-        /// <summary>
-        /// Whether or not the data reader supports SqlXml types
-        /// </summary>
-        private readonly bool supportSqlXml;
-
-        #endregion
-
         /// <summary>
         /// Constructs a new wrapper around the provided reader
         /// </summary>
         /// <param name="reader">The reader to wrap around</param>
-        public StorageDataReader(DbDataReader reader)
+        public StorageDataReader(IDataReader reader)
         {
             // Sanity check to make sure there is a data reader
             Validate.IsNotNull(nameof(reader), reader);
 
-            // Attempt to use this reader as a SqlDataReader
-            sqlDataReader = reader as SqlDataReader;
-            supportSqlXml = sqlDataReader != null;
-            DbDataReader = reader;
+            DataReader = reader;
 
             // Read the columns into a set of wrappers
-            Columns = DbDataReader.GetColumnSchema().Select(column => new DbColumnWrapper(column)).ToArray();
+            List<DbColumnWrapper> columnList = new List<DbColumnWrapper>();
+            var rows = DataReader.GetSchemaTable().Rows;
+
+            foreach (DataRow row in rows)
+            {
+                columnList.Add(new DbColumnWrapper(row));
+            }
+
+            Columns = columnList.ToArray();
             HasLongColumns = Columns.Any(column => column.IsLong.HasValue && column.IsLong.Value);
         }
 
@@ -68,9 +57,9 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage
         public DbColumnWrapper[] Columns { get; private set; }
 
         /// <summary>
-        /// The <see cref="DbDataReader"/> that will be read from
+        /// The <see cref="DataReader"/> that will be read from
         /// </summary>
-        public DbDataReader DbDataReader { get; private set; }
+        public IDataReader DataReader { get; private set; }
 
         /// <summary>
         /// Whether or not any of the columns of this reader are 'long', such as nvarchar(max)
@@ -88,7 +77,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage
         /// <returns></returns>
         public Task<bool> ReadAsync(CancellationToken cancellationToken)
         {
-            return DbDataReader.ReadAsync(cancellationToken);
+            return Task.Run(() => DataReader.Read());
         }
 
         /// <summary>
@@ -98,7 +87,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage
         /// <returns>The value of the given column</returns>
         public object GetValue(int i)
         {
-            return sqlDataReader == null ? DbDataReader.GetValue(i) : sqlDataReader.GetValue(i);
+            return DataReader.GetValue(i);
         }
 
         /// <summary>
@@ -107,14 +96,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage
         /// <param name="values">Where to store the values from this row</param>
         public void GetValues(object[] values)
         {
-            if (sqlDataReader == null)
-            {
-                DbDataReader.GetValues(values);
-            }
-            else
-            {
-                sqlDataReader.GetValues(values);
-            }
+            DataReader.GetValues(values);
         }
 
         /// <summary>
@@ -124,7 +106,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage
         /// <returns>True if the cell is DBNull, false otherwise</returns>
         public bool IsDBNull(int i)
         {
-            return DbDataReader.IsDBNull(i);
+            return DataReader.IsDBNull(i);
         }
 
         #endregion
@@ -232,42 +214,8 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage
                 throw new ArgumentOutOfRangeException(nameof(maxCharsToReturn), SR.QueryServiceDataReaderXmlCountInvalid);
             }
 
-            // If we're not in SQL XML mode, just return the entire thing as a string
-            if (!supportSqlXml)
-            {
-                object o = GetValue(iCol);
-                return o?.ToString();
-            }
-
-            // We have SQL XML support, so write it properly
-            SqlXml sm = GetSqlXml(iCol);
-            if (sm == null)
-            {
-                return null;
-            }
-
-            // Setup the writer so that we don't close the memory stream and can process fragments
-            // of XML
-            XmlWriterSettings writerSettings = new XmlWriterSettings
-            {
-                CloseOutput = false,    // don't close the memory stream
-                ConformanceLevel = ConformanceLevel.Fragment
-            };
-
-            using (StringWriterWithMaxCapacity sw = new StringWriterWithMaxCapacity(null, maxCharsToReturn))
-            using (XmlWriter ww = XmlWriter.Create(sw, writerSettings))
-            using (XmlReader reader = sm.CreateReader())
-            {
-                reader.Read();
-
-                while (!reader.EOF)
-                {
-                    ww.WriteNode(reader, true);
-                }
-
-                ww.Flush();
-                return sw.ToString();
-            }
+            object o = GetValue(iCol);
+            return o?.ToString();
         }
 
         #endregion
@@ -276,23 +224,12 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage
 
         private long GetBytes(int i, long dataIndex, byte[] buffer, int bufferIndex, int length)
         {
-            return DbDataReader.GetBytes(i, dataIndex, buffer, bufferIndex, length);
+            return DataReader.GetBytes(i, dataIndex, buffer, bufferIndex, length);
         }
 
         private long GetChars(int i, long dataIndex, char[] buffer, int bufferIndex, int length)
         {
-            return DbDataReader.GetChars(i, dataIndex, buffer, bufferIndex, length);
-        }
-
-        private SqlXml GetSqlXml(int i)
-        {
-            if (sqlDataReader == null)
-            {
-                // We need a Sql data reader in order to retrieve sql xml
-                throw new InvalidOperationException("Cannot retrieve SqlXml without a SqlDataReader");
-            }
-
-            return sqlDataReader.GetSqlXml(i);
+            return DataReader.GetChars(i, dataIndex, buffer, bufferIndex, length);
         }
 
         #endregion

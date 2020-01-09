@@ -116,39 +116,11 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage
             List<DbCellValue> results = new List<DbCellValue>();
 
             // Iterate over the columns
+            Type colType;
             foreach (DbColumnWrapper column in columns)
             {
-                // We will pivot based on the type of the column
-                Type colType;
-                if (column.IsSqlVariant)
-                {
-                    // For SQL Variant columns, the type is written first in string format
-                    FileStreamReadResult sqlVariantTypeResult = ReadString(currentFileOffset, rowId);
-                    currentFileOffset += sqlVariantTypeResult.TotalLength;
-                    string sqlVariantType = (string)sqlVariantTypeResult.Value.RawObject;
-
-                    // If the typename is null, then the whole value is null
-                    if (sqlVariantTypeResult.Value == null || string.IsNullOrEmpty(sqlVariantType))
-                    {
-                        results.Add(sqlVariantTypeResult.Value);
-                        continue;
-                    }
-
-                    // The typename is stored in the string
-                    colType = Type.GetType(sqlVariantType);
-
-                    // Workaround .NET bug, see sqlbu# 440643 and vswhidbey# 599834
-                    // TODO: Is this workaround necessary for .NET Core?
-                    if (colType == null && sqlVariantType == "System.Data.SqlTypes.SqlSingle")
-                    {
-                        colType = typeof(SqlSingle);
-                    }
-                }
-                else
-                {
-                    colType = column.DataType;
-                }
-
+                colType = column.DataType;
+                
                 // Use the right read function for the type to read the data from the file
                 ReadMethod readFunc;
                 if (!readMethods.TryGetValue(colType, out readFunc))
@@ -375,30 +347,8 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage
             {
                 // Switch based on the type of column
                 string formatString;
-                if (col.DataTypeName.Equals("DATE", StringComparison.OrdinalIgnoreCase))
-                {
-                    // DATE columns should only show the date
-                    formatString = DateFormatString;
-                }
-                else if (col.DataTypeName.StartsWith("DATETIME", StringComparison.OrdinalIgnoreCase))
-                {
-                    // DATETIME and DATETIME2 columns should show date, time, and a variable number
-                    // of milliseconds (for DATETIME, it is fixed at 3, but returned as null)
-                    // If for some strange reason a scale > 7 is sent, we will cap it at 7 to avoid
-                    // an exception from invalid date/time formatting
-                    int scale = Math.Min(col.NumericScale ?? 3, 7);
-                    formatString = $"{DateFormatString} {TimeFormatString}";
-                    if (scale > 0)
-                    {
-                        string millisecondString = new string('f', scale);
-                        formatString += $".{millisecondString}";
-                    }
-                }
-                else
-                {
-                    // For anything else that returns as a CLR DateTime, just show date and time
-                    formatString = $"{DateFormatString} {TimeFormatString}";
-                }
+                // For anything else that returns as a CLR DateTime, just show date and time
+                formatString = $"{DateFormatString} {TimeFormatString}";
 
                 return dt.ToString(formatString);
 

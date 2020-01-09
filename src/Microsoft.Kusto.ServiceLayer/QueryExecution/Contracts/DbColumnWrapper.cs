@@ -68,56 +68,43 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts
         /// </summary>
         /// <remarks>Most of this logic is taken from SSMS ColumnInfo class</remarks>
         /// <param name="column">The column we're wrapping around</param>
-        public DbColumnWrapper(DbColumn column)
+        public DbColumnWrapper(DataRow row)
         {
             // Set all the fields for the base
-            AllowDBNull = column.AllowDBNull;
-            BaseCatalogName = column.BaseCatalogName;
-            BaseColumnName = column.BaseColumnName;
-            BaseSchemaName = column.BaseSchemaName;
-            BaseServerName = column.BaseServerName;
-            BaseTableName = column.BaseTableName;
-            ColumnOrdinal = column.ColumnOrdinal;
-            ColumnSize = column.ColumnSize;
-            IsAliased = column.IsAliased;
-            IsAutoIncrement = column.IsAutoIncrement;
-            IsExpression = column.IsExpression;
-            IsHidden = column.IsHidden;
-            IsIdentity = column.IsIdentity;
-            IsKey = column.IsKey;
-            IsLong = column.IsLong;
-            IsReadOnly = column.IsReadOnly;
-            IsUnique = column.IsUnique;
-            NumericPrecision = column.NumericPrecision;
-            NumericScale = column.NumericScale;
-            UdtAssemblyQualifiedName = column.UdtAssemblyQualifiedName;
-            DataType = column.DataType;
-            DataTypeName = column.DataTypeName.ToLowerInvariant();
+            AllowDBNull = SafeGetValue<bool?>(row, "AllowDBNull");
+            BaseCatalogName = SafeGetValue<string>(row, "BaseCatalogName");
+            BaseColumnName = SafeGetValue<string>(row,"BaseColumnName");
+            BaseSchemaName = SafeGetValue<string>(row,"BaseSchemaName");
+            BaseServerName = SafeGetValue<string>(row,"BaseServerName");
+            BaseTableName = SafeGetValue<string>(row, "BaseTableName");
+            ColumnOrdinal = SafeGetValue<int?>(row, "ColumnOrdinal");
+            ColumnSize = SafeGetValue<int?>(row, "ColumnSize");
+            IsAliased = SafeGetValue<bool?>(row, "IsAliased");
+            IsAutoIncrement = SafeGetValue<bool?>(row, "IsAutoIncrement");
+            IsExpression = SafeGetValue<bool?>(row, "IsExpression");
+            IsHidden = SafeGetValue<bool?>(row, "IsHidden");
+            IsIdentity = SafeGetValue<bool?>(row, "IsIdentity");
+            IsKey = SafeGetValue<bool?>(row, "IsKey");
+            IsLong = SafeGetValue<bool?>(row, "IsLong");
+            IsReadOnly = SafeGetValue<bool?>(row, "IsReadOnly");
+            IsUnique = SafeGetValue<bool?>(row, "IsUnique");
+            NumericPrecision = SafeGetValue<int?>(row, "NumericPrecision");
+            NumericScale = SafeGetValue<int?>(row, "NumericScale");
+            UdtAssemblyQualifiedName = SafeGetValue<string>(row, "UdtAssemblyQualifiedName");
+            DataType = SafeGetValue<System.Type>(row, "DataType");
+            DataTypeName = SafeGetValue<string>(row, "DataTypeName");
+            ColumnName = SafeGetValue<string>(row, "ColumnName");
+        }
 
-            DetermineSqlDbType();
-            AddNameAndDataFields(column.ColumnName);
-
-            if (IsUdt)
+        internal T SafeGetValue<T>(DataRow row, string attribName)
+        {
+            try
             {
-                // udtassemblyqualifiedname property is used to find if the datatype is of hierarchyid assembly type 
-                // Internally hiearchyid is sqlbinary so providerspecific type and type is changed to sqlbinarytype
-                object assemblyQualifiedName = column.UdtAssemblyQualifiedName;
-                const string hierarchyId = "MICROSOFT.SQLSERVER.TYPES.SQLHIERARCHYID";
-
-                if (assemblyQualifiedName != null
-                && assemblyQualifiedName.ToString().StartsWith(hierarchyId, StringComparison.OrdinalIgnoreCase))
-                {
-                    DataType = typeof(SqlBinary);
-                }
-                else
-                {
-                    DataType = typeof(byte[]);
-                }
+                return (T)row[attribName];
             }
-            else
-            {
-                DataType = column.DataType;
-            }
+            catch{} // Ignore exceptions
+            
+            return default(T);
         }
 
         public DbColumnWrapper(ColumnInfo columnInfo)
@@ -183,17 +170,6 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts
         public bool IsHierarchyId { get; set; }
 
         /// <summary>
-        /// Whether or not the column is an XML Reader type.
-        /// </summary>
-        /// <remarks>
-        /// Logic taken from SSDT determination of whether a column is a SQL XML type. It may not
-        /// be possible to have XML readers from .NET Core SqlClient.
-        /// </remarks>
-        public bool IsSqlXmlType => DataTypeName.Equals(SqlXmlDataTypeName, StringComparison.OrdinalIgnoreCase) ||
-                                    DataTypeName.Equals(DbTypeXmlDataTypeName, StringComparison.OrdinalIgnoreCase) ||
-                                    DataType == typeof(System.Xml.XmlReader);
-
-        /// <summary>
         /// Whether or not the column is an unknown type
         /// </summary>
         /// <remarks>
@@ -203,23 +179,17 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts
         public bool IsUnknownType => DataType == typeof(object) &&
                                      DataTypeName.Equals(UnknownTypeName, StringComparison.OrdinalIgnoreCase);
 
-        /// <summary>
-        /// Whether or not the column can be updated, based on whether it's an auto increment
-        /// column, is an XML reader column, and if it's read only.
-        /// </summary>
-        /// <remarks>
-        /// Logic taken from SSDT determination of updatable columns
-        /// Special treatment for HierarchyId since we are using an Expression for HierarchyId column and expression column is readonly.
-        /// </remarks>
-        public bool IsUpdatable => (!IsAutoIncrement.HasTrue() &&
-                                   !IsReadOnly.HasTrue() &&
-                                   !IsSqlXmlType) || IsHierarchyId;
-
         #endregion
 
 
         private void DetermineSqlDbType()
         {
+            if(string.IsNullOrEmpty(DataTypeName))
+            {
+                SqlDbType = SqlDbType.Udt;
+                return;
+            }
+
             // Determine the SqlDbType
             SqlDbType type;
             if (Enum.TryParse(DataTypeName, true, out type))
@@ -265,19 +235,6 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts
                     Debug.Assert(ColumnSize.HasValue);
                     if (ColumnSize.Value == int.MaxValue)
                     {
-                        //For Yukon, special case nvarchar(max) with column name == "Microsoft SQL Server 2005 XML Showplan" -
-                        //assume it is an XML showplan.
-                        //Please note this field must be in sync with a similar field defined in QESQLBatch.cs.
-                        //This is not the best fix that we could do but we are trying to minimize code impact
-                        //at this point. Post Yukon we should review this code again and avoid
-                        //hard-coding special column name in multiple places.
-                        const string yukonXmlShowPlanColumn = "Microsoft SQL Server 2005 XML Showplan";
-                        if (columnName == yukonXmlShowPlanColumn)
-                        {
-                            // Indicate that this is xml to apply the right size limit
-                            // Note we leave chars type as well to use the right retrieval mechanism.
-                            IsXml = true;
-                        }
                         IsLong = true;
                     }
                     break;
