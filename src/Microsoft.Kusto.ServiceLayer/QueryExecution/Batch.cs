@@ -347,8 +347,8 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
             // Execute the command to get back a reader
             using (IDataReader reader = await conn.GetUnderlyingConnection().ExecuteQueryAsync(BatchText, cancellationToken, conn.Database))
             {
-                //do
-                //{
+                do
+                {
                     // Verify that the cancellation token hasn't been canceled
                     cancellationToken.ThrowIfCancellationRequested();
 
@@ -367,7 +367,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                     // Read until we hit the end of the result set
                     await resultSet.ReadResultToEnd(reader, cancellationToken);
 
-                //} while (reader.NextResult()); // TODOKusto: How do you figure out which resuts to read?
+                } while (reader.NextResult());
 
                 // If there were no messages, for whatever reason (NO COUNT set, messages 
                 // were emitted, records returned), output a "successful" message
