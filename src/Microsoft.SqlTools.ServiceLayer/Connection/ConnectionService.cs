@@ -1142,6 +1142,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         throw new ArgumentException(SR.ConnectionServiceConnStringInvalidAuthType(connectionDetails.AuthenticationType));
                 }
             }
+            if (!string.IsNullOrEmpty(connectionDetails.ColumnEncryptionSetting))
+            {
+                connectionBuilder.ColumnEncryptionSetting =  connectionDetails.ColumnEncryptionSetting == "Enabled" 
+                ? SqlConnectionColumnEncryptionSetting.Enabled : SqlConnectionColumnEncryptionSetting.Disabled;
+            }
             if (connectionDetails.Encrypt.HasValue)
             {
                 connectionBuilder.Encrypt = connectionDetails.Encrypt.Value;
@@ -1313,6 +1318,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 ConnectTimeout = builder.ConnectTimeout,
                 CurrentLanguage = builder.CurrentLanguage,
                 DatabaseName = builder.InitialCatalog,
+                ColumnEncryptionSetting = builder.ColumnEncryptionSetting.ToString(),
                 Encrypt = builder.Encrypt,
                 FailoverPartner = builder.FailoverPartner,
                 LoadBalanceTimeout = builder.LoadBalanceTimeout,

@@ -22,6 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
                 UserName = details.UserName,
                 Password = details.Password,
                 AuthenticationType = details.AuthenticationType,
+                ColumnEncryptionSetting = details.ColumnEncryptionSetting,
                 Encrypt = details.Encrypt,
                 TrustServerCertificate = details.TrustServerCertificate,
                 PersistSecurityInfo = details.PersistSecurityInfo,
