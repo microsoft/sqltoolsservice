@@ -15,6 +15,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         
         private readonly Batch batch = null;
         private readonly ScriptExecutionResult result;
+        private readonly SqlCmdCommand sqlCmdCommand;
 
         private BatchParserExecutionFinishedEventArgs() 
         {
@@ -23,10 +24,11 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// <summary>
         /// Constructor method for the class
         /// </summary>
-        public BatchParserExecutionFinishedEventArgs(ScriptExecutionResult batchResult, Batch batch)            
+        public BatchParserExecutionFinishedEventArgs(ScriptExecutionResult batchResult, Batch batch, SqlCmdCommand sqlCmdCommand)            
         {
             this.batch = batch;
             result = batchResult;
+            this.sqlCmdCommand = sqlCmdCommand;
         }
 
         public Batch Batch
@@ -42,6 +44,14 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             get
             {
                 return result;
+            }
+        }
+
+        public SqlCmdCommand SqlCmdCommand
+        {
+            get
+            {
+                return sqlCmdCommand;
             }
         }
     }

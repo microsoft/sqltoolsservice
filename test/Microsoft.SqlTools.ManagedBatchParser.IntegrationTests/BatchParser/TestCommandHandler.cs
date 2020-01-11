@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
             this.parser = parser;
         }
 
-        public BatchParserAction Go(TextBlock batch, int repeatCount)
+        public BatchParserAction Go(TextBlock batch, int repeatCount, SqlCmdCommand command)
         {
             string textWithVariablesResolved;
             string textWithVariablesUnresolved;

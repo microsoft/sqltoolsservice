@@ -140,6 +140,10 @@ QueryServiceResultSetNoColumnSchema = Could not retrieve column schema for resul
 
 QueryServiceExecutionPlanNotFound = Could not retrieve an execution plan from the result set 
 
+SqlCmdExitOnError = An error was encountered during execution of batch. Exiting.
+
+SqlCmdUnsupportedToken = Encountered unsupported token {0}
+
 ############################################################################
 # Serialization Service
 
