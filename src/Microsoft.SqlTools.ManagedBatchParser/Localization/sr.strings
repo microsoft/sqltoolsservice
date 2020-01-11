@@ -86,5 +86,5 @@ SqlCmd_PathInvalid = Path contains invalid characters.
 
 SqlCmd_PathLong = Path too long.
 
-SqlCmd_FailedInclude = Could not find included file.
+SqlCmd_FailedInclude = Could not find included file {0}.
 

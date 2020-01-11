@@ -466,7 +466,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 HasErrored = true;
                 if (e is SqlCmdException || CancelledBySqlCmd)
                 {
-                    await BatchMessageSent(new ResultMessage("An error was encountered during execution of batch.Exiting.", false, null));
+                    await BatchMessageSent(new ResultMessage(SR.SqlCmdExitOnError, false, null));
                 }
                 else if (e is OperationCanceledException)
                 {

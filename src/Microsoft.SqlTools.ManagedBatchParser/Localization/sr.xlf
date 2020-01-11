@@ -158,8 +158,8 @@
         <note></note>
       </trans-unit>
       <trans-unit id="SqlCmd_FailedInclude">
-        <source>Could not find included file.</source>
-        <target state="new">Could not find included file.</target>
+        <source>Could not find included file {0}.</source>
+        <target state="new">Could not find included file {0}.</target>
         <note></note>
       </trans-unit>
     </body>

@@ -115,9 +115,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
             Assert.True(multipleElapsedTime > elapsedTime);
         }
 
-        public static Query CreateAndExecuteQuery(string queryText, ConnectionInfo connectionInfo, IFileStreamFactory fileStreamFactory, bool IsSqlCMD = false)
+        public static Query CreateAndExecuteQuery(string queryText, ConnectionInfo connectionInfo, IFileStreamFactory fileStreamFactory, bool IsSqlCmd = false)
         {
-            var settings = new QueryExecutionSettings() { IsSqlCmdMode = IsSqlCMD };
+            var settings = new QueryExecutionSettings() { IsSqlCmdMode = IsSqlCmd };
             Query query = new Query(queryText, connectionInfo, settings, fileStreamFactory);
             query.Execute();
             query.ExecutionTask.Wait();

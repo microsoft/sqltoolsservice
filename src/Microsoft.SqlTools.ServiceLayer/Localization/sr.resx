@@ -323,7 +323,7 @@
     <comment></comment>
   </data>
   <data name="SqlCmdExitOnError" xml:space="preserve">
-    <value>An error was encountered during execution of batch.Exiting.</value>
+    <value>An error was encountered during execution of batch. Exiting.</value>
     <comment></comment>
   </data>
   <data name="SqlCmdUnsupportedToken" xml:space="preserve">

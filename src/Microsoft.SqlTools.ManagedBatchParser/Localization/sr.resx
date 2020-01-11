@@ -242,7 +242,7 @@
     <comment></comment>
   </data>
   <data name="SqlCmd_FailedInclude" xml:space="preserve">
-    <value>Could not find included file.</value>
+    <value>Could not find included file {0}.</value>
     <comment></comment>
   </data>
 </root>

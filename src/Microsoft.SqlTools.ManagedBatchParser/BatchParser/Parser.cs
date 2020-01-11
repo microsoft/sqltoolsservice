@@ -607,11 +607,6 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             return password;
         }
 
-        private void ConnectAction()
-        {
-            throw new NotImplementedException();
-        }
-
         internal void RaiseError(ErrorCode errorCode, string message = null)
         {
             RaiseError(errorCode, LookaheadToken, message);

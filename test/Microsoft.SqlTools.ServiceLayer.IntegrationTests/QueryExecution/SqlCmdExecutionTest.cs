@@ -27,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
 select * from sys.databases where name = 'master'
 GO";
 
-            Query query = ExecuteTests.CreateAndExecuteQuery(sqlCmdQuerySuccess, connInfo, fileStreamFactory, IsSqlCMD: true);
+            Query query = ExecuteTests.CreateAndExecuteQuery(sqlCmdQuerySuccess, connInfo, fileStreamFactory, IsSqlCmd: true);
             Assert.True(query.Batches.Length == 1, $"Expected: 1 parsed batch, actual : {query.Batches.Length}");
             Assert.True(query.Batches[0].HasExecuted && !query.Batches[0].HasError && query.Batches[0].ResultSets.Count == 1, "Query should be executed and have one result set");
 
@@ -36,7 +36,7 @@ GO";
 select * from sys.databases where name = 'master'
 GO";
 
-            query = ExecuteTests.CreateAndExecuteQuery(sqlCmdQueryFilaure, connInfo, fileStreamFactory, IsSqlCMD: true);
+            query = ExecuteTests.CreateAndExecuteQuery(sqlCmdQueryFilaure, connInfo, fileStreamFactory, IsSqlCmd: true);
             Assert.True(query.Batches.Length == 1, $"Expected: 1 parsed batch, actual : {query.Batches.Length}");
             Assert.True(query.Batches[0].HasError, "Query should have error");
         }
@@ -55,7 +55,7 @@ GO
 select * from sys.databases where name = 'master'
 GO";
 
-            Query query = ExecuteTests.CreateAndExecuteQuery(sqlCmdQuerySuccess, connInfo, fileStreamFactory, IsSqlCMD: true);
+            Query query = ExecuteTests.CreateAndExecuteQuery(sqlCmdQuerySuccess, connInfo, fileStreamFactory, IsSqlCmd: true);
             Assert.True(query.Batches[0].HasExecuted && query.Batches[0].HasError, "first batch should be executed and have error");
             Assert.True(query.Batches[1].HasExecuted, "last batch should be executed");
 
@@ -68,7 +68,7 @@ GO
 select * from sys.databases where name = 'master'
 GO";
 
-            query = ExecuteTests.CreateAndExecuteQuery(sqlCmdQueryFilaure, connInfo, fileStreamFactory, IsSqlCMD: true);
+            query = ExecuteTests.CreateAndExecuteQuery(sqlCmdQueryFilaure, connInfo, fileStreamFactory, IsSqlCmd: true);
             Assert.True(query.Batches[0].HasExecuted && query.Batches[0].HasError, "first batch should be executed and have error");
             Assert.False(query.Batches[1].HasExecuted, "last batch should NOT be executed");
         }
@@ -103,7 +103,7 @@ GO
 select * from sys.databases where name = 'master'
 GO";
 
-            Query query = ExecuteTests.CreateAndExecuteQuery(sqlCmdQuerySuccess, connInfo, fileStreamFactory, IsSqlCMD: true);
+            Query query = ExecuteTests.CreateAndExecuteQuery(sqlCmdQuerySuccess, connInfo, fileStreamFactory, IsSqlCmd: true);
             Assert.True(query.Batches.Length == 2, $"Batches should be parsed and should be 2, actual number {query.Batches.Length}");
             Assert.True(query.Batches[0].HasExecuted && !query.Batches[0].HasError && query.Batches[0].ResultSets.Count == 1 && query.Batches[0].ResultSets[0].RowCount == 2, "first batch should be executed and have 2 results");
             Assert.True(query.Batches[1].HasExecuted && !query.Batches[1].HasError && query.Batches[1].ResultSets.Count == 1 && query.Batches[1].ResultSets[0].RowCount == 1, "second batch should be executed and have 1 result");
@@ -118,7 +118,7 @@ GO
 select * from sys.databases where name = 'master'
 GO";
 
-            query = ExecuteTests.CreateAndExecuteQuery(sqlCmdQueryFilaure1, connInfo, fileStreamFactory, IsSqlCMD: true);
+            query = ExecuteTests.CreateAndExecuteQuery(sqlCmdQueryFilaure1, connInfo, fileStreamFactory, IsSqlCmd: true);
             Assert.True(query.Batches.Length == 0, $"Batches should be 0 since parsing was aborted, actual number {query.Batches.Length}");
 
             File.WriteAllText(path, incorrectfileText);
@@ -132,7 +132,7 @@ GO
 select * from sys.databases where name = 'master'
 GO";
 
-            query = ExecuteTests.CreateAndExecuteQuery(sqlCmdQueryFilaure2, connInfo, fileStreamFactory, IsSqlCMD: true);
+            query = ExecuteTests.CreateAndExecuteQuery(sqlCmdQueryFilaure2, connInfo, fileStreamFactory, IsSqlCmd: true);
             Assert.True(query.Batches.Length == 2, $"Batches should be parsed and should be 2, actual number {query.Batches.Length}");
             Assert.True(query.Batches[0].HasExecuted && query.Batches[0].HasError, "first batch should be executed and have error");
             Assert.True(!query.Batches[1].HasExecuted, "second batch should not get to be executed because of the first error");

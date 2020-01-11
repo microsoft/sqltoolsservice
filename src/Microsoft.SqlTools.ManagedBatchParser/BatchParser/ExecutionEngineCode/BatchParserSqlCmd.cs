@@ -175,7 +175,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             catch (Exception)
             {
                 //catch all other exceptions and report generic error
-                throw new SqlCmdException(SR.SqlCmd_FailedInclude);
+                throw new SqlCmdException(string.Format(SR.SqlCmd_FailedInclude, fileName));
             }
         }
 
