@@ -8,14 +8,11 @@ using Microsoft.SqlTools.Credentials;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.Kusto.ServiceLayer.Cms;
 using Microsoft.Kusto.ServiceLayer.Connection;
-using Microsoft.Kusto.ServiceLayer.DacFx;
 using Microsoft.Kusto.ServiceLayer.FileBrowser;
 using Microsoft.Kusto.ServiceLayer.Hosting;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
 using Microsoft.Kusto.ServiceLayer.QueryExecution;
-using Microsoft.Kusto.ServiceLayer.SchemaCompare;
 using Microsoft.Kusto.ServiceLayer.Scripting;
 using Microsoft.Kusto.ServiceLayer.Security;
 using Microsoft.Kusto.ServiceLayer.SqlContext;
@@ -97,15 +94,6 @@ namespace Microsoft.Kusto.ServiceLayer
 
             SecurityService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(SecurityService.Instance);
-
-            DacFxService.Instance.InitializeService(serviceHost);
-            serviceProvider.RegisterSingleService(DacFxService.Instance);
-
-            CmsService.Instance.InitializeService(serviceHost);
-            serviceProvider.RegisterSingleService(CmsService.Instance);
-
-            SchemaCompare.SchemaCompareService.Instance.InitializeService(serviceHost);
-            serviceProvider.RegisterSingleService(SchemaCompareService.Instance);
 
             InitializeHostedServices(serviceProvider, serviceHost);
             serviceHost.ServiceProvider = serviceProvider;
