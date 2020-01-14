@@ -18,7 +18,8 @@ using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.FileBrowser;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
-using Microsoft.SqlTools.ServiceLayer.MachineLearningServices;
+using Microsoft.SqlTools.ServiceLayer.ServerConfigurations;
+using Microsoft.SqlTools.ServiceLayer.LanguageExtensions;
 using Microsoft.SqlTools.ServiceLayer.Metadata;
 using Microsoft.SqlTools.ServiceLayer.Profiler;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
@@ -123,8 +124,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             SchemaCompare.SchemaCompareService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(SchemaCompareService.Instance);
 
-            MachineLearningService.Instance.InitializeService(serviceHost);
-            serviceProvider.RegisterSingleService(MachineLearningService.Instance);
+            ServerConfigService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(ServerConfigService.Instance);
+
+            LanguageExtensionsService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(LanguageExtensionsService.Instance);
 
             InitializeHostedServices(serviceProvider, serviceHost);
             serviceHost.ServiceProvider = serviceProvider;

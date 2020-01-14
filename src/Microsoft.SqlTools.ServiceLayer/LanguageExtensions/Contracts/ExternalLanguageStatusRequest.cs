@@ -5,7 +5,7 @@
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.MachineLearningServices.Contracts
+namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensions.Contracts
 {
     public class ExternalLanguageStatusRequestParams
     {
