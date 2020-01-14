@@ -322,6 +322,14 @@
     <value>Could not retrieve an execution plan from the result set </value>
     <comment></comment>
   </data>
+  <data name="SqlCmdExitOnError" xml:space="preserve">
+    <value>An error was encountered during execution of batch. Exiting.</value>
+    <comment></comment>
+  </data>
+  <data name="SqlCmdUnsupportedToken" xml:space="preserve">
+    <value>Encountered unsupported token {0}</value>
+    <comment></comment>
+  </data>
   <data name="SerializationServiceUnsupportedFormat" xml:space="preserve">
     <value>Unsupported Save Format: {0}</value>
     <comment>.

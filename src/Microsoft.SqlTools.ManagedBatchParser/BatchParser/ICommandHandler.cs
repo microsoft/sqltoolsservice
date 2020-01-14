@@ -9,7 +9,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 {
     public interface ICommandHandler
     {
-        BatchParserAction Go(TextBlock batch, int repeatCount);
+        BatchParserAction Go(TextBlock batch, int repeatCount, SqlCmdCommand tokenType);
         BatchParserAction OnError(Token token, OnErrorAction action);
         BatchParserAction Include(TextBlock filename, out TextReader stream, out string newFilename);
     }

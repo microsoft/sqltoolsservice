@@ -147,6 +147,21 @@
         <target state="new">Variable {0} is not defined.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="SqlCmd_PathInvalid">
+        <source>Path contains invalid characters.</source>
+        <target state="new">Path contains invalid characters.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SqlCmd_PathLong">
+        <source>Path too long.</source>
+        <target state="new">Path too long.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SqlCmd_FailedInclude">
+        <source>Could not find included file {0}.</source>
+        <target state="new">Could not find included file {0}.</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
