@@ -38,6 +38,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensions.Contracts
     {
         public static readonly
             RequestType<ExternalLanguageStatusRequestParams, ExternalLanguageStatusResponseParams> Type =
-                RequestType<ExternalLanguageStatusRequestParams, ExternalLanguageStatusResponseParams>.Create("mls/externallanguagestatus");
+                RequestType<ExternalLanguageStatusRequestParams, ExternalLanguageStatusResponseParams>.Create("languageextension/status");
     }
 }

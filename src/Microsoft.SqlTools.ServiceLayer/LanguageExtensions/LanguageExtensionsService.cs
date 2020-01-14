@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensions
 {
     public class LanguageExtensionsService
     {
-        private LanguageExtensionOperations servcieOperations = new LanguageExtensionOperations();
+        private LanguageExtensionOperations serviceOperations = new LanguageExtensionOperations();
         private ConnectionService connectionService = null;
         private static readonly Lazy<LanguageExtensionsService> instance = new Lazy<LanguageExtensionsService>(() => new LanguageExtensionsService());
 
@@ -82,7 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensions
                 {
                     using (IDbConnection dbConnection = ConnectionService.OpenSqlConnection(connInfo))
                     {
-                        response.Status = servcieOperations.GetLanguageStatus(dbConnection, parameters.LanguageName);
+                        response.Status = serviceOperations.GetLanguageStatus(dbConnection, parameters.LanguageName);
                     }
                     
                     await requestContext.SendResult(response);
