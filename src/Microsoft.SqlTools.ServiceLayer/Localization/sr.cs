@@ -2972,6 +2972,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.ConnectionServiceConnStringInvalidAuthType, authType);
         }
 
+        public static string ConnectionServiceConnStringInvalidColumnEncryptionSetting(string columnEncryptionSetting)
+        {
+            return Keys.GetString(Keys.ConnectionServiceConnStringInvalidColumnEncryptionSetting, columnEncryptionSetting);
+        }
+
         public static string ConnectionServiceConnStringInvalidIntent(string intent)
         {
             return Keys.GetString(Keys.ConnectionServiceConnStringInvalidIntent, intent);
@@ -3143,6 +3148,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ConnectionServiceConnStringInvalidAuthType = "ConnectionServiceConnStringInvalidAuthType";
+
+
+            public const string ConnectionServiceConnStringInvalidColumnEncryptionSetting = "ConnectionServiceConnStringInvalidColumnEncryptionSetting";
 
 
             public const string ConnectionServiceConnStringInvalidIntent = "ConnectionServiceConnStringInvalidIntent";
