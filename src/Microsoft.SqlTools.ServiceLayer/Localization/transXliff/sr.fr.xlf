@@ -1,2774 +1,2395 @@
-<?xml version="1.0" ?><xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
-  <file datatype="xml" original="sr.resx" source-language="en" target-language="fr">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" original="sr.resx" source-language="en" target-language="fr-FR">
     <body>
       <trans-unit id="ConnectionServiceConnectErrorNullParams">
         <source>Connection parameters cannot be null</source>
-        <target state="new">Les paramètres de connexion ne peuvent pas être null</target>
-        
-        <note/>
+        <target state="translated">Les paramètres de connexion ne peuvent pas être null</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceListDbErrorNullOwnerUri">
         <source>OwnerUri cannot be null or empty</source>
-        <target state="new">OwnerUri ne peut pas être null ou vide.</target>
-        
-        <note/>
+        <target state="translated">OwnerUri ne peut pas être null ou vide</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceListDbErrorNotConnected">
         <source>SpecifiedUri '{0}' does not have existing connection</source>
-        <target state="new">SpecifiedUri '{0}' n’a pas de connexion existante</target>
-        
+        <target state="translated">SpecifiedUri '{0}' n'a pas de connexion existante</target>
         <note>.
  Parameters: 0 - uri (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidAuthType">
         <source>Invalid value '{0}' for AuthenticationType.  Valid values are 'Integrated' and 'SqlLogin'.</source>
-        <target state="new">Valeur '{0}' non valide pour AuthenticationType. Les valeurs valides sont 'Integrated' et 'SqlLogin'.</target>
-        
+        <target state="translated">Valeur '{0}' non valide pour AuthenticationType. Les valeurs valides sont 'Integrated' et 'SqlLogin'.</target>
         <note>.
  Parameters: 0 - authType (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidIntent">
         <source>Invalid value '{0}' for ApplicationIntent. Valid values are 'ReadWrite' and 'ReadOnly'.</source>
-        <target state="new">Valeur '{0}' non valide pour ApplicationIntent. Les valeurs valides sont 'ReadWrite' et 'ReadOnly'.</target>
-        
+        <target state="translated">Valeur '{0}' non valide pour ApplicationIntent. Les valeurs valides sont 'ReadWrite' et 'ReadOnly'.</target>
         <note>.
  Parameters: 0 - intent (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnectionCanceled">
         <source>Connection canceled</source>
-        <target state="new">Connexion annulée</target>
-        
-        <note/>
+        <target state="translated">Connexion annulée</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="ConnectionParamsValidateNullOwnerUri">
         <source>OwnerUri cannot be null or empty</source>
-        <target state="new">OwnerUri ne peut pas être null ou vide.</target>
-        
-        <note/>
+        <target state="translated">OwnerUri ne peut pas être null ou vide</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="ConnectionParamsValidateNullConnection">
         <source>Connection details object cannot be null</source>
-        <target state="new">L'objet &quot;détails de connexion&quot; ne peut pas être null</target>
-        
-        <note/>
+        <target state="translated">L'objet Détails de connexion ne peut pas être null</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="ConnectionParamsValidateNullServerName">
         <source>ServerName cannot be null or empty</source>
-        <target state="new">ServerName ne peut pas être null ou vide</target>
-        
-        <note/>
+        <target state="translated">ServerName ne peut pas être null ou vide</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="ConnectionParamsValidateNullSqlAuth">
         <source>{0} cannot be null or empty when using SqlLogin authentication</source>
-        <target state="new">{0} ne peut pas être nul ou vide quand l'authentification SqlLogin est utilisée</target>
-        
+        <target state="translated">{0} ne peut pas être nul ou vide en cas d'utilisation de l'authentification SqlLogin</target>
         <note>.
  Parameters: 0 - component (string) </note>
       </trans-unit>
       <trans-unit id="QueryServiceCancelAlreadyCompleted">
         <source>The query has already completed, it cannot be cancelled</source>
-        <target state="new">La requête est déjà terminée, elle ne peut pas être annulée.</target>
-        
-        <note/>
+        <target state="translated">La requête a déjà été exécutée, elle ne peut pas être annulée</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="QueryServiceCancelDisposeFailed">
         <source>Query successfully cancelled, failed to dispose query. Owner URI not found.</source>
-        <target state="new">Requête annulée avec succès, échec de la libération de la requête. L'URI propriétaire n'a pas été trouvée.</target>
-        
-        <note/>
+        <target state="translated">Requête annulée, impossible de supprimer la requête. L'URI de propriétaire est introuvable.</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="QueryServiceQueryCancelled">
         <source>Query was canceled by user</source>
-        <target state="new">La requête a été annulée par l’utilisateur</target>
-        
-        <note/>
+        <target state="translated">La requête a été annulée par l'utilisateur</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="QueryServiceSubsetBatchNotCompleted">
         <source>The batch has not completed, yet</source>
-        <target state="new">Le lot n’a pas terminé encore</target>
-        
-        <note/>
+        <target state="translated">Le lot n'est pas encore exécuté</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="QueryServiceSubsetBatchOutOfRange">
         <source>Batch index cannot be less than 0 or greater than the number of batches</source>
-        <target state="new">Index de lot ne peut pas être inférieur à 0 ou supérieur au nombre de lots</target>
-        
-        <note/>
+        <target state="translated">L'index de lot ne peut pas être inférieur à 0 ou supérieur au nombre de lots</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="QueryServiceSubsetResultSetOutOfRange">
         <source>Result set index cannot be less than 0 or greater than the number of result sets</source>
-        <target state="new">L'index de résultats ne peut pas être inférieur à 0 ou supérieur au nombre de résultats</target>
-        
-        <note/>
+        <target state="translated">L'index de jeu de résultats ne peut pas être inférieur à 0 ou supérieur au nombre de jeux de résultats</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="QueryServiceDataReaderByteCountInvalid">
         <source>Maximum number of bytes to return must be greater than zero</source>
-        <target state="new">Le nombre maximal d'octets à renvoyer doit être supérieur à zéro</target>
-        
-        <note/>
+        <target state="translated">Le nombre maximal d'octets à renvoyer doit être supérieur à zéro</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="QueryServiceDataReaderCharCountInvalid">
         <source>Maximum number of chars to return must be greater than zero</source>
-        <target state="new">Le nombre maximal de caractères à renvoyer doit être supérieur à zéro</target>
-        
-        <note/>
+        <target state="translated">Le nombre maximal de caractères à renvoyer doit être supérieur à zéro</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="QueryServiceDataReaderXmlCountInvalid">
         <source>Maximum number of XML bytes to return must be greater than zero</source>
-        <target state="new">Le nombre maximal d’octets XML à renvoyer doit être supérieur à zéro</target>
-        
-        <note/>
+        <target state="translated">Le nombre maximal d'octets XML à renvoyer doit être supérieur à zéro</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="QueryServiceFileWrapperWriteOnly">
         <source>Access method cannot be write-only</source>
-        <target state="new">Méthode d’accès ne peut pas être en écriture seule</target>
-        
-        <note/>
+        <target state="translated">La méthode d'accès ne peut pas être en écriture seule</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="QueryServiceFileWrapperNotInitialized">
         <source>FileStreamWrapper must be initialized before performing operations</source>
-        <target state="new">FileStreamWrapper doit être initialisée avant d’effectuer des opérations</target>
-        
-        <note/>
+        <target state="translated">FileStreamWrapper doit être initialisé avant d'effectuer des opérations</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="QueryServiceFileWrapperReadOnly">
         <source>This FileStreamWrapper cannot be used for writing</source>
-        <target state="new">Ce FileStreamWrapper ne peut pas être utilisé pour l’écriture</target>
-        
-        <note/>
+        <target state="translated">Ce FileStreamWrapper ne peut pas être utilisé pour l'écriture</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="QueryServiceAffectedOneRow">
         <source>(1 row affected)</source>
-        <target state="new">(1 ligne affectée)</target>
-        
-        <note/>
+        <target state="translated">(1 ligne affectée)</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="QueryServiceAffectedRows">
         <source>({0} rows affected)</source>
-        <target state="new">({0} lignes affectées)</target>
-        
+        <target state="translated">({0} lignes affectées)</target>
         <note>.
  Parameters: 0 - rows (long) </note>
       </trans-unit>
       <trans-unit id="QueryServiceCompletedSuccessfully">
         <source>Commands completed successfully.</source>
-        <target state="new">Commandes terminées avec succès.</target>
-        
-        <note/>
+        <target state="translated">Commandes exécutées.</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="QueryServiceErrorFormat">
         <source>Msg {0}, Level {1}, State {2}, Line {3}{4}{5}</source>
-        <target state="new">Msg {0}, au niveau état {2}, {1}, ligne {3} {4} {5}</target>
-        
+        <target state="translated">Msg {0}, niveau {1}, état {2}, ligne {3}{4}{5}</target>
         <note>.
  Parameters: 0 - msg (int), 1 - lvl (int), 2 - state (int), 3 - line (int), 4 - newLine (string), 5 - message (string) </note>
       </trans-unit>
       <trans-unit id="QueryServiceQueryFailed">
         <source>Query failed: {0}</source>
-        <target state="new">La requête a échoué : {0}</target>
-        
+        <target state="translated">La requête a échoué : {0}</target>
         <note>.
  Parameters: 0 - message (string) </note>
       </trans-unit>
       <trans-unit id="QueryServiceColumnNull">
         <source>(No column name)</source>
-        <target state="new">(Aucun nom de colonne)</target>
-        
-        <note/>
+        <target state="translated">(Aucun nom de colonne)</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="QueryServiceRequestsNoQuery">
         <source>The requested query does not exist</source>
-        <target state="new">La requête demandée n’existe pas</target>
-        
-        <note/>
+        <target state="translated">La requête demandée n'existe pas</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="QueryServiceQueryInvalidOwnerUri">
         <source>This editor is not connected to a database</source>
-        <target state="new">Cet éditeur n’est pas connecté à une base de données</target>
-        
-        <note/>
+        <target state="translated">Cet éditeur n'est pas connecté à une base de données</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="QueryServiceQueryInProgress">
         <source>A query is already in progress for this editor session. Please cancel this query or wait for its completion.</source>
-        <target state="new">Une requête est déjà en cours pour cette session d’éditeur. Veuillez annuler cette requête, ou attendre son achèvement.</target>
-        
-        <note/>
+        <target state="translated">Une requête est déjà en cours pour cette session d'éditeur. Annulez-la ou attendez qu'elle se termine.</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="QueryServiceMessageSenderNotSql">
         <source>Sender for OnInfoMessage event must be a SqlConnection</source>
-        <target state="new">L’expéditeur de l’événement de OnInfoMessage doit être un objet SqlConnection</target>
-        
-        <note/>
+        <target state="translated">L'expéditeur de l'événement OnInfoMessage doit être un objet SqlConnection</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="QueryServiceSaveAsResultSetNotComplete">
         <source>Result cannot be saved until query execution has completed</source>
-        <target state="new">Impossible d’enregistrer les résultats jusqu'à ce que l’exécution de la requête est terminée.</target>
-        
-        <note/>
+        <target state="translated">Impossible d'enregistrer le résultat tant que l'exécution de la requête n'est pas terminée</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="QueryServiceSaveAsMiscStartingError">
         <source>Internal error occurred while starting save task</source>
-        <target state="new">Une erreur interne s'est produite lors du démarrage de la tâche de sauvegarde.</target>
-        
-        <note/>
+        <target state="translated">Une erreur interne s'est produite au démarrage de la tâche d'enregistrement.</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="QueryServiceSaveAsInProgress">
         <source>A save request to the same path is in progress</source>
-        <target state="new">Une requête de sauvegarde vers le même chemin est en cours</target>
-        
-        <note/>
+        <target state="translated">Une requête d'enregistrement dans le même chemin est en cours</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="QueryServiceSaveAsFail">
         <source>Failed to save {0}: {1}</source>
-        <target state="new">Impossible d’enregistrer {0} : {1}</target>
-        
+        <target state="translated">L'enregistrement de {0} a échoué : {1}</target>
         <note>.
  Parameters: 0 - fileName (string), 1 - message (string) </note>
       </trans-unit>
       <trans-unit id="QueryServiceResultSetNotRead">
         <source>Cannot read subset unless the results have been read from the server</source>
-        <target state="new">Impossible de lire le sous-élément à moins que les résultats aient été lus depuis le serveur</target>
-        
-        <note/>
+        <target state="translated">Impossible de lire le sous-élément, sauf si les résultats ont été lus à partir du serveur</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="QueryServiceResultSetStartRowOutOfRange">
         <source>Start row cannot be less than 0 or greater than the number of rows in the result set</source>
-        <target state="new">La ligne de début ne peut pas être inférieure à 0 ou supérieure au nombre de lignes de résultats</target>
-        
-        <note/>
+        <target state="translated">La ligne de début ne peut pas être inférieure à 0 ou supérieure au nombre de lignes du jeu de résultats</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="QueryServiceResultSetRowCountOutOfRange">
         <source>Row count must be a positive integer</source>
-        <target state="new">Le nombre de lignes doit être un entier positif</target>
-        
-        <note/>
+        <target state="translated">Le nombre de lignes doit être un entier positif</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="QueryServiceResultSetNoColumnSchema">
         <source>Could not retrieve column schema for result set</source>
-        <target state="new">Impossible de récupérer le schéma des colonnes pour le jeu de résultats</target>
-        
-        <note/>
+        <target state="translated">Impossible de récupérer le schéma de colonne du jeu de résultats</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="QueryServiceExecutionPlanNotFound">
         <source>Could not retrieve an execution plan from the result set </source>
-        <target state="new">Impossible de récupérer un plan d’exécution pour le jeu de résultats</target>
-        
-        <note/>
+        <target state="translated">Impossible de récupérer un plan d'exécution du jeu de résultats </target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="PeekDefinitionAzureError">
         <source>This feature is currently not supported on Azure SQL DB and Data Warehouse: {0}</source>
-        <target state="new">Cette fonctionnalité n'est actuellement pas supportée sur Azure SQL DB et Data Warehouse : {0}</target>
-        
+        <target state="translated">Cette fonctionnalité n'est actuellement pas prise en charge sur Azure SQL DB et Data Warehouse : {0}</target>
         <note>.
  Parameters: 0 - errorMessage (string) </note>
       </trans-unit>
       <trans-unit id="PeekDefinitionError">
         <source>An unexpected error occurred during Peek Definition execution: {0}</source>
-        <target state="new">Une erreur inattendue s'est produite lors de l'exécution du coup d'oeil à la définition: {0}.</target>
-        
+        <target state="translated">Une erreur inattendue s'est produite pendant l'exécution de l'aperçu de définition : {0}.</target>
         <note>.
  Parameters: 0 - errorMessage (string) </note>
       </trans-unit>
       <trans-unit id="PeekDefinitionNoResultsError">
         <source>No results were found.</source>
-        <target state="new">Aucun résultat trouvé.</target>
-        
-        <note/>
+        <target state="translated">Aucun résultat.</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="PeekDefinitionDatabaseError">
         <source>No database object was retrieved.</source>
-        <target state="new">Aucun objet de base de données n'a été récupéré.</target>
-        
-        <note/>
+        <target state="translated">Aucun objet de base de données n'a été récupéré.</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="PeekDefinitionNotConnectedError">
         <source>Please connect to a server.</source>
-        <target state="new">Veuillez vous connecter à un serveur.</target>
-        
-        <note/>
+        <target state="translated">Connectez-vous à un serveur.</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="PeekDefinitionTimedoutError">
         <source>Operation timed out.</source>
-        <target state="new">Opération a expiré.</target>
-        
-        <note/>
+        <target state="translated">L'opération a expiré.</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="PeekDefinitionTypeNotSupportedError">
         <source>This object type is currently not supported by this feature.</source>
-        <target state="new">Ce type d'objet n'est actuellement pas supporté par cette fonctionnalité</target>
-        
-        <note/>
+        <target state="translated">Ce type d'objet n'est actuellement pas pris en charge par cette fonctionnalité.</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="WorkspaceServicePositionLineOutOfRange">
         <source>Position is outside of file line range</source>
-        <target state="new">La position est en dehors de la plage de lignes du fichier</target>
-        
-        <note/>
+        <target state="translated">La position est en dehors de la plage de lignes du fichier</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="WorkspaceServicePositionColumnOutOfRange">
         <source>Position is outside of column range for line {0}</source>
-        <target state="new">La position est en dehors de la plage de colonnes pour la ligne {0}</target>
-        
+        <target state="translated">La position est en dehors de la plage de colonnes pour la ligne {0}</target>
         <note>.
  Parameters: 0 - line (int) </note>
       </trans-unit>
       <trans-unit id="WorkspaceServiceBufferPositionOutOfOrder">
         <source>Start position ({0}, {1}) must come before or be equal to the end position ({2}, {3})</source>
-        <target state="new">Position de début ({0}, {1}) doit précéder ou être égale à la position de fin ({2}, {3})</target>
-        
+        <target state="translated">La position de départ ({0}, {1}) doit être antérieure ou égale à la position de fin ({2}, {3})</target>
         <note>.
  Parameters: 0 - sLine (int), 1 - sCol (int), 2 - eLine (int), 3 - eCol (int) </note>
       </trans-unit>
-      <trans-unit id="EE_BatchSqlMessageNoProcedureInfo">
-        <source>Msg {0}, Level {1}, State {2}, Line {3}</source>
-        <target state="new">Msg {0}, Niveau {1}, État {2}, Ligne {3}</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="EE_BatchSqlMessageWithProcedureInfo">
-        <source>Msg {0}, Level {1}, State {2}, Procedure {3}, Line {4}</source>
-        <target state="new">Msg {0}, Niveau {1}, État {2}, Procédure {3}, Ligne {4}</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="EE_BatchSqlMessageNoLineInfo">
-        <source>Msg {0}, Level {1}, State {2}</source>
-        <target state="new">Msg {0}, Niveau {1}, État {2}</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="EE_BatchError_Exception">
-        <source>An error occurred while the batch was being processed. The error message is: {0}</source>
-        <target state="new">Une erreur s'est produite lors du traitement du lot. Le message d'erreur est : {0}</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="EE_BatchExecutionInfo_RowsAffected">
-        <source>({0} row(s) affected)</source>
-        <target state="new">({0} lignes affectées)</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="EE_ExecutionNotYetCompleteError">
-        <source>The previous execution is not yet complete.</source>
-        <target state="new">L'exécution précédente n'est pas encore terminée.</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="EE_ScriptError_Error">
-        <source>A scripting error occurred.</source>
-        <target state="new">Une erreur de script s'est produite.</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="EE_ScriptError_ParsingSyntax">
-        <source>Incorrect syntax was encountered while {0} was being parsed.</source>
-        <target state="new">Une syntaxe incorrecte a été trouvée lors de l'analyse de {0}.</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="EE_ScriptError_FatalError">
-        <source>A fatal error occurred.</source>
-        <target state="new">Une erreur irrécupérable s'est produite.</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="EE_ExecutionInfo_FinalizingLoop">
-        <source>Batch execution completed {0} times...</source>
-        <target state="new">L'exécution a été effectuée {0} fois...</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="EE_ExecutionInfo_QueryCancelledbyUser">
-        <source>You cancelled the query.</source>
-        <target state="new">Vous avez annulé la requête.</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="EE_BatchExecutionError_Halting">
-        <source>An error occurred while the batch was being executed.</source>
-        <target state="new">Une erreur s'est produite lors de l'exécution du lot.</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="EE_BatchExecutionError_Ignoring">
-        <source>An error occurred while the batch was being executed, but the error has been ignored.</source>
-        <target state="new">Une erreur s'est produite lors de l'exécution du lot, mais elle a été ignorée.</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="EE_ExecutionInfo_InitializingLoop">
-        <source>Beginning execution loop</source>
-        <target state="new">Beginning execution loop</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="EE_ExecutionError_CommandNotSupported">
-        <source>Command {0} is not supported.</source>
-        <target state="new">La commande {0} n'est pas prise en charge.</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="EE_ExecutionError_VariableNotFound">
-        <source>The variable {0} could not be found.</source>
-        <target state="new">Impossible de trouver la variable {0}.</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="BatchParserWrapperExecutionEngineError">
-        <source>SQL Execution error: {0}</source>
-        <target state="new">Erreur d’exécution de SQL : {0}</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="BatchParserWrapperExecutionError">
-        <source>Batch parser wrapper execution: {0} found... at line {1}: {2}    Description: {3}</source>
-        <target state="new">Exécution du wrapper de l'analyseur du lot : {0} trouvé... à la ligne {1} : {2}    Description : {3}</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="BatchParserWrapperExecutionEngineBatchMessage">
-        <source>Batch parser wrapper execution engine batch message received:  Message: {0}    Detailed message: {1}</source>
-        <target state="new">Message reçu du lot du moteur d'exécution du wrapper de l'analyseur du lot : Message : {0}    Message détaillé : {1}</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="BatchParserWrapperExecutionEngineBatchResultSetProcessing">
-        <source>Batch parser wrapper execution engine batch ResultSet processing: DataReader.FieldCount: {0}  DataReader.RecordsAffected: {1}</source>
-        <target state="new">Traitement du ResultSet du lot du moteur d'exécution du wrapper de l'analyseur du lot : DataReader.FieldCount : {0}  DataReader.RecordsAffected : {1}</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="BatchParserWrapperExecutionEngineBatchResultSetFinished">
-        <source>Batch parser wrapper execution engine batch ResultSet finished.</source>
-        <target state="new">ResultSet du lot du moteur d'exécution du wrapper de l'analyseur du lot terminé.</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="BatchParserWrapperExecutionEngineBatchCancelling">
-        <source>Canceling batch parser wrapper batch execution.</source>
-        <target state="new">Annulation de l'exécution du lot du wrapper de l'analyseur du lot.</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="EE_ScriptError_Warning">
-        <source>Scripting warning.</source>
-        <target state="new">Avertissement de script.</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="TroubleshootingAssistanceMessage">
-        <source>For more information about this error, see the troubleshooting topics in the product documentation.</source>
-        <target state="new">Pour plus d'informations sur cette erreur, consultez les rubriques de dépannage dans la documentation du produit.</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="BatchParser_CircularReference">
-        <source>File '{0}' recursively included.</source>
-        <target state="new">Le fichier '{0}' a été inclus de manière récursive.</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="BatchParser_CommentNotTerminated">
-        <source>Missing end comment mark '*/'.</source>
-        <target state="new">La marque de commentaire de fin '*/' est manquante.</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="BatchParser_StringNotTerminated">
-        <source>Unclosed quotation mark after the character string.</source>
-        <target state="new">Guillemets non fermés après la chaîne de caractères.</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="BatchParser_IncorrectSyntax">
-        <source>Incorrect syntax was encountered while parsing '{0}'.</source>
-        <target state="new">Détection d'une syntaxe incorrecte pendant l'analyse de '{0}'.</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="BatchParser_VariableNotDefined">
-        <source>Variable {0} is not defined.</source>
-        <target state="new">La variable {0} n'est pas définie.</target>
-        
-        <note/>
-      </trans-unit>
       <trans-unit id="TestLocalizationConstant">
         <source>test</source>
-        <target state="new">test</target>
-        
-        <note/>
+        <target state="translated">test</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="ErrorEmptyStringReplacement">
         <source>Replacement of an empty string by an empty string.</source>
-        <target state="new">Remplacement d’une chaîne vide à une chaîne vide.</target>
-        
-        <note/>
+        <target state="translated">Remplacement d'une chaîne vide par une chaîne vide.</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="EditDataSessionNotFound">
         <source>Edit session does not exist.</source>
-        <target state="new">La session d'édition n’existe pas.</target>
-        
-        <note/>
+        <target state="translated">La session d'édition n'existe pas.</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="EditDataQueryNotCompleted">
         <source>Query has not completed execution</source>
-        <target state="new">La requête n’a pas terminé l’exécution</target>
-        
-        <note/>
+        <target state="translated">La requête n'a pas terminé son exécution</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="EditDataQueryImproperResultSets">
         <source>Query did not generate exactly one result set</source>
-        <target state="new">La requête n’a pas généré exactement un jeu de résultats</target>
-        
-        <note/>
+        <target state="translated">La requête n'a pas généré un jeu de résultats exactement</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="EditDataFailedAddRow">
         <source>Failed to add new row to update cache</source>
-        <target state="new">Impossible d’ajouter la nouvelle ligne pour mettre à jour le cache</target>
-        
-        <note/>
+        <target state="translated">Impossible d'ajouter une nouvelle ligne pour mettre à jour le cache</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="EditDataRowOutOfRange">
         <source>Given row ID is outside the range of rows in the edit cache</source>
-        <target state="new">L'identifiant de ligne spécifié est en dehors de la plage de lignes dans le cache d’édition</target>
-        
-        <note/>
+        <target state="translated">L'ID de ligne spécifié est en dehors de la plage de lignes dans le cache d'édition</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="EditDataUpdatePending">
         <source>An update is already pending for this row and must be reverted first</source>
-        <target state="new">Une mise à jour est déjà en attente pour cette ligne et doit être d’abord annulée</target>
-        
-        <note/>
+        <target state="translated">Une mise à jour est déjà en attente pour cette ligne et doit d'abord être annulée</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="EditDataUpdateNotPending">
         <source>Given row ID does not have pending update</source>
-        <target state="new">L'identifiant de la ligne n'a pas de mise à jour en attente</target>
-        
-        <note/>
+        <target state="translated">L'ID de ligne spécifié n'a pas de mise à jour en attente</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="EditDataObjectMetadataNotFound">
         <source>Table or view metadata could not be found</source>
-        <target state="new">Les métadonnées de la table ou de la vue n’ont pas pu être trouvées</target>
-        
-        <note/>
+        <target state="translated">Les métadonnées de table ou de vue sont introuvables</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="EditDataInvalidFormatBinary">
         <source>Invalid format for binary column</source>
-        <target state="new">Format invalide pour une colonne binary</target>
-        
-        <note/>
+        <target state="translated">Format non valide pour une colonne binaire</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="EditDataInvalidFormatBoolean">
-        <source>Allowed values for boolean columns are 0, 1, &quot;true&quot;, or &quot;false&quot;</source>
-        <target state="new">Les colonnes booléennes doivent être un numérique 1 ou 0, ou une chaîne true ou false</target>
-        
-        <note/>
+        <source>Allowed values for boolean columns are 0, 1, "true", or "false"</source>
+        <target state="translated">Les valeurs autorisées pour les colonnes booléennes sont 0, 1, "true" ou "false"</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="EditDataCreateScriptMissingValue">
         <source>The column '{0}' is defined as NOT NULL but was not given a value</source>
-        <target state="new">Une valeur de cellule requise est manquante.</target>
-        
+        <target state="translated">La colonne '{0}' est définie comme NON NULL, mais n'a pas reçu de valeur</target>
         <note>.
  Parameters: 0 - colName (string) </note>
       </trans-unit>
       <trans-unit id="EditDataDeleteSetCell">
         <source>A delete is pending for this row, a cell update cannot be applied.</source>
-        <target state="new">Une suppression est en attente pour cette ligne, une mise à jour de cellule ne peut pas être appliquée.</target>
-        
-        <note/>
+        <target state="translated">Une suppression est en attente pour cette ligne, impossible d'appliquer la mise à jour de cellule.</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="EditDataColumnIdOutOfRange">
         <source>Column ID must be in the range of columns for the query</source>
-        <target state="new">La colonne Id doit être dans la plage des colonnes de la requête</target>
-        
-        <note/>
+        <target state="translated">L'ID de colonne doit être dans la plage de colonnes de la requête</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="EditDataColumnCannotBeEdited">
         <source>Column cannot be edited</source>
-        <target state="new">La colonne ne peut pas être éditée</target>
-        
-        <note/>
+        <target state="translated">Impossible de modifier la colonne</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="EditDataColumnNoKeyColumns">
         <source>No key columns were found</source>
-        <target state="new">Aucune colonne clé n'a été trouvée</target>
-        
-        <note/>
+        <target state="translated">Aucune colonne clé</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="EditDataScriptFilePathNull">
         <source>An output filename must be provided</source>
-        <target state="new">Un nom de fichier de sortie doit être fourni</target>
-        
-        <note/>
+        <target state="translated">Un nom de fichier de sortie doit être fourni</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="EditDataUnsupportedObjectType">
         <source>Database object {0} cannot be used for editing.</source>
-        <target state="new">L'objet de base de données {0} ne peut pas être utilisé pour éditer</target>
-        
+        <target state="translated">Impossible d'utiliser l'objet de base de données {0} pour la modification.</target>
         <note>.
  Parameters: 0 - typeName (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceDbErrorDefaultNotConnected">
         <source>Specified URI '{0}' does not have a default connection</source>
-        <target state="new">L'Uri spécifiée '{0}' n’a pas de connexion par défaut</target>
-        
+        <target state="translated">L'URI spécifié '{0}' n'a pas de connexion par défaut</target>
         <note>.
  Parameters: 0 - uri (string) </note>
       </trans-unit>
       <trans-unit id="EditDataCommitInProgress">
         <source>A commit task is in progress. Please wait for completion.</source>
-        <target state="new">Une tâche commit est en cours. Veuillez, s'il vous plaît, attendre la fin.</target>
-        
-        <note/>
+        <target state="translated">Une tâche de commit est en cours. Attendez la fin de son exécution.</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SqlScriptFormatterDecimalMissingPrecision">
-        <source>Decimal column is missing numeric precision or numeric scale</source>
-        <target state="new">La colonne decimal manque d'une précision numérique</target>
-        
-        <note/>
+        <source>Exact numeric column is missing numeric precision or numeric scale</source>
+        <target state="translated">Une colonne de valeurs numériques exactes n'a pas de précision numérique ni d'échelle numérique</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="EditDataComputedColumnPlaceholder">
         <source>&lt;TBD&gt;</source>
-        <target state="new">&lt;TBD&gt;</target>
-        
-        <note/>
+        <target state="translated">&lt;TBD&gt;</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="QueryServiceResultSetAddNoRows">
         <source>Cannot add row to result buffer, data reader does not contain rows</source>
-        <target state="new">Impossible d'ajouter une ligne au tampon de résultats, le data reader ne contient aucune ligne</target>
-        
-        <note/>
+        <target state="translated">Impossible d'ajouter une ligne à la mémoire tampon de résultats, le lecteur de données n'a pas de ligne</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="EditDataTimeOver24Hrs">
         <source>TIME column values must be between 00:00:00.0000000 and 23:59:59.9999999</source>
-        <target state="new">Les valeurs de colonne TIME doivent être contenues entre  00:00:00.0000000 et 23:59:59.9999999</target>
-        
-        <note/>
+        <target state="translated">Les valeurs de la colonne TIME doivent être comprises entre 00:00:00.0000000 et 23:59:59,9999999</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="EditDataNullNotAllowed">
         <source>NULL is not allowed for this column</source>
-        <target state="new">NULL n'est pas autorisé pour cette colonne</target>
-        
-        <note/>
+        <target state="translated">NULL n'est pas autorisé pour cette colonne</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="EditDataSessionAlreadyExists">
         <source>Edit session already exists.</source>
-        <target state="new">La session d'édition existe déjà.</target>
-        
-        <note/>
+        <target state="translated">La session d'édition existe déjà.</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="EditDataSessionNotInitialized">
         <source>Edit session has not been initialized</source>
-        <target state="new">La session d'édition n'a pas été initialisée</target>
-        
-        <note/>
+        <target state="translated">La session d'édition n'a pas été initialisée</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="EditDataSessionAlreadyInitialized">
         <source>Edit session has already been initialized</source>
-        <target state="new">La session d'édition a déjà été initialisée</target>
-        
-        <note/>
+        <target state="translated">La session d'édition a déjà été initialisée</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="EditDataSessionAlreadyInitializing">
         <source>Edit session has already been initialized or is in the process of initializing</source>
-        <target state="new">La session d'édition a déjà été initialisée ou est en cours d'initialisation</target>
-        
-        <note/>
+        <target state="translated">La session d'édition a déjà été initialisée ou est en cours d'initialisation</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="EditDataQueryFailed">
         <source>Query execution failed, see messages for details</source>
-        <target state="new">L'exécution de la requête a échoué, voir les messages pour plus de détails</target>
-        
-        <note/>
+        <target state="translated">L'exécution de la requête a échoué, consultez les messages pour plus de détails</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="EditDataFilteringNegativeLimit">
         <source>Result limit cannot be negative</source>
-        <target state="new">La limite de résultat ne peut pas être négative</target>
-        
-        <note/>
+        <target state="translated">La limite de résultats ne peut pas être négative</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="QueryServiceCellNull">
         <source>NULL</source>
-        <target state="new">NULL</target>
-        
-        <note/>
+        <target state="translated">NULL</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="EditDataMetadataObjectNameRequired">
         <source>A object name must be provided</source>
-        <target state="new">Un nom d'objet doit être fourni</target>
-        
-        <note/>
+        <target state="translated">Un nom d'objet doit être fourni</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="EditDataMetadataTooManyIdentifiers">
         <source>Explicitly specifying server or database is not supported</source>
-        <target state="new">La spécification explicite du serveur ou de la base de données n'est pas pris en charge</target>
-        
-        <note/>
+        <target state="translated">La spécification explicite du serveur ou de la base de données n'est pas prise en charge</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="EditDataMetadataNotExtended">
         <source>Table metadata does not have extended properties</source>
-        <target state="new">Les métadonnées de tables n'ont pas de propriétés étendues</target>
-        
-        <note/>
+        <target state="translated">Les métadonnées de table n'ont pas de propriétés étendues</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="EditDataObjectNotFound">
         <source>Table or view requested for edit could not be found</source>
-        <target state="new">La table ou la vue demandée pour édition n'a pas pu être trouvée</target>
-        
-        <note/>
+        <target state="translated">La table ou la vue demandée pour modification est introuvable</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="TreeNodeError">
         <source>Error expanding: {0}</source>
-        <target state="new">Erreur en développant : {0}</target>
-        
-        <note/>
+        <target state="translated">Erreur de développement : {0}</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="ServerNodeConnectionError">
         <source>Error connecting to {0}</source>
-        <target state="new">Erreur en se connectant à {0}</target>
-        
-        <note/>
+        <target state="translated">Erreur de connexion à {0}</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_Aggregates">
         <source>Aggregates</source>
-        <target state="new">Agrégats</target>
-        
-        <note/>
+        <target state="translated">Agrégats</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_ServerRoles">
         <source>Server Roles</source>
-        <target state="new">Rôles serveur</target>
-        
-        <note/>
+        <target state="translated">Rôles serveur</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_ApplicationRoles">
         <source>Application Roles</source>
-        <target state="new">Rôles d'application</target>
-        
-        <note/>
+        <target state="translated">Rôles d'application</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_Assemblies">
         <source>Assemblies</source>
-        <target state="new">Assemblys</target>
-        
-        <note/>
+        <target state="translated">Assemblys</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_AssemblyFiles">
         <source>Assembly Files</source>
-        <target state="new">Fichiers d'assembly</target>
-        
-        <note/>
+        <target state="translated">Fichiers d'assembly</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_AsymmetricKeys">
         <source>Asymmetric Keys</source>
-        <target state="new">Clés asymétriques</target>
-        
-        <note/>
+        <target state="translated">Clés asymétriques</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_DatabaseAsymmetricKeys">
         <source>Asymmetric Keys</source>
-        <target state="new">Clés asymétriques</target>
-        
-        <note/>
+        <target state="translated">Clés asymétriques</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_DataCompressionOptions">
         <source>Data Compression Options</source>
-        <target state="new">Options de compression de données</target>
-        
-        <note/>
+        <target state="translated">Options de compression de données</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_Certificates">
         <source>Certificates</source>
-        <target state="new">Certificats</target>
-        
-        <note/>
+        <target state="translated">Certificats</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_FileTables">
         <source>FileTables</source>
-        <target state="new">FileTables</target>
-        
-        <note/>
+        <target state="translated">FileTables</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_DatabaseCertificates">
         <source>Certificates</source>
-        <target state="new">Certificats</target>
-        
-        <note/>
+        <target state="translated">Certificats</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_CheckConstraints">
         <source>Check Constraints</source>
-        <target state="new">Contraintes de validation</target>
-        
-        <note/>
+        <target state="translated">Contraintes de validation</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_Columns">
         <source>Columns</source>
-        <target state="new">Colonnes</target>
-        
-        <note/>
+        <target state="translated">Colonnes</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_Constraints">
         <source>Constraints</source>
-        <target state="new">Contraintes</target>
-        
-        <note/>
+        <target state="translated">Contraintes</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_Contracts">
         <source>Contracts</source>
-        <target state="new">Contrats</target>
-        
-        <note/>
+        <target state="translated">Contrats</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_Credentials">
         <source>Credentials</source>
-        <target state="new">Informations d'identification</target>
-        
-        <note/>
+        <target state="translated">Informations d'identification</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_ErrorMessages">
         <source>Error Messages</source>
-        <target state="new">Messages d'erreur</target>
-        
-        <note/>
+        <target state="translated">Messages d'erreur</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_ServerRoleMembership">
         <source>Server Role Membership</source>
-        <target state="new">Appartenance au rôle de serveur</target>
-        
-        <note/>
+        <target state="translated">Appartenance au rôle serveur</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_DatabaseOptions">
         <source>Database Options</source>
-        <target state="new">Options de la base de données</target>
-        
-        <note/>
+        <target state="translated">Options de base de données</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_DatabaseRoles">
         <source>Database Roles</source>
-        <target state="new">Rôles de base de données</target>
-        
-        <note/>
+        <target state="translated">Rôles de base de données</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_RoleMemberships">
         <source>Role Memberships</source>
-        <target state="new">Appartenances aux rôles</target>
-        
-        <note/>
+        <target state="translated">Appartenances au rôle</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_DatabaseTriggers">
         <source>Database Triggers</source>
-        <target state="new">Déclencheurs de base de données</target>
-        
-        <note/>
+        <target state="translated">Déclencheurs de base de données</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_DefaultConstraints">
         <source>Default Constraints</source>
-        <target state="new">Contraintes par défaut</target>
-        
-        <note/>
+        <target state="translated">Contraintes par défaut</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_Defaults">
         <source>Defaults</source>
-        <target state="new">Par défaut</target>
-        
-        <note/>
+        <target state="translated">Valeurs par défaut</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_Sequences">
         <source>Sequences</source>
-        <target state="new">Séquences</target>
-        
-        <note/>
+        <target state="translated">Séquences</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_Endpoints">
         <source>Endpoints</source>
-        <target state="new">Points de terminaison</target>
-        
-        <note/>
+        <target state="translated">Points de terminaison</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_EventNotifications">
         <source>Event Notifications</source>
-        <target state="new">Notifications d'événements</target>
-        
-        <note/>
+        <target state="translated">Notifications d'événements</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_ServerEventNotifications">
         <source>Server Event Notifications</source>
-        <target state="new">Notifications d'événements du serveur</target>
-        
-        <note/>
+        <target state="translated">Notifications d'événements de serveur</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_ExtendedProperties">
         <source>Extended Properties</source>
-        <target state="new">Propriétés étendues</target>
-        
-        <note/>
+        <target state="translated">Propriétés étendues</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_FileGroups">
         <source>Filegroups</source>
-        <target state="new">Groupes de fichiers</target>
-        
-        <note/>
+        <target state="translated">Groupes de fichiers</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_ForeignKeys">
         <source>Foreign Keys</source>
-        <target state="new">Clés étrangères</target>
-        
-        <note/>
+        <target state="translated">Clés étrangères</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_FullTextCatalogs">
         <source>Full-Text Catalogs</source>
-        <target state="new">Catalogues de recherche en texte intégral</target>
-        
-        <note/>
+        <target state="translated">Catalogues de texte intégral</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_FullTextIndexes">
         <source>Full-Text Indexes</source>
-        <target state="new">Index de recherche en texte intégral</target>
-        
-        <note/>
+        <target state="translated">Index de recherche en texte intégral</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_Functions">
         <source>Functions</source>
-        <target state="new">Fonctions</target>
-        
-        <note/>
+        <target state="translated">Fonctions</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_Indexes">
         <source>Indexes</source>
-        <target state="new">Index</target>
-        
-        <note/>
+        <target state="translated">Index</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_InlineFunctions">
         <source>Inline Functions</source>
-        <target state="new">Fonctions incluses</target>
-        
-        <note/>
+        <target state="translated">Fonctions inline</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_Keys">
         <source>Keys</source>
-        <target state="new">Clés</target>
-        
-        <note/>
+        <target state="translated">Clés</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_LinkedServers">
         <source>Linked Servers</source>
-        <target state="new">Serveurs liés</target>
-        
-        <note/>
+        <target state="translated">Serveurs liés</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_LinkedServerLogins">
         <source>Linked Server Logins</source>
-        <target state="new">Connexions de serveur lié</target>
-        
-        <note/>
+        <target state="translated">Connexions de serveur lié</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_Logins">
         <source>Logins</source>
-        <target state="new">Connexions</target>
-        
-        <note/>
+        <target state="translated">Connexions</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_MasterKey">
         <source>Master Key</source>
-        <target state="new">Clé principale</target>
-        
-        <note/>
+        <target state="translated">Clé principale</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_MasterKeys">
         <source>Master Keys</source>
-        <target state="new">Clés principales</target>
-        
-        <note/>
+        <target state="translated">Clés principales</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_MessageTypes">
         <source>Message Types</source>
-        <target state="new">Types de messages</target>
-        
-        <note/>
+        <target state="translated">Types de message</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_MultiSelectFunctions">
         <source>Table-Valued Functions</source>
-        <target state="new">Fonctions table</target>
-        
-        <note/>
+        <target state="translated">Fonctions table</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_Parameters">
         <source>Parameters</source>
-        <target state="new">Paramètres</target>
-        
-        <note/>
+        <target state="translated">Paramètres</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_PartitionFunctions">
         <source>Partition Functions</source>
-        <target state="new">Fonctions de partition</target>
-        
-        <note/>
+        <target state="translated">Fonctions de partition</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_PartitionSchemes">
         <source>Partition Schemes</source>
-        <target state="new">Schémas de partition</target>
-        
-        <note/>
+        <target state="translated">Schémas de partition</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_Permissions">
         <source>Permissions</source>
-        <target state="new">Autorisations</target>
-        
-        <note/>
+        <target state="translated">Autorisations</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_PrimaryKeys">
         <source>Primary Keys</source>
-        <target state="new">Clés primaires</target>
-        
-        <note/>
+        <target state="translated">Clés primaires</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_Programmability">
         <source>Programmability</source>
-        <target state="new">Programmabilité</target>
-        
-        <note/>
+        <target state="translated">Programmabilité</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_Queues">
         <source>Queues</source>
-        <target state="new">Files d'attente</target>
-        
-        <note/>
+        <target state="translated">Files d'attente</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_RemoteServiceBindings">
         <source>Remote Service Bindings</source>
-        <target state="new">Liaisons de service distant</target>
-        
-        <note/>
+        <target state="translated">Liaisons de service distant</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_ReturnedColumns">
         <source>Returned Columns</source>
-        <target state="new">Colonnes retournées</target>
-        
-        <note/>
+        <target state="translated">Colonnes retournées</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_Roles">
         <source>Roles</source>
-        <target state="new">Rôles</target>
-        
-        <note/>
+        <target state="translated">Rôles</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_Routes">
         <source>Routes</source>
-        <target state="new">Itinéraires </target>
-        
-        <note/>
+        <target state="translated">Routes</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_Rules">
         <source>Rules</source>
-        <target state="new">Règles</target>
-        
-        <note/>
+        <target state="translated">Règles</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_Schemas">
         <source>Schemas</source>
-        <target state="new">Schémas</target>
-        
-        <note/>
+        <target state="translated">Schémas</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_Security">
         <source>Security</source>
-        <target state="new">Sécurité</target>
-        
-        <note/>
+        <target state="translated">Sécurité</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_ServerObjects">
         <source>Server Objects</source>
-        <target state="new">Objets serveur</target>
-        
-        <note/>
+        <target state="translated">Objets serveur</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_Management">
         <source>Management</source>
-        <target state="new">Gestion</target>
-        
-        <note/>
+        <target state="translated">Gestion</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_ServerTriggers">
         <source>Triggers</source>
-        <target state="new">Déclencheurs</target>
-        
-        <note/>
+        <target state="translated">Déclencheurs</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_ServiceBroker">
         <source>Service Broker</source>
-        <target state="new">Service Broker</target>
-        
-        <note/>
+        <target state="translated">Service Broker</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_Services">
         <source>Services</source>
-        <target state="new">Services</target>
-        
-        <note/>
+        <target state="translated">Services</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_Signatures">
         <source>Signatures</source>
-        <target state="new">Signatures</target>
-        
-        <note/>
+        <target state="translated">Signatures</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_LogFiles">
         <source>Log Files</source>
-        <target state="new">Fichiers journaux</target>
-        
-        <note/>
+        <target state="translated">Fichiers journaux</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_Statistics">
         <source>Statistics</source>
-        <target state="new">Statistiques</target>
-        
-        <note/>
+        <target state="translated">Statistiques</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_Storage">
         <source>Storage</source>
-        <target state="new">Stockage</target>
-        
-        <note/>
+        <target state="translated">Stockage</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_StoredProcedures">
         <source>Stored Procedures</source>
-        <target state="new">Procédures stockées</target>
-        
-        <note/>
+        <target state="translated">Procédures stockées</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SymmetricKeys">
         <source>Symmetric Keys</source>
-        <target state="new">Clés symétriques</target>
-        
-        <note/>
+        <target state="translated">Clés symétriques</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_Synonyms">
         <source>Synonyms</source>
-        <target state="new">Synonymes</target>
-        
-        <note/>
+        <target state="translated">Synonymes</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_Tables">
         <source>Tables</source>
-        <target state="new">Tables</target>
-        
-        <note/>
+        <target state="translated">Tables</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_Triggers">
         <source>Triggers</source>
-        <target state="new">Déclencheurs</target>
-        
-        <note/>
+        <target state="translated">Déclencheurs</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_Types">
         <source>Types</source>
-        <target state="new">Types</target>
-        
-        <note/>
+        <target state="translated">Types</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_UniqueKeys">
         <source>Unique Keys</source>
-        <target state="new">Clés uniques</target>
-        
-        <note/>
+        <target state="translated">Clés uniques</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_UserDefinedDataTypes">
         <source>User-Defined Data Types</source>
-        <target state="new">Types de données définis par l'utilisateur</target>
-        
-        <note/>
+        <target state="translated">Types de données définis par l'utilisateur</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_UserDefinedTypes">
         <source>User-Defined Types (CLR)</source>
-        <target state="new">Types définis par l'utilisateur (CLR)</target>
-        
-        <note/>
+        <target state="translated">Types définis par l'utilisateur (CLR)</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_Users">
         <source>Users</source>
-        <target state="new">Utilisateurs</target>
-        
-        <note/>
+        <target state="translated">Utilisateurs</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_Views">
         <source>Views</source>
-        <target state="new">Vues</target>
-        
-        <note/>
+        <target state="translated">Vues</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_XmlIndexes">
         <source>XML Indexes</source>
-        <target state="new">Index XML</target>
-        
-        <note/>
+        <target state="translated">Index XML</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_XMLSchemaCollections">
         <source>XML Schema Collections</source>
-        <target state="new">Collections de schémas XML</target>
-        
-        <note/>
+        <target state="translated">Collections de schémas XML</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_UserDefinedTableTypes">
         <source>User-Defined Table Types</source>
-        <target state="new">Types de tables définis par l'utilisateur</target>
-        
-        <note/>
+        <target state="translated">Types de tables définis par l'utilisateur</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_FilegroupFiles">
         <source>Files</source>
-        <target state="new">Fichiers</target>
-        
-        <note/>
+        <target state="translated">Fichiers</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="MissingCaption">
         <source>Missing Caption</source>
-        <target state="new">Légende manquante</target>
-        
-        <note/>
+        <target state="translated">Légende manquante</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_BrokerPriorities">
         <source>Broker Priorities</source>
-        <target state="new">Priorités de Service Broker</target>
-        
-        <note/>
+        <target state="translated">Priorités de Service Broker</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_CryptographicProviders">
         <source>Cryptographic Providers</source>
-        <target state="new">Fournisseurs de chiffrement</target>
-        
-        <note/>
+        <target state="translated">Fournisseurs de services de chiffrement</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_DatabaseAuditSpecifications">
         <source>Database Audit Specifications</source>
-        <target state="new">Spécifications de l'audit de la base de données</target>
-        
-        <note/>
+        <target state="translated">Spécifications de l'audit de base de données</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_DatabaseEncryptionKeys">
         <source>Database Encryption Keys</source>
-        <target state="new">Clés de chiffrement de la base de données</target>
-        
-        <note/>
+        <target state="translated">Clés de chiffrement de base de données</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_EventSessions">
         <source>Event Sessions</source>
-        <target state="new">Sessions d'événements</target>
-        
-        <note/>
+        <target state="translated">Sessions d'événements</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_FullTextStopLists">
         <source>Full Text Stoplists</source>
-        <target state="new">Listes de mots vides de texte intégral</target>
-        
-        <note/>
+        <target state="translated">Listes de mots vides en texte intégral</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_ResourcePools">
         <source>Resource Pools</source>
-        <target state="new">Pools de ressources</target>
-        
-        <note/>
+        <target state="translated">Pools de ressources</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_ServerAudits">
         <source>Audits</source>
-        <target state="new">Audits</target>
-        
-        <note/>
+        <target state="translated">Audits</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_ServerAuditSpecifications">
         <source>Server Audit Specifications</source>
-        <target state="new">Spécifications de l'audit du serveur</target>
-        
-        <note/>
+        <target state="translated">Spécifications de l'audit de serveur</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SpatialIndexes">
         <source>Spatial Indexes</source>
-        <target state="new">Index spatiaux</target>
-        
-        <note/>
+        <target state="translated">Index spatiaux</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_WorkloadGroups">
         <source>Workload Groups</source>
-        <target state="new">Groupes de charges de travail</target>
-        
-        <note/>
+        <target state="translated">Groupes de charge de travail</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SqlFiles">
         <source>SQL Files</source>
-        <target state="new">Fichiers SQL</target>
-        
-        <note/>
+        <target state="translated">Fichiers SQL</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_ServerFunctions">
         <source>Server Functions</source>
-        <target state="new">Fonctions du serveur</target>
-        
-        <note/>
+        <target state="translated">Fonctions de serveur</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SqlType">
         <source>SQL Type</source>
-        <target state="new">Type SQL</target>
-        
-        <note/>
+        <target state="translated">Type SQL</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_ServerOptions">
         <source>Server Options</source>
-        <target state="new">Options de serveur</target>
-        
-        <note/>
+        <target state="translated">Options de serveur</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_DatabaseDiagrams">
         <source>Database Diagrams</source>
-        <target state="new">Schémas de base de données</target>
-        
-        <note/>
+        <target state="translated">Diagrammes de base de données</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SystemTables">
         <source>System Tables</source>
-        <target state="new">Tables système</target>
-        
-        <note/>
+        <target state="translated">Tables système</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_Databases">
         <source>Databases</source>
-        <target state="new">Bases de données</target>
-        
-        <note/>
+        <target state="translated">Bases de données</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SystemContracts">
         <source>System Contracts</source>
-        <target state="new">Contrats système</target>
-        
-        <note/>
+        <target state="translated">Contrats système</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SystemDatabases">
         <source>System Databases</source>
-        <target state="new">Bases de données système</target>
-        
-        <note/>
+        <target state="translated">Bases de données système</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SystemMessageTypes">
         <source>System Message Types</source>
-        <target state="new">Types de messages système</target>
-        
-        <note/>
+        <target state="translated">Types de message système</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SystemQueues">
         <source>System Queues</source>
-        <target state="new">Files d'attente système</target>
-        
-        <note/>
+        <target state="translated">Files d'attente système</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SystemServices">
         <source>System Services</source>
-        <target state="new">Services système</target>
-        
-        <note/>
+        <target state="translated">Services système</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SystemStoredProcedures">
         <source>System Stored Procedures</source>
-        <target state="new">Procédures stockées système</target>
-        
-        <note/>
+        <target state="translated">Procédures stockées système</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SystemViews">
         <source>System Views</source>
-        <target state="new">Vues système</target>
-        
-        <note/>
+        <target state="translated">Vues système</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_DataTierApplications">
         <source>Data-tier Applications</source>
-        <target state="new">Applications de la couche Données</target>
-        
-        <note/>
+        <target state="translated">Applications de la couche Données</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_ExtendedStoredProcedures">
         <source>Extended Stored Procedures</source>
-        <target state="new">Procédures stockées étendues</target>
-        
-        <note/>
+        <target state="translated">Procédures stockées étendues</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SystemAggregateFunctions">
         <source>Aggregate Functions</source>
-        <target state="new">Fonctions d'agrégation</target>
-        
-        <note/>
+        <target state="translated">Fonctions d'agrégation</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SystemApproximateNumerics">
         <source>Approximate Numerics</source>
-        <target state="new">Valeurs numériques approximatives</target>
-        
-        <note/>
+        <target state="translated">Valeurs numériques approximatives</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SystemBinaryStrings">
         <source>Binary Strings</source>
-        <target state="new">Chaînes binaires</target>
-        
-        <note/>
+        <target state="translated">Chaînes binaires</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SystemCharacterStrings">
         <source>Character Strings</source>
-        <target state="new">Chaînes de caractères</target>
-        
-        <note/>
+        <target state="translated">Chaînes de caractères</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SystemCLRDataTypes">
         <source>CLR Data Types</source>
-        <target state="new">Types de données CLR</target>
-        
-        <note/>
+        <target state="translated">Types de données CLR</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SystemConfigurationFunctions">
         <source>Configuration Functions</source>
-        <target state="new">Fonctions de configuration</target>
-        
-        <note/>
+        <target state="translated">Fonctions de configuration</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SystemCursorFunctions">
         <source>Cursor Functions</source>
-        <target state="new">Fonctions du curseur</target>
-        
-        <note/>
+        <target state="translated">Fonctions de curseur</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SystemDataTypes">
         <source>System Data Types</source>
-        <target state="new">Types de données système</target>
-        
-        <note/>
+        <target state="translated">Types de données système</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SystemDateAndTime">
         <source>Date and Time</source>
-        <target state="new">Date et heure</target>
-        
-        <note/>
+        <target state="translated">Date et heure</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SystemDateAndTimeFunctions">
         <source>Date and Time Functions</source>
-        <target state="new">Fonctions de date et d'heure</target>
-        
-        <note/>
+        <target state="translated">Fonctions de date et heure</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SystemExactNumerics">
         <source>Exact Numerics</source>
-        <target state="new">Valeurs numériques exactes</target>
-        
-        <note/>
+        <target state="translated">Valeurs numériques exactes</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SystemFunctions">
         <source>System Functions</source>
-        <target state="new">Fonctions système</target>
-        
-        <note/>
+        <target state="translated">Fonctions système</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SystemHierarchyIdFunctions">
         <source>Hierarchy Id Functions</source>
-        <target state="new">Fonctions de l'ID de hiérarchie</target>
-        
-        <note/>
+        <target state="translated">Fonctions d'ID de hiérarchie</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SystemMathematicalFunctions">
         <source>Mathematical Functions</source>
-        <target state="new">Fonctions mathématiques</target>
-        
-        <note/>
+        <target state="translated">Fonctions mathématiques</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SystemMetadataFunctions">
         <source>Metadata Functions</source>
-        <target state="new">Fonctions de métadonnées</target>
-        
-        <note/>
+        <target state="translated">Fonctions de métadonnées</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SystemOtherDataTypes">
         <source>Other Data Types</source>
-        <target state="new">Autres types de données</target>
-        
-        <note/>
+        <target state="translated">Autres types de données</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SystemOtherFunctions">
         <source>Other Functions</source>
-        <target state="new">Autres fonctions</target>
-        
-        <note/>
+        <target state="translated">Autres fonctions</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SystemRowsetFunctions">
         <source>Rowset Functions</source>
-        <target state="new">Fonctions d'ensemble de lignes</target>
-        
-        <note/>
+        <target state="translated">Fonctions d'ensemble de lignes</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SystemSecurityFunctions">
         <source>Security Functions</source>
-        <target state="new">Fonctions de sécurité</target>
-        
-        <note/>
+        <target state="translated">Fonctions de sécurité</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SystemSpatialDataTypes">
         <source>Spatial Data Types</source>
-        <target state="new">Types de données spatiales</target>
-        
-        <note/>
+        <target state="translated">Types de données spatiales</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SystemStringFunctions">
         <source>String Functions</source>
-        <target state="new">Fonctions de chaîne</target>
-        
-        <note/>
+        <target state="translated">Fonctions de chaîne</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SystemSystemStatisticalFunctions">
         <source>System Statistical Functions</source>
-        <target state="new">Fonctions statistiques système</target>
-        
-        <note/>
+        <target state="translated">Fonctions de statistiques système</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SystemTextAndImageFunctions">
         <source>Text and Image Functions</source>
-        <target state="new">Fonctions de texte et d'image</target>
-        
-        <note/>
+        <target state="translated">Fonctions de texte et image</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SystemUnicodeCharacterStrings">
         <source>Unicode Character Strings</source>
-        <target state="new">Chaînes de caractères Unicode</target>
-        
-        <note/>
+        <target state="translated">Chaînes de caractères Unicode</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_AggregateFunctions">
         <source>Aggregate Functions</source>
-        <target state="new">Fonctions d'agrégation</target>
-        
-        <note/>
+        <target state="translated">Fonctions d'agrégation</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_ScalarValuedFunctions">
         <source>Scalar-valued Functions</source>
-        <target state="new">Fonctions scalaires</target>
-        
-        <note/>
+        <target state="translated">Fonctions scalaires</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_TableValuedFunctions">
         <source>Table-valued Functions</source>
-        <target state="new">Fonctions table</target>
-        
-        <note/>
+        <target state="translated">Fonctions table</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SystemExtendedStoredProcedures">
         <source>System Extended Stored Procedures</source>
-        <target state="new">Procédures stockées étendues système</target>
-        
-        <note/>
+        <target state="translated">Procédures stockées étendues système</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_BuiltInType">
         <source>Built-in Types</source>
-        <target state="new">Types intégrés</target>
-        
-        <note/>
+        <target state="translated">Types intégrés</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_BuiltInServerRole">
         <source>Built-in Server Roles</source>
-        <target state="new">Rôles serveur intégrés</target>
-        
-        <note/>
+        <target state="translated">Rôles serveur intégrés</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_UserWithPassword">
         <source>User with Password</source>
-        <target state="new">Utilisateur avec mot de passe</target>
-        
-        <note/>
+        <target state="translated">Utilisateur avec mot de passe</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SearchPropertyList">
         <source>Search Property List</source>
-        <target state="new">Liste des propriétés de recherche</target>
-        
-        <note/>
+        <target state="translated">Liste de propriétés de recherche</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SecurityPolicies">
         <source>Security Policies</source>
-        <target state="new">Stratégies de sécurité</target>
-        
-        <note/>
+        <target state="translated">Stratégies de sécurité</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SecurityPredicates">
         <source>Security Predicates</source>
-        <target state="new">Prédicats de sécurité</target>
-        
-        <note/>
+        <target state="translated">Prédicats de sécurité</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_ServerRole">
         <source>Server Role</source>
-        <target state="new">Rôle de serveur</target>
-        
-        <note/>
+        <target state="translated">Rôle serveur</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SearchPropertyLists">
         <source>Search Property Lists</source>
-        <target state="new">Listes des propriétés de recherche</target>
-        
-        <note/>
+        <target state="translated">Listes de propriétés de recherche</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_ColumnStoreIndexes">
         <source>Column Store Indexes</source>
-        <target state="new">Index de stockage de colonnes</target>
-        
-        <note/>
+        <target state="translated">Index de banque de colonnes</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_TableTypeIndexes">
         <source>Table Type Indexes</source>
-        <target state="new">Index de types de tables</target>
-        
-        <note/>
+        <target state="translated">Index de type de table</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SelectiveXmlIndexes">
         <source>Selective XML Indexes</source>
-        <target state="new">Index XML sélectifs</target>
-        
-        <note/>
+        <target state="translated">Index XML sélectifs</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_XmlNamespaces">
         <source>XML Namespaces</source>
-        <target state="new">Espaces de noms XML</target>
-        
-        <note/>
+        <target state="translated">Espaces de noms XML</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_XmlTypedPromotedPaths">
         <source>XML Typed Promoted Paths</source>
-        <target state="new">Chemins d'accès promus typés XML</target>
-        
-        <note/>
+        <target state="translated">Chemins promus typés XML</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SqlTypedPromotedPaths">
         <source>T-SQL Typed Promoted Paths</source>
-        <target state="new">Chemins d'accès promus typés T-SQL</target>
-        
-        <note/>
+        <target state="translated">Chemins promus typés T-SQL</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_DatabaseScopedCredentials">
         <source>Database Scoped Credentials</source>
-        <target state="new">Informations d'identification incluses dans l'étendue de la base de données</target>
-        
-        <note/>
+        <target state="translated">Informations d'identification limitées à la base de données</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_ExternalDataSources">
         <source>External Data Sources</source>
-        <target state="new">Sources de données externes</target>
-        
-        <note/>
+        <target state="translated">Sources de données externes</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_ExternalFileFormats">
         <source>External File Formats</source>
-        <target state="new">Formats de fichier externes</target>
-        
-        <note/>
+        <target state="translated">Formats de fichier externes</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_ExternalResources">
         <source>External Resources</source>
-        <target state="new">Ressources externes</target>
-        
-        <note/>
+        <target state="translated">Ressources externes</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_ExternalTables">
         <source>External Tables</source>
-        <target state="new">Tables externes</target>
-        
-        <note/>
+        <target state="translated">Tables externes</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_AlwaysEncryptedKeys">
         <source>Always Encrypted Keys</source>
-        <target state="new">Clés Always Encrypted</target>
-        
-        <note/>
+        <target state="translated">Clés Always Encrypted</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_ColumnMasterKeys">
         <source>Column Master Keys</source>
-        <target state="new">Clés principales de la colonne</target>
-        
-        <note/>
+        <target state="translated">Clés principales de colonne</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_ColumnEncryptionKeys">
         <source>Column Encryption Keys</source>
-        <target state="new">Clés de chiffrement de la colonne</target>
-        
-        <note/>
+        <target state="translated">Clés de chiffrement de colonne</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_Server">
         <source>Server</source>
-        <target state="new">Serveur</target>
-        
-        <note/>
+        <target state="translated">Serveur</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="ScriptingParams_ConnectionString_Property_Invalid">
         <source>Error parsing ScriptingParams.ConnectionString property.</source>
-        <target state="new">Erreur en analysant la propriété ScriptingParams.ConnectionString.</target>
-        
-        <note/>
+        <target state="translated">Erreur d'analyse de la propriété ScriptingParams.ConnectionString.</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="ScriptingParams_FilePath_Property_Invalid">
         <source>Invalid directory specified by the ScriptingParams.FilePath property.</source>
-        <target state="new">Répertoire invalide spécifié pour la propriété ScriptingParams.FilePath.</target>
-        
-        <note/>
+        <target state="translated">Répertoire non valide spécifié pour la propriété ScriptingParams.FilePath.</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid">
         <source>Error parsing ScriptingListObjectsCompleteParams.ConnectionString property.</source>
-        <target state="new">Erreur en analysant la propriété ScriptingListObjectsCompleteParams.ConnectionString.</target>
-        
-        <note/>
+        <target state="translated">Erreur d'analyse de la propriété ScriptingListObjectsCompleteParams.ConnectionString.</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SubroutineParameterLabelFormatString">
         <source>{0} ({1}, {2}, {3})</source>
-        <target state="new">{0} ({1}, {2}, {3})</target>
-        
-        <note/>
+        <target state="translated">{0} ({1}, {2}, {3})</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SubroutineParameterNoDefaultLabel">
         <source>No default</source>
-        <target state="new">Pas de valeur par défaut</target>
-        
-        <note/>
+        <target state="translated">Pas de valeur par défaut</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SubroutineParameterInputLabel">
         <source>Input</source>
-        <target state="new">Entrée</target>
-        
-        <note/>
+        <target state="translated">Entrée</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SubroutineParameterInputOutputLabel">
         <source>Input/Output</source>
-        <target state="new">Entrée/sortie</target>
-        
-        <note/>
+        <target state="translated">Entrée/sortie</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SubroutineParameterInputReadOnlyLabel">
         <source>Input/ReadOnly</source>
-        <target state="new">Entrée/ReadOnly</target>
-        
-        <note/>
+        <target state="translated">Entrée/ReadOnly</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SubroutineParameterInputOutputReadOnlyLabel">
         <source>Input/Output/ReadOnly</source>
-        <target state="new">Entrée/sortie/ReadOnly</target>
-        
-        <note/>
+        <target state="translated">Entrée/sortie/ReadOnly</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_SubroutineParameterDefaultLabel">
         <source>Default</source>
-        <target state="new">Par défaut</target>
-        
-        <note/>
+        <target state="translated">Par défaut</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_NullColumn_Label">
         <source>null</source>
-        <target state="new">Null</target>
-        
-        <note/>
+        <target state="translated">null</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_NotNullColumn_Label">
         <source>not null</source>
-        <target state="new">Non Null</target>
-        
-        <note/>
+        <target state="translated">non null</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_UDDTLabelWithType">
         <source>{0} ({1}, {2})</source>
-        <target state="new">{0} ({1}, {2})</target>
-        
-        <note/>
+        <target state="translated">{0} ({1}, {2})</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_UDDTLabelWithoutType">
         <source>{0} ({1})</source>
-        <target state="new">{0} ({1})</target>
-        
-        <note/>
+        <target state="translated">{0} ({1})</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_ComputedColumnLabelWithType">
         <source>{0} ({1}Computed, {2}, {3})</source>
-        <target state="new">{0} ({1}Calculé, {2}, {3})</target>
-        
-        <note/>
+        <target state="translated">{0} ({1} calculé, {2}, {3})</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_ComputedColumnLabelWithoutType">
         <source>{0} ({1}Computed)</source>
-        <target state="new">{0} ({1}Calculé)</target>
-        
-        <note/>
+        <target state="translated">{0} ({1} calculé)</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_ColumnSetLabelWithoutType">
         <source>{0} (Column Set, {1})</source>
-        <target state="new">{0} (Jeu de colonnes, {1})</target>
-        
-        <note/>
+        <target state="translated">{0} (Jeu de colonnes, {1})</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_ColumnSetLabelWithType">
         <source>{0} (Column Set, {1}{2}, {3})</source>
-        <target state="new">{0} (Jeu de colonnes, {1}{2}, {3})</target>
-        
-        <note/>
+        <target state="translated">{0} (Jeu de colonnes, {1}{2}, {3})</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_ColumnSetLabelWithTypeAndKeyString">
         <source>{0} (Column Set, {1}, {2}, {3})</source>
-        <target state="new">{0} (Jeu de colonnes, {1}, {2}, {3})</target>
-        
-        <note/>
+        <target state="translated">{0} (Jeu de colonnes, {1}, {2}, {3})</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="UniqueIndex_LabelPart">
         <source>Unique</source>
-        <target state="new">Unique</target>
-        
-        <note/>
+        <target state="translated">Unique</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="NonUniqueIndex_LabelPart">
         <source>Non-Unique</source>
-        <target state="new">Non unique</target>
-        
-        <note/>
+        <target state="translated">Non unique</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="ClusteredIndex_LabelPart">
         <source>Clustered</source>
-        <target state="new">Ordonné en clusters</target>
-        
-        <note/>
+        <target state="translated">En cluster</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="NonClusteredIndex_LabelPart">
         <source>Non-Clustered</source>
-        <target state="new">Non-Clustere</target>
-        
-        <note/>
+        <target state="translated">Non cluster</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="History_LabelPart">
         <source>History</source>
-        <target state="new">Historique</target>
-        
-        <note/>
+        <target state="translated">Historique</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="SystemVersioned_LabelPart">
         <source>System-Versioned</source>
-        <target state="new">System-Versioned</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="unavailable">
-        <source>Unavailable</source>
-        <target state="new">Indisponible</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="filegroup_dialog_defaultFilegroup">
-        <source>Current default filegroup: {0}</source>
-        <target state="new">Groupe de fichiers par défaut actuel : {0}</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="filegroup_dialog_title">
-        <source>New Filegroup for {0}</source>
-        <target state="new">Nouveau groupe de fichiers pour {0}</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="filegroups_default">
-        <source>Default</source>
-        <target state="new">Par défaut</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="filegroups_files">
-        <source>Files</source>
-        <target state="new">Fichiers</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="filegroups_name">
-        <source>Name</source>
-        <target state="new">Nom</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="filegroups_readonly">
-        <source>Read-Only</source>
-        <target state="new">Lecture seule</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="general_autogrowth">
-        <source>Autogrowth / Maxsize</source>
-        <target state="new">Redimensionnement automatique / Taille max</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="general_builderText">
-        <source>...</source>
-        <target state="new">...</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="general_default">
-        <source>&lt;default&gt;</source>
-        <target state="new">&lt;par défaut&gt;</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="general_fileGroup">
-        <source>Filegroup</source>
-        <target state="new">Groupe de fichiers</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="general_fileName">
-        <source>Logical Name</source>
-        <target state="new">Nom logique</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="general_fileType">
-        <source>File Type</source>
-        <target state="new">Type de fichier</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="general_initialSize">
-        <source>Initial Size (MB)</source>
-        <target state="new">Taille initiale (Mo)</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="general_newFilegroup">
-        <source>&lt;new filegroup&gt;</source>
-        <target state="new">&lt;new filegroup&gt;</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="general_path">
-        <source>Path</source>
-        <target state="new">Chemin d'accès</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="general_physicalFileName">
-        <source>File Name</source>
-        <target state="new">Nom de fichier </target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="general_rawDevice">
-        <source>&lt;raw device&gt;</source>
-        <target state="new">&lt;raw device&gt;</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="general_recoveryModel_bulkLogged">
-        <source>Bulk-logged</source>
-        <target state="new">Bulk-logged</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="general_recoveryModel_full">
-        <source>Full</source>
-        <target state="new">Full</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="general_recoveryModel_simple">
-        <source>Simple</source>
-        <target state="new">Simple</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="general_titleSearchOwner">
-        <source>Select Database Owner</source>
-        <target state="new">Sélectionner le propriétaire de base de données</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_autogrowth_disabled">
-        <source>None</source>
-        <target state="new">Aucune</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_autogrowth_restrictedGrowthByMB">
-        <source>By {0} MB, Limited to {1} MB</source>
-        <target state="new">Par {0} Mo, Limité à {1} Mo</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_autogrowth_restrictedGrowthByPercent">
-        <source>By {0} percent, Limited to {1} MB</source>
-        <target state="new">Par {0} %, Limité à {1} Mo</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_autogrowth_unrestrictedGrowthByMB">
-        <source>By {0} MB, Unlimited</source>
-        <target state="new">Par {0} Mo, Illimité</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_autogrowth_unrestrictedGrowthByPercent">
-        <source>By {0} percent, Unlimited</source>
-        <target state="new">Par {0} %, Illimité</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_autogrowth_unlimitedfilestream">
-        <source>Unlimited</source>
-        <target state="new">Illimité</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_autogrowth_limitedfilestream">
-        <source>Limited to {0} MB</source>
-        <target state="new">Limité à {0} Mo</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_category_automatic">
-        <source>Automatic</source>
-        <target state="new">Automatique</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_category_servicebroker">
-        <source>Service Broker</source>
-        <target state="new">Service Broker</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_category_collation">
-        <source>Collation</source>
-        <target state="new">Classement</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_category_cursor">
-        <source>Cursor</source>
-        <target state="new">Curseur</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_category_misc">
-        <source>Miscellaneous</source>
-        <target state="new">Divers</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_category_recovery">
-        <source>Recovery</source>
-        <target state="new">Restauration</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_category_state">
-        <source>State</source>
-        <target state="new">État</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_ansiNullDefault">
-        <source>ANSI NULL Default</source>
-        <target state="new">Paramètre par défaut ANSI NULL</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_ansiNulls">
-        <source>ANSI NULLS Enabled</source>
-        <target state="new">Valeurs ANSI NULLS activées</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_ansiPadding">
-        <source>ANSI Padding Enabled </source>
-        <target state="new">Padding ANSI activé</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_ansiWarnings">
-        <source>ANSI Warnings Enabled</source>
-        <target state="new">ANSI Warnings activés</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_arithabort">
-        <source>Arithmetic Abort Enabled </source>
-        <target state="new">Annulation arithmétique (Arithmetic Abort) activée</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_autoClose">
-        <source>Auto Close</source>
-        <target state="new">Fermeture automatique</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_autoCreateStatistics">
-        <source>Auto Create Statistics</source>
-        <target state="new">Création automatique des statistiques</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_autoShrink">
-        <source>Auto Shrink</source>
-        <target state="new">Réduction automatique</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_autoUpdateStatistics">
-        <source>Auto Update Statistics </source>
-        <target state="new">Mise à jour automatique des statistiques</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_autoUpdateStatisticsAsync">
-        <source>Auto Update Statistics Asynchronously</source>
-        <target state="new">Mise à jour automatique des statistiques en mode asynchrone</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_caseSensitive">
-        <source>Case Sensitive</source>
-        <target state="new">Sensible à la casse</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_closeCursorOnCommit">
-        <source>Close Cursor on Commit Enabled </source>
-        <target state="new">Fermeture du curseur lors de la validation activée</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_collation">
-        <source>Collation</source>
-        <target state="new">Classement</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_concatNullYieldsNull">
-        <source>Concatenate Null Yields Null </source>
-        <target state="new">La concaténation de la valeur Null donne Null</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databaseCompatibilityLevel">
-        <source>Database Compatibility Level</source>
-        <target state="new">Niveau de compatibilité de la base de données</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databaseState">
-        <source>Database State </source>
-        <target state="new">État de la base de données</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_defaultCursor">
-        <source>Default Cursor</source>
-        <target state="new">Curseur par défaut</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_fullTextIndexing">
-        <source>Full-Text Indexing Enabled </source>
-        <target state="new">Indexation de texte intégral activée</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_numericRoundAbort">
-        <source>Numeric Round-Abort </source>
-        <target state="new">Abandon en cas d'arrondi numérique</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_pageVerify">
-        <source>Page Verify </source>
-        <target state="new">Vérification de la page :</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_quotedIdentifier">
-        <source>Quoted Identifiers Enabled </source>
-        <target state="new">Identificateurs entre guillemets activés</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_readOnly">
-        <source>Database Read-Only</source>
-        <target state="new">Base de données en lecture seule</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_recursiveTriggers">
-        <source>Recursive Triggers Enabled </source>
-        <target state="new">Déclencheurs récursifs activés</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_restrictAccess">
-        <source>Restrict Access</source>
-        <target state="new">Restreindre l'accès</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_selectIntoBulkCopy">
-        <source>Select Into/Bulk Copy</source>
-        <target state="new">Select Into / Bulk Copy</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_honorBrokerPriority">
-        <source>Honor Broker Priority</source>
-        <target state="new">Priorité du service Broker respectée</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_serviceBrokerGuid">
-        <source>Service Broker Identifier</source>
-        <target state="new">Identifant de Service Broker</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_brokerEnabled">
-        <source>Broker Enabled</source>
-        <target state="new">Broker activé</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_truncateLogOnCheckpoint">
-        <source>Truncate Log on Checkpoint </source>
-        <target state="new">Truncate Log on Checkpoint </target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_dbChaining">
-        <source>Cross-database Ownership Chaining Enabled</source>
-        <target state="new">Chaînage des propriétés des bases de données croisées activé</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_trustworthy">
-        <source>Trustworthy</source>
-        <target state="new">Digne de confiance</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_dateCorrelationOptimization">
-        <source>Date Correlation Optimization Enabled</source>
-        <target state="new">Date Correlation Optimization Enabledprototype_db_prop_parameterization = Parameterization</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_parameterization_value_forced">
-        <source>Forced</source>
-        <target state="new">Forcé</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_parameterization_value_simple">
-        <source>Simple</source>
-        <target state="new">Simple</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_file_dataFile">
-        <source>ROWS Data</source>
-        <target state="new">Données ROWS</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_file_logFile">
-        <source>LOG</source>
-        <target state="new">LOG</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_file_filestreamFile">
-        <source>FILESTREAM Data</source>
-        <target state="new">Données FILESTREAM</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_file_noFileGroup">
-        <source>Not Applicable</source>
-        <target state="new">Non applicable</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_file_defaultpathstring">
-        <source>&lt;default path&gt;</source>
-        <target state="new">&lt;default path&gt;</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="title_openConnectionsMustBeClosed">
-        <source>Open Connections</source>
-        <target state="new">Ouvrir les connexions</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="warning_openConnectionsMustBeClosed">
-        <source>To change the database properties, SQL Server must close all other connections to the database_ Are you sure you want to change the properties and close all other connections?</source>
-        <target state="new">Pour changer les propriétés de la base de données, SQL Server doit fermer toutes les autres connexions à la base de données. Etes-vous sûr de vouloir changer les propriétés et fermer toutes les autres connexions ?</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databaseState_value_autoClosed">
-        <source>AUTO_CLOSED</source>
-        <target state="new">AUTO_CLOSED</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databaseState_value_emergency">
-        <source>EMERGENCY</source>
-        <target state="new">EMERGENCY</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databaseState_value_inaccessible">
-        <source>INACCESSIBLE</source>
-        <target state="new">INACCESSIBLE</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databaseState_value_normal">
-        <source>NORMAL</source>
-        <target state="new">NORMAL</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databaseState_value_offline">
-        <source>OFFLINE</source>
-        <target state="new">OFFLINE</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databaseState_value_recovering">
-        <source>RECOVERING</source>
-        <target state="new">RECOVERING</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databaseState_value_recoveryPending">
-        <source>RECOVERY PENDING</source>
-        <target state="new">RECOVERY PENDING</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databaseState_value_restoring">
-        <source>RESTORING</source>
-        <target state="new">RESTORING</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databaseState_value_shutdown">
-        <source>SHUTDOWN</source>
-        <target state="new">SHUTDOWN</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databaseState_value_standby">
-        <source>STANDBY</source>
-        <target state="new">STANDBY</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databaseState_value_suspect">
-        <source>SUSPECT</source>
-        <target state="new">SUSPECT</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_defaultCursor_value_global">
-        <source>GLOBAL</source>
-        <target state="new">GLOBAL</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_defaultCursor_value_local">
-        <source>LOCAL</source>
-        <target state="new">LOCAL</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_restrictAccess_value_multiple">
-        <source>MULTI_USER</source>
-        <target state="new">MULTI_USER</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_restrictAccess_value_restricted">
-        <source>RESTRICTED_USER</source>
-        <target state="new">RESTRICTED_USER</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_restrictAccess_value_single">
-        <source>SINGLE_USER</source>
-        <target state="new">SINGLE_USER</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_pageVerify_value_checksum">
-        <source>CHECKSUM</source>
-        <target state="new">CHECKSUM</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_pageVerify_value_none">
-        <source>NONE</source>
-        <target state="new">NONE</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_pageVerify_value_tornPageDetection">
-        <source>TORN_PAGE_DETECTION</source>
-        <target state="new">TORN_PAGE_DETECTION</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_varDecimalEnabled">
-        <source>VarDecimal Storage Format Enabled</source>
-        <target state="new">Format de stockage VarDecimal activé</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="compatibilityLevel_katmai">
-        <source>SQL Server 2008 (100)</source>
-        <target state="new">SQL Server 2008 (100)</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_encryptionEnabled">
-        <source>Encryption Enabled</source>
-        <target state="new">Chiffrement activé</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databasescopedconfig_value_off">
-        <source>OFF</source>
-        <target state="new">OFF</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databasescopedconfig_value_on">
-        <source>ON</source>
-        <target state="new">ON</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_databasescopedconfig_value_primary">
-        <source>PRIMARY</source>
-        <target state="new">PRIMARY</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="error_db_prop_invalidleadingColumns">
-        <source>For the distribution policy HASH, the number of leading hash columns is optional but should be from 1 to 16 columns  </source>
-        <target state="new">Pour la politique de distribution HASH, le nombre de colonnes hash qui débutent est optionnel mais devrait être entre 1 et 16 colonnes.</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="compatibilityLevel_denali">
-        <source>SQL Server 2012 (110)</source>
-        <target state="new">SQL Server 2012 (110)</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="compatibilityLevel_sql14">
-        <source>SQL Server 2014 (120)</source>
-        <target state="new">SQL Server 2014 (120)</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="compatibilityLevel_sql15">
-        <source>SQL Server 2016 (130)</source>
-        <target state="new">SQL Server 2016 (130)</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="compatibilityLevel_sqlvNext">
-        <source>SQL Server vNext (140)</source>
-        <target state="new">SQL Server vNext (140)</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="general_containmentType_None">
-        <source>None</source>
-        <target state="new">Aucun</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="general_containmentType_Partial">
-        <source>Partial</source>
-        <target state="new">Partiel</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="filegroups_filestreamFiles">
-        <source>FILESTREAM Files</source>
-        <target state="new">Fichiers FILESTREAM</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="prototype_file_noApplicableFileGroup">
-        <source>No Applicable Filegroup</source>
-        <target state="new">Aucun groupe de fichiers applicable</target>
-        
-        <note/>
+        <target state="translated">Contrôle de version par le système</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="DatabaseNotAccessible">
         <source>The database {0} is not accessible.</source>
-        <target state="new">La base de données {0} est inaccessible.</target>
-        
-        <note/>
+        <target state="translated">La base de données {0} est inaccessible.</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="QueryServiceResultSetHasNoResults">
         <source>Query has no results to return</source>
-        <target state="new">La requête n'a aucun résultat à retourner</target>
-        
-        <note/>
+        <target state="translated">La requête n'a aucun résultat à retourner</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="QueryServiceResultSetTooLarge">
         <source>Result set has too many rows to be safely loaded</source>
-        <target state="new">Le jeu de résultats a trop de lignes pour être chargé en toute sécurité</target>
-        
-      </trans-unit>
-      <trans-unit id="prototype_db_prop_parameterization">
-        <source>Parameterization</source>
-        <target state="new">Paramétrage</target>
-        
-        <note/>
+        <target state="translated">Le jeu de résultats a trop de lignes pour être chargé de manière sécurisée</target>
       </trans-unit>
       <trans-unit id="ConflictWithNoRecovery">
         <source>Specifying this option when restoring a backup with the NORECOVERY option is not permitted.</source>
-        <target state="new">La spécification de cette option lors de la restauration d'une sauvegarde avec l'option NORECOVERY n'est pas permise.</target>
-        
-        <note/>
+        <target state="translated">La spécification de cette option pendant la restauration d'une sauvegarde avec l'option NORECOVERY n'est pas autorisée.</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="InvalidPathForDatabaseFile">
         <source>Invalid path for database file: '{0}'</source>
-        <target state="new">Chemin d'accès non valide pour le fichier de base de données : « {0} »</target>
-        
-        <note/>
+        <target state="translated">Chemin non valide pour le fichier de base de données : '{0}'</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="Log">
         <source>Log</source>
-        <target state="new">Journal</target>
-        
-        <note/>
+        <target state="translated">Journal</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="RestorePlanFailed">
         <source>Failed to create restore plan</source>
-        <target state="new">Échec de la création du plan de restauration</target>
-        
-        <note/>
+        <target state="translated">La création du plan de restauration a échoué</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="RestoreNotSupported">
         <source>Restore database is not supported</source>
-        <target state="new">La restauration de la base de données n'est pas supportée</target>
-        
-        <note/>
+        <target state="translated">La restauration de la base de données n'est pas prise en charge</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="RestoreTaskName">
         <source>Restore Database</source>
-        <target state="new">Restaurer la base de données</target>
-        
-        <note/>
+        <target state="translated">Restaurer la base de données</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="RestoreCopyOnly">
         <source>(Copy Only)</source>
-        <target state="new">(Copie seule)</target>
-        
-        <note/>
+        <target state="translated">(Copie uniquement)</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="RestoreBackupSetComponent">
         <source>Component</source>
-        <target state="new">Composant</target>
-        
-        <note/>
+        <target state="translated">Composant</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="RestoreBackupSetType">
         <source>Type</source>
-        <target state="new">Type</target>
-        
-        <note/>
+        <target state="translated">Type</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="RestoreBackupSetServer">
         <source>Server</source>
-        <target state="new">Serveur </target>
-        
-        <note/>
+        <target state="translated">Serveur</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="RestoreBackupSetDatabase">
         <source>Database</source>
-        <target state="new">Base de données </target>
-        
-        <note/>
+        <target state="translated">Base de données</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="RestoreBackupSetPosition">
         <source>Position</source>
-        <target state="new">Position</target>
-        
-        <note/>
+        <target state="translated">Position</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="RestoreBackupSetFirstLsn">
         <source>First LSN</source>
-        <target state="new">Premier NSE</target>
-        
-        <note/>
+        <target state="translated">Premier LSN</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="RestoreBackupSetLastLsn">
         <source>Last LSN</source>
-        <target state="new">Dernier NSE</target>
-        
-        <note/>
+        <target state="translated">Dernier LSN</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="RestoreBackupSetCheckpointLsn">
         <source>Checkpoint LSN</source>
-        <target state="new">NSE du point de contrôle</target>
-        
-        <note/>
+        <target state="translated">LSN de point de contrôle</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="RestoreBackupSetFullLsn">
         <source>Full LSN</source>
-        <target state="new">Tous les NSE</target>
-        
-        <note/>
+        <target state="translated">LSN complet</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="RestoreBackupSetStartDate">
         <source>Start Date</source>
-        <target state="new">Date de début</target>
-        
-        <note/>
+        <target state="translated">Date de début</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="RestoreBackupSetFinishDate">
         <source>Finish Date</source>
-        <target state="new">Date de fin</target>
-        
-        <note/>
+        <target state="translated">Date de fin</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="RestoreBackupSetSize">
         <source>Size</source>
-        <target state="new">Taille</target>
-        
-        <note/>
+        <target state="translated">Taille</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="RestoreBackupSetUserName">
         <source>User Name</source>
-        <target state="new">Nom d'utilisateur </target>
-        
-        <note/>
+        <target state="translated">Nom d'utilisateur</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="RestoreBackupSetExpiration">
         <source>Expiration</source>
-        <target state="new">Expiration </target>
-        
-        <note/>
+        <target state="translated">Expiration</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="RestoreBackupSetName">
         <source>Name</source>
-        <target state="new">Nom </target>
-        
-        <note/>
+        <target state="translated">Nom</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="TheLastBackupTaken">
         <source>The last backup taken ({0})</source>
-        <target state="new">La dernière sauvegarde effectuée ({0})</target>
-        
-        <note/>
+        <target state="translated">Dernière sauvegarde effectuée ({0})</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="BackupTaskName">
         <source>Backup Database</source>
-        <target state="new">Sauvegarder la base de données</target>
-        
-        <note/>
+        <target state="translated">Sauvegarder la base de données</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="TaskInProgress">
         <source>In progress</source>
-        <target state="new">Opération en cours</target>
-        
-        <note/>
+        <target state="translated">En cours</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="TaskCompleted">
         <source>Completed</source>
-        <target state="new">Terminé</target>
-        
-        <note/>
+        <target state="translated">Effectué</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="ScriptTaskName">
         <source>scripting</source>
-        <target state="new">script</target>
-        
-        <note/>
+        <target state="translated">scripts</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="ProfilerConnectionNotFound">
         <source>Connection not found</source>
-        <target state="new">Connexion introuvable</target>
-        
-        <note/>
+        <target state="translated">Connexion introuvable</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="AzureSystemDbProfilingError">
+        <source>Cannot profile Azure system databases</source>
+        <target state="translated">Impossible de profiler des bases de données système Azure</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="BackupPathIsFolderError">
         <source>Please provide a file path instead of directory path</source>
-        <target state="new">Le nom de fichier spécifié est également un nom de répertoire: {0}</target>
-        
-        <note/>
+        <target state="translated">Fournissez un chemin de fichier au lieu d'un chemin de répertoire</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="InvalidBackupPathError">
         <source> The provided path is invalid</source>
-        <target state="new">Impossible de vérifier l'existence de l'emplacement du fichier de sauvegarde: {0}</target>
-        
-        <note/>
+        <target state="translated"> Le chemin fourni n'est pas valide</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="InvalidPathError">
         <source>Cannot access the specified path on the server: {0}</source>
-        <target state="new">Impossible d'accéder au chemin d'accès spécifié sur le serveur: {0}</target>
-        
-        <note/>
+        <target state="translated">Impossible d'accéder au chemin spécifié sur le serveur : {0}</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="NoBackupsetsToRestore">
         <source>No backupset selected to be restored</source>
-        <target state="new">Aucun jeu de sauvegarde n'a été sélectionné pour être restauré.</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="NeverBackedUp">
-        <source>Never</source>
-        <target state="new">Jamais</target>
-        
-        <note/>
+        <target state="translated">Aucun jeu de sauvegardes sélectionné à restaurer</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="AzureSqlDbEdition">
         <source>Azure SQL DB</source>
-        <target state="new">Azure SQL DB</target>
-        
-        <note/>
+        <target state="translated">Azure SQL DB</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="AzureSqlDwEdition">
         <source>Azure SQL Data Warehouse</source>
-        <target state="new">Azure SQL Data Warehouse</target>
-        
-        <note/>
+        <target state="translated">Azure SQL Data Warehouse</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="AzureSqlStretchEdition">
         <source>Azure SQL Stretch Database</source>
-        <target state="new">Azure SQL Stretch Database</target>
-        
-        <note/>
+        <target state="translated">Azure SQL Stretch Database</target>
+        <note>
+        </note>
       </trans-unit>
-      <trans-unit id="Error_InvalidDirectoryName">
-        <source>Path {0} is not a valid directory </source>
-        <target state="new">Le chemin {0} n'est pas un répertoire valide.</target>
-        
-        <note/>
-      </trans-unit>
-      <trans-unit id="Error_ExistingDirectoryName">
-        <source>For directory {0} a file with name {1} already exists</source>
-        <target state="new"> Pour le répertoire {0} un fichier avec le nom {1} existe déjà</target>
-        
-        <note/>
+      <trans-unit id="AzureSqlAnalyticsOnDemandEdition">
+        <source>Azure SQL Analytics on-demand</source>
+        <target state="translated">Azure SQL Analytics à la demande</target>
+        <note>
+        </note>
       </trans-unit>
       <trans-unit id="EditDataValueTooLarge">
         <source>Value {0} is too large to fit in column of type {1}</source>
-        <target state="new">La valeur {0} est trop grande pour tenir dans la colonne de type {1}</target>
-        
+        <target state="translated">La valeur {0} est trop grande pour la colonne de type {1}</target>
         <note>.
  Parameters: 0 - value (string), 1 - columnType (string) </note>
+      </trans-unit>
+      <trans-unit id="EditDataInvalidFormat">
+        <source>Invalid format for column '{0}', column is defined as {1}</source>
+        <target state="translated">Format non valide pour la colonne '{0}', la colonne est définie comme {1}</target>
+        <note>.
+ Parameters: 0 - colName (string), 1 - colType (string) </note>
+      </trans-unit>
+      <trans-unit id="SqlScriptFormatterLengthTypeMissingSize">
+        <source>Column with length is missing size</source>
+        <target state="translated">Colonne dont la longueur n'est pas définie</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="SqlScriptFormatterScalarTypeMissingScale">
+        <source>Scalar column missing scale</source>
+        <target state="translated">Colonne scalaire sans échelle</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="StoredProcedureScriptParameterComment">
+        <source>-- TODO: Set parameter values here.</source>
+        <target state="translated">-- TODO : Définissez des valeurs de paramètre ici.</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ScriptingGeneralError">
+        <source>An error occurred while scripting the objects.</source>
+        <target state="translated">Une erreur s'est produite pendant l'exécution de scripts sur les objets.</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ScriptingExecuteNotSupportedError">
+        <source>Scripting as Execute is only supported for Stored Procedures</source>
+        <target state="translated">Les scripts de type Exécuter sont uniquement pris en charge pour les procédures stockées</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="External_LabelPart">
+        <source>External</source>
+        <target state="translated">Externe</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="FileTable_LabelPart">
+        <source>File Table</source>
+        <target state="translated">Table de fichiers</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="EditDataMultiTableNotSupported">
+        <source>EditData queries targeting multiple tables are not supported</source>
+        <target state="translated">Les requêtes EditData ciblant plusieurs tables ne sont pas prises en charge</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="EditDataAliasesNotSupported">
+        <source>EditData queries with aliased columns are not supported</source>
+        <target state="translated">Les requêtes EditData qui ont des colonnes avec alias ne sont pas prises en charge</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="EditDataExpressionsNotSupported">
+        <source>EditData queries with aggregate or expression columns are not supported</source>
+        <target state="translated">Les requêtes EditData avec des colonnes d'agrégat ou d'expression ne sont pas prises en charge</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="EditDataDuplicateColumnsNotSupported">
+        <source>EditData queries with duplicate columns are not supported</source>
+        <target state="translated">Les requêtes EditData avec des colonnes en double ne sont pas prises en charge</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="EditDataIncorrectTable">
+        <source>EditData queries must query the originally targeted table '{0}'</source>
+        <target state="translated">Les requêtes EditData doivent interroger la table initialement ciblée '{0}'</target>
+        <note>.
+ Parameters: 0 - tableName (string) </note>
+      </trans-unit>
+      <trans-unit id="CategoryLocal">
+        <source>[Uncategorized (Local)]</source>
+        <target state="translated">[Sans catégorie (Local)]</target>
+        <note>job categories</note>
+      </trans-unit>
+      <trans-unit id="CategoryFromMsx">
+        <source>Jobs from MSX</source>
+        <target state="translated">Travaux de MSX</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="CategoryMultiServer">
+        <source>[Uncategorized (Multi-Server)]</source>
+        <target state="translated">[Sans catégorie (Multiserveur)]</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="CategoryDBMaint">
+        <source>Database Maintenance</source>
+        <target state="translated">Maintenance de base de données</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="CategoryWebAssistant">
+        <source>Web Assistant</source>
+        <target state="translated">Assistant web</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="CategoryFullText">
+        <source>Full-Text</source>
+        <target state="translated">Texte intégral</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="CategoryReplDistribution">
+        <source>REPL-Distribution</source>
+        <target state="translated">REPL-Distribution</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="CategoryReplDistributionCleanup">
+        <source>REPL-Distribution Cleanup</source>
+        <target state="translated">REPL-Nettoyage de distribution</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="CategoryReplHistoryCleanup">
+        <source>REPL-History Cleanup</source>
+        <target state="translated">REPL-Nettoyage d'historique</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="CategoryReplLogReader">
+        <source>REPL-LogReader</source>
+        <target state="translated">REPL-LogReader</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="CategoryReplMerge">
+        <source>REPL-Merge</source>
+        <target state="translated">REPL-Fusion</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="CategoryReplSnapShot">
+        <source>REPL-Snapshot</source>
+        <target state="translated">REPL-Instantané</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="CategoryReplCheckup">
+        <source>REPL-Checkup</source>
+        <target state="translated">REPL-Contrôle</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="CategoryReplCleanup">
+        <source>REPL-Subscription Cleanup</source>
+        <target state="translated">REPL-Nettoyage d'abonnement</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="CategoryReplAlert">
+        <source>REPL-Alert Response</source>
+        <target state="translated">REPL-Réponse d'alerte</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="CategoryReplQReader">
+        <source>REPL-QueueReader</source>
+        <target state="translated">REPL-QueueReader</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="CategoryReplication">
+        <source>Replication</source>
+        <target state="translated">Réplication</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="CategoryUncategorized">
+        <source>[Uncategorized]</source>
+        <target state="translated">[Sans catégorie]</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="CategoryLogShipping">
+        <source>Log Shipping</source>
+        <target state="translated">Copie des journaux de transaction</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="CategoryDBEngineTuningAdvisor">
+        <source>Database Engine Tuning Advisor</source>
+        <target state="translated">Assistant Paramétrage du moteur de base de données</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="CategoryDataCollector">
+        <source>Data Collector</source>
+        <target state="translated">Collecteur de données</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="JobAlreadyExists">
+        <source>A job named '{0}' already exists.  Enter a unique name for the job.</source>
+        <target state="translated">Un travail nommé '{0}' existe déjà. Entrez un nom de travail unique.</target>
+        <note>.
+ Parameters: 0 - jobName (string) </note>
+      </trans-unit>
+      <trans-unit id="JobStepNameCannotBeBlank">
+        <source>The name of the job step cannot be blank.</source>
+        <target state="translated">Le nom de l'étape de travail ne peut pas être vide.</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="JobStepNameAlreadyExists">
+        <source>There is already a step named '{0}' for this job. You must specify a different name.</source>
+        <target state="translated">Une étape nommée '{0}' existe déjà pour ce travail. Vous devez spécifier un autre nom.</target>
+        <note>.
+ Parameters: 0 - jobName (string) </note>
+      </trans-unit>
+      <trans-unit id="AlertNameCannotBeBlank">
+        <source>The name of the alert cannot be blank.</source>
+        <target state="translated">Le nom de l'alerte ne peut pas être vide.</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="CannotCreateNewAlert">
+        <source>Cannot create new alert.</source>
+        <target state="translated">Impossible de créer une alerte.</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="CannotAlterAlert">
+        <source>Cannot alter alert.</source>
+        <target state="translated">Impossible de modifier l'alerte.</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="SysadminAccount">
+        <source>SQL Server Agent Service Account</source>
+        <target state="translated">Compte de service SQL Server Agent</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ProxyAccountNotFound">
+        <source>Proxy account '{0}' does not exist on the server.</source>
+        <target state="translated">Le compte proxy '{0}' existe déjà sur le serveur.</target>
+        <note>.
+ Parameters: 0 - proxyName (string) </note>
+      </trans-unit>
+      <trans-unit id="CredentialNoLongerExists">
+        <source>The object does no longer exist on server.</source>
+        <target state="translated">L'objet n'existe plus sur le serveur.</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="UnknownServerType">
+        <source>Unknown server type '{0}'.</source>
+        <target state="translated">Type de serveur inconnu '{0}'.</target>
+        <note>.
+ Parameters: 0 - serverTypeName (string) </note>
+      </trans-unit>
+      <trans-unit id="SetOwnerFailed">
+        <source>The current login does not have permissions to set the database owner to '{0}'  The database was created successfully however.</source>
+        <target state="translated">La connexion actuelle n'a pas l'autorisation de définir le propriétaire de base de données sur '{0}'. La base de données a néanmoins été créée.</target>
+        <note>.
+ Parameters: 0 - ownerName (string) </note>
+      </trans-unit>
+      <trans-unit id="TargetServerNotSelected">
+        <source>You must specify the Target Servers on which this multi server job will execute.</source>
+        <target state="translated">Vous devez spécifier les serveurs cibles sur lesquels ce travail multiserveur doit être exécuté.</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="UnexpectedRunType">
+        <source>Unexpected run type.</source>
+        <target state="translated">Type d'exécution inattendu.</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="UnknownSizeUnit">
+        <source>Unknown size unit {0} </source>
+        <target state="translated">Unité de taille inconnue {0} </target>
+        <note>.
+ Parameters: 0 - unit (string) </note>
+      </trans-unit>
+      <trans-unit id="SessionNotFound">
+        <source>Cannot find requested XEvent session</source>
+        <target state="translated">Session XEvent demandée introuvable</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="StopSessionFailed">
+        <source>Failed to stop session: {0}</source>
+        <target state="translated">Échec d'arrêt de la session : {0}</target>
+        <note>.
+ Parameters: 0 - error (String) </note>
+      </trans-unit>
+      <trans-unit id="StartSessionFailed">
+        <source>Failed to start session: {0}</source>
+        <target state="translated">Échec de démarrage de la session : {0}</target>
+        <note>.
+ Parameters: 0 - error (String) </note>
+      </trans-unit>
+      <trans-unit id="CreateSessionFailed">
+        <source>Failed to create session: {0}</source>
+        <target state="translated">Échec de création de la session : {0}</target>
+        <note>.
+ Parameters: 0 - error (String) </note>
+      </trans-unit>
+      <trans-unit id="PauseSessionFailed">
+        <source>Failed to pause session: {0}</source>
+        <target state="translated">Échec de suspension de la session : {0}</target>
+        <note>.
+ Parameters: 0 - error (String) </note>
+      </trans-unit>
+      <trans-unit id="SessionAlreadyExists">
+        <source>An XEvent session named {0} already exists</source>
+        <target state="translated">Une session XEvent nommée {0} existe déjà</target>
+        <note>.
+ Parameters: 0 - sessionName (String) </note>
+      </trans-unit>
+      <trans-unit id="InvalidScheduleTitle">
+        <source>Invalid Schedule</source>
+        <target state="translated">Planification non valide</target>
+        <note> Schedule error message</note>
+      </trans-unit>
+      <trans-unit id="InvalidWeeklySchedule">
+        <source>Select at least one day to be part of this weekly schedule.</source>
+        <target state="translated">Sélectionnez au moins un jour pour cette planification hebdomadaire.</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="StartDateGreaterThanEndDate">
+        <source>The job schedule starting date cannot be greater than the ending date.</source>
+        <target state="translated">La date de début de la planification de travail ne peut pas être postérieure à la date de fin.</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="StartTimeGreaterThanEndTime">
+        <source>The job schedule starting time cannot be after the ending time.</source>
+        <target state="translated">L'heure de début de la planification de travail ne peut pas être postérieure à l'heure de fin.</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="EndTimeEqualToStartTime">
+        <source>The job schedule ending time must be after the starting time.</source>
+        <target state="translated">L'heure de fin de la planification de travail doit être postérieure à l'heure de début.</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="InvalidStartDate">
+        <source>Start date must be on or after January 1, 1990.</source>
+        <target state="translated">La date de début doit être le 1er janvier 1990 ou une date ultérieure.</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ScheduleNameAlreadyExists">
+        <source>There is already a schedule named '{0}' for this job.  You must specify a different name.</source>
+        <target state="translated">Une planification nommée '{0}' existe déjà pour ce travail. Vous devez spécifier un autre nom.</target>
+        <note>.
+ Parameters: 0 - scheduleName (string) </note>
+      </trans-unit>
+      <trans-unit id="JobServerIsNotAvailable">
+        <source>Job server is not available</source>
+        <target state="translated">Le serveur de travaux n'est pas disponible</target>
+        <note> Exception thrown when job server is not available</note>
+      </trans-unit>
+      <trans-unit id="NeverBackedUp">
+        <source>Never</source>
+        <target state="translated">Jamais</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="Error_InvalidDirectoryName">
+        <source>Path {0} is not a valid directory </source>
+        <target state="translated">Le chemin {0} n'est pas un répertoire valide </target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="Error_ExistingDirectoryName">
+        <source>For directory {0} a file with name {1} already exist</source>
+        <target state="translated">Pour le répertoire {0}, un fichier nommé {1} existe déjà</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="EE_ExecutionInfo_InitializingLoop">
+        <source>Beginning execution loop</source>
+        <target state="translated">Démarrage de la boucle d'exécution</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="EE_BatchExecutionError_Ignoring">
+        <source>An error occurred while the batch was being executed, but the error has been ignored.</source>
+        <target state="translated">Une erreur s'est produite pendant l'exécution du lot, mais elle a été ignorée.</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="EE_ExecutionInfo_FinalizingLoop">
+        <source>Batch execution completed {0} times...</source>
+        <target state="translated">Exécution du lot effectuée {0} fois ...</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="BatchParserWrapperExecutionError">
+        <source>Batch parser wrapper execution: {0} found... at line {1}: {2}    Description: {3}</source>
+        <target state="translated">Exécution du wrapper de l'analyseur de lot : {0} trouvé... à la ligne {1} : {2}    Description : {3}</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ExtractInvalidVersion">
+        <source>Invalid version '{0}' passed. Version must be in the format x.x.x.x where x is a number.</source>
+        <target state="translated">Version non valide '{0}' passée. La version doit être au format x.x.x.x, où x est un chiffre.</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ExportBacpacTaskName">
+        <source>Export bacpac</source>
+        <target state="translated">Exporter bacpac</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ImportBacpacTaskName">
+        <source>Import bacpac</source>
+        <target state="translated">Importer bacpac</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ExtractDacpacTaskName">
+        <source>Extract dacpac</source>
+        <target state="translated">Extraire dacpac</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="DeployDacpacTaskName">
+        <source>Deploy dacpac</source>
+        <target state="translated">Déployer dacpac</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="GenerateScriptTaskName">
+        <source>Generate script</source>
+        <target state="translated">Générer le script</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="PublishChangesTaskName">
+        <source>Apply schema compare changes</source>
+        <target state="translated">Appliquer les changements de la comparaison de schémas</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="SchemaCompareExcludeIncludeNodeNotFound">
+        <source>Failed to find the specified change in the model</source>
+        <target state="translated">Changement spécifié introuvable dans le modèle</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="OpenScmpConnectionBasedModelParsingError">
+        <source>Error encountered while trying to parse connection information for endpoint '{0}' with error message '{1}'</source>
+        <target state="translated">Une erreur s'est produite pendant la tentative d'analyse des informations de connexion pour le point de terminaison '{0}' avec le message d'erreur '{1}'</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="SchemaCompareSessionNotFound">
+        <source>Could not find the schema compare session to cancel</source>
+        <target state="translated">Session de comparaison de schémas à annuler introuvable</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="SerializationServiceUnsupportedFormat">
+        <source>Unsupported Save Format: {0}</source>
+        <target state="translated">Format d'enregistrement introuvable : {0}</target>
+        <note>.
+ Parameters: 0 - formatName (string) </note>
+      </trans-unit>
+      <trans-unit id="SerializationServiceRequestInProgress">
+        <source>A request for file {0} is already in progress</source>
+        <target state="translated">Une demande pour le fichier {0} est déjà en cours</target>
+        <note>.
+ Parameters: 0 - filePath (string) </note>
+      </trans-unit>
+      <trans-unit id="SerializationServiceRequestNotFound">
+        <source>Cannot serialize more data as no request for file {0} could be found</source>
+        <target state="translated">Impossible de sérialiser plus de données, car il n'y a aucune demande pour le fichier {0}</target>
+        <note>.
+ Parameters: 0 - filePath (string) </note>
       </trans-unit>
     </body>
   </file>
