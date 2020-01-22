@@ -535,8 +535,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
             if (ServerName != other.ServerName
                 || AuthenticationType != other.AuthenticationType
                 || UserName != other.UserName
-                || AzureAccountToken != other.AzureAccountToken
-                || ColumnEncryptionSetting != other.ColumnEncryptionSetting)
+                || AzureAccountToken != other.AzureAccountToken)
             {
                 return false;
             }
