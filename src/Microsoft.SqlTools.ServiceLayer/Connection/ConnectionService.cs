@@ -128,7 +128,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public static async Task<string> AzureActiveDirectoryAuthenticationCallback(string authority, string resource, string scope)
         {
             var authContext = new AuthenticationContext(authority);
-            ClientCredential clientCred = new ClientCredential("xxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+            string clientId = Environment.GetEnvironmentVariable("AzureClientId", EnvironmentVariableTarget.User);
+            string clientSecret = Environment.GetEnvironmentVariable("AzureClientSecret", EnvironmentVariableTarget.User);
+            ClientCredential clientCred = new ClientCredential(clientId, clientSecret);
             AuthenticationResult result = await authContext.AcquireTokenAsync(resource, clientCred);
             if (result == null)
             {
