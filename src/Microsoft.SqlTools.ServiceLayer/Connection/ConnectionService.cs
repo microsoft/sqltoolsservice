@@ -9,10 +9,12 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using Microsoft.Data.SqlClient;
+using Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
@@ -115,6 +117,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             var defaultQueue = new ConnectedBindingQueue(needsMetadata: false);
             connectedQueues.AddOrUpdate("Default", defaultQueue, (key, old) => defaultQueue);
             this.LockedDatabaseManager.ConnectionService = this;
+            
+            SqlColumnEncryptionAzureKeyVaultProvider sqlColumnEncryptionAzureKeyVaultProvider = new SqlColumnEncryptionAzureKeyVaultProvider(AzureActiveDirectoryAuthenticationCallback);
+            SqlConnection.RegisterColumnEncryptionKeyStoreProviders(customProviders: new Dictionary<string, SqlColumnEncryptionKeyStoreProvider>(capacity: 1, comparer: StringComparer.OrdinalIgnoreCase)
+            {
+                { SqlColumnEncryptionAzureKeyVaultProvider.ProviderName, sqlColumnEncryptionAzureKeyVaultProvider }
+            });
+        }
+
+        public static async Task<string> AzureActiveDirectoryAuthenticationCallback(string authority, string resource, string scope)
+        {
+            var authContext = new AuthenticationContext(authority);
+            ClientCredential clientCred = new ClientCredential("xxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+            AuthenticationResult result = await authContext.AcquireTokenAsync(resource, clientCred);
+            if (result == null)
+            {
+                throw new InvalidOperationException($"Failed to retrieve an access token for {resource}");
+            }
+
+            return result.AccessToken;
         }
 
         /// <summary>
