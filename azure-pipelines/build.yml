@@ -20,9 +20,9 @@ steps:
     ArtifactName: source
 
 - task: UseDotNet@2
-  displayName: 'Use .NET Core sdk 2.2.108'
+  displayName: 'Use defined .NET Core sdk'
   inputs:
-    version: 2.2.108
+    useGlobalJson: true
 
 - task: DotNetCoreCLI@1
   displayName: 'dotnet restore src/Microsoft.SqlTools.Credentials'

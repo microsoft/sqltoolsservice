@@ -1144,8 +1144,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
             if (!string.IsNullOrEmpty(connectionDetails.ColumnEncryptionSetting))
             {
-                connectionBuilder.ColumnEncryptionSetting =  connectionDetails.ColumnEncryptionSetting == "Enabled" 
-                ? SqlConnectionColumnEncryptionSetting.Enabled : SqlConnectionColumnEncryptionSetting.Disabled;
+                switch (connectionDetails.ColumnEncryptionSetting.ToUpper())
+                {
+                    case "ENABLED":
+                        connectionBuilder.ColumnEncryptionSetting = SqlConnectionColumnEncryptionSetting.Enabled;
+                        break;
+                    case "DISABLED":
+                        connectionBuilder.ColumnEncryptionSetting = SqlConnectionColumnEncryptionSetting.Disabled;
+                        break;
+                    default:
+                        throw new ArgumentException(SR.ConnectionServiceConnStringInvalidColumnEncryptionSetting(connectionDetails.ColumnEncryptionSetting));
+                }
             }
             if (connectionDetails.Encrypt.HasValue)
             {

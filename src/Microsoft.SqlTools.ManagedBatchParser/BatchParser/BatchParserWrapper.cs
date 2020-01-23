@@ -71,7 +71,8 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                         endLine,
                         startColumn + 1,
                         endColumn + 1,
-                        batchInfos[0].executionCount
+                        batchInfos[0].executionCount,
+                        batchInfos[0].sqlCmdCommand
                     );
 
                     batchDefinitionList.Add(batchDef);
@@ -100,7 +101,8 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                             endLine,
                             startColumn + 1,
                             endColumn + 1,
-                            batchInfos[index].executionCount
+                            batchInfos[index].executionCount,
+                            batchInfos[index].sqlCmdCommand
                         );
                         batchDefinitionList.Add(batch);
                     }
@@ -235,7 +237,8 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                 endLine,
                 startColumn + 1,
                 endColumn + 1,
-                batchInfo.executionCount
+                batchInfo.executionCount,
+                batchInfo.sqlCmdCommand
             );
         }
 
@@ -381,7 +384,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                     }
 
                     // Add the script info
-                    batchInfos.Add(new BatchInfo(args.Batch.TextSpan.iStartLine, args.Batch.TextSpan.iStartIndex, batchText, args.Batch.ExpectedExecutionCount));
+                    batchInfos.Add(new BatchInfo(args.Batch.TextSpan.iStartLine, args.Batch.TextSpan.iStartIndex, batchText, args.SqlCmdCommand, args.Batch.ExpectedExecutionCount));
                 }
             }
             catch (NotImplementedException)
@@ -474,17 +477,19 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 
         private class BatchInfo
         {
-            public BatchInfo(int startLine, int startColumn, string batchText, int repeatCount = 1)
+            public BatchInfo(int startLine, int startColumn, string batchText, SqlCmdCommand sqlCmdCommand, int repeatCount = 1)
             {
                 this.startLine = startLine;
                 this.startColumn = startColumn;
                 this.executionCount = repeatCount;
                 this.batchText = batchText;
+                this.sqlCmdCommand = sqlCmdCommand;
             }
             public int startLine;
             public int startColumn;
             public int executionCount;
             public string batchText;
+            public SqlCmdCommand sqlCmdCommand;
         }
 
     }

@@ -501,6 +501,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         [InlineData("AuthenticationType", "SqlLogin", "")]
         [InlineData("Encrypt", true, "Encrypt")]
         [InlineData("Encrypt", false, "Encrypt")]
+        [InlineData("ColumnEncryptionSetting", "Enabled", "Column Encryption Setting=Enabled")]
+        [InlineData("ColumnEncryptionSetting", "Disabled", "Column Encryption Setting=Disabled")]
+        [InlineData("ColumnEncryptionSetting", "enabled", "Column Encryption Setting=Enabled")]
+        [InlineData("ColumnEncryptionSetting", "disabled", "Column Encryption Setting=Disabled")]
+        [InlineData("ColumnEncryptionSetting", "ENABLED", "Column Encryption Setting=Enabled")]
+        [InlineData("ColumnEncryptionSetting", "DISABLED", "Column Encryption Setting=Disabled")]
+        [InlineData("ColumnEncryptionSetting", "eNaBlEd", "Column Encryption Setting=Enabled")]
+        [InlineData("ColumnEncryptionSetting", "DiSaBlEd", "Column Encryption Setting=Disabled")]
         [InlineData("TrustServerCertificate", true, "TrustServerCertificate")]
         [InlineData("TrustServerCertificate", false, "TrustServerCertificate")]
         [InlineData("PersistSecurityInfo", true, "Persist Security Info")]
@@ -545,13 +553,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         }
 
         /// <summary>
-        /// Build connection string with an invalid auth type
+        /// Build connection string with an invalid property type
         /// </summary>
-        [Fact]
-        public void BuildConnectionStringWithInvalidAuthType()
+        [Theory]
+        [InlineData("AuthenticationType", "NotAValidAuthType")]
+        [InlineData("ColumnEncryptionSetting", "NotAValidColumnEncryptionSetting")]
+        public void BuildConnectionStringWithInvalidOptions(string propertyName, object propertyValue)
         {
             ConnectionDetails details = TestObjects.GetTestConnectionDetails();
-            details.AuthenticationType = "NotAValidAuthType";
+            PropertyInfo info = details.GetType().GetProperty(propertyName);
+            info.SetValue(details, propertyValue);
             Assert.Throws<ArgumentException>(() => ConnectionService.BuildConnectionString(details));
         }
 

@@ -357,6 +357,21 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string SqlCmdExitOnError
+        {
+            get
+            {
+                return Keys.GetString(Keys.SqlCmdExitOnError);
+            }
+        }
+        public static string SqlCmdUnsupportedToken
+        {
+            get
+            {
+                return Keys.GetString(Keys.SqlCmdUnsupportedToken);
+            }
+        }
+
         public static string PeekDefinitionNoResultsError
         {
             get
@@ -2972,6 +2987,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.ConnectionServiceConnStringInvalidAuthType, authType);
         }
 
+        public static string ConnectionServiceConnStringInvalidColumnEncryptionSetting(string columnEncryptionSetting)
+        {
+            return Keys.GetString(Keys.ConnectionServiceConnStringInvalidColumnEncryptionSetting, columnEncryptionSetting);
+        }
+
         public static string ConnectionServiceConnStringInvalidIntent(string intent)
         {
             return Keys.GetString(Keys.ConnectionServiceConnStringInvalidIntent, intent);
@@ -3145,6 +3165,9 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string ConnectionServiceConnStringInvalidAuthType = "ConnectionServiceConnStringInvalidAuthType";
 
 
+            public const string ConnectionServiceConnStringInvalidColumnEncryptionSetting = "ConnectionServiceConnStringInvalidColumnEncryptionSetting";
+
+
             public const string ConnectionServiceConnStringInvalidIntent = "ConnectionServiceConnStringInvalidIntent";
 
 
@@ -3278,6 +3301,12 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string QueryServiceExecutionPlanNotFound = "QueryServiceExecutionPlanNotFound";
+
+            
+            public const string SqlCmdExitOnError = "SqlCmdExitOnError";
+
+
+            public const string SqlCmdUnsupportedToken = "SqlCmdUnsupportedToken";
 
 
             public const string SerializationServiceUnsupportedFormat = "SerializationServiceUnsupportedFormat";
