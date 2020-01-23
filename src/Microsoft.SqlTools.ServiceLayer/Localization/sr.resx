@@ -140,6 +140,11 @@
     <comment>.
  Parameters: 0 - authType (string) </comment>
   </data>
+  <data name="ConnectionServiceConnStringInvalidColumnEncryptionSetting" xml:space="preserve">
+    <value>Invalid value &apos;{0}&apos; for ComlumEncryption. Valid values are &apos;Enabled&apos; and &apos;Disabled&apos;.</value>
+    <comment>.
+ Parameters: 0 - columnEncryptionSetting (string) </comment>
+  </data>
   <data name="ConnectionServiceConnStringInvalidIntent" xml:space="preserve">
     <value>Invalid value &apos;{0}&apos; for ApplicationIntent. Valid values are &apos;ReadWrite&apos; and &apos;ReadOnly&apos;.</value>
     <comment>.
