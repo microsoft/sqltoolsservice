@@ -2321,13 +2321,13 @@
       </trans-unit>
       <trans-unit id="ExportBacpacTaskName">
         <source>Export bacpac</source>
-        <target state="translated">BACPAC exportieren</target>
+        <target state="translated">BACPAC-Datei exportieren</target>
         <note>
         </note>
       </trans-unit>
       <trans-unit id="ImportBacpacTaskName">
         <source>Import bacpac</source>
-        <target state="translated">BACPAC importieren</target>
+        <target state="translated">BACPAC-Datei importieren</target>
         <note>
         </note>
       </trans-unit>

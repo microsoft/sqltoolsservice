@@ -136,13 +136,13 @@
       </trans-unit>
       <trans-unit id="QueryServiceAffectedOneRow">
         <source>(1 row affected)</source>
-        <target state="translated">（1 行受到影响）</target>
+        <target state="translated">(1 行受到影响)</target>
         <note>
         </note>
       </trans-unit>
       <trans-unit id="QueryServiceAffectedRows">
         <source>({0} rows affected)</source>
-        <target state="translated">（{0} 行受到影响）</target>
+        <target state="translated">({0} 行受到影响)</target>
         <note>.
  Parameters: 0 - rows (long) </note>
       </trans-unit>
@@ -1922,7 +1922,7 @@
       </trans-unit>
       <trans-unit id="StoredProcedureScriptParameterComment">
         <source>-- TODO: Set parameter values here.</source>
-        <target state="translated">-- 待办事项：在此处设置参数值</target>
+        <target state="translated">-- 待办事项: 在此处设置参数值</target>
         <note>
         </note>
       </trans-unit>
@@ -2209,13 +2209,13 @@
       </trans-unit>
       <trans-unit id="CreateSessionFailed">
         <source>Failed to create session: {0}</source>
-        <target state="translated">创建会话失败：{0}</target>
+        <target state="translated">创建会话失败: {0}</target>
         <note>.
  Parameters: 0 - error (String) </note>
       </trans-unit>
       <trans-unit id="PauseSessionFailed">
         <source>Failed to pause session: {0}</source>
-        <target state="translated">暂停会话失败：{0}</target>
+        <target state="translated">暂停会话失败: {0}</target>
         <note>.
  Parameters: 0 - error (String) </note>
       </trans-unit>
@@ -2321,13 +2321,13 @@
       </trans-unit>
       <trans-unit id="ExportBacpacTaskName">
         <source>Export bacpac</source>
-        <target state="translated">导出 DACPAC</target>
+        <target state="translated">导出 BACPAC</target>
         <note>
         </note>
       </trans-unit>
       <trans-unit id="ImportBacpacTaskName">
         <source>Import bacpac</source>
-        <target state="translated">导入 DACPAC</target>
+        <target state="translated">导入 BACPAC</target>
         <note>
         </note>
       </trans-unit>

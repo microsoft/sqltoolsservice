@@ -1898,7 +1898,7 @@
       </trans-unit>
       <trans-unit id="EditDataValueTooLarge">
         <source>Value {0} is too large to fit in column of type {1}</source>
-        <target state="translated">값 {0}이 너무 커서 {1} 유형의 열에 맞지 않습니다.</target>
+        <target state="translated">값 {0}이(가) 너무 커서 {1} 유형의 열에 맞지 않습니다.</target>
         <note>.
  Parameters: 0 - value (string), 1 - columnType (string) </note>
       </trans-unit>
