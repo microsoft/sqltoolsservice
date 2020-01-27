@@ -1156,6 +1156,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         throw new ArgumentException(SR.ConnectionServiceConnStringInvalidColumnEncryptionSetting(connectionDetails.ColumnEncryptionSetting));
                 }
             }
+            if (!string.IsNullOrEmpty(connectionDetails.EnclaveAttestationProtocol))
+            {
+                switch (connectionDetails.EnclaveAttestationProtocol.ToUpper())
+                {
+                    case "AZURE ATTESTATION":
+                        connectionBuilder.AttestationProtocol = SqlConnectionAttestationProtocol.AAS;
+                        break;
+                    case "HOST GUARDIAN SERVICE":
+                        connectionBuilder.AttestationProtocol = SqlConnectionAttestationProtocol.HGS;
+                        break;
+                    default:
+                        throw new ArgumentException(SR.ConnectionServiceConnStringInvalidColumnEncryptionSetting(connectionDetails.ColumnEncryptionSetting));
+                }
+            }
+            if (!string.IsNullOrEmpty(connectionDetails.EnclaveAttestationUrl))
+            {
+                connectionBuilder.EnclaveAttestationUrl = connectionDetails.EnclaveAttestationUrl;
+            }
             if (connectionDetails.Encrypt.HasValue)
             {
                 connectionBuilder.Encrypt = connectionDetails.Encrypt.Value;
@@ -1328,6 +1346,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 CurrentLanguage = builder.CurrentLanguage,
                 DatabaseName = builder.InitialCatalog,
                 ColumnEncryptionSetting = builder.ColumnEncryptionSetting.ToString(),
+                EnclaveAttestationProtocol = builder.AttestationProtocol.ToString(),                
+                EnclaveAttestationUrl = builder.EnclaveAttestationUrl,
                 Encrypt = builder.Encrypt,
                 FailoverPartner = builder.FailoverPartner,
                 LoadBalanceTimeout = builder.LoadBalanceTimeout,

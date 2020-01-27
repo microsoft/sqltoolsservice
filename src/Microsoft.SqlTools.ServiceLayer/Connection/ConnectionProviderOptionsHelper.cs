@@ -125,8 +125,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         GroupName = "Security",
                         CategoryValues = new CategoryValue[] {
                             new CategoryValue { Name = "Disabled" },
-                            new CategoryValue {Name = "Enabled" }
+                            new CategoryValue { Name = "Enabled" }
                         }
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "attestationProtocol",
+                        DisplayName = "Attestation Protocol",
+                        Description = "Specifies a value for Attestation Protocol",
+                        ValueType = ConnectionOption.ValueTypeCategory,
+                        GroupName = "Security",
+                        CategoryValues = new CategoryValue[] {
+                            new CategoryValue { DisplayName = "Host Guardian Service", Name = "HGS" },
+                            new CategoryValue { DisplayName = "Azure Attestation", Name = "AAS" }
+                        }
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "enclaveAttestationUrl",
+                        DisplayName = "Enclave Attestation URL",
+                        Description = "Specifies the enclave attestation Url to be used with enclave based Always Encrypted",
+                        ValueType = ConnectionOption.ValueTypeString,
+                        GroupName = "Security"
                     },
                     new ConnectionOption
                     {

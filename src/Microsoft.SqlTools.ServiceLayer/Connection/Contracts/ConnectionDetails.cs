@@ -116,6 +116,38 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         }
 
         /// <summary>
+        /// Gets or sets a value for Attestation Protocol.
+        /// </summary>
+        public string EnclaveAttestationProtocol
+        {
+            get
+            {
+                return GetOptionValue<string>("attestationProtocol");
+            }
+
+            set
+            {
+                SetOptionValue("attestationProtocol", value);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the enclave attestation Url to be used with enclave based Always Encrypted.
+        /// </summary>
+        public string EnclaveAttestationUrl
+        {
+            get
+            {
+                return GetOptionValue<string>("enclaveAttestationUrl");
+            }
+
+            set
+            {
+                SetOptionValue("enclaveAttestationUrl", value);
+            }
+        }
+
+        /// <summary>
         /// Gets or sets a Boolean value that indicates whether SQL Server uses SSL encryption for all data sent between the client and server if the server has a certificate installed.
         /// </summary>
         public bool? Encrypt
