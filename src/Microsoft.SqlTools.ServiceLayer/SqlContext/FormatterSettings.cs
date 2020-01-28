@@ -38,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         }
 
         /// <summary>
-        /// Should each reference be on its own line or should references to multiple objects
+        /// Should select statement references be on its own line or should references to multiple objects
         /// be kept on a single line
         /// <code>
         /// SELECT * 
@@ -47,6 +47,21 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// </code>
         /// </summary>
         public bool? PlaceSelectStatementReferencesOnNewLine
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Should each reference be on its own line or should references to multiple objects
+        /// be kept on a single line
+        /// <code>
+        /// SELECT * 
+        /// FROM T1,
+        ///      T2
+        /// </code>
+        /// </summary>
+        public bool? PlaceEachReferenceOnNewLineInQueryStatements
         {
             get;
             set;

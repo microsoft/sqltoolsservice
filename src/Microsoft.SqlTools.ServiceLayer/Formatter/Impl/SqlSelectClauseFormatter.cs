@@ -23,7 +23,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         private NewLineSeparatedListFormatter NewLineSeparatedListFormatter { get; set; }
 
         internal SqlSelectClauseFormatter(FormatterVisitor visitor, SqlSelectClause codeObject)
-            : base(visitor, codeObject, visitor.Context.FormatOptions.PlaceEachReferenceOnNewLineInQueryStatements)
+            : base(visitor, codeObject, visitor.Context.FormatOptions.PlaceSelectStatementReferenceOnNewLine || 
+                visitor.Context.FormatOptions.PlaceEachReferenceOnNewLineInQueryStatements)
         {
             NewLineSeparatedListFormatter = new NewLineSeparatedListFormatter(visitor, codeObject, true);
         }
