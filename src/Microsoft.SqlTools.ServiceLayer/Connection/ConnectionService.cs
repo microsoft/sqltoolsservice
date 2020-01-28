@@ -1135,9 +1135,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         connectionBuilder.UserID = "";
                         connectionBuilder.Password = "";
                         break;
-                    case "ActiveDirectoryPassword":
-                        connectionBuilder.Authentication = SqlAuthenticationMethod.ActiveDirectoryPassword;
-                        break;
                     default:
                         throw new ArgumentException(SR.ConnectionServiceConnStringInvalidAuthType(connectionDetails.AuthenticationType));
                 }
