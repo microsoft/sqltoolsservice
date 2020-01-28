@@ -201,7 +201,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
 
                 if (settings.PlaceCommasBeforeNextStatement.HasValue) { options.PlaceCommasBeforeNextStatement = settings.PlaceCommasBeforeNextStatement.Value; }
 
-                if (settings.PlaceSelectStatementReferencesOnNewLine.HasValue) { options.PlaceEachReferenceOnNewLineInQueryStatements = settings.PlaceSelectStatementReferencesOnNewLine.Value; }
+                if (settings.PlaceSelectStatementReferencesOnNewLine.HasValue) { options.PlaceSelectStatementReferenceOnNewLine = settings.PlaceSelectStatementReferencesOnNewLine.Value; }
+
+                if (settings.PlaceEachReferenceOnNewLineInQueryStatements.HasValue) { options.PlaceEachReferenceOnNewLineInQueryStatements = settings.PlaceEachReferenceOnNewLineInQueryStatements.Value; }
 
                 if (settings.UseBracketForIdentifiers.HasValue) { options.EncloseIdentifiersInSquareBrackets = settings.UseBracketForIdentifiers.Value; }
                 

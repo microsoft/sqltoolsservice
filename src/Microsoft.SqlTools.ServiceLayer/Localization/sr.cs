@@ -364,6 +364,7 @@ namespace Microsoft.SqlTools.ServiceLayer
                 return Keys.GetString(Keys.SqlCmdExitOnError);
             }
         }
+
         public static string SqlCmdUnsupportedToken
         {
             get
@@ -3294,7 +3295,7 @@ namespace Microsoft.SqlTools.ServiceLayer
 
             public const string QueryServiceExecutionPlanNotFound = "QueryServiceExecutionPlanNotFound";
 
-            
+
             public const string SqlCmdExitOnError = "SqlCmdExitOnError";
 
 

@@ -22,6 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         private bool encloseIdentifiersInSquareBrackets;
         private bool placeCommasBeforeNextStatement;
         private bool placeEachReferenceOnNewLineInQueryStatements;
+        private bool placeSelectStatementReferenceOnNewLine;
         private CasingOptions keywordCasing;
         private CasingOptions datatypeCasing;
         private bool alignColumnDefinitionsInColumns;
@@ -87,6 +88,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
             {
                 placeEachReferenceOnNewLineInQueryStatements = value;
                 RaisePropertyChanged("PlaceEachReferenceOnNewLineInQueryStatements");
+            }
+        }
+
+        public bool PlaceSelectStatementReferenceOnNewLine
+        {
+            get { return placeSelectStatementReferenceOnNewLine; }
+            set 
+            {
+                placeSelectStatementReferenceOnNewLine = value;
+                RaisePropertyChanged("PlaceSelectStatementReferenceOnNewLine");
             }
         }
 

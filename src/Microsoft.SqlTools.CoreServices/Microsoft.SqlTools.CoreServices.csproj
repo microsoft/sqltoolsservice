@@ -1,30 +1,31 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFramework>netstandard2.0</TargetFramework>
     <PackageId>Microsoft.SqlTools.CoreServices</PackageId>
     <AssemblyName>Microsoft.SqlTools.CoreServices</AssemblyName>
     <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
-    <ApplicationIcon />
-    <StartupObject />
+    <ApplicationIcon/>
+    <StartupObject/>
     <Copyright>� Microsoft Corporation. All rights reserved.</Copyright>
-    <PackageDescription>
-    A collection of core services that can be reused by a Database Management Protocol-based service using the Microsoft.SqlTools.Hosting framework.
+    <PackageDescription>&#xD;
+    A collection of core services that can be reused by a Database Management Protocol-based service using the Microsoft.SqlTools.Hosting framework.&#xD;
     </PackageDescription>
     <Description>$(PackageDescription)</Description>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="2.0.4" />
-    <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
-    <PackageReference Include="System.Composition" Version="1.1.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.0"/>
+    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="2.0.4"/>
+    <PackageReference Include="System.Runtime.Loader" Version="4.3.0"/>
+    <PackageReference Include="System.Composition" Version="1.1.0"/>
+    <PackageReference Include="Microsoft.IdentityModel.Clients.ActiveDirectory" Version="5.2.5"/>
   </ItemGroup>
   <ItemGroup>
-      <ProjectReference Include="..\Microsoft.SqlTools.Hosting.v2\Microsoft.SqlTools.Hosting.v2.csproj" />
-      <ProjectReference Include="..\Microsoft.SqlTools.DataProtocol.Contracts\Microsoft.SqlTools.DataProtocol.Contracts.csproj" />
+    <ProjectReference Include="..\Microsoft.SqlTools.Hosting.v2\Microsoft.SqlTools.Hosting.v2.csproj"/>
+    <ProjectReference Include="..\Microsoft.SqlTools.DataProtocol.Contracts\Microsoft.SqlTools.DataProtocol.Contracts.csproj"/>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Localization\sr.resx" />
-    <None Include="Localization\sr.strings" />
+    <EmbeddedResource Include="Localization\sr.resx"/>
+    <None Include="Localization\sr.strings"/>
   </ItemGroup>
 </Project>
