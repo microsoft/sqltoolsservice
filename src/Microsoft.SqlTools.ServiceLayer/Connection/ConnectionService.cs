@@ -9,12 +9,16 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using Microsoft.Data.SqlClient;
+
 using Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider;
+
 using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
+
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
@@ -123,6 +127,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 { SqlColumnEncryptionAzureKeyVaultProvider.ProviderName, sqlColumnEncryptionAzureKeyVaultProvider }
             });
+
         }
 
         public static async Task<string> AzureActiveDirectoryAuthenticationCallback(string authority, string resource, string scope)
@@ -141,7 +146,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         }
 
         /// <summary>
-        /// Returns a connection queue for given type
+        /// Returns a connection queue for given typesnipp
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
