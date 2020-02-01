@@ -49,6 +49,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests
             VerifyResult<T>(contextMock, verify, result);
         }
 
+        protected async Task RunAndVerifyError<T>(Func<RequestContext<T>, Task> test)
+        {
+            T result = default(T);
+            var contextMock = RequestContextMocks.Create<T>(r => result = r).AddErrorHandling(null);
+            contextMock.Setup(x => x.SendError(It.IsAny<Exception>())).Returns(Task.FromResult(true));
+            await test(contextMock.Object);
+            contextMock.Verify(c => c.SendResult(It.IsAny<T>()), Times.Never);
+            contextMock.Verify(c => c.SendError(It.IsAny<Exception>()), Times.Once);
+        }
+
         protected void VerifyResult<T, TResult>(Mock<RequestContext<T>> contextMock, Action<TResult> verify, TResult actual)
         {
             contextMock.Verify(c => c.SendResult(It.IsAny<T>()), Times.Once);
