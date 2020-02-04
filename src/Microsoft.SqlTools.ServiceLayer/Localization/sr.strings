@@ -33,6 +33,8 @@ ConnectionServiceDbErrorDefaultNotConnected(string uri) = Specified URI '{0}' do
 
 ConnectionServiceConnStringInvalidAuthType(string authType) = Invalid value '{0}' for AuthenticationType.  Valid values are 'Integrated' and 'SqlLogin'.
 
+ConnectionServiceConnStringInvalidColumnEncryptionSetting(string columnEncryptionSetting) = Invalid value '{0}' for ComlumEncryption. Valid values are 'Enabled' and 'Disabled'.
+
 ConnectionServiceConnStringInvalidIntent(string intent) = Invalid value '{0}' for ApplicationIntent. Valid values are 'ReadWrite' and 'ReadOnly'.
 
 ConnectionServiceConnectionCanceled = Connection canceled
