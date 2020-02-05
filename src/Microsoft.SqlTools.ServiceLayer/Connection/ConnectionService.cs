@@ -1167,7 +1167,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         connectionBuilder.AttestationProtocol = SqlConnectionAttestationProtocol.HGS;
                         break;
                     default:
-                        throw new ArgumentException(SR.ConnectionServiceConnStringInvalidColumnEncryptionSetting(connectionDetails.ColumnEncryptionSetting));
+                        throw new ArgumentException(SR.ConnectionServiceConnStringInvalidEnclaveAttestationProtocol(connectionDetails.EnclaveAttestationProtocol));
                 }
             }
             if (!string.IsNullOrEmpty(connectionDetails.EnclaveAttestationUrl))
