@@ -145,6 +145,11 @@
     <comment>.
  Parameters: 0 - columnEncryptionSetting (string) </comment>
   </data>
+  <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
+    <value>Invalid value &apos;{0}&apos; for EnclaveAttestationProtocol. Valid values are &apos;AAS&apos; and &apos;HGS&apos;.</value>
+    <comment>.
+ Parameters: 0 - enclaveAttestationProtocol (string) </comment>
+  </data>
   <data name="ConnectionServiceConnStringInvalidIntent" xml:space="preserve">
     <value>Invalid value &apos;{0}&apos; for ApplicationIntent. Valid values are &apos;ReadWrite&apos; and &apos;ReadOnly&apos;.</value>
     <comment>.
