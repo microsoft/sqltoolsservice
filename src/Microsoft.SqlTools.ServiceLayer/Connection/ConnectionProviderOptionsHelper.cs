@@ -119,8 +119,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     new ConnectionOption
                     {
                         Name = "columnEncryptionSetting",
-                        DisplayName = "Column encryption setting",
-                        Description = "Default column encryption setting for all the commands on the connection",
+                        DisplayName = "Always Encrypted",
+                        Description = "Enables or disables Always Encrypted for the connection",
                         ValueType = ConnectionOption.ValueTypeCategory,
                         GroupName = "Security",
                         CategoryValues = new CategoryValue[] {
@@ -132,7 +132,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     {
                         Name = "attestationProtocol",
                         DisplayName = "Attestation Protocol",
-                        Description = "Specifies a value for Attestation Protocol",
+                        Description = "Specifies a protocol for attesting a server-side enclave used with Always Encrypted with secure enclaves",
                         ValueType = ConnectionOption.ValueTypeCategory,
                         GroupName = "Security",
                         CategoryValues = new CategoryValue[] {
@@ -144,7 +144,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     {
                         Name = "enclaveAttestationUrl",
                         DisplayName = "Enclave Attestation URL",
-                        Description = "Specifies the enclave attestation Url to be used with enclave based Always Encrypted",
+                        Description = "Specifies an endpoint for attesting a server-side enclave used with Always Encrypted with secure enclaves",
                         ValueType = ConnectionOption.ValueTypeString,
                         GroupName = "Security"
                     },
