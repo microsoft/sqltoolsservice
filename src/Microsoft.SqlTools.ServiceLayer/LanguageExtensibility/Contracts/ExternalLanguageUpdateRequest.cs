@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensibility.Contracts
     }
 
     /// <summary>
-    /// Response class for external language status
+    /// Response class for external language update
     /// </summary>
     public class ExternalLanguageUpdateResponseParams
     {

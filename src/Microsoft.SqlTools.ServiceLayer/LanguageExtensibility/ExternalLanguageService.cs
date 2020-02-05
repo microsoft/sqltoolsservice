@@ -90,7 +90,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensibility
 
                 if (connInfo == null)
                 {
-                    await requestContext.SendError(new Exception(SR.ProfilerConnectionNotFound));
+                    await requestContext.SendError(new Exception(SR.ConnectionServiceDbErrorDefaultNotConnected(parameters.OwnerUri)));
                 }
                 else
                 {
@@ -130,7 +130,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensibility
 
                 if (connInfo == null)
                 {
-                    await requestContext.SendError(new Exception(SR.ProfilerConnectionNotFound));
+                    await requestContext.SendError(new Exception(SR.ConnectionServiceDbErrorDefaultNotConnected(parameters.OwnerUri)));
                 }
                 else
                 {
@@ -171,7 +171,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensibility
 
                 if (connInfo == null)
                 {
-                    await requestContext.SendError(new Exception(SR.ProfilerConnectionNotFound));
+                    await requestContext.SendError(new Exception(SR.ConnectionServiceDbErrorDefaultNotConnected(parameters.OwnerUri)));
                 }
                 else
                 {
@@ -211,7 +211,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensibility
 
                 if (connInfo == null)
                 {
-                    await requestContext.SendError(new Exception(SR.ProfilerConnectionNotFound));
+                    await requestContext.SendError(new Exception(SR.ConnectionServiceDbErrorDefaultNotConnected(parameters.OwnerUri)));
                 }
                 else
                 {

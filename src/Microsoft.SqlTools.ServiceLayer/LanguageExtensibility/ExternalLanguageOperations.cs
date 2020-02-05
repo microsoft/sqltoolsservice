@@ -4,6 +4,7 @@
 //
 
 using Microsoft.SqlTools.ServiceLayer.LanguageExtensibility.Contracts;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -33,7 +34,7 @@ WHERE s.external_language_id = l.external_language_id AND language = @{LanguageN
 
         private const string GetAllScript = @"
 SELECT l.external_language_id, language, l.create_date, dp.name, content, file_name, platform_desc, parameters, environment_variables
-FROM  sys.external_languages l 
+FROM sys.external_languages l 
 JOIN sys.external_language_files lf on l.external_language_id = lf.external_language_id
 JOIN sys.database_principals dp on l.principal_id = dp.principal_id
 ORDER BY l.external_language_id, platform";
@@ -86,7 +87,7 @@ ORDER BY platform";
                     {
                         while (reader.Read())
                         {
-                            status = (reader[0].ToString() == "True");
+                            status = (Convert.ToBoolean(reader[0].ToString()));
                         }
                     }
                 }
@@ -189,59 +190,50 @@ ORDER BY platform";
         private List<ExternalLanguage> GetLanguages(IDbConnection connection, string languageName = null)
         {
             Dictionary<int, ExternalLanguage> dic = new Dictionary<int, ExternalLanguage>();
-            try
+            using (IDbCommand command = connection.CreateCommand())
             {
-                using (IDbCommand command = connection.CreateCommand())
+                command.CommandText = languageName != null ? GetLanguageScript : GetAllScript;
+                if (languageName != null)
                 {
-                    command.CommandText = languageName != null ? GetLanguageScript : GetAllScript;
-                    if (languageName != null)
+                    var parameter = command.CreateParameter();
+                    parameter.ParameterName = $"@{LanguageNameParamName}";
+                    parameter.Value = languageName;
+                    command.Parameters.Add(parameter);
+                }
+                using (IDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
                     {
-                        var parameter = command.CreateParameter();
-                        parameter.ParameterName = $"@{LanguageNameParamName}";
-                        parameter.Value = languageName;
-                        command.Parameters.Add(parameter);
-                    }
-                    using (IDataReader reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
+                        int id = reader.GetInt32(0);
+                        string name = reader.GetString(1);
+                        string createdDate = reader.IsDBNull(2) ? string.Empty : reader.GetDateTime(2).ToString();
+                        string owner = reader.IsDBNull(3) ? string.Empty : reader.GetString(3);
+                        string extentionFileName = reader.IsDBNull(5) ? string.Empty : reader.GetString(5);
+                        string platform = reader.IsDBNull(6) ? string.Empty : reader.GetString(6);
+                        string parameters = reader.IsDBNull(7) ? string.Empty : reader.GetString(7);
+                        string envVariables = reader.IsDBNull(8) ? string.Empty : reader.GetString(8);
+                        if (!dic.ContainsKey(id))
                         {
-                            int id = reader.GetInt32(0);
-                            string name = reader.GetString(1);
-                            string createdDate = reader.IsDBNull(2) ? string.Empty : reader.GetDateTime(2).ToString();
-                            string owner = reader.IsDBNull(3) ? string.Empty : reader.GetString(3);
-                            string extentionFile = string.Empty;//reader.IsDBNull(4) ? string.Empty : reader.GetString(4);
-                            string extentionFileName = reader.IsDBNull(5) ? string.Empty : reader.GetString(5);
-                            string platform = reader.IsDBNull(6) ? string.Empty : reader.GetString(6);
-                            string parameters = reader.IsDBNull(7) ? string.Empty : reader.GetString(7);
-                            string envVariables = reader.IsDBNull(8) ? string.Empty : reader.GetString(8);
-                            if (!dic.ContainsKey(id))
+                            dic.Add(id, new ExternalLanguage
                             {
-                                dic.Add(id, new ExternalLanguage
-                                {
-                                    Name = name,
-                                    Owner = owner,
-                                    CreatedDate = createdDate,
-                                    Contents = new List<ExternalLanguageContent>()
-                                });
-                                ExternalLanguage metadata = dic[id];
-                                metadata.Contents.Add(new ExternalLanguageContent
-                                {
-                                    EnvironmentVariables = envVariables,
-                                    Parameters = parameters,
-                                    Platform = platform,
-                                    ExtensionFileName = extentionFileName,
-                                    PathToExtension = extentionFile
-                                });
-                            }
+                                Name = name,
+                                Owner = owner,
+                                CreatedDate = createdDate,
+                                Contents = new List<ExternalLanguageContent>()
+                            });
                         }
+                        ExternalLanguage metadata = dic[id];
+                        metadata.Contents.Add(new ExternalLanguageContent
+                        {
+                            EnvironmentVariables = envVariables,
+                            Parameters = parameters,
+                            Platform = platform,
+                            ExtensionFileName = extentionFileName
+                        });
                     }
                 }
-                return new List<ExternalLanguage>(dic.Values);
             }
-            catch
-            {
-                throw;
-            }
+            return new List<ExternalLanguage>(dic.Values);
         }
 
         private string GetCreateScript(ExternalLanguage language, Dictionary<string, object> parameters)
@@ -292,19 +284,20 @@ ORDER BY platform";
         private string AddStringParameter(string paramName, string prefix, string postfix, string paramValue, Dictionary<string, object> parameters)
         {
             string script = string.Empty;
-            string sqlParam = $"@{paramName}{postfix}";
+            
             /*
             if (!string.IsNullOrWhiteSpace(paramValue))
             {
-                script = $", {paramName} = N'{sqlParam}'";
+                string sqlParam = $"{paramName}{postfix}";
+                script = $"{prefix} {paramName} = @{sqlParam}";
                 parameters.Add($"{sqlParam}", paramValue);
             }
             */
-
             if (!string.IsNullOrWhiteSpace(paramValue))
             {
                 script = $"{prefix} {paramName} = N'{paramValue}'";
             }
+            
             return script;
         }
 
@@ -326,7 +319,6 @@ ORDER BY platform";
                       {contentScript}
                       {AddStringParameter(FileNameParamName, string.IsNullOrWhiteSpace(contentScript) ? string.Empty : prefix,
                       postfix, content.ExtensionFileName, parameters)}
-                      {AddStringParameter(PlatformParamName, prefix, postfix, content.Platform, parameters)}
                       {AddStringParameter(ParametersParamName, prefix, postfix, content.Parameters, parameters)}
                       {AddStringParameter(EnvVariablesParamName, prefix, postfix, content.EnvironmentVariables, parameters)}
                       )";
@@ -334,25 +326,18 @@ ORDER BY platform";
 
         private void ExecuteNonQuery(IDbConnection connection, string script, Dictionary<string, object> parameters)
         {
-            try
+            using (IDbCommand command = connection.CreateCommand())
             {
-                using (IDbCommand command = connection.CreateCommand())
+                command.CommandText = script;
+                foreach (var item in parameters)
                 {
-                    command.CommandText = script;
-                    foreach (var item in parameters)
-                    {
-                        var parameter = command.CreateParameter();
-                        parameter.ParameterName = item.Key;
-                        parameter.Value = item.Value;
-                        command.Parameters.Add(parameter);
-                    }
-
-                    command.ExecuteNonQuery();
+                    var parameter = command.CreateParameter();
+                    parameter.ParameterName = item.Key;
+                    parameter.Value = item.Value;
+                    command.Parameters.Add(parameter);
                 }
-            }
-            catch
-            {
-                throw;
+
+                command.ExecuteNonQuery();
             }
         }
     }
