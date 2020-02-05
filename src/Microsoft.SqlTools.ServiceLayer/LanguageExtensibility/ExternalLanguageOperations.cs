@@ -62,7 +62,7 @@ ORDER BY platform";
 
         private string GetDropScript(string languageName)
         {
-            return $@"{DropScript} {languageName}";
+            return $@"{DropScript} [{languageName}]";
         }
 
         /// <summary>
@@ -275,30 +275,27 @@ ORDER BY platform";
                 }
             }
             return $@"
-{scriptAction} {language.Name}
+{scriptAction} [{language.Name}]
 {ownerScript}
 {contentAction} {contentScript}
 ";
         }
 
-        private string AddStringParameter(string paramName, string prefix, string postfix, string paramValue, Dictionary<string, object> parameters)
+        private string AddStringParameter(string paramName, string prefix, string postfix, string paramValue)
         {
             string script = string.Empty;
             
-            /*
             if (!string.IsNullOrWhiteSpace(paramValue))
             {
-                string sqlParam = $"{paramName}{postfix}";
-                script = $"{prefix} {paramName} = @{sqlParam}";
-                parameters.Add($"{sqlParam}", paramValue);
-            }
-            */
-            if (!string.IsNullOrWhiteSpace(paramValue))
-            {
-                script = $"{prefix} {paramName} = N'{paramValue}'";
+                script = $"{prefix} {paramName} = N'{EscapeStringForSql(paramValue)}'";
             }
             
             return script;
+        }
+
+        private static string EscapeStringForSql(string value)
+        {
+            return value != null ? value.Replace("'", "''"): string.Empty;
         }
 
         private string GetLanguageContent(ExternalLanguageContent content, int index, Dictionary<string, object> parameters)
@@ -313,14 +310,14 @@ ORDER BY platform";
             }
             else if (!string.IsNullOrWhiteSpace(content.PathToExtension))
             {
-                contentScript = $"{AddStringParameter(ContentParamName, string.Empty, postfix, content.PathToExtension, parameters)}";
+                contentScript = $"{AddStringParameter(ContentParamName, string.Empty, postfix, content.PathToExtension)}";
             }
             return $@"( 
                       {contentScript}
                       {AddStringParameter(FileNameParamName, string.IsNullOrWhiteSpace(contentScript) ? string.Empty : prefix,
-                      postfix, content.ExtensionFileName, parameters)}
-                      {AddStringParameter(ParametersParamName, prefix, postfix, content.Parameters, parameters)}
-                      {AddStringParameter(EnvVariablesParamName, prefix, postfix, content.EnvironmentVariables, parameters)}
+                      postfix, content.ExtensionFileName)}
+                      {AddStringParameter(ParametersParamName, prefix, postfix, content.Parameters)}
+                      {AddStringParameter(EnvVariablesParamName, prefix, postfix, content.EnvironmentVariables)}
                       )";
         }
 
