@@ -1160,10 +1160,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 switch (connectionDetails.EnclaveAttestationProtocol.ToUpper())
                 {
-                    case "AZURE ATTESTATION":
+                    case "AAS":
                         connectionBuilder.AttestationProtocol = SqlConnectionAttestationProtocol.AAS;
                         break;
-                    case "HOST GUARDIAN SERVICE":
+                    case "HGS":
                         connectionBuilder.AttestationProtocol = SqlConnectionAttestationProtocol.HGS;
                         break;
                     default:
