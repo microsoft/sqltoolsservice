@@ -2997,6 +2997,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.ConnectionServiceConnStringInvalidEnclaveAttestationProtocol, enclaveAttestationProtocol);
         }
 
+        public static string ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination()
+        {
+            return Keys.GetString(Keys.ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination);
+        }
+
         public static string ConnectionServiceConnStringInvalidIntent(string intent)
         {
             return Keys.GetString(Keys.ConnectionServiceConnStringInvalidIntent, intent);
@@ -3174,6 +3179,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ConnectionServiceConnStringInvalidEnclaveAttestationProtocol = "ConnectionServiceConnStringInvalidEnclaveAttestationProtocol";
+
+
+            public const string ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination = "ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination";
 
 
             public const string ConnectionServiceConnStringInvalidIntent = "ConnectionServiceConnStringInvalidIntent";

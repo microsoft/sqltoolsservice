@@ -37,6 +37,8 @@ ConnectionServiceConnStringInvalidColumnEncryptionSetting(string columnEncryptio
 
 ConnectionServiceConnStringInvalidEnclaveAttestationProtocol(string enclaveAttestationProtocol) = Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS' and 'HGS'.
 
+ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination = The Attestation Protocol and Enclave Attestation URL requires Always Encrypted to be set to Enabled.
+
 ConnectionServiceConnStringInvalidIntent(string intent) = Invalid value '{0}' for ApplicationIntent. Valid values are 'ReadWrite' and 'ReadOnly'.
 
 ConnectionServiceConnectionCanceled = Connection canceled

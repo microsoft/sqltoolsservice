@@ -150,6 +150,10 @@
     <comment>.
  Parameters: 0 - enclaveAttestationProtocol (string) </comment>
   </data>
+  <data name="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination" xml:space="preserve">
+    <value>The Attestation Protocol and Enclave Attestation URL requires Always Encrypted to be set to Enabled.</value>
+    <comment></comment>
+  </data>
   <data name="ConnectionServiceConnStringInvalidIntent" xml:space="preserve">
     <value>Invalid value &apos;{0}&apos; for ApplicationIntent. Valid values are &apos;ReadWrite&apos; and &apos;ReadOnly&apos;.</value>
     <comment>.
