@@ -51,39 +51,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensibility.Contracts
         /// </summary>
         public string PathToExtension { get; set; }
 
-        public object Content
-        {
-            get
-            {
-                if (IsLocalFile)
-                {
-                    return ExtensionFileBytes;
-                }
-                else
-                {
-                    return PathToExtension;
-                }
-            }
-        }
-
-        public byte[] ExtensionFileBytes
-        {
-            get
-            {
-                if (IsLocalFile)
-                {
-                    using (var stream = new FileStream(PathToExtension, FileMode.Open, FileAccess.Read))
-                    {
-                        using (var reader = new BinaryReader(stream))
-                        {
-                            return reader.ReadBytes((int)stream.Length);
-                        }
-                    }
-                }
-                return null;
-            }
-        }
-
         /// <summary>
         /// Extension file name
         /// </summary>

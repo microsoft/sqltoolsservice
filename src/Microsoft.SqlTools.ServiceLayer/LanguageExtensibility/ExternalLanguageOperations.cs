@@ -4,9 +4,13 @@
 //
 
 using Microsoft.SqlTools.ServiceLayer.LanguageExtensibility.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Management;
+using Microsoft.SqlTools.Utility;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensibility
@@ -92,8 +96,9 @@ ORDER BY platform";
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                Logger.Write(TraceEventType.Warning, $"Failed to get language status for language: {languageName}, error: {ex.Message}");
                 status = false;
             }
 
@@ -287,15 +292,10 @@ ORDER BY platform";
             
             if (!string.IsNullOrWhiteSpace(paramValue))
             {
-                script = $"{prefix} {paramName} = N'{EscapeStringForSql(paramValue)}'";
+                script = $"{prefix} {paramName} = N'{CUtils.EscapeStringSQuote(paramValue)}'";
             }
             
             return script;
-        }
-
-        private static string EscapeStringForSql(string value)
-        {
-            return value != null ? value.Replace("'", "''"): string.Empty;
         }
 
         private string GetLanguageContent(ExternalLanguageContent content, int index, Dictionary<string, object> parameters)
@@ -303,9 +303,17 @@ ORDER BY platform";
             string postfix = index.ToString();
             string prefix = ",";
             string contentScript = string.Empty;
-            if (content.IsLocalFile && content.Content != null)
+            if (content.IsLocalFile)
             {
-                parameters.Add($"{ContentParamName}{postfix}", content.Content);
+                byte[] contentBytes;
+                using (var stream = new FileStream(content.PathToExtension, FileMode.Open, FileAccess.Read))
+                {
+                    using (var reader = new BinaryReader(stream))
+                    {
+                        contentBytes = reader.ReadBytes((int)stream.Length);
+                    }
+                }
+                parameters.Add($"{ContentParamName}{postfix}", contentBytes);
                 contentScript = $"CONTENT = @{ContentParamName}{postfix}";
             }
             else if (!string.IsNullOrWhiteSpace(content.PathToExtension))
