@@ -138,9 +138,9 @@ ORDER BY platform";
         /// <param name="language"></param>
         public virtual void UpdateLanguage(IDbConnection connection, ExternalLanguage language)
         {
-            if (language == null || string.IsNullOrWhiteSpace(language.Name))
+            if (string.IsNullOrWhiteSpace(language?.Name))
             {
-                throw new LanguageExtensibilityException($"Invalid language. name: {language.Name}");
+                throw new LanguageExtensibilityException($"Invalid language. name: {language?.Name}");
             }
 
             Dictionary<string, object> parameters = new Dictionary<string, object>();
