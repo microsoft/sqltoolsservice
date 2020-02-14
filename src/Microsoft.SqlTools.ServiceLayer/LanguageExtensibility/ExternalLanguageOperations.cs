@@ -66,7 +66,7 @@ ORDER BY platform";
 
         private string GetDropScript(string languageName)
         {
-            return $@"{DropScript} {EscapeString(languageName)}";
+            return $@"{DropScript} [{CUtils.EscapeStringCBracket(languageName)}]";
         }
 
         /// <summary>
@@ -138,9 +138,9 @@ ORDER BY platform";
         /// <param name="language"></param>
         public virtual void UpdateLanguage(IDbConnection connection, ExternalLanguage language)
         {
-            if (language == null)
+            if (language == null || string.IsNullOrWhiteSpace(language.Name))
             {
-                return;
+                throw new LanguageExtensibilityException($"Invalid language. name: {language.Name}");
             }
 
             Dictionary<string, object> parameters = new Dictionary<string, object>();
@@ -280,21 +280,16 @@ ORDER BY platform";
                 }
             }
             return $@"
-{scriptAction} {EscapeString(language.Name)}
+{scriptAction} [{CUtils.EscapeStringCBracket(language.Name)}]
 {ownerScript}
 {contentAction} {contentScript}
 ";
         }
 
-        private string EscapeString(string value)
-        {
-            string escapedString = CUtils.EscapeStringSQuote(value);
-            return CUtils.EscapeStringCBracket(escapedString);
-        }
-
         private string AddStringParameter(string paramName, string prefix, string postfix, string paramValue)
         {
-            return $"{prefix} {paramName} = N'{EscapeString(paramValue)}'";
+            string value = string.IsNullOrWhiteSpace(paramValue) ? paramValue : CUtils.EscapeStringSQuote(paramValue);
+            return $"{prefix} {paramName} = N'{value}'";
         }
 
         private string GetLanguageContent(ExternalLanguageContent content, int index, Dictionary<string, object> parameters)
