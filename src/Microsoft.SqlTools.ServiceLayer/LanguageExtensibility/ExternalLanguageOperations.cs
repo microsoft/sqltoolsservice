@@ -66,7 +66,7 @@ ORDER BY platform";
 
         private string GetDropScript(string languageName)
         {
-            return $@"{DropScript} [{languageName}]";
+            return $@"{DropScript} {EscapeString(languageName)}";
         }
 
         /// <summary>
@@ -280,22 +280,21 @@ ORDER BY platform";
                 }
             }
             return $@"
-{scriptAction} [{language.Name}]
+{scriptAction} {EscapeString(language.Name)}
 {ownerScript}
 {contentAction} {contentScript}
 ";
         }
 
+        private string EscapeString(string value)
+        {
+            string escapedString = CUtils.EscapeStringSQuote(value);
+            return CUtils.EscapeStringCBracket(escapedString);
+        }
+
         private string AddStringParameter(string paramName, string prefix, string postfix, string paramValue)
         {
-            string script = string.Empty;
-            
-            if (!string.IsNullOrWhiteSpace(paramValue))
-            {
-                script = $"{prefix} {paramName} = N'{CUtils.EscapeStringSQuote(paramValue)}'";
-            }
-            
-            return script;
+            return $"{prefix} {paramName} = N'{EscapeString(paramValue)}'";
         }
 
         private string GetLanguageContent(ExternalLanguageContent content, int index, Dictionary<string, object> parameters)
