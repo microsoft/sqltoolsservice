@@ -106,7 +106,7 @@ ORDER BY platform";
         }
 
         /// <summary>
-        /// 
+        /// Returns the list of languages
         /// </summary>
         /// <param name="connection"></param>
         /// <returns></returns>
@@ -140,7 +140,7 @@ ORDER BY platform";
         {
             if (string.IsNullOrWhiteSpace(language?.Name))
             {
-                throw new LanguageExtensibilityException($"Invalid language. name: {language?.Name}");
+                throw new LanguageExtensibilityException($"Failed to update language. language or language name is empty.");
             }
 
             Dictionary<string, object> parameters = new Dictionary<string, object>();
@@ -180,7 +180,7 @@ ORDER BY platform";
         {
             if (string.IsNullOrWhiteSpace(languageName))
             {
-                throw new LanguageExtensibilityException($"Invalid language name. name: {languageName}");
+                throw new LanguageExtensibilityException($"Failed to delete language. language name is empty");
             }
             Dictionary<string, object> parameters = new Dictionary<string, object>();
             ExecuteNonQuery(connection, GetDropScript(languageName), parameters);
@@ -261,7 +261,7 @@ ORDER BY platform";
                 contentScript = $"{contentScript}{seperator}{GetLanguageContent(content, i, parameters)}";
             }
 
-            string ownerScript = string.IsNullOrWhiteSpace(language.Owner) ? "" : $"AUTHORIZATION {language.Owner}";
+            string ownerScript = string.IsNullOrWhiteSpace(language.Owner) ? "" : $"AUTHORIZATION [{CUtils.EscapeStringCBracket(language.Owner)}]";
             string scriptAction = modifyType == ModifyType.Create ? CreateScript : AlterScript;
             string contentAction = "FROM";
             if (modifyType == ModifyType.Alter)
@@ -286,7 +286,7 @@ ORDER BY platform";
 ";
         }
 
-        private string AddStringParameter(string paramName, string prefix, string postfix, string paramValue)
+        private string AddStringParameter(string paramName, string prefix, string paramValue)
         {
             string value = string.IsNullOrWhiteSpace(paramValue) ? paramValue : CUtils.EscapeStringSQuote(paramValue);
             return $"{prefix} {paramName} = N'{value}'";
@@ -312,14 +312,14 @@ ORDER BY platform";
             }
             else if (!string.IsNullOrWhiteSpace(content.PathToExtension))
             {
-                contentScript = $"{AddStringParameter(ContentParamName, string.Empty, postfix, content.PathToExtension)}";
+                contentScript = $"{AddStringParameter(ContentParamName, string.Empty, content.PathToExtension)}";
             }
             return $@"( 
                       {contentScript}
                       {AddStringParameter(FileNameParamName, string.IsNullOrWhiteSpace(contentScript) ? string.Empty : prefix,
-                      postfix, content.ExtensionFileName)}
-                      {AddStringParameter(ParametersParamName, prefix, postfix, content.Parameters)}
-                      {AddStringParameter(EnvVariablesParamName, prefix, postfix, content.EnvironmentVariables)}
+                      content.ExtensionFileName)}
+                      {AddStringParameter(ParametersParamName, prefix, content.Parameters)}
+                      {AddStringParameter(EnvVariablesParamName, prefix, content.EnvironmentVariables)}
                       )";
         }
 
