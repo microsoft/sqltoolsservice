@@ -1156,6 +1156,34 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         throw new ArgumentException(SR.ConnectionServiceConnStringInvalidColumnEncryptionSetting(connectionDetails.ColumnEncryptionSetting));
                 }
             }
+            if (!string.IsNullOrEmpty(connectionDetails.EnclaveAttestationProtocol))
+            {
+                if (string.IsNullOrEmpty(connectionDetails.ColumnEncryptionSetting) || connectionDetails.ColumnEncryptionSetting.ToUpper() == "DISABLED")
+                {
+                    throw new ArgumentException(SR.ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination());
+                }
+
+                switch (connectionDetails.EnclaveAttestationProtocol.ToUpper())
+                {
+                    case "AAS":
+                        connectionBuilder.AttestationProtocol = SqlConnectionAttestationProtocol.AAS;
+                        break;
+                    case "HGS":
+                        connectionBuilder.AttestationProtocol = SqlConnectionAttestationProtocol.HGS;
+                        break;
+                    default:
+                        throw new ArgumentException(SR.ConnectionServiceConnStringInvalidEnclaveAttestationProtocol(connectionDetails.EnclaveAttestationProtocol));
+                }
+            }
+            if (!string.IsNullOrEmpty(connectionDetails.EnclaveAttestationUrl))
+            {
+                if (string.IsNullOrEmpty(connectionDetails.ColumnEncryptionSetting) || connectionDetails.ColumnEncryptionSetting.ToUpper() == "DISABLED")
+                {
+                    throw new ArgumentException(SR.ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination());
+                }
+
+                connectionBuilder.EnclaveAttestationUrl = connectionDetails.EnclaveAttestationUrl;
+            }
             if (connectionDetails.Encrypt.HasValue)
             {
                 connectionBuilder.Encrypt = connectionDetails.Encrypt.Value;
@@ -1328,6 +1356,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 CurrentLanguage = builder.CurrentLanguage,
                 DatabaseName = builder.InitialCatalog,
                 ColumnEncryptionSetting = builder.ColumnEncryptionSetting.ToString(),
+                EnclaveAttestationProtocol = builder.AttestationProtocol.ToString(),                
+                EnclaveAttestationUrl = builder.EnclaveAttestationUrl,
                 Encrypt = builder.Encrypt,
                 FailoverPartner = builder.FailoverPartner,
                 LoadBalanceTimeout = builder.LoadBalanceTimeout,
