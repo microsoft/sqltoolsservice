@@ -59,7 +59,14 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
                 Uri armUri = null;
                 if (armEndpoint != null)
                 {
-                    armUri = new Uri(armEndpoint);
+                    try
+                    {
+                        armUri = new Uri(armEndpoint);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine($"Exception while parsing URI: {e.Message}");
+                    }
                 }
                 ServiceClientCredentials credentials = CreateCredentials(subscriptionContext);
                 SqlManagementClient sqlManagementClient = new SqlManagementClient(armUri ?? _resourceManagementUri, credentials)
@@ -251,7 +258,14 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
                 Uri armUri = null;
                 if (armEndpoint != null)
                 {
-                    armUri = new Uri(armEndpoint);
+                    try
+                    {
+                        armUri = new Uri(armEndpoint);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine($"Exception while parsing URI: {e.Message}");
+                    }
                 }
                 using (SubscriptionClient client = new SubscriptionClient(armUri ?? _resourceManagementUri, credentials))
                 {
