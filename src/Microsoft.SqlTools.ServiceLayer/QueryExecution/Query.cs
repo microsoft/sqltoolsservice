@@ -143,10 +143,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 .Select((batchDefinition, index) =>
                     new Batch(batchDefinition.BatchText,
                         new SelectionData(
-                            batchDefinition.StartLine-1,
-                            batchDefinition.StartColumn-1,
-                            batchDefinition.EndLine-1,
-                            batchDefinition.EndColumn-1),
+                        batchDefinition.StartLine - 1,
+                        batchDefinition.StartColumn - 1,
+                        batchDefinition.EndLine - 1,
+                        batchDefinition.EndColumn - 1),
                         index, outputFactory,
                         batchDefinition.SqlCmdCommand,
                         batchDefinition.BatchExecutionCount,
@@ -419,7 +419,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 // Locate and setup the connection
                 queryConnection = await ConnectionService.Instance.GetOrOpenConnection(editorConnection.OwnerUri, ConnectionType.Query);
-                onErrorAction = OnErrorAction.Ignore; 
+                onErrorAction = OnErrorAction.Ignore;
                 sqlConn = queryConnection as ReliableSqlConnection;
                 if (sqlConn != null)
                 {
@@ -503,6 +503,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 }
             }
         }
+
         private async Task ExecuteBatch(Batch b)
         {
             if (b.SqlCmdCommand != null)
@@ -532,6 +533,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     case LexerTokenType.OnError:
                         onErrorAction = (b.SqlCmdCommand as OnErrorSqlCmdCommand).Action;
                         break;
+                    case LexerTokenType.Execute:
+                        var command = (b.SqlCmdCommand as ExecuteSqlCmdCommand);
+                        command.QeSqlCmdMessageFromApp += WriteMessageHandler;
+                        command.ExecuteACommand(cancellationSource.Token);
+                        command.QeSqlCmdMessageFromApp -= WriteMessageHandler;
+                        break;
                     default:
                         throw new SqlCmdException(string.Format(SR.SqlCmdUnsupportedToken, b.SqlCmdCommand.LexerTokenType));
                 }
@@ -547,8 +554,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     cancellationSource.Cancel();
                     throw new SqlCmdException(SR.SqlCmdExitOnError);
                 }
-
             }
+        }
+
+        private async Task WriteMessageHandler(object sender, CommandEventArgs args)
+        {
+            if (args == null || string.IsNullOrWhiteSpace(args.Message))
+            {
+                return;
+            }
+            await BatchMessageSent(new ResultMessage(args.Message, !args.StdOut, null));
         }
 
         private void HandleOnErrorAction(object sender, bool iserror)
@@ -631,12 +646,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 if (settings.StatisticsIO)
                 {
                     builderBefore.AppendFormat("{0} ", helper.GetSetStatisticsIOString(true));
-                    builderAfter.AppendFormat("{0} ", helper.GetSetStatisticsIOString (false));
+                    builderAfter.AppendFormat("{0} ", helper.GetSetStatisticsIOString(false));
                 }
 
                 if (settings.StatisticsTime)
                 {
-                    builderBefore.AppendFormat("{0} ", helper.GetSetStatisticsTimeString (true));
+                    builderBefore.AppendFormat("{0} ", helper.GetSetStatisticsTimeString(true));
                     builderAfter.AppendFormat("{0} ", helper.GetSetStatisticsTimeString(false));
                 }
             }
@@ -649,7 +664,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // append first part of exec options
             builderBefore.AppendFormat("{0} {1} {2}",
-                helper.SetRowCountString,  helper.SetTextSizeString,  helper.SetNoCountString);
+                helper.SetRowCountString, helper.SetTextSizeString, helper.SetNoCountString);
 
             if (!connection.IsSqlDW)
             {

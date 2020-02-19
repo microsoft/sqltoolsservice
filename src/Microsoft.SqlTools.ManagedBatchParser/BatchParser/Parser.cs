@@ -412,9 +412,13 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                         Accept();
                         ParseConnect(connectToken);
                         break;
+                    case LexerTokenType.Execute:
+                        RemoveLastWhitespaceToken();
+                        Accept();
+                        ParseExecute();
+                        break;
                     case LexerTokenType.Ed:
                     case LexerTokenType.ErrorCommand:
-                    case LexerTokenType.Execute:
                     case LexerTokenType.Exit:
                     case LexerTokenType.Help:
                     case LexerTokenType.List:
@@ -530,7 +534,6 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             variableResolver.SetVariable(setvarToken.Begin, variableName, variableValue);
         }
 
-
         private void ParseConnect(Token connectToken)
         {
             string serverName = null;
@@ -554,7 +557,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                 case LexerTokenType.Text:
                     userName = ParseUserName();
                     password = ParsePassword();
-                    if(userName == null || password == null)
+                    if (userName == null || password == null)
                     {
                         //found some text but couldn't parse for user/password
                         RaiseError(ErrorCode.UnrecognizedToken);
@@ -570,7 +573,43 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             }
 
             this.sqlCmdCommand = new ConnectSqlCmdCommand(serverName, userName, password);
+        }
 
+        private void ParseExecute()
+        {
+            string executableName = null;
+            string commandarg = null;
+
+            Accept(LexerTokenType.Whitespace);
+            Expect(LexerTokenType.Text);
+
+            Token token = LookaheadToken;
+
+            if (token.Text.StartsWith("--", StringComparison.Ordinal))
+            {
+                RaiseError(ErrorCode.TokenExpected);
+            }
+
+            lexer.SetTextState(TextRuleFlags.ReportWhitespace | TextRuleFlags.RecognizeLineComment | TextRuleFlags.RecognizeDoubleQuotedString);
+            Accept();
+            AcceptWhitespaceOrComment();
+            executableName = token.Text;
+
+            if (LookaheadTokenType != LexerTokenType.Eof && LookaheadTokenType != LexerTokenType.NewLine)
+            {
+                token = LookaheadToken;
+                lexer.SetTextState(TextRuleFlags.RecognizeLineComment | TextRuleFlags.RecognizeDoubleQuotedString);
+                Accept();
+                AcceptWhitespaceOrComment();
+                commandarg = token.Text;
+            }
+
+            if (LookaheadTokenType != LexerTokenType.Eof)
+            {
+                Expect(LexerTokenType.NewLine);
+            }
+
+            this.sqlCmdCommand = new ExecuteSqlCmdCommand(executableName, commandarg);
         }
 
         private string ParseUserName()
