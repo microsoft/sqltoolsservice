@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
@@ -63,7 +63,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility
         }
 
         public static async Task<TestConnectionResult> InitLiveConnectionInfoAsync(string databaseName = null, string ownerUri = null, 
-            string connectionType = ServiceLayer.Connection.ConnectionType.Default)
+            string connectionType = ServiceLayer.Connection.ConnectionType.Default, TestServerType serverType = TestServerType.OnPrem)
         {
             ScriptFile scriptFile = null;
             if (string.IsNullOrEmpty(ownerUri))
@@ -72,7 +72,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility
                 scriptFile = TestServiceProvider.Instance.WorkspaceService.Workspace.GetFile(ownerUri);
                 ownerUri = scriptFile.ClientUri;
             }
-            ConnectParams connectParams = TestServiceProvider.Instance.ConnectionProfileService.GetConnectionParameters(TestServerType.OnPrem, databaseName);
+            ConnectParams connectParams = TestServiceProvider.Instance.ConnectionProfileService.GetConnectionParameters(serverType, databaseName);
 
             var connectionService = GetLiveTestConnectionService();
             var connectionResult =

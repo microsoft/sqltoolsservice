@@ -5,7 +5,7 @@
 
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Globalization;
 using System.Linq;
 using Microsoft.SqlServer.Management.Common;

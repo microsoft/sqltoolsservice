@@ -180,6 +180,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
 
         public bool IgnoreColumnOrder { get; set; }
 
+        public bool IgnoreTablePartitionOptions { get; set; } // DW Specific
+
         public string AdditionalDeploymentContributorPaths { get; set; } = string.Empty;
 
         public ObjectType[] DoNotDropObjectTypes { get; set; } = null;

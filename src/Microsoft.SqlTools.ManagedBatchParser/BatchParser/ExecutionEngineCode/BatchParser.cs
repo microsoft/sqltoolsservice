@@ -28,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         public  delegate void HaltParserDelegate();
         public delegate void ScriptMessageDelegate(string message);
         public delegate void ScriptErrorDelegate(string message, ScriptMessageType messageType);
-        public delegate bool ExecuteDelegate(string batchScript, int num, int lineNumber);        
+        public delegate bool ExecuteDelegate(string batchScript, int num, int lineNumber, SqlCmdCommand command);        
         #endregion
 
         #region Constructors / Destructor
@@ -75,7 +75,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         /// <summary>
         /// Take approptiate action on the parsed batches
         /// </summary>
-        public BatchParserAction Go(TextBlock batch, int repeatCount)
+        public BatchParserAction Go(TextBlock batch, int repeatCount, SqlCmdCommand command)
         {
             string str;
             LineInfo lineInfo;
@@ -85,7 +85,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             bool executeResult = false;
             if (executeDelegate != null)
             {
-                executeResult = executeDelegate(str, repeatCount, lineInfo.GetStreamPositionForOffset(0).Line + startingLine - 1);
+                executeResult = executeDelegate(str, repeatCount, lineInfo.GetStreamPositionForOffset(0).Line + startingLine - 1, command);
             }
             return executeResult ? BatchParserAction.Continue : BatchParserAction.Abort;
         }

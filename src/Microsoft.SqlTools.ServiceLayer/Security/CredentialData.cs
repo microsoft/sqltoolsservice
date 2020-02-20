@@ -5,7 +5,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Security;
 using System.Text;
 using Microsoft.SqlServer.Management.Common;

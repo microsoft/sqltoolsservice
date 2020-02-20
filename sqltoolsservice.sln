@@ -1,8 +1,11 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
-VisualStudioVersion = 16.0.29306.81
+VisualStudioVersion = 16.0.29409.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{2BBD7364-054F-4693-97CD-1C395E3E84A9}"
+	ProjectSection(SolutionItems) = preProject
+		src\Directory.Build.props = src\Directory.Build.props
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}"
 EndProject
@@ -13,6 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.travis.yml = .travis.yml
 		appveyor.yml = appveyor.yml
 		BUILD.md = BUILD.md
+		Directory.Build.props = Directory.Build.props
 		global.json = global.json
 		license.txt = license.txt
 		nuget.config = nuget.config
@@ -98,6 +102,12 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.Test.CompletionExtension", "test\Microsoft.SqlTools.Test.CompletionExtension\Microsoft.SqlTools.Test.CompletionExtension.csproj", "{0EC2B30C-0652-49AE-9594-85B3C3E9CA21}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Kusto.ServiceLayer", "src\Microsoft.Kusto.ServiceLayer\Microsoft.Kusto.ServiceLayer.csproj", "{E0C941C8-91F2-4BE1-8B79-AC88EDB78729}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "azure-pipelines", "azure-pipelines", "{48D5C134-4091-438D-9D35-6EB8CF0D1DCC}"
+	ProjectSection(SolutionItems) = preProject
+		azure-pipelines\build.yml = azure-pipelines\build.yml
+		azure-pipelines\release.yml = azure-pipelines\release.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

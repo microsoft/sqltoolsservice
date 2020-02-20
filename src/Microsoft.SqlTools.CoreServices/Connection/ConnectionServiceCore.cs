@@ -8,7 +8,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
@@ -1022,6 +1022,9 @@ namespace Microsoft.SqlTools.CoreServices.Connection
                         connectionBuilder.IntegratedSecurity = true;
                         break;
                     case "SqlLogin":
+                        break;
+                    case "ActiveDirectoryPassword":
+                        connectionBuilder.Authentication = SqlAuthenticationMethod.ActiveDirectoryPassword;
                         break;
                     default:
                         throw new ArgumentException(SR.ConnectionServiceConnStringInvalidAuthType(connectionDetails.AuthenticationType));

@@ -10,7 +10,7 @@ using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined;
 using System;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Globalization;
 using System.IO;
 using System.Text;
@@ -154,7 +154,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
                 var executionResult = batch.Execute(sqlConn, ShowPlanType.AllShowPlan);
                 Assert.Equal<ScriptExecutionResult>(ScriptExecutionResult.Success, executionResult);
             }
-            
+
         }
 
         // Verify the exeception is handled by passing invalid keyword.
@@ -224,7 +224,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
                 Assert.True(false, $"Unexpected error consuming token : {e.Message}");
             }
             //  we doesn't expect any exception or testCase failures
-            
+
         }
 
         // This test case is to verify that, Powershell's Invoke-SqlCmd handles ":!!if" in an inconsistent way
@@ -358,6 +358,129 @@ GO";
 
                     Assert.True(testExecutor.ResultCountQueue.Count >= 1, $"Unexpected number of ResultCount items - expected 0 but got {testExecutor.ResultCountQueue.Count}");
                     Assert.True(testExecutor.ErrorMessageQueue.Count == 0, $"Unexpected error messages from test executor : {string.Join(Environment.NewLine, testExecutor.ErrorMessageQueue)}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Verify whether the batchParser parsed :connect command successfully
+        /// </summary>
+        [Fact]
+        public void VerifyConnectSqlCmd()
+        {
+            using (ExecutionEngine executionEngine = new ExecutionEngine())
+            {
+                var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo("master");
+                string serverName = liveConnection.ConnectionInfo.ConnectionDetails.ServerName;
+                string userName = liveConnection.ConnectionInfo.ConnectionDetails.UserName;
+                string password = liveConnection.ConnectionInfo.ConnectionDetails.Password;
+                string sqlCmdQuery = $@"
+:Connect {serverName} -U {userName} -P {password}
+GO
+select * from sys.databases where name = 'master'
+GO";
+
+                string sqlCmdQueryIncorrect = $@"
+:Connect {serverName} -u {userName} -p {password}
+GO
+select * from sys.databases where name = 'master'
+GO";
+                var condition = new ExecutionEngineConditions() { IsSqlCmd = true };
+                using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(liveConnection.ConnectionInfo))
+                using (TestExecutor testExecutor = new TestExecutor(sqlCmdQuery, sqlConn, condition))
+                {
+                    testExecutor.Run();
+                    Assert.True(testExecutor.ParserExecutionError == false, "Parse Execution error should be false");
+                    Assert.True(testExecutor.ResultCountQueue.Count == 1, $"Unexpected number of ResultCount items - expected 1 but got {testExecutor.ResultCountQueue.Count}");
+                    Assert.True(testExecutor.ErrorMessageQueue.Count == 0, $"Unexpected error messages from test executor : {string.Join(Environment.NewLine, testExecutor.ErrorMessageQueue)}");
+                }
+
+                using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(liveConnection.ConnectionInfo))
+                using (TestExecutor testExecutor = new TestExecutor(sqlCmdQueryIncorrect, sqlConn, condition))
+                {
+                    testExecutor.Run();
+
+                    Assert.True(testExecutor.ParserExecutionError == true, "Parse Execution error should be true");
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Verify whether the batchParser parsed :on error successfully
+        /// </summary>
+        [Fact]
+        public void VerifyOnErrorSqlCmd()
+        {
+            using (ExecutionEngine executionEngine = new ExecutionEngine())
+            {
+                var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo("master");
+                string serverName = liveConnection.ConnectionInfo.ConnectionDetails.ServerName;
+                string sqlCmdQuery = $@"
+:on error ignore
+GO
+select * from sys.databases_wrong where name = 'master'
+GO
+select* from sys.databases where name = 'master'
+GO
+:on error exit
+GO
+select* from sys.databases_wrong where name = 'master'
+GO
+select* from sys.databases where name = 'master'
+GO";
+                var condition = new ExecutionEngineConditions() { IsSqlCmd = true };
+                using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(liveConnection.ConnectionInfo))
+                using (TestExecutor testExecutor = new TestExecutor(sqlCmdQuery, sqlConn, condition))
+                {
+                    testExecutor.Run();
+
+                    Assert.True(testExecutor.ResultCountQueue.Count == 1, $"Unexpected number of ResultCount items - expected only 1 since the later should not be executed but got {testExecutor.ResultCountQueue.Count}");
+                    Assert.True(testExecutor.ErrorMessageQueue.Count == 2, $"Unexpected number error messages from test executor expected 2, actual : {string.Join(Environment.NewLine, testExecutor.ErrorMessageQueue)}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Verify whether the batchParser parses Include command i.e. :r successfully
+        /// </summary>
+        [Fact]
+        public void VerifyIncludeSqlCmd()
+        {
+            string file = "VerifyIncludeSqlCmd_test.sql";
+            try
+            {
+                using (ExecutionEngine executionEngine = new ExecutionEngine())
+                {
+                    var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo("master");
+                    string serverName = liveConnection.ConnectionInfo.ConnectionDetails.ServerName;
+                    string sqlCmdFile = $@"
+select * from sys.databases where name = 'master'
+GO";
+                    File.WriteAllText("VerifyIncludeSqlCmd_test.sql", sqlCmdFile);
+                     
+                    string sqlCmdQuery = $@"
+:r {file}
+GO
+select * from sys.databases where name = 'master'
+GO";
+
+                    var condition = new ExecutionEngineConditions() { IsSqlCmd = true };
+                    using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(liveConnection.ConnectionInfo))
+                    using (TestExecutor testExecutor = new TestExecutor(sqlCmdQuery, sqlConn, condition))
+                    {
+                        testExecutor.Run();
+
+                        Assert.True(testExecutor.ResultCountQueue.Count == 2, $"Unexpected number of ResultCount items - expected 1 but got {testExecutor.ResultCountQueue.Count}");
+                        Assert.True(testExecutor.ErrorMessageQueue.Count == 0, $"Unexpected error messages from test executor : {string.Join(Environment.NewLine, testExecutor.ErrorMessageQueue)}");
+                    }
+                    File.Delete(file);
+                }
+            }
+            catch
+            {
+                if (File.Exists(file))
+                {
+                    File.Delete(file);
                 }
             }
         }

@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,6 +19,7 @@ using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Moq;
 using Moq.Protected;
 using Xunit;
+using System.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 {
@@ -501,6 +502,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         [InlineData("AuthenticationType", "SqlLogin", "")]
         [InlineData("Encrypt", true, "Encrypt")]
         [InlineData("Encrypt", false, "Encrypt")]
+        [InlineData("ColumnEncryptionSetting", "Enabled", "Column Encryption Setting=Enabled")]
+        [InlineData("ColumnEncryptionSetting", "Disabled", "Column Encryption Setting=Disabled")]
+        [InlineData("ColumnEncryptionSetting", "enabled", "Column Encryption Setting=Enabled")]
+        [InlineData("ColumnEncryptionSetting", "disabled", "Column Encryption Setting=Disabled")]
+        [InlineData("ColumnEncryptionSetting", "ENABLED", "Column Encryption Setting=Enabled")]
+        [InlineData("ColumnEncryptionSetting", "DISABLED", "Column Encryption Setting=Disabled")]
+        [InlineData("ColumnEncryptionSetting", "eNaBlEd", "Column Encryption Setting=Enabled")]
+        [InlineData("ColumnEncryptionSetting", "DiSaBlEd", "Column Encryption Setting=Disabled")]
         [InlineData("TrustServerCertificate", true, "TrustServerCertificate")]
         [InlineData("TrustServerCertificate", false, "TrustServerCertificate")]
         [InlineData("PersistSecurityInfo", true, "Persist Security Info")]
@@ -545,14 +554,103 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         }
 
         /// <summary>
-        /// Build connection string with an invalid auth type
+        /// Verify that optional parameters which require ColumnEncryptionSetting to be enabled
+        /// can be built into a connection string for connecting.
         /// </summary>
-        [Fact]
-        public void BuildConnectionStringWithInvalidAuthType()
+        [Theory]
+        [InlineData("EnclaveAttestationProtocol", "AAS", "Attestation Protocol=AAS")]
+        [InlineData("EnclaveAttestationProtocol", "HGS", "Attestation Protocol=HGS")]
+        [InlineData("EnclaveAttestationProtocol", "aas", "Attestation Protocol=AAS")]
+        [InlineData("EnclaveAttestationProtocol", "hgs", "Attestation Protocol=HGS")]
+        [InlineData("EnclaveAttestationProtocol", "AaS", "Attestation Protocol=AAS")]
+        [InlineData("EnclaveAttestationProtocol", "hGs", "Attestation Protocol=HGS")]
+        [InlineData("EnclaveAttestationUrl", "https://attestation.us.attest.azure.net/attest/SgxEnclave", "Enclave Attestation Url=https://attestation.us.attest.azure.net/attest/SgxEnclave")]
+        public void ConnectingWithOptionalEnclaveParametersBuildsConnectionString(string propertyName, object propertyValue, string connectionStringMarker)
+        {
+            // Create a test connection details object and set the property to a specific value
+            ConnectionDetails details = TestObjects.GetTestConnectionDetails();
+            details.GetType()
+                .GetProperty("ColumnEncryptionSetting")
+                .SetValue(details, "Enabled");
+            details.GetType()
+                .GetProperty(propertyName)
+                .SetValue(details, propertyValue);
+
+            // Test that a connection string can be created without exceptions
+            string connectionString = ConnectionService.BuildConnectionString(details);
+            Assert.NotNull(connectionString);
+            Assert.NotEmpty(connectionString);
+
+            // Verify that the parameter is in the connection string
+            Assert.True(connectionString.Contains(connectionStringMarker));
+        }
+
+        /// <summary>
+        /// Build connection string with an invalid property type
+        /// </summary>
+        [Theory]
+        [InlineData("AuthenticationType", "NotAValidAuthType")]
+        [InlineData("ColumnEncryptionSetting", "NotAValidColumnEncryptionSetting")]
+        [InlineData("EnclaveAttestationProtocol", "NotAValidEnclaveAttestationProtocol")]
+        public void BuildConnectionStringWithInvalidOptions(string propertyName, object propertyValue)
         {
             ConnectionDetails details = TestObjects.GetTestConnectionDetails();
-            details.AuthenticationType = "NotAValidAuthType";
+            PropertyInfo info = details.GetType().GetProperty(propertyName);
+            info.SetValue(details, propertyValue);
             Assert.Throws<ArgumentException>(() => ConnectionService.BuildConnectionString(details));
+        }
+
+        /// <summary>
+        /// Parameters used for test: BuildConnectionStringWithInvalidOptionCombinations
+        /// </summary>
+        public static readonly object[][] ConnectionStringWithInvalidOptionCombinations =
+        {
+            new object[]
+            {
+                typeof(ArgumentException),
+                new []
+                {
+                    Tuple.Create<string, object>("ColumnEncryptionSetting", null),
+                    Tuple.Create<string, object>("EnclaveAttestationProtocol", "AAS"),
+                    Tuple.Create<string, object>("EnclaveAttestationUrl", "https://attestation.us.attest.azure.net/attest/SgxEnclave")
+                }
+            },
+            new object[]
+            {
+                typeof(ArgumentException),
+                new []
+                {
+                    Tuple.Create<string, object>("ColumnEncryptionSetting", "Disabled"),
+                    Tuple.Create<string, object>("EnclaveAttestationProtocol", "AAS"),
+                    Tuple.Create<string, object>("EnclaveAttestationUrl", "https://attestation.us.attest.azure.net/attest/SgxEnclave")
+                }
+            },
+            new object[]
+            {
+                typeof(ArgumentException),
+                new []
+                {
+                    Tuple.Create<string, object>("ColumnEncryptionSetting", ""),
+                    Tuple.Create<string, object>("EnclaveAttestationProtocol", "AAS"),
+                    Tuple.Create<string, object>("EnclaveAttestationUrl", "https://attestation.us.attest.azure.net/attest/SgxEnclave")
+                }
+            }
+        };
+
+        /// <summary>
+        /// Build connection string with an invalid property combinations
+        /// </summary>
+        [Theory]
+        [MemberData(nameof(ConnectionStringWithInvalidOptionCombinations))]
+        public void BuildConnectionStringWithInvalidOptionCombinations(Type exceptionType, Tuple<string, object>[] propertyNameValuePairs)
+        {
+            ConnectionDetails details = TestObjects.GetTestConnectionDetails();
+            propertyNameValuePairs.ToList().ForEach(tuple =>
+            {
+                PropertyInfo info = details.GetType().GetProperty(tuple.Item1);
+                info.SetValue(details, tuple.Item2);
+            });
+            Assert.Throws(exceptionType, () => ConnectionService.BuildConnectionString(details));
         }
 
         /// <summary>

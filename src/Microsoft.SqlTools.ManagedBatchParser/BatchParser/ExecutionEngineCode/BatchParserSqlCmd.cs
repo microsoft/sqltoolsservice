@@ -5,7 +5,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Globalization;
 using System.IO;
 using Microsoft.SqlTools.ManagedBatchParser;
@@ -24,10 +24,10 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         private Dictionary<string, string> internalVariables = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
         private ConnectionChangedDelegate connectionChangedDelegate;
         private ErrorActionChangedDelegate errorActionChangedDelegate;
-        
+
         public delegate void ConnectionChangedDelegate(SqlConnectionStringBuilder connectionstringBuilder);
-        public delegate void ErrorActionChangedDelegate(OnErrorAction ea);   
-        
+        public delegate void ErrorActionChangedDelegate(OnErrorAction ea);
+
         /// <summary>
         /// Constructor taking a Parser instance
         /// </summary>
@@ -49,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             get { return errorActionChangedDelegate; }
             set { errorActionChangedDelegate = value; }
         }
-        
+
         /// <summary>
         /// Looks for any environment variable or internal variable.
         /// </summary>
@@ -105,17 +105,78 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             get { return internalVariables; }
             set { internalVariables = value; }
         }
-        
-        
+
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "ppIBatchSource")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "fileName")]
         public override BatchParserAction Include(TextBlock filename, out TextReader stream, out string newFilename)
         {
             stream = null;
             newFilename = null;
+            LineInfo lineInfo;
 
-            RaiseScriptError(string.Format(CultureInfo.CurrentCulture, SR.EE_ExecutionError_CommandNotSupported, "Include"), ScriptMessageType.Error);
-            return BatchParserAction.Abort;
+            if (filename == null)
+            {
+                stream = null;
+                return BatchParserAction.Abort;
+            }
+
+            filename.GetText(resolveVariables: true, text: out newFilename, lineInfo: out lineInfo);
+            string resolvedFileNameWithFullPath = GetFilePath(newFilename);
+
+            if (!File.Exists(resolvedFileNameWithFullPath))
+            {
+                stream = null;
+                return BatchParserAction.Abort;
+            }
+            else
+            {
+                stream = new StreamReader(resolvedFileNameWithFullPath);
+            }
+            return BatchParserAction.Continue;
+        }
+
+        private string GetFilePath(string fileName)
+        {
+            //try appending the file name with current working directory path
+            string fullFileName = null;
+            try
+            {
+                if (Environment.CurrentDirectory != null && !File.Exists(fileName))
+                {
+                    string currentWorkingDirectory = Environment.CurrentDirectory;
+                    if (currentWorkingDirectory != null)
+                    {
+                        fullFileName = Path.GetFullPath(Path.Combine(currentWorkingDirectory, fileName));
+                        if (!File.Exists(fullFileName))
+                        {
+                            fullFileName = null;
+                        }
+                    }
+
+                }
+                if (fullFileName == null)
+                {
+                    fullFileName = Path.GetFullPath(fileName);
+                }
+
+                return fullFileName;
+            }
+            catch (ArgumentException)
+            {
+                //path contains invalid path characters.
+                throw new SqlCmdException(SR.SqlCmd_PathInvalid);
+            }
+            catch (PathTooLongException)
+            {
+                //path is too long
+                throw new SqlCmdException(SR.SqlCmd_PathLong);
+            }
+            catch (Exception)
+            {
+                //catch all other exceptions and report generic error
+                throw new SqlCmdException(string.Format(SR.SqlCmd_FailedInclude, fileName));
+            }
         }
 
         /// <summary>

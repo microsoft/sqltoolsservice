@@ -44,6 +44,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             Assert.Equal(details.MaxPoolSize, expectedForInt);
             Assert.Equal(details.MinPoolSize, expectedForInt);
             Assert.Equal(details.PacketSize, expectedForInt);
+            Assert.Equal(details.ColumnEncryptionSetting, expectedForStrings);
+            Assert.Equal(details.EnclaveAttestationUrl, expectedForStrings);
+            Assert.Equal(details.EnclaveAttestationProtocol, expectedForStrings);
             Assert.Equal(details.Encrypt, expectedForBoolean);
             Assert.Equal(details.MultipleActiveResultSets, expectedForBoolean);
             Assert.Equal(details.MultiSubnetFailover, expectedForBoolean);
@@ -81,6 +84,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             details.MaxPoolSize = expectedForInt + index++;
             details.MinPoolSize = expectedForInt + index++;
             details.PacketSize = expectedForInt + index++;
+            details.ColumnEncryptionSetting = expectedForStrings + index++;
+            details.EnclaveAttestationProtocol = expectedForStrings + index++;
+            details.EnclaveAttestationUrl = expectedForStrings + index++;
             details.Encrypt = (index++ % 2 == 0);
             details.MultipleActiveResultSets = (index++ % 2 == 0);
             details.MultiSubnetFailover = (index++ % 2 == 0);
@@ -110,6 +116,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             Assert.Equal(details.MaxPoolSize, expectedForInt + index++);
             Assert.Equal(details.MinPoolSize, expectedForInt + index++);
             Assert.Equal(details.PacketSize, expectedForInt + index++);
+            Assert.Equal(details.ColumnEncryptionSetting, expectedForStrings + index++);
+            Assert.Equal(details.EnclaveAttestationProtocol, expectedForStrings + index++);
+            Assert.Equal(details.EnclaveAttestationUrl, expectedForStrings + index++);
             Assert.Equal(details.Encrypt, (index++ % 2 == 0));
             Assert.Equal(details.MultipleActiveResultSets, (index++ % 2 == 0));
             Assert.Equal(details.MultiSubnetFailover, (index++ % 2 == 0));
@@ -148,6 +157,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             details.MaxPoolSize = expectedForInt + index++;
             details.MinPoolSize = expectedForInt + index++;
             details.PacketSize = expectedForInt + index++;
+            details.ColumnEncryptionSetting = expectedForStrings + index++;
+            details.EnclaveAttestationProtocol = expectedForStrings + index++;
+            details.EnclaveAttestationUrl = expectedForStrings + index++;
             details.Encrypt = (index++ % 2 == 0);
             details.MultipleActiveResultSets = (index++ % 2 == 0);
             details.MultiSubnetFailover = (index++ % 2 == 0);

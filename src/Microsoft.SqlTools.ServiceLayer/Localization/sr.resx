@@ -140,6 +140,20 @@
     <comment>.
  Parameters: 0 - authType (string) </comment>
   </data>
+  <data name="ConnectionServiceConnStringInvalidColumnEncryptionSetting" xml:space="preserve">
+    <value>Invalid value &apos;{0}&apos; for ComlumEncryption. Valid values are &apos;Enabled&apos; and &apos;Disabled&apos;.</value>
+    <comment>.
+ Parameters: 0 - columnEncryptionSetting (string) </comment>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
+    <value>Invalid value &apos;{0}&apos; for EnclaveAttestationProtocol. Valid values are &apos;AAS&apos; and &apos;HGS&apos;.</value>
+    <comment>.
+ Parameters: 0 - enclaveAttestationProtocol (string) </comment>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination" xml:space="preserve">
+    <value>The Attestation Protocol and Enclave Attestation URL requires Always Encrypted to be set to Enabled.</value>
+    <comment></comment>
+  </data>
   <data name="ConnectionServiceConnStringInvalidIntent" xml:space="preserve">
     <value>Invalid value &apos;{0}&apos; for ApplicationIntent. Valid values are &apos;ReadWrite&apos; and &apos;ReadOnly&apos;.</value>
     <comment>.
@@ -320,6 +334,14 @@
   </data>
   <data name="QueryServiceExecutionPlanNotFound" xml:space="preserve">
     <value>Could not retrieve an execution plan from the result set </value>
+    <comment></comment>
+  </data>
+  <data name="SqlCmdExitOnError" xml:space="preserve">
+    <value>An error was encountered during execution of batch. Exiting.</value>
+    <comment></comment>
+  </data>
+  <data name="SqlCmdUnsupportedToken" xml:space="preserve">
+    <value>Encountered unsupported token {0}</value>
     <comment></comment>
   </data>
   <data name="SerializationServiceUnsupportedFormat" xml:space="preserve">

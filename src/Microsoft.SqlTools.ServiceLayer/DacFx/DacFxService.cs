@@ -9,7 +9,7 @@ using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using System;
 using System.Collections.Concurrent;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx
@@ -67,7 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 if (connInfo != null)
                 {
                     ExportOperation operation = new ExportOperation(parameters, connInfo);
-                    await ExecuteOperation(operation, parameters, SR.ExportBacpacTaskName, requestContext);
+                    ExecuteOperation(operation, parameters, SR.ExportBacpacTaskName, requestContext);
                 }
             }
             catch (Exception e)
@@ -91,7 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 if (connInfo != null)
                 {
                     ImportOperation operation = new ImportOperation(parameters, connInfo);
-                    await ExecuteOperation(operation, parameters, SR.ImportBacpacTaskName, requestContext);
+                    ExecuteOperation(operation, parameters, SR.ImportBacpacTaskName, requestContext);
                 }
             }
             catch (Exception e)
@@ -117,7 +117,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     // Set connection details database name to ensure the connection string gets created correctly for DW(extract doesn't work if connection is to master)
                     connInfo.ConnectionDetails.DatabaseName = parameters.DatabaseName;
                     ExtractOperation operation = new ExtractOperation(parameters, connInfo);
-                    await ExecuteOperation(operation, parameters, SR.ExtractDacpacTaskName, requestContext);
+                    ExecuteOperation(operation, parameters, SR.ExtractDacpacTaskName, requestContext);
                 }
             }
             catch (Exception e)
@@ -141,7 +141,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 if (connInfo != null)
                 {
                     DeployOperation operation = new DeployOperation(parameters, connInfo);
-                    await ExecuteOperation(operation, parameters, SR.DeployDacpacTaskName, requestContext);
+                    ExecuteOperation(operation, parameters, SR.DeployDacpacTaskName, requestContext);
                 }
             }
             catch (Exception e)
@@ -221,21 +221,35 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             }
         }
 
-        private async Task ExecuteOperation(DacFxOperation operation, DacFxParams parameters, string taskName, RequestContext<DacFxResult> requestContext)
+        private void ExecuteOperation(DacFxOperation operation, DacFxParams parameters, string taskName, RequestContext<DacFxResult> requestContext)
         {
-            SqlTask sqlTask = null;
-            TaskMetadata metadata = TaskMetadata.Create(parameters, taskName, operation, ConnectionServiceInstance);
-
-            // put appropriate database name since connection passed was to master
-            metadata.DatabaseName = parameters.DatabaseName;
-
-            sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
-
-            await requestContext.SendResult(new DacFxResult()
+            Task.Run(async () =>
             {
-                OperationId = operation.OperationId,
-                Success = true,
-                ErrorMessage = string.Empty
+                try
+                {
+                    TaskMetadata metadata = TaskMetadata.Create(parameters, taskName, operation, ConnectionServiceInstance);
+
+                    // put appropriate database name since connection passed was to master
+                    metadata.DatabaseName = parameters.DatabaseName;
+                    SqlTask sqlTask = SqlTaskManagerInstance.CreateTask<SqlTask>(metadata);
+
+                    await sqlTask.RunAsync();
+                    await requestContext.SendResult(new DacFxResult()
+                    {
+                        OperationId = operation.OperationId,
+                        Success = sqlTask.TaskStatus == SqlTaskStatus.Succeeded,
+                        ErrorMessage = string.Empty
+                    });
+                }
+                catch (Exception e)
+                {
+                    await requestContext.SendResult(new DacFxResult()
+                    {
+                        OperationId = operation.OperationId,
+                        Success = false,
+                        ErrorMessage = e.Message
+                    });
+                }
             });
         }
 
