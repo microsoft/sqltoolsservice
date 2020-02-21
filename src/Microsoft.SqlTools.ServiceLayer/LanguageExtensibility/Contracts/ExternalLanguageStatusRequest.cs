@@ -5,7 +5,7 @@
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensions.Contracts
+namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensibility.Contracts
 {
     public class ExternalLanguageStatusRequestParams
     {
@@ -38,6 +38,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensions.Contracts
     {
         public static readonly
             RequestType<ExternalLanguageStatusRequestParams, ExternalLanguageStatusResponseParams> Type =
-                RequestType<ExternalLanguageStatusRequestParams, ExternalLanguageStatusResponseParams>.Create("languageextension/status");
+                RequestType<ExternalLanguageStatusRequestParams, ExternalLanguageStatusResponseParams>.Create("languageExtension/status");
     }
 }
