@@ -70,7 +70,6 @@ namespace Microsoft.Kusto.ServiceLayer
             // Initialize and register singleton services so they're accessible for any MEF service. In the future, these
             // could be updated to be IComposableServices, which would avoid the requirement to define a singleton instance
             // and instead have MEF handle discovery & loading
-            // TODOKusto: Complete review of all services below. Do we need these for Kusto.
             WorkspaceService<SqlToolsSettings>.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(WorkspaceService<SqlToolsSettings>.Instance);
 
