@@ -29,11 +29,20 @@
             "cwd": "${workspaceFolder}/src/Microsoft.Kusto.ServiceLayer",
             // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
             "console": "externalTerminal",
-            "stopAtEntry": true,
+            "stopAtEntry": false,
             "internalConsoleOptions": "openOnSessionStart"
         },
         {
             "name": ".NET Core Attach",
+            "type": "coreclr",
+            "request": "attach",
+            "processId": "${command:pickProcess}",
+            "requireExactSource": false,
+            "justMyCode": false,
+            "enableStepFiltering": false
+        },
+        {
+            "name": "Kusto Core Attach",
             "type": "coreclr",
             "request": "attach",
             "processId": "${command:pickProcess}",
