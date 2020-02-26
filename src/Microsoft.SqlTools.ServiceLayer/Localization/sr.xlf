@@ -1590,7 +1590,7 @@
         <source>Azure SQL Stretch Database</source>
         <target state="new">Azure SQL Stretch Database</target>
         <note></note>
-      </trans-unit>	  
+      </trans-unit>
       <trans-unit id="AzureSqlAnalyticsOnDemandEdition">
         <source>Azure SQL Analytics on-demand</source>
         <target state="new">Azure SQL Analytics on-demand</target>
@@ -2028,6 +2028,33 @@
         <target state="new">Cannot serialize more data as no request for file {0} could be found</target>
         <note>.
  Parameters: 0 - filePath (string) </note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringInvalidColumnEncryptionSetting">
+        <source>Invalid value '{0}' for ComlumEncryption. Valid values are 'Enabled' and 'Disabled'.</source>
+        <target state="new">Invalid value '{0}' for ComlumEncryption. Valid values are 'Enabled' and 'Disabled'.</target>
+        <note>.
+ Parameters: 0 - columnEncryptionSetting (string) </note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol">
+        <source>Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS' and 'HGS'.</source>
+        <target state="new">Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS' and 'HGS'.</target>
+        <note>.
+ Parameters: 0 - enclaveAttestationProtocol (string) </note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination">
+        <source>The Attestation Protocol and Enclave Attestation URL requires Always Encrypted to be set to Enabled.</source>
+        <target state="new">The Attestation Protocol and Enclave Attestation URL requires Always Encrypted to be set to Enabled.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SqlCmdExitOnError">
+        <source>An error was encountered during execution of batch. Exiting.</source>
+        <target state="new">An error was encountered during execution of batch. Exiting.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SqlCmdUnsupportedToken">
+        <source>Encountered unsupported token {0}</source>
+        <target state="new">Encountered unsupported token {0}</target>
+        <note></note>
       </trans-unit>
     </body>
   </file>
