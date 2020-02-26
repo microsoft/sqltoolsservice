@@ -2972,6 +2972,15 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+
+        public static string ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -2997,10 +3006,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.ConnectionServiceConnStringInvalidEnclaveAttestationProtocol, enclaveAttestationProtocol);
         }
 
-        public static string ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination()
-        {
-            return Keys.GetString(Keys.ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination);
-        }
 
         public static string ConnectionServiceConnStringInvalidIntent(string intent)
         {
@@ -3318,7 +3323,7 @@ namespace Microsoft.SqlTools.ServiceLayer
 
             public const string QueryServiceExecutionPlanNotFound = "QueryServiceExecutionPlanNotFound";
 
-            
+
             public const string SqlCmdExitOnError = "SqlCmdExitOnError";
 
 
