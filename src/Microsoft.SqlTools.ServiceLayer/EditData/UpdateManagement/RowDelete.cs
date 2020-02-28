@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         }
 
         /// <summary>
-        /// Sort ID for a RowDelete object. Setting to 2 ensures that these are the LAST changes 
+        /// Sort ID for a RowDelete object. Setting to 2 ensures that these are the LAST changes
         /// to be committed
         /// </summary>
         protected override int SortId => 2;
@@ -65,13 +65,40 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 
             // Return a SqlCommand with formatted with the parameters from the where clause
             WhereClause where = GetWhereClause(true);
-            string commandText = GetCommandText(where.CommandText);
-
             DbCommand command = connection.CreateCommand();
+            string commandText = "";
+            if (!this.checkIfValid(connection, where))
+            {
+                commandText = " DECLARE @error NVARCHAR(100) = N'INVALID DELETE: rows with duplicate or text values are not currently supported';" + Environment.NewLine +
+                                                           " RAISERROR (@error, 16, 1)";
+            }
+            else
+            {
+                commandText = GetCommandText(where.CommandText);
+            }
+
             command.CommandText = commandText;
             command.Parameters.AddRange(where.Parameters.ToArray());
-
             return command;
+        }
+
+        private Boolean checkIfValid(DbConnection connection, WhereClause where)
+        {
+            string formatString = "SELECT COUNT(*) FROM {0} {1}";
+            string whereText = where.CommandText;
+            string commandText = string.Format(CultureInfo.InvariantCulture, formatString,
+                AssociatedObjectMetadata.EscapedMultipartName, whereText);
+            int number = 1;
+            using (DbCommand command = connection.CreateCommand()){
+                command.CommandText = commandText;
+                command.Parameters.AddRange(where.Parameters.ToArray());
+                number = (int)command.ExecuteScalar();
+                command.Parameters.Clear();
+            }
+            if(number != 1){
+                return false;
+            }
+            return true;
         }
 
         /// <summary>
