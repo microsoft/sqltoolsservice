@@ -398,7 +398,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             //    // If output path isn't provided, we'll use a temporary location
             //    outputPath = Path.GetTempFileName();
             //}
-            //else 
+            //else
             if (outputPath == null || outputPath.Trim() == string.Empty)
             {
                 // If output path is empty, that's an error
@@ -518,19 +518,23 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 {
                     // Get the command from the edit operation and execute it
                     using (DbCommand editCommand = editOperation.GetCommand(connection))
-                    try{
-                        using (DbDataReader reader = await editCommand.ExecuteReaderAsync())
+                        try
                         {
-                            // Apply the changes of the command to the result set
-                            await editOperation.ApplyChanges(reader);
+                            using (DbDataReader reader = await editCommand.ExecuteReaderAsync())
+                            {
+                                // Apply the changes of the command to the result set
+                                await editOperation.ApplyChanges(reader);
+                            }
                         }
-                    } catch (Exception e){
-                        //handle case of trying to delete duplicate or text tables.
-                        if(e.Message.Contains("INVALID DELETE")){
-                            EditCache.TryRemove(editOperation.RowId, out RowEditBase ex);
+                        catch (Exception e)
+                        {
+                            //handle case of trying to delete duplicate or text tables.
+                            if (e.Message.Contains("INVALID DELETE"))
+                            {
+                                EditCache.TryRemove(editOperation.RowId, out RowEditBase ex);
+                            }
+                            throw e;
                         }
-                        throw e;
-                    }
 
                     // If we succeeded in applying the changes, then remove this from the cache
                     // @TODO: Prevent edit sessions from being modified while a commit is in progress

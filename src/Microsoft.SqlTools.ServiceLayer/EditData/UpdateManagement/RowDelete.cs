@@ -89,17 +89,21 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             string commandText = string.Format(CultureInfo.InvariantCulture, formatString,
                 AssociatedObjectMetadata.EscapedMultipartName, whereText);
             int number = 1;
-            using (DbCommand command = connection.CreateCommand()){
+            using (DbCommand command = connection.CreateCommand())
+            {
                 command.CommandText = commandText;
                 command.Parameters.AddRange(where.Parameters.ToArray());
-                using(DbDataReader reader = command.ExecuteReader()){
-                    if(reader != null && reader.HasRows && reader.Read()){
-                        number = (int) reader.GetValue(0);
+                using (DbDataReader reader = command.ExecuteReader())
+                {
+                    if (reader != null && reader.HasRows && reader.Read())
+                    {
+                        number = (int)reader.GetValue(0);
                     }
                 };
                 command.Parameters.Clear();
             }
-            if(number != 1){
+            if (number != 1)
+            {
                 return false;
             }
             return true;
