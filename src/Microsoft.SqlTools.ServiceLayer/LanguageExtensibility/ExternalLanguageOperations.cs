@@ -5,6 +5,7 @@
 
 using Microsoft.SqlTools.ServiceLayer.LanguageExtensibility.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Management;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using System;
 using System.Collections.Generic;
@@ -147,7 +148,7 @@ ORDER BY platform";
             ExternalLanguage currentLanguage = GetLanguage(connection, language.Name);
             if (currentLanguage == null)
             {
-                ExecuteNonQuery(connection, GetCreateScript(language, parameters), parameters);
+                QueryUtils.ExecuteNonQuery(connection, GetCreateScript(language, parameters), parameters);
             }
             else
             {
@@ -156,11 +157,11 @@ ORDER BY platform";
                     var currentContent = currentLanguage.Contents.FirstOrDefault(x => x.PlatformId == content.PlatformId);
                     if (currentContent != null)
                     {
-                        ExecuteNonQuery(connection, GetUpdateScript(language, content, parameters, ContentModifyType.Modify), parameters);
+                        QueryUtils.ExecuteNonQuery(connection, GetUpdateScript(language, content, parameters, ContentModifyType.Modify), parameters);
                     }
                     else
                     {
-                        ExecuteNonQuery(connection, GetUpdateScript(language, content, parameters, ContentModifyType.Add), parameters);
+                        QueryUtils.ExecuteNonQuery(connection, GetUpdateScript(language, content, parameters, ContentModifyType.Add), parameters);
 
                     }
                 }
@@ -169,7 +170,7 @@ ORDER BY platform";
                     var content = language.Contents.FirstOrDefault(x => x.PlatformId == currentContent.PlatformId);
                     if (content == null)
                     {
-                        ExecuteNonQuery(connection, GetUpdateScript(language, currentContent, parameters, ContentModifyType.Remove), parameters);
+                        QueryUtils.ExecuteNonQuery(connection, GetUpdateScript(language, currentContent, parameters, ContentModifyType.Remove), parameters);
 
                     }
                 }
@@ -183,7 +184,7 @@ ORDER BY platform";
                 throw new LanguageExtensibilityException($"Failed to delete language. language name is empty");
             }
             Dictionary<string, object> parameters = new Dictionary<string, object>();
-            ExecuteNonQuery(connection, GetDropScript(languageName), parameters);
+            QueryUtils.ExecuteNonQuery(connection, GetDropScript(languageName), parameters);
         }
 
         /// <summary>
@@ -299,14 +300,7 @@ ORDER BY platform";
             string contentScript = string.Empty;
             if (content.IsLocalFile)
             {
-                byte[] contentBytes;
-                using (var stream = new FileStream(content.PathToExtension, FileMode.Open, FileAccess.Read))
-                {
-                    using (var reader = new BinaryReader(stream))
-                    {
-                        contentBytes = reader.ReadBytes((int)stream.Length);
-                    }
-                }
+                byte[] contentBytes = FileUtilities.GetFileContent(content.PathToExtension);
                 parameters.Add($"{ContentParamName}{postfix}", contentBytes);
                 contentScript = $"CONTENT = @{ContentParamName}{postfix}";
             }
@@ -321,23 +315,6 @@ ORDER BY platform";
                       {AddStringParameter(ParametersParamName, prefix, content.Parameters)}
                       {AddStringParameter(EnvVariablesParamName, prefix, content.EnvironmentVariables)}
                       )";
-        }
-
-        private void ExecuteNonQuery(IDbConnection connection, string script, Dictionary<string, object> parameters)
-        {
-            using (IDbCommand command = connection.CreateCommand())
-            {
-                command.CommandText = script;
-                foreach (var item in parameters)
-                {
-                    var parameter = command.CreateParameter();
-                    parameter.ParameterName = item.Key;
-                    parameter.Value = item.Value;
-                    command.Parameters.Add(parameter);
-                }
-
-                command.ExecuteNonQuery();
-            }
         }
     }
 }

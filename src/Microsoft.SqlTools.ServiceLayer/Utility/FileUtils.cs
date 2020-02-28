@@ -157,5 +157,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                 return new ResolvedFile(filePath, clientUri, false);
             }
         }
+
+        public static byte[] GetFileContent(string filePath)
+        {
+            byte[] contentBytes;
+            using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            {
+                using (var reader = new BinaryReader(stream))
+                {
+                    contentBytes = reader.ReadBytes((int)stream.Length);
+                }
+            }
+            return contentBytes;
+        }
     }
 }
