@@ -398,7 +398,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             //    // If output path isn't provided, we'll use a temporary location
             //    outputPath = Path.GetTempFileName();
             //}
-            //else
+            //else 
             if (outputPath == null || outputPath.Trim() == string.Empty)
             {
                 // If output path is empty, that's an error
@@ -536,7 +536,6 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                     // @TODO: Prevent edit sessions from being modified while a commit is in progress
                     RowEditBase re;
                     EditCache.TryRemove(editOperation.RowId, out re);
-
                 }
                 await successHandler();
             }
