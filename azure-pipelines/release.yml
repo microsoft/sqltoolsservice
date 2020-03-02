@@ -20,7 +20,7 @@ stages:
       inputs:
         buildType: 'specific'
         project: 'ae14e11c-7eb2-46af-b588-471e6116d635'
-        definition: '60'
+        definition: '309'
         specificBuildWithTriggering: true
         buildVersionToDownload: 'latest'
         artifactName: 'source'
@@ -31,7 +31,7 @@ stages:
       inputs:
         buildType: 'specific'
         project: 'ae14e11c-7eb2-46af-b588-471e6116d635'
-        definition: '60'
+        definition: '309'
         specificBuildWithTriggering: true
         buildVersionToDownload: 'latest'
         artifactName: 'drop'
