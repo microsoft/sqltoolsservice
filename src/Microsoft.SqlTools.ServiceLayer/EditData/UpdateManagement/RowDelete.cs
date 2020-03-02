@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         }
 
         /// <summary>
-        /// Sort ID for a RowDelete object. Setting to 2 ensures that these are the LAST changes
+        /// Sort ID for a RowDelete object. Setting to 2 ensures that these are the LAST changes 
         /// to be committed
         /// </summary>
         protected override int SortId => 2;
@@ -73,7 +73,6 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 
             return command;
         }
-
 
         /// <summary>
         /// Generates a edit row that represents a row pending deletion. All the original cells are

@@ -529,8 +529,6 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                     RowEditBase re;
                     EditCache.TryRemove(editOperation.RowId, out re);
                 }
-
-
                 await successHandler();
             }
             catch (Exception e)
