@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
     /// Base class for row edit operations. Provides basic information and helper functionality
     /// that all RowEdit implementations can use. Defines functionality that must be implemented
     /// in all child classes. Implements a custom IComparable to enable sorting by type of the edit
-    /// and then by an overrideable 
+    /// and then by an overrideable
     /// </summary>
     public abstract class RowEditBase : IComparable<RowEditBase>
     {
@@ -181,34 +181,33 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                 }
                 else
                 {
-                    if (cellData.RawObject is byte[] ||
-                        col.DbColumn.DataTypeName.Equals("TEXT", StringComparison.OrdinalIgnoreCase) ||
-                        col.DbColumn.DataTypeName.Equals("NTEXT", StringComparison.OrdinalIgnoreCase))
+                    if (parameterize)
                     {
-                        // Special cases for byte[] and TEXT/NTEXT types
-                        cellDataClause = "IS NOT NULL";
-                    }
-                    else
-                    {
-                        // General case is to just use the value from the cell
-                        if (parameterize)
+                        // Add a parameter and parameterized clause component
+                        // NOTE: We include the row ID to make sure the parameter is unique if
+                        //       we execute multiple row edits at once.
+                        string paramName = $"@Param{RowId}{col.Ordinal}";
+                        if (cellData.RawObject is byte[] ||
+                            col.DbColumn.DataTypeName.Equals("TEXT", StringComparison.OrdinalIgnoreCase) ||
+                            col.DbColumn.DataTypeName.Equals("NTEXT", StringComparison.OrdinalIgnoreCase))
                         {
-                            // Add a parameter and parameterized clause component
-                            // NOTE: We include the row ID to make sure the parameter is unique if
-                            //       we execute multiple row edits at once.
-                            string paramName = $"@Param{RowId}{col.Ordinal}";
-                            cellDataClause = $"= {paramName}";
-                            SqlParameter parameter = new SqlParameter(paramName, col.DbColumn.SqlDbType)
-                            {
-                                Value = cellData.RawObject
-                            };
-                            output.Parameters.Add(parameter);
+                            // Special cases for byte[] and TEXT/NTEXT types
+                            cellDataClause = $"LIKE {paramName}";
                         }
                         else
                         {
-                            // Add the clause component with the formatted value
-                            cellDataClause = $"= {ToSqlScript.FormatValue(cellData, col.DbColumn)}";
+                            cellDataClause = $"= {paramName}";
                         }
+                        SqlParameter parameter = new SqlParameter(paramName, col.DbColumn.SqlDbType)
+                        {
+                            Value = cellData.RawObject
+                        };
+                        output.Parameters.Add(parameter);
+                    }
+                    else
+                    {
+                        // Add the clause component with the formatted value
+                        cellDataClause = $"= {ToSqlScript.FormatValue(cellData, col.DbColumn)}";
                     }
                 }
 
@@ -227,7 +226,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// Compares a row edit against another row edit. If they are the same type, then we
         /// compare using an overrideable "same type" comparer. If they are different types, they
         /// are sorted by their sort indexes.
-        /// 
+        ///
         /// In general, RowCreate and RowUpdates are sorted to the top. RowDeletes are sorted last.
         /// If there are ties, default behavior is to sort by row ID ascending.
         /// </summary>

@@ -20,8 +20,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
     /// </summary>
     public sealed class RowDelete : RowEditBase
     {
-        private const string DeleteStatement = "DELETE FROM {0} {1}";
-        private const string DeleteMemoryOptimizedStatement = "DELETE FROM {0} WITH(SNAPSHOT) {1}";
+        private const string DeleteStatement = "DELETE TOP (200) FROM {0} {1}";
+        private const string DeleteMemoryOptimizedStatement = "DELETE TOP (200) FROM {0} WITH(SNAPSHOT) {1}";
 
         /// <summary>
         /// Constructs a new RowDelete object
@@ -65,49 +65,15 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 
             // Return a SqlCommand with formatted with the parameters from the where clause
             WhereClause where = GetWhereClause(true);
-            DbCommand command = connection.CreateCommand();
-            string commandText = "";
-            if (!this.checkIfValid(connection, where))
-            {
-                commandText = " DECLARE @error NVARCHAR(100) = N'INVALID DELETE: rows with duplicate or text values are not currently supported';" + Environment.NewLine +
-                                                           " RAISERROR (@error, 16, 1)";
-            }
-            else
-            {
-                commandText = GetCommandText(where.CommandText);
-            }
+            string commandText = GetCommandText(where.CommandText);
 
+            DbCommand command = connection.CreateCommand();
             command.CommandText = commandText;
             command.Parameters.AddRange(where.Parameters.ToArray());
+
             return command;
         }
 
-        private Boolean checkIfValid(DbConnection connection, WhereClause where)
-        {
-            string formatString = "SELECT COUNT(*) FROM {0} {1}";
-            string whereText = where.CommandText;
-            string commandText = string.Format(CultureInfo.InvariantCulture, formatString,
-                AssociatedObjectMetadata.EscapedMultipartName, whereText);
-            int number = 1;
-            using (DbCommand command = connection.CreateCommand())
-            {
-                command.CommandText = commandText;
-                command.Parameters.AddRange(where.Parameters.ToArray());
-                using (DbDataReader reader = command.ExecuteReader())
-                {
-                    if (reader != null && reader.HasRows && reader.Read())
-                    {
-                        number = (int)reader.GetValue(0);
-                    }
-                };
-                command.Parameters.Clear();
-            }
-            if (number != 1)
-            {
-                return false;
-            }
-            return true;
-        }
 
         /// <summary>
         /// Generates a edit row that represents a row pending deletion. All the original cells are
