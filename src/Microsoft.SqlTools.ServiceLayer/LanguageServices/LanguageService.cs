@@ -434,26 +434,23 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             try
             {
+                var scriptFile = CurrentWorkspace.GetFile(textDocumentPosition.TextDocument.Uri);
+                if (scriptFile == null)
+                {
+                    await requestContext.SendResult(null);
+                    return;
+                }
                 // check if Intellisense suggestions are enabled
-                if (ShouldSkipIntellisense(textDocumentPosition.TextDocument.Uri))
+                if (ShouldSkipIntellisense(scriptFile.ClientUri))
                 {
                     await requestContext.SendResult(null);
                 }
                 else
                 {
                     // get the current list of completion items and return to client
-                    var scriptFile = CurrentWorkspace.GetFile(
-                        textDocumentPosition.TextDocument.Uri);
-                    if (scriptFile == null)
-                    {
-                        await requestContext.SendResult(null);
-                        return;
-                    }
-
-                    ConnectionInfo connInfo;
                     ConnectionServiceInstance.TryFindConnection(
                         scriptFile.ClientUri,
-                        out connInfo);
+                        out ConnectionInfo connInfo);
 
                     var completionItems = await GetCompletionItems(
                         textDocumentPosition, scriptFile, connInfo);
