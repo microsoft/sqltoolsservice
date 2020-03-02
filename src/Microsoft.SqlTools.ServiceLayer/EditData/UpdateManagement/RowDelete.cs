@@ -20,8 +20,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
     /// </summary>
     public sealed class RowDelete : RowEditBase
     {
-        private const string DeleteStatement = "DELETE TOP (200) FROM {0} {1}";
-        private const string DeleteMemoryOptimizedStatement = "DELETE TOP (200) FROM {0} WITH(SNAPSHOT) {1}";
+        private const string DeleteStatement = "DELETE FROM {0} {1}";
+        private const string DeleteMemoryOptimizedStatement = "DELETE FROM {0} WITH(SNAPSHOT) {1}";
 
         /// <summary>
         /// Constructs a new RowDelete object

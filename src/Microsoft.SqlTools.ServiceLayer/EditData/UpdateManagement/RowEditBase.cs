@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
     /// Base class for row edit operations. Provides basic information and helper functionality
     /// that all RowEdit implementations can use. Defines functionality that must be implemented
     /// in all child classes. Implements a custom IComparable to enable sorting by type of the edit
-    /// and then by an overrideable 
+    /// and then by an overrideable
     /// </summary>
     public abstract class RowEditBase : IComparable<RowEditBase>
     {
@@ -187,11 +187,10 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                         // NOTE: We include the row ID to make sure the parameter is unique if
                         //       we execute multiple row edits at once.
                         string paramName = $"@Param{RowId}{col.Ordinal}";
-                        if (cellData.RawObject is byte[] ||
-                            col.DbColumn.DataTypeName.Equals("TEXT", StringComparison.OrdinalIgnoreCase) ||
+                        if (col.DbColumn.DataTypeName.Equals("TEXT", StringComparison.OrdinalIgnoreCase) ||
                             col.DbColumn.DataTypeName.Equals("NTEXT", StringComparison.OrdinalIgnoreCase))
                         {
-                            // Special cases for byte[] and TEXT/NTEXT types
+                            // Special cases for TEXT/NTEXT types
                             cellDataClause = $"LIKE {paramName}";
                         }
                         else
@@ -226,7 +225,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// Compares a row edit against another row edit. If they are the same type, then we
         /// compare using an overrideable "same type" comparer. If they are different types, they
         /// are sorted by their sort indexes.
-        /// 
+        ///
         /// In general, RowCreate and RowUpdates are sorted to the top. RowDeletes are sorted last.
         /// If there are ties, default behavior is to sort by row ID ascending.
         /// </summary>
