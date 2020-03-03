@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
     /// Base class for row edit operations. Provides basic information and helper functionality
     /// that all RowEdit implementations can use. Defines functionality that must be implemented
     /// in all child classes. Implements a custom IComparable to enable sorting by type of the edit
-    /// and then by an overrideable 
+    /// and then by an overrideable
     /// </summary>
     public abstract class RowEditBase : IComparable<RowEditBase>
     {
@@ -187,16 +187,23 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                         // NOTE: We include the row ID to make sure the parameter is unique if
                         //       we execute multiple row edits at once.
                         string paramName = $"@Param{RowId}{col.Ordinal}";
-                        if (col.DbColumn.DataTypeName.Equals("TEXT", StringComparison.OrdinalIgnoreCase) ||
-                            col.DbColumn.DataTypeName.Equals("NTEXT", StringComparison.OrdinalIgnoreCase))
+                        if (cellData.RawObject is byte[])
                         {
-                            // Special cases for TEXT/NTEXT types
-                            cellDataClause = $"LIKE {paramName}";
+                            cellDataClause = $"= CONVERT (VARBINARY(MAX), {paramName})";
+                        }
+                        else if (col.DbColumn.DataTypeName.Equals("TEXT", StringComparison.OrdinalIgnoreCase) || (col.DbColumn.DataTypeName.Equals("TEXT", StringComparison.OrdinalIgnoreCase) ||
+                            col.DbColumn.DataTypeName.Equals("NTEXT", StringComparison.OrdinalIgnoreCase)))
+                        {
+                            // Special case for TEXT/NTEXT types.
+                            //NOTE: the types are not compatible with n/varchar so direct comparison
+                            //      will not work for these types, must convert first.
+                            cellDataClause = $"= CONVERT (NVARCHAR(MAX), {paramName})";
                         }
                         else
                         {
                             cellDataClause = $"= {paramName}";
                         }
+
                         SqlParameter parameter = new SqlParameter(paramName, col.DbColumn.SqlDbType)
                         {
                             Value = cellData.RawObject
@@ -210,7 +217,24 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                     }
                 }
 
-                string completeComponent = $"({col.EscapedName} {cellDataClause})";
+                string completeComponent;
+
+                if (cellData.RawObject is byte[])
+                {
+                    completeComponent = $"(CONVERT (VARBINARY(MAX), {col.EscapedName}) {cellDataClause})";
+                }
+
+                else if (col.DbColumn.DataTypeName.Equals("TEXT", StringComparison.OrdinalIgnoreCase) ||
+                            col.DbColumn.DataTypeName.Equals("NTEXT", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Special case for TEXT/NTEXT types as explained on line 197.
+                    completeComponent = $"(CONVERT (NVARCHAR(MAX), {col.EscapedName}) {cellDataClause})";
+                }
+                else
+                {
+                    completeComponent = $"({col.EscapedName} {cellDataClause})";
+                }
+
                 output.ClauseComponents.Add(completeComponent);
             }
 
@@ -225,7 +249,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// Compares a row edit against another row edit. If they are the same type, then we
         /// compare using an overrideable "same type" comparer. If they are different types, they
         /// are sorted by their sort indexes.
-        /// 
+        ///
         /// In general, RowCreate and RowUpdates are sorted to the top. RowDeletes are sorted last.
         /// If there are ties, default behavior is to sort by row ID ascending.
         /// </summary>
