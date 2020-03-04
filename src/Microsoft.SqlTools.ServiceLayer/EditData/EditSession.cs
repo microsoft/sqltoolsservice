@@ -398,7 +398,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             //    // If output path isn't provided, we'll use a temporary location
             //    outputPath = Path.GetTempFileName();
             //}
-            //else 
+            //else
             if (outputPath == null || outputPath.Trim() == string.Empty)
             {
                 // If output path is empty, that's an error
@@ -516,12 +516,24 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 editOperations.Sort();
                 foreach (var editOperation in editOperations)
                 {
-                    // Get the command from the edit operation and execute it
-                    using (DbCommand editCommand = editOperation.GetCommand(connection))
-                    using (DbDataReader reader = await editCommand.ExecuteReaderAsync())
+                    try
                     {
-                        // Apply the changes of the command to the result set
-                        await editOperation.ApplyChanges(reader);
+                        // Get the command from the edit operation and execute it
+                        using (DbCommand editCommand = editOperation.GetCommand(connection))
+                        using (DbDataReader reader = await editCommand.ExecuteReaderAsync())
+                        {
+                            // Apply the changes of the command to the result set
+                            await editOperation.ApplyChanges(reader);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        if (e.ToString().Contains("delete"))
+                        {
+                            //clear EditCache to allow for deletion of other rows.
+                            EditCache.TryRemove(editOperation.RowId, out RowEditBase xe);
+                        }
+                        throw;
                     }
 
                     // If we succeeded in applying the changes, then remove this from the cache

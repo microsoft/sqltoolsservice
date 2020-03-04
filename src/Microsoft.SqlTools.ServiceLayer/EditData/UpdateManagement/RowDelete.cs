@@ -12,6 +12,7 @@ using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.Utility;
+using Microsoft.Data.SqlClient;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 {
@@ -22,6 +23,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
     {
         private const string DeleteStatement = "DELETE FROM {0} {1}";
         private const string DeleteMemoryOptimizedStatement = "DELETE FROM {0} WITH(SNAPSHOT) {1}";
+
+        private const string VerifyStatement = "SELECT COUNT (*) FROM ";
 
         /// <summary>
         /// Constructs a new RowDelete object
@@ -35,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         }
 
         /// <summary>
-        /// Sort ID for a RowDelete object. Setting to 2 ensures that these are the LAST changes 
+        /// Sort ID for a RowDelete object. Setting to 2 ensures that these are the LAST changes
         /// to be committed
         /// </summary>
         protected override int SortId => 2;
@@ -66,12 +69,37 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             // Return a SqlCommand with formatted with the parameters from the where clause
             WhereClause where = GetWhereClause(true);
             string commandText = GetCommandText(where.CommandText);
+            string verifyText = GetVerifyText(where.CommandText);
+            if (!verifyCommand(where, verifyText, connection)){
+                throw new Exception("This action will delete more than one row!");
+            }
 
             DbCommand command = connection.CreateCommand();
             command.CommandText = commandText;
             command.Parameters.AddRange(where.Parameters.ToArray());
 
             return command;
+        }
+
+        private bool verifyCommand(WhereClause where, string input, DbConnection connection){
+            bool verifyStatus = true;
+            DbCommand command = connection.CreateCommand();
+            command.CommandText = input;
+            command.Parameters.AddRange(where.Parameters.ToArray());
+            DbDataReader reader = command.ExecuteReader();
+            try {
+                while (reader.Read()){
+                    if(reader.GetInt32(0) != 1){
+                        verifyStatus = false;
+                    }
+                }
+                reader.Close();
+                command.Parameters.Clear();
+                command.Dispose();
+            } catch {
+                throw;
+            }
+            return verifyStatus;
         }
 
         /// <summary>
@@ -129,6 +157,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             // If we delete from the top first, it will change IDs, making all subsequent deletes
             // off by one or more!
             return RowId.CompareTo(rowEdit.RowId) * -1;
+        }
+
+        private string GetVerifyText(string whereText)
+        {
+            return VerifyStatement + AssociatedObjectMetadata.EscapedMultipartName + whereText;
         }
 
         private string GetCommandText(string whereText)
