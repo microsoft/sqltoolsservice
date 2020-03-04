@@ -12,10 +12,29 @@ using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.Utility;
-using Microsoft.Data.SqlClient;
 
 namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 {
+    /// <summary>
+    /// Represents a row that should be deleted. This will generate a DELETE statement
+    /// </summary>
+    public class DeleteError : Exception
+    {
+        public DeleteError()
+        {
+        }
+
+        public DeleteError(string message)
+            : base(message)
+        {
+        }
+
+        public DeleteError(string message, Exception inner)
+            : base(message, inner)
+        {
+        }
+    }
+
     /// <summary>
     /// Represents a row that should be deleted. This will generate a DELETE statement
     /// </summary>
@@ -69,8 +88,9 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             WhereClause where = GetWhereClause(true);
             string commandText = GetCommandText(where.CommandText);
             string verifyText = GetVerifyText(where.CommandText);
-            if (!verifyCommand(where, verifyText, connection)){
-                throw new Exception("This action will delete more than one row!");
+            if (VerifyCommand(where, verifyText, connection))
+            {
+                throw new DeleteError("This action will delete more than one row!");
             }
 
             DbCommand command = connection.CreateCommand();
@@ -80,22 +100,28 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             return command;
         }
 
-        private bool verifyCommand(WhereClause where, string input, DbConnection connection){
-            bool verifyStatus = true;
+        private bool VerifyCommand(WhereClause where, string input, DbConnection connection)
+        {
+            bool verifyStatus = false;
             DbCommand command = connection.CreateCommand();
             command.CommandText = input;
             command.Parameters.AddRange(where.Parameters.ToArray());
             DbDataReader reader = command.ExecuteReader();
-            try {
-                while (reader.Read()){
-                    if(reader.GetInt32(0) != 1){
-                        verifyStatus = false;
+            try
+            {
+                while (reader.Read())
+                {
+                    if (reader.GetInt32(0) != 1)
+                    {
+                        verifyStatus = true;
                     }
                 }
                 reader.Close();
                 command.Parameters.Clear();
                 command.Dispose();
-            } catch {
+            }
+            catch
+            {
                 //Likely means there was nothing found that matched the query.
             }
             return verifyStatus;
