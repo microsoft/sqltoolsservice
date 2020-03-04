@@ -23,7 +23,6 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
     {
         private const string DeleteStatement = "DELETE FROM {0} {1}";
         private const string DeleteMemoryOptimizedStatement = "DELETE FROM {0} WITH(SNAPSHOT) {1}";
-
         private const string VerifyStatement = "SELECT COUNT (*) FROM ";
 
         /// <summary>
@@ -38,7 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         }
 
         /// <summary>
-        /// Sort ID for a RowDelete object. Setting to 2 ensures that these are the LAST changes
+        /// Sort ID for a RowDelete object. Setting to 2 ensures that these are the LAST changes 
         /// to be committed
         /// </summary>
         protected override int SortId => 2;
