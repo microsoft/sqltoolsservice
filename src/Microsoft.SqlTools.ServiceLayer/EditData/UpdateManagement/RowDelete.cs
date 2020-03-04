@@ -16,7 +16,7 @@ using Microsoft.SqlTools.Utility;
 namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 {
     /// <summary>
-    /// Represents a row that should be deleted. This will generate a DELETE statement
+    /// An error indicating that a delete action will delete multiple rows.
     /// </summary>
     public class DeleteError : Exception
     {
@@ -56,7 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         }
 
         /// <summary>
-        /// Sort ID for a RowDelete object. Setting to 2 ensures that these are the LAST changes 
+        /// Sort ID for a RowDelete object. Setting to 2 ensures that these are the LAST changes
         /// to be committed
         /// </summary>
         protected override int SortId => 2;
@@ -88,7 +88,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             WhereClause where = GetWhereClause(true);
             string commandText = GetCommandText(where.CommandText);
             string verifyText = GetVerifyText(where.CommandText);
-            if (VerifyCommand(where, verifyText, connection))
+            if (checkWhereDuplicate(where, verifyText, connection))
             {
                 throw new DeleteError("This action will delete more than one row!");
             }
@@ -100,29 +100,34 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             return command;
         }
 
-        private bool VerifyCommand(WhereClause where, string input, DbConnection connection)
+        /// <summary>
+        /// Runs a query using the where clause to determine if duplicates are found (causes issues when deleting).
+        /// </summary>
+        private bool checkWhereDuplicate(WhereClause where, string input, DbConnection connection)
         {
             bool verifyStatus = false;
-            DbCommand command = connection.CreateCommand();
-            command.CommandText = input;
-            command.Parameters.AddRange(where.Parameters.ToArray());
-            DbDataReader reader = command.ExecuteReader();
-            try
+            using (DbCommand command = connection.CreateCommand())
             {
-                while (reader.Read())
+                command.CommandText = input;
+                command.Parameters.AddRange(where.Parameters.ToArray());
+                using (DbDataReader reader = command.ExecuteReader())
                 {
-                    if (reader.GetInt32(0) != 1)
+                    try
                     {
-                        verifyStatus = true;
+                        while (reader.Read())
+                        {
+                            if (reader.GetInt32(0) != 1)
+                            {
+                                verifyStatus = true;
+                            }
+                        }
+                        reader.Close();
+                    }
+                    catch
+                    {
+                        //Likely means there was nothing found that matched the query.
                     }
                 }
-                reader.Close();
-                command.Parameters.Clear();
-                command.Dispose();
-            }
-            catch
-            {
-                //Likely means there was nothing found that matched the query.
             }
             return verifyStatus;
         }
@@ -186,7 +191,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 
         private string GetVerifyText(string whereText)
         {
-            return VerifyStatement + AssociatedObjectMetadata.EscapedMultipartName + whereText;
+            return $"{VerifyStatement}{AssociatedObjectMetadata.EscapedMultipartName}{whereText}";;
         }
 
         private string GetCommandText(string whereText)
