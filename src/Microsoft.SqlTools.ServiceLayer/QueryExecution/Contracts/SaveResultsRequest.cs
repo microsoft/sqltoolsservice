@@ -100,6 +100,37 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     }
 
     /// <summary>
+    /// Parameters to save results as CSV
+    /// </summary>
+    public class SaveResultsAsTextRequestParams: SaveResultsRequestParams
+    {
+        /// <summary>
+        /// Include headers of columns in text 
+        /// </summary>
+        public bool IncludeHeaders { get; set; }
+
+        /// <summary>
+        /// Delimiter for separating data items in text
+        /// </summary>
+        public string Delimiter { get; set; }
+
+        /// <summary>
+        /// either CR, CRLF or LF to seperate rows in text
+        /// </summary>
+        public string LineSeperator { get; set; }
+
+        /// <summary>
+        /// Text identifier for alphanumeric columns in text
+        /// </summary>
+        public string TextIdentifier { get; set; }
+
+        /// <summary>
+        /// Encoding of the text file
+        /// </summary>
+        public string Encoding { get; set; }
+    }
+
+    /// <summary>
     /// Parameters to save results as Excel
     /// </summary>
     public class SaveResultsAsExcelRequestParams : SaveResultsRequestParams
@@ -153,6 +184,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public static readonly
             RequestType<SaveResultsAsCsvRequestParams, SaveResultRequestResult> Type =
             RequestType<SaveResultsAsCsvRequestParams, SaveResultRequestResult>.Create("query/saveCsv");
+    }
+
+    /// <summary>
+    /// Request type to save results as text
+    /// </summary>
+    public class SaveResultsAsTextRequest
+    {
+        public static readonly
+            RequestType<SaveResultsAsTextRequestParams, SaveResultRequestResult> Type =
+            RequestType<SaveResultsAsTextRequestParams, SaveResultRequestResult>.Create("query/saveText");
     }
 
     /// <summary>

@@ -171,6 +171,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             serviceHost.SetRequestHandler(QueryDisposeRequest.Type, HandleDisposeRequest);
             serviceHost.SetRequestHandler(QueryCancelRequest.Type, HandleCancelRequest);
             serviceHost.SetRequestHandler(SaveResultsAsCsvRequest.Type, HandleSaveResultsAsCsvRequest);
+            serviceHost.SetRequestHandler(SaveResultsAsTextRequest.Type, HandleSaveResultsAsTextRequest);
             serviceHost.SetRequestHandler(SaveResultsAsExcelRequest.Type, HandleSaveResultsAsExcelRequest);
             serviceHost.SetRequestHandler(SaveResultsAsJsonRequest.Type, HandleSaveResultsAsJsonRequest);
             serviceHost.SetRequestHandler(SaveResultsAsXmlRequest.Type, HandleSaveResultsAsXmlRequest);
@@ -490,6 +491,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {
             // Use the default CSV file factory if we haven't overridden it
             IFileStreamFactory csvFactory = CsvFileFactory ?? new SaveAsCsvFileStreamFactory
+            {
+                SaveRequestParams = saveParams,
+                QueryExecutionSettings = Settings.QueryExecutionSettings
+            };
+            await SaveResultsHelper(saveParams, requestContext, csvFactory);
+        }
+
+        /// <summary>
+        /// Process request to save a resultSet to a file in CSV format
+        /// </summary>
+        internal async Task HandleSaveResultsAsTextRequest(SaveResultsAsTextRequestParams saveParams,
+            RequestContext<SaveResultRequestResult> requestContext)
+        {
+            // Use the default text file factory if we haven't overridden it
+            IFileStreamFactory csvFactory = CsvFileFactory ?? new SaveAsTextFileStreamFactory
             {
                 SaveRequestParams = saveParams,
                 QueryExecutionSettings = Settings.QueryExecutionSettings

@@ -255,6 +255,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             SaveRequestParams = CreateExcelRequestParams()
                         };
                         break;
+                    case "text":
+                        factory = new SaveAsTextFileStreamFactory()
+                        {
+                            SaveRequestParams = CreateTextRequestParams()
+                        };
+                        break;
                     default:
                         throw new Exception(SR.SerializationServiceUnsupportedFormat(this.requestParams.SaveFormat));
                 }
@@ -292,6 +298,20 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private SaveResultsAsCsvRequestParams CreateCsvRequestParams()
         {
             return new SaveResultsAsCsvRequestParams
+            {
+                FilePath = this.requestParams.FilePath,
+                BatchIndex = 0,
+                ResultSetIndex = 0,
+                IncludeHeaders = this.requestParams.IncludeHeaders,
+                Delimiter = this.requestParams.Delimiter,
+                LineSeperator = this.requestParams.LineSeparator,
+                TextIdentifier = this.requestParams.TextIdentifier,
+                Encoding = this.requestParams.Encoding
+            };
+        }
+        private SaveResultsAsTextRequestParams CreateTextRequestParams()
+        {
+            return new SaveResultsAsTextRequestParams
             {
                 FilePath = this.requestParams.FilePath,
                 BatchIndex = 0,

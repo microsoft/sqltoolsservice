@@ -23,7 +23,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         #region Constants
 
         private const int DefaultBufferSize = 8192;
-        private const string DateFormatString = "yyyy-MM-dd";
+        public static string DateFormatString = "yyyy-MM-dd";
+        public static string DateTimeFormatString = "yyyy-MM-dd HH:mm:ss.fff";
         private const string TimeFormatString = "HH:mm:ss";
 
         #endregion
