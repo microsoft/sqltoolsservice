@@ -23,6 +23,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
                 Password = details.Password,
                 AuthenticationType = details.AuthenticationType,
                 ColumnEncryptionSetting = details.ColumnEncryptionSetting,
+                EnclaveAttestationProtocol = details.EnclaveAttestationProtocol,
+                EnclaveAttestationUrl = details.EnclaveAttestationUrl,
                 Encrypt = details.Encrypt,
                 TrustServerCertificate = details.TrustServerCertificate,
                 PersistSecurityInfo = details.PersistSecurityInfo,

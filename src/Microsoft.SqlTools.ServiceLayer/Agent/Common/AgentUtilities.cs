@@ -245,7 +245,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     if (steps.Contains(subEntry.StepName))
                     {                                              
                         var jobId = jobRow[UrnJobId].ToString();
-                        jobSteps.Add(AgentUtilities.ConvertToAgentJobStep(steps.ItemById(Convert.ToInt32(subEntry.StepID)), logEntry, jobId));
+                        jobSteps.Add(AgentUtilities.ConvertToAgentJobStep(steps.ItemById(Convert.ToInt32(subEntry.StepID)), subEntry, jobId));
                     }
                 }
                 jobHistoryInfo.Steps = jobSteps.ToArray();

@@ -1588,8 +1588,8 @@
         <note></note>
       </trans-unit>
       <trans-unit id="general_default">
-        <source>&lt;default&gt;</source>
-        <target state="new">&lt;default&gt;</target>
+        <source>&amp;lt;default&amp;gt;</source>
+        <target state="new">&amp;lt;default&amp;gt;</target>
         <note></note>
       </trans-unit>
       <trans-unit id="general_fileGroup">
@@ -1613,8 +1613,8 @@
         <note></note>
       </trans-unit>
       <trans-unit id="general_newFilegroup">
-        <source>&lt;new filegroup&gt;</source>
-        <target state="new">&lt;new filegroup&gt;</target>
+        <source>&amp;lt;new filegroup&amp;gt;</source>
+        <target state="new">&amp;lt;new filegroup&amp;gt;</target>
         <note></note>
       </trans-unit>
       <trans-unit id="general_path">
@@ -1628,8 +1628,8 @@
         <note></note>
       </trans-unit>
       <trans-unit id="general_rawDevice">
-        <source>&lt;raw device&gt;</source>
-        <target state="new">&lt;raw device&gt;</target>
+        <source>&amp;lt;raw device&amp;gt;</source>
+        <target state="new">&amp;lt;raw device&amp;gt;</target>
         <note></note>
       </trans-unit>
       <trans-unit id="general_recoveryModel_bulkLogged">
@@ -1913,8 +1913,8 @@
         <note></note>
       </trans-unit>
       <trans-unit id="prototype_file_defaultpathstring">
-        <source>&lt;default path&gt;</source>
-        <target state="new">&lt;default path&gt;</target>
+        <source>&amp;lt;default path&amp;gt;</source>
+        <target state="new">&amp;lt;default path&amp;gt;</target>
         <note></note>
       </trans-unit>
       <trans-unit id="title_openConnectionsMustBeClosed">
