@@ -37,7 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         }
 
         /// <summary>
-        /// Sort ID for a RowDelete object. Setting to 2 ensures that these are the LAST changes 
+        /// Sort ID for a RowDelete object. Setting to 2 ensures that these are the LAST changes
         /// to be committed
         /// </summary>
         protected override int SortId => 2;
@@ -96,7 +96,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                 command.Parameters.Clear();
                 command.Dispose();
             } catch {
-                throw;
+                //Likely means there was nothing found that matched the query.
             }
             return verifyStatus;
         }
