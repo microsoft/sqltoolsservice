@@ -191,7 +191,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 
         private string GetVerifyText(string whereText)
         {
-            return $"{VerifyStatement}{AssociatedObjectMetadata.EscapedMultipartName}{whereText}";;
+            return $"{VerifyStatement}{AssociatedObjectMetadata.EscapedMultipartName} {whereText}";
         }
 
         private string GetCommandText(string whereText)
