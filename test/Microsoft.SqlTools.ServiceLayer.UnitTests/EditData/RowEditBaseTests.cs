@@ -297,7 +297,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
                 // ... The component should contain the name of the column and the value
                 Assert.True(wc.ClauseComponents[0].Contains(AssociatedObjectMetadata.Columns.First().EscapedName));
-                Regex r = new Regex(@"\(CONVERT \([A-Z]*\(MAX\), " + AssociatedObjectMetadata.Columns.First().EscapedName + @"\) = [A-Za-z0-9']+\)");
+                Regex r = new Regex($@"\(CONVERT \([A-Z]*\(MAX\), {AssociatedObjectMetadata.Columns.First().EscapedName}\) = [A-Za-z0-9']+\)");
                 Assert.True(r.IsMatch(wc.ClauseComponents[0]));
 
                 // ... The complete clause should contain a single WHERE
