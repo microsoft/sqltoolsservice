@@ -75,22 +75,29 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
         [Theory]
         [MemberData(nameof(GetWhereClauseIsNotNullData))]
-        public async Task GetWhereClauseSimple(DbColumn col, object val, string nullClause)
+        public async Task GetWhereClauseSimple(DbColumn col, object val, string checkClause)
         {
             // Setup: Create a result set and metadata provider with a single column
-            var cols = new[] {col};
-            ResultSet rs = await GetResultSet(cols, new[] {val});
+            var cols = new[] { col };
+            ResultSet rs = await GetResultSet(cols, new[] { val });
             EditTableMetadata etm = Common.GetCustomEditTableMetadata(cols);
 
             RowEditTester rt = new RowEditTester(rs, etm);
-            rt.ValidateWhereClauseSingleKey(nullClause);
+            if (val == DBNull.Value)
+            {
+                rt.ValidateWhereClauseNullKey(checkClause);
+            }
+            else
+            {
+                rt.ValidateWhereClauseSingleKey(checkClause);
+            }
         }
 
         public static IEnumerable<object> GetWhereClauseIsNotNullData
         {
             get
             {
-                yield return new object[] {new TestDbColumn("col"), DBNull.Value, "IS NULL"};
+                yield return new object[] { new TestDbColumn("col"), DBNull.Value, "IS NULL" };
                 yield return new object[] {
                     new TestDbColumn
                     {
@@ -98,7 +105,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                         DataType = typeof(byte[])
                     },
                     new byte[5],
-                    "IS NOT NULL"
+                    "(CONVERT (VARBINARY(MAX), col) = 0x0000000000)"
                 };
                 yield return new object[]
                 {
@@ -128,8 +135,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         public async Task GetWhereClauseMultipleKeyColumns()
         {
             // Setup: Create a result set and metadata provider with multiple key columns
-            DbColumn[] cols = {new TestDbColumn("col1"), new TestDbColumn("col2")};
-            ResultSet rs = await GetResultSet(cols, new object[] {"abc", "def"});
+            DbColumn[] cols = { new TestDbColumn("col1"), new TestDbColumn("col2") };
+            ResultSet rs = await GetResultSet(cols, new object[] { "abc", "def" });
             EditTableMetadata etm = Common.GetCustomEditTableMetadata(cols);
 
             RowEditTester rt = new RowEditTester(rs, etm);
@@ -140,9 +147,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         public async Task GetWhereClauseNoKeyColumns()
         {
             // Setup: Create a result set and metadata provider with no key columns
-            DbColumn[] cols = {new TestDbColumn("col1"), new TestDbColumn("col2")};
-            ResultSet rs = await GetResultSet(cols, new object[] {"abc", "def"});
-            EditTableMetadata etm = Common.GetCustomEditTableMetadata(new DbColumn[] {});
+            DbColumn[] cols = { new TestDbColumn("col1"), new TestDbColumn("col2") };
+            ResultSet rs = await GetResultSet(cols, new object[] { "abc", "def" });
+            EditTableMetadata etm = Common.GetCustomEditTableMetadata(new DbColumn[] { });
 
             RowEditTester rt = new RowEditTester(rs, etm);
             rt.ValidateWhereClauseNoKeys();
@@ -237,10 +244,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
         private static async Task<ResultSet> GetResultSet(DbColumn[] columns, object[] row)
         {
-            object[][] rows = {row};
+            object[][] rows = { row };
             var testResultSet = new TestResultSet(columns, rows);
-            var testReader = new TestDbDataReader(new [] {testResultSet}, false);
-            var resultSet = new ResultSet(0,0, MemoryFileSystem.GetFileStreamFactory());
+            var testReader = new TestDbDataReader(new[] { testResultSet }, false);
+            var resultSet = new ResultSet(0, 0, MemoryFileSystem.GetFileStreamFactory());
             await resultSet.ReadResultToEnd(testReader, CancellationToken.None);
             return resultSet;
         }
@@ -255,15 +262,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             }
 
             // ReSharper disable once UnusedParameter.Local
-            public void ValidateWhereClauseSingleKey(string nullValue)
+            public void ValidateWhereClauseNullKey(string nullValue)
             {
                 // If: I generate a where clause with one is null column value
                 WhereClause wc = GetWhereClause(false);
-                
+
                 // Then:
                 // ... There should only be one component
                 Assert.Equal(1, wc.ClauseComponents.Count);
-                
+
                 // ... Parameterization should be empty
                 Assert.Empty(wc.Parameters);
 
@@ -271,6 +278,27 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 Assert.Equal(
                     $"({AssociatedObjectMetadata.Columns.First().EscapedName} {nullValue})",
                     wc.ClauseComponents[0]);
+
+                // ... The complete clause should contain a single WHERE
+                Assert.Equal($"WHERE {wc.ClauseComponents[0]}", wc.CommandText);
+            }
+
+            public void ValidateWhereClauseSingleKey(string nullValue)
+            {
+                // If: I generate a where clause with one is null column value
+                WhereClause wc = GetWhereClause(false);
+
+                // Then:
+                // ... There should only be one component
+                Assert.Equal(1, wc.ClauseComponents.Count);
+
+                // ... Parameterization should be empty
+                Assert.Empty(wc.Parameters);
+
+                // ... The component should contain the name of the column and the value
+                Assert.True(wc.ClauseComponents[0].Contains(AssociatedObjectMetadata.Columns.First().EscapedName));
+                Regex r = new Regex(@"\(CONVERT \([A-Z]*\(MAX\), " + AssociatedObjectMetadata.Columns.First().EscapedName + @"\) = [A-Za-z0-9']+\)");
+                Assert.True(r.IsMatch(wc.ClauseComponents[0]));
 
                 // ... The complete clause should contain a single WHERE
                 Assert.Equal($"WHERE {wc.ClauseComponents[0]}", wc.CommandText);
