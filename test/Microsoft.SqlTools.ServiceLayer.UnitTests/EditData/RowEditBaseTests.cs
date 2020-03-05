@@ -246,8 +246,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             object[][] rows = {row};
             var testResultSet = new TestResultSet(columns, rows);
-            var testReader = new TestDbDataReader(new[] { testResultSet }, false);
-            var resultSet = new ResultSet(0, 0, MemoryFileSystem.GetFileStreamFactory());
+            var testReader = new TestDbDataReader(new [] {testResultSet}, false);
+            var resultSet = new ResultSet(0,0, MemoryFileSystem.GetFileStreamFactory());
             await resultSet.ReadResultToEnd(testReader, CancellationToken.None);
             return resultSet;
         }
