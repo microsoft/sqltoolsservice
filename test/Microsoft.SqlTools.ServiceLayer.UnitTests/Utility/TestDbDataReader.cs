@@ -221,11 +221,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         {
             string allChars = ((string) RowEnumerator.Current[ordinal]);
             int x = 0;
-            if(allChars.Length != 1 || !Int32.TryParse(allChars.ToString(), out x) ){
+            if(allChars.Length != 1 || !Int32.TryParse(allChars.ToString(), out x) )
+            {
                 throw new InvalidCastException();
-            } else{
-                return x;
             }
+            return x;
         }
 
         public override short GetInt16(int ordinal)
