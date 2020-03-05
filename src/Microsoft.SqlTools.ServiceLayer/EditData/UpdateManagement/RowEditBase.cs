@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
     /// Base class for row edit operations. Provides basic information and helper functionality
     /// that all RowEdit implementations can use. Defines functionality that must be implemented
     /// in all child classes. Implements a custom IComparable to enable sorting by type of the edit
-    /// and then by an overrideable
+    /// and then by an overrideable 
     /// </summary>
     public abstract class RowEditBase : IComparable<RowEditBase>
     {
@@ -249,7 +249,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// Compares a row edit against another row edit. If they are the same type, then we
         /// compare using an overrideable "same type" comparer. If they are different types, they
         /// are sorted by their sort indexes.
-        ///
+        /// 
         /// In general, RowCreate and RowUpdates are sorted to the top. RowDeletes are sorted last.
         /// If there are ties, default behavior is to sort by row ID ascending.
         /// </summary>
