@@ -115,7 +115,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Equal(data.TableMetadata.EscapedMultipartName, tbl);
 
             // ... There should be as many where components as there are keys
-            string[] whereComponents = m.Groups[2].Value.Split(new[] {"AND"}, StringSplitOptions.None);
+            string[] whereComponents = m.Groups[2].Value.Split(new[] { "AND" }, StringSplitOptions.None);
             Assert.Equal(expectedKeys, whereComponents.Length);
 
             // ... Each component should have be equal to a parameter
@@ -201,8 +201,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         }
 
         [Fact]
-        public async Task GetVerifyQuery(){
-             // Setup: Create a row delete
+        public async Task GetVerifyQuery()
+        {
+            // Setup: Create a row delete
             Common.TestDbColumnsWithTableMetadata data = new Common.TestDbColumnsWithTableMetadata(false, false, 0, 0);
             var rs = await Common.GetResultSet(data.DbColumns, false);
             RowDelete rd = new RowDelete(0, rs, data.TableMetadata);
@@ -211,7 +212,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // If: I generate a verify command
             String verifyCommand = rd.GetVerifyScript();
 
-             // Then:
+            // Then:
             // ... The command should not be null
             Assert.NotNull(verifyCommand);
 
@@ -226,7 +227,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Equal(data.TableMetadata.EscapedMultipartName, tbl);
 
             // ... There should be as many where components as there are keys
-            string[] whereComponents = m.Groups[2].Value.Split(new[] {"AND"}, StringSplitOptions.None);
+            string[] whereComponents = m.Groups[2].Value.Split(new[] { "AND" }, StringSplitOptions.None);
             Assert.Equal(expectedKeys, whereComponents.Length);
         }
 

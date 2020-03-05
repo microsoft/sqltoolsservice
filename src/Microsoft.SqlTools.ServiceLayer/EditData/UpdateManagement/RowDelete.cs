@@ -105,7 +105,6 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// </summary>
         private bool checkWhereDuplicate(WhereClause where, string input, DbConnection connection)
         {
-            bool verifyStatus = false;
             using (DbCommand command = connection.CreateCommand())
             {
                 command.CommandText = input;
@@ -118,18 +117,16 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                         {
                             if (reader.GetInt32(0) != 1)
                             {
-                                verifyStatus = true;
+                                return true;
                             }
                         }
-                        reader.Close();
                     }
                     catch
                     {
-                        //Likely means there was nothing found that matched the query.
                     }
                 }
             }
-            return verifyStatus;
+            return false;
         }
 
         /// <summary>
@@ -163,7 +160,8 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// Generates a WHERE statement to verify the row delete is unique.
         /// </summary>
         /// <returns>String of the WHERE statement</returns>
-        public string GetVerifyScript(){
+        public string GetVerifyScript()
+        {
             return GetVerifyText(GetWhereClause(false).CommandText);
         }
 
