@@ -203,9 +203,20 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         [Fact]
         public async Task GetVerifyQuery()
         {
-            // Setup: Create a row delete
+            // Setup: Create a row update and set the first row cell to have values
+            // ... other than "1" for testing purposes (simulated select query result).
             Common.TestDbColumnsWithTableMetadata data = new Common.TestDbColumnsWithTableMetadata(false, false, 0, 0);
             var rs = await Common.GetResultSet(data.DbColumns, false);
+            RowUpdate ru = new RowUpdate(0, rs, data.TableMetadata);
+            object[][] rows =
+            {
+                new object[] {"2", "0", "0"},
+            };
+            var testResultSet = new TestResultSet(data.DbColumns, rows);
+            var newRowReader = new TestDbDataReader(new[] { testResultSet }, false);
+            await ru.ApplyChanges(newRowReader);
+
+            // ... Create a row delete.
             RowDelete rd = new RowDelete(0, rs, data.TableMetadata);
             int expectedKeys = 3;
 
@@ -229,6 +240,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... There should be as many where components as there are keys
             string[] whereComponents = m.Groups[2].Value.Split(new[] { "AND" }, StringSplitOptions.None);
             Assert.Equal(expectedKeys, whereComponents.Length);
+
+            // ... Mock db connection for building the command
+            var mockConn = new TestSqlConnection(new[] { testResultSet });
+
+            // If: I attempt to get a command for a simulated delete of a row with duplicates.
+            // Then: The Command will throw an exception as it detects there are
+            // ... more than 2 rows with the same value in the simulated query results data.
+            Assert.Throws<DeleteError>(() => rd.GetCommand(mockConn));
         }
 
         private async Task<RowDelete> GetStandardRowDelete()
