@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Common.TestDbColumnsWithTableMetadata data = new Common.TestDbColumnsWithTableMetadata(false, true, 0, 0);
             ResultSet rs = await Common.GetResultSet(data.DbColumns, true);
 
-            // If: I create a RowDelete instance
+            // If: I create a RowCreate instance
             RowDelete rc = new RowDelete(100, rs, data.TableMetadata);
 
             // Then: The values I provided should be available
@@ -201,21 +201,33 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         }
 
         [Fact]
-        public async Task TestDeleteDupe(){
-            // Setup:
-            // ... Create a row delete
-            Common.TestDbColumnsWithTableMetadata data = new Common.TestDbColumnsWithTableMetadata(false,false, 1, 1);
+        public async Task GetVerifyQuery(){
+             // Setup: Create a row delete
+            Common.TestDbColumnsWithTableMetadata data = new Common.TestDbColumnsWithTableMetadata(false, false, 0, 0);
             var rs = await Common.GetResultSet(data.DbColumns, false);
+            RowDelete rd = new RowDelete(0, rs, data.TableMetadata);
+            int expectedKeys = 3;
 
-            RowCreate rc1 = new RowCreate(0, rs, data.TableMetadata);
-            Common.AddCells(rc1, 1);
-            RowCreate rc2 = new RowCreate(1, rs, data.TableMetadata);
-            Common.AddCells(rc2, 1);
-            //RowDelete rd = new RowDelrs.AddRow()ete(0, rs, data.TableMetadata);
-            Assert.Equal(2, rs.RowCount);
+            // If: I generate a verify command
+            String verifyCommand = rd.GetVerifyScript();
 
-            Assert.True(true);
+             // Then:
+            // ... The command should not be null
+            Assert.NotNull(verifyCommand);
 
+            // ... It should be formatted into an where script
+            string regexTest = @"SELECT COUNT \(\*\) FROM (.+) WHERE (.+)";
+            Regex r = new Regex(regexTest);
+            var m = r.Match(verifyCommand);
+            Assert.True(m.Success);
+
+            // ... There should be a table
+            string tbl = m.Groups[1].Value;
+            Assert.Equal(data.TableMetadata.EscapedMultipartName, tbl);
+
+            // ... There should be as many where components as there are keys
+            string[] whereComponents = m.Groups[2].Value.Split(new[] {"AND"}, StringSplitOptions.None);
+            Assert.Equal(expectedKeys, whereComponents.Length);
         }
 
         private async Task<RowDelete> GetStandardRowDelete()

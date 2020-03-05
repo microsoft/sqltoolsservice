@@ -16,17 +16,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
     public class TestDbException : DbException
     {
     }
-    
+
     public class TestDbDataReader : DbDataReader, IDbColumnSchemaGenerator
     {
         #region Test Specific Implementations
-        
+
         private IEnumerable<TestResultSet> Data { get; }
 
         private IEnumerator<TestResultSet> ResultSetEnumerator { get; }
 
         private IEnumerator<object[]> RowEnumerator { get; set; }
-        
+
         private bool ThrowOnRead { get; }
 
         public TestDbDataReader(IEnumerable<TestResultSet> data, bool throwOnRead)
@@ -219,7 +219,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 
         public override int GetInt32(int ordinal)
         {
-            throw new NotImplementedException();
+            string allChars = ((string) RowEnumerator.Current[ordinal]);
+            int x = 0;
+            if(allChars.Length != 1 || !Int32.TryParse(allChars.ToString(), out x) ){
+                throw new InvalidCastException();
+            } else{
+                return x;
+            }
         }
 
         public override short GetInt16(int ordinal)
@@ -264,6 +270,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 
         public override bool IsClosed { get { throw new NotImplementedException(); } }
 
-        #endregion        
+        #endregion
     }
 }

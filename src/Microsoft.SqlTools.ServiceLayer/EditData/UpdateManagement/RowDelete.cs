@@ -160,6 +160,14 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         }
 
         /// <summary>
+        /// Generates a WHERE statement to verify the row delete is unique.
+        /// </summary>
+        /// <returns>String of the WHERE statement</returns>
+        public string GetVerifyScript(){
+            return GetVerifyText(GetWhereClause(false).CommandText);
+        }
+
+        /// <summary>
         /// This method should not be called. A cell cannot be reverted on a row that is pending
         /// deletion.
         /// </summary>
