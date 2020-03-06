@@ -139,7 +139,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         }
 
         /// <summary>
-        /// Returns a connection queue for given typesnipp
+        /// Returns a connection queue for given type
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
