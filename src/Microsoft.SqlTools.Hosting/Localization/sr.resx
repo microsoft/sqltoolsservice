@@ -162,11 +162,11 @@
     <comment></comment>
   </data>
   <data name="HostingUnexpectedEndOfStream" xml:space="preserve">
-    <value>MessageReader's input stream ended unexpectedly, terminating</value>
+    <value>MessageReader&apos;s input stream ended unexpectedly, terminating</value>
     <comment></comment>
   </data>
   <data name="HostingHeaderMissingColon" xml:space="preserve">
-    <value>Message header must separate key and value using ':'</value>
+    <value>Message header must separate key and value using &apos;:&apos;</value>
     <comment></comment>
   </data>
   <data name="HostingHeaderMissingContentLengthHeader" xml:space="preserve">

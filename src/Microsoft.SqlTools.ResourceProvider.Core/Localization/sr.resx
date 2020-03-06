@@ -142,7 +142,7 @@
     <comment></comment>
   </data>
   <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
-    <value>An error occurred while creating a new firewall rule: '{0}'</value>
+    <value>An error occurred while creating a new firewall rule: &apos;{0}&apos;</value>
     <comment></comment>
   </data>
   <data name="InvalidIpAddress" xml:space="preserve">
