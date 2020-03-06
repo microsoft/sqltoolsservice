@@ -127,17 +127,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
         public static async Task<string> AzureActiveDirectoryAuthenticationCallback(string authority, string resource, string scope)
         {
-            var authContext = new AuthenticationContext(authority);
-            string clientId = Environment.GetEnvironmentVariable("AzureClientId", EnvironmentVariableTarget.User);
-            string clientSecret = Environment.GetEnvironmentVariable("AzureClientSecret", EnvironmentVariableTarget.User);
-            ClientCredential clientCred = new ClientCredential(clientId, clientSecret);
-            AuthenticationResult result = await authContext.AcquireTokenAsync(resource, clientCred);
-            if (result == null)
+            RequestSecurityTokenParams message = new RequestSecurityTokenParams()
             {
-                throw new InvalidOperationException($"Failed to retrieve an access token for {resource}");
-            }
+                Authority = authority,
+                Resource = resource,
+                Scope = scope
+            };
 
-            return result.AccessToken;
+            RequestSecurityTokenResponse response = await ServiceHost.SendRequest(SecurityTokenRequest.Type, message, true);
+
+            return response.Token;
         }
 
         /// <summary>
