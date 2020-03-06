@@ -124,7 +124,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             });
         }
 
-        public static async Task<string> AzureActiveDirectoryAuthenticationCallback(string authority, string resource, string scope)
+        public async Task<string> AzureActiveDirectoryAuthenticationCallback(string authority, string resource, string scope)
         {
             RequestSecurityTokenParams message = new RequestSecurityTokenParams()
             {
