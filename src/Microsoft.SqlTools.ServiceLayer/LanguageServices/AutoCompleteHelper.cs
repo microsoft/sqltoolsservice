@@ -115,6 +115,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "datepart",
             "datetime",
             "datetime2",
+            "date_bucket",
             "day",
             "days",
             "dbcc",
