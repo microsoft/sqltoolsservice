@@ -5,6 +5,7 @@
 
 using System;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,18 +19,18 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
     /// <summary>
     /// An error indicating that a delete action will delete multiple rows.
     /// </summary>
-    public class DeleteError : Exception
+    public class EditDataDeleteException : Exception
     {
-        public DeleteError()
+        public EditDataDeleteException()
         {
         }
 
-        public DeleteError(string message)
+        public EditDataDeleteException(string message)
             : base(message)
         {
         }
 
-        public DeleteError(string message, Exception inner)
+        public EditDataDeleteException(string message, Exception inner)
             : base(message, inner)
         {
         }
@@ -88,9 +89,9 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             WhereClause where = GetWhereClause(true);
             string commandText = GetCommandText(where.CommandText);
             string verifyText = GetVerifyText(where.CommandText);
-            if (checkWhereDuplicate(where, verifyText, connection))
+            if (!CheckForDuplicateDeleteRows(where, verifyText, connection))
             {
-                throw new DeleteError("This action will delete more than one row!");
+                throw new EditDataDeleteException("This action will delete more than one row!");
             }
 
             DbCommand command = connection.CreateCommand();
@@ -102,8 +103,9 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 
         /// <summary>
         /// Runs a query using the where clause to determine if duplicates are found (causes issues when deleting).
+        /// If no duplicates are found, the check passes, else it returns false;
         /// </summary>
-        private bool checkWhereDuplicate(WhereClause where, string input, DbConnection connection)
+        private bool CheckForDuplicateDeleteRows(WhereClause where, string input, DbConnection connection)
         {
             using (DbCommand command = connection.CreateCommand())
             {
@@ -115,18 +117,20 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                     {
                         while (reader.Read())
                         {
+                            //If the count of the row is
                             if (reader.GetInt32(0) != 1)
                             {
-                                return true;
+                                return false;
                             }
                         }
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        Logger.Write(TraceEventType.Error, ex.ToString());
                     }
                 }
             }
-            return false;
+            return true;
         }
 
         /// <summary>

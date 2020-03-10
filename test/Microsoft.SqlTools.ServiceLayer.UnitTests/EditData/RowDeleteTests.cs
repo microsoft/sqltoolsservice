@@ -247,7 +247,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // If: I attempt to get a command for a simulated delete of a row with duplicates.
             // Then: The Command will throw an exception as it detects there are
             // ... more than 2 rows with the same value in the simulated query results data.
-            Assert.Throws<DeleteError>(() => rd.GetCommand(mockConn));
+            Assert.Throws<EditDataDeleteException>(() => rd.GetCommand(mockConn));
         }
 
         private async Task<RowDelete> GetStandardRowDelete()

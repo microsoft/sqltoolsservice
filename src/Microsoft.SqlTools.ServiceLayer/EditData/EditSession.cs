@@ -398,7 +398,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             //    // If output path isn't provided, we'll use a temporary location
             //    outputPath = Path.GetTempFileName();
             //}
-            //else 
+            //else
             if (outputPath == null || outputPath.Trim() == string.Empty)
             {
                 // If output path is empty, that's an error
@@ -526,7 +526,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                             await editOperation.ApplyChanges(reader);
                         }
                     }
-                    catch (DeleteError e)
+                    catch (EditDataDeleteException)
                     {
                         //clear EditCache to allow for deletion of other rows.
                         EditCache.TryRemove(editOperation.RowId, out RowEditBase xe);
