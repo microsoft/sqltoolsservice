@@ -270,6 +270,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 
         public override bool IsClosed { get { throw new NotImplementedException(); } }
 
-        #endregion
+        #endregion        
     }
 }
