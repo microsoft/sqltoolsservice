@@ -20,9 +20,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
     public class TestDbDataReader : DbDataReader, IDbColumnSchemaGenerator
     {
         #region Test Specific Implementations
-
-        private IEnumerable<TestResultSet> Data { get; }
         
+        private IEnumerable<TestResultSet> Data { get; }
+
         private IEnumerator<TestResultSet> ResultSetEnumerator { get; }
 
         private IEnumerator<object[]> RowEnumerator { get; set; }
