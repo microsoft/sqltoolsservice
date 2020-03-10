@@ -16,17 +16,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
     public class TestDbException : DbException
     {
     }
-
+    
     public class TestDbDataReader : DbDataReader, IDbColumnSchemaGenerator
     {
         #region Test Specific Implementations
 
         private IEnumerable<TestResultSet> Data { get; }
-
+        
         private IEnumerator<TestResultSet> ResultSetEnumerator { get; }
 
         private IEnumerator<object[]> RowEnumerator { get; set; }
-
+        
         private bool ThrowOnRead { get; }
 
         public TestDbDataReader(IEnumerable<TestResultSet> data, bool throwOnRead)

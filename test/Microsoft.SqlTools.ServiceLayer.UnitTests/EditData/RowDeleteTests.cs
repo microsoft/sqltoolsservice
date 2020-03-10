@@ -115,7 +115,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Equal(data.TableMetadata.EscapedMultipartName, tbl);
 
             // ... There should be as many where components as there are keys
-            string[] whereComponents = m.Groups[2].Value.Split(new[] { "AND" }, StringSplitOptions.None);
+            string[] whereComponents = m.Groups[2].Value.Split(new[] {"AND"}, StringSplitOptions.None);
             Assert.Equal(expectedKeys, whereComponents.Length);
 
             // ... Each component should have be equal to a parameter
@@ -246,7 +246,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // If: I attempt to get a command for a simulated delete of a row with duplicates.
             // Then: The Command will throw an exception as it detects there are
-            // ... more than 2 rows with the same value in the simulated query results data.
+            // ... 2 or more rows with the same value in the simulated query results data.
             Assert.Throws<EditDataDeleteException>(() => rd.GetCommand(mockConn));
         }
 
