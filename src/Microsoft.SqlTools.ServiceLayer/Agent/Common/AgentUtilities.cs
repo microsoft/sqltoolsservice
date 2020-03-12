@@ -97,6 +97,31 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         }
 
+        internal static Contracts.CompletionResult ConvertToCompletionResult(SeverityClass severity)
+        {
+            switch (severity)
+            {
+                case (SeverityClass.Cancelled):
+                    return Contracts.CompletionResult.Cancelled;
+                case (SeverityClass.Error):
+                    return Contracts.CompletionResult.Failed;
+                case (SeverityClass.FailureAudit):
+                    return Contracts.CompletionResult.Failed;
+                case (SeverityClass.InProgress):
+                    return Contracts.CompletionResult.InProgress;
+                case (SeverityClass.Retry):
+                    return Contracts.CompletionResult.Retry;
+                case (SeverityClass.Success):
+                    return Contracts.CompletionResult.Succeeded;
+                case (SeverityClass.SuccessAudit):
+                    return Contracts.CompletionResult.Succeeded;
+                case (SeverityClass.Unknown):
+                    return Contracts.CompletionResult.Unknown;
+                default:
+                    return Contracts.CompletionResult.Unknown;
+            }
+        }
+
         internal static AgentJobStep ConvertToAgentJobStep(JobStep step, LogSourceJobHistory.LogEntryJobHistory logEntry, string jobId)
         {
             AgentJobStepInfo stepInfo = new AgentJobStepInfo();
@@ -124,7 +149,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             jobStep.stepDetails = stepInfo;
             jobStep.message = logEntry.Message;
             jobStep.runDate = step.LastRunDate.ToString();
-            jobStep.runStatus = (Contracts.CompletionResult) step.LastRunOutcome;
+            jobStep.runStatus = ConvertToCompletionResult(logEntry.Severity);
             return jobStep;
         }
 
