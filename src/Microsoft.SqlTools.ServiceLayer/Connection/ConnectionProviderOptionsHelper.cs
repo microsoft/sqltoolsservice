@@ -119,14 +119,34 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     new ConnectionOption
                     {
                         Name = "columnEncryptionSetting",
-                        DisplayName = "Column encryption setting",
-                        Description = "Default column encryption setting for all the commands on the connection",
+                        DisplayName = "Always Encrypted",
+                        Description = "Enables or disables Always Encrypted for the connection",
                         ValueType = ConnectionOption.ValueTypeCategory,
                         GroupName = "Security",
                         CategoryValues = new CategoryValue[] {
                             new CategoryValue { Name = "Disabled" },
-                            new CategoryValue {Name = "Enabled" }
+                            new CategoryValue { Name = "Enabled" }
                         }
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "attestationProtocol",
+                        DisplayName = "Attestation Protocol",
+                        Description = "Specifies a protocol for attesting a server-side enclave used with Always Encrypted with secure enclaves",
+                        ValueType = ConnectionOption.ValueTypeCategory,
+                        GroupName = "Security",
+                        CategoryValues = new CategoryValue[] {
+                            new CategoryValue { DisplayName = "Host Guardian Service", Name = "HGS" },
+                            new CategoryValue { DisplayName = "Azure Attestation", Name = "AAS" }
+                        }
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "enclaveAttestationUrl",
+                        DisplayName = "Enclave Attestation URL",
+                        Description = "Specifies an endpoint for attesting a server-side enclave used with Always Encrypted with secure enclaves",
+                        ValueType = ConnectionOption.ValueTypeString,
+                        GroupName = "Security"
                     },
                     new ConnectionOption
                     {
