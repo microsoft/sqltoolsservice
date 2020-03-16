@@ -24,6 +24,8 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using System.Diagnostics;
 
+using HostingService = Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost;
+
 namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
     /// <summary>
@@ -106,6 +108,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
         }
 
+        static ConnectionService()
+        {
+            SqlColumnEncryptionAzureKeyVaultProvider sqlColumnEncryptionAzureKeyVaultProvider = new SqlColumnEncryptionAzureKeyVaultProvider(AzureActiveDirectoryAuthenticationCallback);
+            SqlConnection.RegisterColumnEncryptionKeyStoreProviders(customProviders: new Dictionary<string, SqlColumnEncryptionKeyStoreProvider>(capacity: 1, comparer: StringComparer.OrdinalIgnoreCase)
+            {
+                { SqlColumnEncryptionAzureKeyVaultProvider.ProviderName, sqlColumnEncryptionAzureKeyVaultProvider }
+            });
+        }
+
 
         /// <summary>
         /// Default constructor should be private since it's a singleton class, but we need a constructor
@@ -116,15 +127,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             var defaultQueue = new ConnectedBindingQueue(needsMetadata: false);
             connectedQueues.AddOrUpdate("Default", defaultQueue, (key, old) => defaultQueue);
             this.LockedDatabaseManager.ConnectionService = this;
-            
-            SqlColumnEncryptionAzureKeyVaultProvider sqlColumnEncryptionAzureKeyVaultProvider = new SqlColumnEncryptionAzureKeyVaultProvider(AzureActiveDirectoryAuthenticationCallback);
-            SqlConnection.RegisterColumnEncryptionKeyStoreProviders(customProviders: new Dictionary<string, SqlColumnEncryptionKeyStoreProvider>(capacity: 1, comparer: StringComparer.OrdinalIgnoreCase)
-            {
-                { SqlColumnEncryptionAzureKeyVaultProvider.ProviderName, sqlColumnEncryptionAzureKeyVaultProvider }
-            });
         }
 
-        public async Task<string> AzureActiveDirectoryAuthenticationCallback(string authority, string resource, string scope)
+        public static async Task<string> AzureActiveDirectoryAuthenticationCallback(string authority, string resource, string scope)
         {
             RequestSecurityTokenParams message = new RequestSecurityTokenParams()
             {
@@ -133,7 +138,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 Scope = scope
             };
 
-            RequestSecurityTokenResponse response = await ServiceHost.SendRequest(SecurityTokenRequest.Type, message, true);
+            var serviceHost = HostingService.Instance;
+            RequestSecurityTokenResponse response = await serviceHost.SendRequest(SecurityTokenRequest.Type, message, true);
 
             return response.Token;
         }
