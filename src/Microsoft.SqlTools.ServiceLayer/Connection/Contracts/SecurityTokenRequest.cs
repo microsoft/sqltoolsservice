@@ -5,17 +5,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
     class RequestSecurityTokenParams 
     {
         /// <summary>
-        /// Gets or sets authority.
+        /// Gets or sets the address of the authority to issue token.
         /// </summary>
         public string Authority { get; set; }
 
         /// <summary>
-        /// Gets or sets resource.
+        /// Gets or sets the identifier of the target resource that is the recipient of the requested token.
         /// </summary>
         public string Resource { get; set; }
 
         /// <summary>
-        /// Gets or sets scope.
+        /// Gets or sets the scope of the authentication request.
         /// </summary>
         public string Scope { get; set; }
     }
@@ -23,13 +23,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
     class RequestSecurityTokenResponse
     {
         /// <summary>
-        /// Gets or sets userName.
+        /// Gets or sets the access token.
         /// </summary>
         public string Token { get; set; }
     }
 
     /// <summary>
-    /// ConnectionComplete notification mapping entry 
+    /// SecurityToken Request mapping entry 
     /// </summary>
     class SecurityTokenRequest
     {
