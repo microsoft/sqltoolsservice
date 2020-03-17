@@ -6,7 +6,6 @@
 using System.Collections.Generic;
 using Microsoft.SqlTools.Hosting.Contracts;
 using Microsoft.SqlTools.Hosting.Hosting.Contracts;
-//using Microsoft.SqlTools.ServiceLayer.;
 
 namespace Microsoft.Kusto.ServiceLayer.Utility
 {
@@ -15,13 +14,6 @@ namespace Microsoft.Kusto.ServiceLayer.Utility
         public static FeatureMetadataProvider[] CreateFeatureMetadataProviders()
         {
             List<FeatureMetadataProvider> features = new List<FeatureMetadataProvider>();
-
-            features.Add(new FeatureMetadataProvider
-            {
-                FeatureName = "Restore",
-                Enabled = true,
-                //OptionsMetadata = RestoreOptionsHelper.CreateRestoreOptions()
-            });
 
             features.Add(new FeatureMetadataProvider
             {
