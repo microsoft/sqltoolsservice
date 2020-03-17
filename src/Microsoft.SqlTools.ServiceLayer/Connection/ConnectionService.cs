@@ -134,6 +134,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             RequestSecurityTokenParams message = new RequestSecurityTokenParams()
             {
                 Authority = authority,
+                Provider = "Azure",
                 Resource = resource,
                 Scope = scope
             };

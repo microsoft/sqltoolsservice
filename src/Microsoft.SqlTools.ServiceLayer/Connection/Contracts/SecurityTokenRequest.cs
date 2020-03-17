@@ -10,6 +10,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         public string Authority { get; set; }
 
         /// <summary>
+        /// Gets or sets the provider that indicates the type of linked account to query.
+        /// </summary>
+        public string Provider { get; set; }
+
+        /// <summary>
         /// Gets or sets the identifier of the target resource that is the recipient of the requested token.
         /// </summary>
         public string Resource { get; set; }
@@ -22,6 +27,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
 
     class RequestSecurityTokenResponse
     {
+        /// <summary>
+        /// Gets or sets the key that uniquely identifies a particular linked account.
+        /// </summary>
+        public string AccountKey { get; set; }
+
         /// <summary>
         /// Gets or sets the access token.
         /// </summary>
