@@ -208,7 +208,9 @@ namespace Microsoft.Kusto.ServiceLayer.Hosting
                         ProtocolVersion = ServiceHost.ProviderProtocolVersion,
                         ProviderName = ServiceHost.ProviderName,
                         ProviderDisplayName = ServiceHost.ProviderDescription,
-                        ConnectionProvider = ConnectionProviderOptionsHelper.BuildConnectionProviderOptions()
+                        ConnectionProvider = ConnectionProviderOptionsHelper.BuildConnectionProviderOptions(),
+                        // AdminServicesProvider = AdminServicesProviderOptionsHelper.BuildAdminServicesProviderOptions(), // TODOKusto: May need it later as its in SqlTools.ServiceLayer
+                        Features = FeaturesMetadataProviderHelper.CreateFeatureMetadataProviders()
                     }
                 }
             );            
