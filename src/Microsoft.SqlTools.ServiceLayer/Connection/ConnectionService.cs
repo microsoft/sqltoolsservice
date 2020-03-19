@@ -24,8 +24,6 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using System.Diagnostics;
 
-using HostingService = Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost;
-
 namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
     /// <summary>
@@ -139,8 +137,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 Scope = scope
             };
 
-            var serviceHost = HostingService.Instance;
-            RequestSecurityTokenResponse response = await serviceHost.SendRequest(SecurityTokenRequest.Type, message, true);
+            RequestSecurityTokenResponse response = await Instance.ServiceHost.SendRequest(SecurityTokenRequest.Type, message, true);
 
             return response.Token;
         }
