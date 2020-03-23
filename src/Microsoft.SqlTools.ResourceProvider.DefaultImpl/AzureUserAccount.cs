@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.SqlTools.ResourceProvider.Core;
 using Microsoft.SqlTools.ResourceProvider.Core.Authentication;
+using Microsoft.SqlTools.ResourceProvider.Core.Contracts;
 
 namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
 {
@@ -39,6 +40,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
             this.TenantId = azureUserAccount.TenantId;
             this.AllTenants = azureUserAccount.AllTenants;
             this.UniqueId = azureUserAccount.UniqueId;
+            this.UnderlyingAccount = azureUserAccount.UnderlyingAccount;
             AzureUserAccount account = azureUserAccount as AzureUserAccount;
         }
         /// <summary>
@@ -95,6 +97,12 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
         }
 
         public IList<IAzureTenant> AllTenants
+        {
+            get;
+            set;
+        }
+
+        public Account UnderlyingAccount
         {
             get;
             set;
