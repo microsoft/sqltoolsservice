@@ -1381,7 +1381,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 CurrentLanguage = builder.CurrentLanguage,
                 DatabaseName = builder.InitialCatalog,
                 ColumnEncryptionSetting = builder.ColumnEncryptionSetting.ToString(),
-                EnclaveAttestationProtocol = builder.AttestationProtocol.ToString(),                
+                EnclaveAttestationProtocol = builder.AttestationProtocol == SqlConnectionAttestationProtocol.NotSpecified ? null : builder.AttestationProtocol.ToString(),
                 EnclaveAttestationUrl = builder.EnclaveAttestationUrl,
                 Encrypt = builder.Encrypt,
                 FailoverPartner = builder.FailoverPartner,
