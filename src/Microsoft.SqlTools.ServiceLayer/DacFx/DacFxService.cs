@@ -25,6 +25,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         private readonly Lazy<ConcurrentDictionary<string, DacFxOperation>> operations =
             new Lazy<ConcurrentDictionary<string, DacFxOperation>>(() => new ConcurrentDictionary<string, DacFxOperation>());
 
+        internal Task CurrentDacFxTask;
+
         /// <summary>
         /// Gets the singleton instance object
         /// </summary>
@@ -220,10 +222,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 await requestContext.SendError(e);
             }
         }
-
+        
         private void ExecuteOperation(DacFxOperation operation, DacFxParams parameters, string taskName, RequestContext<DacFxResult> requestContext)
         {
-            Task.Run(async () =>
+            CurrentDacFxTask = Task.Run(async () =>
             {
                 try
                 {

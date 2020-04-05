@@ -62,10 +62,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         public static TaskMetadata Create(IRequestParams requestParam, string taskName, ITaskOperation taskOperation, ConnectionService connectionService)
         {
             TaskMetadata taskMetadata = new TaskMetadata();
-            ConnectionInfo connInfo;
-            connectionService.TryFindConnection(
-                    requestParam.OwnerUri,
-                    out connInfo);
+            ConnectionInfo connInfo = null;
+            if (requestParam.OwnerUri != null)
+            {
+                connectionService.TryFindConnection(
+                      requestParam.OwnerUri,
+                      out connInfo);
+            }
 
             if (connInfo != null)
             {

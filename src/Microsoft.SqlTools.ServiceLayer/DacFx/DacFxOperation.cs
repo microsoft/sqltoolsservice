@@ -35,12 +35,22 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
         protected ConnectionInfo ConnInfo { get; private set; }
 
-        protected DacFxOperation(ConnectionInfo connInfo)
+        protected bool ConnectedOperation { get; private set; }
+
+        protected DacFxOperation(ConnectionInfo connInfo, bool connectedOperation = true)
         {
-            Validate.IsNotNull("connectionInfo", connInfo);
-            Validate.IsNotNull("connectionDetails", connInfo.ConnectionDetails);
-            this.ConnInfo = connInfo;
-            this.ConnectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
+            if (connectedOperation)
+            {
+                this.ConnectedOperation = true;
+                Validate.IsNotNull("connectionInfo", connInfo);
+                Validate.IsNotNull("connectionDetails", connInfo.ConnectionDetails);
+                this.ConnInfo = connInfo;
+                this.ConnectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
+            }
+            else
+            {
+                this.ConnectedOperation = false;
+            }
             this.OperationId = Guid.NewGuid().ToString();
         }
 
@@ -84,8 +94,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
             try
             {
-                // Pass in Azure authentication token if needed
-                this.DacServices = this.ConnInfo.ConnectionDetails.AzureAccountToken != null ? new DacServices(this.ConnectionString, new AccessTokenProvider(this.ConnInfo.ConnectionDetails.AzureAccountToken)) : new DacServices(this.ConnectionString);
+                if (this.ConnectedOperation || this.ConnInfo != null)
+                {
+                    // Pass in Azure authentication token if needed
+                    this.DacServices = this.ConnInfo.ConnectionDetails.AzureAccountToken != null ? new DacServices(this.ConnectionString, new AccessTokenProvider(this.ConnInfo.ConnectionDetails.AzureAccountToken)) : new DacServices(this.ConnectionString);
+                }
                 Execute();
             }
             catch (Exception e)

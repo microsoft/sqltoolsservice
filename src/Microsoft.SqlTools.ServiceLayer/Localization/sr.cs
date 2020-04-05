@@ -2941,6 +2941,22 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string ProjectBuildTaskName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ProjectBuildTaskName);
+            }
+        }
+
+        public static string ProjectDeployTaskName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ProjectDeployTaskName);
+            }
+        }
+
         public static string ExtractInvalidVersion
         {
             get
@@ -4359,6 +4375,12 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string GenerateScriptTaskName = "GenerateScriptTaskName";
+
+
+            public const string ProjectBuildTaskName = "ProjectBuildTaskName";
+
+
+            public const string ProjectDeployTaskName = "ProjectDeployTaskName";
 
 
             public const string ExtractInvalidVersion = "ExtractInvalidVersion";

@@ -1768,4 +1768,10 @@
     <value>Could not find the schema compare session to cancel</value>
     <comment></comment>
   </data>
+  <data name="ProjectBuildTaskName" xml:space="preserve">
+    <value>Build Dacpac from Project</value>
+  </data>
+  <data name="ProjectDeployTaskName" xml:space="preserve">
+    <value>Build Dacpac and Deploy from Project</value>
+  </data>
 </root>
