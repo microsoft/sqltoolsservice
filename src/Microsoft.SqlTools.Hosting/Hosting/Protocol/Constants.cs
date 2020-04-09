@@ -18,6 +18,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         static Constants()
         {
             JsonSerializerSettings = new JsonSerializerSettings();
+            JsonSerializerSettings.TypeNameHandling = TypeNameHandling.None;
 
             // Camel case all object properties
             JsonSerializerSettings.ContractResolver =
