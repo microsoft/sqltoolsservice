@@ -912,8 +912,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
             ConnectionDetails connectionDetails = info.ConnectionDetails.Clone();
 
-            // Connect to master and query sys.databases
-            connectionDetails.DatabaseName = "master";
+            // Connect to database and query sys.databases
             var connection = this.ConnectionFactory.CreateSqlConnection(BuildConnectionString(connectionDetails), connectionDetails.AzureAccountToken);
             connection.Open();
 
