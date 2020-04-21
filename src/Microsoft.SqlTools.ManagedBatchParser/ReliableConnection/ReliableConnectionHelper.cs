@@ -652,6 +652,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             public string OsVersion;
 
             public string MachineName;
+            public string ServerName;
 
             public Dictionary<string, object> Options { get; set; }
         }
@@ -729,11 +730,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                     serverInfo.ServerLevel = reader[2].ToString();
                     serverInfo.ServerEdition = reader[3].ToString();
                     serverInfo.MachineName = reader[4].ToString();
+                    serverInfo.ServerName = reader[5].ToString();
 
-                    if (reader.FieldCount > 5)
+                    if (reader.FieldCount > 6)
                     {
                         // Detect the presence of SXI
-                        serverInfo.IsSelectiveXmlIndexMetadataPresent = reader.GetInt32(5) == 1;
+                        serverInfo.IsSelectiveXmlIndexMetadataPresent = reader.GetInt32(6) == 1;
                     }
 
                     // The 'ProductVersion' server property is of the form ##.#[#].####.#,
