@@ -1768,4 +1768,25 @@
     <value>Could not find the schema compare session to cancel</value>
     <comment></comment>
   </data>
+  <data name="SqlAssessmentOperationExecuteCalledTwice" xml:space="preserve">
+    <value>A SQL Assessment operation&apos;s Execute method should not be called more than once</value>
+    <comment></comment>
+  </data>
+  <data name="SqlAssessmentGenerateScriptTaskName" xml:space="preserve">
+    <value>Generate SQL Assessment script</value>
+    <comment></comment>
+  </data>
+  <data name="SqlAssessmentQueryInvalidOwnerUri" xml:space="preserve">
+    <value>Not connected to a server</value>
+    <comment></comment>
+  </data>
+  <data name="SqlAssessmentConnectingError" xml:space="preserve">
+    <value>Cannot connect to the server</value>
+    <comment></comment>
+  </data>
+  <data name="SqlAssessmentUnsuppoertedEdition" xml:space="preserve">
+    <value>Unsupported engine edition {0}</value>
+    <comment>.
+ Parameters: 0 - editionCode (int) </comment>
+  </data>
 </root>
