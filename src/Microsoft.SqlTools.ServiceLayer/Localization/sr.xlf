@@ -2056,6 +2056,48 @@
         <target state="new">Encountered unsupported token {0}</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="ParameterizationDetails">
+        <source>{0} will be converted to a System.Data.SqlClient.SqlParameter object with the following properties: SqlDbType = {1}, Size = {2}, Precision = {3}, Scale = {4}, SqlValue = {5}</source>
+        <target state="new">{0} will be converted to a System.Data.SqlClient.SqlParameter object with the following properties: SqlDbType = {1}, Size = {2}, Precision = {3}, Scale = {4}, SqlValue = {5}</target>
+        <note>.
+ Parameters: 0 - variableName (string), 1 - sqlDbType (string), 2 - size (int), 3 - precision (int), 4 - scale (int), 5 - sqlValue (string) </note>
+      </trans-unit>
+      <trans-unit id="ErrorMessageHeader">
+        <source>Line {0}</source>
+        <target state="new">Line {0}</target>
+        <note>.
+ Parameters: 0 - lineNumber (int) </note>
+      </trans-unit>
+      <trans-unit id="ErrorMessage">
+        <source>Unable to convert {0} to a System.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(System.Data.SqlDbType). Literal value: {2} </source>
+        <target state="new">Unable to convert {0} to a System.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(System.Data.SqlDbType). Literal value: {2} </target>
+        <note>.
+ Parameters: 0 - variableName (string), 1 - sqlDataType (string), 2 - literalValue (string) </note>
+      </trans-unit>
+      <trans-unit id="DateTimeErrorMessage">
+        <source>Unable to convert {0} to a System.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(System.Data.SqlDbType), as it used an unsupported date/time format. Use one of the supported date/time formats. Literal value: {2}</source>
+        <target state="new">Unable to convert {0} to a System.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(System.Data.SqlDbType), as it used an unsupported date/time format. Use one of the supported date/time formats. Literal value: {2}</target>
+        <note>.
+ Parameters: 0 - variableName (string), 1 - sqlDataType (string), 2 - literalValue (string) </note>
+      </trans-unit>
+      <trans-unit id="BinaryLiteralPrefixMissingError">
+        <source>Unable to convert {0} to a System.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(System.Data.SqlDbType), as prefix 0x is expected for a binary literals.  Literal value: {2} </source>
+        <target state="new">Unable to convert {0} to a System.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(System.Data.SqlDbType), as prefix 0x is expected for a binary literals.  Literal value: {2} </target>
+        <note>.
+ Parameters: 0 - variableName (string), 1 - sqlDataType (string), 2 - literalValue (string) </note>
+      </trans-unit>
+      <trans-unit id="ParsingErrorHeader">
+        <source>Line {0}, column {1}</source>
+        <target state="new">Line {0}, column {1}</target>
+        <note>.
+ Parameters: 0 - lineNumber (int), 1 - columnNumber (int) </note>
+      </trans-unit>
+      <trans-unit id="ScriptTooLarge">
+        <source>The current script is too large for Parameterization for Always Encrypted, please disable Parameterization for Always Encrypted in Query Options (Query &gt; Query Options &gt; Execution &gt; Advanced). Maximum allowable length: {0} characters, Current script length: {1} characters</source>
+        <target state="new">The current script is too large for Parameterization for Always Encrypted, please disable Parameterization for Always Encrypted in Query Options (Query &gt; Query Options &gt; Execution &gt; Advanced). Maximum allowable length: {0} characters, Current script length: {1} characters</target>
+        <note>.
+ Parameters: 0 - maxChars (int), 1 - currentChars (int) </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
