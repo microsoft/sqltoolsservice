@@ -667,6 +667,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             public int Port;
         }
 
+        public class ServerHostInfo
+        {
+            public string Platform;
+            public string Distribution;
+            public string Release;
+            public string ServicePackLevel;
+        }
+
         public static bool TryGetServerVersion(string connectionString, out ServerInfo serverInfo, string azureAccountToken)
         {
             serverInfo = null;
@@ -698,6 +706,37 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 azureAccountToken: azureAccountToken);
 
             return serverInfo;
+        }
+
+        /// <summary>
+        /// Gets the server host information from sys.dm_os_host_info view
+        /// </summary>
+        /// <param name="connection">The connection</param>
+        public static ServerHostInfo GetServerHostInfo(IDbConnection connection)
+        {
+            // SQL Server 2016 and below does not provide sys.dm_os_host_info
+            if (!Version.TryParse(ReadServerVersion(connection), out var hostVersion) || hostVersion.Major <= 13)
+            {
+                return new ServerHostInfo
+                {
+                    Platform = "Windows"
+                };
+            }
+
+            var hostInfo = new ServerHostInfo();
+            ExecuteReader(
+                connection,
+                SqlConnectionHelperScripts.GetHostInfo,
+                reader =>
+                {
+                    reader.Read();
+                    hostInfo.Platform = reader[0].ToString();
+                    hostInfo.Distribution = reader[1].ToString();
+                    hostInfo.Release = reader[2].ToString();
+                    hostInfo.ServicePackLevel = reader[3].ToString();
+                });
+
+            return hostInfo;
         }
 
         /// <summary>

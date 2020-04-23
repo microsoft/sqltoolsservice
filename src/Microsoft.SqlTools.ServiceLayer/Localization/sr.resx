@@ -1768,10 +1768,6 @@
     <value>Could not find the schema compare session to cancel</value>
     <comment></comment>
   </data>
-  <data name="SqlAssessmentOperationExecuteCalledTwice" xml:space="preserve">
-    <value>A SQL Assessment operation&apos;s Execute method should not be called more than once</value>
-    <comment></comment>
-  </data>
   <data name="SqlAssessmentGenerateScriptTaskName" xml:space="preserve">
     <value>Generate SQL Assessment script</value>
     <comment></comment>

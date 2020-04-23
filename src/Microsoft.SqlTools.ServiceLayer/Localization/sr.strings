@@ -821,7 +821,6 @@ SchemaCompareSessionNotFound = Could not find the schema compare session to canc
 ############################################################################
 # SQL Assessment
 
-SqlAssessmentOperationExecuteCalledTwice = A SQL Assessment operation's Execute method should not be called more than once
 SqlAssessmentGenerateScriptTaskName = Generate SQL Assessment script
 SqlAssessmentQueryInvalidOwnerUri = Not connected to a server
 SqlAssessmentConnectingError = Cannot connect to the server

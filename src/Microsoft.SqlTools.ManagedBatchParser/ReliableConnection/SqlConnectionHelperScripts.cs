@@ -48,5 +48,6 @@ SELECT @filepath AS FilePath
 
     public const string GetOsVersion = @"SELECT OSVersion = RIGHT(@@version, LEN(@@version)- 3 -charindex (' on ', LOWER(@@version)))";
         public const string GetClusterEndpoints = @"SELECT [name], [description], [endpoint], [protocol_desc] FROM .[sys].[dm_cluster_endpoints];";
+        public const string GetHostInfo = @"SELECT [host_platform], [host_distribution], [host_release], [host_service_pack_level], [host_sku], [os_language_version] FROM sys.dm_os_host_info";
     }
 }

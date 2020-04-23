@@ -2981,14 +2981,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string SqlAssessmentOperationExecuteCalledTwice
-        {
-            get
-            {
-                return Keys.GetString(Keys.SqlAssessmentOperationExecuteCalledTwice);
-            }
-        }
-
         public static string SqlAssessmentGenerateScriptTaskName
         {
             get
@@ -4411,9 +4403,6 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string SchemaCompareSessionNotFound = "SchemaCompareSessionNotFound";
-
-
-            public const string SqlAssessmentOperationExecuteCalledTwice = "SqlAssessmentOperationExecuteCalledTwice";
 
 
             public const string SqlAssessmentGenerateScriptTaskName = "SqlAssessmentGenerateScriptTaskName";

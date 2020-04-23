@@ -263,9 +263,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlAssessment
 
             try
             {
-                const string PlatformQueryText = @"SELECT [host_platform] FROM sys.dm_os_host_info";
-
-                ReliableConnectionHelper.ServerInfo serverInfo = ReliableConnectionHelper.GetServerVersion(connection);
+                var serverInfo = ReliableConnectionHelper.GetServerVersion(connection);
+                var hostInfo = ReliableConnectionHelper.GetServerHostInfo(connection);
 
                 var server = new SqlObjectLocator
                 {
@@ -275,17 +274,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlAssessment
                     ServerName = serverInfo.ServerName,
                     Type = SqlObjectType.Server,
                     Urn = serverInfo.ServerName,
-                    Version = Version.Parse(serverInfo.ServerVersion)
+                    Version = Version.Parse(serverInfo.ServerVersion),
+                    Platform = hostInfo.Platform
                 };
-
-                if (server.Version.Major <= 13)
-                {
-                    server.Platform = "Windows";
-                }
-                else
-                {
-                    server.Platform = ReliableConnectionHelper.ExecuteScalar(connection, PlatformQueryText) as string;
-                }
 
                 switch (requestParams.TargetType)
                 {

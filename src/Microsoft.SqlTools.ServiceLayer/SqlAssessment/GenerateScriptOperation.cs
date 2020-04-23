@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 using System.Threading;
+using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.SqlAssessment.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.Utility;
@@ -17,9 +18,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlAssessment
     /// <summary>
     /// Generates a script storing SQL Assessment results to a table.
     /// </summary>
-    internal sealed class GenerateScriptOperation : ITaskOperation
+    internal sealed class GenerateScriptOperation : ITaskOperation, IDisposable
     {
-        private CancellationTokenSource cancellation = null;
+        private readonly CancellationTokenSource cancellation = new CancellationTokenSource();
+
+        private bool disposed = false;
 
         /// <summary>
         /// Gets the unique id associated with this instance.
@@ -58,15 +61,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlAssessment
         /// </exception>
         public void Execute(TaskExecutionMode mode)
         {
-            // This method is not re-enterable as a trade-off for avoiding
-            // overcomplicated multiple CancellationTokenSources management
-            if (cancellation != null)
-            {
-                throw new InvalidOperationException(SR.SqlAssessmentOperationExecuteCalledTwice);
-            }
-
-            cancellation = new CancellationTokenSource();
-
             try
             {
                 var scriptText = GenerateScript(Parameters, cancellation.Token);
@@ -80,21 +74,16 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlAssessment
                 ErrorMessage = e.Message;
                 Logger.Write(TraceEventType.Error, string.Format(
                     CultureInfo.InvariantCulture,
-                    "SQL Assessment generate script operation failed with exception {0}",
+                    "SQL Assessment: generate script operation failed with exception {0}",
                     e.Message));
 
                 throw;
-            }
-            finally
-            {
-                var c = Interlocked.Exchange(ref cancellation, null);
-                c?.Dispose();
             }
         }
 
         public void Cancel()
         {
-            cancellation?.Cancel();
+            cancellation.Cancel();
         }
 
         #region Helpers
@@ -132,19 +121,8 @@ VALUES";
 
                     if (item.Kind == AssessmentResultItemKind.Note)
                     {
-                        sb.Append("\r\n('")
-                            .Append(Escape(item.DisplayName)).Append("','")
-                            .Append(Escape(item.CheckId)).Append("','")
-                            .Append(Escape(item.RulesetName)).Append("','")
-                            .Append(item.RulesetVersion).Append("','")
-                            .Append(item.Level).Append("','")
-                            .Append(Escape(item.Message)).Append("','")
-                            .Append(Escape(item.TargetName)).Append("','")
-                            .Append(item.TargetType).Append("','")
-                            .Append(Escape(item.HelpLink)).Append("','")
-                            .Append(
-                                item.Timestamp.ToString("yyyy-MM-dd hh:mm:ss.fff zzz", CultureInfo.InvariantCulture))
-                            .Append("'),");
+                        sb.Append(
+                            $"\r\n('{CUtils.EscapeStringSQuote(item.DisplayName)}','{CUtils.EscapeStringSQuote(item.CheckId)}','{CUtils.EscapeStringSQuote(item.RulesetName)}','{item.RulesetVersion}','{item.Level}','{CUtils.EscapeStringSQuote(item.Message)}','{CUtils.EscapeStringSQuote(item.TargetName)}','{item.TargetType}','{CUtils.EscapeStringSQuote(item.HelpLink)}','{item.Timestamp:yyyy-MM-dd hh:mm:ss.fff zzz}'),");
                     }
                 }
 
@@ -154,9 +132,18 @@ VALUES";
             return sb.ToString();
         }
 
-        private static string Escape(string original)
+        #endregion
+
+        #region IDisposable
+
+        public void Dispose()
         {
-            return original.Contains('\'') ? original.Replace("'", "''") : original;
+            if (!disposed)
+            {
+                Cancel();
+                cancellation.Dispose();
+                disposed = true;
+            }
         }
 
         #endregion
