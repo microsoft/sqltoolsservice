@@ -19,83 +19,84 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.AutoParameterizaition
     internal class ScalarExpressionTransformer : TSqlFragmentVisitor
     {
         #region datetimeFormats
-        private static readonly string[] SUPPORTED_ISO_DATE_TIME_FORMATS = {
-                                "yyyyMMdd HH:mm:ss.fffffff",
-                                "yyyyMMdd HH:mm:ss.ffffff",
-                                "yyyyMMdd HH:mm:ss.fffff",
-                                "yyyyMMdd HH:mm:ss.ffff",
-                                "yyyyMMdd HH:mm:ss.fff",
-                                "yyyyMMdd HH:mm:ss.ff",
-                                "yyyyMMdd HH:mm:ss.f",
-                                "yyyyMMdd HH:mm:ss",
-                                "yyyyMMdd HH:mm",
-                                "yyyyMMdd",
 
-                                "yyyy-MM-ddTHH:mm:ss.fffffff",
-                                "yyyy-MM-ddTHH:mm:ss.ffffff",
-                                "yyyy-MM-ddTHH:mm:ss.fffff",
-                                "yyyy-MM-ddTHH:mm:ss.ffff",
-                                "yyyy-MM-ddTHH:mm:ss.fff",
-                                "yyyy-MM-ddTHH:mm:ss.ff",
-                                "yyyy-MM-ddTHH:mm:ss.f",
-                                "yyyy-MM-ddTHH:mm:ss",
-                                "yyyy-MM-ddTHH:mm",
-                                "yyyy-MM-dd",
-                                };
+        private static readonly string[] SUPPORTED_ISO_DATE_TIME_FORMATS = {
+            "yyyyMMdd HH:mm:ss.fffffff",
+            "yyyyMMdd HH:mm:ss.ffffff",
+            "yyyyMMdd HH:mm:ss.fffff",
+            "yyyyMMdd HH:mm:ss.ffff",
+            "yyyyMMdd HH:mm:ss.fff",
+            "yyyyMMdd HH:mm:ss.ff",
+            "yyyyMMdd HH:mm:ss.f",
+            "yyyyMMdd HH:mm:ss",
+            "yyyyMMdd HH:mm",
+            "yyyyMMdd",
+
+            "yyyy-MM-ddTHH:mm:ss.fffffff",
+            "yyyy-MM-ddTHH:mm:ss.ffffff",
+            "yyyy-MM-ddTHH:mm:ss.fffff",
+            "yyyy-MM-ddTHH:mm:ss.ffff",
+            "yyyy-MM-ddTHH:mm:ss.fff",
+            "yyyy-MM-ddTHH:mm:ss.ff",
+            "yyyy-MM-ddTHH:mm:ss.f",
+            "yyyy-MM-ddTHH:mm:ss",
+            "yyyy-MM-ddTHH:mm",
+            "yyyy-MM-dd",
+        };
 
         private static readonly string[] SUPPORTED_ISO_DATE_FORMATS = {
-                                "yyyyMMdd",
-                                "yyyy-MM-dd",
-                                };
+            "yyyyMMdd",
+            "yyyy-MM-dd",
+        };
 
         private static readonly string[] SUPPORTED_ISO_DATE_TIME_OFFSET_FORMATS = { 
-                                // 121025 12:32:10.1234567 +01:00 – zzz in the below format represents +01:00
-                                "yyyyMMdd HH:mm:ss.fffffff zzz",
-                                "yyyyMMdd HH:mm:ss.ffffff zzz",
-                                "yyyyMMdd HH:mm:ss.fffff zzz",
-                                "yyyyMMdd HH:mm:ss.ffff zzz",
-                                "yyyyMMdd HH:mm:ss.fff zzz",
-                                "yyyyMMdd HH:mm:ss.ff zzz",
-                                "yyyyMMdd HH:mm:ss.f zzz",
-                                "yyyyMMdd HH:mm:ss zzz",
-                                "yyyyMMdd HH:mm zzz",
-                                "yyyyMMdd zzz",
+            // 121025 12:32:10.1234567 +01:00 – zzz in the below format represents +01:00
+            "yyyyMMdd HH:mm:ss.fffffff zzz",
+            "yyyyMMdd HH:mm:ss.ffffff zzz",
+            "yyyyMMdd HH:mm:ss.fffff zzz",
+            "yyyyMMdd HH:mm:ss.ffff zzz",
+            "yyyyMMdd HH:mm:ss.fff zzz",
+            "yyyyMMdd HH:mm:ss.ff zzz",
+            "yyyyMMdd HH:mm:ss.f zzz",
+            "yyyyMMdd HH:mm:ss zzz",
+            "yyyyMMdd HH:mm zzz",
+            "yyyyMMdd zzz",
 
-                                "yyyy-MM-ddTHH:mm:ss.fffffff zzz",
-                                "yyyy-MM-ddTHH:mm:ss.ffffff zzz",
-                                "yyyy-MM-ddTHH:mm:ss.fffff zzz",
-                                "yyyy-MM-ddTHH:mm:ss.ffff zzz",
-                                "yyyy-MM-ddTHH:mm:ss.fff zzz",
-                                "yyyy-MM-ddTHH:mm:ss.ff zzz",
-                                "yyyy-MM-ddTHH:mm:ss.f zzz",
-                                "yyyy-MM-ddTHH:mm:ss zzz",
-                                "yyyy-MM-ddTHH:mm zzz",
-                                "yyyy-MM-dd zzz",
+            "yyyy-MM-ddTHH:mm:ss.fffffff zzz",
+            "yyyy-MM-ddTHH:mm:ss.ffffff zzz",
+            "yyyy-MM-ddTHH:mm:ss.fffff zzz",
+            "yyyy-MM-ddTHH:mm:ss.ffff zzz",
+            "yyyy-MM-ddTHH:mm:ss.fff zzz",
+            "yyyy-MM-ddTHH:mm:ss.ff zzz",
+            "yyyy-MM-ddTHH:mm:ss.f zzz",
+            "yyyy-MM-ddTHH:mm:ss zzz",
+            "yyyy-MM-ddTHH:mm zzz",
+            "yyyy-MM-dd zzz",
 
-                                //19991212 19:30:30.1234567Z – K  in the below format represents Z
-                                "yyyyMMdd HH:mm:ss.fffffffK",
-                                "yyyyMMdd HH:mm:ss.ffffffK",
-                                "yyyyMMdd HH:mm:ss.fffffK",
-                                "yyyyMMdd HH:mm:ss.ffffK",
-                                "yyyyMMdd HH:mm:ss.fffK",
-                                "yyyyMMdd HH:mm:ss.ffK",
-                                "yyyyMMdd HH:mm:ss.fK",
-                                "yyyyMMdd HH:mm:ssK",
-                                "yyyyMMdd HH:mmK",
-                                "yyyyMMddK",
+            //19991212 19:30:30.1234567Z – K  in the below format represents Z
+            "yyyyMMdd HH:mm:ss.fffffffK",
+            "yyyyMMdd HH:mm:ss.ffffffK",
+            "yyyyMMdd HH:mm:ss.fffffK",
+            "yyyyMMdd HH:mm:ss.ffffK",
+            "yyyyMMdd HH:mm:ss.fffK",
+            "yyyyMMdd HH:mm:ss.ffK",
+            "yyyyMMdd HH:mm:ss.fK",
+            "yyyyMMdd HH:mm:ssK",
+            "yyyyMMdd HH:mmK",
+            "yyyyMMddK",
 
-                                "yyyy-MM-ddTHH:mm:ss.fffffffK",
-                                "yyyy-MM-ddTHH:mm:ss.ffffffK",
-                                "yyyy-MM-ddTHH:mm:ss.fffffK",
-                                "yyyy-MM-ddTHH:mm:ss.ffffK",
-                                "yyyy-MM-ddTHH:mm:ss.fffK",
-                                "yyyy-MM-ddTHH:mm:ss.ffK",
-                                "yyyy-MM-ddTHH:mm:ss.fK",
-                                "yyyy-MM-ddTHH:mm:ssK",
-                                "yyyy-MM-ddTHH:mmK",
-                                "yyyy-MM-ddK",
+            "yyyy-MM-ddTHH:mm:ss.fffffffK",
+            "yyyy-MM-ddTHH:mm:ss.ffffffK",
+            "yyyy-MM-ddTHH:mm:ss.fffffK",
+            "yyyy-MM-ddTHH:mm:ss.ffffK",
+            "yyyy-MM-ddTHH:mm:ss.fffK",
+            "yyyy-MM-ddTHH:mm:ss.ffK",
+            "yyyy-MM-ddTHH:mm:ss.fK",
+            "yyyy-MM-ddTHH:mm:ssK",
+            "yyyy-MM-ddTHH:mmK",
+            "yyyy-MM-ddK",
+        };
 
-                                };
         #endregion
 
         private const string C_SHARP_BYTE_ARRAY = "byte[]";
@@ -274,10 +275,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.AutoParameterizaition
                 //Integer literals of form 24.0 will not be supported
                 case SqlDataTypeOption.BigInt:
                     paramType = SqlDbType.BigInt;
-                    Int64 parsedLong;
+                    long parsedLong;
                     literalValue = IsNegative ? "-" + literalValue : literalValue;
 
-                    if (Int64.TryParse(literalValue, out parsedLong))
+                    if (long.TryParse(literalValue, out parsedLong))
                     {
                         parsedValue = parsedLong;
                     }
@@ -291,10 +292,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.AutoParameterizaition
 
                 case SqlDataTypeOption.Int:
                     paramType = SqlDbType.Int;
-                    Int32 parsedInt;
+                    int parsedInt;
                     literalValue = IsNegative ? "-" + literalValue : literalValue;
 
-                    if (Int32.TryParse(literalValue, out parsedInt))
+                    if (int.TryParse(literalValue, out parsedInt))
                     {
                         parsedValue = parsedInt;
                     }
@@ -308,10 +309,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.AutoParameterizaition
 
                 case SqlDataTypeOption.SmallInt:
                     paramType = SqlDbType.SmallInt;
-                    Int16 parsedShort;
+                    short parsedShort;
                     literalValue = IsNegative ? "-" + literalValue : literalValue;
 
-                    if (Int16.TryParse(literalValue, out parsedShort))
+                    if (short.TryParse(literalValue, out parsedShort))
                     {
                         parsedValue = parsedShort;
                     }
@@ -325,10 +326,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.AutoParameterizaition
 
                 case SqlDataTypeOption.TinyInt:
                     paramType = SqlDbType.TinyInt;
-                    Byte parsedByte;
+                    byte parsedByte;
                     literalValue = IsNegative ? "-" + literalValue : literalValue;
 
-                    if (Byte.TryParse(literalValue, out parsedByte))
+                    if (byte.TryParse(literalValue, out parsedByte))
                     {
                         parsedValue = parsedByte;
                     }

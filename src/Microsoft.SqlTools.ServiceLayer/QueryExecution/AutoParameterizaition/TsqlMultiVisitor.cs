@@ -18,36 +18,24 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.AutoParameterizaition
         private readonly ScalarExpressionTransformer ScalarExpressionTransformer;
         private readonly bool IsCodeSenseRequest;
 
-        private Dictionary<string, int> mExecutionParameters = null;
+        private Dictionary<string, int> _executionParameters = null;
 
-        public List<SqlParameter> Parameters
-        {
-            get;
-            private set;
-        }
+        public List<SqlParameter> Parameters { get; private set; }
 
-        public List<CodeSenseItem> CodeSenseMessages
-        {
-            get;
-            private set;
-        }
+        public List<CodeSenseItem> CodeSenseMessages { get; private set; }
 
-        public List<CodeSenseItem> CodeSenseErrors
-        {
-            get;
-            private set;
-        }
+        public List<CodeSenseItem> CodeSenseErrors { get; private set; }
 
         public Dictionary<string, int> ExecutionParameters
         {
             get
             {
-                if (mExecutionParameters == null)
+                if (_executionParameters == null)
                 {
-                    mExecutionParameters = new Dictionary<string, int>();
+                    _executionParameters = new Dictionary<string, int>();
                 }
 
-                return mExecutionParameters;
+                return _executionParameters;
             }
         }
 
@@ -92,11 +80,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.AutoParameterizaition
                         if (sqlParameters.Count == 1 && declareVariableElementValue != null)
                         {
                             codeSenseMessageStringBuilder.Append(SR.ParameterizationDetails(declareVariableElement.VariableName.Value,
-                                                                                                sqlParameters[0].SqlDbType.ToString(),
-                                                                                                sqlParameters[0].Size,
-                                                                                                sqlParameters[0].Precision,
-                                                                                                sqlParameters[0].Scale,
-                                                                                                sqlParameters[0].SqlValue.ToString()));
+                                                                                            sqlParameters[0].SqlDbType.ToString(),
+                                                                                            sqlParameters[0].Size,
+                                                                                            sqlParameters[0].Precision,
+                                                                                            sqlParameters[0].Scale,
+                                                                                            sqlParameters[0].SqlValue.ToString()));
 
                             endLine = declareVariableElementValue.StartLine;
                             endCol = declareVariableElementValue.StartColumn + declareVariableElementValue.FragmentLength;

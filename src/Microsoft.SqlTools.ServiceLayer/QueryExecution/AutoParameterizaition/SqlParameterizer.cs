@@ -5,12 +5,12 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Data.SqlClient;
 using System.IO;
 using Microsoft.SqlServer.TransactSql.ScriptDom;
 using System.Linq;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.AutoParameterizaition.Exceptions;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.AutoParameterizaition.Telemetry;
+using System.Data.Common;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.AutoParameterizaition
 {
@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.AutoParameterizaition
         /// Any other literals will be ignored
         /// </summary>
         /// <param name="commandToParameterize">Command that will need to be parameterized</param>
-        public void Parameterize(SqlCommand commandToParameterize)
+        public void Parameterize(DbCommand commandToParameterize)
         {
             bool parseSuccessful = false;
 
@@ -141,7 +141,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.AutoParameterizaition
             }
         }
 
-        private TSqlFragment GetAbstractSyntaxTree(SqlCommand commandToParameterize)
+        private TSqlFragment GetAbstractSyntaxTree(DbCommand commandToParameterize)
         {
             // Capture the current CommandText in a format that the parser can work with
             string commandText = commandToParameterize.CommandText;
@@ -157,22 +157,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.AutoParameterizaition
 
         private TSqlFragment GetAbstractSyntaxTree(string script)
         {
-            TextReader textReader = new StringReader(script);
-
-            TSqlParser parser = GetTSqlParser(true);
-            TSqlFragment rootFragment = parser.Parse(textReader, out IList<ParseError> parsingErrors); // Get the parse tree
-            textReader.Dispose(); // clean up resources
-
-            // if we could not parse the SQL we will throw an exception. Better here than on the server
-            if (parsingErrors.Count > 0)
+            using (TextReader textReader = new StringReader(script))
             {
-                throw new ParameterizationParsingException(
-                                             parsingErrors[0].Line,
-                                             parsingErrors[0].Column,
-                                             parsingErrors[0].Message);
-            }
+                TSqlParser parser = GetTSqlParser(true);
+                TSqlFragment rootFragment = parser.Parse(textReader, out IList<ParseError> parsingErrors); // Get the parse tree
 
-            return rootFragment;
+                // if we could not parse the SQL we will throw an exception. Better here than on the server
+                if (parsingErrors.Count > 0)
+                {
+                    throw new ParameterizationParsingException(parsingErrors[0].Line, parsingErrors[0].Column, parsingErrors[0].Message);
+                }
+
+                return rootFragment;
+            }
         }
     }
 }
