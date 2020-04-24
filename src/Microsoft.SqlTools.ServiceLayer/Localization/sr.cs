@@ -2981,6 +2981,30 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string SqlAssessmentGenerateScriptTaskName
+        {
+            get
+            {
+                return Keys.GetString(Keys.SqlAssessmentGenerateScriptTaskName);
+            }
+        }
+
+        public static string SqlAssessmentQueryInvalidOwnerUri
+        {
+            get
+            {
+                return Keys.GetString(Keys.SqlAssessmentQueryInvalidOwnerUri);
+            }
+        }
+
+        public static string SqlAssessmentConnectingError
+        {
+            get
+            {
+                return Keys.GetString(Keys.SqlAssessmentConnectingError);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -3154,6 +3178,11 @@ namespace Microsoft.SqlTools.ServiceLayer
         public static string ScheduleNameAlreadyExists(string scheduleName)
         {
             return Keys.GetString(Keys.ScheduleNameAlreadyExists, scheduleName);
+        }
+
+        public static string SqlAssessmentUnsuppoertedEdition(int editionCode)
+        {
+            return Keys.GetString(Keys.SqlAssessmentUnsuppoertedEdition, editionCode);
         }
 
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -4374,6 +4403,18 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string SchemaCompareSessionNotFound = "SchemaCompareSessionNotFound";
+
+
+            public const string SqlAssessmentGenerateScriptTaskName = "SqlAssessmentGenerateScriptTaskName";
+
+
+            public const string SqlAssessmentQueryInvalidOwnerUri = "SqlAssessmentQueryInvalidOwnerUri";
+
+
+            public const string SqlAssessmentConnectingError = "SqlAssessmentConnectingError";
+
+
+            public const string SqlAssessmentUnsuppoertedEdition = "SqlAssessmentUnsuppoertedEdition";
 
 
             private Keys()
