@@ -67,7 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 if (connInfo != null)
                 {
                     ExportOperation operation = new ExportOperation(parameters, connInfo);
-                    ExecuteOperation(operation, parameters, SR.ExportBacpacTaskName, requestContext);
+                    ExecuteOperation(operation, parameters, SR.ExportBacpacTaskName, requestContext, parameters.PackageFilePath);
                 }
             }
             catch (Exception e)
@@ -117,7 +117,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     // Set connection details database name to ensure the connection string gets created correctly for DW(extract doesn't work if connection is to master)
                     connInfo.ConnectionDetails.DatabaseName = parameters.DatabaseName;
                     ExtractOperation operation = new ExtractOperation(parameters, connInfo);
-                    ExecuteOperation(operation, parameters, SR.ExtractDacpacTaskName, requestContext);
+                    ExecuteOperation(operation, parameters, SR.ExtractDacpacTaskName, requestContext, parameters.PackageFilePath);
                 }
             }
             catch (Exception e)
@@ -221,18 +221,18 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             }
         }
 
-        private void ExecuteOperation(DacFxOperation operation, DacFxParams parameters, string taskName, RequestContext<DacFxResult> requestContext)
+        private void ExecuteOperation(DacFxOperation operation, DacFxParams parameters, string taskName, RequestContext<DacFxResult> requestContext, string packageFilePath = null)
         {
             Task.Run(async () =>
             {
                 try
                 {
-                    TaskMetadata metadata = TaskMetadata.Create(parameters, taskName, operation, ConnectionServiceInstance);
-                    if (operation.GetType() == typeof(ExtractOperation) || operation.GetType() == typeof(ExportOperation))
+                    TaskMetadata metadata = TaskMetadata.Create(parameters, taskName, operation, ConnectionServiceInstance, packageFilePath);
+                    if (packageFilePath != null)
                     {
                         // show package file path in task viewlet instead of server and database name
                         metadata.DatabaseName = null;
-                        metadata.ServerName = parameters.PackageFilePath;
+                        metadata.ServerName = null;
                     }
                     else
                     {
