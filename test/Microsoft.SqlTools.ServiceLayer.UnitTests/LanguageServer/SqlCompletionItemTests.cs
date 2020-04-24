@@ -263,6 +263,20 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 
         }
 
+        [Fact]
+        public void GlobalVariableSystemFunctionsShouldNotHaveParenthesesAdded()
+        {
+            string declarationTitle = "@@CONNECTIONS";
+            string tokenText = "";
+            SqlCompletionItem item = new SqlCompletionItem(declarationTitle, DeclarationType.BuiltInFunction, tokenText);
+            CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
+
+            Assert.Equal(declarationTitle, completionItem.Label);
+            Assert.Equal($"{declarationTitle}", completionItem.InsertText);
+            Assert.Equal(declarationTitle, completionItem.Detail);
+
+        }
+
         [Theory]
         [InlineData(DeclarationType.Server)]
         [InlineData(DeclarationType.Database)]
