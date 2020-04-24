@@ -31,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         {
             Version version = ParseVersion(this.Parameters.ApplicationVersion);
             DacExtractOptions extractOptions = GetExtractOptions(this.Parameters.ExtractTarget);
-            this.DacServices.Extract(this.Parameters.PackageFilePath, this.Parameters.DatabaseName, this.Parameters.ApplicationName, version, null, null, extractOptions, this.CancellationToken);
+            this.DacServices.Extract(this.Parameters.PackageFilePath, this.Parameters.DatabaseName, this.Parameters.ApplicationName, version, applicationDescription:null, tables:null, extractOptions:extractOptions, cancellationToken:this.CancellationToken);
         }
 
         public static Version ParseVersion(string incomingVersion)

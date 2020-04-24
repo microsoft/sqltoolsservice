@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         public string ApplicationVersion { get; set; }
 
         /// <summary>
-        /// Gets or sets the options for extraction
+        /// Gets or sets the target for extraction
         /// </summary>
         public DacExtractTarget ExtractTarget { get; set; }
     }

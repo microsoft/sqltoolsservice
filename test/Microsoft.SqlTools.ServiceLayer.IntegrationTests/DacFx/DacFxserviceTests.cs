@@ -164,10 +164,10 @@ CREATE TABLE [dbo].[table3]
         /// Verify the extract request to create Sql file
         /// </summary>
         [Fact]
-        public async void ExtractDBtoSqlFile()
+        public async void ExtractDBToFileTarget()
         {
             var result = GetLiveAutoCompleteTestObjects();
-            SqlTestDb testdb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "DacFxExtracttoSqlTest");
+            SqlTestDb testdb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, doNotCleanupDb:false, databaseName:null, query:SourceScript, dbNamePrefix:"DacFxExtractDBToFileTarget");
             string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
             Directory.CreateDirectory(folderPath);
 
@@ -187,6 +187,48 @@ CREATE TABLE [dbo].[table3]
                 service.PerformOperation(operation, TaskExecutionMode.Execute);
 
                 VerifyAndCleanup(extractParams.PackageFilePath);
+            }
+            finally
+            {
+                testdb.Cleanup();
+            }
+        }
+
+        /// <summary>
+        /// Verify the extract request to create a Flat file structure
+        /// </summary>
+        [Fact]
+        public async void ExtractDBToFlatTarget()
+        {
+            var result = GetLiveAutoCompleteTestObjects();
+            SqlTestDb testdb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, doNotCleanupDb: false, databaseName: null, query: SourceScript, dbNamePrefix: "DacFxExtractDBToFlatTarget");
+            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest","FlatExtract");
+            Directory.CreateDirectory(folderPath);
+
+            try
+            {
+                var extractParams = new ExtractParams
+                {
+                    DatabaseName = testdb.DatabaseName,
+                    PackageFilePath = folderPath,
+                    ApplicationName = "test",
+                    ApplicationVersion = "1.0.0.0",
+                    ExtractTarget = DacExtractTarget.Flat
+                };
+
+                DacFxService service = new DacFxService();
+                ExtractOperation operation = new ExtractOperation(extractParams, result.ConnectionInfo);
+                service.PerformOperation(operation, TaskExecutionMode.Execute);
+
+                // Verify two sql files are generated in the target folder path
+                int actualCnt = Directory.GetFiles(folderPath, "*.sql", SearchOption.AllDirectories).Length;
+                Assert.Equal(actualCnt, 2);
+
+                // Remove the directory
+                if (Directory.Exists(folderPath))
+                {
+                    Directory.Delete(folderPath, true);
+                }
             }
             finally
             {
