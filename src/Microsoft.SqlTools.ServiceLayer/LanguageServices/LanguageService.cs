@@ -1673,7 +1673,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 scriptFile.ClientUri,
                 out connInfo);
 
-            var parseResult = ParseAndBind(scriptFile, connInfo); 
+            var parseResult = ParseAndBind(scriptFile, connInfo);
 
             // build a list of SQL script file markers from the errors
             List<ScriptFileMarker> markers = new List<ScriptFileMarker>();
