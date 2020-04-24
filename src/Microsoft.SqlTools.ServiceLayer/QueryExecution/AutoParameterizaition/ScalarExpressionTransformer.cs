@@ -7,6 +7,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.TransactSql.ScriptDom;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.AutoParameterizaition.Exceptions;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.AutoParameterizaition.Helpers;
+using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -109,9 +110,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.AutoParameterizaition
 
         public IList<SqlParameter> Parameters { get; private set; }
 
-        private readonly IList<CodeSenseItem> CodeSenseErrors;
+        private readonly IList<ScriptFileMarker> CodeSenseErrors;
 
-        public ScalarExpressionTransformer(bool isCodeSenseRequest, IList<CodeSenseItem> codeSenseErrors)
+        public ScalarExpressionTransformer(bool isCodeSenseRequest, IList<ScriptFileMarker> codeSenseErrors)
         {
             Parameters = new List<SqlParameter>();
             IsCodeSenseRequest = isCodeSenseRequest;
@@ -610,12 +611,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.AutoParameterizaition
 
         private void AddCodeSenseErrorItem(MessageHelper.MessageType messageType, Literal literal, string literalValue, string variableName, string sqlDbType)
         {
-            CodeSenseErrors.Add(
-                new CodeSenseItem(
-                    MessageHelper.GetLocalizedMessage(messageType, variableName, sqlDbType, literalValue),
-                    literal.StartLine, literal.StartColumn, literal.StartLine,
-                    literal.StartColumn + literalValue.Length,
-                    CodeSenseItem.CodeSenseItemType.Error));
+            CodeSenseErrors.Add(new ScriptFileMarker
+            {
+                Level = ScriptFileMarkerLevel.Error,
+                Message = MessageHelper.GetLocalizedMessage(messageType, variableName, sqlDbType, literalValue),
+                ScriptRegion = new ScriptRegion
+                {
+                    StartLineNumber = literal.StartLine,
+                    StartColumnNumber = literal.StartColumn,
+                    EndLineNumber = literal.StartLine,
+                    EndColumnNumber = literal.StartColumn + literalValue.Length
+                }
+            });
         }
 
         private object ParseDateTime(string literalValue)

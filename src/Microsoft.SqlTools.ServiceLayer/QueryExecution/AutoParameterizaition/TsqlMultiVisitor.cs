@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.TransactSql.ScriptDom;
 using System.Text;
+using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.AutoParameterizaition
 {
@@ -22,9 +23,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.AutoParameterizaition
 
         public List<SqlParameter> Parameters { get; private set; }
 
-        public List<CodeSenseItem> CodeSenseMessages { get; private set; }
+        public List<ScriptFileMarker> CodeSenseMessages { get; private set; }
 
-        public List<CodeSenseItem> CodeSenseErrors { get; private set; }
+        public List<ScriptFileMarker> CodeSenseErrors { get; private set; }
 
         public Dictionary<string, int> ExecutionParameters
         {
@@ -43,8 +44,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.AutoParameterizaition
         {
             Parameters = new List<SqlParameter>();
             IsCodeSenseRequest = isCodeSenseRequest;
-            CodeSenseMessages = new List<CodeSenseItem>();
-            CodeSenseErrors = new List<CodeSenseItem>();
+            CodeSenseMessages = new List<ScriptFileMarker>();
+            CodeSenseErrors = new List<ScriptFileMarker>();
             ScalarExpressionTransformer = new ScalarExpressionTransformer(isCodeSenseRequest, CodeSenseErrors);
         }
 
@@ -105,12 +106,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.AutoParameterizaition
 
             if (codeSenseMessageStringBuilder.Length > 0)
             {
-                CodeSenseMessages.Add(new CodeSenseItem(codeSenseMessageStringBuilder.ToString(),
-                                                        node.StartLine, node.StartColumn,
-                                                        endLine == -1 ? node.StartLine : endLine,
-                                                        endCol == -1 ? node.StartColumn + node.LastTokenIndex - node.FirstTokenIndex : endCol,
-                                                        CodeSenseItem.CodeSenseItemType.Message
-                                                    ));
+                CodeSenseMessages.Add(new ScriptFileMarker
+                {
+                    Level = ScriptFileMarkerLevel.Information,
+                    Message = codeSenseMessageStringBuilder.ToString(),
+                    ScriptRegion = new ScriptRegion
+                    {
+                        StartLineNumber = node.StartLine,
+                        StartColumnNumber = node.StartColumn,
+                        EndLineNumber = endLine == -1 ? node.StartLine : endLine,
+                        EndColumnNumber = endCol == -1 ? node.StartColumn + node.LastTokenIndex - node.FirstTokenIndex : endCol
+                    }
+                });
             }
 
             node.AcceptChildren(this);

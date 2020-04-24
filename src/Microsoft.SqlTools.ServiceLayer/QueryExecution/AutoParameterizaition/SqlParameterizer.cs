@@ -9,15 +9,15 @@ using System.IO;
 using Microsoft.SqlServer.TransactSql.ScriptDom;
 using System.Linq;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.AutoParameterizaition.Exceptions;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.AutoParameterizaition.Telemetry;
 using System.Data.Common;
+using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.AutoParameterizaition
 {
-    public class SqlParameterizer
+    public static class SqlParameterizer
     {
         private const int maxStringLength = 300000;// Approximately 600 Kb
-        private static readonly IList<CodeSenseItem> EmptyCodeSenseItemList = Enumerable.Empty<CodeSenseItem>().ToList();
+        private static readonly IList<ScriptFileMarker> EmptyCodeSenseItemList = Enumerable.Empty<ScriptFileMarker>().ToList();
 
         public static SqlScriptGenerator GetScriptGenerator()
         {
@@ -35,49 +35,20 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.AutoParameterizaition
         /// Any other literals will be ignored
         /// </summary>
         /// <param name="commandToParameterize">Command that will need to be parameterized</param>
-        public void Parameterize(DbCommand commandToParameterize)
-        {
-            bool parseSuccessful = false;
+        public static void Parameterize(DbCommand commandToParameterize)
+        {         
+            TSqlFragment rootFragment = GetAbstractSyntaxTree(commandToParameterize);
+            TsqlMultiVisitor multiVisitor = new TsqlMultiVisitor(isCodeSenseRequest: false); // Use the vistor pattern to examine the parse tree
+            rootFragment.AcceptChildren(multiVisitor); // Now walk the tree
 
-            try
-            {
-                TSqlFragment rootFragment = GetAbstractSyntaxTree(commandToParameterize);
-                parseSuccessful = true;
-                TsqlMultiVisitor multiVisitor = new TsqlMultiVisitor(isCodeSenseRequest: false); // Use the vistor pattern to examine the parse tree
-                rootFragment.AcceptChildren(multiVisitor); // Now walk the tree
+            //reformat and validate the transformed command
+            SqlScriptGenerator scriptGenerator = GetScriptGenerator();
+            scriptGenerator.GenerateScript(rootFragment, out string formattedSQL);
 
-                //reformat and validate the transformed command
-                SqlScriptGenerator scriptGenerator = GetScriptGenerator();
-                scriptGenerator.GenerateScript(rootFragment, out string formattedSQL);
+            commandToParameterize.CommandText = formattedSQL;
+            commandToParameterize.Parameters.AddRange(multiVisitor.Parameters.ToArray());
 
-                commandToParameterize.CommandText = formattedSQL;
-                commandToParameterize.Parameters.AddRange(multiVisitor.Parameters.ToArray());
-
-                multiVisitor.Reset();
-            }
-            catch (Exception exception)
-            {
-                var eventProperties = new List<EventProperty>
-                {
-                    new EventProperty(EventProperty.EXCEPTION_TYPE, exception.GetType().ToString()),
-                    new EventProperty(EventProperty.PARSE_SUCCESSFUL, parseSuccessful.ToString())
-                };
-
-                if (exception is ParameterizationFormatException parameterizationFormatException)
-                {
-                    eventProperties.Add(new EventProperty(EventProperty.LITERAL_SQL_DATA_TYPE, parameterizationFormatException.SqlDatatype));
-                    eventProperties.Add(new EventProperty(EventProperty.LITERAL_CSHARP_DATA_TYPE, parameterizationFormatException.CSharpDataType));
-                }
-                else
-                {
-                    if (exception is ParameterizationScriptTooLargeException largeException)
-                    {
-                        eventProperties.Add(new EventProperty(EventProperty.SCRIPT_CHAR_LENGTH, largeException.ScriptLength.ToString()));
-                    }
-                }
-
-                throw;
-            }
+            multiVisitor.Reset();            
         }
 
         /// <summary>
@@ -86,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.AutoParameterizaition
         /// <param name="scriptToParse">Script that will be parsed</param>
         /// <param name="telemetryManager">Used to emit telemetry events</param>
         /// <returns></returns>
-        public virtual IList<CodeSenseItem> CodeSense(string scriptToParse)
+        public static IList<ScriptFileMarker> CodeSense(string scriptToParse)
         {
             if (scriptToParse == null)
             {
@@ -96,52 +67,35 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.AutoParameterizaition
             int CurrentScriptlength = scriptToParse.Length;
             if (CurrentScriptlength >= maxStringLength)
             {
-                CodeSenseItem maxStringLengthCodeSenseItem = new CodeSenseItem(SR.ScriptTooLarge(maxStringLength, CurrentScriptlength),
-                                                                    startRow: 1, startCol: 1,
-                                                                    endRow: 2, endCol: 1,
-                                                                    type: CodeSenseItem.CodeSenseItemType.Error
-                                                                );
-                return new CodeSenseItem[] { maxStringLengthCodeSenseItem };
-            }
-
-            bool parseSuccessful = false;
-            try
-            {
-                TSqlFragment rootFragment = GetAbstractSyntaxTree(scriptToParse);
-                parseSuccessful = true;
-                TsqlMultiVisitor multiVisitor = new TsqlMultiVisitor(isCodeSenseRequest: true); // Use the vistor pattern to examine the parse tree
-                rootFragment.AcceptChildren(multiVisitor); // Now walk the tree
-
-                if (multiVisitor.CodeSenseErrors != null && multiVisitor.CodeSenseErrors.Count != 0)
+                ScriptFileMarker maxStringLengthCodeSenseItem = new ScriptFileMarker
                 {
-                    multiVisitor.CodeSenseMessages.AddRange(multiVisitor.CodeSenseErrors);
-                }
-
-                return multiVisitor.CodeSenseMessages;
-            }
-            catch (Exception exception)
-            {
-                //If parsing is unsuccessful, the user might have entered incorrect syntax so we avoid emmiting telemetry for these exceptions
-                if (parseSuccessful)
-                {
-                    List<EventProperty> eventProperties = new List<EventProperty>
+                    Level = ScriptFileMarkerLevel.Error,
+                    Message = SR.ScriptTooLarge(maxStringLength, CurrentScriptlength),
+                    ScriptRegion = new ScriptRegion
                     {
-                        new EventProperty(EventProperty.EXCEPTION_TYPE, exception.GetType().ToString())
-                    };
-
-
-                    if (exception is ParameterizationFormatException parameterizationFormatException)
-                    {
-                        eventProperties.Add(new EventProperty(EventProperty.LITERAL_SQL_DATA_TYPE, parameterizationFormatException.SqlDatatype));
-                        eventProperties.Add(new EventProperty(EventProperty.LITERAL_CSHARP_DATA_TYPE, parameterizationFormatException.CSharpDataType));
+                        StartLineNumber = 1,
+                        StartColumnNumber = 1,
+                        EndLineNumber = 2,
+                        EndColumnNumber = 1
                     }
-                }
+                };
 
-                return new List<CodeSenseItem>();
+                return new ScriptFileMarker[] { maxStringLengthCodeSenseItem };
             }
+
+            TSqlFragment rootFragment = GetAbstractSyntaxTree(scriptToParse);
+            TsqlMultiVisitor multiVisitor = new TsqlMultiVisitor(isCodeSenseRequest: true); // Use the vistor pattern to examine the parse tree
+            rootFragment.AcceptChildren(multiVisitor); // Now walk the tree
+
+            if (multiVisitor.CodeSenseErrors != null && multiVisitor.CodeSenseErrors.Count != 0)
+            {
+                multiVisitor.CodeSenseMessages.AddRange(multiVisitor.CodeSenseErrors);
+            }
+
+            return multiVisitor.CodeSenseMessages;            
         }
 
-        private TSqlFragment GetAbstractSyntaxTree(DbCommand commandToParameterize)
+        private static TSqlFragment GetAbstractSyntaxTree(DbCommand commandToParameterize)
         {
             // Capture the current CommandText in a format that the parser can work with
             string commandText = commandToParameterize.CommandText;
@@ -155,7 +109,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.AutoParameterizaition
             return GetAbstractSyntaxTree(commandText);
         }
 
-        private TSqlFragment GetAbstractSyntaxTree(string script)
+        private static TSqlFragment GetAbstractSyntaxTree(string script)
         {
             using (TextReader textReader = new StringReader(script))
             {
