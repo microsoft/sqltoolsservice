@@ -833,3 +833,11 @@ PublishChangesTaskName = Apply schema compare changes
 SchemaCompareExcludeIncludeNodeNotFound = Failed to find the specified change in the model
 OpenScmpConnectionBasedModelParsingError = Error encountered while trying to parse connection information for endpoint '{0}' with error message '{1}'
 SchemaCompareSessionNotFound = Could not find the schema compare session to cancel
+
+############################################################################
+# SQL Assessment
+
+SqlAssessmentGenerateScriptTaskName = Generate SQL Assessment script
+SqlAssessmentQueryInvalidOwnerUri = Not connected to a server
+SqlAssessmentConnectingError = Cannot connect to the server
+SqlAssessmentUnsuppoertedEdition(int editionCode) = Unsupported engine edition {0}
