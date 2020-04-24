@@ -28,6 +28,7 @@ using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.Extension;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.AutoParameterizaition;
 using Microsoft.SqlTools.ServiceLayer.Scripting;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Utility;
@@ -1672,7 +1673,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 scriptFile.ClientUri,
                 out connInfo);
 
-            var parseResult = ParseAndBind(scriptFile, connInfo);
+            var parseResult = ParseAndBind(scriptFile, connInfo); 
 
             // build a list of SQL script file markers from the errors
             List<ScriptFileMarker> markers = new List<ScriptFileMarker>();
@@ -1697,6 +1698,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     });
                 }
             }
+
+            // if (AE Parameterization is enabled in ADS)
+            markers.AddRange(SqlParameterizer.CodeSense(scriptFile.Contents));
 
             return markers.ToArray();
         }
