@@ -8,11 +8,11 @@ using System.Collections.Generic;
 using System.IO;
 using Microsoft.SqlServer.TransactSql.ScriptDom;
 using System.Linq;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.AutoParameterizaition.Exceptions;
+using Microsoft.SqlTools.ServiceLayer.AutoParameterizaition.Exceptions;
 using System.Data.Common;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.AutoParameterizaition
+namespace Microsoft.SqlTools.ServiceLayer.AutoParameterizaition
 {
     public static class SqlParameterizer
     {

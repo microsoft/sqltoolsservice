@@ -5,8 +5,8 @@
 
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.TransactSql.ScriptDom;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.AutoParameterizaition.Exceptions;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.AutoParameterizaition.Helpers;
+using Microsoft.SqlTools.ServiceLayer.AutoParameterizaition.Exceptions;
+using Microsoft.SqlTools.ServiceLayer.AutoParameterizaition.Helpers;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using System;
 using System.Collections.Generic;
@@ -15,7 +15,7 @@ using System.Data.SqlTypes;
 using System.Globalization;
 using System.Linq;
 
-namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.AutoParameterizaition
+namespace Microsoft.SqlTools.ServiceLayer.AutoParameterizaition
 {
     internal class ScalarExpressionTransformer : TSqlFragmentVisitor
     {

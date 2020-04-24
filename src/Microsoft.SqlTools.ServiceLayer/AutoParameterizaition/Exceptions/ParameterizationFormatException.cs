@@ -3,10 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.AutoParameterizaition.Helpers;
+using Microsoft.SqlTools.ServiceLayer.AutoParameterizaition.Helpers;
 using System;
 
-namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.AutoParameterizaition.Exceptions
+namespace Microsoft.SqlTools.ServiceLayer.AutoParameterizaition.Exceptions
 {
     /// <summary>
     /// ParameterizationFormatException is used to surface format exceptions encountered in the TSQL batch to perform auto-parameterization of literals

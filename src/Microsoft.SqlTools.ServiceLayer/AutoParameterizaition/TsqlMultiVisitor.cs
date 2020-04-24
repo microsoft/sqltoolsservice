@@ -9,7 +9,7 @@ using Microsoft.SqlServer.TransactSql.ScriptDom;
 using System.Text;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.AutoParameterizaition
+namespace Microsoft.SqlTools.ServiceLayer.AutoParameterizaition
 {
     /// <summary>
     /// Entry point for SqlParameterization, this class is responsible for visiting the parse tree and identifying the scalar expressions to be parameterized

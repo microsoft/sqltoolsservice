@@ -5,7 +5,7 @@
 
 using System;
 
-namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.AutoParameterizaition.Exceptions
+namespace Microsoft.SqlTools.ServiceLayer.AutoParameterizaition.Exceptions
 {
     /// <summary>
     /// ParameterizationParsingException is used to surface parse errors encountered in the TSQL batch while creating a parse tree

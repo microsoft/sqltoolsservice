@@ -5,7 +5,7 @@
 
 using System.Globalization;
 
-namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.AutoParameterizaition.Helpers
+namespace Microsoft.SqlTools.ServiceLayer.AutoParameterizaition.Helpers
 {
     class MessageHelper
     {
