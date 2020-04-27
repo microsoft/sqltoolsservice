@@ -20,6 +20,8 @@ using System.Collections.ObjectModel;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.BatchParser;
 using Microsoft.SqlTools.ServiceLayer.AutoParameterizaition;
+using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -400,8 +402,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 dbCommand.CommandType = CommandType.Text;
                 dbCommand.CommandTimeout = 0;
 
-                // if (AE Parameterization is enabled in ADS)
-                dbCommand.Parameterize();
+                if (WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.QueryExecutionSettings.IsAlwaysEncryptedParameterizationEnabled)
+                {
+                    dbCommand.Parameterize();
+                }
 
                 List<DbColumn[]> columnSchemas = null;
                 if (getFullColumnSchema)
