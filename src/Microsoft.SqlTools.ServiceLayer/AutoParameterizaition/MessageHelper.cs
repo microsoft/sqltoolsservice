@@ -9,9 +9,9 @@ namespace Microsoft.SqlTools.ServiceLayer.AutoParameterizaition.Helpers
 {
     class MessageHelper
     {
-        private static readonly string ERROR_MESSAGE_TEMPLATE = "Unable to Convert {0} to a System.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(System.Data.SqlDbType).";
-        private static readonly string DATE_TIME_ERROR_MESSAGE_TEMPLATE = "Unable to Convert {0} to a System.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(System.Data.SqlDbType), as it used an unsupported date/time format. Use one of the supported Date/time formats.";
-        private static readonly string BINARY_LITERAL_PREFIX_MISSING_ERROR_TEMPLATE = "Unable to Convert {0} to a System.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(System.Data.SqlDbType), as prefix 0x is expected for a binary literals.";
+        private static readonly string ERROR_MESSAGE_TEMPLATE = "Unable to Convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(System.Data.SqlDbType).";
+        private static readonly string DATE_TIME_ERROR_MESSAGE_TEMPLATE = "Unable to Convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(System.Data.SqlDbType), as it used an unsupported date/time format. Use one of the supported Date/time formats.";
+        private static readonly string BINARY_LITERAL_PREFIX_MISSING_ERROR_TEMPLATE = "Unable to Convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(System.Data.SqlDbType), as prefix 0x is expected for a binary literals.";
 
         public static string GetLocalizedMessage(MessageType type, string variableName, string sqlDataType, string literalValue)
         {
