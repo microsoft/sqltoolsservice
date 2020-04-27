@@ -228,17 +228,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 try
                 {
                     TaskMetadata metadata = TaskMetadata.Create(parameters, taskName, operation, ConnectionServiceInstance, packageFilePath);
-                    if (packageFilePath != null)
-                    {
-                        // show package file path in task viewlet instead of server and database name
-                        metadata.DatabaseName = null;
-                        metadata.ServerName = null;
-                    }
-                    else
-                    {
-                        // put appropriate database name since connection passed was to master
-                        metadata.DatabaseName = parameters.DatabaseName;
-                    }
+                    // put appropriate database name since connection passed was to master
+                    metadata.DatabaseName = parameters.DatabaseName;
 
                     SqlTask sqlTask = SqlTaskManagerInstance.CreateTask<SqlTask>(metadata);
 
