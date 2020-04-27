@@ -67,7 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 if (connInfo != null)
                 {
                     ExportOperation operation = new ExportOperation(parameters, connInfo);
-                    ExecuteOperation(operation, parameters, SR.ExportBacpacTaskName, requestContext, parameters.PackageFilePath);
+                    ExecuteOperation(operation, parameters, SR.ExportBacpacTaskName, requestContext);
                 }
             }
             catch (Exception e)
@@ -117,7 +117,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     // Set connection details database name to ensure the connection string gets created correctly for DW(extract doesn't work if connection is to master)
                     connInfo.ConnectionDetails.DatabaseName = parameters.DatabaseName;
                     ExtractOperation operation = new ExtractOperation(parameters, connInfo);
-                    ExecuteOperation(operation, parameters, SR.ExtractDacpacTaskName, requestContext, parameters.PackageFilePath);
+                    ExecuteOperation(operation, parameters, SR.ExtractDacpacTaskName, requestContext);
                 }
             }
             catch (Exception e)
@@ -221,16 +221,18 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             }
         }
 
-        private void ExecuteOperation(DacFxOperation operation, DacFxParams parameters, string taskName, RequestContext<DacFxResult> requestContext, string packageFilePath = null)
+        private void ExecuteOperation(DacFxOperation operation, DacFxParams parameters, string taskName, RequestContext<DacFxResult> requestContext)
         {
             Task.Run(async () =>
             {
                 try
                 {
-                    TaskMetadata metadata = TaskMetadata.Create(parameters, taskName, operation, ConnectionServiceInstance, packageFilePath);
+                    // show file location for export and extract operations 
+                    string targetLocation = (operation is ExportOperation || operation is ExtractOperation) ? parameters.PackageFilePath : null;
+                    TaskMetadata metadata = TaskMetadata.Create(parameters, taskName, operation, ConnectionServiceInstance, targetLocation);
+
                     // put appropriate database name since connection passed was to master
                     metadata.DatabaseName = parameters.DatabaseName;
-
                     SqlTask sqlTask = SqlTaskManagerInstance.CreateTask<SqlTask>(metadata);
 
                     await sqlTask.RunAsync();
