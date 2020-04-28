@@ -910,41 +910,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 throw new Exception(SR.ConnectionServiceListDbErrorNotConnected(owner));
             }
-            ConnectionDetails connectionDetails = info.ConnectionDetails.Clone();
-
-            // Connect to master and query sys.databases
-            connectionDetails.DatabaseName = "master";
-            var connection = this.ConnectionFactory.CreateSqlConnection(BuildConnectionString(connectionDetails), connectionDetails.AzureAccountToken);
-            connection.Open();
-
-            List<string> results = new List<string>();
-            var systemDatabases = new[] { "master", "model", "msdb", "tempdb" };
-            using (DbCommand command = connection.CreateCommand())
-            {
-                command.CommandText = @"SELECT name FROM sys.databases WHERE state_desc='ONLINE' ORDER BY name ASC";
-                command.CommandTimeout = 15;
-                command.CommandType = CommandType.Text;
-
-                using (var reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        results.Add(reader[0].ToString());
-                    }
-                }
-            }
-
-            // Put system databases at the top of the list
-            results =
-                results.Where(s => systemDatabases.Any(s.Equals)).Concat(
-                results.Where(s => systemDatabases.All(x => !s.Equals(x)))).ToList();
-
-            connection.Close();
-
-            ListDatabasesResponse response = new ListDatabasesResponse();
-            response.DatabaseNames = results.ToArray();
-
-            return response;
+            var handler = ListDatabaseRequestHandlerFactory.getHandler(listDatabasesParams.IncludeDetails.HasTrue(), info.IsSqlDb);
+            return handler.HandleRequest(this.connectionFactory, info);
         }
 
         public void InitializeService(IProtocolEndpoint serviceHost)
