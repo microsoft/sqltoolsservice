@@ -20,6 +20,7 @@ using Moq;
 using Moq.Protected;
 using Xunit;
 using System.Linq;
+using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 {
@@ -940,22 +941,20 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             TestResultSet data = new TestResultSet(cols, rows);
             var response = await RunListDatabasesRequestHandler(testdata: data, includeDetails: true);
 
-            SqlServerDatabaseDetail[] databases = response.Databases as SqlServerDatabaseDetail[];
-
-            Assert.Equal(databases.Length, 5);
-            VerifyDatabaseDetail(rows[0], databases[4]);
-            VerifyDatabaseDetail(rows[1], databases[0]);
-            VerifyDatabaseDetail(rows[2], databases[1]);
-            VerifyDatabaseDetail(rows[3], databases[2]);
-            VerifyDatabaseDetail(rows[4], databases[3]);
+            Assert.Equal(response.Databases.Length, 5);
+            VerifyDatabaseDetail(rows[0], response.Databases[4]);
+            VerifyDatabaseDetail(rows[1], response.Databases[0]);
+            VerifyDatabaseDetail(rows[2], response.Databases[1]);
+            VerifyDatabaseDetail(rows[3], response.Databases[2]);
+            VerifyDatabaseDetail(rows[4], response.Databases[3]);
         }
 
-        private void VerifyDatabaseDetail(object[] expected, SqlServerDatabaseDetail actual)
+        private void VerifyDatabaseDetail(object[] expected, DatabaseInfo actual)
         {
-            Assert.Equal(expected[0], actual.Name);
-            Assert.Equal(expected[1], actual.State);
-            Assert.Equal(expected[2], actual.SizeInMB);
-            Assert.Equal(expected[3], actual.LastBackup);
+            Assert.Equal(expected[0], actual.Options[ListDatabasesRequestDatabaseProperties.Name]);
+            Assert.Equal(expected[1], actual.Options[ListDatabasesRequestDatabaseProperties.State]);
+            Assert.Equal(expected[2], actual.Options[ListDatabasesRequestDatabaseProperties.SizeInMB]);
+            Assert.Equal(expected[3], actual.Options[ListDatabasesRequestDatabaseProperties.LastBackup]);
         }
 
 

@@ -7,10 +7,19 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
+using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
+    public class ListDatabasesRequestDatabaseProperties
+    {
+        public const string Name = "name";
+        public const string SizeInMB = "sizeInMB";
+        public const string State = "state";
+        public const string LastBackup = "lastBackup";
+    }
+
     /// <summary>
     /// Factory class for ListDatabasesRequest handler
     /// </summary>
@@ -117,10 +126,38 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         }
     }
 
+
+    abstract class BaseDatabaseDetailHandler : ListDatabaseRequestHandler<DatabaseInfo>
+    {
+        protected override bool NameMatches(string databaseName, DatabaseInfo item)
+        {
+            return databaseName == item.Options[ListDatabasesRequestDatabaseProperties.Name].ToString();
+        }
+
+        protected override void SetResponse(ListDatabasesResponse response, DatabaseInfo[] results)
+        {
+            response.Databases = results;
+        }
+
+        protected override DatabaseInfo CreateItem(DbDataReader reader)
+        {
+            DatabaseInfo databaseInfo = new DatabaseInfo();
+            SetProperties(reader, databaseInfo);
+            return databaseInfo;
+        }
+
+        protected virtual void SetProperties(DbDataReader reader, DatabaseInfo databaseInfo)
+        {
+            databaseInfo.Options[ListDatabasesRequestDatabaseProperties.Name] = reader["name"].ToString();
+            databaseInfo.Options[ListDatabasesRequestDatabaseProperties.State] = reader["state"].ToString();
+            databaseInfo.Options[ListDatabasesRequestDatabaseProperties.SizeInMB] = reader["size"].ToString();
+        }
+    }
+
     /// <summary>
     /// Standalone SQL Server database detail handler
     /// </summary>
-    class SqlServerDatabaseDetailHandler : ListDatabaseRequestHandler<SqlServerDatabaseDetail>
+    class SqlServerDatabaseDetailHandler : BaseDatabaseDetailHandler
     {
         public override string QueryText
         {
@@ -150,32 +187,17 @@ ORDER BY name ASC";
             }
         }
 
-        protected override SqlServerDatabaseDetail CreateItem(DbDataReader reader)
+        protected override void SetProperties(DbDataReader reader, DatabaseInfo databaseInfo)
         {
-            return new SqlServerDatabaseDetail()
-            {
-                Name = reader["name"].ToString(),
-                State = reader["state"].ToString(),
-                SizeInMB = reader["size"].ToString(),
-                LastBackup = reader["last_backup"] == DBNull.Value ? "" : Convert.ToDateTime(reader["last_backup"]).ToString("yyyy-MM-dd hh:mm:ss")
-            };
-        }
-
-        protected override bool NameMatches(string databaseName, SqlServerDatabaseDetail item)
-        {
-            return databaseName == item.Name;
-        }
-
-        protected override void SetResponse(ListDatabasesResponse response, SqlServerDatabaseDetail[] results)
-        {
-            response.Databases = results;
+            base.SetProperties(reader, databaseInfo);
+            databaseInfo.Options[ListDatabasesRequestDatabaseProperties.LastBackup] = reader["last_backup"] == DBNull.Value ? "" : Convert.ToDateTime(reader["last_backup"]).ToString("yyyy-MM-dd hh:mm:ss");
         }
     }
 
     /// <summary>
     /// SQL DB database detail handler
     /// </summary>
-    class SqlDBDatabaseDetailHandler : ListDatabaseRequestHandler<SqlDBDatabaseDetail>
+    class SqlDBDatabaseDetailHandler : BaseDatabaseDetailHandler
     {
         public override string QueryText
         {
@@ -199,26 +221,6 @@ WHERE state_desc='ONLINE'
 ORDER BY name ASC
 ";
             }
-        }
-
-        protected override SqlDBDatabaseDetail CreateItem(DbDataReader reader)
-        {
-            return new SqlDBDatabaseDetail()
-            {
-                Name = reader["name"].ToString(),
-                State = reader["state"].ToString(),
-                SizeInMB = reader["size"].ToString()
-            };
-        }
-
-        protected override bool NameMatches(string databaseName, SqlDBDatabaseDetail item)
-        {
-            return databaseName == item.Name;
-        }
-
-        protected override void SetResponse(ListDatabasesResponse response, SqlDBDatabaseDetail[] results)
-        {
-            response.Databases = results;
         }
     }
 }
