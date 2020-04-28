@@ -959,7 +959,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
 
         /// <summary>
-        /// Verify that the factory is returnning DatabaseNamesHandler
+        /// Verify that the factory is returning DatabaseNamesHandler
         /// </summary>
         [Fact]
         public void ListDatabaseRequestFactoryReturnsDatabaseNamesHandler()
@@ -971,7 +971,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         }
 
         /// <summary>
-        /// Verify that the factory is returnning SqlDBDatabaseDetailHandler
+        /// Verify that the factory is returning SqlDBDatabaseDetailHandler
         /// </summary>
         [Fact]
         public void ListDatabaseRequestFactoryReturnsSqlDBHandler()
@@ -981,7 +981,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         }
 
         /// <summary>
-        /// Verify that the factory is returnning SqlServerDatabaseDetailHandler
+        /// Verify that the factory is returning SqlServerDatabaseDetailHandler
         /// </summary>
         [Fact]
         public void ListDatabaseRequestFactoryReturnsSqlServerHandler()
