@@ -26,6 +26,7 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare;
 using Microsoft.SqlTools.ServiceLayer.Scripting;
 using Microsoft.SqlTools.ServiceLayer.Security;
+using Microsoft.SqlTools.ServiceLayer.SqlAssessment;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 
@@ -129,6 +130,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
             ExternalLanguageService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(ExternalLanguageService.Instance);
+            
+            SqlAssessmentService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(SqlAssessmentService.Instance);
 
             InitializeHostedServices(serviceProvider, serviceHost);
             serviceHost.ServiceProvider = serviceProvider;

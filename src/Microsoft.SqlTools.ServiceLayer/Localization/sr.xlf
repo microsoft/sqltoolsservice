@@ -2056,6 +2056,32 @@
         <target state="new">Encountered unsupported token {0}</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="SqlAssessmentOperationExecuteCalledTwice">
+        <source>A SQL Assessment operation's Execute method should not be called more than once</source>
+        <target state="new">A SQL Assessment operation's Execute method should not be called more than once</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SqlAssessmentGenerateScriptTaskName">
+        <source>Generate SQL Assessment script</source>
+        <target state="new">Generate SQL Assessment script</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SqlAssessmentQueryInvalidOwnerUri">
+        <source>Not connected to a server</source>
+        <target state="new">Not connected to a server</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SqlAssessmentConnectingError">
+        <source>Cannot connect to the server</source>
+        <target state="new">Cannot connect to the server</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SqlAssessmentUnsuppoertedEdition">
+        <source>Unsupported engine edition {0}</source>
+        <target state="new">Unsupported engine edition {0}</target>
+        <note>.
+ Parameters: 0 - editionCode (int) </note>
+      </trans-unit>
       <trans-unit id="ProjectExtractTaskName">
         <source>Extract project files</source>
         <target state="new">Extract project files</target>
