@@ -2082,6 +2082,11 @@
         <note>.
  Parameters: 0 - editionCode (int) </note>
       </trans-unit>
+      <trans-unit id="ProjectExtractTaskName">
+        <source>Extract project files</source>
+        <target state="new">Extract project files</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
