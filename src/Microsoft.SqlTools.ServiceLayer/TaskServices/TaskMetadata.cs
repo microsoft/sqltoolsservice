@@ -42,6 +42,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         public string DatabaseName { get; set; }
 
         /// <summary>
+        /// Target location of this task
+        /// </summary>
+        public string TargetLocation { get; set; }
+
+        /// <summary>
         /// Data required to perform the task
         /// </summary>
         public ITaskOperation TaskOperation { get; set; }
@@ -59,7 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         /// <param name="taskOperation">Task operation</param>
         /// <param name="connectionService">Connection Service</param>
         /// <returns>Task metadata</returns>
-        public static TaskMetadata Create(IRequestParams requestParam, string taskName, ITaskOperation taskOperation, ConnectionService connectionService)
+        public static TaskMetadata Create(IRequestParams requestParam, string taskName, ITaskOperation taskOperation, ConnectionService connectionService, string targetLocation = null)
         {
             TaskMetadata taskMetadata = new TaskMetadata();
             ConnectionInfo connInfo;
@@ -90,6 +95,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
 
             taskMetadata.TaskOperation = taskOperation;
             taskMetadata.OwnerUri = requestParam.OwnerUri;
+            taskMetadata.TargetLocation = targetLocation;
 
             return taskMetadata;
         }

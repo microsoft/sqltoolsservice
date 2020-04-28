@@ -227,7 +227,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             {
                 try
                 {
-                    TaskMetadata metadata = TaskMetadata.Create(parameters, taskName, operation, ConnectionServiceInstance);
+                    // show file location for export and extract operations 
+                    string targetLocation = (operation is ExportOperation || operation is ExtractOperation) ? parameters.PackageFilePath : null;
+                    TaskMetadata metadata = TaskMetadata.Create(parameters, taskName, operation, ConnectionServiceInstance, targetLocation);
 
                     // put appropriate database name since connection passed was to master
                     metadata.DatabaseName = parameters.DatabaseName;

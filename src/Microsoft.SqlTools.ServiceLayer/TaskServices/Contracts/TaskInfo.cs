@@ -36,6 +36,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices.Contracts
         public string DatabaseName { get; set; }
 
         /// <summary>
+        /// Target location for this task
+        /// </summary>
+        public string TargetLocation { get; set; }
+
+        /// <summary>
         /// Task name which defines the type of the task (e.g. CreateDatabase, Backup)
         /// </summary>
         public string Name { get; set; }
