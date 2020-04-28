@@ -144,7 +144,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             // Given a second connection that succeeds
             var mockConnection2 = new Mock<DbConnection> { CallBase = true };
             mockConnection2.Setup(x => x.OpenAsync(It.IsAny<CancellationToken>()))
-                .Returns(() => Task.Run(() => {}));
+                .Returns(() => Task.Run(() => { }));
 
             var mockFactory = new Mock<ISqlConnectionFactory>();
             mockFactory.SetupSequence(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>()))
@@ -338,7 +338,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
             // register disconnect callback
             connectionService.RegisterOnDisconnectTask(
-                (result, uri) => {
+                (result, uri) =>
+                {
                     callbackInvoked = true;
                     Assert.True(uri.Equals(ownerUri));
                     return Task.FromResult(true);
@@ -431,7 +432,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                 .Connect(new ConnectParams()
                 {
                     OwnerUri = ownerUri,
-                    Connection = new ConnectionDetails() {
+                    Connection = new ConnectionDetails()
+                    {
                         ServerName = server,
                         DatabaseName = database,
                         UserName = userName,
@@ -465,7 +467,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                 .Connect(new ConnectParams()
                 {
                     OwnerUri = "file:///my/test/file.sql",
-                    Connection = new ConnectionDetails() {
+                    Connection = new ConnectionDetails()
+                    {
                         ServerName = "my-server",
                         DatabaseName = "test",
                         UserName = userName,
@@ -761,7 +764,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
             // register disconnect callback
             connectionService.RegisterOnDisconnectTask(
-                (result, uri) => {
+                (result, uri) =>
+                {
                     callbackInvoked = true;
                     Assert.True(uri.Equals(ownerUri));
                     return Task.FromResult(true);
@@ -853,28 +857,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             Assert.False(disconnectResult);
         }
 
-        /// <summary>
-        /// Verifies the the list databases operation lists database names for the server used by a connection.
-        /// </summary>
-        [Fact]
-        public async Task ListDatabasesOnServerForCurrentConnectionReturnsDatabaseNames()
+        private async Task<ListDatabasesResponse> RunListDatabasesRequestHandler(TestResultSet testdata, bool? includeDetails)
         {
-            // Result set for the query of database names
-            TestDbColumn[] cols = {new TestDbColumn("name")};
-            object[][] rows =
-            {
-                new object[] {"master"},
-                new object[] {"model"},
-                new object[] {"msdb"},
-                new object[] {"tempdb"},
-                new object[] {"mydatabase"}
-            };
-            TestResultSet data = new TestResultSet(cols, rows);
-
             // Setup mock connection factory to inject query results
             var mockFactory = new Mock<ISqlConnectionFactory>();
             mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>()))
-                .Returns(CreateMockDbConnection(new[] {data}));
+                .Returns(CreateMockDbConnection(new[] { testdata }));
             var connectionService = new ConnectionService(mockFactory.Object);
 
             // connect to a database instance
@@ -891,9 +879,34 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             Assert.NotEmpty(connectionResult.ConnectionId);
 
             // list databases for the connection
-            ListDatabasesParams parameters = new ListDatabasesParams {OwnerUri = ownerUri};
-            var listDatabasesResult = connectionService.ListDatabases(parameters);
-            string[] databaseNames = listDatabasesResult.DatabaseNames;
+            ListDatabasesParams parameters = new ListDatabasesParams
+            {
+                OwnerUri = ownerUri,
+                IncludeDetails = includeDetails
+            };
+            return connectionService.ListDatabases(parameters);
+        }
+
+        /// <summary>
+        /// Verifies the the list databases operation lists database names for the server used by a connection.
+        /// </summary>
+        [Fact]
+        public async Task ListDatabasesOnServerForCurrentConnectionReturnsDatabaseNames()
+        {
+            // Result set for the query of database names
+            TestDbColumn[] cols = { new TestDbColumn("name") };
+            object[][] rows =
+            {
+                new object[] {"mydatabase"}, // this should be sorted to the end in the response
+                new object[] {"master"},
+                new object[] {"model"},
+                new object[] {"msdb"},
+                new object[] {"tempdb"}
+            };
+            TestResultSet data = new TestResultSet(cols, rows);
+            var response = await RunListDatabasesRequestHandler(testdata: data, includeDetails: null);
+
+            string[] databaseNames = response.DatabaseNames;
 
             Assert.Equal(databaseNames.Length, 5);
             Assert.Equal(databaseNames[0], "master");
@@ -901,6 +914,81 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             Assert.Equal(databaseNames[2], "msdb");
             Assert.Equal(databaseNames[3], "tempdb");
             Assert.Equal(databaseNames[4], "mydatabase");
+        }
+
+        /// <summary>
+        /// Verifies the the list databases operation lists database names for the server used by a connection.
+        /// </summary>
+        [Fact]
+        public async Task ListDatabasesOnServerForCurrentConnectionReturnsDatabaseDetails()
+        {
+            // Result set for the query of database names
+            TestDbColumn[] cols = {
+                new TestDbColumn("name"),
+                new TestDbColumn("state"),
+                new TestDbColumn("size"),
+                new TestDbColumn("last_backup")
+             };
+            object[][] rows =
+            {
+                new object[] {"mydatabase", "Online", "10", "2010-01-01 11:11:11"}, // this should be sorted to the end in the response
+                new object[] {"master", "Online", "11", "2010-01-01 11:11:12"},
+                new object[] {"model", "Offline", "12", "2010-01-01 11:11:13"},
+                new object[] {"msdb", "Online", "13", "2010-01-01 11:11:14"},
+                new object[] {"tempdb", "Online", "14", "2010-01-01 11:11:15"}
+            };
+            TestResultSet data = new TestResultSet(cols, rows);
+            var response = await RunListDatabasesRequestHandler(testdata: data, includeDetails: true);
+
+            SqlServerDatabaseDetail[] databases = response.Databases as SqlServerDatabaseDetail[];
+
+            Assert.Equal(databases.Length, 5);
+            VerifyDatabaseDetail(rows[0], databases[4]);
+            VerifyDatabaseDetail(rows[1], databases[0]);
+            VerifyDatabaseDetail(rows[2], databases[1]);
+            VerifyDatabaseDetail(rows[3], databases[2]);
+            VerifyDatabaseDetail(rows[4], databases[3]);
+        }
+
+        private void VerifyDatabaseDetail(object[] expected, SqlServerDatabaseDetail actual)
+        {
+            Assert.Equal(expected[0], actual.Name);
+            Assert.Equal(expected[1], actual.State);
+            Assert.Equal(expected[2], actual.SizeInMB);
+            Assert.Equal(expected[3], actual.LastBackup);
+        }
+
+
+        /// <summary>
+        /// Verify that the factory is returnning DatabaseNamesHandler
+        /// </summary>
+        [Fact]
+        public void ListDatabaseRequestFactoryReturnsDatabaseNamesHandler()
+        {
+            var handler = ListDatabaseRequestHandlerFactory.getHandler(includeDetails: false, isSqlDB: true);
+            Assert.IsType(typeof(DatabaseNamesHandler), handler);
+            handler = ListDatabaseRequestHandlerFactory.getHandler(includeDetails: false, isSqlDB: false);
+            Assert.IsType(typeof(DatabaseNamesHandler), handler);
+        }
+
+        /// <summary>
+        /// Verify that the factory is returnning SqlDBDatabaseDetailHandler
+        /// </summary>
+        [Fact]
+        public void ListDatabaseRequestFactoryReturnsSqlDBHandler()
+        {
+            var handler = ListDatabaseRequestHandlerFactory.getHandler(includeDetails: true, isSqlDB: true);
+            Assert.IsType(typeof(SqlDBDatabaseDetailHandler), handler);
+        }
+
+        /// <summary>
+        /// Verify that the factory is returnning SqlServerDatabaseDetailHandler
+        /// </summary>
+        [Fact]
+        public void ListDatabaseRequestFactoryReturnsSqlServerHandler()
+        {
+            var handler = ListDatabaseRequestHandlerFactory.getHandler(includeDetails: true, isSqlDB: false);
+            Assert.IsType(typeof(SqlServerDatabaseDetailHandler), handler);
         }
 
         /// <summary>
@@ -914,7 +1002,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             // setup connection service with callback
             var connectionService = TestObjects.GetTestConnectionService();
             connectionService.RegisterOnConnectionTask(
-                (sqlConnection) => {
+                (sqlConnection) =>
+                {
                     callbackInvoked = true;
                     return Task.FromResult(true);
                 }
@@ -1048,7 +1137,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         /// Test that the connection summary comparer creates a hash code correctly
         /// </summary>
         [Theory]
-        [InlineData(true, null, null ,null)]
+        [InlineData(true, null, null, null)]
         [InlineData(false, null, null, null)]
         [InlineData(false, null, null, "sa")]
         [InlineData(false, null, "test", null)]
@@ -1586,7 +1675,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         [Fact]
         public async void ConnectingWithAzureAccountUsesToken()
         {
-             // Set up mock connection factory
+            // Set up mock connection factory
             var mockFactory = new Mock<ISqlConnectionFactory>();
             mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(new TestSqlConnection(null));
