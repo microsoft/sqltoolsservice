@@ -25,6 +25,33 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Profiler
     public class ProfilerServiceTests
     {
         /// <summary>
+        /// Verify Open XEL request handler
+        /// </summary>
+        [Fact]
+        public async Task TestHandleOpenXelFileRequest()
+        {
+            var serviceHostMock = new Mock<IProtocolEndpoint>();
+            ProfilerService profilerService = new ProfilerService();
+            profilerService.ServiceHost = serviceHostMock.Object;
+
+            // start a new session
+            var openParams = new OpenXelFileParams();
+            openParams.OwnerUri = "testuri";
+            openParams.FilePath = "/Users/karlb/xel/trace.xel";
+
+            var context = new Mock<RequestContext<OpenXelFileResult>>();
+            context.Setup(rc => rc.SendResult(It.IsAny<OpenXelFileResult>()))
+                .Returns<OpenXelFileResult>((result) =>
+                {
+                    return Task.FromResult(0);
+                });
+
+            await profilerService.HandleOpenXelFileRequest(openParams, context.Object);
+
+            context.VerifyAll();
+        }
+
+        /// <summary>
         /// Verify that a start profiling request starts a profiling session
         /// </summary>
         //[Fact]

@@ -27,6 +27,8 @@ using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 
+using Microsoft.SqlServer.XEvent.XELite;
+
 namespace Microsoft.SqlTools.ServiceLayer.Profiler
 {
     /// <summary>
@@ -116,8 +118,57 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             this.ServiceHost.SetRequestHandler(PauseProfilingRequest.Type, HandlePauseProfilingRequest);
             this.ServiceHost.SetRequestHandler(GetXEventSessionsRequest.Type, HandleGetXEventSessionsRequest);
             this.ServiceHost.SetRequestHandler(DisconnectSessionRequest.Type, HandleDisconnectSessionRequest);
+            this.ServiceHost.SetRequestHandler(OpenXelFileRequest.Type, HandleOpenXelFileRequest);
 
             this.SessionMonitor.AddSessionListener(this);
+        }
+
+        private List<ProfilerEvent> fileSessionEvents = null;
+
+        internal async Task HandleXEvent(IXEvent xEvent)
+        {
+            ProfilerEvent profileEvent = new ProfilerEvent(xEvent.Name, xEvent.Timestamp.ToString());
+            foreach (var kvp in xEvent.Fields) 
+            {
+                profileEvent.Values.Add(kvp.Key, kvp.Value.ToString());
+            }
+            fileSessionEvents.Add(profileEvent);
+        }
+
+        /// <summary>
+        /// Handle request to start a profiling session
+        /// </summary>
+        internal async Task HandleOpenXelFileRequest(OpenXelFileParams parameters, RequestContext<OpenXelFileResult> requestContext)
+        {
+            await Task.Run(async () =>
+            {
+                try
+                {
+                    fileSessionEvents = new List<ProfilerEvent>();
+                    CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
+                    var eventStreamer = new XEFileEventStreamer(parameters.FilePath);
+                    await eventStreamer.ReadEventStream(HandleXEvent, threadCancellationToken.Token);
+
+                    // pass the profiler events on to the client
+                    await this.ServiceHost.SendEvent(
+                        ProfilerEventsAvailableNotification.Type,
+                        new ProfilerEventsAvailableParams()
+                        {
+                            OwnerUri = parameters.OwnerUri,
+                            Events = fileSessionEvents,
+                            EventsLost = false
+                        });
+
+                    fileSessionEvents = null;
+
+                    var result = new OpenXelFileResult();
+                    await requestContext.SendResult(result);
+                }
+                catch (Exception e)
+                {
+                    await requestContext.SendError(new Exception(SR.CreateSessionFailed(e.Message)));
+                }
+            });
         }
 
         /// <summary>

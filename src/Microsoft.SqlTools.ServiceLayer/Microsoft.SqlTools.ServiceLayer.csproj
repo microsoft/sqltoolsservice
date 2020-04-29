@@ -23,6 +23,7 @@
     <PackageReference Include="Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider" Version="1.0.0" />
     <PackageReference Include="Microsoft.SqlServer.DacFx" Version="150.4763.1-preview" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.6.0-preview3-26501-04" />
+    <PackageReference Include="Microsoft.SqlServer.XEvent.XELite" Version="2019.11.20.2" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="**\*.cs" />
