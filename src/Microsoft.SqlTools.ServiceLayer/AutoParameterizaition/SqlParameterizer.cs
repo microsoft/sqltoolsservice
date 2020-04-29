@@ -48,7 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.AutoParameterizaition
             commandToParameterize.CommandText = formattedSQL;
             commandToParameterize.Parameters.AddRange(multiVisitor.Parameters.ToArray());
 
-            multiVisitor.Reset();            
+            multiVisitor.Reset();
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.AutoParameterizaition
             }
 
             int CurrentScriptlength = scriptToParse.Length;
-            if (CurrentScriptlength >= maxStringLength)
+            if (CurrentScriptlength > maxStringLength)
             {
                 ScriptFileMarker maxStringLengthCodeSenseItem = new ScriptFileMarker
                 {
