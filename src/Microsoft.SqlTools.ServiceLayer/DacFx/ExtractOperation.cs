@@ -30,7 +30,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         public override void Execute()
         {
             Version version = ParseVersion(this.Parameters.ApplicationVersion);
-            this.DacServices.Extract(this.Parameters.PackageFilePath, this.Parameters.DatabaseName, this.Parameters.ApplicationName, version, null, null, null, this.CancellationToken);
+            DacExtractOptions extractOptions = GetExtractOptions(this.Parameters.ExtractTarget);
+            this.DacServices.Extract(this.Parameters.PackageFilePath, this.Parameters.DatabaseName, this.Parameters.ApplicationName, version, applicationDescription:null, tables:null, extractOptions:extractOptions, cancellationToken:this.CancellationToken);
         }
 
         public static Version ParseVersion(string incomingVersion)
@@ -42,6 +43,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             }
 
             return parsedVersion;
+        }
+
+        private DacExtractOptions GetExtractOptions(DacExtractTarget extractTarget)
+        {
+            DacExtractOptions extractOptions = new DacExtractOptions() { ExtractTarget = extractTarget }; 
+            return extractOptions;
         }
     }
 }

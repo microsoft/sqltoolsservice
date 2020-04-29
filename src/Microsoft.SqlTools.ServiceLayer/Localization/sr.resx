@@ -1783,6 +1783,10 @@
     <value>Generate script</value>
     <comment></comment>
   </data>
+  <data name="ProjectExtractTaskName" xml:space="preserve">
+    <value>Extract project files</value>
+    <comment></comment>
+  </data>
   <data name="ExtractInvalidVersion" xml:space="preserve">
     <value>Invalid version &apos;{0}&apos; passed. Version must be in the format x.x.x.x where x is a number.</value>
     <comment></comment>

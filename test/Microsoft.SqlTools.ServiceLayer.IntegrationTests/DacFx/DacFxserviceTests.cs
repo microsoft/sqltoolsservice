@@ -2,6 +2,10 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+using System;
+using System.IO;
+using System.Threading.Tasks;
+using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.DacFx;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
@@ -9,9 +13,6 @@ using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Moq;
-using System;
-using System.IO;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
@@ -152,6 +153,82 @@ CREATE TABLE [dbo].[table3]
                 service.PerformOperation(operation, TaskExecutionMode.Execute);
 
                 VerifyAndCleanup(extractParams.PackageFilePath);
+            }
+            finally
+            {
+                testdb.Cleanup();
+            }
+        }
+
+        /// <summary>
+        /// Verify the extract request to create Sql file
+        /// </summary>
+        [Fact]
+        public async void ExtractDBToFileTarget()
+        {
+            var result = GetLiveAutoCompleteTestObjects();
+            SqlTestDb testdb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, doNotCleanupDb:false, databaseName:null, query:SourceScript, dbNamePrefix:"DacFxExtractDBToFileTarget");
+            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
+            Directory.CreateDirectory(folderPath);
+
+            try
+            {
+                var extractParams = new ExtractParams
+                {
+                    DatabaseName = testdb.DatabaseName,
+                    PackageFilePath = Path.Combine(folderPath, string.Format("{0}.sql", testdb.DatabaseName)),
+                    ApplicationName = "test",
+                    ApplicationVersion = "1.0.0.0",
+                    ExtractTarget = DacExtractTarget.File 
+                };
+
+                DacFxService service = new DacFxService();
+                ExtractOperation operation = new ExtractOperation(extractParams, result.ConnectionInfo);
+                service.PerformOperation(operation, TaskExecutionMode.Execute);
+
+                VerifyAndCleanup(extractParams.PackageFilePath);
+            }
+            finally
+            {
+                testdb.Cleanup();
+            }
+        }
+
+        /// <summary>
+        /// Verify the extract request to create a Flat file structure
+        /// </summary>
+        [Fact]
+        public async void ExtractDBToFlatTarget()
+        {
+            var result = GetLiveAutoCompleteTestObjects();
+            SqlTestDb testdb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, doNotCleanupDb: false, databaseName: null, query: SourceScript, dbNamePrefix: "DacFxExtractDBToFlatTarget");
+            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest","FlatExtract");
+            Directory.CreateDirectory(folderPath);
+
+            try
+            {
+                var extractParams = new ExtractParams
+                {
+                    DatabaseName = testdb.DatabaseName,
+                    PackageFilePath = folderPath,
+                    ApplicationName = "test",
+                    ApplicationVersion = "1.0.0.0",
+                    ExtractTarget = DacExtractTarget.Flat
+                };
+
+                DacFxService service = new DacFxService();
+                ExtractOperation operation = new ExtractOperation(extractParams, result.ConnectionInfo);
+                service.PerformOperation(operation, TaskExecutionMode.Execute);
+
+                // Verify two sql files are generated in the target folder path
+                int actualCnt = Directory.GetFiles(folderPath, "*.sql", SearchOption.AllDirectories).Length;
+                Assert.Equal(actualCnt, 2);
+
+                // Remove the directory
+                if (Directory.Exists(folderPath))
+                {
+                    Directory.Delete(folderPath, true);
+                }
             }
             finally
             {
