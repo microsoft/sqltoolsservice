@@ -3,7 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.SqlServer.TransactSql.ScriptDom;
@@ -16,7 +15,7 @@ namespace Microsoft.SqlTools.ServiceLayer.AutoParameterizaition
 {
     public static class SqlParameterizer
     {
-        private const int maxStringLength = 300000;// Approximately 600 Kb
+        private const int maxStringLength = 300000; // Approximately 600 Kb
         private static readonly IList<ScriptFileMarker> EmptyCodeSenseItemList = Enumerable.Empty<ScriptFileMarker>().ToList();
 
         public static SqlScriptGenerator GetScriptGenerator()
@@ -92,7 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.AutoParameterizaition
                 multiVisitor.CodeSenseMessages.AddRange(multiVisitor.CodeSenseErrors);
             }
 
-            return multiVisitor.CodeSenseMessages;            
+            return multiVisitor.CodeSenseMessages;
         }
 
         private static TSqlFragment GetAbstractSyntaxTree(DbCommand commandToParameterize)
