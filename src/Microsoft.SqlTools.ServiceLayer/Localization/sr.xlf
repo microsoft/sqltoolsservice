@@ -2118,6 +2118,7 @@
         <target state="new">The current script is too large for Parameterization for Always Encrypted, please disable Parameterization for Always Encrypted in Query Options (Query &gt; Query Options &gt; Execution &gt; Advanced). Maximum allowable length: {0} characters, Current script length: {1} characters</target>
         <note>.
  Parameters: 0 - maxChars (int), 1 - currentChars (int) </note>
+      </trans-unit>
       <trans-unit id="ProjectExtractTaskName">
         <source>Extract project files</source>
         <target state="new">Extract project files</target>
