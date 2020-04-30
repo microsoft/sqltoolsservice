@@ -109,11 +109,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.AutoParameterization
             // SQL greater than 300000 characters should throw   
             string bigSql = string.Concat(Enumerable.Repeat(sqlLength_300, 1001));
             DbCommand command2 = new SqlCommand { CommandText = bigSql };
-            Assert.Throws<ParameterizationScriptTooLargeException>(command2.Parameterize);
+            Assert.Throws<ParameterizationScriptTooLargeException>(() => command2.Parameterize());
         }
 
         /// <summary>
-        /// During parameterization, iff we could not parse the SQL we will throw an <c>ParameterizationParsingException</c>.
+        /// During parameterization, if we could not parse the SQL we will throw an <c>ParameterizationParsingException</c>.
         /// Better to catch the error here than on the server.
         /// </summary>
         [Fact]
@@ -124,7 +124,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.AutoParameterization
             string sql = string.Concat(Repeat(invalidSql, 1000));
             DbCommand command = new SqlCommand { CommandText = sql };
 
-            Assert.Throws<ParameterizationParsingException>(command.Parameterize);
+            Assert.Throws<ParameterizationParsingException>(() => command.Parameterize());
         }
 
         #endregion
@@ -190,8 +190,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.AutoParameterization
 
             Assert.NotEmpty(result);
             Assert.Equal(expected: 1, actual: result.Count);
-            Assert.Equal(expected: ScriptFileMarkerLevel.Error, result[0].Level);
-            Assert.Equal(expected: expectedMessage, result[0].Message);
+            Assert.Equal(expected: ScriptFileMarkerLevel.Error, actual: result[0].Level);
+            Assert.Equal(expected: expectedMessage, actual: result[0].Message);
         }
 
         /// <summary>
