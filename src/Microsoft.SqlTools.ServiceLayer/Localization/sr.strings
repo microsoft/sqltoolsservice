@@ -811,6 +811,7 @@ DeployDacpacTaskName = Deploy dacpac
 GenerateScriptTaskName = Generate script
 ProjectExtractTaskName = Extract project files
 ExtractInvalidVersion = Invalid version '{0}' passed. Version must be in the format x.x.x.x where x is a number.
+ProjectBuildTaskName = Build Dacpac from Project
 
 ############################################################################
 # Schema Compare

@@ -67,10 +67,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         public static TaskMetadata Create(IRequestParams requestParam, string taskName, ITaskOperation taskOperation, ConnectionService connectionService, string targetLocation = null)
         {
             TaskMetadata taskMetadata = new TaskMetadata();
-            ConnectionInfo connInfo;
-            connectionService.TryFindConnection(
-                    requestParam.OwnerUri,
-                    out connInfo);
+            ConnectionInfo connInfo = null;
+            if (requestParam.OwnerUri != null)
+            {
+                connectionService.TryFindConnection(
+                      requestParam.OwnerUri,
+                      out connInfo);
+            }
 
             if (connInfo != null)
             {
@@ -83,15 +86,18 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
             }
 
             IScriptableRequestParams scriptableRequestParams = requestParam as IScriptableRequestParams;
-            if (scriptableRequestParams != null && scriptableRequestParams.TaskExecutionMode == TaskExecutionMode.Script)
+            if (scriptableRequestParams != null)
             {
-                taskMetadata.Name = string.Format("{0} {1}", taskName, SR.ScriptTaskName);
+                taskMetadata.TaskExecutionMode = scriptableRequestParams.TaskExecutionMode;
+                if (scriptableRequestParams.TaskExecutionMode == TaskExecutionMode.Script)
+                {
+                    taskMetadata.Name = string.Format("{0} {1}", taskName, SR.ScriptTaskName);
+                }
             }
             else
             {
                 taskMetadata.Name = taskName;
             }
-            taskMetadata.TaskExecutionMode = scriptableRequestParams.TaskExecutionMode;
 
             taskMetadata.TaskOperation = taskOperation;
             taskMetadata.OwnerUri = requestParam.OwnerUri;

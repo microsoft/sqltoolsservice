@@ -1789,4 +1789,7 @@
     <comment>.
  Parameters: 0 - editionCode (int) </comment>
   </data>
+  <data name="ProjectBuildTaskName" xml:space="preserve">
+    <value>Build Dacpac from Project</value>
+  </data>
 </root>

@@ -26,6 +26,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         private readonly Lazy<ConcurrentDictionary<string, DacFxOperation>> operations =
             new Lazy<ConcurrentDictionary<string, DacFxOperation>>(() => new ConcurrentDictionary<string, DacFxOperation>());
 
+        internal Task CurrentDacFxTask;
+
         /// <summary>
         /// Gets the singleton instance object
         /// </summary>
@@ -223,9 +225,30 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             }
         }
 
-        private void ExecuteOperation(DacFxOperation operation, DacFxParams parameters, string taskName, RequestContext<DacFxResult> requestContext)
+        public async Task HandleProjectBuildRequest(ProjectBuildParams parameters, RequestContext<DacFxResult> requestContext)
         {
-            Task.Run(async () =>
+            try
+            {
+                ProjectBuildOperation operation = new ProjectBuildOperation(parameters);
+                ExecuteOperation(operation, parameters, SR.ProjectBuildTaskName, requestContext);
+
+                await requestContext.SendResult(new DacFxResult()
+                {
+                    OperationId = operation.OperationId,
+                    Success = true,
+                    ErrorMessage = string.Empty
+                });
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e);
+            }
+        }
+
+
+        private void ExecuteOperation(ITaskOperation operation, DacFxParams parameters, string taskName, RequestContext<DacFxResult> requestContext)
+        {
+            CurrentDacFxTask = Task.Run(async () =>
             {
                 try
                 {
@@ -240,7 +263,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     await sqlTask.RunAsync();
                     await requestContext.SendResult(new DacFxResult()
                     {
-                        OperationId = operation.OperationId,
+                        OperationId = GetOperationId(operation),
                         Success = sqlTask.TaskStatus == SqlTaskStatus.Succeeded,
                         ErrorMessage = string.Empty
                     });
@@ -249,7 +272,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 {
                     await requestContext.SendResult(new DacFxResult()
                     {
-                        OperationId = operation.OperationId,
+                        OperationId = GetOperationId(operation),
                         Success = false,
                         ErrorMessage = e.Message
                     });
@@ -257,6 +280,15 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             });
         }
 
+        private string GetOperationId(ITaskOperation operation)
+        {
+            // check for the project operation types and use the operation id
+            // will Automatically throw if none matched.
+            return (operation as ProjectBuildOperation) != null ?
+                (operation as ProjectBuildOperation).OperationId :
+                (operation as DacFxOperation).OperationId;
+        }
+        
         private SqlTaskManager SqlTaskManagerInstance
         {
             get
