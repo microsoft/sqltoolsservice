@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System.Collections.Generic;
 using Microsoft.SqlTools.Credentials.Contracts;
 
 namespace Microsoft.SqlTools.Credentials
@@ -36,6 +37,10 @@ namespace Microsoft.SqlTools.Credentials
         /// <param name="credentialId">The name of the credential to find the password for. This is required</param>
         /// <returns>True if password existed and was deleted, false otherwise</returns>
         bool DeletePassword(string credentialId);
+
+        /// <summary>
+        /// Finds credentials with a specific pattern
+        bool GetCredentials(string credentialPattern, out List<Credential> credentials);
 
     }
 }

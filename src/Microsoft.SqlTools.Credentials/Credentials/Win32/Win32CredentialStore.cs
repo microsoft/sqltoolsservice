@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System.Collections.Generic;
 using Microsoft.SqlTools.Credentials.Contracts;
 using Microsoft.SqlTools.Utility;
 
@@ -35,7 +36,7 @@ namespace Microsoft.SqlTools.Credentials.Win32
                 if (set.Count > 0)
                 {
                     foundCred = set[0];
-                }                
+                }
 
                 if (foundCred != null)
                 {
@@ -50,14 +51,29 @@ namespace Microsoft.SqlTools.Credentials.Win32
         {
             Credential.ValidateForSave(credential);
 
-            using (Win32Credential cred = 
+            using (Win32Credential cred =
                 new Win32Credential(AnyUsername, credential.Password, credential.CredentialId, CredentialType.Generic)
                 { PersistanceType = PersistanceType.LocalComputer })
             {
                 return cred.Save();
             }
-                
+
+        }
+
+        public bool GetCredentials(string credentialPattern, out List<Credential> credentials)
+        {
+            credentials = null;
+            credentialPattern = credentialPattern + '*'; // Add this to filter everything that starts with the credentialPattern
+            using (CredentialSet set = new CredentialSet(credentialPattern))
+            {
+                if (set.Count <= 0)
+                {
+                    return false;
+                }
+                credentials = set.ConvertAll(credential => new Credential(credential.Username, credential.Password));
+                return true;
+            }
         }
     }
-    
+
 }

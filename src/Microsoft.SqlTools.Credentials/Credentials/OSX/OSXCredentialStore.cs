@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Microsoft.SqlTools.Credentials.Contracts;
 using Microsoft.SqlTools.Utility;
@@ -45,14 +46,20 @@ namespace Microsoft.SqlTools.Credentials.OSX
             return result;
         }
 
+        public bool GetCredentials(string credentialPattern, out List<Credential> credentials)
+        {
+            credentials = null;
+            return true;
+        }
+
         private bool AddGenericPassword(Credential credential)
-        {            
+        {
             IntPtr passwordPtr = Marshal.StringToCoTaskMemUni(credential.Password);
             Interop.Security.OSStatus status = Interop.Security.SecKeychainAddGenericPassword(
-              IntPtr.Zero, 
-              InteropUtils.GetLengthInBytes(credential.CredentialId), 
+              IntPtr.Zero,
+              InteropUtils.GetLengthInBytes(credential.CredentialId),
               credential.CredentialId,
-              0, 
+              0,
               null,
               InteropUtils.GetLengthInBytes(credential.Password),
               passwordPtr,
@@ -69,7 +76,7 @@ namespace Microsoft.SqlTools.Credentials.OSX
             password = null;
             using (KeyChainItemHandle handle = LookupKeyChainItem(credentialId))
             {
-                if( handle == null)
+                if (handle == null)
                 {
                     return false;
                 }
@@ -84,6 +91,7 @@ namespace Microsoft.SqlTools.Credentials.OSX
             UInt32 passwordLength;
             IntPtr passwordPtr;
             IntPtr item;
+            
             Interop.Security.OSStatus status = Interop.Security.SecKeychainFindGenericPassword(
                 IntPtr.Zero,
                 InteropUtils.GetLengthInBytes(credentialId),
@@ -94,7 +102,7 @@ namespace Microsoft.SqlTools.Credentials.OSX
                 out passwordPtr,
                 out item);
 
-            if(status == Interop.Security.OSStatus.ErrSecSuccess)
+            if (status == Interop.Security.OSStatus.ErrSecSuccess)
             {
                 return new KeyChainItemHandle(item, passwordPtr, passwordLength);
             }
@@ -112,7 +120,7 @@ namespace Microsoft.SqlTools.Credentials.OSX
                 }
                 Interop.Security.OSStatus status = Interop.Security.SecKeychainItemDelete(handle);
                 return status == Interop.Security.OSStatus.ErrSecSuccess;
-            }            
+            }
         }
 
         private class KeyChainItemHandle : SafeCreateHandle
@@ -124,22 +132,23 @@ namespace Microsoft.SqlTools.Credentials.OSX
             {
 
             }
-            
+
             public KeyChainItemHandle(IntPtr itemPtr) : this(itemPtr, IntPtr.Zero, 0)
             {
-                
+
             }
 
             public KeyChainItemHandle(IntPtr itemPtr, IntPtr passwordPtr, UInt32 passwordLength)
                 : base(itemPtr)
             {
                 this.passwordPtr = passwordPtr;
-                this.passwordLength = (int) passwordLength;
+                this.passwordLength = (int)passwordLength;
             }
-            
-            public string Password 
-            { 
-                get {
+
+            public string Password
+            {
+                get
+                {
                     if (IsInvalid)
                     {
                         return null;
