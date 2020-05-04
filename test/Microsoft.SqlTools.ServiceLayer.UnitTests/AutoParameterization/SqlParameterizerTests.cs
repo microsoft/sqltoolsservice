@@ -155,7 +155,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.AutoParameterization
 
         /// <summary>
         /// When requesting a collection of <c>ScriptFileMarker</c> by calling the <c>SqlParameterizer.CodeSense</c>
-        /// method, if a null script is passed in, the reuslt shoul be an empty collection.
+        /// method, if a null script is passed in, the reuslt should be an empty collection.
         /// </summary>
         [Fact]
         public void CodeSenseShouldReturnEmptyListWhenGivenANullScript()
@@ -169,7 +169,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.AutoParameterization
 
         /// <summary>
         /// When requesting a collection of <c>ScriptFileMarker</c> by calling the <c>SqlParameterizer.CodeSense</c>
-        /// method, if a script is passed in that contains no valid parameters, the reuslt shoul be an empty collection.
+        /// method, if a script is passed in that contains no valid parameters, the reuslt should be an empty collection.
         /// </summary>
         [Fact]
         public void CodeSenseShouldReturnEmptyListWhenGivenAParameterlessScript()
@@ -218,7 +218,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.AutoParameterization
 
         /// <summary>
         /// When requesting a collection of <c>ScriptFileMarker</c> by calling the <c>SqlParameterizer.CodeSense</c>
-        /// method, if a script is passed in that contains 3 valid parameters, the reuslt shoul be a collection of
+        /// method, if a script is passed in that contains 3 valid parameters, the reuslt should be a collection of
         /// three informational code sense items. These will be returned to ADS to display to the user as intelli-sense.
         /// </summary>
         [Fact]
