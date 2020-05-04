@@ -38,7 +38,11 @@ namespace Microsoft.SqlTools.ServiceLayer.AutoParameterizaition
             SqlScriptGenerator scriptGenerator = GetScriptGenerator();
             scriptGenerator.GenerateScript(rootFragment, out string formattedSQL);
 
-            commandToParameterize.CommandText = formattedSQL;
+            if (!string.IsNullOrEmpty(formattedSQL))
+            {
+                commandToParameterize.CommandText = formattedSQL;
+            }
+
             commandToParameterize.Parameters.AddRange(multiVisitor.Parameters.ToArray());
 
             multiVisitor.Reset();

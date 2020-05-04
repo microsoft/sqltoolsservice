@@ -3,14 +3,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System.Collections.Generic;
+using System.Data.Common;
+using System.Linq;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.ServiceLayer.AutoParameterizaition;
 using Microsoft.SqlTools.ServiceLayer.AutoParameterizaition.Exceptions;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
-using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Linq;
 using Xunit;
 
 using static System.Linq.Enumerable;
@@ -103,12 +102,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.AutoParameterization
                 GO";
 
             // SQL less than or equal to 300000 should pass  
-            string smallSql = string.Concat(Repeat(sqlLength_300, 1000));
+            string smallSql = string.Concat(Repeat(element: sqlLength_300, count: 1000));
             DbCommand command1 = new SqlCommand { CommandText = smallSql };
             command1.Parameterize();
 
             // SQL greater than 300000 characters should throw   
-            string bigSql = string.Concat(Enumerable.Repeat(sqlLength_300, 1001));
+            string bigSql = string.Concat(Repeat(element: sqlLength_300, count: 1001));
             DbCommand command2 = new SqlCommand { CommandText = bigSql };
             Assert.Throws<ParameterizationScriptTooLargeException>(() => command2.Parameterize());
         }
@@ -122,7 +121,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.AutoParameterization
         {
             string invalidSql = "THIS IS INVALID SQL";
             
-            string sql = string.Concat(Repeat(invalidSql, 1000));
+            string sql = string.Concat(Repeat(element: invalidSql, count: 1000));
             DbCommand command = new SqlCommand { CommandText = sql };
 
             Assert.Throws<ParameterizationParsingException>(() => command.Parameterize());
@@ -147,6 +146,28 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.AutoParameterization
 
             DbCommand command = new SqlCommand { CommandText = sql };
             Assert.Throws<ParameterizationFormatException>(() => command.Parameterize());
+        }
+
+        /// <summary>
+        /// A side effect of the parameterization process is that, when a batch script was composed
+        /// entirely of comments, the comments were stripped away and the <c>CommandText</c>
+        /// property of the <c>DbCommand</c> would be replaced with an empty string. When this happens,
+        /// the DbCommand object will throw an exception with the following message:
+        ///    BeginExecuteReader: CommandText property has not been initialized
+        /// </summary>
+        [Fact]
+        public void CommentOnlyBatchesShouldNotBeErasedFromCommandText()
+        {
+            string sql = $@"
+                -- ALTER TABLE BatchParameterization
+                --     ALTER COLUMN
+                --         [unique_key] [UNIQUEIDENTIFIER] NOT NULL";
+
+            DbCommand command = new SqlCommand { CommandText = sql };
+            command.Parameterize();
+
+            Assert.False(string.IsNullOrEmpty(command.CommandText));
+            Assert.Equal(expected: sql, actual: command.CommandText);
         }
 
         #endregion
@@ -205,10 +226,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.AutoParameterization
                 GO";
             
             // Repeat the SQL 1001 times to exceed length threshold
-            string sql = string.Concat(Repeat(sqlLength_300, 1001));
+            string sql = string.Concat(Repeat(element: sqlLength_300, count: 1001));
 
             IList<ScriptFileMarker> result = SqlParameterizer.CodeSense(sql);
-            string expectedMessage = SR.ScriptTooLarge(300000, sql.Length);
+            string expectedMessage = SR.ScriptTooLarge(maxChars: 300000, currentChars: sql.Length);
 
             Assert.NotEmpty(result);
             Assert.Equal(expected: 1, actual: result.Count);
