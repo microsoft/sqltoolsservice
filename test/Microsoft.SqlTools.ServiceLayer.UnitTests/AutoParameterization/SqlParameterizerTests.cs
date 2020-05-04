@@ -7,6 +7,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.ServiceLayer.AutoParameterizaition;
 using Microsoft.SqlTools.ServiceLayer.AutoParameterizaition.Exceptions;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
@@ -125,6 +126,27 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.AutoParameterization
             DbCommand command = new SqlCommand { CommandText = sql };
 
             Assert.Throws<ParameterizationParsingException>(() => command.Parameterize());
+        }
+
+        /// <summary>
+        /// While the SqlParameterizer should parameterize Transact-SQL variables that are declared and initialized 
+        /// in the same statement(inline initialization) and are initialized using a single literal, the type of the 
+        /// literal used for the initialization of the variable must also match the type in the variable declaration.
+        /// If not, a <c>ParameterizationFormatException</c> should get thrown.
+        /// </summary>
+        [Fact]
+        public void SqlParameterizerShouldThrowWhenLiteralHasTypeMismatch()
+        {
+            // variable is declared an int but is getting set to character data
+            string sql = $@"
+                DECLARE @Number int = 'ABCDEFG'
+
+                SELECT * FROM [dbo].[Table]
+                WHERE [N] = @Number
+                GO";
+
+            DbCommand command = new SqlCommand { CommandText = sql };
+            Assert.Throws<ParameterizationFormatException>(() => command.Parameterize());
         }
 
         #endregion
