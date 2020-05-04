@@ -4,11 +4,11 @@
 //
 
 using System.Collections.Generic;
-using System.IO;
-using Microsoft.SqlServer.TransactSql.ScriptDom;
-using System.Linq;
-using Microsoft.SqlTools.ServiceLayer.AutoParameterizaition.Exceptions;
 using System.Data.Common;
+using System.IO;
+using System.Linq;
+using Microsoft.SqlServer.TransactSql.ScriptDom;
+using Microsoft.SqlTools.ServiceLayer.AutoParameterizaition.Exceptions;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.AutoParameterizaition

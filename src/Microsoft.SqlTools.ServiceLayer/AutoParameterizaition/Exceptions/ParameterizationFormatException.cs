@@ -3,8 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.ServiceLayer.AutoParameterizaition.Helpers;
 using System;
+using Microsoft.SqlTools.ServiceLayer.AutoParameterizaition.Helpers;
 
 namespace Microsoft.SqlTools.ServiceLayer.AutoParameterizaition.Exceptions
 {

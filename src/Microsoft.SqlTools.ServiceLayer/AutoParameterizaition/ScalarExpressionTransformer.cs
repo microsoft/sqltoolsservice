@@ -3,17 +3,17 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.Data.SqlClient;
-using Microsoft.SqlServer.TransactSql.ScriptDom;
-using Microsoft.SqlTools.ServiceLayer.AutoParameterizaition.Exceptions;
-using Microsoft.SqlTools.ServiceLayer.AutoParameterizaition.Helpers;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlTypes;
 using System.Globalization;
 using System.Linq;
+using Microsoft.Data.SqlClient;
+using Microsoft.SqlServer.TransactSql.ScriptDom;
+using Microsoft.SqlTools.ServiceLayer.AutoParameterizaition.Exceptions;
+using Microsoft.SqlTools.ServiceLayer.AutoParameterizaition.Helpers;
+using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.AutoParameterizaition
 {
@@ -130,7 +130,6 @@ namespace Microsoft.SqlTools.ServiceLayer.AutoParameterizaition
 
             if (node is Literal literal)
             {
-
                 if (ShouldParameterize(literal))
                 {
                     var variableReference = new VariableReference();
@@ -142,7 +141,6 @@ namespace Microsoft.SqlTools.ServiceLayer.AutoParameterizaition
 
                 return;
             }
-
 
             if (node is UnaryExpression unaryExpression)
             {
@@ -162,10 +160,8 @@ namespace Microsoft.SqlTools.ServiceLayer.AutoParameterizaition
                 return;
             }
 
-
             if (node is ParenthesisExpression parenthesisExpression)
             {
-
                 ScalarExpression expression = parenthesisExpression.Expression;
 
                 if (expression != null)

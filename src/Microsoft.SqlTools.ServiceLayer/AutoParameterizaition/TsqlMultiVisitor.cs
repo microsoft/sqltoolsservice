@@ -4,9 +4,9 @@
 //
 
 using System.Collections.Generic;
+using System.Text;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.TransactSql.ScriptDom;
-using System.Text;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.AutoParameterizaition
