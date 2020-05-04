@@ -18,15 +18,9 @@ namespace Microsoft.SqlTools.ServiceLayer.AutoParameterizaition
         private const int maxStringLength = 300000; // Approximately 600 Kb
         private static readonly IList<ScriptFileMarker> EmptyCodeSenseItemList = Enumerable.Empty<ScriptFileMarker>().ToList();
 
-        public static SqlScriptGenerator GetScriptGenerator()
-        {
-            return new Sql150ScriptGenerator();
-        }
+        public static SqlScriptGenerator GetScriptGenerator() => new Sql150ScriptGenerator();
 
-        public static TSqlParser GetTSqlParser(bool initialQuotedIdentifiers)
-        {
-            return new TSql150Parser(initialQuotedIdentifiers);
-        }
+        public static TSqlParser GetTSqlParser(bool initialQuotedIdentifiers) => new TSql150Parser(initialQuotedIdentifiers);
 
         /// <summary>
         /// This method will parameterize the given SqlCommand.
