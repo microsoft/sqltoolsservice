@@ -179,6 +179,20 @@ steps:
     includeRootFolder: false
     archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win-x86-netcoreapp2.2.zip'
 
+- task: ArchiveFiles@1
+  displayName: 'Archive windows10 arm 32 bit build'
+  inputs:
+    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win10-arm/netcoreapp2.2'
+    includeRootFolder: false
+    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win10-arm-netcoreapp2.2.zip'
+
+- task: ArchiveFiles@1
+  displayName: 'Archive windows10 arm 64 bit build'
+  inputs:
+    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win10-arm64/netcoreapp2.2'
+    includeRootFolder: false
+    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win10-arm64-netcoreapp2.2.zip'
+
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact: drop'
   inputs:
