@@ -66,6 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.AutoParameterizaition
                     Message = SR.ScriptTooLarge(maxStringLength, CurrentScriptlength),
                     ScriptRegion = new ScriptRegion
                     {
+                        // underline first row in the text
                         StartLineNumber = 1,
                         StartColumnNumber = 1,
                         EndLineNumber = 2,
