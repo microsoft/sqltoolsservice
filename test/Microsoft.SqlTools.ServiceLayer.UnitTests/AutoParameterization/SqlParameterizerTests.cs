@@ -3,8 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Linq;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.ServiceLayer.AutoParameterizaition;
@@ -230,6 +232,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.AutoParameterization
 
             IList<ScriptFileMarker> result = SqlParameterizer.CodeSense(sql);
             string expectedMessage = SR.ScriptTooLarge(maxChars: 300000, currentChars: sql.Length);
+
+            Debug.WriteLine(result[0].Message);
+            Debug.WriteLine(result[1].Message);
+            Debug.WriteLine(result[2].Message);
+            Debug.WriteLine(result[3].Message);
+            Debug.WriteLine(result[4].Message);
+            Debug.WriteLine(result[5].Message);
+            Debug.WriteLine(result[6].Message);
+            Debug.WriteLine(result[7].Message);
+            Debug.WriteLine(result[8].Message);
+            Debug.WriteLine(result[9].Message);
 
             Assert.NotEmpty(result);
             Assert.Equal(expected: 1, actual: result.Count);
