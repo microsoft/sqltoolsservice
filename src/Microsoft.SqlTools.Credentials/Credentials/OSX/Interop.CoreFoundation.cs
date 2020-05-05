@@ -39,26 +39,31 @@ namespace Microsoft.SqlTools.Credentials
             /// <summary>
             /// Creates a CFDictionary from array of 8 bit strings as keys and values. Follows the "Create Rule" where if you create it, you delete it.
             /// </summary>
-            [DllImport(Interop.Libraries.CoreFoundationLibrary, CharSet = CharSet.Ansi)]
+            [DllImport(Interop.Libraries.CoreFoundationLibrary)]
             private static extern SafeCreateHandle CFDictionaryCreate(
                 IntPtr allocator,
-                [MarshalAs(UnmanagedType.LPArray)] IntPtr[] keys,
-                [MarshalAs(UnmanagedType.LPArray)] IntPtr[] values,
-                ulong numValues,
+                IntPtr[] keys,
+                IntPtr[] values,
+                long numValues,
                 IntPtr keyCallbacks,
                 IntPtr valueCallbacks
             );
 
-            internal static SafeCreateHandle CFDictionaryCreate(OrderedDictionary dictionary)
+            /// <summary>
+            /// This method is to make it easier to create a CFDictionary object
+            /// </summary>
+            /// <param name="list">A (string, string) list</param>
+            /// <returns></returns>
+            internal static SafeCreateHandle CFDictionaryCreate(List<(string, string)> list)
             {
-                IntPtr[] keys = new IntPtr[dictionary.Count];
-                IntPtr[] values = new IntPtr[dictionary.Count];
+                IntPtr[] keys = new IntPtr[list.Count];
+                IntPtr[] values = new IntPtr[list.Count];
 
                 ulong i = 0;
-                foreach (KeyValuePair<string, string> item in dictionary)
+                foreach (var item in list)
                 {
-                    var keyPtr = CFStringCreateWithCString(item.Key);
-                    var valPtr = CFStringCreateWithCString(item.Value);
+                    var keyPtr = CFStringCreateWithCString(item.Item1);
+                    var valPtr = CFStringCreateWithCString(item.Item2);
 
                     keys[i] = keyPtr.DangerousGetHandle();
                     values[i] = valPtr.DangerousGetHandle();
