@@ -48,8 +48,30 @@ namespace Microsoft.SqlTools.Credentials.OSX
 
         public bool GetCredentials(string credentialPattern, out List<Credential> credentials)
         {
-            credentials = null;
+            var query = new List<(string, string)>
+            {
+                ("kSecClass", "kSecClassGenericPassword"),
+                ("kSecAttrService", credentialPattern),
+                ("kSecMatchLimit", "kSecMatchLimitAll")
+            };
+
+            var dict = Interop.CoreFoundation.CFDictionaryCreate(query);
+
+            IntPtr ptr;
+            var status = Interop.Security.SecItemCopyMatching(dict.DangerousGetHandle(), out ptr);
+
+            if (status != Interop.Security.OSStatus.ErrSecSuccess || ptr === IntPtr.Zero)
+            {
+                credentials = new List<Credential>();
+                return false;
+            }
+            credentials = new List<Credential>();
+
+            // Start handling the result?
+
             return true;
+
+            // TODO clear memory
         }
 
         private bool AddGenericPassword(Credential credential)
@@ -91,7 +113,7 @@ namespace Microsoft.SqlTools.Credentials.OSX
             UInt32 passwordLength;
             IntPtr passwordPtr;
             IntPtr item;
-            
+
             Interop.Security.OSStatus status = Interop.Security.SecKeychainFindGenericPassword(
                 IntPtr.Zero,
                 InteropUtils.GetLengthInBytes(credentialId),

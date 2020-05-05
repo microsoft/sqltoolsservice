@@ -54,7 +54,7 @@ namespace Microsoft.SqlTools.Credentials
             /// </summary>
             /// <param name="list">A (string, string) list</param>
             /// <returns></returns>
-            internal static SafeCreateHandle CFDictionaryCreate(List<(string, string)> list)
+            internal static SafeCreateHandle CFDictionaryCreate(List<(string Key, string Value)> list)
             {
                 IntPtr[] keys = new IntPtr[list.Count];
                 IntPtr[] values = new IntPtr[list.Count];
@@ -62,8 +62,8 @@ namespace Microsoft.SqlTools.Credentials
                 ulong i = 0;
                 foreach (var item in list)
                 {
-                    var keyPtr = CFStringCreateWithCString(item.Item1);
-                    var valPtr = CFStringCreateWithCString(item.Item2);
+                    var keyPtr = CFStringCreateWithCString(item.Key);
+                    var valPtr = CFStringCreateWithCString(item.Value);
 
                     keys[i] = keyPtr.DangerousGetHandle();
                     values[i] = valPtr.DangerousGetHandle();
