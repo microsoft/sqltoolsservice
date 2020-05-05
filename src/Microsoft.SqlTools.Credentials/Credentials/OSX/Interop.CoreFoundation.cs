@@ -3,6 +3,9 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Runtime.InteropServices;
 
 namespace Microsoft.SqlTools.Credentials
@@ -16,21 +19,52 @@ namespace Microsoft.SqlTools.Credentials
             /// </summary>
             private enum CFStringBuiltInEncodings : uint
             {
-                kCFStringEncodingMacRoman       = 0,
-                kCFStringEncodingWindowsLatin1  = 0x0500,
-                kCFStringEncodingISOLatin1      = 0x0201,
-                kCFStringEncodingNextStepLatin  = 0x0B01,
-                kCFStringEncodingASCII          = 0x0600,
-                kCFStringEncodingUnicode        = 0x0100,
-                kCFStringEncodingUTF8           = 0x08000100,
-                kCFStringEncodingNonLossyASCII  = 0x0BFF,
+                kCFStringEncodingMacRoman = 0,
+                kCFStringEncodingWindowsLatin1 = 0x0500,
+                kCFStringEncodingISOLatin1 = 0x0201,
+                kCFStringEncodingNextStepLatin = 0x0B01,
+                kCFStringEncodingASCII = 0x0600,
+                kCFStringEncodingUnicode = 0x0100,
+                kCFStringEncodingUTF8 = 0x08000100,
+                kCFStringEncodingNonLossyASCII = 0x0BFF,
 
-                kCFStringEncodingUTF16          = 0x0100,
-                kCFStringEncodingUTF16BE        = 0x10000100,
-                kCFStringEncodingUTF16LE        = 0x14000100,
-                kCFStringEncodingUTF32          = 0x0c000100,
-                kCFStringEncodingUTF32BE        = 0x18000100,
-                kCFStringEncodingUTF32LE        = 0x1c000100
+                kCFStringEncodingUTF16 = 0x0100,
+                kCFStringEncodingUTF16BE = 0x10000100,
+                kCFStringEncodingUTF16LE = 0x14000100,
+                kCFStringEncodingUTF32 = 0x0c000100,
+                kCFStringEncodingUTF32BE = 0x18000100,
+                kCFStringEncodingUTF32LE = 0x1c000100
+            }
+
+            /// <summary>
+            /// Creates a CFDictionary from array of 8 bit strings as keys and values. Follows the "Create Rule" where if you create it, you delete it.
+            /// </summary>
+            [DllImport(Interop.Libraries.CoreFoundationLibrary, CharSet = CharSet.Ansi)]
+            private static extern SafeCreateHandle CFDictionaryCreate(
+                IntPtr allocator,
+                [MarshalAs(UnmanagedType.LPArray)] IntPtr[] keys,
+                [MarshalAs(UnmanagedType.LPArray)] IntPtr[] values,
+                ulong numValues,
+                IntPtr keyCallbacks,
+                IntPtr valueCallbacks
+            );
+
+            internal static SafeCreateHandle CFDictionaryCreate(OrderedDictionary dictionary)
+            {
+                IntPtr[] keys = new IntPtr[dictionary.Count];
+                IntPtr[] values = new IntPtr[dictionary.Count];
+
+                ulong i = 0;
+                foreach (KeyValuePair<string, string> item in dictionary)
+                {
+                    var keyPtr = CFStringCreateWithCString(item.Key);
+                    var valPtr = CFStringCreateWithCString(item.Value);
+
+                    keys[i] = keyPtr.DangerousGetHandle();
+                    values[i] = valPtr.DangerousGetHandle();
+                    i++;
+                }
+                return CFDictionaryCreate(IntPtr.Zero, keys, values, i, IntPtr.Zero, IntPtr.Zero);
             }
 
             /// <summary>
@@ -43,10 +77,10 @@ namespace Microsoft.SqlTools.Credentials
             /// <remarks>For *nix systems, the CLR maps ANSI to UTF-8, so be explicit about that</remarks>
             [DllImport(Interop.Libraries.CoreFoundationLibrary, CharSet = CharSet.Ansi)]
             private static extern SafeCreateHandle CFStringCreateWithCString(
-                IntPtr allocator, 
-                string str, 
+                IntPtr allocator,
+                string str,
                 CFStringBuiltInEncodings encoding);
-            
+
             /// <summary>
             /// Creates a CFStringRef from a 8-bit String object. Follows the "Create Rule" where if you create it, you delete it.
             /// </summary>
