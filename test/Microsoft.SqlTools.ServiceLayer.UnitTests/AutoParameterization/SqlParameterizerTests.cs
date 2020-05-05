@@ -109,7 +109,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.AutoParameterization
             command1.Parameterize();
 
             // SQL greater than 300000 characters should throw   
-            string bigSql = string.Concat(Repeat(element: sqlLength_300, count: 1001));
+            string bigSql = string.Concat(Repeat(element: sqlLength_300, count: 1100));
             DbCommand command2 = new SqlCommand { CommandText = bigSql };
             Assert.Throws<ParameterizationScriptTooLargeException>(() => command2.Parameterize());
         }
@@ -215,7 +215,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.AutoParameterization
         /// return a max string sength code sense item. These will be returned to ADS to display to the user as intelli-sense.
         /// </summary>
         [Fact]
-        public void CodeSenseShouldReturnMaxStringLengthCodeSenseErrorItemWhenScriptIsTooLong()
+        public void CodeSenseShouldReturnMaxStringLengthScriptFileMarkerErrorItemWhenScriptIsTooLong()
         {
             // SQL length of 300 characters
             string sqlLength_300 = $@"
@@ -228,7 +228,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.AutoParameterization
                 GO";
             
             // Repeat the SQL 1001 times to exceed length threshold
-            string sql = string.Concat(Repeat(element: sqlLength_300, count: 1001));
+            string sql = string.Concat(Repeat(element: sqlLength_300, count: 1100));
 
             IList<ScriptFileMarker> result = SqlParameterizer.CodeSense(sql);
             string expectedMessage = SR.ScriptTooLarge(maxChars: 300000, currentChars: sql.Length);
