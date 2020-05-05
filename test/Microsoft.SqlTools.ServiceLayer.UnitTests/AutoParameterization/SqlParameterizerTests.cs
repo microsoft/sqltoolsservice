@@ -233,16 +233,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.AutoParameterization
             IList<ScriptFileMarker> result = SqlParameterizer.CodeSense(sql);
             string expectedMessage = SR.ScriptTooLarge(maxChars: 300000, currentChars: sql.Length);
 
-            Debug.WriteLine(result[0].Message);
-            Debug.WriteLine(result[1].Message);
-            Debug.WriteLine(result[2].Message);
-            Debug.WriteLine(result[3].Message);
-            Debug.WriteLine(result[4].Message);
-            Debug.WriteLine(result[5].Message);
-            Debug.WriteLine(result[6].Message);
-            Debug.WriteLine(result[7].Message);
-            Debug.WriteLine(result[8].Message);
-            Debug.WriteLine(result[9].Message);
+            Console.WriteLine(result[0].Message);
 
             Assert.NotEmpty(result);
             Assert.Equal(expected: 1, actual: result.Count);
