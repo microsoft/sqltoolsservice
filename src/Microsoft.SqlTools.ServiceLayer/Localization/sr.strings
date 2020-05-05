@@ -150,6 +150,22 @@ SqlCmdExitOnError = An error was encountered during execution of batch. Exiting.
 
 SqlCmdUnsupportedToken = Encountered unsupported token {0}
 
+### AutoParameterization for Always Encrypted strings
+
+ParameterizationDetails (string variableName, string sqlDbType, int size, int precision, int scale, string sqlValue) = {0} will be converted to a Microsoft.Data.SqlClient.SqlParameter object with the following properties: SqlDbType = {1}, Size = {2}, Precision = {3}, Scale = {4}, SqlValue = {5}
+
+ErrorMessageHeader(int lineNumber) = Line {0}
+
+ErrorMessage (string variableName, string sqlDataType, string literalValue) = Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType). Literal value: {2} 
+
+DateTimeErrorMessage (string variableName, string sqlDataType, string literalValue) = Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType), as it used an unsupported date/time format. Use one of the supported date/time formats. Literal value: {2}
+
+BinaryLiteralPrefixMissingError (string variableName, string sqlDataType, string literalValue) = Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType), as prefix 0x is expected for a binary literals.  Literal value: {2} 
+
+ParsingErrorHeader (int lineNumber, int columnNumber) = Line {0}, column {1}
+
+ScriptTooLarge (int maxChars, int currentChars) = The current script is too large for Parameterization for Always Encrypted, please disable Parameterization for Always Encrypted in Query Options (Query > Query Options > Execution > Advanced). Maximum allowable length: {0} characters, Current script length: {1} characters
+
 ############################################################################
 # Serialization Service
 

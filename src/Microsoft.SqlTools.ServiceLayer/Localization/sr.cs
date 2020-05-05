@@ -3068,6 +3068,41 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.QueryServiceSaveAsFail, fileName, message);
         }
 
+        public static string ParameterizationDetails(string variableName, string sqlDbType, int size, int precision, int scale, string sqlValue)
+        {
+            return Keys.GetString(Keys.ParameterizationDetails, variableName, sqlDbType, size, precision, scale, sqlValue);
+        }
+
+        public static string ErrorMessageHeader(int lineNumber)
+        {
+            return Keys.GetString(Keys.ErrorMessageHeader, lineNumber);
+        }
+
+        public static string ErrorMessage(string variableName, string sqlDataType, string literalValue)
+        {
+            return Keys.GetString(Keys.ErrorMessage, variableName, sqlDataType, literalValue);
+        }
+
+        public static string DateTimeErrorMessage(string variableName, string sqlDataType, string literalValue)
+        {
+            return Keys.GetString(Keys.DateTimeErrorMessage, variableName, sqlDataType, literalValue);
+        }
+
+        public static string BinaryLiteralPrefixMissingError(string variableName, string sqlDataType, string literalValue)
+        {
+            return Keys.GetString(Keys.BinaryLiteralPrefixMissingError, variableName, sqlDataType, literalValue);
+        }
+
+        public static string ParsingErrorHeader(int lineNumber, int columnNumber)
+        {
+            return Keys.GetString(Keys.ParsingErrorHeader, lineNumber, columnNumber);
+        }
+
+        public static string ScriptTooLarge(int maxChars, int currentChars)
+        {
+            return Keys.GetString(Keys.ScriptTooLarge, maxChars, currentChars);
+        }
+
         public static string SerializationServiceUnsupportedFormat(string formatName)
         {
             return Keys.GetString(Keys.SerializationServiceUnsupportedFormat, formatName);
@@ -3364,6 +3399,27 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string SqlCmdUnsupportedToken = "SqlCmdUnsupportedToken";
+
+
+            public const string ParameterizationDetails = "ParameterizationDetails";
+
+
+            public const string ErrorMessageHeader = "ErrorMessageHeader";
+
+
+            public const string ErrorMessage = "ErrorMessage";
+
+
+            public const string DateTimeErrorMessage = "DateTimeErrorMessage";
+
+
+            public const string BinaryLiteralPrefixMissingError = "BinaryLiteralPrefixMissingError";
+
+
+            public const string ParsingErrorHeader = "ParsingErrorHeader";
+
+
+            public const string ScriptTooLarge = "ScriptTooLarge";
 
 
             public const string SerializationServiceUnsupportedFormat = "SerializationServiceUnsupportedFormat";
@@ -4458,6 +4514,12 @@ namespace Microsoft.SqlTools.ServiceLayer
             public static string GetString(string key, object arg0, object arg1)
             {
                 return string.Format(global::System.Globalization.CultureInfo.CurrentCulture, resourceManager.GetString(key, _culture), arg0, arg1);
+            }
+
+
+            public static string GetString(string key, object arg0, object arg1, object arg2)
+            {
+                return string.Format(global::System.Globalization.CultureInfo.CurrentCulture, resourceManager.GetString(key, _culture), arg0, arg1, arg2);
             }
 
 
