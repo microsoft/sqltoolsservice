@@ -59,7 +59,7 @@ namespace Microsoft.SqlTools.Credentials
                 IntPtr[] keys = new IntPtr[list.Count];
                 IntPtr[] values = new IntPtr[list.Count];
 
-                ulong i = 0;
+                long i = 0;
                 foreach (var item in list)
                 {
                     var keyPtr = CFStringCreateWithCString(item.Key);
