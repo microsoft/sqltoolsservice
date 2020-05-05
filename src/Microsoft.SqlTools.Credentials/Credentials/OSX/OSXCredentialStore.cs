@@ -60,7 +60,7 @@ namespace Microsoft.SqlTools.Credentials.OSX
             IntPtr ptr;
             var status = Interop.Security.SecItemCopyMatching(dict.DangerousGetHandle(), out ptr);
 
-            if (status != Interop.Security.OSStatus.ErrSecSuccess || ptr === IntPtr.Zero)
+            if (status != Interop.Security.OSStatus.ErrSecSuccess || ptr == IntPtr.Zero)
             {
                 credentials = new List<Credential>();
                 return false;
