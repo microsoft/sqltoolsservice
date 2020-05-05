@@ -13,11 +13,11 @@ namespace Microsoft.SqlTools.Credentials
         internal partial class Security
         {
             [DllImport(Libraries.SecurityLibrary, CharSet = CharSet.Unicode, SetLastError = true)]
-            internal static extern OSStatus SecItemCopyMatching(IntPtr query, [Out] IntPtr result);
+            internal static extern OSStatus SecItemCopyMatching(IntPtr query, out IntPtr result);
 
             [DllImport(Libraries.SecurityLibrary, CharSet = CharSet.Unicode, SetLastError = true)]
             internal static extern OSStatus SecKeychainAddGenericPassword(IntPtr keyChainRef, UInt32 serviceNameLength, string serviceName,
-                UInt32 accountNameLength, string accountName, UInt32 passwordLength, IntPtr password, [Out] IntPtr itemRef);
+                UInt32 accountNameLength, string accountName, UInt32 passwordLength, IntPtr password, out IntPtr itemRef);
 
             /// <summary>
             /// Find a generic password based on the attributes passed            
