@@ -21,7 +21,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider" Version="1.0.0" />
-    <PackageReference Include="Microsoft.SqlServer.DacFx" Version="150.4763.1-preview" />
+    <PackageReference Include="Microsoft.SqlServer.DacFx" Version="150.4779.1-preview" GeneratePathProperty="true" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.6.0-preview3-26501-04" />
   </ItemGroup>
   <ItemGroup>
@@ -33,6 +33,9 @@
     <ProjectReference Include="../Microsoft.SqlTools.ManagedBatchParser/Microsoft.SqlTools.ManagedBatchParser.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="$(PkgMicrosoft_SqlServer_DacFx)\lib\netstandard2.0\Microsoft.Data.Tools.Schema.SqlTasks.targets">
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+    </Content>    
     <EmbeddedResource Include="ObjectExplorer\SmoModel\TreeNodeDefinition.xml" />
     <EmbeddedResource Include="Localization\sr.resx" />
     <None Include="Localization\sr.strings" />
