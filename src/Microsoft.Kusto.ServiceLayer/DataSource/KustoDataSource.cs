@@ -331,7 +331,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                             PrettyName = String.IsNullOrEmpty(row["PrettyName"]?.ToString()) ? row["DatabaseName"].ToString() : row["PrettyName"].ToString(),
                             Urn = $"{this.ClusterName}.{row["DatabaseName"].ToString()}"
                         })
-                        .Materialize();
+                        .Materialize()
+                        .OrderBy(row => row.Name, StringComparer.Ordinal); // case-sensitive
                 }
             }
 
@@ -516,7 +517,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                         !string.IsNullOrWhiteSpace(row.Table)
                         && !string.IsNullOrWhiteSpace(row.Name)
                         && !string.IsNullOrWhiteSpace(row.DataType))
-                    .Materialize();
+                    .Materialize()
+                    .OrderBy(row => row.Name, StringComparer.Ordinal); // case-sensitive
 
                 return columns;
             }
