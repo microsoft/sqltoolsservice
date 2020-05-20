@@ -13,6 +13,7 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.Utility;
+using Range = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Range;
 
 namespace Microsoft.SqlTools.ServiceLayer.Workspace
 {

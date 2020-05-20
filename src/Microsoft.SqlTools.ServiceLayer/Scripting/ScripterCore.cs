@@ -26,6 +26,7 @@ using Microsoft.SqlServer.Management.Sdk.Sfc;
 using System.Text;
 using System.Data;
 using System.Diagnostics;
+using Range = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Range;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
 {

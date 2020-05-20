@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
+using Index = Microsoft.SqlServer.Management.Smo.Index;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 {
