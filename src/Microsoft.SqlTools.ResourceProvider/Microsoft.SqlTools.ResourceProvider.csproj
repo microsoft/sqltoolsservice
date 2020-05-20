@@ -19,8 +19,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- delete reference from project once moving off preview version !-->
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.6.0-preview3-26501-04" />
+    <PackageReference Include="System.Text.Encoding.CodePages"/>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj" />

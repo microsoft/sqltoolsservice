@@ -10,6 +10,6 @@
     <ProjectReference Include="..\Microsoft.SqlTools.Hosting.Contracts\Microsoft.SqlTools.Hosting.Contracts.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftPackageVersion)" />
+    <PackageReference Include="Newtonsoft.Json" />
   </ItemGroup>
 </Project>
