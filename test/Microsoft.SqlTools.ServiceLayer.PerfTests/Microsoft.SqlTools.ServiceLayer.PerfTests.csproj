@@ -1,40 +1,33 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
-	  <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <DebugType>portable</DebugType>
-    <AssemblyName>Microsoft.SqlTools.ServiceLayer.PerfTests</AssemblyName>
-    <OutputType>Exe</OutputType>
-    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
-    <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
-	  <EnableDefaultNoneItems>false</EnableDefaultNoneItems>
-    <RuntimeIdentifiers>win7-x64;win7-x86</RuntimeIdentifiers>
-    <StartupObject>Microsoft.SqlTools.ServiceLayer.PerfTests.Program</StartupObject>
-	<PreserveCompilationContext>true</PreserveCompilationContext>
-	<TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
-  </PropertyGroup>
-  <ItemGroup>
- 	  <Reference Include="Newtonsoft.Json">
-	    <HintPath>../../bin/ref/Newtonsoft.Json.dll</HintPath>
-	  </Reference>
-	  <Reference Include="Moq">
-	    <HintPath>../../bin/ref/Moq.dll</HintPath>
-	  </Reference>
-	  <Reference Include="Castle.Core">
-	    <HintPath>../../bin/ref/Castle.Core.dll</HintPath>
-	  </Reference>
-    <ProjectReference Include="../../src/Microsoft.SqlTools.ServiceLayer/Microsoft.SqlTools.ServiceLayer.csproj" />
-    <ProjectReference Include="../../src/Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
-    <ProjectReference Include="../../src/Microsoft.SqlTools.Credentials/Microsoft.SqlTools.Credentials.csproj" />
-    <ProjectReference Include="../Microsoft.SqlTools.ServiceLayer.TestDriver/Microsoft.SqlTools.ServiceLayer.TestDriver.csproj" />
-    <ProjectReference Include="../Microsoft.SqlTools.ServiceLayer.Test.Common/Microsoft.SqlTools.ServiceLayer.Test.Common.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
-    <PackageReference Include="xunit" Version="2.2.0" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
-  </ItemGroup>
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>$(TestProjectsTargetFramework)</TargetFramework>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<DebugType>portable</DebugType>
+		<AssemblyName>Microsoft.SqlTools.ServiceLayer.PerfTests</AssemblyName>
+		<OutputType>Exe</OutputType>
+		<GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+		<EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
+		<EnableDefaultNoneItems>false</EnableDefaultNoneItems>
+		<RuntimeIdentifiers>win7-x64;win7-x86</RuntimeIdentifiers>
+		<StartupObject>Microsoft.SqlTools.ServiceLayer.PerfTests.Program</StartupObject>
+		<PreserveCompilationContext>true</PreserveCompilationContext>
+		<TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
+	</PropertyGroup>
+	<ItemGroup>
+		<ProjectReference Include="../../src/Microsoft.SqlTools.ServiceLayer/Microsoft.SqlTools.ServiceLayer.csproj" />
+		<ProjectReference Include="../../src/Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
+		<ProjectReference Include="../../src/Microsoft.SqlTools.Credentials/Microsoft.SqlTools.Credentials.csproj" />
+		<ProjectReference Include="../Microsoft.SqlTools.ServiceLayer.TestDriver/Microsoft.SqlTools.ServiceLayer.TestDriver.csproj" />
+		<ProjectReference Include="../Microsoft.SqlTools.ServiceLayer.Test.Common/Microsoft.SqlTools.ServiceLayer.Test.Common.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Moq" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk"  />
+		<PackageReference Include="xunit" />
+		<PackageReference Include="xunit.runner.visualstudio" />
+	</ItemGroup>
+	<ItemGroup>
+		<Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" />
+	</ItemGroup>
 </Project>

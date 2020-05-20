@@ -1,6 +1,6 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>$(TestProjectsTargetFramework)</TargetFramework>
 	<EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
 	<EnableDefaultNoneItems>false</EnableDefaultNoneItems>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
