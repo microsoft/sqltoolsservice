@@ -203,10 +203,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
                 }
             };
 
-            await VerifyMetadataList(query, expectedMetadataList);
+            await VerifyMetadataListCore(query, expectedMetadataList);
         }
 
-        private async Task VerifyMetadataList(string query, List<ObjectMetadata> expectedMetadataList)
+        private async Task VerifyMetadataListCore(string query, List<ObjectMetadata> expectedMetadataList)
         {
             var testDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, query, "MetadataTests");
             try
