@@ -4,7 +4,7 @@
     <SmoPackageVersion>160.2004021.0</SmoPackageVersion>
     <SqlClientPackageVersion>1.1.1</SqlClientPackageVersion>
     <NewtonsoftPackageVersion>11.0.1</NewtonsoftPackageVersion>
-    <DacFxPackageVersion>150.4779.1-preview</DacFxPackageVersion>
+    <DacFxPackageVersion>150.4787.1-preview</DacFxPackageVersion>
     <HighEntropyVA>true</HighEntropyVA>
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
   </PropertyGroup>
