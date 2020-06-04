@@ -427,7 +427,10 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                 var reliableConnection = connection as ReliableDataSourceConnection;
                 IDataSource dataSource = reliableConnection.GetUnderlyingConnection();
 
-                response.ServerInfo = new ServerInfo();
+                response.ServerInfo = new ServerInfo
+                {
+                    Options = new Dictionary<string, object>()
+                };
                 connectionInfo.IsCloud = response.ServerInfo.IsCloud;
                 connectionInfo.MajorVersion = response.ServerInfo.ServerMajorVersion;
             }
