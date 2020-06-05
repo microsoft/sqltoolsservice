@@ -225,7 +225,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
             options.DropRoleMembersNotInSource = true;
             options.IgnoreKeywordCasing = false;
             options.IgnoreSemicolonBetweenStatements = false;
-            options.IgnoreWhitespace = false;
 
             System.Reflection.PropertyInfo[] deploymentOptionsProperties = this.GetType().GetProperties();
 
