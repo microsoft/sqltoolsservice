@@ -483,5 +483,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
             return ret;
         }
+
+        public ResultsToTextRequestParams RequestParams 
+        { 
+            get { return resultsToTextRequestParams; } 
+        }
     }
 }

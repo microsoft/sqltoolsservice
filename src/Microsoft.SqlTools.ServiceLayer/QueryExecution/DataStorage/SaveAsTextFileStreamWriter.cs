@@ -67,9 +67,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         protected static string datetime2ServerSideTypeName = "datetime2";
         protected static string datetimeoffsetServerSideTypeName = "datetimeoffset";
         internal const int maxCharsPerColumn = 2097152;
+        private const int InitialRowBuilderCapacity = 1024;
 
         #endregion
-
         
         public SaveAsTextFileStreamWriter(Stream stream, SaveResultsAsTextRequestParams requestParams)
             : base(stream, requestParams)
@@ -132,6 +132,43 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         }
 
         /// <summary>
+        /// Helper method to format and encode a row if the result is column aligned
+        /// </summary>
+        private string FormatAndEncodeRow(IList<DbCellValue> row, IList<DbColumnWrapper> columns, 
+            char delimiter, char textIdentifier, bool isHeader = false)
+        {
+            StringBuilder headerStringBuilder = new StringBuilder();
+            int columnCount = columns.Count();
+            for (int i = ColumnStartIndex ?? 0; i < columnCount; i++)
+            {
+                string columnName = isHeader ? columns[i].ColumnName : row[i].DisplayValue;
+                headerStringBuilder.AppendFormat(columnsFormatCollection[i], 
+                    EncodeTextField(columnName, delimiter, textIdentifier) ?? string.Empty);
+            }
+            
+            if (isHeader)
+            {
+                //we need to add dashes
+                headerStringBuilder.AppendLine();
+                for (int j = 0; j < columnCount; j++)
+                {
+                    for (int k = 0; k < columnWidths[j]; k++)
+                    {
+                        headerStringBuilder.Append('-');
+                    }
+
+                    if (j != (columnCount - 1))
+                    {
+                        //append space for all but the very last column header
+                        headerStringBuilder.Append(' ');
+                    }
+                }
+            }
+            string formattedString = headerStringBuilder.ToString();
+            return formattedString;
+        }
+
+        /// <summary>
         /// Helper method to calculate the column widths when columns are aligned
         /// </summary>
         //create array with column widths and format strings that will be used to
@@ -140,8 +177,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         {
             Debug.Assert(columns != null);
             Debug.Assert(columnsFormatCollection != null);
-            Debug.Assert(columnsFormatCollection.Count == 0);
-            Debug.Assert(columnWidths == null);
 
             columnWidths = new int[columns.Count];
 
@@ -390,10 +425,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             // Write out the header if we haven't already and the user chose to have it
             if (saveParams.IncludeHeaders && !headerWritten)
             {
+
                 // Build the string
                 var selectedColumns = columns.Skip(ColumnStartIndex ?? 0).Take(ColumnCount ?? columns.Count)
-                    .Select(c => EncodeTextField(c.ColumnName, delimiter, textIdentifier) ?? string.Empty);
-                
+                .Select(c => EncodeTextField(c.ColumnName, delimiter, textIdentifier) ?? string.Empty);
                 string headerLine = string.Join(delimiter, selectedColumns);
 
                 // Encode it and write it out
@@ -403,27 +438,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 headerWritten = true;
             }
 
-
             // Build the string for the row
             var selectedCells = row.Skip(ColumnStartIndex ?? 0)
                 .Take(ColumnCount ?? columns.Count)
                 .Select(c => EncodeTextField(c.DisplayValue, delimiter, textIdentifier));
-            string rowLine = string.Join(delimiter, selectedCells);
-
-            CreateColumnWidthsAndFormatStrings(row, columns);
-
-            var rowString = new StringBuilder();
-            var columnCount = ColumnCount ?? columns.Count();
-            for (var i = ColumnStartIndex ?? 0; i < columnCount; i++)
-            {
-                var columnName = columns[i].ColumnName;
-                rowString.AppendFormat(columnsFormatCollection[i], 
-                    EncodeTextField(columnName, delimiter, textIdentifier) ?? string.Empty);
-            }
-            var finalString = rowString.ToString();
-
+            string rowString = string.Join(delimiter, selectedCells);
+            
             // Encode it and write it out
-            byte[] rowBytes = encoding.GetBytes(rowLine + lineSeperator);
+            byte[] rowBytes = encoding.GetBytes(rowString + lineSeperator);
             FileStream.Write(rowBytes, 0, rowBytes.Length);
         }
 

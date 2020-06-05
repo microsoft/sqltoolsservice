@@ -588,7 +588,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         /// <param name="saveParams">Parameters for the save as request</param>
         /// <param name="fileFactory">
-        /// Factory for creating the reader/writer pair for outputing to the selected format
+        /// Factory for creating the reader for outputing to text
         /// </param>
         /// <param name="successHandler">Delegate to call when request successfully completes</param>
         /// <param name="failureHandler">Delegate to call if the request fails</param>
@@ -609,6 +609,28 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 resultSet = resultSets[saveParams.ResultSetIndex];
             }
             resultSet.SaveAs(saveParams, fileFactory, successHandler, failureHandler);
+        }
+
+        /// <summary>
+        /// Outputs a result to text
+        /// </summary>
+        /// <param name="formatter">Formatter for results to text</param>
+        /// <param name="successHandler">Delegate to call when request successfully completes</param>
+        /// <param name="failureHandler">Delegate to call if the request fails</param>
+        public void ResultsToText(ResultsToTextFormatter formatter, ResultSet.ResultsToTextAsyncEventHandler successHandler, 
+            ResultSet.ResultsToTextFailureAsyncEventHandler failureHandler)
+        {
+            // Get the result set to output to text to
+            ResultSet resultSet;
+            lock (resultSets)
+            {
+                for (int i = 0; i < resultSets.Count; i++)
+                {
+                    resultSet = resultSets[i];
+                    resultSet.ResultsToText(formatter, successHandler, failureHandler);
+                }
+            }
+
         }
 
         #endregion

@@ -17,6 +17,8 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Text;
+using System.IO;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -158,6 +160,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         public event ResultSetAsyncEventHandler ResultUpdated;
 
+        /// <summary>
+        /// Asynchronous handler for when results to text succeeds
+        /// </summary>
+        /// <param name="parameters">Request parameters for identifying the request</param>
+        public delegate Task ResultsToTextAsyncEventHandler(ResultsToTextResults results);
+
+        /// <summary>
+        /// Asynchronous handler for when results to text fails
+        /// </summary>
+        /// <param name="parameters">Request parameters for identifying the request</param>
+        /// <param name="message">Message to send back describing why the request failed</param>
+        public delegate Task ResultsToTextFailureAsyncEventHandler(string message);
 
         #endregion
 
@@ -570,6 +584,61 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // Task was saved, so start up the task
             saveAsTask.Start();
+        }
+
+        /// <summary>
+        /// Outputs the result in text format
+        /// </summary>
+        /// <param name="formatter">Formatter for results to text</param>
+        /// <param name="successHandler">Handler for a successful write of all rows</param>
+        /// <param name="failureHandler">Handler for unsuccessful write of all rows</param>
+        public void ResultsToText(ResultsToTextFormatter formatter, ResultsToTextAsyncEventHandler successHandler,
+            ResultsToTextFailureAsyncEventHandler failureHandler)
+        {
+            // Make sure the resultset has finished being read
+            if (!hasCompletedRead)
+            {
+                throw new InvalidOperationException(SR.QueryServiceSaveAsResultSetNotComplete);
+            }
+
+            // Create the new task
+            Task resultsToTextTask = new Task(async () =>
+            {
+                try
+                {
+                    // Set row counts depending on whether save request is for entire set or a subset
+                    long rowEndIndex = RowCount;
+                    int rowStartIndex = 0;
+                    ResultsToTextResults results = new ResultsToTextResults();
+                    Encoding encoding = Encoding.GetEncoding("utf-8");
+                    using (var fileWriter = new FileStream(formatter.RequestParams.FilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite))
+                    using (var fileReader = fileStreamFactory.GetReader(outputFileName))
+                    {   
+                        // Iterate over the rows that are in the selected row setsqltools
+                        for (long i = rowStartIndex; i < rowEndIndex; ++i)
+                        {
+                            var row = fileReader.ReadRow(fileOffsets[i], i, Columns);
+                            string rowString = formatter.WriteRow(row, Columns);
+                            byte[] rowBytes = encoding.GetBytes(rowString);
+                            fileWriter.Write(rowBytes, 0, rowBytes.Length);
+                        }
+                        results.IsSuccess = true;
+                    }
+                    if (successHandler != null)
+                    {
+                        await successHandler(results);
+                    }
+                }
+                catch (Exception e)
+                {
+                    if (failureHandler != null)
+                    {
+                        await failureHandler(e.Message);
+                    }
+                }
+            });
+
+            resultsToTextTask.Start();
         }
 
         #endregion

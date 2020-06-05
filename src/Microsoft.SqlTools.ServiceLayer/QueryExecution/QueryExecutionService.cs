@@ -178,6 +178,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             serviceHost.SetRequestHandler(QueryExecutionPlanRequest.Type, HandleExecutionPlanRequest);
             serviceHost.SetRequestHandler(SimpleExecuteRequest.Type, HandleSimpleExecuteRequest);
             serviceHost.SetRequestHandler(QueryExecutionOptionsRequest.Type, HandleQueryExecutionOptionsRequest);
+            serviceHost.SetRequestHandler(ResultsToTextRequest.Type, HandleResultsToTextRequest);
 
             // Register the file open update handler
             WorkspaceService<SqlToolsSettings>.Instance.RegisterTextDocCloseCallback(HandleDidCloseTextDocumentNotification);
@@ -556,6 +557,44 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 QueryExecutionSettings = Settings.QueryExecutionSettings
             };
             await SaveResultsHelper(saveParams, requestContext, xmlFactory);
+        }
+
+        /// <summary>
+        /// Process request to view the results in text format
+        /// </summary>
+        internal async Task HandleResultsToTextRequest(ResultsToTextRequestParams resultsToTextParams,
+            RequestContext<ResultsToTextResults> requestContext)
+        {
+                        // retrieve query for OwnerUri
+            Query query;
+            if (!ActiveQueries.TryGetValue(resultsToTextParams.OwnerUri, out query))
+            {
+                await requestContext.SendError(SR.QueryServiceQueryInvalidOwnerUri);
+                return;
+            }
+
+            //Setup the callback for completion of the save task
+            ResultSet.ResultsToTextAsyncEventHandler successHandler = async (result) =>
+            {
+                await requestContext.SendResult(result);
+            };
+            ResultSet.ResultsToTextFailureAsyncEventHandler errorHandler = async (reason) =>
+            {
+                await requestContext.SendError(reason);
+            };
+
+            try
+            {
+                // Create a formatter for the results
+                ResultsToTextFormatter formatter = new ResultsToTextFormatter(resultsToTextParams);
+
+                // Launch the task
+                query.ResultsToText(formatter, successHandler, errorHandler);
+            }
+            catch (Exception e)
+            {
+                await errorHandler(e.Message);
+            }
         }
 
         #endregion

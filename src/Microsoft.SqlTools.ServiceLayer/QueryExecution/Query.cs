@@ -385,6 +385,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             Batches[saveParams.BatchIndex].SaveAs(saveParams, fileFactory, successHandler, failureHandler);
         }
 
+        /// <summary>
+        /// Outputs the requested results in text format
+        /// </summary>
+        /// <param name="formatter">Formatter to output results to text</param>
+        /// <param name="successHandler">Delegate to call when the request completes successfully</param>
+        /// <param name="failureHandler">Delegate to call if the request fails</param>
+        public void ResultsToText(ResultsToTextFormatter formatter, ResultSet.ResultsToTextAsyncEventHandler successHandler, 
+            ResultSet.ResultsToTextFailureAsyncEventHandler failureHandler)
+        {
+            for (int i = 0; i < Batches.Count(); i++)
+            {
+                Batches[i].ResultsToText(formatter, successHandler, failureHandler);
+            }
+        }
+
         #endregion
 
         #region Private Helpers
