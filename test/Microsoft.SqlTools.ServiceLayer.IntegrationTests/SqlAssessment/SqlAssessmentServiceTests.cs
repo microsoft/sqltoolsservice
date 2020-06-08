@@ -5,12 +5,16 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
 using Microsoft.SqlServer.Management.Assessment;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.SqlAssessment;
 using Microsoft.SqlTools.ServiceLayer.SqlAssessment.Contracts;
@@ -28,39 +32,56 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlAssessment
         private static readonly string[] AllowedSeverityLevels = { "Information", "Warning", "Critical" };
 
         [Fact]
+        public async void InvokeSqlAssessmentServerTest()
+        {
+            var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo("master");
+
+            var connection = liveConnection.ConnectionInfo.AllConnections.FirstOrDefault();
+            Debug.Assert(connection != null, "Live connection is always expected providing a connection");
+
+            var serverInfo = ReliableConnectionHelper.GetServerVersion(connection);
+
+            var response = await CallAssessment<AssessmentResultItem>(
+                               nameof(SqlAssessmentService.InvokeSqlAssessment),
+                               SqlObjectType.Server,
+                               liveConnection);
+
+            Assert.All(
+                response.Items,
+                i =>
+                    {
+                        Assert.NotNull(i.Message);
+                        Assert.NotEmpty(i.Message);
+                        Assert.Equal(serverInfo.ServerName, i.TargetName);
+
+                        if (i.Kind == 0)
+                        {
+                            AssertInfoPresent(i);
+                        }
+                    });
+        }
+
+        [Fact]
         public async void GetAssessmentItemsServerTest()
         {
+            var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo("master");
+
+            var connection = liveConnection.ConnectionInfo.AllConnections.FirstOrDefault();
+            Debug.Assert(connection != null, "Live connection is always expected providing a connection");
+
+            var serverInfo = ReliableConnectionHelper.GetServerVersion(connection);
+
             var response = await CallAssessment<CheckInfo>(
                                nameof(SqlAssessmentService.GetAssessmentItems),
-                               SqlObjectType.Server);
+                               SqlObjectType.Server,
+                               liveConnection);
 
             Assert.All(
                 response.Items,
                 i =>
                 {
                     AssertInfoPresent(i);
-                });
-        }
-
-        [Fact]
-        public async void InvokeSqlAssessmentServerTest()
-        {
-            var response = await CallAssessment<AssessmentResultItem>(
-                               nameof(SqlAssessmentService.InvokeSqlAssessment),
-                               SqlObjectType.Server);
-
-
-            Assert.All(
-                response.Items,
-                i =>
-                {
-                    Assert.NotNull(i.Message);
-                    Assert.NotEmpty(i.Message);
-
-                    if (i.Kind == 0)
-                    {
-                        AssertInfoPresent(i);
-                    }
+                    Assert.Equal(serverInfo.ServerName, i.TargetName);
                 });
         }
 
@@ -68,16 +89,17 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlAssessment
         public async void GetAssessmentItemsDatabaseTest()
         {
             const string DatabaseName = "tempdb";
+            var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo(DatabaseName);
             var response = await CallAssessment<CheckInfo>(
                                nameof(SqlAssessmentService.GetAssessmentItems),
                                SqlObjectType.Database,
-                               DatabaseName);
+                               liveConnection);
 
             Assert.All(
                 response.Items,
                 i =>
                 {
-                    StringAssert.EndsWith("/" + DatabaseName, i.TargetName);
+                    StringAssert.EndsWith(":" + DatabaseName, i.TargetName);
                     AssertInfoPresent(i);
                 });
         }
@@ -86,16 +108,17 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlAssessment
         public async void InvokeSqlAssessmentIDatabaseTest()
         {
             const string DatabaseName = "tempdb";
+            var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo(DatabaseName);
             var response = await CallAssessment<AssessmentResultItem>(
                                nameof(SqlAssessmentService.InvokeSqlAssessment),
                                SqlObjectType.Database,
-                               DatabaseName);
+                               liveConnection);
 
             Assert.All(
                 response.Items,
                 i =>
                 {
-                    StringAssert.EndsWith("/" + DatabaseName, i.TargetName);
+                    StringAssert.EndsWith(":" + DatabaseName, i.TargetName);
                     Assert.NotNull(i.Message);
                     Assert.NotEmpty(i.Message);
 
@@ -109,10 +132,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlAssessment
         private static async Task<AssessmentResult<TResult>> CallAssessment<TResult>(
             string methodName,
             SqlObjectType sqlObjectType,
-            string databaseName = "master")
+            LiveConnectionHelper.TestConnectionResult liveConnection)
             where TResult : AssessmentItemInfo
         {
-            var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo(databaseName);
             var connInfo = liveConnection.ConnectionInfo;
 
             AssessmentResult<TResult> response;
@@ -121,6 +143,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlAssessment
                 TestServiceProvider.Instance.ConnectionService,
                 TestServiceProvider.Instance.WorkspaceService))
             {
+                AddTestRules(service);
+
                 string randomUri = Guid.NewGuid().ToString();
                 AssessmentParams requestParams =
                     new AssessmentParams { OwnerUri = randomUri, TargetType = sqlObjectType };
@@ -162,6 +186,41 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlAssessment
             }
 
             return response;
+        }
+
+        private static void AddTestRules(SqlAssessmentService service)
+        {
+            const string TestRuleset = @"
+            {
+                'name': 'Tags & Checks',
+                'version': '0.3',
+                'schemaVersion': '1.0',
+                'rules': [
+                    {
+                        'id': 'ServerRule',
+                        'itemType': 'definition',
+                        'tags': [ 'Test' ],
+                        'displayName': 'Test server check',
+                        'description': 'This check always fails for testing purposes.',
+                        'message': 'This check intentionally fails',
+                        'target': { 'type': 'Server' }
+                    },
+                    {
+                        'id': 'DatabaseRule',
+                        'itemType': 'definition',
+                        'tags': [ 'Test' ],
+                        'displayName': 'Test server check',
+                        'description': 'This check always fails for testing purposes.',
+                        'message': 'This check intentionally fails',
+                        'target': { 'type': 'Database' }
+                    }
+                ]
+            }
+";
+            using (var reader = new StringReader(TestRuleset))
+            {
+                service.Engine.PushRuleFactoryJson(reader);
+            }
         }
 
         private void AssertInfoPresent(AssessmentItemInfo item)
