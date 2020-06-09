@@ -63,6 +63,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         {
             ConnectionDetails connectionDetails = connectionInfo.ConnectionDetails.Clone();
 
+            // Connect to master
+            connectionDetails.DatabaseName = "master";
             using (var connection = connectionFactory.CreateSqlConnection(ConnectionService.BuildConnectionString(connectionDetails), connectionDetails.AzureAccountToken))
             {
                 connection.Open();
