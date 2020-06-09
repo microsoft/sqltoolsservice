@@ -437,7 +437,7 @@ CREATE TABLE [dbo].[table3]
         }
 
         // <summary>
-        /// Verify the generate deploy plan request
+        /// Verify that SqlCmdVars are set correctly for a deploy request
         /// </summary>
         [Fact]
         public async void DeployWithSqlCmdVariables()
@@ -456,7 +456,7 @@ RETURN 0
 
             // first extract a db to have a dacpac to import later
             var result = GetLiveAutoCompleteTestObjects();
-            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, query: storedProcScript, dbNamePrefix: "DacFxDeployTest");
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, query: storedProcScript, dbNamePrefix: "DacFxDeploySqlCmdVarsTest");
             SqlTestDb targetDb = null;
             string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
             Directory.CreateDirectory(folderPath);
@@ -509,6 +509,77 @@ RETURN 0
 
                 Assert.Contains(deployParams.SqlCommandVariableValues[databaseRefVarName], deployedProc);
                 Assert.Contains(deployParams.SqlCommandVariableValues[filterValueVarName], deployedProc);
+
+                VerifyAndCleanup(extractParams.PackageFilePath);
+            }
+            finally
+            {
+                sourceDb.Cleanup();
+                if (targetDb != null)
+                {
+                    targetDb.Cleanup();
+                }
+            }
+        }
+
+        // <summary>
+        /// Verify that SqlCmdVars are set correctly for a deploy request
+        /// </summary>
+        [Fact]
+        public async void GenerateDeployScriptWithSqlCmdVariables()
+        {
+            const string databaseRefVarName = "DatabaseRef";
+            const string filterValueVarName = "FilterValue";
+
+            string storedProcScript = $@"
+CREATE PROCEDURE [dbo].[Procedure1]
+	@param1 int = 0,
+	@param2 int
+AS
+	SELECT * FROM [$({databaseRefVarName})].[dbo].[Table1] WHERE Type = '$({filterValueVarName})'
+RETURN 0
+";
+
+            // first extract a db to have a dacpac to import later
+            var result = GetLiveAutoCompleteTestObjects();
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, query: storedProcScript, dbNamePrefix: "DacFxGenerateScriptSqlCmdVarsTest");
+            SqlTestDb targetDb = null;
+            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
+            Directory.CreateDirectory(folderPath);
+
+            try
+            {
+                var extractParams = new ExtractParams
+                {
+                    DatabaseName = sourceDb.DatabaseName,
+                    PackageFilePath = Path.Combine(folderPath, string.Format("{0}.dacpac", sourceDb.DatabaseName)),
+                    ApplicationName = "test",
+                    ApplicationVersion = "1.0.0.0"
+                };
+
+                DacFxService service = new DacFxService();
+                ExtractOperation extractOperation = new ExtractOperation(extractParams, result.ConnectionInfo);
+                service.PerformOperation(extractOperation, TaskExecutionMode.Execute);
+
+                // Generate script for deploying source dacpac to target db
+                var generateScriptParams = new GenerateDeployScriptParams
+                {
+                    PackageFilePath = extractParams.PackageFilePath,
+                    DatabaseName = string.Concat(sourceDb.DatabaseName, "-generated"),
+                    SqlCommandVariableValues = new Dictionary<string, string>()
+                    {
+                        { databaseRefVarName, "OtherDatabase" },
+                        { filterValueVarName, "Employee" }
+                    }
+                };
+
+                GenerateDeployScriptOperation generateScriptOperation = new GenerateDeployScriptOperation(generateScriptParams, result.ConnectionInfo);
+                service.PerformOperation(generateScriptOperation, TaskExecutionMode.Execute);
+
+                // Verify the SqlCmdVars were set correctly in the script
+                Assert.NotEmpty(generateScriptOperation.Result.DatabaseScript);
+                Assert.Contains($":setvar {databaseRefVarName} \"{generateScriptParams.SqlCommandVariableValues[databaseRefVarName]}\"", generateScriptOperation.Result.DatabaseScript);
+                Assert.Contains($":setvar {filterValueVarName} \"{generateScriptParams.SqlCommandVariableValues[filterValueVarName]}\"", generateScriptOperation.Result.DatabaseScript);
 
                 VerifyAndCleanup(extractParams.PackageFilePath);
             }
