@@ -2,9 +2,8 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+using System.Collections.Generic;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.ServiceLayer.TaskServices;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 {
@@ -22,6 +21,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         /// Gets or sets the filepath where to save the deployment report
         /// </summary>
         public string DeploymentReportFilePath { get; set; }
+
+        /// <summary>
+        /// Gets or sets SQLCMD variables for script generation
+        /// </summary>
+        public IDictionary<string, string> SqlCommandVariableValues { get; set; }
     }
 
     /// <summary>
