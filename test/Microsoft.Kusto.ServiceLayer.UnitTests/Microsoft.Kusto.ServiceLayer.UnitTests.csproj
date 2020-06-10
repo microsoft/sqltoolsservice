@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup Label="Configuration">
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <DefineConstants>$(DefineConstants);NETCOREAPP1_0;TRACE</DefineConstants>
+    <IsPackable>false</IsPackable>
+    <ApplicationIcon />
+    <StartupObject />
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
+    <PackageReference Include="NUnit" Version="3.10.1" />
+    <PackageReference Include="xunit" Version="2.2.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.6.0-preview3-26501-04" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>../../bin/ref/Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Moq">
+      <HintPath>../../bin/ref/Moq.dll</HintPath>
+    </Reference>
+    <Reference Include="Castle.Core">
+      <HintPath>../../bin/ref/Castle.Core.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="obj\Debug\netcoreapp2.2\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Microsoft.Kusto.ServiceLayer\Microsoft.Kusto.ServiceLayer.csproj" />
+    <ProjectReference Include="..\Microsoft.SqlTools.ServiceLayer.Test.Common\Microsoft.SqlTools.ServiceLayer.Test.Common.csproj" />
+  </ItemGroup>
+</Project>

@@ -6,16 +6,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
-using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Completion;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
-using Microsoft.Kusto.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.Utility;
-using Microsoft.Kusto.ServiceLayer.Workspace;
 using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.Kusto.ServiceLayer.LanguageServices
@@ -28,7 +23,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
     {
         private static CompletionItem[] emptyCompletionList = new CompletionItem[0];
 
-        private static readonly string[] DefaultCompletionText = new string[]
+        internal static readonly string[] DefaultCompletionText = new string[]
         {
             "abs",
             "acos",

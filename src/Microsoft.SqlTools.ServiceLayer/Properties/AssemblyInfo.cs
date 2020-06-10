@@ -45,6 +45,7 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("Microsoft.SqlTools.ServiceLayer.IntegrationTests")]
 [assembly: InternalsVisibleTo("Microsoft.SqlTools.ManagedBatchParser.UnitTests")]
 [assembly: InternalsVisibleTo("Microsoft.SqlTools.ServiceLayer.Test.Common")]
+[assembly: InternalsVisibleTo("Microsoft.Kusto.ServiceLayer.UnitTests")]
 
 // Allowing internals visible access to Moq library to help testing
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]

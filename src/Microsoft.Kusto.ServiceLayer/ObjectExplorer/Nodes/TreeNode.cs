@@ -44,6 +44,14 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
         /// <summary>
         /// Constructor with no required inputs
         /// </summary>
+        public TreeNode()
+        {
+
+        }
+        
+        /// <summary>
+        /// Constructor with no required inputs
+        /// </summary>
         public TreeNode(IDataSource dataSource, DataSourceObjectMetadata objectMetadata)
         {
             DataSource = dataSource;
