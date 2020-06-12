@@ -69,7 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlAssessment
         /// <summary>
         /// Gets the <see cref="Engine"/> used to run assessment operations.
         /// </summary>
-        private Engine Engine { get; } = new Engine();
+        internal Engine Engine { get; } = new Engine();
 
         /// <summary>
         /// Gets the instance of the connection service,
@@ -356,19 +356,23 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlAssessment
 
             foreach (var r in resultsList)
             {
+                var targetName = target.Type != SqlObjectType.Server
+                                     ? $"{target.ServerName}:{target.Name}"
+                                     : target.Name;
+
                 var item = new CheckInfo()
-                {
-                    CheckId = r.Id,
-                    Description = r.Description,
-                    DisplayName = r.DisplayName,
-                    HelpLink = r.HelpLink,
-                    Level = r.Level.ToString(),
-                    TargetName = $"{target.ServerName}/{target.Name}",
-                    Tags = r.Tags.ToArray(),
-                    TargetType = target.Type,
-                    RulesetName = Engine.Configuration.DefaultRuleset.Name,
-                    RulesetVersion = Engine.Configuration.DefaultRuleset.Version.ToString()
-                };
+                               {
+                                   CheckId = r.Id,
+                                   Description = r.Description,
+                                   DisplayName = r.DisplayName,
+                                   HelpLink = r.HelpLink,
+                                   Level = r.Level.ToString(),
+                                   TargetName = targetName,
+                                   Tags = r.Tags.ToArray(),
+                                   TargetType = target.Type,
+                                   RulesetName = Engine.Configuration.DefaultRuleset.Name,
+                                   RulesetVersion = Engine.Configuration.DefaultRuleset.Version.ToString()
+                               };
 
                 result.Add(item);
             }
@@ -379,20 +383,20 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlAssessment
         private AssessmentResultItem TranslateAssessmentResult(IAssessmentResult r)
         {
             var item = new AssessmentResultItem
-            {
-                CheckId = r.Check.Id,
-                Description = r.Check.Description,
-                DisplayName = r.Check.DisplayName,
-                HelpLink = r.Check.HelpLink,
-                Level = r.Check.Level.ToString(),
-                Message = r.Message,
-                TargetName = r.TargetPath,
-                Tags = r.Check.Tags.ToArray(),
-                TargetType = r.TargetType,
-                RulesetVersion = Engine.Configuration.DefaultRuleset.Version.ToString(),
-                RulesetName = Engine.Configuration.DefaultRuleset.Name,
-                Timestamp = r.Timestamp
-            };
+                           {
+                               CheckId = r.Check.Id,
+                               Description = r.Check.Description,
+                               DisplayName = r.Check.DisplayName,
+                               HelpLink = r.Check.HelpLink,
+                               Level = r.Check.Level.ToString(),
+                               Message = r.Message,
+                               TargetName = r.TargetPath,
+                               Tags = r.Check.Tags.ToArray(),
+                               TargetType = r.TargetType,
+                               RulesetVersion = Engine.Configuration.DefaultRuleset.Version.ToString(),
+                               RulesetName = Engine.Configuration.DefaultRuleset.Name,
+                               Timestamp = r.Timestamp
+                           };
 
             if (r is IAssessmentNote)
             {
@@ -426,7 +430,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlAssessment
                 Platform = server.Platform,
                 ServerName = server.Name,
                 Type = SqlObjectType.Database,
-                Urn = $"{server.Name}/{databaseName}",
+                Urn = $"{server.Name}:{databaseName}",
                 Version = server.Version
             };
         }

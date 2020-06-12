@@ -377,7 +377,6 @@ END
             dacOptions.DropRoleMembersNotInSource = true;
             dacOptions.IgnoreKeywordCasing = false;
             dacOptions.IgnoreSemicolonBetweenStatements = false;
-            dacOptions.IgnoreWhitespace = false;
 
             SchemaCompareTestUtils.CompareOptions(deployOptions, dacOptions);
         }

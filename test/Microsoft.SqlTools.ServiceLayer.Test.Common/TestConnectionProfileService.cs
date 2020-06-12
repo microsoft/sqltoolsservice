@@ -120,7 +120,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                 ConnectionSetting settings = TestConfigPersistenceHelper.InitSetting();
                 if (settings == null)
                 {
-                    Console.WriteLine("DBTestInstance not configured. Run 'dotnet run Microsoft.SqlTools.ServiceLayer.TestEnvConfig from the command line to configure");
+                    Console.WriteLine("DBTestInstance not configured. Run 'dotnet run Microsoft.SqlTools.ServiceLayer.TestEnvConfig' from the command line to configure");
                 }
 
                 if (testServers != null && settings != null)
