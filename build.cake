@@ -279,7 +279,7 @@ Task("TestCore")
     {
         var logFile = System.IO.Path.Combine(logFolder, $"{testProject}-core-result.trx");
         var testWorkingDir = System.IO.Path.Combine(testFolder, testProject);
-        Run(dotnetcli, $"test -f netcoreapp2.2 --logger \"trx;LogFileName={logFile}\"", testWorkingDir)
+        Run(dotnetcli, $"test --logger \"trx;LogFileName={logFile}\"", testWorkingDir)
             .ExceptionOnError($"Test {testProject} failed for .NET Core.");
     }
 });
@@ -584,7 +584,7 @@ Task("SRGen")
                 continue;
             }
 
-            var srgenPath = System.IO.Path.Combine(toolsFolder, "Microsoft.Data.Tools.StringResourceTool", "tools", "netcoreapp2.2", "any", "srgen.dll");
+            var srgenPath = System.IO.Path.Combine(toolsFolder, "Microsoft.Data.Tools.StringResourceTool", "lib", "netcoreapp2.2", "srgen.dll");
             var outputResx = System.IO.Path.Combine(localizationDir, "sr.resx");
             var inputXliff = System.IO.Path.Combine(localizationDir, "transXliff");
             var outputXlf = System.IO.Path.Combine(localizationDir, "sr.xlf");

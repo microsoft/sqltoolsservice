@@ -18,49 +18,49 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
         [Fact]
         public async Task QueryResultSummaryOnPremTest()
         {
-            await QueryResultSummaryOnPremTest(TestServerType.OnPrem, Scripts.MasterBasicQuery);
+            await QueryResultSummaryOnPremTestCore(TestServerType.OnPrem, Scripts.MasterBasicQuery);
         }
 
         [Fact]
         public async Task QueryResultFirstOnPremTest()
         {
-            await QueryResultFirstOnPremTest(TestServerType.OnPrem, Scripts.MasterBasicQuery);
+            await QueryResultFirstOnPremTestCore(TestServerType.OnPrem, Scripts.MasterBasicQuery);
         }
 
         [Fact]
         public async Task LongQueryResultSummaryOnPremTest()
         {
-            await QueryResultSummaryOnPremTest(TestServerType.OnPrem, Scripts.MasterLongQuery);
+            await QueryResultSummaryOnPremTestCore(TestServerType.OnPrem, Scripts.MasterLongQuery);
         }
 
         [Fact]
         public async Task LongQueryResultFirstOnPremTest()
         {
-            await QueryResultFirstOnPremTest(TestServerType.OnPrem, Scripts.MasterLongQuery);
+            await QueryResultFirstOnPremTestCore(TestServerType.OnPrem, Scripts.MasterLongQuery);
         }
 
         [Fact]
         public async Task QueryResultSummaryOnAzureTest()
         {
-            await QueryResultSummaryOnPremTest(TestServerType.Azure, Scripts.MasterBasicQuery);
+            await QueryResultSummaryOnPremTestCore(TestServerType.Azure, Scripts.MasterBasicQuery);
         }
 
         [Fact]
         public async Task QueryResultFirstOnAzureTest()
         {
-            await QueryResultFirstOnPremTest(TestServerType.Azure, Scripts.MasterBasicQuery);
+            await QueryResultFirstOnPremTestCore(TestServerType.Azure, Scripts.MasterBasicQuery);
         }
 
         [Fact]
         public async Task LongQueryResultSummaryOnAzureTest()
         {
-            await QueryResultSummaryOnPremTest(TestServerType.Azure, Scripts.MasterLongQuery);
+            await QueryResultSummaryOnPremTestCore(TestServerType.Azure, Scripts.MasterLongQuery);
         }
 
         [Fact]
         public async Task LongQueryResultFirstOnAzureTest()
         {
-            await QueryResultFirstOnPremTest(TestServerType.Azure, Scripts.MasterLongQuery);
+            await QueryResultFirstOnPremTestCore(TestServerType.Azure, Scripts.MasterLongQuery);
         }
 
         [Fact]
@@ -103,7 +103,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
 
         }
 
-        private async Task QueryResultSummaryOnPremTest(TestServerType serverType, string query, [CallerMemberName] string testName = "")
+        private async Task QueryResultSummaryOnPremTestCore(TestServerType serverType, string query, [CallerMemberName] string testName = "")
         {
             await TestServiceDriverProvider.RunTestIterations(async (timer) =>
             {
@@ -124,7 +124,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
             }, testName);
         }
 
-        private async Task QueryResultFirstOnPremTest(TestServerType serverType, string query, [CallerMemberName] string testName = "")
+        private async Task QueryResultFirstOnPremTestCore(TestServerType serverType, string query, [CallerMemberName] string testName = "")
         {
             await TestServiceDriverProvider.RunTestIterations(async (timer) =>
             {
