@@ -584,7 +584,7 @@ Task("SRGen")
                 continue;
             }
 
-            var srgenPath = System.IO.Path.Combine(toolsFolder, "Microsoft.Data.Tools.StringResourceTool", "lib", "netcoreapp2.2", "srgen.dll");
+            var srgenPath = System.IO.Path.Combine(toolsFolder, "Microsoft.Data.Tools.StringResourceTool", "lib", "netcoreapp3.1", "srgen.dll");
             var outputResx = System.IO.Path.Combine(localizationDir, "sr.resx");
             var inputXliff = System.IO.Path.Combine(localizationDir, "transXliff");
             var outputXlf = System.IO.Path.Combine(localizationDir, "sr.xlf");
