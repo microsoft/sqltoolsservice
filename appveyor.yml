@@ -9,7 +9,7 @@ environment:
 # safelist
 branches:
   only:
-    - master
+    - main
     - dev
 
 before_build:
