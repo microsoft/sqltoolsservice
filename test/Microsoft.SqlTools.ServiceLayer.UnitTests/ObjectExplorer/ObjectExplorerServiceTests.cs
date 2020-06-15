@@ -70,7 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             VerifyErrorSent(contextMock);
             Assert.True(((string)errorResponse).Contains("ArgumentNullException"));
         }
-        
+
         [Fact]
         public async Task CreateSessionRequestReturnsFalseOnConnectionFailure()
         {
@@ -95,7 +95,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             // And expect error notification to be sent
             serviceHostMock.Verify(x => x.SendEvent(CreateSessionCompleteNotification.Type, It.IsAny<SessionCreatedParameters>()), Times.Once());
         }
-        
+
 
         [Fact]
         public async Task CreateSessionRequestWithMasterConnectionReturnsServerSuccessAndNodeInfo()
@@ -208,6 +208,26 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         }
 
         [Fact]
+        public async Task RefreshNodeGivenNullSessionShouldReturnEmptyList()
+        {
+            RefreshParams expandParams = new RefreshParams()
+            {
+                SessionId = null,
+                NodePath = "Any path"
+            };
+
+            // when expanding
+            // then expect the nodes are server children 
+            await RunAndVerify<bool, ExpandResponse>(
+                test: (requestContext) => CallServiceRefresh(expandParams, requestContext),
+                verify: (actual =>
+                {
+                    Assert.Equal(actual.SessionId, expandParams.SessionId);
+                    Assert.Null(actual.Nodes);
+                }));
+        }
+
+        [Fact]
         public async Task CloseSessionGivenInvalidSessionShouldReturnEmptyList()
         {
             CloseSessionParams closeSessionParamsparams = new CloseSessionParams()
@@ -253,7 +273,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         public async Task FindNodesReturnsMatchingNode()
         {
             var session = await CreateSession();
-            
+
             var foundNodes = service.FindNodes(session.SessionId, "Server", null, null, null);
             Assert.Equal(1, foundNodes.Count);
             Assert.Equal("Server", foundNodes[0].NodeType);
@@ -264,7 +284,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         public async Task FindNodesReturnsEmptyListForNoMatch()
         {
             var session = await CreateSession();
-            
+
             var foundNodes = service.FindNodes(session.SessionId, "Table", "testSchema", "testTable", "testDatabase");
             Assert.Equal(0, foundNodes.Count);
         }
@@ -290,7 +310,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             serviceHostMock.AddEventHandling(CreateSessionCompleteNotification.Type, (et, p) => sessionResult = p);
             CreateSessionResponse result = default(CreateSessionResponse);
             var contextMock = RequestContextMocks.Create<CreateSessionResponse>(r => result = r).AddErrorHandling(null);
-          
+
             connectionServiceMock.Setup(c => c.Connect(It.IsAny<ConnectParams>()))
                 .Returns((ConnectParams connectParams) => Task.FromResult(GetCompleteParamsForConnection(connectParams.OwnerUri, details)));
 
@@ -385,7 +405,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             serviceHostMock.AddEventHandling(CreateSessionCompleteNotification.Type, (et, p) => result = p);
 
             await service.HandleCreateSessionRequest(connectionDetails, context);
-            Task task =  service.CreateSessionTask;
+            Task task = service.CreateSessionTask;
             if (task != null)
             {
                 await task;
@@ -421,7 +441,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             // when creating a new session
             // then expect the create session request to return false
             await RunAndVerify<CreateSessionResponse, SessionCreatedParameters>(
-                test: (requestContext) => 
+                test: (requestContext) =>
                 {
                     return CallCreateSession(details, requestContext);
                 },
@@ -433,7 +453,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 }));
 
             // And expect no error notification to be sent
-            serviceHostMock.Verify(x => x.SendEvent(ConnectionCompleteNotification.Type, 
+            serviceHostMock.Verify(x => x.SendEvent(ConnectionCompleteNotification.Type,
                 It.IsAny<ConnectionCompleteParams>()), Times.Never());
         }
 
