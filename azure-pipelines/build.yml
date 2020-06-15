@@ -90,6 +90,11 @@ steps:
     workingFolder: test/CodeCoverage
   enabled: false
 
+- task: UseDotNet@2
+  displayName: 'Use .NET Core sdk 2.2.108 for CodeSigning'
+  inputs:
+    version: 2.2.108
+
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
   displayName: 'ESRP CodeSigning - sha256 only'
   inputs:
@@ -216,4 +221,4 @@ schedules:
   displayName: Mon-Fri at 5:00AM
   branches:
     include:
-    - master
+    - main
