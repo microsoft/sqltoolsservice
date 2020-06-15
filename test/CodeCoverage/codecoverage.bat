@@ -1,3 +1,5 @@
+SET SQLTOOLSSERVICE_EXE=%REPOROOT%\src\Microsoft.SqlTools.ServiceLayer\bin\Integration\netcoreapp3.1\win7-x64\MicrosoftSqlToolsServiceLayer.exe
+
 SET WORKINGDIR=%~dp0
 SET REPOROOT=%WORKINGDIR%..\..
 
@@ -58,7 +60,6 @@ dotnet restore %REPOROOT%\test\Microsoft.SqlTools.ManagedBatchParser.Integration
 dotnet build %REPOROOT%\test\Microsoft.SqlTools.ManagedBatchParser.IntegrationTests\Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.csproj %DOTNETCONFIG% 
 
 SET TEST_SERVER=localhost
-SET SQLTOOLSSERVICE_EXE=%REPOROOT%\src\Microsoft.SqlTools.ServiceLayer\bin\Integration\netcoreapp3.1\win7-x64\MicrosoftSqlToolsServiceLayer.exe
 SET SERVICECODECOVERAGE=True
 SET CODECOVERAGETOOL="%WORKINGDIR%packages\OpenCover.4.6.684\tools\OpenCover.Console.exe"
 SET CODECOVERAGEOUTPUT=coverage.xml
