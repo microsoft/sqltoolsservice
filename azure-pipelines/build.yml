@@ -95,7 +95,7 @@ steps:
    
   displayName: 'Copy SqlClient KeepAlive patch to macOS archive'
 
-- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@2.0.20200520.3
   displayName: 'ESRP CodeSigning - sha256 only'
   inputs:
     ConnectedServiceName: 'Code Signing'
