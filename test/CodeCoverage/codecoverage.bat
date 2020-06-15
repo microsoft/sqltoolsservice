@@ -1,7 +1,7 @@
-SET SQLTOOLSSERVICE_EXE=%REPOROOT%\src\Microsoft.SqlTools.ServiceLayer\bin\Integration\netcoreapp3.1\win7-x64\MicrosoftSqlToolsServiceLayer.exe
-
 SET WORKINGDIR=%~dp0
 SET REPOROOT=%WORKINGDIR%..\..
+SET SQLTOOLSSERVICE_EXE=%REPOROOT%\src\Microsoft.SqlTools.ServiceLayer\bin\Integration\netcoreapp3.1\win7-x64\MicrosoftSqlToolsServiceLayer.exe
+
 
 REM clean-up results from previous run
 RMDIR %WORKINGDIR%reports\ /S /Q
