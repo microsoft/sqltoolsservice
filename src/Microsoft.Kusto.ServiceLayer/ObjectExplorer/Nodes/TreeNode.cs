@@ -42,7 +42,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
         public IDataSource DataSource { get; set; }
 
         /// <summary>
-        /// Constructor with no required inputs
+        /// Constructor with no required inputs for Unit Tests
         /// </summary>
         public TreeNode()
         {
@@ -50,7 +50,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
         }
         
         /// <summary>
-        /// Constructor with no required inputs
+        /// Constructor with IDataSource and DataSourceObjectMetadata
         /// </summary>
         public TreeNode(IDataSource dataSource, DataSourceObjectMetadata objectMetadata)
         {
