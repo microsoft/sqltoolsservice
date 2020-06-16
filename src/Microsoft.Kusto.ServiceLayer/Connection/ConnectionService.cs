@@ -803,7 +803,10 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             IEnumerable<DataSourceObjectMetadata> databaseMetadata = dataSource.GetChildObjects(objectMetadata);
 
             ListDatabasesResponse response = new ListDatabasesResponse();
-            if(databaseMetadata != null) response.DatabaseNames = databaseMetadata.Select(objMeta => objMeta.PrettyName).ToArray();
+            if (databaseMetadata != null)
+            {
+                response.DatabaseNames = databaseMetadata.Select(objMeta => objMeta.PrettyName).ToArray();
+            }
 
             return response;
         }

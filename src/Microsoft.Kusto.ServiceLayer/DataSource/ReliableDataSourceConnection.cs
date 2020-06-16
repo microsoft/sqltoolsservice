@@ -68,6 +68,23 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             _commandRetryPolicy.RetryOccurred += RetryCommandCallback;
         }
 
+        /// <summary>
+        /// Used for Unit Testing
+        /// </summary>
+        /// <param name="dataSource"></param>
+        protected ReliableDataSourceConnection(IDataSource dataSource)
+        {
+            _dataSource = dataSource;
+        }
+
+        /// <summary>
+        /// Used for Unit Testing
+        /// </summary>
+        public ReliableDataSourceConnection()
+        {
+            
+        }
+
         private void RetryCommandCallback(RetryState retryState)
         {
             RetryPolicyUtils.RaiseSchemaAmbientRetryMessage(retryState, SqlSchemaModelErrorCodes.ServiceActions.CommandRetry, _azureSessionId); 
@@ -159,7 +176,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// can be used.  
         /// </summary>
         /// <returns><see cref="SqlConnection"/></returns>
-        public IDataSource GetUnderlyingConnection()
+        public virtual IDataSource GetUnderlyingConnection()
         {
             return _dataSource;
         }
@@ -168,7 +185,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// Changes the current database for an open Connection object.
         /// </summary>
         /// <param name="databaseName">The name of the database to use in place of the current database.</param>
-        public void ChangeDatabase(string databaseName)
+        public virtual void ChangeDatabase(string databaseName)
         {
             _dataSource.DatabaseName = databaseName;
         }
@@ -177,7 +194,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// Opens a database connection with the settings specified by the ConnectionString
         /// property of the provider-specific Connection object.
         /// </summary>
-        public void Open()
+        public virtual void Open()
         {
             // TODOKusto: Should we initialize in the constructor or here. Set a breapoint and check.
             // Check if retry policy was specified, if not, disable retries by executing the Open method using RetryPolicy.NoRetry.
@@ -194,7 +211,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// Opens a database connection with the settings specified by the ConnectionString
         /// property of the provider-specific Connection object.
         /// </summary>
-        public Task OpenAsync(CancellationToken token)
+        public virtual Task OpenAsync(CancellationToken token)
         {
             // Make sure that the token isn't cancelled before we try
             if (token.IsCancellationRequested)
@@ -219,7 +236,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <summary>
         /// Closes the connection to the database.
         /// </summary>
-        public void Close()
+        public virtual void Close()
         {
         }
 
@@ -236,7 +253,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// Gets the name of the current database or the database to be used after a
         /// connection is opened.
         /// </summary>
-        public string Database
+        public virtual string Database
         {
             get { return _dataSource.DatabaseName; }
         }

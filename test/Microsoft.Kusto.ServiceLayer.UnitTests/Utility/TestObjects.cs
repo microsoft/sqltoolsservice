@@ -4,11 +4,15 @@
 //
 
 using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
+using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
 using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Moq;
 
 namespace Microsoft.Kusto.ServiceLayer.UnitTests.Utility
@@ -24,10 +28,32 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.Utility
         /// <summary>
         /// Creates a test connection service
         /// </summary>
-        public static ConnectionService GetTestConnectionService()
+        public static ConnectionService GetTestConnectionService(ReliableDataSourceConnection reliableDataSourceConnection = null)
         {
+            var testConnectionCompleteParams = new ConnectionCompleteParams
+            {
+                ConnectionId = Guid.NewGuid().ToString()
+            };
+
+            ReliableDataSourceConnection testSourceConnection;
+            if (reliableDataSourceConnection == null)
+            {
+                var connectionMock = new Mock<ReliableDataSourceConnection> { CallBase = true };
+                connectionMock.Setup(x => x.OpenAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult(testConnectionCompleteParams));
+                connectionMock.Setup(x => x.Database).Returns("fakeDatabaseName");
+                testSourceConnection = connectionMock.Object;
+            }
+            else
+            {
+                testSourceConnection = reliableDataSourceConnection;
+            }
+
+            var mockFactory = new Mock<IDataSourceConnectionFactory>();
+            mockFactory.Setup(factory => factory.CreateDataSourceConnection(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(testSourceConnection);
+            
             // use mock database connection
-            return new ConnectionService(new TestDataSourceConnectionFactory());
+            return new ConnectionService(mockFactory.Object);
         }
 
         public static ConnectParams GetTestConnectionParams(bool useConnectionString = false)
@@ -46,19 +72,19 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.Utility
         {
             if (useConnectionString)
             {
-                return new ConnectionDetails()
+                return new ConnectionDetails
                 {
                     ConnectionString = $"User ID=user;PWD={Guid.NewGuid().ToString()};Database=databaseName;Server=serverName"
                 };
             }
 
-            return new ConnectionDetails()
+            return new ConnectionDetails
             {
                 UserName = "user",
                 Password = Guid.NewGuid().ToString(),
                 DatabaseName = "databaseName",
                 ServerName = "serverName",
-                AzureAccountToken = "azureAccountToken"
+                AzureAccountToken = "azureAccountToken",
             };
         }
         
@@ -113,25 +139,22 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.Utility
 
     public class TestReliableDataSourceConnection : ReliableDataSourceConnection
     {
-        public TestReliableDataSourceConnection(string connectionString, string azureAccountToken) : base(connectionString, new TestRetryPolicy(), new TestRetryPolicy(), azureAccountToken)
+        public static readonly ConnectionCompleteParams TestConnectionCompleteParams = new ConnectionCompleteParams
         {
-        }
-    }
-
-    public class TestRetryPolicy : RetryPolicy
-    {
-        private static readonly Mock<IErrorDetectionStrategy> MockErrorDetectionStrategy = new Mock<IErrorDetectionStrategy>();
+            ConnectionId = Guid.NewGuid().ToString()
+        };
         
-        public TestRetryPolicy() : base(MockErrorDetectionStrategy.Object)
+        public TestReliableDataSourceConnection(string connectionString, string azureAccountToken) : base(new TestDataSource())
         {
+            
         }
 
-        protected override bool ShouldRetryImpl(RetryState retryState)
+        public override Task OpenAsync(CancellationToken token)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(TestConnectionCompleteParams);
         }
     }
-    
+
     /// <summary>
     /// Test mock class for IDataSourceConnectionFactory factory
     /// </summary>
@@ -140,6 +163,57 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.Utility
         public ReliableDataSourceConnection CreateDataSourceConnection(string connectionString, string azureAccountToken)
         {
             return new TestReliableDataSourceConnection(connectionString, azureAccountToken);
+        }
+    }
+    
+    public class TestDataSource : IDataSource
+    {
+        public void Dispose()
+        {
+            
+        }
+
+        public DataSourceType DataSourceType { get; }
+        public string ClusterName { get; }
+        public string DatabaseName { get; set; }
+        public Task<IDataReader> ExecuteQueryAsync(string query, CancellationToken cancellationToken, string databaseName = null)
+        {
+            return Task.CompletedTask as Task<IDataReader>;
+        }
+
+        public Task<T> ExecuteScalarQueryAsync<T>(string query, CancellationToken cancellationToken, string databaseName = null)
+        {
+            return Task.CompletedTask as Task<T>;
+        }
+
+        public IEnumerable<DataSourceObjectMetadata> GetChildObjects(DataSourceObjectMetadata parentMetadata)
+        {
+            return new List<DataSourceObjectMetadata>();
+        }
+
+        public IEnumerable<DataSourceObjectMetadata> GetChildFolders(DataSourceObjectMetadata parentMetadata)
+        {
+            return new List<DataSourceObjectMetadata>();
+        }
+
+        public void Refresh()
+        {
+            
+        }
+
+        public void Refresh(DataSourceObjectMetadata objectMetadata)
+        {
+            
+        }
+
+        public Task<bool> Exists()
+        {
+            return Task.CompletedTask as Task<bool>;
+        }
+
+        public bool Exists(DataSourceObjectMetadata objectMetadata)
+        {
+            return false;
         }
     }
 }
