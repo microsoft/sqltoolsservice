@@ -29,6 +29,7 @@ using Microsoft.SqlTools.ServiceLayer.Security;
 using Microsoft.SqlTools.ServiceLayer.SqlAssessment;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.ServiceLayer.Diagram;
 
 namespace Microsoft.SqlTools.ServiceLayer
 {
@@ -133,6 +134,9 @@ namespace Microsoft.SqlTools.ServiceLayer
             
             SqlAssessmentService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(SqlAssessmentService.Instance);
+
+            DiagramService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(DiagramService.Instance);
 
             InitializeHostedServices(serviceProvider, serviceHost);
             serviceHost.ServiceProvider = serviceProvider;
