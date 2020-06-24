@@ -3,13 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Data.SqlTypes;
 using System.Diagnostics;
-using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts
 {
@@ -176,8 +173,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts
         /// Logic taken from SSDT determination of unknown columns. It may not even be possible to
         /// have "unknown" column types with the .NET Core SqlClient.
         /// </remarks>
-        public bool IsUnknownType => DataType == typeof(object) &&
-                                     DataTypeName.Equals(UnknownTypeName, StringComparison.OrdinalIgnoreCase);
+        public bool IsUnknownType => DataType == typeof(object) && DataTypeName?.ToLower() == UnknownTypeName;
 
         #endregion
 
