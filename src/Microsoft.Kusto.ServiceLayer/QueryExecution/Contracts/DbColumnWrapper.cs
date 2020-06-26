@@ -88,18 +88,24 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts
             NumericPrecision = SafeGetValue<int?>(row, "NumericPrecision");
             NumericScale = SafeGetValue<int?>(row, "NumericScale");
             UdtAssemblyQualifiedName = SafeGetValue<string>(row, "UdtAssemblyQualifiedName");
-            DataType = SafeGetValue<System.Type>(row, "DataType");
-            DataTypeName = SafeGetValue<string>(row, "DataTypeName");
+            DataType = SafeGetValue<Type>(row, "DataType");
+            DataTypeName = SafeGetValue<string>(row, "ColumnType");
             ColumnName = SafeGetValue<string>(row, "ColumnName");
         }
-
-        internal T SafeGetValue<T>(DataRow row, string attribName)
+        
+        private T SafeGetValue<T>(DataRow row, string attribName)
         {
             try
             {
-                return (T)row[attribName];
+                if (row[attribName] is T value)
+                {
+                    return value;
+                }
             }
-            catch{} // Ignore exceptions
+            catch
+            {
+                // Ignore exceptions
+            } 
             
             return default(T);
         }
@@ -171,10 +177,10 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts
         /// </summary>
         /// <remarks>
         /// Logic taken from SSDT determination of unknown columns. It may not even be possible to
-        /// have "unknown" column types with the .NET Core SqlClient. DataTypeName can be null in
-        /// some cases for Kusto connections
+        /// have "unknown" column types with the .NET Core SqlClient.
         /// </remarks>
-        public bool IsUnknownType => DataType == typeof(object) && DataTypeName?.ToLower() == UnknownTypeName;
+        public bool IsUnknownType => DataType == typeof(object) && 
+                                     DataTypeName.Equals(UnknownTypeName, StringComparison.OrdinalIgnoreCase);
 
         #endregion
 
