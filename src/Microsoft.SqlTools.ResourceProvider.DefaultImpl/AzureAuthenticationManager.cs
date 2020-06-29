@@ -97,6 +97,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
             userAccount.DisplayInfo = ToDisplayInfo(account);
             userAccount.NeedsReauthentication = account.IsStale;
             userAccount.AllTenants = ProcessTenants(accountTokenWrapper, account);
+            userAccount.UnderlyingAccount = account;
             return userAccount;
         }
 

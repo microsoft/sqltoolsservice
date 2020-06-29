@@ -86,7 +86,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             rt.ValidateWhereClauseSingleKey(nullClause);
         }
 
-        public static IEnumerable<object> GetWhereClauseIsNotNullData
+        public static IEnumerable<object[]> GetWhereClauseIsNotNullData
         {
             get
             {

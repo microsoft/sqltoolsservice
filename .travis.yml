@@ -7,7 +7,7 @@ os:
 #  - osx
 
 mono: none
-dotnet: 2.2
+dotnet: 3.1
 # was dotnet: 2.2.100-preview3-009430
 
 # safelist

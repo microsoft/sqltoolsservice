@@ -652,6 +652,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             public string OsVersion;
 
             public string MachineName;
+            public string ServerName;
 
             public Dictionary<string, object> Options { get; set; }
         }
@@ -664,6 +665,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             public string Protocol;
             public string IpAddress;
             public int Port;
+        }
+
+        public class ServerHostInfo
+        {
+            public string Platform;
+            public string Distribution;
+            public string Release;
+            public string ServicePackLevel;
         }
 
         public static bool TryGetServerVersion(string connectionString, out ServerInfo serverInfo, string azureAccountToken)
@@ -700,6 +709,37 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         }
 
         /// <summary>
+        /// Gets the server host information from sys.dm_os_host_info view
+        /// </summary>
+        /// <param name="connection">The connection</param>
+        public static ServerHostInfo GetServerHostInfo(IDbConnection connection)
+        {
+            // SQL Server 2016 and below does not provide sys.dm_os_host_info
+            if (!Version.TryParse(ReadServerVersion(connection), out var hostVersion) || hostVersion.Major <= 13)
+            {
+                return new ServerHostInfo
+                {
+                    Platform = "Windows"
+                };
+            }
+
+            var hostInfo = new ServerHostInfo();
+            ExecuteReader(
+                connection,
+                SqlConnectionHelperScripts.GetHostInfo,
+                reader =>
+                {
+                    reader.Read();
+                    hostInfo.Platform = reader[0].ToString();
+                    hostInfo.Distribution = reader[1].ToString();
+                    hostInfo.Release = reader[2].ToString();
+                    hostInfo.ServicePackLevel = reader[3].ToString();
+                });
+
+            return hostInfo;
+        }
+
+        /// <summary>
         /// Returns the version of the server.  This routine will throw if an exception is encountered.
         /// </summary>
         public static ServerInfo GetServerVersion(IDbConnection connection)
@@ -729,11 +769,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                     serverInfo.ServerLevel = reader[2].ToString();
                     serverInfo.ServerEdition = reader[3].ToString();
                     serverInfo.MachineName = reader[4].ToString();
+                    serverInfo.ServerName = reader[5].ToString();
 
-                    if (reader.FieldCount > 5)
+                    if (reader.FieldCount > 6)
                     {
                         // Detect the presence of SXI
-                        serverInfo.IsSelectiveXmlIndexMetadataPresent = reader.GetInt32(5) == 1;
+                        serverInfo.IsSelectiveXmlIndexMetadataPresent = reader.GetInt32(6) == 1;
                     }
 
                     // The 'ProductVersion' server property is of the form ##.#[#].####.#,

@@ -31,7 +31,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Contracts
         /// Indicates if the account needs refreshing
         /// </summary>
         public bool IsStale { get; set; }
-  
+
     }
 
     /// <summary>
@@ -58,7 +58,55 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Contracts
             get;
             set;
         }
+        /// <summary>
+        /// Information about the auth provider
+        /// </summary>
+        public ProviderSettings ProviderSettings;
 
+    }
+
+    public class ProviderSettings
+    {
+        /// <summary>
+        /// Display name of the provider 
+        /// </summary>
+        public string DisplayName;
+
+        /// <summary>
+        /// ID of the provider
+        /// </summary>    
+        public string Id;
+        /// <summary>
+        /// Settings for the provider itself
+        /// </summary>
+        public ProviderSettingsObject Settings;
+    }
+
+    public class ProviderSettingsObject
+    {
+        public ResourceSetting ArmResource;
+        public ResourceSetting GraphResource;
+        public ResourceSetting OssRdbmsResource;
+        public ResourceSetting SqlResource;
+
+        /// <summary>
+        /// Actual sign in link
+        /// </summary>
+        public string Host;
+        /// <summary>
+        /// ClientID used
+        /// </summary>
+        public string ClientId;
+    }
+
+    public class ResourceSetting
+    {
+
+        /// <summary>
+        /// Endpoint of the resource
+        /// </summary>
+        public string Endpoint;
+        public string Id;
     }
 
     /// <summary>
@@ -87,7 +135,6 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Contracts
         /// <summary>
         /// A display name that offers context for the account, such as "Contoso".
         /// </summary>
-            
         public string ContextualDisplayName { get; set; }
 
         // Note: ignoring ContextualLogo as it's not needed

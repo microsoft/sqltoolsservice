@@ -24,9 +24,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
 
         public static MetadataService Instance => LazyInstance.Value;
 
-        private static ConnectionService connectionService = null;        
+        private static ConnectionService connectionService = null;
 
-         /// <summary>
+        /// <summary>
         /// Internal for testing purposes only
         /// </summary>
         internal static ConnectionService ConnectionServiceInstance
@@ -139,7 +139,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                     out connInfo);
 
                 ColumnMetadata[] metadata = null;
-                if (connInfo != null) 
+                if (connInfo != null)
                 {
                     using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Metadata"))
                     {
@@ -152,7 +152,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
 
                 await requestContext.SendResult(new TableMetadataResult
                 {
-                    Columns = metadata    
+                    Columns = metadata
                 });
             }
             catch (Exception ex)
@@ -176,13 +176,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 @"SELECT s.name AS schema_name, o.[name] AS object_name, o.[type] AS object_type
                   FROM sys.all_objects o
                     INNER JOIN sys.schemas s ON o.schema_id = s.schema_id
-                  WHERE (o.[type] = 'P' OR o.[type] = 'V' OR o.[type] = 'U' OR o.[type] = 'AF' OR o.[type] = 'FN' OR o.[type] = 'IF') ";
-   
+                  WHERE o.[type] IN ('P','V','U','AF','FN','IF','TF') ";
+
             if (!IsSystemDatabase(sqlConn.Database))
             {
                 sql += @"AND o.is_ms_shipped != 1 ";
             }
-            
+
             sql += @"ORDER BY object_type, schema_name, object_name";
 
             using (SqlCommand sqlCommand = new SqlCommand(sql, sqlConn))
@@ -207,7 +207,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                             metadataType = MetadataType.SProc;
                             metadataTypeName = "StoredProcedure";
                         }
-                        else if (objectType == "AF" || objectType == "FN" || objectType == "IF")
+                        else if (objectType == "AF" || objectType == "FN" || objectType == "IF" || objectType == "TF")
                         {
                             metadataType = MetadataType.Function;
                             metadataTypeName = "UserDefinedFunction";

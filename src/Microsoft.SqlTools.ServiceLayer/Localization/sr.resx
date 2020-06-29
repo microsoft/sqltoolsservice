@@ -192,6 +192,10 @@
     <value>Azure SQL Stretch Database</value>
     <comment></comment>
   </data>
+  <data name="AzureSqlAnalyticsOnDemandEdition" xml:space="preserve">
+    <value>Azure SQL Analytics on-demand</value>
+    <comment></comment>
+  </data>
   <data name="QueryServiceCancelAlreadyCompleted" xml:space="preserve">
     <value>The query has already completed, it cannot be cancelled</value>
     <comment></comment>
@@ -343,6 +347,41 @@
   <data name="SqlCmdUnsupportedToken" xml:space="preserve">
     <value>Encountered unsupported token {0}</value>
     <comment></comment>
+  </data>
+  <data name="ParameterizationDetails" xml:space="preserve">
+    <value>{0} will be converted to a Microsoft.Data.SqlClient.SqlParameter object with the following properties: SqlDbType = {1}, Size = {2}, Precision = {3}, Scale = {4}, SqlValue = {5}</value>
+    <comment>.
+ Parameters: 0 - variableName (string), 1 - sqlDbType (string), 2 - size (int), 3 - precision (int), 4 - scale (int), 5 - sqlValue (string) </comment>
+  </data>
+  <data name="ErrorMessageHeader" xml:space="preserve">
+    <value>Line {0}</value>
+    <comment>.
+ Parameters: 0 - lineNumber (int) </comment>
+  </data>
+  <data name="ErrorMessage" xml:space="preserve">
+    <value>Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType). Literal value: {2} </value>
+    <comment>.
+ Parameters: 0 - variableName (string), 1 - sqlDataType (string), 2 - literalValue (string) </comment>
+  </data>
+  <data name="DateTimeErrorMessage" xml:space="preserve">
+    <value>Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType), as it used an unsupported date/time format. Use one of the supported date/time formats. Literal value: {2}</value>
+    <comment>.
+ Parameters: 0 - variableName (string), 1 - sqlDataType (string), 2 - literalValue (string) </comment>
+  </data>
+  <data name="BinaryLiteralPrefixMissingError" xml:space="preserve">
+    <value>Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType), as prefix 0x is expected for a binary literals.  Literal value: {2} </value>
+    <comment>.
+ Parameters: 0 - variableName (string), 1 - sqlDataType (string), 2 - literalValue (string) </comment>
+  </data>
+  <data name="ParsingErrorHeader" xml:space="preserve">
+    <value>Line {0}, column {1}</value>
+    <comment>.
+ Parameters: 0 - lineNumber (int), 1 - columnNumber (int) </comment>
+  </data>
+  <data name="ScriptTooLarge" xml:space="preserve">
+    <value>The current script is too large for Parameterization for Always Encrypted, please disable Parameterization for Always Encrypted in Query Options (Query &gt; Query Options &gt; Execution &gt; Advanced). Maximum allowable length: {0} characters, Current script length: {1} characters</value>
+    <comment>.
+ Parameters: 0 - maxChars (int), 1 - currentChars (int) </comment>
   </data>
   <data name="SerializationServiceUnsupportedFormat" xml:space="preserve">
     <value>Unsupported Save Format: {0}</value>
@@ -1744,6 +1783,10 @@
     <value>Generate script</value>
     <comment></comment>
   </data>
+  <data name="ProjectExtractTaskName" xml:space="preserve">
+    <value>Extract project files</value>
+    <comment></comment>
+  </data>
   <data name="ExtractInvalidVersion" xml:space="preserve">
     <value>Invalid version &apos;{0}&apos; passed. Version must be in the format x.x.x.x where x is a number.</value>
     <comment></comment>
@@ -1763,5 +1806,22 @@
   <data name="SchemaCompareSessionNotFound" xml:space="preserve">
     <value>Could not find the schema compare session to cancel</value>
     <comment></comment>
+  </data>
+  <data name="SqlAssessmentGenerateScriptTaskName" xml:space="preserve">
+    <value>Generate SQL Assessment script</value>
+    <comment></comment>
+  </data>
+  <data name="SqlAssessmentQueryInvalidOwnerUri" xml:space="preserve">
+    <value>Not connected to a server</value>
+    <comment></comment>
+  </data>
+  <data name="SqlAssessmentConnectingError" xml:space="preserve">
+    <value>Cannot connect to the server</value>
+    <comment></comment>
+  </data>
+  <data name="SqlAssessmentUnsuppoertedEdition" xml:space="preserve">
+    <value>Unsupported engine edition {0}</value>
+    <comment>.
+ Parameters: 0 - editionCode (int) </comment>
   </data>
 </root>

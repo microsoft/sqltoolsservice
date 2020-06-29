@@ -91,7 +91,7 @@ steps:
   enabled: false
 
 - script: |
-   copy /Y $(Build.SourcesDirectory)\bin\patch\*  $(Build.SourcesDirectory)\artifacts\publish\Microsoft.SqlTools.ServiceLayer\osx.10.11-x64\netcoreapp2.2\
+   copy /Y $(Build.SourcesDirectory)\bin\patch\*  $(Build.SourcesDirectory)\artifacts\publish\Microsoft.SqlTools.ServiceLayer\osx.10.11-x64\netcoreapp3.1\
    
   displayName: 'Copy SqlClient KeepAlive patch to macOS archive'
 
@@ -152,32 +152,46 @@ steps:
 - task: ArchiveFiles@1
   displayName: 'Archive osx build'
   inputs:
-    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/osx.10.11-x64/netcoreapp2.2'
+    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/osx.10.11-x64/netcoreapp3.1'
     includeRootFolder: false
     archiveType: tar
-    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-osx-x64-netcoreapp2.2.tar.gz'
+    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-osx-x64-netcoreapp3.1.tar.gz'
 
 - task: ArchiveFiles@1
   displayName: 'Archive rhel build'
   inputs:
-    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/rhel.7.2-x64/netcoreapp2.2'
+    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/rhel.7.2-x64/netcoreapp3.1'
     includeRootFolder: false
     archiveType: tar
-    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-rhel-x64-netcoreapp2.2.tar.gz'
+    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-rhel-x64-netcoreapp3.1.tar.gz'
 
 - task: ArchiveFiles@1
   displayName: 'Archive windows 64 bit build'
   inputs:
-    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win7-x64/netcoreapp2.2'
+    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win7-x64/netcoreapp3.1'
     includeRootFolder: false
-    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win-x64-netcoreapp2.2.zip'
+    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win-x64-netcoreapp3.1.zip'
 
 - task: ArchiveFiles@1
   displayName: 'Archive windows 32 bit build'
   inputs:
-    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win7-x86/netcoreapp2.2'
+    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win7-x86/netcoreapp3.1'
     includeRootFolder: false
-    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win-x86-netcoreapp2.2.zip'
+    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win-x86-netcoreapp3.1.zip'
+
+- task: ArchiveFiles@1
+  displayName: 'Archive windows10 arm 32 bit build'
+  inputs:
+    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win10-arm/netcoreapp3.1'
+    includeRootFolder: false
+    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win10-arm-netcoreapp3.1.zip'
+
+- task: ArchiveFiles@1
+  displayName: 'Archive windows10 arm 64 bit build'
+  inputs:
+    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win10-arm64/netcoreapp3.1'
+    includeRootFolder: false
+    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win10-arm64-netcoreapp3.1.zip'
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact: drop'
@@ -186,6 +200,7 @@ steps:
 
 - task: NuGetCommand@2
   displayName: 'NuGet push'
+  condition: eq(variables['PUSH_SYMBOLS'], 'true')
   inputs:
     command: push
     packagesToPush: '$(Build.SourcesDirectory)/artifacts/nugetPackages/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'

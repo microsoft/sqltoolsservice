@@ -214,11 +214,11 @@
     <comment></comment>
   </data>
   <data name="BatchParser_CircularReference" xml:space="preserve">
-    <value>File '{0}' recursively included.</value>
+    <value>File &apos;{0}&apos; recursively included.</value>
     <comment></comment>
   </data>
   <data name="BatchParser_CommentNotTerminated" xml:space="preserve">
-    <value>Missing end comment mark '*/'.</value>
+    <value>Missing end comment mark &apos;*/&apos;.</value>
     <comment></comment>
   </data>
   <data name="BatchParser_StringNotTerminated" xml:space="preserve">
@@ -226,7 +226,7 @@
     <comment></comment>
   </data>
   <data name="BatchParser_IncorrectSyntax" xml:space="preserve">
-    <value>Incorrect syntax was encountered while parsing '{0}'.</value>
+    <value>Incorrect syntax was encountered while parsing &apos;{0}&apos;.</value>
     <comment></comment>
   </data>
   <data name="BatchParser_VariableNotDefined" xml:space="preserve">

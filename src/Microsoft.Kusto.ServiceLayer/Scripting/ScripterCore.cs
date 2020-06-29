@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.IO;
 using System.Linq;
 using Microsoft.SqlServer.Management.Common;
@@ -20,13 +19,11 @@ using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
 using Microsoft.Kusto.ServiceLayer.Scripting.Contracts;
 using Microsoft.Kusto.ServiceLayer.DataSource;
-using Microsoft.SqlTools.Utility;
-using ConnectionType = Microsoft.Kusto.ServiceLayer.Connection.ConnectionType;
 using Location = Microsoft.Kusto.ServiceLayer.Workspace.Contracts.Location;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using System.Text;
 using System.Data;
-using System.Diagnostics;
+using Range = Microsoft.Kusto.ServiceLayer.Workspace.Contracts.Range;
 
 namespace Microsoft.Kusto.ServiceLayer.Scripting
 {
