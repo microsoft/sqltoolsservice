@@ -17,9 +17,9 @@
 		<PackageReference Update="Microsoft.Azure.Management.Sql" Version="1.41.0-preview" />
 
 		<PackageReference Update="Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider" Version="1.1.1" />
-		<PackageReference Update="Microsoft.Data.SqlClient" Version="2.0.0-preview3.20122.2"/>
+		<PackageReference Update="Microsoft.Data.SqlClient" Version="2.0.0"/>
 		<PackageReference Update="Microsoft.SqlServer.SqlManagementObjects" Version="160.2004021.0" />
-		<PackageReference Update="Microsoft.SqlServer.DACFx" Version="150.4787.1-preview" GeneratePathProperty="true" />
+		<PackageReference Update="Microsoft.SqlServer.DACFx" Version="150.4822.1-preview" GeneratePathProperty="true" />
 		<PackageReference Update="Microsoft.Azure.Kusto.Data" Version="8.0.2" />
 
 		<PackageReference Update="Moq" Version="4.8.2" />

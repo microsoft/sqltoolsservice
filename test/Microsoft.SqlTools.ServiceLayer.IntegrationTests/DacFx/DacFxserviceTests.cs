@@ -232,18 +232,18 @@ RETURN 0
                 ExtractOperation operation = new ExtractOperation(extractParams, result.ConnectionInfo);
                 service.PerformOperation(operation, TaskExecutionMode.Execute);
 
-                // Verify two sql files are generated in the target folder path
-                int actualCnt = Directory.GetFiles(folderPath, "*.sql", SearchOption.AllDirectories).Length;
-                Assert.Equal(actualCnt, 2);
-
+                // Verify two sql files are generated in the target folder path 
+                // for dev-servers where there are more users/permissions present on server - the extract might have more files than just 2 expected tables, so check only for tables
+                int actualCnt = Directory.GetFiles(folderPath, "table*.sql", SearchOption.AllDirectories).Length;
+                Assert.Equal(2, actualCnt);
+            }
+            finally
+            {
                 // Remove the directory
                 if (Directory.Exists(folderPath))
                 {
                     Directory.Delete(folderPath, true);
                 }
-            }
-            finally
-            {
                 testdb.Cleanup();
             }
         }
@@ -351,7 +351,7 @@ RETURN 0
             // first extract a dacpac
             var result = GetLiveAutoCompleteTestObjects();
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "DacFxGenerateScriptTest");
-            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxGenerateScriptTest");            
+            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxGenerateScriptTest");
 
             try
             {
