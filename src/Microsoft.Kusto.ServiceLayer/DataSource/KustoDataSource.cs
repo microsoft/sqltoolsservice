@@ -14,7 +14,6 @@ using System.Threading.Tasks;
 using Kusto.Data;
 using Kusto.Data.Common;
 using Kusto.Data.Net.Client;
-using Microsoft.SqlServer.Management.Common;
 using Microsoft.Kusto.ServiceLayer.Utility;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource
