@@ -3,13 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Data.SqlTypes;
 using System.Diagnostics;
-using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts
 {
@@ -91,18 +88,24 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts
             NumericPrecision = SafeGetValue<int?>(row, "NumericPrecision");
             NumericScale = SafeGetValue<int?>(row, "NumericScale");
             UdtAssemblyQualifiedName = SafeGetValue<string>(row, "UdtAssemblyQualifiedName");
-            DataType = SafeGetValue<System.Type>(row, "DataType");
-            DataTypeName = SafeGetValue<string>(row, "DataTypeName");
+            DataType = SafeGetValue<Type>(row, "DataType");
+            DataTypeName = SafeGetValue<string>(row, "ColumnType");
             ColumnName = SafeGetValue<string>(row, "ColumnName");
         }
-
-        internal T SafeGetValue<T>(DataRow row, string attribName)
+        
+        private T SafeGetValue<T>(DataRow row, string attribName)
         {
             try
             {
-                return (T)row[attribName];
+                if (row[attribName] is T value)
+                {
+                    return value;
+                }
             }
-            catch{} // Ignore exceptions
+            catch
+            {
+                // Ignore exceptions
+            } 
             
             return default(T);
         }
@@ -176,7 +179,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts
         /// Logic taken from SSDT determination of unknown columns. It may not even be possible to
         /// have "unknown" column types with the .NET Core SqlClient.
         /// </remarks>
-        public bool IsUnknownType => DataType == typeof(object) &&
+        public bool IsUnknownType => DataType == typeof(object) && 
                                      DataTypeName.Equals(UnknownTypeName, StringComparison.OrdinalIgnoreCase);
 
         #endregion
