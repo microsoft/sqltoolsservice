@@ -20,9 +20,6 @@
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. YOU BEAR THE RISK OF USING IT.
 // =======================================================================================
 
-// namespace Microsoft.AppFabricCAT.Samples.Azure.TransientFaultHandling.SqlAzure
-// namespace Microsoft.SqlServer.Management.Common
-
 using System;
 using System.Collections.Generic;
 using System.Data;

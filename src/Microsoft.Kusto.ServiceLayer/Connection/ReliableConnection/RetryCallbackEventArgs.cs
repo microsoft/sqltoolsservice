@@ -20,9 +20,6 @@
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. YOU BEAR THE RISK OF USING IT.
 // =======================================================================================
 
-// namespace Microsoft.SQL.CAT.BestPractices.SqlAzure.Framework
-// namespace Microsoft.SqlServer.Management.Common
-
 using System;
 
 namespace Microsoft.Kusto.ServiceLayer.Connection.ReliableConnection
