@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using Microsoft.Data.SqlClient;
+using Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
@@ -105,6 +106,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
         }
 
+        static ConnectionService()
+        {
+            SqlColumnEncryptionAzureKeyVaultProvider sqlColumnEncryptionAzureKeyVaultProvider = new SqlColumnEncryptionAzureKeyVaultProvider(AzureActiveDirectoryAuthenticationCallback);
+            SqlConnection.RegisterColumnEncryptionKeyStoreProviders(customProviders: new Dictionary<string, SqlColumnEncryptionKeyStoreProvider>(capacity: 1, comparer: StringComparer.OrdinalIgnoreCase)
+            {
+                { SqlColumnEncryptionAzureKeyVaultProvider.ProviderName, sqlColumnEncryptionAzureKeyVaultProvider }
+            });
+        }
+
 
         /// <summary>
         /// Default constructor should be private since it's a singleton class, but we need a constructor
@@ -115,6 +125,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             var defaultQueue = new ConnectedBindingQueue(needsMetadata: false);
             connectedQueues.AddOrUpdate("Default", defaultQueue, (key, old) => defaultQueue);
             this.LockedDatabaseManager.ConnectionService = this;
+        }
+
+        public static async Task<string> AzureActiveDirectoryAuthenticationCallback(string authority, string resource, string scope)
+        {
+            RequestSecurityTokenParams message = new RequestSecurityTokenParams()
+            {
+                Authority = authority,
+                Provider = "Azure",
+                Resource = resource,
+                Scope = scope
+            };
+
+            RequestSecurityTokenResponse response = await Instance.ServiceHost.SendRequest(SecurityTokenRequest.Type, message, true);
+
+            return response.Token;
         }
 
         /// <summary>
@@ -885,41 +910,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 throw new Exception(SR.ConnectionServiceListDbErrorNotConnected(owner));
             }
-            ConnectionDetails connectionDetails = info.ConnectionDetails.Clone();
-
-            // Connect to master and query sys.databases
-            connectionDetails.DatabaseName = "master";
-            var connection = this.ConnectionFactory.CreateSqlConnection(BuildConnectionString(connectionDetails), connectionDetails.AzureAccountToken);
-            connection.Open();
-
-            List<string> results = new List<string>();
-            var systemDatabases = new[] { "master", "model", "msdb", "tempdb" };
-            using (DbCommand command = connection.CreateCommand())
-            {
-                command.CommandText = @"SELECT name FROM sys.databases WHERE state_desc='ONLINE' ORDER BY name ASC";
-                command.CommandTimeout = 15;
-                command.CommandType = CommandType.Text;
-
-                using (var reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        results.Add(reader[0].ToString());
-                    }
-                }
-            }
-
-            // Put system databases at the top of the list
-            results =
-                results.Where(s => systemDatabases.Any(s.Equals)).Concat(
-                results.Where(s => systemDatabases.All(x => !s.Equals(x)))).ToList();
-
-            connection.Close();
-
-            ListDatabasesResponse response = new ListDatabasesResponse();
-            response.DatabaseNames = results.ToArray();
-
-            return response;
+            var handler = ListDatabaseRequestHandlerFactory.getHandler(listDatabasesParams.IncludeDetails.HasTrue(), info.IsSqlDb);
+            return handler.HandleRequest(this.connectionFactory, info);
         }
 
         public void InitializeService(IProtocolEndpoint serviceHost)
@@ -1160,7 +1152,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 if (string.IsNullOrEmpty(connectionDetails.ColumnEncryptionSetting) || connectionDetails.ColumnEncryptionSetting.ToUpper() == "DISABLED")
                 {
-                    throw new ArgumentException(SR.ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination());
+                    throw new ArgumentException(SR.ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination);
                 }
 
                 switch (connectionDetails.EnclaveAttestationProtocol.ToUpper())
@@ -1179,7 +1171,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 if (string.IsNullOrEmpty(connectionDetails.ColumnEncryptionSetting) || connectionDetails.ColumnEncryptionSetting.ToUpper() == "DISABLED")
                 {
-                    throw new ArgumentException(SR.ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination());
+                    throw new ArgumentException(SR.ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination);
                 }
 
                 connectionBuilder.EnclaveAttestationUrl = connectionDetails.EnclaveAttestationUrl;
@@ -1356,7 +1348,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 CurrentLanguage = builder.CurrentLanguage,
                 DatabaseName = builder.InitialCatalog,
                 ColumnEncryptionSetting = builder.ColumnEncryptionSetting.ToString(),
-                EnclaveAttestationProtocol = builder.AttestationProtocol.ToString(),                
+                EnclaveAttestationProtocol = builder.AttestationProtocol == SqlConnectionAttestationProtocol.NotSpecified ? null : builder.AttestationProtocol.ToString(),
                 EnclaveAttestationUrl = builder.EnclaveAttestationUrl,
                 Encrypt = builder.Encrypt,
                 FailoverPartner = builder.FailoverPartner,

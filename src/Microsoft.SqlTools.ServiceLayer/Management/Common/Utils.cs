@@ -514,6 +514,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// <returns></returns>
         public static String EscapeString(string s, char cEsc)
         {
+            if (string.IsNullOrWhiteSpace(s))
+            {
+                return s;
+            } 
+
             StringBuilder sb = new StringBuilder(s.Length * 2);
             foreach (char c in s)
             {

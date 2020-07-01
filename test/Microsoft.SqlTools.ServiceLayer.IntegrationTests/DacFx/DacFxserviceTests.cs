@@ -2,16 +2,17 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
-using Microsoft.SqlTools.Hosting.Protocol;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using Microsoft.Data.SqlClient;
+using Microsoft.SqlServer.Dac;
+using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.DacFx;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Moq;
-using System;
-using System.IO;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
@@ -40,6 +41,18 @@ CREATE TABLE [dbo].[table3]
     [ID] INT NOT NULL PRIMARY KEY,
     [col1] INT NULL,
 )";
+
+        private const string databaseRefVarName = "DatabaseRef";
+        private const string filterValueVarName = "FilterValue";
+
+        private string storedProcScript = $@"
+CREATE PROCEDURE [dbo].[Procedure1]
+	@param1 int = 0,
+	@param2 int
+AS
+	SELECT * FROM [$({databaseRefVarName})].[dbo].[Table1] WHERE Type = '$({filterValueVarName})'
+RETURN 0
+";
 
         private LiveConnectionHelper.TestConnectionResult GetLiveAutoCompleteTestObjects()
         {
@@ -160,6 +173,82 @@ CREATE TABLE [dbo].[table3]
         }
 
         /// <summary>
+        /// Verify the extract request to create Sql file
+        /// </summary>
+        [Fact]
+        public async void ExtractDBToFileTarget()
+        {
+            var result = GetLiveAutoCompleteTestObjects();
+            SqlTestDb testdb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, doNotCleanupDb: false, databaseName: null, query: SourceScript, dbNamePrefix: "DacFxExtractDBToFileTarget");
+            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
+            Directory.CreateDirectory(folderPath);
+
+            try
+            {
+                var extractParams = new ExtractParams
+                {
+                    DatabaseName = testdb.DatabaseName,
+                    PackageFilePath = Path.Combine(folderPath, string.Format("{0}.sql", testdb.DatabaseName)),
+                    ApplicationName = "test",
+                    ApplicationVersion = "1.0.0.0",
+                    ExtractTarget = DacExtractTarget.File
+                };
+
+                DacFxService service = new DacFxService();
+                ExtractOperation operation = new ExtractOperation(extractParams, result.ConnectionInfo);
+                service.PerformOperation(operation, TaskExecutionMode.Execute);
+
+                VerifyAndCleanup(extractParams.PackageFilePath);
+            }
+            finally
+            {
+                testdb.Cleanup();
+            }
+        }
+
+        /// <summary>
+        /// Verify the extract request to create a Flat file structure
+        /// </summary>
+        [Fact]
+        public async void ExtractDBToFlatTarget()
+        {
+            var result = GetLiveAutoCompleteTestObjects();
+            SqlTestDb testdb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, doNotCleanupDb: false, databaseName: null, query: SourceScript, dbNamePrefix: "DacFxExtractDBToFlatTarget");
+            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest", "FlatExtract");
+            Directory.CreateDirectory(folderPath);
+
+            try
+            {
+                var extractParams = new ExtractParams
+                {
+                    DatabaseName = testdb.DatabaseName,
+                    PackageFilePath = folderPath,
+                    ApplicationName = "test",
+                    ApplicationVersion = "1.0.0.0",
+                    ExtractTarget = DacExtractTarget.Flat
+                };
+
+                DacFxService service = new DacFxService();
+                ExtractOperation operation = new ExtractOperation(extractParams, result.ConnectionInfo);
+                service.PerformOperation(operation, TaskExecutionMode.Execute);
+
+                // Verify two sql files are generated in the target folder path 
+                // for dev-servers where there are more users/permissions present on server - the extract might have more files than just 2 expected tables, so check only for tables
+                int actualCnt = Directory.GetFiles(folderPath, "table*.sql", SearchOption.AllDirectories).Length;
+                Assert.Equal(2, actualCnt);
+            }
+            finally
+            {
+                // Remove the directory
+                if (Directory.Exists(folderPath))
+                {
+                    Directory.Delete(folderPath, true);
+                }
+                testdb.Cleanup();
+            }
+        }
+
+        /// <summary>
         /// Verify the deploy dacpac request
         /// </summary>
         [Fact]
@@ -263,27 +352,16 @@ CREATE TABLE [dbo].[table3]
             var result = GetLiveAutoCompleteTestObjects();
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "DacFxGenerateScriptTest");
             SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxGenerateScriptTest");
-            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
-            Directory.CreateDirectory(folderPath);
 
             try
             {
-                var extractParams = new ExtractParams
-                {
-                    DatabaseName = sourceDb.DatabaseName,
-                    PackageFilePath = Path.Combine(folderPath, string.Format("{0}.dacpac", sourceDb.DatabaseName)),
-                    ApplicationName = "test",
-                    ApplicationVersion = "1.0.0.0"
-                };
-
                 DacFxService service = new DacFxService();
-                ExtractOperation extractOperation = new ExtractOperation(extractParams, result.ConnectionInfo);
-                service.PerformOperation(extractOperation, TaskExecutionMode.Execute);
+                string dacpacPath = InitialExtract(service, sourceDb, result);
 
                 // generate script
                 var generateScriptParams = new GenerateDeployScriptParams
                 {
-                    PackageFilePath = extractParams.PackageFilePath,
+                    PackageFilePath = dacpacPath,
                     DatabaseName = targetDb.DatabaseName
                 };
 
@@ -295,7 +373,7 @@ CREATE TABLE [dbo].[table3]
                 Assert.NotEmpty(generateScriptOperation.Result.DatabaseScript);
                 Assert.Contains("CREATE TABLE", generateScriptOperation.Result.DatabaseScript);
 
-                VerifyAndCleanup(extractParams.PackageFilePath);
+                VerifyAndCleanup(dacpacPath);
             }
             finally
             {
@@ -313,29 +391,18 @@ CREATE TABLE [dbo].[table3]
             var result = GetLiveAutoCompleteTestObjects();
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "DacFxGenerateDeployPlanTest");
             SqlTestDb targetDb = null;
-            DacFxService service = new DacFxService();
-            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
-            Directory.CreateDirectory(folderPath);
 
             try
             {
-                var extractParams = new ExtractParams
-                {
-                    DatabaseName = sourceDb.DatabaseName,
-                    PackageFilePath = Path.Combine(folderPath, string.Format("{0}.dacpac", sourceDb.DatabaseName)),
-                    ApplicationName = "test",
-                    ApplicationVersion = "1.0.0.0"
-                };
-
-                ExtractOperation extractOperation = new ExtractOperation(extractParams, result.ConnectionInfo);
-                service.PerformOperation(extractOperation, TaskExecutionMode.Execute);
+                DacFxService service = new DacFxService();
+                string dacpacPath = InitialExtract(service, sourceDb, result);
 
                 // generate deploy plan for deploying dacpac to targetDb
                 targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "DacFxGenerateDeployPlanTestTarget");
 
                 var generateDeployPlanParams = new GenerateDeployPlanParams
                 {
-                    PackageFilePath = extractParams.PackageFilePath,
+                    PackageFilePath = dacpacPath,
                     DatabaseName = targetDb.DatabaseName,
                 };
 
@@ -347,7 +414,7 @@ CREATE TABLE [dbo].[table3]
                 Assert.Contains("Drop", report);
                 Assert.Contains("Alter", report);
 
-                VerifyAndCleanup(extractParams.PackageFilePath);
+                VerifyAndCleanup(dacpacPath);
             }
             finally
             {
@@ -357,6 +424,131 @@ CREATE TABLE [dbo].[table3]
                     targetDb.Cleanup();
                 }
             }
+        }
+
+        // <summary>
+        /// Verify that SqlCmdVars are set correctly for a deploy request
+        /// </summary>
+        [Fact]
+        public async void DeployWithSqlCmdVariables()
+        {
+            var result = GetLiveAutoCompleteTestObjects();
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, query: storedProcScript, dbNamePrefix: "DacFxDeploySqlCmdVarsTest");
+            SqlTestDb targetDb = null;
+
+            try
+            {
+                DacFxService service = new DacFxService();
+                // First extract a db to have a dacpac to deploy later
+                string dacpacPath = InitialExtract(service, sourceDb, result);
+
+                // Deploy the created dacpac with SqlCmdVars
+                var deployParams = new DeployParams
+                {
+                    PackageFilePath = dacpacPath,
+                    DatabaseName = string.Concat(sourceDb.DatabaseName, "-deployed"),
+                    UpgradeExisting = false,
+                    SqlCommandVariableValues = new Dictionary<string, string>()
+                    {
+                        { databaseRefVarName, "OtherDatabase" },
+                        { filterValueVarName, "Employee" }
+                    }
+                };
+
+                DeployOperation deployOperation = new DeployOperation(deployParams, result.ConnectionInfo);
+                service.PerformOperation(deployOperation, TaskExecutionMode.Execute);
+                targetDb = SqlTestDb.CreateFromExisting(deployParams.DatabaseName);
+
+                string deployedProc;
+
+                using (SqlConnection conn = new SqlConnection(targetDb.ConnectionString))
+                {
+                    try
+                    {
+                        await conn.OpenAsync();
+                        deployedProc = (string)ReliableConnectionHelper.ExecuteScalar(conn, "SELECT OBJECT_DEFINITION (OBJECT_ID(N'Procedure1'));");
+                    }
+                    finally
+                    {
+                        conn.Close();
+                    }
+                }
+
+                Assert.Contains(deployParams.SqlCommandVariableValues[databaseRefVarName], deployedProc);
+                Assert.Contains(deployParams.SqlCommandVariableValues[filterValueVarName], deployedProc);
+
+                VerifyAndCleanup(dacpacPath);
+            }
+            finally
+            {
+                sourceDb.Cleanup();
+                if (targetDb != null)
+                {
+                    targetDb.Cleanup();
+                }
+            }
+        }
+
+        // <summary>
+        /// Verify that SqlCmdVars are set correctly for a generate script request
+        /// </summary>
+        [Fact]
+        public async void GenerateDeployScriptWithSqlCmdVariables()
+        {
+            var result = GetLiveAutoCompleteTestObjects();
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, query: storedProcScript, dbNamePrefix: "DacFxGenerateScriptSqlCmdVarsTest");
+
+            try
+            {
+                DacFxService service = new DacFxService();
+                // First extract a db to have a dacpac to generate the script for later
+                string dacpacPath = InitialExtract(service, sourceDb, result);
+
+                // Generate script for deploying source dacpac to target db with SqlCmdVars
+                var generateScriptParams = new GenerateDeployScriptParams
+                {
+                    PackageFilePath = dacpacPath,
+                    DatabaseName = string.Concat(sourceDb.DatabaseName, "-generated"),
+                    SqlCommandVariableValues = new Dictionary<string, string>()
+                    {
+                        { databaseRefVarName, "OtherDatabase" },
+                        { filterValueVarName, "Employee" }
+                    }
+                };
+
+                GenerateDeployScriptOperation generateScriptOperation = new GenerateDeployScriptOperation(generateScriptParams, result.ConnectionInfo);
+                service.PerformOperation(generateScriptOperation, TaskExecutionMode.Script);
+
+                // Verify the SqlCmdVars were set correctly in the script
+                Assert.NotEmpty(generateScriptOperation.Result.DatabaseScript);
+                Assert.Contains($":setvar {databaseRefVarName} \"{generateScriptParams.SqlCommandVariableValues[databaseRefVarName]}\"", generateScriptOperation.Result.DatabaseScript);
+                Assert.Contains($":setvar {filterValueVarName} \"{generateScriptParams.SqlCommandVariableValues[filterValueVarName]}\"", generateScriptOperation.Result.DatabaseScript);
+
+                VerifyAndCleanup(dacpacPath);
+            }
+            finally
+            {
+                sourceDb.Cleanup();
+            }
+        }
+
+        private string InitialExtract(DacFxService service, SqlTestDb sourceDb, LiveConnectionHelper.TestConnectionResult result)
+        {
+            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
+            Directory.CreateDirectory(folderPath);
+
+            var extractParams = new ExtractParams
+            {
+                DatabaseName = sourceDb.DatabaseName,
+                PackageFilePath = Path.Combine(folderPath, string.Format("{0}.dacpac", sourceDb.DatabaseName)),
+                ApplicationName = "test",
+                ApplicationVersion = "1.0.0.0"
+            };
+
+            ExtractOperation extractOperation = new ExtractOperation(extractParams, result.ConnectionInfo);
+            service.PerformOperation(extractOperation, TaskExecutionMode.Execute);
+
+            return extractParams.PackageFilePath;
         }
 
         private void VerifyAndCleanup(string filePath)

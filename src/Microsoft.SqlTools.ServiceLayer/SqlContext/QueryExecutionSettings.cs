@@ -6,6 +6,7 @@
 using System;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.Utility;
+using Newtonsoft.Json;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlContext
 {
@@ -167,6 +168,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// Default value for flag to run query in sqlcmd mode
         /// </summary>
         private bool DefaultSqlCmdMode = false;
+
+        /// <summary>
+        /// Default value for flag to enable Always Encrypted Parameterization
+        /// </summary>
+        private bool DefaultAlwaysEncryptedParameterizationValue = false;
 
         #endregion
 
@@ -653,6 +659,22 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
             }
         }
 
+        /// <summary>
+        /// Set Always Encrypted Parameterization Mode
+        /// </summary>
+        [JsonProperty("alwaysEncryptedParameterization")]
+        public bool IsAlwaysEncryptedParameterizationEnabled
+        {
+            get
+            {
+                return GetOptionValue<bool>("alwaysEncryptedParameterization", DefaultAlwaysEncryptedParameterizationValue);
+            }
+            set
+            {
+                SetOptionValue("alwaysEncryptedParameterization", value);
+            }
+        }
+
         #endregion
 
         #region Public Methods
@@ -691,6 +713,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
             AnsiWarnings = newSettings.AnsiWarnings;
             AnsiNulls = newSettings.AnsiNulls;
             IsSqlCmdMode = newSettings.IsSqlCmdMode;
+            IsAlwaysEncryptedParameterizationEnabled = newSettings.IsAlwaysEncryptedParameterizationEnabled;
         }
 
         #endregion

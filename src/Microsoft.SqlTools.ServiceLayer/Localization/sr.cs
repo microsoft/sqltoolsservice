@@ -45,6 +45,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination);
+            }
+        }
+
         public static string ConnectionServiceConnectionCanceled
         {
             get
@@ -364,6 +372,7 @@ namespace Microsoft.SqlTools.ServiceLayer
                 return Keys.GetString(Keys.SqlCmdExitOnError);
             }
         }
+
         public static string SqlCmdUnsupportedToken
         {
             get
@@ -2932,6 +2941,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string ProjectExtractTaskName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ProjectExtractTaskName);
+            }
+        }
+
         public static string ExtractInvalidVersion
         {
             get
@@ -2972,6 +2989,30 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string SqlAssessmentGenerateScriptTaskName
+        {
+            get
+            {
+                return Keys.GetString(Keys.SqlAssessmentGenerateScriptTaskName);
+            }
+        }
+
+        public static string SqlAssessmentQueryInvalidOwnerUri
+        {
+            get
+            {
+                return Keys.GetString(Keys.SqlAssessmentQueryInvalidOwnerUri);
+            }
+        }
+
+        public static string SqlAssessmentConnectingError
+        {
+            get
+            {
+                return Keys.GetString(Keys.SqlAssessmentConnectingError);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -2995,11 +3036,6 @@ namespace Microsoft.SqlTools.ServiceLayer
         public static string ConnectionServiceConnStringInvalidEnclaveAttestationProtocol(string enclaveAttestationProtocol)
         {
             return Keys.GetString(Keys.ConnectionServiceConnStringInvalidEnclaveAttestationProtocol, enclaveAttestationProtocol);
-        }
-
-        public static string ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination()
-        {
-            return Keys.GetString(Keys.ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination);
         }
 
         public static string ConnectionServiceConnStringInvalidIntent(string intent)
@@ -3030,6 +3066,41 @@ namespace Microsoft.SqlTools.ServiceLayer
         public static string QueryServiceSaveAsFail(string fileName, string message)
         {
             return Keys.GetString(Keys.QueryServiceSaveAsFail, fileName, message);
+        }
+
+        public static string ParameterizationDetails(string variableName, string sqlDbType, int size, int precision, int scale, string sqlValue)
+        {
+            return Keys.GetString(Keys.ParameterizationDetails, variableName, sqlDbType, size, precision, scale, sqlValue);
+        }
+
+        public static string ErrorMessageHeader(int lineNumber)
+        {
+            return Keys.GetString(Keys.ErrorMessageHeader, lineNumber);
+        }
+
+        public static string ErrorMessage(string variableName, string sqlDataType, string literalValue)
+        {
+            return Keys.GetString(Keys.ErrorMessage, variableName, sqlDataType, literalValue);
+        }
+
+        public static string DateTimeErrorMessage(string variableName, string sqlDataType, string literalValue)
+        {
+            return Keys.GetString(Keys.DateTimeErrorMessage, variableName, sqlDataType, literalValue);
+        }
+
+        public static string BinaryLiteralPrefixMissingError(string variableName, string sqlDataType, string literalValue)
+        {
+            return Keys.GetString(Keys.BinaryLiteralPrefixMissingError, variableName, sqlDataType, literalValue);
+        }
+
+        public static string ParsingErrorHeader(int lineNumber, int columnNumber)
+        {
+            return Keys.GetString(Keys.ParsingErrorHeader, lineNumber, columnNumber);
+        }
+
+        public static string ScriptTooLarge(int maxChars, int currentChars)
+        {
+            return Keys.GetString(Keys.ScriptTooLarge, maxChars, currentChars);
         }
 
         public static string SerializationServiceUnsupportedFormat(string formatName)
@@ -3150,6 +3221,11 @@ namespace Microsoft.SqlTools.ServiceLayer
         public static string ScheduleNameAlreadyExists(string scheduleName)
         {
             return Keys.GetString(Keys.ScheduleNameAlreadyExists, scheduleName);
+        }
+
+        public static string SqlAssessmentUnsuppoertedEdition(int editionCode)
+        {
+            return Keys.GetString(Keys.SqlAssessmentUnsuppoertedEdition, editionCode);
         }
 
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -3318,11 +3394,32 @@ namespace Microsoft.SqlTools.ServiceLayer
 
             public const string QueryServiceExecutionPlanNotFound = "QueryServiceExecutionPlanNotFound";
 
-            
+
             public const string SqlCmdExitOnError = "SqlCmdExitOnError";
 
 
             public const string SqlCmdUnsupportedToken = "SqlCmdUnsupportedToken";
+
+
+            public const string ParameterizationDetails = "ParameterizationDetails";
+
+
+            public const string ErrorMessageHeader = "ErrorMessageHeader";
+
+
+            public const string ErrorMessage = "ErrorMessage";
+
+
+            public const string DateTimeErrorMessage = "DateTimeErrorMessage";
+
+
+            public const string BinaryLiteralPrefixMissingError = "BinaryLiteralPrefixMissingError";
+
+
+            public const string ParsingErrorHeader = "ParsingErrorHeader";
+
+
+            public const string ScriptTooLarge = "ScriptTooLarge";
 
 
             public const string SerializationServiceUnsupportedFormat = "SerializationServiceUnsupportedFormat";
@@ -4357,6 +4454,9 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string GenerateScriptTaskName = "GenerateScriptTaskName";
 
 
+            public const string ProjectExtractTaskName = "ProjectExtractTaskName";
+
+
             public const string ExtractInvalidVersion = "ExtractInvalidVersion";
 
 
@@ -4370,6 +4470,18 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string SchemaCompareSessionNotFound = "SchemaCompareSessionNotFound";
+
+
+            public const string SqlAssessmentGenerateScriptTaskName = "SqlAssessmentGenerateScriptTaskName";
+
+
+            public const string SqlAssessmentQueryInvalidOwnerUri = "SqlAssessmentQueryInvalidOwnerUri";
+
+
+            public const string SqlAssessmentConnectingError = "SqlAssessmentConnectingError";
+
+
+            public const string SqlAssessmentUnsuppoertedEdition = "SqlAssessmentUnsuppoertedEdition";
 
 
             private Keys()
@@ -4402,6 +4514,12 @@ namespace Microsoft.SqlTools.ServiceLayer
             public static string GetString(string key, object arg0, object arg1)
             {
                 return string.Format(global::System.Globalization.CultureInfo.CurrentCulture, resourceManager.GetString(key, _culture), arg0, arg1);
+            }
+
+
+            public static string GetString(string key, object arg0, object arg1, object arg2)
+            {
+                return string.Format(global::System.Globalization.CultureInfo.CurrentCulture, resourceManager.GetString(key, _culture), arg0, arg1, arg2);
             }
 
 

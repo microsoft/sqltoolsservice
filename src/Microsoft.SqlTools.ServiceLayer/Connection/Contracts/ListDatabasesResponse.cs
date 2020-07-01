@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;
+
 namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
 {
     /// <summary>
@@ -14,5 +16,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// Gets or sets the list of database names.
         /// </summary>
         public string[] DatabaseNames { get; set; }
+
+        /// <summary>
+        /// Gets or sets the databases details.
+        /// </summary>
+        public DatabaseInfo[] Databases { get; set; }
     }
 }

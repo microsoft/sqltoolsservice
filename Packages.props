@@ -1,0 +1,31 @@
+<Project>
+	<ItemGroup>
+		<PackageReference Update="Newtonsoft.Json" Version="12.0.3" />
+		
+		<PackageReference Update="System.Net.Http" Version="4.3.4" />
+		<PackageReference Update="System.IO.Packaging" Version="4.7.0" />
+		<PackageReference Update="System.Runtime.Loader" Version="4.3.0" />
+		<PackageReference Update="System.Composition" Version="1.4.1" />
+		<PackageReference Update="System.Security.Permissions" Version="4.7.0" />
+		<PackageReference Update="System.Text.Encoding.CodePages" Version="4.7.1" />
+
+		<PackageReference Update="Microsoft.Rest.ClientRuntime" Version="2.3.21" />
+		<PackageReference Update="Microsoft.Rest.ClientRuntime.Azure" Version="3.3.19" />
+		<PackageReference Update="Microsoft.Extensions.DependencyModel" Version="3.1.4" />
+
+		<PackageReference Update="Microsoft.Azure.Management.ResourceManager" Version="3.7.1-preview" />
+		<PackageReference Update="Microsoft.Azure.Management.Sql" Version="1.41.0-preview" />
+
+		<PackageReference Update="Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider" Version="1.1.1" />
+		<PackageReference Update="Microsoft.Data.SqlClient" Version="2.0.0"/>
+		<PackageReference Update="Microsoft.SqlServer.SqlManagementObjects" Version="160.2004021.0" />
+		<PackageReference Update="Microsoft.SqlServer.DACFx" Version="150.4822.1-preview" GeneratePathProperty="true" />
+		<PackageReference Update="Microsoft.Azure.Kusto.Data" Version="8.0.2" />
+
+		<PackageReference Update="Moq" Version="4.8.2" />
+		<PackageReference Update="NUnit" Version="3.12.0" />
+		<PackageReference Update="xunit" Version="2.4.1" />
+		<PackageReference Update="xunit.runner.visualstudio" Version="2.4.1" />
+		<PackageReference Update="Microsoft.NET.Test.Sdk" Version="16.6.1" />
+	</ItemGroup>
+</Project>

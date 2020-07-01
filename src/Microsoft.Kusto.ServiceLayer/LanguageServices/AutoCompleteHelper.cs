@@ -12,6 +12,7 @@ using Microsoft.Kusto.ServiceLayer.LanguageServices.Completion;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.Utility;
 using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
+using Range = Microsoft.Kusto.ServiceLayer.Workspace.Contracts.Range;
 
 namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 {

@@ -134,7 +134,7 @@
     <comment></comment>
   </data>
   <data name="FailedToGetAzureSqlServersWithError" xml:space="preserve">
-    <value>An error occurred while getting Azure Sql Servers: '{0}'</value>
+    <value>An error occurred while getting Azure Sql Servers: &apos;{0}&apos;</value>
     <comment></comment>
   </data>
   <data name="FirewallRuleCreationFailed" xml:space="preserve">
@@ -142,11 +142,11 @@
     <comment></comment>
   </data>
   <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
-    <value>An error occurred while creating a new firewall rule: '{0}'</value>
+    <value>An error occurred while creating a new firewall rule: &apos;{0}&apos;</value>
     <comment></comment>
   </data>
   <data name="UnsupportedAuthType" xml:space="preserve">
-    <value>Unsupported account type '{0}' for this provider</value>
+    <value>Unsupported account type &apos;{0}&apos; for this provider</value>
     <comment></comment>
   </data>
   <data name="UserNotFoundError" xml:space="preserve">

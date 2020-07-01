@@ -37,6 +37,14 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             publishOptions.CancelToken = this.CancellationToken;
             publishOptions.DeployOptions = this.GetDefaultDeployOptions();
 
+            if (this.Parameters.SqlCommandVariableValues != null)
+            {
+                foreach (string key in this.Parameters.SqlCommandVariableValues.Keys)
+                {
+                    publishOptions.DeployOptions.SqlCommandVariableValues[key] = this.Parameters.SqlCommandVariableValues[key];
+                }
+            }
+
             this.Result = this.DacServices.Script(dacpac, this.Parameters.DatabaseName, publishOptions);
 
             // tests don't create a SqlTask, so only add the script when the SqlTask isn't null

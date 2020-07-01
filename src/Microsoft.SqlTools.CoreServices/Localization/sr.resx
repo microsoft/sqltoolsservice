@@ -126,22 +126,22 @@
     <comment></comment>
   </data>
   <data name="ConnectionServiceListDbErrorNotConnected" xml:space="preserve">
-    <value>SpecifiedUri '{0}' does not have existing connection</value>
+    <value>SpecifiedUri &apos;{0}&apos; does not have existing connection</value>
     <comment>.
  Parameters: 0 - uri (string) </comment>
   </data>
   <data name="ConnectionServiceDbErrorDefaultNotConnected" xml:space="preserve">
-    <value>Specified URI '{0}' does not have a default connection</value>
+    <value>Specified URI &apos;{0}&apos; does not have a default connection</value>
     <comment>.
  Parameters: 0 - uri (string) </comment>
   </data>
   <data name="ConnectionServiceConnStringInvalidAuthType" xml:space="preserve">
-    <value>Invalid value '{0}' for AuthenticationType.  Valid values are 'Integrated' and 'SqlLogin'.</value>
+    <value>Invalid value &apos;{0}&apos; for AuthenticationType.  Valid values are &apos;Integrated&apos; and &apos;SqlLogin&apos;.</value>
     <comment>.
  Parameters: 0 - authType (string) </comment>
   </data>
   <data name="ConnectionServiceConnStringInvalidIntent" xml:space="preserve">
-    <value>Invalid value '{0}' for ApplicationIntent. Valid values are 'ReadWrite' and 'ReadOnly'.</value>
+    <value>Invalid value &apos;{0}&apos; for ApplicationIntent. Valid values are &apos;ReadWrite&apos; and &apos;ReadOnly&apos;.</value>
     <comment>.
  Parameters: 0 - intent (string) </comment>
   </data>
@@ -176,6 +176,10 @@
   </data>
   <data name="AzureSqlStretchEdition" xml:space="preserve">
     <value>Azure SQL Stretch Database</value>
+    <comment></comment>
+  </data>
+  <data name="AzureSqlAnalyticsOnDemandEdition" xml:space="preserve">
+    <value>Azure SQL Analytics on-demand</value>
     <comment></comment>
   </data>
   <data name="QueryServiceCancelAlreadyCompleted" xml:space="preserve">
@@ -448,7 +452,7 @@
     <comment></comment>
   </data>
   <data name="EditDataInvalidFormat" xml:space="preserve">
-    <value>Invalid format for column '{0}', column is defined as {1}</value>
+    <value>Invalid format for column &apos;{0}&apos;, column is defined as {1}</value>
     <comment>.
  Parameters: 0 - colName (string), 1 - colType (string) </comment>
   </data>
@@ -457,11 +461,11 @@
     <comment></comment>
   </data>
   <data name="EditDataInvalidFormatBoolean" xml:space="preserve">
-    <value>Allowed values for boolean columns are 0, 1, "true", or "false"</value>
+    <value>Allowed values for boolean columns are 0, 1, &quot;true&quot;, or &quot;false&quot;</value>
     <comment></comment>
   </data>
   <data name="EditDataCreateScriptMissingValue" xml:space="preserve">
-    <value>The column '{0}' is defined as NOT NULL but was not given a value</value>
+    <value>The column &apos;{0}&apos; is defined as NOT NULL but was not given a value</value>
     <comment>.
  Parameters: 0 - colName (string) </comment>
   </data>
@@ -603,11 +607,11 @@
     <comment></comment>
   </data>
   <data name="BatchParser_CircularReference" xml:space="preserve">
-    <value>File '{0}' recursively included.</value>
+    <value>File &apos;{0}&apos; recursively included.</value>
     <comment></comment>
   </data>
   <data name="BatchParser_CommentNotTerminated" xml:space="preserve">
-    <value>Missing end comment mark '*/'.</value>
+    <value>Missing end comment mark &apos;*/&apos;.</value>
     <comment></comment>
   </data>
   <data name="BatchParser_StringNotTerminated" xml:space="preserve">
@@ -615,7 +619,7 @@
     <comment></comment>
   </data>
   <data name="BatchParser_IncorrectSyntax" xml:space="preserve">
-    <value>Incorrect syntax was encountered while parsing '{0}'.</value>
+    <value>Incorrect syntax was encountered while parsing &apos;{0}&apos;.</value>
     <comment></comment>
   </data>
   <data name="BatchParser_VariableNotDefined" xml:space="preserve">
@@ -1451,7 +1455,7 @@
     <comment></comment>
   </data>
   <data name="general_default" xml:space="preserve">
-    <value>&lt;default&gt;</value>
+    <value>&amp;lt;default&amp;gt;</value>
     <comment></comment>
   </data>
   <data name="general_fileGroup" xml:space="preserve">
@@ -1471,7 +1475,7 @@
     <comment></comment>
   </data>
   <data name="general_newFilegroup" xml:space="preserve">
-    <value>&lt;new filegroup&gt;</value>
+    <value>&amp;lt;new filegroup&amp;gt;</value>
     <comment></comment>
   </data>
   <data name="general_path" xml:space="preserve">
@@ -1483,7 +1487,7 @@
     <comment></comment>
   </data>
   <data name="general_rawDevice" xml:space="preserve">
-    <value>&lt;raw device&gt;</value>
+    <value>&amp;lt;raw device&amp;gt;</value>
     <comment></comment>
   </data>
   <data name="general_recoveryModel_bulkLogged" xml:space="preserve">
@@ -1715,7 +1719,7 @@
     <comment></comment>
   </data>
   <data name="prototype_file_defaultpathstring" xml:space="preserve">
-    <value>&lt;default path&gt;</value>
+    <value>&amp;lt;default path&amp;gt;</value>
     <comment></comment>
   </data>
   <data name="title_openConnectionsMustBeClosed" xml:space="preserve">
@@ -1899,7 +1903,7 @@
     <comment></comment>
   </data>
   <data name="InvalidPathForDatabaseFile" xml:space="preserve">
-    <value>Invalid path for database file: '{0}'</value>
+    <value>Invalid path for database file: &apos;{0}&apos;</value>
     <comment></comment>
   </data>
   <data name="Log" xml:space="preserve">
