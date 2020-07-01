@@ -20,7 +20,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
     /// </summary>
     public abstract class DataSourceQuerier : IComposableService
     {
-        public abstract Type[] SupportedObjectTypes { get;  }
         private static object lockObject = new object();
         
         /// <summary>

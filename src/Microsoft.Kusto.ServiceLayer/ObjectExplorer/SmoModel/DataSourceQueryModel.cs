@@ -6,8 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Composition;
 using System.Linq;
-using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlServer.Management.Smo.Broker;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 
 namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
@@ -17,10 +15,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
     [Export(typeof(DataSourceQuerier))]
     internal partial class DatabaseQuerier: DataSourceQuerier
     {
-        Type[] supportedTypes = new Type[] { typeof(Database) };
-
-        public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
-
         public override  IEnumerable<DataSourceObjectMetadata> Query(QueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             if (context.DataSource != null)
@@ -34,10 +28,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
     [Export(typeof(DataSourceQuerier))]
     internal partial class TableQuerier: DataSourceQuerier
     {
-        Type[] supportedTypes = new Type[] { typeof(Table) };
-
-        public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
-
         public override  IEnumerable<DataSourceObjectMetadata> Query(QueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             if (context.ParentObjectMetadata != null)
@@ -51,10 +41,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
     [Export(typeof(DataSourceQuerier))]
     internal partial class ColumnQuerier: DataSourceQuerier
     {
-        Type[] supportedTypes = new Type[] { typeof(Column) };
-
-        public override Type[] SupportedObjectTypes { get { return supportedTypes; } }
-
         public override  IEnumerable<DataSourceObjectMetadata> Query(QueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
             if (context.ParentObjectMetadata != null)
