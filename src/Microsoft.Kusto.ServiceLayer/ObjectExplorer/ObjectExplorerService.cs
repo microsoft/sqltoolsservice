@@ -9,11 +9,10 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Composition;
 using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management.Common; // For ServerConnection
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;

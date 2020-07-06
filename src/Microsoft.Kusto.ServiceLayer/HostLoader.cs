@@ -9,12 +9,10 @@ using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.Kusto.ServiceLayer.Connection;
-using Microsoft.Kusto.ServiceLayer.FileBrowser;
 using Microsoft.Kusto.ServiceLayer.Hosting;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
 using Microsoft.Kusto.ServiceLayer.QueryExecution;
 using Microsoft.Kusto.ServiceLayer.Scripting;
-using Microsoft.Kusto.ServiceLayer.Security;
 using Microsoft.Kusto.ServiceLayer.SqlContext;
 using Microsoft.Kusto.ServiceLayer.Workspace;
 using SqlToolsContext = Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsContext;
@@ -87,12 +85,6 @@ namespace Microsoft.Kusto.ServiceLayer
 
             ScriptingService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(ScriptingService.Instance);
-
-            FileBrowserService.Instance.InitializeService(serviceHost);
-            serviceProvider.RegisterSingleService(FileBrowserService.Instance);
-
-            SecurityService.Instance.InitializeService(serviceHost);
-            serviceProvider.RegisterSingleService(SecurityService.Instance);
 
             InitializeHostedServices(serviceProvider, serviceHost);
             serviceHost.ServiceProvider = serviceProvider;
