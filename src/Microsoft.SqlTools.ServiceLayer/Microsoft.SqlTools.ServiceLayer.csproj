@@ -21,9 +21,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-        <PackageReference Include="Microsoft.SqlServer.DACFx" />
+		<PackageReference Include="Microsoft.SqlServer.DACFx" />
 		<PackageReference Include="Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider" />
 		<PackageReference Include="System.Text.Encoding.CodePages" />
+		<PackageReference Include="Microsoft.SqlServer.XEvent.XELite" Version="2019.11.20.2" />
 	</ItemGroup>
 
 	<ItemGroup>
