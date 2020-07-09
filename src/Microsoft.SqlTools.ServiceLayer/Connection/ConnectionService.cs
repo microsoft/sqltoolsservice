@@ -113,6 +113,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 { SqlColumnEncryptionAzureKeyVaultProvider.ProviderName, sqlColumnEncryptionAzureKeyVaultProvider }
             });
+            SqlAuthenticationProvider.SetProvider(SqlAuthenticationMethod.ActiveDirectoryInteractive,
+                new AzureAuthenticationProvider());
         }
 
 
@@ -1124,8 +1126,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     case "SqlLogin":
                         break;
                     case "AzureMFA":
-                        connectionBuilder.UserID = "";
-                        connectionBuilder.Password = "";
+                        connectionBuilder.Remove("User ID");
+                        connectionBuilder.Remove("Password");
+                        connectionBuilder.Authentication = SqlAuthenticationMethod.ActiveDirectoryInteractive;
                         break;
                     case "ActiveDirectoryPassword":
                         connectionBuilder.Authentication = SqlAuthenticationMethod.ActiveDirectoryPassword;

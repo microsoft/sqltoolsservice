@@ -23,6 +23,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// Gets or sets the scope of the authentication request.
         /// </summary>
         public string Scope { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the server name of the authentication request.
+        /// </summary>
+        public string ServerName { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the database name of the authentication request.
+        /// </summary>
+        public string DatabaseName { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the connection id of the authentication request.
+        /// </summary>
+        public string ConnectionId { get; set; }
     }
 
     class RequestSecurityTokenResponse
@@ -36,6 +51,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// Gets or sets the access token.
         /// </summary>
         public string Token { get; set; }
+        
+        /// <summary>
+        /// Expiration of the access token in seconds epoch seconds.
+        /// </summary>
+        public long Expiration { get; set; }
     }
 
     /// <summary>
