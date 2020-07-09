@@ -11,6 +11,10 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Microsoft.Kusto.ServiceLayer.Utility;
+using Microsoft.Kusto.ServiceLayer.LanguageServices;
+using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
+using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
+using Microsoft.Kusto.ServiceLayer.LanguageServices.Completion;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource
 {
@@ -138,6 +142,14 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         Task<T> ExecuteScalarQueryAsync<T>(string query, CancellationToken cancellationToken, string databaseName = null);
 
         /// <summary>
+        /// Executes a Kusto query that returns a scalar value.
+        /// </summary>
+        /// <typeparam name="T">The type of the result.</typeparam>
+        /// <param name="query">The query.</param>
+        /// <returns>The result.</returns>
+        Task<IEnumerable<T>> ExecuteControlCommandAsync<T>(string command, bool throwOnError, CancellationToken cancellationToken);
+
+        /// <summary>
         /// Get children of the  given parent
         /// </summary>
         /// <param name="parentMetadata">Parent object metadata.</param>
@@ -161,6 +173,35 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// </summary>
         /// <param name="objectMetadata">Object metadata.</param>
         void Refresh(DataSourceObjectMetadata objectMetadata);
+
+        /// <summary>
+        /// Updates database and affected variables like GlobalState for given object.
+        /// </summary>
+        /// <param name="updateDatabase">Object metadata.</param>
+        void UpdateDatabase(string databaseName);
+
+        /// <summary>
+        /// Gets autocomplete suggestions at given position.
+        /// </summary>
+        /// <param name="GetAutoCompleteSuggestions">Object metadata.</param>
+        CompletionItem[] GetAutoCompleteSuggestions(ScriptDocumentInfo queryText, Position index, bool throwOnError = false);
+        /// <summary>
+        /// Gets quick info hover tooltips for the current position.
+        /// </summary>
+        /// <param name="GetHoverHelp">Object metadata.</param>
+        Hover GetHoverHelp(ScriptDocumentInfo scriptDocumentInfo, Position textPosition, bool throwOnError = false);
+
+        /// <summary>
+        /// Gets definition for a selected query text.
+        /// </summary>
+        /// <param name="GetDefinition">Object metadata.</param>
+        DefinitionResult GetDefinition(string queryText, int index, int startLine, int startColumn, bool throwOnError = false);
+        
+        /// <summary>
+        /// Gets a list of semantic diagnostic marks for the provided script file
+        /// </summary>
+        /// <param name="GetSemanticMarkers">Object metadata.</param>
+        ScriptFileMarker[] GetSemanticMarkers(ScriptParseInfo parseInfo, ScriptFile scriptFile, string queryText);
 
         /// <summary>
         /// Tells whether the data source exists.
@@ -227,6 +268,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             }
         }
 
+        public abstract Task<IEnumerable<T>> ExecuteControlCommandAsync<T>(string command, bool throwOnError, CancellationToken cancellationToken);
+
         /// <inheritdoc/>
         public abstract IEnumerable<DataSourceObjectMetadata> GetChildObjects(DataSourceObjectMetadata parentMetadata);
 
@@ -238,6 +281,20 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
         /// <inheritdoc/>
         public abstract void Refresh(DataSourceObjectMetadata objectMetadata);
+
+        /// <inheritdoc/>
+        public abstract void UpdateDatabase(string databaseName);
+
+        /// <inheritdoc/>
+        public abstract CompletionItem[] GetAutoCompleteSuggestions(ScriptDocumentInfo queryText, Position index, bool throwOnError = false);
+        /// <inheritdoc/>
+        public abstract Hover GetHoverHelp(ScriptDocumentInfo scriptDocumentInfo, Position textPosition, bool throwOnError = false);
+        
+        /// <inheritdoc/>
+        public abstract DefinitionResult GetDefinition(string queryText, int index, int startLine, int startColumn, bool throwOnError = false);
+
+        /// <inheritdoc/>
+        public abstract ScriptFileMarker[] GetSemanticMarkers(ScriptParseInfo parseInfo, ScriptFile scriptFile, string queryText);
 
         /// <inheritdoc/>
         public abstract Task<bool> Exists();

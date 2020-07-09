@@ -25,6 +25,7 @@
     <PackageReference Include="System.Text.Encoding.CodePages" />
     <PackageReference Include="Microsoft.Azure.Kusto.Data" />
     <PackageReference Include="System.Net.Http" />
+    <PackageReference Include="Microsoft.Azure.Kusto.Language"/>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="**\*.cs" Exclude="**/obj/**/*.cs" />
