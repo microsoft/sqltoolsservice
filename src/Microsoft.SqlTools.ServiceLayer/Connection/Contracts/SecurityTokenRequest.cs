@@ -38,6 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// Gets or sets the connection id of the authentication request.
         /// </summary>
         public string ConnectionId { get; set; }
+        public int CorrelationId {get; set; }
     }
 
     class RequestSecurityTokenResponse
@@ -56,6 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// Expiration of the access token in seconds epoch seconds.
         /// </summary>
         public long Expiration { get; set; }
+        public int CorrelationId {get; set; }
     }
 
     /// <summary>

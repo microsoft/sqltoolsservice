@@ -29,15 +29,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
     public class AzureAuthenticationProvider : SqlAuthenticationProvider
     {
         private static int count = 0;
-        private Task lastTask = null;
 
         public override async Task<SqlAuthenticationToken> AcquireTokenAsync(SqlAuthenticationParameters parameters)
         {
-            if (lastTask != null)
-            {
-                await lastTask;
-            }
-            count++;
+            Interlocked.Increment(ref count);
             Logger.Write(TraceEventType.Information, "Request in!" + count);
             RequestSecurityTokenParams message = new RequestSecurityTokenParams()
             {
@@ -47,22 +42,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 ServerName = parameters.ServerName,
                 DatabaseName = parameters.DatabaseName,
                 ConnectionId = parameters.ConnectionId.ToString(),
-                Scope = count.ToString()
+                CorrelationId = count,
             };
 
             TimeSpan timeout = TimeSpan.FromSeconds(10);
 
             try
             {
-                var task = ConnectionService.Instance.ServiceHost.SendRequest(SecurityTokenRequest.Type, message, true);
                 using (var timeoutCancellationTokenSource = new CancellationTokenSource())
                 {
-                    lastTask =
-                        await Task.WhenAny(task, Task.Delay(timeout, timeoutCancellationTokenSource.Token));
-                    if (lastTask == task)
+                    var requestTask = ConnectionService.Instance.ServiceHost.SendRequest(SecurityTokenRequest.Type, message, true);
+                    var timeoutTask = Task.Delay(timeout, timeoutCancellationTokenSource.Token);
+
+                    var completedTask =
+                        await Task.WhenAny(requestTask, timeoutTask);
+                    if (completedTask == requestTask)
                     {
                         timeoutCancellationTokenSource.Cancel();
-                        RequestSecurityTokenResponse response = await task;
+                        RequestSecurityTokenResponse response = await requestTask;
                         var expiresOn = DateTimeOffset.FromUnixTimeSeconds(response.Expiration);
                         return new SqlAuthenticationToken(response.Token, expiresOn);
                     }
@@ -74,10 +71,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 Logger.WriteWithCallstack(TraceEventType.Error, ex.Message);
                 return null;
-            }
-            finally
-            {
-                lastTask = null;
             }
         }
 
