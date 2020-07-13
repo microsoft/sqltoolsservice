@@ -68,7 +68,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             ClusterName = GetClusterName(connectionString);
             DatabaseName = GetDatabaseName(connectionString);
             UserToken = azureAccountToken;
-            Globals = Task.Run(() => KustoIntellisenseHelper.AddOrUpdateDatabaseAsync(this, GlobalState.Default, DatabaseName, ClusterName, throwOnError: false)).Result;
+            SchemaState = Task.Run(() => KustoIntellisenseHelper.AddOrUpdateDatabaseAsync(this, GlobalState.Default, DatabaseName, ClusterName, throwOnError: false)).Result;
             // Check if a connection can be made
             ValidationUtils.IsTrue<ArgumentException>(Exists().Result, $"Unable to connect. ClusterName = {ClusterName}, DatabaseName = {DatabaseName}");
         }
@@ -105,9 +105,9 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         }
 
         /// <summary>
-        /// GlobalState used for getting intellisense info.
+        /// SchemaState used for getting intellisense info.
         /// </summary>
-        public GlobalState Globals { get; private set; }
+        public GlobalState SchemaState { get; private set; }
 
         /// <summary>
         /// The AAD user token.
@@ -374,8 +374,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 var resultReader = await ExecuteQueryAsync(command, cancellationToken, DatabaseName);
                 var results = KustoDataReaderParser.ParseV1(resultReader, null);
                 var tableReader = results[WellKnownDataSet.PrimaryResult].Single().TableData.CreateDataReader();
-                var objectReader = new ObjectReader<T>(tableReader);
-                return objectReader;
+                return new ObjectReader<T>(tableReader);
             }
             catch (Exception) when (!throwOnError)
             {
@@ -386,13 +385,13 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// <inheritdoc/>
         public override void UpdateDatabase(string databaseName){
             DatabaseName = databaseName;
-            Globals = Task.Run(() => KustoIntellisenseHelper.AddOrUpdateDatabaseAsync(this, GlobalState.Default, DatabaseName, ClusterName, throwOnError: false)).Result;
+            SchemaState = Task.Run(() => KustoIntellisenseHelper.AddOrUpdateDatabaseAsync(this, GlobalState.Default, DatabaseName, ClusterName, throwOnError: false)).Result;
         }
 
-                /// <inheritdoc/>
+        /// <inheritdoc/>
         public override LanguageServices.Contracts.CompletionItem[] GetAutoCompleteSuggestions(ScriptDocumentInfo scriptDocumentInfo, Position textPosition, bool throwOnError = false){
-            var kustoCodeService = new KustoCodeService(scriptDocumentInfo.Contents, this.Globals);
-            var script = CodeScript.From(scriptDocumentInfo.Contents, Globals);
+            var kustoCodeService = new KustoCodeService(scriptDocumentInfo.Contents, SchemaState);
+            var script = CodeScript.From(scriptDocumentInfo.Contents, SchemaState);
             script.TryGetTextPosition(textPosition.Line + 1, textPosition.Character, out int position);     // Gets the actual offset based on line and local offset
             
             var completion = kustoCodeService.GetCompletionItems(position);
@@ -410,8 +409,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
         /// <inheritdoc/>
         public override Hover GetHoverHelp(ScriptDocumentInfo scriptDocumentInfo, Position textPosition, bool throwOnError = false){
-            var kustoCodeService = new KustoCodeService(scriptDocumentInfo.Contents, Globals);
-            var script = CodeScript.From(scriptDocumentInfo.Contents, Globals);
+            var kustoCodeService = new KustoCodeService(scriptDocumentInfo.Contents, SchemaState);
+            var script = CodeScript.From(scriptDocumentInfo.Contents, SchemaState);
             script.TryGetTextPosition(textPosition.Line + 1, textPosition.Character, out int position);
 
             var quickInfo = kustoCodeService.GetQuickInfo(position);
@@ -427,7 +426,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
         /// <inheritdoc/>
         public override DefinitionResult GetDefinition(string queryText, int index, int startLine, int startColumn, bool throwOnError = false){
-            var abc = KustoCode.ParseAndAnalyze(queryText, Globals);        //TODOKusto: API wasnt working properly, need to check that part.
+            var abc = KustoCode.ParseAndAnalyze(queryText, SchemaState);        //TODOKusto: API wasnt working properly, need to check that part.
             var kustoCodeService = new KustoCodeService(abc);
             //var kustoCodeService = new KustoCodeService(queryText, globals);
             var relatedInfo = kustoCodeService.GetRelatedElements(index);
@@ -443,8 +442,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// <inheritdoc/>
         public override ScriptFileMarker[] GetSemanticMarkers(ScriptParseInfo parseInfo, ScriptFile scriptFile, string queryText)
         {
-            var kustoCodeService = new KustoCodeService(queryText, Globals);
-            var script = CodeScript.From(queryText, Globals);
+            var kustoCodeService = new KustoCodeService(queryText, SchemaState);
+            var script = CodeScript.From(queryText, SchemaState);
             var parseResult = kustoCodeService.GetDiagnostics();
             
 
