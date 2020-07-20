@@ -54,7 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
             // serialize\deserialize an unknown response type
             serializedMessage.Remove("type");
             serializedMessage.Add("type", JToken.FromObject("dontknowthisone"));
-            Assert.Equal(this.messageSerializer.DeserializeMessage(serializedMessage).MessageType, MessageType.Unknown);
+            Assert.Equal(MessageType.Unknown, this.messageSerializer.DeserializeMessage(serializedMessage).MessageType);
         }
 
         [Fact]

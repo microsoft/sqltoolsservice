@@ -72,12 +72,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 
             Dictionary<string, double> quantile = interactionMetrics.Quantile;
             Assert.NotNull(quantile);
-            Assert.Equal(quantile.Count, 5);
-            Assert.Equal(quantile["50"], 1);
-            Assert.Equal(quantile["100"], 2);
-            Assert.Equal(quantile["300"], 1);
-            Assert.Equal(quantile["500"], 2);
-            Assert.Equal(quantile["2000"], 2);
+            Assert.Equal(5, quantile.Count);
+            Assert.Equal(1, quantile["50"]);
+            Assert.Equal(2, quantile["100"]);
+            Assert.Equal(1, quantile["300"]);
+            Assert.Equal(2, quantile["500"]);
+            Assert.Equal(2, quantile["2000"]);
 
         }
     }

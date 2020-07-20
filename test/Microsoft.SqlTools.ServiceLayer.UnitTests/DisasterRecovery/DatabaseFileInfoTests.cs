@@ -46,8 +46,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
 
             };
             var fileInfo = new DatabaseFileInfo(properties);
-            Assert.Equal(fileInfo.Id, "id");
-            Assert.Equal(fileInfo.GetPropertyValueAsString("name"), "1");
+            Assert.Equal("id", fileInfo.Id);
+            Assert.Equal("1", fileInfo.GetPropertyValueAsString("name"));
         }
     }
 }

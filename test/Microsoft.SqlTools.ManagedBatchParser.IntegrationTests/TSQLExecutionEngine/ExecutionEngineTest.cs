@@ -443,7 +443,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
 
             TestExecutor executor = new TestExecutor(sqlStatement, connection, conditions, -1);
             executor.Run();
-            Assert.Equal(executor.ExecutionResult, ScriptExecutionResult.Success);
+            Assert.Equal(ScriptExecutionResult.Success, executor.ExecutionResult);
         }
 
         /// <summary>
@@ -749,7 +749,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
             Assert.Equal(conditions.IsSqlCmd, !getValue);
 
             conditions.BatchSeparator = "GO";
-            Assert.Equal(conditions.BatchSeparator, "GO");
+            Assert.Equal("GO", conditions.BatchSeparator);
         }
 
         #endregion Get/Set Methods

@@ -43,14 +43,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
                 TaskStatus = expectedStatus
             };
             SqlTask sqlTask = new SqlTask(new TaskMetadata(), operation.FunctionToRun, null);
-            Assert.Equal(sqlTask.TaskStatus, SqlTaskStatus.NotStarted);
+            Assert.Equal(SqlTaskStatus.NotStarted, sqlTask.TaskStatus);
 
             Task taskToVerify = sqlTask.RunAsync().ContinueWith(task => {
                 Assert.Equal(sqlTask.TaskStatus, expectedStatus);
-                Assert.Equal(sqlTask.IsCompleted, true);
+                Assert.Equal(true, sqlTask.IsCompleted);
                 Assert.True(sqlTask.Duration > 0);
             });
-            Assert.Equal(sqlTask.TaskStatus, SqlTaskStatus.InProgress);
+            Assert.Equal(SqlTaskStatus.InProgress, sqlTask.TaskStatus);
             Thread.Sleep(1000);
             operation.Stop();
             await taskToVerify;
@@ -75,8 +75,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
             {
                 var taskInfo = sqlTask.ToTaskInfo();
                 Assert.Equal(taskInfo.TaskId, sqlTask.TaskId.ToString());
-                Assert.Equal(taskInfo.ServerName, "server name");
-                Assert.Equal(taskInfo.DatabaseName, "database name");
+                Assert.Equal("server name", taskInfo.ServerName);
+                Assert.Equal("database name", taskInfo.DatabaseName);
             });
             operation.Stop();
             await taskToVerify;
@@ -92,14 +92,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
                 TaskStatus = expectedStatus
             };
             SqlTask sqlTask = new SqlTask(new TaskMetadata(), operation.FunctionToRun, operation.FunctionToCancel);
-            Assert.Equal(sqlTask.TaskStatus, SqlTaskStatus.NotStarted);
+            Assert.Equal(SqlTaskStatus.NotStarted, sqlTask.TaskStatus);
 
             Task taskToVerify = sqlTask.RunAsync().ContinueWith(task => {
                 Assert.Equal(sqlTask.TaskStatus, expectedStatus);
-                Assert.Equal(sqlTask.IsCompleted, true);
+                Assert.Equal(true, sqlTask.IsCompleted);
                // Assert.True(sqlTask.Duration > 0);
             });
-            Assert.Equal(sqlTask.TaskStatus, SqlTaskStatus.InProgress);
+            Assert.Equal(SqlTaskStatus.InProgress, sqlTask.TaskStatus);
             Thread.Sleep(1000);
             operation.Stop();
             await taskToVerify;
@@ -114,14 +114,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
             {
             };
             SqlTask sqlTask = new SqlTask(new TaskMetadata(), operation.FunctionToRun, operation.FunctionToCancel);
-            Assert.Equal(sqlTask.TaskStatus, SqlTaskStatus.NotStarted);
+            Assert.Equal(SqlTaskStatus.NotStarted, sqlTask.TaskStatus);
 
             Task taskToVerify = sqlTask.RunAsync().ContinueWith(task => {
                 Assert.Equal(sqlTask.TaskStatus, expectedStatus);
-                Assert.Equal(sqlTask.IsCancelRequested, true);
+                Assert.Equal(true, sqlTask.IsCancelRequested);
                 Assert.True(sqlTask.Duration > 0);
             });
-            Assert.Equal(sqlTask.TaskStatus, SqlTaskStatus.InProgress);
+            Assert.Equal(SqlTaskStatus.InProgress, sqlTask.TaskStatus);
             Thread.Sleep(1000);
             sqlTask.Cancel();
             await taskToVerify;
@@ -136,13 +136,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
             {
             };
             SqlTask sqlTask = new SqlTask(new TaskMetadata(), operation.FunctionToRun, operation.FunctionToCancel);
-            Assert.Equal(sqlTask.TaskStatus, SqlTaskStatus.NotStarted);
+            Assert.Equal(SqlTaskStatus.NotStarted, sqlTask.TaskStatus);
 
             Task taskToVerify = sqlTask.RunAsync().ContinueWith(task => {
                 Assert.Equal(sqlTask.TaskStatus, expectedStatus);
                 Assert.True(sqlTask.Duration > 0);
             });
-            Assert.Equal(sqlTask.TaskStatus, SqlTaskStatus.InProgress);
+            Assert.Equal(SqlTaskStatus.InProgress, sqlTask.TaskStatus);
             Thread.Sleep(1000);
             operation.FailTheOperation();
             await taskToVerify;
@@ -158,11 +158,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
                 TaskStatus = expectedStatus
             };
             SqlTask sqlTask = new SqlTask(new TaskMetadata(), operation.FunctionToScript, null);
-            Assert.Equal(sqlTask.TaskStatus, SqlTaskStatus.NotStarted);
+            Assert.Equal(SqlTaskStatus.NotStarted, sqlTask.TaskStatus);
 
             Task taskToVerify = sqlTask.RunAsync().ContinueWith(task => {
                 Assert.Equal(sqlTask.TaskStatus, expectedStatus);
-                Assert.Equal(sqlTask.IsCompleted, true);
+                Assert.Equal(true, sqlTask.IsCompleted);
                 Assert.NotNull(operation.TaskScript);
                 Assert.True(!string.IsNullOrEmpty(operation.TaskScript.Script));
             });

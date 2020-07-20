@@ -381,7 +381,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             {
                 longList.Add(i);
             }
-            Assert.Equal(longList.Count, 6);
+            Assert.Equal(6, longList.Count);
             Assert.NotNull(longList.GetItem(4));
             
             bool didEnum = false;
@@ -394,7 +394,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             Assert.True(didEnum);
 
             longList.RemoveAt(4);
-            Assert.Equal(longList.Count, 5);
+            Assert.Equal(5, longList.Count);
         }
     }
 }

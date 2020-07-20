@@ -44,21 +44,21 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
         [Fact]
         public void CheckSetVariable()
         {
-            Assert.Equal(bpcmd.InternalVariables.Count, 3);
+            Assert.Equal(3, bpcmd.InternalVariables.Count);
             bpcmd.SetVariable(testPOS, "variable4", "test4");
             bpcmd.SetVariable(testPOS, "variable5", "test5");
             bpcmd.SetVariable(testPOS, "variable6", "test6");
-            Assert.Equal(bpcmd.InternalVariables.Count, 6);
+            Assert.Equal(6, bpcmd.InternalVariables.Count);
         }
 
         [Fact]
         public void CheckSetNullValueVariable()
         {
-            Assert.Equal(bpcmd.InternalVariables.Count, 3);
+            Assert.Equal(3, bpcmd.InternalVariables.Count);
             bpcmd.SetVariable(testPOS, "variable4", "test4");
-            Assert.Equal(bpcmd.InternalVariables.Count, 4);
+            Assert.Equal(4, bpcmd.InternalVariables.Count);
             bpcmd.SetVariable(testPOS, "variable4", null);
-            Assert.Equal(bpcmd.InternalVariables.Count, 3);
+            Assert.Equal(3, bpcmd.InternalVariables.Count);
         }
 
         [Fact]
@@ -84,7 +84,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
             TextReader textReader = null;
             string outString = "out";
             var result = bpcmd.Include(null, out textReader, out outString);
-            Assert.Equal(result, BatchParserAction.Abort);
+            Assert.Equal(BatchParserAction.Abort, result);
         }
 
         [Fact]
@@ -93,7 +93,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
             var errorActionChanged = bpcmd.ErrorActionChanged;
             var action = new OnErrorAction();
             var result = bpcmd.OnError(null, action);
-            Assert.Equal(result, BatchParserAction.Continue);
+            Assert.Equal(BatchParserAction.Continue, result);
         }
 
         [Fact]

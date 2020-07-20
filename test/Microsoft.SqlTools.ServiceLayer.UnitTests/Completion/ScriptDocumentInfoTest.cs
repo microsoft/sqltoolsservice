@@ -35,11 +35,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Completion
             ScriptParseInfo scriptParseInfo = new ScriptParseInfo();
             ScriptDocumentInfo docInfo = new ScriptDocumentInfo(doc, scriptFile, scriptParseInfo);
 
-            Assert.Equal(docInfo.StartLine, 1);
-            Assert.Equal(docInfo.ParserLine, 2);
-            Assert.Equal(docInfo.StartColumn, 44);
-            Assert.Equal(docInfo.EndColumn, 14);
-            Assert.Equal(docInfo.ParserColumn, 15);
+            Assert.Equal(1, docInfo.StartLine);
+            Assert.Equal(2, docInfo.ParserLine);
+            Assert.Equal(44, docInfo.StartColumn);
+            Assert.Equal(14, docInfo.EndColumn);
+            Assert.Equal(15, docInfo.ParserColumn);
         }
     }
 }

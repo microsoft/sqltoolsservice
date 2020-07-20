@@ -162,13 +162,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         public void MapDiagnosticSeverityTest()
         {
             var level = ScriptFileMarkerLevel.Error;
-            Assert.Equal(DiagnosticsHelper.MapDiagnosticSeverity(level), DiagnosticSeverity.Error);
+            Assert.Equal(DiagnosticSeverity.Error, DiagnosticsHelper.MapDiagnosticSeverity(level));
             level = ScriptFileMarkerLevel.Warning;
-            Assert.Equal(DiagnosticsHelper.MapDiagnosticSeverity(level), DiagnosticSeverity.Warning);
+            Assert.Equal(DiagnosticSeverity.Warning, DiagnosticsHelper.MapDiagnosticSeverity(level));
             level = ScriptFileMarkerLevel.Information;
-            Assert.Equal(DiagnosticsHelper.MapDiagnosticSeverity(level), DiagnosticSeverity.Information);
+            Assert.Equal(DiagnosticSeverity.Information, DiagnosticsHelper.MapDiagnosticSeverity(level));
             level = (ScriptFileMarkerLevel)100;
-            Assert.Equal(DiagnosticsHelper.MapDiagnosticSeverity(level), DiagnosticSeverity.Error);
+            Assert.Equal(DiagnosticSeverity.Error, DiagnosticsHelper.MapDiagnosticSeverity(level));
         }
 
         /// <summary>

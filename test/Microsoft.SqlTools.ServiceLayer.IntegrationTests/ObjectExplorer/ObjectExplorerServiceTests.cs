@@ -299,7 +299,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             Assert.NotNull(session);
             Assert.NotNull(session.Root);
             NodeInfo nodeInfo = session.Root.ToNodeInfo();
-            Assert.Equal(nodeInfo.IsLeaf, false);
+            Assert.Equal(false, nodeInfo.IsLeaf);
 
             NodeInfo databaseNode = null;
 
@@ -311,7 +311,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                 //All server children should be folder nodes
                 foreach (var item in children)
                 {
-                    Assert.Equal(item.NodeType, "Folder");
+                    Assert.Equal("Folder", item.NodeType);
                 }
 
                 var databasesRoot = children.FirstOrDefault(x => x.NodeTypeId == NodeTypes.Databases);
@@ -347,7 +347,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             Assert.NotNull(session);
             Assert.NotNull(session.Root);
             NodeInfo nodeInfo = session.Root.ToNodeInfo();
-            Assert.Equal(nodeInfo.IsLeaf, false);
+            Assert.Equal(false, nodeInfo.IsLeaf);
             Assert.Equal(nodeInfo.NodeType, NodeTypes.Database.ToString());
             Assert.True(nodeInfo.Label.Contains(databaseName));
             var children = (await _service.ExpandNode(session, session.Root.GetNodePath())).Nodes;
@@ -355,7 +355,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             //All server children should be folder nodes
             foreach (var item in children)
             {
-                Assert.Equal(item.NodeType, "Folder");
+                Assert.Equal("Folder", item.NodeType);
             }
 
             var tablesRoot = children.FirstOrDefault(x => x.Label == SR.SchemaHierarchy_Tables);

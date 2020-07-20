@@ -145,7 +145,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
 
             // execute an action that throws a retry limit exception
             CancellationToken token = new CancellationToken();
-            Assert.Equal(policy.ExecuteAction<int>((s) => { throw new RetryLimitExceededException(); }, token), default(int));
+            Assert.Equal(default(int), policy.ExecuteAction<int>((s) => { throw new RetryLimitExceededException(); }, token));
 
             // execute an action that throws a retry limit exeception with an inner exception 
             Assert.Throws<Exception>(() => 
@@ -896,13 +896,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         {
             var command = new ReliableSqlConnection.ReliableSqlCommand();
             command.CommandText = "SELECT 1";
-            Assert.Equal(command.CommandText, "SELECT 1");
+            Assert.Equal("SELECT 1", command.CommandText);
             Assert.NotNull(command.CommandTimeout);
             Assert.NotNull(command.CommandType);   
             command.DesignTimeVisible = true;
             Assert.True(command.DesignTimeVisible);
             command.UpdatedRowSource = UpdateRowSource.None;
-            Assert.Equal(command.UpdatedRowSource, UpdateRowSource.None);
+            Assert.Equal(UpdateRowSource.None, command.UpdatedRowSource);
             Assert.NotNull(command.GetUnderlyingCommand());
             Assert.Throws<InvalidOperationException>(() => command.ValidateConnectionIsSet());
             command.Prepare();

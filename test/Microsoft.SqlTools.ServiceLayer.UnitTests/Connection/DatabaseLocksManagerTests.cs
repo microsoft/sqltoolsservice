@@ -62,9 +62,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                 {
                     secondTimeGettingAccessFails = true;
                 }
-                Assert.Equal(secondTimeGettingAccessFails, true);
+                Assert.Equal(true, secondTimeGettingAccessFails);
                 databaseLocksManager.ReleaseAccess(server1, database1);
-                Assert.Equal(databaseLocksManager.GainFullAccessToDatabase(server1, database1), true);
+                Assert.Equal(true, databaseLocksManager.GainFullAccessToDatabase(server1, database1));
                 databaseLocksManager.ReleaseAccess(server1, database1);
             }
         }

@@ -909,12 +909,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
             string[] databaseNames = response.DatabaseNames;
 
-            Assert.Equal(databaseNames.Length, 5);
-            Assert.Equal(databaseNames[0], "master");
-            Assert.Equal(databaseNames[1], "model");
-            Assert.Equal(databaseNames[2], "msdb");
-            Assert.Equal(databaseNames[3], "tempdb");
-            Assert.Equal(databaseNames[4], "mydatabase");
+            Assert.Equal(5, databaseNames.Length);
+            Assert.Equal("master", databaseNames[0]);
+            Assert.Equal("model", databaseNames[1]);
+            Assert.Equal("msdb", databaseNames[2]);
+            Assert.Equal("tempdb", databaseNames[3]);
+            Assert.Equal("mydatabase", databaseNames[4]);
         }
 
         /// <summary>
@@ -941,7 +941,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             TestResultSet data = new TestResultSet(cols, rows);
             var response = await RunListDatabasesRequestHandler(testdata: data, includeDetails: true);
 
-            Assert.Equal(response.Databases.Length, 5);
+            Assert.Equal(5, response.Databases.Length);
             VerifyDatabaseDetail(rows[0], response.Databases[4]);
             VerifyDatabaseDetail(rows[1], response.Databases[0]);
             VerifyDatabaseDetail(rows[2], response.Databases[1]);
@@ -1095,7 +1095,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                 catch (SqlException ex)
                 {
                     // Error code should be 0 due to bug
-                    Assert.Equal(ex.Number, 0);
+                    Assert.Equal(0, ex.Number);
                 }
             });
         }
@@ -1429,13 +1429,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             DbConnection defaultConn = await service.GetOrOpenConnection(connectionParameters.OwnerUri, ConnectionType.Default);
             ConnectionInfo connInfo = service.OwnerToConnectionMap[connectionParameters.OwnerUri];
             Assert.NotNull(defaultConn);
-            Assert.Equal(connInfo.AllConnections.Count, 1);
+            Assert.Equal(1, connInfo.AllConnections.Count);
 
             // Verify that for the Query, no new connection is created
             DbConnection queryConn = await service.GetOrOpenConnection(connectionParameters.OwnerUri, ConnectionType.Query);
             connInfo = service.OwnerToConnectionMap[connectionParameters.OwnerUri];
             Assert.NotNull(defaultConn);
-            Assert.Equal(connInfo.AllConnections.Count, 1);
+            Assert.Equal(1, connInfo.AllConnections.Count);
 
             // Verify that if the query connection was closed, it will be reopened on requesting the connection again
             Assert.Equal(ConnectionState.Open, queryConn.State);

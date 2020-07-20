@@ -84,7 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             requestContext.VerifyAll();
 
             // Check that the correct XEvent session was started
-            Assert.Equal(sessionId, "1");
+            Assert.Equal("1", sessionId);
 
             // check that the proper owner Uri was used
             Assert.True(recievedEvents);

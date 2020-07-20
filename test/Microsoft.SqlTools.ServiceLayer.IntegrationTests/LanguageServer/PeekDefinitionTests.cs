@@ -663,7 +663,7 @@ GO";
 
             Scripter scripter = new Scripter(serverConnection, connInfo);
             //Check if database name is the default server connection database name
-            Assert.Equal(scripter.Database.Name, "master");
+            Assert.Equal("master", scripter.Database.Name);
         }
 
         /// <summary>
@@ -686,7 +686,7 @@ GO";
 
             Scripter scripter = new Scripter(serverConnection, connInfo);
             //Check if database name is the database name in the query connection
-            Assert.Equal(scripter.Database.Name, "testdb");
+            Assert.Equal("testdb", scripter.Database.Name);
 
             // remove mock from ConnectionInfo
             Assert.True(connInfo.ConnectionTypeToConnectionMap.TryRemove(ConnectionType.Query, out connection));

@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             // filter all the results from the first poll
             // these events happened before the profiler began
             profilerSession.FilterOldEvents(profilerEvents);
-            Assert.Equal(profilerEvents.Count, 0);
+            Assert.Equal(0, profilerEvents.Count);
 
             // add a new event
             var newEvent = new ProfilerEvent("new event", "1/1/2017");
@@ -42,7 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
 
             // filtering should leave only the new event
             profilerSession.FilterOldEvents(profilerEvents);
-            Assert.Equal(profilerEvents.Count, 1);
+            Assert.Equal(1, profilerEvents.Count);
             Assert.True(profilerEvents[0].Equals(newEvent));
 
             //poll again with no new events
@@ -50,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
 
             // filter should now filter all the events since they've been seen before
             profilerSession.FilterOldEvents(profilerEvents);
-            Assert.Equal(profilerEvents.Count, 0);
+            Assert.Equal(0, profilerEvents.Count);
         }
 
         /// <summary>
@@ -90,7 +90,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             // filter all the results from the first poll
             // these events happened before the profiler began
             profilerSession.FilterOldEvents(profilerEvents);
-            Assert.Equal(profilerEvents.Count, 0);
+            Assert.Equal(0, profilerEvents.Count);
             // No events should be lost
             Assert.False(profilerSession.EventsLost);
 

@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             int prevNewLine;
             int cursorPosition = TextUtilities.PositionOfCursor(sql, 0, sql.Length, out prevNewLine);
 
-            Assert.Equal(prevNewLine, 0);
+            Assert.Equal(0, prevNewLine);
             Assert.Equal(cursorPosition, sql.Length);
         }
 
@@ -33,8 +33,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             int prevNewLine;
             int cursorPosition = TextUtilities.PositionOfCursor(sql, 1, 15, out prevNewLine);
 
-            Assert.Equal(prevNewLine, 10);
-            Assert.Equal(cursorPosition, 25);
+            Assert.Equal(10, prevNewLine);
+            Assert.Equal(25, cursorPosition);
         }
     }
 }

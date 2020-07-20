@@ -276,7 +276,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             details.Options["encrypt"] = true;
 
             Assert.Equal(details.ConnectTimeout, expectedValue);
-            Assert.Equal(details.Encrypt, true);
+            Assert.Equal(true, details.Encrypt);
         }
     }
 }

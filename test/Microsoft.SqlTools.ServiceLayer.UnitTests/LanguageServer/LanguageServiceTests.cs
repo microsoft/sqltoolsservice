@@ -147,7 +147,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         [Fact]
         public void EmptyCompletionListTest()
         {           
-            Assert.Equal(AutoCompleteHelper.EmptyCompletionList.Length, 0);
+            Assert.Equal(0, AutoCompleteHelper.EmptyCompletionList.Length);
         }
 
         internal class TestScriptDocumentInfo : ScriptDocumentInfo
@@ -205,7 +205,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                 }, scriptFile, scriptInfo, "all");
 
             CompletionItem[] result = AutoCompleteHelper.GetDefaultCompletionItems(scriptDocumentInfo, false);
-            Assert.Equal(result.Length, 1);
+            Assert.Equal(1, result.Length);
 
         }
     }

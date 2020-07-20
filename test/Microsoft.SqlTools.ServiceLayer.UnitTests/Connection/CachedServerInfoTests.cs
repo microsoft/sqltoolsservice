@@ -36,21 +36,21 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             cache.AddOrUpdateCache(testSource, DatabaseEngineEdition.SqlDataWarehouse, CachedServerInfo.CacheVariable.EngineEdition);
 
             // Expect the same returned result
-            Assert.Equal(cache.TryGetEngineEdition(testSource, out engineEdition), DatabaseEngineEdition.SqlDataWarehouse);
+            Assert.Equal(DatabaseEngineEdition.SqlDataWarehouse, cache.TryGetEngineEdition(testSource, out engineEdition));
 
             // And expect the same for the null string
-            Assert.Equal(cache.TryGetEngineEdition(new SqlConnectionStringBuilder
+            Assert.Equal(DatabaseEngineEdition.SqlDataWarehouse, cache.TryGetEngineEdition(new SqlConnectionStringBuilder
             {
                 DataSource = dataSource
                 // Initial Catalog is null. Can't set explicitly as this throws
-            }, out engineEdition), DatabaseEngineEdition.SqlDataWarehouse);
+            }, out engineEdition));
 
             // But expect NotEqual for a different DB
-            Assert.NotEqual(cache.TryGetEngineEdition(new SqlConnectionStringBuilder
+            Assert.NotEqual(DatabaseEngineEdition.SqlDataWarehouse, cache.TryGetEngineEdition(new SqlConnectionStringBuilder
             {
                 DataSource = dataSource,
                 InitialCatalog = "OtherDb"
-            }, out engineEdition), DatabaseEngineEdition.SqlDataWarehouse);
+            }, out engineEdition));
         }
 
         [Theory]
@@ -76,7 +76,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             cache.AddOrUpdateCache(testSource, state, CachedServerInfo.CacheVariable.EngineEdition);
 
             // Expect the same returned result
-            Assert.NotEqual(cache.TryGetEngineEdition(testSource, out engineEdition), DatabaseEngineEdition.Unknown);
+            Assert.NotEqual(DatabaseEngineEdition.Unknown, cache.TryGetEngineEdition(testSource, out engineEdition));
             Assert.Equal(engineEdition, state);
         }
 
@@ -94,7 +94,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             cache.AddOrUpdateCache(testSource, state, CachedServerInfo.CacheVariable.EngineEdition);
 
             // Expect the same returned result
-            Assert.NotEqual(cache.TryGetEngineEdition(testSource, out engineEdition), DatabaseEngineEdition.Unknown);
+            Assert.NotEqual(DatabaseEngineEdition.Unknown, cache.TryGetEngineEdition(testSource, out engineEdition));
             Assert.Equal(engineEdition, state);
 
             DatabaseEngineEdition newState = state == DatabaseEngineEdition.SqlDataWarehouse ?
@@ -103,7 +103,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             cache.AddOrUpdateCache(testSource, newState, CachedServerInfo.CacheVariable.EngineEdition);
 
             // Expect the opposite returned result
-            Assert.NotEqual(cache.TryGetEngineEdition(testSource, out engineEdition), DatabaseEngineEdition.Unknown);
+            Assert.NotEqual(DatabaseEngineEdition.Unknown, cache.TryGetEngineEdition(testSource, out engineEdition));
             Assert.Equal(engineEdition, newState);
         }
 
@@ -153,11 +153,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         public void AskforEngineEditionBeforeCached()
         {
             DatabaseEngineEdition engineEdition;
-            Assert.Equal(cache.TryGetEngineEdition(new SqlConnectionStringBuilder
+            Assert.Equal(DatabaseEngineEdition.Unknown, cache.TryGetEngineEdition(new SqlConnectionStringBuilder
             {
                 DataSource = "testDataSourceUnCached"
             }, 
-            out engineEdition), DatabaseEngineEdition.Unknown);
+            out engineEdition));
         }
     }
 }

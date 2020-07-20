@@ -65,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
             int errorCode = SqlAzureFirewallBlockedErrorNumber;
             FirewallParserResponse response = _firewallErrorParser.ParseErrorMessage(_errorMessage, errorCode);
             Assert.True(response.FirewallRuleErrorDetected);
-            Assert.Equal(response.BlockedIpAddress.ToString(), "1.2.3.4");
+            Assert.Equal("1.2.3.4", response.BlockedIpAddress.ToString());
         }
     }
 }

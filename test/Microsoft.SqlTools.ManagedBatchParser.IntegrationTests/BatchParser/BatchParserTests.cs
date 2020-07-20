@@ -169,7 +169,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
             }
             ScriptExecutionResult finalResult = (batch.RowsAffected > 0) ? ScriptExecutionResult.Success : ScriptExecutionResult.Failure;
 
-            Assert.Equal<ScriptExecutionResult>(finalResult, ScriptExecutionResult.Failure);
+            Assert.Equal<ScriptExecutionResult>(ScriptExecutionResult.Failure, finalResult);
         }
 
         // Verify the passing query has valid text.
@@ -185,7 +185,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
             }
             finalResult = (batch.RowsAffected > 0) ? ScriptExecutionResult.Success : ScriptExecutionResult.Failure;
 
-            Assert.Equal<ScriptExecutionResult>(finalResult, ScriptExecutionResult.Failure);
+            Assert.Equal<ScriptExecutionResult>(ScriptExecutionResult.Failure, finalResult);
         }
 
         // Verify the cancel functionality is working fine.
@@ -200,7 +200,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
                 batch.Cancel();
                 result = batch.Execute(sqlConn, ShowPlanType.AllShowPlan);
             }
-            Assert.Equal<ScriptExecutionResult>(result, ScriptExecutionResult.Cancel);
+            Assert.Equal<ScriptExecutionResult>(ScriptExecutionResult.Cancel, result);
         }
 
         // 

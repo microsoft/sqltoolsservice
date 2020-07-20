@@ -106,7 +106,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
                 Task taskToVerify = sqlTask.RunAsync().ContinueWith(Task =>
                 {
                     Assert.Equal(SqlTaskStatus.Canceled, sqlTask.TaskStatus);
-                    Assert.Equal(sqlTask.IsCancelRequested, true);
+                    Assert.Equal(true, sqlTask.IsCancelRequested);
                     ((BackupOperationStub)backupOperation).BackupSemaphore.Release();
                     manager.Reset();
                 });
@@ -138,7 +138,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
                 Task taskToVerify = sqlTask.RunAsync().ContinueWith(Task =>
                 {
                     Assert.Equal(SqlTaskStatus.Canceled, sqlTask.TaskStatus);
-                    Assert.Equal(sqlTask.IsCancelRequested, true);
+                    Assert.Equal(true, sqlTask.IsCancelRequested);
                     ((BackupOperationStub)backupOperation).BackupSemaphore.Release();
                     manager.Reset();
                 });
@@ -146,7 +146,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
                 Task taskToVerify2 = sqlTask2.RunAsync().ContinueWith(Task =>
                 {
                     Assert.Equal(SqlTaskStatus.Canceled, sqlTask2.TaskStatus);
-                    Assert.Equal(sqlTask2.IsCancelRequested, true);
+                    Assert.Equal(true, sqlTask2.IsCancelRequested);
                     ((BackupOperationStub)backupOperation2).BackupSemaphore.Release();
                     manager.Reset();
                 });
@@ -180,7 +180,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
                 Task taskToVerify = sqlTask.RunAsync().ContinueWith(Task =>
                 {
                     Assert.Equal(SqlTaskStatus.Canceled, sqlTask.TaskStatus);
-                    Assert.Equal(sqlTask.IsCancelRequested, true);
+                    Assert.Equal(true, sqlTask.IsCancelRequested);
                     ((BackupOperationStub)backupOperation).BackupSemaphore.Release();
                     manager.Reset();
                 });

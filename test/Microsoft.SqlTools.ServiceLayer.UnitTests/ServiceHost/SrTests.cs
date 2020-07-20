@@ -218,7 +218,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
             Assert.Equal(options.Locale, locale);
 
             var TestLocalizationConstant = SR.TestLocalizationConstant;
-            Assert.Equal(TestLocalizationConstant, "test");
+            Assert.Equal("test", TestLocalizationConstant);
         }
 
         // [Fact]
@@ -231,7 +231,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
             Assert.Equal(options.Locale, locale);
 
             var TestLocalizationConstant = SR.TestLocalizationConstant;
-            Assert.Equal(TestLocalizationConstant, "prueba");
+            Assert.Equal("prueba", TestLocalizationConstant);
 
             // Reset the locale
             SrStringsTestWithEnLocalization(); 
@@ -244,10 +244,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
             var args = new string[] { "" };
             ServiceLayerCommandOptions options = new ServiceLayerCommandOptions(args);
             Assert.Null(SR.Culture);
-            Assert.Equal(options.Locale, "");
+            Assert.Equal("", options.Locale);
 
             var TestLocalizationConstant = SR.TestLocalizationConstant;
-            Assert.Equal(TestLocalizationConstant, "test");
+            Assert.Equal("test", TestLocalizationConstant);
         }
     }
 }

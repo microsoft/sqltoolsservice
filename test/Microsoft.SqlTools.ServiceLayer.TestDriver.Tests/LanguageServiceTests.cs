@@ -386,7 +386,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 var label = signatureHelp.Signatures[signatureHelp.ActiveSignature.Value].Label;
                 Assert.NotNull(label);
                 Assert.NotEmpty(label);
-                Assert.True(label.Contains("fn_isrolemember"));
+                Assert.Contains("fn_isrolemember", label);
 
                 await testService.Disconnect(ownerUri);
             }
@@ -457,7 +457,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             var label = activeSignature.Label;
             Assert.NotNull(label);
             Assert.NotEmpty(label);
-            Assert.True(label.Contains(expectedFunctionName));
+            Assert.Contains(expectedFunctionName, label);
 
             Assert.NotNull(signatureHelp.ActiveParameter);
             Assert.True(signatureHelp.ActiveParameter.HasValue);
