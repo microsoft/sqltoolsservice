@@ -9,7 +9,8 @@ using System.Composition;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
-using Microsoft.SqlServer.Management.SqlParser.Parser;
+//using Kusto.Language;
+//using Kusto.Language.Editor;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
@@ -261,15 +262,18 @@ namespace Microsoft.Kusto.ServiceLayer.Formatter
         public string Format(string input, FormatOptions options, bool verifyOutput)
         {
             string result = null;
-            DoFormat(input, options, verifyOutput, visitor =>
-            {
-                result = visitor.Context.FormattedSql;
-            });
+            //TODOKusto: Implement formatting for Kusto generically here.
+            //var kustoCodeService = new KustoCodeService(input, GlobalState.Default);
+            //var formattedText = kustoCodeService.GetFormattedText();
+            //DoFormat(input, options, verifyOutput, visitor =>
+            //{
+                //result = formattedText.Text;
+            //});
 
             return result;
         }
 
-        public void Format(string input, FormatOptions options, bool verifyOutput, Replacement.OnReplace replace)
+        /*public void Format(string input, FormatOptions options, bool verifyOutput, Replacement.OnReplace replace)
         {
             DoFormat(input, options, verifyOutput, visitor =>
             {
@@ -296,7 +300,7 @@ namespace Microsoft.Kusto.ServiceLayer.Formatter
             }
 
             postFormatAction?.Invoke(visitor);
-        }
+        }*/
     }
 
     internal static class RangeExtensions
