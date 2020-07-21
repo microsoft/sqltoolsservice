@@ -226,7 +226,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         }
 
         /// <summary>
-        /// Handles request to generate deploy plan
+        /// Handles request to get the options from a publish profile
         /// </summary>
         /// <returns></returns>
         public async Task HandleGetOptionsFromProfileRequest(GetOptionsFromProfileParams parameters, RequestContext<DacFxOptionsResult> requestContext)

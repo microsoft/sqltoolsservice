@@ -23,6 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
 {
     public class DacFxServiceTests
     {
+        private string publishProfileFolder = Path.Combine("..", "..", "..", "DacFx", "PublishProfiles");
         private const string SourceScript = @"CREATE TABLE [dbo].[table1]
 (
     [ID] INT NOT NULL PRIMARY KEY,
@@ -551,9 +552,8 @@ RETURN 0
             dacfxRequestContext.Setup((RequestContext<DacFxOptionsResult> x) => x.SendResult(It.Is<DacFxOptionsResult>((result) => ValidateOptions(expectedResults, result.DeploymentOptions) == true))).Returns(Task.FromResult(new object()));
 
             DacFxService service = new DacFxService();
-            string file = Path.Combine("..", "..", "..", "DacFx", "PublishProfiles", "profileWithOptions.publish.xml");
+            string file = Path.Combine(publishProfileFolder, "profileWithOptions.publish.xml");
 
-            // Generate script for deploying source dacpac to target db with SqlCmdVars
             var getOptionsFromProfileParams = new GetOptionsFromProfileParams
             {
                 ProfilePath = file
@@ -564,7 +564,7 @@ RETURN 0
         }
 
         // <summary>
-        /// Verify that options can get retrieved from publish profile
+        /// Verify that default options are returned if a profile doesn't specify any options
         /// </summary>
         [Fact]
         public async void GetOptionsFromProfileWithoutOptions()
@@ -575,9 +575,8 @@ RETURN 0
             dacfxRequestContext.Setup((RequestContext<DacFxOptionsResult> x) => x.SendResult(It.Is<DacFxOptionsResult>((result) => ValidateOptions(expectedResults, result.DeploymentOptions) == true))).Returns(Task.FromResult(new object()));
 
             DacFxService service = new DacFxService();
-            string file = Path.Combine("..", "..", "..", "DacFx", "PublishProfiles", "profileNoOptions.publish.xml");
+            string file = Path.Combine(publishProfileFolder, "profileNoOptions.publish.xml");
 
-            // Generate script for deploying source dacpac to target db with SqlCmdVars
             var getOptionsFromProfileParams = new GetOptionsFromProfileParams
             {
                 ProfilePath = file
@@ -596,6 +595,7 @@ RETURN 0
                 {
                     var defaultP = v.GetValue(expected);
                     var actualP = v.GetValue(actual);
+
                     if (v.Name == "ExcludeObjectTypes")
                     {
                         Assert.True((defaultP as ObjectType[]).Length == (actualP as ObjectType[]).Length, $"Number of excluded objects is different; expected: {(defaultP as ObjectType[]).Length} actual: {(actualP as ObjectType[]).Length}");

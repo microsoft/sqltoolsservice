@@ -10,18 +10,18 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 {
     /// <summary>
-    /// Parameters for a DacFx deploy request.
+    /// Parameters for a DacFx get options from profile request.
     /// </summary>
     public class GetOptionsFromProfileParams
     {
         /// <summary>
-        /// Gets or sets the profile with settings
+        /// Gets or sets the profile path
         /// </summary>
         public string ProfilePath { get; set; }
     }
 
     /// <summary>
-    /// Parameters returned from a DacFx request.
+    /// Parameters returned from a DacFx get options from profile request.
     /// </summary>
     public class DacFxOptionsResult : ResultStatus
     {
