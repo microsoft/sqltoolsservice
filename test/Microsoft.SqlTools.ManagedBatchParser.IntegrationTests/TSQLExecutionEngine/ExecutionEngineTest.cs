@@ -12,15 +12,16 @@ using Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEngine
 {
+
+    [TestFixture]
     /// <summary>
     ///This is a test class for Microsoft.Data.Tools.Schema.Common.ExecutionEngine.ExecutionEngine and is intended
     ///to contain all Microsoft.Data.Tools.Schema.Common.ExecutionEngine.ExecutionEngine Unit Tests
     ///</summary>
-
     public class ExecutionEngineTest : IDisposable
     {
         private SqlConnection connection;
@@ -29,11 +30,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
 
         #region Test Initialize And Cleanup
 
-        public ExecutionEngineTest()
-        {
-            TestInitialize();
-        }
-
+        [SetUp]
         // Initialize the tests
         public void TestInitialize()
         {
@@ -80,7 +77,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
         /// <summary>
         ///A test for a simple SQL script
         ///</summary>
-        [Fact]
+        [Test]
         public void ExecutionEngineTest_SimpleTest()
         {
             string sqlStatement = "SELECT * FROM sysobjects";
@@ -97,15 +94,15 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
             List<string> batchScripts = executor.BatchScripts;
             ExecuteSqlBatch(batchScripts, connection);
 
-            Assert.Equal(ScriptExecutionResult.Success, executor.ExecutionResult);
+            Assert.AreEqual(ScriptExecutionResult.Success, executor.ExecutionResult);
             Assert.True(CompareTwoIntLists(executor.ResultCountQueue, expResultCounts));
-            Assert.Equal(1, executor.BatchFinshedEventCounter);
+            Assert.AreEqual(1, executor.BatchFinshedEventCounter);
         }
 
         /// <summary>
         /// Test with a valid script using default execution condition
         /// </summary>
-        [Fact]
+        [Test]
         public void ExecutionEngineTest_DefaultCondition_ValidScript()
         {
             string sqlStatement = "select * from sysobjects\nGo\n";
@@ -119,14 +116,14 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
             List<string> batchScripts = executor.BatchScripts;
             ExecuteSqlBatch(batchScripts, connection);
 
-            Assert.Equal(ScriptExecutionResult.Success, executor.ExecutionResult);
+            Assert.AreEqual(ScriptExecutionResult.Success, executor.ExecutionResult);
             Assert.True(CompareTwoIntLists(executor.ResultCountQueue, expResultCounts));
         }
 
         // <summary>
         // Test with multiple valid scripts in multiple batches
         // </summary>
-        [Fact]
+        [Test]
         public void ExecutionEngineTest_MultiValidScripts()
         {
             string sqlStatement = "select * from sys.databases\ngo\nselect name from sys.databases\ngo\nprint 'test'\ngo";
@@ -143,14 +140,14 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
             List<string> batchScripts = executor.BatchScripts;
             ExecuteSqlBatch(batchScripts, connection);
 
-            Assert.Equal(ScriptExecutionResult.Success, executor.ExecutionResult);
+            Assert.AreEqual(ScriptExecutionResult.Success, executor.ExecutionResult);
             Assert.True(CompareTwoIntLists(executor.ResultCountQueue, expResultCounts));
         }
 
         /// <summary>
         /// Test with SQL comment
         /// </summary>
-        [Fact]
+        [Test]
         public void ExecutionEngineTest_TestComment()
         {
             string sqlStatement = "/*test comments*/";
@@ -167,7 +164,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
             List<string> batchScripts = executor.BatchScripts;
             ExecuteSqlBatch(batchScripts, connection);
 
-            Assert.Equal(ScriptExecutionResult.Success, executor.ExecutionResult);
+            Assert.AreEqual(ScriptExecutionResult.Success, executor.ExecutionResult);
             Assert.True(CompareTwoIntLists(executor.ResultCountQueue, expResultCounts));
         }
 
@@ -178,7 +175,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
         /// <summary>
         /// Test with a invalid query using the default execution condition
         /// </summary>
-        [Fact]
+        [Test]
         public void ExecutionEngineTest_DefaultCondition_InvalidScript()
         {
             string sqlStatement = "select ** from sysobjects";
@@ -192,17 +189,17 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
             List<string> batchScripts = executor.BatchScripts;
             ExecuteSqlBatch(batchScripts, connection);
 
-            Assert.Equal(ScriptExecutionResult.Success | ScriptExecutionResult.Failure, executor.ExecutionResult);
+            Assert.AreEqual(ScriptExecutionResult.Success | ScriptExecutionResult.Failure, executor.ExecutionResult);
             Assert.True(!executor.ParserExecutionError);
             Assert.True(CompareTwoStringLists(executor.ErrorMessageQueue, expErrorMessage));
             Assert.True(CompareTwoIntLists(executor.ResultCountQueue, expResultCounts));
-            Assert.Equal(0, executor.BatchFinshedEventCounter);
+            Assert.AreEqual(0, executor.BatchFinshedEventCounter);
         }
 
         /// <summary>
         /// Test with an invalid query using a defined execution condition
         /// </summary>
-        [Fact]
+        [Test]
         public void ExecutionEngineTest_InvalidScriptWithCondition()
         {
             string sqlStatement = "select * from authors";
@@ -218,7 +215,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
             List<string> batchScripts = executor.BatchScripts;
             ExecuteSqlBatch(batchScripts, connection);
 
-            Assert.Equal(executor.ExecutionResult, ScriptExecutionResult.Success | ScriptExecutionResult.Failure);
+            Assert.AreEqual(executor.ExecutionResult, ScriptExecutionResult.Success | ScriptExecutionResult.Failure);
             Assert.True(!executor.ParserExecutionError);
             Assert.True(CompareTwoStringLists(executor.ErrorMessageQueue, expErrorMessage));
             Assert.True(CompareTwoIntLists(executor.ResultCountQueue, expResultCounts));
@@ -227,7 +224,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
         /// <summary>
         /// Test with multiple invalid scripts in multiple batches
         /// </summary>
-        [Fact]
+        [Test]
         public void ExecutionEngineTest_MultipleInvalidScript()
         {
             string sqlStatement = "select ** from products \ngo\n insert into products values (1,'abc')\n go \n";
@@ -244,7 +241,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
             List<string> batchScripts = executor.BatchScripts;
             ExecuteSqlBatch(batchScripts, connection);
 
-            Assert.Equal(executor.ExecutionResult, ScriptExecutionResult.Success | ScriptExecutionResult.Failure);
+            Assert.AreEqual(executor.ExecutionResult, ScriptExecutionResult.Success | ScriptExecutionResult.Failure);
             Assert.True(!executor.ParserExecutionError);
             Assert.True(CompareTwoStringLists(executor.ErrorMessageQueue, expErrorMessage));
             Assert.True(CompareTwoIntLists(executor.ResultCountQueue, expResultCounts));
@@ -253,7 +250,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
         /// <summary>
         /// Test with invalid scripts within a single batch
         /// </summary>
-        [Fact]
+        [Test]
         public void ExecutionEngineTest_MultipleInvalidScript_SingleBatch()
         {
             string sqlStatement = "select ** from products \n insert into products values (1,'abc')\n go \n";
@@ -270,7 +267,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
             List<string> batchScripts = executor.BatchScripts;
             ExecuteSqlBatch(batchScripts, connection);
 
-            Assert.Equal(ScriptExecutionResult.Success | ScriptExecutionResult.Failure, executor.ExecutionResult);
+            Assert.AreEqual(ScriptExecutionResult.Success | ScriptExecutionResult.Failure, executor.ExecutionResult);
             Assert.True(!executor.ParserExecutionError);
             Assert.True(CompareTwoStringLists(executor.ErrorMessageQueue, expErrorMessage));
             Assert.True(CompareTwoIntLists(executor.ResultCountQueue, expResultCounts));
@@ -279,7 +276,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
         /// <summary>
         /// Test with mixed valid and invalid scripts
         /// </summary>
-        [Fact]
+        [Test]
         public void ExecutionEngineTest_MixedValidandInvalidScript()
         {
             string sqlStatement = "SELECT * FROM Authors \n Go\n select * from sysobjects \n go\nif exists (select * from sysobjects where id = object_id('MyTab')) DROP TABLE MyTab2";
@@ -296,13 +293,13 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
             List<string> batchScripts = executor.BatchScripts;
             ExecuteSqlBatch(batchScripts, connection);
 
-            Assert.Equal(executor.ExecutionResult, ScriptExecutionResult.Success | ScriptExecutionResult.Failure);
+            Assert.AreEqual(executor.ExecutionResult, ScriptExecutionResult.Success | ScriptExecutionResult.Failure);
             Assert.True(!executor.ParserExecutionError);
             Assert.True(CompareTwoStringLists(executor.ErrorMessageQueue, expErrorMessage));
             Assert.True(CompareTwoIntLists(executor.ResultCountQueue, expResultCounts));
         }
 
-        [Fact]
+        [Test]
         public void ExecutionEngineTest_DiscardConnection()
         {
             ExecutionEngine engine = new ExecutionEngine();
@@ -316,14 +313,16 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
         /// <summary>
         /// Test HaltOnError execution condition
         /// </summary>
-        [Fact]
+        [Test]
         public void ExecutionEngineTest_HaltOnError()
         {
             string sqlStatement = "select * from authors\n go\n select * from sysbojects \n go \n";
-            ExecutionEngineConditions conditions = new ExecutionEngineConditions();
-            conditions.IsTransactionWrapped = true;
-            conditions.IsParseOnly = false;
-            conditions.IsHaltOnError = true;
+            ExecutionEngineConditions conditions = new ExecutionEngineConditions
+            {
+                IsTransactionWrapped = true,
+                IsParseOnly = false,
+                IsHaltOnError = true
+            };
 
             TestExecutor executor = new TestExecutor(sqlStatement, connection, conditions);
             executor.Run();
@@ -332,7 +331,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
             List<string> batchScripts = executor.BatchScripts;
             ExecuteSqlBatch(batchScripts, connection);
 
-            Assert.Equal(ScriptExecutionResult.Halted | ScriptExecutionResult.Failure, executor.ExecutionResult);
+            Assert.AreEqual(ScriptExecutionResult.Halted | ScriptExecutionResult.Failure, executor.ExecutionResult);
             Assert.True(CompareTwoStringLists(executor.ErrorMessageQueue, expErrorMessage));
             Assert.True(CompareTwoIntLists(executor.ResultCountQueue, expResultCounts));
             Assert.True(executor.ResultCountQueue.Count == 0);
@@ -341,7 +340,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
         /// <summary>
         /// HaltOnError with a single batch
         /// </summary>
-        [Fact]
+        [Test]
         public void ExecutionEngineTest_HaltOnError_OneBatch()
         {
             string sqlStatement = "select * from authors\n go 30\n";
@@ -357,17 +356,17 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
             List<string> batchScripts = executor.BatchScripts;
             ExecuteSqlBatch(batchScripts, connection);
 
-            Assert.Equal(ScriptExecutionResult.Halted | ScriptExecutionResult.Failure, executor.ExecutionResult);
+            Assert.AreEqual(ScriptExecutionResult.Halted | ScriptExecutionResult.Failure, executor.ExecutionResult);
             Assert.True(CompareTwoStringLists(executor.ErrorMessageQueue, expErrorMessage));
             Assert.True(CompareTwoIntLists(executor.ResultCountQueue, expResultCounts));
             Assert.True(executor.ResultCountQueue.Count == 0);
-            Assert.Equal(0, executor.BatchFinshedEventCounter);
+            Assert.AreEqual(0, executor.BatchFinshedEventCounter);
         }
 
         /// <summary>
         /// Test ParseOnly execution condition with valid scripts
         /// </summary>
-        [Fact]
+        [Test]
         public void ExecutionEngineTest_ParseOnly_ValidScript()
         {
             string sqlStatement = "select * from sysobjects";
@@ -379,15 +378,15 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
             TestExecutor executor = new TestExecutor(sqlStatement, connection, conditions);
             executor.Run();
 
-            Assert.Equal(ScriptExecutionResult.Success, executor.ExecutionResult);
+            Assert.AreEqual(ScriptExecutionResult.Success, executor.ExecutionResult);
             Assert.True(executor.ResultCountQueue.Count == 0);
-            Assert.Equal(0, executor.BatchFinshedEventCounter);
+            Assert.AreEqual(0, executor.BatchFinshedEventCounter);
         }
 
         /// <summary>
         /// Test HaltOnError execution condition with invalid scripts
         /// </summary>
-        [Fact]
+        [Test]
         public void ExecutionEngineTest_ParseOnly_InvalidScript()
         {
             string sqlStatement = "select ** from authors";
@@ -403,7 +402,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
             List<string> batchScripts = executor.BatchScripts;
             ExecuteSqlBatch(batchScripts, connection);
 
-            Assert.Equal(ScriptExecutionResult.Success | ScriptExecutionResult.Failure, executor.ExecutionResult);
+            Assert.AreEqual(ScriptExecutionResult.Success | ScriptExecutionResult.Failure, executor.ExecutionResult);
             Assert.True(!executor.ParserExecutionError);
             Assert.True(executor.ResultCountQueue.Count == 0);
             Assert.True(CompareTwoStringLists(executor.ErrorMessageQueue, expErrorMessage));
@@ -412,7 +411,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
         /// <summary>
         /// Parse script only without transaction wrapper
         /// </summary>
-        [Fact]
+        [Test]
         public void ExecutionEngineTest_ParseOnly_ValidScriptWithoutTransaction()
         {
             string sqlStatement = "select * from sysobjects";
@@ -424,9 +423,9 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
             TestExecutor executor = new TestExecutor(sqlStatement, connection, conditions);
             executor.Run();
 
-            Assert.Equal(ScriptExecutionResult.Success, executor.ExecutionResult);
+            Assert.AreEqual(ScriptExecutionResult.Success, executor.ExecutionResult);
             Assert.True(executor.ResultCountQueue.Count == 0);
-            Assert.Equal(0, executor.BatchFinshedEventCounter);
+            Assert.AreEqual(0, executor.BatchFinshedEventCounter);
         }
 
         /// <summary>
@@ -443,13 +442,13 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
 
             TestExecutor executor = new TestExecutor(sqlStatement, connection, conditions, -1);
             executor.Run();
-            Assert.Equal(ScriptExecutionResult.Success, executor.ExecutionResult);
+            Assert.AreEqual(ScriptExecutionResult.Success, executor.ExecutionResult);
         }
 
         /// <summary>
         /// Test with invalid connection
         /// </summary>
-        [Fact]
+        [Test]
         public void ExecutionEngineTest_InvalidConnection()
         {
             string sqlStatement = "select * from sysobjects\n go 100\n";
@@ -470,7 +469,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
         /// <summary>
         /// Test with multiple conditions true
         /// </summary>
-        [Fact]
+        [Test]
         public void TestExecutionEngineConditions()
         {
             string sqlStatement = "select * from sys.databases\ngo\nselect name from sys.databases\ngo\nprint 'test'\ngo";
@@ -486,7 +485,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
             List<string> batchScripts = executor.BatchScripts;
             ExecuteSqlBatch(batchScripts, connection);
 
-            Assert.Equal(ScriptExecutionResult.Success, executor.ExecutionResult);
+            Assert.AreEqual(ScriptExecutionResult.Success, executor.ExecutionResult);
             Assert.True(CompareTwoIntLists(executor.ResultCountQueue, expResultCounts));
         }
 
@@ -497,7 +496,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
         /// <summary>
         /// Test with SQL commands
         /// </summary>
-        [Fact]
+        [Test]
         public void ExecutionEngineTest_SQLCmds()
         {
             string[] sqlStatements = {
@@ -537,7 +536,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
         /// <summary>
         /// Test synchronous cancel
         /// </summary>
-        [Fact]
+        [Test]
         public void ExecutionEngineTest_SyncCancel()
         {
             string sqlStatement = "waitfor delay '0:0:10'";
@@ -552,14 +551,14 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
             executor.Run();
 
             Assert.NotNull(executor.ScriptExecuteThread);
-            Assert.Equal(ScriptExecutionResult.Cancel, executor.ExecutionResult);
+            Assert.AreEqual(ScriptExecutionResult.Cancel, executor.ExecutionResult);
             Assert.True(executor.CancelEventFired);
         }
 
         /// <summary>
         /// Test asynchronous cancel
         /// </summary>
-        [Fact]
+        [Test]
         public void ExecutionEngineTest_ASyncCancel()
         {
             //string sqlStatement = "--This is a test\nSELECT * FROM sysobjects as t\nGO 50\n use pubsplus \n select * from titles\n go" ;
@@ -578,7 +577,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
             Assert.NotNull(executor.ScriptExecuteThread);
             if (executor.ScriptExecuteThread != null)
                 Assert.True(!executor.ScriptExecuteThread.IsAlive);
-            Assert.Equal(ScriptExecutionResult.Cancel, executor.ExecutionResult);
+            Assert.AreEqual(ScriptExecutionResult.Cancel, executor.ExecutionResult);
         }
 
         /// <summary>
@@ -604,13 +603,13 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
             Assert.NotNull(executor.ScriptExecuteThread);
             if (executor.ScriptExecuteThread != null)
                 Assert.True(!executor.ScriptExecuteThread.IsAlive);
-            Assert.Equal(ScriptExecutionResult.Success | ScriptExecutionResult.Cancel, executor.ExecutionResult);
+            Assert.AreEqual(ScriptExecutionResult.Success | ScriptExecutionResult.Cancel, executor.ExecutionResult);
         }
 
         /// <summary>
         /// Test async cancel when the execution is done
         /// </summary>
-        [Fact]
+        [Test]
         public void ExecutionEngineTest_ASyncCancelAfterExecutionDone()
         {
             string sqlStatement = "select 1";
@@ -628,13 +627,13 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
             Assert.NotNull(executor.ScriptExecuteThread);
             if (executor.ScriptExecuteThread != null)
                 Assert.True(!executor.ScriptExecuteThread.IsAlive);
-            Assert.Equal(ScriptExecutionResult.Success | ScriptExecutionResult.Cancel, executor.ExecutionResult);
+            Assert.AreEqual(ScriptExecutionResult.Success | ScriptExecutionResult.Cancel, executor.ExecutionResult);
         }
 
         /// <summary>
         /// Test multiple threads of execution engine with cancel operation
         /// </summary>
-        [Fact]
+        [Test]
         public async Task ExecutionEngineTest_MultiThreading_WithCancel()
         {
             string[] sqlStatement = { "waitfor delay '0:0:10'",
@@ -693,7 +692,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
 
         #region Get/Set Methods
 
-        [Fact]
+        [Test]
         public void TestShowStatements()
         {
             Assert.NotNull(ExecutionEngineConditions.ShowPlanXmlStatement(true));
@@ -708,48 +707,48 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
             Assert.NotNull(ExecutionEngineConditions.ResetStatement);
         }
 
-        [Fact]
+        [Test]
         public void TestExecutionEngineConditionsSetMethods()
         {
             ExecutionEngineConditions conditions = new ExecutionEngineConditions();
             bool getValue = conditions.IsScriptExecutionTracked;
             conditions.IsScriptExecutionTracked = !getValue;
-            Assert.Equal(conditions.IsScriptExecutionTracked, !getValue);
+            Assert.AreEqual(conditions.IsScriptExecutionTracked, !getValue);
 
             getValue = conditions.IsEstimatedShowPlan;
             conditions.IsEstimatedShowPlan = !getValue;
-            Assert.Equal(conditions.IsEstimatedShowPlan, !getValue);
+            Assert.AreEqual(conditions.IsEstimatedShowPlan, !getValue);
 
             getValue = conditions.IsActualShowPlan;
             conditions.IsActualShowPlan = !getValue;
-            Assert.Equal(conditions.IsActualShowPlan, !getValue);
+            Assert.AreEqual(conditions.IsActualShowPlan, !getValue);
 
             getValue = conditions.IsSuppressProviderMessageHeaders;
             conditions.IsSuppressProviderMessageHeaders = !getValue;
-            Assert.Equal(conditions.IsSuppressProviderMessageHeaders, !getValue);
+            Assert.AreEqual(conditions.IsSuppressProviderMessageHeaders, !getValue);
 
             getValue = conditions.IsNoExec;
             conditions.IsNoExec = !getValue;
-            Assert.Equal(conditions.IsNoExec, !getValue);
+            Assert.AreEqual(conditions.IsNoExec, !getValue);
 
             getValue = conditions.IsStatisticsIO;
             conditions.IsStatisticsIO = !getValue;
-            Assert.Equal(conditions.IsStatisticsIO, !getValue);
+            Assert.AreEqual(conditions.IsStatisticsIO, !getValue);
 
             getValue = conditions.IsShowPlanText;
             conditions.IsShowPlanText = !getValue;
-            Assert.Equal(conditions.IsShowPlanText, !getValue);
+            Assert.AreEqual(conditions.IsShowPlanText, !getValue);
 
             getValue = conditions.IsStatisticsTime;
             conditions.IsStatisticsTime = !getValue;
-            Assert.Equal(conditions.IsStatisticsTime, !getValue);
+            Assert.AreEqual(conditions.IsStatisticsTime, !getValue);
 
             getValue = conditions.IsSqlCmd;
             conditions.IsSqlCmd = !getValue;
-            Assert.Equal(conditions.IsSqlCmd, !getValue);
+            Assert.AreEqual(conditions.IsSqlCmd, !getValue);
 
             conditions.BatchSeparator = "GO";
-            Assert.Equal("GO", conditions.BatchSeparator);
+            Assert.AreEqual("GO", conditions.BatchSeparator);
         }
 
         #endregion Get/Set Methods
