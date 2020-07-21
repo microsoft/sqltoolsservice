@@ -212,19 +212,23 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
                 ObjectType.AssemblyFiles,
         };
 
-        public DeploymentOptions()
+        public DeploymentOptions(Boolean setDefaults = true)
         {
+
             DacDeployOptions options = new DacDeployOptions();
 
-            // Adding these defaults to ensure behavior similarity with other tools. Dacfx and SSMS import/export wizards use these defaults.
-            // Tracking the full fix : https://github.com/microsoft/azuredatastudio/issues/5599
-            options.AllowDropBlockingAssemblies = true;
-            options.AllowIncompatiblePlatform = true;
-            options.DropObjectsNotInSource = true;
-            options.DropPermissionsNotInSource = true;
-            options.DropRoleMembersNotInSource = true;
-            options.IgnoreKeywordCasing = false;
-            options.IgnoreSemicolonBetweenStatements = false;
+            if (setDefaults)
+            {
+                // Adding these defaults to ensure behavior similarity with other tools. Dacfx and SSMS import/export wizards use these defaults.
+                // Tracking the full fix : https://github.com/microsoft/azuredatastudio/issues/5599
+                options.AllowDropBlockingAssemblies = true;
+                options.AllowIncompatiblePlatform = true;
+                options.DropObjectsNotInSource = true;
+                options.DropPermissionsNotInSource = true;
+                options.DropRoleMembersNotInSource = true;
+                options.IgnoreKeywordCasing = false;
+                options.IgnoreSemicolonBetweenStatements = false;
+            }
 
             System.Reflection.PropertyInfo[] deploymentOptionsProperties = this.GetType().GetProperties();
 

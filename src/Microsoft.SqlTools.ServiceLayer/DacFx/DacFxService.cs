@@ -12,6 +12,7 @@ using System;
 using System.Collections.Concurrent;
 using Microsoft.Data.SqlClient;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx
 {
@@ -46,6 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             serviceHost.SetRequestHandler(DeployRequest.Type, this.HandleDeployRequest);
             serviceHost.SetRequestHandler(GenerateDeployScriptRequest.Type, this.HandleGenerateDeployScriptRequest);
             serviceHost.SetRequestHandler(GenerateDeployPlanRequest.Type, this.HandleGenerateDeployPlanRequest);
+            serviceHost.SetRequestHandler(GetOptionsFromProfileRequest.Type, this.HandleGetOptionsFromProfileRequest);
         }
 
         /// <summary>
@@ -216,6 +218,37 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                         Report = operation.DeployReport
                     });
                 }
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e);
+            }
+        }
+
+        /// <summary>
+        /// Handles request to generate deploy plan
+        /// </summary>
+        /// <returns></returns>
+        public async Task HandleGetOptionsFromProfileRequest(GetOptionsFromProfileParams parameters, RequestContext<DacFxOptionsResult> requestContext)
+        {
+            try
+            {
+                DeploymentOptions options = null;
+                if (parameters.ProfilePath != null)
+                {
+                    DacProfile profile = DacProfile.Load(parameters.ProfilePath);
+                    if (profile.DeployOptions != null)
+                    {
+                        options = new DeploymentOptions(profile.DeployOptions);
+                    }
+                }
+
+                await requestContext.SendResult(new DacFxOptionsResult()
+                {
+                    DeploymentOptions = options,
+                    Success = true,
+                    ErrorMessage = string.Empty,
+                });
             }
             catch (Exception e)
             {
