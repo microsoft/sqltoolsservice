@@ -239,7 +239,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     DacProfile profile = DacProfile.Load(parameters.ProfilePath);
                     if (profile.DeployOptions != null)
                     {
-                        options = new DeploymentOptions(profile.DeployOptions);
+                        options = new DeploymentOptions(profile.DeployOptions, parameters.ProfilePath);
                     }
                 }
 

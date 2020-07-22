@@ -4,9 +4,11 @@
 //
 
 using Microsoft.SqlServer.Dac;
+using Microsoft.SqlServer.TransactSql.ScriptDom;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Text;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
@@ -212,23 +214,20 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
                 ObjectType.AssemblyFiles,
         };
 
-        public DeploymentOptions(Boolean setDefaults = true)
+        public DeploymentOptions()
         {
 
             DacDeployOptions options = new DacDeployOptions();
 
-            if (setDefaults)
-            {
-                // Adding these defaults to ensure behavior similarity with other tools. Dacfx and SSMS import/export wizards use these defaults.
-                // Tracking the full fix : https://github.com/microsoft/azuredatastudio/issues/5599
-                options.AllowDropBlockingAssemblies = true;
-                options.AllowIncompatiblePlatform = true;
-                options.DropObjectsNotInSource = true;
-                options.DropPermissionsNotInSource = true;
-                options.DropRoleMembersNotInSource = true;
-                options.IgnoreKeywordCasing = false;
-                options.IgnoreSemicolonBetweenStatements = false;
-            }
+            // Adding these defaults to ensure behavior similarity with other tools. Dacfx and SSMS import/export wizards use these defaults.
+            // Tracking the full fix : https://github.com/microsoft/azuredatastudio/issues/5599
+            options.AllowDropBlockingAssemblies = true;
+            options.AllowIncompatiblePlatform = true;
+            options.DropObjectsNotInSource = true;
+            options.DropPermissionsNotInSource = true;
+            options.DropRoleMembersNotInSource = true;
+            options.IgnoreKeywordCasing = false;
+            options.IgnoreSemicolonBetweenStatements = false;
 
             System.Reflection.PropertyInfo[] deploymentOptionsProperties = this.GetType().GetProperties();
 
@@ -245,6 +244,52 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
         }
 
         public DeploymentOptions(DacDeployOptions options)
+        {
+            SetOptions(options);
+        }
+
+        /// <summary>
+        /// create deployment options from the options in a publish profile.xml
+        /// </summary>
+        /// <param name="options">options created from the profile</param>
+        /// <param name="profilePath"></param>
+        public DeploymentOptions(DacDeployOptions options, string profilePath)
+        {
+            // check if defaults need to be set if they aren't specified in the profile
+            string contents = File.ReadAllText(profilePath);
+            if (!contents.Contains("<AllowDropBlockingAssemblies>"))
+            {
+                options.AllowDropBlockingAssemblies = true;
+            }
+            if (!contents.Contains("<AllowIncompatiblePlatform>"))
+            {
+                options.AllowIncompatiblePlatform = true;
+            }
+            if (!contents.Contains("<DropObjectsNotInSource>"))
+            {
+                options.DropObjectsNotInSource = true;
+            }
+            if (!contents.Contains("<DropPermissionsNotInSource>"))
+            {
+                options.DropPermissionsNotInSource = true;
+            }
+            if (!contents.Contains("<DropRoleMembersNotInSource>"))
+            {
+                options.DropRoleMembersNotInSource = true;
+            }
+            if (!contents.Contains("<IgnoreKeywordCasing>"))
+            {
+                options.IgnoreKeywordCasing = false;
+            }
+            if (!contents.Contains("<IgnoreSemicolonBetweenStatements>"))
+            {
+                options.IgnoreSemicolonBetweenStatements = false;
+            }
+
+            SetOptions(options);
+        }
+
+        public void SetOptions(DacDeployOptions options)
         {
             System.Reflection.PropertyInfo[] deploymentOptionsProperties = this.GetType().GetProperties();
 

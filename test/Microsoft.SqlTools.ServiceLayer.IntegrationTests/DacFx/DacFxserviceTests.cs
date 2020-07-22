@@ -543,7 +543,8 @@ RETURN 0
         [Fact]
         public async void GetOptionsFromProfile()
         {
-            DeploymentOptions expectedResults = new DeploymentOptions(setDefaults: false);
+            DeploymentOptions expectedResults = new DeploymentOptions();
+            expectedResults.ExcludeObjectTypes = null;
             expectedResults.IncludeCompositeObjects = true;
             expectedResults.BlockOnPossibleDataLoss = true;
             expectedResults.AllowIncompatiblePlatform = true;
@@ -569,7 +570,8 @@ RETURN 0
         [Fact]
         public async void GetOptionsFromProfileWithoutOptions()
         {
-            DeploymentOptions expectedResults = new DeploymentOptions(setDefaults: false);
+            DeploymentOptions expectedResults = new DeploymentOptions();
+            expectedResults.ExcludeObjectTypes = null;
 
             var dacfxRequestContext = new Mock<RequestContext<DacFxOptionsResult>>();
             dacfxRequestContext.Setup((RequestContext<DacFxOptionsResult> x) => x.SendResult(It.Is<DacFxOptionsResult>((result) => ValidateOptions(expectedResults, result.DeploymentOptions) == true))).Returns(Task.FromResult(new object()));
@@ -588,28 +590,22 @@ RETURN 0
 
         private bool ValidateOptions(DeploymentOptions expected, DeploymentOptions actual)
         {
-            try
+            System.Reflection.PropertyInfo[] deploymentOptionsProperties = expected.GetType().GetProperties();
+            foreach (var v in deploymentOptionsProperties)
             {
-                System.Reflection.PropertyInfo[] deploymentOptionsProperties = expected.GetType().GetProperties();
-                foreach (var v in deploymentOptionsProperties)
-                {
-                    var defaultP = v.GetValue(expected);
-                    var actualP = v.GetValue(actual);
+                var defaultP = v.GetValue(expected);
+                var actualP = v.GetValue(actual);
 
-                    if (v.Name == "ExcludeObjectTypes")
-                    {
-                        Assert.True((defaultP as ObjectType[]).Length == (actualP as ObjectType[]).Length, $"Number of excluded objects is different; expected: {(defaultP as ObjectType[]).Length} actual: {(actualP as ObjectType[]).Length}");
-                    }
-                    else
-                    {
-                        Assert.True((defaultP == null && actualP == null) || defaultP.Equals(actualP), $"Actual Property from Service is not equal to default property for { v.Name}, Actual value: {actualP} and Default value: {defaultP}");
-                    }
+                if (v.Name == "ExcludeObjectTypes")
+                {
+                    Assert.True((defaultP == null && actualP == null) || ((defaultP as ObjectType[]).Length == (actualP as ObjectType[]).Length), "Number of excluded objects is different not equal");
                 }
-            } 
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
+                else
+                {
+                    Assert.True((defaultP == null && actualP == null) || (defaultP == null && (actualP as string) == string.Empty) || defaultP.Equals(actualP), $"Actual Property from Service is not equal to default property for { v.Name}, Actual value: {actualP} and Default value: {defaultP}");
+                }
             }
+
             return true;
         }
 
