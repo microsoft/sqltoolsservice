@@ -5,21 +5,23 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
-using Xunit;
+using NUnit.Framework;
 using Range = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Range;
 
 namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 {
+    [TestFixture]
     public class StressTests
     {
         /// <summary>
         /// Simulate typing by a user to stress test the language service
         /// </summary>
-        //[Fact]
+        //[Test]
         public async Task TestLanguageService()
         {
             const string textToType = "SELECT * FROM sys.objects GO " +
@@ -144,7 +146,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         /// <summary>
         /// Repeatedly execute queries to stress test the query execution service.
         /// </summary>
-        //[Fact]
+        //[Test]
         public async Task TestQueryExecutionService()
         {
             const string queryToRun = "SELECT * FROM sys.all_objects GO " +
@@ -167,12 +169,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                     var queryResult = await testService.RunQueryAndWaitToComplete(queryTempFile.FilePath, queryToRun, 10000);
 
                     Assert.NotNull(queryResult);
-                    Assert.NotNull(queryResult.BatchSummaries);
-                    Assert.NotEmpty(queryResult.BatchSummaries);
-                    Assert.NotNull(queryResult.BatchSummaries[0].ResultSetSummaries);
-                    Assert.NotNull(queryResult.BatchSummaries[1].ResultSetSummaries);
-                    Assert.NotNull(queryResult.BatchSummaries[2].ResultSetSummaries);
-                    Assert.NotNull(queryResult.BatchSummaries[3].ResultSetSummaries);
+                    Assert.That(queryResult.BatchSummaries, Is.Not.Null, "queryResult.BatchSummaries");
+                    Assert.That(queryResult.BatchSummaries.Select(b => b.ResultSetSummaries), Has.Exactly(4).Not.Null, "ResultSetSummaries in the queryResult");
+                    //Assert.NotNull(queryResult.BatchSummaries[0].ResultSetSummaries);
+                    //Assert.NotNull(queryResult.BatchSummaries[1].ResultSetSummaries);
+                    //Assert.NotNull(queryResult.BatchSummaries[2].ResultSetSummaries);
+                    //Assert.NotNull(queryResult.BatchSummaries[3].ResultSetSummaries);
 
                     Assert.NotNull(await testService.ExecuteSubset(queryTempFile.FilePath, 0, 0, 0, 7));
                     Assert.NotNull(await testService.ExecuteSubset(queryTempFile.FilePath, 1, 0, 0, 7));
@@ -189,7 +191,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         /// <summary>
         /// Repeatedly connect and disconnect to stress test the connection service.
         /// </summary>
-        //[Fact]
+        //[Test]
         public async Task TestConnectionService()
         {
             string ownerUri = "file:///my/test/file.sql";

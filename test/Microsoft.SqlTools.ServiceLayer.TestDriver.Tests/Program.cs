@@ -9,9 +9,9 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.TestDriver.Driver;
 using Microsoft.SqlTools.Utility;
-using Xunit;
+using NUnit.Framework;
 
-[assembly: CollectionBehavior(DisableTestParallelization = true)]
+[assembly: NonParallelizable]
 
 // turn off entry point since this is xUnit project
 #if false

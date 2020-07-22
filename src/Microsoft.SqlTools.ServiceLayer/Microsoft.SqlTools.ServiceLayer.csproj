@@ -21,7 +21,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-        <PackageReference Include="Microsoft.SqlServer.DACFx" />
+		<PackageReference Include="Microsoft.SqlServer.DACFx" />
 		<PackageReference Include="Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider" />
 		<PackageReference Include="System.Text.Encoding.CodePages" />
 	</ItemGroup>
@@ -45,5 +45,18 @@
 	</ItemGroup>
 	<ItemGroup>
 		<EmbeddedResource Include=".\Agent\NotebookResources\NotebookJobScript.ps1" />
+	</ItemGroup>
+	<ItemGroup>
+		<!--
+	  Include deps.json and runtimeconfig.json in ContentWithTargetPath so they will
+	  be copied to the output folder of projects that reference this one.
+	  Tracking issue: https://github.com/dotnet/sdk/issues/1675
+	-->
+		<ContentWithTargetPath Include="$(ProjectDepsFilePath)"
+						CopyToOutputDirectory="PreserveNewest"
+						TargetPath="$(ProjectDepsFileName)" />
+		<ContentWithTargetPath Include="$(ProjectRuntimeConfigFilePath)"
+						CopyToOutputDirectory="PreserveNewest"
+						TargetPath="$(ProjectRuntimeConfigFileName)" />
 	</ItemGroup>
 </Project>
