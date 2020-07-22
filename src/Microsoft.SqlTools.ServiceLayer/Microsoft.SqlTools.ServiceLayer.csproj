@@ -46,17 +46,23 @@
 	<ItemGroup>
 		<EmbeddedResource Include=".\Agent\NotebookResources\NotebookJobScript.ps1" />
 	</ItemGroup>
-	<ItemGroup>
-		<!--
-	  Include deps.json and runtimeconfig.json in ContentWithTargetPath so they will
-	  be copied to the output folder of projects that reference this one.
-	  Tracking issue: https://github.com/dotnet/sdk/issues/1675
-	-->
-		<ContentWithTargetPath Include="$(ProjectDepsFilePath)"
-						CopyToOutputDirectory="PreserveNewest"
-						TargetPath="$(ProjectDepsFileName)" />
-		<ContentWithTargetPath Include="$(ProjectRuntimeConfigFilePath)"
-						CopyToOutputDirectory="PreserveNewest"
-						TargetPath="$(ProjectRuntimeConfigFileName)" />
-	</ItemGroup>
+	<!-- this target enables dependency files to be copied as part of the output of ProjectReference.
+	https://github.com/dotnet/sdk/issues/1675
+	 -->
+	<Target Name="AddRuntimeDependenciesToContent"
+		  Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp'"
+		  BeforeTargets="GetCopyToOutputDirectoryItems"
+		  DependsOnTargets="GenerateBuildDependencyFile;
+							GenerateBuildRuntimeConfigurationFiles">
+		<ItemGroup>
+			<ContentWithTargetPath Include="$(ProjectDepsFilePath)"
+							Condition="'$(GenerateDependencyFile)' == 'true'"
+							CopyToOutputDirectory="PreserveNewest"
+							TargetPath="$(ProjectDepsFileName)" />
+			<ContentWithTargetPath Include="$(ProjectRuntimeConfigFilePath)"
+							Condition="'$(GenerateRuntimeConfigurationFiles)' == 'true'"
+							CopyToOutputDirectory="PreserveNewest"
+							TargetPath="$(ProjectRuntimeConfigFileName)" />
+		</ItemGroup>
+	</Target>
 </Project>
