@@ -129,6 +129,14 @@ on this check so that our project will always have good generated documentation.
 
 ### Follow the Pull Request Process
 
+- **Create a new branch from which to submit your Pull Request**
+
+  Commits directly to `main` are not allowed - instead you will create a new branch and then submit a PR to
+  merge changes from that branch into `main`.
+
+  See [About branches](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/about-branches)
+  for more information about branching and how to create a new branch.
+  
 - **Create your pull request**
 
   Use the [typical process](https://help.github.com/articles/using-pull-requests/) to send a pull request 
