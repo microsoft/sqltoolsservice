@@ -2,14 +2,9 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
-
-using Microsoft.SqlServer.Dac;
-using Microsoft.SqlServer.TransactSql.ScriptDom;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
-using System.Text;
+using System.Threading.Tasks;
+using Microsoft.SqlServer.Dac;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
 {
@@ -216,7 +211,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
 
         public DeploymentOptions()
         {
-
             DacDeployOptions options = new DacDeployOptions();
 
             // Adding these defaults to ensure behavior similarity with other tools. Dacfx and SSMS import/export wizards use these defaults.
@@ -249,14 +243,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
         }
 
         /// <summary>
-        /// create deployment options from the options in a publish profile.xml
+        /// initialize deployment options from the options in a publish profile.xml
         /// </summary>
         /// <param name="options">options created from the profile</param>
         /// <param name="profilePath"></param>
-        public DeploymentOptions(DacDeployOptions options, string profilePath)
+        public async Task InitializeFromProfile(DacDeployOptions options, string profilePath)
         {
             // check if defaults need to be set if they aren't specified in the profile
-            string contents = File.ReadAllText(profilePath);
+            string contents = await File.ReadAllTextAsync(profilePath);
             if (!contents.Contains("<AllowDropBlockingAssemblies>"))
             {
                 options.AllowDropBlockingAssemblies = true;

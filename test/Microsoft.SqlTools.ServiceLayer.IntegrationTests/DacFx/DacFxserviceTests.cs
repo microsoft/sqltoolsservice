@@ -543,11 +543,13 @@ RETURN 0
         [Fact]
         public async void GetOptionsFromProfile()
         {
-            DeploymentOptions expectedResults = new DeploymentOptions();
-            expectedResults.ExcludeObjectTypes = null;
-            expectedResults.IncludeCompositeObjects = true;
-            expectedResults.BlockOnPossibleDataLoss = true;
-            expectedResults.AllowIncompatiblePlatform = true;
+            DeploymentOptions expectedResults = new DeploymentOptions()
+            {
+                ExcludeObjectTypes = null,
+                IncludeCompositeObjects = true,
+                BlockOnPossibleDataLoss = true,
+                AllowIncompatiblePlatform = true
+            };
 
             var dacfxRequestContext = new Mock<RequestContext<DacFxOptionsResult>>();
             dacfxRequestContext.Setup((RequestContext<DacFxOptionsResult> x) => x.SendResult(It.Is<DacFxOptionsResult>((result) => ValidateOptions(expectedResults, result.DeploymentOptions) == true))).Returns(Task.FromResult(new object()));
@@ -598,11 +600,11 @@ RETURN 0
 
                 if (v.Name == "ExcludeObjectTypes")
                 {
-                    Assert.True((defaultP == null && actualP == null) || ((defaultP as ObjectType[]).Length == (actualP as ObjectType[]).Length), "Number of excluded objects is different not equal");
+                    Assert.True((defaultP as ObjectType[])?.Length == (actualP as ObjectType[])?.Length, "Number of excluded objects is different not equal");
                 }
                 else
                 {
-                    Assert.True((defaultP == null && actualP == null) || (defaultP == null && (actualP as string) == string.Empty) || defaultP.Equals(actualP), $"Actual Property from Service is not equal to default property for { v.Name}, Actual value: {actualP} and Default value: {defaultP}");
+                    Assert.True((defaultP == null && actualP == null) || (defaultP == null && (actualP as string) == string.Empty) || defaultP.Equals(actualP), $"Actual Property from Service is not equal to default property for {v.Name}, Actual value: {actualP} and Default value: {defaultP}");
                 }
             }
 

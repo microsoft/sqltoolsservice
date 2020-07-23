@@ -2,17 +2,16 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+using System;
+using System.Collections.Concurrent;
+using System.Threading.Tasks;
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
-using Microsoft.SqlTools.ServiceLayer.TaskServices;
-using System;
-using System.Collections.Concurrent;
-using Microsoft.Data.SqlClient;
-using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
+using Microsoft.SqlTools.ServiceLayer.TaskServices;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx
 {
@@ -239,7 +238,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     DacProfile profile = DacProfile.Load(parameters.ProfilePath);
                     if (profile.DeployOptions != null)
                     {
-                        options = new DeploymentOptions(profile.DeployOptions, parameters.ProfilePath);
+                        options = new DeploymentOptions();
+                        await options.InitializeFromProfile(profile.DeployOptions, parameters.ProfilePath);
                     }
                 }
 
