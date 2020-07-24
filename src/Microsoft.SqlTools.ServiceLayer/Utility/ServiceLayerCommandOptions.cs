@@ -27,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         {
             for (int i = 0; i < args.Length; ++i)
             {
-                string arg = args[i].ToLowerInvariant();
+                string arg = args[i]?.ToLowerInvariant();
 
                 switch (arg)
                 {
