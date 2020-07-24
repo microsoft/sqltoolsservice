@@ -21,7 +21,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
     /// <summary>
     /// Represents Kusto utilities.
     /// </summary>
-    public class KustoDataSource : DataSourceBase
+    public partial class KustoDataSource : DataSourceBase
     {
         private ICslQueryProvider kustoQueryProvider;
 
@@ -198,24 +198,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 clientRequestProperties);
 
             return new KustoResultsReader(origReader);
-        }
-
-        internal class KustoResultsReader : DataReaderWrapper
-        {
-            public KustoResultsReader(IDataReader reader)
-                : base(reader)
-            {
-            }
-
-            /// <summary>
-            /// Kusto returns 3 results tables - QueryResults, QueryProperties, QueryStatus. When returning query results
-            /// we want the caller to only read the first table. We override the NextResult function here to only return one table
-            /// from the IDataReader.
-            /// </summary>
-            public override bool NextResult()
-            {
-                return false;
-            }
         }
 
         private void CancelQuery(string clientRequestId)
@@ -467,24 +449,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         {
             // TODOKusto: Process folders
             return Enumerable.Empty<DataSourceObjectMetadata>();
-        }
-
-        public class ColumnInfo
-        {
-            /// <summary>
-            /// The table name.
-            /// </summary>
-            public string Table { get; set; }
-
-            /// <summary>
-            /// The column name.
-            /// </summary>
-            public string Name { get; set; }
-
-            /// <summary>
-            /// The data type.
-            /// </summary>
-            public string DataType { get; set; }
         }
 
         internal IEnumerable<ColumnInfo> GetColumnMetadata(string databaseName)

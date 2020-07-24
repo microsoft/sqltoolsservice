@@ -491,6 +491,22 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
                         NodeType = "Column",
                         SortPriority = DataSourceTreeNode.NextSortPriority
                     };
+                
+                case DataSourceMetadataType.Folder:
+                    return new DataSourceTreeNode(parent.DataSource, childMetadata)
+                    {
+                        Parent = parent,
+                        NodeType = "Folder",
+                        NodeTypeId = NodeTypes.Folder
+                    };
+                
+                case DataSourceMetadataType.Function:
+                    return new DataSourceTreeNode(parent.DataSource, childMetadata)
+                    {
+                        parent = parent,
+                        NodeType = "Function",
+                        NodeTypeId = NodeTypes.Functions
+                    };
 
                 default:
                     throw new ArgumentException($"Unexpected type {childMetadata.MetadataType}.");
