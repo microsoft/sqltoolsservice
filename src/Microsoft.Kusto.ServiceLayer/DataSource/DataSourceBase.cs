@@ -296,7 +296,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         {
             ValidationUtils.IsArgumentNotNullOrWhiteSpace(clusterName, nameof(clusterName));
 
-            return new DataSourceObjectMetadata{
+            return new DataSourceObjectMetadata
+            {
                 MetadataType = DataSourceMetadataType.Cluster,
                 MetadataTypeName = DataSourceMetadataType.Cluster.ToString(),
                 Name = clusterName,

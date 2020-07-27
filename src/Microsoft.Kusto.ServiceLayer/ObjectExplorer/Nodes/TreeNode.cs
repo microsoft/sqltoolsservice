@@ -505,7 +505,8 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
                     {
                         parent = parent,
                         NodeType = "Function",
-                        NodeTypeId = NodeTypes.Functions
+                        NodeTypeId = NodeTypes.Functions,
+                        IsAlwaysLeaf = true,
                     };
 
                 default:
