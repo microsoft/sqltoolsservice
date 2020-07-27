@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace Microsoft.InsightsGenerator
 {
     class SignatureGenerator
@@ -7,11 +10,13 @@ namespace Microsoft.InsightsGenerator
         public SignatureGenerator(DataArray table)
         {
             this.table = table;
+            results = new SignatureGeneratorResult();
         }
 
         public SignatureGeneratorResult Learn()
         {
-
+            return results;
+            
         }
     }
 }
@@ -19,5 +24,8 @@ namespace Microsoft.InsightsGenerator
 
 public class SignatureGeneratorResult
 {
-    public Dictionary<string, string[]> results;
+    public SignatureGeneratorResult(){
+        insights = new Dictionary<string, string[]>();
+    }
+    public Dictionary<string, string[]> insights;
 }
