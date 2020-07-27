@@ -23,7 +23,8 @@ namespace Microsoft.InsightsGenerator
 
 public class SignatureGeneratorResult
 {
-    public SignatureGeneratorResult(){
+    public SignatureGeneratorResult()
+    {
         insights = new Dictionary<string, string[]>();
     }
     public Dictionary<string, string[]> insights;
