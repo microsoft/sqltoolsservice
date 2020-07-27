@@ -15,13 +15,13 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
 {
     public class ServiceBufferReaderWriterTests
     {
-        [Fact]
+        [Test]
         public void ReaderStreamNull()
         {
             // If: I create a service buffer file stream reader with a null stream
@@ -29,7 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             Assert.Throws<ArgumentNullException>(() => new ServiceBufferFileStreamReader(null, new QueryExecutionSettings()));
         }
 
-        [Fact]
+        [Test]
         public void ReaderSettingsNull()
         {
             // If: I create a service buffer file stream reader with null settings
@@ -37,7 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             Assert.Throws<ArgumentNullException>(() => new ServiceBufferFileStreamReader(Stream.Null, null));
         }
 
-        [Fact]
+        [Test]
         public void ReaderInvalidStreamCannotRead()
         {
             // If: I create a service buffer file stream reader with a stream that cannot be read
@@ -52,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             });
         }
 
-        [Fact]
+        [Test]
         public void ReaderInvalidStreamCannotSeek()
         {
             // If: I create a service buffer file stream reader with a stream that cannot seek
@@ -67,7 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             });
         }
 
-        [Fact]
+        [Test]
         public void WriterStreamNull()
         {
             // If: I create a service buffer file stream writer with a null stream
@@ -75,7 +75,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             Assert.Throws<ArgumentNullException>(() => new ServiceBufferFileStreamWriter(null, new QueryExecutionSettings()));
         }
 
-        [Fact]
+        [Test]
         public void WriterSettingsNull()
         {
             // If: I create a service buffer file stream writer with null settings
@@ -83,7 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             Assert.Throws<ArgumentNullException>(() => new ServiceBufferFileStreamWriter(Stream.Null, null));
         }
 
-        [Fact]
+        [Test]
         public void WriterInvalidStreamCannotWrite()
         {
             // If: I create a service buffer file stream writer with a stream that cannot be read
@@ -98,7 +98,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             });
         }
 
-        [Fact]
+        [Test]
         public void WriterInvalidStreamCannotSeek()
         {
             // If: I create a service buffer file stream writer with a stream that cannot seek
@@ -129,7 +129,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             using (ServiceBufferFileStreamWriter writer = new ServiceBufferFileStreamWriter(new MemoryStream(storage), overrideSettings))
             {
                 int writtenBytes = writeFunc(writer, value);
-                Assert.Equal(valueLength, writtenBytes);
+                Assert.AreEqual(valueLength, writtenBytes);
             }
 
             // ... And read the type T back
@@ -140,78 +140,80 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             }
 
             // Then:
-            Assert.Equal(value, outValue.Value.RawObject);
-            Assert.Equal(valueLength, outValue.TotalLength);
+            Assert.AreEqual(value, outValue.Value.RawObject);
+            Assert.AreEqual(valueLength, outValue.TotalLength);
             Assert.NotNull(outValue.Value);
 
             // ... The id we set should be stored in the returned db cell value
-            Assert.Equal(rowId, outValue.Value.RowId);
+            Assert.AreEqual(rowId, outValue.Value.RowId);
 
             return outValue.Value.DisplayValue;
         }
 
-        [Theory]
-        [InlineData(0)]
-        [InlineData(10)]
-        [InlineData(-10)]
-        [InlineData(short.MaxValue)]    // Two byte number
-        [InlineData(short.MinValue)]    // Negative two byte number
-        public void Int16(short value)
+        [Test]
+        
+        
+        
+        
+        
+        public void Int16([Values(
+            0,
+            10,
+            -10,
+            short.MaxValue,    // Two byte number
+            short.MinValue    // Negative two byte number
+            )] short value)
         {
             VerifyReadWrite(sizeof(short) + 1, value, (writer, val) => writer.WriteInt16(val), (reader, rowId) => reader.ReadInt16(0, rowId));
         }
 
-        [Theory]
-        [InlineData(0)]
-        [InlineData(10)]
-        [InlineData(-10)]
-        [InlineData(short.MaxValue)]    // Two byte number
-        [InlineData(short.MinValue)]    // Negative two byte number
-        [InlineData(int.MaxValue)]      // Four byte number
-        [InlineData(int.MinValue)]      // Negative four byte number
-        public void Int32(int value)
+        [Test]
+        public void Int32([Values(
+            0,
+            10,
+            -10,
+            short.MaxValue,    // Two byte number
+            short.MinValue,    // Negative two byte number
+            int.MaxValue, // Four byte number
+            int.MinValue  // Negative four byte number
+            )] int value)
         {
             VerifyReadWrite(sizeof(int) + 1, value, (writer, val) => writer.WriteInt32(val), (reader, rowId) => reader.ReadInt32(0, rowId));
         }
 
-        [Theory]
-        [InlineData(0)]
-        [InlineData(10)]
-        [InlineData(-10)]
-        [InlineData(short.MaxValue)]    // Two byte number
-        [InlineData(short.MinValue)]    // Negative two byte number
-        [InlineData(int.MaxValue)]      // Four byte number
-        [InlineData(int.MinValue)]      // Negative four byte number
-        [InlineData(long.MaxValue)]     // Eight byte number
-        [InlineData(long.MinValue)]     // Negative eight byte number
-        public void Int64(long value)
+        [Test]
+        public void Int64([Values(
+            0,
+            10,
+            -10,
+            short.MaxValue,    // Two byte number
+            short.MinValue,    // Negative two byte number
+            int.MaxValue, // Four byte number
+            int.MinValue,  // Negative four byte number
+            long.MaxValue, // Eight byte number
+            long.MinValue // Negative eight byte number
+            )] long value)
         {
             VerifyReadWrite(sizeof(long) + 1, value, (writer, val) => writer.WriteInt64(val), (reader, rowId) => reader.ReadInt64(0, rowId));
         }
 
-        [Theory]
-        [InlineData(0)]
-        [InlineData(10)]
-        public void Byte(byte value)
+        [Test]
+        public void Byte([Values(0,10)] byte value)
         {
             VerifyReadWrite(sizeof(byte) + 1, value, (writer, val) => writer.WriteByte(val), (reader, rowId) => reader.ReadByte(0, rowId));
         }
 
-        [Theory]
-        [InlineData('a')]
-        [InlineData('1')]
-        [InlineData((char)0x9152)]  // Test something in the UTF-16 space
-        public void Char(char value)
+        [Test]
+        public void Char([Values('a',
+                                 '1',
+                          (char)0x9152)]  // Test something in the UTF-16 space
+            char value)
         {
             VerifyReadWrite(sizeof(char) + 1, value, (writer, val) => writer.WriteChar(val), (reader, rowId) => reader.ReadChar(0, rowId));
         }
 
-        [Theory]
-        [InlineData(true, true)]
-        [InlineData(false, true)]
-        [InlineData(true, false)]
-        [InlineData(false, false)]
-        public void Boolean(bool value, bool preferNumeric)
+        [Test]
+        public void Boolean([Values] bool value, [Values] bool preferNumeric)
         {
             string displayValue = VerifyReadWrite(sizeof(bool) + 1, value,
                 (writer, val) => writer.WriteBoolean(val),
@@ -232,37 +234,39 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             }
         }
 
-        [Theory]
-        [InlineData(0)]
-        [InlineData(10.1)]
-        [InlineData(-10.1)]
-        [InlineData(float.MinValue)]
-        [InlineData(float.MaxValue)]
-        [InlineData(float.PositiveInfinity)]
-        [InlineData(float.NegativeInfinity)]
-        public void Single(float value)
+        [Test]        
+        public void Single([Values(
+            0,
+            10.1F,
+            -10.1F,
+            float.MinValue,
+            float.MaxValue,
+            float.PositiveInfinity,
+            float.NegativeInfinity
+            )] float value)
         {
             VerifyReadWrite(sizeof(float) + 1, value, (writer, val) => writer.WriteSingle(val), (reader, rowId) => reader.ReadSingle(0, rowId));
         }
 
-        [Theory]
-        [InlineData(0)]
-        [InlineData(10.1)]
-        [InlineData(-10.1)]
-        [InlineData(float.MinValue)]
-        [InlineData(float.MaxValue)]
-        [InlineData(float.PositiveInfinity)]
-        [InlineData(float.NegativeInfinity)]
-        [InlineData(double.PositiveInfinity)]
-        [InlineData(double.NegativeInfinity)]
-        [InlineData(double.MinValue)]
-        [InlineData(double.MaxValue)]
-        public void Double(double value)
+        [Test]
+        public void Double([Values(
+            0,
+            10.1,
+            -10.1,
+            float.MinValue,
+            float.MaxValue,
+            float.PositiveInfinity,
+            float.NegativeInfinity,
+            double.PositiveInfinity,
+            double.NegativeInfinity,
+            double.MinValue,
+            double.MaxValue
+            )]double value)
         {
             VerifyReadWrite(sizeof(double) + 1, value, (writer, val) => writer.WriteDouble(val), (reader, rowId) => reader.ReadDouble(0, rowId));
         }
 
-        [Fact]
+        [Test]
         public void SqlDecimalTest()
         {
             // Setup: Create some test values
@@ -278,7 +282,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             }
         }
 
-        [Fact]
+        [Test]
         public void Decimal()
         {
             // Setup: Create some test values
@@ -295,7 +299,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             }
         }
 
-        [Fact]
+        [Test]
         public void DateTest()
         {
             // Setup: Create some test values
@@ -318,7 +322,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             }
         }
 
-        [Fact]
+        [Test]
         public void DateTimeTest()
         {
             // Setup: Create some test values
@@ -341,15 +345,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             }
         }
 
-        [Theory]
-        [InlineData(1)]
-        [InlineData(2)]
-        [InlineData(3)]
-        [InlineData(4)]
-        [InlineData(5)]
-        [InlineData(6)]
-        [InlineData(7)]
-        public void DateTime2Test(int precision)
+        [Test]
+        public void DateTime2Test([Values(1,2,3,4,5,6,7)] int precision)
         {
             // Setup: Create some test values
             // NOTE: We are doing these here instead of InlineData because DateTime values can't be written as constant expressions
@@ -379,7 +376,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             }
         }
 
-        [Fact]
+        [Test]
         public void DateTime2ZeroScaleTest()
         {
             // Setup: Create some test values
@@ -402,7 +399,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             }
         }
 
-        [Fact]
+        [Test]
         public void DateTime2InvalidScaleTest()
         {
             // Setup: Create some test values
@@ -426,7 +423,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             }
         }
 
-        [Fact]
+        [Test]
         public void DateTimeOffsetTest()
         {
             // Setup: Create some test values
@@ -446,7 +443,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             }
         }
 
-        [Fact]
+        [Test]
         public void TimeSpanTest()
         {
             // Setup: Create some test values
@@ -462,7 +459,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             }
         }
 
-        [Fact]
+        [Test]
         public void StringNullTest()
         {
             // Setup: Create a mock file stream
@@ -479,13 +476,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             }
         }
 
-        [Theory]
-        [InlineData(0, null)]                             // Test of empty string
-        [InlineData(1, new[] { 'j' })]
-        [InlineData(1, new[] { (char)0x9152 })]
-        [InlineData(100, new[] { 'j', (char)0x9152 })]    // Test alternating utf-16/ascii characters
-        [InlineData(512, new[] { 'j', (char)0x9152 })]    // Test that requires a 4 byte length
-        public void StringTest(int length, char[] values)
+        [Test, Sequential]
+        public void StringTest([Values(0,1,1,100,512)] int length, 
+                               [Values(null, 
+                                       new[] { 'j' },
+                                       new[] { (char)0x9152 },
+                                       new[] { 'j', (char)0x9152 }, // Test alternating utf-16/ascii characters
+                                       new[] { 'j', (char)0x9152 })] // Test that requires a 4 byte length
+                                char[] values)
         {
             // Setup: 
             // ... Generate the test value
@@ -500,7 +498,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
                 (reader, rowId) => reader.ReadString(0, rowId));
         }
 
-        [Fact]
+        [Test]
         public void BytesNullTest()
         {
             // Setup: Create a mock file stream wrapper
@@ -517,13 +515,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             }
         }
 
-        [Theory]
-        [InlineData(0, new byte[] { 0x00 })]                  // Test of empty byte[]
-        [InlineData(1, new byte[] { 0x00 })]
-        [InlineData(1, new byte[] { 0xFF })]
-        [InlineData(100, new byte[] { 0x10, 0xFF, 0x00 })] 
-        [InlineData(512, new byte[] { 0x10, 0xFF, 0x00 })]    // Test that requires a 4 byte length
-        public void Bytes(int length, byte[] values)
+        [Test, Sequential]
+        public void Bytes([Values(0, 1, 1, 100, 512)] int length, 
+                          [Values(new byte[] { 0x00 }, // Test of empty byte[]
+                                  new byte[] { 0x00 },
+                                  new byte[] { 0xFF },
+                                  new byte[] { 0x10, 0xFF, 0x00 },
+                                  new byte[] { 0x10, 0xFF, 0x00 }   // Test that requires a 4 byte length
+            )]
+            byte[] values)
         {
             // Setup: 
             // ... Generate the test value
@@ -549,8 +549,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             }
         }
 
-        [Theory]
-        [MemberData(nameof(GuidTestParameters))]
+        [Test]
+        [TestCaseSource(nameof(GuidTestParameters))]
         public void GuidTest(Guid testValue)
         {
             VerifyReadWrite(testValue.ToByteArray().Length + 1, testValue,
@@ -558,7 +558,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
                 (reader, rowId) => reader.ReadGuid(0, rowId));
         }
 
-        [Fact]
+        [Test]
         public void MoneyTest()
         {
             // Setup: Create some test values

@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
 {
@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
         /// The purpose of this test is for code coverage.  It's probably better to just 
         /// exclude string resources in the code coverage report than maintain this test.
         /// </summary>
-        [Fact]
+        [Test]
         public void SrStringsTest()
         {
             var culture = SR.Culture;
@@ -208,46 +208,46 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
             var schemaHierarchyColumnEncryptionKeys = SR.SchemaHierarchy_ColumnEncryptionKeys;
         }
 
-        [Fact]
+        [Test]
         public void SrStringsTestWithEnLocalization()
         {
             string locale = "en";
             var args = new string[] { "--locale", locale };
             ServiceLayerCommandOptions options = new ServiceLayerCommandOptions(args);
-            Assert.Equal(SR.Culture.Name, options.Locale);
-            Assert.Equal(options.Locale, locale);
+            Assert.AreEqual(SR.Culture.Name, options.Locale);
+            Assert.AreEqual(options.Locale, locale);
 
             var TestLocalizationConstant = SR.TestLocalizationConstant;
-            Assert.Equal("test", TestLocalizationConstant);
+            Assert.AreEqual("test", TestLocalizationConstant);
         }
 
-        // [Fact]
+        // [Test]
         public void SrStringsTestWithEsLocalization()
         {
             string locale = "es";
             var args = new string[] { "--locale", locale };
             ServiceLayerCommandOptions options = new ServiceLayerCommandOptions(args);
-            Assert.Equal(SR.Culture.Name, options.Locale);
-            Assert.Equal(options.Locale, locale);
+            Assert.AreEqual(SR.Culture.Name, options.Locale);
+            Assert.AreEqual(options.Locale, locale);
 
             var TestLocalizationConstant = SR.TestLocalizationConstant;
-            Assert.Equal("prueba", TestLocalizationConstant);
+            Assert.AreEqual("prueba", TestLocalizationConstant);
 
             // Reset the locale
             SrStringsTestWithEnLocalization(); 
         }
 
-        [Fact]
+        [Test]
         public void SrStringsTestWithNullLocalization()
         {
             SR.Culture = null;
             var args = new string[] { "" };
             ServiceLayerCommandOptions options = new ServiceLayerCommandOptions(args);
             Assert.Null(SR.Culture);
-            Assert.Equal("", options.Locale);
+            Assert.AreEqual("", options.Locale);
 
             var TestLocalizationConstant = SR.TestLocalizationConstant;
-            Assert.Equal("test", TestLocalizationConstant);
+            Assert.AreEqual("test", TestLocalizationConstant);
         }
     }
 }

@@ -4,7 +4,7 @@
 //
 
 using Microsoft.SqlTools.Utility;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 {
@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
     /// </summary>
     public class TextUtilitiesTests
     {
-        [Fact]
+        [Test]
         public void PositionOfCursorFirstLine()
         {
             string sql = "EXEC sys.fn_isrolemember ";
@@ -21,11 +21,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             int prevNewLine;
             int cursorPosition = TextUtilities.PositionOfCursor(sql, 0, sql.Length, out prevNewLine);
 
-            Assert.Equal(0, prevNewLine);
-            Assert.Equal(cursorPosition, sql.Length);
+            Assert.AreEqual(0, prevNewLine);
+            Assert.AreEqual(cursorPosition, sql.Length);
         }
 
-        [Fact]
+        [Test]
         public void PositionOfCursorSecondLine()
         {
             string sql = "--lineone\nEXEC sys.fn_isrolemember ";
@@ -33,8 +33,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             int prevNewLine;
             int cursorPosition = TextUtilities.PositionOfCursor(sql, 1, 15, out prevNewLine);
 
-            Assert.Equal(10, prevNewLine);
-            Assert.Equal(25, cursorPosition);
+            Assert.AreEqual(10, prevNewLine);
+            Assert.AreEqual(25, cursorPosition);
         }
     }
 }

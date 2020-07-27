@@ -7,7 +7,7 @@ using System;
 using System.Threading;
 using Microsoft.SqlTools.ServiceLayer.Profiler;
 using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
 {
@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         /// <summary>
         /// Test the FilterOldEvents method
         /// </summary>
-        [Fact]
+        [Test]
         public void TestFilterOldEvents()
         {
             // create a profiler session and get some test events
@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             // filter all the results from the first poll
             // these events happened before the profiler began
             profilerSession.FilterOldEvents(profilerEvents);
-            Assert.Equal(0, profilerEvents.Count);
+            Assert.AreEqual(0, profilerEvents.Count);
 
             // add a new event
             var newEvent = new ProfilerEvent("new event", "1/1/2017");
@@ -42,7 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
 
             // filtering should leave only the new event
             profilerSession.FilterOldEvents(profilerEvents);
-            Assert.Equal(1, profilerEvents.Count);
+            Assert.AreEqual(1, profilerEvents.Count);
             Assert.True(profilerEvents[0].Equals(newEvent));
 
             //poll again with no new events
@@ -50,13 +50,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
 
             // filter should now filter all the events since they've been seen before
             profilerSession.FilterOldEvents(profilerEvents);
-            Assert.Equal(0, profilerEvents.Count);
+            Assert.AreEqual(0, profilerEvents.Count);
         }
 
         /// <summary>
         /// Test the FilterProfilerEvents method
         /// </summary>
-        [Fact]
+        [Test]
         public void TestFilterProfilerEvents()
         {
             // create a profiler session and get some test events
@@ -72,15 +72,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             profilerEvents.Add(newEvent);
 
             // verify that the polling event is removed
-            Assert.Equal(profilerEvents.Count, expectedEventCount + 1);
+            Assert.AreEqual(profilerEvents.Count, expectedEventCount + 1);
             var newProfilerEvents = profilerSession.FilterProfilerEvents(profilerEvents);
-            Assert.Equal(newProfilerEvents.Count, expectedEventCount);           
+            Assert.AreEqual(newProfilerEvents.Count, expectedEventCount);           
         }
 
         /// <summary>
         /// Test notifications for lost events
         /// </summary>
-        [Fact]
+        [Test]
         public void TestEventsLost()
         {
             // create a profiler session and get some test events
@@ -90,7 +90,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             // filter all the results from the first poll
             // these events happened before the profiler began
             profilerSession.FilterOldEvents(profilerEvents);
-            Assert.Equal(0, profilerEvents.Count);
+            Assert.AreEqual(0, profilerEvents.Count);
             // No events should be lost
             Assert.False(profilerSession.EventsLost);
 
@@ -127,7 +127,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         /// <summary>
         /// Test the TryEnterPolling method
         /// </summary>
-        [Fact]
+        [Test]
         public void TestTryEnterPolling()
         {
             DateTime startTime = DateTime.Now;
@@ -148,7 +148,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             bool outsideDelay = DateTime.Now.Subtract(startTime) >= profilerSession.PollingDelay;
 
             // verify we can only enter again if we're outside polling delay interval
-            Assert.Equal(profilerSession.TryEnterPolling(), outsideDelay);
+            Assert.AreEqual(profilerSession.TryEnterPolling(), outsideDelay);
 
             // reset IsPolling in case the delay has elasped on slow machine or while debugging
             profilerSession.IsPolling = false;

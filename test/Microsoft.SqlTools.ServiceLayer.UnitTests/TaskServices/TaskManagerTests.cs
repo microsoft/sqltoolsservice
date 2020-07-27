@@ -6,7 +6,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
 {
@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
             DatabaseName = "database name"
         };
 
-        [Fact]
+        [Test]
         public void ManagerInstanceWithNoTaskShouldNotBreakOnCancelTask()
         {
             SqlTaskManager manager = new SqlTaskManager();
@@ -27,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
             manager.CancelTask(Guid.NewGuid());
         }
 
-        [Fact]
+        [Test]
         public async Task VerifyCreateAndRunningTask()
         {
             using (SqlTaskManager manager = new SqlTaskManager())
@@ -60,7 +60,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
 
         }
 
-        [Fact]
+        [Test]
         public async Task CancelTaskShouldCancelTheOperation()
         {
             using (SqlTaskManager manager = new SqlTaskManager())
@@ -76,8 +76,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
 
                 Task taskToVerify = sqlTask.RunAsync().ContinueWith(task =>
                 {
-                    Assert.Equal(expectedStatus, sqlTask.TaskStatus);
-                    Assert.Equal(true, sqlTask.IsCancelRequested);
+                    Assert.AreEqual(expectedStatus, sqlTask.TaskStatus);
+                    Assert.AreEqual(true, sqlTask.IsCancelRequested);
                     manager.Reset();
 
                 });
@@ -87,7 +87,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
 
         }
 
-        [Fact]
+        [Test]
         public async Task VerifyScriptTask()
         {
             using (SqlTaskManager manager = new SqlTaskManager())

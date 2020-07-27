@@ -8,7 +8,7 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 {
@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         /// <summary>
         /// Verify that the latest SqlParser (2016 as of this writing) is used by default
         /// </summary>
-        [Fact]
+        [Test]
         public void LatestSqlParserIsUsedByDefault()
         {
             // This should only parse correctly on SQL server 2016 or newer
@@ -37,13 +37,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             ScriptFileMarker[] fileMarkers = service.GetSemanticMarkers(scriptFile);
 
             // verify that no errors are detected
-            Assert.Equal(0, fileMarkers.Length);
+            Assert.AreEqual(0, fileMarkers.Length);
         }
 
         /// <summary>
         /// Verify that the SQL parser correctly detects errors in text
         /// </summary>
-        [Fact]
+        [Test]
         public void ParseSelectStatementWithoutErrors()
         {
             // sql statement with no errors
@@ -58,13 +58,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             ScriptFileMarker[] fileMarkers = service.GetSemanticMarkers(scriptFile);
 
             // verify there are no errors
-            Assert.Equal(0, fileMarkers.Length);
+            Assert.AreEqual(0, fileMarkers.Length);
         }
 
         /// <summary>
         /// Verify that the SQL parser correctly detects errors in text
         /// </summary>
-        [Fact]
+        [Test]
         public void ParseSelectStatementWithError()
         {
             // sql statement with errors
@@ -79,19 +79,19 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             ScriptFileMarker[] fileMarkers = service.GetSemanticMarkers(scriptFile);
 
             // verify there is one error
-            Assert.Equal(1, fileMarkers.Length);
+            Assert.AreEqual(1, fileMarkers.Length);
 
             // verify the position of the error
-            Assert.Equal(9, fileMarkers[0].ScriptRegion.StartColumnNumber);
-            Assert.Equal(1, fileMarkers[0].ScriptRegion.StartLineNumber);
-            Assert.Equal(10, fileMarkers[0].ScriptRegion.EndColumnNumber);
-            Assert.Equal(1, fileMarkers[0].ScriptRegion.EndLineNumber);
+            Assert.AreEqual(9, fileMarkers[0].ScriptRegion.StartColumnNumber);
+            Assert.AreEqual(1, fileMarkers[0].ScriptRegion.StartLineNumber);
+            Assert.AreEqual(10, fileMarkers[0].ScriptRegion.EndColumnNumber);
+            Assert.AreEqual(1, fileMarkers[0].ScriptRegion.EndLineNumber);
         }
 
         /// <summary>
         /// Verify that the SQL parser correctly detects errors in text
         /// </summary>
-        [Fact]
+        [Test]
         public void ParseMultilineSqlWithErrors()
         {
             // multiline sql with errors
@@ -109,26 +109,26 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             ScriptFileMarker[] fileMarkers = service.GetSemanticMarkers(scriptFile);
 
             // verify there are two errors
-            Assert.Equal(2, fileMarkers.Length);
+            Assert.AreEqual(2, fileMarkers.Length);
 
             // check position of first error
-            Assert.Equal(9, fileMarkers[0].ScriptRegion.StartColumnNumber);
-            Assert.Equal(1, fileMarkers[0].ScriptRegion.StartLineNumber);
-            Assert.Equal(10, fileMarkers[0].ScriptRegion.EndColumnNumber);
-            Assert.Equal(1, fileMarkers[0].ScriptRegion.EndLineNumber);
+            Assert.AreEqual(9, fileMarkers[0].ScriptRegion.StartColumnNumber);
+            Assert.AreEqual(1, fileMarkers[0].ScriptRegion.StartLineNumber);
+            Assert.AreEqual(10, fileMarkers[0].ScriptRegion.EndColumnNumber);
+            Assert.AreEqual(1, fileMarkers[0].ScriptRegion.EndLineNumber);
 
             // check position of second error
-            Assert.Equal(9, fileMarkers[1].ScriptRegion.StartColumnNumber);
-            Assert.Equal(3, fileMarkers[1].ScriptRegion.StartLineNumber);
-            Assert.Equal(10, fileMarkers[1].ScriptRegion.EndColumnNumber);
-            Assert.Equal(3, fileMarkers[1].ScriptRegion.EndLineNumber);
+            Assert.AreEqual(9, fileMarkers[1].ScriptRegion.StartColumnNumber);
+            Assert.AreEqual(3, fileMarkers[1].ScriptRegion.StartLineNumber);
+            Assert.AreEqual(10, fileMarkers[1].ScriptRegion.EndColumnNumber);
+            Assert.AreEqual(3, fileMarkers[1].ScriptRegion.EndLineNumber);
         }
 
         /// <summary>
         /// Verify that GetSignatureHelp returns null when the provided TextDocumentPosition
         /// has no associated ScriptParseInfo.
         /// </summary>
-        [Fact]
+        [Test]
         public void GetSignatureHelpReturnsNullIfParseInfoNotInitialized()
         {
             // Given service doesn't have parseinfo intialized for a document
@@ -144,10 +144,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             Assert.Null(signatureHelp);
         }
 
-        [Fact]
+        [Test]
         public void EmptyCompletionListTest()
         {           
-            Assert.Equal(0, AutoCompleteHelper.EmptyCompletionList.Length);
+            Assert.AreEqual(0, AutoCompleteHelper.EmptyCompletionList.Length);
         }
 
         internal class TestScriptDocumentInfo : ScriptDocumentInfo
@@ -170,7 +170,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             }
         }
 
-        [Fact]
+        [Test]
         public void GetDefaultCompletionListWithNoMatchesTest()
         {           
             var scriptFile = new ScriptFile();
@@ -189,7 +189,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 
         }
 
-        [Fact]
+        [Test]
         public void GetDefaultCompletionListWithMatchesTest()
         {
             var scriptFile = new ScriptFile();
@@ -205,7 +205,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                 }, scriptFile, scriptInfo, "all");
 
             CompletionItem[] result = AutoCompleteHelper.GetDefaultCompletionItems(scriptDocumentInfo, false);
-            Assert.Equal(1, result.Length);
+            Assert.AreEqual(1, result.Length);
 
         }
     }

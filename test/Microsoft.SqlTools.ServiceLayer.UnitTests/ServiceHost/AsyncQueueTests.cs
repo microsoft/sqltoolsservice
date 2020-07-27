@@ -9,13 +9,13 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Utility;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
 {
     public class AsyncQueueTests
     {
-        [Fact]
+        [Test]
         public async Task AsyncQueueSynchronizesAccess()
         {
             ConcurrentBag<int> outputItems = new ConcurrentBag<int>();
@@ -53,10 +53,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
 
             // At this point, numbers 0 through 299 should be in the outputItems
             IEnumerable<int> expectedItems = Enumerable.Range(0, 300);
-            Assert.Equal(0, expectedItems.Except(outputItems).Count());
+            Assert.AreEqual(0, expectedItems.Except(outputItems).Count());
         }
 
-        [Fact]
+        [Test]
         public async Task AsyncQueueSkipsCancelledTasks()
         {
             AsyncQueue<int> inputQueue = new AsyncQueue<int>();
@@ -71,9 +71,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
             await inputQueue.EnqueueAsync(1);
 
             // Did the second task get the number?
-            Assert.Equal(TaskStatus.Canceled, taskOne.Status);
-            Assert.Equal(TaskStatus.RanToCompletion, taskTwo.Status);
-            Assert.Equal(1, taskTwo.Result);
+            Assert.AreEqual(TaskStatus.Canceled, taskOne.Status);
+            Assert.AreEqual(TaskStatus.RanToCompletion, taskTwo.Status);
+            Assert.AreEqual(1, taskTwo.Result);
         }
 
         private async Task ConsumeItems(

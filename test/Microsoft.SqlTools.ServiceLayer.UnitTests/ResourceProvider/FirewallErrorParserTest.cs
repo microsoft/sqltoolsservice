@@ -4,7 +4,7 @@
 
 using System;
 using Microsoft.SqlTools.ResourceProvider.Core.Firewall;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
 {
@@ -19,20 +19,19 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
         private FirewallErrorParser _firewallErrorParser = new FirewallErrorParser();
 
 
-        [Fact]
+        [Test]
         public void ParseExceptionShouldThrowExceptionGivenNullErrorMessage()
         {
             string errorMessage = null;
             int errorCode = SqlAzureFirewallBlockedErrorNumber;
 
-            Assert.Throws<ArgumentNullException>("errorMessage", () =>
+            Assert.Throws<ArgumentNullException>(() =>
             {
                 FirewallParserResponse response = _firewallErrorParser.ParseErrorMessage(errorMessage, errorCode);
-                Assert.False(response.FirewallRuleErrorDetected);
             });
         }
 
-        [Fact]
+        [Test]
         public void ParseExceptionShouldReturnFireWallRuleNotDetectedGivenDifferentError()
         {
             int errorCode = 123;
@@ -41,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
             Assert.False(response.FirewallRuleErrorDetected);
         }
 
-        [Fact]
+        [Test]
         public void ParseExceptionShouldReturnFireWallRuleNotDetectedGivenLoginFailedError()
         {
             int errorCode = SqlAzureLoginFailedErrorNumber;
@@ -50,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
             Assert.False(response.FirewallRuleErrorDetected);
         }
 
-        [Fact]
+        [Test]
         public void ParseExceptionShouldReturnFireWallRuleNotDetectedGivenInvalidErrorMessage()
         {
             int errorCode = SqlAzureFirewallBlockedErrorNumber;
@@ -59,13 +58,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
             Assert.False(response.FirewallRuleErrorDetected);
         }
 
-        [Fact]
+        [Test]
         public void ParseExceptionShouldReturnFireWallRuleDetectedGivenValidErrorMessage()
         {
             int errorCode = SqlAzureFirewallBlockedErrorNumber;
             FirewallParserResponse response = _firewallErrorParser.ParseErrorMessage(_errorMessage, errorCode);
             Assert.True(response.FirewallRuleErrorDetected);
-            Assert.Equal("1.2.3.4", response.BlockedIpAddress.ToString());
+            Assert.AreEqual("1.2.3.4", response.BlockedIpAddress.ToString());
         }
     }
 }

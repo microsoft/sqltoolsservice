@@ -6,7 +6,7 @@ using System;
 using System.Linq;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
 {
@@ -43,7 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
         /// <summary>
         /// Validate GetLinesInRange with invalid range   
         /// </summary>
-        [Fact]
+        [Test]
         public void GetLinesInRangeWithInvalidRangeTest()
         {
             ScriptFile scriptFile = GetTestScriptFile();
@@ -68,7 +68,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
         /// <summary>
         /// Validate GetLinesInRange       
         /// </summary>
-        [Fact]
+        [Test]
         public void GetLinesInRangeTest()
         {
             ScriptFile scriptFile = GetTestScriptFile();
@@ -93,7 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
             Assert.True(queryLines[1].StartsWith(line), "GetLine text is correct");
         }
 
-        [Fact]
+        [Test]
         public void GetOffsetAtPositionTest()
         {
             ScriptFile scriptFile = GetTestScriptFile();
@@ -105,7 +105,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
             Assert.True(position.Line == 2 && position.Column == 5, "Position is at expected location");
         }
 
-        [Fact]
+        [Test]
         public void GetRangeBetweenOffsetsTest()
         {
             ScriptFile scriptFile = GetTestScriptFile();
@@ -115,7 +115,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
             Assert.NotNull(range);
         }
         
-        [Fact]
+        [Test]
         public void CanApplySingleLineInsert()
         {
             AssertFileChange(
@@ -131,7 +131,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
                 });
         }
 
-        [Fact]
+        [Test]
         public void CanApplySingleLineReplace()
         {
             AssertFileChange(
@@ -147,7 +147,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
                 });
         }
 
-        [Fact]
+        [Test]
         public void CanApplySingleLineDelete()
         {
             AssertFileChange(
@@ -163,7 +163,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
                 });
         }
 
-        [Fact]
+        [Test]
         public void CanApplyMultiLineInsert()
         {
             AssertFileChange(
@@ -179,7 +179,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
                 });
         }
 
-        [Fact]
+        [Test]
         public void CanApplyMultiLineReplace()
         {
             AssertFileChange(
@@ -195,7 +195,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
                 });
         }
 
-        [Fact]
+        [Test]
         public void CanApplyMultiLineReplaceWithRemovedLines()
         {
             AssertFileChange(
@@ -211,7 +211,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
                 });
         }
 
-        [Fact]
+        [Test]
         public void CanApplyMultiLineDelete()
         {
             AssertFileChange(
@@ -227,7 +227,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
                 });
         }
 
-        [Fact]
+        [Test]
         public void ThrowsExceptionWithEditOutsideOfRange()
         {
             Assert.Throws(
@@ -258,7 +258,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
 
             // Apply the FileChange and assert the resulting contents
             fileToChange.ApplyChange(fileChange);
-            Assert.Equal(expectedString, fileToChange.Contents);
+            Assert.AreEqual(expectedString, fileToChange.Contents);
         }
     }
 
@@ -279,50 +279,50 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
                     "Line One\r\nLine Two\r\nLine Three\r\nLine Four\r\nLine Five\r\n");
         }
 
-        [Fact]
+        [Test]
         public void CanGetWholeLine()
         {
             string[] lines =
                 scriptFile.GetLinesInRange(
                     new BufferRange(5, 1, 5, 10));
 
-            Assert.Equal(1, lines.Length);
-            Assert.Equal("Line Five", lines[0]);
+            Assert.AreEqual(1, lines.Length);
+            Assert.AreEqual("Line Five", lines[0]);
         }
 
-        [Fact]
+        [Test]
         public void CanGetMultipleWholeLines()
         {
             string[] lines =
                 scriptFile.GetLinesInRange(
                     new BufferRange(2, 1, 4, 10));
 
-            Assert.Equal(TestStringLines.Skip(1).Take(3), lines);
+            Assert.AreEqual(TestStringLines.Skip(1).Take(3), lines);
         }
 
-        [Fact]
+        [Test]
         public void CanGetSubstringInSingleLine()
         {
             string[] lines =
                 scriptFile.GetLinesInRange(
                     new BufferRange(4, 3, 4, 8));
 
-            Assert.Equal(1, lines.Length);
-            Assert.Equal("ne Fo", lines[0]);
+            Assert.AreEqual(1, lines.Length);
+            Assert.AreEqual("ne Fo", lines[0]);
         }
 
-        [Fact]
+        [Test]
         public void CanGetEmptySubstringRange()
         {
             string[] lines =
                 scriptFile.GetLinesInRange(
                     new BufferRange(4, 3, 4, 3));
 
-            Assert.Equal(1, lines.Length);
-            Assert.Equal("", lines[0]);
+            Assert.AreEqual(1, lines.Length);
+            Assert.AreEqual("", lines[0]);
         }
 
-        [Fact]
+        [Test]
         public void CanGetSubstringInMultipleLines()
         {
             string[] expectedLines = new string[]
@@ -336,10 +336,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
                 scriptFile.GetLinesInRange(
                     new BufferRange(2, 6, 4, 9));
 
-            Assert.Equal(expectedLines, lines);
+            Assert.AreEqual(expectedLines, lines);
         }
 
-        [Fact]
+        [Test]
         public void CanGetRangeAtLineBoundaries()
         {
             string[] expectedLines = new string[]
@@ -353,7 +353,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
                 scriptFile.GetLinesInRange(
                     new BufferRange(2, 9, 4, 1));
 
-            Assert.Equal(expectedLines, lines);
+            Assert.AreEqual(expectedLines, lines);
         }
     }
 
@@ -371,7 +371,7 @@ First line
 ");
         }
 
-        [Fact]
+        [Test]
         public void CanOffsetByLine()
         {
             AssertNewPosition(
@@ -385,7 +385,7 @@ First line
                 1, 1);
         }
 
-        [Fact]
+        [Test]
         public void CanOffsetByColumn()
         {
             AssertNewPosition(
@@ -399,7 +399,7 @@ First line
                 2, 2);
         }
 
-        [Fact]
+        [Test]
         public void ThrowsWhenPositionOutOfRange()
         {
             // Less than line range
@@ -443,7 +443,7 @@ First line
                 });
         }
 
-        [Fact]
+        [Test]
         public void CanFindBeginningOfLine()
         {
             AssertNewPosition(
@@ -452,7 +452,7 @@ First line
                 4, 5);
         }
 
-        [Fact]
+        [Test]
         public void CanFindEndOfLine()
         {
             AssertNewPosition(
@@ -461,7 +461,7 @@ First line
                 4, 15);
         }
 
-        [Fact]
+        [Test]
         public void CanComposePositionOperations()
         {
             AssertNewPosition(
@@ -493,8 +493,8 @@ First line
                         originalLine,
                         originalColumn));
 
-            Assert.Equal(expectedLine, newPosition.Line);
-            Assert.Equal(expectedColumn, newPosition.Column);
+            Assert.AreEqual(expectedLine, newPosition.Line);
+            Assert.AreEqual(expectedColumn, newPosition.Column);
         }        
 
 

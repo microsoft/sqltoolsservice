@@ -7,7 +7,7 @@ using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Moq;
 using System.Threading.Tasks;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
 {
@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
         /// Create and run a backup task
         /// </summary>
         /// <returns></returns>
-        [Fact]
+        [Test]
         public async Task VerifyRunningBackupTask()
         {
             using (SqlTaskManager manager = new SqlTaskManager())
@@ -28,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
                 Assert.NotNull(sqlTask);
                 Task taskToVerify = sqlTask.RunAsync().ContinueWith(Task =>
                 {
-                    Assert.Equal(SqlTaskStatus.Succeeded, sqlTask.TaskStatus);
+                    Assert.AreEqual(SqlTaskStatus.Succeeded, sqlTask.TaskStatus);
                 });
 
                 await taskToVerify;
@@ -39,7 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
         /// Generate script for backup task
         /// </summary>
         /// <returns></returns>
-        [Fact]
+        [Test]
         public async Task VerifyScriptBackupTask()
         {
             using (SqlTaskManager manager = new SqlTaskManager())
@@ -52,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
                 Assert.NotNull(sqlTask);
                 Task taskToVerify = sqlTask.RunAsync().ContinueWith(Task =>
                 {
-                    Assert.Equal(SqlTaskStatus.Succeeded, sqlTask.TaskStatus);
+                    Assert.AreEqual(SqlTaskStatus.Succeeded, sqlTask.TaskStatus);
                 });
 
                 await taskToVerify;
@@ -63,7 +63,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
         /// Create and run multiple backup tasks
         /// </summary>
         /// <returns></returns>
-        [Fact]
+        [Test]
         public async Task VerifyRunningMultipleBackupTasks()
         {
             using (SqlTaskManager manager = new SqlTaskManager())
@@ -78,12 +78,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
 
                 Task taskToVerify = sqlTask.RunAsync().ContinueWith(Task =>
                 {
-                    Assert.Equal(SqlTaskStatus.Succeeded, sqlTask.TaskStatus);
+                    Assert.AreEqual(SqlTaskStatus.Succeeded, sqlTask.TaskStatus);
                 });
 
                 Task taskToVerify2 = sqlTask2.RunAsync().ContinueWith(Task =>
                 {
-                    Assert.Equal(SqlTaskStatus.Succeeded, sqlTask2.TaskStatus);
+                    Assert.AreEqual(SqlTaskStatus.Succeeded, sqlTask2.TaskStatus);
                 });
 
                 await Task.WhenAll(taskToVerify, taskToVerify2);
@@ -94,7 +94,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
         /// Cancel a backup task
         /// </summary>
         /// <returns></returns>
-        [Fact]
+        [Test]
         public async Task VerifyCancelBackupTask()
         {
             using (SqlTaskManager manager = new SqlTaskManager())
@@ -105,8 +105,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
                 Assert.NotNull(sqlTask);
                 Task taskToVerify = sqlTask.RunAsync().ContinueWith(Task =>
                 {
-                    Assert.Equal(SqlTaskStatus.Canceled, sqlTask.TaskStatus);
-                    Assert.Equal(true, sqlTask.IsCancelRequested);
+                    Assert.AreEqual(SqlTaskStatus.Canceled, sqlTask.TaskStatus);
+                    Assert.AreEqual(true, sqlTask.IsCancelRequested);
                     ((BackupOperationStub)backupOperation).BackupSemaphore.Release();
                     manager.Reset();
                 });
@@ -120,7 +120,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
         /// Cancel multiple backup tasks
         /// </summary>
         /// <returns></returns>
-        [Fact]
+        [Test]
         public async Task VerifyCancelMultipleBackupTasks()
         {
             using (SqlTaskManager manager = new SqlTaskManager())
@@ -137,16 +137,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
 
                 Task taskToVerify = sqlTask.RunAsync().ContinueWith(Task =>
                 {
-                    Assert.Equal(SqlTaskStatus.Canceled, sqlTask.TaskStatus);
-                    Assert.Equal(true, sqlTask.IsCancelRequested);
+                    Assert.AreEqual(SqlTaskStatus.Canceled, sqlTask.TaskStatus);
+                    Assert.AreEqual(true, sqlTask.IsCancelRequested);
                     ((BackupOperationStub)backupOperation).BackupSemaphore.Release();
                     manager.Reset();
                 });
 
                 Task taskToVerify2 = sqlTask2.RunAsync().ContinueWith(Task =>
                 {
-                    Assert.Equal(SqlTaskStatus.Canceled, sqlTask2.TaskStatus);
-                    Assert.Equal(true, sqlTask2.IsCancelRequested);
+                    Assert.AreEqual(SqlTaskStatus.Canceled, sqlTask2.TaskStatus);
+                    Assert.AreEqual(true, sqlTask2.IsCancelRequested);
                     ((BackupOperationStub)backupOperation2).BackupSemaphore.Release();
                     manager.Reset();
                 });
@@ -161,7 +161,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
         /// Create two backup tasks and cancel one task
         /// </summary>
         /// <returns></returns>
-        [Fact]
+        [Test]
         public async Task VerifyCombinationRunAndCancelBackupTasks()
         {
             using (SqlTaskManager manager = new SqlTaskManager())
@@ -179,15 +179,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
 
                 Task taskToVerify = sqlTask.RunAsync().ContinueWith(Task =>
                 {
-                    Assert.Equal(SqlTaskStatus.Canceled, sqlTask.TaskStatus);
-                    Assert.Equal(true, sqlTask.IsCancelRequested);
+                    Assert.AreEqual(SqlTaskStatus.Canceled, sqlTask.TaskStatus);
+                    Assert.AreEqual(true, sqlTask.IsCancelRequested);
                     ((BackupOperationStub)backupOperation).BackupSemaphore.Release();
                     manager.Reset();
                 });
 
                 Task taskToVerify2 = sqlTask2.RunAsync().ContinueWith(Task =>
                 {
-                    Assert.Equal(SqlTaskStatus.Succeeded, sqlTask2.TaskStatus);
+                    Assert.AreEqual(SqlTaskStatus.Succeeded, sqlTask2.TaskStatus);
                 });
 
                 manager.CancelTask(sqlTask.TaskId);

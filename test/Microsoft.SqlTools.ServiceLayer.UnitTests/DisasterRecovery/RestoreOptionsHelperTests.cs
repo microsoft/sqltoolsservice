@@ -10,13 +10,13 @@ using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
 {
     public class RestoreOptionsHelperTests
     {
-        [Fact]
+        [Test]
         public void VerifyOptionsCreatedSuccessfullyIsResponse()
         {
             GeneralRequestDetails optionValues = CreateOptionsTestData();
@@ -27,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
             VerifyOptions(result, optionValues);
         }
 
-        [Fact]
+        [Test]
         public void RelocateAllFilesShouldBeReadOnlyGivenNoDbFiles()
         {
             GeneralRequestDetails optionValues = CreateOptionsTestData();
@@ -40,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
             Assert.True(result[RestoreOptionsHelper.RelocateDbFiles].IsReadOnly);
         }
 
-        [Fact]
+        [Test]
         public void DataFileFolderShouldBeReadOnlyGivenRelocateAllFilesSetToFalse()
         {
             GeneralRequestDetails optionValues = CreateOptionsTestData();
@@ -54,7 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
             Assert.True(result[RestoreOptionsHelper.LogFileFolder].IsReadOnly);
         }
 
-        [Fact]
+        [Test]
         public void DataFileFolderShouldBeCurrentValueGivenRelocateAllFilesSetToTrue()
         {
             string dataFile = "data files";
@@ -70,12 +70,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
             Assert.NotNull(result);
             Assert.False(result[RestoreOptionsHelper.DataFileFolder].IsReadOnly);
             Assert.False(result[RestoreOptionsHelper.LogFileFolder].IsReadOnly);
-            Assert.Equal(result[RestoreOptionsHelper.DataFileFolder].CurrentValue, dataFile);
-            Assert.Equal(result[RestoreOptionsHelper.LogFileFolder].CurrentValue, logFile);
+            Assert.AreEqual(result[RestoreOptionsHelper.DataFileFolder].CurrentValue, dataFile);
+            Assert.AreEqual(result[RestoreOptionsHelper.LogFileFolder].CurrentValue, logFile);
         }
 
 
-        [Fact]
+        [Test]
         public void KeepReplicationShouldBeReadOnlyGivenRecoveryStateWithNoRecovery()
         {
             GeneralRequestDetails optionValues = CreateOptionsTestData();
@@ -87,7 +87,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
             Assert.True(result[RestoreOptionsHelper.KeepReplication].IsReadOnly);
         }
 
-        [Fact]
+        [Test]
         public void StandbyFileShouldBeReadOnlyGivenRecoveryStateNotWithStandBy()
         {
             GeneralRequestDetails optionValues = CreateOptionsTestData();
@@ -99,7 +99,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
             Assert.True(result[RestoreOptionsHelper.StandbyFile].IsReadOnly);
         }
 
-        [Fact]
+        [Test]
         public void BackupTailLogShouldBeReadOnlyTailLogBackupNotPossible()
         {
             GeneralRequestDetails optionValues = CreateOptionsTestData();
@@ -112,7 +112,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
             Assert.True(result[RestoreOptionsHelper.TailLogBackupFile].IsReadOnly);
         }
 
-        [Fact]
+        [Test]
         public void TailLogWithNoRecoveryShouldBeReadOnlyTailLogBackupWithNoRecoveryNotPossible()
         {
             GeneralRequestDetails optionValues = CreateOptionsTestData();
@@ -124,7 +124,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
             Assert.True(result[RestoreOptionsHelper.TailLogWithNoRecovery].IsReadOnly);
         }
 
-        [Fact]
+        [Test]
         public void StandbyFileShouldNotBeReadOnlyGivenRecoveryStateWithStandBy()
         {
             GeneralRequestDetails optionValues = CreateOptionsTestData();
@@ -136,7 +136,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
             Assert.False(result[RestoreOptionsHelper.StandbyFile].IsReadOnly);
         }
 
-        [Fact]
+        [Test]
         public void CloseExistingConnectionsShouldNotBeReadOnlyGivenCanDropExistingConnectionsSetToTrue()
         {
             GeneralRequestDetails optionValues = CreateOptionsTestData();
@@ -148,7 +148,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
             Assert.False(result[RestoreOptionsHelper.CloseExistingConnections].IsReadOnly);
         }
 
-        [Fact]
+        [Test]
         public void CloseExistingConnectionsShouldBeReadOnlyGivenCanDropExistingConnectionsSetToFalse()
         {
             GeneralRequestDetails optionValues = CreateOptionsTestData();
@@ -160,7 +160,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
             Assert.True(result[RestoreOptionsHelper.CloseExistingConnections].IsReadOnly);
         }
 
-        [Fact]
+        [Test]
         public void KeepReplicationShouldNotBeReadOnlyGivenRecoveryStateWithNoRecovery()
         {
             GeneralRequestDetails optionValues = CreateOptionsTestData();
@@ -172,7 +172,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
             Assert.True(result[RestoreOptionsHelper.KeepReplication].IsReadOnly);
         }
 
-        [Fact]
+        [Test]
         public void KeepReplicationShouldSetToDefaultValueGivenRecoveryStateWithNoRecovery()
         {
             RestoreParams restoreParams = CreateOptionsTestData();
@@ -187,10 +187,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
             bool actual = restoreDatabaseTaskDataObject.RestoreOptions.KeepReplication;
             bool expected = (bool)options[RestoreOptionsHelper.KeepReplication].DefaultValue;
 
-            Assert.Equal(actual, expected);
+            Assert.AreEqual(actual, expected);
         }
 
-        [Fact]
+        [Test]
         public void KeepReplicationShouldSetToValueInRequestGivenRecoveryStateWithRecovery()
         {
             RestoreParams restoreParams = CreateOptionsTestData();
@@ -204,11 +204,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
 
             bool actual = restoreDatabaseTaskDataObject.RestoreOptions.KeepReplication;
             bool expected = true;
-            Assert.Equal(actual, expected);
+            Assert.AreEqual(actual, expected);
 
         }
 
-        [Fact]
+        [Test]
         public void SourceDatabaseNameShouldSetToDefaultIfNotValid()
         {
             RestoreParams restoreParams = CreateOptionsTestData();
@@ -224,10 +224,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
 
             string actual = restoreDatabaseTaskDataObject.SourceDatabaseName;
             string expected = defaultDbName;
-            Assert.Equal(actual, expected);
+            Assert.AreEqual(actual, expected);
         }
 
-        [Fact]
+        [Test]
         public void SourceDatabaseNameShouldStayTheSameIfValid()
         {
             RestoreParams restoreParams = CreateOptionsTestData();
@@ -243,10 +243,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
 
             string actual = restoreDatabaseTaskDataObject.SourceDatabaseName;
             string expected = currentDbName;
-            Assert.Equal(actual, expected);
+            Assert.AreEqual(actual, expected);
         }
 
-        [Fact]
+        [Test]
         public void TargetDatabaseNameShouldBeWhatIsRequested()
         {
             RestoreParams restoreParams = CreateOptionsTestData();
@@ -262,10 +262,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
 
             string actual = restoreDatabaseTaskDataObject.TargetDatabaseName;
             string expected = currentDbName;
-            Assert.Equal(actual, expected);
+            Assert.AreEqual(actual, expected);
         }
 
-        [Fact]
+        [Test]
         public void TargetDatabaseNameShouldBeWhatIsRequested2()
         {
             RestoreParams restoreParams = CreateOptionsTestData();
@@ -281,7 +281,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
 
             string actual = restoreDatabaseTaskDataObject.TargetDatabaseName;
             string expected = currentDbName;
-            Assert.Equal(actual, expected);
+            Assert.AreEqual(actual, expected);
         }
 
 
@@ -360,90 +360,90 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
         private void VerifyOptions(Dictionary<string, RestorePlanDetailInfo> optionInResponse, GeneralRequestDetails optionValues)
         {
             RestorePlanDetailInfo planDetailInfo = optionInResponse[RestoreOptionsHelper.DataFileFolder];
-            Assert.Equal(planDetailInfo.Name, RestoreOptionsHelper.DataFileFolder);
-            Assert.Equal(planDetailInfo.IsReadOnly, !optionValues.GetOptionValue<bool>(RestoreOptionsHelper.RelocateDbFiles));
-            Assert.Equal(planDetailInfo.CurrentValue, optionValues.GetOptionValue<string>(RestoreOptionsHelper.DataFileFolder));
-            Assert.Equal(planDetailInfo.DefaultValue, optionValues.GetOptionValue<string>("DefaultDataFileFolder"));
-            Assert.Equal(true, planDetailInfo.IsVisiable);
+            Assert.AreEqual(planDetailInfo.Name, RestoreOptionsHelper.DataFileFolder);
+            Assert.AreEqual(planDetailInfo.IsReadOnly, !optionValues.GetOptionValue<bool>(RestoreOptionsHelper.RelocateDbFiles));
+            Assert.AreEqual(planDetailInfo.CurrentValue, optionValues.GetOptionValue<string>(RestoreOptionsHelper.DataFileFolder));
+            Assert.AreEqual(planDetailInfo.DefaultValue, optionValues.GetOptionValue<string>("DefaultDataFileFolder"));
+            Assert.AreEqual(true, planDetailInfo.IsVisiable);
 
             planDetailInfo = optionInResponse[RestoreOptionsHelper.LogFileFolder];
-            Assert.Equal(planDetailInfo.Name, RestoreOptionsHelper.LogFileFolder);
-            Assert.Equal(planDetailInfo.IsReadOnly, !optionValues.GetOptionValue<bool>(RestoreOptionsHelper.RelocateDbFiles));
-            Assert.Equal(planDetailInfo.CurrentValue, optionValues.GetOptionValue<string>(RestoreOptionsHelper.LogFileFolder));
-            Assert.Equal(planDetailInfo.DefaultValue, optionValues.GetOptionValue<string>("DefaultLogFileFolder"));
-            Assert.Equal(true, planDetailInfo.IsVisiable);
+            Assert.AreEqual(planDetailInfo.Name, RestoreOptionsHelper.LogFileFolder);
+            Assert.AreEqual(planDetailInfo.IsReadOnly, !optionValues.GetOptionValue<bool>(RestoreOptionsHelper.RelocateDbFiles));
+            Assert.AreEqual(planDetailInfo.CurrentValue, optionValues.GetOptionValue<string>(RestoreOptionsHelper.LogFileFolder));
+            Assert.AreEqual(planDetailInfo.DefaultValue, optionValues.GetOptionValue<string>("DefaultLogFileFolder"));
+            Assert.AreEqual(true, planDetailInfo.IsVisiable);
 
             planDetailInfo = optionInResponse[RestoreOptionsHelper.RelocateDbFiles];
-            Assert.Equal(planDetailInfo.Name, RestoreOptionsHelper.RelocateDbFiles);
-            Assert.Equal(planDetailInfo.IsReadOnly, (optionValues.GetOptionValue<List<DbFile>>("DbFiles").Count == 0));
-            Assert.Equal(planDetailInfo.CurrentValue, optionValues.GetOptionValue<bool>(RestoreOptionsHelper.RelocateDbFiles));
-            Assert.Equal(false, planDetailInfo.DefaultValue);
-            Assert.Equal(true, planDetailInfo.IsVisiable);
+            Assert.AreEqual(planDetailInfo.Name, RestoreOptionsHelper.RelocateDbFiles);
+            Assert.AreEqual(planDetailInfo.IsReadOnly, (optionValues.GetOptionValue<List<DbFile>>("DbFiles").Count == 0));
+            Assert.AreEqual(planDetailInfo.CurrentValue, optionValues.GetOptionValue<bool>(RestoreOptionsHelper.RelocateDbFiles));
+            Assert.AreEqual(false, planDetailInfo.DefaultValue);
+            Assert.AreEqual(true, planDetailInfo.IsVisiable);
 
             planDetailInfo = optionInResponse[RestoreOptionsHelper.ReplaceDatabase];
-            Assert.Equal(planDetailInfo.Name, RestoreOptionsHelper.ReplaceDatabase);
-            Assert.Equal(false, planDetailInfo.IsReadOnly);
-            Assert.Equal(planDetailInfo.CurrentValue, optionValues.GetOptionValue<bool>(RestoreOptionsHelper.ReplaceDatabase));
-            Assert.Equal(false, planDetailInfo.DefaultValue);
-            Assert.Equal(true, planDetailInfo.IsVisiable);
+            Assert.AreEqual(planDetailInfo.Name, RestoreOptionsHelper.ReplaceDatabase);
+            Assert.AreEqual(false, planDetailInfo.IsReadOnly);
+            Assert.AreEqual(planDetailInfo.CurrentValue, optionValues.GetOptionValue<bool>(RestoreOptionsHelper.ReplaceDatabase));
+            Assert.AreEqual(false, planDetailInfo.DefaultValue);
+            Assert.AreEqual(true, planDetailInfo.IsVisiable);
 
             planDetailInfo = optionInResponse[RestoreOptionsHelper.KeepReplication];
-            Assert.Equal(planDetailInfo.Name, RestoreOptionsHelper.KeepReplication);
-            Assert.Equal(planDetailInfo.IsReadOnly,  optionValues.GetOptionValue<DatabaseRecoveryState>(RestoreOptionsHelper.RecoveryState) == DatabaseRecoveryState.WithNoRecovery);
-            Assert.Equal(planDetailInfo.CurrentValue, optionValues.GetOptionValue<bool>(RestoreOptionsHelper.KeepReplication));
-            Assert.Equal(false, planDetailInfo.DefaultValue);
-            Assert.Equal(true, planDetailInfo.IsVisiable);
+            Assert.AreEqual(planDetailInfo.Name, RestoreOptionsHelper.KeepReplication);
+            Assert.AreEqual(planDetailInfo.IsReadOnly,  optionValues.GetOptionValue<DatabaseRecoveryState>(RestoreOptionsHelper.RecoveryState) == DatabaseRecoveryState.WithNoRecovery);
+            Assert.AreEqual(planDetailInfo.CurrentValue, optionValues.GetOptionValue<bool>(RestoreOptionsHelper.KeepReplication));
+            Assert.AreEqual(false, planDetailInfo.DefaultValue);
+            Assert.AreEqual(true, planDetailInfo.IsVisiable);
 
             planDetailInfo = optionInResponse[RestoreOptionsHelper.SetRestrictedUser];
-            Assert.Equal(planDetailInfo.Name, RestoreOptionsHelper.SetRestrictedUser);
-            Assert.Equal(false, planDetailInfo.IsReadOnly);
-            Assert.Equal(planDetailInfo.CurrentValue, optionValues.GetOptionValue<bool>(RestoreOptionsHelper.SetRestrictedUser));
-            Assert.Equal(false, planDetailInfo.DefaultValue);
-            Assert.Equal(true, planDetailInfo.IsVisiable);
+            Assert.AreEqual(planDetailInfo.Name, RestoreOptionsHelper.SetRestrictedUser);
+            Assert.AreEqual(false, planDetailInfo.IsReadOnly);
+            Assert.AreEqual(planDetailInfo.CurrentValue, optionValues.GetOptionValue<bool>(RestoreOptionsHelper.SetRestrictedUser));
+            Assert.AreEqual(false, planDetailInfo.DefaultValue);
+            Assert.AreEqual(true, planDetailInfo.IsVisiable);
 
             planDetailInfo = optionInResponse[RestoreOptionsHelper.RecoveryState];
-            Assert.Equal(planDetailInfo.Name, RestoreOptionsHelper.RecoveryState);
-            Assert.Equal(false, planDetailInfo.IsReadOnly);
-            Assert.Equal(planDetailInfo.CurrentValue, optionValues.GetOptionValue<DatabaseRecoveryState>(RestoreOptionsHelper.RecoveryState).ToString());
-            Assert.Equal(planDetailInfo.DefaultValue, DatabaseRecoveryState.WithRecovery.ToString());
-            Assert.Equal(true, planDetailInfo.IsVisiable);
+            Assert.AreEqual(planDetailInfo.Name, RestoreOptionsHelper.RecoveryState);
+            Assert.AreEqual(false, planDetailInfo.IsReadOnly);
+            Assert.AreEqual(planDetailInfo.CurrentValue, optionValues.GetOptionValue<DatabaseRecoveryState>(RestoreOptionsHelper.RecoveryState).ToString());
+            Assert.AreEqual(planDetailInfo.DefaultValue, DatabaseRecoveryState.WithRecovery.ToString());
+            Assert.AreEqual(true, planDetailInfo.IsVisiable);
 
             planDetailInfo = optionInResponse[RestoreOptionsHelper.StandbyFile];
-            Assert.Equal(planDetailInfo.Name, RestoreOptionsHelper.StandbyFile);
-            Assert.Equal(planDetailInfo.IsReadOnly, optionValues.GetOptionValue<DatabaseRecoveryState>(RestoreOptionsHelper.RecoveryState) != DatabaseRecoveryState.WithStandBy);
-            Assert.Equal(planDetailInfo.CurrentValue, optionValues.GetOptionValue<string>(RestoreOptionsHelper.StandbyFile));
-            Assert.Equal(planDetailInfo.DefaultValue, optionValues.GetOptionValue<string>("GetDefaultStandbyFile"));
-            Assert.Equal(true, planDetailInfo.IsVisiable);
+            Assert.AreEqual(planDetailInfo.Name, RestoreOptionsHelper.StandbyFile);
+            Assert.AreEqual(planDetailInfo.IsReadOnly, optionValues.GetOptionValue<DatabaseRecoveryState>(RestoreOptionsHelper.RecoveryState) != DatabaseRecoveryState.WithStandBy);
+            Assert.AreEqual(planDetailInfo.CurrentValue, optionValues.GetOptionValue<string>(RestoreOptionsHelper.StandbyFile));
+            Assert.AreEqual(planDetailInfo.DefaultValue, optionValues.GetOptionValue<string>("GetDefaultStandbyFile"));
+            Assert.AreEqual(true, planDetailInfo.IsVisiable);
 
             planDetailInfo = optionInResponse[RestoreOptionsHelper.BackupTailLog];
-            Assert.Equal(planDetailInfo.Name, RestoreOptionsHelper.BackupTailLog);
-            Assert.Equal(planDetailInfo.IsReadOnly, !optionValues.GetOptionValue<bool>("IsTailLogBackupPossible"));
-            Assert.Equal(planDetailInfo.CurrentValue, optionValues.GetOptionValue<bool>(RestoreOptionsHelper.BackupTailLog));
-            Assert.Equal(planDetailInfo.DefaultValue, optionValues.GetOptionValue<bool>("IsTailLogBackupPossible"));
-            Assert.Equal(true, planDetailInfo.IsVisiable);
+            Assert.AreEqual(planDetailInfo.Name, RestoreOptionsHelper.BackupTailLog);
+            Assert.AreEqual(planDetailInfo.IsReadOnly, !optionValues.GetOptionValue<bool>("IsTailLogBackupPossible"));
+            Assert.AreEqual(planDetailInfo.CurrentValue, optionValues.GetOptionValue<bool>(RestoreOptionsHelper.BackupTailLog));
+            Assert.AreEqual(planDetailInfo.DefaultValue, optionValues.GetOptionValue<bool>("IsTailLogBackupPossible"));
+            Assert.AreEqual(true, planDetailInfo.IsVisiable);
 
             planDetailInfo = optionInResponse[RestoreOptionsHelper.TailLogBackupFile];
-            Assert.Equal(planDetailInfo.Name, RestoreOptionsHelper.TailLogBackupFile);
-            Assert.Equal(planDetailInfo.IsReadOnly, !optionValues.GetOptionValue<bool>("IsTailLogBackupPossible")
+            Assert.AreEqual(planDetailInfo.Name, RestoreOptionsHelper.TailLogBackupFile);
+            Assert.AreEqual(planDetailInfo.IsReadOnly, !optionValues.GetOptionValue<bool>("IsTailLogBackupPossible")
                 | !optionValues.GetOptionValue<bool>(RestoreOptionsHelper.BackupTailLog));
-            Assert.Equal(planDetailInfo.CurrentValue, optionValues.GetOptionValue<string>("TailLogBackupFile"));
-            Assert.Equal(planDetailInfo.DefaultValue, optionValues.GetOptionValue<string>("GetDefaultTailLogbackupFile"));
-            Assert.Equal(true, planDetailInfo.IsVisiable);
+            Assert.AreEqual(planDetailInfo.CurrentValue, optionValues.GetOptionValue<string>("TailLogBackupFile"));
+            Assert.AreEqual(planDetailInfo.DefaultValue, optionValues.GetOptionValue<string>("GetDefaultTailLogbackupFile"));
+            Assert.AreEqual(true, planDetailInfo.IsVisiable);
 
             planDetailInfo = optionInResponse[RestoreOptionsHelper.TailLogWithNoRecovery];
-            Assert.Equal(planDetailInfo.Name, RestoreOptionsHelper.TailLogWithNoRecovery);
-            Assert.Equal(planDetailInfo.IsReadOnly, !optionValues.GetOptionValue<bool>("IsTailLogBackupWithNoRecoveryPossible") 
+            Assert.AreEqual(planDetailInfo.Name, RestoreOptionsHelper.TailLogWithNoRecovery);
+            Assert.AreEqual(planDetailInfo.IsReadOnly, !optionValues.GetOptionValue<bool>("IsTailLogBackupWithNoRecoveryPossible") 
                 | !optionValues.GetOptionValue<bool>(RestoreOptionsHelper.BackupTailLog));
-            Assert.Equal(planDetailInfo.CurrentValue, optionValues.GetOptionValue<bool>("TailLogWithNoRecovery"));
-            Assert.Equal(planDetailInfo.DefaultValue, optionValues.GetOptionValue<bool>("IsTailLogBackupWithNoRecoveryPossible"));
-            Assert.Equal(true, planDetailInfo.IsVisiable);
+            Assert.AreEqual(planDetailInfo.CurrentValue, optionValues.GetOptionValue<bool>("TailLogWithNoRecovery"));
+            Assert.AreEqual(planDetailInfo.DefaultValue, optionValues.GetOptionValue<bool>("IsTailLogBackupWithNoRecoveryPossible"));
+            Assert.AreEqual(true, planDetailInfo.IsVisiable);
 
             planDetailInfo = optionInResponse[RestoreOptionsHelper.CloseExistingConnections];
-            Assert.Equal(planDetailInfo.Name, RestoreOptionsHelper.CloseExistingConnections);
-            Assert.Equal(false, planDetailInfo.IsReadOnly);
-            Assert.Equal(planDetailInfo.CurrentValue, optionValues.GetOptionValue<bool>(RestoreOptionsHelper.CloseExistingConnections));
-            Assert.Equal(false, planDetailInfo.DefaultValue);
-            Assert.Equal(true, planDetailInfo.IsVisiable);
+            Assert.AreEqual(planDetailInfo.Name, RestoreOptionsHelper.CloseExistingConnections);
+            Assert.AreEqual(false, planDetailInfo.IsReadOnly);
+            Assert.AreEqual(planDetailInfo.CurrentValue, optionValues.GetOptionValue<bool>(RestoreOptionsHelper.CloseExistingConnections));
+            Assert.AreEqual(false, planDetailInfo.DefaultValue);
+            Assert.AreEqual(true, planDetailInfo.IsVisiable);
         }
         
     }

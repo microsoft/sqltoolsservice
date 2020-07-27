@@ -10,7 +10,7 @@ using Microsoft.SqlTools.ResourceProvider.Core;
 using Microsoft.SqlTools.ResourceProvider.Core.Authentication;
 using Microsoft.SqlTools.ResourceProvider.Core.Firewall;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
 {
@@ -19,55 +19,55 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
     /// </summary>
     public class FirewallRuleServiceTest
     {
-        [Fact]
+        [Test]
         public async Task CreateShouldThrowExceptionGivenNullServerName()
         {
             string serverName = null;
 
             ServiceTestContext testContext = new ServiceTestContext();
 
-            await Assert.ThrowsAsync<FirewallRuleException>(() => VerifyCreateAsync(testContext, serverName));
+            Assert.ThrowsAsync<FirewallRuleException>(() => VerifyCreateAsync(testContext, serverName));
         }
 
-        [Fact]
+        [Test]
         public async Task CreateShouldThrowExceptionGivenNullStartIp()
         {
             string serverName = "serverName";
 
             ServiceTestContext testContext = new ServiceTestContext();
             testContext.StartIpAddress = null;
-            await Assert.ThrowsAsync<FirewallRuleException>(() => VerifyCreateAsync(testContext, serverName));
+            Assert.ThrowsAsync<FirewallRuleException>(() => VerifyCreateAsync(testContext, serverName));
         }
 
-        [Fact]
+        [Test]
         public async Task CreateShouldThrowExceptionGivenInvalidEndIp()
         {
             string serverName = "serverName";
 
             ServiceTestContext testContext = new ServiceTestContext();
             testContext.EndIpAddress = "invalid ip";
-            await Assert.ThrowsAsync<FirewallRuleException>(() => VerifyCreateAsync(testContext, serverName));
+            Assert.ThrowsAsync<FirewallRuleException>(() => VerifyCreateAsync(testContext, serverName));
         }
 
-        [Fact]
+        [Test]
         public async Task CreateShouldThrowExceptionGivenInvalidStartIp()
         {
             string serverName = "serverName";
 
             ServiceTestContext testContext = new ServiceTestContext();
             testContext.StartIpAddress = "invalid ip";
-            await Assert.ThrowsAsync<FirewallRuleException>(() => VerifyCreateAsync(testContext, serverName));
+            Assert.ThrowsAsync<FirewallRuleException>(() => VerifyCreateAsync(testContext, serverName));
         }
 
-        [Fact]
+        [Test]
         public async Task CreateShouldThrowExceptionGivenNullEndIp()
         {
             ServiceTestContext testContext = new ServiceTestContext();
             testContext.EndIpAddress = null;
-            await Assert.ThrowsAsync<FirewallRuleException>(() => VerifyCreateAsync(testContext, testContext.ServerName));
+            Assert.ThrowsAsync<FirewallRuleException>(() => VerifyCreateAsync(testContext, testContext.ServerName));
         }
 
-        [Fact]
+        [Test]
         public async Task CreateShouldThrowExceptionIfUserIsNotLoggedIn()
         {
             var applicationAuthenticationManagerMock = new Mock<IAzureAuthenticationManager>();
@@ -78,13 +78,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
             testContext.ApplicationAuthenticationManagerMock = applicationAuthenticationManagerMock;
             testContext.AzureResourceManagerMock = azureResourceManagerMock;
 
-            await Assert.ThrowsAsync<FirewallRuleException>(() => VerifyCreateAsync(testContext, testContext.ServerName));
+            Assert.ThrowsAsync<FirewallRuleException>(() => VerifyCreateAsync(testContext, testContext.ServerName));
             azureResourceManagerMock.Verify(x => x.CreateFirewallRuleAsync(
                  It.IsAny<IAzureResourceManagementSession>(), It.IsAny<IAzureSqlServerResource>(), It.IsAny<FirewallRuleRequest>()),
                  Times.Never);
         }
 
-        [Fact]
+        [Test]
         public async Task CreateShouldThrowExceptionIfUserDoesNotHaveSubscriptions()
         {
             var applicationAuthenticationManagerMock =
@@ -98,13 +98,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
             testContext.ApplicationAuthenticationManagerMock = applicationAuthenticationManagerMock;
             testContext.AzureResourceManagerMock = azureResourceManagerMock;
 
-            await Assert.ThrowsAsync<FirewallRuleException>(() => VerifyCreateAsync(testContext, testContext.ServerName));
+            Assert.ThrowsAsync<FirewallRuleException>(() => VerifyCreateAsync(testContext, testContext.ServerName));
             azureResourceManagerMock.Verify(x => x.CreateFirewallRuleAsync(
                 It.IsAny<IAzureResourceManagementSession>(), It.IsAny<IAzureSqlServerResource>(), It.IsAny<FirewallRuleRequest>()),
                 Times.Never);
         }
 
-        [Fact]
+        [Test]
         public async Task CreateShouldThrowExceptionIfAuthenticationManagerFailsToReturnSubscription()
         {
             var applicationAuthenticationManagerMock = new Mock<IAzureAuthenticationManager>();
@@ -115,23 +115,23 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
             ServiceTestContext testContext = new ServiceTestContext();
             testContext.ApplicationAuthenticationManagerMock = applicationAuthenticationManagerMock;
             testContext.AzureResourceManagerMock = azureResourceManagerMock;
-            await Assert.ThrowsAsync<FirewallRuleException>(() => VerifyCreateAsync(testContext, "invalid server"));
+            Assert.ThrowsAsync<FirewallRuleException>(() => VerifyCreateAsync(testContext, "invalid server"));
             
             azureResourceManagerMock.Verify(x => x.CreateFirewallRuleAsync(
                 It.IsAny<IAzureResourceManagementSession>(), It.IsAny<IAzureSqlServerResource>(), It.IsAny<FirewallRuleRequest>()),
                 Times.Never);
         }
 
-        [Fact]
+        [Test]
         public async Task CreateShouldThrowExceptionGivenNoSubscriptionFound()
         {
             ServiceTestContext testContext = new ServiceTestContext();
             testContext = CreateMocks(testContext);
-            await Assert.ThrowsAsync<FirewallRuleException>(() => VerifyCreateAsync(testContext, "invalid server"));
+            Assert.ThrowsAsync<FirewallRuleException>(() => VerifyCreateAsync(testContext, "invalid server"));
            
         }
 
-        [Fact]
+        [Test]
         public async Task CreateShouldCreateFirewallSuccessfullyGivenValidUserAccount()
         {
             ServiceTestContext testContext = new ServiceTestContext();
@@ -140,7 +140,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
             await VerifyCreateAsync(testContext, testContext.ServerName);           
         }
 
-        [Fact]
+        [Test]
         public async Task CreateShouldFindTheRightSubscriptionGivenValidSubscriptionInFirstPlace()
         {
             ServiceTestContext testContext = new ServiceTestContext();
@@ -156,7 +156,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
             await VerifyCreateAsync(testContext, testContext.ServerName);            
         }
 
-        [Fact]
+        [Test]
         public async Task CreateShouldFindTheRightSubscriptionGivenValidSubscriptionInSecondPlace()
         {
             ServiceTestContext testContext = new ServiceTestContext();
@@ -171,7 +171,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
             await VerifyCreateAsync(testContext, testContext.ServerName);            
         }
 
-        [Fact]
+        [Test]
         public async Task CreateShouldFindTheRightSubscriptionGivenValidSubscriptionInLastPlace()
         {
             ServiceTestContext testContext = new ServiceTestContext();
@@ -188,7 +188,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
             await VerifyCreateAsync(testContext, testContext.ServerName);           
         }
 
-        [Fact]
+        [Test]
         public async Task CreateShouldFindTheRightResourceGivenValidResourceInLastPlace()
         {
             ServiceTestContext testContext = new ServiceTestContext();
@@ -204,7 +204,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
             await VerifyCreateAsync(testContext, testContext.ServerName);           
         }
 
-        [Fact]
+        [Test]
         public async Task CreateShouldFindTheRightResourceGivenValidResourceInFirstPlace()
         {
             ServiceTestContext testContext = new ServiceTestContext();
@@ -220,7 +220,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
             await VerifyCreateAsync(testContext, testContext.ServerName);           
         }
 
-        [Fact]
+        [Test]
         public async Task CreateShouldFindTheRightResourceGivenValidResourceInMiddle()
         {
             ServiceTestContext testContext = new ServiceTestContext();
@@ -237,7 +237,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
             await VerifyCreateAsync(testContext, testContext.ServerName);
         }
 
-        [Fact]
+        [Test]
         public async Task CreateThrowExceptionIfResourceNotFound()
         {
             ServiceTestContext testContext = new ServiceTestContext();
@@ -250,10 +250,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
 
             testContext = CreateMocks(testContext);
 
-            await Assert.ThrowsAsync<FirewallRuleException>(() => VerifyCreateAsync(testContext, testContext.ServerName));
+            Assert.ThrowsAsync<FirewallRuleException>(() => VerifyCreateAsync(testContext, testContext.ServerName));
         }
 
-        [Fact]
+        [Test]
         public async Task CreateThrowExceptionIfResourcesIsEmpty()
         {
             ServiceTestContext testContext = new ServiceTestContext();
@@ -261,10 +261,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
             testContext.SubscriptionToResourcesMap[testContext.ValidSubscription.Subscription.SubscriptionId] = new List<IAzureSqlServerResource>();
             testContext = CreateMocks(testContext);
 
-            await Assert.ThrowsAsync<FirewallRuleException>(() => VerifyCreateAsync(testContext, testContext.ServerName, false));
+            Assert.ThrowsAsync<FirewallRuleException>(() => VerifyCreateAsync(testContext, testContext.ServerName, false));
         }
 
-        [Fact]
+        [Test]
         public async Task CreateShouldThrowExceptionIfThereIsNoSubscriptionForUser()
         {
             ServiceTestContext testContext = new ServiceTestContext();
@@ -272,11 +272,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
 
             testContext = CreateMocks(testContext);
 
-            await Assert.ThrowsAsync<FirewallRuleException>(() => VerifyCreateAsync(testContext, testContext.ServerName, false));
+            Assert.ThrowsAsync<FirewallRuleException>(() => VerifyCreateAsync(testContext, testContext.ServerName, false));
         }
 
 
-        [Fact]
+        [Test]
         public async Task CreateShouldThrowExceptionIfSubscriptionIsInAnotherAccount()
         {
             ServiceTestContext testContext = new ServiceTestContext();
@@ -287,10 +287,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
             };
 
             testContext = CreateMocks(testContext);
-            await Assert.ThrowsAsync<FirewallRuleException>(() => VerifyCreateAsync(testContext, testContext.ServerName, false));
+            Assert.ThrowsAsync<FirewallRuleException>(() => VerifyCreateAsync(testContext, testContext.ServerName, false));
         }       
 
-        [Fact]
+        [Test]
         public async Task CreateShouldCreateFirewallForTheRightServerFullyQualifiedName()
         {
             ServiceTestContext testContext = new ServiceTestContext();

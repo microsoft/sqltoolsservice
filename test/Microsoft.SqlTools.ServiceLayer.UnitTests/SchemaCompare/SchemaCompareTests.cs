@@ -6,54 +6,51 @@
 using System;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SchemaCompare
 {
     public class SchemaCompareTests
     {
-        [Fact]
+        [Test]
         public void FormatScriptAddsGo()
         {
             string script = "EXECUTE sp_addextendedproperty @name = N'MS_Description', @value = N'Primary key for AWBuildVersion records.', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'AWBuildVersion', @level2type = N'COLUMN', @level2name = N'SystemInformationID';";
-            Assert.DoesNotContain("GO", script);
+            Assert.That(script, Does.Not.Contain("GO"));
             string result = SchemaCompareUtils.FormatScript(script);
-            Assert.EndsWith("GO", result);
+            Assert.That(result, Does.EndWith("GO"));
         }
 
-        [Fact]
+        [Test]
         public void FormatScriptDoesNotAddGoForNullScripts()
         {
             string script1 = null;
             string result1 = SchemaCompareUtils.FormatScript(script1);
-            Assert.DoesNotContain("GO", result1);
-            Assert.Equal(null, result1);
+            Assert.AreEqual(null, result1);
 
             string script2 = "null";
             string result2 = SchemaCompareUtils.FormatScript(script2);
-            Assert.DoesNotContain("GO", result2);
+            Assert.That(result2, Does.Not.Contain("GO"));
         }
 
-        [Fact]
+        [Test]
         public void FormatScriptDoesNotAddGoForEmptyStringScripts()
         {
             string script = string.Empty;
             string result = SchemaCompareUtils.FormatScript(script);
-            Assert.DoesNotContain("GO", result);
-            Assert.Equal(string.Empty, result);
+            Assert.AreEqual(string.Empty, result);
         }
 
-        [Fact]
+        [Test]
         public void FormatScriptDoesNotAddGoForWhitespaceStringScripts()
         {
             string script = "    \t\n";
             Assert.True(string.IsNullOrWhiteSpace(script));
             string result = SchemaCompareUtils.FormatScript(script);
-            Assert.DoesNotContain("GO", result);
-            Assert.Equal(string.Empty, result);
+            Assert.AreEqual(string.Empty, result);
         }
 
-        [Fact]
+        [Test]
         public void RemovesExcessWhitespace()
         {
             // leading whitespace
@@ -87,7 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SchemaCompare
             Assert.True(expected3.Equals(result3));
         }
 
-        [Fact]
+        [Test]
         public void CreateExcludedObjects()
         {
             //successful creation
@@ -124,12 +121,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SchemaCompare
             };
             var validResult1 = SchemaCompareUtils.CreateExcludedObject(validObject1);
             Assert.NotNull(validResult1);
-            Assert.Equal(validObject1.SqlObjectType, validResult1.TypeName);
-            Assert.Equal(validObject1.NameParts.Length, validResult1.Identifier.Parts.Count);
-            Assert.Equal(validationString, string.Join(".", validResult1.Identifier.Parts));
+            Assert.AreEqual(validObject1.SqlObjectType, validResult1.TypeName);
+            Assert.AreEqual(validObject1.NameParts.Length, validResult1.Identifier.Parts.Count);
+            Assert.AreEqual(validationString, string.Join(".", validResult1.Identifier.Parts));
             for (int i = 0; i < validObject1.NameParts.Length; i++)
             {
-                Assert.Equal(validObject1.NameParts[i], validResult1.Identifier.Parts[i]);
+                Assert.AreEqual(validObject1.NameParts[i], validResult1.Identifier.Parts[i]);
             }
         }
     }

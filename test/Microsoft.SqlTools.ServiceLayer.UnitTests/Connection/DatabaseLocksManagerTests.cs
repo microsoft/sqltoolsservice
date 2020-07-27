@@ -6,16 +6,17 @@
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 {
+    [TestFixture]
     public class DatabaseLocksManagerTests
     {
         private const string server1 = "server1";
         private const string database1 = "database1";
        
-        [Fact]
+        [Test]
         public void GainFullAccessShouldDisconnectTheConnections()
         {
             var connectionLock = new Mock<IConnectedBindingQueue>();
@@ -30,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             }
         }
 
-        [Fact]
+        [Test]
         public void ReleaseAccessShouldConnectTheConnections()
         {
             var connectionLock = new Mock<IConnectedBindingQueue>();
@@ -45,7 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             }
         }
 
-        //[Fact]
+        //[Test]
         public void SecondProcessToGainAccessShouldWaitForTheFirstProcess()
         {
             var connectionLock = new Mock<IConnectedBindingQueue>();
@@ -62,9 +63,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                 {
                     secondTimeGettingAccessFails = true;
                 }
-                Assert.Equal(true, secondTimeGettingAccessFails);
+                Assert.AreEqual(true, secondTimeGettingAccessFails);
                 databaseLocksManager.ReleaseAccess(server1, database1);
-                Assert.Equal(true, databaseLocksManager.GainFullAccessToDatabase(server1, database1));
+                Assert.AreEqual(true, databaseLocksManager.GainFullAccessToDatabase(server1, database1));
                 databaseLocksManager.ReleaseAccess(server1, database1);
             }
         }

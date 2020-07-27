@@ -10,7 +10,7 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
 
@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
     public class AutocompleteTests : LanguageServiceTestBase<CompletionItem>
     {
 
-        [Fact]
+        [Test]
         public void HandleCompletionRequestDisabled()
         {
             InitializeTestObjects();
@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             Assert.NotNull(langService.HandleCompletionRequest(null, null));
         }
 
-        [Fact]
+        [Test]
         public void HandleCompletionResolveRequestDisabled()
         {
             InitializeTestObjects();
@@ -38,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             Assert.NotNull(langService.HandleCompletionResolveRequest(null, null));
         }
 
-        [Fact]
+        [Test]
         public void HandleSignatureHelpRequestDisabled()
         {
             InitializeTestObjects();
@@ -46,7 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             Assert.NotNull(langService.HandleSignatureHelpRequest(null, null));
         }
 
-        [Fact]
+        [Test]
         public async Task HandleSignatureHelpRequestNonMssqlFile()
         {
             InitializeTestObjects();
@@ -75,7 +75,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             signatureRequestContext.Verify(m => m.SendError(It.IsAny<string>(), It.IsAny<int>()), Times.Never());
         }               
 
-        [Fact]
+        [Test]
         public void AddOrUpdateScriptParseInfoNullUri()
         {
             InitializeTestObjects();
@@ -83,8 +83,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             Assert.True(langService.ScriptParseInfoMap.ContainsKey("abracadabra"));
         }
 
-        [Fact]
-        public async void HandleDefinitionRequest_InvalidTextDocument_SendsEmptyListResponse()
+        [Test]
+        public async Task HandleDefinitionRequest_InvalidTextDocument_SendsEmptyListResponse()
         {
             InitializeTestObjects();
             textDocument.TextDocument.Uri = "invaliduri";
@@ -104,22 +104,22 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             Assert.True(result.Length == 0, $"Unexpected values passed to SendResult : [{ string.Join(",", (object[])result)}]");
         }
 
-        [Fact]
+        [Test]
         public void RemoveScriptParseInfoNullUri()
         {
             InitializeTestObjects();
             Assert.False(langService.RemoveScriptParseInfo("abc123"));
         }
 
-        [Fact]
+        [Test]
         public void IsPreviewWindowNullScriptFileTest()
         {
             InitializeTestObjects();
             Assert.False(langService.IsPreviewWindow(null));
         }
 
-        [Fact]
-        public async void HandleCompletionRequest_InvalidTextDocument_SendsNullResult()
+        [Test]
+        public async Task HandleCompletionRequest_InvalidTextDocument_SendsNullResult()
         {
             InitializeTestObjects();
             // setup the mock for SendResult to capture the items
@@ -136,7 +136,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             Assert.Null(completionItems);
         }
 
-        [Fact]
+        [Test]
         public void GetDiagnosticFromMarkerTest()
         {
             var scriptFileMarker = new ScriptFileMarker()
@@ -155,26 +155,26 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                 }
             }; 
             var diagnostic = DiagnosticsHelper.GetDiagnosticFromMarker(scriptFileMarker);
-            Assert.Equal(diagnostic.Message, scriptFileMarker.Message);
+            Assert.AreEqual(diagnostic.Message, scriptFileMarker.Message);
         }
 
-        [Fact]
+        [Test]
         public void MapDiagnosticSeverityTest()
         {
             var level = ScriptFileMarkerLevel.Error;
-            Assert.Equal(DiagnosticSeverity.Error, DiagnosticsHelper.MapDiagnosticSeverity(level));
+            Assert.AreEqual(DiagnosticSeverity.Error, DiagnosticsHelper.MapDiagnosticSeverity(level));
             level = ScriptFileMarkerLevel.Warning;
-            Assert.Equal(DiagnosticSeverity.Warning, DiagnosticsHelper.MapDiagnosticSeverity(level));
+            Assert.AreEqual(DiagnosticSeverity.Warning, DiagnosticsHelper.MapDiagnosticSeverity(level));
             level = ScriptFileMarkerLevel.Information;
-            Assert.Equal(DiagnosticSeverity.Information, DiagnosticsHelper.MapDiagnosticSeverity(level));
+            Assert.AreEqual(DiagnosticSeverity.Information, DiagnosticsHelper.MapDiagnosticSeverity(level));
             level = (ScriptFileMarkerLevel)100;
-            Assert.Equal(DiagnosticSeverity.Error, DiagnosticsHelper.MapDiagnosticSeverity(level));
+            Assert.AreEqual(DiagnosticSeverity.Error, DiagnosticsHelper.MapDiagnosticSeverity(level));
         }
 
         /// <summary>
         /// Tests the primary completion list event handler
         /// </summary>
-        [Fact]
+        [Test]
         public void GetCompletionsHandlerTest()
         {
             InitializeTestObjects();

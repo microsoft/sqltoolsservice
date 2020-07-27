@@ -6,17 +6,18 @@
 using System.Linq;
 using Microsoft.SqlTools.Hosting.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Xunit;
+using NUnit.Framework;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 {
+    [TestFixture]
     /// <summary>
     /// Tests for ConnectionDetails Class
     /// </summary>
     public class ConnectionDetailsTests
     {
-        [Fact]
+        [Test]
         public void ConnectionDetailsWithoutAnyOptionShouldReturnNullOrDefaultForOptions()
         {
             ConnectionDetails details = new ConnectionDetails();
@@ -25,39 +26,39 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             var expectedForInt = default(int?);
             var expectedForBoolean = default(bool?);
 
-            Assert.Equal(details.ApplicationIntent, expectedForStrings);
-            Assert.Equal(details.ApplicationName, expectedForStrings);
-            Assert.Equal(details.AttachDbFilename, expectedForStrings);
-            Assert.Equal(details.AuthenticationType, expectedForStrings);
-            Assert.Equal(details.CurrentLanguage, expectedForStrings);
-            Assert.Equal(details.DatabaseName, expectedForStrings);
-            Assert.Equal(details.FailoverPartner, expectedForStrings);
-            Assert.Equal(details.Password, expectedForStrings);
-            Assert.Equal(details.ServerName, expectedForStrings);
-            Assert.Equal(details.TypeSystemVersion, expectedForStrings);
-            Assert.Equal(details.UserName, expectedForStrings);
-            Assert.Equal(details.WorkstationId, expectedForStrings);
-            Assert.Equal(details.ConnectRetryInterval, expectedForInt);
-            Assert.Equal(details.ConnectRetryCount, expectedForInt);
-            Assert.Equal(details.ConnectTimeout, expectedForInt);
-            Assert.Equal(details.LoadBalanceTimeout, expectedForInt);
-            Assert.Equal(details.MaxPoolSize, expectedForInt);
-            Assert.Equal(details.MinPoolSize, expectedForInt);
-            Assert.Equal(details.PacketSize, expectedForInt);
-            Assert.Equal(details.ColumnEncryptionSetting, expectedForStrings);
-            Assert.Equal(details.EnclaveAttestationUrl, expectedForStrings);
-            Assert.Equal(details.EnclaveAttestationProtocol, expectedForStrings);
-            Assert.Equal(details.Encrypt, expectedForBoolean);
-            Assert.Equal(details.MultipleActiveResultSets, expectedForBoolean);
-            Assert.Equal(details.MultiSubnetFailover, expectedForBoolean);
-            Assert.Equal(details.PersistSecurityInfo, expectedForBoolean);
-            Assert.Equal(details.Pooling, expectedForBoolean);
-            Assert.Equal(details.Replication, expectedForBoolean);
-            Assert.Equal(details.TrustServerCertificate, expectedForBoolean);
-            Assert.Equal(details.Port, expectedForInt);
+            Assert.AreEqual(details.ApplicationIntent, expectedForStrings);
+            Assert.AreEqual(details.ApplicationName, expectedForStrings);
+            Assert.AreEqual(details.AttachDbFilename, expectedForStrings);
+            Assert.AreEqual(details.AuthenticationType, expectedForStrings);
+            Assert.AreEqual(details.CurrentLanguage, expectedForStrings);
+            Assert.AreEqual(details.DatabaseName, expectedForStrings);
+            Assert.AreEqual(details.FailoverPartner, expectedForStrings);
+            Assert.AreEqual(details.Password, expectedForStrings);
+            Assert.AreEqual(details.ServerName, expectedForStrings);
+            Assert.AreEqual(details.TypeSystemVersion, expectedForStrings);
+            Assert.AreEqual(details.UserName, expectedForStrings);
+            Assert.AreEqual(details.WorkstationId, expectedForStrings);
+            Assert.AreEqual(details.ConnectRetryInterval, expectedForInt);
+            Assert.AreEqual(details.ConnectRetryCount, expectedForInt);
+            Assert.AreEqual(details.ConnectTimeout, expectedForInt);
+            Assert.AreEqual(details.LoadBalanceTimeout, expectedForInt);
+            Assert.AreEqual(details.MaxPoolSize, expectedForInt);
+            Assert.AreEqual(details.MinPoolSize, expectedForInt);
+            Assert.AreEqual(details.PacketSize, expectedForInt);
+            Assert.AreEqual(details.ColumnEncryptionSetting, expectedForStrings);
+            Assert.AreEqual(details.EnclaveAttestationUrl, expectedForStrings);
+            Assert.AreEqual(details.EnclaveAttestationProtocol, expectedForStrings);
+            Assert.AreEqual(details.Encrypt, expectedForBoolean);
+            Assert.AreEqual(details.MultipleActiveResultSets, expectedForBoolean);
+            Assert.AreEqual(details.MultiSubnetFailover, expectedForBoolean);
+            Assert.AreEqual(details.PersistSecurityInfo, expectedForBoolean);
+            Assert.AreEqual(details.Pooling, expectedForBoolean);
+            Assert.AreEqual(details.Replication, expectedForBoolean);
+            Assert.AreEqual(details.TrustServerCertificate, expectedForBoolean);
+            Assert.AreEqual(details.Port, expectedForInt);
         }
 
-        [Fact]
+        [Test]
         public void ConnectionDetailsPropertySettersShouldSetOptionValuesCorrectly()
         {
             ConnectionDetails details = new ConnectionDetails();
@@ -97,39 +98,39 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             details.Port = expectedForInt + index++;
 
             index = 0;
-            Assert.Equal(details.ApplicationIntent, expectedForStrings + index++);
-            Assert.Equal(details.ApplicationName, expectedForStrings + index++);
-            Assert.Equal(details.AttachDbFilename, expectedForStrings + index++);
-            Assert.Equal(details.AuthenticationType, expectedForStrings + index++);
-            Assert.Equal(details.CurrentLanguage, expectedForStrings + index++);
-            Assert.Equal(details.DatabaseName, expectedForStrings + index++);
-            Assert.Equal(details.FailoverPartner, expectedForStrings + index++);
-            Assert.Equal(details.Password, expectedForStrings + index++);
-            Assert.Equal(details.ServerName, expectedForStrings + index++);
-            Assert.Equal(details.TypeSystemVersion, expectedForStrings + index++);
-            Assert.Equal(details.UserName, expectedForStrings + index++);
-            Assert.Equal(details.WorkstationId, expectedForStrings + index++);
-            Assert.Equal(details.ConnectRetryInterval, expectedForInt + index++);
-            Assert.Equal(details.ConnectRetryCount, expectedForInt + index++);
-            Assert.Equal(details.ConnectTimeout, expectedForInt + index++);
-            Assert.Equal(details.LoadBalanceTimeout, expectedForInt + index++);
-            Assert.Equal(details.MaxPoolSize, expectedForInt + index++);
-            Assert.Equal(details.MinPoolSize, expectedForInt + index++);
-            Assert.Equal(details.PacketSize, expectedForInt + index++);
-            Assert.Equal(details.ColumnEncryptionSetting, expectedForStrings + index++);
-            Assert.Equal(details.EnclaveAttestationProtocol, expectedForStrings + index++);
-            Assert.Equal(details.EnclaveAttestationUrl, expectedForStrings + index++);
-            Assert.Equal(details.Encrypt, (index++ % 2 == 0));
-            Assert.Equal(details.MultipleActiveResultSets, (index++ % 2 == 0));
-            Assert.Equal(details.MultiSubnetFailover, (index++ % 2 == 0));
-            Assert.Equal(details.PersistSecurityInfo, (index++ % 2 == 0));
-            Assert.Equal(details.Pooling, (index++ % 2 == 0));
-            Assert.Equal(details.Replication, (index++ % 2 == 0));
-            Assert.Equal(details.TrustServerCertificate, (index++ % 2 == 0));
-            Assert.Equal(details.Port, (expectedForInt + index++));
+            Assert.AreEqual(details.ApplicationIntent, expectedForStrings + index++);
+            Assert.AreEqual(details.ApplicationName, expectedForStrings + index++);
+            Assert.AreEqual(details.AttachDbFilename, expectedForStrings + index++);
+            Assert.AreEqual(details.AuthenticationType, expectedForStrings + index++);
+            Assert.AreEqual(details.CurrentLanguage, expectedForStrings + index++);
+            Assert.AreEqual(details.DatabaseName, expectedForStrings + index++);
+            Assert.AreEqual(details.FailoverPartner, expectedForStrings + index++);
+            Assert.AreEqual(details.Password, expectedForStrings + index++);
+            Assert.AreEqual(details.ServerName, expectedForStrings + index++);
+            Assert.AreEqual(details.TypeSystemVersion, expectedForStrings + index++);
+            Assert.AreEqual(details.UserName, expectedForStrings + index++);
+            Assert.AreEqual(details.WorkstationId, expectedForStrings + index++);
+            Assert.AreEqual(details.ConnectRetryInterval, expectedForInt + index++);
+            Assert.AreEqual(details.ConnectRetryCount, expectedForInt + index++);
+            Assert.AreEqual(details.ConnectTimeout, expectedForInt + index++);
+            Assert.AreEqual(details.LoadBalanceTimeout, expectedForInt + index++);
+            Assert.AreEqual(details.MaxPoolSize, expectedForInt + index++);
+            Assert.AreEqual(details.MinPoolSize, expectedForInt + index++);
+            Assert.AreEqual(details.PacketSize, expectedForInt + index++);
+            Assert.AreEqual(details.ColumnEncryptionSetting, expectedForStrings + index++);
+            Assert.AreEqual(details.EnclaveAttestationProtocol, expectedForStrings + index++);
+            Assert.AreEqual(details.EnclaveAttestationUrl, expectedForStrings + index++);
+            Assert.AreEqual(details.Encrypt, (index++ % 2 == 0));
+            Assert.AreEqual(details.MultipleActiveResultSets, (index++ % 2 == 0));
+            Assert.AreEqual(details.MultiSubnetFailover, (index++ % 2 == 0));
+            Assert.AreEqual(details.PersistSecurityInfo, (index++ % 2 == 0));
+            Assert.AreEqual(details.Pooling, (index++ % 2 == 0));
+            Assert.AreEqual(details.Replication, (index++ % 2 == 0));
+            Assert.AreEqual(details.TrustServerCertificate, (index++ % 2 == 0));
+            Assert.AreEqual(details.Port, (expectedForInt + index++));
         }
 
-        [Fact]
+        [Test]
         public void ConnectionDetailsOptionsShouldBeDefinedInConnectionProviderOptions()
         {
             ConnectionDetails details = new ConnectionDetails();
@@ -195,7 +196,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         }
 
 
-        [Fact]
+        [Test]
         public void SettingConnectiomTimeoutToLongShouldStillReturnInt()
         {
             ConnectionDetails details = new ConnectionDetails();
@@ -204,27 +205,27 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             int? expectedValue = 30;
             details.Options["connectTimeout"] = timeout;
 
-            Assert.Equal(details.ConnectTimeout, expectedValue);
+            Assert.AreEqual(details.ConnectTimeout, expectedValue);
         }
 
-        [Fact]
+        [Test]
         public void ConnectTimeoutShouldReturnNullIfNotSet()
         {
             ConnectionDetails details = new ConnectionDetails();
             int? expectedValue = null;
-            Assert.Equal(details.ConnectTimeout, expectedValue);
+            Assert.AreEqual(details.ConnectTimeout, expectedValue);
         }
 
-        [Fact]
+        [Test]
         public void ConnectTimeoutShouldReturnNullIfSetToNull()
         {
             ConnectionDetails details = new ConnectionDetails();
             details.Options["connectTimeout"] = null;
             int? expectedValue = null;
-            Assert.Equal(details.ConnectTimeout, expectedValue);
+            Assert.AreEqual(details.ConnectTimeout, expectedValue);
         }
 
-        [Fact]
+        [Test]
         public void SettingEncryptToStringShouldStillReturnBoolean()
         {
             ConnectionDetails details = new ConnectionDetails();
@@ -233,10 +234,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             bool? expectedValue = true;
             details.Options["encrypt"] = encrypt;
 
-            Assert.Equal(details.Encrypt, expectedValue);
+            Assert.AreEqual(details.Encrypt, expectedValue);
         }
 
-        [Fact]
+        [Test]
         public void SettingEncryptToLowecaseStringShouldStillReturnBoolean()
         {
             ConnectionDetails details = new ConnectionDetails();
@@ -245,27 +246,27 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             bool? expectedValue = true;
             details.Options["encrypt"] = encrypt;
 
-            Assert.Equal(details.Encrypt, expectedValue);
+            Assert.AreEqual(details.Encrypt, expectedValue);
         }
 
-        [Fact]
+        [Test]
         public void EncryptShouldReturnNullIfNotSet()
         {
             ConnectionDetails details = new ConnectionDetails();
             bool? expectedValue = null;
-            Assert.Equal(details.Encrypt, expectedValue);
+            Assert.AreEqual(details.Encrypt, expectedValue);
         }
 
-        [Fact]
+        [Test]
         public void EncryptShouldReturnNullIfSetToNull()
         {
             ConnectionDetails details = new ConnectionDetails();
             details.Options["encrypt"] = null;
             int? expectedValue = null;
-            Assert.Equal(details.ConnectTimeout, expectedValue);
+            Assert.AreEqual(details.ConnectTimeout, expectedValue);
         }
 
-        [Fact]
+        [Test]
         public void SettingConnectiomTimeoutToLongWhichCannotBeConvertedToIntShouldNotCrash()
         {
             ConnectionDetails details = new ConnectionDetails();
@@ -275,8 +276,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             details.Options["connectTimeout"] = timeout;
             details.Options["encrypt"] = true;
 
-            Assert.Equal(details.ConnectTimeout, expectedValue);
-            Assert.Equal(true, details.Encrypt);
+            Assert.AreEqual(details.ConnectTimeout, expectedValue);
+            Assert.AreEqual(true, details.Encrypt);
         }
     }
 }

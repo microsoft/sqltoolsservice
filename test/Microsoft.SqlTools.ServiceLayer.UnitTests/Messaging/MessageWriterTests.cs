@@ -10,7 +10,7 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.Hosting.Protocol.Serializers;
 using Newtonsoft.Json.Linq;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
 {
@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
             this.messageSerializer = new V8MessageSerializer();
         }
 
-        [Fact]
+        [Test]
         public void SerializeMessageTest()
         {
             // serialize\deserialize a request
@@ -35,29 +35,29 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
             var serializedMessage = this.messageSerializer.SerializeMessage(message);
             Assert.NotNull(serializedMessage);
             var deserializedMessage = this.messageSerializer.DeserializeMessage(serializedMessage);
-            Assert.Equal(message.Id, deserializedMessage.Id);
+            Assert.AreEqual(message.Id, deserializedMessage.Id);
 
             // serialize\deserialize a response
             message.MessageType = MessageType.Response;
             serializedMessage = this.messageSerializer.SerializeMessage(message);
             Assert.NotNull(serializedMessage);
             deserializedMessage = this.messageSerializer.DeserializeMessage(serializedMessage);
-            Assert.Equal(message.Id, deserializedMessage.Id);
+            Assert.AreEqual(message.Id, deserializedMessage.Id);
 
             // serialize\deserialize a response with an error
             message.Error = JToken.FromObject("error");
             serializedMessage = this.messageSerializer.SerializeMessage(message);
             Assert.NotNull(serializedMessage);
             deserializedMessage = this.messageSerializer.DeserializeMessage(serializedMessage);
-            Assert.Equal(message.Error, deserializedMessage.Error);
+            Assert.AreEqual(message.Error, deserializedMessage.Error);
 
             // serialize\deserialize an unknown response type
             serializedMessage.Remove("type");
             serializedMessage.Add("type", JToken.FromObject("dontknowthisone"));
-            Assert.Equal(MessageType.Unknown, this.messageSerializer.DeserializeMessage(serializedMessage).MessageType);
+            Assert.AreEqual(MessageType.Unknown, this.messageSerializer.DeserializeMessage(serializedMessage).MessageType);
         }
 
-        [Fact]
+        [Test]
         public async Task WritesMessage()
         {
             MemoryStream outputStream = new MemoryStream();
@@ -74,14 +74,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
             byte[] buffer = new byte[128];
             await outputStream.ReadAsync(buffer, 0, expectedHeaderString.Length);
 
-            Assert.Equal(
+            Assert.AreEqual(
                 expectedHeaderString,
                 Encoding.ASCII.GetString(buffer, 0, expectedHeaderString.Length));
 
             // Read the message
             await outputStream.ReadAsync(buffer, 0, Common.ExpectedMessageByteCount);
 
-            Assert.Equal(Common.TestEventString, 
+            Assert.AreEqual(Common.TestEventString, 
                 Encoding.UTF8.GetString(buffer, 0, Common.ExpectedMessageByteCount));
 
             outputStream.Dispose();

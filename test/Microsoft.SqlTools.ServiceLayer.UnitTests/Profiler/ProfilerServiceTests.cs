@@ -15,10 +15,11 @@ using Microsoft.SqlTools.ServiceLayer.Profiler;
 using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
 {
+    [TestFixture]
     /// <summary>
     /// Unit tests for ProfilerService
     /// </summary>
@@ -29,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         /// </summary>
         /// <returns></returns>
         // TODO: Fix flaky test. See https://github.com/Microsoft/sqltoolsservice/issues/459
-        //[Fact]
+        //[Test]
         public async Task TestStartProfilingRequest()
         {
             string sessionId = null;
@@ -84,7 +85,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             requestContext.VerifyAll();
 
             // Check that the correct XEvent session was started
-            Assert.Equal("1", sessionId);
+            Assert.AreEqual("1", sessionId);
 
             // check that the proper owner Uri was used
             Assert.True(recievedEvents);
@@ -94,7 +95,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         /// Test stopping a session and receiving event callback
         /// </summary>
         /// <returns></returns>
-        [Fact]
+        [Test]
         public async Task TestStopProfilingRequest()
         {
             bool success = false;
@@ -147,7 +148,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         /// Test pausing then resuming a session
         /// </summary>
         /// <returns></returns>
-        [Fact]
+        [Test]
         public async Task TestPauseProfilingRequest()
         {
             bool success = false;
@@ -238,7 +239,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         /// <summary>
         /// Test notifications for stopped sessions
         /// </summary>
-        [Fact]
+        [Test]
         public async Task TestStoppedSessionNotification()
         {
             bool sessionStopped = false;

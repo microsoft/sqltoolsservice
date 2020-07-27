@@ -17,13 +17,13 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Microsoft.SqlTools.Utility;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 {
     public class ResultSetTests
     {
-        [Fact]
+        [Test]
         public void ResultCreation()
         {
             // If:
@@ -33,32 +33,32 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // Then:
             // ... There should not be any data read yet
             Assert.Null(resultSet.Columns);
-            Assert.Equal(0, resultSet.RowCount);
-            Assert.Equal(Common.Ordinal, resultSet.Id);
+            Assert.AreEqual(0, resultSet.RowCount);
+            Assert.AreEqual(Common.Ordinal, resultSet.Id);
 
             // ... The summary should include the same info
             Assert.Null(resultSet.Summary.ColumnInfo);
-            Assert.Equal(0, resultSet.Summary.RowCount);
-            Assert.Equal(Common.Ordinal, resultSet.Summary.Id);
-            Assert.Equal(Common.Ordinal, resultSet.Summary.BatchId);
+            Assert.AreEqual(0, resultSet.Summary.RowCount);
+            Assert.AreEqual(Common.Ordinal, resultSet.Summary.Id);
+            Assert.AreEqual(Common.Ordinal, resultSet.Summary.BatchId);
         }
 
-        [Fact]
+        [Test]
         public async Task ReadToEndNullReader()
         {
             // If: I create a new result set with a null db data reader
             // Then: I should get an exception
             var fsf = MemoryFileSystem.GetFileStreamFactory();
             ResultSet resultSet = new ResultSet(Common.Ordinal, Common.Ordinal, fsf);
-            await Assert.ThrowsAsync<ArgumentNullException>(() => resultSet.ReadResultToEnd(null, CancellationToken.None));
+            Assert.ThrowsAsync<ArgumentNullException>(() => resultSet.ReadResultToEnd(null, CancellationToken.None));
         }
 
         /// <summary>
         /// Read to End test
         /// </summary>
         /// <param name="testDataSet"></param>
-        [Theory]
-        [MemberData(nameof(ReadToEndSuccessData), parameters: 6)]
+        [Test]
+        [TestCaseSource(nameof(ReadToEndSuccessData))]
         public async Task ReadToEndSuccess(TestResultSet[] testDataSet)
         {
             // Setup: Create a results Available callback for result set
@@ -113,13 +113,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // ... The columns should be set
             // ... There should be rows to read back
             Assert.NotNull(resultSet.Columns);
-            Assert.Equal(Common.StandardColumns, resultSet.Columns.Length);
-            Assert.Equal(testDataSet[0].Rows.Count, resultSet.RowCount);
+            Assert.AreEqual(Common.StandardColumns, resultSet.Columns.Length);
+            Assert.AreEqual(testDataSet[0].Rows.Count, resultSet.RowCount);
 
             // ... The summary should have the same info
             Assert.NotNull(resultSet.Summary.ColumnInfo);
-            Assert.Equal(Common.StandardColumns, resultSet.Summary.ColumnInfo.Length);
-            Assert.Equal(testDataSet[0].Rows.Count, resultSet.Summary.RowCount);
+            Assert.AreEqual(Common.StandardColumns, resultSet.Summary.ColumnInfo.Length);
+            Assert.AreEqual(testDataSet[0].Rows.Count, resultSet.Summary.RowCount);
 
             // and:
             //
@@ -130,11 +130,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         /// Read to End test
         /// </summary>
         /// <param name="testDataSet"></param>
-        [Theory]
-        [MemberData(nameof(ReadToEndSuccessData), parameters: 3)]
+        [Test]
+        [TestCaseSource(nameof(ReadToEndSuccessData))]
         public async Task ReadToEndSuccessSeveralTimes(TestResultSet[] testDataSet)
         {
-            const int NumberOfInvocations = 5000;
+            const int NumberOfInvocations = 500;
             List<Task> allTasks = new List<Task>();
             Parallel.ForEach(Partitioner.Create(0, NumberOfInvocations), (range) =>
             {
@@ -149,21 +149,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             await Task.WhenAll(allTasks);
         }
 
-        public static IEnumerable<object[]> ReadToEndSuccessData(int numTests) => Common.TestResultSetsEnumeration.Select(r => new object[] { new TestResultSet[] { r } }).Take(numTests);
+        public static readonly IEnumerable<object[]> ReadToEndSuccessData = Common.TestResultSetsEnumeration.Select(r => new object[] { new TestResultSet[] { r } }).Take(6);
 
-        [Theory]
-        [MemberData(nameof(CallMethodWithoutReadingData))]
+        [Test]
+        [TestCaseSource(nameof(CallMethodWithoutReadingData))]
         public void CallMethodWithoutReading(Action<ResultSet> testMethod)
         {
             // Setup: Create a new result set with valid db data reader
             var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
             ResultSet resultSet = new ResultSet(Common.Ordinal, Common.Ordinal, fileStreamFactory);
-
-            // If: 
-            // ... I have a result set that has not been read
-            // ... and I attempt to call a method on it
-            // Then: It should throw an exception
-            Assert.ThrowsAny<Exception>(() => testMethod(resultSet));
+            Assert.That(() => testMethod(resultSet), Throws.InstanceOf<Exception>(), "I have a result set that has not been read. I attempt to call a method on it. It should throw an exception");
         }
 
         public static IEnumerable<object[]> CallMethodWithoutReadingData
@@ -239,10 +234,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         /// </summary>
         /// <param name="forType"></param>
         /// <returns></returns>
-        [Theory]
-        [InlineData("JSON")]
-        [InlineData("XML")]
-        public async Task ReadToEndForXmlJson(string forType)
+        [Test]
+        public async Task ReadToEndForXmlJson([Values("JSON", "XML")] string forType)
         {
             // Setup:
             // ... Build a FOR XML or FOR JSON data set
@@ -306,8 +299,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // ... There should only be one column
             // ... There should only be one row
             //
-            Assert.Equal(1, resultSet.Columns.Length);
-            Assert.Equal(1, resultSet.RowCount);
+            Assert.AreEqual(1, resultSet.Columns.Length);
+            Assert.AreEqual(1, resultSet.RowCount);
 
 
             // and:
@@ -322,14 +315,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             var task = resultSet.GetSubset(0, 10);
             task.Wait();
             var subset = task.Result;
-            Assert.Equal(1, subset.RowCount);
+            Assert.AreEqual(1, subset.RowCount);
         }
 
-        [Theory]
-        [InlineData(-1, 0)] // Too small start row
-        [InlineData(20, 0)] // Too large start row
-        [InlineData(0, -1)] // Negative row count
-        public async Task GetSubsetInvalidParameters(int startRow, int rowCount)
+        [Test, Sequential]
+        public async Task GetSubsetInvalidParameters([Values(-1,20,0)] int startRow, 
+                                                     [Values(0,0,-1)] int rowCount)
         {
             // If:
             // ... I create a new result set with a valid db data reader
@@ -342,15 +333,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // ... And attempt to get a subset with invalid parameters
             // Then:
             // ... It should throw an exception for an invalid parameter
-            await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => resultSet.GetSubset(startRow, rowCount));
+            Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => resultSet.GetSubset(startRow, rowCount));
         }
 
-        [Theory]
-        [InlineData(0, 3)]     // Standard scenario, 3 rows should come back
-        [InlineData(0, 20)]    // Asking for too many rows, 5 rows should come back
-        [InlineData(1, 3)]     //  Asking for proper subset of rows from non-zero start
-        [InlineData(1, 20)]    // Asking for too many rows at a non-zero start
-        public async Task GetSubsetSuccess(int startRow, int rowCount)
+        [Test]
+        public async Task GetSubsetSuccess([Values(0,1)]int startRow, 
+                                           [Values(3,20)] int rowCount)
         {
             // If:
             // ... I create a new result set with a valid db data reader
@@ -365,20 +353,20 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // Then:
             // ... rows sub-array and RowCount field of the subset should match
-            Assert.Equal(subset.RowCount, subset.Rows.Length);
+            Assert.AreEqual(subset.RowCount, subset.Rows.Length);
 
             // Then:
             // ... There should be rows in the subset, either the number of rows or the number of
             //     rows requested or the number of rows in the result set, whichever is lower
             long availableRowsFromStart = resultSet.RowCount - startRow;
-            Assert.Equal(Math.Min(availableRowsFromStart, rowCount), subset.RowCount);
+            Assert.AreEqual(Math.Min(availableRowsFromStart, rowCount), subset.RowCount);
 
             // ... The rows should have the same number of columns as the resultset
-            Assert.Equal(resultSet.Columns.Length, subset.Rows[0].Length);
+            Assert.AreEqual(resultSet.Columns.Length, subset.Rows[0].Length);
         }
 
-        [Theory]
-        [MemberData(nameof(RowInvalidParameterData))]
+        [Test]
+        [TestCaseSource(nameof(RowInvalidParameterData))]
         public async Task RowInvalidParameter(Action<ResultSet> actionToPerform)
         {
             // If: I create a new result set and execute it
@@ -387,8 +375,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             ResultSet resultSet = new ResultSet(Common.Ordinal, Common.Ordinal, fileStreamFactory);
             await resultSet.ReadResultToEnd(mockReader, CancellationToken.None);
 
-            // Then: Attempting to read an invalid row should fail
-            Assert.ThrowsAny<Exception>(() => actionToPerform(resultSet));
+            Assert.That(() => actionToPerform(resultSet), Throws.InstanceOf<Exception>(), "Attempting to read an invalid row should fail");
         }
 
         public static IEnumerable<object[]> RowInvalidParameterData
@@ -413,7 +400,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             }
         }
 
-        [Fact]
+        [Test]
         public async Task RemoveRowSuccess()
         {
             // Setup: Create a result set that has the standard data set on it
@@ -428,11 +415,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // Then:
             // ... The row count should decrease
             // ... The last row should have moved up by 1
-            Assert.Equal(Common.StandardRows - 1, resultSet.RowCount);
+            Assert.AreEqual(Common.StandardRows - 1, resultSet.RowCount);
             Assert.Throws<ArgumentOutOfRangeException>(() => resultSet.GetRow(Common.StandardRows - 1));
         }
 
-        [Fact]
+        [Test]
         public async Task AddRowNoRows()
         {
             // Setup: 
@@ -448,13 +435,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // If: I add a row with a reader that has no rows
             // Then: 
             // ... I should get an exception
-            await Assert.ThrowsAsync<InvalidOperationException>(() => resultSet.AddRow(emptyReader));
+            Assert.ThrowsAsync<InvalidOperationException>(() => resultSet.AddRow(emptyReader));
 
             // ... The row count should not have changed
-            Assert.Equal(Common.StandardRows, resultSet.RowCount);
+            Assert.AreEqual(Common.StandardRows, resultSet.RowCount);
         }
 
-        [Fact]
+        [Test]
         public async Task AddRowThrowsOnRead()
         {
             // Setup:
@@ -467,16 +454,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // ... Create a mock reader that will throw on read
             var throwingReader = GetReader(new[] {new TestResultSet(5, 0)}, true, Constants.StandardQuery);
             
-            // If: I add a row with a reader that throws on read
-            // Then:
-            // ... I should get an exception
-            await Assert.ThrowsAnyAsync<DbException>(() => resultSet.AddRow(throwingReader));
-            
+            Assert.ThrowsAsync<TestDbException>(() => resultSet.AddRow(throwingReader), "I add a row with a reader that throws on read. I should get an exception");
+
             // ... The row count should not have changed
-            Assert.Equal(Common.StandardRows, resultSet.RowCount); 
+            Assert.AreEqual(Common.StandardRows, resultSet.RowCount); 
         }
 
-        [Fact]
+        [Test]
         public async Task AddRowSuccess()
         {
             // Setup: 
@@ -497,13 +481,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // Then:
             // ... There should be a new row in the list of rows
-            Assert.Equal(Common.StandardRows + 1, resultSet.RowCount);
+            Assert.AreEqual(Common.StandardRows + 1, resultSet.RowCount);
 
-            // ... The new row should be readable and all cells contain the test value
-            Assert.All(resultSet.GetRow(Common.StandardRows), cell => Assert.Equal("QQQ", cell.RawObject));
+            Assert.That(resultSet.GetRow(Common.StandardRows).Select(r => r.RawObject), Has.All.EqualTo("QQQ"), "The new row should be readable and all cells contain the test value");
         }
 
-        [Fact]
+        [Test]
         public async Task UpdateRowNoRows()
         {
             // Setup: 
@@ -519,13 +502,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // If: I add a row with a reader that has no rows
             // Then: 
             // ... I should get an exception
-            await Assert.ThrowsAsync<InvalidOperationException>(() => resultSet.UpdateRow(0, emptyReader));
+            Assert.ThrowsAsync<InvalidOperationException>(() => resultSet.UpdateRow(0, emptyReader));
 
             // ... The row count should not have changed
-            Assert.Equal(Common.StandardRows, resultSet.RowCount);
+            Assert.AreEqual(Common.StandardRows, resultSet.RowCount);
         }
 
-        [Fact]
+        [Test]
         public async Task UpdateRowSuccess()
         {
             // Setup: 
@@ -546,10 +529,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // Then:
             // ... There should be the same number of rows
-            Assert.Equal(Common.StandardRows, resultSet.RowCount);
+            Assert.AreEqual(Common.StandardRows, resultSet.RowCount);
 
-            // ... The new row should be readable and all cells contain the test value
-            Assert.All(resultSet.GetRow(0), cell => Assert.Equal("QQQ", cell.RawObject));
+            Assert.That(resultSet.GetRow(0).Select(c => c.RawObject), Has.All.EqualTo("QQQ"), "The new row should be readable and all cells contain the test value");
         }
 
         private static DbDataReader GetReader(TestResultSet[] dataSet, bool throwOnRead, string query)

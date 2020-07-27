@@ -6,7 +6,7 @@
 using System;
 using System.Linq;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 {
@@ -15,7 +15,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
     /// </summary>
     public class LongListTests
     {
-        [Fact]
+        [Test]
         public void LongListConstruction()
         {
             // If: I construct a new long list
@@ -23,42 +23,36 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 
             // Then:
             // ... There should be no values in the list
-            Assert.Equal(0, ll.Count);
+            Assert.AreEqual(0, ll.Count);
         }
 
         #region GetItem / Add Tests
 
-        [Theory]
-        [InlineData(-1L)]   // Negative index
-        [InlineData(0L)]    // Index equal to count of elements
-        [InlineData(100L)]  // Index larger than elements
-        public void GetItemOutOfRange(long index)
+        [Test]
+        public void GetItemOutOfRange([Values(-1L, 0L, 100L)] long index)
         {
             // If: I construct a new long list
             LongList<char> ll = new LongList<char>();
 
             // Then:
             // ... There should be no values in the list
-            Assert.Throws<ArgumentOutOfRangeException>(() => ll[index]);
+            Assert.Throws<ArgumentOutOfRangeException>(() => { var x = ll[index]; }) ;
             Assert.Throws<ArgumentOutOfRangeException>(() => ll.GetItem(index));
         }
 
-        [Theory]
-        [InlineData(0)]    // Element at beginning
-        [InlineData(1)]    // Element in middle
-        [InlineData(2)]    // Element at end
-        public void GetItemNotExpanded(long index)
+        [Test]
+        public void GetItemNotExpanded([Values(0,1,2)] long index)
         {
             // If: I construct a new long list with a couple items in it
             LongList<int> ll = new LongList<int> {0, 1, 2};
 
             // Then: I can read back the value from the list
-            Assert.Equal(3, ll.Count);
-            Assert.Equal(index, ll[index]);
-            Assert.Equal(index, ll.GetItem(index));
+            Assert.AreEqual(3, ll.Count);
+            Assert.AreEqual(index, ll[index]);
+            Assert.AreEqual(index, ll.GetItem(index));
         }
 
-        [Fact]
+        [Test]
         public void GetItemExanded()
         {
             // If: I construct a new long list that is guaranteed to have been expanded
@@ -70,11 +64,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 
             // Then:
             // ... All the added values should be accessible
-            Assert.Equal(10, ll.Count);
+            Assert.AreEqual(10, ll.Count);
             for (int i = 0; i < 10; i++)
             {
-                Assert.Equal(i, ll[i]);
-                Assert.Equal(i, ll.GetItem(i));
+                Assert.AreEqual(i, ll[i]);
+                Assert.AreEqual(i, ll.GetItem(i));
             }
         }
 
@@ -82,11 +76,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 
         #region SetItem Tests
 
-        [Theory]
-        [InlineData(-1L)]   // Negative index
-        [InlineData(0L)]    // Index equal to count of elements
-        [InlineData(100L)]  // Index larger than elements
-        public void SetItemOutOfRange(long index)
+        [Test]
+        public void SetItemOutOfRange([Values(-1L, 0L, 100L)] long index)
         {
             // If: I construct a new long list
             LongList<int> ll = new LongList<int>();
@@ -97,7 +88,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             Assert.Throws<ArgumentOutOfRangeException>(() => ll.SetItem(index, 8));
         }
 
-        [Fact]
+        [Test]
         public void SetItemNotExpanded()
         {
             // If:
@@ -109,11 +100,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
                 ll.SetItem(i, 8);
             }
 
-            // Then: All values in the list should be 8
-            Assert.All(ll, i => Assert.Equal(8, i));
+            Assert.That(ll, Has.All.EqualTo(8), "All values in the list should be 8");
         }
 
-        [Fact]
+        [Test]
         public void SetItemIndexerNotExpanded()
         {
             // If:
@@ -125,11 +115,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
                 ll[i] = 8;
             }
 
-            // Then: All values in the list should be 8
-            Assert.All(ll, i => Assert.Equal(8, i));
+            Assert.That(ll, Has.All.EqualTo(8), "All values in the list should be 8");
         }
 
-        [Fact]
+        [Test]
         public void SetItemExpanded()
         {
             // If:
@@ -146,11 +135,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
                 ll.SetItem(i, 8);
             }
 
-            // Then: All values in the list should be 8
-            Assert.All(ll, i => Assert.Equal(8, i));
+            Assert.That(ll, Has.All.EqualTo(8), "All values in the list should be 8");
         }
 
-        [Fact]
+        [Test]
         public void SetItemIndexerExpanded()
         {
             // If:
@@ -167,19 +155,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
                 ll[i] = 8;
             }
 
-            // Then: All values in the list should be 8
-            Assert.All(ll, i => Assert.Equal(8, i));
+            Assert.That(ll, Has.All.EqualTo(8), "All values in the list should be 8");
         }
 
         #endregion
 
         #region RemoveAt Tests
 
-        [Theory]
-        [InlineData(-1L)]   // Negative index
-        [InlineData(0L)]    // Index equal to count of elements
-        [InlineData(100L)]  // Index larger than elements
-        public void RemoveOutOfRange(long index)
+        [Test]
+        public void RemoveOutOfRange([Values(-1L, 0L, 100L)] long index)
         {
             // If: I construct a new long list
             LongList<char> ll = new LongList<char>();
@@ -189,11 +173,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             Assert.Throws<ArgumentOutOfRangeException>(() => ll.RemoveAt(index));
         }
 
-        [Theory]
-        [InlineData(0)]    // Remove at beginning of list
-        [InlineData(2)]    // Remove from middle of list
-        [InlineData(4)]    // Remove at end of list
-        public void RemoveAtNotExpanded(long index)
+        [Test]
+        public void RemoveAtNotExpanded([Values(0,2,4)] long index)
         {
             // If:
             // ... I create a long list with a few elements in it (and one element that will be removed)
@@ -208,13 +189,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 
             // Then:
             // ... The count should have subtracted
-            Assert.Equal(4, ll.Count);
+            Assert.AreEqual(4, ll.Count);
 
-            // ... All values should be 8 since we removed the 1
-            Assert.All(ll, i => Assert.Equal(8, i));
+            Assert.That(ll, Has.All.EqualTo(8), "All values in the list should be 8 since we removed the 1");
         }
 
-        [Fact]
+        [Test]
         public void RemoveAtExpanded()
         {
             // If:
@@ -240,7 +220,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             // ... The second half of the values should still remain
             for (int i = 0; i < 10; i++)
             {
-                Assert.Equal(i, ll[i]);
+                Assert.AreEqual(i, ll[i]);
             }
 
             // If:
@@ -256,7 +236,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
                 for (int i = 0; i < 10; i++)
                 {
                     int index = j * 10 + i;
-                    Assert.Equal(i, ll[index]);
+                    Assert.AreEqual(i, ll[index]);
                 }
             }
         }
@@ -265,7 +245,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 
         #region IEnumerable Tests
 
-        [Fact]
+        [Test]
         public void GetEnumerator()
         {
             // Setup: Create a long list with a handful of elements
@@ -280,11 +260,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             int val = 0;
             foreach (int element in ll)
             {
-                Assert.Equal(val++, element);
+                Assert.AreEqual(val++, element);
             }
         }
 
-        [Fact]
+        [Test]
         public void GetEnumeratorExpanded()
         {
             // Setup: Create a long list with a handful of elements
@@ -299,15 +279,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             int val = 0;
             foreach (int element in ll)
             {
-                Assert.Equal(val++, element);
+                Assert.AreEqual(val++, element);
             }
         }
 
-        [Theory]
-        [InlineData(-1)]    // Negative
-        [InlineData(5)]     // Equal to count
-        [InlineData(100)]   // Far too large
-        public void LongSkipOutOfRange(long index)
+        [Test]
+        public void LongSkipOutOfRange([Values(-1,5,100)] long index)
         {
             // Setup: Create a long list with a handful of elements
             LongList<int> ll = new LongList<int> {ExpandListSize = 2};
@@ -323,10 +300,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             Assert.Throws<ArgumentOutOfRangeException>(() => ll.LongSkip(index).ToArray());
         }
 
-        [Theory]
-        [InlineData(0)]    // Don't actually skip anything
-        [InlineData(2)]    // Skip within the short list
-        public void LongSkip(long index)
+        [Test]
+        public void LongSkip([Values(0,2)] long index)
         {
             // Setup: Create a long list with a handful of elements
             LongList<int> ll = new LongList<int>();
@@ -341,15 +316,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             // Then: The elements including the skip start index should be in the output
             for (int i = 0; i < values.Length; i++)
             {
-                Assert.Equal(ll[i+index], values[i]);
+                Assert.AreEqual(ll[i+index], values[i]);
             }
         }
 
-        [Theory]
-        [InlineData(0)]    // Don't actually skip anything
-        [InlineData(1)]    // Skip within the short list
-        [InlineData(3)]    // Skip across expanded lists
-        public void LongSkipExpanded(long index)
+        [Test]
+        public void LongSkipExpanded([Values(0,1,3)] long index)
         {
             // Setup: Create a long list with a handful of elements
             LongList<int> ll = new LongList<int> {ExpandListSize = 2};
@@ -364,7 +336,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             // Then: The elements including the skip start index should be in the output
             for (int i = 0; i < values.Length; i++)
             {
-                Assert.Equal(ll[i+index], values[i]);
+                Assert.AreEqual(ll[i+index], values[i]);
             }
         }
 
@@ -373,7 +345,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         /// <summary>
         /// Add and remove and item in a LongList causing an expansion
         /// </summary>
-        [Fact]
+        [Test]
         public void LongListExpandTest()
         {
             var longList = new LongList<int> {ExpandListSize = 3};
@@ -381,7 +353,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             {
                 longList.Add(i);
             }
-            Assert.Equal(6, longList.Count);
+            Assert.AreEqual(6, longList.Count);
             Assert.NotNull(longList.GetItem(4));
             
             bool didEnum = false;
@@ -394,7 +366,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             Assert.True(didEnum);
 
             longList.RemoveAt(4);
-            Assert.Equal(5, longList.Count);
+            Assert.AreEqual(5, longList.Count);
         }
     }
 }

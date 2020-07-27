@@ -9,14 +9,14 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 {
     public class SmoQueryModelTests
     {
 
-        [Fact]
+        [Test]
         public void ShouldFindDatabaseQuerierFromRealPath()
         {
             // Given the extension type loader is set to find SmoCollectionQuerier objects
@@ -25,53 +25,53 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             SmoQuerier querier = serviceProvider.GetService<SmoQuerier>(q => q.SupportedObjectTypes.Contains(typeof(Database)));
             // Then I expect to get back the SqlDatabaseQuerier
             Assert.NotNull(querier);
-            Assert.Equal(typeof(SqlDatabaseQuerier), querier.GetType());
+            Assert.AreEqual(typeof(SqlDatabaseQuerier), querier.GetType());
 
             // And I expect the service provider to have been set by the extension code
             Assert.NotNull(querier.ServiceProvider);
         }
         
-        [Fact]
+        [Test]
         public void ShouldFindQuerierIfInExtensionList()
         {
             VerifyQuerierLookup(typeof(Table), typeof(SqlTableQuerier), expectExists: true);
         }
 
-        [Fact]
+        [Test]
         public void ShouldNotFindQuerierIfNotInExtensionList()
         {
             VerifyQuerierLookup(typeof(Database), null, expectExists: false);
         }
 
-        [Fact]
+        [Test]
         public void SqlServerDdlTriggerQuerierShouldNotBeAvailableForSqlDw()
         {
             SmoQuerier querier = GetSmoQuerier(typeof(ServerDdlTrigger));
             Assert.False(querier.ValidFor.HasFlag(ValidForFlag.SqlDw));
         }
 
-        [Fact]
+        [Test]
         public void SqlSynonymQuerierShouldNotBeAvailableForSqlDw()
         {
             SmoQuerier querier = GetSmoQuerier(typeof(Synonym));
             Assert.False(querier.ValidFor.HasFlag(ValidForFlag.SqlDw));
         }
 
-        [Fact]
+        [Test]
         public void SqlTriggerQuerierShouldNotBeAvailableForSqlDw()
         {
             SmoQuerier querier = GetSmoQuerier(typeof(Trigger));
             Assert.False(querier.ValidFor.HasFlag(ValidForFlag.SqlDw));
         }
 
-        [Fact]
+        [Test]
         public void SqlFullTextIndexQuerierShouldNotBeAvailableForSqlDw()
         {
             SmoQuerier querier = GetSmoQuerier(typeof(FullTextIndex));
             Assert.False(querier.ValidFor.HasFlag(ValidForFlag.SqlDw));
         }
 
-        [Fact]
+        [Test]
         public void TableValuedFunctionsIncludeInlineFunctions()
         {
             var tableFactory = new TableValuedFunctionsChildFactory();
@@ -106,7 +106,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             if (expectExists)
             {
                 Assert.NotNull(querier);
-                Assert.Equal(querierType, querier.GetType());
+                Assert.AreEqual(querierType, querier.GetType());
                 Assert.NotNull(querier.ServiceProvider);
             }
             else

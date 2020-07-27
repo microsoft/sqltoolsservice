@@ -5,7 +5,7 @@
 
 using Microsoft.SqlTools.Hosting.Protocol.Serializers;
 using Newtonsoft.Json.Linq;
-using Xunit;
+using NUnit.Framework;
 using HostingMessage = Microsoft.SqlTools.Hosting.Protocol.Contracts.Message;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
@@ -39,7 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
             this.messageSerializer = new JsonRpcMessageSerializer();
         }
 
-        [Fact]
+        [Test]
         public void SerializesRequestMessages()
         {
             var messageObj =
@@ -56,7 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
                 checkParams: true);
         }
 
-        [Fact]
+        [Test]
         public void SerializesEventMessages()
         {
             var messageObj =
@@ -71,7 +71,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
                 checkParams: true);
         }
 
-        [Fact]
+        [Test]
         public void SerializesResponseMessages()
         {
             var messageObj =
@@ -87,7 +87,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
                 checkResult: true);
         }
 
-        [Fact]
+        [Test]
         public void SerializesResponseWithErrorMessages()
         {
             var messageObj =
@@ -114,18 +114,18 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
             JToken token = null;
 
             Assert.True(messageObj.TryGetValue("jsonrpc", out token));
-            Assert.Equal("2.0", token.ToString());
+            Assert.AreEqual("2.0", token.ToString());
 
             if (checkId)
             {
                 Assert.True(messageObj.TryGetValue("id", out token));
-                Assert.Equal(MessageId, token.ToString());
+                Assert.AreEqual(MessageId, token.ToString());
             }
 
             if (checkMethod)
             {
                 Assert.True(messageObj.TryGetValue("method", out token));
-                Assert.Equal(MethodName, token.ToString());
+                Assert.AreEqual(MethodName, token.ToString());
             }
 
             if (checkError)
