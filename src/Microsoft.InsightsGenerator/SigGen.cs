@@ -6,17 +6,16 @@ namespace Microsoft.InsightsGenerator
     class SignatureGenerator
     {
         private DataArray table;
-        private SignatureGeneratorResult results;
+        private SignatureGeneratorResult result;
         public SignatureGenerator(DataArray table)
         {
             this.table = table;
-            results = new SignatureGeneratorResult();
+            result = new SignatureGeneratorResult();
         }
 
         public SignatureGeneratorResult Learn()
         {
-            return results;
-            
+            return result;
         }
     }
 }
