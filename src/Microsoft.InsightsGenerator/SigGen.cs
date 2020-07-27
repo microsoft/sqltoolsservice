@@ -8,8 +8,8 @@ namespace Microsoft.InsightsGenerator
         {
             this.table = table;
         }
-        
-        public Learn()
+
+        public SignatureGeneratorResult Learn()
         {
 
         }
