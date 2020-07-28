@@ -92,6 +92,16 @@ namespace Microsoft.InsightsGenerator
             return rows.Sum(row => double.Parse(row[colIndex].ToString()));
         }
 
+        private double CalculateColumnMin(object[][] rows, int colIndex)
+        {
+            return rows.Min(row => double.Parse(row[colIndex].ToString()));
+        }
+
+        private double CalculateColumnMax(object[][] rows, int colIndex)
+        {
+            return rows.Max(row => double.Parse(row[colIndex].ToString()));
+        }
+
         private object[][] GetRowsBasedOnInputName(string inputName, int colIndex)
         {
             var cellCopy = DeepCloneCells(Table.Cells);
