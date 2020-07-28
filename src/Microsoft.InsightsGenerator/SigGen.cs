@@ -22,7 +22,7 @@ namespace Microsoft.InsightsGenerator
 
         private void TopNItems(int colIndex, int n)
         {
-            var sortedCells = SortCellsByColumn(colIndex);
+        /*    var sortedCells = SortCellsByColumn(colIndex);
             List<string> items = new List<string>();
             for (int i = 0; i < n && i < sortedCells.Length; i++)
             {
@@ -35,7 +35,7 @@ namespace Microsoft.InsightsGenerator
             };
 
             Result.Insights.Add(InsightTypes.Average, topResults);
-        }
+     */   }
 
         /// <summary>
         /// Getting 
@@ -50,7 +50,7 @@ namespace Microsoft.InsightsGenerator
 
         private void BottomNItems(int colIndex, int n)
         {
-            var sortedCells = SortCellsByColumn(colIndex);
+       /*     var sortedCells = SortCellsByColumn(colIndex);
             List<string> items = new List<string>();
             for (int i = sortedCells.Length - 1; n > 0 && i > 0; i--, n--)
             {
@@ -63,23 +63,43 @@ namespace Microsoft.InsightsGenerator
             };
 
             Result.Insights.Add(InsightTypes.Average, bottomResults);
-        }
-
-        private void Average(int colIndex)
-        {
-            int total = 0;
-            foreach (var row in Table.Cells)
-            {
-                total += int.Parse(row[colIndex].ToString());
+        */
             }
 
-            SignatureGeneratorResult.InsightValues averageResult = new SignatureGeneratorResult.InsightValues
-            {
-                ColumnName = Table.ColumnNames[colIndex],
-                Values = new string[] { (total / Table.Cells.Length).ToString() }
-            };
+        private void OverallAverageInsights(int colIndex)
+        {
+            var outputList = new List<string>();
+            outputList.Add("average");
+            outputList.Add(CalculateColumnAverage(Table.Cells, colIndex).ToString());
+        }
 
-            Result.Insights.Add(InsightTypes.Average, averageResult);
+        private void OverallSumInsights(int colIndex)
+        {
+            var outputList = new List<string>();
+            outputList.Add("sum");
+            outputList.Add(CalculateColumnSum(Table.Cells, colIndex).ToString());
+        }
+
+        private double CalculateColumnAverage(object[][] rows, int colIndex)
+        {
+            return CalculateColumnSum(rows, colIndex) / rows.Length;
+        }
+
+        private double CalculateColumnSum(object[][] rows, int colIndex)
+        {
+            return rows.Sum(row => double.Parse(row[colIndex].ToString()));
+        }
+
+        private object[][] GetRowsBasedOnInputName(string inputName, int colIndex)
+        {
+            var cellCopy = DeepCloneCells(Table.Cells);
+            return cellCopy.Where(row => row[colIndex].ToString() == inputName).ToArray();
+        }
+
+        private string[] GetUniqueInputColums(int colIndex)
+        {
+            var cellCopy = DeepCloneCells(Table.Cells);
+            return cellCopy.Select(row => row[colIndex].ToString()).Distinct().ToArray();
         }
 
         /// <summary>
