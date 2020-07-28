@@ -7,9 +7,18 @@ namespace Microsoft.InsightsGenerator
 {
     public class DataArray
     {
+        public enum DataType 
+        {
+            Number,
+            String,
+            DateTime
+        }
+
         public string[] ColumnNames { get; set; }
 
-        public object[] Rows { get; set; }
+        public DataType[] ColumnDataType { get; set; }
+
+        public object[][] Cells { get; set; }
     }
 }
 
