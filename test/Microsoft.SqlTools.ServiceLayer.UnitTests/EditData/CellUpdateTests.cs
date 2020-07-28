@@ -185,21 +185,33 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Throws<InvalidOperationException>(() => new CellUpdate(col, value));
         }
 
+        /// <summary>
+        /// Not using TestCaseSource because nUnit's test name generator
+        /// doesn't like DbColumnWrapper objects as a source, due 
+        /// to that class lacking a ToString override.
+        /// </summary>
+        /// <param name="col"></param>
+        /// <param name="obj"></param>
         [Test]
-        [TestCaseSource(nameof(RoundTripTestParams))]
-        public void RoundTripTest(DbColumnWrapper col, object obj)
+        public void RoundTripTest()
         {
-            // Setup: Figure out the test string
-            string testString = obj.ToString();
+            foreach (var inputs in RoundTripTestParams)
+            {
 
-            // If: I attempt to create a CellUpdate
-            CellUpdate cu = new CellUpdate(col, testString);
+                var col = (DbColumnWrapper)inputs[0];
+                var obj = inputs[1];
+                // Setup: Figure out the test string
+                string testString = obj.ToString();
 
-            // Then: The value and type should match what we put in
-            Assert.That(cu.Value, Is.InstanceOf(col.DataType));
-            Assert.AreEqual(obj, cu.Value);
-            Assert.AreEqual(testString, cu.ValueAsString);
-            Assert.AreEqual(col, cu.Column);
+                // If: I attempt to create a CellUpdate
+                CellUpdate cu = new CellUpdate(col, testString);
+
+                // Then: The value and type should match what we put in
+                Assert.That(cu.Value, Is.InstanceOf(col.DataType));
+                Assert.AreEqual(obj, cu.Value);
+                Assert.AreEqual(testString, cu.ValueAsString);
+                Assert.AreEqual(col, cu.Column);
+            }
         }
 
         public static IEnumerable<object[]> RoundTripTestParams

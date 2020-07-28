@@ -539,23 +539,25 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
                 (reader, rowId) => reader.ReadBytes(0, rowId));
         }
 
-        public static IEnumerable<object[]> GuidTestParameters
+        private static IEnumerable<Guid> GuidTestParameters
         {
             get
             {
-                yield return new object[] {Guid.Empty};
-                yield return new object[] {Guid.NewGuid()};
-                yield return new object[] {Guid.NewGuid()};
+                yield return Guid.Empty;
+                yield return Guid.NewGuid();
+                yield return Guid.NewGuid();
             }
         }
 
         [Test]
-        [TestCaseSource(nameof(GuidTestParameters))]
-        public void GuidTest(Guid testValue)
+        public void GuidTest()
         {
-            VerifyReadWrite(testValue.ToByteArray().Length + 1, testValue,
-                (writer, val) => writer.WriteGuid(testValue),
-                (reader, rowId) => reader.ReadGuid(0, rowId));
+            foreach (var testValue in GuidTestParameters)
+            {
+                VerifyReadWrite(testValue.ToByteArray().Length + 1, testValue,
+                    (writer, val) => writer.WriteGuid(testValue),
+                    (reader, rowId) => reader.ReadGuid(0, rowId));
+            }
         }
 
         [Test]
