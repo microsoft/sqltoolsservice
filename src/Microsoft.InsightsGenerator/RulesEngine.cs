@@ -67,13 +67,6 @@ namespace Microsoft.InsightsGenerator
             return Rules_templateID;
         }
 
-        public static Dictionary<int, string> RulesGeneratorFromInput(string singleHashHeaders, string doublehashHeaders)
-        {
-
-            string rules = null;
-            //rulesgenerator
-            return rules;
-        }
         public static string RulesChecking(string singleHashHeaders, string doublehashHeaders)
         {
             string template = null;
