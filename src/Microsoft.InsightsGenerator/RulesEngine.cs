@@ -1,9 +1,10 @@
-﻿using System;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using System.Diagnostics;
 using System.IO;
 
@@ -81,13 +82,6 @@ namespace Microsoft.InsightsGenerator
             //}
 
             return template;
-        }
-
-        public static void Main(string[] args)
-        {
-            //calling InsightsGenerator
-            //RulesChecking(input from Insights generater);
-            //return;
         }
     }
 }
