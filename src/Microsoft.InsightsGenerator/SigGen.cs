@@ -71,6 +71,7 @@ namespace Microsoft.InsightsGenerator
             var outputList = new List<string>();
             outputList.Add("average");
             outputList.Add(CalculateColumnAverage(Table.Cells, colIndex).ToString());
+            Result.Insights.Add(outputList);
         }
 
         private void OverallSumInsights(int colIndex)
@@ -78,6 +79,7 @@ namespace Microsoft.InsightsGenerator
             var outputList = new List<string>();
             outputList.Add("sum");
             outputList.Add(CalculateColumnSum(Table.Cells, colIndex).ToString());
+            Result.Insights.Add(outputList);
         }
 
         private double CalculateColumnAverage(object[][] rows, int colIndex)
