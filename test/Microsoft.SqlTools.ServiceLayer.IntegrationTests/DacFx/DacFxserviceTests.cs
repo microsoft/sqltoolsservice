@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.DacFx;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
@@ -16,12 +17,14 @@ using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
+using Moq;
 using Xunit;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
 {
     public class DacFxServiceTests
     {
+        private string publishProfileFolder = Path.Combine("..", "..", "..", "DacFx", "PublishProfiles");
         private const string SourceScript = @"CREATE TABLE [dbo].[table1]
 (
     [ID] INT NOT NULL PRIMARY KEY,
@@ -676,6 +679,80 @@ RETURN 0
                     targetDb.Cleanup();
                 }
             }
+        }
+
+        // <summary>
+        /// Verify that options can get retrieved from publish profile
+        /// </summary>
+        [Fact]
+        public async void GetOptionsFromProfile()
+        {
+            DeploymentOptions expectedResults = new DeploymentOptions()
+            {
+                ExcludeObjectTypes = null,
+                IncludeCompositeObjects = true,
+                BlockOnPossibleDataLoss = true,
+                AllowIncompatiblePlatform = true
+            };
+
+            var dacfxRequestContext = new Mock<RequestContext<DacFxOptionsResult>>();
+            dacfxRequestContext.Setup((RequestContext<DacFxOptionsResult> x) => x.SendResult(It.Is<DacFxOptionsResult>((result) => ValidateOptions(expectedResults, result.DeploymentOptions) == true))).Returns(Task.FromResult(new object()));
+
+            DacFxService service = new DacFxService();
+            string file = Path.Combine(publishProfileFolder, "profileWithOptions.publish.xml");
+
+            var getOptionsFromProfileParams = new GetOptionsFromProfileParams
+            {
+                ProfilePath = file
+            };
+
+            await service.HandleGetOptionsFromProfileRequest(getOptionsFromProfileParams, dacfxRequestContext.Object);
+            dacfxRequestContext.VerifyAll();
+        }
+
+        // <summary>
+        /// Verify that default options are returned if a profile doesn't specify any options
+        /// </summary>
+        [Fact]
+        public async void GetOptionsFromProfileWithoutOptions()
+        {
+            DeploymentOptions expectedResults = new DeploymentOptions();
+            expectedResults.ExcludeObjectTypes = null;
+
+            var dacfxRequestContext = new Mock<RequestContext<DacFxOptionsResult>>();
+            dacfxRequestContext.Setup((RequestContext<DacFxOptionsResult> x) => x.SendResult(It.Is<DacFxOptionsResult>((result) => ValidateOptions(expectedResults, result.DeploymentOptions) == true))).Returns(Task.FromResult(new object()));
+
+            DacFxService service = new DacFxService();
+            string file = Path.Combine(publishProfileFolder, "profileNoOptions.publish.xml");
+
+            var getOptionsFromProfileParams = new GetOptionsFromProfileParams
+            {
+                ProfilePath = file
+            };
+
+            await service.HandleGetOptionsFromProfileRequest(getOptionsFromProfileParams, dacfxRequestContext.Object);
+            dacfxRequestContext.VerifyAll();
+        }
+
+        private bool ValidateOptions(DeploymentOptions expected, DeploymentOptions actual)
+        {
+            System.Reflection.PropertyInfo[] deploymentOptionsProperties = expected.GetType().GetProperties();
+            foreach (var v in deploymentOptionsProperties)
+            {
+                var defaultP = v.GetValue(expected);
+                var actualP = v.GetValue(actual);
+
+                if (v.Name == "ExcludeObjectTypes")
+                {
+                    Assert.True((defaultP as ObjectType[])?.Length == (actualP as ObjectType[])?.Length, "Number of excluded objects is different not equal");
+                }
+                else
+                {
+                    Assert.True((defaultP == null && actualP == null) || (defaultP == null && (actualP as string) == string.Empty) || defaultP.Equals(actualP), $"Actual Property from Service is not equal to default property for {v.Name}, Actual value: {actualP} and Default value: {defaultP}");
+                }
+            }
+
+            return true;
         }
 
         private string InitialExtract(DacFxService service, SqlTestDb sourceDb, LiveConnectionHelper.TestConnectionResult result)
