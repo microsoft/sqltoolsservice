@@ -72,10 +72,10 @@ namespace Microsoft.InsightsGenerator.UnitTests
             DataTransformer transformer = new DataTransformer();
             object[][] cells = new object[5][];
             cells[0] = new object[4] { "1/15/2020", "Redmond", "1st Street", 50 };
-            cells[1] = new object[4] { "1/25/2020", "Redmond", "2nd Street", 75 };
-            cells[2] = new object[4] { "1/10/2020", "Bellevue", "3rd Street", 125 };
-            cells[3] = new object[4] { "1/13/2020", "Bellevue", "4th Street", 55 };
-            cells[4] = new object[4] { "1/20/2020", "Bellevue", "5th Street", 95 };
+            cells[1] = new object[4] { "1/25/2020", "Redmond", "2nd Street", 50 };
+            cells[2] = new object[4] { "1/10/2020", "Bellevue", "3rd Street", 50 };
+            cells[3] = new object[4] { "1/13/2020", "Bellevue", "4th Street", 50 };
+            cells[4] = new object[4] { "1/20/2020", "Bellevue", "5th Street", 50 };
 
             DataArray array = new DataArray()
             {

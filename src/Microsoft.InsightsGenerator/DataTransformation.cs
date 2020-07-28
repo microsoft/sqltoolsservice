@@ -34,13 +34,22 @@ namespace Microsoft.InsightsGenerator
         {
             int columnCount = array.Cells[0].Length;
             Dictionary<DataArray.DataType, List<ColumnInfo>> columnInfo = new Dictionary<DataArray.DataType, List<ColumnInfo>>();
+
+            int minStringDistinctValue = -1;
+            int minStringColumnIndex = -1;
             for (int column = 0; column < columnCount; ++column)
             {
-                int distinctValues;
+                int distinctValues;     
                 DataArray.DataType dataType = GetColumnType(array, column, out distinctValues);
                 if (!columnInfo.ContainsKey(dataType))
                 {
                     columnInfo.Add(dataType, new List<ColumnInfo>());
+                }
+
+                if (dataType == DataArray.DataType.String && minStringDistinctValue == -1 || minDistinctValue > distinctValues)
+                {
+                    minDistinctValue = distinctValues;
+                    minColumnIndex = column;
                 }
 
                 columnInfo[dataType].Add(new ColumnInfo()
@@ -66,15 +75,17 @@ namespace Microsoft.InsightsGenerator
             {
                 int startingIndex = 0;
                 List<ColumnInfo> stringColumns = columnInfo[DataArray.DataType.String];
-                if (stringColumns.Count > 1)
+                if (!containsDateTime)
                 {
-                    labels[stringColumns[startingIndex].ColumnIndex] = "input_g_0";
-                    ++startingIndex;
+                    // labels[stringColumns[startingIndex].ColumnIndex] = "input_g_0";
+                    // ++startingIndex;
+                    labels[minColumnIndex] = "input_g_0";
                 }
 
-                for (int i = 0; i < stringColumns.Count - startingIndex; ++i)
+                for (int i = 0; i < stringColumns.Count; ++i)
                 {
-                    labels[stringColumns[i + startingIndex].ColumnIndex] = "slicer_" + i;
+                    if(i != minColumnIndex)
+                        labels[stringColumns[i].ColumnIndex] = "slicer_" + i;
                 }
             }
 
@@ -94,7 +105,7 @@ namespace Microsoft.InsightsGenerator
         {
             // count number of distinct values
             HashSet<object> values = new HashSet<object>();
-            for (int row = 0; row < array.Cells.Length; ++row) 
+            for (int row = 0; row < array.Cells.Length; ++row)
             {
                 if (!values.Contains(array.Cells[row][column]))
                 {
@@ -120,7 +131,7 @@ namespace Microsoft.InsightsGenerator
                 {
                     return DataArray.DataType.Number;
                 }
-    
+
                 DateTime dateValue;
                 if (DateTime.TryParse(firstValueString, out dateValue))
                 {
