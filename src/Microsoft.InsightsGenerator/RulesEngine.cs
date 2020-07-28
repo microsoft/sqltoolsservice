@@ -4,9 +4,10 @@
 //
 
 using System.Collections.Generic;
-using System.Linq;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Microsoft.InsightsGenerator
 {
@@ -30,7 +31,8 @@ namespace Microsoft.InsightsGenerator
             ch.DoubleHashValues = new List<string>();
             while (!file.EndOfStream)
             {
-                line = file.ReadLine();
+                //line = file.ReadLine().Replace("\\n",string.Empty);
+                line = Regex.Replace(file.ReadLine(), @",|\\n", "");
                 templateText = line;
                 ch.Template = templateText;
                 List<string> keyvalue = line.Split(' ').Select(s => s.Trim()).ToList();
