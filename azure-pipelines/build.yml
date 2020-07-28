@@ -90,10 +90,10 @@ steps:
     workingFolder: test/CodeCoverage
   enabled: false
 
-- script: |
-   copy /Y $(Build.SourcesDirectory)\bin\patch\*  $(Build.SourcesDirectory)\artifacts\publish\Microsoft.SqlTools.ServiceLayer\osx.10.11-x64\netcoreapp3.1\
-   
-  displayName: 'Copy SqlClient KeepAlive patch to macOS archive'
+- task: UseDotNet@2
+  displayName: 'Use .NET Core sdk 2.2.108 for CodeSigning'
+  inputs:
+    version: 2.2.108
 
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
   displayName: 'ESRP CodeSigning - sha256 only'
@@ -221,4 +221,4 @@ schedules:
   displayName: Mon-Fri at 5:00AM
   branches:
     include:
-    - master
+    - main

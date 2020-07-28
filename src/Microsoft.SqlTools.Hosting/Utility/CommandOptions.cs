@@ -22,6 +22,8 @@ namespace Microsoft.SqlTools.Hosting.Utility
         /// <summary>
         /// Construct and parse command line options from the arguments array
         /// </summary>
+        /// <param name="args">The args to parse</param>
+        /// <param name="serviceName">Name of the service to display</param>
         public CommandOptions(string[] args, string serviceName)
         {
             ServiceName = serviceName;
@@ -89,7 +91,7 @@ namespace Microsoft.SqlTools.Hosting.Utility
         /// <summary>
         /// Whether the program should exit immediately. Set to true when the usage is printed.
         /// </summary>
-        public bool ShouldExit { get; private set; }
+        public bool ShouldExit { get; protected set; }
 
         /// <summary>
         /// The locale our we should instantiate this service in 
