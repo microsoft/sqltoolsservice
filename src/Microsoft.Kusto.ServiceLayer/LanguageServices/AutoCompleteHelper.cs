@@ -2,13 +2,9 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
-using System;
-using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 using Range = Microsoft.Kusto.ServiceLayer.Workspace.Contracts.Range;
+using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
-using Microsoft.Kusto.ServiceLayer.LanguageServices.Completion;
-using Microsoft.Kusto.ServiceLayer.DataSource;
-using Microsoft.Kusto.ServiceLayer.LanguageServices.DataSourceIntellisense;
 
 namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 {
@@ -17,32 +13,6 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
     /// </summary>
     public static class AutoCompleteHelper
     {
-        public static CompletionItem[] GetDefaultAutoComplete(DataSourceType dataSourceType, ScriptDocumentInfo scriptDocumentInfo, Position textDocumentPosition){
-            switch (dataSourceType)
-            {
-                case DataSourceType.Kusto:
-                    {
-                        return KustoIntellisenseHelper.GetDefaultKeywords(scriptDocumentInfo, textDocumentPosition);
-                    }
-
-                default:
-                    throw new ArgumentException($"Unsupported data source type \"{dataSourceType}\"", nameof(dataSourceType));
-            }
-        }
-
-        public static ScriptFileMarker[] GetDefaultSemanticMarkers(DataSourceType dataSourceType, ScriptParseInfo parseInfo, ScriptFile scriptFile, string queryText){
-            switch (dataSourceType)
-            {
-                case DataSourceType.Kusto:
-                    {
-                        return KustoIntellisenseHelper.GetDefaultDiagnostics(parseInfo, scriptFile, queryText);
-                    }
-
-                default:
-                    throw new ArgumentException($"Unsupported data source type \"{dataSourceType}\"", nameof(dataSourceType));
-            }
-        }
-
         /// <summary>
         /// Create a completion item from the default item text since VS Code expects CompletionItems
         /// </summary>

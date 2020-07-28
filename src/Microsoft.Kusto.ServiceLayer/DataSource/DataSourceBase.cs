@@ -11,6 +11,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Microsoft.Kusto.ServiceLayer.Utility;
+using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
@@ -389,6 +390,34 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 ParentMetadata = parentMetadata,
                 Urn = $"{parentMetadata.Urn}.Folder_{name}"
             };
+        }
+
+        // Gets default keywords for intellisense when there is no connection.
+        public static CompletionItem[] GetDefaultAutoComplete(DataSourceType dataSourceType, ScriptDocumentInfo scriptDocumentInfo, Position textDocumentPosition){
+            switch (dataSourceType)
+            {
+                case DataSourceType.Kusto:
+                    {
+                        return KustoIntellisenseHelper.GetDefaultKeywords(scriptDocumentInfo, textDocumentPosition);
+                    }
+
+                default:
+                    throw new ArgumentException($"Unsupported data source type \"{dataSourceType}\"", nameof(dataSourceType));
+            }
+        }
+
+        // Gets default keywords errors related to intellisense when there is no connection.
+        public static ScriptFileMarker[] GetDefaultSemanticMarkers(DataSourceType dataSourceType, ScriptParseInfo parseInfo, ScriptFile scriptFile, string queryText){
+            switch (dataSourceType)
+            {
+                case DataSourceType.Kusto:
+                    {
+                        return KustoIntellisenseHelper.GetDefaultDiagnostics(parseInfo, scriptFile, queryText);
+                    }
+
+                default:
+                    throw new ArgumentException($"Unsupported data source type \"{dataSourceType}\"", nameof(dataSourceType));
+            }
         }
     }
 }

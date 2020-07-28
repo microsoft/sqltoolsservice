@@ -12,12 +12,12 @@ using Kusto.Language;
 using Kusto.Language.Editor;
 using Kusto.Language.Syntax;
 using Kusto.Language.Symbols;
-using Microsoft.Kusto.ServiceLayer.DataSource;
+using Microsoft.Kusto.ServiceLayer.LanguageServices;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
-using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Completion;
+using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
 
-namespace Microsoft.Kusto.ServiceLayer.LanguageServices.DataSourceIntellisense
+namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
 {
     /// <summary>
     /// Kusto specific class for intellisense helper functions.

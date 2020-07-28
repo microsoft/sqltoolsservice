@@ -7,16 +7,12 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.Loader;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlServer.Management.SqlParser.SqlCodeDom;
-using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.Connection;
@@ -24,8 +20,6 @@ using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 using Microsoft.Kusto.ServiceLayer.Hosting;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Completion;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
-using Microsoft.Kusto.ServiceLayer.Scripting;
-using Microsoft.Kusto.ServiceLayer.SqlContext;
 using SqlToolsContext = Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsContext;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.Kusto.ServiceLayer.Workspace;
@@ -785,7 +779,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         }
 
         /// <summary>
-        /// Get definition for a selected sql object using SMO Scripting
+        /// Get definition for a selected text from DataSource.
         /// </summary>
         /// <param name="textDocumentPosition"></param>
         /// <param name="scriptFile"></param>
@@ -896,7 +890,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
             if (scriptParseInfo == null)
             {
                 var scriptDocInfo = ScriptDocumentInfo.CreateDefaultDocumentInfo(textDocumentPosition, scriptFile);
-                resultCompletionItems = resultCompletionItems = AutoCompleteHelper.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocInfo, textDocumentPosition.Position);
+                resultCompletionItems = resultCompletionItems = DataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocInfo, textDocumentPosition.Position);
                 return resultCompletionItems;
             }
 
@@ -910,7 +904,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                 resultCompletionItems = dataSource.GetAutoCompleteSuggestions(scriptDocumentInfo, textDocumentPosition.Position);
             }
             else{
-                resultCompletionItems = AutoCompleteHelper.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocumentInfo, textDocumentPosition.Position);
+                resultCompletionItems = DataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocumentInfo, textDocumentPosition.Position);
             }
 
             // cache the current script parse info object to resolve completions later. Used for the detailed description.
@@ -920,14 +914,14 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
             // if the parse failed then return the default list
             if (scriptParseInfo.ParseResult == null)
             {
-                resultCompletionItems = AutoCompleteHelper.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocumentInfo, textDocumentPosition.Position);
+                resultCompletionItems = DataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocumentInfo, textDocumentPosition.Position);
                 return resultCompletionItems;
             }
 
             // if there are no completions then provide the default list
             if (resultCompletionItems == null)          // this is the getting default keyword option when its not connected
             {
-                resultCompletionItems = AutoCompleteHelper.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocumentInfo, textDocumentPosition.Position);
+                resultCompletionItems = DataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocumentInfo, textDocumentPosition.Position);
             }
 
             return resultCompletionItems;
@@ -1055,7 +1049,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                     semanticMarkers = dataSource.GetSemanticMarkers(parseInfo, scriptFile, scriptFile.Contents);
 			    }
                 else{
-                    semanticMarkers = AutoCompleteHelper.GetDefaultSemanticMarkers(DataSourceType.Kusto, parseInfo, scriptFile, scriptFile.Contents);
+                    semanticMarkers = DataSourceFactory.GetDefaultSemanticMarkers(DataSourceType.Kusto, parseInfo, scriptFile, scriptFile.Contents);
                 }
                 
                 Logger.Write(TraceEventType.Verbose, "Analysis complete.");

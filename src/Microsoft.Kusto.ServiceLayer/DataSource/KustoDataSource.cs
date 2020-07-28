@@ -1,4 +1,4 @@
-// <copyright file="KustoUtils.cs" company="Microsoft">
+// <copyright file="KustoDataSource.cs" company="Microsoft">
 // Copyright (c) Microsoft. All Rights Reserved.
 // </copyright>
 using System;
@@ -18,12 +18,12 @@ using Kusto.Data.Data;
 using Kusto.Data.Net.Client;
 using Kusto.Language;
 using Kusto.Language.Editor;
-using Microsoft.Kusto.ServiceLayer.Utility;
+using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
-using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
-using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Completion;
-using Microsoft.Kusto.ServiceLayer.LanguageServices.DataSourceIntellisense;
+using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
+using Microsoft.Kusto.ServiceLayer.Utility;
+using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource
 {
