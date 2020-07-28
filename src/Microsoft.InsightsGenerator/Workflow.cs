@@ -3,15 +3,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
+using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Microsoft.InsightsGenerator
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.Concurrent;
-    
     public class Workflow
     {
         private readonly ConcurrentQueue<object> _siggenQueue = new ConcurrentQueue<object>();
