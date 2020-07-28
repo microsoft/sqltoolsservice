@@ -21,12 +21,12 @@ namespace Microsoft.InsightsGenerator
 
         public DataArray Transform(DataArray array)
         {
-            if (array == null || array.Cells == null && array.Cells.Length > 0)
+            if (array == null || array.Cells == null || array.Cells.Length == 0)
             {
                 return array;
             }
 
-            array.ColumnNames = GetColumnLabels(array);
+            array.TransformedColumnNames = GetColumnLabels(array);
             return array;
         }
 
