@@ -9,12 +9,18 @@ using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.InsightsGenerator.Contracts
 {
+    public class AccessibleChartData 
+    {
+	    public string[] Columns { get; set; }
+		public string[][] Rows { get; set; }
+    }
+
     /// <summary>
     /// Query insights generator parameters
     /// </summary>
     public class QueryInsightsGeneratorParams : GeneralRequestDetails
     {
-        public string OwnerUri { get; set; }
+        public AccessibleChartData Data { get; set; }
     }
 
     /// <summary>
@@ -22,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.InsightsGenerator.Contracts
     /// </summary>
     public class InsightsGeneratorResult : ResultStatus
     {
-        public string[] InsightsText { get; set; }
+        public string InsightsText { get; set; }
     }
 
     /// <summary>

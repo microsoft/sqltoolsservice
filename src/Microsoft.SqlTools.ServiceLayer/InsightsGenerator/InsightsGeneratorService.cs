@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.InsightsGenerator.Contracts;
+using Microsoft.InsightsGenerator;
 
 namespace Microsoft.SqlTools.ServiceLayer.InsightsGenerator
 {
@@ -45,11 +46,32 @@ namespace Microsoft.SqlTools.ServiceLayer.InsightsGenerator
 
         internal async Task HandleQueryInsightGeneratorRequest(QueryInsightsGeneratorParams parameters, RequestContext<InsightsGeneratorResult> requestContext)
         {
-            await requestContext.SendResult(new InsightsGeneratorResult()
+            Microsoft.InsightsGenerator.DataArray dataArray = new Microsoft.InsightsGenerator.DataArray(){
+                ColumnNames = parameters.Data.Columns,
+                Cells = parameters.Data.Rows
+            };
+
+            Workflow insightWorkFlow = Workflow.Instance();
+
+            try
             {
-                Success = true,
-                ErrorMessage = null
-            });
+                string insightText = insightWorkFlow.IngestRules(dataArray);
+
+                await requestContext.SendResult(new InsightsGeneratorResult()
+                {
+                    InsightsText = insightText,
+                    Success = true,
+                    ErrorMessage = null
+                });
+            }
+            catch (Exception ex)
+            {
+                await requestContext.SendResult(new InsightsGeneratorResult()
+                {
+                    Success = false,
+                    ErrorMessage = ex.Message
+                });
+            }
         }
     }
 }

@@ -15,7 +15,7 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <Content Include="Templates\Templates.txt">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Content>
 	</ItemGroup>
 </Project>
