@@ -84,7 +84,7 @@ namespace Microsoft.InsightsGenerator
 
             Object[][] sortedTable = SortCellsByColumn(table, outputColumn);
 
-            double outputSum = Sum(sortedTable, outputColumn);
+            double outputSum = CalculateColumnSum(sortedTable, outputColumn);
 
             for (int i = sortedTable.Length - 1; i >= 0 && i >= sortedTable.Length - n; i--)
             {
@@ -137,7 +137,7 @@ namespace Microsoft.InsightsGenerator
 
             Object[][] sortedTable = SortCellsByColumn(table, outputColumn);
 
-            double outputSum = Sum(sortedTable, outputColumn);
+            double outputSum = CalculateColumnSum(sortedTable, outputColumn);
 
             for (int i = 0; i < n && i < sortedTable.Length; i++)
             {
@@ -303,6 +303,7 @@ namespace Microsoft.InsightsGenerator
 
         private string[] GetUniqueColumValues(int colIndex)
         {
+
             return Table.Cells.Select(row => row[colIndex].ToString()).Distinct().ToArray();
         }
 
@@ -352,16 +353,6 @@ namespace Microsoft.InsightsGenerator
         public double Percentage(double value, double sum)
         {
             return Math.Round((double)((value / sum) * 100), 2);
-        }
-
-        public double Sum(object[][] table, int colIndex)
-        {
-            long result = 0;
-            foreach (var row in table)
-            {
-                result += long.Parse(row[colIndex].ToString());
-            }
-            return result;
         }
     }
 }
