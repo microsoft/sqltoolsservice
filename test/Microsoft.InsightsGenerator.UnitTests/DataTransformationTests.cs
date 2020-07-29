@@ -3,7 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
 using Xunit;
 
 namespace Microsoft.InsightsGenerator.UnitTests
@@ -67,7 +66,7 @@ namespace Microsoft.InsightsGenerator.UnitTests
         }
 
         [Fact]
-        public void Tranform_TimeGroupSlicerCount()
+        public void Tranform_TimeSlicerSlicerCount()
         {
             DataTransformer transformer = new DataTransformer();
             object[][] cells = new object[5][];
@@ -85,13 +84,13 @@ namespace Microsoft.InsightsGenerator.UnitTests
 
             array = transformer.Transform(array);
             Assert.Equal(array.TransformedColumnNames[0], "input_t_0");
-            Assert.Equal(array.TransformedColumnNames[1], "input_g_0");
-            Assert.Equal(array.TransformedColumnNames[2], "slicer_0");
+            Assert.Equal(array.TransformedColumnNames[1], "slicer_0");
+            Assert.Equal(array.TransformedColumnNames[2], "slicer_1");
             Assert.Equal(array.TransformedColumnNames[3], "output_0");
         }
 
         [Fact]
-        public void Tranform_TimeSlicerCountGroup()
+        public void Tranform_TimeSlicerCountSlicer()
         {
             DataTransformer transformer = new DataTransformer();
             object[][] cells = new object[5][];
@@ -111,10 +110,10 @@ namespace Microsoft.InsightsGenerator.UnitTests
             Assert.Equal(array.TransformedColumnNames[0], "input_t_0");
             Assert.Equal(array.TransformedColumnNames[1], "slicer_0");
             Assert.Equal(array.TransformedColumnNames[2], "output_0");
-            Assert.Equal(array.TransformedColumnNames[3], "input_g_0");
+            Assert.Equal(array.TransformedColumnNames[3], "slicer_1");
         }
 
-         [Fact]
+        [Fact]
         public void Tranform_TimeSlicerCountCount()
         {
             DataTransformer transformer = new DataTransformer();
@@ -133,6 +132,67 @@ namespace Microsoft.InsightsGenerator.UnitTests
             Assert.Equal(array.TransformedColumnNames[1], "slicer_0");
             Assert.Equal(array.TransformedColumnNames[2], "output_0");
             Assert.Equal(array.TransformedColumnNames[3], "output_1");
+        }
+
+        [Fact]
+        public void Tranform_GroupSlicerTime()
+        {
+            DataTransformer transformer = new DataTransformer();
+            object[][] cells = new object[2][];
+            cells[0] = new object[3] { "1st Street", "Redmond", 110 };
+            cells[1] = new object[3] { "2nd Street", "Bellevue", 160 };
+
+            DataArray array = new DataArray()
+            {
+                ColumnNames = new string[] { "Address", "City", "Count" },
+                Cells = cells
+            };
+
+            array = transformer.Transform(array);
+            Assert.Equal(array.TransformedColumnNames[0], "input_g_0");
+            Assert.Equal(array.TransformedColumnNames[1], "slicer_0");
+            Assert.Equal(array.TransformedColumnNames[2], "output_0");
+        }
+
+        [Fact]
+        public void Tranform_SlicewrGroupSlicerTime()
+        {
+            DataTransformer transformer = new DataTransformer();
+            object[][] cells = new object[2][];
+            cells[0] = new object[4] { "1st Street", "Redmond", "North", 110 };
+            cells[1] = new object[4] { "2nd Street", "Redmond", "East", 160 };
+
+            DataArray array = new DataArray()
+            {
+                ColumnNames = new string[] { "Address", "City", "Direction", "Count" },
+                Cells = cells
+            };
+
+            array = transformer.Transform(array);
+            Assert.Equal(array.TransformedColumnNames[0], "slicer_0");
+            Assert.Equal(array.TransformedColumnNames[1], "input_g_0");
+            Assert.Equal(array.TransformedColumnNames[2], "slicer_1");
+            Assert.Equal(array.TransformedColumnNames[3], "output_0");
+        }
+
+         [Fact]
+        public void Tranform_SlicerGroupTime()
+        {
+            DataTransformer transformer = new DataTransformer();
+            object[][] cells = new object[2][];
+            cells[0] = new object[3] { "1st Street", "Redmond", 110 };
+            cells[1] = new object[3] { "2nd Street", "Redmond", 160 };
+
+            DataArray array = new DataArray()
+            {
+                ColumnNames = new string[] { "Address", "City", "Count" },
+                Cells = cells
+            };
+
+            array = transformer.Transform(array);
+            Assert.Equal(array.TransformedColumnNames[0], "slicer_0");
+            Assert.Equal(array.TransformedColumnNames[1], "input_g_0");
+            Assert.Equal(array.TransformedColumnNames[2], "output_0");
         }
     }
 }
