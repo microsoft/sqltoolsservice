@@ -14,7 +14,7 @@ namespace Microsoft.InsightsGenerator
     {
         private readonly ConcurrentQueue<object> _siggenQueue = new ConcurrentQueue<object>();
 
-        private readonly ConcurrentQueue<object> _rulesQueue = new ConcurrentQueue<object>();
+        private readonly ConcurrentQueue<DataArray> _rulesQueue = new ConcurrentQueue<DataArray>();
 
         private static Workflow _instance;
 
@@ -55,7 +55,7 @@ namespace Microsoft.InsightsGenerator
             _instance._siggenQueue.Enqueue(input);
         }
 
-        public void IngestRules(object input)
+        public void IngestRules(DataArray input)
         {
             if (_instance == null)
             {
@@ -74,25 +74,30 @@ namespace Microsoft.InsightsGenerator
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            while (!cancellationToken.IsCancellationRequested)
-            {
-                bool siggenInput = _instance._siggenQueue.TryDequeue(out object siggen);
+            //while (!cancellationToken.IsCancellationRequested)
+            //{
+            //    bool siggenInput = _instance._siggenQueue.TryDequeue(out object siggen);
 
-                if (siggenInput && siggen != null)
-                {
-                   // call the siggen processor
-                }
-                else
-                {
-                    await Task.Delay(TimeSpan.FromMinutes(1), cancellationToken).ConfigureAwait(false);
-                }
-            }
+            //    if (siggenInput && siggen != null)
+            //    {
+            //       // call the siggen processor
+            //    }
+            //    else
+            //    {
+            //        await Task.Delay(TimeSpan.FromMinutes(1), cancellationToken).ConfigureAwait(false);
+            //    }
+            //}
 
-            bool rulesInput = _instance._rulesQueue.TryDequeue(out object rulesData);
+            bool rulesInput = _instance._rulesQueue.TryDequeue(out DataArray rulesData);
 
             if (rulesInput && rulesData != null)
             {
+                //Get the signature result
+                SignatureGenerator siggen = new SignatureGenerator(rulesData);
+                SignatureGeneratorResult result = siggen.Learn();
                 // call the rules engine processor
+                RulesEngine re = new RulesEngine();
+                // re.FindMatchingTemplate(result, rulesData);
             }
             else
             {
