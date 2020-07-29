@@ -175,7 +175,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <param name="databaseName">The name of the database to use in place of the current database.</param>
         public void ChangeDatabase(string databaseName)
         {
-            _dataSource.DatabaseName = databaseName;
+            _dataSource.UpdateDatabase(databaseName);
         }
 
         /// <summary>

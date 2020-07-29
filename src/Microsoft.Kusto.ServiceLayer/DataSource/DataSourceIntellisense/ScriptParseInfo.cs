@@ -4,13 +4,13 @@
 //
 
 using System.Collections.Generic;
-using Microsoft.SqlServer.Management.SqlParser.Intellisense;
-using Microsoft.SqlServer.Management.SqlParser.Parser;
+using Kusto.Language;
+using Kusto.Language.Editor;
 
-namespace Microsoft.Kusto.ServiceLayer.LanguageServices
+namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
 {
     /// <summary>
-    /// Class for storing cached metadata regarding a parsed SQL file
+    /// Data Source specific class for storing cached metadata regarding a parsed KQL file.
     /// </summary>
     public class ScriptParseInfo
     {
@@ -35,13 +35,14 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         public string ConnectionKey { get; set; }
 
         /// <summary>
-        /// Gets or sets the previous SQL parse result
+        /// Gets or sets the previous Kusto diagnostics result. TODOKusto: Check exact usage.
         /// </summary>
-        public ParseResult ParseResult { get; set; }
+        public IReadOnlyList<Diagnostic> ParseResult { get; set; }
         
         /// <summary>
-        /// Gets or sets the current autocomplete suggestion list
+        /// Gets or sets the current autocomplete suggestion list retrieved from the Kusto language library.
+        /// So that other details like documentation can be later retrieved in ResolveCompletionItem.
         /// </summary>
-        public IEnumerable<Declaration> CurrentSuggestions { get; set; }
+        public IEnumerable<CompletionItem > CurrentSuggestions { get; set; }
     }
 }
