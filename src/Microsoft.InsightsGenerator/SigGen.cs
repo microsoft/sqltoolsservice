@@ -27,19 +27,19 @@ namespace Microsoft.InsightsGenerator
 
             for (var i = 0; i < Table.TransformedColumnNames.Length; i++) 
             {
-                if (Table.TransformedColumnNames.Contains("input_g"))
+                if (Table.TransformedColumnNames[i].Contains("input_g"))
                 {
                     stringInputIndexes.Add(i);
                 }
-                if (Table.TransformedColumnNames.Contains("input_t"))
+                if (Table.TransformedColumnNames[i].Contains("input_t"))
                 {
                     timeInputIndexes.Add(i);
                 }
-                if (Table.TransformedColumnNames.Contains("slicer"))
+                if (Table.TransformedColumnNames[i].Contains("slicer"))
                 {
                    slicerIndexes.Add(i);
                 }
-                if (Table.TransformedColumnNames.Contains("output"))
+                if (Table.TransformedColumnNames[i].Contains("output"))
                 {
                     outputIndexes.Add(i);
                 }
