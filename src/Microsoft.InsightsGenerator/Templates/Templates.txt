@@ -11,7 +11,7 @@ The largest decrease in ##OutPar_N_C_1 was on  #time when it fell below #reduces
 Template 24 
 The data trend indicates a consistent #trend over time. \n
 Template 1 
-For the #Slices ##SlicePar_GG_1(s),  the volume of each is: #st.
+For the #averageSlice ##slicer_0, the volume of each is: #averageSlicelist
 Template 2 
 The ##InPar_GG_1 that had largest of each ##SlicePar_GG_1 are (only top #n ##InPar_GG_1) \n
 Template 3 
@@ -27,7 +27,7 @@ Template 7
 Template 8 
 #inp had a total of #OutPar_N_C_1 ##OutPar_N_C_1 that constitues #Per% \n \n
 Template 9 
-There were #groups ##InPar_GG_1(s),  the top #n highest total ##OutPar_N_C_1 were as follows:\n #st
+There were #groups ##input_g_0 (s),  the top #top highest total ##Output_0 were as follows:\n #toplist
 Template 10 
 There were #groups ##InPar_GG_1(s),  the  total ##OutPar_N_C_1 were as follows:\n #st
 Template 11 
@@ -50,3 +50,5 @@ Template 21
 Looking at the pattern of the data it appears that  #st has the #volumeType ##OutPar_N_C_1 \n
 Template 22 
 The largest increase in ##OutPar_N_C_1 were observed on #time  with an increase of #increasesize% of the avarage value of ##OutPar_N_C_1 \n
+Template 23
+The top #bottom lowest total ##Output_0 were as follows:\n #bottomlist

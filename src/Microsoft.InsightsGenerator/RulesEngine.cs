@@ -29,7 +29,7 @@ namespace Microsoft.InsightsGenerator
 
             ColumnHeaders ch = new ColumnHeaders();
             var processedText = Regex.Replace(templateContent, @",|\\n", "");
-            ch.Template = processedText;
+            ch.Template = templateContent;
 
             List<string> keyvalue = processedText.Split(' ').Select(s => s.Trim()).ToList();
 
