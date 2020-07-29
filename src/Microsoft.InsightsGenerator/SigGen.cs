@@ -277,12 +277,6 @@ namespace Microsoft.InsightsGenerator
             return rows.Max(row => double.Parse(row[colIndex].ToString()));
         }
 
-        private object[][] GetRowsBasedOnInputName(string inputName, int colIndex)
-        {
-            var cellCopy = DeepCloneTable(Table.Cells);
-            return cellCopy.Where(row => row[colIndex].ToString() == inputName).ToArray();
-        }
-
         private string[] GetUniqueColumValues(int colIndex)
         {
             return Table.Cells.Select(row => row[colIndex].ToString()).Distinct().ToArray();
