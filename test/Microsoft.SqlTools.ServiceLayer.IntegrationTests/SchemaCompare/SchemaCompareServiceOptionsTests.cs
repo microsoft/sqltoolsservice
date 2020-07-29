@@ -12,7 +12,7 @@ using Moq;
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
 {
@@ -265,8 +265,8 @@ END
                 {                    
                     // validate script generation failed because there were no differences
                     Assert.False(generateScriptOperation1.ScriptGenerationResult.Success);
-                    Assert.Equal("Performing script generation is not possible for this comparison result.", generateScriptOperation1.ScriptGenerationResult.Message);
-                    Assert.Equal("Performing script generation is not possible for this comparison result.", ex.Message);
+                    Assert.AreEqual("Performing script generation is not possible for this comparison result.", generateScriptOperation1.ScriptGenerationResult.Message);
+                    Assert.AreEqual("Performing script generation is not possible for this comparison result.", ex.Message);
                 }
 
                 var schemaCompareParams2 = new SchemaCompareParams
@@ -309,8 +309,8 @@ END
         /// <summary>
         /// Verify the schema compare request comparing two dacpacs with and without ignore column option
         /// </summary>
-        [Fact]
-        public async void SchemaCompareDacpacToDacpacOptions()
+        [Test]
+        public async Task SchemaCompareDacpacToDacpacOptions()
         {
             await SendAndValidateSchemaCompareRequestDacpacToDacpacWithOptions(Source1, Target1, GetIgnoreColumnOptions(), new DeploymentOptions());
         }
@@ -318,8 +318,8 @@ END
         /// <summary>
         /// Verify the schema compare request comparing two dacpacs with and excluding table valued functions
         /// </summary>
-        [Fact]
-        public async void SchemaCompareDacpacToDacpacObjectTypes()
+        [Test]
+        public async Task SchemaCompareDacpacToDacpacObjectTypes()
         {
             await SendAndValidateSchemaCompareRequestDacpacToDacpacWithOptions(Source2, Target2, GetExcludeTableValuedFunctionOptions(), new DeploymentOptions());
         }
@@ -327,8 +327,8 @@ END
         /// <summary>
         /// Verify the schema compare request comparing two databases with and without ignore column option
         /// </summary>
-        [Fact]
-        public async void SchemaCompareDatabaseToDatabaseOptions()
+        [Test]
+        public async Task SchemaCompareDatabaseToDatabaseOptions()
         {
             await SendAndValidateSchemaCompareRequestDatabaseToDatabaseWithOptions(Source1, Target1, GetIgnoreColumnOptions(), new DeploymentOptions());
         }
@@ -336,8 +336,8 @@ END
         /// <summary>
         /// Verify the schema compare request comparing two databases with and excluding table valued functions
         /// </summary>
-        [Fact]
-        public async void SchemaCompareDatabaseToDatabaseObjectTypes()
+        [Test]
+        public async Task SchemaCompareDatabaseToDatabaseObjectTypes()
         {
             await SendAndValidateSchemaCompareRequestDatabaseToDatabaseWithOptions(Source2, Target2, GetExcludeTableValuedFunctionOptions(), new DeploymentOptions());
         }
@@ -345,8 +345,8 @@ END
         /// <summary>
         /// Verify the schema compare script generation comparing dacpac and db with and without ignore column option
         /// </summary>
-        [Fact]
-        public async void SchemaCompareGenerateScriptDacpacToDatabaseOptions()
+        [Test]
+        public async Task SchemaCompareGenerateScriptDacpacToDatabaseOptions()
         {
             await SendAndValidateSchemaCompareGenerateScriptRequestDacpacToDatabaseWithOptions(Source1, Target1, GetIgnoreColumnOptions(), new DeploymentOptions());
         }
@@ -354,8 +354,8 @@ END
         /// <summary>
         /// Verify the schema compare script generation comparing dacpac and db with and excluding table valued function
         /// </summary>
-        [Fact]
-        public async void SchemaCompareGenerateScriptDacpacToDatabaseObjectTypes()
+        [Test]
+        public async Task SchemaCompareGenerateScriptDacpacToDatabaseObjectTypes()
         {
             await SendAndValidateSchemaCompareGenerateScriptRequestDacpacToDatabaseWithOptions(Source2, Target2, GetExcludeTableValuedFunctionOptions(), new DeploymentOptions());
         }
@@ -363,7 +363,7 @@ END
         /// <summary>
         /// Verify the schema compare default creation test
         /// </summary>
-        [Fact]
+        [Test]
         public void ValidateSchemaCompareOptionsDefaultAgainstDacFx()
         {
             DeploymentOptions deployOptions = new DeploymentOptions();
@@ -384,8 +384,8 @@ END
         /// <summary>
         /// Verify the schema compare default creation test
         /// </summary>
-        [Fact]
-        public async void ValidateSchemaCompareGetDefaultOptionsCallFromService()
+        [Test]
+        public async Task ValidateSchemaCompareGetDefaultOptionsCallFromService()
         {
             DeploymentOptions deployOptions = new DeploymentOptions();
             var schemaCompareRequestContext = new Mock<RequestContext<SchemaCompareOptionsResult>>();

@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
@@ -13,7 +14,7 @@ using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
 {
@@ -63,8 +64,8 @@ RETURN 0
         /// <summary>
         /// Verify the export bacpac request
         /// </summary>
-        [Fact]
-        public async void ExportBacpac()
+        [Test]
+        public async Task ExportBacpac()
         {
             var result = GetLiveAutoCompleteTestObjects();
             SqlTestDb testdb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxExportTest");
@@ -94,8 +95,8 @@ RETURN 0
         /// <summary>
         /// Verify the import bacpac request
         /// </summary>
-        [Fact]
-        public async void ImportBacpac()
+        [Test]
+        public async Task ImportBacpac()
         {
             // first export a bacpac
             var result = GetLiveAutoCompleteTestObjects();
@@ -142,8 +143,8 @@ RETURN 0
         /// <summary>
         /// Verify the extract dacpac request
         /// </summary>
-        [Fact]
-        public async void ExtractDacpac()
+        [Test]
+        public async Task ExtractDacpac()
         {
             var result = GetLiveAutoCompleteTestObjects();
             SqlTestDb testdb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxExtractTest");
@@ -175,8 +176,8 @@ RETURN 0
         /// <summary>
         /// Verify the extract request to create Sql file
         /// </summary>
-        [Fact]
-        public async void ExtractDBToFileTarget()
+        [Test]
+        public async Task ExtractDBToFileTarget()
         {
             var result = GetLiveAutoCompleteTestObjects();
             SqlTestDb testdb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, doNotCleanupDb: false, databaseName: null, query: SourceScript, dbNamePrefix: "DacFxExtractDBToFileTarget");
@@ -209,8 +210,8 @@ RETURN 0
         /// <summary>
         /// Verify the extract request to create a Flat file structure
         /// </summary>
-        [Fact]
-        public async void ExtractDBToFlatTarget()
+        [Test]
+        public async Task ExtractDBToFlatTarget()
         {
             var result = GetLiveAutoCompleteTestObjects();
             SqlTestDb testdb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, doNotCleanupDb: false, databaseName: null, query: SourceScript, dbNamePrefix: "DacFxExtractDBToFlatTarget");
@@ -235,7 +236,7 @@ RETURN 0
                 // Verify two sql files are generated in the target folder path 
                 // for dev-servers where there are more users/permissions present on server - the extract might have more files than just 2 expected tables, so check only for tables
                 int actualCnt = Directory.GetFiles(folderPath, "table*.sql", SearchOption.AllDirectories).Length;
-                Assert.Equal(2, actualCnt);
+                Assert.AreEqual(2, actualCnt);
             }
             finally
             {
@@ -251,8 +252,8 @@ RETURN 0
         /// <summary>
         /// Verify the deploy dacpac request
         /// </summary>
-        [Fact]
-        public async void DeployDacpac()
+        [Test]
+        public async Task DeployDacpac()
         {
             // first extract a db to have a dacpac to import later
             var result = GetLiveAutoCompleteTestObjects();
@@ -297,13 +298,14 @@ RETURN 0
                     targetDb.Cleanup();
                 }
             }
+            return;
         }
 
         /// <summary>
         /// Verify the export request being cancelled
         /// </summary>
-        [Fact]
-        public async void ExportBacpacCancellationTest()
+        [Test]
+        public async Task ExportBacpacCancellationTest()
         {
             var result = GetLiveAutoCompleteTestObjects();
             SqlTestDb testdb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "DacFxExportTest");
@@ -345,8 +347,8 @@ RETURN 0
         /// <summary>
         /// Verify the generate deploy script request
         /// </summary>
-        [Fact]
-        public async void GenerateDeployScript()
+        [Test]
+        public async Task GenerateDeployScript()
         {
             // first extract a dacpac
             var result = GetLiveAutoCompleteTestObjects();
@@ -370,8 +372,8 @@ RETURN 0
                 service.PerformOperation(generateScriptOperation, TaskExecutionMode.Script);
 
                 // Verify script was generated
-                Assert.NotEmpty(generateScriptOperation.Result.DatabaseScript);
-                Assert.Contains("CREATE TABLE", generateScriptOperation.Result.DatabaseScript);
+                Assert.That(generateScriptOperation.Result.DatabaseScript, Is.Not.Empty);
+                Assert.That(generateScriptOperation.Result.DatabaseScript, Does.Contain("CREATE TABLE"));
 
                 VerifyAndCleanup(dacpacPath);
             }
@@ -385,8 +387,8 @@ RETURN 0
         /// <summary>
         /// Verify the generate deploy plan request
         /// </summary>
-        [Fact]
-        public async void GenerateDeployPlan()
+        [Test]
+        public async Task GenerateDeployPlan()
         {
             var result = GetLiveAutoCompleteTestObjects();
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "DacFxGenerateDeployPlanTest");
@@ -410,9 +412,12 @@ RETURN 0
                 service.PerformOperation(generateDeployPlanOperation, TaskExecutionMode.Execute);
                 string report = generateDeployPlanOperation.DeployReport;
                 Assert.NotNull(report);
-                Assert.Contains("Create", report);
-                Assert.Contains("Drop", report);
-                Assert.Contains("Alter", report);
+                Assert.Multiple(() =>
+                {
+                    Assert.That(report, Does.Contain("Create"));
+                    Assert.That(report, Does.Contain("Drop"));
+                    Assert.That(report, Does.Contain("Alter"));
+                });
 
                 VerifyAndCleanup(dacpacPath);
             }
@@ -429,8 +434,8 @@ RETURN 0
         // <summary>
         /// Verify that SqlCmdVars are set correctly for a deploy request
         /// </summary>
-        [Fact]
-        public async void DeployWithSqlCmdVariables()
+        [Test]
+        public async Task DeployWithSqlCmdVariables()
         {
             var result = GetLiveAutoCompleteTestObjects();
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, query: storedProcScript, dbNamePrefix: "DacFxDeploySqlCmdVarsTest");
@@ -474,8 +479,8 @@ RETURN 0
                     }
                 }
 
-                Assert.Contains(deployParams.SqlCommandVariableValues[databaseRefVarName], deployedProc);
-                Assert.Contains(deployParams.SqlCommandVariableValues[filterValueVarName], deployedProc);
+                Assert.That(deployedProc, Does.Contain(deployParams.SqlCommandVariableValues[databaseRefVarName]));
+                Assert.That(deployedProc, Does.Contain(deployParams.SqlCommandVariableValues[filterValueVarName]));
 
                 VerifyAndCleanup(dacpacPath);
             }
@@ -492,8 +497,8 @@ RETURN 0
         // <summary>
         /// Verify that SqlCmdVars are set correctly for a generate script request
         /// </summary>
-        [Fact]
-        public async void GenerateDeployScriptWithSqlCmdVariables()
+        [Test]
+        public async Task GenerateDeployScriptWithSqlCmdVariables()
         {
             var result = GetLiveAutoCompleteTestObjects();
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, query: storedProcScript, dbNamePrefix: "DacFxGenerateScriptSqlCmdVarsTest");
@@ -520,9 +525,9 @@ RETURN 0
                 service.PerformOperation(generateScriptOperation, TaskExecutionMode.Script);
 
                 // Verify the SqlCmdVars were set correctly in the script
-                Assert.NotEmpty(generateScriptOperation.Result.DatabaseScript);
-                Assert.Contains($":setvar {databaseRefVarName} \"{generateScriptParams.SqlCommandVariableValues[databaseRefVarName]}\"", generateScriptOperation.Result.DatabaseScript);
-                Assert.Contains($":setvar {filterValueVarName} \"{generateScriptParams.SqlCommandVariableValues[filterValueVarName]}\"", generateScriptOperation.Result.DatabaseScript);
+                Assert.That(generateScriptOperation.Result.DatabaseScript, Is.Not.Empty);
+                Assert.That(generateScriptOperation.Result.DatabaseScript, Does.Contain($":setvar {databaseRefVarName} \"{generateScriptParams.SqlCommandVariableValues[databaseRefVarName]}\""));
+                Assert.That(generateScriptOperation.Result.DatabaseScript, Does.Contain($":setvar {filterValueVarName} \"{generateScriptParams.SqlCommandVariableValues[filterValueVarName]}\""));
 
                 VerifyAndCleanup(dacpacPath);
             }

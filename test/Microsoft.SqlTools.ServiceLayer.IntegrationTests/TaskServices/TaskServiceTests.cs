@@ -20,7 +20,7 @@ using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.UnitTests;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 using static Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility.LiveConnectionHelper;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TaskServices
@@ -37,25 +37,25 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TaskServices
             service.InitializeService(serviceHostMock.Object);
         }
 
-        [Fact]
+        [Test]
         public async Task VerifyTaskExecuteTheQueryGivenExecutionModeExecute()
         {
             await VerifyTaskWithExecutionMode(TaskExecutionMode.Execute);
         }
 
-        [Fact]
+        [Test]
         public async Task VerifyTaskGenerateScriptOnlyGivenExecutionModeScript()
         {
             await VerifyTaskWithExecutionMode(TaskExecutionMode.Script);
         }
 
-        [Fact]
+        [Test]
         public async Task VerifyTaskNotExecuteAndGenerateScriptGivenExecutionModeExecuteAndScript()
         {
             await VerifyTaskWithExecutionMode(TaskExecutionMode.ExecuteAndScript);
         }
 
-        [Fact]
+        [Test]
         public async Task VerifyTaskSendsFailureNotificationGivenInvalidQuery()
         {
             await VerifyTaskWithExecutionMode(TaskExecutionMode.ExecuteAndScript, true);
@@ -103,7 +103,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TaskServices
                             bool expected = executionMode == TaskExecutionMode.Execute || executionMode == TaskExecutionMode.ExecuteAndScript;
                             Server serverToverfiy = CreateServerObject(connectionResult.ConnectionInfo);
                             bool actual = serverToverfiy.Databases[testDb.DatabaseName].Tables.Contains(taskOperation.TableName, "test");
-                            Assert.Equal(expected, actual);
+                            Assert.AreEqual(expected, actual);
                         }
                         else
                         {

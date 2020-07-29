@@ -134,7 +134,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         [TestCaseSource(nameof(ReadToEndSuccessData))]
         public async Task ReadToEndSuccessSeveralTimes(TestResultSet[] testDataSet)
         {
-            const int NumberOfInvocations = 500;
+            const int NumberOfInvocations = 50;
             List<Task> allTasks = new List<Task>();
             Parallel.ForEach(Partitioner.Create(0, NumberOfInvocations), (range) =>
             {

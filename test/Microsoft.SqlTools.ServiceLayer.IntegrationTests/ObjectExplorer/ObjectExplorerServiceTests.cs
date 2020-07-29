@@ -17,7 +17,7 @@ using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.Extensions;
-using Xunit;
+using NUnit.Framework;
 using static Microsoft.SqlTools.ServiceLayer.ObjectExplorer.ObjectExplorerService;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
@@ -26,8 +26,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
     {
         private ObjectExplorerService _service = TestServiceProvider.Instance.ObjectExplorerService;
 
-        [Fact]
-        public async void CreateSessionAndExpandOnTheServerShouldReturnServerAsTheRoot()
+        [Test]
+        public async Task CreateSessionAndExpandOnTheServerShouldReturnServerAsTheRoot()
         {
             var query = "";
             string databaseName = null;
@@ -37,8 +37,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             });
         }
 
-        [Fact]
-        public async void CreateSessionWithTempdbAndExpandOnTheServerShouldReturnServerAsTheRoot()
+        [Test]
+        public async Task CreateSessionWithTempdbAndExpandOnTheServerShouldReturnServerAsTheRoot()
         {
             var query = "";
             string databaseName = "tempdb";
@@ -48,8 +48,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             });
         }
 
-        [Fact]
-        public async void VerifyServerLogins()
+        [Test]
+        public async Task VerifyServerLogins()
         {
             var query = $@"If Exists (select loginname from master.dbo.syslogins
                             where name = 'OEServerLogin')
@@ -77,8 +77,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             });
         }
 
-        [Fact]
-        public async void VerifyServerTriggers()
+        [Test]
+        public async Task VerifyServerTriggers()
         {
             var query = @"IF EXISTS (SELECT * FROM sys.server_triggers  WHERE name = 'OE_ddl_trig_database')
 
@@ -113,8 +113,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             });
         }
 
-        [Fact]
-        public async void CreateSessionAndExpandOnTheDatabaseShouldReturnDatabaseAsTheRoot()
+        [Test]
+        public async Task CreateSessionAndExpandOnTheDatabaseShouldReturnDatabaseAsTheRoot()
         {
             var query = "";
             string databaseName = "#testDb#";
@@ -124,8 +124,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             });
         }
 
-        [Fact]
-        public async void RefreshNodeShouldGetTheDataFromDatabase()
+        [Test]
+        public async Task RefreshNodeShouldGetTheDataFromDatabase()
         {
             var query = "Create table t1 (c1 int)";
             string databaseName = "#testDb#";
@@ -148,8 +148,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
         /// Create a test database with prefix (OfflineDb). Create an oe session for master db and expand the new test db.
         /// The expand should return an error that says database if offline
         /// </summary>
-        [Fact]
-        public async void ExpandOfflineDatabaseShouldReturnError()
+        [Test]
+        public async Task ExpandOfflineDatabaseShouldReturnError()
         {
             var query = "ALTER DATABASE {0} SET OFFLINE WITH ROLLBACK IMMEDIATE";
             string databaseName = "master";
@@ -162,8 +162,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             });
         }
 
-        [Fact]
-        public async void RefreshShouldCleanTheCache()
+        [Test]
+        public async Task RefreshShouldCleanTheCache()
         {
             string query = @"Create table t1 (c1 int)
                             GO
@@ -220,7 +220,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             var tableChildren = (await _service.ExpandNode(session, tablePath, true)).Nodes;
 
             //Verify table is not returned
-            Assert.Equal(tableChildren.Any(t => t.Label == tableName), !deleted);
+            Assert.AreEqual(tableChildren.Any(t => t.Label == tableName), !deleted);
 
             //Verify tables cache has items
             rootChildrenCache = session.Root.GetChildren();
@@ -228,8 +228,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             Assert.True(tablesCache.Any());
         }
 
-        [Fact]
-        public async void VerifyAllSqlObjects()
+        [Test]
+        public async Task VerifyAllSqlObjects()
         {
             var queryFileName = "AllSqlObjects.sql";
             string baselineFileName = "AllSqlObjects.txt";
@@ -237,9 +237,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             await TestServiceProvider.CalculateRunTime(() => VerifyObjectExplorerTest(databaseName, "AllSqlObjects", queryFileName, baselineFileName), true);
         }
 
-        //[Fact]
+        //[Test]
         //This takes take long to run so not a good test for CI builds
-        public async void VerifySystemObjects()
+        public async Task VerifySystemObjects()
         {
             string queryFileName = null;
             string baselineFileName = null;
@@ -299,19 +299,19 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             Assert.NotNull(session);
             Assert.NotNull(session.Root);
             NodeInfo nodeInfo = session.Root.ToNodeInfo();
-            Assert.Equal(false, nodeInfo.IsLeaf);
+            Assert.AreEqual(false, nodeInfo.IsLeaf);
 
             NodeInfo databaseNode = null;
 
             if (serverNode)
             {
-                Assert.Equal(nodeInfo.NodeType, NodeTypes.Server.ToString());
+                Assert.AreEqual(nodeInfo.NodeType, NodeTypes.Server.ToString());
                 var children = session.Root.Expand(new CancellationToken());
 
                 //All server children should be folder nodes
                 foreach (var item in children)
                 {
-                    Assert.Equal("Folder", item.NodeType);
+                    Assert.AreEqual("Folder", item.NodeType);
                 }
 
                 var databasesRoot = children.FirstOrDefault(x => x.NodeTypeId == NodeTypes.Databases);
@@ -331,7 +331,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             }
             else
             {
-                Assert.Equal(nodeInfo.NodeType, NodeTypes.Database.ToString());
+                Assert.AreEqual(nodeInfo.NodeType, NodeTypes.Database.ToString());
                 databaseNode = session.Root.ToNodeInfo();
                 Assert.True(databaseNode.Label.Contains(databaseName));
                 var databasesChildren = (await _service.ExpandNode(session, databaseNode.NodePath)).Nodes;
@@ -347,15 +347,15 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             Assert.NotNull(session);
             Assert.NotNull(session.Root);
             NodeInfo nodeInfo = session.Root.ToNodeInfo();
-            Assert.Equal(false, nodeInfo.IsLeaf);
-            Assert.Equal(nodeInfo.NodeType, NodeTypes.Database.ToString());
+            Assert.AreEqual(false, nodeInfo.IsLeaf);
+            Assert.AreEqual(nodeInfo.NodeType, NodeTypes.Database.ToString());
             Assert.True(nodeInfo.Label.Contains(databaseName));
             var children = (await _service.ExpandNode(session, session.Root.GetNodePath())).Nodes;
 
             //All server children should be folder nodes
             foreach (var item in children)
             {
-                Assert.Equal("Folder", item.NodeType);
+                Assert.AreEqual("Folder", item.NodeType);
             }
 
             var tablesRoot = children.FirstOrDefault(x => x.Label == SR.SchemaHierarchy_Tables);

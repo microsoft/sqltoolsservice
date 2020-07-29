@@ -15,7 +15,7 @@ using System;
 using System.Data.Common;
 using System.IO;
 using System.Threading;
-using Xunit;
+using NUnit.Framework;
 using ConnectionType = Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType;
 using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
 using System.Collections.Generic;
@@ -86,7 +86,7 @@ GO";
         /// <summary>
         /// Test get definition for a table object with active connection
         /// </summary>
-        [Fact]
+        [Test]
         public void GetValidTableDefinitionTest()
         {
             // Get live connectionInfo and serverConnection
@@ -105,7 +105,7 @@ GO";
             Cleanup(locations);
         }
 
-        [Fact]
+        [Test]
         public void LoggerGetValidTableDefinitionTest()
         {
             TestLogger test = new TestLogger()
@@ -126,7 +126,7 @@ GO";
         /// <summary>
         /// Test get definition for a invalid table object with active connection
         /// </summary>
-        [Fact]
+        [Test]
         public void GetTableDefinitionInvalidObjectTest()
         {
             // Get live connectionInfo and serverConnection
@@ -146,7 +146,7 @@ GO";
         /// <summary>
         /// Test get definition for a valid table object with schema and active connection
         /// </summary>
-        [Fact]
+        [Test]
         public void GetTableDefinitionWithSchemaTest()
         {
             // Get live connectionInfo and serverConnection
@@ -168,7 +168,7 @@ GO";
         /// <summary>
         /// Test GetDefinition with an unsupported type(schema - dbo). Expect a error result.
         /// </summary>
-        [Fact]
+        [Test]
         public void GetUnsupportedDefinitionErrorTest()
         {
             ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition();
@@ -187,7 +187,7 @@ GO";
         /// <summary>
         /// Get Definition for a object with no definition. Expect a error result
         /// </summary>
-        [Fact]
+        [Test]
         public void GetDefinitionWithNoResultsFoundError()
         {
             ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition();
@@ -206,13 +206,13 @@ GO";
 
             Assert.NotNull(result);
             Assert.True(result.IsErrorResult);
-            Assert.Equal(SR.PeekDefinitionNoResultsError, result.Message);
+            Assert.AreEqual(SR.PeekDefinitionNoResultsError, result.Message);
         }
 
         /// <summary>
         /// Test GetDefinition with a forced timeout. Expect a error result.
         /// </summary>
-        [Fact]
+        [Test]
         public void GetDefinitionTimeoutTest()
         {
             // Given a binding queue that will automatically time out
@@ -268,13 +268,13 @@ GO";
             Assert.NotNull(result);
             Assert.True(result.IsErrorResult);
             // Check timeout message
-            Assert.Equal(SR.PeekDefinitionTimedoutError, result.Message);
+            Assert.AreEqual(SR.PeekDefinitionTimedoutError, result.Message);
         }
 
         /// <summary>
         /// Test get definition for a view object with active connection
         /// </summary>
-        [Fact]
+        [Test]
         public void GetValidViewDefinitionTest()
         {
             ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition();
@@ -293,7 +293,7 @@ GO";
         /// <summary>
         /// Test get definition for an invalid view object with no schema name and with active connection
         /// </summary>
-        [Fact]
+        [Test]
         public void GetViewDefinitionInvalidObjectTest()
         {
             // Get live connectionInfo and serverConnection
@@ -312,7 +312,7 @@ GO";
         /// <summary>
         /// Test get definition for a stored procedure object with active connection
         /// </summary>
-        [Fact]
+        [Test]
         public void GetStoredProcedureDefinitionTest()
         {
             // Get live connectionInfo and serverConnection
@@ -333,7 +333,7 @@ GO";
         /// <summary>
         /// Test get definition for a stored procedure object that does not exist with active connection
         /// </summary>
-        [Fact]
+        [Test]
         public void GetStoredProcedureDefinitionFailureTest()
         {
             // Get live connectionInfo and serverConnection
@@ -352,7 +352,7 @@ GO";
         /// <summary>
         /// Test get definition for a stored procedure object with active connection and no schema
         /// </summary>
-        [Fact]
+        [Test]
         public void GetStoredProcedureDefinitionWithoutSchemaTest()
         {
             // Get live connectionInfo and serverConnection
@@ -372,7 +372,7 @@ GO";
         /// <summary>
         /// Test get definition for a scalar valued function object with active connection and explicit schema name. Expect non-null locations
         /// </summary>
-        [Fact]
+        [Test]
         public async Task GetScalarValuedFunctionDefinitionWithSchemaNameSuccessTest()
         {
             await ExecuteAndValidatePeekTest(AddTwoFunctionQuery, AddTwoFunctionName, ScalarValuedFunctionTypeName);
@@ -421,7 +421,7 @@ GO";
         /// <summary>
         /// Test get definition for a table valued function object with active connection and explicit schema name. Expect non-null locations
         /// </summary>
-        [Fact]
+        [Test]
         public async Task GetTableValuedFunctionDefinitionWithSchemaNameSuccessTest()
         {
             await ExecuteAndValidatePeekTest(ReturnTableTableFunctionQuery, ReturnTableFunctionName, ScalarValuedFunctionTypeName);
@@ -430,7 +430,7 @@ GO";
         /// <summary>
         /// Test get definition for a scalar valued function object that doesn't exist with active connection. Expect null locations
         /// </summary>
-        [Fact]
+        [Test]
         public async Task GetScalarValuedFunctionDefinitionWithNonExistentFailureTest()
         {
             string objectName = "doesNotExist";
@@ -443,7 +443,7 @@ GO";
         /// <summary>
         /// Test get definition for a table valued function object that doesn't exist with active connection. Expect null locations
         /// </summary>
-        [Fact]
+        [Test]
         public async Task GetTableValuedFunctionDefinitionWithNonExistentObjectFailureTest()
         {
             string objectName = "doesNotExist";
@@ -455,7 +455,7 @@ GO";
         /// <summary>
         /// Test get definition for a scalar valued function object with active connection. Expect non-null locations
         /// </summary>
-        [Fact]
+        [Test]
         public async Task GetScalarValuedFunctionDefinitionWithoutSchemaNameSuccessTest()
         {
             await ExecuteAndValidatePeekTest(AddTwoFunctionQuery, AddTwoFunctionName, ScalarValuedFunctionTypeName, null);
@@ -464,7 +464,7 @@ GO";
         /// <summary>
         /// Test get definition for a table valued function object with active connection. Expect non-null locations
         /// </summary>
-        [Fact]
+        [Test]
         public async Task GetTableValuedFunctionDefinitionWithoutSchemaNameSuccessTest()
         {
             await ExecuteAndValidatePeekTest(ReturnTableTableFunctionQuery, ReturnTableFunctionName, ScalarValuedFunctionTypeName, null);
@@ -474,7 +474,7 @@ GO";
         /// <summary>
         /// Test get definition for a user defined data type object with active connection and explicit schema name. Expect non-null locations
         /// </summary>
-        [Fact]
+        [Test]
         public async Task GetUserDefinedDataTypeDefinitionWithSchemaNameSuccessTest()
         {
             await ExecuteAndValidatePeekTest(SsnTypeQuery, SsnTypeName, UserDefinedDataTypeTypeName);
@@ -483,7 +483,7 @@ GO";
         /// <summary>
         /// Test get definition for a user defined data type object with active connection. Expect non-null locations
         /// </summary>
-        [Fact]
+        [Test]
         public async Task GetUserDefinedDataTypeDefinitionWithoutSchemaNameSuccessTest()
         {
             await ExecuteAndValidatePeekTest(SsnTypeQuery, SsnTypeName, UserDefinedDataTypeTypeName, null);
@@ -492,7 +492,7 @@ GO";
         /// <summary>
         /// Test get definition for a user defined data type object that doesn't exist with active connection. Expect null locations
         /// </summary>
-        [Fact]
+        [Test]
         public async Task GetUserDefinedDataTypeDefinitionWithNonExistentFailureTest()
         {
             string objectName = "doesNotExist";
@@ -504,7 +504,7 @@ GO";
         /// <summary>
         /// Test get definition for a user defined table type object with active connection and explicit schema name. Expect non-null locations
         /// </summary>
-        [Fact]
+        [Test]
         public async Task GetUserDefinedTableTypeDefinitionWithSchemaNameSuccessTest()
         {
             await ExecuteAndValidatePeekTest(LocationTableTypeQuery, LocationTableTypeName, UserDefinedTableTypeTypeName);
@@ -513,7 +513,7 @@ GO";
         /// <summary>
         /// Test get definition for a user defined table type object with active connection. Expect non-null locations
         /// </summary>
-        [Fact]
+        [Test]
         public async Task GetUserDefinedTableTypeDefinitionWithoutSchemaNameSuccessTest()
         {
             await ExecuteAndValidatePeekTest(LocationTableTypeQuery, LocationTableTypeName, UserDefinedTableTypeTypeName, null);
@@ -522,7 +522,7 @@ GO";
         /// <summary>
         /// Test get definition for a user defined table type object that doesn't exist with active connection. Expect null locations
         /// </summary>
-        [Fact]
+        [Test]
         public async Task GetUserDefinedTableTypeDefinitionWithNonExistentFailureTest()
         {
             string objectName = "doesNotExist";
@@ -535,7 +535,7 @@ GO";
         /// <summary>
         /// Test get definition for a synonym object with active connection and explicit schema name. Expect non-null locations
         /// </summary>
-        [Fact]
+        [Test]
         public async Task GetSynonymDefinitionWithSchemaNameSuccessTest()
         {
             await ExecuteAndValidatePeekTest(TestTableSynonymQuery, TestTableSynonymName, SynonymTypeName);
@@ -545,7 +545,7 @@ GO";
         /// <summary>
         /// Test get definition for a Synonym object with active connection. Expect non-null locations
         /// </summary>
-        [Fact]
+        [Test]
         public async Task GetSynonymDefinitionWithoutSchemaNameSuccessTest()
         {
             await ExecuteAndValidatePeekTest(TestTableSynonymQuery, TestTableSynonymName, SynonymTypeName, null);
@@ -554,7 +554,7 @@ GO";
         /// <summary>
         /// Test get definition for a Synonym object that doesn't exist with active connection. Expect null locations
         /// </summary>
-        [Fact]
+        [Test]
         public async Task GetSynonymDefinitionWithNonExistentFailureTest()
         {
             string objectName = "doesNotExist";
@@ -567,7 +567,7 @@ GO";
         /// Test get definition using declaration type for a view object with active connection
         /// Expect a non-null result with location
         /// </summary>
-        [Fact]
+        [Test]
         public void GetDefinitionUsingDeclarationTypeWithValidObjectTest()
         {
             ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition();
@@ -589,7 +589,7 @@ GO";
         /// Test get definition using declaration type for a non existent view object with active connection
         /// Expect a non-null result with location
         /// </summary>
-        [Fact]
+        [Test]
         public void GetDefinitionUsingDeclarationTypeWithNonexistentObjectTest()
         {
             ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition();
@@ -608,7 +608,7 @@ GO";
         /// Test get definition using quickInfo text for a view object with active connection
         /// Expect a non-null result with location
         /// </summary>
-        [Fact]
+        [Test]
         public void GetDefinitionUsingQuickInfoTextWithValidObjectTest()
         {
             ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition();
@@ -631,7 +631,7 @@ GO";
         /// Test get definition using quickInfo text for a view object with active connection
         /// Expect a non-null result with location
         /// </summary>
-        [Fact]
+        [Test]
         public void GetDefinitionUsingQuickInfoTextWithNonexistentObjectTest()
         {
             ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition();
@@ -652,7 +652,7 @@ GO";
         /// Given that there is no query connection
         /// Expect database name to be "master"
         /// </summary>
-        [Fact]
+        [Test]
         public void GetDatabaseWithNoQueryConnectionTest()
         {
             ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition();
@@ -663,7 +663,7 @@ GO";
 
             Scripter scripter = new Scripter(serverConnection, connInfo);
             //Check if database name is the default server connection database name
-            Assert.Equal("master", scripter.Database.Name);
+            Assert.AreEqual("master", scripter.Database.Name);
         }
 
         /// <summary>
@@ -671,7 +671,7 @@ GO";
         /// Give that there is a query connection
         /// Expect database name to be query connection's database name
         /// </summary>
-        [Fact]
+        [Test]
         public void GetDatabaseWithQueryConnectionTest()
         {
             ConnectionInfo connInfo = LiveConnectionHelper.InitLiveConnectionInfoForDefinition();
@@ -686,7 +686,7 @@ GO";
 
             Scripter scripter = new Scripter(serverConnection, connInfo);
             //Check if database name is the database name in the query connection
-            Assert.Equal("testdb", scripter.Database.Name);
+            Assert.AreEqual("testdb", scripter.Database.Name);
 
             // remove mock from ConnectionInfo
             Assert.True(connInfo.ConnectionTypeToConnectionMap.TryRemove(ConnectionType.Query, out connection));
@@ -698,8 +698,8 @@ GO";
         /// Get Definition for a object by putting the cursor on 3 different
         /// objects
         /// </summary>
-        [Fact]
-        public async void GetDefinitionFromChildrenAndParents()
+        [Test]
+        public async Task GetDefinitionFromChildrenAndParents()
         {
             string queryString = "select * from master.sys.objects";
             // place the cursor on every token
@@ -743,8 +743,8 @@ GO";
             Assert.NotNull(masterResult);
 
             // And I expect the all results to be the same
-            Assert.True(CompareLocations(objectResult.Locations, sysResult.Locations));
-            Assert.True(CompareLocations(objectResult.Locations, masterResult.Locations));
+            Assert.That(objectResult.Locations, Is.EqualTo(sysResult.Locations), "objectResult and sysResult Locations");
+            Assert.That(objectResult.Locations, Is.EqualTo(masterResult.Locations), "objectResult and masterResult Locations");
 
             Cleanup(objectResult.Locations);
             Cleanup(sysResult.Locations);
@@ -753,8 +753,8 @@ GO";
             connInfo.RemoveAllConnections();
         }
 
-        [Fact]
-        public async void GetDefinitionFromProcedures()
+        [Test]
+        public async Task GetDefinitionFromProcedures()
         {
 
             string queryString = "EXEC master.dbo.sp_MSrepl_startup";
