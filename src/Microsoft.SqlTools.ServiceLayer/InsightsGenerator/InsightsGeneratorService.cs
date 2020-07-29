@@ -47,8 +47,8 @@ namespace Microsoft.SqlTools.ServiceLayer.InsightsGenerator
         {
             await requestContext.SendResult(new InsightsGeneratorResult()
             {
-                Success = true,
-                ErrorMessage = null
+                InsightsText = "Insights generator text",
+                Success = true
             });
         }
     }
