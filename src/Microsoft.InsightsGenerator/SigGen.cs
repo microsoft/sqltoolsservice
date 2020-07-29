@@ -111,6 +111,7 @@ namespace Microsoft.InsightsGenerator
             var uniqueInputs = GetUniqueColumValues(inputCol);
             insight.Add(uniqueInputs.Length.ToString());
             insight.AddRange(uniqueInputs);
+            Result.Insights.Add(insight);
         }
         public void OverallTopInsights(long n, int inputColumn, int outputColumn)
         {
