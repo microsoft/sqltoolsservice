@@ -97,7 +97,8 @@ namespace Microsoft.InsightsGenerator
                 SignatureGeneratorResult result = siggen.Learn();
                 // call the rules engine processor
                 RulesEngine re = new RulesEngine(); 
-                re.FindMatchingTemplate(result, rulesData);
+                string insights = re.FindMatchedTemplate(result, rulesData);
+                Console.WriteLine($"Good News! Insights generator has provided you the chart text: \n{insights}\n");
             }
             else
             {
