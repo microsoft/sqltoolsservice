@@ -20,6 +20,30 @@ namespace Microsoft.InsightsGenerator
 
         public SignatureGeneratorResult Learn()
         {
+            var stringInputIndexes = new List<int>();
+            var timeInputIndexes = new List<int>();
+            var slicerIndexes = new List<int>();
+            var outputIndexes = new List<int>();
+
+            for (var i = 0; i < Table.TransformedColumnNames.Length; i++) 
+            {
+                if (Table.TransformedColumnNames.Contains("input_g"))
+                {
+                    stringInputIndexes.Add(i);
+                }
+                if (Table.TransformedColumnNames.Contains("input_t"))
+                {
+                    timeInputIndexes.Add(i);
+                }
+                if (Table.TransformedColumnNames.Contains("slicer"))
+                {
+                   slicerIndexes.Add(i);
+                }
+                if (Table.TransformedColumnNames.Contains("output"))
+                {
+                    outputIndexes.Add(i);
+                }
+            }
             return Result;
         }
 
