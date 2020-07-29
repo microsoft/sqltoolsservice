@@ -96,8 +96,8 @@ namespace Microsoft.InsightsGenerator
                 SignatureGenerator siggen = new SignatureGenerator(rulesData);
                 SignatureGeneratorResult result = siggen.Learn();
                 // call the rules engine processor
-                RulesEngine re = new RulesEngine();
-                // re.FindMatchingTemplate(result, rulesData);
+                RulesEngine re = new RulesEngine(); 
+                re.FindMatchingTemplate(result, rulesData);
             }
             else
             {
