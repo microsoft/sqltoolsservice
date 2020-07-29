@@ -144,6 +144,38 @@ namespace Microsoft.InsightsGenerator.UnitTests
             }
         }
 
+        [Fact]
+        public void MaxAndMinInsightsTest() 
+        {
+            SignatureGenerator sigGen = new SignatureGenerator(sampleDataArray(false));
+            sigGen.OverallMaxInsights(1);
+            sigGen.OverallMinInsights(1);
+
+            foreach (List<string> list in sigGen.Result.Insights)
+            {
+                foreach (string str in list)
+                {
+                    Console.WriteLine(str);
+                }
+            }
+        }
+
+        [Fact]
+        public void MaxAndMinSlicedInsightsTest()
+        {
+            SignatureGenerator sigGen = new SignatureGenerator(sampleDataArray(false));
+            sigGen.SlicedMaxInsights(2,1);
+            sigGen.SlicedMinInsights(2,1);
+
+            foreach (List<string> list in sigGen.Result.Insights)
+            {
+                foreach (string str in list)
+                {
+                    Console.WriteLine(str);
+                }
+            }
+        }
+
         public DataArray sampleDataArray(bool timeinput)
         {
             DataArray sample = new DataArray();

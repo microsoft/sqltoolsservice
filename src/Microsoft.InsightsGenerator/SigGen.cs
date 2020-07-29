@@ -20,7 +20,6 @@ namespace Microsoft.InsightsGenerator
 
         public SignatureGeneratorResult Learn()
         {
-
             return Result;
         }
 
@@ -145,6 +144,22 @@ namespace Microsoft.InsightsGenerator
             Result.Insights.Add(outputList);
         }
 
+        public void OverallMaxInsights(int colIndex)
+        {
+            var outputList = new List<string>();
+            outputList.Add(SignatureGeneratorResult.maxInsightIdentifier);
+            outputList.Add(CalculateColumnMax(Table.Cells, colIndex).ToString());
+            Result.Insights.Add(outputList);
+        }
+
+        public void OverallMinInsights(int colIndex)
+        {
+            var outputList = new List<string>();
+            outputList.Add(SignatureGeneratorResult.minInsightIdentifier);
+            outputList.Add(CalculateColumnMin(Table.Cells, colIndex).ToString());
+            Result.Insights.Add(outputList);
+        }
+
         public void SlicedSumInsights(int sliceIndex, int colIndex)
         {
             var insight = new List<string>();
@@ -158,6 +173,42 @@ namespace Microsoft.InsightsGenerator
                 insight.Add(slice.ToString());
                 var sliceTable = CreateSliceBucket(sliceIndex, slice.ToString());
                 insight.Add(CalculateColumnSum(sliceTable, colIndex).ToString());
+            }
+
+            Result.Insights.Add(insight);
+        }
+
+        public void SlicedMaxInsights(int sliceIndex, int colIndex)
+        {
+            var insight = new List<string>();
+            insight.Add(SignatureGeneratorResult.maxSliceInsightIdentifier);
+            object[] slices = GetUniqueColumValues(sliceIndex);
+
+            insight.Add(slices.Length.ToString());
+
+            foreach (var slice in slices)
+            {
+                insight.Add(slice.ToString());
+                var sliceTable = CreateSliceBucket(sliceIndex, slice.ToString());
+                insight.Add(CalculateColumnMax(sliceTable, colIndex).ToString());
+            }
+
+            Result.Insights.Add(insight);
+        }
+
+        public void SlicedMinInsights(int sliceIndex, int colIndex)
+        {
+            var insight = new List<string>();
+            insight.Add(SignatureGeneratorResult.minSliceInsightIdentifier);
+            object[] slices = GetUniqueColumValues(sliceIndex);
+
+            insight.Add(slices.Length.ToString());
+
+            foreach (var slice in slices)
+            {
+                insight.Add(slice.ToString());
+                var sliceTable = CreateSliceBucket(sliceIndex, slice.ToString());
+                insight.Add(CalculateColumnMin(sliceTable, colIndex).ToString());
             }
 
             Result.Insights.Add(insight);
@@ -312,9 +363,13 @@ public class SignatureGeneratorResult
     public static string bottomSliceInsightIdentifier = "bottomPerSlice";
     public static string averageInsightIdentifier = "average";
     public static string sumInsightIdentifier = "sum";
+    public static string maxInsightIdentifier = "max";
+    public static string minInsightIdentifier = "min";
     public static string averageSliceInsightIdentifier = "averagePerSlice";
     public static string sumSliceInsightIdentifier = "sumPerSlice";
     public static string percentageSliceInsightIdentifier = "percentagePerSlice";
+    public static string maxSliceInsightIdentifier = "maxPerSlice";
+    public static string minSliceInsightIdentifier = "minPerSlice";
 }
 
 
