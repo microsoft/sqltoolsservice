@@ -71,7 +71,7 @@ namespace Microsoft.InsightsGenerator
             foreach (var template in Templates)
             {
                 var columnHeaders = TemplateParser(template.Content);
-                var singleHashFromTemplate = columnHeaders.SingleHashValues;
+                var singleHashFromTemplate = columnHeaders.SingleHashValues.Distinct();
 
                 var isMatched = true;
 
