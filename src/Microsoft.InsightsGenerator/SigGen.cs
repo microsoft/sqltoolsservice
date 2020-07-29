@@ -150,7 +150,7 @@ namespace Microsoft.InsightsGenerator
 
             Object[][] sortedTable = SortCellsByColumn(table, outputColumn);
 
-            double outputSum = Sum(sortedTable, outputColumn);
+            double outputSum = CalculateColumnSum(sortedTable, outputColumn);
 
             for (int i = sortedTable.Length - 1; i >= 0 && i >= sortedTable.Length - n; i--)
             {
