@@ -21,12 +21,12 @@ namespace Microsoft.InsightsGenerator
 
         public DataArray Transform(DataArray array)
         {
-            if (array == null || array.Cells == null && array.Cells.Length > 0)
+            if (array == null || array.Cells == null || array.Cells.Length == 0)
             {
                 return array;
             }
 
-            array.ColumnNames = GetColumnLabels(array);
+            array.TransformedColumnNames = GetColumnLabels(array);
             return array;
         }
 
@@ -72,9 +72,9 @@ namespace Microsoft.InsightsGenerator
                     ++startingIndex;
                 }
 
-                for (int i = startingIndex; i < stringColumns.Count; ++i)
+                for (int i = 0; i < stringColumns.Count - startingIndex; ++i)
                 {
-                    labels[stringColumns[i].ColumnIndex] = "slicer_" + i;
+                    labels[stringColumns[i + startingIndex].ColumnIndex] = "slicer_" + i;
                 }
             }
 

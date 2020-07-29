@@ -13,7 +13,7 @@ namespace Microsoft.InsightsGenerator.UnitTests
         public void TopTest()
         {
             SignatureGenerator sigGen = new SignatureGenerator(sampleDataArray(false));
-            sigGen.Top(3, 0, 1);
+            sigGen.OverallTopInsights(3, 0, 1);
 
             foreach (List<string> list in sigGen.Result.Insights)
             {
@@ -28,7 +28,7 @@ namespace Microsoft.InsightsGenerator.UnitTests
         public void TopSliceTest()
         {
             SignatureGenerator sigGen = new SignatureGenerator(sampleDataArray(false));
-            sigGen.TopPerSlice(3, 0, 2, 1);
+            sigGen.SlicedTopInsights(3, 0, 2, 1);
 
             foreach (List<string> list in sigGen.Result.Insights)
             {
@@ -43,7 +43,7 @@ namespace Microsoft.InsightsGenerator.UnitTests
         public void BottomTest()
         {
             SignatureGenerator sigGen = new SignatureGenerator(sampleDataArray(false));
-            sigGen.Bottom(3, 0, 1);
+            sigGen.OverallBottomInsights(3, 0, 1);
 
             foreach (List<string> list in sigGen.Result.Insights)
             {
@@ -58,7 +58,82 @@ namespace Microsoft.InsightsGenerator.UnitTests
         public void BottomSliceTest()
         {
             SignatureGenerator sigGen = new SignatureGenerator(sampleDataArray(false));
-            sigGen.BottomPerSlice(3, 0, 2, 1);
+            sigGen.SlicedBottomInsights(3, 0, 2, 1);
+
+            foreach (List<string> list in sigGen.Result.Insights)
+            {
+                foreach (string str in list)
+                {
+                    Console.WriteLine(str);
+                }
+            }
+        }
+
+        [Fact]
+        public void AverageTest()
+        {
+            SignatureGenerator sigGen = new SignatureGenerator(sampleDataArray(false));
+            sigGen.OverallAverageInsights(1);
+
+            foreach (List<string> list in sigGen.Result.Insights)
+            {
+                foreach (string str in list)
+                {
+                    Console.WriteLine(str);
+                }
+            }
+        }
+
+        [Fact]
+        public void SumTest()
+        {
+            SignatureGenerator sigGen = new SignatureGenerator(sampleDataArray(false));
+            sigGen.OverallSumInsights(1);
+
+            foreach (List<string> list in sigGen.Result.Insights)
+            {
+                foreach (string str in list)
+                {
+                    Console.WriteLine(str);
+                }
+            }
+        }
+
+        [Fact]
+        public void SlicedSumTest()
+        {
+            SignatureGenerator sigGen = new SignatureGenerator(sampleDataArray(false));
+            sigGen.SlicedSumInsights(2, 1);
+
+            foreach (List<string> list in sigGen.Result.Insights)
+            {
+                foreach (string str in list)
+                {
+                    Console.WriteLine(str);
+                }
+            }
+        }
+
+        [Fact]
+        public void SlicedAverageTest()
+        {
+            SignatureGenerator sigGen = new SignatureGenerator(sampleDataArray(false));
+            sigGen.SlicedAverageInsights(2, 1);
+
+            foreach (List<string> list in sigGen.Result.Insights)
+            {
+                foreach (string str in list)
+                {
+                    Console.WriteLine(str);
+                }
+            }
+        }
+
+        [Fact]
+        public void SlicedPercentageTest()
+        {
+            SignatureGenerator sigGen = new SignatureGenerator(sampleDataArray(false));
+            sigGen.SlicedPercentageInsights(2, 1);
 
             foreach (List<string> list in sigGen.Result.Insights)
             {

@@ -16,6 +16,8 @@ namespace Microsoft.InsightsGenerator
 
         public string[] ColumnNames { get; set; }
 
+        public string[] TransformedColumnNames { get; set; }
+
         public DataType[] ColumnDataType { get; set; }
 
         public object[][] Cells { get; set; }

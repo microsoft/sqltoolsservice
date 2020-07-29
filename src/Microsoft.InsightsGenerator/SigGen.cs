@@ -5,7 +5,6 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Globalization;
 
-
 namespace Microsoft.InsightsGenerator
 {
     class SignatureGenerator
@@ -25,48 +24,48 @@ namespace Microsoft.InsightsGenerator
             return Result;
         }
 
-        public void Top(long n, int inputColumn, int outputColumn)
+        public void OverallTopInsights(long n, int inputColumn, int outputColumn)
         {
             List<string> insight = new List<string>();
             // Adding the insight identifier
             insight.Add(SignatureGeneratorResult.topInsightIdentifier);
 
-            insight.AddRange(genericTop(Table.Cells, n, inputColumn, outputColumn));
+            insight.AddRange(GenericTop(Table.Cells, n, inputColumn, outputColumn));
 
             Result.Insights.Add(insight);
         }
 
-        public void TopPerSlice(long n, int inputColumn, int sliceColumn, int outputColumn)
+        public void SlicedTopInsights(long n, int inputColumn, int sliceColumn, int outputColumn)
         {
             List<string> insight = new List<string>();
             // Adding the insight identifier
             insight.Add(SignatureGeneratorResult.topSliceInsightIdentifier);
 
-            object[] slices = sliceValues(sliceColumn);
+            object[] slices = GetUniqueColumValues(sliceColumn);
 
             insight.Add(slices.Length.ToString());
 
             foreach (var slice in slices)
             {
                 insight.Add(slice.ToString());
-                var sliceTable = createSliceBucket(sliceColumn, slice.ToString());
-                insight.AddRange(genericTop(sliceTable, n, inputColumn, outputColumn));
+                var sliceTable = CreateSliceBucket(sliceColumn, slice.ToString());
+                insight.AddRange(GenericTop(sliceTable, n, inputColumn, outputColumn));
             }
 
             Result.Insights.Add(insight);
         }
 
-        public List<string> genericTop(Object[][] table, long n, int inputColumn, int outputColumn)
+        public List<string> GenericTop(Object[][] table, long n, int inputColumn, int outputColumn)
         {
             List<string> insight = new List<string>();
 
             Object[][] sortedTable = SortCellsByColumn(table, outputColumn);
 
-            long outputSum = sum(sortedTable, outputColumn);
+            double outputSum = Sum(sortedTable, outputColumn);
 
             for (int i = sortedTable.Length - 1; i >= 0 && i >= sortedTable.Length - n; i--)
             {
-                double percent = percentage(Double.Parse(sortedTable[i][outputColumn].ToString()), outputSum);
+                double percent = Percentage(Double.Parse(sortedTable[i][outputColumn].ToString()), outputSum);
                 string temp = String.Format("{0} ({1}) {2}%", sortedTable[i][inputColumn].ToString(), sortedTable[i][outputColumn].ToString(), percent);
                 insight.Add(temp);
             }
@@ -77,49 +76,49 @@ namespace Microsoft.InsightsGenerator
             return insight;
         }
 
-        public void Bottom(long n, int inputColumn, int outputColumn)
+        public void OverallBottomInsights(long n, int inputColumn, int outputColumn)
         {
             List<string> insight = new List<string>();
             // Adding the insight identifier
             insight.Add(SignatureGeneratorResult.bottomInsightIdentifier);
 
-            insight.AddRange(genericBottom(Table.Cells, n, inputColumn, outputColumn));
+            insight.AddRange(GenericBottom(Table.Cells, n, inputColumn, outputColumn));
 
             Result.Insights.Add(insight);
         }
 
-        public void BottomPerSlice(long n, int inputColumn, int sliceColumn, int outputColumn)
+        public void SlicedBottomInsights(long n, int inputColumn, int sliceColumn, int outputColumn)
         {
             List<string> insight = new List<string>();
             // Adding the insight identifier
             insight.Add(SignatureGeneratorResult.bottomSliceInsightIdentifier);
 
-            object[] slices = sliceValues(sliceColumn);
+            object[] slices = GetUniqueColumValues(sliceColumn);
 
             insight.Add(slices.Length.ToString());
 
             foreach (var slice in slices)
             {
                 insight.Add(slice.ToString());
-                var sliceTable = createSliceBucket(sliceColumn, slice.ToString());
-                insight.AddRange(genericBottom(sliceTable, n, inputColumn, outputColumn));
+                var sliceTable = CreateSliceBucket(sliceColumn, slice.ToString());
+                insight.AddRange(GenericBottom(sliceTable, n, inputColumn, outputColumn));
             }
 
             Result.Insights.Add(insight);
         }
 
-        public List<string> genericBottom(Object[][] table, long n, int inputColumn, int outputColumn)
+        public List<string> GenericBottom(Object[][] table, long n, int inputColumn, int outputColumn)
         {
             List<string> insight = new List<string>();
 
 
             Object[][] sortedTable = SortCellsByColumn(table, outputColumn);
 
-            long outputSum = sum(sortedTable, outputColumn);
+            double outputSum = Sum(sortedTable, outputColumn);
 
-            for(int i = 0; i < n && i < sortedTable.Length; i++)
+            for (int i = 0; i < n && i < sortedTable.Length; i++)
             {
-                double percent = percentage(Double.Parse(sortedTable[i][outputColumn].ToString()), outputSum);
+                double percent = Percentage(Double.Parse(sortedTable[i][outputColumn].ToString()), outputSum);
                 string temp = String.Format("{0} ({1}) {2}%", sortedTable[i][inputColumn].ToString(), sortedTable[i][outputColumn].ToString(), percent);
                 insight.Add(temp);
             }
@@ -130,43 +129,120 @@ namespace Microsoft.InsightsGenerator
             return insight;
         }
 
-
-        public double percentage(double value, long sum)
+        public void OverallAverageInsights(int colIndex)
         {
-            return Math.Round((double)((value / sum) * 100), 2);
+            var outputList = new List<string>();
+            outputList.Add(SignatureGeneratorResult.averageInsightIdentifier);
+            outputList.Add(CalculateColumnAverage(Table.Cells, colIndex).ToString());
+            Result.Insights.Add(outputList);
         }
 
-        public long sum(object[][] table, int outputColumn)
+        public void OverallSumInsights(int colIndex)
         {
-            long result = 0;
-            foreach(var row in table)
+            var outputList = new List<string>();
+            outputList.Add(SignatureGeneratorResult.sumInsightIdentifier);
+            outputList.Add(CalculateColumnSum(Table.Cells, colIndex).ToString());
+            Result.Insights.Add(outputList);
+        }
+
+        public void SlicedSumInsights(int sliceIndex, int colIndex)
+        {
+            var insight = new List<string>();
+            insight.Add(SignatureGeneratorResult.sumSliceInsightIdentifier);
+            object[] slices = GetUniqueColumValues(sliceIndex);
+
+            insight.Add(slices.Length.ToString());
+
+            foreach (var slice in slices)
             {
-                result += long.Parse(row[outputColumn].ToString());
+                insight.Add(slice.ToString());
+                var sliceTable = CreateSliceBucket(sliceIndex, slice.ToString());
+                insight.Add(CalculateColumnSum(sliceTable, colIndex).ToString());
             }
-            return result;
+
+            Result.Insights.Add(insight);
         }
 
-        public Object[] sliceValues(int sliceColumn)
+        public void SlicedAverageInsights(int sliceIndex, int colIndex)
         {
-            HashSet<Object> slices = new HashSet<object>();
-            foreach(var row in Table.Cells)
+            var insight = new List<string>();
+            insight.Add(SignatureGeneratorResult.sumSliceInsightIdentifier);
+            object[] slices = GetUniqueColumValues(sliceIndex);
+
+            insight.Add(slices.Length.ToString());
+
+            foreach (var slice in slices)
             {
-                slices.Add(row[sliceColumn]);
+                insight.Add(slice.ToString());
+                var sliceTable = CreateSliceBucket(sliceIndex, slice.ToString());
+                insight.Add(CalculateColumnAverage(sliceTable, colIndex).ToString());
             }
-            return slices.ToArray();
+
+            Result.Insights.Add(insight);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sliceColumn">The reference column</param>
-        /// <returns></returns>
-        public Object[][] createSliceBucket(int sliceColumn, string sliceValue)
+        public void SlicedPercentageInsights(int sliceIndex, int colIndex)
+        {
+            var insight = new List<string>();
+            insight.Add(SignatureGeneratorResult.percentageSliceInsightIdentifier);
+            object[] slices = GetUniqueColumValues(sliceIndex);
+
+            insight.Add(slices.Length.ToString());
+            double totalSum = CalculateColumnSum(Table.Cells, colIndex);
+            foreach (var slice in slices)
+            {
+                insight.Add(slice.ToString());
+                var sliceTable = CreateSliceBucket(sliceIndex, slice.ToString());
+                double sliceSum = CalculateColumnSum(sliceTable, colIndex);
+                var percentagePerSlice =  Percentage(sliceSum, totalSum);
+                insight.Add(percentagePerSlice.ToString());
+            }
+
+            Result.Insights.Add(insight);
+        }
+
+
+        private double CalculateColumnAverage(object[][] rows, int colIndex)
+        {
+            return Math.Round(CalculateColumnSum(rows, colIndex) / rows.Length, 2);
+        }
+
+        private double CalculateColumnSum(object[][] rows, int colIndex)
+        {
+            return Math.Round(rows.Sum(row => double.Parse(row[colIndex].ToString())), 2);
+        }
+
+        private double CalculateColumnPercentage(object[][] rows, int colIndex)
+        {
+            return rows.Sum(row => double.Parse(row[colIndex].ToString()));
+        }
+        private double CalculateColumnMin(object[][] rows, int colIndex)
+        {
+            return rows.Min(row => double.Parse(row[colIndex].ToString()));
+        }
+
+        private double CalculateColumnMax(object[][] rows, int colIndex)
+        {
+            return rows.Max(row => double.Parse(row[colIndex].ToString()));
+        }
+
+        private object[][] GetRowsBasedOnInputName(string inputName, int colIndex)
+        {
+            var cellCopy = DeepCloneTable(Table.Cells);
+            return cellCopy.Where(row => row[colIndex].ToString() == inputName).ToArray();
+        }
+
+        private string[] GetUniqueColumValues(int colIndex)
+        {
+            return Table.Cells.Select(row => row[colIndex].ToString()).Distinct().ToArray();
+        }
+
+        public Object[][] CreateSliceBucket(int sliceColIndex, string sliceValue)
         {
             List<Object[]> slicedTable = new List<object[]>();
-            foreach(var row in Table.Cells)
+            foreach (var row in Table.Cells)
             {
-                if(row[sliceColumn].Equals(sliceValue))
+                if (row[sliceColIndex].Equals(sliceValue))
                 {
                     slicedTable.Add(DeepCloneRow(row));
                 }
@@ -174,11 +250,6 @@ namespace Microsoft.InsightsGenerator
             return slicedTable.ToArray();
         }
 
-        /// <summary>
-        /// This function makes a deepclone of the cells and then sorts them according the colIndex
-        /// </summary>
-        /// <param name="colIndex">The index of the column on which the sort function will work</param>
-        /// <returns></returns>
         public object[][] SortCellsByColumn(Object[][] table, int colIndex)
         {
             var cellCopy = DeepCloneTable(table);
@@ -208,6 +279,21 @@ namespace Microsoft.InsightsGenerator
         {
             return row.Select(a => a).ToArray();
         }
+
+        public double Percentage(double value, double sum)
+        {
+            return Math.Round((double)((value / sum) * 100), 2);
+        }
+
+        public double Sum(object[][] table, int colIndex)
+        {
+            long result = 0;
+            foreach (var row in table)
+            {
+                result += long.Parse(row[colIndex].ToString());
+            }
+            return result;
+        }
     }
 }
 
@@ -222,8 +308,13 @@ public class SignatureGeneratorResult
 
     public static string topInsightIdentifier = "top";
     public static string bottomInsightIdentifier = "bottom";
-    public static string topSliceInsightIdentifier = "topPerSlices";
-    public static string bottomSliceInsightIdentifier = "bottomPerSlices";
+    public static string topSliceInsightIdentifier = "topPerSlice";
+    public static string bottomSliceInsightIdentifier = "bottomPerSlice";
+    public static string averageInsightIdentifier = "average";
+    public static string sumInsightIdentifier = "sum";
+    public static string averageSliceInsightIdentifier = "averagePerSlice";
+    public static string sumSliceInsightIdentifier = "sumPerSlice";
+    public static string percentageSliceInsightIdentifier = "percentagePerSlice";
 }
 
 
