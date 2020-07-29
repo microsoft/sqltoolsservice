@@ -48,21 +48,36 @@ namespace Microsoft.SqlTools.ServiceLayer.InsightsGenerator
         {
             QueryExecutionService service = QueryExecutionService.Instance;
 
-            QueryExecution.Contracts.SubsetParams subsetParams = new QueryExecution.Contracts.SubsetParams{
+            QueryExecution.Contracts.SubsetParams subsetParams = new QueryExecution.Contracts.SubsetParams
+            {
                 OwnerUri = parameters.OwnerUri
-            }; 
+            };
 
-            QueryExecution.Contracts.ResultSetSubset result = await service.InterServiceResultSubset(subsetParams);
-            
+            var result = (await service.InterServiceResultSubset(subsetParams)).Rows;
+
             Microsoft.InsightsGenerator.Workflow insightWorkFlowInstance = Microsoft.InsightsGenerator.Workflow.Instance();
 
-            insightWorkFlowInstance.IngestRules(result.Rows);
+            Microsoft.InsightsGenerator.DataArray dataArray = new Microsoft.InsightsGenerator.DataArray();
 
-            await requestContext.SendResult(new InsightsGeneratorResult()
+            try
             {
-                Success = true,
-                ErrorMessage = null
-            });
+                string[] insightText = insightWorkFlowInstance.IngestRules(dataArray);
+
+                await requestContext.SendResult(new InsightsGeneratorResult()
+                {
+                    InsightsText = insightText,
+                    Success = true,
+                    ErrorMessage = null
+                });
+            }
+            catch (Exception ex)
+            {
+                await requestContext.SendResult(new InsightsGeneratorResult()
+                {
+                    Success = false,
+                    ErrorMessage = ex.Message
+                });
+            }
         }
     }
 }
