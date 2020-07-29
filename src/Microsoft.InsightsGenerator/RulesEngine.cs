@@ -44,7 +44,10 @@ namespace Microsoft.InsightsGenerator
                     }
                     else
                     {
-                        ch.SingleHashValues.Add(headers);
+                        if (headers != "placeHolder")
+                        {
+                            ch.SingleHashValues.Add("#" + headers);
+                        }
                     }
                 }
             }
@@ -78,6 +81,7 @@ namespace Microsoft.InsightsGenerator
                     if (!headersWithSingleHash.Contains(hashFromTemplate))
                     {
                         isMatched = false;
+                        break;
                     }
                 }
                 if (isMatched)
@@ -127,9 +131,9 @@ namespace Microsoft.InsightsGenerator
             var transformedColumnArray = columnInfo.TransformedColumnNames.ToArray();
             var columnArray = columnInfo.ColumnNames.ToArray();
 
-            for (int p = 0; p < columnInfo.TransformedColumnNames.Length - 1; p++)
+            for (int p = 0; p <= columnInfo.TransformedColumnNames.Length - 1; p++)
             {
-                modifiedTemp.Replace("#" + transformedColumnArray[p], columnArray[p]);
+                modifiedTemp.Replace("##" + transformedColumnArray[p], columnArray[p]);
             }
 
             template.Content = modifiedTemp.ToString();
@@ -142,10 +146,6 @@ namespace Microsoft.InsightsGenerator
             foreach (var list in singleHashHeaders)
             {
                 topHeaderList.Add("#" + list.First());
-                if (TopListHashHeaders.Contains("#" + list.First()))
-                {
-                    topHeaderList.Add("#" + "placeHolder");
-                }
             }
             return topHeaderList;
         }
