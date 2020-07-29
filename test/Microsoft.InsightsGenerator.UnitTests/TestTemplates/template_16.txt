@@ -1,1 +1,0 @@
-﻿template <- rbind(template, data.frame(tempId = 16, temp = "For the #slices ##SlicePar_GG_1(s), the percentage of ##OutPar_N_C_1 on #time were \n #stHData\n this was compared with #Etime where #ESlices ##SlicePar_GG_1\n #EstHData  \n.", Status = 0) 
