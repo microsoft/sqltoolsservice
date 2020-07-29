@@ -17,6 +17,8 @@ namespace Microsoft.InsightsGenerator
     {
         public static List<Template> Templates;
 
+        public static List<string> TopListHashHeaders = new List<string>{ "#top", "#average", "#averageSlice", "#topPerslice" , "#bottom"};
+
         public RulesEngine()
         {
             Templates = GetTemplates();
@@ -54,14 +56,13 @@ namespace Microsoft.InsightsGenerator
         /// </summary>
         /// <param name="singleHashHeaders"></param>
         /// <returns></returns>
-        public static Template FindMatchedTemplate(List<string> singleHashHeaders, List<string>doubleHashHeaders)
+        public static Template FindMatchedTemplate(List<List<string>> singleHashHeaders, DataArray columnInfo)
         {
             if (Templates == null)
             {
                 Templates = GetTemplates();
             }
-            var headersWithSingleHash = AppendPrefix("#", singleHashHeaders);
-            var headersWithDoubleHash = AppendPrefix("##", doubleHashHeaders);
+            var headersWithSingleHash = GetTopHeadersWithHash(singleHashHeaders);
 
             foreach (var template in Templates)
             {
@@ -73,6 +74,7 @@ namespace Microsoft.InsightsGenerator
                     if (Enumerable.SequenceEqual(singleHash.OrderBy(s => s), headersWithSingleHash.OrderBy(s => s)))
                     {
                         // Replace # and ## values in template with actual values here befor return
+
                         return template;
                     }
                 }
@@ -80,6 +82,57 @@ namespace Microsoft.InsightsGenerator
 
             // No matched Template found
             return null;
+        }
+
+        private static Template ReplaceHashesInTemplate(List<List<string>>singleHashList, DataArray columnInfo, Template template)
+        {
+            StringBuilder modifiedTemp = new StringBuilder(template.Content);
+
+            // Replace single hash values
+            foreach (var line in singleHashList)
+            {
+                var headerInputs = line.ToArray();
+                string header = "#" + headerInputs[0];
+
+                if (TopListHashHeaders.Contains(header))
+                {
+                    //First replace the header with the second value in the list
+
+                    modifiedTemp.Replace(header, headerInputs[1]);
+                    StringBuilder topListStr = new StringBuilder();
+                    for (int i = 2; i < headerInputs.Length - 1; i++)
+                    {
+                        topListStr.AppendLine(headerInputs[i]);
+                    }
+                    modifiedTemp.Replace("#topList", topListStr.ToString());
+                }
+                else 
+                {
+                    modifiedTemp.Replace("#" + headerInputs[0], headerInputs[1]);
+                }
+            }
+
+            // Replace double hash values
+            var transformedColumnArray = columnInfo.TransformedColumnNames.ToArray();
+            var columnArray = columnInfo.ColumnNames.ToArray();
+
+            for (int p = 0; p < columnInfo.TransformedColumnNames.Length - 1; p++)
+            {
+                modifiedTemp.Replace("#" + transformedColumnArray[p], columnArray[p]);
+            }
+
+            template.Content = modifiedTemp.ToString();
+            return template;
+        }
+
+        private static List<string> GetTopHeadersWithHash(List<List<string>> singleHashHeaders)
+        {
+            var topHeaderList = new List<string>();
+            foreach (var list in singleHashHeaders)
+            {
+                topHeaderList.Add("#" + list.First());
+            }
+            return topHeaderList;
         }
 
         /// <summary>
