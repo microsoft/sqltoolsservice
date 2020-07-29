@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Sockets;
+using System.Globalization;
+
 
 namespace Microsoft.InsightsGenerator
 {
     class SignatureGenerator
     {
         private DataArray Table;
-        private SignatureGeneratorResult Result;
+        public SignatureGeneratorResult Result;
 
         public SignatureGenerator(DataArray table)
         {
@@ -19,6 +21,7 @@ namespace Microsoft.InsightsGenerator
 
         public SignatureGeneratorResult Learn()
         {
+
             return Result;
         }
 
@@ -57,23 +60,19 @@ namespace Microsoft.InsightsGenerator
         {
             List<string> insight = new List<string>();
 
-            // Adding the count of the result
-            insight.Add(n.ToString());
-
             Object[][] sortedTable = SortCellsByColumn(table, outputColumn);
 
             long outputSum = sum(sortedTable, outputColumn);
 
-            int i = 0;
-
-            for(; i < n && i < sortedTable.Length; i++)
+            for (int i = sortedTable.Length - 1; i >= 0 && i >= sortedTable.Length - n; i--)
             {
-                double percent = percentage(long.Parse(sortedTable[i][outputColumn].ToString()), outputSum);
-                String.Format("{0} ({1}) {2}%", long.Parse(sortedTable[i][inputColumn].ToString()), long.Parse(sortedTable[i][outputColumn].ToString()), percent);
+                double percent = percentage(Double.Parse(sortedTable[i][outputColumn].ToString()), outputSum);
+                string temp = String.Format("{0} ({1}) {2}%", sortedTable[i][inputColumn].ToString(), sortedTable[i][outputColumn].ToString(), percent);
+                insight.Add(temp);
             }
 
             // Adding the count of the result
-            insight.Insert(0, i.ToString());
+            insight.Insert(0, insight.Count.ToString());
 
             return insight;
         }
@@ -82,7 +81,7 @@ namespace Microsoft.InsightsGenerator
         {
             List<string> insight = new List<string>();
             // Adding the insight identifier
-            insight.Add(SignatureGeneratorResult.topInsightIdentifier);
+            insight.Add(SignatureGeneratorResult.bottomInsightIdentifier);
 
             insight.AddRange(genericBottom(Table.Cells, n, inputColumn, outputColumn));
 
@@ -93,7 +92,7 @@ namespace Microsoft.InsightsGenerator
         {
             List<string> insight = new List<string>();
             // Adding the insight identifier
-            insight.Add(SignatureGeneratorResult.topSliceInsightIdentifier);
+            insight.Add(SignatureGeneratorResult.bottomSliceInsightIdentifier);
 
             object[] slices = sliceValues(sliceColumn);
 
@@ -118,10 +117,11 @@ namespace Microsoft.InsightsGenerator
 
             long outputSum = sum(sortedTable, outputColumn);
 
-            for (int i = sortedTable.Length - 1; i >= 0 && i >= sortedTable.Length - n; i--)
+            for(int i = 0; i < n && i < sortedTable.Length; i++)
             {
-                double percent = percentage(long.Parse(sortedTable[i][outputColumn].ToString()), outputSum);
-                String.Format("{0} ({1}) {2}%", long.Parse(sortedTable[i][inputColumn].ToString()), long.Parse(sortedTable[i][outputColumn].ToString()), percent);
+                double percent = percentage(Double.Parse(sortedTable[i][outputColumn].ToString()), outputSum);
+                string temp = String.Format("{0} ({1}) {2}%", sortedTable[i][inputColumn].ToString(), sortedTable[i][outputColumn].ToString(), percent);
+                insight.Add(temp);
             }
 
             // Adding the count of the result
@@ -131,7 +131,7 @@ namespace Microsoft.InsightsGenerator
         }
 
 
-        public double percentage(long value, long sum)
+        public double percentage(double value, long sum)
         {
             return Math.Round((double)((value / sum) * 100), 2);
         }
@@ -179,11 +179,23 @@ namespace Microsoft.InsightsGenerator
         /// </summary>
         /// <param name="colIndex">The index of the column on which the sort function will work</param>
         /// <returns></returns>
-        private object[][] SortCellsByColumn(Object[][] table, int colIndex)
+        public object[][] SortCellsByColumn(Object[][] table, int colIndex)
         {
             var cellCopy = DeepCloneTable(table);
             Comparer<Object> comparer = Comparer<Object>.Default;
-            Array.Sort<Object[]>(cellCopy, (x, y) => comparer.Compare(x[colIndex], y[colIndex]));
+            switch (this.Table.ColumnDataType[colIndex])
+            {
+                case DataArray.DataType.Number:
+                    Array.Sort<Object[]>(cellCopy, (x, y) => comparer.Compare(double.Parse(x[colIndex].ToString()), double.Parse(y[colIndex].ToString())));
+                    break;
+                case DataArray.DataType.String:
+                    Array.Sort<Object[]>(cellCopy, (x, y) => String.Compare(x[colIndex].ToString(), y[colIndex].ToString()));
+                    break;
+                case DataArray.DataType.DateTime:
+                    Array.Sort<Object[]>(cellCopy, (x, y) => DateTime.Compare(DateTime.Parse(x[colIndex].ToString()), DateTime.Parse(y[colIndex].ToString())));
+                    break;
+
+            }
             return cellCopy;
         }
 
@@ -213,6 +225,7 @@ public class SignatureGeneratorResult
     public static string topSliceInsightIdentifier = "topPerSlices";
     public static string bottomSliceInsightIdentifier = "bottomPerSlices";
 }
+
 
 
 /** Some general format about the output
