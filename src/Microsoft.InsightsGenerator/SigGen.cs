@@ -27,24 +27,79 @@ namespace Microsoft.InsightsGenerator
 
             for (var i = 0; i < Table.TransformedColumnNames.Length; i++) 
             {
-                if (Table.TransformedColumnNames.Contains("input_g"))
+                if (Table.TransformedColumnNames[i].Contains("input_g"))
                 {
                     stringInputIndexes.Add(i);
                 }
-                if (Table.TransformedColumnNames.Contains("input_t"))
+                if (Table.TransformedColumnNames[i].Contains("input_t"))
                 {
                     timeInputIndexes.Add(i);
                 }
-                if (Table.TransformedColumnNames.Contains("slicer"))
+                if (Table.TransformedColumnNames[i].Contains("slicer"))
                 {
                    slicerIndexes.Add(i);
                 }
-                if (Table.TransformedColumnNames.Contains("output"))
+                if (Table.TransformedColumnNames[i].Contains("output"))
                 {
                     outputIndexes.Add(i);
                 }
             }
+
+            foreach (int stringIndex in stringInputIndexes)
+            {
+                foreach (int outputIndex in outputIndexes) 
+                {
+                    ExecuteStringInputInsights(stringIndex, outputIndex);
+                    foreach (int slicerIndex in slicerIndexes) 
+                    {
+                        ExecuteStringInputSlicerInsights(stringIndex, outputIndex, slicerIndex);
+                    }
+                }    
+            }
+
             return Result;
+        }
+
+
+        public void ExecuteStringInputInsights(int inputCol, int outputCol)
+        {
+            var n = Table.Cells.Length;
+            if (Table.Cells.Length >8) {
+                n = 3;
+            }
+            if (Table.Cells.Length > 50)
+            {
+                n=5;
+            }
+
+            OverallAverageInsights(outputCol);
+            OverallBottomInsights(n, inputCol, outputCol);
+            OverallMaxInsights(outputCol);
+            OverallMinInsights(outputCol);
+            OverallSumInsights(outputCol);
+            OverallTopInsights(n, inputCol, outputCol);
+        }
+
+        public void ExecuteStringInputSlicerInsights(int inputCol, int outputCol, int slicerCol)
+        {
+            var n = Table.Cells.Length;
+            if (Table.Cells.Length > 8)
+            {
+                n = 3;
+            }
+            if (Table.Cells.Length > 50)
+            {
+                n = 5;
+            }
+
+            SlicedMaxInsights(slicerCol, outputCol);
+            SlicedAverageInsights(slicerCol, outputCol);
+            SlicedBottomInsights(n, inputCol, slicerCol, outputCol);
+            SlicedSumInsights(slicerCol, outputCol);
+            SlicedPercentageInsights(slicerCol, outputCol);
+            SlicedSumInsights(slicerCol, outputCol);
+            SlicedMinInsights(slicerCol, outputCol);
+            SlicedTopInsights(n, inputCol, slicerCol, outputCol);
         }
 
         public void OverallTopInsights(long n, int inputColumn, int outputColumn)

@@ -176,6 +176,19 @@ namespace Microsoft.InsightsGenerator.UnitTests
             }
         }
 
+        [Fact]
+        public void LearnTest()
+        {
+            SignatureGenerator sigGen = new SignatureGenerator(sampleDataArray(false));
+            sigGen.Learn();
+            foreach (List<string> list in sigGen.Result.Insights)
+            {
+                foreach (string str in list)
+                {
+                    Console.WriteLine(str);
+                }
+            }
+        }
         public DataArray sampleDataArray(bool timeinput)
         {
             DataArray sample = new DataArray();
@@ -251,7 +264,9 @@ Korea	1	Category2";
                 sampleRowList.Add(row.Split("	"));
             }
 
+            var columnTypes = new string[] { "input_g_1", "output_1", "slicer_1" };
             sample.Cells = sampleRowList.ToArray();
+            sample.TransformedColumnNames = columnTypes;
             return sample;
         }
     }
