@@ -78,6 +78,7 @@ namespace Microsoft.InsightsGenerator
             OverallMinInsights(outputCol);
             OverallSumInsights(outputCol);
             OverallTopInsights(n, inputCol, outputCol);
+            UniqueInputsInsight(inputCol);
         }
 
         public void ExecuteStringInputSlicerInsights(int inputCol, int outputCol, int slicerCol)
@@ -102,6 +103,16 @@ namespace Microsoft.InsightsGenerator
             SlicedTopInsights(n, inputCol, slicerCol, outputCol);
         }
 
+        public void UniqueInputsInsight(int inputCol)
+        {
+            List<string> insight = new List<string>();
+            // Adding the insight identifier
+            insight.Add(SignatureGeneratorResult.uniqueInputsIdentifier);
+            var uniqueInputs = GetUniqueColumValues(inputCol);
+            insight.Add(uniqueInputs.Length.ToString());
+            insight.AddRange(uniqueInputs);
+            Result.Insights.Add(insight);
+        }
         public void OverallTopInsights(long n, int inputColumn, int outputColumn)
         {
             List<string> insight = new List<string>();
@@ -112,6 +123,7 @@ namespace Microsoft.InsightsGenerator
 
             Result.Insights.Add(insight);
         }
+
 
         public void SlicedTopInsights(long n, int inputColumn, int sliceColumn, int outputColumn)
         {
@@ -358,7 +370,6 @@ namespace Microsoft.InsightsGenerator
 
         private string[] GetUniqueColumValues(int colIndex)
         {
-
             return Table.Cells.Select(row => row[colIndex].ToString()).Distinct().ToArray();
         }
 
@@ -434,6 +445,7 @@ public class SignatureGeneratorResult
     public static string percentageSliceInsightIdentifier = "percentagePerSlice";
     public static string maxSliceInsightIdentifier = "maxPerSlice";
     public static string minSliceInsightIdentifier = "minPerSlice";
+    public static string uniqueInputsIdentifier = "uniqueInputs";
 }
 
 
