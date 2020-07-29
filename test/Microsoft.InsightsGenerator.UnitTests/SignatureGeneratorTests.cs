@@ -189,7 +189,6 @@ namespace Microsoft.InsightsGenerator.UnitTests
                 }
             }
         }
-
         public DataArray sampleDataArray(bool timeinput)
         {
             DataArray sample = new DataArray();
