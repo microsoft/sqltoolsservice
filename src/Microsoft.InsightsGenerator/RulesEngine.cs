@@ -114,7 +114,7 @@ namespace Microsoft.InsightsGenerator
 
                     modifiedTemp.Replace(header, headerInputs[1]);
                     StringBuilder topListStr = new StringBuilder();
-                    for (int i = 2; i < headerInputs.Length - 1; i++)
+                    for (int i = 2; i < headerInputs.Length; i++)
                     {
                         // Append all the rest of the elemet in the array separated by new line
                         topListStr.AppendLine(headerInputs[i]);
@@ -131,7 +131,7 @@ namespace Microsoft.InsightsGenerator
             var transformedColumnArray = columnInfo.TransformedColumnNames.ToArray();
             var columnArray = columnInfo.ColumnNames.ToArray();
 
-            for (int p = 0; p <= columnInfo.TransformedColumnNames.Length - 1; p++)
+            for (int p = 0; p < columnInfo.TransformedColumnNames.Length; p++)
             {
                 modifiedTemp.Replace("##" + transformedColumnArray[p], columnArray[p]);
             }

@@ -4,6 +4,7 @@
 //
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Xunit;
 using static Microsoft.InsightsGenerator.RulesEngine;
@@ -36,7 +37,7 @@ namespace Microsoft.InsightsGenerator.UnitTests
         public void RulesEngineEndToEndTest()
         {
             var singleHashList = new List<List<string>>();
-            var list1 = new List<string>() { "groups","15"};
+            var list1 = new List<string>() { "uniqueinputs", "15"};
             var list2 = new List<string>() { "top", "3", "China: 55%", "United States: 49%", "Japan: 37%" };
             singleHashList.Add(list1);
             singleHashList.Add(list2);
@@ -48,10 +49,9 @@ namespace Microsoft.InsightsGenerator.UnitTests
             var str = RulesEngine.FindMatchedTemplate(singleHashList, test);
             //The ##InPar_GG_1 that had the largest of each ##SlicePar_GG_1 are \n
 
-            //There were #groups ##input_g_0 (s),  the top #top highest total ##Output_0 were as follows:\n #
+            //There were #groups ##input_g_0 (s),  the top #top highest total ##Output_0 were as follows:\n #D
+            Debug.WriteLine(str);
         }
-
-
 
     }
 }

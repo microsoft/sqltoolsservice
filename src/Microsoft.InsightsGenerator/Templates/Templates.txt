@@ -1,5 +1,5 @@
 ﻿Template 9 
-There were #groups ##input_g_0 (s),  the top #top highest total ##Output_0 were as follows:\n #placeHolder
+There were #uniqueinputs ##input_g_0 (s),  the top #top highest total ##Output_0 were as follows:\n #placeHolder
 Template 16 
 For the #slices ##SlicePar_GG_1(s), the percentage of ##OutPar_N_C_1 on #time were \n #stHData\n this was compared with #Etime where #ESlices ##SlicePar_GG_1\n #EstHData  \n.
 Template 17 
@@ -27,7 +27,7 @@ Template 7
 Template 8 
 #inp had a total of #OutPar_N_C_1 ##OutPar_N_C_1 that constitues #Per% \n \n
 Template 10 
-There were #groups ##InPar_GG_1(s),  the  total ##OutPar_N_C_1 were as follows:\n #st
+There were #uniqueinputs ##InPar_GG_1(s),  the  total ##OutPar_N_C_1 were as follows:\n #st
 Template 11 
 in the week #time the data contained #slices ##SlicePar_GG_1, the top #n ##SlicePar_GG_1 with highest ##OutPar_N_C_1 were as follows:\n #stHData this was compared with week #Etime with the following top #En of #Eslice ##SlicePar_GG_1\n #EstData\n 
 Template 12 
