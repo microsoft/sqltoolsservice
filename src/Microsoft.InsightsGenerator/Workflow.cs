@@ -96,9 +96,16 @@ namespace Microsoft.InsightsGenerator
                 SignatureGenerator siggen = new SignatureGenerator(rulesData);
                 SignatureGeneratorResult result = siggen.Learn();
                 // call the rules engine processor
-                RulesEngine re = new RulesEngine(); 
-                string insights = re.FindMatchedTemplate(result, rulesData);
-                Console.WriteLine($"Good News! Insights generator has provided you the chart text: \n{insights}\n");
+                if (result?.Insights == null)
+                {
+                    Console.WriteLine("Failure in generating insights, Input not recognized!");
+                }
+                else
+                {
+                    string insights = RulesEngine.FindMatchedTemplate(result.Insights, rulesData);
+                    Console.WriteLine($"Good News! Insights generator has provided you the chart text: \n{insights}\n");
+                }
+                
             }
             else
             {
