@@ -571,8 +571,7 @@ RETURN 0
                 };
 
                 // expect table3 to not have been dropped and view1 to not have been created
-                await VerifyDeployWithOptions(deployParams, targetDb, service, result.ConnectionInfo, expectedTableResult:"table3", expectedViewResult:null);
-
+                await VerifyDeployWithOptions(deployParams, targetDb, service, result.ConnectionInfo, expectedTableResult: "table3", expectedViewResult: null);
 
                 // Deploy the created dacpac with options
                 var deployNoOptionsParams = new DeployParams
@@ -583,7 +582,7 @@ RETURN 0
                 };
 
                 // expect table3 to be dropped and view1 created
-                await VerifyDeployWithOptions(deployNoOptionsParams, targetDb, service, result.ConnectionInfo, expectedTableResult:null, expectedViewResult:"view1");
+                await VerifyDeployWithOptions(deployNoOptionsParams, targetDb, service, result.ConnectionInfo, expectedTableResult: null, expectedViewResult: "view1");
 
                 VerifyAndCleanup(dacpacPath);
             }
@@ -638,23 +637,40 @@ RETURN 0
                 string dacpacPath = InitialExtract(service, sourceDb, result);
 
                 // generate script to deploy the created dacpac with options
-                var generateScriptParams = new GenerateDeployScriptParams
+                var generateScriptFalseOptionParams = new GenerateDeployScriptParams
                 {
                     PackageFilePath = dacpacPath,
                     DatabaseName = targetDb.DatabaseName,
                     DeploymentOptions = new DeploymentOptions()
                     {
                         DropObjectsNotInSource = false,
-                        ExcludeObjectTypes = new [] {ObjectType.Views}
+                        ExcludeObjectTypes = new[] { ObjectType.Views }
                     }
                 };
 
-                var generateScriptOperation = new GenerateDeployScriptOperation(generateScriptParams, result.ConnectionInfo);
-                service.PerformOperation(generateScriptOperation, TaskExecutionMode.Execute);
+                var generateScriptFalseOptionOperation = new GenerateDeployScriptOperation(generateScriptFalseOptionParams, result.ConnectionInfo);
+                service.PerformOperation(generateScriptFalseOptionOperation, TaskExecutionMode.Execute);
 
-                Assert.DoesNotContain("table3", generateScriptOperation.Result.DatabaseScript);
-                Assert.DoesNotContain("CREATE VIEW", generateScriptOperation.Result.DatabaseScript);
+                Assert.DoesNotContain("table3", generateScriptFalseOptionOperation.Result.DatabaseScript);
+                Assert.DoesNotContain("CREATE VIEW", generateScriptFalseOptionOperation.Result.DatabaseScript);
 
+                // try to deploy with the option set to true to make sure it works
+                var generateScriptTrueOptionParams = new GenerateDeployScriptParams
+                {
+                    PackageFilePath = dacpacPath,
+                    DatabaseName = targetDb.DatabaseName,
+                    DeploymentOptions = new DeploymentOptions()
+                    {
+                        DropObjectsNotInSource = true,
+                        ExcludeObjectTypes = new[] { ObjectType.Views }
+                    }
+                };
+
+                var generateScriptTrueOptionOperation = new GenerateDeployScriptOperation(generateScriptTrueOptionParams, result.ConnectionInfo);
+                service.PerformOperation(generateScriptTrueOptionOperation, TaskExecutionMode.Execute);
+
+                Assert.Contains("DROP TABLE [dbo].[table3]", generateScriptTrueOptionOperation.Result.DatabaseScript);
+                Assert.DoesNotContain("CREATE VIEW", generateScriptTrueOptionOperation.Result.DatabaseScript);
 
                 // now generate script without options
                 var generateScriptNoOptionsParams = new GenerateDeployScriptParams
