@@ -6,9 +6,8 @@
 using System.Collections.Generic;
 using Kusto.Language;
 using Kusto.Language.Editor;
-using Microsoft.SqlServer.Management.SqlParser.Parser;
 
-namespace Microsoft.Kusto.ServiceLayer.LanguageServices
+namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
 {
     /// <summary>
     /// Data Source specific class for storing cached metadata regarding a parsed KQL file.
