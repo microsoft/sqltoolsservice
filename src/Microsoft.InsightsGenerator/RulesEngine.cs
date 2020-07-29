@@ -134,6 +134,10 @@ namespace Microsoft.InsightsGenerator
             foreach (var list in singleHashHeaders)
             {
                 topHeaderList.Add("#" + list.First());
+                if (TopListHashHeaders.Contains("#" + list.First()))
+                {
+                    topHeaderList.Add("#" + "toplist");
+                }
             }
             return topHeaderList;
         }
