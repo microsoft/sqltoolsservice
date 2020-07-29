@@ -74,7 +74,7 @@ namespace Microsoft.InsightsGenerator
                     if (Enumerable.SequenceEqual(singleHash.OrderBy(s => s), headersWithSingleHash.OrderBy(s => s)))
                     {
                         // Replace # and ## values in template with actual values here befor return
-
+                        ReplaceHashesInTemplate(singleHashHeaders, columnInfo, template);
                         return template;
                     }
                 }
@@ -133,22 +133,6 @@ namespace Microsoft.InsightsGenerator
                 topHeaderList.Add("#" + list.First());
             }
             return topHeaderList;
-        }
-
-        /// <summary>
-        /// Append prefix like # or ## to each element in the list
-        /// </summary>
-        /// <param name="prefix"></param>
-        /// <param name="list"></param>
-        /// <returns>Modified list</returns>
-        private static List<string> AppendPrefix(string prefix, List<string> list)
-        {
-            var listWithPrefix = new List<string>();
-            foreach (var str in list)
-            {
-                listWithPrefix.Add(prefix + str);
-            }
-            return listWithPrefix;
         }
 
         /// <summary>
