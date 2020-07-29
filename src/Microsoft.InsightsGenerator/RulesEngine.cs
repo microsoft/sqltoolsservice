@@ -44,7 +44,10 @@ namespace Microsoft.InsightsGenerator
                     }
                     else
                     {
-                        ch.SingleHashValues.Add(headers);
+                        if (headers != "placeHolder")
+                        {
+                            ch.SingleHashValues.Add("#" + headers);
+                        }
                     }
                 }
             }
@@ -68,7 +71,7 @@ namespace Microsoft.InsightsGenerator
             foreach (var template in Templates)
             {
                 var columnHeaders = TemplateParser(template.Content);
-                var singleHashFromTemplate = columnHeaders.SingleHashValues;
+                var singleHashFromTemplate = columnHeaders.SingleHashValues.Distinct();
 
                 var isMatched = true;
 
@@ -78,6 +81,7 @@ namespace Microsoft.InsightsGenerator
                     if (!headersWithSingleHash.Contains(hashFromTemplate))
                     {
                         isMatched = false;
+                        break;
                     }
                 }
                 if (isMatched)
@@ -110,7 +114,7 @@ namespace Microsoft.InsightsGenerator
 
                     modifiedTemp.Replace(header, headerInputs[1]);
                     StringBuilder topListStr = new StringBuilder();
-                    for (int i = 2; i < headerInputs.Length - 1; i++)
+                    for (int i = 2; i < headerInputs.Length; i++)
                     {
                         // Append all the rest of the elemet in the array separated by new line
                         topListStr.AppendLine(headerInputs[i]);
@@ -127,9 +131,9 @@ namespace Microsoft.InsightsGenerator
             var transformedColumnArray = columnInfo.TransformedColumnNames.ToArray();
             var columnArray = columnInfo.ColumnNames.ToArray();
 
-            for (int p = 0; p < columnInfo.TransformedColumnNames.Length - 1; p++)
+            for (int p = 0; p < columnInfo.TransformedColumnNames.Length; p++)
             {
-                modifiedTemp.Replace("#" + transformedColumnArray[p], columnArray[p]);
+                modifiedTemp.Replace("##" + transformedColumnArray[p], columnArray[p]);
             }
 
             template.Content = modifiedTemp.ToString();
@@ -142,10 +146,6 @@ namespace Microsoft.InsightsGenerator
             foreach (var list in singleHashHeaders)
             {
                 topHeaderList.Add("#" + list.First());
-                if (TopListHashHeaders.Contains("#" + list.First()))
-                {
-                    topHeaderList.Add("#" + "placeHolder");
-                }
             }
             return topHeaderList;
         }
