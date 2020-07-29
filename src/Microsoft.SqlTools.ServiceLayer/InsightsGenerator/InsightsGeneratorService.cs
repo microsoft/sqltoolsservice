@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.InsightsGenerator.Contracts;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.InsightsGenerator;
 
 namespace Microsoft.SqlTools.ServiceLayer.InsightsGenerator
 {
@@ -46,22 +46,16 @@ namespace Microsoft.SqlTools.ServiceLayer.InsightsGenerator
 
         internal async Task HandleQueryInsightGeneratorRequest(QueryInsightsGeneratorParams parameters, RequestContext<InsightsGeneratorResult> requestContext)
         {
-            QueryExecutionService service = QueryExecutionService.Instance;
-
-            QueryExecution.Contracts.SubsetParams subsetParams = new QueryExecution.Contracts.SubsetParams
-            {
-                OwnerUri = parameters.OwnerUri
+            Microsoft.InsightsGenerator.DataArray dataArray = new Microsoft.InsightsGenerator.DataArray(){
+                ColumnNames = parameters.Data.Columns,
+                Cells = parameters.Data.Rows
             };
 
-            var result = (await service.InterServiceResultSubset(subsetParams)).Rows;
-
-            Microsoft.InsightsGenerator.Workflow insightWorkFlowInstance = Microsoft.InsightsGenerator.Workflow.Instance();
-
-            Microsoft.InsightsGenerator.DataArray dataArray = new Microsoft.InsightsGenerator.DataArray();
+            Workflow insightWorkFlow = Workflow.Instance();
 
             try
             {
-                string[] insightText = insightWorkFlowInstance.IngestRules(dataArray);
+                string insightText = insightWorkFlow.IngestRules(dataArray);
 
                 await requestContext.SendResult(new InsightsGeneratorResult()
                 {

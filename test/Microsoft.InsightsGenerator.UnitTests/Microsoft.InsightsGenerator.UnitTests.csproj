@@ -9,14 +9,6 @@
 		<StartupObject />
 	</PropertyGroup>
 	<ItemGroup>
-	  <None Remove="TestTemplates\template_16.txt" />
-	</ItemGroup>
-	<ItemGroup>
-	  <Content Include="TestTemplates\template_16.txt">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </Content>
-	</ItemGroup>
-	<ItemGroup>
 		<PackageReference Include="System.Text.Encoding.CodePages" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" />
 		<PackageReference Include="Moq" />
