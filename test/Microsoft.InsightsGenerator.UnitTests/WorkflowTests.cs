@@ -23,6 +23,34 @@ namespace Microsoft.InsightsGenerator.UnitTests
             string insights = workflow.ProcessInputData(getSampleDataArray()).GetAwaiter().GetResult();
             Assert.NotNull(insights);
             Assert.NotEmpty(insights);
+            var expectedTopSliceInsight = @"topPerSlice
+5
+Category1
+3
+China (455) 34.89%
+Turkey (254) 19.48%
+United States (188) 14.42%
+Category2
+3
+Japan (171) 91.94%
+China (10) 5.38%
+United States (3) 1.61%
+Category3
+3
+United States (106) 15.5%
+Brazil (91) 13.3%
+Korea (61) 8.92%
+Category4
+3
+United States (38) 38%
+China (12) 12%
+Korea (8) 8%
+Category5
+3
+Korea (21) 65.62%
+United States (6) 18.75%
+Canada (3) 9.38%";
+            Assert.True(expectedTopSliceInsight.Equals(insights));
         }
 
         private DataArray getSampleDataArray()

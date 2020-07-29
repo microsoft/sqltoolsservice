@@ -14,7 +14,7 @@ namespace Microsoft.InsightsGenerator
     {
         // Lock synchronization object
         private static readonly object syncLock = new object();
-        
+
         public async Task<string> ProcessInputData(DataArray rulesData, CancellationToken cancellationToken = new CancellationToken())
         {
             // added cancellationToken just in case for future
@@ -27,16 +27,27 @@ namespace Microsoft.InsightsGenerator
 
             await Task.Run(() =>
             {
-                SignatureGeneratorResult result = siggen.Learn();
-                // call the rules engine processor
-                if (result?.Insights == null)
+                try
                 {
-                    Console.WriteLine("Failure in generating insights, Input not recognized!");
+                    DataTransformer transformer = new DataTransformer();
+                    rulesData = transformer.Transform(rulesData);
+                    SignatureGeneratorResult result = siggen.Learn();
+                    // call the rules engine processor
+                    if (result?.Insights == null)
+                    {
+                        Console.WriteLine("Failure in generating insights, Input not recognized!");
+                    }
+                    else
+                    {
+                        insights = RulesEngine.FindMatchedTemplate(result.Insights, rulesData);
+                        Console.WriteLine($"Good News! Insights generator has provided you the chart text: \n{insights}\n");
+                    }
+
                 }
-                else
+                catch (Exception ex)
                 {
-                    insights = RulesEngine.FindMatchedTemplate(result.Insights, rulesData);
-                    Console.WriteLine($"Good News! Insights generator has provided you the chart text: \n{insights}\n");
+                    Console.WriteLine(ex.ToString());
+                    throw;
                 }
 
             }, cancellationToken);
