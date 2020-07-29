@@ -46,16 +46,28 @@ namespace Microsoft.SqlTools.ServiceLayer.InsightsGenerator
 
         internal async Task HandleQueryInsightGeneratorRequest(QueryInsightsGeneratorParams parameters, RequestContext<InsightsGeneratorResult> requestContext)
         {
-            Microsoft.InsightsGenerator.DataArray dataArray = new Microsoft.InsightsGenerator.DataArray(){
+            
+            string[][] transposedRows = new string[parameters.Data.Columns.Length][];
+
+            for (int column = 0; column < parameters.Data.Columns.Length; column++)
+            {
+                transposedRows[column] = new string[parameters.Data.Rows.Length];
+                for (int row = 0; row < parameters.Data.Rows.Length; row++)
+                {
+                    transposedRows[column][row] = parameters.Data.Rows[row][column];
+                }
+            }
+
+            Microsoft.InsightsGenerator.DataArray dataArray = new Microsoft.InsightsGenerator.DataArray()
+            {
                 ColumnNames = parameters.Data.Columns,
-                Cells = parameters.Data.Rows
+                Cells = transposedRows
             };
 
             Workflow insightWorkFlow = Workflow.Instance();
-
             try
             {
-                string insightText = insightWorkFlow.IngestRules(dataArray);
+                string insightText = await insightWorkFlow.IngestRules(dataArray);
 
                 await requestContext.SendResult(new InsightsGeneratorResult()
                 {
