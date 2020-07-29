@@ -2,9 +2,12 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
-using System.IO;
-using System.Threading.Tasks;
+
 using Microsoft.SqlServer.Dac;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Text;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
 {
@@ -238,52 +241,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
         }
 
         public DeploymentOptions(DacDeployOptions options)
-        {
-            SetOptions(options);
-        }
-
-        /// <summary>
-        /// initialize deployment options from the options in a publish profile.xml
-        /// </summary>
-        /// <param name="options">options created from the profile</param>
-        /// <param name="profilePath"></param>
-        public async Task InitializeFromProfile(DacDeployOptions options, string profilePath)
-        {
-            // check if defaults need to be set if they aren't specified in the profile
-            string contents = await File.ReadAllTextAsync(profilePath);
-            if (!contents.Contains("<AllowDropBlockingAssemblies>"))
-            {
-                options.AllowDropBlockingAssemblies = true;
-            }
-            if (!contents.Contains("<AllowIncompatiblePlatform>"))
-            {
-                options.AllowIncompatiblePlatform = true;
-            }
-            if (!contents.Contains("<DropObjectsNotInSource>"))
-            {
-                options.DropObjectsNotInSource = true;
-            }
-            if (!contents.Contains("<DropPermissionsNotInSource>"))
-            {
-                options.DropPermissionsNotInSource = true;
-            }
-            if (!contents.Contains("<DropRoleMembersNotInSource>"))
-            {
-                options.DropRoleMembersNotInSource = true;
-            }
-            if (!contents.Contains("<IgnoreKeywordCasing>"))
-            {
-                options.IgnoreKeywordCasing = false;
-            }
-            if (!contents.Contains("<IgnoreSemicolonBetweenStatements>"))
-            {
-                options.IgnoreSemicolonBetweenStatements = false;
-            }
-
-            SetOptions(options);
-        }
-
-        public void SetOptions(DacDeployOptions options)
         {
             System.Reflection.PropertyInfo[] deploymentOptionsProperties = this.GetType().GetProperties();
 
