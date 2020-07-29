@@ -109,7 +109,7 @@ namespace Microsoft.InsightsGenerator
             }
             else
             {
-                await Task.Delay(TimeSpan.FromMinutes(1), cancellationToken).ConfigureAwait(false);
+                //await Task.Delay(TimeSpan.FromMinutes(1), cancellationToken).ConfigureAwait(false);
             }
         }
     }
