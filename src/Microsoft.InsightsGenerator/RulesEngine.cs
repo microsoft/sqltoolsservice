@@ -17,7 +17,7 @@ namespace Microsoft.InsightsGenerator
     {
         public static List<Template> Templates;
 
-        public static List<string> TopListHashHeaders = new List<string>{ "#top", "#average", "#averageSlice", "#topPerslice" , "#bottom"};
+        public static List<string> TopListHashHeaders = new List<string>{ "#top", "#averageSlice", "#topPerslice" , "#bottom"};
 
         public RulesEngine()
         {
@@ -56,8 +56,9 @@ namespace Microsoft.InsightsGenerator
         /// </summary>
         /// <param name="singleHashHeaders"></param>
         /// <returns></returns>
-        public static Template FindMatchedTemplate(List<List<string>> singleHashHeaders, DataArray columnInfo)
+        public static string FindMatchedTemplate(List<List<string>> singleHashHeaders, DataArray columnInfo)
         {
+            var resultTemplate = new StringBuilder();
             if (Templates == null)
             {
                 Templates = GetTemplates();
@@ -67,21 +68,28 @@ namespace Microsoft.InsightsGenerator
             foreach (var template in Templates)
             {
                 var columnHeaders = TemplateParser(template.Content);
-                var singleHash = columnHeaders.SingleHashValues;
+                var singleHashFromTemplate = columnHeaders.SingleHashValues;
 
-                if (singleHashHeaders.Count == singleHash.Count)
+                var isMatched = true;
+
+                // all the values from template needs to be found in the input from SigGen
+                foreach (var hashFromTemplate in singleHashFromTemplate)
                 {
-                    if (Enumerable.SequenceEqual(singleHash.OrderBy(s => s), headersWithSingleHash.OrderBy(s => s)))
+                    if (!headersWithSingleHash.Contains(hashFromTemplate))
                     {
-                        // Replace # and ## values in template with actual values here befor return
-                        ReplaceHashesInTemplate(singleHashHeaders, columnInfo, template);
-                        return template;
+                        isMatched = false;
                     }
                 }
+                if (isMatched)
+                {
+                    // Replace # and ## values in template with actual values
+                    ReplaceHashesInTemplate(singleHashHeaders, columnInfo, template);
+                    resultTemplate.AppendLine(template.Content + "\n");
+                }  
             }
 
             // No matched Template found
-            return null;
+            return resultTemplate.ToString();
         }
 
         private static Template ReplaceHashesInTemplate(List<List<string>>singleHashList, DataArray columnInfo, Template template)
@@ -107,7 +115,7 @@ namespace Microsoft.InsightsGenerator
                         // Append all the rest of the elemet in the array separated by new line
                         topListStr.AppendLine(headerInputs[i]);
                     }
-                    modifiedTemp.Replace("#toplist", topListStr.ToString());
+                    modifiedTemp.Replace("#placeHolder", topListStr.ToString());
                 }
                 else 
                 {
@@ -136,7 +144,7 @@ namespace Microsoft.InsightsGenerator
                 topHeaderList.Add("#" + list.First());
                 if (TopListHashHeaders.Contains("#" + list.First()))
                 {
-                    topHeaderList.Add("#" + "toplist");
+                    topHeaderList.Add("#" + "placeHolder");
                 }
             }
             return topHeaderList;
