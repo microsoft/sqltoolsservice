@@ -91,6 +91,8 @@ namespace Microsoft.InsightsGenerator
             // Replace single hash values
             foreach (var line in singleHashList)
             {
+                // Example of a single list (line): 
+                // "top", "3", " input (value) %OfValue ", " input (value) %OfValue ", " input (value) %OfValue "
                 var headerInputs = line.ToArray();
                 string header = "#" + headerInputs[0];
 
@@ -102,9 +104,10 @@ namespace Microsoft.InsightsGenerator
                     StringBuilder topListStr = new StringBuilder();
                     for (int i = 2; i < headerInputs.Length - 1; i++)
                     {
+                        // Append all the rest of the elemet in the array separated by new line
                         topListStr.AppendLine(headerInputs[i]);
                     }
-                    modifiedTemp.Replace("#topList", topListStr.ToString());
+                    modifiedTemp.Replace("#toplist", topListStr.ToString());
                 }
                 else 
                 {
