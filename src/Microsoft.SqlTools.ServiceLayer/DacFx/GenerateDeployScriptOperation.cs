@@ -2,15 +2,16 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
-using Microsoft.SqlServer.Dac;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
-using Microsoft.SqlTools.ServiceLayer.TaskServices;
-using Microsoft.SqlTools.Utility;
 using System;
 using Microsoft.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
+using Microsoft.SqlServer.Dac;
+using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
+using Microsoft.SqlTools.ServiceLayer.SchemaCompare;
+using Microsoft.SqlTools.ServiceLayer.TaskServices;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx
 {
@@ -35,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             PublishOptions publishOptions = new PublishOptions();
             publishOptions.GenerateDeploymentReport = this.Parameters.GenerateDeploymentReport;
             publishOptions.CancelToken = this.CancellationToken;
-            publishOptions.DeployOptions = this.GetDefaultDeployOptions();
+            publishOptions.DeployOptions = this.Parameters.DeploymentOptions != null ? SchemaCompareUtils.CreateSchemaCompareOptions(this.Parameters.DeploymentOptions) : this.GetDefaultDeployOptions();
 
             if (this.Parameters.SqlCommandVariableValues != null)
             {
