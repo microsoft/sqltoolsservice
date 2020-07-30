@@ -87,8 +87,7 @@ namespace Microsoft.InsightsGenerator
                 if (isMatched)
                 {
                     // Replace # and ## values in template with actual values
-                    ReplaceHashesInTemplate(singleHashHeaders, columnInfo, template);
-                    resultTemplate.AppendLine(template.Content + "\n");
+                    resultTemplate.AppendLine(ReplaceHashesInTemplate(singleHashHeaders, columnInfo, template) + "\n");
                 }  
             }
 
@@ -96,7 +95,7 @@ namespace Microsoft.InsightsGenerator
             return resultTemplate.ToString();
         }
 
-        private static Template ReplaceHashesInTemplate(List<List<string>>singleHashList, DataArray columnInfo, Template template)
+        private static string ReplaceHashesInTemplate(List<List<string>>singleHashList, DataArray columnInfo, Template template)
         {
             StringBuilder modifiedTemp = new StringBuilder(template.Content);
 
@@ -113,13 +112,13 @@ namespace Microsoft.InsightsGenerator
                     //First replace the header with the second value in the list
 
                     modifiedTemp.Replace(header, headerInputs[1]);
-                    StringBuilder topListStr = new StringBuilder();
+                    StringBuilder remainingStr = new StringBuilder();
                     for (int i = 2; i < headerInputs.Length; i++)
                     {
                         // Append all the rest of the elemet in the array separated by new line
-                        topListStr.AppendLine(headerInputs[i]);
+                        remainingStr.AppendLine(headerInputs[i]);
                     }
-                    modifiedTemp.Replace("#placeHolder", topListStr.ToString());
+                    modifiedTemp.Replace("#placeHolder", remainingStr.ToString());
                 }
                 else 
                 {
@@ -136,8 +135,7 @@ namespace Microsoft.InsightsGenerator
                 modifiedTemp.Replace("##" + transformedColumnArray[p], columnArray[p]);
             }
 
-            template.Content = modifiedTemp.ToString();
-            return template;
+            return modifiedTemp.ToString();
         }
 
         private static List<string> GetTopHeadersWithHash(List<List<string>> singleHashHeaders)
