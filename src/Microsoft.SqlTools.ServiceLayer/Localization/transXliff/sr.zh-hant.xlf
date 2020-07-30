@@ -784,13 +784,13 @@
       </trans-unit>
       <trans-unit id="SchemaHierarchy_MasterKey">
         <source>Master Key</source>
-        <target state="translated">主要索引鍵</target>
+        <target state="translated">主要金鑰</target>
         <note>
         </note>
       </trans-unit>
       <trans-unit id="SchemaHierarchy_MasterKeys">
         <source>Master Keys</source>
-        <target state="translated">主要索引鍵</target>
+        <target state="translated">主要金鑰</target>
         <note>
         </note>
       </trans-unit>
@@ -2390,6 +2390,36 @@
         <target state="translated">無法序列化更多資料，因為找不到檔案 {0} 的要求</target>
         <note>.
  Parameters: 0 - filePath (string) </note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringInvalidColumnEncryptionSetting">
+        <source>Invalid value '{0}' for ComlumEncryption. Valid values are 'Enabled' and 'Disabled'.</source>
+        <target state="translated">ComlumEncryption 的值 '{0}' 無效。有效值為 'Enabled' 及 'Disabled'。</target>
+        <note>.
+ Parameters: 0 - columnEncryptionSetting (string) </note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol">
+        <source>Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS' and 'HGS'.</source>
+        <target state="translated">EnclaveAttestationProtocol 的值 '{0}' 無效。有效值為 'AAS' 及 'HGS'。</target>
+        <note>.
+ Parameters: 0 - enclaveAttestationProtocol (string) </note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination">
+        <source>The Attestation Protocol and Enclave Attestation URL requires Always Encrypted to be set to Enabled.</source>
+        <target state="translated">證明通訊協定與記憶體保護區證明 URL 需要將 Always Encrypted 設定為「啟用」。</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="SqlCmdExitOnError">
+        <source>An error was encountered during execution of batch. Exiting.</source>
+        <target state="translated">執行批次期間發生錯誤，結束中。</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="SqlCmdUnsupportedToken">
+        <source>Encountered unsupported token {0}</source>
+        <target state="translated">發現不支援的權杖 {0}</target>
+        <note>
+        </note>
       </trans-unit>
     </body>
   </file>
