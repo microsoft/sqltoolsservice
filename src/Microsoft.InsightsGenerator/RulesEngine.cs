@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -159,8 +158,6 @@ namespace Microsoft.InsightsGenerator
         public static List<Template> GetTemplates()
         {
             var templateHolder = new List<Template>();
-
-            int templateId;
             using (StreamReader streamReader = new StreamReader($"Templates/templates.txt", Encoding.UTF8))
             {
                 int temId = 0;
@@ -169,7 +166,7 @@ namespace Microsoft.InsightsGenerator
                 
                 foreach (var line in templateArray.Where(r => r != string.Empty))
                 {
-                    var parts = line.Split(new[] { "\r\n" }, StringSplitOptions.None).ToList();
+                    var parts = line.Split(new[] { Environment.NewLine }, StringSplitOptions.None).ToList();
                     
                         temId = int.Parse(parts[0]);
                         templateHolder.Add(new Template(temId, parts[1]));
@@ -209,4 +206,3 @@ namespace Microsoft.InsightsGenerator
         public string Template { get; set; }
     }
 }
-

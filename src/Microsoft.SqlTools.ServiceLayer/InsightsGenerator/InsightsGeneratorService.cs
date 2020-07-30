@@ -56,7 +56,8 @@ namespace Microsoft.SqlTools.ServiceLayer.InsightsGenerator
             try
             {
                 string insightText = await insightWorkFlow.ProcessInputData(dataArray);
-
+                insightText = insightText.Replace("\\n", "");
+    
                 await requestContext.SendResult(new InsightsGeneratorResult()
                 {
                     InsightsText = insightText,

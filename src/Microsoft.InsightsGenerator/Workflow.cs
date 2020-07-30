@@ -34,19 +34,19 @@ namespace Microsoft.InsightsGenerator
                         // call the rules engine processor
                     if (result?.Insights == null)
                     {
-                        Console.WriteLine("Failure in generating insights, Input not recognized!");
+                        // Console.WriteLine("Failure in generating insights, Input not recognized!");
                     }
                     else
                     {
                         insights = RulesEngine.FindMatchedTemplate(result.Insights, rulesData);
-                        Console.WriteLine(
-                            $"Good News! Insights generator has provided you the chart text: \n{insights}\n");
+                        // Console.WriteLine(
+                        //    $"Good News! Insights generator has provided you the chart text: \n{insights}\n");
                     }
 
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    Console.WriteLine(ex.ToString());
+                    // Console.WriteLine(ex.ToString());
                     throw;
                 }
 
