@@ -36,21 +36,37 @@ namespace Microsoft.InsightsGenerator.UnitTests
         [Fact]
         public void RulesEngineEndToEndTest()
         {
-            var singleHashList = new List<List<string>>();
-            var list1 = new List<string>() { "uniqueinputs", "15" };
-            var list2 = new List<string>() { "top", "3", "China: 55%", "United States: 49%", "Japan: 37%" };
-            singleHashList.Add(list1);
-            singleHashList.Add(list2);
+            // Create test input objects for the first test
+            var singleHashList1 = new List<List<string>>();
+            var list1_1 = new List<string>() { "uniqueinputs", "15" };
+            var list1_2 = new List<string>() { "top", "3", "China: 55%", "United States: 49%", "Japan: 37%" };
+            singleHashList1.Add(list1_1);
+            singleHashList1.Add(list1_2);
 
-            DataArray test = new DataArray();
-            test.ColumnNames = new string[] { "Country", "Area" };
-            test.TransformedColumnNames = new string[] { "input_g_0", "Output_0" };
+            DataArray testArray1 = new DataArray();
+            testArray1.ColumnNames = new string[] { "Country", "Area" };
+            testArray1.TransformedColumnNames = new string[] { "input_g_0", "Output_0" };
 
-            var str = RulesEngine.FindMatchedTemplate(singleHashList, test);
-            //The ##InPar_GG_1 that had the largest of each ##SlicePar_GG_1 are \n
+            // Create test input objects for the second test
+            var singleHashList2 = new List<List<string>>();
+            var list2_1 = new List<string>() { "bottom", "5", "Apple: 30%", "Oragne: 28%", "Strawberry: 17%", "Pear: 13%", "Peach: 8%" };
+            singleHashList2.Add(list2_1);
 
-            //There were #groups ##input_g_0 (s),  the top #top highest total ##Output_0 were as follows:\n #D
-            Debug.WriteLine(str);
+            DataArray testArray2 = new DataArray();
+            testArray2.ColumnNames = new string[] { "fruits" };
+            testArray2.TransformedColumnNames = new string[] { "Output_0" };
+
+            var returnedStr1 = $@"{RulesEngine.FindMatchedTemplate(singleHashList1, testArray1)}";
+            var returnedStr2 = $@"{RulesEngine.FindMatchedTemplate(singleHashList2, testArray2)}";
+
+            string expectedOutput1 = "There were 15 Country (s),  the top 3 highest total Area were as follows:\\n China: 55%\r\nUnited States: 49%\r\nJapan: 37%\r\n\n\r\n";
+            string expectedOutput2 = "The top 5 lowest total fruits were as follows:\\n Apple: 30%\r\nOragne: 28%\r\nStrawberry: 17%\r\nPear: 13%\r\nPeach: 8%\r\n\n\r\n";
+
+            Assert.True(string.Equals(returnedStr1, expectedOutput1));
+            Assert.True(string.Equals(returnedStr2, expectedOutput2));
+
+            //The top #bottom lowest total ##Output_0 were as follows:\n #placeHolder
+
         }
 
     }
