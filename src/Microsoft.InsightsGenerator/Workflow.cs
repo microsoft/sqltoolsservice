@@ -12,105 +12,47 @@ namespace Microsoft.InsightsGenerator
 {
     public class Workflow
     {
-        private readonly ConcurrentQueue<object> _siggenQueue = new ConcurrentQueue<object>();
 
-        private readonly ConcurrentQueue<DataArray> _rulesQueue = new ConcurrentQueue<DataArray>();
-
-        private static Workflow _instance;
-
-        // Lock synchronization object
-        private static readonly object syncLock = new object();
-
-      
-        public static Workflow Instance(CancellationToken cancellationToken = new CancellationToken())
+        public async Task<string> ProcessInputData(DataArray rulesData,
+            CancellationToken cancellationToken = new CancellationToken())
         {
-            // Uses lazy initialization. thread safe for now.
-            if (_instance == null)
-            {
-                lock (syncLock)
-                {
-
-                    if (_instance == null)
-                    {
-                        _instance = new Workflow();
-                        _instance.ProcessInputData(cancellationToken).ConfigureAwait(false);
-                    }
-                }
-            }
-
-            return _instance;
-        }
-
-        public void IngestSiggen(object input)
-        {
-            if (_instance == null)
-            {
-                throw new ApplicationException("Please initialize the singleton class using Workflow.getInstance() and call _instance.IngestSiggen");
-            }
-
-            if (input == null)
-            {
-                throw new ArgumentException("Unable to ingest Siggen. Input object is null.");
-            }
-            _instance._siggenQueue.Enqueue(input);
-        }
-
-        public void IngestRules(DataArray input)
-        {
-            if (_instance == null)
-            {
-                throw new ApplicationException("Please initialize the singleton class using Workflow.getInstance() and call _instance.IngestRules");
-            }
-
-            if (input == null)
-            {
-                throw new ArgumentException(" Unable to ingest Rules. Input object is null.");
-            }
-            _instance._rulesQueue.Enqueue(input);
-        }
-
-        private async Task ProcessInputData(CancellationToken cancellationToken)
-        {
-
+            // added cancellationToken just in case for future
             cancellationToken.ThrowIfCancellationRequested();
 
-            //while (!cancellationToken.IsCancellationRequested)
-            //{
-            //    bool siggenInput = _instance._siggenQueue.TryDequeue(out object siggen);
+            //Get the signature result
+            SignatureGenerator siggen = new SignatureGenerator(rulesData);
 
-            //    if (siggenInput && siggen != null)
-            //    {
-            //       // call the siggen processor
-            //    }
-            //    else
-            //    {
-            //        await Task.Delay(TimeSpan.FromMinutes(1), cancellationToken).ConfigureAwait(false);
-            //    }
-            //}
+            string insights = null;
 
-            bool rulesInput = _instance._rulesQueue.TryDequeue(out DataArray rulesData);
-
-            if (rulesInput && rulesData != null)
+            await Task.Run(() =>
             {
-                //Get the signature result
-                SignatureGenerator siggen = new SignatureGenerator(rulesData);
-                SignatureGeneratorResult result = siggen.Learn();
-                // call the rules engine processor
-                if (result?.Insights == null)
+                try
                 {
-                    Console.WriteLine("Failure in generating insights, Input not recognized!");
+                    DataTransformer transformer = new DataTransformer();
+                    transformer.Transform(rulesData);
+                    SignatureGeneratorResult result = siggen.Learn();
+                        // call the rules engine processor
+                    if (result?.Insights == null)
+                    {
+                        Console.WriteLine("Failure in generating insights, Input not recognized!");
+                    }
+                    else
+                    {
+                        insights = RulesEngine.FindMatchedTemplate(result.Insights, rulesData);
+                        Console.WriteLine(
+                            $"Good News! Insights generator has provided you the chart text: \n{insights}\n");
+                    }
+
                 }
-                else
+                catch (Exception ex)
                 {
-                    string insights = RulesEngine.FindMatchedTemplate(result.Insights, rulesData);
-                    Console.WriteLine($"Good News! Insights generator has provided you the chart text: \n{insights}\n");
+                    Console.WriteLine(ex.ToString());
+                    throw;
                 }
-                
-            }
-            else
-            {
-                //await Task.Delay(TimeSpan.FromMinutes(1), cancellationToken).ConfigureAwait(false);
-            }
+
+            }, cancellationToken);
+
+            return insights;
         }
     }
 }
