@@ -150,24 +150,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 };
             }));
         }
+
+        /// <summary>
+        /// Basic schema wrapper for parsing a Notebook document
+        /// </summary>
+        private class NotebookDocument
+        {
+            public List<Cell> Cells { get; set; }
+        }
+
+        /// <summary>
+        /// Cell of a Notebook document
+        /// </summary>
+        private class Cell
+        {
+            [JsonProperty("cell_type")]
+            public string CellType;
+            public List<string> Source;
+        }
     }
-
-}
-
-/// <summary>
-/// Basic schema wrapper for parsing a Notebook document
-/// </summary>
-public class NotebookDocument
-{
-    public List<Cell> Cells { get; set; }
-}
-
-/// <summary>
-/// Cell of a Notebook document
-/// </summary>
-public class Cell
-{
-    [JsonProperty("cell_type")]
-    public string CellType;
-    public List<string> Source;
 }
