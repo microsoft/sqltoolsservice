@@ -8,18 +8,23 @@ using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Dac;
+using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.DacFx;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
+using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using NUnit.Framework;
+using Moq;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
 {
     public class DacFxServiceTests
     {
+        private string publishProfileFolder = Path.Combine("..", "..", "..", "DacFx", "PublishProfiles");
         private const string SourceScript = @"CREATE TABLE [dbo].[table1]
 (
     [ID] INT NOT NULL PRIMARY KEY,
@@ -30,6 +35,8 @@ CREATE TABLE [dbo].[table2]
     [ID] INT NOT NULL PRIMARY KEY,
     [col1] NCHAR(10) NULL
 )";
+
+        private const string SourceViewScript = @"CREATE VIEW [dbo].[view1] AS SELECT dbo.table1.* FROM dbo.table1";
 
         private const string TargetScript = @"CREATE TABLE [dbo].[table2]
 (
@@ -535,6 +542,237 @@ RETURN 0
             {
                 sourceDb.Cleanup();
             }
+        }
+
+        ///
+        /// Verify that options are set correctly for a deploy request
+        /// </summary>
+        [Test]
+        public async void DeployWithOptions()
+        {
+            var result = GetLiveAutoCompleteTestObjects();
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, query: SourceScript, dbNamePrefix: "DacFxDeployOptionsTestSource");
+            sourceDb.RunQuery(SourceViewScript);
+            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, query: TargetScript, dbNamePrefix: "DacFxDeployOptionsTestTarget");
+
+            try
+            {
+                DacFxService service = new DacFxService();
+                // First extract a db to have a dacpac to deploy later
+                string dacpacPath = InitialExtract(service, sourceDb, result);
+
+                // Deploy the created dacpac with options
+                var deployParams = new DeployParams
+                {
+                    PackageFilePath = dacpacPath,
+                    DatabaseName = targetDb.DatabaseName,
+                    UpgradeExisting = true,
+                    DeploymentOptions = new DeploymentOptions()
+                    {
+                        DropObjectsNotInSource = false,
+                        ExcludeObjectTypes = new[] { ObjectType.Views }
+                    }
+                };
+
+                // expect table3 to not have been dropped and view1 to not have been created
+                await VerifyDeployWithOptions(deployParams, targetDb, service, result.ConnectionInfo, expectedTableResult: "table3", expectedViewResult: null);
+
+                // Deploy the created dacpac with options
+                var deployNoOptionsParams = new DeployParams
+                {
+                    PackageFilePath = dacpacPath,
+                    DatabaseName = targetDb.DatabaseName,
+                    UpgradeExisting = true
+                };
+
+                // expect table3 to be dropped and view1 created
+                await VerifyDeployWithOptions(deployNoOptionsParams, targetDb, service, result.ConnectionInfo, expectedTableResult: null, expectedViewResult: "view1");
+
+                VerifyAndCleanup(dacpacPath);
+            }
+            finally
+            {
+                sourceDb.Cleanup();
+                if (targetDb != null)
+                {
+                    targetDb.Cleanup();
+                }
+            }
+        }
+
+        private async Task VerifyDeployWithOptions(DeployParams deployParams, SqlTestDb targetDb, DacFxService service, ConnectionInfo connInfo, string expectedTableResult, string expectedViewResult)
+        {
+            var deployOperation = new DeployOperation(deployParams, connInfo);
+            service.PerformOperation(deployOperation, TaskExecutionMode.Execute);
+
+            using (SqlConnection conn = new SqlConnection(targetDb.ConnectionString))
+            {
+                try
+                {
+                    await conn.OpenAsync();
+                    var deployedResult = (string)ReliableConnectionHelper.ExecuteScalar(conn, $"SELECT TABLE_NAME FROM {targetDb.DatabaseName}.INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'table3'; ");
+                    Assert.AreEqual(expectedTableResult, deployedResult);
+
+                    deployedResult = (string)ReliableConnectionHelper.ExecuteScalar(conn, $"SELECT TABLE_NAME FROM {targetDb.DatabaseName}.INFORMATION_SCHEMA.VIEWS WHERE TABLE_NAME = 'view1'; ");
+                    Assert.AreEqual(expectedViewResult, deployedResult);
+                }
+                finally
+                {
+                    conn.Close();
+                }
+            }
+        }
+
+        // <summary>
+        /// Verify that options are set correctly for a generate script request
+        /// </summary>
+        [Test]
+        public async void GenerateDeployScriptWithOptions()
+        {
+            var result = GetLiveAutoCompleteTestObjects();
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, query: SourceScript, dbNamePrefix: "DacFxDeployOptionsTestSource");
+            sourceDb.RunQuery(SourceViewScript);
+            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, query: TargetScript, dbNamePrefix: "DacFxDeployOptionsTestTarget");
+
+            try
+            {
+                DacFxService service = new DacFxService();
+                // First extract a db to have a dacpac to deploy later
+                string dacpacPath = InitialExtract(service, sourceDb, result);
+
+                // generate script to deploy the created dacpac with options
+                var generateScriptFalseOptionParams = new GenerateDeployScriptParams
+                {
+                    PackageFilePath = dacpacPath,
+                    DatabaseName = targetDb.DatabaseName,
+                    DeploymentOptions = new DeploymentOptions()
+                    {
+                        DropObjectsNotInSource = false,
+                        ExcludeObjectTypes = new[] { ObjectType.Views }
+                    }
+                };
+
+                var generateScriptFalseOptionOperation = new GenerateDeployScriptOperation(generateScriptFalseOptionParams, result.ConnectionInfo);
+                service.PerformOperation(generateScriptFalseOptionOperation, TaskExecutionMode.Execute);
+
+                Assert.That(generateScriptFalseOptionOperation.Result.DatabaseScript, Does.Not.Contain("table3"));
+                Assert.That(generateScriptFalseOptionOperation.Result.DatabaseScript, Does.Not.Contain("CREATE VIEW"));
+
+                // try to deploy with the option set to true to make sure it works
+                var generateScriptTrueOptionParams = new GenerateDeployScriptParams
+                {
+                    PackageFilePath = dacpacPath,
+                    DatabaseName = targetDb.DatabaseName,
+                    DeploymentOptions = new DeploymentOptions()
+                    {
+                        DropObjectsNotInSource = true,
+                        ExcludeObjectTypes = new[] { ObjectType.Views }
+                    }
+                };
+
+                var generateScriptTrueOptionOperation = new GenerateDeployScriptOperation(generateScriptTrueOptionParams, result.ConnectionInfo);
+                service.PerformOperation(generateScriptTrueOptionOperation, TaskExecutionMode.Execute);
+
+                Assert.That(generateScriptTrueOptionOperation.Result.DatabaseScript, Does.Contain("DROP TABLE [dbo].[table3]"));
+                Assert.That(generateScriptTrueOptionOperation.Result.DatabaseScript, Does.Not.Contain("CREATE VIEW"));
+
+                // now generate script without options
+                var generateScriptNoOptionsParams = new GenerateDeployScriptParams
+                {
+                    PackageFilePath = dacpacPath,
+                    DatabaseName = targetDb.DatabaseName,
+                };
+
+                var generateScriptNoOptionsOperation = new GenerateDeployScriptOperation(generateScriptNoOptionsParams, result.ConnectionInfo);
+                service.PerformOperation(generateScriptNoOptionsOperation, TaskExecutionMode.Execute);
+
+                Assert.That(generateScriptNoOptionsOperation.Result.DatabaseScript, Does.Contain("table3"));
+                Assert.That(generateScriptNoOptionsOperation.Result.DatabaseScript, Does.Contain("CREATE VIEW"));
+
+                VerifyAndCleanup(dacpacPath);
+            }
+            finally
+            {
+                sourceDb.Cleanup();
+                if (targetDb != null)
+                {
+                    targetDb.Cleanup();
+                }
+            }
+        }
+
+        // <summary>
+        /// Verify that options can get retrieved from publish profile
+        /// </summary>
+        [Test]
+        public async void GetOptionsFromProfile()
+        {
+            DeploymentOptions expectedResults = new DeploymentOptions()
+            {
+                ExcludeObjectTypes = null,
+                IncludeCompositeObjects = true,
+                BlockOnPossibleDataLoss = true,
+                AllowIncompatiblePlatform = true
+            };
+
+            var dacfxRequestContext = new Mock<RequestContext<DacFxOptionsResult>>();
+            dacfxRequestContext.Setup((RequestContext<DacFxOptionsResult> x) => x.SendResult(It.Is<DacFxOptionsResult>((result) => ValidateOptions(expectedResults, result.DeploymentOptions) == true))).Returns(Task.FromResult(new object()));
+
+            DacFxService service = new DacFxService();
+            string file = Path.Combine(publishProfileFolder, "profileWithOptions.publish.xml");
+
+            var getOptionsFromProfileParams = new GetOptionsFromProfileParams
+            {
+                ProfilePath = file
+            };
+
+            await service.HandleGetOptionsFromProfileRequest(getOptionsFromProfileParams, dacfxRequestContext.Object);
+            dacfxRequestContext.VerifyAll();
+        }
+
+        // <summary>
+        /// Verify that default options are returned if a profile doesn't specify any options
+        /// </summary>
+        [Test]
+        public async void GetOptionsFromProfileWithoutOptions()
+        {
+            DeploymentOptions expectedResults = new DeploymentOptions();
+            expectedResults.ExcludeObjectTypes = null;
+
+            var dacfxRequestContext = new Mock<RequestContext<DacFxOptionsResult>>();
+            dacfxRequestContext.Setup((RequestContext<DacFxOptionsResult> x) => x.SendResult(It.Is<DacFxOptionsResult>((result) => ValidateOptions(expectedResults, result.DeploymentOptions) == true))).Returns(Task.FromResult(new object()));
+
+            DacFxService service = new DacFxService();
+            string file = Path.Combine(publishProfileFolder, "profileNoOptions.publish.xml");
+
+            var getOptionsFromProfileParams = new GetOptionsFromProfileParams
+            {
+                ProfilePath = file
+            };
+
+            await service.HandleGetOptionsFromProfileRequest(getOptionsFromProfileParams, dacfxRequestContext.Object);
+            dacfxRequestContext.VerifyAll();
+        }
+
+        private bool ValidateOptions(DeploymentOptions expected, DeploymentOptions actual)
+        {
+            System.Reflection.PropertyInfo[] deploymentOptionsProperties = expected.GetType().GetProperties();
+            foreach (var v in deploymentOptionsProperties)
+            {
+                var defaultP = v.GetValue(expected);
+                var actualP = v.GetValue(actual);
+
+                if (v.Name == "ExcludeObjectTypes")
+                {
+                    Assert.True((defaultP as ObjectType[])?.Length == (actualP as ObjectType[])?.Length, "Number of excluded objects is different not equal");
+                }
+                else
+                {
+                    Assert.True((defaultP == null && actualP == null) || (defaultP == null && (actualP as string) == string.Empty) || defaultP.Equals(actualP), $"Actual Property from Service is not equal to default property for {v.Name}, Actual value: {actualP} and Default value: {defaultP}");
+                }
+            }
+
+            return true;
         }
 
         private string InitialExtract(DacFxService service, SqlTestDb sourceDb, LiveConnectionHelper.TestConnectionResult result)

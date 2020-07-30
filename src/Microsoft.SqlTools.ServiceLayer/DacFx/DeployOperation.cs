@@ -5,6 +5,7 @@
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
+using Microsoft.SqlTools.ServiceLayer.SchemaCompare;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx
@@ -25,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         public override void Execute()
         {
             DacPackage dacpac = DacPackage.Load(this.Parameters.PackageFilePath);
-            DacDeployOptions options = this.GetDefaultDeployOptions();
+            DacDeployOptions options = this.Parameters.DeploymentOptions != null ? SchemaCompareUtils.CreateSchemaCompareOptions(this.Parameters.DeploymentOptions) : this.GetDefaultDeployOptions();
 
             if (this.Parameters.SqlCommandVariableValues != null)
             {
