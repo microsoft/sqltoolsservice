@@ -548,7 +548,7 @@ RETURN 0
         /// Verify that options are set correctly for a deploy request
         /// </summary>
         [Test]
-        public async void DeployWithOptions()
+        public async Task DeployWithOptions()
         {
             var result = GetLiveAutoCompleteTestObjects();
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, query: SourceScript, dbNamePrefix: "DacFxDeployOptionsTestSource");
@@ -627,7 +627,7 @@ RETURN 0
         /// Verify that options are set correctly for a generate script request
         /// </summary>
         [Test]
-        public async void GenerateDeployScriptWithOptions()
+        public async Task GenerateDeployScriptWithOptions()
         {
             var result = GetLiveAutoCompleteTestObjects();
             SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, query: SourceScript, dbNamePrefix: "DacFxDeployOptionsTestSource");
@@ -705,7 +705,7 @@ RETURN 0
         /// Verify that options can get retrieved from publish profile
         /// </summary>
         [Test]
-        public async void GetOptionsFromProfile()
+        public async Task GetOptionsFromProfile()
         {
             DeploymentOptions expectedResults = new DeploymentOptions()
             {
@@ -734,7 +734,7 @@ RETURN 0
         /// Verify that default options are returned if a profile doesn't specify any options
         /// </summary>
         [Test]
-        public async void GetOptionsFromProfileWithoutOptions()
+        public async Task GetOptionsFromProfileWithoutOptions()
         {
             DeploymentOptions expectedResults = new DeploymentOptions();
             expectedResults.ExcludeObjectTypes = null;
