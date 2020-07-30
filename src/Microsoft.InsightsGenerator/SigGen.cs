@@ -67,11 +67,6 @@ namespace Microsoft.InsightsGenerator
             if (Table.Cells.Length >8) {
                 n = 3;
             }
-            if (Table.Cells.Length > 50)
-            {
-                n=5;
-            }
-
             OverallAverageInsights(outputCol);
             OverallBottomInsights(n, inputCol, outputCol);
             OverallMaxInsights(outputCol);

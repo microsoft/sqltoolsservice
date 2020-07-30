@@ -78,29 +78,29 @@ namespace Microsoft.InsightsGenerator
             {
                 if (columnInfo.ContainsKey(DataArray.DataType.String))
                 {
-                    int minDistinctValue = -1;
-                    int minColumnIndex = -1;
-
+                    int maxDistinctValue = Int32.MaxValue;
+                    int maxColumnIndex = -1;
+                    int maxColumnLabelIndex = 0;
                     List<ColumnInfo> stringColumns = columnInfo[DataArray.DataType.String];
                     for (int i = 0; i < stringColumns.Count; ++i)
                     {
-                        if (minDistinctValue == -1 || minDistinctValue > stringColumns[i].DistinctValues)
+                        if (maxDistinctValue == Int32.MaxValue || maxDistinctValue < stringColumns[i].DistinctValues)
                         {
-                            minDistinctValue = stringColumns[i].DistinctValues;
-                            minColumnIndex = i;
+                            maxDistinctValue = stringColumns[i].DistinctValues;
+                            maxColumnIndex = i;
+                            maxColumnLabelIndex = stringColumns[i].ColumnIndex;
                         }
                     }
                     
-                    labels[stringColumns[minColumnIndex].ColumnIndex] = "input_g_0";
-
+                    labels[maxColumnLabelIndex] = "input_g_0";
                     int adjustIndex = 0;
                     for (int i = 0; i < stringColumns.Count; ++i)
                     {
-                        if (i != minColumnIndex)
+                        if (i != maxColumnIndex)
                         {
                             labels[stringColumns[i].ColumnIndex] = "slicer_" + (i - adjustIndex);
                         }
-                        else 
+                        else
                         {
                             ++adjustIndex;
                         }
