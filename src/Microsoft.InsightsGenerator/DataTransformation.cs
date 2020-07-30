@@ -93,7 +93,6 @@ namespace Microsoft.InsightsGenerator
                     }
                     
                     labels[maxColumnLabelIndex] = "input_g_0";
-
                     int adjustIndex = 0;
                     for (int i = 0; i < stringColumns.Count; ++i)
                     {
@@ -101,7 +100,7 @@ namespace Microsoft.InsightsGenerator
                         {
                             labels[stringColumns[i].ColumnIndex] = "slicer_" + (i - adjustIndex);
                         }
-                        else 
+                        else
                         {
                             ++adjustIndex;
                         }

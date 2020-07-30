@@ -51,11 +51,11 @@ namespace Microsoft.SqlTools.ServiceLayer.InsightsGenerator
                 Cells = parameters.Data.Rows
             };
 
-            Workflow insightWorkFlow = Workflow.Instance();
+            Workflow insightWorkFlow = new Workflow();
 
             try
             {
-                string insightText = insightWorkFlow.IngestRules(dataArray);
+                string insightText = await insightWorkFlow.ProcessInputData(dataArray);
 
                 await requestContext.SendResult(new InsightsGeneratorResult()
                 {
