@@ -36,7 +36,7 @@ namespace Microsoft.InsightsGenerator.UnitTests
         [Fact]
         public void RulesEngineEndToEndTest()
         {
-            // Create test input objects for the first test
+            // Create test input objects for test #1
             var singleHashList1 = new List<List<string>>();
             var list1_1 = new List<string>() { "uniqueinputs", "15" };
             var list1_2 = new List<string>() { "top", "3", "China: 55%", "United States: 49%", "Japan: 37%" };
@@ -47,7 +47,7 @@ namespace Microsoft.InsightsGenerator.UnitTests
             testArray1.ColumnNames = new string[] { "Country", "Area" };
             testArray1.TransformedColumnNames = new string[] { "input_g_0", "Output_0" };
 
-            // Create test input objects for the second test
+            // Create test input objects for test #2
             var singleHashList2 = new List<List<string>>();
             var list2_1 = new List<string>() { "bottom", "5", "Apple: 30%", "Oragne: 28%", "Strawberry: 17%", "Pear: 13%", "Peach: 8%" };
             singleHashList2.Add(list2_1);
@@ -56,18 +56,28 @@ namespace Microsoft.InsightsGenerator.UnitTests
             testArray2.ColumnNames = new string[] { "fruits" };
             testArray2.TransformedColumnNames = new string[] { "Output_0" };
 
+            // Create test input objects for test#3
+            var singleHashList3 = new List<List<string>>();
+            var list3_1 = new List<string>() { "averageSlice", "4", "Cow: 60%", "Dog: 28%", "Cat: 17%", "Mouse: 8%"};
+            singleHashList3.Add(list3_1);
+
+            DataArray testArray3 = new DataArray();
+            testArray3.ColumnNames = new string[] { "animals" };
+            testArray3.TransformedColumnNames = new string[] { "slicer_0" };
+
             var returnedStr1 = $@"{RulesEngine.FindMatchedTemplate(singleHashList1, testArray1)}";
             var returnedStr2 = $@"{RulesEngine.FindMatchedTemplate(singleHashList2, testArray2)}";
+            var returnedStr3 = $@"{RulesEngine.FindMatchedTemplate(singleHashList3, testArray3)}";
+
 
             string expectedOutput1 = "There were 15 Country (s),  the top 3 highest total Area were as follows:\\n China: 55%\r\nUnited States: 49%\r\nJapan: 37%\r\n\n\r\n";
             string expectedOutput2 = "The top 5 lowest total fruits were as follows:\\n Apple: 30%\r\nOragne: 28%\r\nStrawberry: 17%\r\nPear: 13%\r\nPeach: 8%\r\n\n\r\n";
+            string expectedOutput3 = "For the 4 animals, the volume of each is: Cow: 60%\r\nDog: 28%\r\nCat: 17%\r\nMouse: 8%\r\n\n\r\n";
 
             Assert.True(string.Equals(returnedStr1, expectedOutput1));
             Assert.True(string.Equals(returnedStr2, expectedOutput2));
-
-            //The top #bottom lowest total ##Output_0 were as follows:\n #placeHolder
+            Assert.True(string.Equals(returnedStr3, expectedOutput3));
 
         }
-
     }
 }
