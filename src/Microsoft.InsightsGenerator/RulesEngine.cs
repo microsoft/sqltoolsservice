@@ -78,7 +78,7 @@ namespace Microsoft.InsightsGenerator
                 // all the values from template needs to be found in the input from SigGen
                 foreach (var hashFromTemplate in singleHashFromTemplate)
                 {
-                    if (!headersWithSingleHash.Contains(hashFromTemplate))
+                    if (!headersWithSingleHash.Contains(hashFromTemplate.ToLower()))
                     {
                         isMatched = false;
                         break;
@@ -107,9 +107,13 @@ namespace Microsoft.InsightsGenerator
                 // "top", "3", " input (value) %OfValue ", " input (value) %OfValue ", " input (value) %OfValue "
                 var headerInputs = line.ToArray();
                 string header = "#" + headerInputs[0];
-
+                
                 if (TopListHashHeaders.Contains(header))
                 {
+                    if(!modifiedTemp.ToString().Contains(header))
+                    {
+                        continue;
+                    }
                     //First replace the header with the second value in the list
 
                     modifiedTemp.Replace(header, headerInputs[1]);
@@ -145,7 +149,7 @@ namespace Microsoft.InsightsGenerator
             var topHeaderList = new List<string>();
             foreach (var list in singleHashHeaders)
             {
-                topHeaderList.Add("#" + list.First());
+                topHeaderList.Add("#" + list.First().ToLower());
             }
             return topHeaderList;
         }
