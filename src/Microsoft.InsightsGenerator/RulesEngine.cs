@@ -40,7 +40,7 @@ namespace Microsoft.InsightsGenerator
                     string headers = s.Substring(1, s.Length - 1);
                     if (headers.StartsWith("#"))
                     {
-                        ch.DoubleHashValues.Add(headers.Substring(1, headers.Length - 1));
+                        ch.DoubleHashValues.Add( "##" + headers.Substring(1, headers.Length - 1));
                     }
                     else
                     {
