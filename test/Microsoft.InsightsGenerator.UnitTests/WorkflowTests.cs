@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Xunit;
@@ -15,8 +15,8 @@ namespace Microsoft.InsightsGenerator.UnitTests
             Assert.NotNull(insights);
             Assert.NotEmpty(insights);
         }
-        
-        [Fact] 
+
+        [Fact]
         public void ProcessInputExactMatchResultTest()
         {
             Workflow workflow = new Workflow();
