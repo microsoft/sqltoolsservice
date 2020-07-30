@@ -91,7 +91,7 @@ namespace Microsoft.InsightsGenerator
                         }
                     }
                     
-                    labels[minColumnIndex] = "input_g_0";
+                    labels[stringColumns[minColumnIndex].ColumnIndex] = "input_g_0";
 
                     int adjustIndex = 0;
                     for (int i = 0; i < stringColumns.Count; ++i)
