@@ -1,5 +1,5 @@
 ﻿Template 9 
-There were #uniqueinputs ##input_g_0 (s),  the top #top highest total ##Output_0 were as follows:\n #placeHolder
+There were #uniqueinputs ##input_g_0 (s),  the top #top highest total ##output_0 were as follows:\n #placeHolder
 Template 16 
 For the #slices ##SlicePar_GG_1(s), the percentage of ##OutPar_N_C_1 on #time were \n #stHData\n this was compared with #Etime where #ESlices ##SlicePar_GG_1\n #EstHData  \n.
 Template 17 
@@ -49,4 +49,4 @@ Looking at the pattern of the data it appears that  #st has the #volumeType ##Ou
 Template 22 
 The largest increase in ##OutPar_N_C_1 were observed on #time  with an increase of #increasesize% of the avarage value of ##OutPar_N_C_1 \n
 Template 23
-The top #bottom lowest total ##Output_0 were as follows:\n #placeHolder
+The top #bottom lowest total ##output_0 were as follows:\n #placeHolder

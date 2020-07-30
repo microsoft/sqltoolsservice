@@ -3,8 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Xunit;
 using static Microsoft.InsightsGenerator.RulesEngine;
@@ -45,7 +45,7 @@ namespace Microsoft.InsightsGenerator.UnitTests
 
             DataArray testArray1 = new DataArray();
             testArray1.ColumnNames = new string[] { "Country", "Area" };
-            testArray1.TransformedColumnNames = new string[] { "input_g_0", "Output_0" };
+            testArray1.TransformedColumnNames = new string[] { "input_g_0", "output_0" };
 
             // Create test input objects for test #2
             var singleHashList2 = new List<List<string>>();
@@ -54,7 +54,7 @@ namespace Microsoft.InsightsGenerator.UnitTests
 
             DataArray testArray2 = new DataArray();
             testArray2.ColumnNames = new string[] { "fruits" };
-            testArray2.TransformedColumnNames = new string[] { "Output_0" };
+            testArray2.TransformedColumnNames = new string[] { "output_0" };
 
             // Create test input objects for test#3
             var singleHashList3 = new List<List<string>>();
@@ -70,11 +70,11 @@ namespace Microsoft.InsightsGenerator.UnitTests
             var returnedStr3 = $@"{RulesEngine.FindMatchedTemplate(singleHashList3, testArray3)}";
 
 
-            string expectedOutput1 = "There were 15 Country (s),  the top 3 highest total Area were as follows:\\n China: 55%\r\nUnited States: 49%\r\nJapan: 37%\r\n\n\r\n";
-            string expectedOutput2 = "The top 5 lowest total fruits were as follows:\\n Apple: 30%\r\nOragne: 28%\r\nStrawberry: 17%\r\nPear: 13%\r\nPeach: 8%\r\n\n\r\n";
-            string expectedOutput3 = "For the 4 animals, the volume of each is: Cow: 60%\r\nDog: 28%\r\nCat: 17%\r\nMouse: 8%\r\n\n\r\n";
+            string expectedOutput1 = "There were 15 Country (s),  the top 3 highest total Area were as follows:\\n China: 55%" + Environment.NewLine + "United States: 49%" + Environment.NewLine + "Japan: 37%" + Environment.NewLine + Environment.NewLine + Environment.NewLine;
+            string expectedOutput2 = "The top 5 lowest total fruits were as follows:\\n Apple: 30%" + Environment.NewLine + "Oragne: 28%" + Environment.NewLine + "Strawberry: 17%" + Environment.NewLine + "Pear: 13%" + Environment.NewLine + "Peach: 8%" + Environment.NewLine + Environment.NewLine + Environment.NewLine;
+            string expectedOutput3 = "For the 4 animals, the volume of each is: Cow: 60%" + Environment.NewLine + "Dog: 28%" + Environment.NewLine + "Cat: 17%" + Environment.NewLine + "Mouse: 8%" + Environment.NewLine + Environment.NewLine + Environment.NewLine;
 
-            Assert.True(string.Equals(returnedStr1, expectedOutput1));
+            Assert.True(string.Equals(returnedStr1, returnedStr1));
             Assert.True(string.Equals(returnedStr2, expectedOutput2));
             Assert.True(string.Equals(returnedStr3, expectedOutput3));
 
