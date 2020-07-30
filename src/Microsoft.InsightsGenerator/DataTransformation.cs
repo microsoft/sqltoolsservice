@@ -78,13 +78,13 @@ namespace Microsoft.InsightsGenerator
             {
                 if (columnInfo.ContainsKey(DataArray.DataType.String))
                 {
-                    int maxDistinctValue = Int16.MaxValue;
+                    int maxDistinctValue = Int32.MaxValue;
                     int maxColumnIndex = -1;
                     int maxColumnLabelIndex = 0;
                     List<ColumnInfo> stringColumns = columnInfo[DataArray.DataType.String];
                     for (int i = 0; i < stringColumns.Count; ++i)
                     {
-                        if (maxDistinctValue == Int16.MaxValue || maxDistinctValue < stringColumns[i].DistinctValues)
+                        if (maxDistinctValue == Int32.MaxValue || maxDistinctValue < stringColumns[i].DistinctValues)
                         {
                             maxDistinctValue = stringColumns[i].DistinctValues;
                             maxColumnIndex = i;
