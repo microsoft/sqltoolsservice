@@ -13,7 +13,9 @@ using Microsoft.SqlTools.ServiceLayer.NotebookConvert.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+using Microsoft.SqlServer.TransactSql.ScriptDom;
+using System.IO;
+using Microsoft.SqlTools.ServiceLayer.NotebookConvert;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
@@ -90,34 +92,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     // Temporary notebook that we just fill in with the sql until the parsing logic is added
                     var result = new ConvertSqlToNotebookResult
                     {
-                        Content = $@"{{
-    ""metadata"": {{
-        ""kernelspec"": {{
-                    ""name"": ""SQL"",
-            ""display_name"": ""SQL"",
-            ""language"": ""sql""
-        }},
-        ""language_info"": {{
-                    ""name"": ""sql"",
-            ""version"": """"
-        }}
-            }},
-    ""nbformat_minor"": 2,
-    ""nbformat"": 4,
-    ""cells"": [
-        {{
-                ""cell_type"": ""code"",
-            ""source"": [
-                ""{file.Contents}""
-            ],
-            ""metadata"": {{
-                ""azdata_cell_guid"": ""477da394-51fd-45ab-8a37-387b47b2b692""
-            }},
-            ""outputs"": [],
-            ""execution_count"": null
-        }}
-    ]
-}}"
+                        Content = JsonConvert.SerializeObject(ConvertSqlToNotebook(file.Contents))
                     };
                     await requestContext.SendResult(result);
                 }
@@ -129,6 +104,88 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         }
 
         #endregion // Convert Handlers
+
+        private static NotebookDocument ConvertSqlToNotebook(string sql)
+        {
+            // Notebooks use \n so convert any other newlines now
+            sql = sql.Replace("\r\n", "\n");
+
+            var doc = new NotebookDocument
+            {
+                NotebookMetadata = new NotebookMetadata()
+                {
+                    KernelSpec = new NotebookKernelSpec()
+                    {
+                        Name = "SQL",
+                        DisplayName = "SQL",
+                        Language = "sql"
+                    },
+                    LanguageInfo = new NotebookLanguageInfo()
+                    {
+                        Name = "sql",
+                        Version = ""
+                    }
+                }
+            };
+            var parser = new TSql150Parser(false);
+            IList<ParseError> errors = new List<ParseError>();
+            var tokens = parser.GetTokenStream(new StringReader(sql), out errors);
+
+            /**
+             * Split the text into separate chunks - blocks of Mutliline comments and blocks 
+             * of everything else. We then create a markdown cell for each multiline comment and a code
+             * cell for the other blocks.
+             */
+            var multilineComments = tokens.Where(token => token.TokenType == TSqlTokenType.MultilineComment);
+
+            int currentIndex = 0;
+            int codeLength = 0;
+            string codeBlock = "";
+            foreach(var comment in multilineComments)
+            {
+                // The code blocks are everything since the end of the last comment block up to the
+                // start of the next comment block
+                codeLength = comment.Offset - currentIndex;
+                codeBlock = sql.Substring(currentIndex, codeLength).Trim();
+                if(!string.IsNullOrEmpty(codeBlock))
+                {
+                    doc.Cells.Add(GenerateCodeCell(codeBlock));
+                }
+
+                string commentBlock = comment.Text.Trim();
+                // Trim off the starting /* and ending */
+                commentBlock = commentBlock.Remove(0, 2);
+                commentBlock = commentBlock.Remove(commentBlock.Length - 2);
+                doc.Cells.Add(GenerateMarkdownCell(commentBlock));
+
+                currentIndex = comment.Offset + comment.Text.Length;
+            }
+
+            // Add any remaining text in a final code block
+            codeLength = sql.Length - currentIndex;
+            codeBlock = sql.Substring(currentIndex, codeLength).Trim();
+            if (!string.IsNullOrEmpty(codeBlock))
+            {
+                doc.Cells.Add(GenerateCodeCell(codeBlock));
+            }
+
+            return doc;
+        }
+
+        private static NotebookCell GenerateCodeCell(string contents)
+        {
+            // Each line is a separate entry in the contents array so split that now, but
+            // Notebooks still expect each line to end with a newline so keep that
+            return new NotebookCell("code", contents.Split('\n').Select(line => $"{line}\n").ToList();
+        }
+
+        private static NotebookCell GenerateMarkdownCell(string contents)
+        {
+            // Each line is a separate entry in the contents array so split that now, but
+            // Notebooks still expect each line to end with a newline so keep that.
+            // In addition - markdown newlines have to be prefixed by 2 spaces
+            return new NotebookCell("markdown", contents.Split('\n').Select(line => $"{line}  \n").ToList());
+        }
 
         /// <summary>
         /// Converts a Notebook document into a single string that can be inserted into a SQL
@@ -150,23 +207,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 };
             }));
         }
-
-        /// <summary>
-        /// Basic schema wrapper for parsing a Notebook document
-        /// </summary>
-        private class NotebookDocument
-        {
-            public List<Cell> Cells { get; set; }
-        }
-
-        /// <summary>
-        /// Cell of a Notebook document
-        /// </summary>
-        private class Cell
-        {
-            [JsonProperty("cell_type")]
-            public string CellType;
-            public List<string> Source;
-        }
     }
+
 }
