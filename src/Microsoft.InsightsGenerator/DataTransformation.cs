@@ -26,18 +26,23 @@ namespace Microsoft.InsightsGenerator
                 return array;
             }
 
-            array.TransformedColumnNames = GetColumnLabels(array);
+            DataArray.DataType[] columnDataType;
+            array.TransformedColumnNames = GetColumnLabels(array , out columnDataType);
+            array.ColumnDataType = columnDataType;
             return array;
         }
 
-        private string[] GetColumnLabels(DataArray array)
+        private string[] GetColumnLabels(DataArray array, out DataArray.DataType[] columnDataType)
         {
+            columnDataType = new DataArray.DataType[array.ColumnNames.Length];
             int columnCount = array.Cells[0].Length;
             Dictionary<DataArray.DataType, List<ColumnInfo>> columnInfo = new Dictionary<DataArray.DataType, List<ColumnInfo>>();
             for (int column = 0; column < columnCount; ++column)
             {
                 int distinctValues;     
                 DataArray.DataType dataType = GetColumnType(array, column, out distinctValues);
+                columnDataType[column] = dataType;
+
                 if (!columnInfo.ContainsKey(dataType))
                 {
                     columnInfo.Add(dataType, new List<ColumnInfo>());
