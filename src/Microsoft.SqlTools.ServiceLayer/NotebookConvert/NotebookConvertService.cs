@@ -54,7 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
             this.ServiceHost.SetRequestHandler(ConvertNotebookToSqlRequest.Type, HandleConvertNotebookToSqlRequest);
             this.ServiceHost.SetRequestHandler(ConvertSqlToNotebookRequest.Type, HandleConvertSqlToNotebookRequest);
-           
+
 
         }
 
@@ -85,7 +85,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             await Task.Run(async () =>
             {
-               
+
                 try
                 {
                     var file = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(parameters.ClientUri);
@@ -141,13 +141,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             int currentIndex = 0;
             int codeLength = 0;
             string codeBlock = "";
-            foreach(var comment in multilineComments)
+            foreach (var comment in multilineComments)
             {
                 // The code blocks are everything since the end of the last comment block up to the
                 // start of the next comment block
                 codeLength = comment.Offset - currentIndex;
                 codeBlock = sql.Substring(currentIndex, codeLength).Trim();
-                if(!string.IsNullOrEmpty(codeBlock))
+                if (!string.IsNullOrEmpty(codeBlock))
                 {
                     doc.Cells.Add(GenerateCodeCell(codeBlock));
                 }
@@ -156,7 +156,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 // Trim off the starting /* and ending */
                 commentBlock = commentBlock.Remove(0, 2);
                 commentBlock = commentBlock.Remove(commentBlock.Length - 2);
-                doc.Cells.Add(GenerateMarkdownCell(commentBlock));
+                doc.Cells.Add(GenerateMarkdownCell(commentBlock.Trim()));
 
                 currentIndex = comment.Offset + comment.Text.Length;
             }
@@ -176,7 +176,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             // Each line is a separate entry in the contents array so split that now, but
             // Notebooks still expect each line to end with a newline so keep that
-            return new NotebookCell("code", contents.Split('\n').Select(line => $"{line}\n").ToList();
+            var contentsArray = contents
+                    .Split('\n')
+                    .Select(line => $"{line}\n")
+                .ToList();
+            // Last line shouldn't have a newline
+            contentsArray[^1] = contentsArray[^1].TrimEnd();
+            return new NotebookCell("code", contentsArray);
         }
 
         private static NotebookCell GenerateMarkdownCell(string contents)
@@ -184,7 +190,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             // Each line is a separate entry in the contents array so split that now, but
             // Notebooks still expect each line to end with a newline so keep that.
             // In addition - markdown newlines have to be prefixed by 2 spaces
-            return new NotebookCell("markdown", contents.Split('\n').Select(line => $"{line}  \n").ToList());
+            var contentsArray = contents
+                    .Split('\n')
+                    .Select(line => $"{line}  \n")
+                .ToList();
+            // Last line shouldn't have a newline
+            contentsArray[^1] = contentsArray[^1].TrimEnd();
+            return new NotebookCell("markdown", contentsArray);
         }
 
         /// <summary>
