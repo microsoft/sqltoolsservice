@@ -12,51 +12,47 @@ namespace Microsoft.InsightsGenerator
 {
     public class Workflow
     {
-        // Lock synchronization object
-        public class Workflow
+
+        public async Task<string> ProcessInputData(DataArray rulesData,
+            CancellationToken cancellationToken = new CancellationToken())
         {
+            // added cancellationToken just in case for future
+            cancellationToken.ThrowIfCancellationRequested();
 
-            public async Task<string> ProcessInputData(DataArray rulesData,
-                CancellationToken cancellationToken = new CancellationToken())
+            //Get the signature result
+            SignatureGenerator siggen = new SignatureGenerator(rulesData);
+
+            string insights = null;
+
+            await Task.Run(() =>
             {
-                // added cancellationToken just in case for future
-                cancellationToken.ThrowIfCancellationRequested();
-
-                //Get the signature result
-                SignatureGenerator siggen = new SignatureGenerator(rulesData);
-
-                string insights = null;
-
-                await Task.Run(() =>
+                try
                 {
-                    try
-                    {
-                        DataTransformer transformer = new DataTransformer();
-                        rulesData = transformer.Transform(rulesData);
-                        SignatureGeneratorResult result = siggen.Learn();
+                    DataTransformer transformer = new DataTransformer();
+                    transformer.Transform(rulesData);
+                    SignatureGeneratorResult result = siggen.Learn();
                         // call the rules engine processor
-                        if (result?.Insights == null)
-                        {
-                            Console.WriteLine("Failure in generating insights, Input not recognized!");
-                        }
-                        else
-                        {
-                            insights = RulesEngine.FindMatchedTemplate(result.Insights, rulesData);
-                            Console.WriteLine(
-                                $"Good News! Insights generator has provided you the chart text: \n{insights}\n");
-                        }
-
-                    }
-                    catch (Exception ex)
+                    if (result?.Insights == null)
                     {
-                        Console.WriteLine(ex.ToString());
-                        throw;
+                        Console.WriteLine("Failure in generating insights, Input not recognized!");
+                    }
+                    else
+                    {
+                        insights = RulesEngine.FindMatchedTemplate(result.Insights, rulesData);
+                        Console.WriteLine(
+                            $"Good News! Insights generator has provided you the chart text: \n{insights}\n");
                     }
 
-                }, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                    throw;
+                }
 
-                return insights;
-            }
+            }, cancellationToken);
+
+            return insights;
         }
     }
 }
