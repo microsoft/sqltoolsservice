@@ -70,14 +70,14 @@ namespace Microsoft.SqlTools.Utility
         /// </summary>
         public static void Flush()
         {
-            TraceSource.Flush();
+            TraceSource?.Flush();
             Trace.Flush();
         }
 
         public static void Close()
         {
             Flush();
-            TraceSource.Close();
+            TraceSource?.Close();
             Trace.Close();
             Listener = null; // Since we have closed the listener, set listener to null.
         }
@@ -86,8 +86,11 @@ namespace Microsoft.SqlTools.Utility
             get => tracingLevel;
             set
             {
-                // configures the source level filter. This alone is not enough for tracing that is done via "Trace" class instead of "TraceSource" object
-                TraceSource.Switch = new SourceSwitch(TraceSource.Name, value.ToString());
+                if(TraceSource != null)
+                {
+                    // configures the source level filter. This alone is not enough for tracing that is done via "Trace" class instead of "TraceSource" object
+                    TraceSource.Switch = new SourceSwitch(TraceSource.Name, value.ToString());
+                }
                 // configure the listener level filter
                 tracingLevel = value;
                 Listener.Filter = new EventTypeFilter(tracingLevel);
@@ -216,8 +219,8 @@ namespace Microsoft.SqlTools.Utility
                 TraceOutputOptions = TraceOptions.DateTime | TraceOptions.ProcessId | TraceOptions.ThreadId,
                 Filter = new EventTypeFilter(TracingLevel),
             };
-            TraceSource.Listeners.Clear();
-            TraceSource.Listeners.Add(Listener);
+            TraceSource?.Listeners.Clear();
+            TraceSource?.Listeners.Add(Listener);
             Trace.Listeners.Clear();
             Trace.Listeners.Add(Listener);
         }
