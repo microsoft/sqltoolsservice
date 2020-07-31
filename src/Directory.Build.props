@@ -24,6 +24,6 @@
 		<ResourceProviderTargetFramework>netcoreapp3.1</ResourceProviderTargetFramework>
 	</PropertyGroup>
 	<PropertyGroup>
-		<DebugType>full</DebugType>
+		<DebugType>portable</DebugType>
 	</PropertyGroup>
 </Project>
