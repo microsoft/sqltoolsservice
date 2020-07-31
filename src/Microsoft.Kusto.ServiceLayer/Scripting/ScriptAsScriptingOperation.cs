@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.Scripting.Contracts;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.SqlTools.Utility;
@@ -84,6 +83,10 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                     case ScriptingOperationType.Select:
                         resultScript = GenerateScriptSelect(DataSource, urns);
                         break;
+                    
+                    case ScriptingOperationType.Alter:
+                        resultScript = GenerateScriptAlter(DataSource, urns);
+                        break;
                 }
 
                 this.CancellationToken.ThrowIfCancellationRequested();
@@ -141,17 +144,29 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
 
         private string GenerateScriptSelect(IDataSource dataSource, UrnCollection urns)
         {
-            string script = string.Empty;
             ScriptingObject scriptingObject = this.Parameters.ScriptingObjects[0];
             Urn objectUrn = urns[0];
 
             // select from table
-            if (string.Compare(scriptingObject.Type, "Table", StringComparison.CurrentCultureIgnoreCase) == 0)
+            if (string.Equals(scriptingObject.Type, "Table", StringComparison.CurrentCultureIgnoreCase))
             {
-                script = new Scripter().SelectFromTableOrView(dataSource, objectUrn);
+                return new Scripter().SelectFromTableOrView(dataSource, objectUrn);
             }
 
-            return script;
+            return string.Empty;
+        }
+
+        private string GenerateScriptAlter(IDataSource dataSource, UrnCollection urns)
+        {
+            ScriptingObject scriptingObject = this.Parameters.ScriptingObjects[0];
+            Urn objectUrn = urns[0];
+
+            if (string.Equals(scriptingObject.Type, "Function", StringComparison.CurrentCultureIgnoreCase))
+            {
+                return new Scripter().AlterFunction(dataSource, objectUrn);
+            }
+            
+            return string.Empty;
         }
 
 

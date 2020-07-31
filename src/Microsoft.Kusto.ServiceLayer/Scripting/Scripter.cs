@@ -3,13 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
-using System.IO;
-using System.Collections.Generic;
-using System.Collections.Specialized;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
-using Microsoft.SqlTools.Utility;
 using  Microsoft.SqlServer.Management.Common;
 
 namespace Microsoft.Kusto.ServiceLayer.Scripting
@@ -75,6 +70,6 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
             objectScriptMap.Add("fulltextcatalog", "Fulltext Catalog");
             objectScriptMap.Add("userdefinedtabletype", "Type");
         }
-	}
+    }
 }
 	

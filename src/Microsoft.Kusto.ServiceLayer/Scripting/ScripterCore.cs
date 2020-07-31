@@ -671,6 +671,17 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
 
             return selectQuery.ToString();
         }
+        
+        internal string AlterFunction(IDataSource dataSource, Urn objectUrn)
+        {
+            var alterCommand = new StringBuilder();
+
+            alterCommand.Append("alter function with ");
+            alterCommand.Append($"(folder = \"\", docstring = \"\", skipvalidation = \"false\" )");
+            alterCommand.Append($"");
+
+            return alterCommand.ToString();
+        }
 
         #endregion
     }

@@ -373,7 +373,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
 
             try
             {
-                OnExpandPopulateFolders(allChildren, parent, cancellationToken);
                 OnExpandPopulateNonFolders(allChildren, parent, refresh, name, cancellationToken);
             }
             catch(Exception ex)
@@ -390,40 +389,11 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
         }
 
         /// <summary>
-        /// Populates any folders for a given parent node 
-        /// </summary>
-        /// <param name="allChildren">List to which nodes should be added</param>
-        /// <param name="parent">Parent the nodes are being added to</param>
-        protected void OnExpandPopulateFolders(IList<TreeNode> allChildren, TreeNode parent, CancellationToken cancellationToken)
-        {
-            var folderMetadataList = Enumerable.Empty<DataSourceObjectMetadata>();
-
-            if (parent.DataSource != null)
-            {
-                folderMetadataList = parent.DataSource.GetChildFolders(parent.ObjectMetadata);
-            }
-
-            foreach (var folderMetadata in folderMetadataList)
-            {
-                ValidationUtils.IsNotNull(folderMetadata, nameof(folderMetadata));
-                cancellationToken.ThrowIfCancellationRequested();
-
-                allChildren.Add(new FolderNode(parent.DataSource, folderMetadata) {
-                    NodeValue = folderMetadata.Name,
-                    NodeType = "Folder",
-                    NodeTypeId = NodeTypes.Folder,
-                    IsSystemObject = false,
-                    SortPriority = DataSourceTreeNode.NextSortPriority
-                });
-            }
-        }
-
-        /// <summary>
         /// Populates any non-folder nodes such as specific items in the tree.
         /// </summary>
         /// <param name="allChildren">List to which nodes should be added</param>
         /// <param name="parent">Parent the nodes are being added to</param>
-        protected void OnExpandPopulateNonFolders(IList<TreeNode> allChildren, TreeNode parent, bool refresh, string name, CancellationToken cancellationToken)
+        private void OnExpandPopulateNonFolders(IList<TreeNode> allChildren, TreeNode parent, bool refresh, string name, CancellationToken cancellationToken)
         {
             Logger.Write(TraceEventType.Verbose, string.Format(CultureInfo.InvariantCulture, "child factory parent :{0}", parent.GetNodePath()));
 
