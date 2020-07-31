@@ -6,11 +6,19 @@
           <CodeCoverage>
             <ModulePaths>
               <Include>
-                <ModulePath>Microsoft\.SqlTools.*\.dll$</ModulePath>
-                <ModulePath>Microsoft\.SqlTools.*\.exe$</ModulePath>
+                <ModulePath>.*SqlTools.*</ModulePath>
               </Include>
               <Exclude>
-                <ModulePath>Microsoft\.SqlTools\.ServiceLayer\.IntegrationTests\.dll</ModulePath>
+                <ModulePath>.*Microsoft\.SqlTools\.ServiceLayer\.IntegrationTests\.dll</ModulePath>
+                <ModulePath>.*Microsoft\.SqlTools\.ServiceLayer\.UnitTests\.dll</ModulePath>
+                <ModulePath>.*Nunit.*</ModulePath>
+                <ModulePath>.*Moq.*</ModulePath>
+                <ModulePath>.*Microsoft\.SqlTools\.Hosting\.UnitTests\.dll</ModulePath>
+                <ModulePath>.*Microsoft\.SqlTools\.ManagedBatchParser\.IntegrationTests\.dll</ModulePath>
+                <ModulePath>.*Microsoft\.SqlTools\.ServiceLayer\.PerfTests\.dll</ModulePath>
+                <ModulePath>.*Microsoft\.SqlTools\.ServiceLayer\.Test.Common\.dll</ModulePath>
+                <ModulePath>.*Microsoft\.SqlTools\.ServiceLayer\.TestDriver.*</ModulePath>
+                <ModulePath>.*Microsoft\.SqlTools\.ServiceLayer\.TestDriver.Tests\.dll</ModulePath>
               </Exclude>
             </ModulePaths>
             <UseVerifiableInstrumentation>True</UseVerifiableInstrumentation>
