@@ -4,7 +4,7 @@ pool:
   - task: DownloadSecureFile@1
     displayName: 'Download secure file'
     inputs:
-      secureFile: 'aec0999c-ce6e-49b4-a386-edd5729f1b0f'
+      secureFile: 'testsettings.json'
   
   - task: VisualStudioTestPlatformInstaller@1
     displayName: 'Visual Studio Test Platform Installer'
