@@ -40,7 +40,7 @@ pool:
   - task: VSTest@2
     displayName: 'Run integration tests with code coverage'
     inputs:
-      testAssemblyVer2: '**/bin/Debug/netcoreapp3.1/Microsoft.SqlTools.ServiceLayer.IntegrationTests.dll'
+      testAssemblyVer2: '**/bin/Debug/**/Microsoft.SqlTools.ServiceLayer.IntegrationTests.dll'
       vsTestVersion: toolsInstaller
       runSettingsFile: 'azure-pipelines/testrun.runsettings'
       codeCoverageEnabled: true
