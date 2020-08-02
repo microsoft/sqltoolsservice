@@ -1,0 +1,52 @@
+pool:
+    name: SqlToolsTestAgentPool
+  steps:
+  - task: DownloadSecureFile@1
+    displayName: 'Download secure file'
+    inputs:
+      secureFile: 'testsettings.json'
+  
+  - task: VisualStudioTestPlatformInstaller@1
+    displayName: 'Visual Studio Test Platform Installer'
+    inputs:
+      versionSelector: latestStable
+  
+  - task: UseDotNet@2
+    displayName: 'Use .NET Core sdk '
+    inputs:
+      useGlobalJson: true
+  
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet build'
+    inputs:
+      projects: '**/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj'
+  
+  - task: CopyFiles@2
+    displayName: 'Copy testsettings file to bin'
+    inputs:
+      SourceFolder: '$(Agent.TempDirectory)'
+      Contents: '**\testsettings.json'
+      TargetFolder: '$(Build.SourcesDirectory)\test\Microsoft.SqlTools.ServiceLayer.IntegrationTests\bin\Debug\netcoreapp3.1'
+  
+  - task: DotNetCoreCLI@2
+    displayName: 'Run integration tests'
+    inputs:
+      command: test
+      projects: '**/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj'
+      arguments: '--no-build'
+      testRunTitle: 'SqlToolsService Integration Tests'
+    enabled: false
+  
+  - task: VSTest@2
+    displayName: 'Run integration tests with code coverage'
+    inputs:
+      testAssemblyVer2: '**/bin/Debug/**/Microsoft.SqlTools.ServiceLayer.IntegrationTests.dll'
+      vsTestVersion: toolsInstaller
+      runSettingsFile: 'azure-pipelines/testrun.runsettings'
+      codeCoverageEnabled: true
+      testRunTitle: 'SqlToolsService Integration Tests'
+      rerunFailedTests: true
+      rerunFailedThreshold: 15
+      rerunMaxAttempts: 1
+    continueOnError: true
+  

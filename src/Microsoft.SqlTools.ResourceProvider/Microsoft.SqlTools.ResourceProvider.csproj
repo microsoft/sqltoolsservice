@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>$(ResourceProivderTargetFramework)</TargetFramework>
+    <TargetFramework>$(ResourceProviderTargetFramework)</TargetFramework>
     <PackageId>SqlToolsResourceProviderService</PackageId>
     <AssemblyName>SqlToolsResourceProviderService</AssemblyName>
     <OutputType>Exe</OutputType>
@@ -10,7 +10,6 @@
     <Copyright>� Microsoft Corporation. All rights reserved.</Copyright>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PreserveCompilationContext>true</PreserveCompilationContext>
-    <DebugType>portable</DebugType>
 	<EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
     <RuntimeIdentifiers>win7-x64;win7-x86;ubuntu.14.04-x64;ubuntu.16.04-x64;centos.7-x64;rhel.7.2-x64;debian.8-x64;fedora.23-x64;opensuse.13.2-x64;osx.10.11-x64;linux-x64;win10-arm;win10-arm64</RuntimeIdentifiers>
   </PropertyGroup>
