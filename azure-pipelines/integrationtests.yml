@@ -1,6 +1,6 @@
 pool:
     name: SqlToolsTestAgentPool
-  steps:
+steps:
   - task: DownloadSecureFile@1
     displayName: 'Download secure file'
     inputs:
