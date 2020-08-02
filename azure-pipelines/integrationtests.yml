@@ -1,5 +1,7 @@
 pool:
     name: SqlToolsTestAgentPool
+    demands: VisualStudio_16.0
+
 steps:
   - task: DownloadSecureFile@1
     displayName: 'Download secure file'
