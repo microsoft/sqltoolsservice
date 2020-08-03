@@ -4,12 +4,18 @@
 //
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.NotebookConvert.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Newtonsoft.Json;
+using Microsoft.SqlServer.TransactSql.ScriptDom;
+using System.IO;
+using Microsoft.SqlTools.ServiceLayer.NotebookConvert;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
@@ -48,7 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
             this.ServiceHost.SetRequestHandler(ConvertNotebookToSqlRequest.Type, HandleConvertNotebookToSqlRequest);
             this.ServiceHost.SetRequestHandler(ConvertSqlToNotebookRequest.Type, HandleConvertSqlToNotebookRequest);
-           
+
 
         }
 
@@ -60,8 +66,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             {
                 try
                 {
-                    var result = new ConvertNotebookToSqlResult();
-                    result.content = parameters.NotebookJson;
+                    var notebookDoc = JsonConvert.DeserializeObject<NotebookDocument>(parameters.Content);
+
+                    var result = new ConvertNotebookToSqlResult
+                    {
+                        Content = ConvertNotebookDocToSql(notebookDoc)
+                    };
                     await requestContext.SendResult(result);
                 }
                 catch (Exception e)
@@ -75,41 +85,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             await Task.Run(async () =>
             {
-               
+
                 try
                 {
                     var file = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(parameters.ClientUri);
                     // Temporary notebook that we just fill in with the sql until the parsing logic is added
                     var result = new ConvertSqlToNotebookResult
                     {
-                        content = $@"{{
-    ""metadata"": {{
-        ""kernelspec"": {{
-                    ""name"": ""SQL"",
-            ""display_name"": ""SQL"",
-            ""language"": ""sql""
-        }},
-        ""language_info"": {{
-                    ""name"": ""sql"",
-            ""version"": """"
-        }}
-            }},
-    ""nbformat_minor"": 2,
-    ""nbformat"": 4,
-    ""cells"": [
-        {{
-                ""cell_type"": ""code"",
-            ""source"": [
-                ""{file.Contents}""
-            ],
-            ""metadata"": {{
-                ""azdata_cell_guid"": ""477da394-51fd-45ab-8a37-387b47b2b692""
-            }},
-            ""outputs"": [],
-            ""execution_count"": null
-        }}
-    ]
-}}"
+                        Content = JsonConvert.SerializeObject(ConvertSqlToNotebook(file.Contents))
                     };
                     await requestContext.SendResult(result);
                 }
@@ -122,5 +105,120 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         #endregion // Convert Handlers
 
+        private static NotebookDocument ConvertSqlToNotebook(string sql)
+        {
+            // Notebooks use \n so convert any other newlines now
+            sql = sql.Replace("\r\n", "\n");
+
+            var doc = new NotebookDocument
+            {
+                NotebookMetadata = new NotebookMetadata()
+                {
+                    KernelSpec = new NotebookKernelSpec()
+                    {
+                        Name = "SQL",
+                        DisplayName = "SQL",
+                        Language = "sql"
+                    },
+                    LanguageInfo = new NotebookLanguageInfo()
+                    {
+                        Name = "sql",
+                        Version = ""
+                    }
+                }
+            };
+            var parser = new TSql150Parser(false);
+            IList<ParseError> errors = new List<ParseError>();
+            var tokens = parser.GetTokenStream(new StringReader(sql), out errors);
+
+            /**
+             * Split the text into separate chunks - blocks of Mutliline comments and blocks 
+             * of everything else. We then create a markdown cell for each multiline comment and a code
+             * cell for the other blocks.
+             */
+            var multilineComments = tokens.Where(token => token.TokenType == TSqlTokenType.MultilineComment);
+
+            int currentIndex = 0;
+            int codeLength = 0;
+            string codeBlock = "";
+            foreach (var comment in multilineComments)
+            {
+                // The code blocks are everything since the end of the last comment block up to the
+                // start of the next comment block
+                codeLength = comment.Offset - currentIndex;
+                codeBlock = sql.Substring(currentIndex, codeLength).Trim();
+                if (!string.IsNullOrEmpty(codeBlock))
+                {
+                    doc.Cells.Add(GenerateCodeCell(codeBlock));
+                }
+
+                string commentBlock = comment.Text.Trim();
+                // Trim off the starting /* and ending */
+                commentBlock = commentBlock.Remove(0, 2);
+                commentBlock = commentBlock.Remove(commentBlock.Length - 2);
+                doc.Cells.Add(GenerateMarkdownCell(commentBlock.Trim()));
+
+                currentIndex = comment.Offset + comment.Text.Length;
+            }
+
+            // Add any remaining text in a final code block
+            codeLength = sql.Length - currentIndex;
+            codeBlock = sql.Substring(currentIndex, codeLength).Trim();
+            if (!string.IsNullOrEmpty(codeBlock))
+            {
+                doc.Cells.Add(GenerateCodeCell(codeBlock));
+            }
+
+            return doc;
+        }
+
+        private static NotebookCell GenerateCodeCell(string contents)
+        {
+            // Each line is a separate entry in the contents array so split that now, but
+            // Notebooks still expect each line to end with a newline so keep that
+            var contentsArray = contents
+                    .Split('\n')
+                    .Select(line => $"{line}\n")
+                .ToList();
+            // Last line shouldn't have a newline
+            contentsArray[^1] = contentsArray[^1].TrimEnd();
+            return new NotebookCell("code", contentsArray);
+        }
+
+        private static NotebookCell GenerateMarkdownCell(string contents)
+        {
+            // Each line is a separate entry in the contents array so split that now, but
+            // Notebooks still expect each line to end with a newline so keep that.
+            // In addition - markdown newlines have to be prefixed by 2 spaces
+            var contentsArray = contents
+                    .Split('\n')
+                    .Select(line => $"{line}  \n")
+                .ToList();
+            // Last line shouldn't have a newline
+            contentsArray[^1] = contentsArray[^1].TrimEnd();
+            return new NotebookCell("markdown", contentsArray);
+        }
+
+        /// <summary>
+        /// Converts a Notebook document into a single string that can be inserted into a SQL
+        /// query. 
+        /// </summary>
+        private static string ConvertNotebookDocToSql(NotebookDocument doc)
+        {
+            // Add an extra blank line between each block for readability
+            return string.Join(Environment.NewLine + Environment.NewLine, doc.Cells.Select(cell =>
+            {
+                return cell.CellType switch
+                {
+                    // Markdown is text so wrapped in a comment block
+                    "markdown" => $@"/*
+{string.Join(Environment.NewLine, cell.Source)}
+*/",
+                    // Everything else (just code blocks for now) is left as is
+                    _ => string.Join("", cell.Source),
+                };
+            }));
+        }
     }
+
 }
