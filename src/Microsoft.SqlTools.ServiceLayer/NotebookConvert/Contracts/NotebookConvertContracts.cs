@@ -14,7 +14,7 @@ namespace Microsoft.SqlTools.ServiceLayer.NotebookConvert.Contracts
         /// <summary>
         /// The raw Notebook JSON content to convert
         /// </summary>
-        public string NotebookJson { get; set; }
+        public string Content;
 
     }
 
@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.NotebookConvert.Contracts
         /// <summary>
         /// The raw SQL query content to display
         /// </summary>
-        public string content;
+        public string Content;
     }
 
     public class ConvertNotebookToSqlRequest
@@ -50,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.NotebookConvert.Contracts
         /// <summary>
         /// The raw Notebook JSON content to display
         /// </summary>
-        public string content;
+        public string Content;
     }
 
     public class ConvertSqlToNotebookRequest
