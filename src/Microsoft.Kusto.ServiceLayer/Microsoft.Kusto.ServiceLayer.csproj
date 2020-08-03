@@ -25,7 +25,7 @@
     <PackageReference Include="System.Text.Encoding.CodePages" />
     <PackageReference Include="Microsoft.Azure.Kusto.Data" />
     <PackageReference Include="System.Net.Http" />
-    <PackageReference Include="Microsoft.Azure.Kusto.Language" />
+    <PackageReference Include="Microsoft.Azure.Kusto.Language"/>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="**\*.cs" Exclude="**/obj/**/*.cs" />
@@ -34,7 +34,6 @@
     <ProjectReference Include="../Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
     <ProjectReference Include="../Microsoft.SqlTools.Credentials/Microsoft.SqlTools.Credentials.csproj" />
     <ProjectReference Include="../Microsoft.SqlTools.ManagedBatchParser/Microsoft.SqlTools.ManagedBatchParser.csproj" />
-    <ProjectReference Include="..\Microsoft.SqlTools.ServiceLayer\Microsoft.SqlTools.ServiceLayer.csproj" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="ObjectExplorer\SmoModel\TreeNodeDefinition.xml" />
