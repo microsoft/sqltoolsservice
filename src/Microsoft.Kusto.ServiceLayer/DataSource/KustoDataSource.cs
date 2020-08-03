@@ -409,7 +409,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
                 case DataSourceMetadataType.Table: // show columns
                     TableMetadata tm = objectMetadata as TableMetadata;
-                    return _columnMetadata[GenerateMetadataKey(tm.DatabaseName, tm.Name)];
+                    return _columnMetadata[GenerateMetadataKey(tm.DatabaseName, tm.Name)].OrderBy(x => x.PrettyName);
 
                 case DataSourceMetadataType.Folder: // show tables
                     FolderMetadata fm = objectMetadata as FolderMetadata;
@@ -648,7 +648,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             foreach (var columnGroup in columnsGroupByTable)
             {
                 string tableName = columnGroup.Key;
-                var columns = new SortedList<string, ColumnMetadata>(StringComparer.OrdinalIgnoreCase);
+                var columns = new List<ColumnMetadata>();
                 foreach (ColumnInfo columnInfo in columnGroup)
                 {
                     var column = new ColumnMetadata
@@ -664,10 +664,10 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                         DataType = columnInfo.DataType
                     };
                     
-                    columns.Add(column.Name, column);
+                    columns.Add(column);
                 }
 
-                _columnMetadata[GenerateMetadataKey(databaseName, tableName)] = columns.Values;
+                _columnMetadata[GenerateMetadataKey(databaseName, tableName)] = columns;
             }
         }
 
