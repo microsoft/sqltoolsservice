@@ -163,7 +163,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
 
             if (string.Equals(scriptingObject.Type, "Function", StringComparison.CurrentCultureIgnoreCase))
             {
-                return new Scripter().AlterFunction(dataSource, objectUrn);
+                return new Scripter().AlterFunction(dataSource, scriptingObject);
             }
             
             return string.Empty;

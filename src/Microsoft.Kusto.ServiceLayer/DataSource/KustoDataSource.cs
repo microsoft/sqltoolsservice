@@ -757,6 +757,28 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             }
         }
 
+        internal FunctionInfo GetFunctionInfo(string functionName)
+        {
+            CancellationTokenSource source = new CancellationTokenSource();
+            CancellationToken token = source.Token;
+
+            string query = $".show function {functionName}";
+
+            using (var reader = ExecuteQuery(query, token, DatabaseName))
+            {
+                return reader.ToEnumerable()
+                    .Select(row => new FunctionInfo
+                    {
+                        Name = row["Name"]?.ToString(),
+                        Body = row["Body"]?.ToString(),
+                        DocString = row["DocString"]?.ToString(),
+                        Folder = row["Folder"]?.ToString(),
+                        Parameters = row["Parameters"]?.ToString()
+                    })
+                    .FirstOrDefault();
+            }
+        }
+
         private string GenerateMetadataKey(string databaseName, string objectName)
         {
             return string.IsNullOrWhiteSpace(objectName) ? databaseName : $"{databaseName}.{objectName}";
