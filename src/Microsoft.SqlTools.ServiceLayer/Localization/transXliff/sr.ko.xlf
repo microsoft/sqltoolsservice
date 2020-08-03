@@ -1898,7 +1898,7 @@
       </trans-unit>
       <trans-unit id="EditDataValueTooLarge">
         <source>Value {0} is too large to fit in column of type {1}</source>
-        <target state="translated">값 {0}이(가) 너무 커서 {1} 유형의 열에 맞지 않습니다.</target>
+        <target state="translated">값 {0}이 너무 커서 {1} 유형의 열에 맞지 않습니다.</target>
         <note>.
  Parameters: 0 - value (string), 1 - columnType (string) </note>
       </trans-unit>
@@ -2390,36 +2390,6 @@
         <target state="translated">파일 {0}에 대한 요청을 찾을 수 없으므로 추가 데이터를 직렬화할 수 없습니다.</target>
         <note>.
  Parameters: 0 - filePath (string) </note>
-      </trans-unit>
-      <trans-unit id="ConnectionServiceConnStringInvalidColumnEncryptionSetting">
-        <source>Invalid value '{0}' for ComlumEncryption. Valid values are 'Enabled' and 'Disabled'.</source>
-        <target state="translated">ComlumEncryption에 대한 '{0}' 값이 잘못되었습니다. 유효한 값은 'Enabled' 및 'Disabled'입니다.</target>
-        <note>.
- Parameters: 0 - columnEncryptionSetting (string) </note>
-      </trans-unit>
-      <trans-unit id="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol">
-        <source>Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS' and 'HGS'.</source>
-        <target state="translated">EnclaveAttestationProtocol에 대한 '{0}' 값이 잘못되었습니다. 유효한 값은 'AAS' 및 'HGS'입니다.</target>
-        <note>.
- Parameters: 0 - enclaveAttestationProtocol (string) </note>
-      </trans-unit>
-      <trans-unit id="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination">
-        <source>The Attestation Protocol and Enclave Attestation URL requires Always Encrypted to be set to Enabled.</source>
-        <target state="translated">증명 프로토콜 및 enclave 증명 URL을 사용하려면 Always Encrypted를 Enabled(사용)로 설정해야 합니다.</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SqlCmdExitOnError">
-        <source>An error was encountered during execution of batch. Exiting.</source>
-        <target state="translated">일괄 처리를 실행하는 동안 오류가 발생하여 종료합니다.</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SqlCmdUnsupportedToken">
-        <source>Encountered unsupported token {0}</source>
-        <target state="translated">지원되지 않는 {0} 토큰이 발생했습니다.</target>
-        <note>
-        </note>
       </trans-unit>
     </body>
   </file>

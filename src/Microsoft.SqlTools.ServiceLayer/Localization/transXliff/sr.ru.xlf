@@ -2391,36 +2391,6 @@
         <note>.
  Parameters: 0 - filePath (string) </note>
       </trans-unit>
-      <trans-unit id="ConnectionServiceConnStringInvalidColumnEncryptionSetting">
-        <source>Invalid value '{0}' for ComlumEncryption. Valid values are 'Enabled' and 'Disabled'.</source>
-        <target state="translated">Недопустимое значение "{0}" для ColumnEncryption. Допустимые значения: "Enabled" (Включено) и "Disabled" (Отключено).</target>
-        <note>.
- Parameters: 0 - columnEncryptionSetting (string) </note>
-      </trans-unit>
-      <trans-unit id="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol">
-        <source>Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS' and 'HGS'.</source>
-        <target state="translated">Недопустимое значение "{0}" для EnclaveAttestationProtocol. Допустимые значения: "AAS" и "HGS".</target>
-        <note>.
- Parameters: 0 - enclaveAttestationProtocol (string) </note>
-      </trans-unit>
-      <trans-unit id="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination">
-        <source>The Attestation Protocol and Enclave Attestation URL requires Always Encrypted to be set to Enabled.</source>
-        <target state="translated">Протокол аттестации и URL аттестации анклава требуют задать для Always Encrypted значение Enabled (Включено).</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SqlCmdExitOnError">
-        <source>An error was encountered during execution of batch. Exiting.</source>
-        <target state="translated">При выполнении пакета возникла ошибка. Выполняется выход.</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SqlCmdUnsupportedToken">
-        <source>Encountered unsupported token {0}</source>
-        <target state="translated">Обнаружен неподдерживаемый токен {0}.</target>
-        <note>
-        </note>
-      </trans-unit>
     </body>
   </file>
 </xliff>

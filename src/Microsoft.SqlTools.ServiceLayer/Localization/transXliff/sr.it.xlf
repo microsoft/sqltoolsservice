@@ -2391,36 +2391,6 @@
         <note>.
  Parameters: 0 - filePath (string) </note>
       </trans-unit>
-      <trans-unit id="ConnectionServiceConnStringInvalidColumnEncryptionSetting">
-        <source>Invalid value '{0}' for ComlumEncryption. Valid values are 'Enabled' and 'Disabled'.</source>
-        <target state="translated">Il valore '{0}' non è valido per ComlumEncryption. I valori validi sono 'Enabled' e 'Disabled'.</target>
-        <note>.
- Parameters: 0 - columnEncryptionSetting (string) </note>
-      </trans-unit>
-      <trans-unit id="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol">
-        <source>Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS' and 'HGS'.</source>
-        <target state="translated">Il valore '{0}' non è valido per EnclaveAttestationProtocol. I valori validi sono 'AAS' e 'HGS'.</target>
-        <note>.
- Parameters: 0 - enclaveAttestationProtocol (string) </note>
-      </trans-unit>
-      <trans-unit id="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination">
-        <source>The Attestation Protocol and Enclave Attestation URL requires Always Encrypted to be set to Enabled.</source>
-        <target state="translated">Il protocollo di attestazione e l'URL di attestazione dell'enclave richiedono che Always Encrypted sia impostato su Abilitato.</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SqlCmdExitOnError">
-        <source>An error was encountered during execution of batch. Exiting.</source>
-        <target state="translated">Si è verificato un errore durante l'esecuzione del batch. Chiusura in corso.</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SqlCmdUnsupportedToken">
-        <source>Encountered unsupported token {0}</source>
-        <target state="translated">È stato rilevato il token {0} non supportato</target>
-        <note>
-        </note>
-      </trans-unit>
     </body>
   </file>
 </xliff>

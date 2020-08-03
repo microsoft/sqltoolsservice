@@ -2391,36 +2391,6 @@
         <note>.
  Parameters: 0 - filePath (string) </note>
       </trans-unit>
-      <trans-unit id="ConnectionServiceConnStringInvalidColumnEncryptionSetting">
-        <source>Invalid value '{0}' for ComlumEncryption. Valid values are 'Enabled' and 'Disabled'.</source>
-        <target state="translated">Valeur « {0} » non valide pour ComlumEncryption. Les valeurs valides sont « Enabled » et « Disabled ».</target>
-        <note>.
- Parameters: 0 - columnEncryptionSetting (string) </note>
-      </trans-unit>
-      <trans-unit id="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol">
-        <source>Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS' and 'HGS'.</source>
-        <target state="translated">Valeur « {0} » non valide pour EnclaveAttestationProtocol. Les valeurs valides sont « AAS » et « HGS ».</target>
-        <note>.
- Parameters: 0 - enclaveAttestationProtocol (string) </note>
-      </trans-unit>
-      <trans-unit id="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination">
-        <source>The Attestation Protocol and Enclave Attestation URL requires Always Encrypted to be set to Enabled.</source>
-        <target state="translated">Le protocole d'attestation et l'URL d'attestation d'enclave exigent l'activation d'Always Encrypted.</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SqlCmdExitOnError">
-        <source>An error was encountered during execution of batch. Exiting.</source>
-        <target state="translated">Une erreur s'est produite durant l'exécution du lot. Fermeture en cours.</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SqlCmdUnsupportedToken">
-        <source>Encountered unsupported token {0}</source>
-        <target state="translated">Jeton non pris en charge détecté ({0})</target>
-        <note>
-        </note>
-      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -1,2426 +1,1 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
-  <file datatype="xml" original="sr.resx" source-language="en" target-language="zh-CN">
-    <body>
-      <trans-unit id="ConnectionServiceConnectErrorNullParams">
-        <source>Connection parameters cannot be null</source>
-        <target state="translated">连接参数不能为 null</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="ConnectionServiceListDbErrorNullOwnerUri">
-        <source>OwnerUri cannot be null or empty</source>
-        <target state="translated">OwnerUri 不能为 null 或为空</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="ConnectionServiceListDbErrorNotConnected">
-        <source>SpecifiedUri '{0}' does not have existing connection</source>
-        <target state="translated">SpecifiedUri "{0}" 没有已有的连接</target>
-        <note>.
- Parameters: 0 - uri (string) </note>
-      </trans-unit>
-      <trans-unit id="ConnectionServiceConnStringInvalidAuthType">
-        <source>Invalid value '{0}' for AuthenticationType.  Valid values are 'Integrated' and 'SqlLogin'.</source>
-        <target state="translated">AuthenticationType 的 "{0}" 值无效。有效值为 "Integrated" 和 "SqlLogin"。</target>
-        <note>.
- Parameters: 0 - authType (string) </note>
-      </trans-unit>
-      <trans-unit id="ConnectionServiceConnStringInvalidIntent">
-        <source>Invalid value '{0}' for ApplicationIntent. Valid values are 'ReadWrite' and 'ReadOnly'.</source>
-        <target state="translated">ApplicationIntent 的 "{0}" 值无效的。有效值为 "ReadWrite" 和 "ReadOnly"。</target>
-        <note>.
- Parameters: 0 - intent (string) </note>
-      </trans-unit>
-      <trans-unit id="ConnectionServiceConnectionCanceled">
-        <source>Connection canceled</source>
-        <target state="translated">连接已取消</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="ConnectionParamsValidateNullOwnerUri">
-        <source>OwnerUri cannot be null or empty</source>
-        <target state="translated">OwnerUri 不能为 null 或为空</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="ConnectionParamsValidateNullConnection">
-        <source>Connection details object cannot be null</source>
-        <target state="translated">连接详细信息对象不能为 null</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="ConnectionParamsValidateNullServerName">
-        <source>ServerName cannot be null or empty</source>
-        <target state="translated">ServerName 不能为 null 或为空</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="ConnectionParamsValidateNullSqlAuth">
-        <source>{0} cannot be null or empty when using SqlLogin authentication</source>
-        <target state="translated">使用 SqlLogin 身份验证时，{0} 不能为 null 或为空</target>
-        <note>.
- Parameters: 0 - component (string) </note>
-      </trans-unit>
-      <trans-unit id="QueryServiceCancelAlreadyCompleted">
-        <source>The query has already completed, it cannot be cancelled</source>
-        <target state="translated">查询已完成，无法取消</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="QueryServiceCancelDisposeFailed">
-        <source>Query successfully cancelled, failed to dispose query. Owner URI not found.</source>
-        <target state="translated">查询已成功取消，未能处理查询。找不到所有者 URI。</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="QueryServiceQueryCancelled">
-        <source>Query was canceled by user</source>
-        <target state="translated">查询已被用户取消</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="QueryServiceSubsetBatchNotCompleted">
-        <source>The batch has not completed, yet</source>
-        <target state="translated">该批处理尚未完成</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="QueryServiceSubsetBatchOutOfRange">
-        <source>Batch index cannot be less than 0 or greater than the number of batches</source>
-        <target state="translated">批量索引不能小于 0 或大于批量数</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="QueryServiceSubsetResultSetOutOfRange">
-        <source>Result set index cannot be less than 0 or greater than the number of result sets</source>
-        <target state="translated">结果集索引不能小于 0 或大于结果集的总数</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="QueryServiceDataReaderByteCountInvalid">
-        <source>Maximum number of bytes to return must be greater than zero</source>
-        <target state="translated">返回的最大字节数必须大于零</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="QueryServiceDataReaderCharCountInvalid">
-        <source>Maximum number of chars to return must be greater than zero</source>
-        <target state="translated">返回的最大字符数必须大于零</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="QueryServiceDataReaderXmlCountInvalid">
-        <source>Maximum number of XML bytes to return must be greater than zero</source>
-        <target state="translated">返回的 XML 最大字节数必须大于零</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="QueryServiceFileWrapperWriteOnly">
-        <source>Access method cannot be write-only</source>
-        <target state="translated">访问方法不能设置为“只写”</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="QueryServiceFileWrapperNotInitialized">
-        <source>FileStreamWrapper must be initialized before performing operations</source>
-        <target state="translated">在执行操作之前，必须初始化 FileStreamWrapper</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="QueryServiceFileWrapperReadOnly">
-        <source>This FileStreamWrapper cannot be used for writing</source>
-        <target state="translated">该 FileStreamWrapper 不能用于写入</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="QueryServiceAffectedOneRow">
-        <source>(1 row affected)</source>
-        <target state="translated">(1 行受到影响)</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="QueryServiceAffectedRows">
-        <source>({0} rows affected)</source>
-        <target state="translated">({0} 行受到影响)</target>
-        <note>.
- Parameters: 0 - rows (long) </note>
-      </trans-unit>
-      <trans-unit id="QueryServiceCompletedSuccessfully">
-        <source>Commands completed successfully.</source>
-        <target state="translated">命令已成功完成。</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="QueryServiceErrorFormat">
-        <source>Msg {0}, Level {1}, State {2}, Line {3}{4}{5}</source>
-        <target state="translated">小计 {0}，级别 {1}，状态 {2}，第 {3} {4} {5} 行</target>
-        <note>.
- Parameters: 0 - msg (int), 1 - lvl (int), 2 - state (int), 3 - line (int), 4 - newLine (string), 5 - message (string) </note>
-      </trans-unit>
-      <trans-unit id="QueryServiceQueryFailed">
-        <source>Query failed: {0}</source>
-        <target state="translated">查询失败: {0}</target>
-        <note>.
- Parameters: 0 - message (string) </note>
-      </trans-unit>
-      <trans-unit id="QueryServiceColumnNull">
-        <source>(No column name)</source>
-        <target state="translated">(无列名称)</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="QueryServiceRequestsNoQuery">
-        <source>The requested query does not exist</source>
-        <target state="translated">请求的查询不存在</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="QueryServiceQueryInvalidOwnerUri">
-        <source>This editor is not connected to a database</source>
-        <target state="translated">此编辑器未连接到数据库</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="QueryServiceQueryInProgress">
-        <source>A query is already in progress for this editor session. Please cancel this query or wait for its completion.</source>
-        <target state="translated">当前编辑器的会话中有正在进行的查询，请取消该查询或者等待查询执行完毕。</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="QueryServiceMessageSenderNotSql">
-        <source>Sender for OnInfoMessage event must be a SqlConnection</source>
-        <target state="translated">OnInfoMessage 事件的发送方必须是 SqlConnection</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="QueryServiceSaveAsResultSetNotComplete">
-        <source>Result cannot be saved until query execution has completed</source>
-        <target state="translated">查询执行完毕后才能保存结果</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="QueryServiceSaveAsMiscStartingError">
-        <source>Internal error occurred while starting save task</source>
-        <target state="translated">启动保存任务时发生内部错误</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="QueryServiceSaveAsInProgress">
-        <source>A save request to the same path is in progress</source>
-        <target state="translated">相同路径的保存请求正在进行中</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="QueryServiceSaveAsFail">
-        <source>Failed to save {0}: {1}</source>
-        <target state="translated">未能保存 {0}: {1}</target>
-        <note>.
- Parameters: 0 - fileName (string), 1 - message (string) </note>
-      </trans-unit>
-      <trans-unit id="QueryServiceResultSetNotRead">
-        <source>Cannot read subset unless the results have been read from the server</source>
-        <target state="translated">没有从服务器读取结果之前，无法读取子集</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="QueryServiceResultSetStartRowOutOfRange">
-        <source>Start row cannot be less than 0 or greater than the number of rows in the result set</source>
-        <target state="translated">起始行不能小于 0 或大于结果集中的行数</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="QueryServiceResultSetRowCountOutOfRange">
-        <source>Row count must be a positive integer</source>
-        <target state="translated">行数必须是一个正整数</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="QueryServiceResultSetNoColumnSchema">
-        <source>Could not retrieve column schema for result set</source>
-        <target state="translated">无法从结果集检索列架构</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="QueryServiceExecutionPlanNotFound">
-        <source>Could not retrieve an execution plan from the result set </source>
-        <target state="translated">无法从结果集检索执行计划 </target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="PeekDefinitionAzureError">
-        <source>This feature is currently not supported on Azure SQL DB and Data Warehouse: {0}</source>
-        <target state="translated">Azure SQL DB 和数据仓库目前不支持此功能: {0}</target>
-        <note>.
- Parameters: 0 - errorMessage (string) </note>
-      </trans-unit>
-      <trans-unit id="PeekDefinitionError">
-        <source>An unexpected error occurred during Peek Definition execution: {0}</source>
-        <target state="translated">执行速览定义过程中发生意外错误: {0}</target>
-        <note>.
- Parameters: 0 - errorMessage (string) </note>
-      </trans-unit>
-      <trans-unit id="PeekDefinitionNoResultsError">
-        <source>No results were found.</source>
-        <target state="translated">未找到结果。</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="PeekDefinitionDatabaseError">
-        <source>No database object was retrieved.</source>
-        <target state="translated">检索不到任何数据库对象。</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="PeekDefinitionNotConnectedError">
-        <source>Please connect to a server.</source>
-        <target state="translated">请连接到服务器。</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="PeekDefinitionTimedoutError">
-        <source>Operation timed out.</source>
-        <target state="translated">操作超时。</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="PeekDefinitionTypeNotSupportedError">
-        <source>This object type is currently not supported by this feature.</source>
-        <target state="translated">此功能当前不支持此对象类型。</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="WorkspaceServicePositionLineOutOfRange">
-        <source>Position is outside of file line range</source>
-        <target state="translated">位置超出文件行范围</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="WorkspaceServicePositionColumnOutOfRange">
-        <source>Position is outside of column range for line {0}</source>
-        <target state="translated">位置超出第 {0} 行的列范围</target>
-        <note>.
- Parameters: 0 - line (int) </note>
-      </trans-unit>
-      <trans-unit id="WorkspaceServiceBufferPositionOutOfOrder">
-        <source>Start position ({0}, {1}) must come before or be equal to the end position ({2}, {3})</source>
-        <target state="translated">起始位置({0}, {1})必须先于或等于结束位置({2}, {3})</target>
-        <note>.
- Parameters: 0 - sLine (int), 1 - sCol (int), 2 - eLine (int), 3 - eCol (int) </note>
-      </trans-unit>
-      <trans-unit id="TestLocalizationConstant">
-        <source>test</source>
-        <target state="translated">测试</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="ErrorEmptyStringReplacement">
-        <source>Replacement of an empty string by an empty string.</source>
-        <target state="translated">用空字符串取代空字符串。</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="EditDataSessionNotFound">
-        <source>Edit session does not exist.</source>
-        <target state="translated">编辑会话不存在。</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="EditDataQueryNotCompleted">
-        <source>Query has not completed execution</source>
-        <target state="translated">查询尚未完成执行</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="EditDataQueryImproperResultSets">
-        <source>Query did not generate exactly one result set</source>
-        <target state="translated">查询并未生成单一结果集</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="EditDataFailedAddRow">
-        <source>Failed to add new row to update cache</source>
-        <target state="translated">添加新行以更新缓存的操作失败</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="EditDataRowOutOfRange">
-        <source>Given row ID is outside the range of rows in the edit cache</source>
-        <target state="translated">给定行 ID 已超出编辑缓存中的行范围</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="EditDataUpdatePending">
-        <source>An update is already pending for this row and must be reverted first</source>
-        <target state="translated">此行已有一个挂起的更新，因此必须先还原</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="EditDataUpdateNotPending">
-        <source>Given row ID does not have pending update</source>
-        <target state="translated">给定行 ID 没有挂起的更新</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="EditDataObjectMetadataNotFound">
-        <source>Table or view metadata could not be found</source>
-        <target state="translated">找不到表格或视图元数据</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="EditDataInvalidFormatBinary">
-        <source>Invalid format for binary column</source>
-        <target state="translated">二进制列的格式无效</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="EditDataInvalidFormatBoolean">
-        <source>Allowed values for boolean columns are 0, 1, "true", or "false"</source>
-        <target state="translated">布尔列允许的值为数字 1 或 0，或字符串 "true" 或 "false"</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="EditDataCreateScriptMissingValue">
-        <source>The column '{0}' is defined as NOT NULL but was not given a value</source>
-        <target state="translated">列 “{0}” 被定义为非 NULL，但值缺失</target>
-        <note>.
- Parameters: 0 - colName (string) </note>
-      </trans-unit>
-      <trans-unit id="EditDataDeleteSetCell">
-        <source>A delete is pending for this row, a cell update cannot be applied.</source>
-        <target state="translated">此行即将被删除，因此无法更新其中的单元格。</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="EditDataColumnIdOutOfRange">
-        <source>Column ID must be in the range of columns for the query</source>
-        <target state="translated">列 ID 必须在列总数內才可被查询</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="EditDataColumnCannotBeEdited">
-        <source>Column cannot be edited</source>
-        <target state="translated">无法编辑列</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="EditDataColumnNoKeyColumns">
-        <source>No key columns were found</source>
-        <target state="translated">找不到键列</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="EditDataScriptFilePathNull">
-        <source>An output filename must be provided</source>
-        <target state="translated">必须提供输出文件名</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="EditDataUnsupportedObjectType">
-        <source>Database object {0} cannot be used for editing.</source>
-        <target state="translated">数据库对象 {0} 无法被编辑</target>
-        <note>.
- Parameters: 0 - typeName (string) </note>
-      </trans-unit>
-      <trans-unit id="ConnectionServiceDbErrorDefaultNotConnected">
-        <source>Specified URI '{0}' does not have a default connection</source>
-        <target state="translated">指定的 URI {0} 没有默认的连接</target>
-        <note>.
- Parameters: 0 - uri (string) </note>
-      </trans-unit>
-      <trans-unit id="EditDataCommitInProgress">
-        <source>A commit task is in progress. Please wait for completion.</source>
-        <target state="translated">正在执行提交任务，请等待它完成。</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SqlScriptFormatterDecimalMissingPrecision">
-        <source>Exact numeric column is missing numeric precision or numeric scale</source>
-        <target state="translated">精确数值列缺少数值精度或小数位数</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="EditDataComputedColumnPlaceholder">
-        <source>&lt;TBD&gt;</source>
-        <target state="translated">&lt;TBD&gt;</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="QueryServiceResultSetAddNoRows">
-        <source>Cannot add row to result buffer, data reader does not contain rows</source>
-        <target state="translated">无法在结果缓冲区添加行，数据读取器不包含任何行</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="EditDataTimeOver24Hrs">
-        <source>TIME column values must be between 00:00:00.0000000 and 23:59:59.9999999</source>
-        <target state="translated">TIME 列的取值范围必须在 00:00:00.0000000 至 23:59:59.9999999 之间</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="EditDataNullNotAllowed">
-        <source>NULL is not allowed for this column</source>
-        <target state="translated">该列不允许为 NULL</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="EditDataSessionAlreadyExists">
-        <source>Edit session already exists.</source>
-        <target state="translated">编辑会话已存在。</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="EditDataSessionNotInitialized">
-        <source>Edit session has not been initialized</source>
-        <target state="translated">编辑会话尚未初始化</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="EditDataSessionAlreadyInitialized">
-        <source>Edit session has already been initialized</source>
-        <target state="translated">编辑会话已被初始化</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="EditDataSessionAlreadyInitializing">
-        <source>Edit session has already been initialized or is in the process of initializing</source>
-        <target state="translated">编辑会话已被初始化或正在进行初始化</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="EditDataQueryFailed">
-        <source>Query execution failed, see messages for details</source>
-        <target state="translated">执行查询失败，查看消息了解更多详情</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="EditDataFilteringNegativeLimit">
-        <source>Result limit cannot be negative</source>
-        <target state="translated">结果的限制值不能为负数</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="QueryServiceCellNull">
-        <source>NULL</source>
-        <target state="translated">NULL</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="EditDataMetadataObjectNameRequired">
-        <source>A object name must be provided</source>
-        <target state="translated">必须提供对象名称</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="EditDataMetadataTooManyIdentifiers">
-        <source>Explicitly specifying server or database is not supported</source>
-        <target state="translated">不支持显式指定服务器或者数据库</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="EditDataMetadataNotExtended">
-        <source>Table metadata does not have extended properties</source>
-        <target state="translated">数据表的元数据没有扩展属性</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="EditDataObjectNotFound">
-        <source>Table or view requested for edit could not be found</source>
-        <target state="translated">找不到请求编辑的表或视图</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="TreeNodeError">
-        <source>Error expanding: {0}</source>
-        <target state="translated">扩展时出错: {0}</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="ServerNodeConnectionError">
-        <source>Error connecting to {0}</source>
-        <target state="translated">连接到 {0} 时出错</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_Aggregates">
-        <source>Aggregates</source>
-        <target state="translated">聚合</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_ServerRoles">
-        <source>Server Roles</source>
-        <target state="translated">服务器角色</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_ApplicationRoles">
-        <source>Application Roles</source>
-        <target state="translated">应用程序角色</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_Assemblies">
-        <source>Assemblies</source>
-        <target state="translated">程序集</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_AssemblyFiles">
-        <source>Assembly Files</source>
-        <target state="translated">程序集文件</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_AsymmetricKeys">
-        <source>Asymmetric Keys</source>
-        <target state="translated">非对称密钥</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_DatabaseAsymmetricKeys">
-        <source>Asymmetric Keys</source>
-        <target state="translated">非对称密钥</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_DataCompressionOptions">
-        <source>Data Compression Options</source>
-        <target state="translated">数据压缩选项</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_Certificates">
-        <source>Certificates</source>
-        <target state="translated">证书</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_FileTables">
-        <source>FileTables</source>
-        <target state="translated">FileTable</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_DatabaseCertificates">
-        <source>Certificates</source>
-        <target state="translated">证书</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_CheckConstraints">
-        <source>Check Constraints</source>
-        <target state="translated">检查约束</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_Columns">
-        <source>Columns</source>
-        <target state="translated">列</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_Constraints">
-        <source>Constraints</source>
-        <target state="translated">约束</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_Contracts">
-        <source>Contracts</source>
-        <target state="translated">协定</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_Credentials">
-        <source>Credentials</source>
-        <target state="translated">凭据</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_ErrorMessages">
-        <source>Error Messages</source>
-        <target state="translated">错误消息</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_ServerRoleMembership">
-        <source>Server Role Membership</source>
-        <target state="translated">服务器角色成员资格</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_DatabaseOptions">
-        <source>Database Options</source>
-        <target state="translated">数据库选项</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_DatabaseRoles">
-        <source>Database Roles</source>
-        <target state="translated">数据库角色</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_RoleMemberships">
-        <source>Role Memberships</source>
-        <target state="translated">角色成员资格</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_DatabaseTriggers">
-        <source>Database Triggers</source>
-        <target state="translated">数据库触发器</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_DefaultConstraints">
-        <source>Default Constraints</source>
-        <target state="translated">默认约束</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_Defaults">
-        <source>Defaults</source>
-        <target state="translated">默认值</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_Sequences">
-        <source>Sequences</source>
-        <target state="translated">序列</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_Endpoints">
-        <source>Endpoints</source>
-        <target state="translated">终结点</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_EventNotifications">
-        <source>Event Notifications</source>
-        <target state="translated">事件通知</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_ServerEventNotifications">
-        <source>Server Event Notifications</source>
-        <target state="translated">服务器事件通知</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_ExtendedProperties">
-        <source>Extended Properties</source>
-        <target state="translated">扩展属性</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_FileGroups">
-        <source>Filegroups</source>
-        <target state="translated">文件组</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_ForeignKeys">
-        <source>Foreign Keys</source>
-        <target state="translated">外键</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_FullTextCatalogs">
-        <source>Full-Text Catalogs</source>
-        <target state="translated">全文目录</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_FullTextIndexes">
-        <source>Full-Text Indexes</source>
-        <target state="translated">全文检索</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_Functions">
-        <source>Functions</source>
-        <target state="translated">函数</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_Indexes">
-        <source>Indexes</source>
-        <target state="translated">索引</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_InlineFunctions">
-        <source>Inline Functions</source>
-        <target state="translated">内联函数</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_Keys">
-        <source>Keys</source>
-        <target state="translated">键</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_LinkedServers">
-        <source>Linked Servers</source>
-        <target state="translated">链接服务器</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_LinkedServerLogins">
-        <source>Linked Server Logins</source>
-        <target state="translated">链接服务器登录名</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_Logins">
-        <source>Logins</source>
-        <target state="translated">登录名</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_MasterKey">
-        <source>Master Key</source>
-        <target state="translated">主密钥</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_MasterKeys">
-        <source>Master Keys</source>
-        <target state="translated">主密钥</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_MessageTypes">
-        <source>Message Types</source>
-        <target state="translated">消息类型</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_MultiSelectFunctions">
-        <source>Table-Valued Functions</source>
-        <target state="translated">表值函数</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_Parameters">
-        <source>Parameters</source>
-        <target state="translated">参数</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_PartitionFunctions">
-        <source>Partition Functions</source>
-        <target state="translated">分区函数</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_PartitionSchemes">
-        <source>Partition Schemes</source>
-        <target state="translated">分区方案</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_Permissions">
-        <source>Permissions</source>
-        <target state="translated">权限</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_PrimaryKeys">
-        <source>Primary Keys</source>
-        <target state="translated">主键</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_Programmability">
-        <source>Programmability</source>
-        <target state="translated">可编程性</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_Queues">
-        <source>Queues</source>
-        <target state="translated">队列</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_RemoteServiceBindings">
-        <source>Remote Service Bindings</source>
-        <target state="translated">远程服务绑定</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_ReturnedColumns">
-        <source>Returned Columns</source>
-        <target state="translated">返回列</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_Roles">
-        <source>Roles</source>
-        <target state="translated">角色</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_Routes">
-        <source>Routes</source>
-        <target state="translated">路由</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_Rules">
-        <source>Rules</source>
-        <target state="translated">规则</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_Schemas">
-        <source>Schemas</source>
-        <target state="translated">架构</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_Security">
-        <source>Security</source>
-        <target state="translated">安全</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_ServerObjects">
-        <source>Server Objects</source>
-        <target state="translated">服务器对象</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_Management">
-        <source>Management</source>
-        <target state="translated">管理</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_ServerTriggers">
-        <source>Triggers</source>
-        <target state="translated">触发器</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_ServiceBroker">
-        <source>Service Broker</source>
-        <target state="translated">Service Broker</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_Services">
-        <source>Services</source>
-        <target state="translated">服务</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_Signatures">
-        <source>Signatures</source>
-        <target state="translated">签名</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_LogFiles">
-        <source>Log Files</source>
-        <target state="translated">日志文件</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_Statistics">
-        <source>Statistics</source>
-        <target state="translated">统计信息</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_Storage">
-        <source>Storage</source>
-        <target state="translated">存储</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_StoredProcedures">
-        <source>Stored Procedures</source>
-        <target state="translated">存储过程</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SymmetricKeys">
-        <source>Symmetric Keys</source>
-        <target state="translated">对称密钥</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_Synonyms">
-        <source>Synonyms</source>
-        <target state="translated">同义词</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_Tables">
-        <source>Tables</source>
-        <target state="translated">表</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_Triggers">
-        <source>Triggers</source>
-        <target state="translated">触发器</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_Types">
-        <source>Types</source>
-        <target state="translated">类型</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_UniqueKeys">
-        <source>Unique Keys</source>
-        <target state="translated">唯一键</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_UserDefinedDataTypes">
-        <source>User-Defined Data Types</source>
-        <target state="translated">用户定义的数据类型</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_UserDefinedTypes">
-        <source>User-Defined Types (CLR)</source>
-        <target state="translated">用户定义类型(CLR)</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_Users">
-        <source>Users</source>
-        <target state="translated">用户</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_Views">
-        <source>Views</source>
-        <target state="translated">视图</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_XmlIndexes">
-        <source>XML Indexes</source>
-        <target state="translated">XML 索引</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_XMLSchemaCollections">
-        <source>XML Schema Collections</source>
-        <target state="translated">XML 架构集合</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_UserDefinedTableTypes">
-        <source>User-Defined Table Types</source>
-        <target state="translated">用户定义的表类型</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_FilegroupFiles">
-        <source>Files</source>
-        <target state="translated">文件</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="MissingCaption">
-        <source>Missing Caption</source>
-        <target state="translated">缺少标题</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_BrokerPriorities">
-        <source>Broker Priorities</source>
-        <target state="translated">Broker 优先级</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_CryptographicProviders">
-        <source>Cryptographic Providers</source>
-        <target state="translated">加密提供程序</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_DatabaseAuditSpecifications">
-        <source>Database Audit Specifications</source>
-        <target state="translated">数据库审核规范</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_DatabaseEncryptionKeys">
-        <source>Database Encryption Keys</source>
-        <target state="translated">数据库加密密钥</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_EventSessions">
-        <source>Event Sessions</source>
-        <target state="translated">事件会话</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_FullTextStopLists">
-        <source>Full Text Stoplists</source>
-        <target state="translated">全文非索引字表</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_ResourcePools">
-        <source>Resource Pools</source>
-        <target state="translated">资源池</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_ServerAudits">
-        <source>Audits</source>
-        <target state="translated">审核</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_ServerAuditSpecifications">
-        <source>Server Audit Specifications</source>
-        <target state="translated">服务器审核规范</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SpatialIndexes">
-        <source>Spatial Indexes</source>
-        <target state="translated">空间索引</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_WorkloadGroups">
-        <source>Workload Groups</source>
-        <target state="translated">工作负荷组</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SqlFiles">
-        <source>SQL Files</source>
-        <target state="translated">SQL 文件</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_ServerFunctions">
-        <source>Server Functions</source>
-        <target state="translated">服务器函数</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SqlType">
-        <source>SQL Type</source>
-        <target state="translated">SQL 类型</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_ServerOptions">
-        <source>Server Options</source>
-        <target state="translated">服务器选项</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_DatabaseDiagrams">
-        <source>Database Diagrams</source>
-        <target state="translated">数据库关系图</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SystemTables">
-        <source>System Tables</source>
-        <target state="translated">系统表</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_Databases">
-        <source>Databases</source>
-        <target state="translated">数据库</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SystemContracts">
-        <source>System Contracts</source>
-        <target state="translated">系统约定</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SystemDatabases">
-        <source>System Databases</source>
-        <target state="translated">系统数据库</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SystemMessageTypes">
-        <source>System Message Types</source>
-        <target state="translated">系统消息类型</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SystemQueues">
-        <source>System Queues</source>
-        <target state="translated">系统队列</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SystemServices">
-        <source>System Services</source>
-        <target state="translated">系统服务</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SystemStoredProcedures">
-        <source>System Stored Procedures</source>
-        <target state="translated">系统存储过程</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SystemViews">
-        <source>System Views</source>
-        <target state="translated">系统视图</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_DataTierApplications">
-        <source>Data-tier Applications</source>
-        <target state="translated">数据层应用程序</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_ExtendedStoredProcedures">
-        <source>Extended Stored Procedures</source>
-        <target state="translated">扩展存储过程</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SystemAggregateFunctions">
-        <source>Aggregate Functions</source>
-        <target state="translated">聚合函数</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SystemApproximateNumerics">
-        <source>Approximate Numerics</source>
-        <target state="translated">近似数字</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SystemBinaryStrings">
-        <source>Binary Strings</source>
-        <target state="translated">二进制字符串</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SystemCharacterStrings">
-        <source>Character Strings</source>
-        <target state="translated">字符串</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SystemCLRDataTypes">
-        <source>CLR Data Types</source>
-        <target state="translated">CLR 数据类型</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SystemConfigurationFunctions">
-        <source>Configuration Functions</source>
-        <target state="translated">配置函数</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SystemCursorFunctions">
-        <source>Cursor Functions</source>
-        <target state="translated">游标函数</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SystemDataTypes">
-        <source>System Data Types</source>
-        <target state="translated">系统数据类型</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SystemDateAndTime">
-        <source>Date and Time</source>
-        <target state="translated">日期和时间</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SystemDateAndTimeFunctions">
-        <source>Date and Time Functions</source>
-        <target state="translated">日期和时间函数</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SystemExactNumerics">
-        <source>Exact Numerics</source>
-        <target state="translated">精确数值</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SystemFunctions">
-        <source>System Functions</source>
-        <target state="translated">系统函数</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SystemHierarchyIdFunctions">
-        <source>Hierarchy Id Functions</source>
-        <target state="translated">层次结构 ID 函数</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SystemMathematicalFunctions">
-        <source>Mathematical Functions</source>
-        <target state="translated">数学函数</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SystemMetadataFunctions">
-        <source>Metadata Functions</source>
-        <target state="translated">元数据函数</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SystemOtherDataTypes">
-        <source>Other Data Types</source>
-        <target state="translated">其他数据类型</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SystemOtherFunctions">
-        <source>Other Functions</source>
-        <target state="translated">其他函数</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SystemRowsetFunctions">
-        <source>Rowset Functions</source>
-        <target state="translated">行集函数</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SystemSecurityFunctions">
-        <source>Security Functions</source>
-        <target state="translated">安全函数</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SystemSpatialDataTypes">
-        <source>Spatial Data Types</source>
-        <target state="translated">空间数据类型</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SystemStringFunctions">
-        <source>String Functions</source>
-        <target state="translated">字符串函数</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SystemSystemStatisticalFunctions">
-        <source>System Statistical Functions</source>
-        <target state="translated">系统统计函数</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SystemTextAndImageFunctions">
-        <source>Text and Image Functions</source>
-        <target state="translated">文本和图像函数</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SystemUnicodeCharacterStrings">
-        <source>Unicode Character Strings</source>
-        <target state="translated">Unicode 字符串</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_AggregateFunctions">
-        <source>Aggregate Functions</source>
-        <target state="translated">聚合函数</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_ScalarValuedFunctions">
-        <source>Scalar-valued Functions</source>
-        <target state="translated">标量值函数</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_TableValuedFunctions">
-        <source>Table-valued Functions</source>
-        <target state="translated">表值函数</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SystemExtendedStoredProcedures">
-        <source>System Extended Stored Procedures</source>
-        <target state="translated">系统扩展存储过程</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_BuiltInType">
-        <source>Built-in Types</source>
-        <target state="translated">内置类型</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_BuiltInServerRole">
-        <source>Built-in Server Roles</source>
-        <target state="translated">内置服务器角色</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_UserWithPassword">
-        <source>User with Password</source>
-        <target state="translated">具有密码的用户</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SearchPropertyList">
-        <source>Search Property List</source>
-        <target state="translated">搜索属性列表</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SecurityPolicies">
-        <source>Security Policies</source>
-        <target state="translated">安全策略</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SecurityPredicates">
-        <source>Security Predicates</source>
-        <target state="translated">安全谓词</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_ServerRole">
-        <source>Server Role</source>
-        <target state="translated">服务器角色</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SearchPropertyLists">
-        <source>Search Property Lists</source>
-        <target state="translated">搜索属性列表</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_ColumnStoreIndexes">
-        <source>Column Store Indexes</source>
-        <target state="translated">列存储索引</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_TableTypeIndexes">
-        <source>Table Type Indexes</source>
-        <target state="translated">表类型索引</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SelectiveXmlIndexes">
-        <source>Selective XML Indexes</source>
-        <target state="translated">选择性 XML 索引</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_XmlNamespaces">
-        <source>XML Namespaces</source>
-        <target state="translated">XML 命名空间</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_XmlTypedPromotedPaths">
-        <source>XML Typed Promoted Paths</source>
-        <target state="translated">XML 特型提升路径</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SqlTypedPromotedPaths">
-        <source>T-SQL Typed Promoted Paths</source>
-        <target state="translated">T-SQL 特型提升路径</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_DatabaseScopedCredentials">
-        <source>Database Scoped Credentials</source>
-        <target state="translated">数据库范围的凭据</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_ExternalDataSources">
-        <source>External Data Sources</source>
-        <target state="translated">外部数据源</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_ExternalFileFormats">
-        <source>External File Formats</source>
-        <target state="translated">外部文件格式</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_ExternalResources">
-        <source>External Resources</source>
-        <target state="translated">外部资源</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_ExternalTables">
-        <source>External Tables</source>
-        <target state="translated">外部表</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_AlwaysEncryptedKeys">
-        <source>Always Encrypted Keys</source>
-        <target state="translated">Always Encrypted 密钥</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_ColumnMasterKeys">
-        <source>Column Master Keys</source>
-        <target state="translated">列主密钥</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_ColumnEncryptionKeys">
-        <source>Column Encryption Keys</source>
-        <target state="translated">列加密密钥</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_Server">
-        <source>Server</source>
-        <target state="translated">服务器</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="ScriptingParams_ConnectionString_Property_Invalid">
-        <source>Error parsing ScriptingParams.ConnectionString property.</source>
-        <target state="translated">解析 ScriptingParams.ConnectionString 属性时出错</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="ScriptingParams_FilePath_Property_Invalid">
-        <source>Invalid directory specified by the ScriptingParams.FilePath property.</source>
-        <target state="translated">ScriptingParams.FilePath 属性指定的目录无效</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid">
-        <source>Error parsing ScriptingListObjectsCompleteParams.ConnectionString property.</source>
-        <target state="translated">解析 ScriptingListObjectsCompleteParams.ConnectionString 属性时出错</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SubroutineParameterLabelFormatString">
-        <source>{0} ({1}, {2}, {3})</source>
-        <target state="translated">{0} ({1}, {2}, {3})</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SubroutineParameterNoDefaultLabel">
-        <source>No default</source>
-        <target state="translated">无默认值</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SubroutineParameterInputLabel">
-        <source>Input</source>
-        <target state="translated">输入</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SubroutineParameterInputOutputLabel">
-        <source>Input/Output</source>
-        <target state="translated">输入/输出</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SubroutineParameterInputReadOnlyLabel">
-        <source>Input/ReadOnly</source>
-        <target state="translated">输入/只读</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SubroutineParameterInputOutputReadOnlyLabel">
-        <source>Input/Output/ReadOnly</source>
-        <target state="translated">输入/输出/只读</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_SubroutineParameterDefaultLabel">
-        <source>Default</source>
-        <target state="translated">默认值</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_NullColumn_Label">
-        <source>null</source>
-        <target state="translated">null</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_NotNullColumn_Label">
-        <source>not null</source>
-        <target state="translated">非 null</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_UDDTLabelWithType">
-        <source>{0} ({1}, {2})</source>
-        <target state="translated">{0} ({1}, {2})</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_UDDTLabelWithoutType">
-        <source>{0} ({1})</source>
-        <target state="translated">{0} ({1})</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_ComputedColumnLabelWithType">
-        <source>{0} ({1}Computed, {2}, {3})</source>
-        <target state="translated">{0} ({1}Computed, {2}, {3})</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_ComputedColumnLabelWithoutType">
-        <source>{0} ({1}Computed)</source>
-        <target state="translated">{0} ({1}Computed)</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_ColumnSetLabelWithoutType">
-        <source>{0} (Column Set, {1})</source>
-        <target state="translated">{0} (列集，{1})</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_ColumnSetLabelWithType">
-        <source>{0} (Column Set, {1}{2}, {3})</source>
-        <target state="translated">{0} (列集，{1}{2}，{3})</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaHierarchy_ColumnSetLabelWithTypeAndKeyString">
-        <source>{0} (Column Set, {1}, {2}, {3})</source>
-        <target state="translated">{0} (列集，{1}，{2}，{3})</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="UniqueIndex_LabelPart">
-        <source>Unique</source>
-        <target state="translated">唯一</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="NonUniqueIndex_LabelPart">
-        <source>Non-Unique</source>
-        <target state="translated">非唯一</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="ClusteredIndex_LabelPart">
-        <source>Clustered</source>
-        <target state="translated">聚集</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="NonClusteredIndex_LabelPart">
-        <source>Non-Clustered</source>
-        <target state="translated">非聚集</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="History_LabelPart">
-        <source>History</source>
-        <target state="translated">历史记录</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SystemVersioned_LabelPart">
-        <source>System-Versioned</source>
-        <target state="translated">带有系统版本</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="DatabaseNotAccessible">
-        <source>The database {0} is not accessible.</source>
-        <target state="translated">数据库 {0} 不可访问。</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="QueryServiceResultSetHasNoResults">
-        <source>Query has no results to return</source>
-        <target state="translated">无查询结果</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="QueryServiceResultSetTooLarge">
-        <source>Result set has too many rows to be safely loaded</source>
-        <target state="translated">结果集包含的行太多，可能无法安全加载</target>
-      </trans-unit>
-      <trans-unit id="ConflictWithNoRecovery">
-        <source>Specifying this option when restoring a backup with the NORECOVERY option is not permitted.</source>
-        <target state="translated">当使用 NORECOVERY 选项还原备份时，不允许指定此选项。</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="InvalidPathForDatabaseFile">
-        <source>Invalid path for database file: '{0}'</source>
-        <target state="translated">数据库文件的路径无效:“{0}”</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="Log">
-        <source>Log</source>
-        <target state="translated">日志</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="RestorePlanFailed">
-        <source>Failed to create restore plan</source>
-        <target state="translated">创建还原计划失败</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="RestoreNotSupported">
-        <source>Restore database is not supported</source>
-        <target state="translated">不支持还原数据库</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="RestoreTaskName">
-        <source>Restore Database</source>
-        <target state="translated">还原数据库</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="RestoreCopyOnly">
-        <source>(Copy Only)</source>
-        <target state="translated">(仅复制)</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="RestoreBackupSetComponent">
-        <source>Component</source>
-        <target state="translated">组件</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="RestoreBackupSetType">
-        <source>Type</source>
-        <target state="translated">类型</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="RestoreBackupSetServer">
-        <source>Server</source>
-        <target state="translated">服务器</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="RestoreBackupSetDatabase">
-        <source>Database</source>
-        <target state="translated">数据库</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="RestoreBackupSetPosition">
-        <source>Position</source>
-        <target state="translated">位置</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="RestoreBackupSetFirstLsn">
-        <source>First LSN</source>
-        <target state="translated">第一个 LSN</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="RestoreBackupSetLastLsn">
-        <source>Last LSN</source>
-        <target state="translated">最后一个 LSN</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="RestoreBackupSetCheckpointLsn">
-        <source>Checkpoint LSN</source>
-        <target state="translated">检查点 LSN</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="RestoreBackupSetFullLsn">
-        <source>Full LSN</source>
-        <target state="translated">完整 LSN</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="RestoreBackupSetStartDate">
-        <source>Start Date</source>
-        <target state="translated">开始日期</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="RestoreBackupSetFinishDate">
-        <source>Finish Date</source>
-        <target state="translated">完成日期</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="RestoreBackupSetSize">
-        <source>Size</source>
-        <target state="translated">大小</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="RestoreBackupSetUserName">
-        <source>User Name</source>
-        <target state="translated">用户名</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="RestoreBackupSetExpiration">
-        <source>Expiration</source>
-        <target state="translated">过期</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="RestoreBackupSetName">
-        <source>Name</source>
-        <target state="translated">名称</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="TheLastBackupTaken">
-        <source>The last backup taken ({0})</source>
-        <target state="translated">上次执行的备份({0})</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="BackupTaskName">
-        <source>Backup Database</source>
-        <target state="translated">备份数据库</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="TaskInProgress">
-        <source>In progress</source>
-        <target state="translated">正在进行</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="TaskCompleted">
-        <source>Completed</source>
-        <target state="translated">已完成</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="ScriptTaskName">
-        <source>scripting</source>
-        <target state="translated">正在执行脚本操作</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="ProfilerConnectionNotFound">
-        <source>Connection not found</source>
-        <target state="translated">找不到连接</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="AzureSystemDbProfilingError">
-        <source>Cannot profile Azure system databases</source>
-        <target state="translated">无法配置 Azure 系统数据库</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="BackupPathIsFolderError">
-        <source>Please provide a file path instead of directory path</source>
-        <target state="translated">请提供文件路径而不是目录路径</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="InvalidBackupPathError">
-        <source> The provided path is invalid</source>
-        <target state="translated">提供的路径无效</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="InvalidPathError">
-        <source>Cannot access the specified path on the server: {0}</source>
-        <target state="translated">无法访问服务器上的指定路径: {0}</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="NoBackupsetsToRestore">
-        <source>No backupset selected to be restored</source>
-        <target state="translated">未选择用于还原的备份集</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="AzureSqlDbEdition">
-        <source>Azure SQL DB</source>
-        <target state="translated">Azure SQL DB</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="AzureSqlDwEdition">
-        <source>Azure SQL Data Warehouse</source>
-        <target state="translated">Azure SQL 数据仓库</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="AzureSqlStretchEdition">
-        <source>Azure SQL Stretch Database</source>
-        <target state="translated">Azure SQL Stretch Database</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="AzureSqlAnalyticsOnDemandEdition">
-        <source>Azure SQL Analytics on-demand</source>
-        <target state="translated">按需 Azure SQL Analytics</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="EditDataValueTooLarge">
-        <source>Value {0} is too large to fit in column of type {1}</source>
-        <target state="translated">值 {0} 太大，无法放入类型为 {1} 的列</target>
-        <note>.
- Parameters: 0 - value (string), 1 - columnType (string) </note>
-      </trans-unit>
-      <trans-unit id="EditDataInvalidFormat">
-        <source>Invalid format for column '{0}', column is defined as {1}</source>
-        <target state="translated">列 {0} 的格式无效，列被定义为 {1}</target>
-        <note>.
- Parameters: 0 - colName (string), 1 - colType (string) </note>
-      </trans-unit>
-      <trans-unit id="SqlScriptFormatterLengthTypeMissingSize">
-        <source>Column with length is missing size</source>
-        <target state="translated">有长度属性的列缺失其大小</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SqlScriptFormatterScalarTypeMissingScale">
-        <source>Scalar column missing scale</source>
-        <target state="translated">标量列缺失小数位数</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="StoredProcedureScriptParameterComment">
-        <source>-- TODO: Set parameter values here.</source>
-        <target state="translated">-- 待办事项: 在此处设置参数值</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="ScriptingGeneralError">
-        <source>An error occurred while scripting the objects.</source>
-        <target state="translated">编写对象脚本时出错。</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="ScriptingExecuteNotSupportedError">
-        <source>Scripting as Execute is only supported for Stored Procedures</source>
-        <target state="translated">仅存储过程支持编写执行脚本</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="External_LabelPart">
-        <source>External</source>
-        <target state="translated">外部</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="FileTable_LabelPart">
-        <source>File Table</source>
-        <target state="translated">文件表</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="EditDataMultiTableNotSupported">
-        <source>EditData queries targeting multiple tables are not supported</source>
-        <target state="translated">不支持针对多个表的 EditData 查询</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="EditDataAliasesNotSupported">
-        <source>EditData queries with aliased columns are not supported</source>
-        <target state="translated">不支持具有别名列的 EditData 查询</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="EditDataExpressionsNotSupported">
-        <source>EditData queries with aggregate or expression columns are not supported</source>
-        <target state="translated">不支持具有聚合或表达式列的 EditData 查询</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="EditDataDuplicateColumnsNotSupported">
-        <source>EditData queries with duplicate columns are not supported</source>
-        <target state="translated">不支持具有重复列的 EditData 查询</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="EditDataIncorrectTable">
-        <source>EditData queries must query the originally targeted table '{0}'</source>
-        <target state="translated">EditData 查询必须查询最初的目标表 "{0}"</target>
-        <note>.
- Parameters: 0 - tableName (string) </note>
-      </trans-unit>
-      <trans-unit id="CategoryLocal">
-        <source>[Uncategorized (Local)]</source>
-        <target state="translated">[未分类 (本地)]</target>
-        <note>job categories</note>
-      </trans-unit>
-      <trans-unit id="CategoryFromMsx">
-        <source>Jobs from MSX</source>
-        <target state="translated">来自 MSX 的作业</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="CategoryMultiServer">
-        <source>[Uncategorized (Multi-Server)]</source>
-        <target state="translated">[未分类 (多服务器)]</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="CategoryDBMaint">
-        <source>Database Maintenance</source>
-        <target state="translated">数据库维护</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="CategoryWebAssistant">
-        <source>Web Assistant</source>
-        <target state="translated">Web 助手</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="CategoryFullText">
-        <source>Full-Text</source>
-        <target state="translated">全文</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="CategoryReplDistribution">
-        <source>REPL-Distribution</source>
-        <target state="translated">REPL 分布</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="CategoryReplDistributionCleanup">
-        <source>REPL-Distribution Cleanup</source>
-        <target state="translated">REPL-分布清理</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="CategoryReplHistoryCleanup">
-        <source>REPL-History Cleanup</source>
-        <target state="translated">REPL-历史记录清理</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="CategoryReplLogReader">
-        <source>REPL-LogReader</source>
-        <target state="translated">REPL-日志读取器</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="CategoryReplMerge">
-        <source>REPL-Merge</source>
-        <target state="translated">REPL-合并</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="CategoryReplSnapShot">
-        <source>REPL-Snapshot</source>
-        <target state="translated">REPL-快照</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="CategoryReplCheckup">
-        <source>REPL-Checkup</source>
-        <target state="translated">REPL 检查</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="CategoryReplCleanup">
-        <source>REPL-Subscription Cleanup</source>
-        <target state="translated">REPL-订阅清理</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="CategoryReplAlert">
-        <source>REPL-Alert Response</source>
-        <target state="translated">REPL-警报响应</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="CategoryReplQReader">
-        <source>REPL-QueueReader</source>
-        <target state="translated">REPL-队列读取器</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="CategoryReplication">
-        <source>Replication</source>
-        <target state="translated">复制</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="CategoryUncategorized">
-        <source>[Uncategorized]</source>
-        <target state="translated">[未分类]</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="CategoryLogShipping">
-        <source>Log Shipping</source>
-        <target state="translated">日志传送</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="CategoryDBEngineTuningAdvisor">
-        <source>Database Engine Tuning Advisor</source>
-        <target state="translated">数据库引擎优化顾问</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="CategoryDataCollector">
-        <source>Data Collector</source>
-        <target state="translated">数据收集器</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="JobAlreadyExists">
-        <source>A job named '{0}' already exists.  Enter a unique name for the job.</source>
-        <target state="translated">名为 "{0}" 的作业已存在。请输入作业的唯一名称。</target>
-        <note>.
- Parameters: 0 - jobName (string) </note>
-      </trans-unit>
-      <trans-unit id="JobStepNameCannotBeBlank">
-        <source>The name of the job step cannot be blank.</source>
-        <target state="translated">作业步骤的名称不能为空。</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="JobStepNameAlreadyExists">
-        <source>There is already a step named '{0}' for this job. You must specify a different name.</source>
-        <target state="translated">此作业已有一个名为 "{0}" 的步骤。必须指定其他名称。</target>
-        <note>.
- Parameters: 0 - jobName (string) </note>
-      </trans-unit>
-      <trans-unit id="AlertNameCannotBeBlank">
-        <source>The name of the alert cannot be blank.</source>
-        <target state="translated">警报名称不能为空。</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="CannotCreateNewAlert">
-        <source>Cannot create new alert.</source>
-        <target state="translated">无法创建新警报。</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="CannotAlterAlert">
-        <source>Cannot alter alert.</source>
-        <target state="translated">无法更改警报。</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SysadminAccount">
-        <source>SQL Server Agent Service Account</source>
-        <target state="translated">SQL Server 代理服务帐户</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="ProxyAccountNotFound">
-        <source>Proxy account '{0}' does not exist on the server.</source>
-        <target state="translated">服务器不存在代理帐户 "{0}"。</target>
-        <note>.
- Parameters: 0 - proxyName (string) </note>
-      </trans-unit>
-      <trans-unit id="CredentialNoLongerExists">
-        <source>The object does no longer exist on server.</source>
-        <target state="translated">该对象在服务器上不再存在。</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="UnknownServerType">
-        <source>Unknown server type '{0}'.</source>
-        <target state="translated">服务器类型 "{0}" 未知。</target>
-        <note>.
- Parameters: 0 - serverTypeName (string) </note>
-      </trans-unit>
-      <trans-unit id="SetOwnerFailed">
-        <source>The current login does not have permissions to set the database owner to '{0}'  The database was created successfully however.</source>
-        <target state="translated">当前登录不具有将数据库所有者设置为 "{0}" 的权限，但是数据库已成功创建。</target>
-        <note>.
- Parameters: 0 - ownerName (string) </note>
-      </trans-unit>
-      <trans-unit id="TargetServerNotSelected">
-        <source>You must specify the Target Servers on which this multi server job will execute.</source>
-        <target state="translated">必须指定要在其上执行此多服务器作业的目标服务器。</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="UnexpectedRunType">
-        <source>Unexpected run type.</source>
-        <target state="translated">意外的运行类型。</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="UnknownSizeUnit">
-        <source>Unknown size unit {0} </source>
-        <target state="translated">未知大小单位 {0} </target>
-        <note>.
- Parameters: 0 - unit (string) </note>
-      </trans-unit>
-      <trans-unit id="SessionNotFound">
-        <source>Cannot find requested XEvent session</source>
-        <target state="translated">找不到请求的 XEvent 会话</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="StopSessionFailed">
-        <source>Failed to stop session: {0}</source>
-        <target state="translated">停止会话失败: {0}</target>
-        <note>.
- Parameters: 0 - error (String) </note>
-      </trans-unit>
-      <trans-unit id="StartSessionFailed">
-        <source>Failed to start session: {0}</source>
-        <target state="translated">启动会话失败: {0}</target>
-        <note>.
- Parameters: 0 - error (String) </note>
-      </trans-unit>
-      <trans-unit id="CreateSessionFailed">
-        <source>Failed to create session: {0}</source>
-        <target state="translated">创建会话失败: {0}</target>
-        <note>.
- Parameters: 0 - error (String) </note>
-      </trans-unit>
-      <trans-unit id="PauseSessionFailed">
-        <source>Failed to pause session: {0}</source>
-        <target state="translated">暂停会话失败: {0}</target>
-        <note>.
- Parameters: 0 - error (String) </note>
-      </trans-unit>
-      <trans-unit id="SessionAlreadyExists">
-        <source>An XEvent session named {0} already exists</source>
-        <target state="translated">已存在名为 {0} 的 XEvent 会话</target>
-        <note>.
- Parameters: 0 - sessionName (String) </note>
-      </trans-unit>
-      <trans-unit id="InvalidScheduleTitle">
-        <source>Invalid Schedule</source>
-        <target state="translated">计划无效</target>
-        <note> Schedule error message</note>
-      </trans-unit>
-      <trans-unit id="InvalidWeeklySchedule">
-        <source>Select at least one day to be part of this weekly schedule.</source>
-        <target state="translated">至少选择一天作为此每周日程的一部分。</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="StartDateGreaterThanEndDate">
-        <source>The job schedule starting date cannot be greater than the ending date.</source>
-        <target state="translated">作业计划开始日期不能晚于结束日期。</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="StartTimeGreaterThanEndTime">
-        <source>The job schedule starting time cannot be after the ending time.</source>
-        <target state="translated">作业计划开始时间不能在结束时间之后。</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="EndTimeEqualToStartTime">
-        <source>The job schedule ending time must be after the starting time.</source>
-        <target state="translated">作业计划结束时间必须在开始时间之后。</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="InvalidStartDate">
-        <source>Start date must be on or after January 1, 1990.</source>
-        <target state="translated">开始日期必须在 1990 年 1 月 1 日当天或之后。</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="ScheduleNameAlreadyExists">
-        <source>There is already a schedule named '{0}' for this job.  You must specify a different name.</source>
-        <target state="translated">此作业已有一个名为 "{0}" 的计划。必须指定其他名称。</target>
-        <note>.
- Parameters: 0 - scheduleName (string) </note>
-      </trans-unit>
-      <trans-unit id="JobServerIsNotAvailable">
-        <source>Job server is not available</source>
-        <target state="translated">作业服务器不可用</target>
-        <note> Exception thrown when job server is not available</note>
-      </trans-unit>
-      <trans-unit id="NeverBackedUp">
-        <source>Never</source>
-        <target state="translated">从不</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="Error_InvalidDirectoryName">
-        <source>Path {0} is not a valid directory </source>
-        <target state="translated">路径 {0} 不是有效的目录 </target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="Error_ExistingDirectoryName">
-        <source>For directory {0} a file with name {1} already exist</source>
-        <target state="translated">对于目录 {0}，已存在名为 {1} 的文件</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="EE_ExecutionInfo_InitializingLoop">
-        <source>Beginning execution loop</source>
-        <target state="translated">开始执行循环</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="EE_BatchExecutionError_Ignoring">
-        <source>An error occurred while the batch was being executed, but the error has been ignored.</source>
-        <target state="translated">执行批处理时出错，但已忽略该错误。</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="EE_ExecutionInfo_FinalizingLoop">
-        <source>Batch execution completed {0} times...</source>
-        <target state="translated">已执行完 {0} 次批处理…</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="BatchParserWrapperExecutionError">
-        <source>Batch parser wrapper execution: {0} found... at line {1}: {2}    Description: {3}</source>
-        <target state="translated">批处理分析器包装执行: 在第 {1} 行处发现 {0}: {2} 说明: {3}</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="ExtractInvalidVersion">
-        <source>Invalid version '{0}' passed. Version must be in the format x.x.x.x where x is a number.</source>
-        <target state="translated">传递的版本 "{0}" 无效。版本必须采用 x.x.x.x 格式，其中 x 是数字。</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="ExportBacpacTaskName">
-        <source>Export bacpac</source>
-        <target state="translated">导出 BACPAC</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="ImportBacpacTaskName">
-        <source>Import bacpac</source>
-        <target state="translated">导入 BACPAC</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="ExtractDacpacTaskName">
-        <source>Extract dacpac</source>
-        <target state="translated">提取 DACPAC</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="DeployDacpacTaskName">
-        <source>Deploy dacpac</source>
-        <target state="translated">部署 DACPAC</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="GenerateScriptTaskName">
-        <source>Generate script</source>
-        <target state="translated">生成脚本</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="PublishChangesTaskName">
-        <source>Apply schema compare changes</source>
-        <target state="translated">应用架构比较更改</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaCompareExcludeIncludeNodeNotFound">
-        <source>Failed to find the specified change in the model</source>
-        <target state="translated">在模型中找不到指定的更改</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="OpenScmpConnectionBasedModelParsingError">
-        <source>Error encountered while trying to parse connection information for endpoint '{0}' with error message '{1}'</source>
-        <target state="translated">尝试分析终结点 "{0}" 的连接信息时遇到错误，错误消息为“{1}”</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SchemaCompareSessionNotFound">
-        <source>Could not find the schema compare session to cancel</source>
-        <target state="translated">找不到要取消的模式比较会话</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SerializationServiceUnsupportedFormat">
-        <source>Unsupported Save Format: {0}</source>
-        <target state="translated">不支持的保存格式: {0}</target>
-        <note>.
- Parameters: 0 - formatName (string) </note>
-      </trans-unit>
-      <trans-unit id="SerializationServiceRequestInProgress">
-        <source>A request for file {0} is already in progress</source>
-        <target state="translated">文件 {0} 的请求已在进行中</target>
-        <note>.
- Parameters: 0 - filePath (string) </note>
-      </trans-unit>
-      <trans-unit id="SerializationServiceRequestNotFound">
-        <source>Cannot serialize more data as no request for file {0} could be found</source>
-        <target state="translated">无法序列化更多数据，因为找不到对文件 {0} 的请求</target>
-        <note>.
- Parameters: 0 - filePath (string) </note>
-      </trans-unit>
-      <trans-unit id="ConnectionServiceConnStringInvalidColumnEncryptionSetting">
-        <source>Invalid value '{0}' for ComlumEncryption. Valid values are 'Enabled' and 'Disabled'.</source>
-        <target state="translated">ComlumEncryption 的值“{0}”无效。有效值为 "Enabled" 和 "Disabled"。</target>
-        <note>.
- Parameters: 0 - columnEncryptionSetting (string) </note>
-      </trans-unit>
-      <trans-unit id="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol">
-        <source>Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS' and 'HGS'.</source>
-        <target state="translated">EnclaveAttestationProtocol 的值“{0}”无效。有效值为 "AAS" 和 "HGS"。</target>
-        <note>.
- Parameters: 0 - enclaveAttestationProtocol (string) </note>
-      </trans-unit>
-      <trans-unit id="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination">
-        <source>The Attestation Protocol and Enclave Attestation URL requires Always Encrypted to be set to Enabled.</source>
-        <target state="translated">证明协议和 Enclave 证明 URL 需要将 Always Encrypted 设置为“启用”。</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SqlCmdExitOnError">
-        <source>An error was encountered during execution of batch. Exiting.</source>
-        <target state="translated">在执行批处理期间遇到错误。正在退出。</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SqlCmdUnsupportedToken">
-        <source>Encountered unsupported token {0}</source>
-        <target state="translated">遇到不支持的令牌 {0}</target>
-        <note>
-        </note>
-      </trans-unit>
-    </body>
-  </file>
-</xliff>
+﻿<?xml version="1.0" encoding="utf-8"?><xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">  <file datatype="xml" original="sr.resx" source-language="en" target-language="zh-CN">    <body>      <trans-unit id="ConnectionServiceConnectErrorNullParams">        <source>Connection parameters cannot be null</source>        <target state="translated">连接参数不能为 null</target>        <note>        </note>      </trans-unit>      <trans-unit id="ConnectionServiceListDbErrorNullOwnerUri">        <source>OwnerUri cannot be null or empty</source>        <target state="translated">OwnerUri 不能为 null 或为空</target>        <note>        </note>      </trans-unit>      <trans-unit id="ConnectionServiceListDbErrorNotConnected">        <source>SpecifiedUri '{0}' does not have existing connection</source>        <target state="translated">SpecifiedUri "{0}" 没有已有的连接</target>        <note>. Parameters: 0 - uri (string) </note>      </trans-unit>      <trans-unit id="ConnectionServiceConnStringInvalidAuthType">        <source>Invalid value '{0}' for AuthenticationType.  Valid values are 'Integrated' and 'SqlLogin'.</source>        <target state="translated">AuthenticationType 的 "{0}" 值无效。有效值为 "Integrated" 和 "SqlLogin"。</target>        <note>. Parameters: 0 - authType (string) </note>      </trans-unit>      <trans-unit id="ConnectionServiceConnStringInvalidIntent">        <source>Invalid value '{0}' for ApplicationIntent. Valid values are 'ReadWrite' and 'ReadOnly'.</source>        <target state="translated">ApplicationIntent 的 "{0}" 值无效的。有效值为 "ReadWrite" 和 "ReadOnly"。</target>        <note>. Parameters: 0 - intent (string) </note>      </trans-unit>      <trans-unit id="ConnectionServiceConnectionCanceled">        <source>Connection canceled</source>        <target state="translated">连接已取消</target>        <note>        </note>      </trans-unit>      <trans-unit id="ConnectionParamsValidateNullOwnerUri">        <source>OwnerUri cannot be null or empty</source>        <target state="translated">OwnerUri 不能为 null 或为空</target>        <note>        </note>      </trans-unit>      <trans-unit id="ConnectionParamsValidateNullConnection">        <source>Connection details object cannot be null</source>        <target state="translated">连接详细信息对象不能为 null</target>        <note>        </note>      </trans-unit>      <trans-unit id="ConnectionParamsValidateNullServerName">        <source>ServerName cannot be null or empty</source>        <target state="translated">ServerName 不能为 null 或为空</target>        <note>        </note>      </trans-unit>      <trans-unit id="ConnectionParamsValidateNullSqlAuth">        <source>{0} cannot be null or empty when using SqlLogin authentication</source>        <target state="translated">使用 SqlLogin 身份验证时，{0} 不能为 null 或为空</target>        <note>. Parameters: 0 - component (string) </note>      </trans-unit>      <trans-unit id="QueryServiceCancelAlreadyCompleted">        <source>The query has already completed, it cannot be cancelled</source>        <target state="translated">查询已完成，无法取消</target>        <note>        </note>      </trans-unit>      <trans-unit id="QueryServiceCancelDisposeFailed">        <source>Query successfully cancelled, failed to dispose query. Owner URI not found.</source>        <target state="translated">查询已成功取消，未能处理查询。找不到所有者 URI。</target>        <note>        </note>      </trans-unit>      <trans-unit id="QueryServiceQueryCancelled">        <source>Query was canceled by user</source>        <target state="translated">查询已被用户取消</target>        <note>        </note>      </trans-unit>      <trans-unit id="QueryServiceSubsetBatchNotCompleted">        <source>The batch has not completed, yet</source>        <target state="translated">该批处理尚未完成</target>        <note>        </note>      </trans-unit>      <trans-unit id="QueryServiceSubsetBatchOutOfRange">        <source>Batch index cannot be less than 0 or greater than the number of batches</source>        <target state="translated">批量索引不能小于 0 或大于批量数</target>        <note>        </note>      </trans-unit>      <trans-unit id="QueryServiceSubsetResultSetOutOfRange">        <source>Result set index cannot be less than 0 or greater than the number of result sets</source>        <target state="translated">结果集索引不能小于 0 或大于结果集的总数</target>        <note>        </note>      </trans-unit>      <trans-unit id="QueryServiceDataReaderByteCountInvalid">        <source>Maximum number of bytes to return must be greater than zero</source>        <target state="translated">返回的最大字节数必须大于零</target>        <note>        </note>      </trans-unit>      <trans-unit id="QueryServiceDataReaderCharCountInvalid">        <source>Maximum number of chars to return must be greater than zero</source>        <target state="translated">返回的最大字符数必须大于零</target>        <note>        </note>      </trans-unit>      <trans-unit id="QueryServiceDataReaderXmlCountInvalid">        <source>Maximum number of XML bytes to return must be greater than zero</source>        <target state="translated">返回的 XML 最大字节数必须大于零</target>        <note>        </note>      </trans-unit>      <trans-unit id="QueryServiceFileWrapperWriteOnly">        <source>Access method cannot be write-only</source>        <target state="translated">访问方法不能设置为“只写”</target>        <note>        </note>      </trans-unit>      <trans-unit id="QueryServiceFileWrapperNotInitialized">        <source>FileStreamWrapper must be initialized before performing operations</source>        <target state="translated">在执行操作之前，必须初始化 FileStreamWrapper</target>        <note>        </note>      </trans-unit>      <trans-unit id="QueryServiceFileWrapperReadOnly">        <source>This FileStreamWrapper cannot be used for writing</source>        <target state="translated">该 FileStreamWrapper 不能用于写入</target>        <note>        </note>      </trans-unit>      <trans-unit id="QueryServiceAffectedOneRow">        <source>(1 row affected)</source>        <target state="translated">（1 行受到影响）</target>        <note>        </note>      </trans-unit>      <trans-unit id="QueryServiceAffectedRows">        <source>({0} rows affected)</source>        <target state="translated">（{0} 行受到影响）</target>        <note>. Parameters: 0 - rows (long) </note>      </trans-unit>      <trans-unit id="QueryServiceCompletedSuccessfully">        <source>Commands completed successfully.</source>        <target state="translated">命令已成功完成。</target>        <note>        </note>      </trans-unit>      <trans-unit id="QueryServiceErrorFormat">        <source>Msg {0}, Level {1}, State {2}, Line {3}{4}{5}</source>        <target state="translated">小计 {0}，级别 {1}，状态 {2}，第 {3} {4} {5} 行</target>        <note>. Parameters: 0 - msg (int), 1 - lvl (int), 2 - state (int), 3 - line (int), 4 - newLine (string), 5 - message (string) </note>      </trans-unit>      <trans-unit id="QueryServiceQueryFailed">        <source>Query failed: {0}</source>        <target state="translated">查询失败: {0}</target>        <note>. Parameters: 0 - message (string) </note>      </trans-unit>      <trans-unit id="QueryServiceColumnNull">        <source>(No column name)</source>        <target state="translated">(无列名称)</target>        <note>        </note>      </trans-unit>      <trans-unit id="QueryServiceRequestsNoQuery">        <source>The requested query does not exist</source>        <target state="translated">请求的查询不存在</target>        <note>        </note>      </trans-unit>      <trans-unit id="QueryServiceQueryInvalidOwnerUri">        <source>This editor is not connected to a database</source>        <target state="translated">此编辑器未连接到数据库</target>        <note>        </note>      </trans-unit>      <trans-unit id="QueryServiceQueryInProgress">        <source>A query is already in progress for this editor session. Please cancel this query or wait for its completion.</source>        <target state="translated">当前编辑器的会话中有正在进行的查询，请取消该查询或者等待查询执行完毕。</target>        <note>        </note>      </trans-unit>      <trans-unit id="QueryServiceMessageSenderNotSql">        <source>Sender for OnInfoMessage event must be a SqlConnection</source>        <target state="translated">OnInfoMessage 事件的发送方必须是 SqlConnection</target>        <note>        </note>      </trans-unit>      <trans-unit id="QueryServiceSaveAsResultSetNotComplete">        <source>Result cannot be saved until query execution has completed</source>        <target state="translated">查询执行完毕后才能保存结果</target>        <note>        </note>      </trans-unit>      <trans-unit id="QueryServiceSaveAsMiscStartingError">        <source>Internal error occurred while starting save task</source>        <target state="translated">启动保存任务时发生内部错误</target>        <note>        </note>      </trans-unit>      <trans-unit id="QueryServiceSaveAsInProgress">        <source>A save request to the same path is in progress</source>        <target state="translated">相同路径的保存请求正在进行中</target>        <note>        </note>      </trans-unit>      <trans-unit id="QueryServiceSaveAsFail">        <source>Failed to save {0}: {1}</source>        <target state="translated">未能保存 {0}: {1}</target>        <note>. Parameters: 0 - fileName (string), 1 - message (string) </note>      </trans-unit>      <trans-unit id="QueryServiceResultSetNotRead">        <source>Cannot read subset unless the results have been read from the server</source>        <target state="translated">没有从服务器读取结果之前，无法读取子集</target>        <note>        </note>      </trans-unit>      <trans-unit id="QueryServiceResultSetStartRowOutOfRange">        <source>Start row cannot be less than 0 or greater than the number of rows in the result set</source>        <target state="translated">起始行不能小于 0 或大于结果集中的行数</target>        <note>        </note>      </trans-unit>      <trans-unit id="QueryServiceResultSetRowCountOutOfRange">        <source>Row count must be a positive integer</source>        <target state="translated">行数必须是一个正整数</target>        <note>        </note>      </trans-unit>      <trans-unit id="QueryServiceResultSetNoColumnSchema">        <source>Could not retrieve column schema for result set</source>        <target state="translated">无法从结果集检索列架构</target>        <note>        </note>      </trans-unit>      <trans-unit id="QueryServiceExecutionPlanNotFound">        <source>Could not retrieve an execution plan from the result set </source>        <target state="translated">无法从结果集检索执行计划 </target>        <note>        </note>      </trans-unit>      <trans-unit id="PeekDefinitionAzureError">        <source>This feature is currently not supported on Azure SQL DB and Data Warehouse: {0}</source>        <target state="translated">Azure SQL DB 和数据仓库目前不支持此功能: {0}</target>        <note>. Parameters: 0 - errorMessage (string) </note>      </trans-unit>      <trans-unit id="PeekDefinitionError">        <source>An unexpected error occurred during Peek Definition execution: {0}</source>        <target state="translated">执行速览定义过程中发生意外错误: {0}</target>        <note>. Parameters: 0 - errorMessage (string) </note>      </trans-unit>      <trans-unit id="PeekDefinitionNoResultsError">        <source>No results were found.</source>        <target state="translated">未找到结果。</target>        <note>        </note>      </trans-unit>      <trans-unit id="PeekDefinitionDatabaseError">        <source>No database object was retrieved.</source>        <target state="translated">检索不到任何数据库对象。</target>        <note>        </note>      </trans-unit>      <trans-unit id="PeekDefinitionNotConnectedError">        <source>Please connect to a server.</source>        <target state="translated">请连接到服务器。</target>        <note>        </note>      </trans-unit>      <trans-unit id="PeekDefinitionTimedoutError">        <source>Operation timed out.</source>        <target state="translated">操作超时。</target>        <note>        </note>      </trans-unit>      <trans-unit id="PeekDefinitionTypeNotSupportedError">        <source>This object type is currently not supported by this feature.</source>        <target state="translated">此功能当前不支持此对象类型。</target>        <note>        </note>      </trans-unit>      <trans-unit id="WorkspaceServicePositionLineOutOfRange">        <source>Position is outside of file line range</source>        <target state="translated">位置超出文件行范围</target>        <note>        </note>      </trans-unit>      <trans-unit id="WorkspaceServicePositionColumnOutOfRange">        <source>Position is outside of column range for line {0}</source>        <target state="translated">位置超出第 {0} 行的列范围</target>        <note>. Parameters: 0 - line (int) </note>      </trans-unit>      <trans-unit id="WorkspaceServiceBufferPositionOutOfOrder">        <source>Start position ({0}, {1}) must come before or be equal to the end position ({2}, {3})</source>        <target state="translated">起始位置({0}, {1})必须先于或等于结束位置({2}, {3})</target>        <note>. Parameters: 0 - sLine (int), 1 - sCol (int), 2 - eLine (int), 3 - eCol (int) </note>      </trans-unit>      <trans-unit id="TestLocalizationConstant">        <source>test</source>        <target state="translated">测试</target>        <note>        </note>      </trans-unit>      <trans-unit id="ErrorEmptyStringReplacement">        <source>Replacement of an empty string by an empty string.</source>        <target state="translated">用空字符串取代空字符串。</target>        <note>        </note>      </trans-unit>      <trans-unit id="EditDataSessionNotFound">        <source>Edit session does not exist.</source>        <target state="translated">编辑会话不存在。</target>        <note>        </note>      </trans-unit>      <trans-unit id="EditDataQueryNotCompleted">        <source>Query has not completed execution</source>        <target state="translated">查询尚未完成执行</target>        <note>        </note>      </trans-unit>      <trans-unit id="EditDataQueryImproperResultSets">        <source>Query did not generate exactly one result set</source>        <target state="translated">查询并未生成单一结果集</target>        <note>        </note>      </trans-unit>      <trans-unit id="EditDataFailedAddRow">        <source>Failed to add new row to update cache</source>        <target state="translated">添加新行以更新缓存的操作失败</target>        <note>        </note>      </trans-unit>      <trans-unit id="EditDataRowOutOfRange">        <source>Given row ID is outside the range of rows in the edit cache</source>        <target state="translated">给定行 ID 已超出编辑缓存中的行范围</target>        <note>        </note>      </trans-unit>      <trans-unit id="EditDataUpdatePending">        <source>An update is already pending for this row and must be reverted first</source>        <target state="translated">此行已有一个挂起的更新，因此必须先还原</target>        <note>        </note>      </trans-unit>      <trans-unit id="EditDataUpdateNotPending">        <source>Given row ID does not have pending update</source>        <target state="translated">给定行 ID 没有挂起的更新</target>        <note>        </note>      </trans-unit>      <trans-unit id="EditDataObjectMetadataNotFound">        <source>Table or view metadata could not be found</source>        <target state="translated">找不到表格或视图元数据</target>        <note>        </note>      </trans-unit>      <trans-unit id="EditDataInvalidFormatBinary">        <source>Invalid format for binary column</source>        <target state="translated">二进制列的格式无效</target>        <note>        </note>      </trans-unit>      <trans-unit id="EditDataInvalidFormatBoolean">        <source>Allowed values for boolean columns are 0, 1, "true", or "false"</source>        <target state="translated">布尔列允许的值为数字 1 或 0，或字符串 "true" 或 "false"</target>        <note>        </note>      </trans-unit>      <trans-unit id="EditDataCreateScriptMissingValue">        <source>The column '{0}' is defined as NOT NULL but was not given a value</source>        <target state="translated">列 “{0}” 被定义为非 NULL，但值缺失</target>        <note>. Parameters: 0 - colName (string) </note>      </trans-unit>      <trans-unit id="EditDataDeleteSetCell">        <source>A delete is pending for this row, a cell update cannot be applied.</source>        <target state="translated">此行即将被删除，因此无法更新其中的单元格。</target>        <note>        </note>      </trans-unit>      <trans-unit id="EditDataColumnIdOutOfRange">        <source>Column ID must be in the range of columns for the query</source>        <target state="translated">列 ID 必须在列总数內才可被查询</target>        <note>        </note>      </trans-unit>      <trans-unit id="EditDataColumnCannotBeEdited">        <source>Column cannot be edited</source>        <target state="translated">无法编辑列</target>        <note>        </note>      </trans-unit>      <trans-unit id="EditDataColumnNoKeyColumns">        <source>No key columns were found</source>        <target state="translated">找不到键列</target>        <note>        </note>      </trans-unit>      <trans-unit id="EditDataScriptFilePathNull">        <source>An output filename must be provided</source>        <target state="translated">必须提供输出文件名</target>        <note>        </note>      </trans-unit>      <trans-unit id="EditDataUnsupportedObjectType">        <source>Database object {0} cannot be used for editing.</source>        <target state="translated">数据库对象 {0} 无法被编辑</target>        <note>. Parameters: 0 - typeName (string) </note>      </trans-unit>      <trans-unit id="ConnectionServiceDbErrorDefaultNotConnected">        <source>Specified URI '{0}' does not have a default connection</source>        <target state="translated">指定的 URI {0} 没有默认的连接</target>        <note>. Parameters: 0 - uri (string) </note>      </trans-unit>      <trans-unit id="EditDataCommitInProgress">        <source>A commit task is in progress. Please wait for completion.</source>        <target state="translated">正在执行提交任务，请等待它完成。</target>        <note>        </note>      </trans-unit>      <trans-unit id="SqlScriptFormatterDecimalMissingPrecision">        <source>Exact numeric column is missing numeric precision or numeric scale</source>        <target state="translated">精确数值列缺少数值精度或小数位数</target>        <note>        </note>      </trans-unit>      <trans-unit id="EditDataComputedColumnPlaceholder">        <source>&lt;TBD&gt;</source>        <target state="translated">&lt;TBD&gt;</target>        <note>        </note>      </trans-unit>      <trans-unit id="QueryServiceResultSetAddNoRows">        <source>Cannot add row to result buffer, data reader does not contain rows</source>        <target state="translated">无法在结果缓冲区添加行，数据读取器不包含任何行</target>        <note>        </note>      </trans-unit>      <trans-unit id="EditDataTimeOver24Hrs">        <source>TIME column values must be between 00:00:00.0000000 and 23:59:59.9999999</source>        <target state="translated">TIME 列的取值范围必须在 00:00:00.0000000 至 23:59:59.9999999 之间</target>        <note>        </note>      </trans-unit>      <trans-unit id="EditDataNullNotAllowed">        <source>NULL is not allowed for this column</source>        <target state="translated">该列不允许为 NULL</target>        <note>        </note>      </trans-unit>      <trans-unit id="EditDataSessionAlreadyExists">        <source>Edit session already exists.</source>        <target state="translated">编辑会话已存在。</target>        <note>        </note>      </trans-unit>      <trans-unit id="EditDataSessionNotInitialized">        <source>Edit session has not been initialized</source>        <target state="translated">编辑会话尚未初始化</target>        <note>        </note>      </trans-unit>      <trans-unit id="EditDataSessionAlreadyInitialized">        <source>Edit session has already been initialized</source>        <target state="translated">编辑会话已被初始化</target>        <note>        </note>      </trans-unit>      <trans-unit id="EditDataSessionAlreadyInitializing">        <source>Edit session has already been initialized or is in the process of initializing</source>        <target state="translated">编辑会话已被初始化或正在进行初始化</target>        <note>        </note>      </trans-unit>      <trans-unit id="EditDataQueryFailed">        <source>Query execution failed, see messages for details</source>        <target state="translated">执行查询失败，查看消息了解更多详情</target>        <note>        </note>      </trans-unit>      <trans-unit id="EditDataFilteringNegativeLimit">        <source>Result limit cannot be negative</source>        <target state="translated">结果的限制值不能为负数</target>        <note>        </note>      </trans-unit>      <trans-unit id="QueryServiceCellNull">        <source>NULL</source>        <target state="translated">NULL</target>        <note>        </note>      </trans-unit>      <trans-unit id="EditDataMetadataObjectNameRequired">        <source>A object name must be provided</source>        <target state="translated">必须提供对象名称</target>        <note>        </note>      </trans-unit>      <trans-unit id="EditDataMetadataTooManyIdentifiers">        <source>Explicitly specifying server or database is not supported</source>        <target state="translated">不支持显式指定服务器或者数据库</target>        <note>        </note>      </trans-unit>      <trans-unit id="EditDataMetadataNotExtended">        <source>Table metadata does not have extended properties</source>        <target state="translated">数据表的元数据没有扩展属性</target>        <note>        </note>      </trans-unit>      <trans-unit id="EditDataObjectNotFound">        <source>Table or view requested for edit could not be found</source>        <target state="translated">找不到请求编辑的表或视图</target>        <note>        </note>      </trans-unit>      <trans-unit id="TreeNodeError">        <source>Error expanding: {0}</source>        <target state="translated">扩展时出错: {0}</target>        <note>        </note>      </trans-unit>      <trans-unit id="ServerNodeConnectionError">        <source>Error connecting to {0}</source>        <target state="translated">连接到 {0} 时出错</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_Aggregates">        <source>Aggregates</source>        <target state="translated">聚合</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_ServerRoles">        <source>Server Roles</source>        <target state="translated">服务器角色</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_ApplicationRoles">        <source>Application Roles</source>        <target state="translated">应用程序角色</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_Assemblies">        <source>Assemblies</source>        <target state="translated">程序集</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_AssemblyFiles">        <source>Assembly Files</source>        <target state="translated">程序集文件</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_AsymmetricKeys">        <source>Asymmetric Keys</source>        <target state="translated">非对称密钥</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_DatabaseAsymmetricKeys">        <source>Asymmetric Keys</source>        <target state="translated">非对称密钥</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_DataCompressionOptions">        <source>Data Compression Options</source>        <target state="translated">数据压缩选项</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_Certificates">        <source>Certificates</source>        <target state="translated">证书</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_FileTables">        <source>FileTables</source>        <target state="translated">FileTable</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_DatabaseCertificates">        <source>Certificates</source>        <target state="translated">证书</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_CheckConstraints">        <source>Check Constraints</source>        <target state="translated">检查约束</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_Columns">        <source>Columns</source>        <target state="translated">列</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_Constraints">        <source>Constraints</source>        <target state="translated">约束</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_Contracts">        <source>Contracts</source>        <target state="translated">协定</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_Credentials">        <source>Credentials</source>        <target state="translated">凭据</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_ErrorMessages">        <source>Error Messages</source>        <target state="translated">错误消息</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_ServerRoleMembership">        <source>Server Role Membership</source>        <target state="translated">服务器角色成员资格</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_DatabaseOptions">        <source>Database Options</source>        <target state="translated">数据库选项</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_DatabaseRoles">        <source>Database Roles</source>        <target state="translated">数据库角色</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_RoleMemberships">        <source>Role Memberships</source>        <target state="translated">角色成员资格</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_DatabaseTriggers">        <source>Database Triggers</source>        <target state="translated">数据库触发器</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_DefaultConstraints">        <source>Default Constraints</source>        <target state="translated">默认约束</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_Defaults">        <source>Defaults</source>        <target state="translated">默认值</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_Sequences">        <source>Sequences</source>        <target state="translated">序列</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_Endpoints">        <source>Endpoints</source>        <target state="translated">终结点</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_EventNotifications">        <source>Event Notifications</source>        <target state="translated">事件通知</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_ServerEventNotifications">        <source>Server Event Notifications</source>        <target state="translated">服务器事件通知</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_ExtendedProperties">        <source>Extended Properties</source>        <target state="translated">扩展属性</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_FileGroups">        <source>Filegroups</source>        <target state="translated">文件组</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_ForeignKeys">        <source>Foreign Keys</source>        <target state="translated">外键</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_FullTextCatalogs">        <source>Full-Text Catalogs</source>        <target state="translated">全文目录</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_FullTextIndexes">        <source>Full-Text Indexes</source>        <target state="translated">全文检索</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_Functions">        <source>Functions</source>        <target state="translated">函数</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_Indexes">        <source>Indexes</source>        <target state="translated">索引</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_InlineFunctions">        <source>Inline Functions</source>        <target state="translated">内联函数</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_Keys">        <source>Keys</source>        <target state="translated">键</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_LinkedServers">        <source>Linked Servers</source>        <target state="translated">链接服务器</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_LinkedServerLogins">        <source>Linked Server Logins</source>        <target state="translated">链接服务器登录名</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_Logins">        <source>Logins</source>        <target state="translated">登录名</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_MasterKey">        <source>Master Key</source>        <target state="translated">主密钥</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_MasterKeys">        <source>Master Keys</source>        <target state="translated">主密钥</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_MessageTypes">        <source>Message Types</source>        <target state="translated">消息类型</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_MultiSelectFunctions">        <source>Table-Valued Functions</source>        <target state="translated">表值函数</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_Parameters">        <source>Parameters</source>        <target state="translated">参数</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_PartitionFunctions">        <source>Partition Functions</source>        <target state="translated">分区函数</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_PartitionSchemes">        <source>Partition Schemes</source>        <target state="translated">分区方案</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_Permissions">        <source>Permissions</source>        <target state="translated">权限</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_PrimaryKeys">        <source>Primary Keys</source>        <target state="translated">主键</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_Programmability">        <source>Programmability</source>        <target state="translated">可编程性</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_Queues">        <source>Queues</source>        <target state="translated">队列</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_RemoteServiceBindings">        <source>Remote Service Bindings</source>        <target state="translated">远程服务绑定</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_ReturnedColumns">        <source>Returned Columns</source>        <target state="translated">返回列</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_Roles">        <source>Roles</source>        <target state="translated">角色</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_Routes">        <source>Routes</source>        <target state="translated">路由</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_Rules">        <source>Rules</source>        <target state="translated">规则</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_Schemas">        <source>Schemas</source>        <target state="translated">架构</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_Security">        <source>Security</source>        <target state="translated">安全</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_ServerObjects">        <source>Server Objects</source>        <target state="translated">服务器对象</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_Management">        <source>Management</source>        <target state="translated">管理</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_ServerTriggers">        <source>Triggers</source>        <target state="translated">触发器</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_ServiceBroker">        <source>Service Broker</source>        <target state="translated">Service Broker</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_Services">        <source>Services</source>        <target state="translated">服务</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_Signatures">        <source>Signatures</source>        <target state="translated">签名</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_LogFiles">        <source>Log Files</source>        <target state="translated">日志文件</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_Statistics">        <source>Statistics</source>        <target state="translated">统计信息</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_Storage">        <source>Storage</source>        <target state="translated">存储</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_StoredProcedures">        <source>Stored Procedures</source>        <target state="translated">存储过程</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SymmetricKeys">        <source>Symmetric Keys</source>        <target state="translated">对称密钥</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_Synonyms">        <source>Synonyms</source>        <target state="translated">同义词</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_Tables">        <source>Tables</source>        <target state="translated">表</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_Triggers">        <source>Triggers</source>        <target state="translated">触发器</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_Types">        <source>Types</source>        <target state="translated">类型</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_UniqueKeys">        <source>Unique Keys</source>        <target state="translated">唯一键</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_UserDefinedDataTypes">        <source>User-Defined Data Types</source>        <target state="translated">用户定义的数据类型</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_UserDefinedTypes">        <source>User-Defined Types (CLR)</source>        <target state="translated">用户定义类型(CLR)</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_Users">        <source>Users</source>        <target state="translated">用户</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_Views">        <source>Views</source>        <target state="translated">视图</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_XmlIndexes">        <source>XML Indexes</source>        <target state="translated">XML 索引</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_XMLSchemaCollections">        <source>XML Schema Collections</source>        <target state="translated">XML 架构集合</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_UserDefinedTableTypes">        <source>User-Defined Table Types</source>        <target state="translated">用户定义的表类型</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_FilegroupFiles">        <source>Files</source>        <target state="translated">文件</target>        <note>        </note>      </trans-unit>      <trans-unit id="MissingCaption">        <source>Missing Caption</source>        <target state="translated">缺少标题</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_BrokerPriorities">        <source>Broker Priorities</source>        <target state="translated">Broker 优先级</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_CryptographicProviders">        <source>Cryptographic Providers</source>        <target state="translated">加密提供程序</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_DatabaseAuditSpecifications">        <source>Database Audit Specifications</source>        <target state="translated">数据库审核规范</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_DatabaseEncryptionKeys">        <source>Database Encryption Keys</source>        <target state="translated">数据库加密密钥</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_EventSessions">        <source>Event Sessions</source>        <target state="translated">事件会话</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_FullTextStopLists">        <source>Full Text Stoplists</source>        <target state="translated">全文非索引字表</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_ResourcePools">        <source>Resource Pools</source>        <target state="translated">资源池</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_ServerAudits">        <source>Audits</source>        <target state="translated">审核</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_ServerAuditSpecifications">        <source>Server Audit Specifications</source>        <target state="translated">服务器审核规范</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SpatialIndexes">        <source>Spatial Indexes</source>        <target state="translated">空间索引</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_WorkloadGroups">        <source>Workload Groups</source>        <target state="translated">工作负荷组</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SqlFiles">        <source>SQL Files</source>        <target state="translated">SQL 文件</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_ServerFunctions">        <source>Server Functions</source>        <target state="translated">服务器函数</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SqlType">        <source>SQL Type</source>        <target state="translated">SQL 类型</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_ServerOptions">        <source>Server Options</source>        <target state="translated">服务器选项</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_DatabaseDiagrams">        <source>Database Diagrams</source>        <target state="translated">数据库关系图</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SystemTables">        <source>System Tables</source>        <target state="translated">系统表</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_Databases">        <source>Databases</source>        <target state="translated">数据库</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SystemContracts">        <source>System Contracts</source>        <target state="translated">系统约定</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SystemDatabases">        <source>System Databases</source>        <target state="translated">系统数据库</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SystemMessageTypes">        <source>System Message Types</source>        <target state="translated">系统消息类型</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SystemQueues">        <source>System Queues</source>        <target state="translated">系统队列</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SystemServices">        <source>System Services</source>        <target state="translated">系统服务</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SystemStoredProcedures">        <source>System Stored Procedures</source>        <target state="translated">系统存储过程</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SystemViews">        <source>System Views</source>        <target state="translated">系统视图</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_DataTierApplications">        <source>Data-tier Applications</source>        <target state="translated">数据层应用程序</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_ExtendedStoredProcedures">        <source>Extended Stored Procedures</source>        <target state="translated">扩展存储过程</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SystemAggregateFunctions">        <source>Aggregate Functions</source>        <target state="translated">聚合函数</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SystemApproximateNumerics">        <source>Approximate Numerics</source>        <target state="translated">近似数字</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SystemBinaryStrings">        <source>Binary Strings</source>        <target state="translated">二进制字符串</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SystemCharacterStrings">        <source>Character Strings</source>        <target state="translated">字符串</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SystemCLRDataTypes">        <source>CLR Data Types</source>        <target state="translated">CLR 数据类型</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SystemConfigurationFunctions">        <source>Configuration Functions</source>        <target state="translated">配置函数</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SystemCursorFunctions">        <source>Cursor Functions</source>        <target state="translated">游标函数</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SystemDataTypes">        <source>System Data Types</source>        <target state="translated">系统数据类型</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SystemDateAndTime">        <source>Date and Time</source>        <target state="translated">日期和时间</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SystemDateAndTimeFunctions">        <source>Date and Time Functions</source>        <target state="translated">日期和时间函数</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SystemExactNumerics">        <source>Exact Numerics</source>        <target state="translated">精确数值</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SystemFunctions">        <source>System Functions</source>        <target state="translated">系统函数</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SystemHierarchyIdFunctions">        <source>Hierarchy Id Functions</source>        <target state="translated">层次结构 ID 函数</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SystemMathematicalFunctions">        <source>Mathematical Functions</source>        <target state="translated">数学函数</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SystemMetadataFunctions">        <source>Metadata Functions</source>        <target state="translated">元数据函数</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SystemOtherDataTypes">        <source>Other Data Types</source>        <target state="translated">其他数据类型</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SystemOtherFunctions">        <source>Other Functions</source>        <target state="translated">其他函数</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SystemRowsetFunctions">        <source>Rowset Functions</source>        <target state="translated">行集函数</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SystemSecurityFunctions">        <source>Security Functions</source>        <target state="translated">安全函数</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SystemSpatialDataTypes">        <source>Spatial Data Types</source>        <target state="translated">空间数据类型</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SystemStringFunctions">        <source>String Functions</source>        <target state="translated">字符串函数</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SystemSystemStatisticalFunctions">        <source>System Statistical Functions</source>        <target state="translated">系统统计函数</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SystemTextAndImageFunctions">        <source>Text and Image Functions</source>        <target state="translated">文本和图像函数</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SystemUnicodeCharacterStrings">        <source>Unicode Character Strings</source>        <target state="translated">Unicode 字符串</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_AggregateFunctions">        <source>Aggregate Functions</source>        <target state="translated">聚合函数</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_ScalarValuedFunctions">        <source>Scalar-valued Functions</source>        <target state="translated">标量值函数</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_TableValuedFunctions">        <source>Table-valued Functions</source>        <target state="translated">表值函数</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SystemExtendedStoredProcedures">        <source>System Extended Stored Procedures</source>        <target state="translated">系统扩展存储过程</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_BuiltInType">        <source>Built-in Types</source>        <target state="translated">内置类型</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_BuiltInServerRole">        <source>Built-in Server Roles</source>        <target state="translated">内置服务器角色</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_UserWithPassword">        <source>User with Password</source>        <target state="translated">具有密码的用户</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SearchPropertyList">        <source>Search Property List</source>        <target state="translated">搜索属性列表</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SecurityPolicies">        <source>Security Policies</source>        <target state="translated">安全策略</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SecurityPredicates">        <source>Security Predicates</source>        <target state="translated">安全谓词</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_ServerRole">        <source>Server Role</source>        <target state="translated">服务器角色</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SearchPropertyLists">        <source>Search Property Lists</source>        <target state="translated">搜索属性列表</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_ColumnStoreIndexes">        <source>Column Store Indexes</source>        <target state="translated">列存储索引</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_TableTypeIndexes">        <source>Table Type Indexes</source>        <target state="translated">表类型索引</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SelectiveXmlIndexes">        <source>Selective XML Indexes</source>        <target state="translated">选择性 XML 索引</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_XmlNamespaces">        <source>XML Namespaces</source>        <target state="translated">XML 命名空间</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_XmlTypedPromotedPaths">        <source>XML Typed Promoted Paths</source>        <target state="translated">XML 特型提升路径</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SqlTypedPromotedPaths">        <source>T-SQL Typed Promoted Paths</source>        <target state="translated">T-SQL 特型提升路径</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_DatabaseScopedCredentials">        <source>Database Scoped Credentials</source>        <target state="translated">数据库范围的凭据</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_ExternalDataSources">        <source>External Data Sources</source>        <target state="translated">外部数据源</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_ExternalFileFormats">        <source>External File Formats</source>        <target state="translated">外部文件格式</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_ExternalResources">        <source>External Resources</source>        <target state="translated">外部资源</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_ExternalTables">        <source>External Tables</source>        <target state="translated">外部表</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_AlwaysEncryptedKeys">        <source>Always Encrypted Keys</source>        <target state="translated">Always Encrypted 密钥</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_ColumnMasterKeys">        <source>Column Master Keys</source>        <target state="translated">列主密钥</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_ColumnEncryptionKeys">        <source>Column Encryption Keys</source>        <target state="translated">列加密密钥</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_Server">        <source>Server</source>        <target state="translated">服务器</target>        <note>        </note>      </trans-unit>      <trans-unit id="ScriptingParams_ConnectionString_Property_Invalid">        <source>Error parsing ScriptingParams.ConnectionString property.</source>        <target state="translated">解析 ScriptingParams.ConnectionString 属性时出错</target>        <note>        </note>      </trans-unit>      <trans-unit id="ScriptingParams_FilePath_Property_Invalid">        <source>Invalid directory specified by the ScriptingParams.FilePath property.</source>        <target state="translated">ScriptingParams.FilePath 属性指定的目录无效</target>        <note>        </note>      </trans-unit>      <trans-unit id="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid">        <source>Error parsing ScriptingListObjectsCompleteParams.ConnectionString property.</source>        <target state="translated">解析 ScriptingListObjectsCompleteParams.ConnectionString 属性时出错</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SubroutineParameterLabelFormatString">        <source>{0} ({1}, {2}, {3})</source>        <target state="translated">{0} ({1}, {2}, {3})</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SubroutineParameterNoDefaultLabel">        <source>No default</source>        <target state="translated">无默认值</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SubroutineParameterInputLabel">        <source>Input</source>        <target state="translated">输入</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SubroutineParameterInputOutputLabel">        <source>Input/Output</source>        <target state="translated">输入/输出</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SubroutineParameterInputReadOnlyLabel">        <source>Input/ReadOnly</source>        <target state="translated">输入/只读</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SubroutineParameterInputOutputReadOnlyLabel">        <source>Input/Output/ReadOnly</source>        <target state="translated">输入/输出/只读</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_SubroutineParameterDefaultLabel">        <source>Default</source>        <target state="translated">默认值</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_NullColumn_Label">        <source>null</source>        <target state="translated">null</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_NotNullColumn_Label">        <source>not null</source>        <target state="translated">非 null</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_UDDTLabelWithType">        <source>{0} ({1}, {2})</source>        <target state="translated">{0} ({1}, {2})</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_UDDTLabelWithoutType">        <source>{0} ({1})</source>        <target state="translated">{0} ({1})</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_ComputedColumnLabelWithType">        <source>{0} ({1}Computed, {2}, {3})</source>        <target state="translated">{0} ({1}Computed, {2}, {3})</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_ComputedColumnLabelWithoutType">        <source>{0} ({1}Computed)</source>        <target state="translated">{0} ({1}Computed)</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_ColumnSetLabelWithoutType">        <source>{0} (Column Set, {1})</source>        <target state="translated">{0} (列集，{1})</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_ColumnSetLabelWithType">        <source>{0} (Column Set, {1}{2}, {3})</source>        <target state="translated">{0} (列集，{1}{2}，{3})</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaHierarchy_ColumnSetLabelWithTypeAndKeyString">        <source>{0} (Column Set, {1}, {2}, {3})</source>        <target state="translated">{0} (列集，{1}，{2}，{3})</target>        <note>        </note>      </trans-unit>      <trans-unit id="UniqueIndex_LabelPart">        <source>Unique</source>        <target state="translated">唯一</target>        <note>        </note>      </trans-unit>      <trans-unit id="NonUniqueIndex_LabelPart">        <source>Non-Unique</source>        <target state="translated">非唯一</target>        <note>        </note>      </trans-unit>      <trans-unit id="ClusteredIndex_LabelPart">        <source>Clustered</source>        <target state="translated">聚集</target>        <note>        </note>      </trans-unit>      <trans-unit id="NonClusteredIndex_LabelPart">        <source>Non-Clustered</source>        <target state="translated">非聚集</target>        <note>        </note>      </trans-unit>      <trans-unit id="History_LabelPart">        <source>History</source>        <target state="translated">历史记录</target>        <note>        </note>      </trans-unit>      <trans-unit id="SystemVersioned_LabelPart">        <source>System-Versioned</source>        <target state="translated">带有系统版本</target>        <note>        </note>      </trans-unit>      <trans-unit id="DatabaseNotAccessible">        <source>The database {0} is not accessible.</source>        <target state="translated">数据库 {0} 不可访问。</target>        <note>        </note>      </trans-unit>      <trans-unit id="QueryServiceResultSetHasNoResults">        <source>Query has no results to return</source>        <target state="translated">无查询结果</target>        <note>        </note>      </trans-unit>      <trans-unit id="QueryServiceResultSetTooLarge">        <source>Result set has too many rows to be safely loaded</source>        <target state="translated">结果集包含的行太多，可能无法安全加载</target>      </trans-unit>      <trans-unit id="ConflictWithNoRecovery">        <source>Specifying this option when restoring a backup with the NORECOVERY option is not permitted.</source>        <target state="translated">当使用 NORECOVERY 选项还原备份时，不允许指定此选项。</target>        <note>        </note>      </trans-unit>      <trans-unit id="InvalidPathForDatabaseFile">        <source>Invalid path for database file: '{0}'</source>        <target state="translated">数据库文件的路径无效:“{0}”</target>        <note>        </note>      </trans-unit>      <trans-unit id="Log">        <source>Log</source>        <target state="translated">日志</target>        <note>        </note>      </trans-unit>      <trans-unit id="RestorePlanFailed">        <source>Failed to create restore plan</source>        <target state="translated">创建还原计划失败</target>        <note>        </note>      </trans-unit>      <trans-unit id="RestoreNotSupported">        <source>Restore database is not supported</source>        <target state="translated">不支持还原数据库</target>        <note>        </note>      </trans-unit>      <trans-unit id="RestoreTaskName">        <source>Restore Database</source>        <target state="translated">还原数据库</target>        <note>        </note>      </trans-unit>      <trans-unit id="RestoreCopyOnly">        <source>(Copy Only)</source>        <target state="translated">(仅复制)</target>        <note>        </note>      </trans-unit>      <trans-unit id="RestoreBackupSetComponent">        <source>Component</source>        <target state="translated">组件</target>        <note>        </note>      </trans-unit>      <trans-unit id="RestoreBackupSetType">        <source>Type</source>        <target state="translated">类型</target>        <note>        </note>      </trans-unit>      <trans-unit id="RestoreBackupSetServer">        <source>Server</source>        <target state="translated">服务器</target>        <note>        </note>      </trans-unit>      <trans-unit id="RestoreBackupSetDatabase">        <source>Database</source>        <target state="translated">数据库</target>        <note>        </note>      </trans-unit>      <trans-unit id="RestoreBackupSetPosition">        <source>Position</source>        <target state="translated">位置</target>        <note>        </note>      </trans-unit>      <trans-unit id="RestoreBackupSetFirstLsn">        <source>First LSN</source>        <target state="translated">第一个 LSN</target>        <note>        </note>      </trans-unit>      <trans-unit id="RestoreBackupSetLastLsn">        <source>Last LSN</source>        <target state="translated">最后一个 LSN</target>        <note>        </note>      </trans-unit>      <trans-unit id="RestoreBackupSetCheckpointLsn">        <source>Checkpoint LSN</source>        <target state="translated">检查点 LSN</target>        <note>        </note>      </trans-unit>      <trans-unit id="RestoreBackupSetFullLsn">        <source>Full LSN</source>        <target state="translated">完整 LSN</target>        <note>        </note>      </trans-unit>      <trans-unit id="RestoreBackupSetStartDate">        <source>Start Date</source>        <target state="translated">开始日期</target>        <note>        </note>      </trans-unit>      <trans-unit id="RestoreBackupSetFinishDate">        <source>Finish Date</source>        <target state="translated">完成日期</target>        <note>        </note>      </trans-unit>      <trans-unit id="RestoreBackupSetSize">        <source>Size</source>        <target state="translated">大小</target>        <note>        </note>      </trans-unit>      <trans-unit id="RestoreBackupSetUserName">        <source>User Name</source>        <target state="translated">用户名</target>        <note>        </note>      </trans-unit>      <trans-unit id="RestoreBackupSetExpiration">        <source>Expiration</source>        <target state="translated">过期</target>        <note>        </note>      </trans-unit>      <trans-unit id="RestoreBackupSetName">        <source>Name</source>        <target state="translated">名称</target>        <note>        </note>      </trans-unit>      <trans-unit id="TheLastBackupTaken">        <source>The last backup taken ({0})</source>        <target state="translated">上次执行的备份({0})</target>        <note>        </note>      </trans-unit>      <trans-unit id="BackupTaskName">        <source>Backup Database</source>        <target state="translated">备份数据库</target>        <note>        </note>      </trans-unit>      <trans-unit id="TaskInProgress">        <source>In progress</source>        <target state="translated">正在进行</target>        <note>        </note>      </trans-unit>      <trans-unit id="TaskCompleted">        <source>Completed</source>        <target state="translated">已完成</target>        <note>        </note>      </trans-unit>      <trans-unit id="ScriptTaskName">        <source>scripting</source>        <target state="translated">正在执行脚本操作</target>        <note>        </note>      </trans-unit>      <trans-unit id="ProfilerConnectionNotFound">        <source>Connection not found</source>        <target state="translated">找不到连接</target>        <note>        </note>      </trans-unit>      <trans-unit id="AzureSystemDbProfilingError">        <source>Cannot profile Azure system databases</source>        <target state="translated">无法配置 Azure 系统数据库</target>        <note>        </note>      </trans-unit>      <trans-unit id="BackupPathIsFolderError">        <source>Please provide a file path instead of directory path</source>        <target state="translated">请提供文件路径而不是目录路径</target>        <note>        </note>      </trans-unit>      <trans-unit id="InvalidBackupPathError">        <source> The provided path is invalid</source>        <target state="translated">提供的路径无效</target>        <note>        </note>      </trans-unit>      <trans-unit id="InvalidPathError">        <source>Cannot access the specified path on the server: {0}</source>        <target state="translated">无法访问服务器上的指定路径: {0}</target>        <note>        </note>      </trans-unit>      <trans-unit id="NoBackupsetsToRestore">        <source>No backupset selected to be restored</source>        <target state="translated">未选择用于还原的备份集</target>        <note>        </note>      </trans-unit>      <trans-unit id="AzureSqlDbEdition">        <source>Azure SQL DB</source>        <target state="translated">Azure SQL DB</target>        <note>        </note>      </trans-unit>      <trans-unit id="AzureSqlDwEdition">        <source>Azure SQL Data Warehouse</source>        <target state="translated">Azure SQL 数据仓库</target>        <note>        </note>      </trans-unit>      <trans-unit id="AzureSqlStretchEdition">        <source>Azure SQL Stretch Database</source>        <target state="translated">Azure SQL Stretch Database</target>        <note>        </note>      </trans-unit>      <trans-unit id="AzureSqlAnalyticsOnDemandEdition">        <source>Azure SQL Analytics on-demand</source>        <target state="translated">按需 Azure SQL Analytics</target>        <note>        </note>      </trans-unit>      <trans-unit id="EditDataValueTooLarge">        <source>Value {0} is too large to fit in column of type {1}</source>        <target state="translated">值 {0} 太大，无法放入类型为 {1} 的列</target>        <note>. Parameters: 0 - value (string), 1 - columnType (string) </note>      </trans-unit>      <trans-unit id="EditDataInvalidFormat">        <source>Invalid format for column '{0}', column is defined as {1}</source>        <target state="translated">列 {0} 的格式无效，列被定义为 {1}</target>        <note>. Parameters: 0 - colName (string), 1 - colType (string) </note>      </trans-unit>      <trans-unit id="SqlScriptFormatterLengthTypeMissingSize">        <source>Column with length is missing size</source>        <target state="translated">有长度属性的列缺失其大小</target>        <note>        </note>      </trans-unit>      <trans-unit id="SqlScriptFormatterScalarTypeMissingScale">        <source>Scalar column missing scale</source>        <target state="translated">标量列缺失小数位数</target>        <note>        </note>      </trans-unit>      <trans-unit id="StoredProcedureScriptParameterComment">        <source>-- TODO: Set parameter values here.</source>        <target state="translated">-- 待办事项：在此处设置参数值</target>        <note>        </note>      </trans-unit>      <trans-unit id="ScriptingGeneralError">        <source>An error occurred while scripting the objects.</source>        <target state="translated">编写对象脚本时出错。</target>        <note>        </note>      </trans-unit>      <trans-unit id="ScriptingExecuteNotSupportedError">        <source>Scripting as Execute is only supported for Stored Procedures</source>        <target state="translated">仅存储过程支持编写执行脚本</target>        <note>        </note>      </trans-unit>      <trans-unit id="External_LabelPart">        <source>External</source>        <target state="translated">外部</target>        <note>        </note>      </trans-unit>      <trans-unit id="FileTable_LabelPart">        <source>File Table</source>        <target state="translated">文件表</target>        <note>        </note>      </trans-unit>      <trans-unit id="EditDataMultiTableNotSupported">        <source>EditData queries targeting multiple tables are not supported</source>        <target state="translated">不支持针对多个表的 EditData 查询</target>        <note>        </note>      </trans-unit>      <trans-unit id="EditDataAliasesNotSupported">        <source>EditData queries with aliased columns are not supported</source>        <target state="translated">不支持具有别名列的 EditData 查询</target>        <note>        </note>      </trans-unit>      <trans-unit id="EditDataExpressionsNotSupported">        <source>EditData queries with aggregate or expression columns are not supported</source>        <target state="translated">不支持具有聚合或表达式列的 EditData 查询</target>        <note>        </note>      </trans-unit>      <trans-unit id="EditDataDuplicateColumnsNotSupported">        <source>EditData queries with duplicate columns are not supported</source>        <target state="translated">不支持具有重复列的 EditData 查询</target>        <note>        </note>      </trans-unit>      <trans-unit id="EditDataIncorrectTable">        <source>EditData queries must query the originally targeted table '{0}'</source>        <target state="translated">EditData 查询必须查询最初的目标表 "{0}"</target>        <note>. Parameters: 0 - tableName (string) </note>      </trans-unit>      <trans-unit id="CategoryLocal">        <source>[Uncategorized (Local)]</source>        <target state="translated">[未分类 (本地)]</target>        <note>job categories</note>      </trans-unit>      <trans-unit id="CategoryFromMsx">        <source>Jobs from MSX</source>        <target state="translated">来自 MSX 的作业</target>        <note>        </note>      </trans-unit>      <trans-unit id="CategoryMultiServer">        <source>[Uncategorized (Multi-Server)]</source>        <target state="translated">[未分类 (多服务器)]</target>        <note>        </note>      </trans-unit>      <trans-unit id="CategoryDBMaint">        <source>Database Maintenance</source>        <target state="translated">数据库维护</target>        <note>        </note>      </trans-unit>      <trans-unit id="CategoryWebAssistant">        <source>Web Assistant</source>        <target state="translated">Web 助手</target>        <note>        </note>      </trans-unit>      <trans-unit id="CategoryFullText">        <source>Full-Text</source>        <target state="translated">全文</target>        <note>        </note>      </trans-unit>      <trans-unit id="CategoryReplDistribution">        <source>REPL-Distribution</source>        <target state="translated">REPL 分布</target>        <note>        </note>      </trans-unit>      <trans-unit id="CategoryReplDistributionCleanup">        <source>REPL-Distribution Cleanup</source>        <target state="translated">REPL-分布清理</target>        <note>        </note>      </trans-unit>      <trans-unit id="CategoryReplHistoryCleanup">        <source>REPL-History Cleanup</source>        <target state="translated">REPL-历史记录清理</target>        <note>        </note>      </trans-unit>      <trans-unit id="CategoryReplLogReader">        <source>REPL-LogReader</source>        <target state="translated">REPL-日志读取器</target>        <note>        </note>      </trans-unit>      <trans-unit id="CategoryReplMerge">        <source>REPL-Merge</source>        <target state="translated">REPL-合并</target>        <note>        </note>      </trans-unit>      <trans-unit id="CategoryReplSnapShot">        <source>REPL-Snapshot</source>        <target state="translated">REPL-快照</target>        <note>        </note>      </trans-unit>      <trans-unit id="CategoryReplCheckup">        <source>REPL-Checkup</source>        <target state="translated">REPL 检查</target>        <note>        </note>      </trans-unit>      <trans-unit id="CategoryReplCleanup">        <source>REPL-Subscription Cleanup</source>        <target state="translated">REPL-订阅清理</target>        <note>        </note>      </trans-unit>      <trans-unit id="CategoryReplAlert">        <source>REPL-Alert Response</source>        <target state="translated">REPL-警报响应</target>        <note>        </note>      </trans-unit>      <trans-unit id="CategoryReplQReader">        <source>REPL-QueueReader</source>        <target state="translated">REPL-队列读取器</target>        <note>        </note>      </trans-unit>      <trans-unit id="CategoryReplication">        <source>Replication</source>        <target state="translated">复制</target>        <note>        </note>      </trans-unit>      <trans-unit id="CategoryUncategorized">        <source>[Uncategorized]</source>        <target state="translated">[未分类]</target>        <note>        </note>      </trans-unit>      <trans-unit id="CategoryLogShipping">        <source>Log Shipping</source>        <target state="translated">日志传送</target>        <note>        </note>      </trans-unit>      <trans-unit id="CategoryDBEngineTuningAdvisor">        <source>Database Engine Tuning Advisor</source>        <target state="translated">数据库引擎优化顾问</target>        <note>        </note>      </trans-unit>      <trans-unit id="CategoryDataCollector">        <source>Data Collector</source>        <target state="translated">数据收集器</target>        <note>        </note>      </trans-unit>      <trans-unit id="JobAlreadyExists">        <source>A job named '{0}' already exists.  Enter a unique name for the job.</source>        <target state="translated">名为 "{0}" 的作业已存在。请输入作业的唯一名称。</target>        <note>. Parameters: 0 - jobName (string) </note>      </trans-unit>      <trans-unit id="JobStepNameCannotBeBlank">        <source>The name of the job step cannot be blank.</source>        <target state="translated">作业步骤的名称不能为空。</target>        <note>        </note>      </trans-unit>      <trans-unit id="JobStepNameAlreadyExists">        <source>There is already a step named '{0}' for this job. You must specify a different name.</source>        <target state="translated">此作业已有一个名为 "{0}" 的步骤。必须指定其他名称。</target>        <note>. Parameters: 0 - jobName (string) </note>      </trans-unit>      <trans-unit id="AlertNameCannotBeBlank">        <source>The name of the alert cannot be blank.</source>        <target state="translated">警报名称不能为空。</target>        <note>        </note>      </trans-unit>      <trans-unit id="CannotCreateNewAlert">        <source>Cannot create new alert.</source>        <target state="translated">无法创建新警报。</target>        <note>        </note>      </trans-unit>      <trans-unit id="CannotAlterAlert">        <source>Cannot alter alert.</source>        <target state="translated">无法更改警报。</target>        <note>        </note>      </trans-unit>      <trans-unit id="SysadminAccount">        <source>SQL Server Agent Service Account</source>        <target state="translated">SQL Server 代理服务帐户</target>        <note>        </note>      </trans-unit>      <trans-unit id="ProxyAccountNotFound">        <source>Proxy account '{0}' does not exist on the server.</source>        <target state="translated">服务器不存在代理帐户 "{0}"。</target>        <note>. Parameters: 0 - proxyName (string) </note>      </trans-unit>      <trans-unit id="CredentialNoLongerExists">        <source>The object does no longer exist on server.</source>        <target state="translated">该对象在服务器上不再存在。</target>        <note>        </note>      </trans-unit>      <trans-unit id="UnknownServerType">        <source>Unknown server type '{0}'.</source>        <target state="translated">服务器类型 "{0}" 未知。</target>        <note>. Parameters: 0 - serverTypeName (string) </note>      </trans-unit>      <trans-unit id="SetOwnerFailed">        <source>The current login does not have permissions to set the database owner to '{0}'  The database was created successfully however.</source>        <target state="translated">当前登录不具有将数据库所有者设置为 "{0}" 的权限，但是数据库已成功创建。</target>        <note>. Parameters: 0 - ownerName (string) </note>      </trans-unit>      <trans-unit id="TargetServerNotSelected">        <source>You must specify the Target Servers on which this multi server job will execute.</source>        <target state="translated">必须指定要在其上执行此多服务器作业的目标服务器。</target>        <note>        </note>      </trans-unit>      <trans-unit id="UnexpectedRunType">        <source>Unexpected run type.</source>        <target state="translated">意外的运行类型。</target>        <note>        </note>      </trans-unit>      <trans-unit id="UnknownSizeUnit">        <source>Unknown size unit {0} </source>        <target state="translated">未知大小单位 {0} </target>        <note>. Parameters: 0 - unit (string) </note>      </trans-unit>      <trans-unit id="SessionNotFound">        <source>Cannot find requested XEvent session</source>        <target state="translated">找不到请求的 XEvent 会话</target>        <note>        </note>      </trans-unit>      <trans-unit id="StopSessionFailed">        <source>Failed to stop session: {0}</source>        <target state="translated">停止会话失败: {0}</target>        <note>. Parameters: 0 - error (String) </note>      </trans-unit>      <trans-unit id="StartSessionFailed">        <source>Failed to start session: {0}</source>        <target state="translated">启动会话失败: {0}</target>        <note>. Parameters: 0 - error (String) </note>      </trans-unit>      <trans-unit id="CreateSessionFailed">        <source>Failed to create session: {0}</source>        <target state="translated">创建会话失败：{0}</target>        <note>. Parameters: 0 - error (String) </note>      </trans-unit>      <trans-unit id="PauseSessionFailed">        <source>Failed to pause session: {0}</source>        <target state="translated">暂停会话失败：{0}</target>        <note>. Parameters: 0 - error (String) </note>      </trans-unit>      <trans-unit id="SessionAlreadyExists">        <source>An XEvent session named {0} already exists</source>        <target state="translated">已存在名为 {0} 的 XEvent 会话</target>        <note>. Parameters: 0 - sessionName (String) </note>      </trans-unit>      <trans-unit id="InvalidScheduleTitle">        <source>Invalid Schedule</source>        <target state="translated">计划无效</target>        <note> Schedule error message</note>      </trans-unit>      <trans-unit id="InvalidWeeklySchedule">        <source>Select at least one day to be part of this weekly schedule.</source>        <target state="translated">至少选择一天作为此每周日程的一部分。</target>        <note>        </note>      </trans-unit>      <trans-unit id="StartDateGreaterThanEndDate">        <source>The job schedule starting date cannot be greater than the ending date.</source>        <target state="translated">作业计划开始日期不能晚于结束日期。</target>        <note>        </note>      </trans-unit>      <trans-unit id="StartTimeGreaterThanEndTime">        <source>The job schedule starting time cannot be after the ending time.</source>        <target state="translated">作业计划开始时间不能在结束时间之后。</target>        <note>        </note>      </trans-unit>      <trans-unit id="EndTimeEqualToStartTime">        <source>The job schedule ending time must be after the starting time.</source>        <target state="translated">作业计划结束时间必须在开始时间之后。</target>        <note>        </note>      </trans-unit>      <trans-unit id="InvalidStartDate">        <source>Start date must be on or after January 1, 1990.</source>        <target state="translated">开始日期必须在 1990 年 1 月 1 日当天或之后。</target>        <note>        </note>      </trans-unit>      <trans-unit id="ScheduleNameAlreadyExists">        <source>There is already a schedule named '{0}' for this job.  You must specify a different name.</source>        <target state="translated">此作业已有一个名为 "{0}" 的计划。必须指定其他名称。</target>        <note>. Parameters: 0 - scheduleName (string) </note>      </trans-unit>      <trans-unit id="JobServerIsNotAvailable">        <source>Job server is not available</source>        <target state="translated">作业服务器不可用</target>        <note> Exception thrown when job server is not available</note>      </trans-unit>      <trans-unit id="NeverBackedUp">        <source>Never</source>        <target state="translated">从不</target>        <note>        </note>      </trans-unit>      <trans-unit id="Error_InvalidDirectoryName">        <source>Path {0} is not a valid directory </source>        <target state="translated">路径 {0} 不是有效的目录 </target>        <note>        </note>      </trans-unit>      <trans-unit id="Error_ExistingDirectoryName">        <source>For directory {0} a file with name {1} already exist</source>        <target state="translated">对于目录 {0}，已存在名为 {1} 的文件</target>        <note>        </note>      </trans-unit>      <trans-unit id="EE_ExecutionInfo_InitializingLoop">        <source>Beginning execution loop</source>        <target state="translated">开始执行循环</target>        <note>        </note>      </trans-unit>      <trans-unit id="EE_BatchExecutionError_Ignoring">        <source>An error occurred while the batch was being executed, but the error has been ignored.</source>        <target state="translated">执行批处理时出错，但已忽略该错误。</target>        <note>        </note>      </trans-unit>      <trans-unit id="EE_ExecutionInfo_FinalizingLoop">        <source>Batch execution completed {0} times...</source>        <target state="translated">已执行完 {0} 次批处理…</target>        <note>        </note>      </trans-unit>      <trans-unit id="BatchParserWrapperExecutionError">        <source>Batch parser wrapper execution: {0} found... at line {1}: {2}    Description: {3}</source>        <target state="translated">批处理分析器包装执行: 在第 {1} 行处发现 {0}: {2} 说明: {3}</target>        <note>        </note>      </trans-unit>      <trans-unit id="ExtractInvalidVersion">        <source>Invalid version '{0}' passed. Version must be in the format x.x.x.x where x is a number.</source>        <target state="translated">传递的版本 "{0}" 无效。版本必须采用 x.x.x.x 格式，其中 x 是数字。</target>        <note>        </note>      </trans-unit>      <trans-unit id="ExportBacpacTaskName">        <source>Export bacpac</source>        <target state="translated">导出 DACPAC</target>        <note>        </note>      </trans-unit>      <trans-unit id="ImportBacpacTaskName">        <source>Import bacpac</source>        <target state="translated">导入 DACPAC</target>        <note>        </note>      </trans-unit>      <trans-unit id="ExtractDacpacTaskName">        <source>Extract dacpac</source>        <target state="translated">提取 DACPAC</target>        <note>        </note>      </trans-unit>      <trans-unit id="DeployDacpacTaskName">        <source>Deploy dacpac</source>        <target state="translated">部署 DACPAC</target>        <note>        </note>      </trans-unit>      <trans-unit id="GenerateScriptTaskName">        <source>Generate script</source>        <target state="translated">生成脚本</target>        <note>        </note>      </trans-unit>      <trans-unit id="PublishChangesTaskName">        <source>Apply schema compare changes</source>        <target state="translated">应用架构比较更改</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaCompareExcludeIncludeNodeNotFound">        <source>Failed to find the specified change in the model</source>        <target state="translated">在模型中找不到指定的更改</target>        <note>        </note>      </trans-unit>      <trans-unit id="OpenScmpConnectionBasedModelParsingError">        <source>Error encountered while trying to parse connection information for endpoint '{0}' with error message '{1}'</source>        <target state="translated">尝试分析终结点 "{0}" 的连接信息时遇到错误，错误消息为“{1}”</target>        <note>        </note>      </trans-unit>      <trans-unit id="SchemaCompareSessionNotFound">        <source>Could not find the schema compare session to cancel</source>        <target state="translated">找不到要取消的模式比较会话</target>        <note>        </note>      </trans-unit>      <trans-unit id="SerializationServiceUnsupportedFormat">        <source>Unsupported Save Format: {0}</source>        <target state="translated">不支持的保存格式: {0}</target>        <note>. Parameters: 0 - formatName (string) </note>      </trans-unit>      <trans-unit id="SerializationServiceRequestInProgress">        <source>A request for file {0} is already in progress</source>        <target state="translated">文件 {0} 的请求已在进行中</target>        <note>. Parameters: 0 - filePath (string) </note>      </trans-unit>      <trans-unit id="SerializationServiceRequestNotFound">        <source>Cannot serialize more data as no request for file {0} could be found</source>        <target state="translated">无法序列化更多数据，因为找不到对文件 {0} 的请求</target>        <note>. Parameters: 0 - filePath (string) </note>      </trans-unit>    </body>  </file></xliff>

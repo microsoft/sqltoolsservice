@@ -2391,36 +2391,6 @@
         <note>.
  Parameters: 0 - filePath (string) </note>
       </trans-unit>
-      <trans-unit id="ConnectionServiceConnStringInvalidColumnEncryptionSetting">
-        <source>Invalid value '{0}' for ComlumEncryption. Valid values are 'Enabled' and 'Disabled'.</source>
-        <target state="translated">El valor "{0}" no es válido para ComlumEncryption. Los valores válidos son "Enabled" y "Disabled".</target>
-        <note>.
- Parameters: 0 - columnEncryptionSetting (string) </note>
-      </trans-unit>
-      <trans-unit id="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol">
-        <source>Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS' and 'HGS'.</source>
-        <target state="translated">El valor "{0}" no es válido para EnclaveAttestationProtocol. Los valores válidos son "AAS" y "HGS".</target>
-        <note>.
- Parameters: 0 - enclaveAttestationProtocol (string) </note>
-      </trans-unit>
-      <trans-unit id="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination">
-        <source>The Attestation Protocol and Enclave Attestation URL requires Always Encrypted to be set to Enabled.</source>
-        <target state="translated">El protocolo de atestación y la dirección URL de atestación de enclave requieren que Always Encrypted esté habilitado.</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SqlCmdExitOnError">
-        <source>An error was encountered during execution of batch. Exiting.</source>
-        <target state="translated">Error durante la ejecución del lote. Saliendo.</target>
-        <note>
-        </note>
-      </trans-unit>
-      <trans-unit id="SqlCmdUnsupportedToken">
-        <source>Encountered unsupported token {0}</source>
-        <target state="translated">Se ha encontrado un token no admitido {0}</target>
-        <note>
-        </note>
-      </trans-unit>
     </body>
   </file>
 </xliff>
