@@ -8,6 +8,11 @@ using System.Threading;
 using System.Data;
 using System.Threading.Tasks;
 using Microsoft.Kusto.ServiceLayer.Utility;
+using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
+using Microsoft.Kusto.ServiceLayer.LanguageServices;
+using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
+using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
+using Microsoft.Kusto.ServiceLayer.LanguageServices.Completion;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource
 {
@@ -63,6 +68,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             }
         }
 
+        public abstract Task<IEnumerable<T>> ExecuteControlCommandAsync<T>(string command, bool throwOnError, CancellationToken cancellationToken);
+
         /// <inheritdoc/>
         public abstract IEnumerable<DataSourceObjectMetadata> GetChildObjects(DataSourceObjectMetadata parentMetadata);
 
@@ -71,6 +78,20 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
         /// <inheritdoc/>
         public abstract void Refresh(DataSourceObjectMetadata objectMetadata);
+
+        /// <inheritdoc/>
+        public abstract void UpdateDatabase(string databaseName);
+
+        /// <inheritdoc/>
+        public abstract CompletionItem[] GetAutoCompleteSuggestions(ScriptDocumentInfo queryText, Position index, bool throwOnError = false);
+        /// <inheritdoc/>
+        public abstract Hover GetHoverHelp(ScriptDocumentInfo scriptDocumentInfo, Position textPosition, bool throwOnError = false);
+        
+        /// <inheritdoc/>
+        public abstract DefinitionResult GetDefinition(string queryText, int index, int startLine, int startColumn, bool throwOnError = false);
+
+        /// <inheritdoc/>
+        public abstract ScriptFileMarker[] GetSemanticMarkers(ScriptParseInfo parseInfo, ScriptFile scriptFile, string queryText);
 
         /// <inheritdoc/>
         public abstract Task<bool> Exists();
