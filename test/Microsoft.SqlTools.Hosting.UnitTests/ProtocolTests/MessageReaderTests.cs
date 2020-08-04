@@ -52,9 +52,6 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
         #region ReadMessage Tests
 
         [Test]
-        //[InlineData(512)]    // Buffer size can fit everything in one read
-        //[InlineData(10)]     // Buffer size must use multiple reads to read the headers
-        //[InlineData(25)]     // Buffer size must use multiple reads to read the contents
         public async Task ReadMessageSingleRead([Values(512,10,25)]int bufferSize)
         {
             // Setup: Reader with a stream that has an entire message in it

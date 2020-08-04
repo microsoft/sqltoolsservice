@@ -171,10 +171,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                     Assert.NotNull(queryResult);
                     Assert.That(queryResult.BatchSummaries, Is.Not.Null, "queryResult.BatchSummaries");
                     Assert.That(queryResult.BatchSummaries.Select(b => b.ResultSetSummaries), Has.Exactly(4).Not.Null, "ResultSetSummaries in the queryResult");
-                    //Assert.NotNull(queryResult.BatchSummaries[0].ResultSetSummaries);
-                    //Assert.NotNull(queryResult.BatchSummaries[1].ResultSetSummaries);
-                    //Assert.NotNull(queryResult.BatchSummaries[2].ResultSetSummaries);
-                    //Assert.NotNull(queryResult.BatchSummaries[3].ResultSetSummaries);
 
                     Assert.NotNull(await testService.ExecuteSubset(queryTempFile.FilePath, 0, 0, 0, 7));
                     Assert.NotNull(await testService.ExecuteSubset(queryTempFile.FilePath, 1, 0, 0, 7));
