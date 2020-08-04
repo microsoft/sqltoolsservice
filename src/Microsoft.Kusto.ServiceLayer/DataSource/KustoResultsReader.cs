@@ -14,9 +14,9 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// we want the caller to only read the first table. We override the NextResult function here to only return one table
         /// from the IDataReader.
         /// </summary>
-        public override bool NextResult()
+        /*public override bool NextResult()
         {
             return false;
-        }
+        }*/
     }
 }
