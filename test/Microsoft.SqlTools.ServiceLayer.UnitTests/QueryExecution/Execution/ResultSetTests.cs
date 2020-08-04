@@ -131,7 +131,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         /// </summary>
         /// <param name="testDataSet"></param>
         [Test]
-        [TestCaseSource(nameof(ReadToEndSuccessData))]
+        [TestCaseSource(nameof(ReadToEndSuccessDataParallel))]
         public async Task ReadToEndSuccessSeveralTimes(TestResultSet[] testDataSet)
         {
             const int NumberOfInvocations = 50;
@@ -150,6 +150,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         }
 
         public static readonly IEnumerable<object[]> ReadToEndSuccessData = Common.TestResultSetsEnumeration.Select(r => new object[] { new TestResultSet[] { r } }).Take(6);
+        // using all 6 sets with the parallel test can raise an OutOfMemoryException
+        public static readonly IEnumerable<object[]> ReadToEndSuccessDataParallel = Common.TestResultSetsEnumeration.Select(r => new object[] { new TestResultSet[] { r } }).Take(3);
 
         [Test]
         [TestCaseSource(nameof(CallMethodWithoutReadingData))]
