@@ -16,19 +16,22 @@ using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
 {
     public class TSqlFormatterServiceTests : FormatterUnitTestsBase
     {
-        private Mock<ServiceLayer.Workspace.Workspace> workspaceMock = new Mock<ServiceLayer.Workspace.Workspace>();
+        private Mock<ServiceLayer.Workspace.Workspace> workspaceMock; 
         private TextDocumentIdentifier textDocument;
         DocumentFormattingParams docFormatParams;
         DocumentRangeFormattingParams rangeFormatParams;
 
-        public TSqlFormatterServiceTests()
+        [SetUp]
+        public void InitTSqlFormatterServiceTests()
         {
+            InitFormatterUnitTestsBase();
+            workspaceMock = new Mock<ServiceLayer.Workspace.Workspace>();
             textDocument = new TextDocumentIdentifier
             {
                 Uri = "script file"
@@ -64,7 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
             LanguageServiceMock.Setup(x => x.ShouldSkipNonMssqlFile(It.IsAny<string>())).Returns(skipFile);
         }
 
-        [Fact]
+        [Test]
         public async Task FormatDocumentShouldReturnSingleEdit()
         {
             // Given a document that we want to format
@@ -76,12 +79,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 verify: (edits =>
                 {
                     // Then expect a single edit to be returned and for it to match the standard formatting
-                    Assert.Equal(1, edits.Length);
+                    Assert.AreEqual(1, edits.Length);
                     AssertFormattingEqual(formattedSqlContents, edits[0].NewText);
                 }));
         }
 
-        [Fact]
+        [Test]
         public async Task FormatDocumentShouldSkipNonMssqlFile()
         {
             // Given a non-MSSQL document
@@ -93,12 +96,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 verify: (edits =>
                 {
                     // Then expect a single edit to be returned and for it to match the standard formatting
-                    Assert.Equal(0, edits.Length);
+                    Assert.AreEqual(0, edits.Length);
                     LanguageServiceMock.Verify(x => x.ShouldSkipNonMssqlFile(docFormatParams.TextDocument.Uri), Times.Once);
                 }));
         }
 
-        [Fact]
+        [Test]
         public async Task FormatRangeShouldReturnSingleEdit()
         {
             // Given a document that we want to format
@@ -110,12 +113,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 verify: (edits =>
                 {
                     // Then expect a single edit to be returned and for it to match the standard formatting
-                    Assert.Equal(1, edits.Length);
+                    Assert.AreEqual(1, edits.Length);
                     AssertFormattingEqual(formattedSqlContents, edits[0].NewText);
                 }));
         }
 
-        [Fact]
+        [Test]
         public async Task FormatRangeShouldSkipNonMssqlFile()
         {
             // Given a non-MSSQL document
@@ -127,13 +130,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 verify: (edits =>
                 {
                     // Then expect a single edit to be returned and for it to match the standard formatting
-                    Assert.Equal(0, edits.Length);
+                    Assert.AreEqual(0, edits.Length);
                     LanguageServiceMock.Verify(x => x.ShouldSkipNonMssqlFile(docFormatParams.TextDocument.Uri), Times.Once);
                 }));
         }
 
 
-        [Fact]
+        [Test]
         public async Task FormatDocumentTelemetryShouldIncludeFormatTypeProperty()
         {
             await RunAndVerifyTelemetryTest(
@@ -145,12 +148,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 {
                     // Then expect a telemetry event to have been sent with the right format definition
                     Assert.NotNull(actualParams);
-                    Assert.Equal(TelemetryEventNames.FormatCode, actualParams.Params.EventName);
-                    Assert.Equal(TelemetryPropertyNames.DocumentFormatType, actualParams.Params.Properties[TelemetryPropertyNames.FormatType]);
+                    Assert.AreEqual(TelemetryEventNames.FormatCode, actualParams.Params.EventName);
+                    Assert.AreEqual(TelemetryPropertyNames.DocumentFormatType, actualParams.Params.Properties[TelemetryPropertyNames.FormatType]);
                 });
         }
 
-        [Fact]
+        [Test]
         public async Task FormatRangeTelemetryShouldIncludeFormatTypeProperty()
         {
             await RunAndVerifyTelemetryTest(
@@ -162,11 +165,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 {
                     // Then expect a telemetry event to have been sent with the right format definition
                     Assert.NotNull(actualParams);
-                    Assert.Equal(TelemetryEventNames.FormatCode, actualParams.Params.EventName);
-                    Assert.Equal(TelemetryPropertyNames.RangeFormatType, actualParams.Params.Properties[TelemetryPropertyNames.FormatType]);
+                    Assert.AreEqual(TelemetryEventNames.FormatCode, actualParams.Params.EventName);
+                    Assert.AreEqual(TelemetryPropertyNames.RangeFormatType, actualParams.Params.Properties[TelemetryPropertyNames.FormatType]);
 
                     // And expect range to have been correctly formatted
-                    Assert.Equal(1, result.Length);
+                    Assert.AreEqual(1, result.Length);
                     AssertFormattingEqual(formattedSqlContents, result[0].NewText);
                 });
         }

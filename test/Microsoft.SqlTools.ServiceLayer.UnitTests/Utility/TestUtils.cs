@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 {
@@ -47,7 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         public static void VerifyResult<T, U>(Mock<RequestContext<T>> contextMock, U expected, U actual)
         {
             contextMock.Verify(c => c.SendResult(It.IsAny<T>()), Times.Once);
-            Assert.Equal(expected, actual);
+            Assert.AreEqual(expected, actual);
             contextMock.Verify(c => c.SendError(It.IsAny<string>(), It.IsAny<int>()), Times.Never);
         }
 

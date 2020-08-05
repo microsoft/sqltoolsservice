@@ -6,11 +6,12 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Xunit;
+using NUnit.Framework;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 {
+    [TestFixture]
     /// <summary>
     /// Language Service end-to-end integration tests
     /// </summary>
@@ -19,16 +20,16 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         /// <summary>
         /// Try to connect with invalid credentials
         /// </summary>
-        [Fact]
+        [Test]
         public async Task InvalidConnection()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
-                bool connected = await testService.Connect(queryTempFile.FilePath, InvalidConnectParams, 300000);
+                bool connected = await testService.Connect(queryTempFile.FilePath, InvalidConnectParams, 60000);
                 Assert.False(connected, "Invalid connection is failed to connect");
 
-                await testService.Connect(queryTempFile.FilePath, InvalidConnectParams, 300000);
+                await testService.Connect(queryTempFile.FilePath, InvalidConnectParams, 60000);
 
                 Thread.Sleep(1000);
 
@@ -41,7 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         /// <summary>
         /// Validate list databases request
         /// </summary>
-        [Fact]
+        [Test]
         public async Task ListDatabasesTest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())

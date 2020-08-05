@@ -5,13 +5,13 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageExtensibility
 {
     public class ExternalLanguageOperationTests
     {
-        [Fact]
+        [Test]
         public void VerifyDeleteLanguageWithInvalidName()
         { 
             ExternalLanguageOperations operations = new ExternalLanguageOperations();
@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageExtensibility
             });
         }
 
-        [Fact]
+        [Test]
         public void VerifyDeleteLanguage()
         {
             ExternalLanguageOperations operations = new ExternalLanguageOperations();
@@ -39,7 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageExtensibility
             });
         }
 
-        [Fact]
+        [Test]
         public void VerifyCreateLanguage()
         {
             ExternalLanguageOperations operations = new ExternalLanguageOperations();
@@ -63,7 +63,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageExtensibility
             });
         }
 
-        [Fact]
+        [Test]
         public void VerifyCreateLanguageWithLocalFile()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
@@ -90,7 +90,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageExtensibility
             }
         }
 
-        [Fact]
+        [Test]
         public void VerifyUpdateLanguage()
         {
             ExternalLanguageOperations operations = new ExternalLanguageOperations();
@@ -130,7 +130,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageExtensibility
             });
         }
 
-        [Fact]
+        [Test]
         public void VerifyUpdateContentLanguage()
         {
             ExternalLanguageOperations operations = new ExternalLanguageOperations();
@@ -168,7 +168,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageExtensibility
             });
         }
 
-        [Fact]
+        [Test]
         public void VerifyRemoveContentLanguage()
         {
             ExternalLanguageOperations operations = new ExternalLanguageOperations();

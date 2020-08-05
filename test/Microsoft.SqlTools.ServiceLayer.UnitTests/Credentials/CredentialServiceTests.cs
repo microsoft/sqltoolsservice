@@ -12,16 +12,17 @@ using Microsoft.SqlTools.Credentials.Contracts;
 using Microsoft.SqlTools.Credentials.Linux;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
 {
+    [TestFixture]
     /// <summary>
     /// Credential Service tests that should pass on all platforms, regardless of backing store.
     /// These tests run E2E, storing values in the native credential store for whichever platform
     /// tests are being run on
     /// </summary>
-    public class CredentialServiceTests : IDisposable
+    public class CredentialServiceTests
     {
         private static readonly StoreConfig Config = new StoreConfig
         {
@@ -39,18 +40,18 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
 
         // Test-owned credential store used to clean up before/after tests to ensure code works as expected
         // even if previous runs stopped midway through
-        private readonly ICredentialStore credStore;
-        private readonly CredentialService service;
-        /// <summary>
-        /// Constructor called once for every test
-        /// </summary>
-        public CredentialServiceTests()
+        private ICredentialStore credStore;
+        private CredentialService service;
+        
+        [SetUp]
+        public void SetupCredentialServiceTests()
         {
             credStore = CredentialService.GetStoreForOS(Config);
             service = new CredentialService(credStore, Config);
             DeleteDefaultCreds();
         }
 
+        [TearDown]
         public void Dispose()
         {
             DeleteDefaultCreds();
@@ -73,7 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
 #endif
         }
 
-        [Fact]
+        [Test]
         public async Task SaveCredentialThrowsIfCredentialIdMissing()
         {
             string errorResponse = null;
@@ -81,10 +82,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
 
             await service.HandleSaveCredentialRequest(new Credential(null), contextMock.Object);
             TestUtils.VerifyErrorSent(contextMock);
-            Assert.Contains("ArgumentException", errorResponse);
+            Assert.That(errorResponse, Does.Contain("ArgumentException"));
         }
 
-        [Fact]
+        [Test]
         public async Task SaveCredentialThrowsIfPasswordMissing()
         {
             string errorResponse = null;
@@ -95,7 +96,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
             Assert.True(errorResponse.Contains("ArgumentException") || errorResponse.Contains("ArgumentNullException"));
         }
 
-        [Fact]
+        [Test]
         public async Task SaveCredentialWorksForSingleCredential()
         {
             await TestUtils.RunAndVerify<bool>(
@@ -103,7 +104,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
                 verify: Assert.True);
         }
 
-        [Fact]
+        [Test]
         public async Task SaveCredentialWorksForEmptyPassword()
         {
             await TestUtils.RunAndVerify<bool>(
@@ -111,7 +112,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
                 verify: Assert.True);
         }
 
-        [Fact]
+        [Test]
         public async Task SaveCredentialSupportsSavingCredentialMultipleTimes()
         {
             await TestUtils.RunAndVerify<bool>(
@@ -123,7 +124,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
                 verify: Assert.True);
         }
 
-        [Fact]
+        [Test]
         public async Task ReadCredentialWorksForSingleCredential()
         {
             // Given we have saved the credential
@@ -137,11 +138,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
                 test: (requestContext) => service.HandleReadCredentialRequest(new Credential(CredentialId, null), requestContext),
                 verify: (actual =>
                 {
-                    Assert.Equal(Password1, actual.Password);
+                    Assert.AreEqual(Password1, actual.Password);
                 }));
         }
 
-        [Fact]
+        [Test]
         public async Task ReadCredentialWorksForMultipleCredentials()
         {
 
@@ -159,17 +160,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
                 test: (requestContext) => service.HandleReadCredentialRequest(new Credential(CredentialId, null), requestContext),
                 verify: (actual =>
                 {
-                    Assert.Equal(Password1, actual.Password);
+                    Assert.AreEqual(Password1, actual.Password);
                 }));
             await TestUtils.RunAndVerify<Credential>(
                 test: (requestContext) => service.HandleReadCredentialRequest(new Credential(OtherCredId, null), requestContext),
                 verify: (actual =>
                 {
-                    Assert.Equal(OtherPassword, actual.Password);
+                    Assert.AreEqual(OtherPassword, actual.Password);
                 }));
         }
 
-        [Fact]
+        [Test]
         public async Task ReadCredentialHandlesPasswordUpdate()
         {
             // Given we have saved twice with a different password
@@ -187,11 +188,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
                 test: (requestContext) => service.HandleReadCredentialRequest(new Credential(CredentialId), requestContext),
                 verify: (actual =>
                 {
-                    Assert.Equal(Password2, actual.Password);
+                    Assert.AreEqual(Password2, actual.Password);
                 }));
         }
 
-        [Fact]
+        [Test]
         public async Task ReadCredentialThrowsIfCredentialIsNull()
         {
             string errorResponse = null;
@@ -200,10 +201,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
             // Verify throws on null, and this is sent as an error
             await service.HandleReadCredentialRequest(null, contextMock.Object);
             TestUtils.VerifyErrorSent(contextMock);
-            Assert.Contains("ArgumentNullException", errorResponse);
+            Assert.That(errorResponse, Does.Contain("ArgumentNullException"));
         }
 
-        [Fact]
+        [Test]
         public async Task ReadCredentialThrowsIfIdMissing()
         {
             string errorResponse = null;
@@ -212,10 +213,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
             // Verify throws with no ID
             await service.HandleReadCredentialRequest(new Credential(), contextMock.Object);
             TestUtils.VerifyErrorSent(contextMock);
-            Assert.Contains("ArgumentException", errorResponse);
+            Assert.That(errorResponse, Does.Contain("ArgumentException"));
         }
 
-        [Fact]
+        [Test]
         public async Task ReadCredentialReturnsNullPasswordForMissingCredential()
         {
             // Given a credential whose password doesn't exist
@@ -228,12 +229,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
                 verify: (actual =>
                 {
                     Assert.NotNull(actual);
-                    Assert.Equal(credWithNoPassword, actual.CredentialId);
+                    Assert.AreEqual(credWithNoPassword, actual.CredentialId);
                     Assert.Null(actual.Password);
                 }));
         }
 
-        [Fact]
+        [Test]
         public async Task DeleteCredentialThrowsIfIdMissing()
         {
             object errorResponse = null;
@@ -245,7 +246,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
             Assert.True(((string)errorResponse).Contains("ArgumentException"));
         }
 
-        [Fact]
+        [Test]
         public async Task DeleteCredentialReturnsTrueOnlyIfCredentialExisted()
         {
             // Save should be true

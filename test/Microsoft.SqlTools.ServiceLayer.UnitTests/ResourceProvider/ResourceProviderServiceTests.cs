@@ -17,7 +17,7 @@ using Microsoft.SqlTools.ResourceProvider.Core.Firewall;
 using Microsoft.SqlTools.ResourceProvider.DefaultImpl;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
 {
@@ -47,7 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
 
         protected ResourceProviderService ResourceProviderService { get; private set; }
 
-        [Fact]
+        [Test]
         public async Task TestHandleFirewallRuleIgnoresNonMssqlProvider()
         {
             // Given a non-MSSQL provider
@@ -64,11 +64,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 Assert.NotNull(response);
                 Assert.False(response.Result);
                 Assert.Null(response.IpAddress);
-                Assert.Equal(Microsoft.SqlTools.ResourceProvider.Core.SR.FirewallRuleUnsupportedConnectionType, response.ErrorMessage);
+                Assert.AreEqual(Microsoft.SqlTools.ResourceProvider.Core.SR.FirewallRuleUnsupportedConnectionType, response.ErrorMessage);
             });
         }
         
-        [Fact]
+        [Test]
         public async Task TestHandleFirewallRuleSupportsMssqlProvider()
         {
             // Given a firewall error for the MSSQL provider
@@ -84,12 +84,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 // Then I expect the response to be true and the IP address to be extracted
                 Assert.NotNull(response);
                 Assert.True(response.Result);
-                Assert.Equal("1.2.3.4", response.IpAddress);
+                Assert.AreEqual("1.2.3.4", response.IpAddress);
                 Assert.Null(response.ErrorMessage);
             });
         }
         
-        [Fact]
+        [Test]
         public async Task TestHandleFirewallRuleIgnoresNonFirewallErrors()
         {
             // Given a login error for the MSSQL provider
@@ -105,12 +105,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 // Then I expect the response to be false and no IP address to be defined
                 Assert.NotNull(response);
                 Assert.False(response.Result);
-                Assert.Equal(string.Empty, response.IpAddress);
+                Assert.AreEqual(string.Empty, response.IpAddress);
                 Assert.Null(response.ErrorMessage);
             });
         }
 
-        [Fact]
+        [Test]
         public async Task TestHandleFirewallRuleDoesntBreakWithoutIp()
         {
             // Given a firewall error with no IP address in the error message
@@ -126,12 +126,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 // Then I expect the response to be OK as we require the known IP address to function
                 Assert.NotNull(response);
                 Assert.False(response.Result);
-                Assert.Equal(string.Empty, response.IpAddress);
+                Assert.AreEqual(string.Empty, response.IpAddress);
                 Assert.Null(response.ErrorMessage);
             });
         }
 
-        [Fact]
+        [Test]
         public async Task TestCreateFirewallRuleBasicRequest()
         {
             // Given a firewall request for a valid subscription
@@ -176,7 +176,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
             });
         }
 
-        [Fact]
+        [Test]
         public async Task TestCreateFirewallRuleHandlesTokenExpiration()
         {
             // Given the token has expired
@@ -201,7 +201,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
             {
                 // Then I expect the response to indicate that we failed due to token expiration
                 Assert.NotNull(response);
-                Assert.Equal(expectedErrorMsg, response.ErrorMessage);
+                Assert.AreEqual(expectedErrorMsg, response.ErrorMessage);
                 Assert.True(response.IsTokenExpiredFailure);
                 Assert.False(response.Result);
             });

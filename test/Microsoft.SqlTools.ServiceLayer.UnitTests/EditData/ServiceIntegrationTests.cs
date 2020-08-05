@@ -7,6 +7,7 @@ using System;
 using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
@@ -17,7 +18,7 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 {
@@ -25,12 +26,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
     {
         #region EditSession Operation Helper Tests
 
-        [Theory]
-        [InlineData(null)]
-        [InlineData("")]
-        [InlineData(" \t\n\r")]
-        [InlineData("Does not exist")]
-        public async Task NullOrMissingSessionId(string sessionId)
+        [Test]
+        public async Task NullOrMissingSessionId([Values(null, "", " \t\n\r", "Does not exist")] string sessionId)
         {
             // Setup: 
             // ... Create a edit data service
@@ -48,7 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             efv.Validate();
         }
 
-        [Fact]
+        [Test]
         public async Task OperationThrows()
         {
             // Setup: 
@@ -74,12 +71,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
         #region Dispose Tests
 
-        [Theory]
-        [InlineData(null)]
-        [InlineData("")]
-        [InlineData(" \t\n\r")]
-        [InlineData("Does not exist")]
-        public async Task DisposeNullOrMissingSessionId(string sessionId)
+        [Test]
+        public async Task DisposeNullOrMissingSessionId([Values(null, "", " \t\n\r", "Does not exist")]  string sessionId)
         {
             // Setup: Create a edit data service
             var eds = new EditDataService(null, null, null);
@@ -93,7 +86,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             efv.Validate();
         }
 
-        [Fact]
+        [Test]
         public async Task DisposeSuccess()
         {
             // Setup: Create an edit data service with a session
@@ -110,13 +103,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... It should have completed successfully
             efv.Validate();
 
-            // ... And the session should have been removed from the active session list
-            Assert.Empty(eds.ActiveSessions);
+            Assert.That(eds.ActiveSessions, Is.Empty, "And the session should have been removed from the active session list");
         }
 
         #endregion
 
-        [Fact]
+        [Test]
         public async Task DeleteSuccess()
         {
             // Setup: Create an edit data service with a session
@@ -138,7 +130,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.True(s.EditCache.Any(e => e.Value is RowDelete));
         }
 
-        [Fact]
+        [Test]
         public async Task CreateSucceeds()
         {
             // Setup: Create an edit data service with a session
@@ -160,7 +152,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.True(s.EditCache.Any(e => e.Value is RowCreate));
         }
 
-        [Fact]
+        [Test]
         public async Task RevertCellSucceeds()
         {
             // Setup: 
@@ -193,10 +185,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             
             // ... The edit cache should be empty again
             EditSession s = eds.ActiveSessions[Constants.OwnerUri];
-            Assert.Empty(s.EditCache);
+            Assert.That(s.EditCache, Is.Empty);
         }
         
-        [Fact]
+        [Test]
         public async Task RevertRowSucceeds()
         {
             // Setup: Create an edit data service with a session that has an pending edit
@@ -217,10 +209,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // ... The edit cache should be empty again
             EditSession s = eds.ActiveSessions[Constants.OwnerUri];
-            Assert.Empty(s.EditCache);
+            Assert.That(s.EditCache, Is.Empty);
         }
 
-        [Fact]
+        [Test]
         public async Task UpdateSuccess()
         {
             // Setup: Create an edit data service with a session
@@ -254,7 +246,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             edit.Verify(e => e.SetCell(It.IsAny<int>(), It.IsAny<string>()), Times.Once);
         }
 
-        [Fact]
+        [Test]
         public async Task GetRowsSuccess()
         {
             // Setup: Create an edit data service with a session
@@ -268,8 +260,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 .AddResultValidation(esr =>
                 {
                     Assert.NotNull(esr);
-                    Assert.NotEmpty(esr.Subset);
-                    Assert.NotEqual(0, esr.RowCount);
+                    Assert.That(esr.Subset, Is.Not.Empty);
+                    Assert.That(esr.RowCount, Is.Not.EqualTo(0));
                 })
                 .Complete();
             await eds.HandleSubsetRequest(new EditSubsetParams
@@ -285,11 +277,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         }
 
         #region Initialize Tests
-        [Theory]
-        [InlineData(null, "table", "table")]            // Null owner URI
-        [InlineData(Common.OwnerUri, null, "table")]    // Null object name
-        [InlineData(Common.OwnerUri, "table", null)]    // Null object type
-        public async Task InitializeNullParams(string ownerUri, string objName, string objType)
+        [Test]
+        [Sequential]
+        public async Task InitializeNullParams([Values(null, Common.OwnerUri, Common.OwnerUri)] string ownerUri, 
+                                               [Values("table", null, "table")] string objName, 
+                                               [Values("table", "table", null)] string objType)
         {
             // Setup: Create an edit data service without a session
             var eds = new EditDataService(null, null, null);
@@ -314,10 +306,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             efv.Validate();
 
             // ... There should not be a session
-            Assert.Empty(eds.ActiveSessions);
+            Assert.That(eds.ActiveSessions, Is.Empty);
         }
 
-        [Fact]
+        [Test]
         public async Task InitializeSessionExists()
         {
             // Setup: Create an edit data service with a session already defined
@@ -343,12 +335,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             efv.Validate();
             
             // ... The original session should still be there
-            Assert.Equal(1, eds.ActiveSessions.Count);
-            Assert.Equal(session, eds.ActiveSessions[Constants.OwnerUri]);
+            Assert.AreEqual(1, eds.ActiveSessions.Count);
+            Assert.AreEqual(session, eds.ActiveSessions[Constants.OwnerUri]);
         }
 
         // Disable flaky test for investigation (karlb - 3/13/2018)
-        //[Fact]
+        //[Test]
         public async Task InitializeSessionSuccess()
         {
             // Setup: 
@@ -391,7 +383,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 .AddEventValidation(EditSessionReadyEvent.Type, esrp =>
                 {
                     Assert.NotNull(esrp);
-                    Assert.Equal(Constants.OwnerUri, esrp.OwnerUri);
+                    Assert.AreEqual(Constants.OwnerUri, esrp.OwnerUri);
                     Assert.True(esrp.Success);
                     Assert.Null(esrp.Message);
                 })
@@ -404,17 +396,20 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             efv.Validate();
             
             // ... The session should have been created
-            Assert.Equal(1, eds.ActiveSessions.Count);
+            Assert.AreEqual(1, eds.ActiveSessions.Count);
             Assert.True(eds.ActiveSessions.Keys.Contains(Constants.OwnerUri));
         }
-        
+
         #endregion
-        
-        [Theory]
-        [InlineData("table", "myschema", new [] { "myschema", "table" })]                 // Use schema
-        [InlineData("table", null, new [] { "table" })]                                   // skip schema
-        [InlineData("schema.table", "myschema", new [] { "myschema", "schema.table"})]    // Use schema
-        [InlineData("schema.table", null, new [] { "schema", "table"})]                   // Split object name into schema
+        private static readonly object[] schemaNameParameters =
+        {
+            new object[] {"table", "myschema", new[] { "myschema", "table" } },                 // Use schema
+            new object[] {"table", null, new[] { "table" } },                                   // skip schema
+            new object[] {"schema.table", "myschema", new[] { "myschema", "schema.table" } },    // Use schema
+            new object[] {"schema.table", null, new[] { "schema", "table" } },                   // Split object name into schema
+        };
+
+        [Test, TestCaseSource(nameof(schemaNameParameters))]        
         public void ShouldUseSchemaNameIfDefined(string objName, string schemaName, string[] expectedNameParts)
         {
             // Setup: Create an edit data service without a session
@@ -434,7 +429,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             string[] nameParts = EditSession.GetEditTargetName(initParams);
 
             // Then:
-            Assert.Equal(expectedNameParts, nameParts);
+            Assert.AreEqual(expectedNameParts, nameParts);
         }
 
         private static async Task<EditSession> GetDefaultSession()

@@ -7,10 +7,11 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Microsoft.SqlTools.Hosting.Utility;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.Hosting.UnitTests.UtilityTests
 {
+    [TestFixture]
     /// <summary>
     /// Logger test cases
     /// </summary>
@@ -20,7 +21,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.UtilityTests
         /// <summary>
         /// Test to verify that the logger initialization is generating a valid file
         /// </summary>
-        [Fact]
+        [Test]
         public void LoggerDefaultFile()
         {
             // delete any existing log files from the current directory 

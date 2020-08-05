@@ -8,28 +8,28 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Newtonsoft.Json.Linq;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 {
     public class SettingsTests
     {
-        [Fact]
+        [Test]
         public void ValidateQueryExecuteDefaults()
         {
             // If: I create a new settings object
             var sqlToolsSettings = new SqlToolsSettings();
 
             // Then: The default values should be as expected
-            Assert.Equal("GO", sqlToolsSettings.QueryExecutionSettings.BatchSeparator);
-            Assert.Equal(ushort.MaxValue, sqlToolsSettings.QueryExecutionSettings.MaxCharsToStore);
-            Assert.Equal(2*1024*1024, sqlToolsSettings.QueryExecutionSettings.MaxXmlCharsToStore);
+            Assert.AreEqual("GO", sqlToolsSettings.QueryExecutionSettings.BatchSeparator);
+            Assert.AreEqual(ushort.MaxValue, sqlToolsSettings.QueryExecutionSettings.MaxCharsToStore);
+            Assert.AreEqual(2*1024*1024, sqlToolsSettings.QueryExecutionSettings.MaxXmlCharsToStore);
             Assert.False(sqlToolsSettings.QueryExecutionSettings.ExecutionPlanOptions.IncludeActualExecutionPlanXml);
             Assert.False(sqlToolsSettings.QueryExecutionSettings.ExecutionPlanOptions.IncludeEstimatedExecutionPlanXml);
             Assert.True(sqlToolsSettings.QueryExecutionSettings.DisplayBitAsNumber);
         }
 
-        [Fact]
+        [Test]
         public void ValidateSettingsParsedFromJson()
         {
             ValidateSettings("mssql");
@@ -59,7 +59,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             Assert.False(sqlToolsSettings.QueryExecutionSettings.DisplayBitAsNumber);
         }
 
-        [Fact]
+        [Test]
         public void ValidateSettingsObjectUpdates()
         {
             // If: I update a settings object with a new settings object
@@ -110,13 +110,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             Assert.False(qes.Settings.QueryExecutionSettings.DisplayBitAsNumber);
             Assert.True(qes.Settings.QueryExecutionSettings.ExecutionPlanOptions.IncludeActualExecutionPlanXml);
             Assert.True(qes.Settings.QueryExecutionSettings.ExecutionPlanOptions.IncludeEstimatedExecutionPlanXml);
-            Assert.Equal(1, qes.Settings.QueryExecutionSettings.MaxCharsToStore);
-            Assert.Equal(1, qes.Settings.QueryExecutionSettings.MaxXmlCharsToStore);
-            Assert.Equal("YO", qes.Settings.QueryExecutionSettings.BatchSeparator);
-            Assert.Equal(1, qes.Settings.QueryExecutionSettings.MaxCharsToStore);
-            Assert.Equal(0, qes.Settings.QueryExecutionSettings.RowCount);
-            Assert.Equal(1000, qes.Settings.QueryExecutionSettings.TextSize);
-            Assert.Equal(5000, qes.Settings.QueryExecutionSettings.ExecutionTimeout);
+            Assert.AreEqual(1, qes.Settings.QueryExecutionSettings.MaxCharsToStore);
+            Assert.AreEqual(1, qes.Settings.QueryExecutionSettings.MaxXmlCharsToStore);
+            Assert.AreEqual("YO", qes.Settings.QueryExecutionSettings.BatchSeparator);
+            Assert.AreEqual(1, qes.Settings.QueryExecutionSettings.MaxCharsToStore);
+            Assert.AreEqual(0, qes.Settings.QueryExecutionSettings.RowCount);
+            Assert.AreEqual(1000, qes.Settings.QueryExecutionSettings.TextSize);
+            Assert.AreEqual(5000, qes.Settings.QueryExecutionSettings.ExecutionTimeout);
             Assert.True(qes.Settings.QueryExecutionSettings.NoCount);
             Assert.True(qes.Settings.QueryExecutionSettings.NoExec);
             Assert.True(qes.Settings.QueryExecutionSettings.ParseOnly);
@@ -124,10 +124,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             Assert.True(qes.Settings.QueryExecutionSettings.StatisticsTime);
             Assert.True(qes.Settings.QueryExecutionSettings.StatisticsIO);
             Assert.True(qes.Settings.QueryExecutionSettings.XactAbortOn);
-            Assert.Equal("REPEATABLE READ", qes.Settings.QueryExecutionSettings.TransactionIsolationLevel);
-            Assert.Equal("LOW", qes.Settings.QueryExecutionSettings.DeadlockPriority);
-            Assert.Equal(5000, qes.Settings.QueryExecutionSettings.LockTimeout);
-            Assert.Equal(2000, qes.Settings.QueryExecutionSettings.QueryGovernorCostLimit);
+            Assert.AreEqual("REPEATABLE READ", qes.Settings.QueryExecutionSettings.TransactionIsolationLevel);
+            Assert.AreEqual("LOW", qes.Settings.QueryExecutionSettings.DeadlockPriority);
+            Assert.AreEqual(5000, qes.Settings.QueryExecutionSettings.LockTimeout);
+            Assert.AreEqual(2000, qes.Settings.QueryExecutionSettings.QueryGovernorCostLimit);
             Assert.False(qes.Settings.QueryExecutionSettings.AnsiDefaults);
             Assert.True(qes.Settings.QueryExecutionSettings.QuotedIdentifier);
             Assert.True(qes.Settings.QueryExecutionSettings.AnsiNullDefaultOn);

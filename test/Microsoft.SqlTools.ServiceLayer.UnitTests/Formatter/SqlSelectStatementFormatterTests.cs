@@ -4,21 +4,27 @@
 //
 
 using Microsoft.SqlTools.ServiceLayer.Formatter;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
 {
     
     public class SqlSelectStatementFormatterTests : FormatterUnitTestsBase
     {
-        [Fact]
+        [SetUp]
+        public void Init()
+        {
+            InitFormatterUnitTestsBase();
+        }
+
+        [Test]
         public void SimpleQuery()
         {
             LoadAndFormatAndCompare("SimpleQuery", GetInputFile("SimpleQuery.sql"), 
                 GetBaselineFile("SimpleQuery.sql"), new FormatOptions(), true);
         }
 
-        [Fact]
+        [Test]
         public void SimpleQuery_CommasBeforeDefinition()
         {
             FormatOptions options = new FormatOptions();
@@ -29,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 GetBaselineFile("SimpleQuery_CommasBeforeDefinition.sql"), options, false);
         }
 
-        [Fact]
+        [Test]
         public void SimpleQuery_EachReferenceOnNewLine()
         {
             FormatOptions options = new FormatOptions();
@@ -39,7 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 GetBaselineFile("SimpleQuery_EachReferenceOnNewLine.sql"), options, true);
         }
 
-        [Fact]
+        [Test]
         public void SimpleQuery_EachReferenceOnNewLine_CommasBeforeDefinition()
         {
             FormatOptions options = new FormatOptions();
@@ -51,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 GetInputFile("SimpleQuery.sql"), GetBaselineFile("SimpleQuery_EachReferenceOnNewLine_CommasBeforeDefinition.sql"), options, false);
         }
 
-        [Fact]
+        [Test]
         public void SimpleQuery_UseTabs()
         {
             FormatOptions options = new FormatOptions();
@@ -61,7 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 GetBaselineFile("SimpleQuery_UseTabs.sql"), options, true);
         }
 
-        [Fact]
+        [Test]
         public void SimpleQuery_20Spaces()
         {
             FormatOptions options = new FormatOptions();
@@ -71,7 +77,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 GetBaselineFile("SimpleQuery_20Spaces.sql"), options, true);
         }
 
-        [Fact]
+        [Test]
         public void SimpleQuery_UpperCaseKeywords()
         {
             FormatOptions options = new FormatOptions();
@@ -81,7 +87,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 GetBaselineFile("SimpleQuery_UpperCaseKeywords.sql"), options, true);
         }
 
-        [Fact]
+        [Test]
         public void SimpleQuery_LowerCaseKeywords()
         {
             FormatOptions options = new FormatOptions();
@@ -91,14 +97,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 GetBaselineFile("SimpleQuery_LowerCaseKeywords.sql"), options, true);
         }
 
-        [Fact]
+        [Test]
         public void SimpleQuery_ForBrowseClause()
         {
             LoadAndFormatAndCompare("SimpleQuery_ForBrowseClause", GetInputFile("SimpleQuery_ForBrowseClause.sql"), 
                 GetBaselineFile("SimpleQuery_ForBrowseClause.sql"), new FormatOptions(), true);
         }
 
-        [Fact]
+        [Test]
         public void SimpleQuery_ForXmlClause()
         {
             LoadAndFormatAndCompare("SimpleQuery_ForXmlClause", GetInputFile("SimpleQuery_ForXmlClause.sql"), 

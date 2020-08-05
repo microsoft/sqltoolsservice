@@ -12,7 +12,7 @@
 //using Microsoft.SqlTools.ResourceProvider.Core.Extensibility;
 //using Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Fakes;
 //using Moq;
-//using Xunit;
+//using NUnit.Framework;
 
 //namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
 //{
@@ -48,7 +48,7 @@
 //            _dependencyManager = new DependencyManager(_serviceProperties);
 //        }
 
-//        [Fact]
+//        [Test]
 //        public void GetShouldReturnProvidersFromTheCatalog()
 //        {
 //            IEnumerable<ExportableDescriptor<IServerDiscoveryProvider>> providers =
@@ -56,19 +56,19 @@
 //            Assert.NotNull(providers);
 //        }
 
-//        [Fact]
+//        [Test]
 //        public void GetShouldReturnEmptyListGivenInvalidCategory()
 //        {
 //            Assert.False(_dependencyManager.GetServiceDescriptors<IServerDiscoveryProvider>(new ServerDefinition(null, "invalid category")).Any());
 //        }
 
-//        [Fact]
+//        [Test]
 //        public void GetShouldReturnEmptyListGivenInvalidServerType()
 //        {
 //            Assert.False(_dependencyManager.GetServiceDescriptors<IServerDiscoveryProvider>(new ServerDefinition("invalid server type", null)).Any());
 //        }
 
-//        [Fact]
+//        [Test]
 //        public void GetShouldReturnAllProvidersGivenNoParameter()
 //        {
 //            IEnumerable<ExportableDescriptor<IServerDiscoveryProvider>> providers =
@@ -77,7 +77,7 @@
 //            Assert.True(providers.Count() == _providers.Count());
 //        }
 
-//        [Fact]
+//        [Test]
 //        public void GetShouldReturnProvidersGivenServerType()
 //        {
 //            var serverType = "sqlServer";
@@ -88,7 +88,7 @@
 //            Assert.True(providers.Count() == _providers.Count(x => x.Metadata.ServerType.Equals(serverType, StringComparison.OrdinalIgnoreCase)));
 //        }
 
-//        [Fact]
+//        [Test]
 //        public void GetShouldReturnProvidersGivenCategory()
 //        {
 //            IEnumerable<ExportableDescriptor<IServerDiscoveryProvider>> providers =
@@ -97,7 +97,7 @@
 //            Assert.True(providers.Count() == 1);
 //        }
 
-//        [Fact]
+//        [Test]
 //        public void GetShouldReturnProviderForEmptyCategoryGivenEmptyCategory()
 //        {
 //            // Given choice of 2 providers, one with empty category and other with specified one
@@ -126,7 +126,7 @@
 //            Assert.True(foundProviders.Count() == 1);
 //        }
 
-//        [Fact]
+//        [Test]
 //        public void GetShouldReturnProviderGivenServerTypeAndLocationWithValidProvider()
 //        {
 //            IEnumerable<ExportableDescriptor<IServerDiscoveryProvider>> providers =
@@ -135,7 +135,7 @@
 //            Assert.True(providers.Count() == 1);
 //        }
 
-//        [Fact]
+//        [Test]
 
 //        public void GetShouldReturnTheServiceWithTheHighestPriorityIdMultipleFound()
 //        {
@@ -162,7 +162,7 @@
 //            Assert.True(descriptor.Exportable == expectedProvider);
 //        }
 
-//        [Fact]
+//        [Test]
 //        public void GetShouldReturnTheServiceEvenIfTheServerTypeNotSet()
 //        {
 //            IServerDiscoveryProvider expectedProvider = new Mock<IServerDiscoveryProvider>();
@@ -188,7 +188,7 @@
 //            Assert.True(descriptor.Exportable == expectedProvider);
 //        }
 
-//        [Fact]
+//        [Test]
 //        public void GetShouldReturnTheServiceThatMatchedExactlyIfServerTypeSpecified()
 //        {
 //            IServerDiscoveryProvider expectedProvider = new Mock<IServerDiscoveryProvider>();
@@ -214,7 +214,7 @@
 //            Assert.True(descriptor.Exportable == expectedProvider);
 //        }
 
-//        [Fact]
+//        [Test]
 //        public void GetShouldReturnTheServiceThatMatchedExactlyIfCategorySpecified()
 //        {
 //            IServerDiscoveryProvider expectedProvider = new Mock<IServerDiscoveryProvider>();
@@ -240,7 +240,7 @@
 //            Assert.True(descriptor.Exportable == expectedProvider);
 //        }
 
-//        [Fact]
+//        [Test]
 
 //        public void GetShouldReturnTheServiceEvenIfTheCategoryNotSet()
 //        {
@@ -267,7 +267,7 @@
 //            Assert.True(descriptor.Exportable == expectedProvider);
 //        }
 
-//        [Fact]
+//        [Test]
 //        public void GetShouldReturnProvidersGivenServerTypeAndMoreThanOneLocation()
 //        {
 //            var serverType = "sqlServer";
@@ -277,7 +277,7 @@
 //            Assert.True(providers.Count() == _providers.Count(x => x.Metadata.ServerType.Equals(serverType, StringComparison.OrdinalIgnoreCase)));
 //        }
 
-//        [Fact]
+//        [Test]
 //        public async Task ProviderCreatedByFactoryShouldReturnServersSuccessfully()
 //        {
 //            List<ServerInstanceInfo> expectedServers = _localSqlServers;
@@ -289,7 +289,7 @@
 //            ServiceResponse<ServerInstanceInfo> result = await provider.Exportable.GetServerInstancesAsync();
 //            var servers = result.Data;
 //            Assert.NotNull(servers);
-//            Assert.Equal(expectedServers, servers);
+//            Assert.AreEqual(expectedServers, servers);
 //        }
 //    }
 //}

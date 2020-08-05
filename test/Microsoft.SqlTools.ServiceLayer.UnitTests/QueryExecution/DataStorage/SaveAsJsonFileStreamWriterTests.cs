@@ -11,13 +11,13 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Newtonsoft.Json;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
 {
     public class SaveAsJsonFileStreamWriterTests
     {
-        [Fact]
+        [Test]
         public void ArrayWrapperTest()
         {
             // Setup:
@@ -34,10 +34,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             // ... The output should be an empty array
             string outputString = Encoding.UTF8.GetString(output).TrimEnd('\0');
             object[] outputArray = JsonConvert.DeserializeObject<object[]>(outputString);
-            Assert.Equal(0, outputArray.Length);
+            Assert.AreEqual(0, outputArray.Length);
         }
 
-        [Fact]
+        [Test]
         public void WriteRowWithoutColumnSelection()
         {
             // Setup:
@@ -74,19 +74,19 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
 
             // ... There should be 2 items in the array,
             // ... The item should have two fields, and two values, assigned appropriately
-            Assert.Equal(2, outputObject.Length);
+            Assert.AreEqual(2, outputObject.Length);
             foreach (var item in outputObject)
             {
-                Assert.Equal(2, item.Count);
+                Assert.AreEqual(2, item.Count);
                 for (int i = 0; i < columns.Count; i++)
                 {
                     Assert.True(item.ContainsKey(columns[i].ColumnName));
-                    Assert.Equal(data[i].RawObject == null ? null : data[i].DisplayValue, item[columns[i].ColumnName]);
+                    Assert.AreEqual(data[i].RawObject == null ? null : data[i].DisplayValue, item[columns[i].ColumnName]);
                 }
             }
         }
 
-        [Fact]
+        [Test]
         public void WriteRowWithColumnSelection()
         {
             // Setup:
@@ -132,19 +132,19 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
 
             // ... There should be 2 items in the array
             // ... The items should have 2 fields and values
-            Assert.Equal(2, outputObject.Length);
+            Assert.AreEqual(2, outputObject.Length);
             foreach (var item in outputObject)
             {
-                Assert.Equal(2, item.Count);
+                Assert.AreEqual(2, item.Count);
                 for (int i = 1; i <= 2; i++)
                 {
                     Assert.True(item.ContainsKey(columns[i].ColumnName));
-                    Assert.Equal(data[i].RawObject == null ? null : data[i].DisplayValue, item[columns[i].ColumnName]);
+                    Assert.AreEqual(data[i].RawObject == null ? null : data[i].DisplayValue, item[columns[i].ColumnName]);
                 }
             }
         }
 
-        [Fact]
+        [Test]
         public void WriteRowWithSpecialTypesSuccess()
         {
 
@@ -186,14 +186,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             // ... There should be 2 items in the array,
             // ... The item should have three fields, and three values, assigned appropriately
             // ... The deserialized values should match the display value
-            Assert.Equal(2, outputObject.Length);
+            Assert.AreEqual(2, outputObject.Length);
             foreach (var item in outputObject)
             {
-                Assert.Equal(3, item.Count);
+                Assert.AreEqual(3, item.Count);
                 for (int i = 0; i < columns.Count; i++)
                 {
                     Assert.True(item.ContainsKey(columns[i].ColumnName));
-                    Assert.Equal(data[i].RawObject == null ? null : data[i].DisplayValue, item[columns[i].ColumnName]);
+                    Assert.AreEqual(data[i].RawObject == null ? null : data[i].DisplayValue, item[columns[i].ColumnName]);
                 }
             }
         }

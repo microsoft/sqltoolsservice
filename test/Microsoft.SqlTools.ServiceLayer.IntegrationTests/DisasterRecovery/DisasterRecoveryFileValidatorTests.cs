@@ -13,7 +13,7 @@ using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
 using Microsoft.SqlTools.ServiceLayer.FileBrowser;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Management;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
 {
@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
     /// </summary>
     public class DisasterRecoveryFileValidatorTests
     {
-        [Fact]
+        [Test]
         public void ValidateDefaultBackupFullFilePath()
         {
             var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo("master");
@@ -39,10 +39,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             }, out message);
 
             Assert.True(result);
-            Assert.Empty(message);
+            Assert.That(message, Is.Empty);
         }
 
-        [Fact]
+        [Test]
         public void ValidateDefaultBackupFolderPath()
         {
             var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo("master");
@@ -56,7 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             Assert.True(result);
         }
 
-        //[Fact]
+        //[Test]
         public void ValidatorShouldReturnFalseForInvalidPath()
         {
             var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo("master");

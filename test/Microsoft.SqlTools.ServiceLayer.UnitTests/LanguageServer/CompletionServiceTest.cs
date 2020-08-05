@@ -14,14 +14,14 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 {
     public class CompletionServiceTest
     {
         // Disable flaky test (mairvine - 3/15/2018)
-        // [Fact]
+        // [Test]
         public void CompletionItemsShouldCreatedUsingSqlParserIfTheProcessDoesNotTimeout()
         {
             ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue();
@@ -40,10 +40,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 
             AutoCompletionResult result = completionService.CreateCompletions(connectionInfo, docInfo, useLowerCaseSuggestions);
             Assert.NotNull(result);
-            Assert.NotEqual(result.CompletionItems == null ? 0 : result.CompletionItems.Count(), defaultCompletionList.Count());
+            var count = result.CompletionItems == null ? 0 : result.CompletionItems.Count();
+
+            Assert.That(count, Is.Not.EqualTo(defaultCompletionList.Count()));
         }
 
-        [Fact]
+        [Test]
         public void CompletionItemsShouldCreatedUsingDefaultListIfTheSqlParserProcessTimesout()
         {
             ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue();
@@ -61,7 +63,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 
             AutoCompletionResult result = completionService.CreateCompletions(connectionInfo, docInfo, useLowerCaseSuggestions);
             Assert.NotNull(result);
-            Assert.Equal(result.CompletionItems.Count(), defaultCompletionList.Count());
+            Assert.AreEqual(result.CompletionItems.Count(), defaultCompletionList.Count());
             Thread.Sleep(3000);
             Assert.True(connectionInfo.IntellisenseMetrics.Quantile.Any());
         }

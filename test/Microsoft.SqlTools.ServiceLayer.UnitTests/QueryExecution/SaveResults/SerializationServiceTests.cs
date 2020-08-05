@@ -17,7 +17,7 @@ using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Moq;
 using Newtonsoft.Json;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
 {
@@ -60,13 +60,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
         protected Mock<IProtocolEndpoint> HostMock { get; private set; }
         protected SerializationService SerializationService { get; private set; }
 
-        [Fact]
+        [Test]
         public async Task SaveResultsAsCsvNoHeaderSuccess()
         {
             await TestSaveAsCsvSuccess(false);
         }
 
-        [Fact]
+        [Test]
         public async Task SaveResultsAsCsvWithHeaderSuccess()
         {
             await TestSaveAsCsvSuccess(true);
@@ -102,13 +102,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             });
         }
 
-        [Fact]
+        [Test]
         public async Task SaveResultsAsCsvNoHeaderMultiRequestSuccess()
         {
             await TestSaveAsCsvMultiRequestSuccess(false);
         }
 
-        [Fact]
+        [Test]
         public async Task SaveResultsAsCsvWithHeaderMultiRequestSuccess()
         {
             await TestSaveAsCsvMultiRequestSuccess(true);
@@ -125,8 +125,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             await this.TestSerializeDataMultiRequestSuccess(setParams, validation);
         }
         
-        [Fact]
-        private async Task SaveAsJsonMultiRequestSuccess()
+        [Test]
+        public async Task SaveAsJsonMultiRequestSuccess()
         {
             Action<SerializeDataStartRequestParams> setParams = (serializeParams) => {
                 serializeParams.SaveFormat = "json";
@@ -137,8 +137,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             await this.TestSerializeDataMultiRequestSuccess(setParams, validation);
         }
 
-        [Fact]
-        private async Task SaveAsXmlMultiRequestSuccess()
+        [Test]
+        public async Task SaveAsXmlMultiRequestSuccess()
         {
             Action<SerializeDataStartRequestParams> setParams = (serializeParams) => {
                 serializeParams.SaveFormat = "xml";
@@ -239,7 +239,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             Assert.True(File.Exists(filePath), "Expected file to have been written");
             string[] lines = File.ReadAllLines(filePath);
             int expectedLength = includeHeaders ? data.Length + 1 : data.Length;
-            Assert.Equal(expectedLength, lines.Length);
+            Assert.AreEqual(expectedLength, lines.Length);
             int lineIndex = 0;
             if (includeHeaders)
             {
@@ -278,18 +278,18 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             // ... There should be 2 items in the array,
             // ... The item should have three fields, and three values, assigned appropriately
             // ... The deserialized values should match the display value
-            Assert.Equal(data.Length, outputObject.Length);
+            Assert.AreEqual(data.Length, outputObject.Length);
             for (int rowIndex = 0; rowIndex < outputObject.Length; rowIndex++)
             {
                 Dictionary<string,object> item = outputObject[rowIndex];
-                Assert.Equal(columns.Length, item.Count);
+                Assert.AreEqual(columns.Length, item.Count);
                 for (int columnIndex = 0; columnIndex < columns.Length; columnIndex++)
                 {
                     var key = columns[columnIndex].Name;
                     Assert.True(item.ContainsKey(key));
                     DbCellValue value = data[rowIndex][columnIndex];
                     object expectedValue = GetJsonExpectedValue(value, columns[columnIndex]);
-                    Assert.Equal(expectedValue, item[key]);
+                    Assert.AreEqual(expectedValue, item[key]);
                 }
             }
         }
@@ -325,12 +325,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             string xpath = "data/row";
             var rows = xmlDoc.SelectNodes(xpath);
 
-            Assert.Equal(data.Length, rows.Count);
+            Assert.AreEqual(data.Length, rows.Count);
             for (int rowIndex = 0; rowIndex < rows.Count; rowIndex++)
             {
                 var rowValue = rows.Item(rowIndex);
                 var xmlCols = rowValue.ChildNodes.Cast<XmlNode>().ToArray();
-                Assert.Equal(columns.Length, xmlCols.Length);
+                Assert.AreEqual(columns.Length, xmlCols.Length);
                 for (int columnIndex = 0; columnIndex < columns.Length; columnIndex++)
                 {
                     var columnName = columns[columnIndex].Name;
@@ -338,7 +338,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
                     Assert.NotNull(xmlColumn);
                     DbCellValue value = data[rowIndex][columnIndex];
                     object expectedValue = GetXmlExpectedValue(value);
-                    Assert.Equal(expectedValue, xmlColumn.InnerText);
+                    Assert.AreEqual(expectedValue, xmlColumn.InnerText);
                 }
             }
         }
