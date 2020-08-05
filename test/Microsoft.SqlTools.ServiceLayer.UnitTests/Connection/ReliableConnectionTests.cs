@@ -7,16 +7,17 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 {
+    [TestFixture]
     /// <summary>
     /// Tests for ReliableConnection code
     /// </summary>
     public class ReliableConnectionTests
     {
-        [Fact]
+        [Test]
         public void ReliableSqlConnectionUsesAzureToken()
         {
             ConnectionDetails details = TestObjects.GetTestConnectionDetails();
@@ -30,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             var reliableConnection = new ReliableSqlConnection(connectionString, retryPolicy, retryPolicy, azureAccountToken);
 
             // Then the connection's azureAccountToken gets set
-            Assert.Equal(azureAccountToken, reliableConnection.GetUnderlyingConnection().AccessToken);
+            Assert.AreEqual(azureAccountToken, reliableConnection.GetUnderlyingConnection().AccessToken);
         }
     }
 }

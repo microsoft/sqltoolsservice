@@ -4,7 +4,7 @@
 //
 
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlContext
 {
@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlContext
         /// <summary>
         /// Validate that the Language Service default settings are as expected
         /// </summary>
-        [Fact]
+        [Test]
         public void ValidateLanguageServiceDefaults()
         {
             var sqlToolsSettings = new SqlToolsSettings();
@@ -32,7 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlContext
         /// <summary>
         /// Validate that the IsDiagnosticsEnabled flag behavior
         /// </summary>
-        [Fact]
+        [Test]
         public void ValidateIsDiagnosticsEnabled()
         {
             var sqlToolsSettings = new SqlToolsSettings();
@@ -55,7 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlContext
         /// <summary>
         /// Validate that the IsSuggestionsEnabled flag behavior
         /// </summary>
-        [Fact]
+        [Test]
         public void ValidateIsSuggestionsEnabled()
         {
             var sqlToolsSettings = new SqlToolsSettings();
@@ -78,7 +78,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlContext
         /// <summary>
         /// Validate that the IsQuickInfoEnabled flag behavior
         /// </summary>
-        [Fact]
+        [Test]
         public void ValidateIsQuickInfoEnabled()
         {
             var sqlToolsSettings = new SqlToolsSettings();

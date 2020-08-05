@@ -11,7 +11,7 @@ using Microsoft.SqlTools.Hosting.Contracts;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking
 {
@@ -99,7 +99,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking
             // Add an error validator that just ensures a non-empty error message and null data obj
             return AddSimpleErrorValidation((msg, code) =>
             {
-                Assert.NotEmpty(msg);
+                Assert.That(msg, Is.Not.Null.Or.Empty, $"AddStandardErrorValidation msg for {code}");
             });
         }
 

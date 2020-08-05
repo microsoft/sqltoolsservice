@@ -12,14 +12,14 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 {
     public class QueryTests
     {
 
-        [Fact]
+        [Test]
         public void QueryCreationCorrect()
         {
             // If:
@@ -30,12 +30,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // Then:
             // ... I should get back two batches to execute that haven't been executed
-            Assert.NotEmpty(query.QueryText);
+            Assert.That(query.QueryText, Is.Not.Empty);
             Assert.False(query.HasExecuted);
-            Assert.Throws<InvalidOperationException>(() => query.BatchSummaries);
+            Assert.Throws<InvalidOperationException>(() => { var x = query.BatchSummaries; });
         }
 
-        [Fact]
+        [Test]
         public void QueryExecuteNoConnectionInfo()
         {
             // If:
@@ -45,7 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             Assert.Throws<ArgumentNullException>(() => new Query("Some Query", null, new QueryExecutionSettings(), MemoryFileSystem.GetFileStreamFactory()));
         }
 
-        [Fact]
+        [Test]
         public void QueryExecuteNoSettings()
         {
             // If:
@@ -56,7 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
                 new Query("Some query", Common.CreateTestConnectionInfo(null, false, false), null, MemoryFileSystem.GetFileStreamFactory()));
         }
 
-        [Fact]
+        [Test]
         public void QueryExecuteNoBufferFactory()
         {
             // If:
@@ -67,7 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
                 new Query("Some query", Common.CreateTestConnectionInfo(null, false, false), new QueryExecutionSettings(), null));
         }
 
-        [Fact]
+        [Test]
         public void QueryExecuteSingleBatch()
         {
             // Setup:
@@ -92,21 +92,21 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // Then:
             // ... There should be exactly 1 batch
-            Assert.NotEmpty(query.Batches);
-            Assert.Equal(1, query.Batches.Length);
+            Assert.That(query.Batches, Is.Not.Empty);
+            Assert.AreEqual(1, query.Batches.Length);
 
             // ... The query should have completed successfully with one batch summary returned
             Assert.True(query.HasExecuted);
-            Assert.NotEmpty(query.BatchSummaries);
-            Assert.Equal(1, query.BatchSummaries.Length);
+            Assert.That(query.BatchSummaries, Is.Not.Empty);
+            Assert.AreEqual(1, query.BatchSummaries.Length);
 
             // ... The batch callbacks should have been called precisely 1 time
-            Assert.Equal(1, batchStartCallbacksReceived);
-            Assert.Equal(1, batchCompleteCallbacksReceived);
-            Assert.Equal(1, batchMessageCallbacksReceived);
+            Assert.AreEqual(1, batchStartCallbacksReceived);
+            Assert.AreEqual(1, batchCompleteCallbacksReceived);
+            Assert.AreEqual(1, batchMessageCallbacksReceived);
         }
 
-        [Fact]
+        [Test]
         public async Task QueryExecuteSingleNoOpBatch()
         {
             // Setup: Keep track of all the messages received
@@ -129,16 +129,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // Then:
             // ... There should be no batches
-            Assert.Equal(1, query.Batches.Length);
+            Assert.AreEqual(1, query.Batches.Length);
 
             // ... The query shouldn't have completed successfully
             Assert.False(query.HasExecuted);
 
             // ... The message callback should have been called 0 times
-            Assert.Equal(0, messages.Count);
+            Assert.AreEqual(0, messages.Count);
         }
 
-        [Fact]
+        [Test]
         public void QueryExecuteMultipleResultBatches()
         {
             // Setup:
@@ -165,21 +165,21 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // Then:
             // ... I should get back a query with one batch (no op batch is not included)
-            Assert.NotEmpty(query.Batches);
-            Assert.Equal(2, query.Batches.Length);
+            Assert.That(query.Batches, Is.Not.Empty);
+            Assert.AreEqual(2, query.Batches.Length);
 
             // ... The query should have completed successfully with two batch summaries returned
             Assert.True(query.HasExecuted);
-            Assert.NotEmpty(query.BatchSummaries);
-            Assert.Equal(2, query.BatchSummaries.Length);
+            Assert.That(query.BatchSummaries, Is.Not.Empty);
+            Assert.AreEqual(2, query.BatchSummaries.Length);
 
             // ... The batch start, complete, and message callbacks should have been called precisely 2 times
-            Assert.Equal(2, batchStartCallbacksReceived);
-            Assert.Equal(2, batchCompletedCallbacksReceived);
-            Assert.Equal(2, batchMessageCallbacksReceived);
+            Assert.AreEqual(2, batchStartCallbacksReceived);
+            Assert.AreEqual(2, batchCompletedCallbacksReceived);
+            Assert.AreEqual(2, batchMessageCallbacksReceived);
         }
 
-        [Fact]
+        [Test]
         public async Task QueryExecuteMultipleBatchesWithNoOp()
         {
             // Setup:
@@ -205,19 +205,19 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // Then:
             // ... I should get back a query with two batches
-            Assert.NotEmpty(query.Batches);
-            Assert.Equal(2, query.Batches.Length);
+            Assert.That(query.Batches, Is.Not.Empty);
+            Assert.AreEqual(2, query.Batches.Length);
 
             // ... The query should have completed successfully
             Assert.True(query.HasExecuted);
 
             // ... The batch callbacks should have been called 2 times (for each no op batch)
-            Assert.Equal(2, batchStartCallbacksReceived);
-            Assert.Equal(2, batchCompletionCallbacksReceived);
-            Assert.Equal(2, batchMessageCallbacksReceived);
+            Assert.AreEqual(2, batchStartCallbacksReceived);
+            Assert.AreEqual(2, batchCompletionCallbacksReceived);
+            Assert.AreEqual(2, batchMessageCallbacksReceived);
         }
 
-        [Fact]
+        [Test]
         public async Task QueryExecuteMultipleNoOpBatches()
         {
             // Setup:
@@ -241,16 +241,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // Then:
             // ... I should get back a query with no batches
-            Assert.Equal(2, query.Batches.Length);
+            Assert.AreEqual(2, query.Batches.Length);
 
             // ... The query shouldn't have completed successfully
             Assert.False(query.HasExecuted);
 
             // ... The message callback should have been called exactly once
-            Assert.Equal(0, messages.Count);
+            Assert.AreEqual(0, messages.Count);
         }
 
-        [Fact]
+        [Test]
         public void QueryExecuteInvalidBatch()
         {
             // Setup:
@@ -277,18 +277,18 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // Then:
             // ... I should get back a query with one batch
-            Assert.NotEmpty(query.Batches);
-            Assert.Equal(1, query.Batches.Length);
+            Assert.That(query.Batches, Is.Not.Empty);
+            Assert.AreEqual(1, query.Batches.Length);
 
             // ... There should be an error on the batch
             Assert.True(query.HasExecuted);
-            Assert.NotEmpty(query.BatchSummaries);
-            Assert.Equal(1, query.BatchSummaries.Length);
+            Assert.That(query.BatchSummaries, Is.Not.Empty);
+            Assert.AreEqual(1, query.BatchSummaries.Length);
             Assert.True(messages.Any(m => m.IsError));
 
             // ... The batch callbacks should have been called once
-            Assert.Equal(1, batchStartCallbacksReceived);
-            Assert.Equal(1, batchCompletionCallbacksReceived);
+            Assert.AreEqual(1, batchStartCallbacksReceived);
+            Assert.AreEqual(1, batchCompletionCallbacksReceived);
         }
 
         private static void BatchCallbackHelper(Query q, Action<Batch> startCallback, Action<Batch> endCallback,

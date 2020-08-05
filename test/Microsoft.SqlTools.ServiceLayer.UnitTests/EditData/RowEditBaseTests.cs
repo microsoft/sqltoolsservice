@@ -17,13 +17,13 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 {
     public class RowEditBaseTests
     {
-        [Fact]
+        [Test]
         public void ConstructWithoutExtendedMetadata()
         {
             // Setup: Create a table metadata that has not been extended
@@ -34,11 +34,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Throws<ArgumentException>(() => new RowEditTester(null, etm));
         }
 
-        [Theory]
-        [InlineData(-1)]        // Negative index
-        [InlineData(2)]         // Equal to count of columns
-        [InlineData(100)]       // Index larger than number of columns
-        public async Task ValidateUpdatableColumnOutOfRange(int columnId)
+        [Test]
+        public async Task ValidateUpdatableColumnOutOfRange([Values(-1,2,100)]int columnId)
         {
             // Setup: Create a result set
             var rs = await GetResultSet(
@@ -55,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Throws<ArgumentOutOfRangeException>(() => tester.ValidateColumn(columnId));
         }
 
-        [Fact]
+        [Test]
         public async Task ValidateUpdatableColumnNotUpdatable()
         {
             // Setup: Create a result set with an identity column
@@ -73,8 +70,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Throws<InvalidOperationException>(() => tester.ValidateColumn(0));
         }
 
-        [Theory]
-        [MemberData(nameof(GetWhereClauseIsNotNullData))]
+        [Test]
+        [TestCaseSource(nameof(GetWhereClauseIsNotNullData))]
         public async Task GetWhereClauseSimple(DbColumn col, object val, string nullClause)
         {
             // Setup: Create a result set and metadata provider with a single column
@@ -124,7 +121,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             }
         }
 
-        [Fact]
+        [Test]
         public async Task GetWhereClauseMultipleKeyColumns()
         {
             // Setup: Create a result set and metadata provider with multiple key columns
@@ -136,7 +133,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             rt.ValidateWhereClauseMultipleKeys();
         }
 
-        [Fact]
+        [Test]
         public async Task GetWhereClauseNoKeyColumns()
         {
             // Setup: Create a result set and metadata provider with no key columns
@@ -148,7 +145,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             rt.ValidateWhereClauseNoKeys();
         }
 
-        [Fact]
+        [Test]
         public async Task SortingByTypeTest()
         {
             // Setup: Create a result set and metadata we can reuse
@@ -164,12 +161,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             };
             rowEdits.Sort();
 
-            // Then: Delete should be the last operation to execute
+            // Then: 
             //       (we don't care about the order of the other two)
-            Assert.IsType<RowDelete>(rowEdits.Last());
+            Assert.That(rowEdits.Last(), Is.InstanceOf<RowDelete>(), "Delete should be the last operation to execute");
         }
 
-        [Fact]
+        [Test]
         public async Task SortingUpdatesByRowIdTest()
         {
             // Setup: Create a result set and metadata we can reuse
@@ -186,12 +183,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             rowEdits.Sort();
 
             // Then: They should be in order by row ID ASCENDING
-            Assert.Equal(1, rowEdits[0].RowId);
-            Assert.Equal(2, rowEdits[1].RowId);
-            Assert.Equal(3, rowEdits[2].RowId);
+            Assert.AreEqual(1, rowEdits[0].RowId);
+            Assert.AreEqual(2, rowEdits[1].RowId);
+            Assert.AreEqual(3, rowEdits[2].RowId);
         }
 
-        [Fact]
+        [Test]
         public async Task SortingCreatesByRowIdTest()
         {
             // Setup: Create a result set and metadata we can reuse
@@ -208,12 +205,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             rowEdits.Sort();
 
             // Then: They should be in order by row ID ASCENDING
-            Assert.Equal(1, rowEdits[0].RowId);
-            Assert.Equal(2, rowEdits[1].RowId);
-            Assert.Equal(3, rowEdits[2].RowId);
+            Assert.AreEqual(1, rowEdits[0].RowId);
+            Assert.AreEqual(2, rowEdits[1].RowId);
+            Assert.AreEqual(3, rowEdits[2].RowId);
         }
 
-        [Fact]
+        [Test]
         public async Task SortingDeletesByRowIdTest()
         {
             // Setup: Create a result set and metadata we can reuse
@@ -230,9 +227,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             rowEdits.Sort();
 
             // Then: They should be in order by row ID DESCENDING
-            Assert.Equal(3, rowEdits[0].RowId);
-            Assert.Equal(2, rowEdits[1].RowId);
-            Assert.Equal(1, rowEdits[2].RowId);
+            Assert.AreEqual(3, rowEdits[0].RowId);
+            Assert.AreEqual(2, rowEdits[1].RowId);
+            Assert.AreEqual(1, rowEdits[2].RowId);
         }
 
         private static async Task<ResultSet> GetResultSet(DbColumn[] columns, object[] row)
@@ -262,18 +259,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 
                 // Then:
                 // ... There should only be one component
-                Assert.Equal(1, wc.ClauseComponents.Count);
+                Assert.AreEqual(1, wc.ClauseComponents.Count);
                 
-                // ... Parameterization should be empty
-                Assert.Empty(wc.Parameters);
+                Assert.That(wc.Parameters, Is.Empty, "Parameterization should be empty");
 
                 // ... The component should contain the name of the column and be null
-                Assert.Equal(
+                Assert.AreEqual(
                     $"({AssociatedObjectMetadata.Columns.First().EscapedName} {nullValue})",
                     wc.ClauseComponents[0]);
 
                 // ... The complete clause should contain a single WHERE
-                Assert.Equal($"WHERE {wc.ClauseComponents[0]}", wc.CommandText);
+                Assert.AreEqual($"WHERE {wc.ClauseComponents[0]}", wc.CommandText);
             }
 
             public void ValidateWhereClauseMultipleKeys()
@@ -284,14 +280,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 // Then:
                 // ... There should two components
                 var keys = AssociatedObjectMetadata.KeyColumns.ToArray();
-                Assert.Equal(keys.Length, wc.ClauseComponents.Count);
+                Assert.AreEqual(keys.Length, wc.ClauseComponents.Count);
 
-                // ... Parameterization should be empty
-                Assert.Empty(wc.Parameters);
+                Assert.That(wc.Parameters, Is.Empty, "Parameterization should be empty");
 
-                // ... The components should contain the name of the column and the value
-                Regex r = new Regex(@"\([0-9a-z]+ = .+\)");
-                Assert.All(wc.ClauseComponents, s => Assert.True(r.IsMatch(s)));
+                Assert.That(wc.ClauseComponents, Has.All.Match(@"\([0-9a-z]+ = .+\)"), "The components should contain the name of the column and the value");
 
                 // ... The complete clause should contain multiple cause components joined
                 //     with and

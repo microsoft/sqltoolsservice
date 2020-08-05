@@ -6,13 +6,14 @@
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Completion
 {
+    [TestFixture]
     public class ScriptDocumentInfoTest
     {
-        [Fact]
+        [Test]
         public void MetricsShouldGetSortedGivenUnSortedArray()
         {
             TextDocumentPosition doc = new TextDocumentPosition()
@@ -35,11 +36,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Completion
             ScriptParseInfo scriptParseInfo = new ScriptParseInfo();
             ScriptDocumentInfo docInfo = new ScriptDocumentInfo(doc, scriptFile, scriptParseInfo);
 
-            Assert.Equal(docInfo.StartLine, 1);
-            Assert.Equal(docInfo.ParserLine, 2);
-            Assert.Equal(docInfo.StartColumn, 44);
-            Assert.Equal(docInfo.EndColumn, 14);
-            Assert.Equal(docInfo.ParserColumn, 15);
+            Assert.AreEqual(1, docInfo.StartLine);
+            Assert.AreEqual(2, docInfo.ParserLine);
+            Assert.AreEqual(44, docInfo.StartColumn);
+            Assert.AreEqual(14, docInfo.EndColumn);
+            Assert.AreEqual(15, docInfo.ParserColumn);
         }
     }
 }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Contracts;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Capabilities
 {
@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Capabilities
     /// </summary>
     public class Capabilities
     {
-        [Fact]
+        [Test]
         public async Task TestCapabilities()
         {
             Hosting.ServiceHost host = Hosting.ServiceHost.Instance;

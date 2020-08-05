@@ -17,7 +17,7 @@ using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
@@ -52,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             databaseSession = new ObjectExplorerService.ObjectExplorerSession("databaseUri", databaseRoot, null, null);
         }
 
-        [Fact]
+        [Test]
         public void FindCorrectPathsForTableWithServerRoot()
         {
             var paths = NodePathGenerator.FindNodePaths(serverSession, "Table", "testSchema", "testTable", databaseName);
@@ -64,14 +64,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 "testServer/Databases/System Databases/testDatabase/Tables/System Tables/testSchema.testTable"
             };
 
-            Assert.Equal(expectedPaths.Count, paths.Count);
+            Assert.AreEqual(expectedPaths.Count, paths.Count);
             foreach (var expectedPath in expectedPaths)
             {
                 Assert.True(paths.Contains(expectedPath));
             }
         }
 
-        [Fact]
+        [Test]
         public void FindCorrectPathsForTableWithDatabaseRoot()
         {
             var paths = NodePathGenerator.FindNodePaths(databaseSession, "Table", "testSchema", "testTable", null);
@@ -81,14 +81,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 "testServer/testDatabase/Tables/System Tables/testSchema.testTable"
             };
 
-            Assert.Equal(expectedPaths.Count, paths.Count);
+            Assert.AreEqual(expectedPaths.Count, paths.Count);
             foreach (var expectedPath in expectedPaths)
             {
                 Assert.True(paths.Contains(expectedPath));
             }
         }
 
-        [Fact]
+        [Test]
         public void FindCorrectPathsForColumnWithServerRoot()
         {
             var paths = NodePathGenerator.FindNodePaths(serverSession, "Column", null, "testColumn", databaseName, new List<string> { "testSchema.testTable" });
@@ -104,14 +104,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 "testServer/Databases/System Databases/testDatabase/Views/System Views/testSchema.testTable/Columns/testColumn"
             };
 
-            Assert.Equal(expectedPaths.Count, paths.Count);
+            Assert.AreEqual(expectedPaths.Count, paths.Count);
             foreach (var expectedPath in expectedPaths)
             {
                 Assert.True(paths.Contains(expectedPath));
             }
         }
 
-        [Fact]
+        [Test]
         public void FindCorrectPathsForColumnWithDatabaseRoot()
         {
             var paths = NodePathGenerator.FindNodePaths(databaseSession, "Column", null, "testColumn", databaseName, new List<string> { "testSchema.testTable" });
@@ -123,14 +123,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 "testServer/testDatabase/Views/System Views/testSchema.testTable/Columns/testColumn"
             };
 
-            Assert.Equal(expectedPaths.Count, paths.Count);
+            Assert.AreEqual(expectedPaths.Count, paths.Count);
             foreach (var expectedPath in expectedPaths)
             {
                 Assert.True(paths.Contains(expectedPath));
             }
         }
 
-        [Fact]
+        [Test]
         public void FindCorrectPathsForDatabase()
         {
             var paths = NodePathGenerator.FindNodePaths(serverSession, "Database", null, databaseName, null);
@@ -140,25 +140,25 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 "testServer/Databases/System Databases/testDatabase"
             };
 
-            Assert.Equal(expectedPaths.Count, paths.Count);
+            Assert.AreEqual(expectedPaths.Count, paths.Count);
             foreach (var expectedPath in expectedPaths)
             {
                 Assert.True(paths.Contains(expectedPath));
             }
         }
 
-        [Fact]
+        [Test]
         public void FindPathForInvalidTypeReturnsEmpty()
         {
             var serverPaths = NodePathGenerator.FindNodePaths(serverSession, "WrongType", "testSchema", "testTable", databaseName);
-            Assert.Equal(0, serverPaths.Count);
+            Assert.AreEqual(0, serverPaths.Count);
         }
 
-        [Fact]
+        [Test]
         public void FindPathMissingParentReturnsEmpty()
         {
             var serverPaths = NodePathGenerator.FindNodePaths(serverSession, "Column", "testSchema", "testColumn", databaseName);
-            Assert.Equal(0, serverPaths.Count);
+            Assert.AreEqual(0, serverPaths.Count);
         }
     }
 }

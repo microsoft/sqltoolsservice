@@ -15,13 +15,13 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
 {
     public class ResultSetTests
     {
-        [Fact]
+        [Test]
         public void SaveAsNullParams()
         {
             // If: I attempt to save with a null set of params
@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
                 null, null));
         }
 
-        [Fact]
+        [Test]
         public void SaveAsNullFactory()
         {
             // If: I attempt to save with a null set of params
@@ -48,7 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
                 null, null, null));
         }
 
-        [Fact]
+        [Test]
         public void SaveAsFailedIncomplete()
         {
             // If: I attempt to save a result set that hasn't completed execution
@@ -62,7 +62,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
                 null, null));
         }
 
-        [Fact]
+        [Test]
         public void SaveAsFailedExistingTaskInProgress()
         {
             // Setup:
@@ -82,7 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
                 null, null));
         }
 
-        [Fact]
+        [Test]
         public async Task SaveAsWithoutRowSelection()
         {
             // Setup:
@@ -106,7 +106,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
 
             // Then:
             // ... The task should have completed successfully
-            Assert.Equal(TaskStatus.RanToCompletion, rs.SaveTasks[Constants.OwnerUri].Status);
+            Assert.AreEqual(TaskStatus.RanToCompletion, rs.SaveTasks[Constants.OwnerUri].Status);
 
             // ... All the rows should have been written successfully
             saveWriter.Verify(
@@ -114,7 +114,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
                 Times.Exactly(Common.StandardRows));
         }
 
-        [Fact]
+        [Test]
         public async Task SaveAsWithRowSelection()
         {
             // Setup:
@@ -146,7 +146,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
 
             // Then:
             // ... The task should have completed successfully
-            Assert.Equal(TaskStatus.RanToCompletion, rs.SaveTasks[Constants.OwnerUri].Status);
+            Assert.AreEqual(TaskStatus.RanToCompletion, rs.SaveTasks[Constants.OwnerUri].Status);
 
             // ... All the rows should have been written successfully
             saveWriter.Verify(

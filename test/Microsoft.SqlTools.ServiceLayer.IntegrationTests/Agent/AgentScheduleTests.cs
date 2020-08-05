@@ -11,7 +11,7 @@ using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 using static Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility.LiveConnectionHelper;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         /// <summary>
         /// HandleAgentSchedulesRequest
         /// </summary>
-        [Fact]
+        [Test]
         public async Task HandleAgentSchedulesRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
@@ -45,7 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         /// <summary>
         /// TestHandleCreateAgentScheduleRequest
         /// </summary>
-        [Fact]
+        [Test]
         public async Task TestHandleCreateAgentScheduleRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
@@ -69,7 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         /// <summary>
         /// TestHandleUpdateAgentScheduleRequest
         /// </summary>
-        [Fact]
+        [Test]
         public async Task TestHandleUpdateAgentScheduleRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
@@ -95,7 +95,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         /// <summary>
         /// TestHandleDeleteAgentScheduleRequest
         /// </summary>
-        [Fact]
+        [Test]
         public async Task TestHandleDeleteAgentScheduleRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())

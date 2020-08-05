@@ -4,14 +4,16 @@
 //
 
 using System.Collections.Concurrent;
+using System.Linq;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
 {
+    [TestFixture]
     public class EventContextTests
     {
-        [Fact]
+        [Test]
         public void SendEvent()
         {
             // Setup: Create collection
@@ -21,10 +23,10 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             //     And send an event with it
             var eventContext = new EventContext(bc);
             eventContext.SendEvent(CommonObjects.EventType, CommonObjects.TestMessageContents.DefaultInstance);
-            
+
             // Then: The message should be added to the queue
-            Assert.Single(bc.ToArray());
-            Assert.Equal(MessageType.Event, bc.ToArray()[0].MessageType);
+            var messages = bc.ToArray().Select(m => m.MessageType);
+            Assert.That(messages, Is.EqualTo(new[] { MessageType.Event }), "Single message of type event in the queue after SendEvent");
         }
     }
 }

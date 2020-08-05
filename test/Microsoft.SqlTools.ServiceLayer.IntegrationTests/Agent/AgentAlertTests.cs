@@ -11,7 +11,7 @@ using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
 {
@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         /// <summary>
         /// Verify default agent/alerts handlers
         /// </summary>
-        [Fact]
+        [Test]
         public async Task TestHandleAgentAlertsRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
@@ -42,7 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         /// <summary>
         /// Verify the default "create agent alert" request handler with valid parameters
         /// </summary>
-        [Fact]
+        [Test]
         public async Task TestHandleCreateAgentAlertsRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
@@ -86,7 +86,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         /// <summary>
         /// Verify the default "update agent alert" request handler with valid parameters
         /// </summary>
-        [Fact]
+        [Test]
         public async Task TestHandleUpdateAgentAlertsRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())

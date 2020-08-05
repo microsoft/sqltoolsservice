@@ -9,51 +9,51 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.ServiceLayer.Formatter;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Extensibility
 {
     public class ExtensionTests
     {
 
-        [Fact]
+        [Test]
         public void CreateAssemblyStoreShouldFindTypesInAssembly()
         {
             // Given a store for MyExportType
             ExtensionStore store = ExtensionStore.CreateAssemblyStore<MyExportType>(GetType().GetTypeInfo().Assembly);
             // Then should get any export for this type and subtypes
-            Assert.Equal(2, store.GetExports<MyExportType>().Count());
+            Assert.AreEqual(2, store.GetExports<MyExportType>().Count());
 
             // But for a different type, expect throw as the store only contains MyExportType
             Assert.Throws<InvalidCastException>(() => store.GetExports<MyOtherType>().Count());
         }
         
-        [Fact]
+        [Test]
         public void CreateDefaultLoaderShouldFindTypesOnlyInMainAssembly()
         {
             // Given a store created using CreateDefaultLoader
             // Then not should find exports from a different assembly
             ExtensionStore store = ExtensionStore.CreateDefaultLoader<MyExportType>();
-            Assert.Equal(0, store.GetExports<MyExportType>().Count());
+            Assert.AreEqual(0, store.GetExports<MyExportType>().Count());
 
             // And should not find exports that are defined in the ServiceLayer assembly
             store = ExtensionStore.CreateDefaultLoader<ASTNodeFormatterFactory>();
-            Assert.Empty(store.GetExports<ASTNodeFormatterFactory>());            
+            Assert.That(store.GetExports<ASTNodeFormatterFactory>(), Is.Empty);            
         }
 
-        [Fact]
+        [Test]
         public void CreateDefaultServiceProviderShouldFindTypesInAllKnownAssemblies()
         {
             // Given a default ExtensionServiceProvider
             // Then we should not find exports from a test assembly
             ExtensionServiceProvider serviceProvider = ExtensionServiceProvider.CreateDefaultServiceProvider();
-            Assert.Empty(serviceProvider.GetServices<MyExportType>());
+            Assert.That(serviceProvider.GetServices<MyExportType>(), Is.Empty);
 
             // But should find exports that are defined in the main assembly            
-            Assert.NotEmpty(serviceProvider.GetServices<ASTNodeFormatterFactory>());
+            Assert.That(serviceProvider.GetServices<ASTNodeFormatterFactory>(), Is.Not.Empty);
         }
 
-        // [Fact]
+        // [Test]
         public void CreateStoreForCurrentDirectoryShouldFindExportsInDirectory()
         {
             // Given stores created for types in different assemblies
@@ -62,8 +62,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Extensibility
 
             // When I query exports
             // Then exports for all assemblies should be found
-            Assert.Equal(2, myStore.GetExports<MyExportType>().Count());
-            Assert.NotEmpty(querierStore.GetExports<ASTNodeFormatterFactory>());
+            Assert.AreEqual(2, myStore.GetExports<MyExportType>().Count());
+            Assert.That(querierStore.GetExports<ASTNodeFormatterFactory>(), Is.Not.Empty);
         }        
     }
 

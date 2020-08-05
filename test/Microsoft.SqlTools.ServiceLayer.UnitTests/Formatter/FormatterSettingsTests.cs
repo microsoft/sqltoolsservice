@@ -8,25 +8,25 @@ using Microsoft.SqlTools.ServiceLayer.Formatter;
 using Microsoft.SqlTools.ServiceLayer.Formatter.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Newtonsoft.Json.Linq;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
 {
     public class FormatterSettingsTests
     {
-        [Fact]
+        [Test]
         public void ValidateFormatterServiceDefaults()
         {
             var sqlToolsSettings = new SqlToolsSettings();
             Assert.Null(sqlToolsSettings.SqlTools.Format.AlignColumnDefinitionsInColumns);
-            Assert.Equal(CasingOptions.None, sqlToolsSettings.SqlTools.Format.DatatypeCasing);
-            Assert.Equal(CasingOptions.None, sqlToolsSettings.SqlTools.Format.KeywordCasing);
+            Assert.AreEqual(CasingOptions.None, sqlToolsSettings.SqlTools.Format.DatatypeCasing);
+            Assert.AreEqual(CasingOptions.None, sqlToolsSettings.SqlTools.Format.KeywordCasing);
             Assert.Null(sqlToolsSettings.SqlTools.Format.PlaceCommasBeforeNextStatement);
             Assert.Null(sqlToolsSettings.SqlTools.Format.PlaceSelectStatementReferencesOnNewLine);
             Assert.Null(sqlToolsSettings.SqlTools.Format.UseBracketForIdentifiers);
         }
         
-        [Fact]
+        [Test]
         public void ValidateFormatSettingsParsedFromJson()
         {
             ValidateFormatSettings("mssql");
@@ -57,14 +57,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
             SqlToolsSettings sqlToolsSettings = messageParams.ToObject<SqlToolsSettings>();
 
             Assert.True(sqlToolsSettings.SqlTools.Format.AlignColumnDefinitionsInColumns);
-            Assert.Equal(CasingOptions.Lowercase, sqlToolsSettings.SqlTools.Format.DatatypeCasing);
-            Assert.Equal(CasingOptions.Uppercase, sqlToolsSettings.SqlTools.Format.KeywordCasing);
+            Assert.AreEqual(CasingOptions.Lowercase, sqlToolsSettings.SqlTools.Format.DatatypeCasing);
+            Assert.AreEqual(CasingOptions.Uppercase, sqlToolsSettings.SqlTools.Format.KeywordCasing);
             Assert.True(sqlToolsSettings.SqlTools.Format.PlaceCommasBeforeNextStatement);
             Assert.True(sqlToolsSettings.SqlTools.Format.PlaceSelectStatementReferencesOnNewLine);
             Assert.True(sqlToolsSettings.SqlTools.Format.UseBracketForIdentifiers);
         }
 
-        [Fact]
+        [Test]
         public void FormatOptionsMatchDefaultSettings()
         {
             var options = new FormatOptions();
@@ -74,14 +74,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
         private static void AssertOptionsHaveDefaultValues(FormatOptions options)
         {
             Assert.False(options.AlignColumnDefinitionsInColumns);
-            Assert.Equal(CasingOptions.None, options.DatatypeCasing);
-            Assert.Equal(CasingOptions.None, options.KeywordCasing);
+            Assert.AreEqual(CasingOptions.None, options.DatatypeCasing);
+            Assert.AreEqual(CasingOptions.None, options.KeywordCasing);
             Assert.False(options.PlaceCommasBeforeNextStatement);
             Assert.False(options.PlaceEachReferenceOnNewLineInQueryStatements);
             Assert.False(options.EncloseIdentifiersInSquareBrackets);
         }
 
-        [Fact]
+        [Test]
         public void CanCopyDefaultFormatSettingsToOptions()
         {
             var sqlToolsSettings = new SqlToolsSettings();            
@@ -90,7 +90,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
             AssertOptionsHaveDefaultValues(options);
         }
 
-        [Fact]
+        [Test]
         public void CanCopyAlteredFormatSettingsToOptions()
         {
             SqlToolsSettings sqlToolsSettings = CreateNonDefaultFormatSettings();
@@ -116,8 +116,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
         private static void AssertOptionsHaveExpectedNonDefaultValues(FormatOptions options)
         {
             Assert.True(options.AlignColumnDefinitionsInColumns);
-            Assert.Equal(CasingOptions.Lowercase, options.DatatypeCasing);
-            Assert.Equal(CasingOptions.Uppercase, options.KeywordCasing);
+            Assert.AreEqual(CasingOptions.Lowercase, options.DatatypeCasing);
+            Assert.AreEqual(CasingOptions.Uppercase, options.KeywordCasing);
             Assert.True(options.PlaceCommasBeforeNextStatement);
             Assert.True(options.PlaceEachReferenceOnNewLineInQueryStatements);
             Assert.True(options.EncloseIdentifiersInSquareBrackets);
@@ -130,7 +130,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
             Assert.False(options.DoNotFormatKeywords);
         }
 
-        [Fact]
+        [Test]
         public void CanMergeRequestOptionsAndSettings()
         {
             var sqlToolsSettings = CreateNonDefaultFormatSettings();
@@ -142,7 +142,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
             AssertOptionsHaveExpectedNonDefaultValues(options);
             Assert.False(options.UseTabs);
             Assert.True(options.UseSpaces);
-            Assert.Equal(2, options.SpacesPerIndent);
+            Assert.AreEqual(2, options.SpacesPerIndent);
         }
     }
 }

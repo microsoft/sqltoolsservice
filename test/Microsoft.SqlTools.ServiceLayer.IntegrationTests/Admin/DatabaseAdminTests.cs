@@ -10,7 +10,7 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
-using Xunit;
+using NUnit.Framework;
 using Moq;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;
@@ -44,8 +44,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AdminServices
         /// <summary>
         /// Validate creating a database with valid input
         /// </summary>
-        // [Fact]
-        public async void CreateDatabaseWithValidInputTest()
+        // [Test]
+        public async Task CreateDatabaseWithValidInputTest()
         {
             var result = GetLiveAutoCompleteTestObjects();
             var requestContext = new Mock<RequestContext<CreateDatabaseResponse>>();
@@ -68,8 +68,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AdminServices
         /// <summary>
         /// Get a default database info object
         /// </summary>
-        // [Fact]
-        public async void GetDefaultDatebaseInfoTest()
+        // [Test]
+        public async Task GetDefaultDatebaseInfoTest()
         {
             var result = GetLiveAutoCompleteTestObjects();
             var requestContext = new Mock<RequestContext<DefaultDatabaseInfoResponse>>();
@@ -89,8 +89,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AdminServices
         /// Get database info test
         /// </summary>
         /// Test is failing in code coverage runs. Reenable when stable.
-        /// [Fact]
-        public async void GetDatabaseInfoTest()
+        /// [Test]
+        public async Task GetDatabaseInfoTest()
         {
             var results = GetLiveAutoCompleteTestObjects();
             var requestContext = new Mock<RequestContext<GetDatabaseInfoResponse>>();

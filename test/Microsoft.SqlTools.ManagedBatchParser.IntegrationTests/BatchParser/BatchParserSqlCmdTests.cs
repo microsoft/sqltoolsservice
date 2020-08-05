@@ -7,10 +7,11 @@ using System;
 using System.IO;
 using Microsoft.SqlTools.ServiceLayer.BatchParser;
 using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
 {
+    [TestFixture]
     public class BatchParserSqlCmdTests : IDisposable
     {
         private BatchParserSqlCmd bpcmd;
@@ -41,62 +42,62 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
             }
         }
 
-        [Fact]
+        [Test]
         public void CheckSetVariable()
         {
-            Assert.Equal(bpcmd.InternalVariables.Count, 3);
+            Assert.AreEqual(3, bpcmd.InternalVariables.Count);
             bpcmd.SetVariable(testPOS, "variable4", "test4");
             bpcmd.SetVariable(testPOS, "variable5", "test5");
             bpcmd.SetVariable(testPOS, "variable6", "test6");
-            Assert.Equal(bpcmd.InternalVariables.Count, 6);
+            Assert.AreEqual(6, bpcmd.InternalVariables.Count);
         }
 
-        [Fact]
+        [Test]
         public void CheckSetNullValueVariable()
         {
-            Assert.Equal(bpcmd.InternalVariables.Count, 3);
+            Assert.AreEqual(3, bpcmd.InternalVariables.Count);
             bpcmd.SetVariable(testPOS, "variable4", "test4");
-            Assert.Equal(bpcmd.InternalVariables.Count, 4);
+            Assert.AreEqual(4, bpcmd.InternalVariables.Count);
             bpcmd.SetVariable(testPOS, "variable4", null);
-            Assert.Equal(bpcmd.InternalVariables.Count, 3);
+            Assert.AreEqual(3, bpcmd.InternalVariables.Count);
         }
 
-        [Fact]
+        [Test]
         public void CheckGetVariable()
         {
             string value = bpcmd.GetVariable(testPOS, "variable1");
-            Assert.Equal("test1", value);
+            Assert.AreEqual("test1", value);
             value = bpcmd.GetVariable(testPOS, "variable2");
-            Assert.Equal("test2", value);
+            Assert.AreEqual("test2", value);
             value = bpcmd.GetVariable(testPOS, "variable3");
-            Assert.Equal("test3", value);
+            Assert.AreEqual("test3", value);
         }
 
-        [Fact]
+        [Test]
         public void CheckGetNullVariable()
         {
             Assert.Null(bpcmd.GetVariable(testPOS, "variable6"));
         }
 
-        [Fact]
+        [Test]
         public void CheckInclude()
         {
             TextReader textReader = null;
             string outString = "out";
             var result = bpcmd.Include(null, out textReader, out outString);
-            Assert.Equal(result, BatchParserAction.Abort);
+            Assert.AreEqual(BatchParserAction.Abort, result);
         }
 
-        [Fact]
+        [Test]
         public void CheckOnError()
         {
             var errorActionChanged = bpcmd.ErrorActionChanged;
             var action = new OnErrorAction();
             var result = bpcmd.OnError(null, action);
-            Assert.Equal(result, BatchParserAction.Continue);
+            Assert.AreEqual(BatchParserAction.Continue, result);
         }
 
-        [Fact]
+        [Test]
         public void CheckConnectionChangedDelegate()
         {
             var initial = bpcmd.ConnectionChanged;
@@ -104,7 +105,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
             Assert.Null(bpcmd.ConnectionChanged);
         }
 
-        [Fact]
+        [Test]
         public void CheckVariableSubstitutionDisabled()
         {
             bpcmd.DisableVariableSubstitution();

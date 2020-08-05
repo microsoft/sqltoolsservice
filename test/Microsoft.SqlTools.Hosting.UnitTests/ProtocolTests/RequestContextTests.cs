@@ -8,15 +8,16 @@ using System.Collections.Concurrent;
 using System.Linq;
 using Microsoft.SqlTools.Hosting.Contracts.Internal;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
 {
+    [TestFixture]
     public class RequestContextTests
     {   
         #region Send Tests
 
-        [Fact]
+        [Test]
         public void SendResult()
         {
             // Setup: Create a blocking collection to collect the output
@@ -26,12 +27,10 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             var rc = new RequestContext<CommonObjects.TestMessageContents>(CommonObjects.RequestMessage, bc);
             rc.SendResult(CommonObjects.TestMessageContents.DefaultInstance);
 
-            // Then: The message writer should have sent a response
-            Assert.Single(bc);
-            Assert.Equal(MessageType.Response, bc.First().MessageType);
+            Assert.That(bc.Select(m => m.MessageType), Is.EqualTo(new[] { MessageType.Response }), "The message writer should have sent a response");
         }
 
-        [Fact]
+        [Test]
         public void SendEvent()
         {
             // Setup: Create a blocking collection to collect the output
@@ -40,13 +39,11 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             // If: I write an event with the request context
             var rc = new RequestContext<CommonObjects.TestMessageContents>(CommonObjects.RequestMessage, bc);
             rc.SendEvent(CommonObjects.EventType, CommonObjects.TestMessageContents.DefaultInstance);
-            
-            // Then: The message writer should have sent an event
-            Assert.Single(bc);
-            Assert.Equal(MessageType.Event, bc.First().MessageType);
+
+            Assert.That(bc.Select(m => m.MessageType), Is.EqualTo(new[] { MessageType.Event }), "The message writer should have sent an event");
         }
 
-        [Fact]
+        [Test]
         public void SendError()
         {
             // Setup: Create a blocking collection to collect the output
@@ -58,18 +55,15 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             var rc = new RequestContext<CommonObjects.TestMessageContents>(CommonObjects.RequestMessage, bc);
             rc.SendError(errorMessage, errorCode);
             
-            // Then: 
-            // ... The message writer should have sent an error
-            Assert.Single(bc);
-            Assert.Equal(MessageType.ResponseError, bc.First().MessageType);
-            
+            Assert.That(bc.Select(m => m.MessageType), Is.EqualTo(new[] { MessageType.ResponseError }), "The message writer should have sent an error");
+
             // ... The error object it built should have the reuired fields set
             var contents = bc.ToArray()[0].GetTypedContents<Error>();
-            Assert.Equal(errorCode, contents.Code);
-            Assert.Equal(errorMessage, contents.Message);
+            Assert.AreEqual(errorCode, contents.Code);
+            Assert.AreEqual(errorMessage, contents.Message);
         }
 
-        [Fact]
+        [Test]
         public void SendException()
         {
             // Setup: Create a blocking collection to collect the output
@@ -80,17 +74,13 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             var e = new Exception(errorMessage);
             var rc = new RequestContext<CommonObjects.TestMessageContents>(CommonObjects.RequestMessage, bc);
             rc.SendError(e);
-            
-            // Then: 
-            // ... The message writer should have sent an error
-            Assert.Single(bc);
-            var firstMessage = bc.First();
-            Assert.Equal(MessageType.ResponseError, firstMessage.MessageType);
-            
+
+            Assert.That(bc.Select(m => m.MessageType), Is.EqualTo(new[] { MessageType.ResponseError }), "The message writer should have sent an error");
+
             // ... The error object it built should have the reuired fields set
-            var contents = firstMessage.GetTypedContents<Error>();
-            Assert.Equal(e.HResult, contents.Code);
-            Assert.Equal(errorMessage, contents.Message);
+            var contents = bc.First().GetTypedContents<Error>();
+            Assert.AreEqual(e.HResult, contents.Code);
+            Assert.AreEqual(errorMessage, contents.Message);
             
         }
         

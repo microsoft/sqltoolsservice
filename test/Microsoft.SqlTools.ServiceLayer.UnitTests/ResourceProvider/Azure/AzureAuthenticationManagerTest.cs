@@ -13,7 +13,7 @@ using Microsoft.SqlTools.ResourceProvider.Core.Authentication;
 using Microsoft.SqlTools.ResourceProvider.Core.Contracts;
 using Microsoft.SqlTools.ResourceProvider.DefaultImpl;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Azure
 {
@@ -29,14 +29,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Azure
             serviceProvider.RegisterSingleService<IAzureResourceManager>(resourceManagerMock.Object);
         }
 
-        [Fact]
+        [Test]
         public async Task CurrentUserShouldBeNullWhenUserIsNotSignedIn()
         {
             IAzureAuthenticationManager accountManager = await CreateAccountManager(null, null);
             Assert.Null(await accountManager.GetCurrentAccountAsync());
         }
 
-        [Fact]
+        [Test]
         public async Task GetSubscriptionShouldReturnEmptyWhenUserIsNotSignedIn()
         {
             IAzureAuthenticationManager accountManager = await CreateAccountManager(null, null);
@@ -45,24 +45,24 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Azure
             Assert.False(result.Any());
         }
         
-        [Fact]
+        [Test]
         public async Task GetSubscriptionShouldThrowWhenUserNeedsAuthentication()
         {
             var currentUserAccount = CreateAccount();
             currentUserAccount.Account.IsStale = true;
             IAzureAuthenticationManager accountManager = await CreateAccountManager(currentUserAccount, null);
-            await Assert.ThrowsAsync<ExpiredTokenException>(() => accountManager.GetSelectedSubscriptionsAsync());
+            Assert.ThrowsAsync<ExpiredTokenException>(() => accountManager.GetSelectedSubscriptionsAsync());
         }
 
-        [Fact]
+        [Test]
         public async Task GetSubscriptionShouldThrowIfFailed()
         {
             var currentUserAccount = CreateAccount();
             IAzureAuthenticationManager accountManager = await CreateAccountManager(currentUserAccount, null, true);
-            await Assert.ThrowsAsync<ServiceFailedException>(() => accountManager.GetSelectedSubscriptionsAsync());
+            Assert.ThrowsAsync<ServiceFailedException>(() => accountManager.GetSelectedSubscriptionsAsync());
         }
 
-        [Fact]
+        [Test]
         public async Task GetSubscriptionShouldReturnTheListSuccessfully()
         {
             List<IAzureUserAccountSubscriptionContext> subscriptions = new List<IAzureUserAccountSubscriptionContext> {

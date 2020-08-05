@@ -3,6 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Xunit;
+using NUnit.Framework;
 
-[assembly: CollectionBehavior(DisableTestParallelization = true)]
+[assembly: NonParallelizable]

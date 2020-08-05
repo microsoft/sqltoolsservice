@@ -14,13 +14,13 @@ using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 {
     public class CancelTests
     {
-        [Fact]
+        [Test]
         public async Task CancelInProgressQueryTest()
         {
             // If:
@@ -46,12 +46,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
             // Then:
             // ... The query should not have been disposed but should have been cancelled
-            Assert.Equal(1, queryService.ActiveQueries.Count);
-            Assert.Equal(true, queryService.ActiveQueries[Constants.OwnerUri].HasCancelled);
+            Assert.AreEqual(1, queryService.ActiveQueries.Count);
+            Assert.AreEqual(true, queryService.ActiveQueries[Constants.OwnerUri].HasCancelled);
             cancelRequest.Validate();
         }
 
-        [Fact]
+        [Test]
         public async Task CancelExecutedQueryTest()
         {
             // If:
@@ -77,12 +77,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
             // Then:
             // ... The query should not have been disposed and cancel should not have excecuted
-            Assert.NotEmpty(queryService.ActiveQueries);
-            Assert.Equal(false, queryService.ActiveQueries[Constants.OwnerUri].HasCancelled);
+            Assert.That(queryService.ActiveQueries, Is.Not.Empty);
+            Assert.AreEqual(false, queryService.ActiveQueries[Constants.OwnerUri].HasCancelled);
             cancelRequest.Validate();
         }
 
-        [Fact]
+        [Test]
         public async Task CancelNonExistantTest()
         {
             // If:
@@ -100,7 +100,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             cancelRequest.Validate();
         }
 
-        [Fact]
+        [Test]
         public async Task CancelQueryBeforeExecutionStartedTest()
         {
             // Setup query settings
@@ -130,9 +130,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             await query.ExecutionTask;
 
             // Validate that query has not been executed but cancelled and query failed called function was called
-            Assert.Equal(true, query.HasCancelled);
-            Assert.Equal(false, query.HasExecuted);
-            Assert.Equal("Error Occured", errorMessage);
+            Assert.AreEqual(true, query.HasCancelled);
+            Assert.AreEqual(false, query.HasExecuted);
+            Assert.AreEqual("Error Occured", errorMessage);
         }
     }
 }

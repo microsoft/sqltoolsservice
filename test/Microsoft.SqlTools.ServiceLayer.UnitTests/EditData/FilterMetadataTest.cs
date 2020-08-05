@@ -6,7 +6,7 @@
 using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 {
@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
     /// </summary>
     public class FilterMetadataTest
     {
-        [Fact]
+        [Test]
         public void BasicFilterTest()
         {
             EditColumnMetadata[] metas = CreateMetadataColumns(new string[] { "[col1]", "[col2]", "[col3]" });
@@ -29,7 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             ValidateFilteredData(filteredData, cols);
         }
 
-        [Fact]
+        [Test]
         public void ReorderedResultsTest()
         {
             EditColumnMetadata[] metas = CreateMetadataColumns(new string[] { "[col1]", "[col2]", "[col3]" });
@@ -39,7 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             ValidateFilteredData(filteredData, cols);
         }
 
-        [Fact]
+        [Test]
         public void LessResultColumnsTest()
         {
             EditColumnMetadata[] metas = CreateMetadataColumns(new string[] { "[col1]", "[col2]", "[col3]", "[fillerCol1]", "[fillerCol2]" });
@@ -49,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             ValidateFilteredData(filteredData, cols);
         }
 
-        [Fact]
+        [Test]
         public void EmptyDataTest()
         {
             EditColumnMetadata[] metas = new EditColumnMetadata[0];
@@ -81,13 +81,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
         private void ValidateFilteredData(EditColumnMetadata[] filteredData, DbColumnWrapper[] cols)
         {
-            Assert.Equal(cols.Length, filteredData.Length);
+            Assert.AreEqual(cols.Length, filteredData.Length);
             for (int i = 0; i < cols.Length; i++)
             {
-                Assert.Equal(cols[i].ColumnName, filteredData[i].EscapedName);
+                Assert.AreEqual(cols[i].ColumnName, filteredData[i].EscapedName);
                 if (cols[i].ColumnOrdinal.HasValue)
                 {
-                    Assert.Equal(cols[i].ColumnOrdinal, filteredData[i].Ordinal);
+                    Assert.AreEqual(cols[i].ColumnOrdinal, filteredData[i].Ordinal);
                 }
             }
         }

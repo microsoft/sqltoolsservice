@@ -10,7 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ResourceProvider.Core;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Fakes;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Azure
 {
@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Azure
     /// </summary>
     public class AzureDatabaseDiscoveryProviderTest
     {
-        [Fact]
+        [Test]
         public async Task GetShouldReturnDatabasesSuccessfully()
         {
             string databaseName1 = "server/db1";
@@ -51,7 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Azure
             Assert.True(list.Count() == 2);
         }
 
-        [Fact]
+        [Test]
         public async Task GetShouldReturnDatabasesEvenIfFailsForOneServer()
         {
             string databaseName1 = "server1/db1";
@@ -85,7 +85,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Azure
             Assert.True(response.Errors.Count() == 1);
         }
 
-        [Fact]
+        [Test]
         public async Task GetShouldReturnDatabasesFromCacheIfGetCalledTwice()
         {
             Dictionary<string, List<string>> subscriptionToDatabaseMap = CreateSubscriptonMap(2);
@@ -107,7 +107,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Azure
             ValidateResult(subscriptionToDatabaseMap, list);
         }
 
-        [Fact]
+        [Test]
         public async Task GetShouldReturnDatabasesFromServiceIfGetCalledTwiceButRefreshed()
         {
             Dictionary<string, List<string>> subscriptionToDatabaseMap = CreateSubscriptonMap(2);
@@ -187,7 +187,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Azure
             return subscriptionToDatabaseMapCopy;
         }
 
-        [Fact]
+        [Test]
         public async Task GetShouldReturnEmptyGivenNotSubscriptionFound()
         {
             Dictionary<string, List<string>> subscriptionToDatabaseMap = new Dictionary<string, List<string>>();

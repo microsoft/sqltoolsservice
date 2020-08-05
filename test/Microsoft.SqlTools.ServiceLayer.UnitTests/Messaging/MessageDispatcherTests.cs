@@ -9,13 +9,13 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Hosting.Protocol.Channel;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
 {
     public class MessageDispatcherTests
     {
-        [Fact]
+        [Test]
         public void SetRequestHandlerWithOverrideTest()
         {           
             RequestType<int, int> requestType = RequestType<int, int>.Create("test/requestType");            
@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
             Assert.True(dispatcher.requestHandlers.Count > 0);            
         }
 
-        [Fact]
+        [Test]
         public void SetEventHandlerTest()
         {           
             EventType<int> eventType = EventType<int>.Create("test/eventType");            
@@ -44,7 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
             Assert.True(dispatcher.eventHandlers.Count > 0);            
         }
 
-        [Fact]
+        [Test]
         public void SetEventHandlerWithOverrideTest()
         {           
             EventType<int> eventType = EventType<int>.Create("test/eventType");            
@@ -59,7 +59,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
             Assert.True(dispatcher.eventHandlers.Count > 0);            
         }
 
-        [Fact]
+        [Test]
         public void OnListenTaskCompletedFaultedTaskTest()
         {           
             Task t = null;

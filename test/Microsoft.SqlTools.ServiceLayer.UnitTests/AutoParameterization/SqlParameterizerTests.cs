@@ -12,12 +12,13 @@ using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.ServiceLayer.AutoParameterizaition;
 using Microsoft.SqlTools.ServiceLayer.AutoParameterizaition.Exceptions;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
-using Xunit;
+using NUnit.Framework;
 
 using static System.Linq.Enumerable;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.AutoParameterization
 {
+    [TestFixture]
     /// <summary>
     /// Parameterization for Always Encrypted is a feature that automatically converts Transact-SQL variables
     /// into query parameters (instances of <c>SqlParameter</c> Class). This allows the underlying .NET Framework
@@ -38,7 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.AutoParameterization
         /// - Are declared and initialized in the same statement(inline initialization).
         /// - Are initialized using a single literal.
         /// </summary>
-        [Fact]
+        [Test]
         public void SqlParameterizerShouldParameterizeValidVariables()
         {
             const string ssn = "795-73-9838";
@@ -56,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.AutoParameterization
             DbCommand command = new SqlCommand { CommandText = sql };
             command.Parameterize();
 
-            Assert.Equal(expected: 3, actual: command.Parameters.Count);
+            Assert.AreEqual(expected: 3, actual: command.Parameters.Count);
         }
 
         /// <summary>
@@ -67,7 +68,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.AutoParameterization
         /// The second is using a function used instead of a literal and so should not be parameterized.
         /// The third is using an expression used instead of a literal and so should not be parameterized.
         /// </summary>
-        [Fact]
+        [Test]
         public void SqlParameterizerShouldNotParameterizeInvalidVariables()
         {
             string sql = $@"
@@ -82,7 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.AutoParameterization
             DbCommand command = new SqlCommand { CommandText = sql };
             command.Parameterize();
 
-            Assert.Equal(expected: 0, actual: command.Parameters.Count);
+            Assert.AreEqual(expected: 0, actual: command.Parameters.Count);
         }
 
         /// <summary>
@@ -90,7 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.AutoParameterization
         /// Batch statements larger than 300000 characters (Approximately 600 Kb) should
         /// throw <c>ParameterizationScriptTooLargeException</c>.
         /// </summary>
-        [Fact]
+        [Test]
         public void SqlParameterizerShouldThrowWhenSqlIsTooLong()
         {
             
@@ -118,7 +119,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.AutoParameterization
         /// During parameterization, if we could not parse the SQL we will throw an <c>ParameterizationParsingException</c>.
         /// Better to catch the error here than on the server.
         /// </summary>
-        [Fact]
+        [Test]
         public void SqlParameterizerShouldThrowWhenSqlIsInvalid()
         {
             string invalidSql = "THIS IS INVALID SQL";
@@ -135,7 +136,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.AutoParameterization
         /// literal used for the initialization of the variable must also match the type in the variable declaration.
         /// If not, a <c>ParameterizationFormatException</c> should get thrown.
         /// </summary>
-        [Fact]
+        [Test]
         public void SqlParameterizerShouldThrowWhenLiteralHasTypeMismatch()
         {
             // variable is declared an int but is getting set to character data
@@ -157,7 +158,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.AutoParameterization
         /// the DbCommand object will throw an exception with the following message:
         ///    BeginExecuteReader: CommandText property has not been initialized
         /// </summary>
-        [Fact]
+        [Test]
         public void CommentOnlyBatchesShouldNotBeErasedFromCommandText()
         {
             string sql = $@"
@@ -169,7 +170,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.AutoParameterization
             command.Parameterize();
 
             Assert.False(string.IsNullOrEmpty(command.CommandText));
-            Assert.Equal(expected: sql, actual: command.CommandText);
+            Assert.AreEqual(expected: sql, actual: command.CommandText);
         }
 
         #endregion
@@ -180,21 +181,21 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.AutoParameterization
         /// When requesting a collection of <c>ScriptFileMarker</c> by calling the <c>SqlParameterizer.CodeSense</c>
         /// method, if a null script is passed in, the reuslt should be an empty collection.
         /// </summary>
-        [Fact]
+        [Test]
         public void CodeSenseShouldReturnEmptyListWhenGivenANullScript()
         {
             string sql = null;
             IList<ScriptFileMarker> result = SqlParameterizer.CodeSense(sql);
 
             Assert.NotNull(result);
-            Assert.Empty(result);
+            Assert.That(result, Is.Empty);
         }
 
         /// <summary>
         /// When requesting a collection of <c>ScriptFileMarker</c> by calling the <c>SqlParameterizer.CodeSense</c>
         /// method, if a script is passed in that contains no valid parameters, the reuslt should be an empty collection.
         /// </summary>
-        [Fact]
+        [Test]
         public void CodeSenseShouldReturnEmptyListWhenGivenAParameterlessScript()
         {
             // SQL with no parameters
@@ -206,7 +207,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.AutoParameterization
             IList<ScriptFileMarker> result = SqlParameterizer.CodeSense(sql);
 
             Assert.NotNull(result);
-            Assert.Empty(result);
+            Assert.That(result, Is.Empty);
         }
 
         /// <summary>
@@ -214,7 +215,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.AutoParameterization
         /// SQL statements larger than 300000 characters (Approximately 600 Kb) should
         /// return a max string sength code sense item. These will be returned to ADS to display to the user as intelli-sense.
         /// </summary>
-        [Fact]
+        [Test]
         public void CodeSenseShouldReturnMaxStringLengthScriptFileMarkerErrorItemWhenScriptIsTooLong()
         {
             // SQL length of 300 characters
@@ -235,10 +236,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.AutoParameterization
 
             Console.WriteLine(result[0].Message);
 
-            Assert.NotEmpty(result);
-            Assert.Equal(expected: 1, actual: result.Count);
-            Assert.Equal(expected: ScriptFileMarkerLevel.Error, actual: result[0].Level);
-            Assert.Equal(expected: expectedMessage, actual: result[0].Message);
+            Assert.That(result, Is.Not.Empty);
+            Assert.AreEqual(expected: 1, actual: result.Count);
+            Assert.AreEqual(expected: ScriptFileMarkerLevel.Error, actual: result[0].Level);
+            Assert.AreEqual(expected: expectedMessage, actual: result[0].Message);
         }
 
         /// <summary>
@@ -246,7 +247,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.AutoParameterization
         /// method, if a script is passed in that contains 3 valid parameters, the reuslt should be a collection of
         /// three informational code sense items. These will be returned to ADS to display to the user as intelli-sense.
         /// </summary>
-        [Fact]
+        [Test]
         public void CodeSenseShouldReturnInformationalCodeSenseItemsForValidParameters()
         {
             const string ssn = "795-73-9838";
@@ -263,8 +264,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.AutoParameterization
 
             IList<ScriptFileMarker> result = SqlParameterizer.CodeSense(sql);
 
-            Assert.NotEmpty(result);
-            Assert.Equal(expected: 3, actual: result.Count);
+            Assert.That(result, Is.Not.Empty);
+            Assert.AreEqual(expected: 3, actual: result.Count);
             Assert.True(Enumerable.All(result, i => i.Level == ScriptFileMarkerLevel.Information));
         }
 

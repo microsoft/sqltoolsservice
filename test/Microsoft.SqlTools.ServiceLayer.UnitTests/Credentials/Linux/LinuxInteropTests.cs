@@ -6,13 +6,14 @@
 using Microsoft.SqlTools.Credentials;
 using Microsoft.SqlTools.Credentials.Linux;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials.Linux
 {
+    [TestFixture]
     public class LinuxInteropTests
     {
-        [Fact]
+        [Test]
         public void GetEUidReturnsInt()
         {
 #if !WINDOWS_ONLY_BUILD           
@@ -23,14 +24,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials.Linux
 #endif           
         }
 
-        [Fact]
+        [Test]
         public void GetHomeDirectoryFromPwFindsHomeDir()
         {
 #if !WINDOWS_ONLY_BUILD
             RunIfWrapper.RunIfLinux(() =>
             {
                 string userDir = LinuxCredentialStore.GetHomeDirectoryFromPw();
-                Assert.StartsWith("/", userDir);
+                Assert.That(userDir, Does.StartWith("/"), "GetHomeDirectoryFromPw");
             });
 #endif
         }

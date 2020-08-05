@@ -5,13 +5,14 @@
 
 using System;
 using Microsoft.SqlTools.ServiceLayer.DacFx;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DacFx
 {
+    [TestFixture]
     public class DacFxTests
     {
-        [Fact]
+        [Test]
         public void ExtractParseVersionShouldThrowExceptionGivenInvalidVersion()
         {
             string invalidVersion = "invalidVerison";

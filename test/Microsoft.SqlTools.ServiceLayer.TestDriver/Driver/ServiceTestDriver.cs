@@ -49,9 +49,14 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Driver
             string serviceHostArguments = "--enable-logging";
             if (string.IsNullOrWhiteSpace(serviceHostExecutable))
             {
+                
                 // Include a fallback value to for running tests within visual studio
                 serviceHostExecutable =
                     @"..\..\..\..\..\src\Microsoft.SqlTools.ServiceLayer\bin\Debug\netcoreapp3.1\win7-x64\MicrosoftSqlToolsServiceLayer.exe";
+                if (!File.Exists(serviceHostExecutable))
+                {
+                    serviceHostExecutable = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "MicrosoftSqlToolsServiceLayer.exe");
+                }
             }
 
             serviceHostExecutable = Path.GetFullPath(serviceHostExecutable);

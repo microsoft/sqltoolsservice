@@ -6,28 +6,31 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 {
+    [TestFixture]
     /// <summary>
     /// Scripting service end-to-end integration tests that use the SqlScriptPublishModel type to generate scripts.
     /// </summary>
-    public class SqlScriptPublishModelTests : IClassFixture<SqlScriptPublishModelTests.ScriptingFixture>
+    public class SqlScriptPublishModelTests 
     {
-        public SqlScriptPublishModelTests(ScriptingFixture scriptingFixture)
+        [OneTimeSetUp]
+        public void SetupSqlScriptPublishModelTests()
         {
-            this.Fixture = scriptingFixture;
+            Fixture = new ScriptingFixture();
         }
 
-        public ScriptingFixture Fixture { get; private set; }
+        private static ScriptingFixture Fixture { get; set; }
 
-        public SqlTestDb Northwind { get { return this.Fixture.Database; } }
+        private SqlTestDb Northwind { get { return Fixture.Database; } }
 
-        [Fact]
+        [Test]
         public async Task ListSchemaObjects()
         {
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
@@ -40,11 +43,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 
                 ScriptingListObjectsResult result = await testService.ListScriptingObjects(requestParams);
                 ScriptingListObjectsCompleteParams completeParameters = await testService.Driver.WaitForEvent(ScriptingListObjectsCompleteEvent.Type, TimeSpan.FromSeconds(30));
-                Assert.Equal<int>(ScriptingFixture.ObjectCountWithoutDatabase, completeParameters.ScriptingObjects.Count);
+                Assert.AreEqual(ScriptingFixture.ObjectCountWithoutDatabase, completeParameters.ScriptingObjects.Count);
             }
         }
 
-        [Fact]
+        [Test]
         public async Task ScriptDatabaseSchema()
         {
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
@@ -65,7 +68,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             }
         }
 
-        [Fact]
+        [Test]
         public async Task ScriptDatabaseSchemaAndData()
         {
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
@@ -86,7 +89,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             }
         }
 
-        [Fact]
+        [Test]
         public async Task ScriptTable()
         {
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
@@ -115,11 +118,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 ScriptingPlanNotificationParams planEvent = await testService.Driver.WaitForEvent(ScriptingPlanNotificationEvent.Type, TimeSpan.FromSeconds(1));
                 ScriptingCompleteParams parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(30));
                 Assert.True(parameters.Success);
-                Assert.Equal<int>(1, planEvent.Count);
+                Assert.AreEqual(1, planEvent.Count);
             }
         }
 
-        [Fact]
+        [Test]
         public async Task ScriptTableUsingIncludeFilter()
         {
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
@@ -147,11 +150,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 ScriptingPlanNotificationParams planEvent = await testService.Driver.WaitForEvent(ScriptingPlanNotificationEvent.Type, TimeSpan.FromSeconds(30));
                 ScriptingCompleteParams parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(30));
                 Assert.True(parameters.Success);
-                Assert.Equal<int>(1, planEvent.Count);
+                // Work around SMO bug https://github.com/microsoft/sqlmanagementobjects/issues/19 which leads to non-unique URNs in the collection
+                Assert.That(planEvent.Count, Is.AtLeast(1), "ScripingPlanNotificationParams.Count");
+                Assert.That(planEvent.ScriptingObjects.All(obj => obj.Name == "Customers" && obj.Schema == "dbo" && obj.Type == "Table"), "ScriptingPlanNotificationParams.ScriptingObjects contents");
             }
         }
 
-        [Fact]
+        [Test]
         public async Task ScriptTableAndData()
         {
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
@@ -179,11 +184,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 ScriptingPlanNotificationParams planEvent = await testService.Driver.WaitForEvent(ScriptingPlanNotificationEvent.Type, TimeSpan.FromSeconds(30));
                 ScriptingCompleteParams parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(30));
                 Assert.True(parameters.Success);
-                Assert.Equal<int>(1, planEvent.Count);
+                // Work around SMO bug https://github.com/microsoft/sqlmanagementobjects/issues/19 which leads to non-unique URNs in the collection
+                Assert.That(planEvent.Count, Is.AtLeast(1), "ScripingPlanNotificationParams.Count");
+                Assert.That(planEvent.ScriptingObjects.All(obj => obj.Name == "Customers" && obj.Schema == "dbo" && obj.Type == "Table"), "ScriptingPlanNotificationParams.ScriptingObjects contents");
             }
         }
 
-        [Fact]
+        [Test]
         public async Task ScriptTableDoesNotExist()
         {
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
@@ -211,13 +218,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 ScriptingResult result = await testService.Script(requestParams);
                 ScriptingCompleteParams parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(15));
                 Assert.True(parameters.HasError);
-                Assert.True(parameters.ErrorMessage.Contains("An error occurred while scripting the objects."));
-                Assert.Contains("The Table '[dbo].[TableDoesNotExist]' does not exist on the server.", parameters.ErrorDetails);
+                Assert.That(parameters.ErrorMessage, Contains.Substring("An error occurred while scripting the objects."), "parameters.ErrorMessage");
+                Assert.That(parameters.ErrorDetails, Contains.Substring("The Table '[dbo].[TableDoesNotExist]' does not exist on the server."), "parameters.ErrorDetails");
             }
         }
 
-        [Fact]
-        public async void ScriptSchemaCancel()
+        [Test]
+        public async Task ScriptSchemaCancel()
         {
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
             {
@@ -232,15 +239,15 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 };
 
                 var result = Task.Run(() => testService.Script(requestParams));
-                ScriptingProgressNotificationParams progressParams = await testService.Driver.WaitForEvent(ScriptingProgressNotificationEvent.Type, TimeSpan.FromSeconds(10));
-                Task.Run(() => testService.CancelScript(progressParams.OperationId).Wait());
+                ScriptingProgressNotificationParams progressParams = await testService.Driver.WaitForEvent(ScriptingProgressNotificationEvent.Type, TimeSpan.FromSeconds(60));
+                await Task.Run(() => testService.CancelScript(progressParams.OperationId));
                 ScriptingCompleteParams cancelEvent = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(10));
                 Assert.True(cancelEvent.Canceled);
             }
         }
 
 
-        [Fact]
+        [Test]
         public async Task ScriptSchemaInvalidConnectionString()
         {
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
@@ -258,11 +265,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 ScriptingResult result = await testService.Script(requestParams);
                 ScriptingCompleteParams parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(10));
                 Assert.True(parameters.HasError);
-                Assert.Equal("Error parsing ScriptingParams.ConnectionString property.", parameters.ErrorMessage);
+                Assert.AreEqual("Error parsing ScriptingParams.ConnectionString property.", parameters.ErrorMessage);
             }
         }
 
-        [Fact]
+        [Test]
         public async Task ScriptSchemaInvalidFilePath()
         {
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
@@ -280,11 +287,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 ScriptingResult result = await testService.Script(requestParams);
                 ScriptingCompleteParams parameters = await testService.Driver.WaitForEvent(ScriptingCompleteEvent.Type, TimeSpan.FromSeconds(10));
                 Assert.True(parameters.HasError);
-                Assert.Equal("Invalid directory specified by the ScriptingParams.FilePath property.", parameters.ErrorMessage);
+                Assert.AreEqual("Invalid directory specified by the ScriptingParams.FilePath property.", parameters.ErrorMessage);
             }
         }
 
-        [Fact]
+        [Test]
         public async Task ScriptSelectTable()
         {
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())
@@ -359,7 +366,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             }
         }
 
-        public void Dispose() { }
 
         public class ScriptingFixture : IDisposable
         {

@@ -20,8 +20,6 @@ using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Moq;
 using NUnit.Framework;
-using Xunit;
-using Assert = Xunit.Assert;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 {
@@ -30,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
         #region Get SQL Tests
 
-        [Fact]
+        [Test]
         public void ExecuteDocumentStatementTest()
         {
             string query = string.Format("{0}{1}GO{1}{0}", Constants.StandardQuery, Environment.NewLine);
@@ -41,10 +39,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             var queryText = queryService.GetSqlText(queryParams);
 
             // The text should match the standard query
-            Assert.Equal(queryText, Constants.StandardQuery);
+            Assert.AreEqual(queryText, Constants.StandardQuery);
         }
 
-        [Fact]
+        [Test]
         public void ExecuteDocumentStatementSameLine()
         {
             var statement1 = Constants.StandardQuery;
@@ -72,10 +70,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             var queryText = queryService.GetSqlText(queryParams);
 
             // The query text should match the expected statement at the cursor
-            Assert.Equal(expectedQueryText, queryText);
+            Assert.AreEqual(expectedQueryText, queryText);
         }
 
-        [Fact]
+        [Test]
         public void GetSqlTextFromDocumentRequestFull()
         {
             // Setup:
@@ -91,10 +89,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             var queryText = queryService.GetSqlText(queryParams);
 
             // Then: The text should match the constructed query
-            Assert.Equal(query, queryText);
+            Assert.AreEqual(query, queryText);
         }
 
-        [Fact]
+        [Test]
         public void GetSqlTextFromDocumentRequestPartial()
         {
             // Setup:
@@ -107,11 +105,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             var queryParams = new ExecuteDocumentSelectionParams { OwnerUri = Constants.OwnerUri, QuerySelection = Common.SubsectionDocument };
             var queryText = queryService.GetSqlText(queryParams);
 
-            // Then: The text should be a subset of the constructed query
-            Assert.Contains(queryText, query);
+            Assert.That(query, Does.Contain(queryText), "The text should be a subset of the constructed query");
         }
 
-        [Fact]
+        [Test]
         public void GetSqlTextFromStringRequest()
         {
             // Setup: 
@@ -124,10 +121,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             var queryText = queryService.GetSqlText(queryParams);
 
             // Then: The text should match the standard query
-            Assert.Equal(Constants.StandardQuery, queryText);
+            Assert.AreEqual(Constants.StandardQuery, queryText);
         }
 
-        [Fact]
+        [Test]
         public void GetSqlTextFromInvalidType()
         {
             // Setup:
@@ -146,7 +143,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
         #region Inter-Service API Tests
 
-        [Fact]
+        [Test]
         public async Task InterServiceExecuteNullExecuteParams()
         {
             // Setup: Create a query service
@@ -156,11 +153,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // If: I call the inter-service API to execute with a null execute params
             // Then: It should throw
-            await Assert.ThrowsAsync<ArgumentNullException>(
+            Assert.ThrowsAsync<ArgumentNullException>(
                 () => qes.InterServiceExecuteQuery(null, null, eventSender, null, null, null, null));
         }
 
-        [Fact]
+        [Test]
         public async Task InterServiceExecuteNullEventSender()
         {
             // Setup: Create a query service, and execute params
@@ -169,11 +166,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // If: I call the inter-service API to execute a query with a a null event sender
             // Then: It should throw
-            await Assert.ThrowsAsync<ArgumentNullException>(
+            Assert.ThrowsAsync<ArgumentNullException>(
                 () => qes.InterServiceExecuteQuery(executeParams, null, null, null, null, null, null));
         }
 
-        [Fact]
+        [Test]
         public async Task InterServiceDisposeNullSuccessFunc()
         {
             // Setup: Create a query service and dispose params
@@ -182,11 +179,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // If: I call the inter-service API to dispose a query with a null success function
             // Then: It should throw
-            await Assert.ThrowsAsync<ArgumentNullException>(
+            Assert.ThrowsAsync<ArgumentNullException>(
                 () => qes.InterServiceDisposeQuery(Constants.OwnerUri, null, failureFunc));
         }
 
-        [Fact]
+        [Test]
         public async Task InterServiceDisposeNullFailureFunc()
         {
             // Setup: Create a query service and dispose params
@@ -195,7 +192,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // If: I call the inter-service API to dispose a query with a null success function
             // Then: It should throw
-            await Assert.ThrowsAsync<ArgumentNullException>(
+            Assert.ThrowsAsync<ArgumentNullException>(
                 () => qes.InterServiceDisposeQuery(Constants.OwnerUri, successFunc, null));
         }
 
@@ -205,8 +202,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         // NOTE: In order to limit test duplication, we're running the ExecuteDocumentSelection
         // version of execute query. The code paths are almost identical.
 
-        [Fact]
-        private async Task QueryExecuteAllBatchesNoOp()
+        [Test]
+        public async Task QueryExecuteAllBatchesNoOp()
         {
             // If:
             // ... I request to execute a valid query with all batches as no op
@@ -225,10 +222,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
                 .AddEventValidation(QueryCompleteEvent.Type, p =>
                 {
                     // Validate OwnerURI matches
-                    Assert.Equal(Constants.OwnerUri, p.OwnerUri);
+                    Assert.AreEqual(Constants.OwnerUri, p.OwnerUri);
                     Assert.NotNull(p.BatchSummaries);
-                    Assert.Equal(2, p.BatchSummaries.Length);
-                    Assert.All(p.BatchSummaries, bs => Assert.Equal(0, bs.ResultSetSummaries.Length));
+                    Assert.AreEqual(2, p.BatchSummaries.Length);
+                    Assert.That(p.BatchSummaries.Select(s => s.ResultSetSummaries.Length), Has.All.EqualTo(0));
                 }).Complete();
             await Common.AwaitExecution(queryService, queryParams, efv.Object);
 
@@ -237,10 +234,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             efv.Validate();
 
             // ... There should be one active query
-            Assert.Equal(1, queryService.ActiveQueries.Count);
+            Assert.AreEqual(1, queryService.ActiveQueries.Count);
         }
 
-        [Fact]
+        [Test]
         public async Task QueryExecuteSingleBatchNoResultsTest()
         {
             // If:
@@ -264,13 +261,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             efv.Validate();
 
             // ... There should be one active query
-            Assert.Equal(1, queryService.ActiveQueries.Count);
+            Assert.AreEqual(1, queryService.ActiveQueries.Count);
         }
 
-        public static IEnumerable<object[]> TestResultSetsData(int numTests) => Common.TestResultSetsEnumeration.Select(r => new object[] { r }).Take(numTests);
+        private static readonly IEnumerable<object[]> TestResultSetsData = Common.TestResultSetsEnumeration.Select(r => new object[] { r }).Take(5);
 
-        [Xunit.Theory]
-        [MemberData(nameof(TestResultSetsData), parameters: 5)]
+        [Test]
+        [TestCaseSource(nameof(TestResultSetsData))]
         public async Task QueryExecuteSingleBatchSingleResultTest(TestResultSet testResultSet)
         {
             // If:
@@ -298,11 +295,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             efv.ValidateResultSetSummaries(collectedResultSetEventParams).Validate();
 
             // ... There should be one active query
-            Assert.Equal(1, queryService.ActiveQueries.Count);
+            Assert.AreEqual(1, queryService.ActiveQueries.Count);
         }
 
-        [Xunit.Theory]
-        [MemberData(nameof(TestResultSetsData), parameters: 4)]
+        [Test]
+        [TestCaseSource(nameof(TestResultSetsData))]
         public async Task QueryExecuteSingleBatchMultipleResultTest(TestResultSet testResultSet)
         {
             // If:
@@ -329,10 +326,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             efv.ValidateResultSetSummaries(collectedResultSetEventParams).Validate();
 
             // ... There should be one active query
-            Assert.Equal(1, queryService.ActiveQueries.Count);
+            Assert.AreEqual(1, queryService.ActiveQueries.Count);
         }
 
-        [Fact]
+        [Test]
         public async Task QueryExecuteMultipleBatchSingleResultTest()
         {
             // If:
@@ -362,10 +359,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             efv.ValidateResultSetSummaries(collectedResultSetEventParams).Validate();
 
             // ... There should be one active query
-            Assert.Equal(1, queryService.ActiveQueries.Count);
+            Assert.AreEqual(1, queryService.ActiveQueries.Count);
         }
 
-        [Fact]
+        [Test]
         public async Task QueryExecuteUnconnectedUriTest()
         {
             // Given:
@@ -385,10 +382,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             efv.Validate();
 
             // ... There should be no active queries
-            Assert.Empty(queryService.ActiveQueries);
+            Assert.That(queryService.ActiveQueries, Is.Empty);
         }
 
-        [Fact]
+        [Test]
         public async Task QueryExecuteInProgressTest()
         {
             // If:
@@ -413,10 +410,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             efv.Validate();
 
             // ... There should only be one active query
-            Assert.Equal(1, queryService.ActiveQueries.Count);
+            Assert.AreEqual(1, queryService.ActiveQueries.Count);
         }
 
-        [Fact]
+        [Test]
         public async Task QueryExecuteCompletedTest()
         {
             // If:
@@ -445,10 +442,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             efv.Validate();
 
             // ... There should only be one active query
-            Assert.Equal(1, queryService.ActiveQueries.Count);
+            Assert.AreEqual(1, queryService.ActiveQueries.Count);
         }
 
-        [Fact]
+        [Test]
         public async Task QueryExecuteInvalidQueryTest()
         {
             // If:
@@ -471,11 +468,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             efv.Validate();
 
             // ... There should not be an active query
-            Assert.Equal(1, queryService.ActiveQueries.Count);
+            Assert.AreEqual(1, queryService.ActiveQueries.Count);
         }
 
         // TODO https://github.com/Microsoft/vscode-mssql/issues/1003 reenable and make non-flaky
-        // [Fact]
+        // [Test]
         public async Task SimpleExecuteErrorWithNoResultsTest()
         {
             var queryService = Common.GetPrimedExecutionService(null, true, false, false, null);
@@ -493,12 +490,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             efv.Validate();
 
-            Assert.Equal(0, queryService.ActiveQueries.Count);
+            Assert.AreEqual(0, queryService.ActiveQueries.Count);
 
         }
 
         // TODO reenable and make non-flaky
-        // [Fact]
+        // [Test]
         public async Task SimpleExecuteVerifyResultsTest()
         {
             var queryService = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, false, null);
@@ -519,10 +516,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             efv.Validate();
 
-            Assert.Equal(0, queryService.ActiveQueries.Count);
+            Assert.AreEqual(0, queryService.ActiveQueries.Count);
         }
 
-        [Fact]
+        [Test]
         public async Task SimpleExecuteMultipleQueriesTest()
         {
             var queryService = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, false, null);
@@ -548,7 +545,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             efv1.Validate();
             efv2.Validate();
 
-            Assert.Equal(0, queryService.ActiveQueries.Count);
+            Assert.AreEqual(0, queryService.ActiveQueries.Count);
         }
 
         #endregion
@@ -569,7 +566,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         {
             return efv.AddResultValidation(p =>
             {
-                Assert.Equal(p.RowCount, testData[0].Rows.Count);
+                Assert.AreEqual(p.RowCount, testData[0].Rows.Count);
             });
         }
 
@@ -578,7 +575,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         {
             return efv.AddSimpleErrorValidation((m, e) =>
             {
-                Assert.Equal(m, expectedMessage);
+                Assert.AreEqual(m, expectedMessage);
             });
         }
 
@@ -595,7 +592,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             return efv.AddEventValidation(BatchStartEvent.Type, p =>
             {
                 // Validate OwnerURI and batch summary is returned
-                Assert.Equal(Constants.OwnerUri, p.OwnerUri);
+                Assert.AreEqual(Constants.OwnerUri, p.OwnerUri);
                 Assert.NotNull(p.BatchSummary);
             });
         }
@@ -606,7 +603,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             return efv.AddEventValidation(BatchCompleteEvent.Type, p =>
             {
                 // Validate OwnerURI and result summary are returned
-                Assert.Equal(Constants.OwnerUri, p.OwnerUri);
+                Assert.AreEqual(Constants.OwnerUri, p.OwnerUri);
                 Assert.NotNull(p.BatchSummary);
             });
         }
@@ -617,7 +614,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             return efv.AddEventValidation(MessageEvent.Type, p =>
             {
                 // Validate OwnerURI and message are returned
-                Assert.Equal(Constants.OwnerUri, p.OwnerUri);
+                Assert.AreEqual(Constants.OwnerUri, p.OwnerUri);
                 Assert.NotNull(p.Message);
             });
         }
@@ -628,7 +625,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             return efv.SetupCallbackOnMethodSendEvent(expectedEvent, (p) =>
             {
                 // Validate OwnerURI and summary are returned
-                Assert.Equal(Constants.OwnerUri, p.OwnerUri);
+                Assert.AreEqual(Constants.OwnerUri, p.OwnerUri);
                 Assert.NotNull(p.ResultSetSummary);
                 resultSetEventParamList?.Add(p);
             });
@@ -768,9 +765,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         {
             return efv.AddEventValidation(QueryCompleteEvent.Type, p =>
             {
-                Assert.Equal(Constants.OwnerUri, p.OwnerUri);
+                Assert.AreEqual(Constants.OwnerUri, p.OwnerUri);
                 Assert.NotNull(p.BatchSummaries);
-                Assert.Equal(expectedBatches, p.BatchSummaries.Length);
+                Assert.AreEqual(expectedBatches, p.BatchSummaries.Length);
             });
         }
     }

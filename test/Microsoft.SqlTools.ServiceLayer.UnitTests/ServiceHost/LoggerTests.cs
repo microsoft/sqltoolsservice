@@ -8,7 +8,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.Utility;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
 {
@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
         /// Test to verify that the logger initialization is generating a valid file
         /// Verifies that a test log entries is succesfully written to a default log file.
         /// </summary>
-        [Fact]
+        [Test]
         public void LoggerDefaultFile()
         {
             TestLogger test = new TestLogger()
@@ -40,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
         /// <summary>
         /// Test to verify that the logger initialization works using various possibilities.
         /// </summary>
-        [Fact]
+        [Test]
         public void LoggerTestInitialization()
         {
             int? testNo = 1;
@@ -172,7 +172,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
         /// <summary>
         /// Test to verify that there is no log file created if TracingLevel is set to off.
         /// </summary>
-        [Fact]
+        [Test]
         public void LoggerTracingLevelOff()
         {
             TestLogger test = new TestLogger()
@@ -194,7 +194,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
         /// Verifies that a test log entries logged at Information level are not present in log when tracingLevel
         /// is set to 'Critical'
         /// </summary>
-        [Fact]
+        [Test]
         public void LoggerInformationalNotLoggedWithCriticalTracingLevel()
         {
             TestLogger test = new TestLogger()
@@ -213,7 +213,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
         /// <summary>
         /// Test to verify that WriteWithCallstack() method turns on the callstack logging
         /// </summary>
-        [Fact]
+        [Test]
         public void LoggerWithCallstack()
         {
             TestLogger test = new TestLogger()
@@ -232,7 +232,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
         /// <summary>
         /// Test to verify that callstack logging is turned on, it does not get logged because tracing level filters them out.
         /// </summary>
-        [Fact]
+        [Test]
         public void LoggerWithCallstackFilteredOut()
         {
             TestLogger test = new TestLogger()
@@ -251,7 +251,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
         /// <summary>
         /// No TraceSource test to verify that WriteWithCallstack() method turns on the callstack logging
         /// </summary>
-        [Fact]
+        [Test]
         public void LoggerNoTraceSourceWithCallstack()
         {
             TestLogger test = new TestLogger()
@@ -271,7 +271,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
         /// <summary>
         /// No TraceSrouce test to verify that callstack logging is turned on, it does not get logged because tracing level filters them out.
         /// </summary>
-        [Fact]
+        [Test]
         public void LoggerNoTraceSourceWithCallstackFilteredOut()
         {
             TestLogger test = new TestLogger()
@@ -292,7 +292,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
         /// Tests to verify that upon changing TracingLevel from Warning To Error, 
         /// after the change, messages of Error type are present in the log and those logged with warning type are not present.
         /// </summary>
-        [Fact]
+        [Test]
         public void LoggerTracingLevelFromWarningToError()
         {
             // setup the test object
@@ -307,7 +307,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
         /// Tests to verify that upon changing TracingLevel from Error To Warning,  
         /// after the change, messages of Warning as well as of Error type are present in the log.
         /// </summary>
-        [Fact]
+        [Test]
         public void LoggerTracingLevelFromErrorToWarning()
         {
             // setup the test object
@@ -322,7 +322,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
         /// When not use TraceSource, test to verify that upon changing TracingLevel from Warning To Error, 
         /// after the change, messages of Error type are present in the log and those logged with warning type are not present.
         /// </summary>
-        [Fact]
+        [Test]
         public void LoggerNoTraceSourceTracingLevelFromWarningToError()
         {
             // setup the test object
@@ -340,7 +340,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
         /// 2nd that after a lot of log entries are written with AutoFlush on, explicitly flushing and closing the Tracing does not increase the file size
         ///     thereby verifying that there was no leftover log entries being left behind to be flushed.
         /// </summary>
-        [Fact]
+        [Test]
         public void LoggerAutolFlush()
         {
             // setup the test object
@@ -365,7 +365,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
         ///  When not use TraceSource, test to verify that upon changing TracingLevel from Error To Warning, 
         ///  after the change, messages of Warning as well as of Error type are present in the log.
         /// </summary>
-        [Fact]
+        [Test]
         public void LoggerNoTraceSourceTracingLevelFromErrorToWarning()
         {
             // setup the test object
@@ -384,7 +384,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
             string oldMessage = @"Old Message with Tracing Level set to Warning";
             test.LogMessage = oldMessage;
             // Initially with TracingLevel at Warning, logging of Warning type does not get filtered out.
-            Assert.Equal(SourceLevels.Warning, Logger.TracingLevel);
+            Assert.AreEqual(SourceLevels.Warning, Logger.TracingLevel);
             {
                 test.EventType = TraceEventType.Warning;
                 test.Write();
@@ -405,7 +405,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
 
             //Now Update the tracing level to Error. Now logging both of Warning type gets filtered and only Error type should succeed.
             Logger.TracingLevel = SourceLevels.Error;
-            Assert.Equal(SourceLevels.Error, Logger.TracingLevel);
+            Assert.AreEqual(SourceLevels.Error, Logger.TracingLevel);
             string newMessage = @"New Message After Tracing Level set to Error";
             test.LogMessage = newMessage;
 
@@ -439,7 +439,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
             string oldMessage = @"Old Message with Tracing Level set to Error";
             test.LogMessage = oldMessage;
             // Initially with TracingLevel at Error, logging of Warning type gets filtered out.
-            Assert.Equal(SourceLevels.Error, Logger.TracingLevel);
+            Assert.AreEqual(SourceLevels.Error, Logger.TracingLevel);
             {
                 test.EventType = TraceEventType.Warning;
                 test.Write();
@@ -460,7 +460,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
 
             //Now Update the tracing level to Warning. Now logging both of Error type and Warning type should succeed.
             Logger.TracingLevel = SourceLevels.Warning;
-            Assert.Equal(SourceLevels.Warning, Logger.TracingLevel);
+            Assert.AreEqual(SourceLevels.Warning, Logger.TracingLevel);
             string newMessage = @"New Message After Tracing Level set to Warning";
             test.LogMessage = newMessage;
 

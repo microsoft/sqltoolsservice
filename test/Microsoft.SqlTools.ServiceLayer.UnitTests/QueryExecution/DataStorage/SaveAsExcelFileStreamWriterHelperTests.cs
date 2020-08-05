@@ -12,7 +12,7 @@ using System.IO.Compression;
 using System.Text.RegularExpressions;
 using System.Xml;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
 {
@@ -86,36 +86,36 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
                 using (var reader = new StreamReader(zip.GetEntry(fileName).Open()))
                 {
                     string realContent = reader.ReadToEnd();
-                    Assert.Equal(referenceContent, realContent);
+                    Assert.AreEqual(referenceContent, realContent);
                 }
             }
         }
-        [Fact]
+        [Test]
         public void CheckContentType()
         {
             ContentMatch("[Content_Types].xml");
         }
-        [Fact]
+        [Test]
         public void CheckTopRels()
         {
             ContentMatch("_rels/.rels");
         }
-        [Fact]
+        [Test]
         public void CheckWorkbookRels()
         {
             ContentMatch("xl/_rels/workbook.xml.rels");
         }
-        [Fact]
+        [Test]
         public void CheckStyles()
         {
             ContentMatch("xl/styles.xml");
         }
-        [Fact]
+        [Test]
         public void CheckWorkbook()
         {
             ContentMatch("xl/workbook.xml");
         }
-        [Fact]
+        [Test]
         public void CheckSheet1()
         {
             ContentMatch("xl/worksheets/sheet1.xml");
@@ -148,16 +148,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
 
         }
 
-        [Fact]
+        [Test]
         public void ReferenceA1()
         {
             var xmlWriter = _xmlWriterMock.Object;
             var manager = new SaveAsExcelFileStreamWriterHelper.ReferenceManager(xmlWriter);
             manager.WriteAndIncreaseRowReference();
             manager.WriteAndIncreaseColumnReference();
-            Assert.Equal("A1", LastWrittenReference);
+            Assert.AreEqual("A1", LastWrittenReference);
         }
-        [Fact]
+        [Test]
         public void ReferenceZ1()
         {
             var xmlWriter = _xmlWriterMock.Object;
@@ -168,11 +168,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
                 manager.IncreaseColumnReference();
             }
             manager.WriteAndIncreaseColumnReference();
-            Assert.Equal("Z1", LastWrittenReference);
+            Assert.AreEqual("Z1", LastWrittenReference);
             manager.WriteAndIncreaseColumnReference();
-            Assert.Equal("AA1", LastWrittenReference);
+            Assert.AreEqual("AA1", LastWrittenReference);
         }
-        [Fact]
+        [Test]
         public void ReferenceZZ1()
         {
             var xmlWriter = _xmlWriterMock.Object;
@@ -184,11 +184,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
                 manager.IncreaseColumnReference();
             }
             manager.WriteAndIncreaseColumnReference();
-            Assert.Equal("ZZ1", LastWrittenReference);
+            Assert.AreEqual("ZZ1", LastWrittenReference);
             manager.WriteAndIncreaseColumnReference();
-            Assert.Equal("AAA1", LastWrittenReference);
+            Assert.AreEqual("AAA1", LastWrittenReference);
         }
-        [Fact]
+        [Test]
         public void ReferenceXFD()
         {
             var xmlWriter = _xmlWriterMock.Object;
@@ -202,31 +202,31 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             //The 16384 should be the maximal column and not throw
             manager.AssureColumnReference();
             manager.WriteAndIncreaseColumnReference();
-            Assert.Equal("XFD1", LastWrittenReference);
+            Assert.AreEqual("XFD1", LastWrittenReference);
             var ex = Assert.Throws<InvalidOperationException>(
                 () => manager.AssureColumnReference());
-            Assert.Contains("max column number is 16384", ex.Message);
+            Assert.That(ex.Message, Does.Contain("max column number is 16384"));
         }
-        [Fact]
+        [Test]
         public void ReferenceRowReset()
         {
             var xmlWriter = _xmlWriterMock.Object;
             var manager = new SaveAsExcelFileStreamWriterHelper.ReferenceManager(xmlWriter);
             manager.WriteAndIncreaseRowReference();
-            Assert.Equal(1, LastWrittenRow);
+            Assert.AreEqual(1, LastWrittenRow);
             manager.WriteAndIncreaseColumnReference();
-            Assert.Equal("A1", LastWrittenReference);
+            Assert.AreEqual("A1", LastWrittenReference);
             manager.WriteAndIncreaseColumnReference();
-            Assert.Equal("B1", LastWrittenReference);
+            Assert.AreEqual("B1", LastWrittenReference);
 
             //add row should reset column reference 
             manager.WriteAndIncreaseRowReference();
-            Assert.Equal(2, LastWrittenRow);
+            Assert.AreEqual(2, LastWrittenRow);
             manager.WriteAndIncreaseColumnReference();
-            Assert.Equal("A2", LastWrittenReference);
+            Assert.AreEqual("A2", LastWrittenReference);
         }
 
-        [Fact]
+        [Test]
         public void AddRowMustBeCalledBeforeAddCellException()
         {
             var xmlWriter = _xmlWriterMock.Object;
@@ -234,7 +234,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
 
             var ex = Assert.Throws<InvalidOperationException>(
                 () => manager.AssureColumnReference());
-            Assert.Contains("AddRow must be called before AddCell", ex.Message);
+            Assert.That(ex.Message, Does.Contain("AddRow must be called before AddCell"));
         }
 
     }

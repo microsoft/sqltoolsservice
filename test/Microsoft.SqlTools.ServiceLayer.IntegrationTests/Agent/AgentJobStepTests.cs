@@ -12,7 +12,7 @@ using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
 {
@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         /// <summary>
         /// TestHandleCreateAgentJobStepRequest
         /// </summary>
-        [Fact]
+        [Test]
         public async Task TestHandleCreateAgentJobStepRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
@@ -45,7 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         /// <summary>
         /// TestHandleUpdateAgentJobStepRequest
         /// </summary>
-        [Fact]
+        [Test]
         public async Task TestHandleUpdateAgentJobStepRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
@@ -71,7 +71,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         /// <summary>
         /// TestHandleDeleteAgentJobRequest
         /// </summary>
-        [Fact]
+        [Test]
         public async Task TestHandleDeleteAgentJobStepRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())

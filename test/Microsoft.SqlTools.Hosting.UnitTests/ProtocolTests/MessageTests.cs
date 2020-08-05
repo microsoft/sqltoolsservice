@@ -8,15 +8,16 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Newtonsoft.Json.Linq;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
 {
+    [TestFixture]
     public class MessageTests
     {
         #region Construction/Serialization Tests
         
-        [Fact]
+        [Test]
         public void CreateRequest()
         {
             // If: I create a request
@@ -36,7 +37,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             AssertPropertiesSet(expectedResults, message);
         }
 
-        [Fact]
+        [Test]
         public void CreateError()
         {
             // If: I create an error
@@ -54,7 +55,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             AssertPropertiesSet(expectedResults, message);
         }
 
-        [Fact]
+        [Test]
         public void CreateResponse()
         {
             // If: I create a response
@@ -72,7 +73,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             AssertPropertiesSet(expectedResults, message);
         }
 
-        [Fact]
+        [Test]
         public void CreateEvent()
         {
             // If: I create an event
@@ -101,16 +102,16 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             
             // JSON RPC Version
             List<string> expectedProperties = new List<string> {"jsonrpc"};
-            Assert.Equal("2.0", jObject["jsonrpc"]);
+            Assert.AreEqual("2.0", jObject["jsonrpc"].Value<string>());
             
             // Message Type
-            Assert.Equal(results.MessageType, message.MessageType);
+            Assert.AreEqual(results.MessageType, message.MessageType);
             
             // ID
             if (results.IdSet)
             {
-                Assert.Equal(CommonObjects.MessageId, message.Id);
-                Assert.Equal(CommonObjects.MessageId, jObject["id"]);
+                Assert.AreEqual(CommonObjects.MessageId, message.Id);
+                Assert.AreEqual(CommonObjects.MessageId, jObject["id"].Value<string>());
                 expectedProperties.Add("id");
             }
             else
@@ -121,8 +122,8 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             // Method
             if (results.MethodSetAs != null)
             {
-                Assert.Equal(results.MethodSetAs, message.Method);
-                Assert.Equal(results.MethodSetAs, jObject["method"]);
+                Assert.AreEqual(results.MethodSetAs, message.Method);
+                Assert.AreEqual(results.MethodSetAs, jObject["method"].Value<string>());
                 expectedProperties.Add("method");
             }
             else
@@ -133,22 +134,22 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             // Contents
             if (results.ContentsSetAs != null)
             {
-                Assert.Equal(CommonObjects.TestMessageContents.SerializedContents, message.Contents);
-                Assert.Equal(CommonObjects.TestMessageContents.SerializedContents, jObject[results.ContentsSetAs]);
+                Assert.AreEqual(CommonObjects.TestMessageContents.SerializedContents, message.Contents);
+                Assert.AreEqual(CommonObjects.TestMessageContents.SerializedContents, jObject[results.ContentsSetAs]);
                 expectedProperties.Add(results.ContentsSetAs);
             }
             
             // Error
             if (results.ErrorSet)
             {
-                Assert.Equal(CommonObjects.TestErrorContents.SerializedContents, message.Contents);
-                Assert.Equal(CommonObjects.TestErrorContents.SerializedContents, jObject["error"]);
+                Assert.AreEqual(CommonObjects.TestErrorContents.SerializedContents, message.Contents);
+                Assert.AreEqual(CommonObjects.TestErrorContents.SerializedContents, jObject["error"]);
                 expectedProperties.Add("error");
             }
             
             // Look for any extra properties set in the JObject
             IEnumerable<string> setProperties = jObject.Properties().Select(p => p.Name);
-            Assert.Empty(setProperties.Except(expectedProperties));
+            Assert.That(setProperties.Except(expectedProperties), Is.Empty, "extra properties in jObject");
         }
         
         private class MessagePropertyResults
@@ -164,7 +165,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
         
         #region Deserialization Tests
 
-        [Fact]
+        [Test]
         public void DeserializeMissingJsonRpc()
         {
             // If: I deserialize a json string that doesn't have a JSON RPC version
@@ -172,7 +173,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             Assert.Throws<MessageParseException>(() => Message.Deserialize("{\"id\": 123}"));
         }
         
-        [Fact]
+        [Test]
         public void DeserializeEvent()
         {
             // If: I deserialize an event json string
@@ -180,13 +181,13 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             
             // Then: I should get an event message back
             Assert.NotNull(m);
-            Assert.Equal(MessageType.Event, m.MessageType);
-            Assert.Equal("event", m.Method);
+            Assert.AreEqual(MessageType.Event, m.MessageType);
+            Assert.AreEqual("event", m.Method);
             Assert.NotNull(m.Contents);
             Assert.Null(m.Id);
         }
 
-        [Fact]
+        [Test]
         public void DeserializeEventMissingMethod()
         {
             // If: I deserialize an event json string that is missing a method
@@ -194,7 +195,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             Assert.Throws<MessageParseException>(() => Message.Deserialize("{\"jsonrpc\": \"2.0\", \"params\": {}}")); 
         }
 
-        [Fact]
+        [Test]
         public void DeserializeResponse()
         {
             // If: I deserialize a response json string
@@ -202,13 +203,13 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             
             // Then: I should get a response message back
             Assert.NotNull(m);
-            Assert.Equal(MessageType.Response, m.MessageType);
-            Assert.Equal("123", m.Id);
+            Assert.AreEqual(MessageType.Response, m.MessageType);
+            Assert.AreEqual("123", m.Id);
             Assert.NotNull(m.Contents);
             Assert.Null(m.Method);
         }
 
-        [Fact]
+        [Test]
         public void DeserializeErrorResponse()
         {
             // If: I deserialize an error response
@@ -216,13 +217,13 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             
             // Then: I should get an error response message back
             Assert.NotNull(m);
-            Assert.Equal(MessageType.ResponseError, m.MessageType);
-            Assert.Equal("123", m.Id);
+            Assert.AreEqual(MessageType.ResponseError, m.MessageType);
+            Assert.AreEqual("123", m.Id);
             Assert.NotNull(m.Contents);
             Assert.Null(m.Method);
         }
 
-        [Fact]
+        [Test]
         public void DeserializeRequest()
         {
             // If: I deserialize a request
@@ -230,13 +231,13 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             
             // Then: I should get a request message back
             Assert.NotNull(m);
-            Assert.Equal(MessageType.Request, m.MessageType);
-            Assert.Equal("123", m.Id);
-            Assert.Equal("request", m.Method);
+            Assert.AreEqual(MessageType.Request, m.MessageType);
+            Assert.AreEqual("123", m.Id);
+            Assert.AreEqual("request", m.Method);
             Assert.NotNull(m.Contents);
         }
 
-        [Fact]
+        [Test]
         public void DeserializeRequestMissingMethod()
         {
             // If: I deserialize a request that doesn't have a method parameter
@@ -244,7 +245,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             Assert.Throws<MessageParseException>(() => Message.Deserialize("{\"jsonrpc\": \"2.0\", \"params\": {}, \"id\": \"123\"}"));
         }
 
-        [Fact]
+        [Test]
         public void GetTypedContentsNull()
         {
             // If: I have a message that has a null contents, and I get the typed contents of it
@@ -255,7 +256,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             Assert.Null(c);
         }
 
-        [Fact]
+        [Test]
         public void GetTypedContentsSimpleValue()
         {
             // If: I have a message that has simple contents, and I get the typed contents of it
@@ -263,10 +264,10 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             var c = m.GetTypedContents<int>();
             
             // Then: I should get an int back
-            Assert.Equal(123, c);
+            Assert.AreEqual(123, c);
         }
 
-        [Fact]
+        [Test]
         public void GetTypedContentsClassValue()
         {
             // If: I have a message that has complex contents, and I get the typed contents of it
@@ -274,16 +275,16 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             var c = m.GetTypedContents<CommonObjects.TestMessageContents>();
             
             // Then: I should get the default instance back
-            Assert.Equal(CommonObjects.TestMessageContents.DefaultInstance, c);
+            Assert.AreEqual(CommonObjects.TestMessageContents.DefaultInstance, c);
         }
 
-        [Fact]
+        [Test]
         public void GetTypedContentsInvalid()
         {
             // If: I have a message that has contents and I get incorrectly typed contents from it
             // Then: I should get an exception back
             var m = Message.CreateResponse(CommonObjects.MessageId, CommonObjects.TestMessageContents.DefaultInstance);
-            Assert.ThrowsAny<Exception>(() => m.GetTypedContents<int>());
+            Assert.Throws<ArgumentException>(() => m.GetTypedContents<int>());
         }
         
         #endregion

@@ -7,19 +7,23 @@ using System;
 using System.Linq;
 using Microsoft.SqlTools.Hosting.Extensibility;
 using Microsoft.SqlTools.Hosting.Utility;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.Hosting.UnitTests.ExtensibilityTests
 {
+
+    [TestFixture]
     public class ServiceProviderTests
     {
-        private readonly RegisteredServiceProvider provider;
-        public ServiceProviderTests()
+        private RegisteredServiceProvider provider;
+
+        [SetUp]
+        public void SetupServiceProviderTests()
         {
             provider = new RegisteredServiceProvider();
-        }
+        } 
 
-        [Fact]
+        [Test]
         public void GetServiceShouldReturnNullIfNoServicesRegistered()
         {
             // Given no service registered
@@ -30,7 +34,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ExtensibilityTests
         }
 
 
-        [Fact]
+        [Test]
         public void GetSingleServiceThrowsMultipleServicesRegistered()
         {
             // Given 2 services registered
@@ -40,44 +44,43 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ExtensibilityTests
             Assert.Throws<InvalidOperationException>(() => provider.GetService<MyProviderService>());
         }
 
-        [Fact]
+        [Test]
         public void GetServicesShouldReturnEmptyIfNoServicesRegistered()
         {
             // Given no service regisstered
             // When I call GetService
             var services = provider.GetServices<MyProviderService>();
-            // Then I expect empty enumerable to be returned
-            Assert.NotNull(services);
-            Assert.Empty(services);
+            Assert.That(services, Is.Empty, "provider.GetServices with no service registered");
         }
 
-        [Fact]
+        [Test]
         public void GetServiceShouldReturnRegisteredService()
         {
             MyProviderService service = new MyProviderService();
             provider.RegisterSingleService(service);
 
             var returnedService = provider.GetService<MyProviderService>();
-            Assert.Equal(service, returnedService);            
+            Assert.AreEqual(service, returnedService);            
         }
 
-        [Fact]
+        // DEVNOTE: The name of this test doesn't match the code, which is pretty much the same as the one above.
+        [Test]
         public void GetServicesShouldReturnRegisteredServiceWhenMultipleServicesRegistered()
         {
             MyProviderService service = new MyProviderService();
-            provider.RegisterSingleService(service);          
+            provider.RegisterSingleService(service);
 
             var returnedServices = provider.GetServices<MyProviderService>();
-            Assert.Equal(service, returnedServices.Single());
+            Assert.AreEqual(service, returnedServices.Single());
         }
 
-        [Fact]
+        [Test]
         public void RegisterServiceProviderShouldThrowIfServiceIsIncompatible()
         {
             MyProviderService service = new MyProviderService();
             Assert.Throws<InvalidOperationException>(() => provider.RegisterSingleService(typeof(OtherService), service));
         }
-        [Fact]
+        [Test]
         public void RegisterServiceProviderShouldThrowIfServiceAlreadyRegistered()
         {
             MyProviderService service = new MyProviderService();
@@ -86,7 +89,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ExtensibilityTests
             Assert.Throws<InvalidOperationException>(() => provider.RegisterSingleService(service));
         }
         
-        [Fact]
+        [Test]
         public void RegisterShouldThrowIfServiceAlreadyRegistered()
         {
             MyProviderService service = new MyProviderService();
@@ -95,7 +98,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ExtensibilityTests
             Assert.Throws<InvalidOperationException>(() => provider.Register(() => service.AsSingleItemEnumerable()));
         }
 
-        [Fact]
+        [Test]
         public void RegisterShouldThrowIfServicesAlreadyRegistered()
         {
             provider.Register(() => new [] { new MyProviderService(), new MyProviderService() });

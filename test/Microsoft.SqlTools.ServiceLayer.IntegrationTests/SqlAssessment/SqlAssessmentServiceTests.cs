@@ -20,8 +20,6 @@ using Microsoft.SqlTools.ServiceLayer.SqlAssessment;
 using Microsoft.SqlTools.ServiceLayer.SqlAssessment.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using NUnit.Framework;
-using Xunit;
-using Assert = Xunit.Assert;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlAssessment
 {
@@ -31,8 +29,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlAssessment
 
         private static readonly string[] AllowedSeverityLevels = { "Information", "Warning", "Critical" };
 
-        [Fact]
-        public async void InvokeSqlAssessmentServerTest()
+        [Test]
+        public async Task InvokeSqlAssessmentServerTest()
         {
             var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo("master");
 
@@ -46,23 +44,19 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlAssessment
                                SqlObjectType.Server,
                                liveConnection);
 
-            Assert.All(
-                response.Items,
-                i =>
-                    {
-                        Assert.NotNull(i.Message);
-                        Assert.NotEmpty(i.Message);
-                        Assert.Equal(serverInfo.ServerName, i.TargetName);
-
-                        if (i.Kind == 0)
-                        {
-                            AssertInfoPresent(i);
-                        }
-                    });
+            Assert.Multiple(() =>
+            {
+                Assert.That(response.Items.Select(i => i.Message), Has.All.Not.Null.Or.Empty);
+                Assert.That(response.Items.Select(i => i.TargetName), Has.All.EqualTo(serverInfo.ServerName));
+                foreach (var i in response.Items.Where(i => i.Kind == 0))
+                {
+                    AssertInfoPresent(i);
+                }
+            });
         }
 
-        [Fact]
-        public async void GetAssessmentItemsServerTest()
+        [Test]
+        public async Task GetAssessmentItemsServerTest()
         {
             var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo("master");
 
@@ -76,17 +70,18 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlAssessment
                                SqlObjectType.Server,
                                liveConnection);
 
-            Assert.All(
-                response.Items,
-                i =>
+            Assert.Multiple(() =>
+            {
+                Assert.That(response.Items.Select(i => i.TargetName), Has.All.EqualTo(serverInfo.ServerName));
+                foreach (var i in response.Items)
                 {
                     AssertInfoPresent(i);
-                    Assert.Equal(serverInfo.ServerName, i.TargetName);
-                });
+                }
+            });
         }
 
-        [Fact]
-        public async void GetAssessmentItemsDatabaseTest()
+        [Test]
+        public async Task GetAssessmentItemsDatabaseTest()
         {
             const string DatabaseName = "tempdb";
             var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo(DatabaseName);
@@ -95,17 +90,18 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlAssessment
                                SqlObjectType.Database,
                                liveConnection);
 
-            Assert.All(
-                response.Items,
-                i =>
+            Assert.Multiple(() =>
+            {
+                Assert.That(response.Items.Select(i => i.TargetName), Has.All.EndsWith(":" + DatabaseName));
+                foreach (var i in response.Items)
                 {
-                    StringAssert.EndsWith(":" + DatabaseName, i.TargetName);
                     AssertInfoPresent(i);
-                });
+                }
+            });
         }
 
-        [Fact]
-        public async void InvokeSqlAssessmentIDatabaseTest()
+        [Test]
+        public async Task InvokeSqlAssessmentIDatabaseTest()
         {
             const string DatabaseName = "tempdb";
             var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo(DatabaseName);
@@ -114,19 +110,15 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlAssessment
                                SqlObjectType.Database,
                                liveConnection);
 
-            Assert.All(
-                response.Items,
-                i =>
+            Assert.Multiple(() =>
+            {
+                Assert.That(response.Items.Select(i => i.Message), Has.All.Not.Null.Or.Empty);
+                Assert.That(response.Items.Select(i => i.TargetName), Has.All.EndsWith(":" + DatabaseName));
+                foreach (var i in response.Items.Where(i => i.Kind == 0))
                 {
-                    StringAssert.EndsWith(":" + DatabaseName, i.TargetName);
-                    Assert.NotNull(i.Message);
-                    Assert.NotEmpty(i.Message);
-
-                    if (i.Kind == 0)
-                    {
-                        AssertInfoPresent(i);
-                    }
-                });
+                    AssertInfoPresent(i);
+                }
+            });
         }
 
         private static async Task<AssessmentResult<TResult>> CallAssessment<TResult>(
@@ -176,13 +168,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlAssessment
             Assert.NotNull(response);
             if (response.Success)
             {
-                Assert.All(
-                    response.Items,
-                    i =>
-                    {
-                        Assert.Equal(sqlObjectType, i.TargetType);
-                        Assert.Contains(i.Level, AllowedSeverityLevels);
-                    });
+                Assert.That(response.Items.Select(i => i.TargetType), Has.All.EqualTo(sqlObjectType));
+                Assert.That(response.Items.Select(i => i.Level), Has.All.AnyOf(AllowedSeverityLevels));
             }
 
             return response;
@@ -225,17 +212,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlAssessment
 
         private void AssertInfoPresent(AssessmentItemInfo item)
         {
-            Assert.NotNull(item.CheckId);
-            Assert.NotEmpty(item.CheckId);
-            Assert.NotNull(item.DisplayName);
-            Assert.NotEmpty(item.DisplayName);
-            Assert.NotNull(item.Description);
-            Assert.NotEmpty(item.Description);
-            Assert.NotNull(item.Tags);
-            Assert.All(item.Tags, t =>
+            Assert.Multiple(() =>
             {
-                Assert.NotNull(t);
-                Assert.NotEmpty(t);
+                Assert.That(item.CheckId, Is.Not.Null.Or.Empty);
+                Assert.That(item.DisplayName, Is.Not.Null.Or.Empty);
+                Assert.That(item.Description, Is.Not.Null.Or.Empty);
+                Assert.NotNull(item.Tags);
+                Assert.That(item.Tags, Has.All.Not.Null.Or.Empty);
             });
         }
     }

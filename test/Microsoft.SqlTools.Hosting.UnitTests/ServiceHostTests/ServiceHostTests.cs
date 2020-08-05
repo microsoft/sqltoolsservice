@@ -14,28 +14,28 @@ using Microsoft.SqlTools.Hosting.Contracts.Internal;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Moq;
 using Newtonsoft.Json.Linq;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.Hosting.UnitTests.ServiceHostTests
 {
+    [TestFixture]
     public class ServiceHostTests
     {
         #region Construction Tests
 
-        [Fact]
+        [Test]
         public void ServiceHostConstructDefaultServer()
         {
             // If: I construct a default server service host
             var sh = ServiceHost.CreateDefaultServer();
             
-            // Then: The underlying json rpc host should be using the stdio server channel
             var jh = sh.jsonRpcHost as JsonRpcHost;
             Assert.NotNull(jh);
-            Assert.IsType<StdioServerChannel>(jh.protocolChannel);
+            Assert.That(jh.protocolChannel,  Is.InstanceOf<StdioServerChannel>(), "The underlying json rpc host should be using the stdio server channel");
             Assert.False(jh.protocolChannel.IsConnected);
         }
         
-        [Fact]
+        [Test]
         public void ServiceHostNullParameter()
         {
             // If: I create a service host with missing parameters
@@ -47,7 +47,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ServiceHostTests
         
         #region IServiceHost Tests
 
-        [Fact]
+        [Test]
         public void RegisterInitializeTask()
         {
             // Setup: Create mock initialize handler
@@ -59,11 +59,11 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ServiceHostTests
             sh.RegisterInitializeTask(mockHandler);
             
             // Then: There should be two initialize tasks registered
-            Assert.Equal(2, sh.initCallbacks.Count);
+            Assert.AreEqual(2, sh.initCallbacks.Count);
             Assert.True(sh.initCallbacks.SequenceEqual(new[] {mockHandler, mockHandler}));
         }
 
-        [Fact]
+        [Test]
         public void RegisterInitializeTaskNullHandler()
         {
             // If: I register a null initialize task
@@ -72,7 +72,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ServiceHostTests
             Assert.Throws<ArgumentNullException>(() => sh.RegisterInitializeTask(null));
         }
         
-        [Fact]
+        [Test]
         public void RegisterShutdownTask()
         {
             // Setup: Create mock initialize handler
@@ -84,11 +84,11 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ServiceHostTests
             sh.RegisterShutdownTask(mockHandler);
             
             // Then: There should be two initialize tasks registered
-            Assert.Equal(2, sh.shutdownCallbacks.Count);
+            Assert.AreEqual(2, sh.shutdownCallbacks.Count);
             Assert.True(sh.shutdownCallbacks.SequenceEqual(new[] {mockHandler, mockHandler}));
         }
 
-        [Fact]
+        [Test]
         public void RegisterShutdownTaskNullHandler()
         {
             // If: I register a null initialize task
@@ -101,7 +101,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ServiceHostTests
 
         #region IJsonRpcHost Tests
 
-        [Fact]
+        [Test]
         public void SendEvent()
         {
             // If: I send an event
@@ -113,7 +113,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ServiceHostTests
             jh.Verify(o => o.SendEvent(CommonObjects.EventType, CommonObjects.TestMessageContents.DefaultInstance), Times.Once);
         }
 
-        [Fact]
+        [Test]
         public async Task SendRequest()
         {
             // If: I send a request
@@ -125,7 +125,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ServiceHostTests
             jh.Verify(o => o.SendRequest(CommonObjects.RequestType, CommonObjects.TestMessageContents.DefaultInstance), Times.Once);
         }
 
-        [Fact]
+        [Test]
         public void SetAsyncEventHandler()
         {
             // If: I set an event handler
@@ -137,7 +137,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ServiceHostTests
             jh.Verify(o => o.SetAsyncEventHandler(CommonObjects.EventType, null, true), Times.Once);
         }
         
-        [Fact]
+        [Test]
         public void SetSyncEventHandler()
         {
             // If: I set an event handler
@@ -149,7 +149,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ServiceHostTests
             jh.Verify(o => o.SetEventHandler(CommonObjects.EventType, null, true), Times.Once);
         }
         
-        [Fact]
+        [Test]
         public void SetAsyncRequestHandler()
         {
             // If: I set a request handler
@@ -161,7 +161,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ServiceHostTests
             jh.Verify(o => o.SetAsyncRequestHandler(CommonObjects.RequestType, null, true), Times.Once);
         }
         
-        [Fact]
+        [Test]
         public void SetSyncRequestHandler()
         {
             // If: I set a request handler
@@ -173,7 +173,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ServiceHostTests
             jh.Verify(o => o.SetRequestHandler(CommonObjects.RequestType, null, true), Times.Once);
         }
 
-        [Fact]
+        [Test]
         public void Start()
         {
             // If: I start a service host
@@ -186,7 +186,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ServiceHostTests
             jh.Verify(o => o.Start(), Times.Once);
         }
 
-        [Fact]
+        [Test]
         public void Stop()
         {
             // If: I stop a service host
@@ -198,7 +198,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ServiceHostTests
             jh.Verify(o => o.Stop(), Times.Once);
         }
 
-        [Fact]
+        [Test]
         public void WaitForExit()
         {
             // If: I wait for service host to exit
@@ -214,7 +214,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ServiceHostTests
         
         #region Request Handling Tests
 
-        [Fact]
+        [Test]
         public void HandleExitNotification()
         {
             // If: I handle an exit notification
@@ -226,7 +226,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ServiceHostTests
             jh.Verify(o => o.Stop(), Times.Once);
         }
 
-        [Fact]
+        [Test]
         public async Task HandleInitializeRequest()
         {
             // Setup:
@@ -255,14 +255,12 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ServiceHostTests
             // ... The mock handler should have been called twice
             mockHandler.Verify(h => h(initParams, mockContext), Times.Exactly(2));
             
-            // ... There should have been a response sent
             var outgoing = bc.ToArray();
-            Assert.Single(outgoing);
-            Assert.Equal(CommonObjects.MessageId, outgoing[0].Id);
-            Assert.Equal(JToken.FromObject(ir), JToken.FromObject(ir));
+            Assert.That(outgoing.Select(m => m.Id), Is.EqualTo(new[] { CommonObjects.MessageId }), "There should have been a response sent");
+            Assert.AreEqual(JToken.FromObject(ir), JToken.FromObject(ir));
         }
         
-        [Fact]
+        [Test]
         public async Task HandleShutdownRequest()
         {
             // Setup:
@@ -284,12 +282,10 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ServiceHostTests
             // If: I handle a shutdown request
             await sh.HandleShutdownRequest(shutdownParams, mockContext);
             
-            // Then:
-            // ... The mock handler should have been called twice
-            mockHandler.Verify(h => h(shutdownParams, mockContext), Times.Exactly(2));
-            
-            // ... There should have been a response sent
-            Assert.Single(bc); 
+            mockHandler.Verify(h => h(shutdownParams, mockContext), Times.Exactly(2), "The mock handler should have been called twice");
+
+
+            Assert.That(bc.Count, Is.EqualTo(1), "There should have been a response sent"); 
         }
         
         #endregion

@@ -8,7 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ResourceProvider.Core;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Fakes;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Azure
 {
@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Azure
     /// </summary>
     public class AzureSqlServerDiscoveryProviderTest
     {
-        [Fact]
+        [Test]
         public async Task GetShouldReturnServersSuccessfully()
         {
             string serverName = "server";
@@ -44,7 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Azure
             Assert.True(servers.Count() == 4);
         }
 
-        [Fact]
+        [Test]
         public async Task GetShouldReturnEmptyGivenNoSubscriptionFound()
         {
             Dictionary<string, List<string>> subscriptionToDatabaseMap = new Dictionary<string, List<string>>();

@@ -8,13 +8,14 @@ using Microsoft.SqlTools.Hosting.Channels;
 using Microsoft.SqlTools.Hosting.Extensibility;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.Hosting.UnitTests.ServiceHostTests
 {
+    [TestFixture]
     public class ExtensibleServiceHostTest
     {
-        [Fact]
+        [Test]
         public void CreateExtensibleHostNullProvider()
         {
             // If: I create an extensible host with a null provider
@@ -23,7 +24,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ServiceHostTests
             Assert.Throws<ArgumentNullException>(() => new ExtensibleServiceHost(null, cb.Object));
         }
         
-        [Fact]
+        [Test]
         public void CreateExtensibleHost()
         {
             // Setup: 
@@ -48,10 +49,10 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ServiceHostTests
             // ... The service should have been initialized
             hs.Verify(o => o.InitializeService(esh), Times.Once());            
             // ... The service host should have it's provider exposed
-            Assert.Equal(sp.Object, esh.ServiceProvider);
+            Assert.AreEqual(sp.Object, esh.ServiceProvider);
         }
 
-        [Fact]
+        [Test]
         public void CreateDefaultExtensibleHostNullAssemblyList()
         {
             // If: I create a default server extensible host with a null provider
@@ -60,7 +61,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ServiceHostTests
             Assert.Throws<ArgumentNullException>(() => ExtensibleServiceHost.CreateDefaultExtensibleServer(".", null));
         }
         
-        [Fact]
+        [Test]
         public void CreateDefaultExtensibleHost()
         {
             // If: I create a default server extensible host
@@ -70,10 +71,9 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ServiceHostTests
             // ... The service provider should be setup
             Assert.NotNull(esh.ServiceProvider);
             
-            // ... The underlying rpc host should be using the stdio server channel 
             var jh = esh.jsonRpcHost as JsonRpcHost;
             Assert.NotNull(jh);
-            Assert.IsType<StdioServerChannel>(jh.protocolChannel);
+            Assert.That(jh.protocolChannel, Is.InstanceOf<StdioServerChannel>(), "The underlying rpc host should be using the stdio server channel ");
             Assert.False(jh.protocolChannel.IsConnected);
         }
     }
