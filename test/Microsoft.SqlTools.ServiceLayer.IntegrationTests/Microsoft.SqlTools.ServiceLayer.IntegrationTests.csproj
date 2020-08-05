@@ -17,6 +17,12 @@
     <ProjectReference Include="../Microsoft.SqlTools.Test.CompletionExtension/Microsoft.SqlTools.Test.CompletionExtension.csproj" />
   </ItemGroup>
   <ItemGroup>
+		<Reference Include="Microsoft.SqlServer.Assessment, Version=1.100.0.0, PublicKeyToken=89845dcd8080cc91">
+			<HintPath>..\..\bin\ref\Microsoft.SqlServer.Assessment.dll</HintPath>
+			<SpecificVersion>True</SpecificVersion>
+		</Reference>
+	</ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Moq"  />
     <PackageReference Include="System.Net.Http"/>
     <PackageReference Include="Microsoft.NET.Test.Sdk"  />

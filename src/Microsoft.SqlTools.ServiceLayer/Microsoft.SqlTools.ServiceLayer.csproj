@@ -20,9 +20,16 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-        <PackageReference Include="Microsoft.SqlServer.DACFx" />
+        <PackageReference Include="Microsoft.SqlServer.DACFx" />		
 		<PackageReference Include="Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider" />
-		<PackageReference Include="System.Text.Encoding.CodePages" />
+		<PackageReference Include="System.Text.Encoding.CodePages" />		
+	</ItemGroup>
+
+	<ItemGroup>
+		<Reference Include="Microsoft.SqlServer.Assessment, Version=1.100.0.0, PublicKeyToken=89845dcd8080cc91">
+			<HintPath>..\..\bin\ref\Microsoft.SqlServer.Assessment.dll</HintPath>
+			<SpecificVersion>True</SpecificVersion>
+		</Reference>
 	</ItemGroup>
 
 	<ItemGroup>
