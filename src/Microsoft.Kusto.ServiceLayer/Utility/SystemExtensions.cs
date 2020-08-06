@@ -2,17 +2,14 @@
 // Copyright (c) Microsoft. All Rights Reserved.
 // </copyright>
 
+using Microsoft.Kusto.ServiceLayer.DataSource;
+
 namespace  Microsoft.Kusto.ServiceLayer.Utility
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.Specialized;
-    using System.Configuration;
     using System.Data;
-    using System.Globalization;
     using System.Linq;
-    using System.Runtime.CompilerServices;
-    using System.Threading;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -114,6 +111,24 @@ namespace  Microsoft.Kusto.ServiceLayer.Utility
             return enumerable as List<T>
                 ?? enumerable as Array as IEnumerable<T>
                 ?? enumerable.ToArray();
+        }
+
+        public static void SafeAdd(this Dictionary<string, Dictionary<string, FolderMetadata>> dictionary, string key,
+            FolderMetadata folder)
+        {
+            if (dictionary.ContainsKey(key))
+            {
+                if (dictionary[key].ContainsKey(folder.Name))
+                {
+                    return;
+                }
+                    
+                dictionary[key].Add(folder.Name, folder);
+            }
+            else
+            {
+                dictionary[key] = new Dictionary<string, FolderMetadata> {{folder.Name, folder}};
+            }
         }
 
         /// <summary>

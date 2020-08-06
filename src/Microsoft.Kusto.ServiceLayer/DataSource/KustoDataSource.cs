@@ -665,15 +665,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         private void SetFolderMetadataForTables(DataSourceObjectMetadata objectMetadata, IEnumerable<ColumnInfo> columnInfos)
         {
             // create Table folder to hold functions tables
-            var tableFolder = new FolderMetadata
-            {
-                ParentMetadata = objectMetadata,
-                Name = "Tables",
-                MetadataTypeName = DataSourceMetadataType.Folder.ToString(),
-                MetadataType = DataSourceMetadataType.Folder,
-                PrettyName = "Tables",
-                Urn = $"{ClusterName}.{objectMetadata.Name}.Tables"
-            };
+            var tableFolder = DataSourceFactory.CreateFolderMetadata(objectMetadata, ClusterName, "Tables");
 
             AddToFolderMetadata(objectMetadata.Name, new List<FolderMetadata> {tableFolder});
             
@@ -691,15 +683,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                     continue;
                 }
 
-                var folder = new FolderMetadata
-                {
-                    ParentMetadata = objectMetadata,
-                    Name = columnGroup.Key,
-                    MetadataTypeName = DataSourceMetadataType.Folder.ToString(),
-                    MetadataType = DataSourceMetadataType.Folder,
-                    PrettyName = columnGroup.Key,
-                    Urn = $"{ClusterName}.{objectMetadata.Name}.{columnGroup.Key}"
-                };
+                var folder = DataSourceFactory.CreateFolderMetadata(objectMetadata, ClusterName, columnGroup.Key);
 
                 tableFolders.Add(folder);
             }
@@ -708,14 +692,24 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             AddToFolderMetadata(functionFolderKey, tableFolders);
         }
 
-        private void AddToFolderMetadata(string databaseName, List<FolderMetadata> folders)
+        private void AddToFolderMetadata(string folderKey, List<FolderMetadata> folders)
         {
-            if (_folderMetadata.ContainsKey(databaseName))
+            if (_folderMetadata.ContainsKey(folderKey))
             {
-                folders.AddRange(_folderMetadata[databaseName]);
+                folders.AddRange(_folderMetadata[folderKey]);
             }
             
-            _folderMetadata[databaseName] = folders.OrderBy(x => x.PrettyName, StringComparer.OrdinalIgnoreCase);
+            _folderMetadata[folderKey] = folders.OrderBy(x => x.PrettyName, StringComparer.OrdinalIgnoreCase);
+        }
+
+        private void AddToFunctionMetadata(string functionKey, List<FunctionMetadata> functions)
+        {
+            if (_functionMetadata.ContainsKey(functionKey))
+            {
+                functions.AddRange(_functionMetadata[functionKey]);
+            }
+            
+            _functionMetadata[functionKey] = functions.OrderBy(x => x.PrettyName, StringComparer.OrdinalIgnoreCase);
         }
 
         private void LoadFunctionSchema(DataSourceObjectMetadata objectMetadata)
@@ -726,26 +720,18 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             {
                 return;
             }
-
+            
             // create Functions folder to hold functions folders
-            var functionFolder = new FolderMetadata
-            {
-                ParentMetadata = objectMetadata,
-                Name = "Functions",
-                MetadataTypeName = DataSourceMetadataType.Folder.ToString(),
-                MetadataType = DataSourceMetadataType.Folder,
-                PrettyName = "Functions",
-                Urn = $"{ClusterName}.{objectMetadata.Name}.Functions"
-            };
-
-            AddToFolderMetadata(objectMetadata.Name, new List<FolderMetadata>{functionFolder});
+            var functionFolder = DataSourceFactory.CreateFolderMetadata(objectMetadata, ClusterName, "Functions");
+            AddToFolderMetadata(objectMetadata.Name, new List<FolderMetadata> {functionFolder});
 
             // create each folder to hold functions
             var functionsGroupByFolder = functionInfos
                 .GroupBy(x => x.Folder, StringComparer.OrdinalIgnoreCase)
                 .ToList();
+
+            var folders = new Dictionary<string, Dictionary<string, FolderMetadata>>();
             
-            var folders = new List<FolderMetadata>();
             foreach (var functionGroup in functionsGroupByFolder)
             {
                 // skip functions with no folder
@@ -753,23 +739,29 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 {
                     continue;
                 }
-                
-                var folder = new FolderMetadata
-                {
-                    ParentMetadata = objectMetadata,
-                    Name = functionGroup.Key,
-                    MetadataTypeName = DataSourceMetadataType.Folder.ToString(),
-                    MetadataType = DataSourceMetadataType.Folder,
-                    PrettyName = functionGroup.Key,
-                    Urn = $"{ClusterName}.{objectMetadata.Name}.{functionGroup.Key}"
-                };
 
-                folders.Add(folder);
+                var subFolders = functionGroup.Key.Replace(@"\", @"/").Split(@"/");
+
+                var topFolder = subFolders.First();
+                
+                string functionFolderKey = GenerateMetadataKey(objectMetadata.Name, functionFolder.Name);
+                var folder = DataSourceFactory.CreateFolderMetadata(objectMetadata, ClusterName, topFolder);
+                folders.SafeAdd(functionFolderKey, folder);
+
+                string urn = functionFolderKey;
+                for (int i = 1; i < subFolders.Length; i++)
+                {
+                    urn = $"{urn}.{subFolders[i - 1]}";
+                    var subFolder = DataSourceFactory.CreateFolderMetadata(objectMetadata, ClusterName, subFolders[i]);
+                    folders.SafeAdd(urn, subFolder);
+                }
+            }
+
+            foreach (var folder in folders)
+            {
+                AddToFolderMetadata(folder.Key, folder.Value.Values.ToList());
             }
             
-            string functionFolderKey = GenerateMetadataKey(objectMetadata.Name, functionFolder.Name);
-            AddToFolderMetadata(functionFolderKey, folders);
-
             SetFunctionMetadata(objectMetadata.Name, functionFolder.Name, functionsGroupByFolder);
         }
 
@@ -840,7 +832,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         {
             foreach (var functionGroup in functionGroupByFolder)
             {
-                var functions = new SortedList<string, FunctionMetadata>(StringComparer.CurrentCultureIgnoreCase);
+                var functionsWithoutSubfolders = new List<FunctionMetadata>();
                 
                 foreach (FunctionInfo functionInfo in functionGroup)
                 {
@@ -855,13 +847,23 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                         PrettyName = functionInfo.Name,
                         Urn = $"{ClusterName}.{GenerateMetadataKey(databaseName, functionInfo.Folder)}.{functionInfo.Name}"
                     };
-
-                    functions.Add(function.Name, function);
+                    
+                    if (functionInfo.Folder.Contains(@"\") || functionInfo.Folder.Contains(@"/"))
+                    {
+                        var subFolders = functionGroup.Key.Replace(@"\", "/").Split('/');
+                        function.Urn = $"{ClusterName}.{GenerateMetadataKey(databaseName, subFolders.Last())}.{functionInfo.Name}";
+                        string folderKey = GenerateMetadataKey(databaseName, subFolders.Last());
+                        AddToFunctionMetadata(folderKey, new List<FunctionMetadata> {function});
+                    }
+                    else
+                    {
+                        functionsWithoutSubfolders.Add(function);
+                    }
                 }
 
                 string functionFolder = string.IsNullOrWhiteSpace(functionGroup.Key) ? functionFolderName : functionGroup.Key;
-                string key = GenerateMetadataKey(databaseName, functionFolder); 
-                _functionMetadata[key] = functions.Values;
+                string functionFolderKey = GenerateMetadataKey(databaseName, functionFolder);
+                AddToFunctionMetadata(functionFolderKey, functionsWithoutSubfolders);
             }
         }
 

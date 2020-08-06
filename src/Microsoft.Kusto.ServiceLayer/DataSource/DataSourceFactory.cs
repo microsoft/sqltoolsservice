@@ -12,7 +12,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
     /// </summary>
     public static class DataSourceFactory
     {
-        public static IDataSource Create(DataSourceType dataSourceType, string connectionString, string azureAccountToken)
+        public static IDataSource Create(DataSourceType dataSourceType, string connectionString,
+            string azureAccountToken)
         {
             ValidationUtils.IsArgumentNotNullOrWhiteSpace(connectionString, nameof(connectionString));
             ValidationUtils.IsArgumentNotNullOrWhiteSpace(azureAccountToken, nameof(azureAccountToken));
@@ -20,12 +21,13 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             switch (dataSourceType)
             {
                 case DataSourceType.Kusto:
-                    {
-                        return new KustoDataSource(connectionString, azureAccountToken);
-                    }
+                {
+                    return new KustoDataSource(connectionString, azureAccountToken);
+                }
 
                 default:
-                    throw new ArgumentException($"Unsupported data source type \"{dataSourceType}\"", nameof(dataSourceType));
+                    throw new ArgumentException($"Unsupported data source type \"{dataSourceType}\"",
+                        nameof(dataSourceType));
             }
         }
 
@@ -33,7 +35,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         {
             ValidationUtils.IsArgumentNotNullOrWhiteSpace(clusterName, nameof(clusterName));
 
-            return new DataSourceObjectMetadata{
+            return new DataSourceObjectMetadata
+            {
                 MetadataType = DataSourceMetadataType.Cluster,
                 MetadataTypeName = DataSourceMetadataType.Cluster.ToString(),
                 Name = clusterName,
@@ -42,12 +45,15 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             };
         }
 
-        public static DataSourceObjectMetadata CreateDatabaseMetadata(DataSourceObjectMetadata clusterMetadata, string databaseName)
+        public static DataSourceObjectMetadata CreateDatabaseMetadata(DataSourceObjectMetadata clusterMetadata,
+            string databaseName)
         {
-            ValidationUtils.IsTrue<ArgumentException>(clusterMetadata.MetadataType == DataSourceMetadataType.Cluster, nameof(clusterMetadata));
+            ValidationUtils.IsTrue<ArgumentException>(clusterMetadata.MetadataType == DataSourceMetadataType.Cluster,
+                nameof(clusterMetadata));
             ValidationUtils.IsArgumentNotNullOrWhiteSpace(databaseName, nameof(databaseName));
 
-            return new DatabaseMetadata{
+            return new DatabaseMetadata
+            {
                 ClusterName = clusterMetadata.Name,
                 MetadataType = DataSourceMetadataType.Database,
                 MetadataTypeName = DataSourceMetadataType.Database.ToString(),
@@ -57,45 +63,52 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             };
         }
 
-        public static DataSourceObjectMetadata CreateFolderMetadata(DataSourceObjectMetadata parentMetadata, string name)
+        public static FolderMetadata CreateFolderMetadata(DataSourceObjectMetadata parentMetadata, string clusterName, string name)
         {
             ValidationUtils.IsNotNull(parentMetadata, nameof(parentMetadata));
 
-            return new FolderMetadata{
+            return new FolderMetadata
+            {
                 MetadataType = DataSourceMetadataType.Folder,
                 MetadataTypeName = DataSourceMetadataType.Folder.ToString(),
                 Name = name,
                 PrettyName = name,
                 ParentMetadata = parentMetadata,
-                Urn = $"{parentMetadata.Urn}.Folder_{name}"
+                Urn = $"{parentMetadata.Urn}.{clusterName}.{name}"
             };
         }
 
         // Gets default keywords for intellisense when there is no connection.
-        public static CompletionItem[] GetDefaultAutoComplete(DataSourceType dataSourceType, ScriptDocumentInfo scriptDocumentInfo, Position textDocumentPosition){
+        public static CompletionItem[] GetDefaultAutoComplete(DataSourceType dataSourceType,
+            ScriptDocumentInfo scriptDocumentInfo, Position textDocumentPosition)
+        {
             switch (dataSourceType)
             {
                 case DataSourceType.Kusto:
-                    {
-                        return KustoIntellisenseHelper.GetDefaultKeywords(scriptDocumentInfo, textDocumentPosition);
-                    }
+                {
+                    return KustoIntellisenseHelper.GetDefaultKeywords(scriptDocumentInfo, textDocumentPosition);
+                }
 
                 default:
-                    throw new ArgumentException($"Unsupported data source type \"{dataSourceType}\"", nameof(dataSourceType));
+                    throw new ArgumentException($"Unsupported data source type \"{dataSourceType}\"",
+                        nameof(dataSourceType));
             }
         }
 
         // Gets default keywords errors related to intellisense when there is no connection.
-        public static ScriptFileMarker[] GetDefaultSemanticMarkers(DataSourceType dataSourceType, ScriptParseInfo parseInfo, ScriptFile scriptFile, string queryText){
+        public static ScriptFileMarker[] GetDefaultSemanticMarkers(DataSourceType dataSourceType,
+            ScriptParseInfo parseInfo, ScriptFile scriptFile, string queryText)
+        {
             switch (dataSourceType)
             {
                 case DataSourceType.Kusto:
-                    {
-                        return KustoIntellisenseHelper.GetDefaultDiagnostics(parseInfo, scriptFile, queryText);
-                    }
+                {
+                    return KustoIntellisenseHelper.GetDefaultDiagnostics(parseInfo, scriptFile, queryText);
+                }
 
                 default:
-                    throw new ArgumentException($"Unsupported data source type \"{dataSourceType}\"", nameof(dataSourceType));
+                    throw new ArgumentException($"Unsupported data source type \"{dataSourceType}\"",
+                        nameof(dataSourceType));
             }
         }
     }
