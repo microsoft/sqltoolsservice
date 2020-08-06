@@ -6,11 +6,11 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Data;
-using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using Microsoft.Kusto.ServiceLayer.Utility;
+using Microsoft.Kusto.ServiceLayer.Admin.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
+using Microsoft.Kusto.ServiceLayer.Metadata.Contracts;
 using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
@@ -58,6 +58,20 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         Folder = 5
     }
 
+    public class DiagnosticsInfo
+    {
+        /// <summary>
+        /// Gets or sets the options
+        /// </summary>
+        public Dictionary<string, object> Options { get; set; }
+
+        public DiagnosticsInfo()
+        {
+            Options = new Dictionary<string, object>();
+        }
+        
+    }
+
     /// <summary>
     /// Object metadata information
     /// </summary>
@@ -72,6 +86,9 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         public string PrettyName { get; set; }
         
         public string Urn { get; set; }
+
+        public string SizeInMB { get; set; }
+
     }
 
     /// <summary>
@@ -155,7 +172,14 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// </summary>
         /// <param name="parentMetadata">Parent object metadata.</param>
         /// <returns>Metadata for all children.</returns>
-        IEnumerable<DataSourceObjectMetadata> GetChildObjects(DataSourceObjectMetadata parentMetadata);
+        DiagnosticsInfo GetDiagnostics(DataSourceObjectMetadata parentMetadata);
+
+        /// <summary>
+        /// Get children of the  given parent
+        /// </summary>
+        /// <param name="parentMetadata">Parent object metadata.</param>
+        /// <returns>Metadata for all children.</returns>
+        IEnumerable<DataSourceObjectMetadata> GetChildObjects(DataSourceObjectMetadata parentMetadata, bool includeSizeDetails = false);
 
         /// <summary>
         /// Get folders of the  given parent
@@ -272,7 +296,10 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         public abstract Task<IEnumerable<T>> ExecuteControlCommandAsync<T>(string command, bool throwOnError, CancellationToken cancellationToken);
 
         /// <inheritdoc/>
-        public abstract IEnumerable<DataSourceObjectMetadata> GetChildObjects(DataSourceObjectMetadata parentMetadata);
+        public abstract DiagnosticsInfo GetDiagnostics(DataSourceObjectMetadata parentMetadata);
+
+        /// <inheritdoc/>
+        public abstract IEnumerable<DataSourceObjectMetadata> GetChildObjects(DataSourceObjectMetadata parentMetadata, bool includeSizeDetails = false);
 
         /// <inheritdoc/>
         public abstract IEnumerable<DataSourceObjectMetadata> GetChildFolders(DataSourceObjectMetadata parentMetadata);
@@ -413,6 +440,70 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 case DataSourceType.Kusto:
                     {
                         return KustoIntellisenseHelper.GetDefaultDiagnostics(parseInfo, scriptFile, queryText);
+                    }
+
+                default:
+                    throw new ArgumentException($"Unsupported data source type \"{dataSourceType}\"", nameof(dataSourceType));
+            }
+        }
+
+        public static List<DatabaseInfo> ConvertToDatabaseInfo(DataSourceType dataSourceType, List<DataSourceObjectMetadata> clusterDBDetails)
+        {
+            switch (dataSourceType)
+            {
+                case DataSourceType.Kusto:
+                    {
+                        var databaseDetails = new List<DatabaseInfo>();
+
+                        foreach(var dbDetail in clusterDBDetails)
+                        {
+                            DatabaseInfo databaseInfo = new DatabaseInfo();
+                            Int64.TryParse(dbDetail.SizeInMB.ToString(), out long sum_OriginalSize);
+                            databaseInfo.Options["name"] = dbDetail.Name;
+                            databaseInfo.Options["sizeInMB"] = (sum_OriginalSize /(1024 * 1024)).ToString();
+                            databaseDetails.Add(databaseInfo);
+                        }
+                        return databaseDetails;
+                    }
+
+                default:
+                    throw new ArgumentException($"Unsupported data source type \"{dataSourceType}\"", nameof(dataSourceType));
+            }
+        }
+
+        public static List<ObjectMetadata> ConvertToObjectMetadata(DataSourceType dataSourceType, List<DataSourceObjectMetadata> dbChildDetails)
+        {
+            switch (dataSourceType)
+            {
+                case DataSourceType.Kusto:
+                    {
+                        var databaseChildDetails = new List<ObjectMetadata>();
+
+                        foreach(var childDetail in dbChildDetails)
+                        {
+                            ObjectMetadata dbChildInfo = new ObjectMetadata();
+                            dbChildInfo.Name = childDetail.PrettyName;
+                            dbChildInfo.MetadataTypeName = childDetail.MetadataTypeName;
+                            dbChildInfo.MetadataType = MetadataType.Table;         // Add mapping here.
+                            databaseChildDetails.Add(dbChildInfo);
+                        }
+                        return databaseChildDetails;
+                    }
+
+                default:
+                    throw new ArgumentException($"Unsupported data source type \"{dataSourceType}\"", nameof(dataSourceType));
+            }
+        }
+
+        public static ReliableConnectionHelper.ServerInfo ConvertToServerinfoFormat(DataSourceType dataSourceType, DiagnosticsInfo clusterDiagnostics)
+        {
+            switch (dataSourceType)
+            {
+                case DataSourceType.Kusto:
+                    {
+                        ReliableConnectionHelper.ServerInfo serverInfo = new ReliableConnectionHelper.ServerInfo();
+                        serverInfo.Options = new Dictionary<string, object>(clusterDiagnostics.Options);
+                        return serverInfo;
                     }
 
                 default:
