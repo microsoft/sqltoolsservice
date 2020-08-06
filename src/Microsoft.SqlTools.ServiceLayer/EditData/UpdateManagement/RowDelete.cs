@@ -5,6 +5,7 @@
 
 using System;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,12 +17,33 @@ using Microsoft.SqlTools.Utility;
 namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 {
     /// <summary>
+    /// An error indicating that a delete action will delete multiple rows.
+    /// </summary>
+    public class EditDataDeleteException : Exception
+    {
+        public EditDataDeleteException()
+        {
+        }
+
+        public EditDataDeleteException(string message)
+            : base(message)
+        {
+        }
+
+        public EditDataDeleteException(string message, Exception inner)
+            : base(message, inner)
+        {
+        }
+    }
+
+    /// <summary>
     /// Represents a row that should be deleted. This will generate a DELETE statement
     /// </summary>
     public sealed class RowDelete : RowEditBase
     {
         private const string DeleteStatement = "DELETE FROM {0} {1}";
         private const string DeleteMemoryOptimizedStatement = "DELETE FROM {0} WITH(SNAPSHOT) {1}";
+        private const string VerifyStatement = "SELECT COUNT (*) FROM ";
 
         /// <summary>
         /// Constructs a new RowDelete object
@@ -66,12 +88,49 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             // Return a SqlCommand with formatted with the parameters from the where clause
             WhereClause where = GetWhereClause(true);
             string commandText = GetCommandText(where.CommandText);
+            string verifyText = GetVerifyText(where.CommandText);
+            if (!CheckForDuplicateDeleteRows(where, verifyText, connection))
+            {
+                throw new EditDataDeleteException("This action will delete more than one row!");
+            }
 
             DbCommand command = connection.CreateCommand();
             command.CommandText = commandText;
             command.Parameters.AddRange(where.Parameters.ToArray());
 
             return command;
+        }
+
+        /// <summary>
+        /// Runs a query using the where clause to determine if duplicates are found (causes issues when deleting).
+        /// If no duplicates are found, the check passes, else it returns false;
+        /// </summary>
+        private bool CheckForDuplicateDeleteRows(WhereClause where, string input, DbConnection connection)
+        {
+            using (DbCommand command = connection.CreateCommand())
+            {
+                command.CommandText = input;
+                command.Parameters.AddRange(where.Parameters.ToArray());
+                using (DbDataReader reader = command.ExecuteReader())
+                {
+                    try
+                    {
+                        while (reader.Read())
+                        {
+                            //If the count of the row is
+                            if (reader.GetInt32(0) != 1)
+                            {
+                                return false;
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Write(TraceEventType.Error, ex.ToString());
+                    }
+                }
+            }
+            return true;
         }
 
         /// <summary>
@@ -102,6 +161,15 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         }
 
         /// <summary>
+        /// Generates a WHERE statement to verify the row delete is unique.
+        /// </summary>
+        /// <returns>String of the WHERE statement</returns>
+        public string GetVerifyScript()
+        {
+            return GetVerifyText(GetWhereClause(false).CommandText);
+        }
+
+        /// <summary>
         /// This method should not be called. A cell cannot be reverted on a row that is pending
         /// deletion.
         /// </summary>
@@ -129,6 +197,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             // If we delete from the top first, it will change IDs, making all subsequent deletes
             // off by one or more!
             return RowId.CompareTo(rowEdit.RowId) * -1;
+        }
+
+        private string GetVerifyText(string whereText)
+        {
+            return $"{VerifyStatement}{AssociatedObjectMetadata.EscapedMultipartName} {whereText}";
         }
 
         private string GetCommandText(string whereText)
