@@ -7,7 +7,7 @@ using System;
 using System.Globalization;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Xunit;
+using NUnit.Framework;
 using Microsoft.Data.SqlClient;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;

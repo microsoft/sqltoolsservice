@@ -13,22 +13,22 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.MachineLearningServices
 {
     public class ServerConfigurationsServiceTests
     {
-        [Fact]
-        public async void VerifyListingConfigs()
+        [Test]
+        public async Task VerifyListingConfigs()
         {
             List<ServerConfigProperty> configs = await GetAllConfigs();
             Assert.NotNull(configs);
             Assert.True(configs.Count > 0);
         }
 
-        [Fact]
-        public async void VerifyUpdatingConfigs()
+        [Test]
+        public async Task VerifyUpdatingConfigs()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
@@ -59,14 +59,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.MachineLearningServic
 
                 await ServerConfigService.Instance.HandleServerConfigViewRequest(requestParams, requestContext.Object);
                 Assert.NotNull(result);
-                Assert.Equal(result.ConfigProperty.ConfigValue, sampleConfig.ConfigValue);
+                Assert.AreEqual(result.ConfigProperty.ConfigValue, sampleConfig.ConfigValue);
                 await ServerConfigService.Instance.HandleServerConfigUpdateRequest(updateRequestParams, updateRequestContext.Object);
                 Assert.NotNull(updateResult);
-                Assert.Equal(updateResult.ConfigProperty.ConfigValue, newValue);
+                Assert.AreEqual(updateResult.ConfigProperty.ConfigValue, newValue);
                 updateRequestParams.ConfigValue = sampleConfig.ConfigValue;
                 await ServerConfigService.Instance.HandleServerConfigUpdateRequest(updateRequestParams, updateRequestContext.Object);
                 Assert.NotNull(updateResult);
-                Assert.Equal(updateResult.ConfigProperty.ConfigValue, sampleConfig.ConfigValue);
+                Assert.AreEqual(updateResult.ConfigProperty.ConfigValue, sampleConfig.ConfigValue);
                 ServerConfigService.Instance.ConnectionServiceInstance.Disconnect(new DisconnectParams
                 {
                     OwnerUri = queryTempFile.FilePath,
@@ -97,8 +97,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.MachineLearningServic
         }
 
        
-        [Fact]
-        public async void VerifyConfigViewRequestSendErrorGivenInvalidConnection()
+        [Test]
+        public async Task VerifyConfigViewRequestSendErrorGivenInvalidConnection()
         {
             ServerConfigViewResponseParams result = null;
             var requestContext = RequestContextMocks.Create<ServerConfigViewResponseParams>(r => result = r).AddErrorHandling(null);
@@ -113,8 +113,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.MachineLearningServic
             requestContext.Verify(x => x.SendError(It.IsAny<Exception>()));
         }
 
-        [Fact]
-        public async void VerifyConfigUpdateRequestSendErrorGivenInvalidConnection()
+        [Test]
+        public async Task VerifyConfigUpdateRequestSendErrorGivenInvalidConnection()
         {
             ServerConfigUpdateResponseParams result = null;
             var requestContext = RequestContextMocks.Create<ServerConfigUpdateResponseParams>(r => result = r).AddErrorHandling(null);
@@ -130,8 +130,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.MachineLearningServic
             requestContext.Verify(x => x.SendError(It.IsAny<Exception>()));
         }
 
-        [Fact]
-        public async void VerifyConfigListRequestSendErrorGivenInvalidConnection()
+        [Test]
+        public async Task VerifyConfigListRequestSendErrorGivenInvalidConnection()
         {
             ServerConfigListResponseParams result = null;
             var requestContext = RequestContextMocks.Create<ServerConfigListResponseParams>(r => result = r).AddErrorHandling(null);

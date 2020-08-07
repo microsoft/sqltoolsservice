@@ -7,32 +7,33 @@ using System;
 using Microsoft.SqlTools.DataProtocol.Contracts.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.Hosting.UnitTests.Contracts.Utilities
 {
+    [TestFixture]
     public class FlagsStringConverterTests
     {
-        [Fact]
+        [Test]
         public void NullableValueCanBeDeserialized()
         {
             var jsonObject = JObject.Parse("{\"optionalValue\": [\"First\", \"Second\"]}");
             var contract = jsonObject.ToObject<DataContract>();
             Assert.NotNull(contract);
             Assert.NotNull(contract.OptionalValue);
-            Assert.Equal(TestFlags.FirstItem | TestFlags.SecondItem, contract.OptionalValue);
+            Assert.AreEqual(TestFlags.FirstItem | TestFlags.SecondItem, contract.OptionalValue);
         }
 
-        [Fact]
+        [Test]
         public void RegularValueCanBeDeserialized()
         {
             var jsonObject = JObject.Parse("{\"Value\": [\"First\", \"Third\"]}");
             var contract = jsonObject.ToObject<DataContract>();
             Assert.NotNull(contract);
-            Assert.Equal(TestFlags.FirstItem | TestFlags.ThirdItem, contract.Value);
+            Assert.AreEqual(TestFlags.FirstItem | TestFlags.ThirdItem, contract.Value);
         }
 
-        [Fact]
+        [Test]
         public void ExplicitNullCanBeDeserialized()
         {
             var jsonObject = JObject.Parse("{\"optionalValue\": null}");

@@ -6,13 +6,14 @@
 using System;
 using Microsoft.SqlTools.Credentials.Win32;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials.Win32
 {
+    [TestFixture]
     public class Win32CredentialTests
     {
-        [Fact]
+        [Test]
         public void Credential_Create_ShouldNotThrowNull()
         {
             RunIfWrapper.RunIfWindows(() =>
@@ -21,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials.Win32
             });
         }
 
-        [Fact]
+        [Test]
         public void Credential_Create_With_Username_ShouldNotThrowNull()
         {
             RunIfWrapper.RunIfWindows(() =>
@@ -30,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials.Win32
             });
         }
 
-        [Fact]
+        [Test]
         public void Credential_Create_With_Username_And_Password_ShouldNotThrowNull()
         {
             RunIfWrapper.RunIfWindows(() =>
@@ -39,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials.Win32
             });
         }
 
-        [Fact]
+        [Test]
         public void Credential_Create_With_Username_Password_Target_ShouldNotThrowNull()
         {
             RunIfWrapper.RunIfWindows(() =>
@@ -48,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials.Win32
             });
         }
 
-        [Fact]
+        [Test]
         public void Credential_ShouldBe_IDisposable()
         {
             RunIfWrapper.RunIfWindows(() =>
@@ -57,7 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials.Win32
             });
         }
         
-        [Fact]
+        [Test]
         public void Credential_Dispose_ShouldNotThrowException()
         {
             RunIfWrapper.RunIfWindows(() =>
@@ -66,7 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials.Win32
             });
         }
 
-        [Fact]
+        [Test]
         public void Credential_ShouldThrowObjectDisposedException()
         {
             RunIfWrapper.RunIfWindows(() =>
@@ -77,7 +78,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials.Win32
             });
         }
 
-        [Fact]
+        [Test]
         public void Credential_Save()
         {
             RunIfWrapper.RunIfWindows(() =>
@@ -88,7 +89,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials.Win32
             });
         }
         
-        [Fact]
+        [Test]
         public void Credential_Delete()
         {
             RunIfWrapper.RunIfWindows(() =>
@@ -98,7 +99,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials.Win32
             });
         }
 
-        [Fact]
+        [Test]
         public void Credential_Delete_NullTerminator()
         {
             RunIfWrapper.RunIfWindows(() =>
@@ -109,7 +110,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials.Win32
             });
         }
        
-        [Fact]
+        [Test]
         public void Credential_Load()
         {
             RunIfWrapper.RunIfWindows(() =>
@@ -120,15 +121,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials.Win32
                 Win32Credential credential = new Win32Credential { Target = "target", Type = CredentialType.Generic };
                 Assert.True(credential.Load());
 
-                Assert.NotEmpty(credential.Username);
+                Assert.That(credential.Username, Is.Not.Empty);
                 Assert.NotNull(credential.Password);
-                Assert.Equal("username", credential.Username);
-                Assert.Equal("password", credential.Password);
-                Assert.Equal("target", credential.Target);
+                Assert.AreEqual("username", credential.Username);
+                Assert.AreEqual("password", credential.Password);
+                Assert.AreEqual("target", credential.Target);
             });
         }
 
-        [Fact]
+        [Test]
         public void Credential_Exists_Target_ShouldNotBeNull()
         {
             RunIfWrapper.RunIfWindows(() =>

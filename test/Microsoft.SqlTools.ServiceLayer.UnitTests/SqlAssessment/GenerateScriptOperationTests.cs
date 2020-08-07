@@ -13,8 +13,6 @@ using Microsoft.SqlTools.ServiceLayer.SqlAssessment.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Moq;
 using NUnit.Framework;
-using Xunit;
-using Assert = Xunit.Assert;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlAssessment
 {
@@ -125,14 +123,14 @@ VALUES
 ('D N2','C-2','Microsoft Ruleset','1.3','Warning','Msg''1','proj[*]_dev','Database','http://HL2','2001-05-25 01:42:00.000 +03:00'),
 ('D''N1','C''3','Microsoft Ruleset','1.3','Critical','Msg''1','proj[*]_dev','Server','HL''1','2001-05-25 01:42:00.000 -01:30')";
 
-        [Fact]
+        [Test]
         public void GenerateScriptTest()
         {
             var scriptText = GenerateScriptOperation.GenerateScript(SampleParams, CancellationToken.None);
-            Assert.Equal(SampleScript, scriptText);
+            Assert.AreEqual(SampleScript, scriptText);
         }
 
-        [Fact]
+        [Test]
         public void ExecuteTest()
         {
             var subject = new GenerateScriptOperation(SampleParams);
@@ -147,8 +145,8 @@ VALUES
 
         private void ValidateScriptAdded(object sender, TaskEventArgs<TaskScript> e)
         {
-            Assert.Equal(SqlTaskStatus.Succeeded, e.TaskData.Status);
-            Assert.Equal(SampleScript, e.TaskData.Script);
+            Assert.AreEqual(SqlTaskStatus.Succeeded, e.TaskData.Status);
+            Assert.AreEqual(SampleScript, e.TaskData.Script);
         }
 
         private static Task<TaskResult> DummyOpFunction(SqlTask _)

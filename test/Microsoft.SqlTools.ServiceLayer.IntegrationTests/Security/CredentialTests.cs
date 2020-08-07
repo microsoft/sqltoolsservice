@@ -14,7 +14,7 @@ using Microsoft.SqlTools.ServiceLayer.Security.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 using static Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility.LiveConnectionHelper;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
@@ -27,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
         /// <summary>
         /// TestHandleCreateCredentialRequest
         /// </summary>
-        [Fact]
+        [Test]
         public async Task TestHandleCreateCredentialRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
@@ -49,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
         /// <summary>
         /// TestHandleUpdateCredentialRequest
         /// </summary>
-        [Fact]
+        [Test]
         public async Task TestHandleUpdateCredentialRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
@@ -72,7 +72,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
         /// <summary>
         /// TestHandleDeleteCredentialRequest
         /// </summary>
-        [Fact]
+        [Test]
         public async Task TestHandleDeleteCredentialRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())

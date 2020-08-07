@@ -14,12 +14,13 @@ using Microsoft.Data.SqlClient;
 using System.Globalization;
 using System.IO;
 using System.Text;
-using Xunit;
+using NUnit.Framework;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
 {
+    [TestFixture]
     public class BatchParserTests : BaselinedTest
     {
         public BatchParserTests()
@@ -34,7 +35,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
             TestInitialize();
         }
 
-        [Fact]
+        [Test]
         public void VerifyThrowOnUnresolvedVariable()
         {
             string script = "print '$(NotDefined)'";
@@ -59,7 +60,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
         /// Variable parameter in powershell: Specifies, as a string array, a sqlcmd scripting variable
         /// for use in the sqlcmd script, and sets a value for the variable.
         /// </summary>
-        [Fact]
+        [Test]
         public void VerifyVariableResolverUsingVaribleParameter()
         {
             string query = @" Invoke-Sqlcmd -Query ""SELECT `$(calcOne)"" -Variable ""calcOne = 10 + 20"" ";
@@ -79,7 +80,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
         }
 
         // Verify the starting identifier of Both parameter and variable are same.
-        [Fact]
+        [Test]
         public void VerifyVariableResolverIsStartIdentifierChar()
         {
             // instead of using variable calcOne, I purposely used In-variable 0alcOne
@@ -100,7 +101,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
         }
 
         // Verify all the characters inside variable are valid Identifier.
-        [Fact]
+        [Test]
         public void VerifyVariableResolverIsIdentifierChar()
         {
             // instead of using variable calcOne, I purposely used In-variable 0alcOne
@@ -121,7 +122,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
         }
 
         // Verify the execution by passing long value , Except a exception.
-        [Fact]
+        [Test]
         public void VerifyInvalidNumber()
         {
             string query = @" SELECT 1+1
@@ -144,7 +145,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
         }
 
         // Verify the Batch execution is executed successfully.
-        [Fact]
+        [Test]
         public void VerifyExecute()
         {
             Batch batch = new Batch(sqlText: "SELECT 1+1", isResultExpected: true, execTimeout: 15);
@@ -152,13 +153,13 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
             using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(liveConnection.ConnectionInfo))
             {
                 var executionResult = batch.Execute(sqlConn, ShowPlanType.AllShowPlan);
-                Assert.Equal<ScriptExecutionResult>(ScriptExecutionResult.Success, executionResult);
+                Assert.AreEqual(ScriptExecutionResult.Success, executionResult);
             }
 
         }
 
         // Verify the exeception is handled by passing invalid keyword.
-        [Fact]
+        [Test]
         public void VerifyHandleExceptionMessage()
         {
             Batch batch = new Batch(sqlText: "SEL@ECT 1+1", isResultExpected: true, execTimeout: 15);
@@ -169,11 +170,11 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
             }
             ScriptExecutionResult finalResult = (batch.RowsAffected > 0) ? ScriptExecutionResult.Success : ScriptExecutionResult.Failure;
 
-            Assert.Equal<ScriptExecutionResult>(finalResult, ScriptExecutionResult.Failure);
+            Assert.AreEqual(ScriptExecutionResult.Failure, finalResult);
         }
 
         // Verify the passing query has valid text.
-        [Fact]
+        [Test]
         public void VerifyHasValidText()
         {
             Batch batch = new Batch(sqlText: null, isResultExpected: true, execTimeout: 15);
@@ -185,11 +186,11 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
             }
             finalResult = (batch.RowsAffected > 0) ? ScriptExecutionResult.Success : ScriptExecutionResult.Failure;
 
-            Assert.Equal<ScriptExecutionResult>(finalResult, ScriptExecutionResult.Failure);
+            Assert.AreEqual(ScriptExecutionResult.Failure, finalResult);
         }
 
         // Verify the cancel functionality is working fine.
-        [Fact]
+        [Test]
         public void VerifyCancel()
         {
             ScriptExecutionResult result = ScriptExecutionResult.All;
@@ -200,14 +201,14 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
                 batch.Cancel();
                 result = batch.Execute(sqlConn, ShowPlanType.AllShowPlan);
             }
-            Assert.Equal<ScriptExecutionResult>(result, ScriptExecutionResult.Cancel);
+            Assert.AreEqual(ScriptExecutionResult.Cancel, result);
         }
 
         // 
         /// <summary>
         /// Verify whether lexer can consume token for SqlCmd variable
         /// </summary>
-        [Fact]
+        [Test]
         public void VerifyLexerSetState()
         {
             try
@@ -229,7 +230,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
 
         // This test case is to verify that, Powershell's Invoke-SqlCmd handles ":!!if" in an inconsistent way
         // Inconsistent way means, instead of throwing an exception as "Command Execute is not supported." it was throwing "Incorrect syntax near ':'."
-        [Fact]
+        [Test]
         public void VerifySqlCmdExecute()
         {
             string query = ":!!if exist foo.txt del foo.txt";
@@ -247,12 +248,12 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
 
                 var exception = Assert.Throws<BatchParserException>(() => p.Parse());
                 // Verify the message should be "Command Execute is not supported."
-                Assert.Equal("Command Execute is not supported.", exception.Message);
+                Assert.AreEqual("Command Execute is not supported.", exception.Message);
             }
         }
 
         // This test case is to verify that, Lexer type for :!!If was set to "Text" instead of "Execute"
-        [Fact]
+        [Test]
         public void VerifyLexerTypeOfSqlCmdIFisExecute()
         {
             string query = ":!!if exist foo.txt del foo.txt";
@@ -264,11 +265,11 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
                 type = lexer.CurrentTokenType;
             }
             // we are expecting the lexer type should to be Execute.
-            Assert.Equal("Execute", type.ToString());
+            Assert.AreEqual("Execute", type.ToString());
         }
 
         // Verify the custom exception functionality by raising user defined error.
-        [Fact]
+        [Test]
         public void VerifyCustomBatchParserException()
         {
             string message = "This is userDefined Error";
@@ -276,21 +277,14 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
             Token token = new Token(LexerTokenType.Text, new PositionStruct(), new PositionStruct(), message, "test");
 
             BatchParserException batchParserException = new BatchParserException(ErrorCode.VariableNotDefined, token, message);
-            try
-            {
-                throw new BatchParserException(ErrorCode.UnrecognizedToken, token, "test");
-            }
-            catch (Exception ex)
-            {
-                Assert.Equal(batchParserException.ErrorCode.ToString(), ErrorCode.VariableNotDefined.ToString());
-                Assert.Equal(message, batchParserException.Text);
-                Assert.Equal(LexerTokenType.Text.ToString(), batchParserException.TokenType.ToString());
-                Assert.IsType<BatchParserException>(ex);
-            }
+
+            Assert.AreEqual(batchParserException.ErrorCode.ToString(), ErrorCode.VariableNotDefined.ToString());
+            Assert.AreEqual(message, batchParserException.Text);
+            Assert.AreEqual(LexerTokenType.Text.ToString(), batchParserException.TokenType.ToString());
         }
 
         // Verify whether the executionEngine execute script
-        [Fact]
+        [Test]
         public void VerifyExecuteScript()
         {
             using (ExecutionEngine executionEngine = new ExecutionEngine())
@@ -305,13 +299,13 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
 
                     ScriptExecutionResult result = (testExecutor.ExecutionResult == ScriptExecutionResult.Success) ? ScriptExecutionResult.Success : ScriptExecutionResult.Failure;
 
-                    Assert.Equal<ScriptExecutionResult>(ScriptExecutionResult.Success, result);
+                    Assert.AreEqual(ScriptExecutionResult.Success, result);
                 }
             }
         }
 
         // Verify whether the batchParser execute SqlCmd.
-        //[Fact]   //  This Testcase should execute and pass, But it is failing now.
+        //[Test]   //  This Testcase should execute and pass, But it is failing now.
         public void VerifyIsSqlCmd()
         {
             using (ExecutionEngine executionEngine = new ExecutionEngine())
@@ -330,7 +324,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
         /// <summary>
         /// Verify whether the batchParser execute SqlCmd successfully
         /// </summary>
-        [Fact]
+        [Test]
         public void VerifyRunSqlCmd()
         {
             using (ExecutionEngine executionEngine = new ExecutionEngine())
@@ -365,7 +359,7 @@ GO";
         /// <summary>
         /// Verify whether the batchParser parsed :connect command successfully
         /// </summary>
-        [Fact]
+        [Test]
         public void VerifyConnectSqlCmd()
         {
             using (ExecutionEngine executionEngine = new ExecutionEngine())
@@ -374,14 +368,15 @@ GO";
                 string serverName = liveConnection.ConnectionInfo.ConnectionDetails.ServerName;
                 string userName = liveConnection.ConnectionInfo.ConnectionDetails.UserName;
                 string password = liveConnection.ConnectionInfo.ConnectionDetails.Password;
+                var credentials = string.IsNullOrEmpty(userName) ? string.Empty : $"-U {userName} -P {password}";
                 string sqlCmdQuery = $@"
-:Connect {serverName} -U {userName} -P {password}
+:Connect {serverName}{credentials}
 GO
 select * from sys.databases where name = 'master'
 GO";
 
                 string sqlCmdQueryIncorrect = $@"
-:Connect {serverName} -u {userName} -p {password}
+:Connect {serverName} -u uShouldbeUpperCase -p pShouldbeUpperCase
 GO
 select * from sys.databases where name = 'master'
 GO";
@@ -390,17 +385,23 @@ GO";
                 using (TestExecutor testExecutor = new TestExecutor(sqlCmdQuery, sqlConn, condition))
                 {
                     testExecutor.Run();
-                    Assert.True(testExecutor.ParserExecutionError == false, "Parse Execution error should be false");
-                    Assert.True(testExecutor.ResultCountQueue.Count == 1, $"Unexpected number of ResultCount items - expected 1 but got {testExecutor.ResultCountQueue.Count}");
-                    Assert.True(testExecutor.ErrorMessageQueue.Count == 0, $"Unexpected error messages from test executor : {string.Join(Environment.NewLine, testExecutor.ErrorMessageQueue)}");
+                    Assert.Multiple(() =>
+                    {
+                       Assert.That(testExecutor.ParserExecutionError, Is.False, "Parse Execution error should be false");
+                       Assert.That(testExecutor.ResultCountQueue.Count, Is.EqualTo(1), "Unexpected number of ResultCount items");
+                       Assert.That(testExecutor.ErrorMessageQueue, Is.Empty, "Unexpected error messages from test executor");
+                    });
                 }
 
                 using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(liveConnection.ConnectionInfo))
                 using (TestExecutor testExecutor = new TestExecutor(sqlCmdQueryIncorrect, sqlConn, condition))
                 {
                     testExecutor.Run();
-
-                    Assert.True(testExecutor.ParserExecutionError == true, "Parse Execution error should be true");
+                    Assert.Multiple(() =>
+                    {
+                        Assert.True(testExecutor.ParserExecutionError, "Parse Execution error should be true");
+                        Assert.That(testExecutor.ErrorMessageQueue, Has.Member("Incorrect syntax was encountered while -u was being parsed."), "error message expected");
+                    });
                 }
             }
         }
@@ -408,7 +409,7 @@ GO";
         /// <summary>
         /// Verify whether the batchParser parsed :on error successfully
         /// </summary>
-        [Fact]
+        [Test]
         public void VerifyOnErrorSqlCmd()
         {
             using (ExecutionEngine executionEngine = new ExecutionEngine())
@@ -443,7 +444,7 @@ GO";
         /// <summary>
         /// Verify whether the batchParser parses Include command i.e. :r successfully
         /// </summary>
-        [Fact]
+        [Test]
         public void VerifyIncludeSqlCmd()
         {
             string file = "VerifyIncludeSqlCmd_test.sql";
@@ -486,7 +487,7 @@ GO";
         }
 
         // Verify whether the executionEngine execute Batch
-        [Fact]
+        [Test]
         public void VerifyExecuteBatch()
         {
             using (ExecutionEngine executionEngine = new ExecutionEngine())
@@ -498,7 +499,7 @@ GO";
                     var executionPromise = new TaskCompletionSource<bool>();
                     executionEngine.BatchParserExecutionFinished += (object sender, BatchParserExecutionFinishedEventArgs e) =>
                     {
-                        Assert.Equal(ScriptExecutionResult.Success, e.ExecutionResult);
+                        Assert.AreEqual(ScriptExecutionResult.Success, e.ExecutionResult);
                         executionPromise.SetResult(true);
                     };
                     executionEngine.ExecuteBatch(new ScriptExecutionArgs(query, sqlConn, 15, new ExecutionEngineConditions(), new BatchParserMockEventHandler()));
@@ -508,7 +509,7 @@ GO";
             }
         }
 
-        [Fact]
+        [Test]
         public void CanceltheBatch()
         {
             Batch batch = new Batch();
@@ -567,7 +568,7 @@ GO";
                 if (lexerError == false)
                 {
                     // Verify that all text from tokens can be recombined into original string
-                    Assert.Equal<string>(inputText, roundtripTextBuilder.ToString());
+                    Assert.AreEqual(inputText, roundtripTextBuilder.ToString());
                 }
             }
         }

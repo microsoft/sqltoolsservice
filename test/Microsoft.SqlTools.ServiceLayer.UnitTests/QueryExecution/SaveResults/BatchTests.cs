@@ -6,16 +6,14 @@
 using System;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
 {
     public class BatchTests
     {
-        [Theory]
-        [InlineData(-1)]
-        [InlineData(100)]
-        public void SaveAsFailsOutOfRangeResultSet(int resultSetIndex)
+        [Test]
+        public void SaveAsFailsOutOfRangeResultSet([Values(-1,100)] int resultSetIndex)
         {
             // If: I attempt to save results for an invalid result set index
             // Then: I should get an ArgumentOutOfRange exception

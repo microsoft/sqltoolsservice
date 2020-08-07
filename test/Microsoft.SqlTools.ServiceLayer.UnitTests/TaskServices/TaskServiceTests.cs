@@ -13,7 +13,7 @@ using Microsoft.SqlTools.ServiceLayer.TaskServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
 {
@@ -34,7 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
             service.InitializeService(serviceHostMock.Object);
         }
 
-        [Fact]
+        [Test]
         public async Task TaskListRequestErrorsIfParameterIsNull()
         {
             object errorResponse = null;
@@ -46,7 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
             Assert.True(((string)errorResponse).Contains("ArgumentNullException"));
         }
 
-        [Fact]
+        [Test]
         public void NewTaskShouldSendNotification()
         {
             serviceHostMock.AddEventHandling(TaskCreatedNotification.Type, null);
@@ -64,7 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
                 It.Is<TaskProgressInfo>(t => t.TaskId == sqlTask.TaskId.ToString())), Times.AtLeastOnce());
         }
 
-        [Fact]
+        [Test]
         public async Task CancelTaskShouldCancelTheOperationAndSendNotification()
         {
             serviceHostMock.AddEventHandling(TaskCreatedNotification.Type, null);
@@ -93,7 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
         }
 
 
-        [Fact]
+        [Test]
         public async Task TaskListTaskShouldReturnAllTasks()
         {
             serviceHostMock.AddEventHandling(TaskCreatedNotification.Type, null);

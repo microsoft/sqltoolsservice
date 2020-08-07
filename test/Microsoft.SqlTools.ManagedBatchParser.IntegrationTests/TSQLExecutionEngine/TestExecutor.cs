@@ -9,6 +9,7 @@ using Microsoft.Data.SqlClient;
 using System.Threading;
 using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 using Microsoft.SqlTools.Utility;
+using System.Runtime.CompilerServices;
 
 namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEngine
 {
@@ -17,9 +18,9 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
         #region Private variables
 
         private string sqlStatement;
-        private ExecutionEngineConditions conditions = new ExecutionEngineConditions();
-        private BatchEventHandler eventHandler = new BatchEventHandler();
-        private SqlConnection connection = null;
+        private readonly ExecutionEngineConditions conditions = new ExecutionEngineConditions();
+        private readonly BatchEventHandler eventHandler = new BatchEventHandler();
+        private readonly SqlConnection connection;
         private static Thread _executionThread;
         private bool _syncCancel = true;
         private bool _isFinished = false;
@@ -31,12 +32,12 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
         private List<int> resultCounts = new List<int>();
 
         private List<string> sqlMessages = new List<string>();
-        private List<string> errorMessage = new List<string>();
+        private readonly List<string> errorMessage = new List<string>();
         private List<bool> batchFinished = new List<bool>();
         private static ScriptExecutionResult execResult = ScriptExecutionResult.All;
         private static List<string> batchScripts = new List<string>();
         private static Thread exeThread = null;
-        private static bool parserExecutionError = false;
+        private bool parserExecutionError = false;
 
         #endregion Private variables
 
@@ -323,9 +324,13 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
         {
             Console.WriteLine("ON_BATCH_PARSER_EXECUTION_FINISHED : Done executing batch \n\t{0}\n\t with result... {1} ", e.Batch.Text, e.ExecutionResult);
             if (execResult == ScriptExecutionResult.All)
+            {
                 execResult = e.ExecutionResult;
+            }
             else
-                execResult = execResult | e.ExecutionResult;
+            {
+                execResult |= e.ExecutionResult;
+            }
         }
 
         /// <summary>
@@ -333,11 +338,12 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private static void OnBatchParserExecutionError(object sender, BatchParserExecutionErrorEventArgs e)
+        private void OnBatchParserExecutionError(object sender, BatchParserExecutionErrorEventArgs e)
         {
             Console.WriteLine("ON_BATCH_PARSER_EXECUTION_ERROR : {0} found... at line {1}: {2}", e.MessageType.ToString(), e.Line.ToString(), e.Message);
             Console.WriteLine("\t Error Description: " + e.Description);
             parserExecutionError = true;
+            errorMessage.Add(e.Description);            
         }
 
         /// <summary>
@@ -351,13 +357,17 @@ namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEn
             _isFinished = true;
 
             if (execResult == ScriptExecutionResult.All)
+            {
                 execResult = e.ExecutionResult;
+            }
             else
-                execResult = execResult | e.ExecutionResult;
+            {
+                execResult |= e.ExecutionResult;
+            }
 
             resultCounts = eventHandler.ResultCounts;
             sqlMessages = eventHandler.SqlMessages;
-            errorMessage = eventHandler.ErrorMessages;
+            errorMessage.AddRange(eventHandler.ErrorMessages);
         }
 
         #endregion ParserEvent

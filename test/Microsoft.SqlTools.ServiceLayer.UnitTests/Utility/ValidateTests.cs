@@ -5,31 +5,31 @@
 
 using System;
 using Microsoft.SqlTools.Utility;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 {
     public class ValidateTests
     {
-        [Fact]
+        [Test]
         public void IsWithinRangeTest()
         {
             Assert.Throws<ArgumentOutOfRangeException>(() => Validate.IsWithinRange("parameterName", 1, 2, 3));
         }
 
-        [Fact]
+        [Test]
         public void IsLessThanTest()
         {
             Assert.Throws<ArgumentOutOfRangeException>(() => Validate.IsLessThan("parameterName", 2, 1));
         }
 
-        [Fact]
+        [Test]
         public void IsNotEqualTest()
         {
             Assert.Throws<ArgumentException>(() => Validate.IsNotEqual<int>("parameterName", 1, 1));
         }
 
-        [Fact]
+        [Test]
         public void IsNullOrWhiteSpaceTest()
         {
             Assert.Throws<ArgumentException>(() => Validate.IsNotNullOrWhitespaceString("parameterName", null));

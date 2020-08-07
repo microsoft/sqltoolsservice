@@ -10,7 +10,7 @@ using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
 {
@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         /// <summary>
         /// Verify default agent/operators handlers
         /// </summary>
-        [Fact]
+        [Test]
         public async Task TestHandleAgentOperatorsRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
@@ -41,7 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         /// <summary>
         /// Verify the default "create agent alert" request handler with valid parameters
         /// </summary>
-        [Fact]
+        [Test]
         public async Task TestHandleCreateAgentOperatorRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
@@ -63,7 +63,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         /// <summary>
         /// TestHandleUpdateAgentOperatorRequest
         /// </summary>
-        [Fact]
+        [Test]
         public async Task TestHandleUpdateAgentOperatorRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
@@ -87,7 +87,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         /// <summary>
         /// TestHandleDeleteAgentOperatorRequest
         /// </summary>
-        [Fact]
+        [Test]
         public async Task TestHandleDeleteAgentOperatorRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
