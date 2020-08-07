@@ -63,7 +63,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             };
         }
 
-        public static FolderMetadata CreateFolderMetadata(DataSourceObjectMetadata parentMetadata, string clusterName, string name)
+        public static FolderMetadata CreateFolderMetadata(DataSourceObjectMetadata parentMetadata, string path, string name)
         {
             ValidationUtils.IsNotNull(parentMetadata, nameof(parentMetadata));
 
@@ -74,7 +74,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 Name = name,
                 PrettyName = name,
                 ParentMetadata = parentMetadata,
-                Urn = $"{parentMetadata.Urn}.{clusterName}.{name}"
+                Urn = $"{path}.{name}"
             };
         }
 
