@@ -193,7 +193,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Throws<InvalidOperationException>(() => rd.RevertCell(0));
         }
 
-        [Fact]
+        [Test]
         public async Task GetVerifyQuery()
         {
             // Setup: Create a row update and set the first row cell to have values
@@ -228,11 +228,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // ... There should be a table
             string tbl = m.Groups[1].Value;
-            Assert.Equal(data.TableMetadata.EscapedMultipartName, tbl);
+            Assert.AreEqual(data.TableMetadata.EscapedMultipartName, tbl);
 
             // ... There should be as many where components as there are keys
             string[] whereComponents = m.Groups[2].Value.Split(new[] { "AND" }, StringSplitOptions.None);
-            Assert.Equal(expectedKeys, whereComponents.Length);
+            Assert.AreEqual(expectedKeys, whereComponents.Length);
 
             // ... Mock db connection for building the command
             var mockConn = new TestSqlConnection(new[] { testResultSet });
