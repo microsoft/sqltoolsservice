@@ -6,7 +6,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 {
@@ -14,7 +14,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
     {
         #region Continue with Action
         
-        [Fact]
+        [Test]
         public async Task ContinueWithOnFaultedActionNullContinuation()
         {
             // Setup: Create a task that will definitely fault
@@ -26,10 +26,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             await continuationTask;
 
             // Then: The task should have completed without fault
-            Assert.Equal(TaskStatus.RanToCompletion, continuationTask.Status);
+            Assert.AreEqual(TaskStatus.RanToCompletion, continuationTask.Status);
         }
 
-        [Fact]
+        [Test]
         public async Task ContinueWithOnFaultedActionContinuatation()
         {
             // Setup: 
@@ -46,13 +46,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             
             // Then:
             // ... The task should have completed without fault
-            Assert.Equal(TaskStatus.RanToCompletion, continuationTask.Status);
+            Assert.AreEqual(TaskStatus.RanToCompletion, continuationTask.Status);
             
             // ... The continuation action should have been called with the original failure task
-            Assert.Equal(failureTask, providedTask);
+            Assert.AreEqual(failureTask, providedTask);
         }
 
-        [Fact]
+        [Test]
         public async Task ContinueWithOnFaultedActionExceptionInContinuation()
         {
             // Setup: 
@@ -74,17 +74,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             
             // Then:
             // ... The task should have completed without fault
-            Assert.Equal(TaskStatus.RanToCompletion, continuationTask.Status);
+            Assert.AreEqual(TaskStatus.RanToCompletion, continuationTask.Status);
             
             // ... The continuation action should have been called with the original failure task
-            Assert.Equal(failureTask, providedTask);
+            Assert.AreEqual(failureTask, providedTask);
         }
         
         #endregion
         
         #region Continue with Task
         
-        [Fact]
+        [Test]
         public async Task ContinueWithOnFaultedFuncNullContinuation()
         {
             // Setup: Create a task that will definitely fault
@@ -97,10 +97,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             await continuationTask;
 
             // Then: The task should have completed without fault
-            Assert.Equal(TaskStatus.RanToCompletion, continuationTask.Status);
+            Assert.AreEqual(TaskStatus.RanToCompletion, continuationTask.Status);
         }
 
-        [Fact]
+        [Test]
         public async Task ContinueWithOnFaultedFuncContinuatation()
         {
             // Setup: 
@@ -122,13 +122,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             
             // Then:
             // ... The task should have completed without fault
-            Assert.Equal(TaskStatus.RanToCompletion, continuationTask.Status);
+            Assert.AreEqual(TaskStatus.RanToCompletion, continuationTask.Status);
             
             // ... The continuation action should have been called with the original failure task
-            Assert.Equal(failureTask, providedTask);
+            Assert.AreEqual(failureTask, providedTask);
         }
 
-        [Fact]
+        [Test]
         public async Task ContinueWithOnFaultedFuncExceptionInContinuation()
         {
             // Setup: 
@@ -150,10 +150,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             
             // Then:
             // ... The task should have completed without fault
-            Assert.Equal(TaskStatus.RanToCompletion, continuationTask.Status);
+            Assert.AreEqual(TaskStatus.RanToCompletion, continuationTask.Status);
             
             // ... The continuation action should have been called with the original failure task
-            Assert.Equal(failureTask, providedTask);
+            Assert.AreEqual(failureTask, providedTask);
         }
         
         #endregion

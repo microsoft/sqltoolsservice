@@ -17,7 +17,7 @@ using Microsoft.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit;
+using NUnit.Framework;
 using static Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility.LiveConnectionHelper;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
@@ -70,7 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
         /// <summary>
         /// Verify that the metadata service correctly returns details for user tables
         /// </summary>
-        [Fact]
+        [Test]
         public void MetadataReturnsUserTable()
         {
             this.testTableName += new Random().Next(1000000, 9999999).ToString();
@@ -100,8 +100,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             DeleteTestTable(sqlConn);
         }
 
-        [Fact]
-        public async void GetTableInfoReturnsValidResults()
+        [Test]
+        public async Task GetTableInfoReturnsValidResults()
         {
             this.testTableName += new Random().Next(1000000, 9999999).ToString();
                    
@@ -127,8 +127,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             requestContext.VerifyAll();
         }
 
-        [Fact]
-        public async void GetViewInfoReturnsValidResults()
+        [Test]
+        public async Task GetViewInfoReturnsValidResults()
         {           
             var result = GetLiveAutoCompleteTestObjects();         
             var requestContext = new Mock<RequestContext<TableMetadataResult>>();
@@ -146,8 +146,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             requestContext.VerifyAll();
         }
 
-        [Fact]
-        public async void VerifyMetadataList()
+        [Test]
+        public async Task VerifyMetadataList()
         {
             string query = @"CREATE TABLE testTable1 (c1 int)
                             GO

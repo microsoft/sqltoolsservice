@@ -15,13 +15,13 @@ using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 {
     public class RowCreateTests
     {
-        [Fact]
+        [Test]
         public async Task RowCreateConstruction()
         {
             // Setup: Create the values to store
@@ -33,9 +33,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             RowCreate rc = new RowCreate(rowId, rs, data.TableMetadata);
 
             // Then: The values I provided should be available
-            Assert.Equal(rowId, rc.RowId);
-            Assert.Equal(rs, rc.AssociatedResultSet);
-            Assert.Equal(data.TableMetadata, rc.AssociatedObjectMetadata);
+            Assert.AreEqual(rowId, rc.RowId);
+            Assert.AreEqual(rs, rc.AssociatedResultSet);
+            Assert.AreEqual(data.TableMetadata, rc.AssociatedObjectMetadata);
         }
 
         #region GetScript Tests
@@ -58,8 +58,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             }
         }
 
-        [Theory]
-        [MemberData(nameof(GetScriptMissingCellsData))]
+        [Test]
+        [TestCaseSource(nameof(GetScriptMissingCellsData))]
         public async Task GetScriptMissingCell(bool includeIdentity, int defaultCols, int nullableCols, int valuesToSkipSetting)
         {
             // Setup: Generate the parameters for the row create
@@ -108,8 +108,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             }
         }
         
-        [Theory]
-        [MemberData(nameof(GetScriptData))]
+        [Test]
+        [TestCaseSource(nameof(GetScriptData))]
         public async Task GetScript(bool includeIdentity, int colsWithDefaultConstraints, int colsThatAllowNull, int valuesToSkipSetting, RegexExpectedOutput expectedOutput)
         {
             // Setup: 
@@ -142,7 +142,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 Assert.True(m.Success);
                 
                 // Table name matches
-                Assert.Equal(Common.TableName, m.Groups[1].Value);
+                Assert.AreEqual(Common.TableName, m.Groups[1].Value);
             }
             else
             {
@@ -152,24 +152,22 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 Assert.True(m.Success);
                 
                 // Table name matches
-                Assert.Equal(Common.TableName, m.Groups[1].Value);
+                Assert.AreEqual(Common.TableName, m.Groups[1].Value);
                 
                 // In columns match
                 string cols = m.Groups[2].Value;
-                Assert.Equal(expectedOutput.ExpectedInColumns, cols.Split(',').Length);
+                Assert.AreEqual(expectedOutput.ExpectedInColumns, cols.Split(',').Length);
                 
                 // In values match
                 string vals = m.Groups[3].Value;               
-                Assert.Equal(expectedOutput.ExpectedInValues, vals.Split(',').Length);
+                Assert.AreEqual(expectedOutput.ExpectedInValues, vals.Split(',').Length);
             }
         }
         
         #endregion
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public async Task ApplyChanges(bool includeIdentity)
+        [Test]
+        public async Task ApplyChanges([Values]bool includeIdentity)
         {
             // Setup: 
             // ... Generate the parameters for the row create
@@ -185,12 +183,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             await rc.ApplyChanges(newRowReader);
 
             // Then: The result set should have an additional row in it
-            Assert.Equal(2, rs.RowCount);
+            Assert.AreEqual(2, rs.RowCount);
         }
 
         #region GetCommand Tests
 
-        [Fact]
+        [Test]
         public async Task GetCommandNullConnection()
         {
             // Setup: Create a row create
@@ -219,8 +217,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             }
         }
 
-        [Theory]
-        [MemberData(nameof(GetCommandMissingCellsData))]
+        [Test]
+        [TestCaseSource(nameof(GetCommandMissingCellsData))]
         public async Task GetCommandMissingCellNoDefault(bool includeIdentity, int defaultCols, int nullableCols,
             int valuesToSkip)
         {
@@ -274,8 +272,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             }
         }
         
-        [Theory]
-        [MemberData(nameof(GetCommandData))]
+        [Test]
+        [TestCaseSource(nameof(GetCommandData))]
         public async Task GetCommand(bool includeIdentity, int defaultCols, int nullableCols, int valuesToSkip, RegexExpectedOutput expectedOutput)
         {
             // Setup: 
@@ -298,7 +296,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.NotNull(cmd);
             
             // ... There should be parameters in it
-            Assert.Equal(expectedOutput.ExpectedInValues, cmd.Parameters.Count);
+            Assert.AreEqual(expectedOutput.ExpectedInValues, cmd.Parameters.Count);
             
             // ... The script should match the expected regex output
             ValidateCommandAgainstRegex(cmd.CommandText, expectedOutput);
@@ -308,7 +306,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Break the query into parts
             string[] splitSql = sql.Split(Environment.NewLine);
-            Assert.Equal(3, splitSql.Length);
+            Assert.AreEqual(3, splitSql.Length);
             
             // Check the declare statement first
             Regex declareRegex = new Regex(@"^DECLARE @(.+) TABLE \((.+)\)$");
@@ -321,7 +319,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             
             // Correct number of columns in declared table
             string[] declareCols = declareMatch.Groups[2].Value.Split(", ");
-            Assert.Equal(expectedOutput.ExpectedOutColumns, declareCols.Length);
+            Assert.AreEqual(expectedOutput.ExpectedOutColumns, declareCols.Length);
             
             // Check the insert statement in the middle 
             if (expectedOutput.ExpectedInColumns == 0 || expectedOutput.ExpectedInValues == 0)
@@ -332,16 +330,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 Assert.True(insertMatch.Success);
                 
                 // Table name matches
-                Assert.Equal(Common.TableName, insertMatch.Groups[1].Value);
+                Assert.AreEqual(Common.TableName, insertMatch.Groups[1].Value);
                 
-                // Output columns match
                 string[] outCols = insertMatch.Groups[2].Value.Split(", ");
-                Assert.Equal(expectedOutput.ExpectedOutColumns, outCols.Length);
-                Assert.All(outCols, col => Assert.StartsWith("inserted.", col));
-                
-                // Output table name matches
-                Assert.StartsWith("Insert", insertMatch.Groups[3].Value);
-                Assert.EndsWith("Output", insertMatch.Groups[3].Value);
+                Assert.AreEqual(expectedOutput.ExpectedOutColumns, outCols.Length);
+                Assert.That(outCols, Has.All.StartsWith("inserted."), "Output columns match");
+
+                Assert.Multiple(() =>
+                {
+                    Assert.That(insertMatch.Groups[3].Value, Does.StartWith("Insert"), "Output table name matches");
+                    Assert.That(insertMatch.Groups[3].Value, Does.EndWith("Output"));
+                });
             }
             else
             {
@@ -351,25 +350,31 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 Assert.True(insertMatch.Success);
                 
                 // Table name matches
-                Assert.Equal(Common.TableName, insertMatch.Groups[1].Value);
+                Assert.AreEqual(Common.TableName, insertMatch.Groups[1].Value);
                 
-                // Output columns match
+                // 
                 string[] outCols = insertMatch.Groups[3].Value.Split(", ");
-                Assert.Equal(expectedOutput.ExpectedOutColumns, outCols.Length);
-                Assert.All(outCols, col => Assert.StartsWith("inserted.", col));
+                Assert.Multiple(() =>
+                {
+                    Assert.AreEqual(expectedOutput.ExpectedOutColumns, outCols.Length);
+                    Assert.That(outCols, Has.All.StartsWith("inserted."), "Output columns match");
+                });
                 
                 // In columns match
                 string[] inCols = insertMatch.Groups[2].Value.Split(", ");
-                Assert.Equal(expectedOutput.ExpectedInColumns, inCols.Length);
-                
+                Assert.AreEqual(expectedOutput.ExpectedInColumns, inCols.Length);
+
                 // Output table name matches
-                Assert.StartsWith("Insert", insertMatch.Groups[4].Value);
-                Assert.EndsWith("Output", insertMatch.Groups[4].Value);
-                
+                Assert.Multiple(() =>
+                {
+                    Assert.That(insertMatch.Groups[4].Value, Does.StartWith("Insert"));
+                    Assert.That(insertMatch.Groups[4].Value, Does.EndWith("Output"));
+                });
+
                 // In values match
                 string[] inVals = insertMatch.Groups[5].Value.Split(", ");
-                Assert.Equal(expectedOutput.ExpectedInValues, inVals.Length);
-                Assert.All(inVals, val => Assert.Matches(@"@.+\d+_\d+", val));
+                Assert.AreEqual(expectedOutput.ExpectedInValues, inVals.Length);
+                Assert.That(inVals, Has.All.Match(@"@.+\d+_\d+"));
             }
             
             // Check the select statement last
@@ -379,7 +384,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             
             // Correct number of columns in declared table
             string[] selectCols = selectMatch.Groups[1].Value.Split(", ");
-            Assert.Equal(expectedOutput.ExpectedOutColumns, selectCols.Length);
+            Assert.AreEqual(expectedOutput.ExpectedOutColumns, selectCols.Length);
             
             // Declared table name matches
             Assert.True(selectMatch.Groups[2].Value.StartsWith("Insert"));
@@ -390,7 +395,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         
         #region GetEditRow Tests
 
-        [Fact]
+        [Test]
         public async Task GetEditRowNoAdditions()
         {
             // Setup: Generate a standard row create
@@ -405,19 +410,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // ... The row should not be clean
             Assert.True(er.IsDirty);
-            Assert.Equal(EditRow.EditRowState.DirtyInsert, er.State);
+            Assert.AreEqual(EditRow.EditRowState.DirtyInsert, er.State);
 
             // ... The row should have a bunch of empty cells (equal to number of columns) and all are dirty
-            Assert.Equal(rc.newCells.Length, er.Cells.Length);
-            Assert.All(er.Cells, ec =>
-            {
-                Assert.Equal(string.Empty, ec.DisplayValue);
-                Assert.False(ec.IsNull);
-                Assert.True(ec.IsDirty);
-            });
+            Assert.AreEqual(rc.newCells.Length, er.Cells.Length);
+            Assert.That(er.Cells.Select(c => c.DisplayValue), Has.All.Empty);
+            Assert.That(er.Cells.Select(ec => ec.IsDirty), Has.All.True);
         }
 
-        [Fact]
+        [Test]
         public async Task GetEditRowWithDefaultValue()
         {
             // Setup: Generate a row create with default values
@@ -435,19 +436,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             
             // ... The row should not be clean
             Assert.True(er.IsDirty);
-            Assert.Equal(EditRow.EditRowState.DirtyInsert, er.State);
+            Assert.AreEqual(EditRow.EditRowState.DirtyInsert, er.State);
             
             // ... The row sould have a bunch of default values (equal to number of columns) and all are dirty
-            Assert.Equal(rc.newCells.Length, er.Cells.Length);
-            Assert.All(er.Cells, ec =>
-            {
-                Assert.Equal(Common.DefaultValue, ec.DisplayValue);
-                Assert.False(ec.IsNull);    // TODO: Update when we support null default values better
-                Assert.True(ec.IsDirty);
-            });
+            Assert.AreEqual(rc.newCells.Length, er.Cells.Length);
+            Assert.That(er.Cells.Select(ec => ec.DisplayValue), Has.All.EqualTo(Common.DefaultValue));
+            Assert.That(er.Cells.Select(ec => ec.IsDirty), Has.All.True);
         }
 
-        [Fact]
+        [Test]
         public async Task GetEditRowWithCalculatedValue()
         {
             // Setup: Generate a row create with an identity column
@@ -462,28 +459,23 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Then:
             // ... The row should not be null
             Assert.NotNull(er);
-            Assert.Equal(er.Id, rowId);
+            Assert.AreEqual(er.Id, rowId);
             
             // ... The row should not be clean
             Assert.True(er.IsDirty);
-            Assert.Equal(EditRow.EditRowState.DirtyInsert, er.State);
+            Assert.AreEqual(EditRow.EditRowState.DirtyInsert, er.State);
             
             // ... The row should have a TBD for the identity column
-            Assert.Equal(rc.newCells.Length, er.Cells.Length);
-            Assert.Equal(SR.EditDataComputedColumnPlaceholder, er.Cells[0].DisplayValue);
+            Assert.AreEqual(rc.newCells.Length, er.Cells.Length);
+            Assert.AreEqual(SR.EditDataComputedColumnPlaceholder, er.Cells[0].DisplayValue);
             Assert.False(er.Cells[0].IsNull);
             Assert.True(er.Cells[0].IsDirty);
-                
+
             // ... The rest of the cells should have empty display values
-            Assert.All(er.Cells.Skip(1), ec =>
-            {
-                Assert.Equal(string.Empty, ec.DisplayValue);
-                Assert.False(ec.IsNull);
-                Assert.True(ec.IsDirty);
-            });
+            Assert.That(er.Cells.Skip(1).Select(ec => new { ec.DisplayValue, ec.IsNull, ec.IsDirty }), Has.All.EqualTo(new { DisplayValue = string.Empty, IsNull = false, IsDirty = true }));
         }
 
-        [Fact]
+        [Test]
         public async Task GetEditRowWithAdditions()
         {
             // Setp: Generate a row create with a cell added to it
@@ -497,14 +489,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Then:
             // ... The row should not be null and contain the same number of cells as columns
             Assert.NotNull(er);
-            Assert.Equal(EditRow.EditRowState.DirtyInsert, er.State);
+            Assert.AreEqual(EditRow.EditRowState.DirtyInsert, er.State);
 
             // ... The row should not be clean
             Assert.True(er.IsDirty);
-            Assert.Equal(EditRow.EditRowState.DirtyInsert, er.State);
+            Assert.AreEqual(EditRow.EditRowState.DirtyInsert, er.State);
 
             // ... The row should have a single non-empty cell at the beginning that is dirty
-            Assert.Equal(setValue, er.Cells[0].DisplayValue);
+            Assert.AreEqual(setValue, er.Cells[0].DisplayValue);
             Assert.False(er.Cells[0].IsNull);
             Assert.True(er.Cells[0].IsDirty);
 
@@ -512,7 +504,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             for (int i = 1; i < er.Cells.Length; i++)
             {
                 EditCell ec = er.Cells[i];
-                Assert.Equal(string.Empty, ec.DisplayValue);
+                Assert.AreEqual(string.Empty, ec.DisplayValue);
                 Assert.False(ec.IsNull);
                 Assert.True(ec.IsDirty);
             }
@@ -522,11 +514,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
         #region SetCell Tests
         
-        [Theory]
-        [InlineData(-1)]        // Negative
-        [InlineData(3)]         // At edge of acceptable values
-        [InlineData(100)]       // Way too large value
-        public async Task SetCellOutOfRange(int columnId)
+        [Test]
+        public async Task SetCellOutOfRange([Values(-1, 3, 100)]int columnId)
         {
             // Setup: Generate a row create
             RowCreate rc = await GetStandardRowCreate();
@@ -535,7 +524,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Throws<ArgumentOutOfRangeException>(() => rc.SetCell(columnId, string.Empty));
         }
 
-        [Fact]
+        [Test]
         public async Task SetCellNoChange()
         {
             // Setup: Generate a row create
@@ -549,7 +538,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... The returned value should be equal to what we provided
             Assert.NotNull(eucr);
             Assert.NotNull(eucr.Cell);
-            Assert.Equal(updateValue, eucr.Cell.DisplayValue);
+            Assert.AreEqual(updateValue, eucr.Cell.DisplayValue);
             Assert.False(eucr.Cell.IsNull);
 
             // ... The returned value should be dirty
@@ -562,7 +551,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.NotNull(rc.newCells[0]);
         }
 
-        [Fact]
+        [Test]
         public async Task SetCellHasCorrections()
         {
             // Setup: 
@@ -591,7 +580,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... The returned value should be equal to what we provided
             Assert.NotNull(eucr);
             Assert.NotNull(eucr.Cell);
-            Assert.NotEqual("1000", eucr.Cell.DisplayValue);
+            Assert.That(eucr.Cell.DisplayValue, Is.Not.EqualTo("1000"));
             Assert.False(eucr.Cell.IsNull);
 
             // ... The returned value should be dirty
@@ -604,7 +593,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.NotNull(rc.newCells[0]);
         }
 
-        [Fact]
+        [Test]
         public async Task SetCellNull()
         {
             // Setup: Generate a row create
@@ -620,7 +609,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... The returned value should be equal to what we provided
             Assert.NotNull(eucr);
             Assert.NotNull(eucr.Cell);
-            Assert.Equal(nullValue, eucr.Cell.DisplayValue);
+            Assert.AreEqual(nullValue, eucr.Cell.DisplayValue);
             Assert.True(eucr.Cell.IsNull);
 
             // ... The returned value should be dirty
@@ -637,11 +626,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         
         #region RevertCell Tests
         
-        [Theory]
-        [InlineData(-1)]        // Negative
-        [InlineData(3)]         // At edge of acceptable values
-        [InlineData(100)]       // Way too large value
-        public async Task RevertCellOutOfRange(int columnId)
+        [Test]
+        public async Task RevertCellOutOfRange([Values(-1,3,100)]int columnId)
         {
             // Setup: Generate the row create
             RowCreate rc = await GetStandardRowCreate();
@@ -651,10 +637,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Throws<ArgumentOutOfRangeException>(() => rc.RevertCell(columnId));
         }
 
-        [Theory]
-        [InlineData(1)]
-        [InlineData(0)]
-        public async Task RevertCellNotSet(int defaultCols)
+        [Test]
+        public async Task RevertCellNotSet([Values(0,1)]int defaultCols)
         {
             // Setup: 
             // ... Generate the parameters for the row create
@@ -672,7 +656,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... We should get back an edit cell with a value based on the default value
             string expectedDisplayValue = defaultCols > 0 ? Common.DefaultValue : string.Empty; 
             Assert.NotNull(result.Cell);
-            Assert.Equal(expectedDisplayValue, result.Cell.DisplayValue);
+            Assert.AreEqual(expectedDisplayValue, result.Cell.DisplayValue);
             Assert.False(result.Cell.IsNull);    // TODO: Modify to support null defaults
 
             // ... The row should be dirty
@@ -682,10 +666,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Null(rc.newCells[0]);
         }
 
-        [Theory]
-        [InlineData(1)]
-        [InlineData(0)]
-        public async Task RevertCellThatWasSet(int defaultCols)
+        [Test]
+        public async Task RevertCellThatWasSet([Values(0, 1)] int defaultCols)
         {
             // Setup: 
             // ... Generate the parameters for the row create
@@ -704,7 +686,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... We should get back an edit cell with a value based on the default value
             string expectedDisplayValue = defaultCols > 0 ? Common.DefaultValue : string.Empty; 
             Assert.NotNull(result.Cell);
-            Assert.Equal(expectedDisplayValue, result.Cell.DisplayValue);
+            Assert.AreEqual(expectedDisplayValue, result.Cell.DisplayValue);
             Assert.False(result.Cell.IsNull);    // TODO: Modify to support null defaults
 
             // ... The row should be dirty

@@ -13,13 +13,13 @@ using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 {
     public class RowDeleteTests
     {
-        [Fact]
+        [Test]
         public async Task RowDeleteConstruction()
         {
             // Setup: Create the values to store
@@ -30,15 +30,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             RowDelete rc = new RowDelete(100, rs, data.TableMetadata);
 
             // Then: The values I provided should be available
-            Assert.Equal(100, rc.RowId);
-            Assert.Equal(rs, rc.AssociatedResultSet);
-            Assert.Equal(data.TableMetadata, rc.AssociatedObjectMetadata);
+            Assert.AreEqual(100, rc.RowId);
+            Assert.AreEqual(rs, rc.AssociatedResultSet);
+            Assert.AreEqual(data.TableMetadata, rc.AssociatedObjectMetadata);
         }
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public async Task GetScriptTest(bool isMemoryOptimized)
+        [Test]
+        public async Task GetScriptTest([Values]bool isMemoryOptimized)
         {
             Common.TestDbColumnsWithTableMetadata data = new Common.TestDbColumnsWithTableMetadata(isMemoryOptimized, true, 0, 0);
             ResultSet rs = await Common.GetResultSet(data.DbColumns, true);
@@ -51,16 +49,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... The script should not be null
             Assert.NotNull(script);
 
-            // ... It should be formatted as a delete script
+            // ... 
             string scriptStart = $"DELETE FROM {data.TableMetadata.EscapedMultipartName}";
             if (isMemoryOptimized)
             {
                 scriptStart += " WITH(SNAPSHOT)";
             }
-            Assert.StartsWith(scriptStart, script);
+            Assert.That(script, Does.StartWith(scriptStart), "It should be formatted as a delete script");
         }
 
-        [Fact]
+        [Test]
         public async Task ApplyChanges()
         {
             // Setup: Generate the parameters for the row delete object
@@ -72,15 +70,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             await rd.ApplyChanges(null);      // Reader not used, can be null
 
             // Then : The result set should have one less row in it
-            Assert.Equal(0, rs.RowCount);
+            Assert.AreEqual(0, rs.RowCount);
         }
 
-        [Theory]
-        [InlineData(true, true)]
-        [InlineData(false, true)]
-        [InlineData(true, false)]
-        [InlineData(false, false)]
-        public async Task GetCommand(bool includeIdentity, bool isMemoryOptimized)
+        [Test]
+        public async Task GetCommand([Values]bool includeIdentity, [Values]bool isMemoryOptimized)
         {
             // Setup:
             // ... Create a row delete
@@ -100,7 +94,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // ... Only the keys should be used for parameters
             int expectedKeys = includeIdentity ? 1 : 3;
-            Assert.Equal(expectedKeys, cmd.Parameters.Count);
+            Assert.AreEqual(expectedKeys, cmd.Parameters.Count);
 
             // ... It should be formatted into an delete script
             string regexTest = isMemoryOptimized
@@ -112,17 +106,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // ... There should be a table
             string tbl = m.Groups[1].Value;
-            Assert.Equal(data.TableMetadata.EscapedMultipartName, tbl);
+            Assert.AreEqual(data.TableMetadata.EscapedMultipartName, tbl);
 
             // ... There should be as many where components as there are keys
             string[] whereComponents = m.Groups[2].Value.Split(new[] {"AND"}, StringSplitOptions.None);
-            Assert.Equal(expectedKeys, whereComponents.Length);
+            Assert.AreEqual(expectedKeys, whereComponents.Length);
 
-            // ... Each component should have be equal to a parameter
-            Assert.All(whereComponents, c => Assert.True(Regex.IsMatch(c.Trim(), @"\(.+ = @.+\)")));
+            Assert.That(whereComponents.Select(c => c.Trim()), Has.All.Match(@"\(.+ = @.+\)"), "Each component should be equal to a parameter");
         }
 
-        [Fact]
+        [Test]
         public async Task GetCommandNullConnection()
         {
             // Setup: Create a row delete
@@ -133,7 +126,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Throws<ArgumentNullException>(() => rd.GetCommand(null));
         }
 
-        [Fact]
+        [Test]
         public async Task GetEditRow()
         {
             // Setup: Create a row delete
@@ -148,26 +141,26 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Then:
             // ... The state should be dirty
             Assert.True(er.IsDirty);
-            Assert.Equal(EditRow.EditRowState.DirtyDelete, er.State);
+            Assert.AreEqual(EditRow.EditRowState.DirtyDelete, er.State);
 
             // ... The ID should be the same as the one provided
-            Assert.Equal(0, er.Id);
+            Assert.AreEqual(0, er.Id);
 
             // ... The row should match the cells that were given and should be dirty
-            Assert.Equal(cells.Length, er.Cells.Length);
+            Assert.AreEqual(cells.Length, er.Cells.Length);
             for (int i = 0; i < cells.Length; i++)
             {
                 DbCellValue originalCell = cells[i];
                 EditCell outputCell = er.Cells[i];
 
-                Assert.Equal(originalCell.DisplayValue, outputCell.DisplayValue);
-                Assert.Equal(originalCell.IsNull, outputCell.IsNull);
+                Assert.AreEqual(originalCell.DisplayValue, outputCell.DisplayValue);
+                Assert.AreEqual(originalCell.IsNull, outputCell.IsNull);
                 Assert.True(outputCell.IsDirty);
                 // Note: No real need to check the RawObject property
             }
         }
 
-        [Fact]
+        [Test]
         public async Task GetEditNullRow()
         {
             // Setup: Create a row delete
@@ -178,7 +171,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Throws<ArgumentNullException>(() => rd.GetEditRow(null));
         }
 
-        [Fact]
+        [Test]
         public async Task SetCell()
         {
             // Setup: Create a row delete
@@ -189,7 +182,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Throws<InvalidOperationException>(() => rd.SetCell(0, null));
         }
 
-        [Fact]
+        [Test]
         public async Task RevertCell()
         {
             // Setup: Create a row delete
@@ -198,6 +191,56 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // If: I revert a cell on a delete row edit
             // Then: It should throw
             Assert.Throws<InvalidOperationException>(() => rd.RevertCell(0));
+        }
+
+        [Fact]
+        public async Task GetVerifyQuery()
+        {
+            // Setup: Create a row update and set the first row cell to have values
+            // ... other than "1" for testing purposes (simulated select query result).
+            Common.TestDbColumnsWithTableMetadata data = new Common.TestDbColumnsWithTableMetadata(false, false, 0, 0);
+            var rs = await Common.GetResultSet(data.DbColumns, false);
+            RowUpdate ru = new RowUpdate(0, rs, data.TableMetadata);
+            object[][] rows =
+            {
+                new object[] {"2", "0", "0"},
+            };
+            var testResultSet = new TestResultSet(data.DbColumns, rows);
+            var newRowReader = new TestDbDataReader(new[] { testResultSet }, false);
+            await ru.ApplyChanges(newRowReader);
+
+            // ... Create a row delete.
+            RowDelete rd = new RowDelete(0, rs, data.TableMetadata);
+            int expectedKeys = 3;
+
+            // If: I generate a verify command
+            String verifyCommand = rd.GetVerifyScript();
+
+            // Then:
+            // ... The command should not be null
+            Assert.NotNull(verifyCommand);
+
+            // ... It should be formatted into an where script
+            string regexTest = @"SELECT COUNT \(\*\) FROM (.+) WHERE (.+)";
+            Regex r = new Regex(regexTest);
+            var m = r.Match(verifyCommand);
+            Assert.True(m.Success);
+
+            // ... There should be a table
+            string tbl = m.Groups[1].Value;
+            Assert.Equal(data.TableMetadata.EscapedMultipartName, tbl);
+
+            // ... There should be as many where components as there are keys
+            string[] whereComponents = m.Groups[2].Value.Split(new[] { "AND" }, StringSplitOptions.None);
+            Assert.Equal(expectedKeys, whereComponents.Length);
+
+            // ... Mock db connection for building the command
+            var mockConn = new TestSqlConnection(new[] { testResultSet });
+
+            // If: I attempt to get a command for a simulated delete of a row with duplicates.
+            // Then: The Command will throw an exception as it detects there are
+            // ... 2 or more rows with the same value in the simulated query results data.
+            Assert.Throws<EditDataDeleteException>(() => rd.GetCommand(mockConn));
         }
 
         private async Task<RowDelete> GetStandardRowDelete()

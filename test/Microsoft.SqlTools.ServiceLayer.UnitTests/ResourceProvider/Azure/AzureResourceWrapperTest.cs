@@ -5,13 +5,13 @@
 
 using Microsoft.Azure.Management.Sql.Models;
 using Microsoft.SqlTools.ResourceProvider.DefaultImpl;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Azure
 {
     public class AzureResourceWrapperTest
     {
-        [Fact]
+        [Test]
         public void ShouldParseResourceGroupFromId()
         {
             // Given a resource with a known resource group
@@ -25,10 +25,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Azure
             string rgName = resource.ResourceGroupName;
 
             // then I get it as expected
-            Assert.Equal("myresourcegroup", rgName);
+            Assert.AreEqual("myresourcegroup", rgName);
         }
 
-        [Fact]
+        [Test]
         public void ShouldHandleMissingResourceGroup()
         {
             // Given a resource without resource group in the ID
@@ -42,7 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Azure
             string rgName = resource.ResourceGroupName;
 
             // then I get string.Empty
-            Assert.Equal(string.Empty, rgName);
+            Assert.AreEqual(string.Empty, rgName);
         }
 
         private TrackedResource CreateMockResource(string id = null, string name = null, string type = null)

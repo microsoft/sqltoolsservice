@@ -12,13 +12,14 @@ using Microsoft.SqlTools.Hosting.Channels;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
 {
+    [TestFixture]
     public class JsonRpcHostTests
     {
-        [Fact]
+        [Test]
         public void ConstructWithNullProtocolChannel()
         {
             // If: I construct a JSON RPC host with a null protocol channel
@@ -28,7 +29,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
 
         #region SetRequestHandler Tests
         
-        [Fact]
+        [Test]
         public void SetAsyncRequestHandlerNullRequestType()
         {
             // If: I assign a request handler on the JSON RPC host with a null request type
@@ -38,7 +39,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
                 jh.SetAsyncRequestHandler<object, object>(null, (a, b) => Task.FromResult(false)));
         }
 
-        [Fact]
+        [Test]
         public void SetAsyncRequestHandlerNullRequestHandler()
         {
             // If: I assign a request handler on the JSON RPC host with a null request handler
@@ -47,7 +48,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             Assert.Throws<ArgumentNullException>(() => jh.SetAsyncRequestHandler(CommonObjects.RequestType, null));
         }
         
-        [Fact]
+        [Test]
         public void SetSyncRequestHandlerNullRequestHandler()
         {
             // If: I assign a request handler on the JSON RPC host with a null request handler
@@ -56,10 +57,8 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             Assert.Throws<ArgumentNullException>(() => jh.SetRequestHandler(CommonObjects.RequestType, null));
         }
         
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task SetAsyncRequestHandler(bool nullContents)
+        [Test]
+        public async Task SetAsyncRequestHandler([Values]bool nullContents)
         {           
             // Setup: Create a mock request handler
             var requestHandler = new Mock<Func<CommonObjects.TestMessageContents, RequestContext<CommonObjects.TestMessageContents>, Task>>();
@@ -70,10 +69,9 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             // If: I assign a request handler on the JSON RPC host
             var jh = new JsonRpcHost(GetChannelBase(null, null).Object);
             jh.SetAsyncRequestHandler(CommonObjects.RequestType, requestHandler.Object);
-            
+
             // Then: It should be the only request handler set
-            Assert.Single(jh.requestHandlers);
-            Assert.Contains(CommonObjects.RequestType.MethodName, jh.requestHandlers.Keys);
+            Assert.That(jh.requestHandlers.Keys, Is.EqualTo(new[] { CommonObjects.RequestType.MethodName }), "requestHandlers.Keys after SetAsyncRequestHandler");
             
             // If: I call the stored request handler
             await jh.requestHandlers[CommonObjects.RequestType.MethodName](message);
@@ -89,10 +87,8 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             ), Times.Exactly(2));
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task SetSyncRequestHandler(bool nullContents)
+        [Test]
+        public async Task SetSyncRequestHandler([Values]bool nullContents)
         {
             // Setup: Create a mock request handler
             var requestHandler = new Mock<Action<CommonObjects.TestMessageContents, RequestContext<CommonObjects.TestMessageContents>>>();
@@ -103,11 +99,10 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             // If: I assign a request handler on the JSON RPC host
             var jh = new JsonRpcHost(GetChannelBase(null, null).Object);
             jh.SetRequestHandler(CommonObjects.RequestType, requestHandler.Object);
-            
+
             // Then: It should be the only request handler set
-            Assert.Single(jh.requestHandlers);
-            Assert.Contains(CommonObjects.RequestType.MethodName, jh.requestHandlers.Keys);
-            
+            Assert.That(jh.requestHandlers.Keys, Is.EqualTo(new[] { CommonObjects.RequestType.MethodName }), "requestHandlers.Keys after SetRequestHandler");
+
             // If: I call the stored request handler
             await jh.requestHandlers[CommonObjects.RequestType.MethodName](message);
             await jh.requestHandlers[CommonObjects.RequestType.MethodName](message);
@@ -122,7 +117,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             ), Times.Exactly(2));
         }
 
-        [Fact]
+        [Test]
         public async Task SetAsyncRequestHandlerOverrideTrue()
         {
             // Setup: Create two mock request handlers
@@ -137,8 +132,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             jh.SetAsyncRequestHandler(CommonObjects.RequestType, requestHandler2.Object, true);
 
             // Then: There should only be one request handler
-            Assert.Single(jh.requestHandlers);
-            Assert.Contains(CommonObjects.RequestType.MethodName, jh.requestHandlers.Keys);
+            Assert.That(jh.requestHandlers.Keys, Is.EqualTo(new[] { CommonObjects.RequestType.MethodName }), "requestHandlers.Keys after SetAsyncRequestHandler with override");
 
             // If: I call the stored request handler
             await jh.requestHandlers[CommonObjects.RequestType.MethodName](CommonObjects.RequestMessage);
@@ -154,7 +148,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             ), Times.Never);
         }
 
-        [Fact]
+        [Test]
         public void SetAsyncRequestHandlerOverrideFalse()
         {
             // Setup: Create a mock request handler
@@ -166,14 +160,14 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             // Then: I should get an exception
             var jh = new JsonRpcHost(GetChannelBase(null, null).Object);
             jh.SetAsyncRequestHandler(CommonObjects.RequestType, requestHandler.Object);
-            Assert.ThrowsAny<Exception>(() => jh.SetAsyncRequestHandler(CommonObjects.RequestType, requestHandler.Object));
+            Assert.That(() => jh.SetAsyncRequestHandler(CommonObjects.RequestType, requestHandler.Object), Throws.InstanceOf<Exception>(), "Reassign request handler without overriding");
         }
         
         #endregion
 
         #region SetEventHandler Tests
 
-        [Fact]
+        [Test]
         public void SetAsyncEventHandlerNullEventType()
         {
             // If: I assign an event handler on the JSON RPC host with a null event type
@@ -183,7 +177,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
                 jh.SetAsyncEventHandler<object>(null, (a, b) => Task.FromResult(false)));
         }
 
-        [Fact]
+        [Test]
         public void SetAsyncEventHandlerNull()
         {
             // If: I assign an event handler on the message gispatcher with a null event handler
@@ -191,7 +185,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             Assert.Throws<ArgumentNullException>(() => jh.SetAsyncEventHandler(CommonObjects.EventType, null));
         }
         
-        [Fact]
+        [Test]
         public void SetSyncEventHandlerNull()
         {
             // If: I assign an event handler on the message gispatcher with a null event handler
@@ -199,10 +193,8 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             Assert.Throws<ArgumentNullException>(() => jh.SetEventHandler(CommonObjects.EventType, null));
         }
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public async Task SetAsyncEventHandler(bool nullContents)
+        [Test]
+        public async Task SetAsyncEventHandler([Values]bool nullContents)
         {
             // Setup: Create a mock request handler
             var eventHandler = new Mock<Func<CommonObjects.TestMessageContents, EventContext, Task>>();
@@ -213,11 +205,10 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             // If: I assign an event handler on the JSON RPC host
             var jh = new JsonRpcHost(GetChannelBase(null, null).Object);
             jh.SetAsyncEventHandler(CommonObjects.EventType, eventHandler.Object);
-            
+
             // Then: It should be the only event handler set
-            Assert.Single(jh.eventHandlers);
-            Assert.Contains(CommonObjects.EventType.MethodName, jh.eventHandlers.Keys);
-            
+            Assert.That(jh.eventHandlers.Keys, Is.EqualTo(new[] { CommonObjects.EventType.MethodName }), "eventHandlers.Keys after SetAsyncRequestHandler");
+
             // If: I call the stored event handler
             await jh.eventHandlers[CommonObjects.EventType.MethodName](message);
             await jh.eventHandlers[CommonObjects.EventType.MethodName](message);
@@ -232,10 +223,8 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             ), Times.Exactly(2));
         }
         
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public async Task SetSyncEventHandler(bool nullContents)
+        [Test]
+        public async Task SetSyncEventHandler([Values]bool nullContents)
         {
             // Setup: Create a mock request handler
             var eventHandler = new Mock<Action<CommonObjects.TestMessageContents, EventContext>>();
@@ -248,8 +237,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             jh.SetEventHandler(CommonObjects.EventType, eventHandler.Object);
             
             // Then: It should be the only event handler set
-            Assert.Single(jh.eventHandlers);
-            Assert.Contains(CommonObjects.EventType.MethodName, jh.eventHandlers.Keys);
+            Assert.That(jh.eventHandlers.Keys, Is.EqualTo(new object[] { CommonObjects.EventType.MethodName }), "eventHandlers.Keys after SetEventHandler");
             
             // If: I call the stored event handler
             await jh.eventHandlers[CommonObjects.EventType.MethodName](message);
@@ -265,7 +253,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             ), Times.Exactly(2));
         }
 
-        [Fact]
+        [Test]
         public async Task SetAsyncEventHandlerOverrideTrue()
         {
             // Setup: Create two mock event handlers
@@ -281,8 +269,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             jh.SetAsyncEventHandler(CommonObjects.EventType, eventHandler2.Object, true);
             
             // Then: There should only be one event handler
-            Assert.Single(jh.eventHandlers);
-            Assert.Contains(CommonObjects.EventType.MethodName, jh.eventHandlers.Keys);
+            Assert.That(jh.eventHandlers.Keys, Is.EqualTo(new[] { CommonObjects.EventType.MethodName }), "requestHandlers.Keys after SetAsyncEventHandler with override");
             
             // If: I call the stored event handler
             await jh.eventHandlers[CommonObjects.EventType.MethodName](CommonObjects.EventMessage);
@@ -298,7 +285,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             ), Times.Never);
         }
 
-        [Fact]
+        [Test]
         public void SetAsyncEventHandlerOverrideFalse()
         {
             // Setup: Create a mock event handler
@@ -310,14 +297,14 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             // Then: I should get an exception
             var jh = new JsonRpcHost(GetChannelBase(null, null).Object);
             jh.SetAsyncEventHandler(CommonObjects.EventType, eventHandler.Object);
-            Assert.ThrowsAny<Exception>(() => jh.SetAsyncEventHandler(CommonObjects.EventType, eventHandler.Object));
+            Assert.That(() => jh.SetAsyncEventHandler(CommonObjects.EventType, eventHandler.Object), Throws.InstanceOf<Exception>(), "SetAsyncEventHandler without overriding");
         }
         
         #endregion
         
         #region SendEvent Tests
 
-        [Fact]
+        [Test]
         public void SendEventNotConnected()
         {
             // If: I send an event when the protocol channel isn't connected
@@ -326,7 +313,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             Assert.Throws<InvalidOperationException>(() => jh.SendEvent(CommonObjects.EventType, CommonObjects.TestMessageContents.DefaultInstance));
         }
 
-        [Fact]
+        [Test]
         public void SendEvent()
         {
             // Setup: Create a Json RPC Host with a connected channel
@@ -334,28 +321,26 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             
             // If: I send an event
             jh.SendEvent(CommonObjects.EventType, CommonObjects.TestMessageContents.DefaultInstance);
-            
+
             // Then: The message should be added to the output queue
-            Assert.Single(jh.outputQueue.ToArray());
-            var m = jh.outputQueue.ToArray()[0];
-            Assert.Equal(CommonObjects.TestMessageContents.SerializedContents, m.Contents);
-            Assert.Equal(CommonObjects.EventType.MethodName, m.Method);
+            Assert.That(jh.outputQueue.ToArray().Select(m => (m.Contents, m.Method)), 
+                Is.EqualTo(new[] { (CommonObjects.TestMessageContents.SerializedContents, CommonObjects.EventType.MethodName) }), "outputQueue after SendEvent");
         }
         
         #endregion
         
         #region SendRequest Tests
         
-        [Fact]
+        [Test]
         public async Task SendRequestNotConnected()
         {
             // If: I send an event when the protocol channel isn't connected
             // Then: I should get an exception
             var jh = new JsonRpcHost(GetChannelBase(null, null).Object);
-            await Assert.ThrowsAsync<InvalidOperationException>(() => jh.SendRequest(CommonObjects.RequestType, CommonObjects.TestMessageContents.DefaultInstance));
+            Assert.ThrowsAsync<InvalidOperationException>(() => jh.SendRequest(CommonObjects.RequestType, CommonObjects.TestMessageContents.DefaultInstance));
         }
 
-        [Fact]
+        [Test]
         public async Task SendRequest()
         {
             // If:  I send a request with the JSON RPC host
@@ -363,21 +348,21 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             Task<CommonObjects.TestMessageContents> requestTask = jh.SendRequest(CommonObjects.RequestType, CommonObjects.TestMessageContents.DefaultInstance);
             
             // Then: There should be a pending request
-            Assert.Single(jh.pendingRequests);
+            Assert.That(jh.pendingRequests.Count, Is.EqualTo(1), "pendingRequests.Count after SendRequest");
             
             // If: I then trick it into completing the request
             jh.pendingRequests.First().Value.SetResult(CommonObjects.ResponseMessage);
             var responseContents = await requestTask;
 
             // Then: The returned results should be the contents of the message
-            Assert.Equal(CommonObjects.TestMessageContents.DefaultInstance, responseContents);
+            Assert.AreEqual(CommonObjects.TestMessageContents.DefaultInstance, responseContents);
         }
         
         #endregion
         
         #region DispatchMessage Tests
 
-        [Fact]
+        [Test]
         public async Task DispatchMessageRequestWithoutHandler()
         {
             // Setup: Create a JSON RPC host without a request handler
@@ -385,10 +370,10 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             
             // If: I dispatch a request that doesn't have a handler
             // Then: I should get an exception
-            await Assert.ThrowsAsync<MethodHandlerDoesNotExistException>(() => jh.DispatchMessage(CommonObjects.RequestMessage));
+            Assert.ThrowsAsync<MethodHandlerDoesNotExistException>(() => jh.DispatchMessage(CommonObjects.RequestMessage));
         }
 
-        [Fact]
+        [Test]
         public async Task DispatchMessageRequestException()
         {
             // Setup: Create a JSON RPC host with a request handler that throws an unhandled exception every time
@@ -403,11 +388,10 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
 
             // If: I dispatch a message whose handler throws
             // Then: I should get an exception
-            await Assert.ThrowsAsync<Exception>(() => jh.DispatchMessage(CommonObjects.RequestMessage));
+            Assert.ThrowsAsync<Exception>(() => jh.DispatchMessage(CommonObjects.RequestMessage));
         }
         
-        [Theory]
-        [MemberData(nameof(DispatchMessageWithHandlerData))]
+        [TestCaseSource(nameof(DispatchMessageWithHandlerData))]
         public async Task DispatchMessageRequestWithHandler(Task result)
         {
             // Setup: Create a JSON RPC host with a request handler setup
@@ -429,7 +413,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             ), Times.Once);
         }
 
-        [Fact]
+        [Test]
         public async Task DispatchmessageResponseWithoutHandler()
         {
             // Setup: Create a new JSON RPC host without any pending requests
@@ -437,10 +421,10 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             
             // If: I dispatch a response that doesn't have a pending request
             // Then: I should get an exception
-            await Assert.ThrowsAsync<MethodHandlerDoesNotExistException>(() => jh.DispatchMessage(CommonObjects.ResponseMessage));
+            Assert.ThrowsAsync<MethodHandlerDoesNotExistException>(() => jh.DispatchMessage(CommonObjects.ResponseMessage));
         }
         
-        [Fact]
+        [Test]
         public async Task DispatchMessageResponseWithHandler()
         {
             // Setup: Create a new JSON RPC host that has a pending request handler
@@ -453,10 +437,10 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             
             // Then: The task completion source should have completed with the message that was given
             await mockPendingRequest.Task.WithTimeout(TimeSpan.FromSeconds(1));
-            Assert.Equal(CommonObjects.ResponseMessage, mockPendingRequest.Task.Result);
+            Assert.AreEqual(CommonObjects.ResponseMessage, mockPendingRequest.Task.Result);
         }
         
-        [Fact]
+        [Test]
         public async Task DispatchMessageEventWithoutHandler()
         {
             // Setup: Create a JSON RPC host without a request handler
@@ -464,10 +448,10 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             
             // If: I dispatch a request that doesn't have a handler
             // Then: I should get an exception
-            await Assert.ThrowsAsync<MethodHandlerDoesNotExistException>(() => jh.DispatchMessage(CommonObjects.EventMessage));
+            Assert.ThrowsAsync<MethodHandlerDoesNotExistException>(() => jh.DispatchMessage(CommonObjects.EventMessage));
         }
         
-        [Fact]
+        [Test]
         public async Task DispatchMessageEventException()
         {
             // Setup: Create a JSON RPC host with a request handler that throws an unhandled exception every time
@@ -479,11 +463,10 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
 
             // If: I dispatch a message whose handler throws
             // Then: I should get an exception
-            await Assert.ThrowsAsync<Exception>(() => jh.DispatchMessage(CommonObjects.EventMessage));
+            Assert.ThrowsAsync<Exception>(() => jh.DispatchMessage(CommonObjects.EventMessage));
         }
         
-        [Theory]
-        [MemberData(nameof(DispatchMessageWithHandlerData))]
+        [TestCaseSource(nameof(DispatchMessageWithHandlerData))]
         public async Task DispatchMessageEventWithHandler(Task result)
         {
             // Setup: Create a JSON RPC host with an event handler setup
@@ -519,7 +502,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
 
         #region ConsumeInput Loop Tests
 
-        [Fact]
+        [Test]
         public async Task ConsumeInput()
         {
             // Setup:
@@ -554,7 +537,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             mr.Verify(o => o.ReadMessage(), Times.AtLeastOnce);
         }
 
-        [Fact]
+        [Test]
         public async Task ConsumeInputEndOfStream()
         {
             // Setup: Create a message reader that will throw an end of stream exception on read
@@ -571,7 +554,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             mr.Verify(o => o.ReadMessage(), Times.Once);
         }
 
-        [Fact]
+        [Test]
         public async Task ConsumeInputException()
         {
             // Setup:
@@ -591,7 +574,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             mr.Verify(o => o.ReadMessage(), Times.Exactly(2));
         }
 
-        [Fact]
+        [Test]
         public async Task ConsumeInputRequestMethodNotFound()
         {
             // Setup: Create a message reader that will return a request with method that doesn't exist
@@ -599,24 +582,21 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             mr.SetupSequence(o => o.ReadMessage())
                 .ReturnsAsync(CommonObjects.RequestMessage)
                 .Returns(Task.FromException<Message>(new EndOfStreamException()));
-            
+
             // If: I start the input consumption loop
             var jh = new JsonRpcHost(GetChannelBase(mr.Object, null).Object);
             await jh.ConsumeInput().WithTimeout(TimeSpan.FromSeconds(1));
-            
+
             // Then:
             // ... Read message should have been called twice
             mr.Verify(o => o.ReadMessage(), Times.Exactly(2));
-            
-            // ... There should be an outgoing message with the error
+
+            // ... 
             var outgoing = jh.outputQueue.ToArray();
-            Assert.Single(outgoing);
-            Assert.Equal(MessageType.ResponseError, outgoing[0].MessageType);
-            Assert.Equal(CommonObjects.MessageId, outgoing[0].Id);
-            Assert.Equal(-32601, outgoing[0].Contents.Value<int>("code"));
+            Assert.That(outgoing.Select(m => (m.MessageType, m.Id, m.Contents.Value<int>("code"))), Is.EqualTo(new[] { (MessageType.ResponseError, CommonObjects.MessageId, -32601) }), "There should be an outgoing message with the error");
         }
 
-        [Fact]
+        [Test]
         public async Task ConsumeInputRequestException()
         {
             // Setup:
@@ -641,16 +621,15 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             // ... Read message should have been called twice
             mr.Verify(o => o.ReadMessage(), Times.Exactly(2));
             
-            // ... There should not be any outgoing messages
             var outgoing = jh.outputQueue.ToArray();
-            Assert.Empty(outgoing);
+            Assert.That(outgoing, Is.Empty, "outputQueue after ConsumeInput should not have any outgoing messages");
         }
         
         #endregion
         
         #region ConsumeOutput Loop Tests
 
-        [Fact]
+        [Test]
         public async Task ConsumeOutput()
         {
             // Setup: 
@@ -671,7 +650,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             mw.Verify(o => o.WriteMessage(CommonObjects.ResponseMessage), Times.Once);
         }
         
-        [Fact]
+        [Test]
         public async Task ConsumeOutputCancelled()
         {
             // NOTE: This test validates that the blocking collection breaks out when cancellation is requested
@@ -693,7 +672,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             mw.Verify(o => o.WriteMessage(It.IsAny<Message>()), Times.Never);
         }
         
-        [Fact]
+        [Test]
         public async Task ConsumeOutputException()
         {
             // Setup: Create a mock message writer
@@ -713,7 +692,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
         
         #region Start/Stop Tests
 
-        [Fact]
+        [Test]
         public async Task StartStop()
         {
             // Setup: Create mocked message reader and writer
@@ -737,7 +716,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             cb.Verify(o => o.Stop(), Times.Once);
         }
 
-        [Fact]
+        [Test]
         public async Task StartMultiple()
         {
             // Setup: Create mocked message reader and writer
@@ -759,7 +738,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             await Task.WhenAll(jh.consumeInputTask, jh.consumeOutputTask).WithTimeout(TimeSpan.FromSeconds(1));
         }
 
-        [Fact]
+        [Test]
         public void StopMultiple()
         {
             // Setup: Create json rpc host and start it
@@ -774,7 +753,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             Assert.Throws<InvalidOperationException>(() => jh.Stop());
         }
 
-        [Fact]
+        [Test]
         public void StopBeforeStarting()
         {
             // If: I stop the JSON RPC host without starting it first
@@ -783,7 +762,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             Assert.Throws<InvalidOperationException>(() => jh.Stop());
         }
 
-        [Fact]
+        [Test]
         public async Task WaitForExit()
         {
             // Setup: Create json rpc host and start it
@@ -801,7 +780,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             await waitForExit.WithTimeout(TimeSpan.FromSeconds(1));
         }
         
-        [Fact]
+        [Test]
         public void WaitForExitNotStarted()
         {
             // If: I wait for exit on the JSON RPC host without starting it

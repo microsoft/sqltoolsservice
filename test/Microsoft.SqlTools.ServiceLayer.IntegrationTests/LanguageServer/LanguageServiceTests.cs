@@ -22,7 +22,7 @@ using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
 {
@@ -51,7 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         /// <summary>
         /// Test the service initialization code path and verify nothing throws
         /// </summary>
-        [Fact]
+        [Test]
         public void ServiceInitialization()
         {
             try
@@ -72,7 +72,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         /// <summary>
         /// Test the service initialization code path and verify nothing throws
         /// </summary>
-        //[Fact]
+        //[Test]
         public void PrepopulateCommonMetadata()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
@@ -89,7 +89,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         /// <summary>
         /// This test tests auto completion
         /// </summary>
-        [Fact]
+        [Test]
         public void AutoCompleteFindCompletions()
         {
             var result = GetLiveAutoCompleteTestObjects();
@@ -123,8 +123,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         /// 2. Initializing a completion extension implementation
         /// 3. Excuting an auto completion with extension enabled
         /// </summary>
-        [Fact]
-        public async void AutoCompleteWithExtension()
+        [Test]
+        public async Task AutoCompleteWithExtension()
         {
             var result = GetLiveAutoCompleteTestObjects();
 
@@ -217,7 +217,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         /// has an associated ScriptParseInfo and the provided query has a function that should
         /// provide signature help.
         /// </summary>
-        [Fact]
+        [Test]
         public async Task GetSignatureHelpReturnsNotNullIfParseInfoInitialized()
         {
             // When we make a connection to a live database
@@ -257,7 +257,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         /// <summary>
         /// Test overwriting the binding queue context
         /// </summary>
-        [Fact]
+        [Test]
         public void OverwriteBindingContext()
         {
             var result = LiveConnectionHelper.InitLiveConnectionInfo();
@@ -279,7 +279,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         /// <summary>
         /// Verifies that clearing the Intellisense cache correctly refreshes the cache with new info from the DB.
         /// </summary>
-        [Fact]
+        [Test]
         public async Task RebuildIntellisenseCacheClearsScriptParseInfoCorrectly()
         {
             var testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, null, null, "LangSvcTest");
@@ -338,7 +338,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         // This test validates switching off editor intellisesnse for now. 
         // Will change to better handling once we have specific SQLCMD intellisense in Language Service
         /// </summary>
-        [Fact]
+        [Test]
         public async Task HandleRequestToChangeToSqlcmdFile()
         {
 

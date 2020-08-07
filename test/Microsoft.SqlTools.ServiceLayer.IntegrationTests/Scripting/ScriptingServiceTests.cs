@@ -15,7 +15,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit;
+using NUnit.Framework;
 using static Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility.LiveConnectionHelper;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
@@ -76,8 +76,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
         /// <summary>
         /// Verify the script object request
         /// </summary>
-        [Fact]
-        public async void ScriptingScript()
+        [Test]
+        public async Task ScriptingScript()
         {
             foreach (string obj in objects)
             {
@@ -86,8 +86,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
             }
         }
 
-        [Fact]
-        public async void VerifyScriptAsCreateTable()
+        [Test]
+        public async Task VerifyScriptAsCreateTable()
         {
             string query = @"CREATE TABLE testTable1 (c1 int)
                             GO
@@ -110,8 +110,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
             await VerifyScriptAsForMultipleObjects(query, new List<ScriptingObject> { scriptingObject }, scriptCreateDrop, expectedScripts);
         }
 
-        [Fact]
-        public async void VerifyScriptAsExecuteTableFailes()
+        [Test]
+        public async Task VerifyScriptAsExecuteTableFailes()
         {
             string query = "CREATE TABLE testTable1 (c1 int)";
             ScriptingOperationType scriptCreateDrop = ScriptingOperationType.Execute;
@@ -125,8 +125,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
             await VerifyScriptAs(query, scriptingObject, scriptCreateDrop, expectedScript);
         }
 
-        [Fact]
-        public async void VerifyScriptAsAlter()
+        [Test]
+        public async Task VerifyScriptAsAlter()
         {
             string query = @"CREATE PROCEDURE testSp1 @StartProductID [int] AS  BEGIN Select * from sys.all_columns END
                             GO
@@ -168,8 +168,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
         }
 
         // TODO: Fix flaky test. See https://github.com/Microsoft/sqltoolsservice/issues/631
-        // [Fact]
-        public async void VerifyScriptAsExecuteStoredProcedure()
+        // [Test]
+        public async Task VerifyScriptAsExecuteStoredProcedure()
         {
             string query = @"CREATE PROCEDURE testSp1
                 @BusinessEntityID [int],
@@ -192,8 +192,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
             await VerifyScriptAs(query, scriptingObject, scriptCreateDrop, expectedScript);
         }
 
-        [Fact]
-        public async void VerifyScriptAsSelectTable()
+        [Test]
+        public async Task VerifyScriptAsSelectTable()
         {
             string query = "CREATE TABLE testTable1 (c1 int)";
             ScriptingOperationType scriptCreateDrop = ScriptingOperationType.Select;
@@ -208,8 +208,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
             await VerifyScriptAs(query, scriptingObject, scriptCreateDrop, expectedScript);
         }
 
-        [Fact]
-        public async void VerifyScriptAsCreateView()
+        [Test]
+        public async Task VerifyScriptAsCreateView()
         {
             string query = "CREATE VIEW testView1 AS SELECT * from sys.all_columns";
             ScriptingOperationType scriptCreateDrop = ScriptingOperationType.Create;
@@ -224,8 +224,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
             await VerifyScriptAs(query, scriptingObject, scriptCreateDrop, expectedScript);
         }
 
-        [Fact]
-        public async void VerifyScriptAsCreateStoredProcedure()
+        [Test]
+        public async Task VerifyScriptAsCreateStoredProcedure()
         {
             string query = "CREATE PROCEDURE testSp1 AS  BEGIN Select * from sys.all_columns END";
             ScriptingOperationType scriptCreateDrop = ScriptingOperationType.Create;
@@ -240,8 +240,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
             await VerifyScriptAs(query, scriptingObject, scriptCreateDrop, expectedScript);
         }
 
-        [Fact]
-        public async void VerifyScriptAsDropTable()
+        [Test]
+        public async Task VerifyScriptAsDropTable()
         {
             string query = "CREATE TABLE testTable1 (c1 int)";
             ScriptingOperationType scriptCreateDrop = ScriptingOperationType.Delete;
@@ -256,8 +256,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
             await VerifyScriptAs(query, scriptingObject, scriptCreateDrop, expectedScript);
         }
 
-        [Fact]
-        public async void VerifyScriptAsDropView()
+        [Test]
+        public async Task VerifyScriptAsDropView()
         {
             string query = "CREATE VIEW testView1 AS SELECT * from sys.all_columns";
             ScriptingOperationType scriptCreateDrop = ScriptingOperationType.Delete;
@@ -272,8 +272,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
             await VerifyScriptAs(query, scriptingObject, scriptCreateDrop, expectedScript);
         }
 
-        [Fact]
-        public async void VerifyScriptAsDropStoredProcedure()
+        [Test]
+        public async Task VerifyScriptAsDropStoredProcedure()
         {
             string query = "CREATE PROCEDURE testSp1 AS  BEGIN Select * from sys.all_columns END";
             ScriptingOperationType scriptCreateDrop = ScriptingOperationType.Delete;

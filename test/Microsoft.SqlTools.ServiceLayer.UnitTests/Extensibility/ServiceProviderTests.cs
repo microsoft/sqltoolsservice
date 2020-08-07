@@ -6,19 +6,21 @@
 using System;
 using System.Linq;
 using Microsoft.SqlTools.Extensibility;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Extensibility
 {
     public class ServiceProviderTests
     {
         private RegisteredServiceProvider provider;
-        public ServiceProviderTests()
+
+        [SetUp]
+        public void InitServiceProviderTests()
         {
             provider = new RegisteredServiceProvider();
         }
 
-        [Fact]
+        [Test]
         public void GetServiceShouldReturnNullIfNoServicesRegistered()
         {
             // Given no service registered
@@ -29,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Extensibility
         }
 
 
-        [Fact]
+        [Test]
         public void GetSingleServiceThrowsMultipleServicesRegistered()
         {
             // Given 2 services registered
@@ -39,7 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Extensibility
             Assert.Throws<InvalidOperationException>(() => provider.GetService<MyProviderService>());
         }
 
-        [Fact]
+        [Test]
         public void GetServicesShouldReturnEmptyIfNoServicesRegistered()
         {
             // Given no service regisstered
@@ -47,36 +49,36 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Extensibility
             var services = provider.GetServices<MyProviderService>();
             // Then I expect empty enumerable to be returned
             Assert.NotNull(services);
-            Assert.Equal(0, services.Count());
+            Assert.AreEqual(0, services.Count());
         }
 
-        [Fact]
+        [Test]
         public void GetServiceShouldReturnRegisteredService()
         {
             MyProviderService service = new MyProviderService();
             provider.RegisterSingleService(service);
 
             var returnedService = provider.GetService<MyProviderService>();
-            Assert.Equal(service, returnedService);            
+            Assert.AreEqual(service, returnedService);            
         }
 
-        [Fact]
+        [Test]
         public void GetServicesShouldReturnRegisteredServiceWhenMultipleServicesRegistered()
         {
             MyProviderService service = new MyProviderService();
             provider.RegisterSingleService(service);          
 
             var returnedServices = provider.GetServices<MyProviderService>();
-            Assert.Equal(service, returnedServices.Single());
+            Assert.AreEqual(service, returnedServices.Single());
         }
 
-        [Fact]
+        [Test]
         public void RegisterServiceProviderShouldThrowIfServiceIsIncompatible()
         {
             MyProviderService service = new MyProviderService();
             Assert.Throws<InvalidOperationException>(() => provider.RegisterSingleService(typeof(OtherService), service));
         }
-        [Fact]
+        [Test]
         public void RegisterServiceProviderShouldThrowIfServiceAlreadyRegistered()
         {
             MyProviderService service = new MyProviderService();
@@ -85,7 +87,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Extensibility
             Assert.Throws<InvalidOperationException>(() => provider.RegisterSingleService(service));
         }
         
-        [Fact]
+        [Test]
         public void RegisterShouldThrowIfServiceAlreadyRegistered()
         {
             MyProviderService service = new MyProviderService();
@@ -94,7 +96,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Extensibility
             Assert.Throws<InvalidOperationException>(() => provider.Register(() => service.SingleItemAsEnumerable()));
         }
 
-        [Fact]
+        [Test]
         public void RegisterShouldThrowIfServicesAlreadyRegistered()
         {
             provider.Register<MyProviderService>(() => new [] { new MyProviderService(), new MyProviderService() });
