@@ -809,7 +809,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             // Mainly used by "manage" dashboard
             if(listDatabasesParams.IncludeDetails.HasTrue()){
                 IEnumerable<DataSourceObjectMetadata> databaseMetadataInfo = dataSource.GetChildObjects(objectMetadata, true);
-                List<DatabaseInfo> metadata = DataSourceFactory.ConvertToDatabaseInfo(DataSourceType.Kusto, databaseMetadataInfo.ToList());
+                List<DatabaseInfo> metadata = DataSourceFactory.ConvertToDatabaseInfo(databaseMetadataInfo);
                 response.Databases = metadata.ToArray();
 
                 return response;

@@ -124,7 +124,7 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
                 List<DataSourceObjectMetadata> metadata = dataSource.GetChildObjects(objectMetadata, true).ToList();
                 var databaseMetadata = metadata.Where(o => o.Name == connInfo.ConnectionDetails.DatabaseName);
 
-                List<DatabaseInfo> databaseInfo = DataSourceFactory.ConvertToDatabaseInfo(DataSourceType.Kusto, databaseMetadata.ToList());
+                List<DatabaseInfo> databaseInfo = DataSourceFactory.ConvertToDatabaseInfo(databaseMetadata);
 
                 return databaseInfo.ElementAtOrDefault(0);
             }

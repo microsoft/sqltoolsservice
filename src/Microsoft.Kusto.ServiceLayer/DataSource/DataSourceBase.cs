@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.Kusto.ServiceLayer.Admin.Contracts;
@@ -447,52 +448,39 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             }
         }
 
-        public static List<DatabaseInfo> ConvertToDatabaseInfo(DataSourceType dataSourceType, List<DataSourceObjectMetadata> clusterDBDetails)
+        // Converts database details shown on cluster manage dashboard to DatabaseInfo type. Add DataSourceType as param if required to show different properties
+        public static List<DatabaseInfo> ConvertToDatabaseInfo(IEnumerable<DataSourceObjectMetadata> clusterDBDetails)
         {
-            switch (dataSourceType)
-            {
-                case DataSourceType.Kusto:
-                    {
-                        var databaseDetails = new List<DatabaseInfo>();
+            var databaseDetails = new List<DatabaseInfo>();
 
-                        foreach(var dbDetail in clusterDBDetails)
-                        {
-                            DatabaseInfo databaseInfo = new DatabaseInfo();
-                            Int64.TryParse(dbDetail.SizeInMB.ToString(), out long sum_OriginalSize);
-                            databaseInfo.Options["name"] = dbDetail.Name;
-                            databaseInfo.Options["sizeInMB"] = (sum_OriginalSize /(1024 * 1024)).ToString();
-                            databaseDetails.Add(databaseInfo);
-                        }
-                        return databaseDetails;
-                    }
-
-                default:
-                    throw new ArgumentException($"Unsupported data source type \"{dataSourceType}\"", nameof(dataSourceType));
+            if(typeof(DatabaseMetadata) == clusterDBDetails.FirstOrDefault().GetType()){
+                foreach(var dbDetail in clusterDBDetails)
+                {
+                    DatabaseInfo databaseInfo = new DatabaseInfo();
+                    Int64.TryParse(dbDetail.SizeInMB.ToString(), out long sum_OriginalSize);
+                    databaseInfo.Options["name"] = dbDetail.Name;
+                    databaseInfo.Options["sizeInMB"] = (sum_OriginalSize /(1024 * 1024)).ToString();
+                    databaseDetails.Add(databaseInfo);
+                }
             }
+
+            return databaseDetails;
         }
 
-        public static List<ObjectMetadata> ConvertToObjectMetadata(DataSourceType dataSourceType, List<DataSourceObjectMetadata> dbChildDetails)
+        // Converts tables details shown on database manage dashboard to ObjectMetadata type. Add DataSourceType as param if required to show different properties
+        public static List<ObjectMetadata> ConvertToObjectMetadata(IEnumerable<DataSourceObjectMetadata> dbChildDetails)
         {
-            switch (dataSourceType)
+            var databaseChildDetails = new List<ObjectMetadata>();
+
+            foreach(var childDetail in dbChildDetails)
             {
-                case DataSourceType.Kusto:
-                    {
-                        var databaseChildDetails = new List<ObjectMetadata>();
-
-                        foreach(var childDetail in dbChildDetails)
-                        {
-                            ObjectMetadata dbChildInfo = new ObjectMetadata();
-                            dbChildInfo.Name = childDetail.PrettyName;
-                            dbChildInfo.MetadataTypeName = childDetail.MetadataTypeName;
-                            dbChildInfo.MetadataType = MetadataType.Table;         // Add mapping here.
-                            databaseChildDetails.Add(dbChildInfo);
-                        }
-                        return databaseChildDetails;
-                    }
-
-                default:
-                    throw new ArgumentException($"Unsupported data source type \"{dataSourceType}\"", nameof(dataSourceType));
+                ObjectMetadata dbChildInfo = new ObjectMetadata();
+                dbChildInfo.Name = childDetail.PrettyName;
+                dbChildInfo.MetadataTypeName = childDetail.MetadataTypeName;
+                dbChildInfo.MetadataType = MetadataType.Table;         // Add mapping here.
+                databaseChildDetails.Add(dbChildInfo);
             }
+            return databaseChildDetails;
         }
 
         public static ReliableConnectionHelper.ServerInfo ConvertToServerinfoFormat(DataSourceType dataSourceType, DiagnosticsInfo clusterDiagnostics)

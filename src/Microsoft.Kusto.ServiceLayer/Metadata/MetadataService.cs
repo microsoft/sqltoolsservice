@@ -84,7 +84,7 @@ namespace Microsoft.Kusto.ServiceLayer.Metadata
                         DataSourceObjectMetadata databaseMetadata = DataSourceFactory.CreateDatabaseMetadata(objectMetadata, connInfo.ConnectionDetails.DatabaseName);
 
                         IEnumerable<DataSourceObjectMetadata> databaseChildMetadataInfo = dataSource.GetChildObjects(databaseMetadata);
-                        metadata = DataSourceFactory.ConvertToObjectMetadata(DataSourceType.Kusto, databaseChildMetadataInfo.ToList());
+                        metadata = DataSourceFactory.ConvertToObjectMetadata(databaseChildMetadataInfo);
                     }
 
                     await requestContext.SendResult(new MetadataQueryResult
