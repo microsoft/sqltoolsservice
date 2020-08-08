@@ -16,7 +16,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
-using Microsoft.Kusto.ServiceLayer.Connection;
+using Microsoft.Kusto.ServiceLayer.Admin.Contracts;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.Kusto.ServiceLayer.Utility;
@@ -426,10 +426,14 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
                 var reliableConnection = connection as ReliableDataSourceConnection;
                 IDataSource dataSource = reliableConnection.GetUnderlyingConnection();
+                DataSourceObjectMetadata clusterMetadata = DataSourceFactory.CreateClusterMetadata(connectionInfo.ConnectionDetails.ServerName);
+
+                DiagnosticsInfo clusterDiagnostics = dataSource.GetDiagnostics(clusterMetadata);
+                ReliableConnectionHelper.ServerInfo serverInfo = DataSourceFactory.ConvertToServerinfoFormat(DataSourceType.Kusto, clusterDiagnostics);
 
                 response.ServerInfo = new ServerInfo
                 {
-                    Options = new Dictionary<string, object>()
+                    Options = serverInfo.Options        // Server properties are shown on "manage" dashboard.
                 };
                 connectionInfo.IsCloud = response.ServerInfo.IsCloud;
                 connectionInfo.MajorVersion = response.ServerInfo.ServerMajorVersion;
@@ -800,11 +804,19 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             IDataSource dataSource = OpenDataSourceConnection(info);
             DataSourceObjectMetadata objectMetadata = DataSourceFactory.CreateClusterMetadata(info.ConnectionDetails.ServerName);
 
-            IEnumerable<DataSourceObjectMetadata> databaseMetadata = dataSource.GetChildObjects(objectMetadata);
-
             ListDatabasesResponse response = new ListDatabasesResponse();
-            if(databaseMetadata != null) response.DatabaseNames = databaseMetadata.Select(objMeta => objMeta.PrettyName).ToArray();
 
+            // Mainly used by "manage" dashboard
+            if(listDatabasesParams.IncludeDetails.HasTrue()){
+                IEnumerable<DataSourceObjectMetadata> databaseMetadataInfo = dataSource.GetChildObjects(objectMetadata, true);
+                List<DatabaseInfo> metadata = DataSourceFactory.ConvertToDatabaseInfo(databaseMetadataInfo);
+                response.Databases = metadata.ToArray();
+
+                return response;
+            }
+
+            IEnumerable<DataSourceObjectMetadata> databaseMetadata = dataSource.GetChildObjects(objectMetadata);
+            if(databaseMetadata != null) response.DatabaseNames = databaseMetadata.Select(objMeta => objMeta.PrettyName).ToArray();
             return response;
         }
 

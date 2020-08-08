@@ -10,6 +10,7 @@ using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using Newtonsoft.Json;
 using System.Threading.Tasks;
 using Kusto.Cloud.Platform.Data;
 using Kusto.Data;
@@ -317,8 +318,28 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
         #region IDataSource
 
+        protected DiagnosticsInfo GetClusterDiagnostics(){
+            CancellationTokenSource source = new CancellationTokenSource();
+            CancellationToken token = source.Token;
+            DiagnosticsInfo clusterDiagnostics = new DiagnosticsInfo();
+
+            var query =  ".show diagnostics | extend Passed= (IsHealthy) and not(IsScaleOutRequired) | extend Summary = strcat('Cluster is ', iif(Passed, '', 'NOT'), 'healthy.'),Details=pack('MachinesTotal', MachinesTotal, 'DiskCacheCapacity', round(ClusterDataCapacityFactor,1)) | project Action = 'Cluster Diagnostics', Category='Info', Summary, Details;";
+            using (var reader = ExecuteQuery(query, token))
+                {
+                    while(reader.Read()) 
+                    {
+                        var details = JsonConvert.DeserializeObject<Dictionary<string, string>>(reader["Details"].ToString());
+                        clusterDiagnostics.Options["summary"] = reader["Summary"].ToString();
+                        clusterDiagnostics.Options["machinesTotal"] = details["MachinesTotal"].ToString();
+                        clusterDiagnostics.Options["diskCacheCapacity"] = details["DiskCacheCapacity"].ToString() + "%";
+                    }
+                }
+
+            return clusterDiagnostics;
+        }
+
         /// <inheritdoc/>
-        protected IEnumerable<DataSourceObjectMetadata> GetDatabaseMetadata()
+        protected IEnumerable<DataSourceObjectMetadata> GetDatabaseMetadata(bool includeSizeDetails)
         {
             if (databaseMetadata == null)
             {
@@ -326,9 +347,14 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 CancellationToken token = source.Token;
 
                 // Getting database names when we are connected to a specific database should not happen.
-                ValidationUtils.IsNotNull(DatabaseName, nameof(DatabaseName)); 
+                ValidationUtils.IsNotNull(DatabaseName, nameof(DatabaseName));
 
                 var query = ".show databases" + (this.ClusterName.IndexOf(AriaProxyURL, StringComparison.CurrentCultureIgnoreCase) == -1 ? " | project DatabaseName, PrettyName" : "");
+                
+                if (includeSizeDetails == true){
+                    query =  ".show cluster extents | summarize sum(OriginalSize) by tostring(DatabaseName)";
+                }
+
                 using (var reader = ExecuteQuery(query, token))
                 {
                     var schemaTable = reader.GetSchemaTable();
@@ -340,8 +366,9 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                             ClusterName = this.ClusterName,
                             MetadataType = DataSourceMetadataType.Database,
                             MetadataTypeName = DataSourceMetadataType.Database.ToString(),
+                            SizeInMB = includeSizeDetails == true ? row["sum_OriginalSize"].ToString() : null,
                             Name = row["DatabaseName"].ToString(),
-                            PrettyName = String.IsNullOrEmpty(row["PrettyName"]?.ToString()) ? row["DatabaseName"].ToString() : row["PrettyName"].ToString(),
+                            PrettyName = includeSizeDetails == true ? row["DatabaseName"].ToString(): (String.IsNullOrEmpty(row["PrettyName"]?.ToString()) ? row["DatabaseName"].ToString() : row["PrettyName"].ToString()),
                             Urn = $"{this.ClusterName}.{row["DatabaseName"].ToString()}"
                         })
                         .Materialize()
@@ -523,14 +550,14 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         }
 
         /// <inheritdoc/>
-        public override IEnumerable<DataSourceObjectMetadata> GetChildObjects(DataSourceObjectMetadata objectMetadata)
+        public override IEnumerable<DataSourceObjectMetadata> GetChildObjects(DataSourceObjectMetadata objectMetadata, bool includeSizeDetails)
         {
             ValidationUtils.IsNotNull(objectMetadata, nameof(objectMetadata));
 
             switch(objectMetadata.MetadataType)
             {
                 case DataSourceMetadataType.Cluster:
-                    return GetDatabaseMetadata();
+                    return GetDatabaseMetadata(includeSizeDetails);
                     
                 case DataSourceMetadataType.Database:
                     return GetTableMetadata(objectMetadata.Name);
@@ -543,6 +570,21 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 case DataSourceMetadataType.Folder:
                     FolderMetadata fm = objectMetadata as FolderMetadata;
                     return GetFolderChildrenMetadata(fm);
+
+                default:
+                    throw new ArgumentException($"Unexpected type {objectMetadata.MetadataType}.");
+            }
+        }
+
+         public override DiagnosticsInfo GetDiagnostics(DataSourceObjectMetadata objectMetadata)
+        {
+            ValidationUtils.IsNotNull(objectMetadata, nameof(objectMetadata));
+
+            // Add more cases when required.
+            switch(objectMetadata.MetadataType)
+            {
+                case DataSourceMetadataType.Cluster:
+                    return GetClusterDiagnostics();
 
                 default:
                     throw new ArgumentException($"Unexpected type {objectMetadata.MetadataType}.");
