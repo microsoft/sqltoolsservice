@@ -113,21 +113,29 @@ namespace  Microsoft.Kusto.ServiceLayer.Utility
                 ?? enumerable.ToArray();
         }
 
-        public static void SafeAdd(this Dictionary<string, Dictionary<string, FolderMetadata>> dictionary, string key,
-            FolderMetadata folder)
+        /// <summary>
+        /// Adds an object of type DataSourceObjectMetadata to a dictionary<string, Dictionary<string, T>>. If the key exists then the item is added
+        /// to the list. If not then the key is created and then added.
+        /// </summary>
+        /// <param name="dictionary">The dictionary of the dictionary that the list should be added to.</param>
+        /// <param name="key">The key to be added.</param>
+        /// <param name="metadata">The metadata to be added to the list.</param>
+        /// <typeparam name="T"></typeparam>
+        public static void SafeAdd<T>(this Dictionary<string, Dictionary<string, T>> dictionary, string key,
+            T metadata) where T : DataSourceObjectMetadata
         {
             if (dictionary.ContainsKey(key))
             {
-                if (dictionary[key].ContainsKey(folder.Name))
+                if (dictionary[key].ContainsKey(metadata.Name))
                 {
                     return;
                 }
                     
-                dictionary[key].Add(folder.Name, folder);
+                dictionary[key].Add(metadata.Name, metadata);
             }
             else
             {
-                dictionary[key] = new Dictionary<string, FolderMetadata> {{folder.Name, folder}};
+                dictionary[key] = new Dictionary<string, T> {{metadata.Name, metadata}};
             }
         }
 

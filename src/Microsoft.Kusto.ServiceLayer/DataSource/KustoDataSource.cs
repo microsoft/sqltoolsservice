@@ -828,7 +828,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             }
         }
 
-        private void SetTableMetadata(string databaseName, IEnumerable<ColumnInfo> columnInfos, string tableFolderKey)
+        private void SetTableMetadata(string databaseName, IEnumerable<ColumnInfo> columnInfos, string rootTableFolderKey)
         {
             var columnInfoTables =
                 columnInfos.Where(x => !string.IsNullOrWhiteSpace(x.Table)
@@ -837,7 +837,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             var tables = new Dictionary<string, List<TableMetadata>>();
             foreach (var columnInfoTable in columnInfoTables)
             {
-                var stringBuilder = new StringBuilder(tableFolderKey);
+                var stringBuilder = new StringBuilder(rootTableFolderKey);
 
                 if (!string.IsNullOrWhiteSpace(columnInfoTable.Folder))
                 {
