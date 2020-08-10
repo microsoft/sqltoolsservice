@@ -1,8 +1,8 @@
 <Project>
   <Sdk Name="Microsoft.Build.CentralPackageVersions" Version="2.0.52" />
   <!-- Need full debugtype for code coverage -->
-	<PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-		<DebugType>portable</DebugType>
+	<PropertyGroup Condition="'$(Configuration)' == 'Debug' and ('$(BuildingInsideVisualStudio)' != '' or '$(CodeCoverageBuild)' == 'true')">
+		<DebugType>full</DebugType>
 		<DebugSymbols>true</DebugSymbols>
 	</PropertyGroup>
 </Project>
