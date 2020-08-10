@@ -14,13 +14,13 @@ using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 {
     public class DisposeTests
     {
-        [Fact]
+        [Test]
         public void DisposeResultSet()
         {
             // Setup: Mock file stream factory, mock db reader
@@ -34,7 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             mockFileStreamFactory.Verify(fsf => fsf.DisposeFile(It.IsAny<string>()), Times.Once);
         }
 
-        [Fact]
+        [Test]
         public async Task DisposeExecutedQuery()
         {
             // If:
@@ -57,10 +57,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             // Then:
             // ... And the active queries should be empty
             disposeRequest.Validate();
-            Assert.Empty(queryService.ActiveQueries);
+            Assert.That(queryService.ActiveQueries, Is.Empty);
         }
 
-        [Fact]
+        [Test]
         public async Task QueryDisposeMissingQuery()
         {
             // If:
@@ -78,7 +78,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             disposeRequest.Validate();
         }
 
-        [Fact]
+        [Test]
         public async Task ServiceDispose()
         {
             // Setup:
@@ -95,14 +95,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             await queryService.ActiveQueries[Constants.OwnerUri].ExecutionTask;
 
             // ... And it sticks around as an active query
-            Assert.Equal(1, queryService.ActiveQueries.Count);
+            Assert.AreEqual(1, queryService.ActiveQueries.Count);
 
             // ... The query execution service is disposed, like when the service is shutdown
             queryService.Dispose();
 
             // Then:
             // ... There should no longer be an active query
-            Assert.Empty(queryService.ActiveQueries);
+            Assert.That(queryService.ActiveQueries, Is.Empty);
         }
     }
 

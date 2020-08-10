@@ -10,10 +10,11 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 {
+    [TestFixture]
     /// <summary>
     /// Language Service end-to-end integration tests
     /// </summary>
@@ -23,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         /// <summary>
         /// Validate hover tooltip scenarios
         /// </summary>
-        [Fact]
+        [Test]
         public async Task HoverTest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
@@ -64,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         /// <summary>
         /// Validation autocompletion suggestions scenarios
         /// </summary>
-        [Fact]
+        [Test]
         public async Task CompletionTest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
@@ -111,7 +112,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         /// <summary>
         /// Validate diagnostic scenarios
         /// </summary>
-        [Fact]
+        [Test]
         public async Task DiagnosticsTests()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
@@ -214,7 +215,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         /// Peek Definition/ Go to definition
         /// </summary>
         /// <returns></returns>
-        [Fact]
+        [Test]
         public async Task DefinitionTest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
@@ -260,7 +261,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         /// <summary>
         /// Validate the configuration change event
         /// </summary>
-        [Fact]
+        [Test]
         public async Task ChangeConfigurationTest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
@@ -286,7 +287,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             }
         }
 
-        [Fact]
+        [Test]
         public async Task NotificationIsSentAfterOnConnectionAutoCompleteUpdate()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
@@ -298,13 +299,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 // An event signalling that IntelliSense is ready should be sent shortly thereafter
                 var readyParams = await testService.Driver.WaitForEvent(IntelliSenseReadyNotification.Type, 30000);
                 Assert.NotNull(readyParams);
-                Assert.Equal(queryTempFile.FilePath, readyParams.OwnerUri);
+                Assert.AreEqual(queryTempFile.FilePath, readyParams.OwnerUri);
 
                 await testService.Disconnect(queryTempFile.FilePath);
             }
         }
 
-        [Fact]
+        [Test]
         public async Task FunctionSignatureCompletionReturnsEmptySignatureHelpObjectWhenThereAreNoMatches()
         {
             string sqlText = "EXEC sys.fn_not_a_real_function ";
@@ -321,7 +322,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 // Wait for intellisense to be ready
                 var readyParams = await testService.Driver.WaitForEvent(IntelliSenseReadyNotification.Type, 30000);
                 Assert.NotNull(readyParams);
-                Assert.Equal(ownerUri, readyParams.OwnerUri);
+                Assert.AreEqual(ownerUri, readyParams.OwnerUri);
 
                 // Send a function signature help Request
                 var position = new TextDocumentPosition()
@@ -346,7 +347,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             }
         }
 
-        [Fact]
+        [Test]
         public async Task FunctionSignatureCompletionReturnsCorrectFunction()
         {
             string sqlText = "EXEC sys.fn_isrolemember ";
@@ -362,7 +363,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 // Wait for intellisense to be ready
                 var readyParams = await testService.Driver.WaitForEvent(IntelliSenseReadyNotification.Type, 30000);
                 Assert.NotNull(readyParams);
-                Assert.Equal(ownerUri, readyParams.OwnerUri);
+                Assert.AreEqual(ownerUri, readyParams.OwnerUri);
 
                 // Send a function signature help Request
                 var position = new TextDocumentPosition()
@@ -381,18 +382,17 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 
                 Assert.NotNull(signatureHelp);
                 Assert.True(signatureHelp.ActiveSignature.HasValue);
-                Assert.NotEmpty(signatureHelp.Signatures);
+                Assert.That(signatureHelp.Signatures, Is.Not.Empty, "signatureHelp.Signatures after SendRequest");
 
                 var label = signatureHelp.Signatures[signatureHelp.ActiveSignature.Value].Label;
-                Assert.NotNull(label);
-                Assert.NotEmpty(label);
-                Assert.True(label.Contains("fn_isrolemember"));
+                Assert.That(label, Is.Not.Null.Or.Empty, "label");
+                Assert.That(label, Contains.Substring("fn_isrolemember"), "label contents");
 
                 await testService.Disconnect(ownerUri);
             }
         }
 
-        [Fact]
+        [Test]
         public async Task FunctionSignatureCompletionReturnsCorrectParametersAtEachPosition()
         {
             string sqlText = "EXEC sys.fn_isrolemember 1, 'testing', 2";
@@ -409,7 +409,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
                 // Wait for intellisense to be ready
                 var readyParams = await testService.Driver.WaitForEvent(IntelliSenseReadyNotification.Type, 30000);
                 Assert.NotNull(readyParams);
-                Assert.Equal(ownerUri, readyParams.OwnerUri);
+                Assert.AreEqual(ownerUri, readyParams.OwnerUri);
 
                 // Verify all parameters when the cursor is inside of parameters and at separator boundaries (,)
                 await VerifyFunctionSignatureHelpParameter(testService, ownerUri, 25, "fn_isrolemember", 0, "@mode int");
@@ -449,25 +449,23 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             Assert.NotNull(signatureHelp);
             Assert.NotNull(signatureHelp.ActiveSignature);
             Assert.True(signatureHelp.ActiveSignature.HasValue);
-            Assert.NotEmpty(signatureHelp.Signatures);
+            Assert.That(signatureHelp.Signatures, Is.Not.Empty, "Signatures");
 
             var activeSignature = signatureHelp.Signatures[signatureHelp.ActiveSignature.Value];
             Assert.NotNull(activeSignature);
 
             var label = activeSignature.Label;
-            Assert.NotNull(label);
-            Assert.NotEmpty(label);
-            Assert.True(label.Contains(expectedFunctionName));
+            Assert.That(label, Is.Not.Null.Or.Empty, "label");
+            Assert.That(label, Contains.Substring(expectedFunctionName), "label contents");
 
             Assert.NotNull(signatureHelp.ActiveParameter);
             Assert.True(signatureHelp.ActiveParameter.HasValue);
-            Assert.Equal(expectedParameterIndex, signatureHelp.ActiveParameter.Value);
+            Assert.AreEqual(expectedParameterIndex, signatureHelp.ActiveParameter.Value);
 
             var parameter = activeSignature.Parameters[signatureHelp.ActiveParameter.Value];
             Assert.NotNull(parameter);
-            Assert.NotNull(parameter.Label);
-            Assert.NotEmpty(parameter.Label);
-            Assert.Equal(expectedParameterName, parameter.Label);
+            Assert.That(parameter.Label, Is.Not.Null.Or.Empty, "parameter.Label");
+            Assert.AreEqual(expectedParameterName, parameter.Label);
         }
     }
 }

@@ -4,13 +4,19 @@
 //
 
 using Microsoft.SqlTools.ServiceLayer.Formatter;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
 {
     public class BinaryQueryExpressionFormatterTests : FormatterUnitTestsBase
     {
-        [Fact]
+        [SetUp]
+        public void Init()
+        {
+            InitFormatterUnitTestsBase();
+        }
+
+        [Test]
         public void BQE_IndentOperands()
         {
             FormatOptions options = new FormatOptions();
@@ -19,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 GetBaselineFile("BQE_IndentOperands.sql"), options, true);
         }
 
-        [Fact]
+        [Test]
         public void BQE_KeywordCasing_UpperCase()
         {
             FormatOptions options = new FormatOptions();
@@ -28,7 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 GetBaselineFile("BQE_KeywordCasing_UpperCase.sql"), options, true);
         }
 
-        [Fact]
+        [Test]
         public void BQE_KeywordCasing_LowerCase()
         {
             FormatOptions options = new FormatOptions();
@@ -37,7 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 GetBaselineFile("BQE_KeywordCasing_LowerCase.sql"), options, true);
         }
 
-        [Fact]
+        [Test]
         public void BQE_KeywordCasing_NoFormat()
         {
             FormatOptions options = new FormatOptions();
@@ -46,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 GetBaselineFile("BQE_KeywordCasing_NoFormat.sql"), options, true);
         }
 
-        [Fact]
+        [Test]
         public void BQE_OperatorsOnNewLine()
         {
             FormatOptions options = new FormatOptions();

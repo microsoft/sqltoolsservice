@@ -23,7 +23,7 @@ using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.UnitTests;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 using static Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility.LiveConnectionHelper;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
@@ -65,16 +65,16 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             return backupFilesToRecoverDatabase;
         }
 
-        [Fact]
-        public async void RestorePlanShouldCreatedSuccessfullyForFullBackup()
+        [Test]
+        public async Task RestorePlanShouldCreatedSuccessfullyForFullBackup()
         {
             await VerifyBackupFileCreated();
             bool canRestore = true;
             await VerifyRestore(fullBackupFilePath, canRestore);
         }
 
-        [Fact]
-        public async void RestoreShouldNotRestoreAnyBackupSetsIfFullNotSelected()
+        [Test]
+        public async Task RestoreShouldNotRestoreAnyBackupSetsIfFullNotSelected()
         {
             var backupFiles = await GetBackupFilesToRecoverDatabaseCreated();
             //Remove the full backupset
@@ -85,8 +85,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             await VerifyRestoreMultipleBackupSets(backupFiles, indexToDelete, expectedTable, TaskExecutionModeFlag.Execute);
         }
 
-        [Fact]
-        public async void RestoreShouldRestoreFromAnotherDatabase()
+        [Test]
+        public async Task RestoreShouldRestoreFromAnotherDatabase()
         {
             await GetBackupFilesToRecoverDatabaseCreated();
 
@@ -106,8 +106,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             }
         }
 
-        [Fact]
-        public async void RestoreShouldFailIfThereAreOtherConnectionsToDatabase()
+        [Test]
+        public async Task RestoreShouldFailIfThereAreOtherConnectionsToDatabase()
         {
             await GetBackupFilesToRecoverDatabaseCreated();
 
@@ -138,8 +138,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             }
         }
 
-        [Fact]
-        public async void RestoreShouldFailIfThereAreOtherConnectionsToDatabase2()
+        [Test]
+        public async Task RestoreShouldFailIfThereAreOtherConnectionsToDatabase2()
         {
             await GetBackupFilesToRecoverDatabaseCreated();
 
@@ -173,8 +173,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             }
         }
 
-        [Fact]
-        public async void RestoreShouldCloseOtherConnectionsBeforeExecuting()
+        [Test]
+        public async Task RestoreShouldCloseOtherConnectionsBeforeExecuting()
         {
             await GetBackupFilesToRecoverDatabaseCreated();
 
@@ -213,8 +213,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             }
         }
 
-        [Fact]
-        public async void RestoreShouldRestoreTheBackupSetsThatAreSelected()
+        [Test]
+        public async Task RestoreShouldRestoreTheBackupSetsThatAreSelected()
         {
             var backupFiles = await GetBackupFilesToRecoverDatabaseCreated();
             //Remove the last backupset
@@ -225,8 +225,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             await VerifyRestoreMultipleBackupSets(backupFiles, indexToDelete, expectedTable);
         }
 
-        [Fact]
-        public async void RestoreShouldNotRestoreTheLogBackupSetsIfOneNotSelected()
+        [Test]
+        public async Task RestoreShouldNotRestoreTheLogBackupSetsIfOneNotSelected()
         {
             var backupFiles = await GetBackupFilesToRecoverDatabaseCreated();
             //Remove the one of the log backup sets
@@ -276,7 +276,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                 for (int i = 0; i < response.BackupSetsToRestore.Count(); i++)
                 {
                     DatabaseFileInfo databaseInfo = response.BackupSetsToRestore[i];
-                    Assert.Equal(databaseInfo.IsSelected, expectedSelectedIndexes.Contains(i));
+                    Assert.AreEqual(databaseInfo.IsSelected, expectedSelectedIndexes.Contains(i));
                 }
             }
             finally
@@ -288,8 +288,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             }
         }
 
-        [Fact]
-        public async void RestorePlanShouldCreatedSuccessfullyOnExistingDatabaseGivenReplaceOption()
+        [Test]
+        public async Task RestorePlanShouldCreatedSuccessfullyOnExistingDatabaseGivenReplaceOption()
         {
             SqlTestDb testDb = null;
             try
@@ -312,8 +312,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             }
         }
 
-        [Fact]
-        public async void RestorePlanShouldFailOnExistingDatabaseNotGivenReplaceOption()
+        [Test]
+        public async Task RestorePlanShouldFailOnExistingDatabaseNotGivenReplaceOption()
         {
             SqlTestDb testDb = null;
             try
@@ -334,8 +334,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             }
         }
 
-        //[Fact]
-        public async void RestoreShouldCreatedSuccessfullyGivenTwoBackupFiles()
+        //[Test]
+        public async Task RestoreShouldCreatedSuccessfullyGivenTwoBackupFiles()
         {
 
             string[] backupFileNames = new string[] { "FullBackup.bak", "DiffBackup.bak" };
@@ -344,8 +344,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             Assert.True(response.BackupSetsToRestore.Count() == 2);
         }
 
-        //[Fact]
-        public async void RestoreShouldFailGivenTwoBackupFilesButFilterFullBackup()
+        //[Test]
+        public async Task RestoreShouldFailGivenTwoBackupFilesButFilterFullBackup()
         {
 
             string[] backupFileNames = new string[] { "FullBackup.bak", "DiffBackup.bak" };
@@ -360,8 +360,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             }
         }
 
-        //[Fact]
-        public async void RestoreShouldCompletedSuccessfullyGivenTwoBackupFilesButFilterDifferentialBackup()
+        //[Test]
+        public async Task RestoreShouldCompletedSuccessfullyGivenTwoBackupFilesButFilterDifferentialBackup()
         {
 
             string[] backupFileNames = new string[] { "FullBackup.bak", "DiffBackup.bak" };
@@ -376,8 +376,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             }
         }
 
-        [Fact]
-        public async void RestoreShouldExecuteSuccessfullyForFullBackup()
+        [Test]
+        public async Task RestoreShouldExecuteSuccessfullyForFullBackup()
         {
             await VerifyBackupFileCreated();
 
@@ -387,8 +387,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             Assert.NotNull(restorePlan.BackupSetsToRestore);
         }
 
-        [Fact]
-        public async void RestoreToAnotherDatabaseShouldExecuteSuccessfullyForFullBackup()
+        [Test]
+        public async Task RestoreToAnotherDatabaseShouldExecuteSuccessfullyForFullBackup()
         {
             await VerifyBackupFileCreated();
 
@@ -397,23 +397,23 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             var restorePlan = await VerifyRestore(backupFileName, canRestore, TaskExecutionModeFlag.ExecuteAndScript, "NewRestoredDatabase");
         }
 
-        //[Fact]
-        public async void RestorePlanShouldCreatedSuccessfullyForDiffBackup()
+        //[Test]
+        public async Task RestorePlanShouldCreatedSuccessfullyForDiffBackup()
         {
             string backupFileName = "DiffBackup.bak";
             bool canRestore = true;
             await VerifyRestore(backupFileName, canRestore);
         }
 
-        //[Fact]
-        public async void RestorePlanShouldCreatedSuccessfullyForTransactionLogBackup()
+        //[Test]
+        public async Task RestorePlanShouldCreatedSuccessfullyForTransactionLogBackup()
         {
             string backupFileName = "TransactionLogBackup.bak";
             bool canRestore = true;
             await VerifyRestore(backupFileName, canRestore);
         }
 
-        [Fact]
+        [Test]
         public async Task RestorePlanRequestShouldReturnResponseWithDbFiles()
         {
             await VerifyBackupFileCreated();
@@ -439,7 +439,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             }
         }
 
-        [Fact]
+        [Test]
         public async Task CancelRestorePlanRequestShouldCancelSuccessfully()
         {
             await VerifyBackupFileCreated();
@@ -473,7 +473,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             }
         }
 
-        [Fact]
+        [Test]
         public async Task RestoreConfigInfoRequestShouldReturnResponse()
         {
             await VerifyBackupFileCreated();
@@ -499,7 +499,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             }
         }
 
-        [Fact]
+        [Test]
         public async Task RestoreDatabaseRequestShouldStartTheRestoreTask()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
@@ -526,7 +526,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             }
         }
 
-        [Fact]
+        [Test]
         public async Task RestorePlanRequestShouldReturnErrorMessageGivenInvalidFilePath()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
@@ -625,7 +625,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
 
                 Assert.NotNull(response);
                 Assert.False(string.IsNullOrWhiteSpace(response.SessionId));
-                Assert.Equal(response.CanRestore, canRestore);
+                Assert.AreEqual(response.CanRestore, canRestore);
                 if (canRestore)
                 {
                     Assert.True(response.DbFiles.Any());
@@ -633,7 +633,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                     {
                         targetDatabase = response.DatabaseName;
                     }
-                    Assert.Equal(response.DatabaseName, targetDatabase);
+                    Assert.AreEqual(response.DatabaseName, targetDatabase);
                     Assert.NotNull(response.PlanDetails);
                     Assert.True(response.PlanDetails.Any());
                     Assert.NotNull(response.PlanDetails[RestoreOptionsHelper.BackupTailLog]);
@@ -649,7 +649,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                         {
                             request.SessionId = response.SessionId;
                             restoreDataObject = service.CreateRestoreDatabaseTaskDataObject(request);
-                            Assert.Equal(response.SessionId, restoreDataObject.SessionId);
+                            Assert.AreEqual(response.SessionId, restoreDataObject.SessionId);
                             request.RelocateDbFiles = !restoreDataObject.DbFilesLocationAreValid();
                             restoreDataObject.Execute((TaskExecutionMode)Enum.Parse(typeof(TaskExecutionMode), executionMode.ToString()));
 
@@ -666,7 +666,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                                 //Some tests still verify the number of backup sets that are executed which in some cases can be less than the selected list
                                 if (verifyDatabase == null && selectedBackupSets != null)
                                 {
-                                    Assert.Equal(selectedBackupSets.Count(), restoreDataObject.RestorePlanToExecute.RestoreOperations.Count());
+                                    Assert.AreEqual(selectedBackupSets.Count(), restoreDataObject.RestorePlanToExecute.RestoreOperations.Count());
                                 }
                             }
                             if(executionMode.HasFlag(TaskExecutionModeFlag.Script))

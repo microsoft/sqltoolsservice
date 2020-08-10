@@ -18,7 +18,7 @@ using Microsoft.SqlTools.ServiceLayer.Profiler;
 using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Profiler
 {
@@ -54,7 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Profiler
         /// <summary>
         /// Verify that a start profiling request starts a profiling session
         /// </summary>
-        //[Fact]
+        //[Test]
         public async Task TestHandleStartAndStopProfilingRequests()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
@@ -103,7 +103,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Profiler
         /// <summary>
         /// Verify  the profiler service XEvent session factory
         /// </summary>
-        //[Fact]
+        //[Test]
         public void TestCreateXEventSession()
         {
             var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo("master");

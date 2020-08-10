@@ -3,35 +3,31 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System.Security;
-using Xunit;
-
-using Microsoft.SqlTools.ServiceLayer.Admin;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using NUnit.Framework;
 using Microsoft.SqlTools.ServiceLayer.Management;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Admin
 {
+    [TestFixture]
     /// <summary>
     /// Tests for AdminService Class
     /// </summary>
     public class AdminServiceTests
     {
-        [Fact]
+        [Test]
         public void TestBuildingSecureStringFromPassword()
         {
             string password = "test_password";
             var secureString = CDataContainer.BuildSecureStringFromPassword(password);
-            Assert.Equal(password.Length, secureString.Length);
+            Assert.AreEqual(password.Length, secureString.Length);
         }
 
-        [Fact]
+        [Test]
         public void TestBuildingSecureStringFromNullPassword()
         {
             string password = null;
             var secureString = CDataContainer.BuildSecureStringFromPassword(password);
-            Assert.Equal(0, secureString.Length);
+            Assert.AreEqual(0, secureString.Length);
         }
     }
 }

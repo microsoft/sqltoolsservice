@@ -6,13 +6,13 @@
 using System;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 {
     public class EditCellTests
     {
-        [Fact]
+        [Test]
         public void ConstructNullDbCell()
         {
             // If: I construct an EditCell with a null DbCellValue
@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Throws<ArgumentNullException>(() => new EditCell(null, true));
         }
 
-        [Fact]
+        [Test]
         public void ConstructValid()
         {
             // Setup: Create a DbCellValue to copy the values from
@@ -36,9 +36,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // Then:
             // ... The values I provided in the DbCellValue should be present
-            Assert.Equal(source.DisplayValue, ec.DisplayValue);
-            Assert.Equal(source.IsNull, ec.IsNull);
-            Assert.Equal(source.RawObject, ec.RawObject);
+            Assert.AreEqual(source.DisplayValue, ec.DisplayValue);
+            Assert.AreEqual(source.IsNull, ec.IsNull);
+            Assert.AreEqual(source.RawObject, ec.RawObject);
 
             // ... The is dirty value I set should be present
             Assert.True(ec.IsDirty);

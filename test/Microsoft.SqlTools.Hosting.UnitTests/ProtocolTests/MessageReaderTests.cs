@@ -10,15 +10,16 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Newtonsoft.Json;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
 {
+    [TestFixture]
     public class MessageReaderTests
     {
         #region Construction Tests
         
-        [Fact]
+        [Test]
         public void CreateReaderNullStream()
         {
             // If: I create a message reader with a null stream reader
@@ -26,35 +27,32 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             Assert.Throws<ArgumentNullException>(() => new MessageReader(null));
         }
 
-        [Fact]
+        [Test]
         public void CreateReaderStandardEncoding()
         {
             // If: I create a message reader without including a message encoding
             var mr = new MessageReader(Stream.Null);
             
             // Then: The reader's encoding should be UTF8
-            Assert.Equal(Encoding.UTF8, mr.MessageEncoding);
+            Assert.AreEqual(Encoding.UTF8, mr.MessageEncoding);
         }
 
-        [Fact]
+        [Test]
         public void CreateReaderNonStandardEncoding()
         {
             // If: I create a message reader with a specific message encoding
             var mr = new MessageReader(Stream.Null, Encoding.ASCII);
             
             // Then: The reader's encoding should be ASCII
-            Assert.Equal(Encoding.ASCII, mr.MessageEncoding);
+            Assert.AreEqual(Encoding.ASCII, mr.MessageEncoding);
         }
         
         #endregion
         
         #region ReadMessage Tests
 
-        [Theory]
-        [InlineData(512)]    // Buffer size can fit everything in one read
-        [InlineData(10)]     // Buffer size must use multiple reads to read the headers
-        [InlineData(25)]     // Buffer size must use multiple reads to read the contents
-        public async Task ReadMessageSingleRead(int bufferSize)
+        [Test]
+        public async Task ReadMessageSingleRead([Values(512,10,25)]int bufferSize)
         {
             // Setup: Reader with a stream that has an entire message in it
             byte[] testBytes = Encoding.UTF8.GetBytes("Content-Length: 50\r\n\r\n{\"jsonrpc\": \"2.0\", \"method\":\"test\", \"params\":null}");
@@ -70,17 +68,19 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
                 Assert.NotNull(output);
                 
                 // ... The reader should be back in header mode
-                Assert.Equal(MessageReader.ReadState.Headers, mr.CurrentState);
+                Assert.AreEqual(MessageReader.ReadState.Headers, mr.CurrentState);
                 
                 // ... The buffer should have been trimmed
-                Assert.Equal(MessageReader.DefaultBufferSize, mr.MessageBuffer.Length);
+                Assert.AreEqual(MessageReader.DefaultBufferSize, mr.MessageBuffer.Length);
             }
         }
 
-        [Theory]
-        [InlineData("Content-Type: application/json\r\n\r\n")] // Missing content-length header
-        [InlineData("Content-Length: abc\r\n\r\n")]            // Content-length is not a number
-        public async Task ReadMessageInvalidHeaders(string testString)
+        [Test]
+        public async Task ReadMessageInvalidHeaders(
+            [Values(
+            "Content-Type: application/json\r\n\r\n",// Missing content-length header
+            "Content-Length: abc\r\n\r\n"// Content-length is not a number
+            )]string testString)
         {
             // Setup: Reader with a stream that has an invalid header in it
             byte[] testBytes = Encoding.UTF8.GetBytes(testString);
@@ -90,14 +90,14 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
                 
                 // If: I read a message with invalid headers
                 // Then: ... I should get an exception
-                await Assert.ThrowsAnyAsync<MessageParseException>(() => mr.ReadMessage());
+                Assert.ThrowsAsync<MessageParseException>(() => mr.ReadMessage());
                 
                 // ... The buffer should have been trashed (reset to it's original tiny size)
-                Assert.Equal(MessageReader.DefaultBufferSize, mr.MessageBuffer.Length);
+                Assert.AreEqual(MessageReader.DefaultBufferSize, mr.MessageBuffer.Length);
             }
         }
 
-        [Fact]
+        [Test]
         public async Task ReadMessageInvalidJson()
         {
             // Setup: Reader with a stream that has an invalid json message in it
@@ -110,14 +110,14 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
                 // If: I read a message with an invalid JSON in it
                 // Then: 
                 // ... I should get an exception
-                await Assert.ThrowsAnyAsync<JsonException>(() => mr.ReadMessage());
+                Assert.ThrowsAsync<JsonReaderException>(() => mr.ReadMessage());
                 
                 // ... The buffer should have been trashed (reset to it's original tiny size)
-                Assert.Equal(MessageReader.DefaultBufferSize, mr.MessageBuffer.Length);
+                Assert.AreEqual(MessageReader.DefaultBufferSize, mr.MessageBuffer.Length);
             }
         }
 
-        [Fact]
+        [Test]
         public async Task ReadMultipleMessages()
         {
             // Setup: Reader with a stream that has multiple messages in it
@@ -141,7 +141,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             }
         }
 
-        [Fact]
+        [Test]
         public async Task ReadMultipleMessagesBeforeWriting()
         {
             // Setup: Reader with a stream that will have multiple messages in it
@@ -169,7 +169,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             }
         }
 
-        [Fact]
+        [Test]
         public async Task ReadRecoverFromInvalidHeaderMessage()
         {
             // Setup: Reader with a stream that has incorrect message formatting
@@ -182,7 +182,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
                 
                 // If: I read a message with invalid headers
                 // Then: I should get an exception
-                await Assert.ThrowsAnyAsync<MessageParseException>(() => mr.ReadMessage());
+                Assert.ThrowsAsync<MessageParseException>(() => mr.ReadMessage());
                 
                 // If: I read another, valid, message
                 var msg = await mr.ReadMessage();
@@ -192,7 +192,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
             }
         }
         
-        [Fact]
+        [Test]
         public async Task ReadRecoverFromInvalidContentMessage()
         {
             // Setup: Reader with a stream that has incorrect message formatting
@@ -205,7 +205,7 @@ namespace Microsoft.SqlTools.Hosting.UnitTests.ProtocolTests
                 
                 // If: I read a message with invalid content
                 // Then: I should get an exception
-                await Assert.ThrowsAnyAsync<JsonException>(() => mr.ReadMessage());
+                Assert.ThrowsAsync<JsonReaderException>(() => mr.ReadMessage());
                 
                 // If: I read another, valid, message
                 var msg = await mr.ReadMessage();

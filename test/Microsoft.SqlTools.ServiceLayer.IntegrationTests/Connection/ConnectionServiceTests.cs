@@ -12,7 +12,7 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
 {
@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
     /// </summary>
     public class ConnectionServiceTests
     {
-        [Fact]
+        [Test]
         public void RunningMultipleQueriesCreatesOnlyOneConnection()
         {
             // Connect/disconnect twice to ensure reconnection can occur
@@ -34,8 +34,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
                 string uri = connectionInfo.OwnerUri;
 
                 // We should see one ConnectionInfo and one DbConnection
-                Assert.Equal(1, connectionInfo.CountConnections);
-                Assert.Equal(1, service.OwnerToConnectionMap.Count);
+                Assert.AreEqual(1, connectionInfo.CountConnections);
+                Assert.AreEqual(1, service.OwnerToConnectionMap.Count);
 
                 // If we run a query
                 var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
@@ -44,7 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
                 query.ExecutionTask.Wait();
 
                 // We should see two DbConnections
-                Assert.Equal(2, connectionInfo.CountConnections);
+                Assert.AreEqual(2, connectionInfo.CountConnections);
 
                 // If we run another query
                 query = new Query(Constants.StandardQuery, connectionInfo, new QueryExecutionSettings(), fileStreamFactory);
@@ -52,18 +52,18 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
                 query.ExecutionTask.Wait();
 
                 // We should still have 2 DbConnections
-                Assert.Equal(2, connectionInfo.CountConnections);
+                Assert.AreEqual(2, connectionInfo.CountConnections);
 
                 // If we disconnect, we should remain in a consistent state to do it over again
                 // e.g. loop and do it over again
                 service.Disconnect(new DisconnectParams() { OwnerUri = connectionInfo.OwnerUri });
 
                 // We should be left with an empty connection map
-                Assert.Equal(0, service.OwnerToConnectionMap.Count);
+                Assert.AreEqual(0, service.OwnerToConnectionMap.Count);
             }
         }
 
-        [Fact]
+        [Test]
         public void DatabaseChangesAffectAllConnections()
         {
             // If we make a connection to a live database 
@@ -87,7 +87,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
             {
                 if (connection != null && connection.State == ConnectionState.Open)
                 {
-                    Assert.Equal(connection.Database, initialDatabaseName);
+                    Assert.AreEqual(connection.Database, initialDatabaseName);
                 }
             }
 
@@ -99,9 +99,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
             // All open DbConnections (Query and Default) should have newDatabaseName as their database
             foreach (DbConnection connection in connectionInfo.AllConnections)
             {
-                if (connection != null && connection.State == ConnectionState.Open) 
+                if (connection != null && connection.State == ConnectionState.Open)
                 {
-                    Assert.Equal(connection.Database, newDatabaseName);
+                    Assert.AreEqual(connection.Database, newDatabaseName);
                 }
             }
         }
@@ -109,12 +109,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         /// <summary>
         /// Test HandleGetConnectionStringRequest
         /// </summary>
-        [Fact]
-        public async void GetCurrentConnectionStringTest()
+        [Test]
+        public async Task GetCurrentConnectionStringTest()
         {
             // If we make a connection to a live database 
             ConnectionService service = ConnectionService.Instance;
             var result = LiveConnectionHelper.InitLiveConnectionInfo();
+            var resultPassword = result.ConnectionInfo.ConnectionDetails.Password;
             var requestContext = new Mock<SqlTools.Hosting.Protocol.RequestContext<string>>();
 
             requestContext.Setup(x => x.SendResult(It.Is<string>((connectionString) => connectionString.Contains("Password=" + ConnectionService.PasswordPlaceholder))))
@@ -125,6 +126,15 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
                 OwnerUri = result.ConnectionInfo.OwnerUri,
                 IncludePassword = false
             };
+
+            await service.HandleGetConnectionStringRequest(requestParams, requestContext.Object);
+            requestContext.VerifyAll();
+
+            // validate that the get command doesn't change any connection property and the following get commands work as expected
+            requestParams.IncludePassword = true;
+
+            requestContext.Setup(x => x.SendResult(It.Is<string>((connectionString) => connectionString.Contains("Password=" + resultPassword))))
+                .Returns(Task.FromResult(new object()));
 
             await service.HandleGetConnectionStringRequest(requestParams, requestContext.Object);
             requestContext.VerifyAll();

@@ -6,13 +6,14 @@
 using System;
 using Microsoft.SqlTools.Credentials.Win32;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials.Win32
 {
+    [TestFixture]
     public class CredentialSetTests
     {
-        [Fact]
+        [Test]
         public void CredentialSetCreate()
         {
             RunIfWrapper.RunIfWindows(() =>
@@ -21,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials.Win32
             });
         }
 
-        [Fact]
+        [Test]
         public void CredentialSetCreateWithTarget()
         {
             RunIfWrapper.RunIfWindows(() =>
@@ -30,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials.Win32
             });
         }
 
-        [Fact]
+        [Test]
         public void CredentialSetShouldBeIDisposable()
         {
             RunIfWrapper.RunIfWindows(() =>
@@ -39,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials.Win32
             });
         }
 
-        [Fact]
+        [Test]
         public void CredentialSetLoad()
         {
             RunIfWrapper.RunIfWindows(() =>
@@ -56,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials.Win32
                 CredentialSet set = new CredentialSet();
                 set.Load();
                 Assert.NotNull(set);
-                Assert.NotEmpty(set);
+                Assert.That(set, Is.Not.Empty);
 
                 credential.Delete();
 
@@ -64,19 +65,19 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials.Win32
             });
         }
 
-        [Fact]
+        [Test]
         public void CredentialSetLoadShouldReturnSelf()
         {
             RunIfWrapper.RunIfWindows(() =>
             {
                 CredentialSet set = new CredentialSet();
-                Assert.IsType<CredentialSet>(set.Load());
+                Assert.That(set.Load(), Is.SameAs(set));
 
                 set.Dispose();
             });
         }
 
-        [Fact]
+        [Test]
         public void CredentialSetLoadWithTargetFilter()
         {
             RunIfWrapper.RunIfWindows(() =>
@@ -90,7 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials.Win32
                 credential.Save();
 
                 CredentialSet set = new CredentialSet("filtertarget");
-                Assert.Equal(1, set.Load().Count);
+                Assert.AreEqual(1, set.Load().Count);
                 set.Dispose();
             });
         }
