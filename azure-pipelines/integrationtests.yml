@@ -22,7 +22,8 @@ steps:
     displayName: 'dotnet build'
     inputs:
       projects: '**/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj'
-  
+      arguments: '/p:CodeCoverageBuild=true'
+
   - task: CopyFiles@2
     displayName: 'Copy testsettings file to bin'
     inputs:
