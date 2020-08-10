@@ -72,7 +72,10 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         public abstract Task<IEnumerable<T>> ExecuteControlCommandAsync<T>(string command, bool throwOnError, CancellationToken cancellationToken);
 
         /// <inheritdoc/>
-        public abstract IEnumerable<DataSourceObjectMetadata> GetChildObjects(DataSourceObjectMetadata parentMetadata);
+        public abstract DiagnosticsInfo GetDiagnostics(DataSourceObjectMetadata parentMetadata);
+
+        /// <inheritdoc/>
+        public abstract IEnumerable<DataSourceObjectMetadata> GetChildObjects(DataSourceObjectMetadata parentMetadata, bool includeSizeDetails = false);
 
         /// <inheritdoc/>
         public abstract void Refresh();

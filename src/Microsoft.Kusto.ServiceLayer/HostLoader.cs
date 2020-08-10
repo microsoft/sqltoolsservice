@@ -8,6 +8,8 @@ using Microsoft.SqlTools.Credentials;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.Kusto.ServiceLayer.Admin;
+using Microsoft.Kusto.ServiceLayer.Metadata;
 using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.Hosting;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
@@ -85,6 +87,12 @@ namespace Microsoft.Kusto.ServiceLayer
 
             ScriptingService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(ScriptingService.Instance);
+
+            AdminService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(AdminService.Instance);
+
+            MetadataService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(MetadataService.Instance);
 
             InitializeHostedServices(serviceProvider, serviceHost);
             serviceHost.ServiceProvider = serviceProvider;
