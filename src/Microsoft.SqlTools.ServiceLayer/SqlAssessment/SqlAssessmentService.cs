@@ -447,7 +447,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlAssessment
         /// Returns a <see cref="SqlEngineEdition"/>
         /// corresponding to the <paramref name="representation"/>.
         /// </returns>
-        private static SqlEngineEdition GetEngineEdition(int representation)
+        internal static SqlEngineEdition GetEngineEdition(int representation)
         {
             switch (representation)
             {
