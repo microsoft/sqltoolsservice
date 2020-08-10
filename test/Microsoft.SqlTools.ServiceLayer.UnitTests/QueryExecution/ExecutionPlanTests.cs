@@ -13,7 +13,7 @@ using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 {
@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
     {
         #region ResultSet Class Tests
 
-        [Fact]
+        [Test]
         public void ExecutionPlanValid()
         {
             // Setup:
@@ -32,14 +32,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             // ... I have a result set and I ask for a valid execution plan
             ResultSet planResultSet = b.ResultSets.First();
             ExecutionPlan plan = planResultSet.GetExecutionPlan().Result;
-
-            // Then:
-            // ... I should get the execution plan back
-            Assert.Equal("xml", plan.Format);
-            Assert.Contains("Execution Plan", plan.Content);
+            Assert.AreEqual("xml", plan.Format);
+            Assert.That(plan.Content, Does.Contain("Execution Plan"), "I should get the execution plan back");
         }
 
-        [Fact]
+        [Test]
         public async Task ExecutionPlanInvalid()
         {
             // Setup:
@@ -52,14 +49,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
             // Then:
             // ... It should throw an exception
-            await Assert.ThrowsAsync<Exception>(() => planResultSet.GetExecutionPlan());
+            Assert.ThrowsAsync<Exception>(() => planResultSet.GetExecutionPlan());
         }
 
         #endregion
 
         #region Batch Class Tests
 
-        [Fact]
+        [Test]
         public void BatchExecutionPlanValidTest()
         {
             // If I have an executed batch which has an execution plan 
@@ -68,13 +65,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             // ... And I ask for a valid execution plan 
             ExecutionPlan plan = b.GetExecutionPlan(0).Result;
 
-            // Then:
-            // ... I should get the execution plan back
-            Assert.Equal("xml", plan.Format);
-            Assert.Contains("Execution Plan", plan.Content);
+            Assert.AreEqual("xml", plan.Format);
+            Assert.That(plan.Content, Does.Contain("Execution Plan"), "I should get the execution plan back");
         }
 
-        [Fact]
+        [Test]
         public async Task BatchExecutionPlanInvalidTest()
         {
             // Setup:
@@ -83,13 +78,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
             // If: 
             // ... I ask for an invalid execution plan 
-            await Assert.ThrowsAsync<Exception>(() => b.GetExecutionPlan(0));
+            Assert.ThrowsAsync<Exception>(() => b.GetExecutionPlan(0));
         }
 
-        [Theory]
-        [InlineData(-1)]  // Invalid result set, too low
-        [InlineData(2)]   // Invalid result set, too high
-        public async Task BatchExecutionPlanInvalidParamsTest(int resultSetIndex)
+        [Test]
+        public async Task BatchExecutionPlanInvalidParamsTest([Values(-1,2)] int resultSetIndex)
         {
             // If I have an executed batch which has an execution plan 
             Batch b = Common.GetExecutedBatchWithExecutionPlan();
@@ -97,17 +90,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             // ... And I ask for an execution plan with an invalid result set index
             // Then: 
             // ... It should throw an exception
-            await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => b.GetExecutionPlan(resultSetIndex));
+            Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => b.GetExecutionPlan(resultSetIndex));
         }
 
         #endregion
 
         #region Query Class Tests
 
-        [Theory]
-        [InlineData(-1)]  // Invalid batch, too low
-        [InlineData(2)]   // Invalid batch, too high
-        public async Task QueryExecutionPlanInvalidParamsTest(int batchIndex)
+        [Test]
+        public async Task QueryExecutionPlanInvalidParamsTest([Values(-1,2)]int batchIndex)
         {
             // Setup query settings
             QueryExecutionSettings querySettings = new QueryExecutionSettings
@@ -125,7 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             // ... And I ask for a subset with an invalid result set index
             // Then: 
             // ... It should throw an exception
-           await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => q.GetExecutionPlan(batchIndex, 0));
+           Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => q.GetExecutionPlan(batchIndex, 0));
         }
 
         #endregion
@@ -133,7 +124,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
         #region Service Intergration Tests
 
-        [Fact]
+        [Test]
         public async Task ExecutionPlanServiceValidTest()
         {
             // If:
@@ -168,7 +159,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
         }
 
         
-        [Fact]
+        [Test]
         public async Task ExecutionPlanServiceMissingQueryTest()
         {
             // If:
@@ -183,7 +174,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             executionPlanRequest.Validate();
         }
 
-        [Fact]
+        [Test]
         public async Task ExecutionPlanServiceUnexecutedQueryTest()
         {
             // If:
@@ -215,7 +206,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             executionPlanRequest.Validate();
         }
 
-        [Fact]
+        [Test]
         public async Task ExecutionPlanServiceOutOfRangeSubsetTest()
         {
             // If:

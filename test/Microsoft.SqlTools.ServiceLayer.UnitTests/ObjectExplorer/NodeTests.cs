@@ -18,7 +18,7 @@ using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
@@ -35,7 +35,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         private string fakeConnectionString = "Data Source=server;Initial Catalog=database;Integrated Security=False;User Id=user";
         private ServerConnection serverConnection = null;
 
-        public NodeTests()
+        [SetUp]
+        public void InitNodeTests()
         {
             defaultServerInfo = TestObjects.GetTestServerInfo();
             serverConnection = new ServerConnection(new SqlConnection(fakeConnectionString));
@@ -58,33 +59,33 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             ServiceProvider = ExtensionServiceProvider.CreateDefaultServiceProvider();
         }
         
-        [Fact]
+        [Test]
         public void ServerNodeConstructorValidatesFields()
         {
             Assert.Throws<ArgumentNullException>(() => new ServerNode(null, ServiceProvider, serverConnection));
             Assert.Throws<ArgumentNullException>(() => new ServerNode(defaultConnParams, null, serverConnection));
         }
 
-        [Fact]
+        [Test]
         public void ServerNodeConstructorShouldSetValuesCorrectly()
         {
             // Given a server node with valid inputs
             ServerNode node = new ServerNode(defaultConnParams, ServiceProvider, serverConnection);
             // Then expect all fields set correctly
             Assert.False(node.IsAlwaysLeaf, "Server node should never be a leaf");
-            Assert.Equal(defaultConnectionDetails.ServerName, node.NodeValue);
+            Assert.AreEqual(defaultConnectionDetails.ServerName, node.NodeValue);
 
             string expectedLabel = defaultConnectionDetails.ServerName + " (SQL Server " + defaultServerInfo.ServerVersion + " - "
                 + defaultConnectionDetails.UserName + ")";
-            Assert.Equal(expectedLabel, node.Label);
+            Assert.AreEqual(expectedLabel, node.Label);
 
-            Assert.Equal(NodeTypes.Server.ToString(), node.NodeType);
+            Assert.AreEqual(NodeTypes.Server.ToString(), node.NodeType);
             string[] nodePath = node.GetNodePath().Split(TreeNode.PathPartSeperator);
-            Assert.Equal(1, nodePath.Length);
-            Assert.Equal(defaultConnectionDetails.ServerName, nodePath[0]);
+            Assert.AreEqual(1, nodePath.Length);
+            Assert.AreEqual(defaultConnectionDetails.ServerName, nodePath[0]);
         }
 
-        [Fact]
+        [Test]
         public void ServerNodeLabelShouldIgnoreUserNameIfEmptyOrNull()
         {
             // Given no username set
@@ -104,10 +105,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             string label = new ServerNode(connParams, ServiceProvider, serverConnection).Label;
             // Then only server name and version shown
             string expectedLabel = defaultConnectionDetails.ServerName + " (SQL Server " + defaultServerInfo.ServerVersion + ")";
-            Assert.Equal(expectedLabel, label);
+            Assert.AreEqual(expectedLabel, label);
         }
 
-        [Fact]
+        [Test]
         public void ServerNodeConstructorShouldShowDbNameForCloud()
         {
             defaultServerInfo.IsCloud = true;
@@ -117,7 +118,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             // Then expect label to not include db name
             string expectedLabel = defaultConnectionDetails.ServerName + " (SQL Server " + defaultServerInfo.ServerVersion + " - "
                 + defaultConnectionDetails.UserName + ")";
-            Assert.Equal(expectedLabel, node.Label);
+            Assert.AreEqual(expectedLabel, node.Label);
 
             // But given a server node for a cloud DB that's not master
             defaultConnectionDetails.DatabaseName = "NotMaster";
@@ -127,10 +128,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             // Then expect label to include db name 
             expectedLabel = defaultConnectionDetails.ServerName + " (SQL Server " + defaultServerInfo.ServerVersion + " - "
                 + defaultConnectionDetails.UserName + ", " + defaultConnectionDetails.DatabaseName + ")";
-            Assert.Equal(expectedLabel, node.Label);
+            Assert.AreEqual(expectedLabel, node.Label);
         }
 
-        [Fact]
+        [Test]
         public void ToNodeInfoIncludeAllFields()
         {
             // Given a server connection
@@ -138,29 +139,29 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             // When converting to NodeInfo
             NodeInfo info = node.ToNodeInfo();
             // Then all fields should match
-            Assert.Equal(node.IsAlwaysLeaf, info.IsLeaf);
-            Assert.Equal(node.Label, info.Label);
-            Assert.Equal(node.NodeType, info.NodeType);
+            Assert.AreEqual(node.IsAlwaysLeaf, info.IsLeaf);
+            Assert.AreEqual(node.Label, info.Label);
+            Assert.AreEqual(node.NodeType, info.NodeType);
             string[] nodePath = node.GetNodePath().Split(TreeNode.PathPartSeperator);
             string[] nodeInfoPathParts = info.NodePath.Split(TreeNode.PathPartSeperator);
-            Assert.Equal(nodePath.Length, nodeInfoPathParts.Length);
+            Assert.AreEqual(nodePath.Length, nodeInfoPathParts.Length);
             for (int i = 0; i < nodePath.Length; i++)
             {
-                Assert.Equal(nodePath[i], nodeInfoPathParts[i]);
+                Assert.AreEqual(nodePath[i], nodeInfoPathParts[i]);
             }
         }
 
-        [Fact]
+        [Test]
         public void AddChildShouldSetParent()
         {
             TreeNode parent = new TreeNode("parent");
             TreeNode child = new TreeNode("child");
             Assert.Null(child.Parent);
             parent.AddChild(child);
-            Assert.Equal(parent, child.Parent);
+            Assert.AreEqual(parent, child.Parent);
         }
 
-        [Fact]
+        [Test]
         public void GetChildrenShouldReturnReadonlyList()
         {
             TreeNode node = new TreeNode("parent");
@@ -168,7 +169,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             Assert.Throws<NotSupportedException>(() => children.Add(new TreeNode("child")));
         }
 
-        [Fact]
+        [Test]
         public void GetChildrenShouldReturnAddedNodesInOrder()
         {
             TreeNode parent = new TreeNode("parent");
@@ -178,33 +179,33 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 parent.AddChild(child);
             }
             IList<TreeNode> children = parent.GetChildren();
-            Assert.Equal(expectedKids.Length, children.Count);
+            Assert.AreEqual(expectedKids.Length, children.Count);
             for (int i = 0; i < expectedKids.Length; i++)
             {
-                Assert.Equal(expectedKids[i], children[i]);
+                Assert.AreEqual(expectedKids[i], children[i]);
             }
         }
 
-        [Fact]
+        [Test]
         public void MultiLevelTreeShouldFormatPath()
         {
             TreeNode root = new TreeNode("root");
-            Assert.Equal("root" , root.GetNodePath());
+            Assert.AreEqual("root" , root.GetNodePath());
 
             TreeNode level1Child1 = new TreeNode("L1C1 (with extra info)");
             level1Child1.NodePathName = "L1C1";
             TreeNode level1Child2 = new TreeNode("L1C2");
             root.AddChild(level1Child1);
             root.AddChild(level1Child2);
-            Assert.Equal("root/L1C1" , level1Child1.GetNodePath());
-            Assert.Equal("root/L1C2", level1Child2.GetNodePath());
+            Assert.AreEqual("root/L1C1" , level1Child1.GetNodePath());
+            Assert.AreEqual("root/L1C2", level1Child2.GetNodePath());
 
             TreeNode level2Child1 = new TreeNode("L2C2");
             level1Child1.AddChild(level2Child1);
-            Assert.Equal("root/L1C1/L2C2", level2Child1.GetNodePath());
+            Assert.AreEqual("root/L1C1/L2C2", level2Child1.GetNodePath());
         }
         
-        [Fact]
+        [Test]
         public void ServerNodeContextShouldIncludeServer()
         {
             // given a successful Server creation
@@ -216,13 +217,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 
             // Then I expect it to contain the server I created 
             Assert.NotNull(context);
-            Assert.Equal(smoServer, context.Server);
+            Assert.AreEqual(smoServer, context.Server);
             // And the server should be the parent
-            Assert.Equal(smoServer, context.Parent);
+            Assert.AreEqual(smoServer, context.Parent);
             Assert.Null(context.Database);
         }
 
-        [Fact]
+        [Test]
         public void ServerNodeContextShouldSetErrorMessageIfSqlConnectionIsNull()
         {
             // given a connectionInfo with no SqlConnection to use for queries
@@ -237,7 +238,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             Assert.Null(context);
         }
 
-        [Fact]
+        [Test]
         public void ServerNodeContextShouldSetErrorMessageIfConnFailureExceptionThrown()
         {
             // given a connectionInfo with no SqlConnection to use for queries
@@ -250,12 +251,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 
             // Then I expect it to be in an error state 
             Assert.Null(context);
-            Assert.Equal(
+            Assert.AreEqual(
                 string.Format(CultureInfo.CurrentCulture, SR.TreeNodeError, expectedMsg),
                 node.ErrorStateMessage);
         }
 
-        [Fact]
+        [Test]
         public void ServerNodeContextShouldSetErrorMessageIfExceptionThrown()
         {
             // given a connectionInfo with no SqlConnection to use for queries
@@ -268,12 +269,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 
             // Then I expect it to be in an error state 
             Assert.Null(context);
-            Assert.Equal(
+            Assert.AreEqual(
                 string.Format(CultureInfo.CurrentCulture, SR.TreeNodeError, expectedMsg),
                 node.ErrorStateMessage);
         }
         
-        [Fact]
+        [Test]
         public void QueryContextShouldNotCallOpenOnAlreadyOpenConnection()
         {
             // given a server connection that will state its connection is open
@@ -304,7 +305,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             return wrapper;
         }
 
-        [Fact]
+        [Test]
         public void QueryContextShouldReopenClosedConnectionWhenGettingServer()
         {
             // given a server connection that will state its connection is closed
@@ -321,7 +322,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             wrapper.Verify(c => c.OpenConnection(It.IsAny<Server>()), Times.Once);
         }
 
-        [Fact]
+        [Test]
         public void QueryContextShouldReopenClosedConnectionWhenGettingParent()
         {
             // given a server connection that will state its connection is closed
@@ -380,7 +381,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             return node;
         }
 
-        [Fact]
+        [Test]
         public void ServerNodeChildrenShouldIncludeFoldersAndDatabases()
         {
             // Given a server with 1 database
@@ -404,19 +405,19 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             IList<TreeNode> children = node.Expand(new CancellationToken());
 
             // Then I expect it to contain server-level folders 
-            Assert.Equal(3, children.Count);
+            Assert.AreEqual(3, children.Count);
             VerifyTreeNode<FolderNode>(children[0], "Folder", SR.SchemaHierarchy_Databases);
             VerifyTreeNode<FolderNode>(children[1], "Folder", SR.SchemaHierarchy_Security);
             VerifyTreeNode<FolderNode>(children[2], "Folder", SR.SchemaHierarchy_ServerObjects);
             // And the database is contained under it
             TreeNode databases = children[0];
             IList<TreeNode> dbChildren = databases.Expand(new CancellationToken());
-            Assert.Equal(2, dbChildren.Count);
-            Assert.Equal(SR.SchemaHierarchy_SystemDatabases, dbChildren[0].NodeValue);
+            Assert.AreEqual(2, dbChildren.Count);
+            Assert.AreEqual(SR.SchemaHierarchy_SystemDatabases, dbChildren[0].NodeValue);
 
             TreeNode dbNode = dbChildren[1];
-            Assert.Equal(dbName, dbNode.NodeValue);
-            Assert.Equal(dbName, dbNode.Label);
+            Assert.AreEqual(dbName, dbNode.NodeValue);
+            Assert.AreEqual(dbName, dbNode.Label);
             Assert.False(dbNode.IsAlwaysLeaf);
             
             // Note: would like to verify Database in the context, but cannot since it's a Sealed class and isn't easily mockable
@@ -427,8 +428,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         {
             T nodeAsT = node as T;
             Assert.NotNull(nodeAsT);
-            Assert.Equal(nodeType, nodeAsT.NodeType);
-            Assert.Equal(folderValue, nodeAsT.NodeValue);
+            Assert.AreEqual(nodeType, nodeAsT.NodeType);
+            Assert.AreEqual(folderValue, nodeAsT.NodeValue);
         }
     }
 }

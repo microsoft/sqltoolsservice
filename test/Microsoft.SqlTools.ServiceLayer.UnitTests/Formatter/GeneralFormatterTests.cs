@@ -4,13 +4,19 @@
 //
 
 using Microsoft.SqlTools.ServiceLayer.Formatter;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
 {
     public class GeneralFormatterTests : FormatterUnitTestsBase
     {
-        [Fact]
+        [SetUp]
+        public void Init()
+        {
+            InitFormatterUnitTestsBase();
+        }
+
+        [Test]
         public void GoNewLineShouldBePreserved()
         {
             LoadAndFormatAndCompare("GoNewLineShouldBePreserved", 
@@ -24,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 verifyFormat: true);
         }
 
-        [Fact]
+        [Test]
         public void KeywordCaseConversionUppercase()
         {
             LoadAndFormatAndCompare("KeywordCaseConversion", 
@@ -34,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 verifyFormat: true);
         }
 
-        [Fact]
+        [Test]
         public void KeywordCaseConversionLowercase()
         {
             LoadAndFormatAndCompare("KeywordCaseConversion",
@@ -44,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 verifyFormat: true);
         }
 
-        [Fact]
+        [Test]
         public void SelectWithOrderByShouldCorrectlyIndent()
         {
             LoadAndFormatAndCompare("SelectWithOrderByShouldCorrectlyIndent",
@@ -54,7 +60,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 verifyFormat: true);
         }
 
-        [Fact]
+        [Test]
         public void SelectStatementShouldCorrectlyIndent()
         {
             LoadAndFormatAndCompare("SelectStatementShouldCorrectlyIndent",

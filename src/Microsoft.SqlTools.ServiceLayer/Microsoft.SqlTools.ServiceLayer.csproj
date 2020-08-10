@@ -20,9 +20,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-        <PackageReference Include="Microsoft.SqlServer.DACFx" />		
+		<PackageReference Include="Microsoft.SqlServer.DACFx" />
 		<PackageReference Include="Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider" />
-		<PackageReference Include="System.Text.Encoding.CodePages" />		
+		<PackageReference Include="System.Text.Encoding.CodePages" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -52,4 +52,23 @@
 	<ItemGroup>
 		<EmbeddedResource Include=".\Agent\NotebookResources\NotebookJobScript.ps1" />
 	</ItemGroup>
+	<!-- this target enables dependency files to be copied as part of the output of ProjectReference.
+	https://github.com/dotnet/sdk/issues/1675
+	 -->
+	<Target Name="AddRuntimeDependenciesToContent"
+		  Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp'"
+		  BeforeTargets="GetCopyToOutputDirectoryItems"
+		  DependsOnTargets="GenerateBuildDependencyFile;
+							GenerateBuildRuntimeConfigurationFiles">
+		<ItemGroup>
+			<ContentWithTargetPath Include="$(ProjectDepsFilePath)"
+							Condition="'$(GenerateDependencyFile)' == 'true'"
+							CopyToOutputDirectory="PreserveNewest"
+							TargetPath="$(ProjectDepsFileName)" />
+			<ContentWithTargetPath Include="$(ProjectRuntimeConfigFilePath)"
+							Condition="'$(GenerateRuntimeConfigurationFiles)' == 'true'"
+							CopyToOutputDirectory="PreserveNewest"
+							TargetPath="$(ProjectRuntimeConfigFileName)" />
+		</ItemGroup>
+	</Target>
 </Project>

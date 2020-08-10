@@ -12,7 +12,7 @@ using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
 {
@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         /// <summary>
         /// Verify that a start profiling request starts a profiling session
         /// </summary>
-        [Fact]
+        [Test]
         public async Task TestHandleAgentJobsRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
@@ -44,7 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         /// <summary>
         /// Verify that a job history request returns the job history
         /// </summary>
-        [Fact]
+        [Test]
         public async Task TestHandleJobHistoryRequests() 
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
@@ -65,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
             }       
         }
 
-        [Fact]
+        [Test]
         public async Task TestHandleAgentJobActionRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())

@@ -8,7 +8,7 @@ using System.Data.Common;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution.DataStorage
 {
@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution.DataSt
         /// <summary>
         /// Validate GetBytesWithMaxCapacity
         /// </summary>
-        [Fact]
+        [Test]
         public void GetBytesWithMaxCapacityTest()
         {
             var storageReader = GetTestStorageDataReader(
@@ -47,7 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution.DataSt
         /// <summary>
         /// Validate GetCharsWithMaxCapacity
         /// </summary>
-        [Fact]
+        [Test]
         public void GetCharsWithMaxCapacityTest()
         {
             var storageReader = GetTestStorageDataReader(
@@ -69,7 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution.DataSt
         /// <summary>
         /// Validate GetXmlWithMaxCapacity
         /// </summary>
-        [Fact]
+        [Test]
         public void GetXmlWithMaxCapacityTest()
         {
             var storageReader = GetTestStorageDataReader(
@@ -86,7 +86,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution.DataSt
         /// <summary>
         /// Validate StringWriterWithMaxCapacity Write test
         /// </summary>
-        [Fact]
+        [Test]
         public void StringWriterWithMaxCapacityTest()
         {
             var writer = new StorageDataReader.StringWriterWithMaxCapacity(null, 4);
