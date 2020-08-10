@@ -11,6 +11,7 @@ using System.Globalization;
 using System.Threading;
 using System.Linq;
 using Microsoft.Kusto.ServiceLayer.DataSource;
+using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel;
 using Microsoft.Kusto.ServiceLayer.Utility;

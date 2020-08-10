@@ -6,15 +6,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
-using Microsoft.SqlServer.Management.Smo;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes;
-using Microsoft.SqlTools.Utility;
-using Microsoft.Kusto.ServiceLayer.DataSource;
-using Microsoft.Kusto.ServiceLayer.Utility;
+using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 
 namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 {

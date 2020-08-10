@@ -20,6 +20,7 @@ using Kusto.Data.Net.Client;
 using Kusto.Language;
 using Kusto.Language.Editor;
 using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
+using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Completion;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
@@ -603,7 +604,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             return returnList;
         }
 
-        private IEnumerable<ColumnInfo> GetColumnMetadata(string databaseName)
+        private IEnumerable<ColumnInfo> GetColumnInfos(string databaseName)
         {
             ValidationUtils.IsNotNullOrWhitespace(databaseName, nameof(databaseName));
 
@@ -633,22 +634,22 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
         private void LoadTableSchema(DataSourceObjectMetadata objectMetadata)
         {
-            IEnumerable<ColumnInfo> columnInfos = GetColumnMetadata(objectMetadata.Name);
+            IEnumerable<ColumnInfo> columnInfos = GetColumnInfos(objectMetadata.Name);
 
             if (!columnInfos.Any())
             {
                 return;
             }
             
-            var tableFolderKey = new StringBuilder($"{ClusterName}.{objectMetadata.Name}");
+            var rootTableFolderKey = new StringBuilder($"{ClusterName}.{objectMetadata.Name}");
             if (columnInfos.Any(x => !string.IsNullOrWhiteSpace(x.Folder)))
             {
                 // create Table folder to hold functions tables
-                var tableFolder = DataSourceFactory.CreateFolderMetadata(objectMetadata, tableFolderKey.ToString(), "Tables");
-                AddToFolderMetadata(tableFolderKey.ToString(), new List<FolderMetadata> {tableFolder});
-                tableFolderKey.Append($".{tableFolder.Name}");
+                var tableFolder = DataSourceFactory.CreateFolderMetadata(objectMetadata, rootTableFolderKey.ToString(), "Tables");
+                AddToFolderMetadata(rootTableFolderKey.ToString(), new List<FolderMetadata> {tableFolder});
+                rootTableFolderKey.Append($".{tableFolder.Name}");
                 
-                SetFolderMetadataForTables(objectMetadata, columnInfos, tableFolderKey.ToString());
+                SetFolderMetadataForTables(objectMetadata, columnInfos, rootTableFolderKey.ToString());
             }
             
             var columnsGroupByTable = columnInfos
@@ -658,7 +659,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                     && !string.IsNullOrWhiteSpace(row.DataType))
                 .GroupBy(row => row.Table, StringComparer.OrdinalIgnoreCase);
             
-            SetTableMetadata(objectMetadata.Name, columnInfos, tableFolderKey.ToString());
+            SetTableMetadata(objectMetadata.Name, columnInfos, rootTableFolderKey.ToString());
             SetColumnMetadata(objectMetadata.Name, columnsGroupByTable);
         }
 
@@ -892,7 +893,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             }
         }
 
-        internal FunctionInfo GetFunctionInfo(string functionName)
+        private FunctionInfo GetFunctionInfo(string functionName)
         {
             CancellationTokenSource source = new CancellationTokenSource();
             CancellationToken token = source.Token;
@@ -912,6 +913,25 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                     })
                     .FirstOrDefault();
             }
+        }
+
+        public override string GenerateAlterFunctionScript(string functionName)
+        {
+            var functionInfo = GetFunctionInfo(functionName);
+            
+            if (functionInfo == null)
+            {
+                return string.Empty;
+            }
+            
+            var alterCommand = new StringBuilder();
+
+            alterCommand.Append(".alter function with ");
+            alterCommand.Append($"(folder = \"{functionInfo.Folder}\", docstring = \"{functionInfo.DocString}\", skipvalidation = \"false\" ) ");
+            alterCommand.Append($"{functionInfo.Name}{functionInfo.Parameters} ");
+            alterCommand.Append($"{functionInfo.Body}");
+
+            return alterCommand.ToString();
         }
 
         private string GenerateMetadataKey(string databaseName, string objectName)

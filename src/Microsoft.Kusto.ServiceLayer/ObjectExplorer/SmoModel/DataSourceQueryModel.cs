@@ -2,11 +2,10 @@
 // and re-run the T4 template. This can be done in Visual Studio by right-click in and choosing "Run Custom Tool",
 // or from the command-line on any platform by running "build.cmd -Target=CodeGen" or "build.sh -Target=CodeGen".
 
-using System;
 using System.Collections.Generic;
 using System.Composition;
 using System.Linq;
-using Microsoft.Kusto.ServiceLayer.DataSource;
+using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 
 namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 {

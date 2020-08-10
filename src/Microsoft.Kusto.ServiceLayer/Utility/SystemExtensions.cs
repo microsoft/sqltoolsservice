@@ -2,7 +2,7 @@
 // Copyright (c) Microsoft. All Rights Reserved.
 // </copyright>
 
-using Microsoft.Kusto.ServiceLayer.DataSource;
+using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 
 namespace  Microsoft.Kusto.ServiceLayer.Utility
 {

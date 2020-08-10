@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
+using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Completion;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.Kusto.ServiceLayer.Utility;

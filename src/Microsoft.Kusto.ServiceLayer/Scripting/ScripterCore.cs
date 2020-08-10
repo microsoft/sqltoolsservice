@@ -675,23 +675,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         internal string AlterFunction(IDataSource dataSource, ScriptingObject scriptingObject)
         {
             var functionName = scriptingObject.Name.Substring(0, scriptingObject.Name.IndexOf('('));
-            
-            var kustoDataSource = dataSource as KustoDataSource;
-            var functionInfo = kustoDataSource.GetFunctionInfo(functionName);
-
-            if (functionInfo == null)
-            {
-                return string.Empty;
-            }
-
-            var alterCommand = new StringBuilder();
-
-            alterCommand.Append(".alter function with ");
-            alterCommand.Append($"(folder = \"{functionInfo.Folder}\", docstring = \"{functionInfo.DocString}\", skipvalidation = \"false\" ) ");
-            alterCommand.Append($"{functionInfo.Name}{functionInfo.Parameters} ");
-            alterCommand.Append($"{functionInfo.Body}");
-
-            return alterCommand.ToString();
+            return dataSource.GenerateAlterFunctionScript(functionName);
         }
 
         #endregion

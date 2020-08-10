@@ -4,6 +4,7 @@ using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
+using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Completion;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
@@ -112,5 +113,12 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// </summary>
         /// <returns>true if it exists; false otherwise.</returns>
         bool Exists(DataSourceObjectMetadata objectMetadata);
+
+        /// <summary>
+        /// Gets FunctionInfo object for a function
+        /// </summary>
+        /// <param name="functionName"></param>
+        /// <returns></returns>
+        string GenerateAlterFunctionScript(string functionName);
     }
 }

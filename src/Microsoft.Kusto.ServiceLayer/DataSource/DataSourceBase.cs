@@ -9,6 +9,7 @@ using System.Data;
 using System.Threading.Tasks;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
+using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
@@ -98,6 +99,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
         /// <inheritdoc/>
         public abstract bool Exists(DataSourceObjectMetadata objectMetadata);
+
+        public abstract string GenerateAlterFunctionScript(string functionName);
 
         /// <inheritdoc/>
         public DataSourceType DataSourceType { get; protected set; }
