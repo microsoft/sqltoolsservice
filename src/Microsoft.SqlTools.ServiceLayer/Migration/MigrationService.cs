@@ -23,108 +23,19 @@ using Microsoft.SqlTools.ServiceLayer.SqlAssessment.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Migration
 {
-    public class TestAssessmentResult : IAssessmentResult
-    {
-        public string Message { get; set; }
-
-        public ICheck Check { get; set;}
-
-        public string TargetPath { get; set; }
-
-        public SqlObjectType TargetType { get; set; }
-
-        public DateTimeOffset Timestamp { get; set; }
-    }
-
-    public class TestPattern : IPattern<ISqlObjectLocator>
-    {
-        public bool IsMatch(ISqlObjectLocator value)
-        {
-            return true;
-        }
-    }
-
-    public class TestCheck : Check
-    {
-    }
-
-    public class TestLogic : ILogicsProvider {
-
-        public Task<List<IAssessmentResult>> GetAssessmentResults(
-            IAssessmentRequest request, 
-            DbConnection connection, 
-            EngineConfig configuration)
-        {
-            
-            TestCheck check = new TestCheck()
-            {
-                Description = "Description",
-                DisplayName = "DisplayName",
-                Enabled = true,
-                HelpLink = "HelpLink",
-                Level = SeverityLevel.Information,
-                Id = "Is",
-                Target = null,
-                OriginName = "Description",
-                OriginVersion = new Version(1,0),
-                Logics = this
-            };
-
-            List<IAssessmentResult> results = new List<IAssessmentResult>();
-            results.Add(
-                new TestAssessmentResult()
-                {
-                    Message = "Test",
-                    Check = check,
-                    TargetPath = "Target",
-                    TargetType = SqlObjectType.Server,
-                    Timestamp = DateTimeOffset.Now
-                }
-            );
-            return Task.FromResult(results);
-            
-        }
-    }
-
-    public class TestRuleset : IRuleset
-    {
-        public string Name { get; set; }
-        public Version Version { get; set; }
-
-        public IEnumerable<ICheck> GetChecks(ISqlObjectLocator target, IEnumerable<ICheck> baseChecks, HashSet<string> ids, HashSet<string> tags)
-        {
-            List<ICheck> checks = new List<ICheck>();
-            checks.Add(new TestCheck()
-            {
-                Description = "Description",
-                DisplayName = "DisplayName",
-                Enabled = true,
-                HelpLink = "HelpLink",
-                Level = SeverityLevel.Critical,
-                Id = "Is",
-                Target = null,
-                OriginName = "Description",
-                OriginVersion = new Version(1,0),
-                Logics = new TestLogic()
-            });
-            return checks;
-        }
-
-        public void GetSuspects(ISqlObjectLocator target, HashSet<string> ids, HashSet<string> tags)
-        {
-        }
-    }
-
     /// <summary>
     /// Main class for Migration Service functionality
     /// </summary>
     public sealed class MigrationService : IDisposable
     {        
-        private bool disposed;
-
         private static ConnectionService connectionService = null;
      
         private static readonly Lazy<MigrationService> instance = new Lazy<MigrationService>(() => new MigrationService());
+
+        private bool disposed;
+
+        private Lazy<Dictionary<string, MigrationProject>> migrationProjects = new Lazy<Dictionary<string, MigrationProject>>(() => new Dictionary<string, MigrationProject>());
+
         
         /// <summary>
         /// Construct a new MigrationService instance with default parameters
@@ -139,6 +50,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         public static MigrationService Instance
         {
             get { return instance.Value; }
+        }
+
+        public Dictionary<string, MigrationProject> MigrationProjects 
+        {
+            get { return this.migrationProjects.Value; }
         }
 
         /// <summary>
@@ -182,6 +98,54 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         {
             this.ServiceHost = serviceHost;
             this.ServiceHost.SetRequestHandler(MigrationAssessmentsRequest.Type, HandleMigrationAssessmentsRequest);
+            this.ServiceHost.SetRequestHandler(MigrationSkuRecommendationsRequest.Type, HandleMigrationSkuRecommendations);
+        }
+
+        
+        /// <summary>
+        /// Handle request to start a migration session
+        /// </summary>
+        internal async Task HandleMigrationSkuRecommendations(
+            MigrationSkuRecommendationsParams parameters, 
+            RequestContext<MigrationSkuRecommendationsResult> requestContext)
+        {
+            string randomUri = Guid.NewGuid().ToString();
+            try
+            {
+                MigrationProject project;
+                if (!this.MigrationProjects.ContainsKey(parameters.OwnerUri))
+                {
+                    project = new MigrationProject();
+                    this.MigrationProjects.Add(parameters.OwnerUri, project);
+                }
+
+                project = MigrationProjects[parameters.OwnerUri];
+
+
+                // get connection
+                if (!ConnectionService.TryFindConnection(parameters.OwnerUri, out var connInfo))
+                {
+                    await requestContext.SendError("Could not find migration connection");
+                    return;
+                }
+
+                ConnectParams connectParams = new ConnectParams
+                {
+                    OwnerUri = randomUri,
+                    Connection = connInfo.ConnectionDetails,
+                    Type = ConnectionType.Default
+                };
+
+                await ConnectionService.Connect(connectParams);
+
+                var connection = await ConnectionService.Instance.GetOrOpenConnection(randomUri, ConnectionType.Default);
+
+
+            }
+            finally
+            {
+                ConnectionService.Disconnect(new DisconnectParams { OwnerUri = randomUri, Type = null });
+            }
         }
 
         /// <summary>
@@ -189,7 +153,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         /// </summary>
         internal async Task HandleMigrationAssessmentsRequest(
             MigrationAssessmentsParams parameters, 
-            RequestContext<MigrationAssessmentsResult> requestContext)
+            RequestContext<AssessmentResult<CheckInfo>> requestContext)
         {
             string randomUri = Guid.NewGuid().ToString();
             try
@@ -212,7 +176,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
 
                 var connection = await ConnectionService.Instance.GetOrOpenConnection(randomUri, ConnectionType.Default);
 
-                var result = new MigrationAssessmentsResult();
+                var result = new AssessmentResult<CheckInfo>();
                 var serverInfo = ReliableConnectionHelper.GetServerVersion(connection);
                 var hostInfo = ReliableConnectionHelper.GetServerHostInfo(connection);
 
@@ -304,6 +268,98 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             {
                 disposed = true;
             }
+        }
+    }
+
+    public class TestAssessmentResult : IAssessmentResult
+    {
+        public string Message { get; set; }
+
+        public ICheck Check { get; set;}
+
+        public string TargetPath { get; set; }
+
+        public SqlObjectType TargetType { get; set; }
+
+        public DateTimeOffset Timestamp { get; set; }
+    }
+
+    public class TestPattern : IPattern<ISqlObjectLocator>
+    {
+        public bool IsMatch(ISqlObjectLocator value)
+        {
+            return true;
+        }
+    }
+
+    public class TestCheck : Check
+    {
+    }
+
+    public class TestLogic : ILogicsProvider {
+
+        public Task<List<IAssessmentResult>> GetAssessmentResults(
+            IAssessmentRequest request, 
+            DbConnection connection, 
+            EngineConfig configuration)
+        {
+            
+            TestCheck check = new TestCheck()
+            {
+                Description = "Description",
+                DisplayName = "DisplayName",
+                Enabled = true,
+                HelpLink = "HelpLink",
+                Level = SeverityLevel.Information,
+                Id = "Is",
+                Target = null,
+                OriginName = "Description",
+                OriginVersion = new Version(1,0),
+                Logics = this
+            };
+
+            List<IAssessmentResult> results = new List<IAssessmentResult>();
+            results.Add(
+                new TestAssessmentResult()
+                {
+                    Message = "Test",
+                    Check = check,
+                    TargetPath = "Target",
+                    TargetType = SqlObjectType.Server,
+                    Timestamp = DateTimeOffset.Now
+                }
+            );
+            return Task.FromResult(results);
+            
+        }
+    }
+
+    public class TestRuleset : IRuleset
+    {
+        public string Name { get; set; }
+        public Version Version { get; set; }
+
+        public IEnumerable<ICheck> GetChecks(ISqlObjectLocator target, IEnumerable<ICheck> baseChecks, HashSet<string> ids, HashSet<string> tags)
+        {
+            List<ICheck> checks = new List<ICheck>();
+            checks.Add(new TestCheck()
+            {
+                Description = "Description",
+                DisplayName = "DisplayName",
+                Enabled = true,
+                HelpLink = "HelpLink",
+                Level = SeverityLevel.Critical,
+                Id = "Is",
+                Target = null,
+                OriginName = "Description",
+                OriginVersion = new Version(1,0),
+                Logics = new TestLogic()
+            });
+            return checks;
+        }
+
+        public void GetSuspects(ISqlObjectLocator target, HashSet<string> ids, HashSet<string> tags)
+        {
         }
     }
 }
