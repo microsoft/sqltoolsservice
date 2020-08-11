@@ -45,7 +45,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         private IEnumerable<DataSourceObjectMetadata> _databaseMetadata;
 
         /// <summary>
-        /// List of tables per database. Key - DatabaseName
+        /// List of tables per database. Key - Parent Folder or Database Urn
         /// </summary>
         private ConcurrentDictionary<string, IEnumerable<TableMetadata>> _tableMetadata = new ConcurrentDictionary<string, IEnumerable<TableMetadata>>();
 
@@ -55,12 +55,12 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         private ConcurrentDictionary<string, IEnumerable<DataSourceObjectMetadata>> _columnMetadata = new ConcurrentDictionary<string, IEnumerable<DataSourceObjectMetadata>>();
         
         /// <summary>
-        /// List of tables per database. Key - DatabaseName
+        /// List of tables per database. Key - Parent Folder or Database Urn
         /// </summary>
-        private ConcurrentDictionary<string, IEnumerable<FolderMetadata>> _folderMetadata = new ConcurrentDictionary<string, IEnumerable<FolderMetadata>>(StringComparer.OrdinalIgnoreCase);
+        private ConcurrentDictionary<string, IEnumerable<FolderMetadata>> _folderMetadata = new ConcurrentDictionary<string, IEnumerable<FolderMetadata>>();
         
         /// <summary>
-        /// List of functions per database. Key - DatabaseName.Folder
+        /// List of functions per database. Key - Parent Folder or Database Urn
         /// </summary>
         private ConcurrentDictionary<string, IEnumerable<FunctionMetadata>> _functionMetadata = new ConcurrentDictionary<string, IEnumerable<FunctionMetadata>>();
 
@@ -72,6 +72,12 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// especially for large clusters with many databases or tables.
         /// </summary>
         public const string ShowDatabaseSchema = ".show database [{0}] schema";
+
+        /// <summary>
+        /// The dashboard needs a list of all tables regardless of the folder structure of the table. The
+        /// tables are stored with the key in the following format: OnlyTables.ClusterName.DatabaseName
+        /// </summary>
+        private const string DatabaseKeyPrefix = "OnlyTables";
 
         /// <summary>
         /// Prevents a default instance of the <see cref="IDataSource"/> class from being created.
@@ -508,7 +514,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             _databaseMetadata = null;
             _tableMetadata = new ConcurrentDictionary<string, IEnumerable<TableMetadata>>();
             _columnMetadata  = new ConcurrentDictionary<string, IEnumerable<DataSourceObjectMetadata>>();
-            _folderMetadata = new ConcurrentDictionary<string, IEnumerable<FolderMetadata>>(StringComparer.OrdinalIgnoreCase);
+            _folderMetadata = new ConcurrentDictionary<string, IEnumerable<FolderMetadata>>();
             _functionMetadata = new ConcurrentDictionary<string, IEnumerable<FunctionMetadata>>();
         }
 
@@ -563,14 +569,15 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 case DataSourceMetadataType.Cluster: // show databases
                     return GetDatabaseMetadata(includeSizeDetails);
                     
-                case DataSourceMetadataType.Database: // show folders or tables
-                    return GetDatabaseSchema(objectMetadata);
+                case DataSourceMetadataType.Database: // show folders, tables, and functions
+                    return GetDatabaseSchema(objectMetadata, includeSizeDetails);
 
                 case DataSourceMetadataType.Table: // show columns
                     var table = objectMetadata as TableMetadata;
-                    return _columnMetadata[GenerateMetadataKey(table.DatabaseName, table.Name)].OrderBy(x => x.PrettyName);
+                    var key = GenerateMetadataKey(table.DatabaseName, table.Name);
+                    return _columnMetadata[key].OrderBy(x => x.PrettyName);
 
-                case DataSourceMetadataType.Folder: // show tables
+                case DataSourceMetadataType.Folder: // show subfolders, functions, and tables
                     var folder = objectMetadata as FolderMetadata;
                     return GetAllMetadata(folder.Urn);
 
@@ -613,7 +620,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         }
         
         /// <inheritdoc/>
-        private IEnumerable<DataSourceObjectMetadata> GetDatabaseSchema(DataSourceObjectMetadata objectMetadata)
+        private IEnumerable<DataSourceObjectMetadata> GetDatabaseSchema(DataSourceObjectMetadata objectMetadata, bool includeSizeDetails)
         {
             // Check if the database exists
             ValidationUtils.IsTrue<ArgumentException>(DatabaseExists(objectMetadata.Name).Result, $"Database '{objectMetadata}' does not exist.");
@@ -629,13 +636,19 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             LoadTableSchema(objectMetadata);
             LoadFunctionSchema(objectMetadata);
 
-            return GetAllMetadata(objectMetadata.Urn);
+            if (!includeSizeDetails)
+            {
+                return GetAllMetadata(objectMetadata.Urn);
+            }
+                    
+            string newKey = $"{DatabaseKeyPrefix}.{objectMetadata.Urn}";
+            return _tableMetadata[newKey].OrderBy(x => x.PrettyName, StringComparer.OrdinalIgnoreCase);
         }
 
         private IEnumerable<DataSourceObjectMetadata> GetAllMetadata(string key)
         {
             var returnList = new List<DataSourceObjectMetadata>();
-            
+
             if (_folderMetadata.ContainsKey(key))
             {
                 returnList.AddRange(_folderMetadata[key].OrderBy(x => x.PrettyName, StringComparer.OrdinalIgnoreCase));
@@ -648,9 +661,10 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
             if (_functionMetadata.ContainsKey(key))
             {
-                returnList.AddRange(_functionMetadata[key].OrderBy(x => x.PrettyName, StringComparer.OrdinalIgnoreCase));
+                returnList.AddRange(_functionMetadata[key]
+                    .OrderBy(x => x.PrettyName, StringComparer.OrdinalIgnoreCase));
             }
-            
+
             return returnList;
         }
 
@@ -707,7 +721,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 SetFolderMetadataForTables(databaseMetadata, columnInfos, rootTableFolderKey.ToString());
             }
             
-            SetTableMetadata(databaseMetadata.Name, columnInfos, rootTableFolderKey.ToString());
+            SetTableMetadata(databaseMetadata, columnInfos, rootTableFolderKey.ToString());
             
             var columnsGroupByTable = columnInfos
                 .Where(row =>
@@ -832,14 +846,18 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             }
         }
 
-        private void SetTableMetadata(string databaseName, IEnumerable<ColumnInfo> columnInfos, string rootTableFolderKey)
+        private void SetTableMetadata(DataSourceObjectMetadata databaseName, IEnumerable<ColumnInfo> columnInfos, string rootTableFolderKey)
         {
             // tables are listed within the column info with table name and empty column name 
             var tablesFromColumnInfo =
                 columnInfos.Where(x => !string.IsNullOrWhiteSpace(x.Table)
                                        && string.IsNullOrWhiteSpace(x.Name));
+
+            var tableFolders = new Dictionary<string, List<TableMetadata>>
+            {
+                {$"{DatabaseKeyPrefix}.{databaseName.Urn}", new List<TableMetadata>()}
+            };
             
-            var tableFolders = new Dictionary<string, List<TableMetadata>>();
             foreach (var table in tablesFromColumnInfo)
             {
                 var tableKey = new StringBuilder(rootTableFolderKey);
@@ -852,7 +870,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 var tableMetadata = new TableMetadata
                 {
                     ClusterName = ClusterName,
-                    DatabaseName = databaseName,
+                    DatabaseName = databaseName.Name,
                     MetadataType = DataSourceMetadataType.Table,
                     MetadataTypeName = DataSourceMetadataType.Table.ToString(),
                     Name = table.Table,
@@ -869,6 +887,10 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 {
                     tableFolders[tableKey.ToString()] = new List<TableMetadata>{tableMetadata};
                 }
+                
+                // keep a list of all tables for the database
+                // this is used for the dashboard
+                tableFolders[$"{DatabaseKeyPrefix}.{databaseName.Urn}"].Add(tableMetadata);
             }
             
             foreach (var table in tableFolders)

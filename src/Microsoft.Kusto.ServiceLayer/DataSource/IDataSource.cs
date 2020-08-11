@@ -66,6 +66,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// Get children of the  given parent
         /// </summary>
         /// <param name="parentMetadata">Parent object metadata.</param>
+        /// <param name="includeSizeDetails"></param>
         /// <returns>Metadata for all children.</returns>
         IEnumerable<DataSourceObjectMetadata> GetChildObjects(DataSourceObjectMetadata parentMetadata, bool includeSizeDetails = false);
 
