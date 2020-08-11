@@ -2,8 +2,11 @@
 // Copyright (c) Microsoft. All Rights Reserved.
 // </copyright>
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Linq;
+using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource
 {
@@ -61,6 +64,51 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             };
 
             return clusterLevelQueryPrefixes.Any(query.StartsWith);
+        }
+        
+        /// <summary>
+        /// Adds an object of type DataSourceObjectMetadata to a dictionary<string, Dictionary<string, T>>. If the key exists then the item is added
+        /// to the list. If not then the key is created and then added.
+        /// </summary>
+        /// <param name="dictionary">The dictionary of the dictionary that the list should be added to.</param>
+        /// <param name="key">The key to be added.</param>
+        /// <param name="metadata">The metadata to be added to the list.</param>
+        /// <typeparam name="T"></typeparam>
+        public static void SafeAdd<T>(this Dictionary<string, Dictionary<string, T>> dictionary, string key,
+            T metadata) where T : DataSourceObjectMetadata
+        {
+            if (dictionary.ContainsKey(key))
+            {
+                if (dictionary[key].ContainsKey(metadata.Name))
+                {
+                    return;
+                }
+                    
+                dictionary[key].Add(metadata.Name, metadata);
+            }
+            else
+            {
+                dictionary[key] = new Dictionary<string, T> {{metadata.Name, metadata}};
+            }
+        }
+        
+        /// <summary>
+        /// Add a range to a dictionary of ConcurrentDictionary. Adds range to existing IEnumerable within dictionary
+        /// at the same key.
+        /// </summary>
+        /// <param name="dictionary"></param>
+        /// <param name="key"></param>
+        /// <param name="metadatas"></param>
+        /// <typeparam name="T"></typeparam>
+        public static void AddRange<T>(this ConcurrentDictionary<string, IEnumerable<T>> dictionary, string key,
+            List<T> metadatas) where T : DataSourceObjectMetadata
+        {
+            if (dictionary.ContainsKey(key))
+            {
+                metadatas.AddRange(dictionary[key]);
+            }
+            
+            dictionary[key] = metadatas.OrderBy(x => x.PrettyName, StringComparer.OrdinalIgnoreCase).ToList();
         }
 
     }
