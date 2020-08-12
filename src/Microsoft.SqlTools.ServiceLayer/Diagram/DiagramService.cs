@@ -25,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagram
 
         public static DiagramService Instance => LazyInstance.Value;
 
-        internal static Task DiagramSchemaTask { get; set; }
+        internal static Task DiagramModelTask { get; set; }
 
         private static ConnectionService connectionService = null;
 
@@ -56,16 +56,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagram
         /// <param name="context"></param>
         public void InitializeService(ServiceHost serviceHost)
         {
-            serviceHost.SetRequestHandler(DiagramSchemaRequest.Type, HandleDiagramSchemaRequest);
-
+            serviceHost.SetRequestHandler(DiagramModelRequest.Type, HandleDiagramModelRequest);
+            serviceHost.SetRequestHandler(DiagramPropertiesRequest.Type, HandleDiagramPropertiesRequest);
         }
 
         /// <summary>
         /// Handle a metadata query request
         /// </summary>        
-        internal static async Task HandleDiagramSchemaRequest(
-            DiagramSchemaParams metadataParams,
-            RequestContext<DiagramSchemaResult> requestContext)
+        internal static async Task HandleDiagramModelRequest(
+            DiagramRequestParams metadataParams,
+            RequestContext<DiagramRequestResult> requestContext)
         {
             try
             {
@@ -79,13 +79,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagram
                     var metadata = new List<ObjectMetadata>();
                     if (connInfo != null)
                     {
-                        using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Diagram"))
+                        using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "DiagramModel"))
                         {
-                            ReadMetadata(sqlConn, metadata);
+                            switch(metadataParams.DiagramView)
+                            {
+                                case (DiagramObject.Schema):
+                                    ReadMetadata(sqlConn, metadata);
+                                    break;
+                                case (DiagramObject.Table):
+                                    // add another function to query the table
+                                    // or add object type as parameter to existing
+                                    // ReadMetada function to make the right query
+                                    break;
+                                case (DiagramObject.Database):
+                                    break;
+                                default:
+                                    ReadMetadata(sqlConn, metadata);
+                                    break;
+                            }
                         }
                     }
 
-                    await requestContext.SendResult(new DiagramSchemaResult
+                    await requestContext.SendResult(new DiagramRequestResult
                     {
                         Metadata = metadata.ToArray()
                     });
@@ -96,7 +111,66 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagram
                     await requestContext.SendError(t.Exception.ToString());
                 });
                 
-                DiagramSchemaTask = task;
+                DiagramModelTask = task;
+            }
+            catch (Exception ex)
+            {
+                await requestContext.SendError(ex.ToString());
+            }
+        }
+
+         /// <summary>
+        /// Handle a properties request
+        /// </summary>        
+        internal static async Task HandleDiagramPropertiesRequest(
+            DiagramRequestParams metadataParams,
+            RequestContext<DiagramRequestResult> requestContext)
+        {
+            try
+            {
+                Func<Task> requestHandler = async () =>
+                {
+                    ConnectionInfo connInfo;
+                    DiagramService.ConnectionServiceInstance.TryFindConnection(
+                        metadataParams.OwnerUri,
+                        out connInfo);
+
+                    var metadata = new List<ObjectMetadata>();
+                    if (connInfo != null)
+                    {
+                        using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "DiagramProperties"))
+                        {
+                            switch(metadataParams.DiagramView)
+                            {
+                                case (DiagramObject.Schema):
+                                    ReadMetadata(sqlConn, metadata);
+                                    break;
+                                case (DiagramObject.Table):
+                                    // add another function to query the table
+                                    // or add object type as parameter to existing
+                                    // ReadMetada function to make the right query
+                                    break;
+                                case (DiagramObject.Database):
+                                    break;
+                                default:
+                                    ReadMetadata(sqlConn, metadata);
+                                    break;
+                            }
+                        }
+                    }
+
+                    await requestContext.SendResult(new DiagramRequestResult
+                    {
+                        Metadata = metadata.ToArray()
+                    });
+                };
+
+                Task task = Task.Run(async () => await requestHandler()).ContinueWithOnFaulted(async t =>
+                {
+                    await requestContext.SendError(t.Exception.ToString());
+                });
+                
+                DiagramModelTask = task;
             }
             catch (Exception ex)
             {

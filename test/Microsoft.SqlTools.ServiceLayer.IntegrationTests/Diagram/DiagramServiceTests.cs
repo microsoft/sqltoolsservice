@@ -4,15 +4,11 @@
 //
 
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
-using Microsoft.SqlTools.ServiceLayer.Metadata.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Moq;
 using System.Threading.Tasks;
 using Xunit;
-using static Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility.LiveConnectionHelper;
 using Microsoft.SqlTools.ServiceLayer.Diagram.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Diagram;
 
@@ -47,17 +43,17 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
         public async void DiagramServiceHandlerTest1()
         {
             var result = GetLiveAutoCompleteTestObjects();         
-            var requestContext = new Mock<RequestContext<DiagramSchemaResult>>();
-            requestContext.Setup(x => x.SendResult(It.IsAny<DiagramSchemaResult>())).Returns(Task.FromResult(new object()));
+            var requestContext = new Mock<RequestContext<DiagramRequestResult>>();
+            requestContext.Setup(x => x.SendResult(It.IsAny<DiagramRequestResult>())).Returns(Task.FromResult(new object()));
 
-            var schemaParams = new DiagramSchemaParams
+            var schemaParams = new DiagramRequestParams
             {
                 OwnerUri = result.ConnectionInfo.OwnerUri
             };
 
-            await DiagramService.HandleDiagramSchemaRequest(schemaParams, requestContext.Object);
+            await DiagramService.HandleDiagramModelRequest(schemaParams, requestContext.Object);
 
-            await DiagramService.DiagramSchemaTask;
+            await DiagramService.DiagramModelTask;
 
             requestContext.VerifyAll();
         }
