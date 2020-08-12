@@ -427,5 +427,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
                 return new TestXEventSession2();
             }
         }
+
+        public IXEventSession OpenLocalFileSession(string filePath)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
+
 namespace Microsoft.SqlTools.ServiceLayer.Profiler
 {
     /// <summary>
@@ -29,5 +31,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// Reads XEvent XML from the default session target
         /// </summary>
         string GetTargetXml();
+    }
+
+    public interface IObservableXEventSession : IXEventSession
+    {
+        IObservable<Contracts.ProfilerEvent> ObservableSessionEvents { get; }
     }
 }

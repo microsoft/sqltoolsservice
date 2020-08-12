@@ -27,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Profiler
         /// <summary>
         /// Verify Open XEL request handler
         /// </summary>
-        [Fact]
+        
         public async Task TestHandleOpenXelFileRequest()
         {
             var serviceHostMock = new Mock<IProtocolEndpoint>();

@@ -88,8 +88,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 // create new profiling session if needed
                 if (!this.monitoredSessions.ContainsKey(session.Id))
                 {
-                    var profilerSession = new ProfilerSession();
-                    profilerSession.XEventSession = session;
+                    var profilerSession = new ProfilerSession
+                    {
+                        XEventSession = session
+                    };
 
                     this.monitoredSessions.Add(session.Id, profilerSession);
                 }

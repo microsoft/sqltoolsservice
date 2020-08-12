@@ -240,6 +240,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             {
                 try
                 {
+                    if (parameters.SessionType == ProfilingSessionType.LocalFile)
+                    {
+                        await StartLocalFileSession(parameters, requestContext);
+                        return;
+                    }
                     ConnectionInfo connInfo;
                     ConnectionServiceInstance.TryFindConnection(
                         parameters.OwnerUri,
@@ -256,14 +261,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     }
                     else
                     {
-                        throw new Exception(SR.ProfilerConnectionNotFound);
+                        throw new ProfilerException(SR.ProfilerConnectionNotFound);
                     }
                 }
                 catch (Exception e)
                 {
-                    await requestContext.SendError(new Exception(SR.StartSessionFailed(e.Message)));
+                    await requestContext.SendError(new ProfilerException(SR.StartSessionFailed(e.Message), e));
                 }
             });
+        }
+
+        private async Task StartLocalFileSession(StartProfilingParams parameters, RequestContext<StartProfilingResult> requestContext)
+        {
+            var xeSession = XEventSessionFactory.OpenLocalFileSession(parameters.SessionName);
+            monitor.StartMonitoringSession(parameters.OwnerUri, xeSession);
+            var result = new StartProfilingResult();
+            await requestContext.SendResult(result);
         }
 
         /// <summary>
@@ -304,12 +317,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     }
                     else
                     {
-                        throw new Exception(SR.SessionNotFound);
+                        throw new ProfilerException(SR.SessionNotFound);
                     }
                 }
                 catch (Exception e)
                 {
-                    await requestContext.SendError(new Exception(SR.StopSessionFailed(e.Message)));
+                    await requestContext.SendError(new ProfilerException(SR.StopSessionFailed(e.Message), e));
                 }
             });
         }
@@ -546,6 +559,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             {
                 disposed = true;
             }
+        }
+
+        public IXEventSession OpenLocalFileSession(string filePath)
+        {
+            throw new NotImplementedException();
         }
     }
 }

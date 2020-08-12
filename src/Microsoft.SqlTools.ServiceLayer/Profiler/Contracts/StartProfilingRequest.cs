@@ -16,7 +16,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler.Contracts
     {
         public string OwnerUri { get; set; }
 
+        /// <summary>
+        /// For LiveTarget and RingBuffer sessions, the name of the remote session.
+        /// For LocalFile sessions, the full path of the XEL file to open.
+        /// </summary>
         public string SessionName { get; set; }
+
+        /// <summary>
+        /// Identifies which type of target the session name identifies.
+        /// </summary>
+        public ProfilingSessionType SessionType { get; set; } = ProfilingSessionType.RingBuffer;
+    }
+
+    public enum ProfilingSessionType
+    {
+        RingBuffer,
+        LiveTarget,
+        LocalFile
     }
 
     public class StartProfilingResult{}

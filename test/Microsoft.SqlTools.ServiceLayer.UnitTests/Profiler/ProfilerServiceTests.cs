@@ -19,7 +19,6 @@ using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
 {
-    [TestFixture]
     /// <summary>
     /// Unit tests for ProfilerService
     /// </summary>
@@ -58,9 +57,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             profilerService.ConnectionServiceInstance.OwnerToConnectionMap.Add(testUri, connectionInfo);
             profilerService.XEventSessionFactory = new TestXEventSessionFactory();
 
-            var requestParams = new StartProfilingParams();
-            requestParams.OwnerUri = testUri;
-            requestParams.SessionName = "Standard";
+            var requestParams = new StartProfilingParams
+            {
+                OwnerUri = testUri,
+                SessionName = "Standard"
+            };
 
             // start profiling session
             await profilerService.HandleStartProfilingRequest(requestParams, requestContext.Object);
@@ -283,9 +284,30 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             Assert.True(sessionStopped);
         }
 
-        [Fact]
-        public void ProfilerService_OpenXel_reads_events()
+        [Test]
+        public void StartProfilingRequest_defaults_to_ringbuffer()
         {
+            var param = new StartProfilingParams();
+            Assert.That(param.SessionType, Is.EqualTo(ProfilingSessionType.RingBuffer), nameof(param.SessionType));
+        }
+
+        [Test]
+        public async Task StartProfilingRequest_creates_a_LocalFile_session_on_request()
+        {
+            var filePath = @"c:\folder\file.xel";
+            var param = new StartProfilingParams() { OwnerUri = "someUri", SessionType = ProfilingSessionType.LocalFile, SessionName =  filePath};
+            var requestContext = new Mock<RequestContext<StartProfilingResult>>();
+            requestContext.Setup(rc => rc.SendResult(It.IsAny<StartProfilingResult>()))
+                .Returns<StartProfilingResult>((result) =>
+                {
+                    // capture the session id for sending the stop message
+                    return Task.FromResult(0);
+                });
+            var sessionFactory = new Mock<IXEventSessionFactory>();
+            sessionFactory.Setup(s => s.OpenLocalFileSession(filePath)).Returns<IXEventSession>(null).Verifiable();
+            var profilerService = new ProfilerService() { XEventSessionFactory = sessionFactory.Object };
+            await profilerService.HandleStartProfilingRequest(param, requestContext.Object);
+            sessionFactory.Verify();
         }
     }
 }
