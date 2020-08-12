@@ -10,6 +10,7 @@ using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
 using Kusto.Cloud.Platform.Data;
@@ -20,6 +21,8 @@ using Kusto.Data.Net.Client;
 using Kusto.Language;
 using Kusto.Language.Editor;
 using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
+using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
+using Microsoft.Kusto.ServiceLayer.DataSource.Models;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Completion;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
@@ -33,33 +36,49 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
     /// </summary>
     public class KustoDataSource : DataSourceBase
     {
-        private ICslQueryProvider kustoQueryProvider;
+        private ICslQueryProvider _kustoQueryProvider;
 
-        private ICslAdminProvider kustoAdminProvider;
+        private ICslAdminProvider _kustoAdminProvider;
 
         /// <summary>
         /// List of databases.
         /// </summary>
-        private IEnumerable<DataSourceObjectMetadata> databaseMetadata;
+        private IEnumerable<DataSourceObjectMetadata> _databaseMetadata;
 
         /// <summary>
-        /// List of tables per database. Key - DatabaseName
+        /// List of tables per database. Key - Parent Folder or Database Urn
         /// </summary>
-        private ConcurrentDictionary<string, IEnumerable<DataSourceObjectMetadata>> tableMetadata = new ConcurrentDictionary<string, IEnumerable<DataSourceObjectMetadata>>();
+        private ConcurrentDictionary<string, IEnumerable<TableMetadata>> _tableMetadata = new ConcurrentDictionary<string, IEnumerable<TableMetadata>>();
 
         /// <summary>
         /// List of columns per table. Key - DatabaseName.TableName
         /// </summary>
-        private ConcurrentDictionary<string, IEnumerable<DataSourceObjectMetadata>> columnMetadata = new ConcurrentDictionary<string, IEnumerable<DataSourceObjectMetadata>>();
+        private ConcurrentDictionary<string, IEnumerable<DataSourceObjectMetadata>> _columnMetadata = new ConcurrentDictionary<string, IEnumerable<DataSourceObjectMetadata>>();
+        
+        /// <summary>
+        /// List of tables per database. Key - Parent Folder or Database Urn
+        /// </summary>
+        private ConcurrentDictionary<string, IEnumerable<FolderMetadata>> _folderMetadata = new ConcurrentDictionary<string, IEnumerable<FolderMetadata>>();
+        
+        /// <summary>
+        /// List of functions per database. Key - Parent Folder or Database Urn
+        /// </summary>
+        private ConcurrentDictionary<string, IEnumerable<FunctionMetadata>> _functionMetadata = new ConcurrentDictionary<string, IEnumerable<FunctionMetadata>>();
 
         // Some clusters have this signature. Queries might slightly differ for Aria
-        public const string AriaProxyURL = "kusto.aria.microsoft.com"; 
+        private const string AriaProxyURL = "kusto.aria.microsoft.com"; 
 
         /// <summary>
         /// The database schema query.  Performance: ".show database schema" is more efficient than ".show schema",
         /// especially for large clusters with many databases or tables.
         /// </summary>
-        public const string ShowDatabaseSchema = ".show database [{0}] schema";
+        private const string ShowDatabaseSchema = ".show database [{0}] schema";
+
+        /// <summary>
+        /// The dashboard needs a list of all tables regardless of the folder structure of the table. The
+        /// tables are stored with the key in the following format: OnlyTables.ClusterName.DatabaseName
+        /// </summary>
+        private const string DatabaseKeyPrefix = "OnlyTables";
 
         /// <summary>
         /// Prevents a default instance of the <see cref="IDataSource"/> class from being created.
@@ -79,7 +98,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// "Data Source=clustername.kusto.windows.net;User ID=;Password=;Pooling=False;Application Name=azdata-GeneralConnection"
         /// <summary>
         /// <param name="connectionString">A connection string coming over the Data management protocol</param>
-        static private string GetClusterName(string connectionString)
+        private static string GetClusterName(string connectionString)
         {
             var csb = new SqlConnectionStringBuilder(connectionString);
 
@@ -98,7 +117,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// Extracts the database name from the connectionstring, if it exists
         /// <summary>
         /// <param name="connectionString">A connection string coming over the Data management protocol</param>
-        static private string GetDatabaseName(string connectionString)
+        private static string GetDatabaseName(string connectionString)
         {
             var csb = new SqlConnectionStringBuilder(connectionString);
 
@@ -131,13 +150,13 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         {
             get
             {
-                if (kustoQueryProvider == null)
+                if (_kustoQueryProvider == null)
                 {
                     var kcsb = GetKustoConnectionStringBuilder();
-                    kustoQueryProvider = KustoClientFactory.CreateCslQueryProvider(kcsb);
+                    _kustoQueryProvider = KustoClientFactory.CreateCslQueryProvider(kcsb);
                 }
 
-                return kustoQueryProvider;
+                return _kustoQueryProvider;
             }
         }
 
@@ -146,17 +165,17 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         {
             get
             {
-                if (kustoAdminProvider == null)
+                if (_kustoAdminProvider == null)
                 {
                     var kcsb = GetKustoConnectionStringBuilder();
-                    kustoAdminProvider = KustoClientFactory.CreateCslAdminProvider(kcsb);
+                    _kustoAdminProvider = KustoClientFactory.CreateCslAdminProvider(kcsb);
                     if (!string.IsNullOrWhiteSpace(DatabaseName))
                     {
-                        kustoAdminProvider.DefaultDatabaseName = DatabaseName;
+                        _kustoAdminProvider.DefaultDatabaseName = DatabaseName;
                     }
                 }
 
-                return kustoAdminProvider;
+                return _kustoAdminProvider;
             }
         }
 
@@ -169,11 +188,11 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             // Dispose managed resources.
             if (disposing)
             {
-                kustoQueryProvider?.Dispose();
-                kustoQueryProvider = null;
+                _kustoQueryProvider?.Dispose();
+                _kustoQueryProvider = null;
 
-                kustoAdminProvider?.Dispose();
-                kustoAdminProvider = null;
+                _kustoAdminProvider?.Dispose();
+                _kustoAdminProvider = null;
             }
 
             base.Dispose(disposing);
@@ -213,24 +232,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 clientRequestProperties);
 
             return new KustoResultsReader(origReader);
-        }
-
-        internal class KustoResultsReader : DataReaderWrapper
-        {
-            public KustoResultsReader(IDataReader reader)
-                : base(reader)
-            {
-            }
-
-            /// <summary>
-            /// Kusto returns 3 results tables - QueryResults, QueryProperties, QueryStatus. When returning query results
-            /// we want the caller to only read the first table. We override the NextResult function here to only return one table
-            /// from the IDataReader.
-            /// </summary>
-            /*public override bool NextResult()
-            {
-                return false;
-            }*/
         }
 
         private void CancelQuery(string clientRequestId)
@@ -339,9 +340,9 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         }
 
         /// <inheritdoc/>
-        protected IEnumerable<DataSourceObjectMetadata> GetDatabaseMetadata(bool includeSizeDetails)
+        private IEnumerable<DataSourceObjectMetadata> GetDatabaseMetadata(bool includeSizeDetails)
         {
-            if (databaseMetadata == null)
+            if (_databaseMetadata == null)
             {
                 CancellationTokenSource source = new CancellationTokenSource();
                 CancellationToken token = source.Token;
@@ -357,9 +358,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
                 using (var reader = ExecuteQuery(query, token))
                 {
-                    var schemaTable = reader.GetSchemaTable();
-                    
-                    databaseMetadata = reader.ToEnumerable()
+                    _databaseMetadata = reader.ToEnumerable()
                         .Where(row => !string.IsNullOrWhiteSpace(row["DatabaseName"].ToString()))
                         .Select(row => new DatabaseMetadata
                         {
@@ -376,7 +375,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 }
             }
 
-            return databaseMetadata;
+            return _databaseMetadata;
         }
 
         /// <inheritdoc/>
@@ -511,17 +510,17 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         public override void Refresh()
         {
             // This class caches objects. Throw them away so that the next call will re-query the data source for the objects.
-            databaseMetadata = null;
-            tableMetadata = new ConcurrentDictionary<string, IEnumerable<DataSourceObjectMetadata>>();
-            columnMetadata  = new ConcurrentDictionary<string, IEnumerable<DataSourceObjectMetadata>>();
+            _databaseMetadata = null;
+            _tableMetadata = new ConcurrentDictionary<string, IEnumerable<TableMetadata>>();
+            _columnMetadata  = new ConcurrentDictionary<string, IEnumerable<DataSourceObjectMetadata>>();
+            _folderMetadata = new ConcurrentDictionary<string, IEnumerable<FolderMetadata>>();
+            _functionMetadata = new ConcurrentDictionary<string, IEnumerable<FunctionMetadata>>();
         }
 
         /// <inheritdoc/>
         public override void Refresh(DataSourceObjectMetadata objectMetadata)
         {
             ValidationUtils.IsNotNull(objectMetadata, nameof(objectMetadata));
-
-            IEnumerable<DataSourceObjectMetadata> discardOutput = null;
 
             switch(objectMetadata.MetadataType)
             {
@@ -530,18 +529,28 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                     break;
 
                 case DataSourceMetadataType.Database:
-                    this.tableMetadata.TryRemove(objectMetadata.Name, out discardOutput);
+                    _tableMetadata.TryRemove(objectMetadata.Name, out _);
                     break;
 
                 case DataSourceMetadataType.Table:
-                    TableMetadata tm = objectMetadata as TableMetadata;
-                    this.columnMetadata.TryRemove(GenerateColumnMetadataKey(tm.DatabaseName, tm.Name), out discardOutput);
+                    var tm = objectMetadata as TableMetadata;
+                    _columnMetadata.TryRemove(GenerateMetadataKey(tm.DatabaseName, tm.Name), out _);
                     break;
 
                 case DataSourceMetadataType.Column:
                     // Remove column metadata for the whole table
-                    ColumnMetadata cm = objectMetadata as ColumnMetadata;
-                    this.columnMetadata.TryRemove(GenerateColumnMetadataKey(cm.DatabaseName, cm.TableName), out discardOutput);
+                    var cm = objectMetadata as ColumnMetadata;
+                    _columnMetadata.TryRemove(GenerateMetadataKey(cm.DatabaseName, cm.TableName), out _);
+                    break;
+                
+                case DataSourceMetadataType.Function:
+                    var fm = objectMetadata as FunctionMetadata;
+                    _functionMetadata.TryRemove(GenerateMetadataKey(fm.DatabaseName, fm.Name), out _);
+                    break;
+                
+                case DataSourceMetadataType.Folder:
+                    var folder = objectMetadata as FolderMetadata;
+                    _folderMetadata.TryRemove(GenerateMetadataKey(folder.ParentMetadata.Name, folder.Name), out _);
                     break;
 
                 default:
@@ -556,20 +565,19 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
             switch(objectMetadata.MetadataType)
             {
-                case DataSourceMetadataType.Cluster:
+                case DataSourceMetadataType.Cluster: // show databases
                     return GetDatabaseMetadata(includeSizeDetails);
                     
-                case DataSourceMetadataType.Database:
-                    return GetTableMetadata(objectMetadata.Name);
+                case DataSourceMetadataType.Database: // show folders, tables, and functions
+                    return GetDatabaseSchema(objectMetadata, includeSizeDetails);
 
-                case DataSourceMetadataType.Table:
-                    TableMetadata tm = objectMetadata as TableMetadata;
-                    GetSchema(tm.DatabaseName);
-                    return columnMetadata[GenerateColumnMetadataKey(tm.DatabaseName, tm.Name)];
+                case DataSourceMetadataType.Table: // show columns
+                    var table = objectMetadata as TableMetadata;
+                    return GetTableSchema(table);
 
-                case DataSourceMetadataType.Folder:
-                    FolderMetadata fm = objectMetadata as FolderMetadata;
-                    return GetFolderChildrenMetadata(fm);
+                case DataSourceMetadataType.Folder: // show subfolders, functions, and tables
+                    var folder = objectMetadata as FolderMetadata;
+                    return GetAllMetadata(folder.Urn);
 
                 default:
                     throw new ArgumentException($"Unexpected type {objectMetadata.MetadataType}.");
@@ -591,17 +599,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             }
         }
 
-        /// <summary>
-        /// Get folders of the  given parent
-        /// </summary>
-        /// <param name="parentMetadata">Parent object metadata.</param>
-        /// <returns>List of all children.</returns>
-        public override IEnumerable<DataSourceObjectMetadata> GetChildFolders(DataSourceObjectMetadata objectMetadata)
-        {
-            // TODO: Add logic to add folders if they are defined in the Kusto schema
-            return Enumerable.Empty<DataSourceObjectMetadata>();   
-        }
-
         internal async Task<bool> DatabaseExists(string databaseName)
         {
             ValidationUtils.IsArgumentNotNullOrWhiteSpace(databaseName, nameof(databaseName));
@@ -619,75 +616,87 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 return false;
             }
         }
-
-
+        
         /// <inheritdoc/>
-        internal IEnumerable<DataSourceObjectMetadata> GetTableMetadata(string databaseName)
+        private IEnumerable<DataSourceObjectMetadata> GetDatabaseSchema(DataSourceObjectMetadata objectMetadata, bool includeSizeDetails)
         {
-            if (!tableMetadata.ContainsKey(databaseName))
-            {
-                // Check if the database exists
-                ValidationUtils.IsTrue<ArgumentException>(DatabaseExists(databaseName).Result == true, $"Database '{databaseName}' does not exist.");
+            // Check if the database exists
+            ValidationUtils.IsTrue<ArgumentException>(DatabaseExists(objectMetadata.Name).Result, $"Database '{objectMetadata}' does not exist.");
 
-                GetSchema(databaseName);
+            var allMetadata = GetAllMetadata(objectMetadata.Urn);
+
+            // if the records have already been loaded them return them
+            if (allMetadata.Any())
+            {
+                return allMetadata;
             }
 
-            return tableMetadata[databaseName];
+            LoadTableSchema(objectMetadata);
+            LoadFunctionSchema(objectMetadata);
+
+            if (!includeSizeDetails)
+            {
+                return GetAllMetadata(objectMetadata.Urn);
+            }
+                    
+            string newKey = $"{DatabaseKeyPrefix}.{objectMetadata.Urn}";
+            return _tableMetadata[newKey].OrderBy(x => x.PrettyName, StringComparer.OrdinalIgnoreCase);
         }
 
-        internal IEnumerable<DataSourceObjectMetadata> GetFolderChildrenMetadata(DataSourceObjectMetadata objectMetadata)
+        private IEnumerable<DataSourceObjectMetadata> GetAllMetadata(string key)
         {
-            // TODOKusto: Process folders
-            return Enumerable.Empty<DataSourceObjectMetadata>();
+            var returnList = new List<DataSourceObjectMetadata>();
+
+            if (_folderMetadata.ContainsKey(key))
+            {
+                returnList.AddRange(_folderMetadata[key]
+                    .OrderBy(x => x.PrettyName, StringComparer.OrdinalIgnoreCase));
+            }
+
+            if (_tableMetadata.ContainsKey(key))
+            {
+                returnList.AddRange(_tableMetadata[key]
+                    .OrderBy(x => x.PrettyName, StringComparer.OrdinalIgnoreCase));
+            }
+
+            if (_functionMetadata.ContainsKey(key))
+            {
+                returnList.AddRange(_functionMetadata[key]
+                    .OrderBy(x => x.PrettyName, StringComparer.OrdinalIgnoreCase));
+            }
+
+            return returnList;
         }
 
-        public class ColumnInfo
-        {
-            /// <summary>
-            /// The table name.
-            /// </summary>
-            public string Table { get; set; }
-
-            /// <summary>
-            /// The column name.
-            /// </summary>
-            public string Name { get; set; }
-
-            /// <summary>
-            /// The data type.
-            /// </summary>
-            public string DataType { get; set; }
-        }
-
-        internal IEnumerable<ColumnInfo> GetColumnMetadata(string databaseName)
+        /// <summary>
+        /// Gets column data which includes tables and table folders.
+        /// </summary>
+        /// <param name="databaseName"></param>
+        /// <param name="tableName"></param>
+        /// <returns></returns>
+        private IEnumerable<ColumnInfo> GetColumnInfos(string databaseName, string tableName)
         {
             ValidationUtils.IsNotNullOrWhitespace(databaseName, nameof(databaseName));
 
             CancellationTokenSource source = new CancellationTokenSource();
             CancellationToken token = source.Token;
 
-            const string SystemPrefix = "System.";
-            var query = string.Format(CultureInfo.InvariantCulture, ShowDatabaseSchema, databaseName)
-                + " | project TableName, ColumnName, ColumnType";
-            using (var reader = ExecuteQuery(query, token, databaseName))
-            {
-                var schemaTable = reader.GetSchemaTable();
-                // TODOKusto: Remove if not needed. We could index using the names directly.
-                var tableNameProperty = schemaTable.Columns["TableName"];
-                var columnNameProperty = schemaTable.Columns["ColumnName"];
-                var ColumnTypeProperty = schemaTable.Columns["ColumnType"];
+            const string systemPrefix = "System.";
+            var query = new StringBuilder(string.Format(CultureInfo.InvariantCulture, ShowDatabaseSchema,
+                databaseName));
+            query.Append($" | where TableName == '{tableName}' ");
+            query.Append(" | project TableName, ColumnName, ColumnType, Folder");
 
+            using (var reader = ExecuteQuery(query.ToString(), token, databaseName))
+            {
                 var columns = reader.ToEnumerable()
                     .Select(row => new ColumnInfo
                     {
                         Table = row["TableName"]?.ToString(),
                         Name = row["ColumnName"]?.ToString(),
-                        DataType = row["ColumnType"]?.ToString().TrimPrefix(SystemPrefix)
+                        DataType = row["ColumnType"]?.ToString().TrimPrefix(systemPrefix),
+                        Folder = row["Folder"]?.ToString()
                     })
-                    .Where(row =>
-                        !string.IsNullOrWhiteSpace(row.Table)
-                        && !string.IsNullOrWhiteSpace(row.Name)
-                        && !string.IsNullOrWhiteSpace(row.DataType))
                     .Materialize()
                     .OrderBy(row => row.Name, StringComparer.Ordinal); // case-sensitive
 
@@ -695,66 +704,341 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             }
         }
 
-        /// <summary>
-        /// Gets the table schema.
-        /// </summary>
-        /// <param name="databaseName">The database for which Schema needs to be pulled.</param>
-        /// <returns>The schema.</returns>
-        internal void GetSchema(string databaseName)
+        private IEnumerable<TableInfo> GetTableInfos(string databaseName)
         {
-            ValidationUtils.IsNotNull(databaseName, nameof(databaseName));
+            CancellationTokenSource source = new CancellationTokenSource();
+            CancellationToken token = source.Token;
 
-            // TODOKusto: Get folders and functions
+            string query = $".show database {databaseName} cslschema";
 
-            if(!tableMetadata.ContainsKey(databaseName))
+            using (var reader = ExecuteQuery(query, token, databaseName))
             {
-                var columns = GetColumnMetadata(databaseName).Materialize();
-                
-                if (!columns.Any())
-                {
-                    tableMetadata[databaseName] = Enumerable.Empty<DataSourceObjectMetadata>();
-                }
-
-                var tableGroups = columns
-                    .GroupBy(row => row.Table, StringComparer.Ordinal); // case-sensitive
-
-                // Get all table names
-                tableMetadata[databaseName] = tableGroups
-                    .Select(grouping => new TableMetadata
-                            {
-                                ClusterName = this.ClusterName,
-                                DatabaseName = databaseName,
-                                MetadataType = DataSourceMetadataType.Table,
-                                MetadataTypeName = DataSourceMetadataType.Table.ToString(),
-                                Name = grouping.Key, // table name
-                                PrettyName = grouping.Key,
-                                Urn = $"{this.ClusterName}.{databaseName}.{grouping.Key}"
-                            })
-                    .OrderBy(row => row.Name, StringComparer.Ordinal); // case-sensitive
-
-                // Fill in all column metadata
-                tableGroups.ToList().ForEach(grouping => {
-                    columnMetadata[GenerateColumnMetadataKey(databaseName, grouping.Key)] = grouping
-                        .Select(row => new ColumnMetadata
-                            {
-                                ClusterName = this.ClusterName,
-                                DatabaseName = databaseName,
-                                TableName = grouping.Key,
-                                MetadataType = DataSourceMetadataType.Column,
-                                MetadataTypeName = DataSourceMetadataType.Column.ToString(),
-                                Name = row.Name, // column name
-                                PrettyName = row.Name,
-                                Urn = $"{this.ClusterName}.{databaseName}.{grouping.Key}.{row.Name}",
-                                DataType = row.DataType
-                            })
-                        .OrderBy(row => row.Name, StringComparer.OrdinalIgnoreCase); // case-insensitive
-                });
+                return reader.ToEnumerable()
+                    .Select(row => new TableInfo
+                    {
+                        TableName = row["TableName"]?.ToString(),
+                        Folder = row["Folder"]?.ToString()
+                    })
+                    .Materialize();
             }
         }
 
-        private string GenerateColumnMetadataKey(string databaseName, string tableName)
+        private void LoadTableSchema(DataSourceObjectMetadata databaseMetadata)
         {
-            return $"{databaseName}.{tableName}";
+            var tableInfos = GetTableInfos(databaseMetadata.Name);
+
+            if (!tableInfos.Any())
+            {
+                return;
+            }
+            
+            var rootTableFolderKey = new StringBuilder($"{databaseMetadata.Urn}");
+            if (tableInfos.Any(x => !string.IsNullOrWhiteSpace(x.Folder)))
+            {
+                // create Table folder to hold functions tables
+                var tableFolder = DataSourceFactory.CreateFolderMetadata(databaseMetadata, rootTableFolderKey.ToString(), "Tables");
+                _folderMetadata.AddRange(rootTableFolderKey.ToString(), new List<FolderMetadata> {tableFolder});
+                rootTableFolderKey.Append($".{tableFolder.Name}");
+                
+                SetFolderMetadataForTables(databaseMetadata, tableInfos, rootTableFolderKey.ToString());
+            }
+            
+            SetTableMetadata(databaseMetadata, tableInfos, rootTableFolderKey.ToString());
+        }
+
+        private IEnumerable<DataSourceObjectMetadata> GetTableSchema(TableMetadata tableMetadata)
+        {
+            var key = GenerateMetadataKey(tableMetadata.DatabaseName, tableMetadata.Name);
+            if (_columnMetadata.ContainsKey(key))
+            {
+                return _columnMetadata[key];
+            }
+            
+            IEnumerable<ColumnInfo> columnInfos = GetColumnInfos(tableMetadata.DatabaseName, tableMetadata.Name);
+
+            if (!columnInfos.Any())
+            {
+                return Enumerable.Empty<DataSourceObjectMetadata>();
+            }
+            
+            SetColumnMetadata(tableMetadata.DatabaseName, tableMetadata.Name, columnInfos);
+            
+            return _columnMetadata[key];
+        }
+
+        private void SetFolderMetadataForTables(DataSourceObjectMetadata objectMetadata, IEnumerable<TableInfo> tableInfos, string rootTableFolderKey)
+        {
+            var tablesByFolder = tableInfos
+                .GroupBy(x => x.Folder, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+            
+            var tableFolders = new List<FolderMetadata>();
+
+            foreach (var columnGroup in tablesByFolder)
+            {
+                // skip tables without folders
+                if (string.IsNullOrWhiteSpace(columnGroup.Key))
+                {
+                    continue;
+                }
+
+                var folder = DataSourceFactory.CreateFolderMetadata(objectMetadata, rootTableFolderKey, columnGroup.Key);
+                tableFolders.Add(folder);
+            }
+
+            _folderMetadata.AddRange(rootTableFolderKey, tableFolders);
+        }
+
+        private void LoadFunctionSchema(DataSourceObjectMetadata databaseMetadata)
+        {
+            IEnumerable<FunctionInfo> functionInfos = GetFunctionInfos(databaseMetadata.Name);
+
+            if (!functionInfos.Any())
+            {
+                return;
+            }
+
+            // create Functions folder to hold functions folders
+            var rootFunctionFolderKey = $"{databaseMetadata.Urn}";
+            var rootFunctionFolder = DataSourceFactory.CreateFolderMetadata(databaseMetadata, rootFunctionFolderKey, "Functions");
+            _folderMetadata.AddRange(rootFunctionFolderKey, new List<FolderMetadata> {rootFunctionFolder});
+
+            // create each folder to hold functions
+            var functionsGroupByFolder = functionInfos
+                .GroupBy(x => x.Folder, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (functionsGroupByFolder.Any())
+            {
+                SetFolderMetadataForFunctions(databaseMetadata, functionsGroupByFolder, rootFunctionFolder);    
+            }
+
+            SetFunctionMetadata(databaseMetadata.Name, rootFunctionFolder.Name, functionsGroupByFolder);
+        }
+
+        private void SetFolderMetadataForFunctions(DataSourceObjectMetadata databaseMetadata, List<IGrouping<string, FunctionInfo>> functionsGroupByFolder,
+            FolderMetadata functionFolder)
+        {
+            var functionFolders = new Dictionary<string, Dictionary<string, FolderMetadata>>();
+
+            foreach (var functionGroup in functionsGroupByFolder)
+            {
+                // skip functions with no folder
+                if (string.IsNullOrWhiteSpace(functionGroup.Key))
+                {
+                    continue;
+                }
+
+                // folders are in the following format: folder1/folder2/folder3/folder4
+                var subFolders = functionGroup.Key.Replace(@"\", @"/").Split(@"/");
+                var topFolder = subFolders.First();
+
+                var folderKey = functionFolder.Urn;
+                var folder = DataSourceFactory.CreateFolderMetadata(databaseMetadata, folderKey, topFolder);
+                functionFolders.SafeAdd(folderKey, folder);
+
+                for (int i = 1; i < subFolders.Length; i++)
+                {
+                    folderKey = $"{folderKey}.{subFolders[i - 1]}";
+                    var subFolder = DataSourceFactory.CreateFolderMetadata(databaseMetadata, folderKey, subFolders[i]);
+                    functionFolders.SafeAdd(folderKey, subFolder);
+                }
+            }
+
+            foreach (var folder in functionFolders)
+            {
+                _folderMetadata.AddRange(folder.Key, folder.Value.Values.ToList());
+            }
+        }
+
+        private void SetColumnMetadata(string databaseName, string tableName, IEnumerable<ColumnInfo> columnInfos)
+        {
+            var columns = columnInfos
+                .Where(row =>
+                    !string.IsNullOrWhiteSpace(row.Table)
+                    && !string.IsNullOrWhiteSpace(row.Name)
+                    && !string.IsNullOrWhiteSpace(row.DataType));
+
+            var columnMetadatas = new SortedList<string, ColumnMetadata>();
+            
+            foreach (ColumnInfo columnInfo in columns)
+            {
+                var column = new ColumnMetadata
+                {
+                    ClusterName = ClusterName,
+                    DatabaseName = databaseName,
+                    TableName = tableName,
+                    MetadataType = DataSourceMetadataType.Column,
+                    MetadataTypeName = DataSourceMetadataType.Column.ToString(),
+                    Name = columnInfo.Name,
+                    PrettyName = columnInfo.Name,
+                    Urn = $"{ClusterName}.{databaseName}.{tableName}.{columnInfo.Name}",
+                    DataType = columnInfo.DataType
+                };
+
+                columnMetadatas.Add(column.PrettyName, column);
+            }
+
+            _columnMetadata[GenerateMetadataKey(databaseName, tableName)] = columnMetadatas.Values;
+        }
+
+        private void SetTableMetadata(DataSourceObjectMetadata databaseName, IEnumerable<TableInfo> tableInfos, string rootTableFolderKey)
+        {
+            var tableFolders = new Dictionary<string, List<TableMetadata>>
+            {
+                {$"{DatabaseKeyPrefix}.{databaseName.Urn}", new List<TableMetadata>()}
+            };
+            
+            foreach (var table in tableInfos)
+            {
+                var tableKey = new StringBuilder(rootTableFolderKey);
+
+                if (!string.IsNullOrWhiteSpace(table.Folder))
+                {
+                    tableKey.Append($".{table.Folder}");
+                }
+
+                var tableMetadata = new TableMetadata
+                {
+                    ClusterName = ClusterName,
+                    DatabaseName = databaseName.Name,
+                    MetadataType = DataSourceMetadataType.Table,
+                    MetadataTypeName = DataSourceMetadataType.Table.ToString(),
+                    Name = table.TableName,
+                    PrettyName = table.TableName,
+                    Folder = table.Folder,
+                    Urn = $"{tableKey}.{table.TableName}"
+                };
+
+                if (tableFolders.ContainsKey(tableKey.ToString()))
+                {
+                    tableFolders[tableKey.ToString()].Add(tableMetadata);
+                }
+                else
+                {
+                    tableFolders[tableKey.ToString()] = new List<TableMetadata>{tableMetadata};
+                }
+                
+                // keep a list of all tables for the database
+                // this is used for the dashboard
+                tableFolders[$"{DatabaseKeyPrefix}.{databaseName.Urn}"].Add(tableMetadata);
+            }
+            
+            foreach (var table in tableFolders)
+            {
+                _tableMetadata.AddRange(table.Key, table.Value);
+            }
+        }
+
+        private void SetFunctionMetadata(string databaseName, string rootFunctionFolderKey,
+            List<IGrouping<string, FunctionInfo>> functionGroupByFolder)
+        {
+            foreach (var functionGroup in functionGroupByFolder)
+            {
+                var stringBuilder = new StringBuilder(rootFunctionFolderKey);
+                
+                if (!string.IsNullOrWhiteSpace(functionGroup.Key))
+                {
+                    stringBuilder.Append(".");
+                    
+                    // folders are in the following format: folder1/folder2/folder3/folder4
+                    var folderKey = functionGroup.Key
+                        .Replace(@"\", ".")
+                        .Replace(@"/", ".");
+                    
+                    stringBuilder.Append(folderKey);
+                }
+
+                var functionKey = $"{ClusterName}.{databaseName}.{stringBuilder}";
+                var functions = new List<FunctionMetadata>();
+                
+                foreach (FunctionInfo functionInfo in functionGroup)
+                {
+                    var function = new FunctionMetadata
+                    {
+                        DatabaseName = databaseName,
+                        Parameters = functionInfo.Parameters,
+                        Body = functionInfo.Body,
+                        MetadataType = DataSourceMetadataType.Function,
+                        MetadataTypeName = DataSourceMetadataType.Function.ToString(),
+                        Name = $"{functionInfo.Name}{functionInfo.Parameters}",
+                        PrettyName = functionInfo.Name,
+                        Urn = $"{functionKey}.{functionInfo.Name}"
+                    };
+
+                    functions.Add(function);
+                }
+
+                _functionMetadata.AddRange(functionKey, functions);
+            }
+        }
+
+        private IEnumerable<FunctionInfo> GetFunctionInfos(string databaseName)
+        {
+            CancellationTokenSource source = new CancellationTokenSource();
+            CancellationToken token = source.Token;
+
+            string query = ".show functions";
+
+            using (var reader = ExecuteQuery(query, token, databaseName))
+            {
+                return reader.ToEnumerable()
+                    .Select(row => new FunctionInfo
+                    {
+                        Name = row["Name"]?.ToString(),
+                        Body = row["Body"]?.ToString(),
+                        DocString = row["DocString"]?.ToString(),
+                        Folder = row["Folder"]?.ToString(),
+                        Parameters = row["Parameters"]?.ToString()
+                    })
+                    .Materialize();
+            }
+        }
+
+        private FunctionInfo GetFunctionInfo(string functionName)
+        {
+            CancellationTokenSource source = new CancellationTokenSource();
+            CancellationToken token = source.Token;
+
+            string query = $".show function {functionName}";
+
+            using (var reader = ExecuteQuery(query, token, DatabaseName))
+            {
+                return reader.ToEnumerable()
+                    .Select(row => new FunctionInfo
+                    {
+                        Name = row["Name"]?.ToString(),
+                        Body = row["Body"]?.ToString(),
+                        DocString = row["DocString"]?.ToString(),
+                        Folder = row["Folder"]?.ToString(),
+                        Parameters = row["Parameters"]?.ToString()
+                    })
+                    .FirstOrDefault();
+            }
+        }
+
+        public override string GenerateAlterFunctionScript(string functionName)
+        {
+            var functionInfo = GetFunctionInfo(functionName);
+            
+            if (functionInfo == null)
+            {
+                return string.Empty;
+            }
+            
+            var alterCommand = new StringBuilder();
+
+            alterCommand.Append(".alter function with ");
+            alterCommand.Append($"(folder = \"{functionInfo.Folder}\", docstring = \"{functionInfo.DocString}\", skipvalidation = \"false\" ) ");
+            alterCommand.Append($"{functionInfo.Name}{functionInfo.Parameters} ");
+            alterCommand.Append($"{functionInfo.Body}");
+
+            return alterCommand.ToString();
+        }
+
+        private string GenerateMetadataKey(string databaseName, string objectName)
+        {
+            return string.IsNullOrWhiteSpace(objectName) ? databaseName : $"{databaseName}.{objectName}";
         }
         #endregion
     }

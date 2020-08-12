@@ -6,8 +6,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.Common;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
@@ -22,8 +20,9 @@ using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using System.Diagnostics;
-using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.Kusto.ServiceLayer.DataSource;
+using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
+using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 
 namespace Microsoft.Kusto.ServiceLayer.Connection
 {
@@ -1391,7 +1390,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                 connInfo.ConnectionDetails.ApplicationName = GetApplicationNameWithFeature(connInfo.ConnectionDetails.ApplicationName, featureName);
 
                 // generate connection string
-                string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
+                string connectionString = BuildConnectionString(connInfo.ConnectionDetails);
 
                 // restore original values
                 connInfo.ConnectionDetails.ConnectTimeout = originalTimeout;
@@ -1399,16 +1398,17 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                 connInfo.ConnectionDetails.Pooling = originalPooling;
 
                 // open a dedicated binding server connection
-                SqlConnection sqlConn = new SqlConnection(connectionString);
-
-                // Fill in Azure authentication token if needed
-                if (connInfo.ConnectionDetails.AzureAccountToken != null)
+                using (SqlConnection sqlConn = new SqlConnection(connectionString))
                 {
-                    sqlConn.AccessToken = connInfo.ConnectionDetails.AzureAccountToken;
-                }
+                    // Fill in Azure authentication token if needed
+                    if (connInfo.ConnectionDetails.AzureAccountToken != null)
+                    {
+                        sqlConn.AccessToken = connInfo.ConnectionDetails.AzureAccountToken;
+                    }
 
-                sqlConn.Open();
-                return sqlConn;
+                    sqlConn.Open();
+                    return sqlConn;
+                }
             }
             catch (Exception ex)
             {
@@ -1460,18 +1460,11 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <returns>A ServerConnection (wrapping a SqlConnection) created with the given connection info</returns>
         internal static ServerConnection OpenServerConnection(ConnectionInfo connInfo, string featureName = null)
         {
-            var sqlConnection = ConnectionService.OpenSqlConnection(connInfo, featureName);
-            ServerConnection serverConnection;
-            if (connInfo.ConnectionDetails.AzureAccountToken != null)
-            {
-                serverConnection = new ServerConnection(sqlConnection, new AzureAccessToken(connInfo.ConnectionDetails.AzureAccountToken));
-            }
-            else
-            {
-                serverConnection = new ServerConnection(sqlConnection);
-            }
+            SqlConnection sqlConnection = OpenSqlConnection(connInfo, featureName);
 
-            return serverConnection;
+            return connInfo.ConnectionDetails.AzureAccountToken != null 
+                ? new ServerConnection(sqlConnection, new AzureAccessToken(connInfo.ConnectionDetails.AzureAccountToken)) 
+                : new ServerConnection(sqlConnection);
         }
 
         public static void EnsureConnectionIsOpen(ReliableDataSourceConnection conn, bool forceReopen = false)

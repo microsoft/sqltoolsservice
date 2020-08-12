@@ -11,6 +11,7 @@ using System.Globalization;
 using System.Threading;
 using System.Linq;
 using Microsoft.Kusto.ServiceLayer.DataSource;
+using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel;
 using Microsoft.Kusto.ServiceLayer.Utility;
@@ -373,7 +374,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
 
             try
             {
-                OnExpandPopulateFolders(allChildren, parent, cancellationToken);
                 OnExpandPopulateNonFolders(allChildren, parent, refresh, name, cancellationToken);
             }
             catch(Exception ex)
@@ -390,40 +390,11 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
         }
 
         /// <summary>
-        /// Populates any folders for a given parent node 
-        /// </summary>
-        /// <param name="allChildren">List to which nodes should be added</param>
-        /// <param name="parent">Parent the nodes are being added to</param>
-        protected void OnExpandPopulateFolders(IList<TreeNode> allChildren, TreeNode parent, CancellationToken cancellationToken)
-        {
-            var folderMetadataList = Enumerable.Empty<DataSourceObjectMetadata>();
-
-            if (parent.DataSource != null)
-            {
-                folderMetadataList = parent.DataSource.GetChildFolders(parent.ObjectMetadata);
-            }
-
-            foreach (var folderMetadata in folderMetadataList)
-            {
-                ValidationUtils.IsNotNull(folderMetadata, nameof(folderMetadata));
-                cancellationToken.ThrowIfCancellationRequested();
-
-                allChildren.Add(new FolderNode(parent.DataSource, folderMetadata) {
-                    NodeValue = folderMetadata.Name,
-                    NodeType = "Folder",
-                    NodeTypeId = NodeTypes.Folder,
-                    IsSystemObject = false,
-                    SortPriority = DataSourceTreeNode.NextSortPriority
-                });
-            }
-        }
-
-        /// <summary>
         /// Populates any non-folder nodes such as specific items in the tree.
         /// </summary>
         /// <param name="allChildren">List to which nodes should be added</param>
         /// <param name="parent">Parent the nodes are being added to</param>
-        protected void OnExpandPopulateNonFolders(IList<TreeNode> allChildren, TreeNode parent, bool refresh, string name, CancellationToken cancellationToken)
+        private void OnExpandPopulateNonFolders(IList<TreeNode> allChildren, TreeNode parent, bool refresh, string name, CancellationToken cancellationToken)
         {
             Logger.Write(TraceEventType.Verbose, string.Format(CultureInfo.InvariantCulture, "child factory parent :{0}", parent.GetNodePath()));
 
@@ -490,6 +461,23 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
                         IsAlwaysLeaf = true,
                         NodeType = "Column",
                         SortPriority = DataSourceTreeNode.NextSortPriority
+                    };
+                
+                case DataSourceMetadataType.Folder:
+                    return new DataSourceTreeNode(parent.DataSource, childMetadata)
+                    {
+                        Parent = parent,
+                        NodeType = "Folder",
+                        NodeTypeId = NodeTypes.Folder
+                    };
+                
+                case DataSourceMetadataType.Function:
+                    return new DataSourceTreeNode(parent.DataSource, childMetadata)
+                    {
+                        parent = parent,
+                        NodeType = "Function",
+                        NodeTypeId = NodeTypes.Functions,
+                        IsAlwaysLeaf = true,
                     };
 
                 default:

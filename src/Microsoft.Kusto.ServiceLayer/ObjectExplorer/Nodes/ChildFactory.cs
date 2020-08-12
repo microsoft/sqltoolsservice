@@ -6,7 +6,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel;
-using Microsoft.Kusto.ServiceLayer.DataSource;
+using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 
 namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
 {

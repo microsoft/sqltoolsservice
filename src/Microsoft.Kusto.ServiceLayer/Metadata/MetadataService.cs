@@ -13,6 +13,7 @@ using Microsoft.Kusto.ServiceLayer.Hosting;
 using Microsoft.Kusto.ServiceLayer.Metadata.Contracts;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.Kusto.ServiceLayer.DataSource;
+using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 
 namespace Microsoft.Kusto.ServiceLayer.Metadata
 {
@@ -69,9 +70,7 @@ namespace Microsoft.Kusto.ServiceLayer.Metadata
                 Func<Task> requestHandler = async () =>
                 {
                     ConnectionInfo connInfo;
-                    MetadataService.ConnectionServiceInstance.TryFindConnection(
-                        metadataParams.OwnerUri,
-                        out connInfo);
+                    MetadataService.ConnectionServiceInstance.TryFindConnection(metadataParams.OwnerUri, out connInfo);
 
                     var metadata = new List<ObjectMetadata>();
                     if (connInfo != null)
@@ -83,7 +82,7 @@ namespace Microsoft.Kusto.ServiceLayer.Metadata
                         DataSourceObjectMetadata objectMetadata = DataSourceFactory.CreateClusterMetadata(connInfo.ConnectionDetails.ServerName);
                         DataSourceObjectMetadata databaseMetadata = DataSourceFactory.CreateDatabaseMetadata(objectMetadata, connInfo.ConnectionDetails.DatabaseName);
 
-                        IEnumerable<DataSourceObjectMetadata> databaseChildMetadataInfo = dataSource.GetChildObjects(databaseMetadata);
+                        IEnumerable<DataSourceObjectMetadata> databaseChildMetadataInfo = dataSource.GetChildObjects(databaseMetadata, true);
                         metadata = DataSourceFactory.ConvertToObjectMetadata(databaseChildMetadataInfo);
                     }
 

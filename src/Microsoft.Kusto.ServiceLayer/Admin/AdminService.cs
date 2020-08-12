@@ -11,6 +11,7 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.Kusto.ServiceLayer.Admin.Contracts;
 using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.DataSource;
+using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 using Microsoft.Kusto.ServiceLayer.Hosting;
 using Microsoft.Kusto.ServiceLayer.Utility;
 

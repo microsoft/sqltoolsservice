@@ -671,6 +671,12 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
 
             return selectQuery.ToString();
         }
+        
+        internal string AlterFunction(IDataSource dataSource, ScriptingObject scriptingObject)
+        {
+            var functionName = scriptingObject.Name.Substring(0, scriptingObject.Name.IndexOf('('));
+            return dataSource.GenerateAlterFunctionScript(functionName);
+        }
 
         #endregion
     }

@@ -6,7 +6,7 @@
 using System.Collections.Generic;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes;
-using Microsoft.Kusto.ServiceLayer.DataSource;
+using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 
 namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 {

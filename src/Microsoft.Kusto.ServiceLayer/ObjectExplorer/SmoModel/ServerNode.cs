@@ -4,19 +4,15 @@
 //
 
 using System;
-using System.Data.Common;
-using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
-using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.Kusto.ServiceLayer.DataSource;
+using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
