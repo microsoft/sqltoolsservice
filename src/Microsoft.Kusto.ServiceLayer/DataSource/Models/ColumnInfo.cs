@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Kusto.ServiceLayer.DataSource
+﻿namespace Microsoft.Kusto.ServiceLayer.DataSource.Models
 {
     public class ColumnInfo
     {
