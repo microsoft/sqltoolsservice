@@ -573,7 +573,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
                 case DataSourceMetadataType.Table: // show columns
                     var table = objectMetadata as TableMetadata;
-                    return LoadColumnSchema(table);
+                    return GetTableSchema(table);
 
                 case DataSourceMetadataType.Folder: // show subfolders, functions, and tables
                     var folder = objectMetadata as FolderMetadata;
@@ -746,7 +746,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             SetTableMetadata(databaseMetadata, tableInfos, rootTableFolderKey.ToString());
         }
 
-        private IEnumerable<DataSourceObjectMetadata> LoadColumnSchema(TableMetadata tableMetadata)
+        private IEnumerable<DataSourceObjectMetadata> GetTableSchema(TableMetadata tableMetadata)
         {
             var key = GenerateMetadataKey(tableMetadata.DatabaseName, tableMetadata.Name);
             if (_columnMetadata.ContainsKey(key))
