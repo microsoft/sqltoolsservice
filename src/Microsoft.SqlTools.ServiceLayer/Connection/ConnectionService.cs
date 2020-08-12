@@ -1292,14 +1292,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 {
                     try
                     {
+                        SqlConnectionStringBuilder connStringBuilder = CreateConnectionStringBuilder(info.ConnectionDetails);
+
                         if (!connStringParams.IncludePassword)
                         {
-                            info.ConnectionDetails.Password = ConnectionService.PasswordPlaceholder;
+                            connStringBuilder.Password = ConnectionService.PasswordPlaceholder;
                         }
 
-                        info.ConnectionDetails.ApplicationName = "sqlops-connection-string";
+                        connStringBuilder.ApplicationName = "sqlops-connection-string";
 
-                        connectionString = BuildConnectionString(info.ConnectionDetails);
+                        connectionString = connStringBuilder.ConnectionString;
                     }
                     catch (Exception e)
                     {

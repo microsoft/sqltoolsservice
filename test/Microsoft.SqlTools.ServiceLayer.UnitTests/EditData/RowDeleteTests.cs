@@ -74,7 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         }
 
         [Test]
-        public async Task GetCommand([Values]bool includeIdentity, [Values]bool isMemoryOptimized)
+        public async Task GetCommand([Values]bool includeIdentity, [Values] bool isMemoryOptimized)
         {
             // Setup:
             // ... Create a row delete
@@ -109,7 +109,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.AreEqual(data.TableMetadata.EscapedMultipartName, tbl);
 
             // ... There should be as many where components as there are keys
-            string[] whereComponents = m.Groups[2].Value.Split(new[] {"AND"}, StringSplitOptions.None);
+            string[] whereComponents = m.Groups[2].Value.Split(new[] {"AND" }, StringSplitOptions.None);
             Assert.AreEqual(expectedKeys, whereComponents.Length);
 
             Assert.That(whereComponents.Select(c => c.Trim()), Has.All.Match(@"\(.+ = @.+\)"), "Each component should be equal to a parameter");
