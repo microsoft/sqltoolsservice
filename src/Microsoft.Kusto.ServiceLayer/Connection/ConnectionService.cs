@@ -806,7 +806,8 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             ListDatabasesResponse response = new ListDatabasesResponse();
 
             // Mainly used by "manage" dashboard
-            if(listDatabasesParams.IncludeDetails.HasTrue()){
+            if (listDatabasesParams.IncludeDetails.HasTrue())
+            {
                 IEnumerable<DataSourceObjectMetadata> databaseMetadataInfo = dataSource.GetChildObjects(objectMetadata, true);
                 List<DatabaseInfo> metadata = DataSourceFactory.ConvertToDatabaseInfo(databaseMetadataInfo);
                 response.Databases = metadata.ToArray();
@@ -815,7 +816,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             }
 
             IEnumerable<DataSourceObjectMetadata> databaseMetadata = dataSource.GetChildObjects(objectMetadata);
-            if(databaseMetadata != null) response.DatabaseNames = databaseMetadata.Select(objMeta => objMeta.PrettyName).ToArray();
+            if (databaseMetadata != null) response.DatabaseNames = databaseMetadata.Select(objMeta => objMeta.PrettyName).ToArray();
             return response;
         }
 
@@ -1462,8 +1463,8 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         {
             SqlConnection sqlConnection = OpenSqlConnection(connInfo, featureName);
 
-            return connInfo.ConnectionDetails.AzureAccountToken != null 
-                ? new ServerConnection(sqlConnection, new AzureAccessToken(connInfo.ConnectionDetails.AzureAccountToken)) 
+            return connInfo.ConnectionDetails.AzureAccountToken != null
+                ? new ServerConnection(sqlConnection, new AzureAccessToken(connInfo.ConnectionDetails.AzureAccountToken))
                 : new ServerConnection(sqlConnection);
         }
 
@@ -1485,6 +1486,15 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                 finally
                 {
                     // try to reopen the connection
+                    conn.Open();
+                }
+            }
+            else
+            {
+                // This function was no op if forceReopen == false
+                // So added this code to check for underlying connection and reopen
+                if (conn.GetUnderlyingConnection() == null)
+                {
                     conn.Open();
                 }
             }
