@@ -81,6 +81,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagram
                     string schemaName = metadataParams.Database;
                     string tableName = metadataParams.Database;
                     var metadata = new DiagramMetadata();
+                    metadata.Grids = new Dictionary<string, GridData>();
+                    metadata.Properties = new Dictionary<string, string>();
                     if (connInfo != null)
                     {
                         using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "DiagramModel"))
@@ -98,12 +100,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagram
                                     break;
                                 default:
                                     ReadDbMetadata(sqlConn, databaseName, metadata);
-                                    await requestContext.SendResult(new DiagramRequestResult
-                                    {
-                                        Metadata = metadata
-                                    });
                                     break;
                             }
+                            await requestContext.SendResult(new DiagramRequestResult
+                            {
+                                Metadata = metadata
+                            });
                         }
                     }
 
