@@ -57,7 +57,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagram
         public void InitializeService(ServiceHost serviceHost)
         {
             serviceHost.SetRequestHandler(DiagramModelRequest.Type, HandleDiagramModelRequest);
-            serviceHost.SetRequestHandler(DiagramPropertiesRequest.Type, HandleDiagramPropertiesRequest);
         }
 
         /// <summary>
@@ -76,100 +75,58 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagram
                         metadataParams.OwnerUri,
                         out connInfo);
 
-                    var metadata = new List<ObjectMetadata>();
+                    string databaseName = metadataParams.Database;
+                    string schemaName = metadataParams.Database;
+                    string tableName = metadataParams.Database;
+                    var dbMetadata = new DatabaseMetadata();
+                    var schemaMetadata = new SchemaMetadata();
+                    var tableMetadata = new TableMetadata();
                     if (connInfo != null)
                     {
                         using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "DiagramModel"))
                         {
-                            switch(metadataParams.DiagramView)
+                            switch (metadataParams.DiagramView)
                             {
+
+                                case (DiagramObject.Database):
+                                    ReadDbMetadata(sqlConn, databaseName, dbMetadata);
+                                    await requestContext.SendResult(new DiagramRequestResult
+                                    {
+                                        DiagramMetadata = dbMetadata
+                                    });
+                                    break;
                                 case (DiagramObject.Schema):
-                                    ReadMetadata(sqlConn, metadata);
+                                    ReadSchemaMetadata(sqlConn, schemaName, schemaMetadata);
+                                    await requestContext.SendResult(new DiagramRequestResult
+                                    {
+                                        DiagramMetadata = schemaMetadata
+                                    });
                                     break;
                                 case (DiagramObject.Table):
-                                    // add another function to query the table
-                                    // or add object type as parameter to existing
-                                    // ReadMetada function to make the right query
-                                    break;
-                                case (DiagramObject.Database):
+                                    ReadTableMetadata(sqlConn, databaseName, tableMetadata);
+                                    await requestContext.SendResult(new DiagramRequestResult
+                                    {
+                                        DiagramMetadata = tableMetadata
+                                    });
                                     break;
                                 default:
-                                    ReadMetadata(sqlConn, metadata);
+                                    ReadDbMetadata(sqlConn, databaseName, dbMetadata);
+                                    await requestContext.SendResult(new DiagramRequestResult
+                                    {
+                                        DiagramMetadata = dbMetadata
+                                    });
                                     break;
                             }
                         }
                     }
 
-                    await requestContext.SendResult(new DiagramRequestResult
-                    {
-                        Metadata = metadata.ToArray()
-                    });
                 };
 
                 Task task = Task.Run(async () => await requestHandler()).ContinueWithOnFaulted(async t =>
                 {
                     await requestContext.SendError(t.Exception.ToString());
                 });
-                
-                DiagramModelTask = task;
-            }
-            catch (Exception ex)
-            {
-                await requestContext.SendError(ex.ToString());
-            }
-        }
 
-         /// <summary>
-        /// Handle a properties request
-        /// </summary>        
-        internal static async Task HandleDiagramPropertiesRequest(
-            DiagramRequestParams metadataParams,
-            RequestContext<DiagramRequestResult> requestContext)
-        {
-            try
-            {
-                Func<Task> requestHandler = async () =>
-                {
-                    ConnectionInfo connInfo;
-                    DiagramService.ConnectionServiceInstance.TryFindConnection(
-                        metadataParams.OwnerUri,
-                        out connInfo);
-
-                    var metadata = new List<ObjectMetadata>();
-                    if (connInfo != null)
-                    {
-                        using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "DiagramProperties"))
-                        {
-                            switch(metadataParams.DiagramView)
-                            {
-                                case (DiagramObject.Schema):
-                                    ReadMetadata(sqlConn, metadata);
-                                    break;
-                                case (DiagramObject.Table):
-                                    // add another function to query the table
-                                    // or add object type as parameter to existing
-                                    // ReadMetada function to make the right query
-                                    break;
-                                case (DiagramObject.Database):
-                                    break;
-                                default:
-                                    ReadMetadata(sqlConn, metadata);
-                                    break;
-                            }
-                        }
-                    }
-
-                    await requestContext.SendResult(new DiagramRequestResult
-                    {
-                        Metadata = metadata.ToArray()
-                    });
-                };
-
-                Task task = Task.Run(async () => await requestHandler()).ContinueWithOnFaulted(async t =>
-                {
-                    await requestContext.SendError(t.Exception.ToString());
-                });
-                
                 DiagramModelTask = task;
             }
             catch (Exception ex)
@@ -184,66 +141,286 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagram
             return string.Compare("master", database, StringComparison.OrdinalIgnoreCase) == 0;
         }
 
-        internal static void ReadMetadata(SqlConnection sqlConn, List<ObjectMetadata> metadata)
+        internal static void ReadDbMetadata(SqlConnection sqlConn, string databaseName,
+        DatabaseMetadata dbMetadata)
         {
-            string sql =
-                @"SELECT s.name AS schema_name, o.[name] AS object_name, o.[type] AS object_type
-                  FROM sys.all_objects o
-                    INNER JOIN sys.schemas s ON o.schema_id = s.schema_id
-                  WHERE o.[type] IN ('P','V','U','AF','FN','IF','TF') ";
+            string properties_sql =
+                @"SELECT
+                        b.database_id,
+                        SUM(a.size * 8/1024) 'Size (MB)',
+                        b.create_date,
+                        b.user_access_desc
+                    FROM sys.master_files a 
+                    INNER JOIN sys.databases b
+                    ON a.database_id = b.database_id
+                    WHERE DB_NAME(a.database_id) = '{databaseName}' AND b.name = '{databaseName}'
+                    GROUP BY b.database_id, b.create_date, b.user_access_desc
+                    ";
 
-            if (!IsSystemDatabase(sqlConn.Database))
+            using (SqlCommand propertiesSqlCommand = new SqlCommand(properties_sql, sqlConn))
             {
-                sql += @"AND o.is_ms_shipped != 1 ";
-            }
-
-            sql += @"ORDER BY object_type, schema_name, object_name";
-
-            using (SqlCommand sqlCommand = new SqlCommand(sql, sqlConn))
-            {
-                using (var reader = sqlCommand.ExecuteReader())
+                using (var reader = propertiesSqlCommand.ExecuteReader())
                 {
                     while (reader.Read())
                     {
+                        var databaseID = reader[0] as string;
+                        var size = reader[1] as string;
+                        var createDate = reader[2] as string;
+                        var userAccess = reader[3] as string;
+                        dbMetadata.DatabaseID = databaseID;
+                        dbMetadata.Size = size;
+                        dbMetadata.CreateDate = createDate;
+                        dbMetadata.UserAccess = userAccess;
+                    }
+
+
+                }
+            }
+
+            string schema_sql =
+                @"SELECT SCHEMA_NAME, SCHEMA_OWNER, SCHEMA_ID(SCHEMA_NAME) AS SCHEMA_ID
+                FROM INFORMATION_SCHEMA.SCHEMATA
+                ORDER BY SCHEMA_ID ";
+
+            using (SqlCommand schemaSqlCommand = new SqlCommand(schema_sql, sqlConn))
+            {
+                using (var reader = schemaSqlCommand.ExecuteReader())
+                {
+                    var dbSchemasRows = new List<DbSchemasRow>();
+                    while (reader.Read())
+                    {
                         var schemaName = reader[0] as string;
-                        var objectName = reader[1] as string;
-                        var objectType = reader[2] as string;
-
-                        MetadataType metadataType;
-                        string metadataTypeName;
-                        if (objectType.StartsWith("V"))
+                        var schemaOwner = reader[1] as string;
+                        var schemaID = reader[2] as string;
+                        dbSchemasRows.Add(new DbSchemasRow
                         {
-                            metadataType = MetadataType.View;
-                            metadataTypeName = "View";
-                        }
-                        else if (objectType.StartsWith("P"))
-                        {
-                            metadataType = MetadataType.SProc;
-                            metadataTypeName = "StoredProcedure";
-                        }
-                        else if (objectType == "AF" || objectType == "FN" || objectType == "IF" || objectType == "TF")
-                        {
-                            metadataType = MetadataType.Function;
-                            metadataTypeName = "UserDefinedFunction";
-                        }
-                        else
-                        {
-                            metadataType = MetadataType.Table;
-                            metadataTypeName = "Table";
-                        }
-
-                        metadata.Add(new ObjectMetadata
-                        {
-                            MetadataType = metadataType,
-                            MetadataTypeName = metadataTypeName,
-                            Schema = schemaName,
-                            Name = objectName
+                            SchemaName = schemaName,
+                            SchemaOwner = schemaOwner,
+                            SchemaID = schemaID
                         });
                     }
+                    dbMetadata.SchemasData = dbSchemasRows.ToArray();
+                }
+            }
+
+            string tableSql =
+                @"SELECT
+                    t.NAME AS TableName,
+                    s.Name AS SchemaName,
+                    p.rows AS 'RowCount',
+                    SUM(a.used_pages) * 8 AS UsedSpaceKB
+                FROM
+                    sys.tables t
+                INNER JOIN
+                    sys.indexes i ON t.OBJECT_ID = i.object_id
+                INNER JOIN
+                    sys.partitions p ON i.object_id = p.OBJECT_ID AND i.index_id = p.index_id
+                INNER JOIN
+                    sys.allocation_units a ON p.partition_id = a.container_id
+                LEFT OUTER JOIN
+                    sys.schemas s ON t.schema_id = s.schema_id
+                GROUP BY
+                    t.Name, s.Name, p.Rows
+                ORDER BY
+                    t.Name";
+
+            using (SqlCommand tableSqlCommand = new SqlCommand(tableSql, sqlConn))
+            {
+                using (var reader = tableSqlCommand.ExecuteReader())
+                {
+                    var dbTablesItems = new List<DbTablesRow>();
+                    while (reader.Read())
+                    {
+                        var tableName = reader[0] as string;
+                        var tableSchema = reader[1] as string;
+                        var rowCount = reader[2] as string;
+                        var size = reader[3] as string;
+                        dbTablesItems.Add(new DbTablesRow
+                        {
+                            TableName = tableName,
+                            TableSchema = tableName,
+                            RowCount = rowCount,
+                            Size = size
+                        });
+                    }
+                    dbMetadata.TablesData = dbTablesItems.ToArray();
                 }
             }
         }
 
 
+        internal static void ReadSchemaMetadata(SqlConnection sqlConn, string schemaName,
+        SchemaMetadata schemaMetadata)
+        {
+            string tables_sql =
+                @"SELECT
+                        t.NAME AS TableName,
+                        p.rows AS 'RowCount',
+                        SUM(a.used_pages) * 8 AS UsedSpaceKB
+                    FROM
+                        sys.tables t
+                    INNER JOIN
+                        sys.indexes i ON t.OBJECT_ID = i.object_id
+                    INNER JOIN
+                        sys.partitions p ON i.object_id = p.OBJECT_ID AND i.index_id = p.index_id
+                    INNER JOIN
+                        sys.allocation_units a ON p.partition_id = a.container_id
+                    LEFT OUTER JOIN
+                        sys.schemas s ON t.schema_id = s.schema_id
+                    WHERE s.name = '{schemaName}'
+                    GROUP BY
+                        t.Name, s.Name, p.Rows
+                    ORDER BY
+                        t.Name
+                    ";
+
+            using (SqlCommand tablesSqlCommand = new SqlCommand(tables_sql, sqlConn))
+            {
+                using (var reader = tablesSqlCommand.ExecuteReader())
+                {
+                    var schemaTablesItems = new List<SchemaTablesRow>();
+                    while (reader.Read())
+                    {
+                        var tableName = reader[0] as string;
+                        var rowCount = reader[1] as string;
+                        var size = reader[2] as string;
+                        schemaTablesItems.Add(new SchemaTablesRow
+                        {
+                            TableName = tableName,
+                            RowCount = rowCount,
+                            Size = size
+                        });
+                    }
+                    schemaMetadata.TablesData = schemaTablesItems.ToArray();
+
+
+                }
+            }
+        }
+
+        internal static void ReadTableMetadata(SqlConnection sqlConn, string tableName,
+        TableMetadata tableMetadata)
+        {
+            string keys_sql =
+                @"SELECT 
+                        TC.CONSTRAINT_TYPE,
+                        column_name as PRIMARYKEYCOLUMN
+                    FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS TC 
+
+                    INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS KU
+                        ON (TC.CONSTRAINT_TYPE = 'PRIMARY KEY' OR TC.CONSTRAINT_TYPE = 'FOREIGN KEY')
+                        AND TC.CONSTRAINT_NAME = KU.CONSTRAINT_NAME 
+                        AND KU.table_name='{tableName}'
+
+                    ORDER BY 
+                        KU.TABLE_NAME
+                        ,KU.ORDINAL_POSITION
+                    ;
+                    ";
+
+            using (SqlCommand keysSqlCommand = new SqlCommand(keys_sql, sqlConn))
+            {
+                using (var reader = keysSqlCommand.ExecuteReader())
+                {
+                    var tableKeysItems = new List<TableKeysRow>();
+                    while (reader.Read())
+                    {
+                        var keyType = reader[0] as string;
+                        var keyName = reader[1] as string;
+                        tableKeysItems.Add(new TableKeysRow
+                        {
+                            KeyType = keyType,
+                            KeyName = keyName
+                        });
+                    }
+                    tableMetadata.KeysData = tableKeysItems.ToArray();
+                }
+
+            }
+
+            string columns_sql =
+                @"
+                SELECT COLUMN_NAME, DATA_TYPE
+                FROM INFORMATION_SCHEMA.COLUMNS
+                WHERE INFORMATION_SCHEMA.COLUMNS.TABLE_NAME = '{tableName}'";
+
+            using (SqlCommand columnsSqlCommand = new SqlCommand(columns_sql, sqlConn))
+            {
+                using (var reader = columnsSqlCommand.ExecuteReader())
+                {
+                    var tableColumnsItems = new List<TableColumnsRow>();
+                    while (reader.Read())
+                    {
+                        var columnName = reader[0] as string;
+                        var columnType = reader[1] as string;
+                        tableColumnsItems.Add(new TableColumnsRow
+                        {
+                            ColumnName = columnName,
+                            ColumnType = columnType
+                        });
+                    }
+                    tableMetadata.ColumnsData = tableColumnsItems.ToArray();
+                }
+            }
+
+            string relationships_sql =
+                @"SELECT
+                    cu.TABLE_NAME AS ReferencingTable,
+                    ku.TABLE_NAME AS ReferencedTable,
+                    c.CONSTRAINT_NAME
+                FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS c
+                INNER JOIN INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE cu
+                ON cu.CONSTRAINT_NAME = c.CONSTRAINT_NAME
+                INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE ku
+                ON ku.CONSTRAINT_NAME = c.UNIQUE_CONSTRAINT_NAME
+                WHERE ku.TABLE_NAME = '{tableName}' OR cu.TABLE_NAME = '{tableName}'
+";
+
+            using (SqlCommand relationshipsSqlCommand = new SqlCommand(relationships_sql, sqlConn))
+            {
+                using (var reader = relationshipsSqlCommand.ExecuteReader())
+                {
+                    var tableRelationshipsItems = new List<TableRelationshipsRow>();
+                    while (reader.Read())
+                    {
+                        var referencingTable = reader[0] as string;
+                        var referencingColumn = reader[1] as string;
+                        var referencedTable = reader[2] as string;
+                        var referencedColumn = reader[3] as string;
+                        var constraint = reader[4] as string;
+
+                        tableRelationshipsItems.Add(new TableRelationshipsRow
+                        {
+                            ReferencingTable = referencedTable,
+                            ReferencingColumn = referencingColumn,
+                            ReferencedTable = referencedTable,
+                            ReferencedColumn = referencedColumn,
+                            Constraint = constraint
+                        });
+                    }
+                    tableMetadata.RelationshipsData = tableRelationshipsItems.ToArray();
+                }
+            }
+
+
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
 }
+
