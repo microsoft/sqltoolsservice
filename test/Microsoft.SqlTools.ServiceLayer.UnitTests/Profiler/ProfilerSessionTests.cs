@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         public void TestFilterOldEvents()
         {
             // create a profiler session and get some test events
-            var profilerSession = new ProfilerSession();
+            var profilerSession = new ProfilerSession(new XEventSession());
             var allEvents = ProfilerTestObjects.TestProfilerEvents;
             var profilerEvents = ProfilerTestObjects.TestProfilerEvents;
 
@@ -60,7 +60,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         public void TestFilterProfilerEvents()
         {
             // create a profiler session and get some test events
-            var profilerSession = new ProfilerSession();
+            var profilerSession = new ProfilerSession(new XEventSession());
             var profilerEvents = ProfilerTestObjects.TestProfilerEvents;
                         
             int expectedEventCount = profilerEvents.Count;
@@ -84,7 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         public void TestEventsLost()
         {
             // create a profiler session and get some test events
-            var profilerSession = new ProfilerSession();
+            var profilerSession = new ProfilerSession(new XEventSession());
             var profilerEvents = ProfilerTestObjects.TestProfilerEvents;
 
             // filter all the results from the first poll
@@ -133,7 +133,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             DateTime startTime = DateTime.Now;
 
             // create new profiler session
-            var profilerSession = new ProfilerSession();
+            var profilerSession = new ProfilerSession(new XEventSession());
             
             // enter the polling block
             Assert.True(profilerSession.TryEnterPolling());

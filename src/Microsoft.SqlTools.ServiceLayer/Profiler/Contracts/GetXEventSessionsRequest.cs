@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler.Contracts
     public class GetXEventSessionsResult
     {
         /// <summary>
-        /// Session ID that was started
+        /// List of XE session names
         /// </summary>
         public List<string> Sessions { get; set; }
     }

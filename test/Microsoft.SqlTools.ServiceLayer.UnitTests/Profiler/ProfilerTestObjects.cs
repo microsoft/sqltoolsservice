@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.XEvent;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -44,21 +45,22 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
 
     public class TestSessionListener : IProfilerSessionListener
     {
-        public string PreviousSessionId { get; set; }
+        public readonly Dictionary<string, List<ProfilerEvent>> AllEvents = new Dictionary<string, List<ProfilerEvent>>();
 
-        public List<ProfilerEvent> PreviousEvents { get; set; }
-
-        public bool Stopped { get; set; }
+        public readonly List<string> StoppedSessions = new List<string>();
 
         public void EventsAvailable(string sessionId, List<ProfilerEvent> events, bool eventsLost)
         {
-            this.PreviousSessionId = sessionId;
-            this.PreviousEvents = events;
+            if (!AllEvents.ContainsKey(sessionId))
+            {
+                AllEvents[sessionId] = new List<ProfilerEvent>();
+            }
+            AllEvents[sessionId].AddRange(events);            
         }
 
-        public void SessionStopped(string viewerId, int sessionId)
+        public void SessionStopped(string viewerId, SessionId sessionId)
         {
-            Stopped = true;
+            StoppedSessions.Add(viewerId);
         }
     }
 
@@ -204,7 +206,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
 
 
 
-        public int Id { get { return 51; } }
+        public SessionId Id { get { return new SessionId("testsession_51"); } }
 
         public void Start(){}
 
@@ -289,7 +291,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             "	</event>" +
             "</RingBufferTarget>";
 
-        public int Id { get { return 1; } }
+        public SessionId Id { get { return new SessionId("testsession_1"); } }
 
         public void Start(){}
 
@@ -380,7 +382,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             "	</event>" +
             "</RingBufferTarget>";
 
-        public int Id { get { return 2; } }
+        public SessionId Id { get { return new SessionId("testsession_2"); } }
 
         public void Start(){}
 

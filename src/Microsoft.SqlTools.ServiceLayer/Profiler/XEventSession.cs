@@ -17,22 +17,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
     {
         public Session Session { get; set; }
 
-        public int Id
+        private SessionId sessionId;
+        public SessionId Id
         {
-            get { return Session.ID; }
+            get { return sessionId ??= GetSessionId(); }
         }
 
-        public void Start()
+        protected virtual SessionId GetSessionId()
+        {
+            return new SessionId($"{Session.Parent.Name}_{Session.ID}", Session?.ID);
+        }
+        public virtual void Start()
         {
             this.Session.Start();
         }
 
-        public void Stop()
+        public virtual void Stop()
         {
             this.Session.Stop();
         }
 
-        public string GetTargetXml()
+        public virtual string GetTargetXml()
         {
             if (this.Session == null)
             {

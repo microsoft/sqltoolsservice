@@ -9,24 +9,36 @@ using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ServiceLayer.Profiler
 {
-    class ObservableXEventSession : IObservableXEventSession
+    /// <summary>
+    /// Wrapper XEventSession for IXEventFetcher instances
+    /// </summary>
+    class ObservableXEventSession : XEventSession, IObservableXEventSession
     {
-        public IObservable<ProfilerEvent> ObservableSessionEvents { get; }
-        public int Id { get; }
-
-        public string GetTargetXml()
+        private readonly XeStreamObservable observableSession;
+        private readonly SessionId sessionId;
+        public IObservable<ProfilerEvent> ObservableSessionEvents => observableSession;
+        
+        public override void Start()
         {
-            throw new NotImplementedException();
+            Session?.Start();
+            observableSession.Start();
         }
 
-        public void Start()
+        public override void Stop()
         {
-            throw new NotImplementedException();
+            observableSession.Close();
+            Session?.Stop();
         }
 
-        public void Stop()
+        public ObservableXEventSession(IXEventFetcher xeventFetcher, SessionId sessionId)
         {
-            throw new NotImplementedException();
+            observableSession = new XeStreamObservable(xeventFetcher);
+            this.sessionId = sessionId;
+        }
+
+        protected override SessionId GetSessionId()
+        {
+            return sessionId;
         }
     }
 

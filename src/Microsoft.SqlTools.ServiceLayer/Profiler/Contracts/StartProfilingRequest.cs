@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler.Contracts
         public string OwnerUri { get; set; }
 
         /// <summary>
-        /// For LiveTarget and RingBuffer sessions, the name of the remote session.
+        /// For RemoteSession sessions, the name of the remote session.
         /// For LocalFile sessions, the full path of the XEL file to open.
         /// </summary>
         public string SessionName { get; set; }
@@ -25,17 +25,30 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler.Contracts
         /// <summary>
         /// Identifies which type of target the session name identifies.
         /// </summary>
-        public ProfilingSessionType SessionType { get; set; } = ProfilingSessionType.RingBuffer;
+        public ProfilingSessionType SessionType { get; set; } = ProfilingSessionType.RemoteSession;
     }
 
     public enum ProfilingSessionType
     {
-        RingBuffer,
-        LiveTarget,
+        RemoteSession,
         LocalFile
     }
 
-    public class StartProfilingResult{}
+    /// <summary>
+    /// Provides information about the session that was started
+    /// </summary>
+    public class StartProfilingResult
+    {
+        /// <summary>
+        /// A unique key to identify the session
+        /// </summary>
+        public string UniqueSessionId { get; set; }
+
+        /// <summary>
+        /// Whether the profiling session supports the Pause operation.
+        /// </summary>
+        public bool CanPause { get; set; }
+    }
 
     /// <summary>
     /// Start Profile request type

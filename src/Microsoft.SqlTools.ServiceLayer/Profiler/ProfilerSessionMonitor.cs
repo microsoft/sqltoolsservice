@@ -4,19 +4,11 @@
 //
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using Microsoft.Data.SqlClient;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml;
-using Microsoft.SqlServer.Management.Sdk.Sfc;
-using Microsoft.SqlServer.Management.XEvent;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
-using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Profiler
 {
@@ -40,9 +32,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             public string Id { get; set; }
             public bool active { get; set; }
 
-            public int xeSessionId { get; set; }
+            public SessionId xeSessionId { get; set; }
 
-            public Viewer(string Id, bool active, int xeId)
+            public Viewer(string Id, bool active, SessionId xeId)
             {
                 this.Id = Id;
                 this.active = active;
@@ -51,15 +43,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         };
 
         // XEvent Session Id's matched to the Profiler Id's watching them
-        private Dictionary<int, List<string>> sessionViewers = new Dictionary<int, List<string>>();
+        private readonly Dictionary<SessionId, List<string>> sessionViewers = new Dictionary<SessionId, List<string>>();
 
         // XEvent Session Id's matched to their Profiler Sessions
-        private Dictionary<int, ProfilerSession> monitoredSessions = new Dictionary<int, ProfilerSession>();
+        private readonly Dictionary<SessionId, ProfilerSession> monitoredSessions = new Dictionary<SessionId, ProfilerSession>();
 
         // ViewerId -> Viewer objects
-        private Dictionary<string, Viewer> allViewers = new Dictionary<string, Viewer>();
+        private readonly Dictionary<string, Viewer> allViewers = new Dictionary<string, Viewer>();
 
-        private List<IProfilerSessionListener> listeners = new List<IProfilerSessionListener>();
+        private readonly List<IProfilerSessionListener> listeners = new List<IProfilerSessionListener>();
 
         /// <summary>
         /// Registers a session event Listener to receive a callback when events arrive
@@ -88,10 +80,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 // create new profiling session if needed
                 if (!this.monitoredSessions.ContainsKey(session.Id))
                 {
-                    var profilerSession = new ProfilerSession
-                    {
-                        XEventSession = session
-                    };
+                    var profilerSession = new ProfilerSession(session);
 
                     this.monitoredSessions.Add(session.Id, profilerSession);
                 }
@@ -158,7 +147,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
         }
 
-        private bool RemoveSession(int sessionId, out ProfilerSession session)
+        private bool RemoveSession(SessionId sessionId, out ProfilerSession session)
         {
             lock (this.sessionsLock)
             {
@@ -188,11 +177,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
         }
 
-        public void PollSession(int sessionId)
+        public void PollSession(SessionId sessionId)
         {
             lock (this.sessionsLock)
             {
-                this.monitoredSessions[sessionId].pollImmediatly = true;
+                this.monitoredSessions[sessionId].pollImmediately = true;
             }
             lock (this.pollingLock)
             {
@@ -235,19 +224,32 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             {
                 Task.Factory.StartNew(() =>
                 {
-                    var events = PollSession(session);
-                    bool eventsLost = session.EventsLost;
-                    if (events.Count > 0 || eventsLost)
+                    try
                     {
-                        // notify all viewers for the polled session
-                        List<string> viewerIds = this.sessionViewers[session.XEventSession.Id];
-                        foreach (string viewerId in viewerIds)
+                        var events = PollSession(session);
+                        bool eventsLost = session.EventsLost;
+                        if (events.Count > 0 || eventsLost)
                         {
-                            if (allViewers[viewerId].active)
+                            // notify all viewers for the polled session
+                            List<string> viewerIds = this.sessionViewers[session.XEventSession.Id];
+                            foreach (string viewerId in viewerIds)
                             {
-                                SendEventsToListeners(viewerId, events, eventsLost);
+                                if (allViewers[viewerId].active)
+                                {
+                                    SendEventsToListeners(viewerId, events, eventsLost);
+                                }
                             }
-                        }
+                        }                        
+                    }
+                    finally
+                    {
+                        session.IsPolling = false;
+                    }
+                    if (session.Completed)
+                    {
+                        SendStoppedSessionInfoToListeners(session.XEventSession.Id);
+                        RemoveSession(session.XEventSession.Id, out ProfilerSession tempSession);
+                        tempSession.Dispose();
                     }
                 });
             }
@@ -256,51 +258,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         private List<ProfilerEvent> PollSession(ProfilerSession session)
         {
             var events = new List<ProfilerEvent>();
-            try
+            if (session == null || session.XEventSession == null)
             {
-                if (session == null || session.XEventSession == null)
-                {
-                    return events;
-                }
-
-                var targetXml = session.XEventSession.GetTargetXml();
-
-                XmlDocument xmlDoc = new XmlDocument();
-                xmlDoc.LoadXml(targetXml);
-
-                var nodes = xmlDoc.DocumentElement.GetElementsByTagName("event");
-                foreach (XmlNode node in nodes)
-                {
-                    var profilerEvent = ParseProfilerEvent(node);
-                    if (profilerEvent != null)
-                    {
-                        events.Add(profilerEvent);
-                    }
-                }
-            }
-            catch (XEventException)
-            {
-                SendStoppedSessionInfoToListeners(session.XEventSession.Id);
-                ProfilerSession tempSession;
-                RemoveSession(session.XEventSession.Id, out tempSession);
-            }
-            catch (Exception ex)
-            {
-                Logger.Write(TraceEventType.Warning, "Failed to poll session. error: " + ex.Message);
-            }
-            finally
-            {
-                session.IsPolling = false;
+                return events;
             }
 
-            session.FilterOldEvents(events);
+            events.AddRange(session.GetCurrentEvents());
+            
             return session.FilterProfilerEvents(events);
         }
 
         /// <summary>
         /// Notify listeners about closed sessions
         /// </summary>
-        private void SendStoppedSessionInfoToListeners(int sessionId)
+        private void SendStoppedSessionInfoToListeners(SessionId sessionId)
         {
             lock (listenersLock)
             {
@@ -328,30 +299,5 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
         }
 
-        /// <summary>
-        /// Parse a single event node from XEvent XML
-        /// </summary>
-        private ProfilerEvent ParseProfilerEvent(XmlNode node)
-        {
-            var name = node.Attributes["name"];
-            var timestamp = node.Attributes["timestamp"];
-
-            var profilerEvent = new ProfilerEvent(name.InnerText, timestamp.InnerText);
-
-            foreach (XmlNode childNode in node.ChildNodes)
-            {
-                var childName = childNode.Attributes["name"];
-                XmlNode typeNode = childNode.SelectSingleNode("type");
-                var typeName = typeNode.Attributes["name"];
-                XmlNode valueNode = childNode.SelectSingleNode("value");
-
-                if (!profilerEvent.Values.ContainsKey(childName.InnerText))
-                {
-                    profilerEvent.Values.Add(childName.InnerText, valueNode.InnerText);
-                }
-            }
-
-            return profilerEvent;
-        }
     }
 }
