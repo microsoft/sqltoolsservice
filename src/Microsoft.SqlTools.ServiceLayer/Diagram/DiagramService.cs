@@ -75,45 +75,32 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagram
                         metadataParams.OwnerUri,
                         out connInfo);
 
+
+
                     string databaseName = metadataParams.Database;
                     string schemaName = metadataParams.Database;
                     string tableName = metadataParams.Database;
-                    var dbMetadata = new DatabaseMetadata();
-                    var schemaMetadata = new SchemaMetadata();
-                    var tableMetadata = new TableMetadata();
+                    var metadata = new DiagramMetadata();
                     if (connInfo != null)
                     {
                         using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "DiagramModel"))
                         {
                             switch (metadataParams.DiagramView)
                             {
-
                                 case (DiagramObject.Database):
-                                    ReadDbMetadata(sqlConn, databaseName, dbMetadata);
-                                    await requestContext.SendResult(new DiagramRequestResult
-                                    {
-                                        DiagramMetadata = dbMetadata
-                                    });
+                                    ReadDbMetadata(sqlConn, databaseName, metadata);
                                     break;
                                 case (DiagramObject.Schema):
-                                    ReadSchemaMetadata(sqlConn, schemaName, schemaMetadata);
-                                    await requestContext.SendResult(new DiagramRequestResult
-                                    {
-                                        DiagramMetadata = schemaMetadata
-                                    });
+                                    ReadSchemaMetadata(sqlConn, schemaName, metadata);
                                     break;
                                 case (DiagramObject.Table):
-                                    ReadTableMetadata(sqlConn, databaseName, tableMetadata);
-                                    await requestContext.SendResult(new DiagramRequestResult
-                                    {
-                                        DiagramMetadata = tableMetadata
-                                    });
+                                    ReadTableMetadata(sqlConn, databaseName, metadata);
                                     break;
                                 default:
-                                    ReadDbMetadata(sqlConn, databaseName, dbMetadata);
+                                    ReadDbMetadata(sqlConn, databaseName, metadata);
                                     await requestContext.SendResult(new DiagramRequestResult
                                     {
-                                        DiagramMetadata = dbMetadata
+                                        Metadata = metadata
                                     });
                                     break;
                             }
@@ -142,10 +129,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagram
         }
 
         internal static void ReadDbMetadata(SqlConnection sqlConn, string databaseName,
-        DatabaseMetadata dbMetadata)
+        DiagramMetadata metadata)
         {
+            metadata.Name = databaseName;
             string properties_sql =
-                @"SELECT
+                $@"SELECT
                         b.database_id,
                         SUM(a.size * 8/1024) 'Size (MB)',
                         b.create_date,
@@ -163,14 +151,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagram
                 {
                     while (reader.Read())
                     {
-                        var databaseID = reader[0] as string;
+                        var databaseId = reader[0] as string;
                         var size = reader[1] as string;
                         var createDate = reader[2] as string;
                         var userAccess = reader[3] as string;
-                        dbMetadata.DatabaseID = databaseID;
-                        dbMetadata.Size = size;
-                        dbMetadata.CreateDate = createDate;
-                        dbMetadata.UserAccess = userAccess;
+                        metadata.Properties.Add("databaseId", databaseId);
+                        metadata.Properties.Add("size", size);
+                        metadata.Properties.Add("createDate", createDate);
+                        metadata.Properties.Add("userAccess", userAccess);
                     }
 
 
@@ -186,20 +174,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagram
             {
                 using (var reader = schemaSqlCommand.ExecuteReader())
                 {
-                    var dbSchemasRows = new List<DbSchemasRow>();
+                    var dbSchemasGrid = new GridData();
+                    var dbSchemasRows = new List<Dictionary<string, string>>();
                     while (reader.Read())
                     {
                         var schemaName = reader[0] as string;
                         var schemaOwner = reader[1] as string;
                         var schemaID = reader[2] as string;
-                        dbSchemasRows.Add(new DbSchemasRow
-                        {
-                            SchemaName = schemaName,
-                            SchemaOwner = schemaOwner,
-                            SchemaID = schemaID
-                        });
+                        var row = new Dictionary<string, string>();
+                        row.Add("schemaName", schemaName);
+                        row.Add("schemaOwner", schemaName);
+                        row.Add("schemaId", schemaName);
+                        dbSchemasRows.Add(row);
                     }
-                    dbMetadata.SchemasData = dbSchemasRows.ToArray();
+                    dbSchemasGrid.rows = dbSchemasRows.ToArray();
+                    metadata.Grids.Add("dbSchemasGrid", dbSchemasGrid);
                 }
             }
 
@@ -228,32 +217,35 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagram
             {
                 using (var reader = tableSqlCommand.ExecuteReader())
                 {
-                    var dbTablesItems = new List<DbTablesRow>();
+                    var dbTablesGrid = new GridData();
+                    var dbTablesRows = new List<Dictionary<string, string>>();
                     while (reader.Read())
                     {
                         var tableName = reader[0] as string;
-                        var tableSchema = reader[1] as string;
+                        var schemaName = reader[1] as string;
                         var rowCount = reader[2] as string;
                         var size = reader[3] as string;
-                        dbTablesItems.Add(new DbTablesRow
-                        {
-                            TableName = tableName,
-                            TableSchema = tableName,
-                            RowCount = rowCount,
-                            Size = size
-                        });
+                        var row = new Dictionary<string, string>();
+                        row.Add("tableName", tableName);
+                        row.Add("schemaName", schemaName);
+                        row.Add("rowCount", rowCount);
+                        row.Add("size", size);
+                        dbTablesRows.Add(row);
                     }
-                    dbMetadata.TablesData = dbTablesItems.ToArray();
+                    dbTablesGrid.rows = dbTablesRows.ToArray();
+                    metadata.Grids.Add("dbTablesGrid", dbTablesGrid);
                 }
             }
         }
 
 
         internal static void ReadSchemaMetadata(SqlConnection sqlConn, string schemaName,
-        SchemaMetadata schemaMetadata)
+        DiagramMetadata metadata)
         {
+            metadata.Name = schemaName;
+            // Composite formatting: Console.WriteLine("Hello, {0}! Today is {1}, it's {2:HH:mm} now.", name, date.DayOfWeek, date); /
             string tables_sql =
-                @"SELECT
+                 $@"SELECT
                         t.NAME AS TableName,
                         p.rows AS 'RowCount',
                         SUM(a.used_pages) * 8 AS UsedSpaceKB
@@ -278,31 +270,32 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagram
             {
                 using (var reader = tablesSqlCommand.ExecuteReader())
                 {
-                    var schemaTablesItems = new List<SchemaTablesRow>();
+                    var schemaTablesGrid = new GridData();
+                    var schemaTablesRows = new List<Dictionary<string, string>>();
                     while (reader.Read())
                     {
                         var tableName = reader[0] as string;
                         var rowCount = reader[1] as string;
                         var size = reader[2] as string;
-                        schemaTablesItems.Add(new SchemaTablesRow
-                        {
-                            TableName = tableName,
-                            RowCount = rowCount,
-                            Size = size
-                        });
+                        var row = new Dictionary<string, string>();
+                        row.Add("tableName", tableName);
+                        row.Add("rowCount", rowCount);
+                        row.Add("size", size);
+                        schemaTablesRows.Add(row);
                     }
-                    schemaMetadata.TablesData = schemaTablesItems.ToArray();
-
+                    schemaTablesGrid.rows = schemaTablesRows.ToArray();
+                    metadata.Grids.Add("schemaTablesGrid", schemaTablesGrid);
 
                 }
             }
         }
 
         internal static void ReadTableMetadata(SqlConnection sqlConn, string tableName,
-        TableMetadata tableMetadata)
+        DiagramMetadata metadata)
         {
+            metadata.Name = tableName;
             string keys_sql =
-                @"SELECT 
+                $@"SELECT 
                         TC.CONSTRAINT_TYPE,
                         column_name as PRIMARYKEYCOLUMN
                     FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS TC 
@@ -311,7 +304,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagram
                         ON (TC.CONSTRAINT_TYPE = 'PRIMARY KEY' OR TC.CONSTRAINT_TYPE = 'FOREIGN KEY')
                         AND TC.CONSTRAINT_NAME = KU.CONSTRAINT_NAME 
                         AND KU.table_name='{tableName}'
-
                     ORDER BY 
                         KU.TABLE_NAME
                         ,KU.ORDINAL_POSITION
@@ -322,24 +314,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagram
             {
                 using (var reader = keysSqlCommand.ExecuteReader())
                 {
-                    var tableKeysItems = new List<TableKeysRow>();
+                    var tableKeysGrid = new GridData();
+                    var tableKeysRows = new List<Dictionary<string, string>>();
                     while (reader.Read())
                     {
                         var keyType = reader[0] as string;
                         var keyName = reader[1] as string;
-                        tableKeysItems.Add(new TableKeysRow
-                        {
-                            KeyType = keyType,
-                            KeyName = keyName
-                        });
+                        var row = new Dictionary<string, string>();
+                        row.Add("keyName", tableName);
+                        row.Add("keyType", keyType);
+                        tableKeysRows.Add(row);
                     }
-                    tableMetadata.KeysData = tableKeysItems.ToArray();
+                    tableKeysGrid.rows = tableKeysRows.ToArray();
+                    metadata.Grids.Add("tableKeysGrid", tableKeysGrid);
                 }
 
             }
 
             string columns_sql =
-                @"
+                $@"
                 SELECT COLUMN_NAME, DATA_TYPE
                 FROM INFORMATION_SCHEMA.COLUMNS
                 WHERE INFORMATION_SCHEMA.COLUMNS.TABLE_NAME = '{tableName}'";
@@ -348,23 +341,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagram
             {
                 using (var reader = columnsSqlCommand.ExecuteReader())
                 {
-                    var tableColumnsItems = new List<TableColumnsRow>();
+                    var tableColumnsGrid = new GridData();
+                    var tableColumnsRows = new List<Dictionary<string, string>>();
                     while (reader.Read())
                     {
                         var columnName = reader[0] as string;
                         var columnType = reader[1] as string;
-                        tableColumnsItems.Add(new TableColumnsRow
-                        {
-                            ColumnName = columnName,
-                            ColumnType = columnType
-                        });
+                        var row = new Dictionary<string, string>();
+                        row.Add("columnName", columnName);
+                        row.Add("columnType", columnType);
+                        tableColumnsRows.Add(row);
                     }
-                    tableMetadata.ColumnsData = tableColumnsItems.ToArray();
+                    tableColumnsGrid.rows = tableColumnsRows.ToArray();
+                    metadata.Grids.Add("tableColumnsGrid", tableColumnsGrid);
                 }
             }
 
             string relationships_sql =
-                @"SELECT
+                $@"SELECT
                     cu.TABLE_NAME AS ReferencingTable,
                     ku.TABLE_NAME AS ReferencedTable,
                     c.CONSTRAINT_NAME
@@ -380,25 +374,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagram
             {
                 using (var reader = relationshipsSqlCommand.ExecuteReader())
                 {
-                    var tableRelationshipsItems = new List<TableRelationshipsRow>();
+                    var tableRelationshipsGrid = new GridData();
+                    var tableRelationshipsRows = new List<Dictionary<string, string>>();
                     while (reader.Read())
                     {
                         var referencingTable = reader[0] as string;
-                        var referencingColumn = reader[1] as string;
-                        var referencedTable = reader[2] as string;
-                        var referencedColumn = reader[3] as string;
-                        var constraint = reader[4] as string;
-
-                        tableRelationshipsItems.Add(new TableRelationshipsRow
-                        {
-                            ReferencingTable = referencedTable,
-                            ReferencingColumn = referencingColumn,
-                            ReferencedTable = referencedTable,
-                            ReferencedColumn = referencedColumn,
-                            Constraint = constraint
-                        });
+                        var referencedTable = reader[1] as string;
+                        var constraint = reader[2] as string;
+                        var row = new Dictionary<string, string>();
+                        row.Add("referencingTable ", referencingTable);
+                        row.Add("referencedTable", referencedTable);
+                        row.Add("constraint", constraint);
+                        tableRelationshipsRows.Add(row);
                     }
-                    tableMetadata.RelationshipsData = tableRelationshipsItems.ToArray();
+                    tableRelationshipsGrid.rows = tableRelationshipsRows.ToArray();
+                    metadata.Grids.Add("tableRelationshipsGrid", tableRelationshipsGrid);
                 }
             }
 
