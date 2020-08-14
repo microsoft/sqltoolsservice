@@ -46,11 +46,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagram.Contracts
                 RequestType<DiagramRequestParams, DiagramRequestResult>.Create("diagram/properties");
     }
 
-    public interface IDiagramMetadata
-    {
-        public string Name { get; set; }
-    }
-
     public class GridData {
         public Dictionary<string, string>[] rows { get; set; }
     }
