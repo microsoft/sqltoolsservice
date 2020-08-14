@@ -12,6 +12,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
     {
         void EventsAvailable(string sessionId, List<ProfilerEvent> events, bool eventsLost);
 
-        void SessionStopped(string viewerId, SessionId sessionId);
+        void SessionStopped(string viewerId, SessionId sessionId, string errorMessage);
     }
 }

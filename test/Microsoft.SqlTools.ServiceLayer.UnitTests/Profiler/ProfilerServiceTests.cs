@@ -230,7 +230,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
                 });
             mockSession.Setup(p => p.Id).Returns(new SessionId("test_1", 1));
             var mockListener = new Mock<IProfilerSessionListener>();
-            mockListener.Setup(p => p.SessionStopped(It.IsAny<string>(), It.IsAny<SessionId>())).Callback(() =>
+            mockListener.Setup(p => p.SessionStopped(It.IsAny<string>(), It.IsAny<SessionId>(), It.IsAny<string>())).Callback(() =>
             {
                 sessionStopped = true;
             });
@@ -326,6 +326,38 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
                 Assert.That(listener.AllEvents.Keys, Has.Member(viewerId), "session should have events logged for it");
                 Assert.That(listener.AllEvents[viewerId]?.Count, Is.EqualTo(149), "all events from the xel should be in the buffer");
             });
+        }
+
+        [Test]
+        public async Task ProfilerServer_includes_ErrorMessage_in_session_stop_notification()
+        {
+            var param = new StartProfilingParams() { OwnerUri = "someUri", SessionName = "someSession" };
+            var mockSession = new Mock<IXEventSession>();
+            mockSession.Setup(p => p.GetTargetXml()).Callback(() =>
+            {
+                throw new XEventException("test!");
+            });
+            mockSession.Setup(p => p.Id).Returns(new SessionId("test_1", 1));
+            var requestContext = new Mock<RequestContext<StartProfilingResult>>();
+            requestContext.Setup(rc => rc.SendResult(It.IsAny<StartProfilingResult>()))
+                .Returns<StartProfilingResult>((result) =>
+                {
+                    return Task.FromResult(0);
+                });
+            var sessionFactory = new Mock<IXEventSessionFactory>();
+            sessionFactory.Setup(s => s.GetXEventSession(It.IsAny<string>(), It.IsAny<ConnectionInfo>()))
+                .Returns(mockSession.Object)
+                .Verifiable();
+            var profilerService = new ProfilerService() { XEventSessionFactory = sessionFactory.Object };
+            profilerService.ConnectionServiceInstance = TestObjects.GetTestConnectionService();
+            var connectionInfo = TestObjects.GetTestConnectionInfo();
+            profilerService.ConnectionServiceInstance.OwnerToConnectionMap.Add("someUri", connectionInfo);
+
+            var listener = new TestSessionListener();
+            profilerService.SessionMonitor.AddSessionListener(listener);
+            await profilerService.HandleStartProfilingRequest(param, requestContext.Object);
+
+            Assert.That(listener.ErrorMessages, Is.EqualTo(new[] { "test!" }), "listener.ErrorMessages");
         }
     }
 }

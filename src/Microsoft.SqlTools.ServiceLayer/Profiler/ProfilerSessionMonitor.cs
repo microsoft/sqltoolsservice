@@ -247,7 +247,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     }
                     if (session.Completed)
                     {
-                        SendStoppedSessionInfoToListeners(session.XEventSession.Id);
+                        SendStoppedSessionInfoToListeners(session.XEventSession.Id, session.Error.Message);
                         RemoveSession(session.XEventSession.Id, out ProfilerSession tempSession);
                         tempSession.Dispose();
                     }
@@ -271,7 +271,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// <summary>
         /// Notify listeners about closed sessions
         /// </summary>
-        private void SendStoppedSessionInfoToListeners(SessionId sessionId)
+        private void SendStoppedSessionInfoToListeners(SessionId sessionId, string errorMessage)
         {
             lock (listenersLock)
             {
@@ -279,7 +279,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 {
                     foreach(string viewerId in sessionViewers[sessionId])
                     {
-                        listener.SessionStopped(viewerId, sessionId);
+                        listener.SessionStopped(viewerId, sessionId, errorMessage);
                     }
                 }
             }

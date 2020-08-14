@@ -251,8 +251,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             {
                 try
                 {
-                    ProfilerSession session;
-                    monitor.StopMonitoringSession(parameters.OwnerUri, out session);
+                    monitor.StopMonitoringSession(parameters.OwnerUri, out ProfilerSession session);
 
                     if (session != null)
                     {
@@ -482,7 +481,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// <summary>
         /// Callback when the XEvent session is closed unexpectedly
         /// </summary>
-        public void SessionStopped(string viewerId, SessionId sessionId)
+        public void SessionStopped(string viewerId, SessionId sessionId, string errorMessage)
         {
             // notify the client that their session closed
             this.ServiceHost.SendEvent(
@@ -490,7 +489,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 new ProfilerSessionStoppedParams()
                 {
                     OwnerUri = viewerId,
-                    SessionId = sessionId.NumericId
+                    SessionId = sessionId.NumericId,
+                    ErrorMessage = errorMessage
                 });
         }
 

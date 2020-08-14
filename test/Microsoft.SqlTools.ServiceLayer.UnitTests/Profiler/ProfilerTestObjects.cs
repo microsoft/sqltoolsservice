@@ -48,6 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         public readonly Dictionary<string, List<ProfilerEvent>> AllEvents = new Dictionary<string, List<ProfilerEvent>>();
 
         public readonly List<string> StoppedSessions = new List<string>();
+        public readonly List<string> ErrorMessages = new List<string>();
 
         public void EventsAvailable(string sessionId, List<ProfilerEvent> events, bool eventsLost)
         {
@@ -58,9 +59,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             AllEvents[sessionId].AddRange(events);            
         }
 
-        public void SessionStopped(string viewerId, SessionId sessionId)
+        public void SessionStopped(string viewerId, SessionId sessionId, string errorMessage)
         {
             StoppedSessions.Add(viewerId);
+            ErrorMessages.Add(errorMessage);
         }
     }
 
