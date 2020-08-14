@@ -3,15 +3,19 @@
 [![Coverage Status](https://coveralls.io/repos/github/Microsoft/sqltoolsservice/badge.svg?branch=main)](https://coveralls.io/github/Microsoft/sqltoolsservice?branch=main)
 
 # Microsoft SQL Tools Service 
+
 The SQL Tools Service is an application that provides core functionality for various SQL Server tools.  These features include the following:
+
 * Connection management
 * Language Service support using VS Code protocol
 * Query execution and resultset management
 
 # SQL Tools Service API Documentation
+
 Please see the SQL Tools Service API documentation at https://microsoft.github.io/sqltoolssdk/.
 
 # Setup, Building and Testing the codebase
+
 Please see the SQL Tools Service wiki documentation at https://github.com/Microsoft/sqltoolsservice/wiki
 
 # Contribution Guidelines
@@ -33,7 +37,7 @@ so that we can ensure we are solving the right problems in the right way.
 - Comment on existing issues to give your feedback on how they should be fixed/implemented
 - Contribute a bug fix or feature implementation by submitting a pull request
 - Contribute more unit tests for feature areas that lack good coverage
-- Review the pull requests that others submit to ensure they follow [established guidelines]
+ Review the pull requests that others submit to ensure they follow [established guidelines]
   (#pull-request-guidelines)
 
 ## Code Contribution Guidelines
@@ -106,13 +110,11 @@ so that your commits provide a good history of the changes you are making.  To b
 
 ### Add Unit Tests for New Code
 
-If you're adding a new feature to the project, please make sure to include adequate [xUnit](http://xunit.github.io/)
-tests with your change.  In this project, we have chosen write out unit tests in a way that uses the
-actual PowerShell environment rather than extensive interface mocking.  This allows us to be sure that
-our features will work in practice.  
+If you're adding a new feature to the project, please make sure to include adequate [nUnit](http://nunit.org/)
+tests with your change.
 
-We do both component-level and scenario-level testing depending on what code is being tested.  We don't 
-expect contributors to test every possible edge case.  Testing mainline scenarios and the most common 
+We do both component-level and scenario-level testing depending on what code is being tested.  We don't
+expect contributors to test every possible edge case.  Testing mainline scenarios and the most common
 failure scenarios is often good enough.
 
 We are very happy to accept unit test contributions for any feature areas that are more error-prone than
