@@ -15,6 +15,7 @@ using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.Utility;
 using System.Globalization;
+using Microsoft.Kusto.ServiceLayer.DataSource;
 
 namespace Microsoft.Kusto.ServiceLayer.QueryExecution
 {
@@ -367,14 +368,10 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
 
                 } while (reader.NextResult());
 
-                // Trimming of the last 3 tables from the query results as they contains
-                // tables related to Query Property, Query Status and Query Metadata Table
-                if (resultSets.Count > 3)
-                {
-                    resultSets.RemoveRange(resultSets.Count - 3, 3);
-                }
+                KustoResultsReader kreader = reader as KustoResultsReader;
+                kreader.SanitizeResults(resultSets);
 
-                foreach(var resultSet in resultSets)
+                foreach (var resultSet in resultSets)
                 {
                     await resultSet.SendCurrentResults();
                 }

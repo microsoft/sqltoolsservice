@@ -1,4 +1,6 @@
-﻿using System.Data;
+﻿using Microsoft.Kusto.ServiceLayer.QueryExecution;
+using System.Collections.Generic;
+using System.Data;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource
 {
@@ -10,13 +12,15 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         }
 
         /// <summary>
-        /// Kusto returns 3 results tables - QueryResults, QueryProperties, QueryStatus. When returning query results
-        /// we want the caller to only read the first table. We override the NextResult function here to only return one table
-        /// from the IDataReader.
+        /// Kusto returns atleast 4 results tables - QueryResults(sometimes more than one), QueryProperties, QueryStatus and Query Results Metadata Table. 
+        /// When returning query results we need to trim off the last 3 tables as we want the caller to only read results table. 
         /// </summary>
-        /*public override bool NextResult()
+        public void SanitizeResults(List<ResultSet> resultSets)
         {
-            return false;
-        }*/
+            if (resultSets.Count > 3)
+            {
+                resultSets.RemoveRange(resultSets.Count - 3, 3);
+            }
+        }
     }
 }
