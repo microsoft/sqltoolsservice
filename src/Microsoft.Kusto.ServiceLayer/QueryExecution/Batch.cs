@@ -367,6 +367,8 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
 
                 } while (reader.NextResult());
 
+                // Trimming of the last 3 tables from the query results as they contains
+                // tables related to Query Property, Query Status and Query Metadata Table
                 if (resultSets.Count > 3)
                 {
                     resultSets.RemoveRange(resultSets.Count - 3, 3);
