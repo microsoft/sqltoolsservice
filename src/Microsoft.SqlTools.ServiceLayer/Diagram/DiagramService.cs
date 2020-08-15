@@ -78,8 +78,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagram
 
 
                     string databaseName = metadataParams.Database;
-                    string schemaName = metadataParams.Database;
-                    string tableName = metadataParams.Database;
+                    string schemaName = metadataParams.Schema;
+                    string tableName = metadataParams.Table;
                     var metadata = new DiagramMetadata();
                     metadata.Grids = new Dictionary<string, GridData>();
                     metadata.Properties = new Dictionary<string, string>();
@@ -153,9 +153,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagram
                 {
                     while (reader.Read())
                     {
-                        var databaseId = reader[0] as string;
-                        var size = reader[1] as string;
-                        var createDate = reader[2] as string;
+                        var databaseId = reader[0].ToString() as string;
+                        var size = reader[1].ToString() as string;
+                        var createDate = reader[2].ToString() as string;
                         var userAccess = reader[3] as string;
                         metadata.Properties.Add("databaseId", databaseId);
                         metadata.Properties.Add("size", size);
@@ -182,11 +182,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagram
                     {
                         var schemaName = reader[0] as string;
                         var schemaOwner = reader[1] as string;
-                        var schemaID = reader[2] as string;
+                        var schemaID = reader[2].ToString() as string;
                         var row = new Dictionary<string, string>();
                         row.Add("schemaName", schemaName);
-                        row.Add("schemaOwner", schemaName);
-                        row.Add("schemaId", schemaName);
+                        row.Add("schemaOwner", schemaOwner);
+                        row.Add("schemaId", schemaID);
                         dbSchemasRows.Add(row);
                     }
                     dbSchemasGrid.rows = dbSchemasRows.ToArray();
@@ -196,24 +196,37 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagram
 
             string tableSql =
                 @"SELECT
-                    t.NAME AS TableName,
-                    s.Name AS SchemaName,
-                    p.rows AS 'RowCount',
-                    SUM(a.used_pages) * 8 AS UsedSpaceKB
-                FROM
-                    sys.tables t
-                INNER JOIN
-                    sys.indexes i ON t.OBJECT_ID = i.object_id
-                INNER JOIN
-                    sys.partitions p ON i.object_id = p.OBJECT_ID AND i.index_id = p.index_id
-                INNER JOIN
-                    sys.allocation_units a ON p.partition_id = a.container_id
-                LEFT OUTER JOIN
-                    sys.schemas s ON t.schema_id = s.schema_id
-                GROUP BY
-                    t.Name, s.Name, p.Rows
-                ORDER BY
-                    t.Name";
+a.TableName AS TABLE_NAME, a.SchemaName AS TABLE_SCHEMA, a.Rows AS ROWS, a.Size AS SIZE, b.ForeignKeys AS FOREIGN_KEYS
+FROM
+        (SELECT 
+            t.NAME AS TableName,
+            s.Name AS SchemaName,
+            SUM(a.used_pages) * 8 AS Size,
+            MAX(p.[rows]) AS Rows
+        FROM 
+            sys.tables t
+        INNER JOIN      
+            sys.indexes i ON t.OBJECT_ID = i.object_id
+        INNER JOIN 
+            sys.partitions p ON i.object_id = p.OBJECT_ID AND i.index_id = p.index_id
+        INNER JOIN 
+            sys.allocation_units a ON p.partition_id = a.container_id
+        LEFT OUTER JOIN 
+            sys.schemas s ON t.schema_id = s.schema_id
+        WHERE 
+            t.NAME NOT LIKE 'dt%' 
+            AND i.OBJECT_ID > 255 
+        GROUP BY 
+            t.Name, s.Name
+        ) a
+INNER JOIN
+            (SELECT t.name AS TableName, COUNT(COL_NAME(f.parent_object_id, f.parent_column_id)) AS ForeignKeys
+        FROM sys.tables t
+        LEFT JOIN sys.foreign_key_columns f ON t.object_id = f.parent_object_id
+        GROUP BY t.object_id, t.name) b
+ON
+a.TableName = b.TableName
+ORDER BY FOREIGN_KEYS DESC, SIZE DESC, ROWS DESC";
 
             using (SqlCommand tableSqlCommand = new SqlCommand(tableSql, sqlConn))
             {
@@ -225,13 +238,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagram
                     {
                         var tableName = reader[0] as string;
                         var schemaName = reader[1] as string;
-                        var rowCount = reader[2] as string;
-                        var size = reader[3] as string;
+                        var rows = reader[2].ToString() as string;
+                        var size = reader[3].ToString() as string;
+                        var foreignKeys = reader[4].ToString() as string;
                         var row = new Dictionary<string, string>();
                         row.Add("tableName", tableName);
                         row.Add("schemaName", schemaName);
-                        row.Add("rowCount", rowCount);
+                        row.Add("rows", rows);
                         row.Add("size", size);
+                        row.Add("foreignKeys", foreignKeys);
                         dbTablesRows.Add(row);
                     }
                     dbTablesGrid.rows = dbTablesRows.ToArray();
@@ -248,25 +263,37 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagram
             // Composite formatting: Console.WriteLine("Hello, {0}! Today is {1}, it's {2:HH:mm} now.", name, date.DayOfWeek, date); /
             string tables_sql =
                  $@"SELECT
-                        t.NAME AS TableName,
-                        p.rows AS 'RowCount',
-                        SUM(a.used_pages) * 8 AS UsedSpaceKB
+                    a.TableName AS TABLE_NAME, a.Rows AS ROWS, a.Size AS SIZE, b.ForeignKeys AS FOREIGN_KEYS
                     FROM
-                        sys.tables t
+                            (SELECT 
+                                t.NAME AS TableName,
+                                s.Name AS SchemaName,
+                                SUM(a.used_pages) * 8 AS Size,
+                                MAX(p.[rows]) AS Rows
+                            FROM 
+                                sys.tables t
+                            INNER JOIN      
+                                sys.indexes i ON t.OBJECT_ID = i.object_id
+                            INNER JOIN 
+                                sys.partitions p ON i.object_id = p.OBJECT_ID AND i.index_id = p.index_id
+                            INNER JOIN 
+                                sys.allocation_units a ON p.partition_id = a.container_id
+                            LEFT OUTER JOIN 
+                                sys.schemas s ON t.schema_id = s.schema_id
+                            WHERE 
+                                t.NAME NOT LIKE 'dt%' 
+                                AND i.OBJECT_ID > 255 
+                            GROUP BY 
+                                t.Name, s.Name
+                            ) a
                     INNER JOIN
-                        sys.indexes i ON t.OBJECT_ID = i.object_id
-                    INNER JOIN
-                        sys.partitions p ON i.object_id = p.OBJECT_ID AND i.index_id = p.index_id
-                    INNER JOIN
-                        sys.allocation_units a ON p.partition_id = a.container_id
-                    LEFT OUTER JOIN
-                        sys.schemas s ON t.schema_id = s.schema_id
-                    WHERE s.name = '{schemaName}'
-                    GROUP BY
-                        t.Name, s.Name, p.Rows
-                    ORDER BY
-                        t.Name
-                    ";
+                                (SELECT t.name AS TableName, COUNT(COL_NAME(f.parent_object_id, f.parent_column_id)) AS ForeignKeys
+                            FROM sys.tables t
+                            LEFT JOIN sys.foreign_key_columns f ON t.object_id = f.parent_object_id
+                            GROUP BY t.object_id, t.name) b
+                    ON
+                    a.TableName = b.TableName
+                    ORDER BY FOREIGN_KEYS DESC, SIZE DESC, ROWS DESC";
 
             using (SqlCommand tablesSqlCommand = new SqlCommand(tables_sql, sqlConn))
             {
@@ -277,8 +304,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagram
                     while (reader.Read())
                     {
                         var tableName = reader[0] as string;
-                        var rowCount = reader[1] as string;
-                        var size = reader[2] as string;
+                        var rowCount = reader[1].ToString() as string;
+                        var size = reader[2].ToString()  as string;
                         var row = new Dictionary<string, string>();
                         row.Add("tableName", tableName);
                         row.Add("rowCount", rowCount);
@@ -360,17 +387,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagram
             }
 
             string relationships_sql =
-                $@"SELECT
-                    cu.TABLE_NAME AS ReferencingTable,
-                    ku.TABLE_NAME AS ReferencedTable,
-                    c.CONSTRAINT_NAME
-                FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS c
-                INNER JOIN INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE cu
-                ON cu.CONSTRAINT_NAME = c.CONSTRAINT_NAME
-                INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE ku
-                ON ku.CONSTRAINT_NAME = c.UNIQUE_CONSTRAINT_NAME
-                WHERE ku.TABLE_NAME = '{tableName}' OR cu.TABLE_NAME = '{tableName}'
-";
+                            $@"cu.TABLE_NAME AS ReferencingTable,
+            STRING_AGG(cu.COLUMN_NAME, ', ') AS ReferencingColumn,
+            ku.TABLE_NAME AS ReferencedTable,
+            STRING_AGG(ku.COLUMN_NAME, ', ') AS ReferencedColumn,
+            STRING_AGG(c.CONSTRAINT_NAME, ', ') AS CONSTRAINTS
+            FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS c
+            INNER JOIN INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE cu
+            ON cu.CONSTRAINT_NAME = c.CONSTRAINT_NAME
+            INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE ku
+            ON ku.CONSTRAINT_NAME = c.UNIQUE_CONSTRAINT_NAME
+            WHERE ku.TABLE_NAME = '{tableName}' OR cu.TABLE_NAME = '{tableName}'
+            GROUP BY cu.TABLE_NAME, ku.TABLE_NAME'
+            ";
 
             using (SqlCommand relationshipsSqlCommand = new SqlCommand(relationships_sql, sqlConn))
             {
@@ -381,12 +410,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagram
                     while (reader.Read())
                     {
                         var referencingTable = reader[0] as string;
-                        var referencedTable = reader[1] as string;
-                        var constraint = reader[2] as string;
+                        var referencingColumns = reader[1] as string;
+                        var referencedTable = reader[2] as string;
+                        var referencedColumns = reader[3] as string;
+                        var constraints = reader[4] as string;
                         var row = new Dictionary<string, string>();
                         row.Add("referencingTable ", referencingTable);
+                        row.Add("referencingColumns ", referencingColumns);
                         row.Add("referencedTable", referencedTable);
-                        row.Add("constraint", constraint);
+                        row.Add("referencedColumns", referencedColumns);
+                        row.Add("constraints", constraints);
                         tableRelationshipsRows.Add(row);
                     }
                     tableRelationshipsGrid.rows = tableRelationshipsRows.ToArray();
@@ -396,21 +429,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagram
 
 
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     }
