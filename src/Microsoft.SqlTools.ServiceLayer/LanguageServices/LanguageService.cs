@@ -722,10 +722,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 if (!IsPreviewWindow(scriptFile)
                     && CurrentWorkspaceSettings.IsDiagnosticsEnabled)
                 {
-                    await DiagnosticsHelper.ClearScriptDiagnostics(scriptFile.ClientUri, eventContext);
+                    await DiagnosticsHelper.ClearScriptDiagnostics(uri, eventContext);
                 }
-
-                await Task.FromResult(true);
             }
             catch (Exception ex)
             {
