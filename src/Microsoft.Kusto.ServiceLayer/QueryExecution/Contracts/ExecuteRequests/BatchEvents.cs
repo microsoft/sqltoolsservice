@@ -27,13 +27,13 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts.ExecuteRequests
     {
         public static readonly 
             EventType<BatchEventParams> Type =
-            EventType<BatchEventParams>.Create("query/batchComplete");
+            EventType<BatchEventParams>.Create("kusto/query/batchComplete");
     }
 
     public class BatchStartEvent
     {
         public static readonly
             EventType<BatchEventParams> Type =
-            EventType<BatchEventParams>.Create("query/batchStart");
+            EventType<BatchEventParams>.Create("kusto/query/batchStart");
     }
 }

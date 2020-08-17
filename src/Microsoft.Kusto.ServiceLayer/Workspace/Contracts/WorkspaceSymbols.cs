@@ -44,7 +44,7 @@ namespace Microsoft.Kusto.ServiceLayer.Workspace.Contracts
     {
         public static readonly
             RequestType<DocumentSymbolParams, SymbolInformation[]> Type =
-            RequestType<DocumentSymbolParams, SymbolInformation[]>.Create("textDocument/documentSymbol");
+            RequestType<DocumentSymbolParams, SymbolInformation[]>.Create("kusto/textDocument/documentSymbol");
     }
 
     /// <summary>
@@ -59,7 +59,7 @@ namespace Microsoft.Kusto.ServiceLayer.Workspace.Contracts
     {
         public static readonly
             RequestType<WorkspaceSymbolParams, SymbolInformation[]> Type =
-            RequestType<WorkspaceSymbolParams, SymbolInformation[]>.Create("workspace/symbol");
+            RequestType<WorkspaceSymbolParams, SymbolInformation[]>.Create("kusto/workspace/symbol");
     }
 
     public class WorkspaceSymbolParams

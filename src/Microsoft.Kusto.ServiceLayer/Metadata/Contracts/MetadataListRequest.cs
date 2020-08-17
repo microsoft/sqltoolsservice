@@ -21,6 +21,6 @@ namespace Microsoft.Kusto.ServiceLayer.Metadata.Contracts
     {
         public static readonly
             RequestType<MetadataQueryParams, MetadataQueryResult> Type =
-                RequestType<MetadataQueryParams, MetadataQueryResult>.Create("metadata/list");
+                RequestType<MetadataQueryParams, MetadataQueryResult>.Create("kusto/metadata/list");
     }
 }

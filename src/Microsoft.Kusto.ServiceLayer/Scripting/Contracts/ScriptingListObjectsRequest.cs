@@ -30,6 +30,6 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting.Contracts
     public class ScriptingListObjectsRequest
     {
         public static readonly RequestType<ScriptingListObjectsParams, ScriptingListObjectsResult> Type = 
-            RequestType<ScriptingListObjectsParams, ScriptingListObjectsResult>.Create("scripting/listObjects");
+            RequestType<ScriptingListObjectsParams, ScriptingListObjectsResult>.Create("kusto/scripting/listObjects");
     }
 }

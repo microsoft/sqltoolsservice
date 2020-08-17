@@ -56,6 +56,6 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts
     {
         public static readonly
             RequestType<SubsetParams, SubsetResult> Type =
-            RequestType<SubsetParams, SubsetResult>.Create("query/subset");
+            RequestType<SubsetParams, SubsetResult>.Create("kusto/query/subset");
     }
 }

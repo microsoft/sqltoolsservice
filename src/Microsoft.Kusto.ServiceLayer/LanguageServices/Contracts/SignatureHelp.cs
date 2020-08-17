@@ -12,7 +12,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts
     {
         public static readonly
             RequestType<TextDocumentPosition, SignatureHelp> Type =
-            RequestType<TextDocumentPosition, SignatureHelp>.Create("textDocument/signatureHelp");
+            RequestType<TextDocumentPosition, SignatureHelp>.Create("kusto/textDocument/signatureHelp");
     }
 
     public class ParameterInformation

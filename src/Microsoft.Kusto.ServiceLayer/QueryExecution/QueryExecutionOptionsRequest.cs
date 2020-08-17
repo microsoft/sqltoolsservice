@@ -22,6 +22,6 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts
     {
         public static readonly
             RequestType<QueryExecutionOptionsParams, bool> Type =
-                RequestType<QueryExecutionOptionsParams, bool>.Create("query/setexecutionoptions");
+                RequestType<QueryExecutionOptionsParams, bool>.Create("kusto/query/setexecutionoptions");
     }
 }

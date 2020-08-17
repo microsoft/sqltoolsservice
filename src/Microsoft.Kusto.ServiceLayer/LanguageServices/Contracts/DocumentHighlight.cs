@@ -26,7 +26,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts
     {
         public static readonly
             RequestType<TextDocumentPosition, DocumentHighlight[]> Type =
-            RequestType<TextDocumentPosition, DocumentHighlight[]>.Create("textDocument/documentHighlight");
+            RequestType<TextDocumentPosition, DocumentHighlight[]>.Create("kusto/textDocument/documentHighlight");
     }
 }
 

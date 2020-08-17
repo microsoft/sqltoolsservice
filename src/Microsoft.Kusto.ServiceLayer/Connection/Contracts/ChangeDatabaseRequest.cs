@@ -14,6 +14,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection.Contracts
     {
         public static readonly
             RequestType<ChangeDatabaseParams, bool> Type =
-            RequestType<ChangeDatabaseParams, bool>.Create("connection/changedatabase");
+            RequestType<ChangeDatabaseParams, bool>.Create("kusto/connection/changedatabase");
     }
 }

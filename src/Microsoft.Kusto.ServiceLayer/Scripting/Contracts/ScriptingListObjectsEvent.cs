@@ -30,6 +30,6 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting.Contracts
     public class ScriptingListObjectsCompleteEvent
     {
         public static readonly EventType<ScriptingListObjectsCompleteParams> Type = 
-            EventType<ScriptingListObjectsCompleteParams>.Create("scripting/listObjectsComplete");
+            EventType<ScriptingListObjectsCompleteParams>.Create("kusto/scripting/listObjectsComplete");
     }
 }

@@ -38,7 +38,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts
     {
         public static readonly
             EventType<TelemetryParams> Type =
-            EventType<TelemetryParams>.Create("telemetry/sqlevent");
+            EventType<TelemetryParams>.Create("kusto/telemetry/sqlevent");
     }
 
     /// <summary>

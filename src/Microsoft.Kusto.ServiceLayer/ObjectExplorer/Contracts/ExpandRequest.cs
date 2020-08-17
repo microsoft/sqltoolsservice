@@ -61,7 +61,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Contracts
         /// </summary>
         public static readonly
             RequestType<ExpandParams, bool> Type =
-            RequestType<ExpandParams, bool>.Create("objectexplorer/expand");
+            RequestType<ExpandParams, bool>.Create("kusto/objectexplorer/expand");
     }
 
     /// <summary>
@@ -71,6 +71,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Contracts
     {
         public static readonly
             EventType<ExpandResponse> Type =
-            EventType<ExpandResponse>.Create("objectexplorer/expandCompleted");
+            EventType<ExpandResponse>.Create("kusto/objectexplorer/expandCompleted");
     }
 }

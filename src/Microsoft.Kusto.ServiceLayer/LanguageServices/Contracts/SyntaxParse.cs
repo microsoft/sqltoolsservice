@@ -25,7 +25,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts
     {
         public static readonly
             RequestType<SyntaxParseParams, SyntaxParseResult> Type =
-            RequestType<SyntaxParseParams, SyntaxParseResult>.Create("query/syntaxparse");
+            RequestType<SyntaxParseParams, SyntaxParseResult>.Create("kusto/query/syntaxparse");
     }
 }
 

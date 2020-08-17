@@ -70,7 +70,7 @@ namespace Microsoft.Kusto.ServiceLayer.Workspace.Contracts
     {
         public static readonly
             EventType<DidOpenTextDocumentNotification> Type =
-            EventType<DidOpenTextDocumentNotification>.Create("textDocument/didOpen");
+            EventType<DidOpenTextDocumentNotification>.Create("kusto/textDocument/didOpen");
 
         /// <summary>
         /// Gets or sets the opened document.
@@ -82,14 +82,14 @@ namespace Microsoft.Kusto.ServiceLayer.Workspace.Contracts
     {
         public static readonly
             EventType<DidCloseTextDocumentParams> Type =
-            EventType<DidCloseTextDocumentParams>.Create("textDocument/didClose");
+            EventType<DidCloseTextDocumentParams>.Create("kusto/textDocument/didClose");
     }
 
     public class DidChangeTextDocumentNotification
     {
         public static readonly
             EventType<DidChangeTextDocumentParams> Type =
-            EventType<DidChangeTextDocumentParams>.Create("textDocument/didChange");
+            EventType<DidChangeTextDocumentParams>.Create("kusto/textDocument/didChange");
     }
 
     public class DidCloseTextDocumentParams

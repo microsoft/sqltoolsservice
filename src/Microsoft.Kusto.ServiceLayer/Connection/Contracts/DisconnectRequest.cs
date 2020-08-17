@@ -14,6 +14,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection.Contracts
     {
         public static readonly
             RequestType<DisconnectParams, bool> Type =
-            RequestType<DisconnectParams, bool>.Create("connection/disconnect");
+            RequestType<DisconnectParams, bool>.Create("kusto/connection/disconnect");
     }
 }

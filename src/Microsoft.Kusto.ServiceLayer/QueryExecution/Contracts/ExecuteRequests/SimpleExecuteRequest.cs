@@ -49,6 +49,6 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts.ExecuteRequests
     {
         public static readonly
             RequestType<SimpleExecuteParams, SimpleExecuteResult> Type =
-            RequestType<SimpleExecuteParams, SimpleExecuteResult>.Create("query/simpleexecute");
+            RequestType<SimpleExecuteParams, SimpleExecuteResult>.Create("kusto/query/simpleexecute");
     }
 }

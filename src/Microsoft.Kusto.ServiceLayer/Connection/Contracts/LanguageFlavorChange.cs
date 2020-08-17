@@ -37,6 +37,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection.Contracts
     {
         public static readonly
             EventType<LanguageFlavorChangeParams> Type =
-            EventType<LanguageFlavorChangeParams>.Create("connection/languageflavorchanged");
+            EventType<LanguageFlavorChangeParams>.Create("kusto/connection/languageflavorchanged");
     }
 }

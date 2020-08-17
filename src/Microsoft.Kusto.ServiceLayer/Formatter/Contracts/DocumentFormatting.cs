@@ -16,7 +16,7 @@ namespace Microsoft.Kusto.ServiceLayer.Formatter.Contracts
     {
         public static readonly
             RequestType<DocumentFormattingParams, TextEdit[]> Type =
-            RequestType<DocumentFormattingParams, TextEdit[]>.Create("textDocument/formatting");
+            RequestType<DocumentFormattingParams, TextEdit[]>.Create("kusto/textDocument/formatting");
     }
 
     /// <summary>
@@ -26,7 +26,7 @@ namespace Microsoft.Kusto.ServiceLayer.Formatter.Contracts
     {
         public static readonly
             RequestType<DocumentRangeFormattingParams, TextEdit[]> Type =
-            RequestType<DocumentRangeFormattingParams, TextEdit[]>.Create("textDocument/rangeFormatting");
+            RequestType<DocumentRangeFormattingParams, TextEdit[]>.Create("kusto/textDocument/rangeFormatting");
     }
 
     /// <summary>
@@ -36,7 +36,7 @@ namespace Microsoft.Kusto.ServiceLayer.Formatter.Contracts
     {
         public static readonly
             RequestType<DocumentOnTypeFormattingParams, TextEdit[]> Type =
-            RequestType<DocumentOnTypeFormattingParams, TextEdit[]>.Create("textDocument/onTypeFormatting");
+            RequestType<DocumentOnTypeFormattingParams, TextEdit[]>.Create("kusto/textDocument/onTypeFormatting");
     }
 
 

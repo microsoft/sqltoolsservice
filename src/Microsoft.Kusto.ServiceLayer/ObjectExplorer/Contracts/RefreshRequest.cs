@@ -24,6 +24,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Contracts
         /// </summary>
         public static readonly
             RequestType<RefreshParams, bool> Type =
-            RequestType<RefreshParams, bool>.Create("objectexplorer/refresh");
+            RequestType<RefreshParams, bool>.Create("kusto/objectexplorer/refresh");
     }
 }

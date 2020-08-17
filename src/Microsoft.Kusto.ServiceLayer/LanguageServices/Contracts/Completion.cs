@@ -13,14 +13,14 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts
     {
         public static readonly
             RequestType<TextDocumentPosition, CompletionItem[]> Type =
-            RequestType<TextDocumentPosition, CompletionItem[]>.Create("textDocument/completion");
+            RequestType<TextDocumentPosition, CompletionItem[]>.Create("kusto/textDocument/completion");
     }
 
     public class CompletionResolveRequest
     {
         public static readonly
             RequestType<CompletionItem, CompletionItem> Type =
-            RequestType<CompletionItem, CompletionItem>.Create("completionItem/resolve");
+            RequestType<CompletionItem, CompletionItem>.Create("kusto/completionItem/resolve");
     }
 
     public enum CompletionItemKind

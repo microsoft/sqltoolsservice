@@ -30,6 +30,6 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts
     {
         public static readonly
            EventType<StatusChangeParams> Type =
-           EventType<StatusChangeParams>.Create("textDocument/statusChanged");
+           EventType<StatusChangeParams>.Create("kusto/textDocument/statusChanged");
     }
 }

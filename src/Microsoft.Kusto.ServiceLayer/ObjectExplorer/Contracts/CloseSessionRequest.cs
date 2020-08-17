@@ -71,7 +71,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Contracts
     {
         public static readonly
             RequestType<CloseSessionParams, CloseSessionResponse> Type =
-            RequestType<CloseSessionParams, CloseSessionResponse>.Create("objectexplorer/closesession");
+            RequestType<CloseSessionParams, CloseSessionResponse>.Create("kusto/objectexplorer/closesession");
     }
     
     /// <summary>
@@ -81,6 +81,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Contracts
     {
         public static readonly
             EventType<SessionDisconnectedParameters> Type =
-            EventType<SessionDisconnectedParameters>.Create("objectexplorer/sessiondisconnected");
+            EventType<SessionDisconnectedParameters>.Create("kusto/objectexplorer/sessiondisconnected");
     }
 }

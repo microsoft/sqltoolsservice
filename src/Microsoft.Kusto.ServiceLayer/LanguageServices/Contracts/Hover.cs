@@ -26,7 +26,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts
     {
         public static readonly
             RequestType<TextDocumentPosition, Hover> Type =
-            RequestType<TextDocumentPosition, Hover>.Create("textDocument/hover");
+            RequestType<TextDocumentPosition, Hover>.Create("kusto/textDocument/hover");
 
     }
 }

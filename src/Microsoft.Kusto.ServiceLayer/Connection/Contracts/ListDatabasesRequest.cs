@@ -14,6 +14,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection.Contracts
     {
         public static readonly
             RequestType<ListDatabasesParams, ListDatabasesResponse> Type =
-            RequestType<ListDatabasesParams, ListDatabasesResponse>.Create("connection/listdatabases");
+            RequestType<ListDatabasesParams, ListDatabasesResponse>.Create("kusto/connection/listdatabases");
     }
 }

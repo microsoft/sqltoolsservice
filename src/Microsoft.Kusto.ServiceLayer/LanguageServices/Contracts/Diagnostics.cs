@@ -12,7 +12,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts
     {
         public static readonly
             EventType<PublishDiagnosticsNotification> Type = 
-            EventType<PublishDiagnosticsNotification>.Create("textDocument/publishDiagnostics");
+            EventType<PublishDiagnosticsNotification>.Create("kusto/textDocument/publishDiagnostics");
 
         /// <summary>
         /// Gets or sets the URI for which diagnostic information is reported.

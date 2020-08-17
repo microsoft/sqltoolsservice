@@ -25,6 +25,6 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts
     {
         public static readonly
             EventType<IntelliSenseReadyParams> Type =
-            EventType<IntelliSenseReadyParams>.Create("textDocument/intelliSenseReady");
+            EventType<IntelliSenseReadyParams>.Create("kusto/textDocument/intelliSenseReady");
     }
 }

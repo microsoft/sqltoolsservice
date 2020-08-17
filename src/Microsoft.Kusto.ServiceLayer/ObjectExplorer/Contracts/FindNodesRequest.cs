@@ -50,6 +50,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Contracts
     {
         public static readonly
             RequestType<FindNodesParams, FindNodesResponse> Type =
-            RequestType<FindNodesParams, FindNodesResponse>.Create("objectexplorer/findnodes");
+            RequestType<FindNodesParams, FindNodesResponse>.Create("kusto/objectexplorer/findnodes");
     }
 }

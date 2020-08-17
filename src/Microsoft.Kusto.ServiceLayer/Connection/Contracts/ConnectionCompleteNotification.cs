@@ -61,6 +61,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection.Contracts
     {
         public static readonly 
             EventType<ConnectionCompleteParams> Type =
-            EventType<ConnectionCompleteParams>.Create("connection/complete");
+            EventType<ConnectionCompleteParams>.Create("kusto/connection/complete");
     }
 }

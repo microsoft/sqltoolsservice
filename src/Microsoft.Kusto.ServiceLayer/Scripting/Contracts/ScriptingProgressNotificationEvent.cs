@@ -52,6 +52,6 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting.Contracts
     public class ScriptingProgressNotificationEvent
     {
         public static readonly EventType<ScriptingProgressNotificationParams> Type = 
-            EventType<ScriptingProgressNotificationParams>.Create("scripting/scriptProgressNotification");
+            EventType<ScriptingProgressNotificationParams>.Create("kusto/scripting/scriptProgressNotification");
     }
 }

@@ -14,6 +14,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection.Contracts
     {
         public static readonly
             RequestType<CancelConnectParams, bool> Type =
-            RequestType<CancelConnectParams, bool>.Create("connection/cancelconnect");
+            RequestType<CancelConnectParams, bool>.Create("kusto/connection/cancelconnect");
     }
 }

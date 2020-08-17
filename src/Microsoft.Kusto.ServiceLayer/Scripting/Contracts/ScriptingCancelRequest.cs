@@ -23,6 +23,6 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting.Contracts
     public class ScriptingCancelRequest
     {
         public static readonly RequestType<ScriptingCancelParams, ScriptingCancelResult> Type = 
-            RequestType<ScriptingCancelParams, ScriptingCancelResult>.Create("scripting/scriptCancel");
+            RequestType<ScriptingCancelParams, ScriptingCancelResult>.Create("kusto/scripting/scriptCancel");
     }
 }

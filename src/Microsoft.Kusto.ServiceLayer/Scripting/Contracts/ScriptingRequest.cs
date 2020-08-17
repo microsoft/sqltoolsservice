@@ -96,6 +96,6 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting.Contracts
     public class ScriptingRequest
     {
         public static readonly RequestType<ScriptingParams, ScriptingResult> Type =
-            RequestType<ScriptingParams, ScriptingResult>.Create("scripting/script");
+            RequestType<ScriptingParams, ScriptingResult>.Create("kusto/scripting/script");
     }
 }

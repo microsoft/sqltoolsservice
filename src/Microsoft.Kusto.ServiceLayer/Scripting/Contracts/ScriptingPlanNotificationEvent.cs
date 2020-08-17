@@ -29,6 +29,6 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting.Contracts
     /// </summary>
     public class ScriptingPlanNotificationEvent
     {
-        public static readonly EventType<ScriptingPlanNotificationParams> Type = EventType<ScriptingPlanNotificationParams>.Create("scripting/scriptPlanNotification");
+        public static readonly EventType<ScriptingPlanNotificationParams> Type = EventType<ScriptingPlanNotificationParams>.Create("kusto/scripting/scriptPlanNotification");
     }
 }

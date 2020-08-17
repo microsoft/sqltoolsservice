@@ -161,11 +161,11 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts
 
     public class SerializeStartRequest
     {
-        public static readonly RequestType<SerializeDataStartRequestParams, SerializeDataResult> Type = RequestType<SerializeDataStartRequestParams, SerializeDataResult>.Create("serialize/start");
+        public static readonly RequestType<SerializeDataStartRequestParams, SerializeDataResult> Type = RequestType<SerializeDataStartRequestParams, SerializeDataResult>.Create("kusto/serialize/start");
     }
     public class SerializeContinueRequest
     {
-        public static readonly RequestType<SerializeDataContinueRequestParams, SerializeDataResult> Type = RequestType<SerializeDataContinueRequestParams, SerializeDataResult>.Create("serialize/continue");
+        public static readonly RequestType<SerializeDataContinueRequestParams, SerializeDataResult> Type = RequestType<SerializeDataContinueRequestParams, SerializeDataResult>.Create("kusto/serialize/continue");
     }
 
     class SerializationOptionsHelper

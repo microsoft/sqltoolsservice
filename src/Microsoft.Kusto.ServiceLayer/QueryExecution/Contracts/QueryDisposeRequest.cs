@@ -26,6 +26,6 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts
     {
         public static readonly
             RequestType<QueryDisposeParams, QueryDisposeResult> Type =
-            RequestType<QueryDisposeParams, QueryDisposeResult>.Create("query/dispose");
+            RequestType<QueryDisposeParams, QueryDisposeResult>.Create("kusto/query/dispose");
     }
 }

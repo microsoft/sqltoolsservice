@@ -12,7 +12,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts
     {
         public static readonly
             RequestType<List<PSModuleMessage>, object> Type =
-            RequestType<List<PSModuleMessage>, object>.Create("SqlTools/findModule");
+            RequestType<List<PSModuleMessage>, object>.Create("kusto/SqlTools/findModule");
     }
 
 

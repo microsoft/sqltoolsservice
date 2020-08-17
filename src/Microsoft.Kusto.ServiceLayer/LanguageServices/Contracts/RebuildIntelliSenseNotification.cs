@@ -25,6 +25,6 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts
     {
         public static readonly 
             EventType<RebuildIntelliSenseParams> Type =
-            EventType<RebuildIntelliSenseParams>.Create("textDocument/rebuildIntelliSense");
+            EventType<RebuildIntelliSenseParams>.Create("kusto/textDocument/rebuildIntelliSense");
     }
 }

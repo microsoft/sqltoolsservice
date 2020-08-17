@@ -14,6 +14,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection.Contracts
     {
         public static readonly
             EventType<ConnectionChangedParams> Type =
-            EventType<ConnectionChangedParams>.Create("connection/connectionchanged");
+            EventType<ConnectionChangedParams>.Create("kusto/connection/connectionchanged");
     }
 }

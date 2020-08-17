@@ -44,6 +44,6 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts
     {
         public static readonly
             RequestType<QueryExecutionPlanParams, QueryExecutionPlanResult> Type =
-            RequestType<QueryExecutionPlanParams, QueryExecutionPlanResult>.Create("query/executionPlan");
+            RequestType<QueryExecutionPlanParams, QueryExecutionPlanResult>.Create("kusto/query/executionPlan");
     }
 }

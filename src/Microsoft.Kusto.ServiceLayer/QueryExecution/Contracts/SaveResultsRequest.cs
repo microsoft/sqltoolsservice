@@ -152,7 +152,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts
     {
         public static readonly
             RequestType<SaveResultsAsCsvRequestParams, SaveResultRequestResult> Type =
-            RequestType<SaveResultsAsCsvRequestParams, SaveResultRequestResult>.Create("query/saveCsv");
+            RequestType<SaveResultsAsCsvRequestParams, SaveResultRequestResult>.Create("kusto/query/saveCsv");
     }
 
     /// <summary>
@@ -162,7 +162,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts
     {
         public static readonly
             RequestType<SaveResultsAsExcelRequestParams, SaveResultRequestResult> Type =
-            RequestType<SaveResultsAsExcelRequestParams, SaveResultRequestResult>.Create("query/saveExcel");
+            RequestType<SaveResultsAsExcelRequestParams, SaveResultRequestResult>.Create("kusto/query/saveExcel");
     }
 
     /// <summary>
@@ -172,7 +172,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts
     {
         public static readonly
             RequestType<SaveResultsAsJsonRequestParams, SaveResultRequestResult> Type =
-            RequestType<SaveResultsAsJsonRequestParams, SaveResultRequestResult>.Create("query/saveJson");
+            RequestType<SaveResultsAsJsonRequestParams, SaveResultRequestResult>.Create("kusto/query/saveJson");
     }
     
     /// <summary>
@@ -182,7 +182,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts
     {
         public static readonly
             RequestType<SaveResultsAsXmlRequestParams, SaveResultRequestResult> Type =
-                RequestType<SaveResultsAsXmlRequestParams, SaveResultRequestResult>.Create("query/saveXml");
+                RequestType<SaveResultsAsXmlRequestParams, SaveResultRequestResult>.Create("kusto/query/saveXml");
     }
 
 }

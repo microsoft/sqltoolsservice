@@ -11,7 +11,7 @@ namespace Microsoft.Kusto.ServiceLayer.Workspace.Contracts
     {
         public static readonly
             EventType<DidChangeConfigurationParams<TConfig>> Type =
-            EventType<DidChangeConfigurationParams<TConfig>>.Create("workspace/didChangeConfiguration");
+            EventType<DidChangeConfigurationParams<TConfig>>.Create("kusto/workspace/didChangeConfiguration");
     }
 
     public class DidChangeConfigurationParams<TConfig>

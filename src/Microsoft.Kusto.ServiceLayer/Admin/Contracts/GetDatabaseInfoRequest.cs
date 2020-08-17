@@ -36,6 +36,6 @@ namespace Microsoft.Kusto.ServiceLayer.Admin.Contracts
     {
         public static readonly
             RequestType<GetDatabaseInfoParams, GetDatabaseInfoResponse> Type =
-                RequestType<GetDatabaseInfoParams, GetDatabaseInfoResponse>.Create("admin/getdatabaseinfo");
+                RequestType<GetDatabaseInfoParams, GetDatabaseInfoResponse>.Create("kusto/admin/getdatabaseinfo");
     }
 }

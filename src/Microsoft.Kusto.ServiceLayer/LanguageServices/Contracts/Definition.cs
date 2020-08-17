@@ -12,7 +12,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts
     {
         public static readonly
             RequestType<TextDocumentPosition, Location[]> Type =
-            RequestType<TextDocumentPosition, Location[]>.Create("textDocument/definition");
+            RequestType<TextDocumentPosition, Location[]>.Create("kusto/textDocument/definition");
     }
 }
 

@@ -61,7 +61,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Contracts
     {
         public static readonly
             RequestType<ConnectionDetails, CreateSessionResponse> Type =
-            RequestType<ConnectionDetails, CreateSessionResponse>.Create("objectexplorer/createsession");
+            RequestType<ConnectionDetails, CreateSessionResponse>.Create("kusto/objectexplorer/createsession");
     }
 
     /// <summary>
@@ -71,6 +71,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Contracts
     {
         public static readonly
             EventType<SessionCreatedParameters> Type =
-            EventType<SessionCreatedParameters>.Create("objectexplorer/sessioncreated");
+            EventType<SessionCreatedParameters>.Create("kustoo/bjectexplorer/sessioncreated");
     }
 }

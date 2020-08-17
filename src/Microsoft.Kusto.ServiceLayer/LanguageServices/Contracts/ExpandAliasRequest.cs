@@ -11,6 +11,6 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts
     {
         public static readonly
             RequestType<string, string> Type =
-            RequestType<string, string>.Create("SqlTools/expandAlias");
+            RequestType<string, string>.Create("kusto/SqlTools/expandAlias");
     }
 }

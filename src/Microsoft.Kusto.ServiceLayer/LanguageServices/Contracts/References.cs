@@ -12,7 +12,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts
     {
         public static readonly
             RequestType<ReferencesParams, Location[]> Type =
-            RequestType<ReferencesParams, Location[]>.Create("textDocument/references");
+            RequestType<ReferencesParams, Location[]>.Create("kusto/textDocument/references");
     }
 
     public class ReferencesParams : TextDocumentPosition

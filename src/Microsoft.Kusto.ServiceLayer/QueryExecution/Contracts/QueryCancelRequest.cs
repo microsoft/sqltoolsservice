@@ -31,6 +31,6 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts
     {
         public static readonly 
             RequestType<QueryCancelParams, QueryCancelResult> Type =
-            RequestType<QueryCancelParams, QueryCancelResult>.Create("query/cancel");
+            RequestType<QueryCancelParams, QueryCancelResult>.Create("kusto/query/cancel");
     }
 }

@@ -22,6 +22,6 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts.ExecuteRequests
     {
         public static readonly 
             RequestType<ExecuteStringParams, ExecuteRequestResult> Type = 
-            RequestType<ExecuteStringParams, ExecuteRequestResult>.Create("query/executeString");
+            RequestType<ExecuteStringParams, ExecuteRequestResult>.Create("kusto/query/executeString");
     }
 }

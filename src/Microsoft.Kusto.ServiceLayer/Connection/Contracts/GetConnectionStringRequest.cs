@@ -14,6 +14,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection.Contracts
     {
         public static readonly
             RequestType<GetConnectionStringParams, string> Type =
-            RequestType<GetConnectionStringParams, string>.Create("connection/getconnectionstring");
+            RequestType<GetConnectionStringParams, string>.Create("kusto/connection/getconnectionstring");
     }
 }

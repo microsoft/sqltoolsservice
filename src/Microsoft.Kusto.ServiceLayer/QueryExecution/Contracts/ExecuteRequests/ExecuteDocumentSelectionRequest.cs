@@ -22,6 +22,6 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts.ExecuteRequests
     {
         public static readonly
             RequestType<ExecuteDocumentSelectionParams, ExecuteRequestResult> Type =
-            RequestType<ExecuteDocumentSelectionParams, ExecuteRequestResult>.Create("query/executeDocumentSelection");
+            RequestType<ExecuteDocumentSelectionParams, ExecuteRequestResult>.Create("kusto/query/executeDocumentSelection");
     }
 }

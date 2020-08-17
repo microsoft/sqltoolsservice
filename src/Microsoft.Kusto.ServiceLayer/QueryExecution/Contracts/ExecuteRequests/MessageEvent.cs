@@ -27,6 +27,6 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts.ExecuteRequests
     {
         public static readonly
             EventType<MessageParams> Type =
-            EventType<MessageParams>.Create("query/message");
+            EventType<MessageParams>.Create("kusto/query/message");
     }
 }
