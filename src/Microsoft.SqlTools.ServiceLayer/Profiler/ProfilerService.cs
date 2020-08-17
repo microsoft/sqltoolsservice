@@ -422,7 +422,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 Session = session
             };
 
-            xeventSession.Start();
+            if (!session.IsRunning)
+            {
+                xeventSession.Start();
+            }
             return xeventSession;
         }
 
