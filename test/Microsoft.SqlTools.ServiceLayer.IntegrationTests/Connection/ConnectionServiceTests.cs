@@ -109,35 +109,42 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         /// <summary>
         /// Test HandleGetConnectionStringRequest
         /// </summary>
-        [Test]
+        [Theory]
         public async Task GetCurrentConnectionStringTest()
         {
             // If we make a connection to a live database 
             ConnectionService service = ConnectionService.Instance;
             var result = LiveConnectionHelper.InitLiveConnectionInfo();
             var resultPassword = result.ConnectionInfo.ConnectionDetails.Password;
-            var requestContext = new Mock<SqlTools.Hosting.Protocol.RequestContext<string>>();
-
-            requestContext.Setup(x => x.SendResult(It.Is<string>((connectionString) => connectionString.Contains("Password=" + ConnectionService.PasswordPlaceholder))))
-                .Returns(Task.FromResult(new object()));
-
-            var requestParams = new GetConnectionStringParams()
+            if (result.ConnectionInfo.ConnectionDetails.AuthenticationType == "SqlLogin")
             {
-                OwnerUri = result.ConnectionInfo.OwnerUri,
-                IncludePassword = false
-            };
+                var requestContext = new Mock<SqlTools.Hosting.Protocol.RequestContext<string>>();
 
-            await service.HandleGetConnectionStringRequest(requestParams, requestContext.Object);
-            requestContext.VerifyAll();
+                requestContext.Setup(x => x.SendResult(It.Is<string>((connectionString) => connectionString.Contains("Password=" + ConnectionService.PasswordPlaceholder))))
+                    .Returns(Task.FromResult(new object()));
 
-            // validate that the get command doesn't change any connection property and the following get commands work as expected
-            requestParams.IncludePassword = true;
+                var requestParams = new GetConnectionStringParams()
+                {
+                    OwnerUri = result.ConnectionInfo.OwnerUri,
+                    IncludePassword = false
+                };
 
-            requestContext.Setup(x => x.SendResult(It.Is<string>((connectionString) => connectionString.Contains("Password=" + resultPassword))))
-                .Returns(Task.FromResult(new object()));
+                await service.HandleGetConnectionStringRequest(requestParams, requestContext.Object);
+                requestContext.VerifyAll();
 
-            await service.HandleGetConnectionStringRequest(requestParams, requestContext.Object);
-            requestContext.VerifyAll();
+                // validate that the get command doesn't change any connection property and the following get commands work as expected
+                requestParams.IncludePassword = true;
+
+                requestContext.Setup(x => x.SendResult(It.Is<string>((connectionString) => connectionString.Contains("Password=" + resultPassword))))
+                    .Returns(Task.FromResult(new object()));
+
+                await service.HandleGetConnectionStringRequest(requestParams, requestContext.Object);
+                requestContext.VerifyAll();
+            }
+            else
+            {
+                Assert.Inconclusive("The connection string lacks a password for validation");
+            }
         }
     }
 }
