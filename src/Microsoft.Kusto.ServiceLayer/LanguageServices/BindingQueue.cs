@@ -40,6 +40,8 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// Internal for testing purposes only
         /// </summary>
         internal Dictionary<string, IBindingContext> BindingContextMap { get; set; }
+        
+        private Task queueProcessorTask;
 
         internal Dictionary<IBindingContext, Task> BindingContextTasks { get; set; } = new Dictionary<IBindingContext, Task>();
 
@@ -54,7 +56,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 
         public void StartQueueProcessor()
         {
-            StartQueueProcessorAsync();
+            this.queueProcessorTask = StartQueueProcessorAsync();
         }
 
         /// <summary>

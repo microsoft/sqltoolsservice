@@ -132,10 +132,5 @@ namespace Microsoft.Kusto.ServiceLayer
                 }
             }
         }
-
-        private static void deleteme()
-        {
-            
-        }
     }
 }

@@ -27,8 +27,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
         /// </summary>
         public abstract IEnumerable<NodeSmoProperty> SmoProperties { get; }
 
-        // TODOKusto: Can this context be changed to DataSourceObjectMetadata
-
         // TODO Consider whether Remove operations need to be supported
         //public abstract bool CanRemoveChild(TreeNode parent, object context);
         //public abstract int GetChildIndexToRemove(TreeNode parent, object context);
