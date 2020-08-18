@@ -245,14 +245,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         {
             get { return _dataSource.DatabaseName; }
         }
-
-        private void VerifyConnectionOpen(ReliableDataSourceConnection conn)
-        {
-            if(conn.GetUnderlyingConnection() == null)
-            {
-                conn.Open();
-            }
-        }
     }
 }
 

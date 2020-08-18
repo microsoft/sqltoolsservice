@@ -104,38 +104,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
         }
 
 
-        /// <summary>
-        /// Repositions this child in the list
-        /// </summary>
-        public void ReSortChild(TreeNode child)
-        {
-            if (child == null)
-                return;
-
-            List<TreeNode> sorted = this.OrderBy(x => x).ToList();
-
-            // Remove without cleanup
-            try
-            {
-                cleanupBlocker++;
-                Remove(child);
-            }
-            finally
-            {
-                cleanupBlocker--;
-            }
-
-            // Then insert
-            for (int i = 0; i < sorted.Count; i++)
-            {
-                if (sorted[i] == child)
-                {
-                    Insert(i, child);
-                    return;
-                }
-            }
-        }
-
         protected override void RemoveItem(int index)
         {
             // Cleanup all the children

@@ -2,8 +2,6 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
-
 namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts
 {
     /// <summary> 
@@ -32,21 +30,5 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts
         public int StartLine { get; set; }
 
         #endregion
-
-        public BufferRange ToBufferRange()
-        {
-            return new BufferRange(StartLine, StartColumn, EndLine, EndColumn);
-        }
-
-        public static SelectionData FromBufferRange(BufferRange range)
-        {
-            return new SelectionData
-            {
-                StartLine = range.Start.Line,
-                StartColumn = range.Start.Column,
-                EndLine = range.End.Line,
-                EndColumn = range.End.Column
-            };
-        }
     }
 }

@@ -60,23 +60,6 @@ namespace Microsoft.Kusto.ServiceLayer.Workspace
         #region Public Methods
 
         /// <summary>
-        /// Checks if a given URI is contained in a workspace 
-        /// </summary>
-        /// <param name="filePath"></param>
-        /// <returns>Flag indicating if the file is tracked in workspace</returns>
-        public bool ContainsFile(string filePath)
-        {
-            Validate.IsNotNullOrWhitespaceString("filePath", filePath);
-
-            // Resolve the full file path 
-            ResolvedFile resolvedFile = this.ResolveFilePath(filePath);
-            string keyName = resolvedFile.LowercaseClientUri;
-
-            ScriptFile scriptFile = null;
-            return this.workspaceFiles.TryGetValue(keyName, out scriptFile);
-        }
-
-        /// <summary>
         /// Gets an open file in the workspace.  If the file isn't open but
         /// exists on the filesystem, load and return it. Virtual method to
         /// allow for mocking
@@ -261,44 +244,6 @@ namespace Microsoft.Kusto.ServiceLayer.Workspace
             this.workspaceFiles.Remove(scriptFile.Id);
         }
 
-        internal string GetBaseFilePath(string filePath)
-        {
-            if (IsPathInMemoryOrNonFileUri(filePath))
-            {
-                // If the file is in memory, use the workspace path
-                return this.WorkspacePath;
-            }
-
-            if (!Path.IsPathRooted(filePath))
-            {
-                // TODO: Assert instead?
-                throw new InvalidOperationException(
-                    string.Format(
-                        "Must provide a full path for originalScriptPath: {0}", 
-                        filePath));
-            }
-
-            // Get the directory of the file path
-            return Path.GetDirectoryName(filePath); 
-        }
-
-        internal string ResolveRelativeScriptPath(string baseFilePath, string relativePath)
-        {
-            if (Path.IsPathRooted(relativePath))
-            {
-                return relativePath;
-            }
-
-            // Get the directory of the original script file, combine it
-            // with the given path and then resolve the absolute file path.
-            string combinedPath =
-                Path.GetFullPath(
-                    Path.Combine(
-                        baseFilePath,
-                        relativePath));
-
-            return combinedPath;
-        }
         internal static bool IsPathInMemoryOrNonFileUri(string path)
         {
             string scheme = GetScheme(path);

@@ -27,10 +27,5 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
             // in the future this could be used to roll up events and send them back in the result
             return Task.FromResult(true);
         }
-
-        public virtual Task SendError(string errorMessage, int errorCode = 0)
-        {
-            return OrigContext.SendError(errorMessage, errorCode);
-        }
     }
 }

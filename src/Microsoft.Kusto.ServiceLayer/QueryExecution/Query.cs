@@ -416,13 +416,6 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
             }
         }
 
-        /// <summary>
-        /// Function to add a new batch to a Batch set
-        /// </summary>
-        private static void AddBatch(string query, ICollection<Batch> batchSet, IFileStreamFactory outputFactory)
-        {
-            batchSet.Add(new Batch(query, null, batchSet.Count, outputFactory, 1));
-        }
         #endregion
 
         #region IDisposable Implementation

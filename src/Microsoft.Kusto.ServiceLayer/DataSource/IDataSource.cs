@@ -71,17 +71,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         IEnumerable<DataSourceObjectMetadata> GetChildObjects(DataSourceObjectMetadata parentMetadata, bool includeSizeDetails = false);
 
         /// <summary>
-        /// Refresh object list for entire cluster.
-        /// </summary>
-        void Refresh();
-
-        /// <summary>
-        /// Refresh object list for given object.
-        /// </summary>
-        /// <param name="objectMetadata">Object metadata.</param>
-        void Refresh(DataSourceObjectMetadata objectMetadata);
-
-        /// <summary>
         /// Updates database and affected variables like GlobalState for given object.
         /// </summary>
         /// <param name="updateDatabase">Object metadata.</param>
@@ -115,12 +104,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// </summary>
         /// <returns>true if it exists; false otherwise.</returns>
         Task<bool> Exists();
-
-        /// <summary>
-        /// Tells whether the object exists.
-        /// </summary>
-        /// <returns>true if it exists; false otherwise.</returns>
-        bool Exists(DataSourceObjectMetadata objectMetadata);
 
         /// <summary>
         /// Gets FunctionInfo object for a function

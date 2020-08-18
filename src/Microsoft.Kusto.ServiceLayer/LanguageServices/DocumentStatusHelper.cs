@@ -41,25 +41,6 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// <summary>
         /// Sends a telemetry event for specific document using the existing request context
         /// </summary>
-        public static void SendTelemetryEvent<T>(RequestContext<T> requestContext, string telemetryEvent)
-        {
-            Validate.IsNotNull(nameof(requestContext), requestContext);
-            Validate.IsNotNullOrWhitespaceString(nameof(telemetryEvent), telemetryEvent);
-            Task.Factory.StartNew(async () =>
-            {
-                await requestContext.SendEvent(TelemetryNotification.Type, new TelemetryParams()
-                {
-                    Params = new TelemetryProperties
-                    {
-                        EventName = telemetryEvent
-                    }
-                });
-            });
-        }
-
-        /// <summary>
-        /// Sends a telemetry event for specific document using the existing request context
-        /// </summary>
         public static void SendTelemetryEvent<T>(RequestContext<T> requestContext, TelemetryProperties telemetryProps)
         {
             Validate.IsNotNull(nameof(requestContext), requestContext);

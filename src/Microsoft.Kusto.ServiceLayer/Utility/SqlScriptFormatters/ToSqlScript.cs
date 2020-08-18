@@ -7,9 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Globalization;
-using System.Linq;
 using System.Text;
-using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.Kusto.ServiceLayer.Utility.SqlScriptFormatters
@@ -141,82 +139,7 @@ namespace Microsoft.Kusto.ServiceLayer.Utility.SqlScriptFormatters
 
             return typeName;
         }
-        
-        /// <summary>
-        /// Escapes an identifier such as a table name or column name by wrapping it in square brackets
-        /// </summary>
-        /// <param name="identifier">The identifier to format</param>
-        /// <returns>Identifier formatted for use in a SQL script</returns>
-        public static string FormatIdentifier(string identifier)
-        {
-            return $"[{EscapeString(identifier, ']')}]";
-        }
-        
-        /// <summary>
-        /// Escapes a multi-part identifier such as a table name or column name with multiple
-        /// parts split by '.'
-        /// </summary>
-        /// <param name="identifier">The identifier to escape (eg, "dbo.test")</param>
-        /// <returns>The escaped identifier (eg, "[dbo].[test]")</returns>
-        public static string FormatMultipartIdentifier(string identifier)
-        {
-            // If the object is a multi-part identifier (eg, dbo.tablename) split it, and escape as necessary
-            return FormatMultipartIdentifier(identifier.Split('.'));
-        }
-        
-        /// <summary>
-        /// Escapes a multipart identifier such as a table name, given an array of the parts of the
-        /// multipart identifier.
-        /// </summary>
-        /// <param name="identifiers">The parts of the identifier to escape (eg, "dbo", "test")</param>
-        /// <returns>An escaped version of the multipart identifier (eg, "[dbo].[test]")</returns>
-        public static string FormatMultipartIdentifier(string[] identifiers)
-        {
-            IEnumerable<string> escapedParts = identifiers.Select(FormatIdentifier);
-            return string.Join(".", escapedParts);
-        }
-        
-        /// <summary>
-        /// Converts an object into a string for SQL script
-        /// </summary>
-        /// <param name="value">The object to convert</param>
-        /// <param name="column">The column metadata for the cell to insert</param>
-        /// <returns>String version of the cell value for use in SQL scripts</returns>
-        public static string FormatValue(object value, DbColumn column)
-        {
-            Validate.IsNotNull(nameof(column), column);
 
-            // Handle nulls firstly
-            if (value == null)
-            {
-                return NullString;
-            }
-
-            // Determine how to format based on the column type
-            string dataType = column.DataTypeName.ToLowerInvariant();
-            if (!FormatFunctions.ContainsKey(dataType))
-            {
-                // Attempt to handle UDTs
-
-                // @TODO: to constants file
-                throw new ArgumentOutOfRangeException(nameof(column.DataTypeName), "A converter for {column type} is not available");
-            }
-            return FormatFunctions[dataType](value, column);
-        }
-        
-        /// <summary>
-        /// Converts a cell value into a string for SQL script
-        /// </summary>
-        /// <param name="value">The cell to convert</param>
-        /// <param name="column">The column metadata for the cell to insert</param>
-        /// <returns>String version of the cell value for use in SQL scripts</returns>
-        public static string FormatValue(DbCellValue value, DbColumn column)
-        {
-            Validate.IsNotNull(nameof(value), value);
-
-            return FormatValue(value.RawObject, column);
-        }
-        
         #endregion
         
         #region Private Helpers

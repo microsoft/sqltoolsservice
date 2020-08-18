@@ -20,8 +20,6 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 {
     public interface IConnectedBindingQueue
     {
-        void CloseConnections(string serverName, string databaseName, int millisecondsTimeout);
-        void OpenConnections(string serverName, string databaseName, int millisecondsTimeout);
         string AddConnectionContext(ConnectionInfo connInfo, string featureName = null, bool overwrite = false);
         void Dispose();
         QueueItem QueueBindingOperation(
@@ -109,51 +107,6 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
             }
 
             return Uri.EscapeUriString(key);
-        }
-
-        /// <summary>
-        /// Generate a unique key based on the ConnectionInfo object
-        /// </summary>
-        /// <param name="connInfo"></param>
-        private string GetConnectionContextKey(string serverName, string databaseName)
-        {
-            return string.Format("{0}_{1}",
-                serverName ?? "NULL",
-                databaseName ?? "NULL");
-            
-        }
-
-        public void CloseConnections(string serverName, string databaseName, int millisecondsTimeout)
-        {
-            string connectionKey = GetConnectionContextKey(serverName, databaseName);
-            var contexts = GetBindingContexts(connectionKey);
-            foreach (var bindingContext in contexts)
-            {
-                if (bindingContext.BindingLock.WaitOne(millisecondsTimeout))
-                {
-                    bindingContext.ServerConnection.Disconnect();
-                }
-            }
-        }
-
-        public void OpenConnections(string serverName, string databaseName, int millisecondsTimeout)
-        {
-            string connectionKey = GetConnectionContextKey(serverName, databaseName);
-            var contexts = GetBindingContexts(connectionKey);
-            foreach (var bindingContext in contexts)
-            {
-                if (bindingContext.BindingLock.WaitOne(millisecondsTimeout))
-                {
-                    try
-                    {
-                        bindingContext.ServerConnection.Connect();
-                    }
-                    catch
-                    {
-                        //TODO: remove the binding context? 
-                    }
-                }
-            }
         }
 
         public void RemoveBindigContext(ConnectionInfo connInfo)

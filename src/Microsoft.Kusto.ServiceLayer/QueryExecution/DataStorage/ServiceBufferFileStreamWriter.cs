@@ -215,14 +215,6 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage
         }
 
         /// <summary>
-        /// Seeks to a given offset in the file, relative to the beginning of the file
-        /// </summary>
-        public void Seek(long offset)
-        {
-            fileStream.Seek(offset, SeekOrigin.Begin);
-        }
-
-        /// <summary>
         /// Flushes the internal buffer to the file stream
         /// </summary>
         public void FlushBuffer()

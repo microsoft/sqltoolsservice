@@ -362,11 +362,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             return false;
         }
 
-        private bool IsDefaultConnectionType(string connectionType)
-        {
-            return string.IsNullOrEmpty(connectionType) || ConnectionType.Default.Equals(connectionType, StringComparison.CurrentCultureIgnoreCase);
-        }
-
         private void DisconnectExistingConnectionIfNeeded(ConnectParams connectionParams, ConnectionInfo connectionInfo, bool disconnectAll)
         {
             // Resolve if it is an existing connection

@@ -153,19 +153,6 @@ namespace Microsoft.Kusto.ServiceLayer.Formatter
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-
-        public static void Copy(FormatOptions target, FormatOptions source)
-        {
-            target.AlignColumnDefinitionsInColumns = source.AlignColumnDefinitionsInColumns;
-            target.DatatypeCasing = source.DatatypeCasing;
-            target.EncloseIdentifiersInSquareBrackets = source.EncloseIdentifiersInSquareBrackets;
-            target.KeywordCasing = source.KeywordCasing;
-            target.PlaceCommasBeforeNextStatement = source.PlaceCommasBeforeNextStatement;
-            target.PlaceEachReferenceOnNewLineInQueryStatements = source.PlaceEachReferenceOnNewLineInQueryStatements;
-            target.SpacesPerIndent = source.SpacesPerIndent;
-            target.UseSpaces = source.UseSpaces;
-            target.UseTabs = source.UseTabs;
-        }
     }
 
 }

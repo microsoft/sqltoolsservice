@@ -98,38 +98,5 @@ namespace Microsoft.Kusto.ServiceLayer.Utility
             }
             Logger.Write(TraceEventType.Error, sb.ToString());
         }
-
-        /// <summary>
-        /// This will enforce time out to run an async task with returning result
-        /// </summary>
-        /// <typeparam name="TResult"></typeparam>
-        /// <param name="task">The async task to run</param>
-        /// <param name="timeout">Time out in milliseconds</param>
-        /// <returns></returns>
-        public static async Task<TResult> WithTimeout<TResult>(this Task<TResult> task, int timeout)
-        {
-            if (task == await Task.WhenAny(task, Task.Delay(timeout)))
-            {
-                return await task;
-            }
-            throw new TimeoutException();
-        }
-
-        /// <summary>
-        /// This will enforce time out to run an async task without returning result
-        /// </summary>
-        /// <typeparam name="TResult"></typeparam>
-        /// <param name="task">The async task to run</param>
-        /// <param name="timeout">Time out in milliseconds</param>
-        /// <returns></returns>
-        public static async Task WithTimeout(this Task task, int timeout)
-        {
-            if (task == await Task.WhenAny(task, Task.Delay(timeout)))
-            {
-                await task;
-                return;
-            }
-            throw new TimeoutException();
-        }
     }
 }

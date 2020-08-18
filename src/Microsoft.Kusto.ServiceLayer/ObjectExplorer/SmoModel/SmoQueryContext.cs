@@ -4,7 +4,6 @@
 //
 
 using Microsoft.SqlTools.Extensibility;
-using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 
@@ -37,17 +36,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
         /// for specific SMO types
         /// </summary>
         public IMultiServiceProvider ServiceProvider { get; private set; }
-        
-        /// <summary>
-        /// Helper method to cast a parent to a specific type
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public T ParentAs<T>()
-            where T : TreeNode
-        {
-            return ParentObjectMetadata as T;
-        }
 
         /// <summary>
         /// Copies the context for use by another node

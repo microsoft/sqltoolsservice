@@ -655,19 +655,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
         internal static string GenerateUri(ConnectionDetails details)
         {
             return ConnectedBindingQueue.GetConnectionContextKey(details);
-        }      
-
-        public IEnumerable<ChildFactory> GetApplicableChildFactories(TreeNode item)
-        {
-            if (ApplicableNodeChildFactories != null)
-            {
-                HashSet<ChildFactory> applicableFactories;
-                if (ApplicableNodeChildFactories.TryGetValue(item.NodeTypeId.ToString(), out applicableFactories))
-                {
-                    return applicableFactories;
-                }
-            }
-            return null;
         }
 
         internal Dictionary<string, HashSet<ChildFactory>> PopulateFactories()

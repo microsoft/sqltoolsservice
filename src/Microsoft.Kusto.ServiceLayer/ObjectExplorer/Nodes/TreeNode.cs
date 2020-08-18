@@ -291,17 +291,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
         }
 
         /// <summary>
-        /// Adds a child to the list of children under this node
-        /// </summary>
-        /// <param name="newChild"><see cref="TreeNode"/></param>
-        public void AddChild(TreeNode newChild)
-        {
-            Validate.IsNotNull(nameof(newChild), newChild);
-            children.Add(newChild);
-            newChild.Parent = this;
-        }
-        
-        /// <summary>
         /// Optional context to help with lookup of children
         /// </summary>
         public virtual object GetContext()

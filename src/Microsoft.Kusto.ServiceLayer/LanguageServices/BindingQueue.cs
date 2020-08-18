@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Diagnostics;
-using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,8 +21,6 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
     /// </summary>
     public class BindingQueue<T> : IDisposable where T : IBindingContext, new()
     {
-        internal const int QueueThreadStackSize = 5 * 1024 * 1024;
-
         private CancellationTokenSource processQueueCancelToken = null;
 
         private ManualResetEvent itemQueuedEvent = new ManualResetEvent(initialState: false);
@@ -33,8 +30,6 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         private LinkedList<QueueItem> bindingQueue = new LinkedList<QueueItem>();
 
         private object bindingContextLock = new object();
-
-        private Task queueProcessorTask;
 
         public delegate void UnhandledExceptionDelegate(string connectionKey, Exception ex);
 
@@ -59,29 +54,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 
         public void StartQueueProcessor()
         {
-            this.queueProcessorTask = StartQueueProcessorAsync();
-        }
-
-        /// <summary>
-        /// Stops the binding queue by sending cancellation request
-        /// </summary>
-        /// <param name="timeout"></param>
-        public bool StopQueueProcessor(int timeout)
-        {
-            this.processQueueCancelToken.Cancel();
-            return this.queueProcessorTask.Wait(timeout);
-        }
-
-        /// <summary>
-        /// Returns true if cancellation is requested
-        /// </summary>
-        /// <returns></returns>
-        public bool IsCancelRequested
-        {
-            get
-            {
-                return this.processQueueCancelToken.IsCancellationRequested;
-            }
+            StartQueueProcessorAsync();
         }
 
         /// <summary>
@@ -161,20 +134,6 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 
                 return this.BindingContextMap[key];
             }      
-        }
-
-        protected IEnumerable<IBindingContext> GetBindingContexts(string keyPrefix)
-        {
-            // use a default binding context for disconnected requests
-            if (string.IsNullOrWhiteSpace(keyPrefix))
-            {
-                keyPrefix = "disconnected_binding_context";
-            }
-
-            lock (this.bindingContextLock)
-            {
-                return this.BindingContextMap.Where(x => x.Key.StartsWith(keyPrefix)).Select(v => v.Value);
-            }
         }
 
         /// <summary>
@@ -452,20 +411,6 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                             this.itemQueuedEvent.Reset();
                         }
                     }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Clear queued items
-        /// </summary>
-        public void ClearQueuedItems()
-        {
-            lock (this.bindingQueueLock)
-            {
-                if (this.bindingQueue.Count > 0)
-                {
-                    this.bindingQueue.Clear();
                 }
             }
         }

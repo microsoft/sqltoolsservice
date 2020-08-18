@@ -41,12 +41,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
             }
         }
 
-        public virtual void CacheInfoFromModel(DataSourceObjectMetadata objectMetadata)
-        {
-            base.ObjectMetadata = objectMetadata;
-            NodeValue = objectMetadata.Name;
-        }
-        
         public virtual DataSourceObjectMetadata GetParentObjectMetadata()
         {
             if (ObjectMetadata != null)

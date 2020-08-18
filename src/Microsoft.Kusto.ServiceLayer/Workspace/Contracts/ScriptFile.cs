@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.Kusto.ServiceLayer.Workspace.Contracts
 {
@@ -149,28 +148,6 @@ namespace Microsoft.Kusto.ServiceLayer.Workspace.Contracts
         #region Public Methods
 
         /// <summary>
-        /// Gets a line from the file's contents.
-        /// </summary>
-        /// <param name="lineNumber">The 1-based line number in the file.</param>
-        /// <returns>The complete line at the given line number.</returns>
-        public string GetLine(int lineNumber)
-        {
-            Validate.IsWithinRange(
-                "lineNumber", lineNumber,
-                1, FileLines.Count + 1);
-
-            return FileLines[lineNumber - 1];
-        }
-
-        /// <summary>
-        /// Gets the text under a specific range
-        /// </summary>
-        public string GetTextInRange(BufferRange range)
-        {
-            return string.Join(Environment.NewLine, GetLinesInRange(range));
-        }
-
-        /// <summary>
         /// Gets a range of lines from the file's contents. Virtual method to allow for
         /// mocking.
         /// </summary>
@@ -298,136 +275,6 @@ namespace Microsoft.Kusto.ServiceLayer.Workspace.Contracts
                 FileLines.Insert(currentLineNumber - 1, finalLine);
                 currentLineNumber++;
             }
-        }
-
-        /// <summary>
-        /// Calculates the zero-based character offset of a given
-        /// line and column position in the file.
-        /// </summary>
-        /// <param name="lineNumber">The 1-based line number from which the offset is calculated.</param>
-        /// <param name="columnNumber">The 1-based column number from which the offset is calculated.</param>
-        /// <returns>The zero-based offset for the given file position.</returns>
-        public int GetOffsetAtPosition(int lineNumber, int columnNumber)
-        {
-            Validate.IsWithinRange("lineNumber", lineNumber, 1, FileLines.Count);
-            Validate.IsGreaterThan("columnNumber", columnNumber, 0);
-
-            int offset = 0;
-
-            for(int i = 0; i < lineNumber; i++)
-            {
-                if (i == lineNumber - 1)
-                {
-                    // Subtract 1 to account for 1-based column numbering
-                    offset += columnNumber - 1; 
-                }
-                else
-                {
-                    // Add an offset to account for the current platform's newline characters
-                    offset += FileLines[i].Length + Environment.NewLine.Length;
-                }
-            }
-
-            return offset;
-        }
-
-        /// <summary>
-        /// Calculates a FilePosition relative to a starting BufferPosition
-        /// using the given 1-based line and column offset.
-        /// </summary>
-        /// <param name="originalPosition">The original BufferPosition from which an new position should be calculated.</param>
-        /// <param name="lineOffset">The 1-based line offset added to the original position in this file.</param>
-        /// <param name="columnOffset">The 1-based column offset added to the original position in this file.</param>
-        /// <returns>A new FilePosition instance with the resulting line and column number.</returns>
-        public FilePosition CalculatePosition(
-            BufferPosition originalPosition,
-            int lineOffset,
-            int columnOffset)
-        {
-            int newLine = originalPosition.Line + lineOffset,
-                newColumn = originalPosition.Column + columnOffset;
-
-            ValidatePosition(newLine, newColumn);
-
-            string scriptLine = FileLines[newLine - 1];
-            newColumn = Math.Min(scriptLine.Length + 1, newColumn);
-
-            return new FilePosition(this, newLine, newColumn);
-        }
-
-        /// <summary>
-        /// Calculates the 1-based line and column number position based
-        /// on the given buffer offset.
-        /// </summary>
-        /// <param name="bufferOffset">The buffer offset to convert.</param>
-        /// <returns>A new BufferPosition containing the position of the offset.</returns>
-        public BufferPosition GetPositionAtOffset(int bufferOffset)
-        {
-            BufferRange bufferRange = 
-                GetRangeBetweenOffsets(
-                    bufferOffset, bufferOffset);
-
-            return bufferRange.Start;
-        }
-
-        /// <summary>
-        /// Calculates the 1-based line and column number range based on
-        /// the given start and end buffer offsets.
-        /// </summary>
-        /// <param name="startOffset">The start offset of the range.</param>
-        /// <param name="endOffset">The end offset of the range.</param>
-        /// <returns>A new BufferRange containing the positions in the offset range.</returns>
-        public BufferRange GetRangeBetweenOffsets(int startOffset, int endOffset)
-        {
-            bool foundStart = false;
-            int currentOffset = 0;
-            int searchedOffset = startOffset;
-
-            BufferPosition startPosition = new BufferPosition(0, 0);
-            BufferPosition endPosition = startPosition;
-
-            int line = 0;
-            while (line < FileLines.Count)
-            {
-                if (searchedOffset <= currentOffset + FileLines[line].Length)
-                {
-                    int column = searchedOffset - currentOffset;
-
-                    // Have we already found the start position?
-                    if (foundStart)
-                    {
-                        // Assign the end position and end the search
-                        endPosition = new BufferPosition(line + 1, column + 1);
-                        break;
-                    }
-                    else
-                    {
-                        startPosition = new BufferPosition(line + 1, column + 1);
-
-                        // Do we only need to find the start position?
-                        if (startOffset == endOffset)
-                        {
-                            endPosition = startPosition;
-                            break;
-                        }
-                        else
-                        {
-                            // Since the end offset can be on the same line,
-                            // skip the line increment and continue searching
-                            // for the end position
-                            foundStart = true;
-                            searchedOffset = endOffset;
-                            continue;
-                        }
-                    }
-                }
-
-                // Increase the current offset and include newline length
-                currentOffset += FileLines[line].Length + Environment.NewLine.Length;
-                line++;
-            }
-
-            return new BufferRange(startPosition, endPosition);
         }
 
         /// <summary>

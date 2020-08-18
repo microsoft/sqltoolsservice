@@ -12,10 +12,8 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -207,35 +205,6 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
         #region Public Methods
 
         /// <summary>
-        /// Returns a specific row from the result set.
-        /// </summary>
-        /// <remarks>
-        /// Creates a new file reader for a single reader. This method should only be used for one
-        /// off requests, not for requesting a large subset of the results.
-        /// </remarks>
-        /// <param name="rowId">The internal ID of the row to read</param>
-        /// <returns>The requested row</returns>
-        public IList<DbCellValue> GetRow(long rowId)
-        {
-            // Sanity check to make sure that results read has started
-            if (!hasStartedRead)
-            {
-                throw new InvalidOperationException(SR.QueryServiceResultSetNotRead);
-            }
-
-            // Sanity check to make sure that the row exists
-            if (rowId >= RowCount)
-            {
-                throw new ArgumentOutOfRangeException(nameof(rowId), SR.QueryServiceResultSetStartRowOutOfRange);
-            }
-
-            using (IFileStreamReader fileStreamReader = fileStreamFactory.GetReader(outputFileName))
-            {
-                return fileStreamReader.ReadRow(fileOffsets[rowId], rowId, Columns);
-            }
-        }
-
-        /// <summary>
         /// Generates a subset of the rows from the result set
         /// </summary>
         /// <param name="startRow">The starting row of the results</param>
@@ -391,50 +360,6 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                 //
                 await (ResultCompletion?.Invoke(this) ?? Task.CompletedTask);
             }
-        }
-
-        /// <summary>
-        /// Removes a row from the result set cache
-        /// </summary>
-        /// <param name="internalId">Internal ID of the row</param>
-        public void RemoveRow(long internalId)
-        {
-            // Sanity check to make sure that results read has started
-            if (!hasStartedRead)
-            {
-                throw new InvalidOperationException(SR.QueryServiceResultSetNotRead);
-            }
-
-            // Simply remove the row from the list of row offsets
-            fileOffsets.RemoveAt(internalId);
-        }
-
-        /// <summary>
-        /// Adds a new row to the result set by reading the row from the provided db data reader
-        /// </summary>
-        /// <param name="dbDataReader">The result of a command to insert a new row should be UNREAD</param>
-        public async Task AddRow(DbDataReader dbDataReader)
-        {
-            // Write the new row to the end of the file
-            long newOffset = await AppendRowToBuffer(dbDataReader);
-
-            // Add the row to file offset list
-            fileOffsets.Add(newOffset);
-        }
-
-        /// <summary>
-        /// Updates the values in a row with the 
-        /// </summary>
-        /// <param name="rowId"></param>
-        /// <param name="dbDataReader"></param>
-        /// <returns></returns>
-        public async Task UpdateRow(long rowId, DbDataReader dbDataReader)
-        {
-            // Write the updated row to the end of the file
-            long newOffset = await AppendRowToBuffer(dbDataReader);
-
-            // Update the file offset of the row in question
-            fileOffsets[rowId] = newOffset;
         }
 
         /// <summary>
@@ -670,28 +595,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
         internal uint ResultTimerInterval => Math.Max(Math.Min(MaxResultsTimerPulseMilliseconds, (uint)RowCount / 500 /* 1 millisec per 500 rows*/), MinResultTimerPulseMilliseconds * ResultsIntervalMultiplier);
 
         internal ResultSetSummary LastUpdatedSummary { get; set; } = null;
-
-        /// <summary>
-        /// Check columns for json type and set isJson if needed
-        /// </summary>
-        private void CheckForIsJson()
-        {
-            if (Columns?.Length > 0 && RowCount != 0)
-            {
-                Regex regex = new Regex(@"({.*?})");
-                var row = GetRow(0);
-                for (int i = 0; i < Columns.Length; i++)
-                {
-                    if (Columns[i].DataTypeName.Equals("nvarchar"))
-                    {
-                        if (regex.IsMatch(row[i].DisplayValue))
-                        {
-                            Columns[i].IsJson = true;
-                        }
-                    }
-                }
-            }
-        }
+        
 
         /// <summary>
         /// Determine the special action, if any, for this result set
@@ -706,41 +610,6 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
             }
 
             return specialAction;
-        }
-
-        /// <summary>
-        /// Adds a single row to the end of the buffer file. INTENDED FOR SINGLE ROW INSERTION ONLY.
-        /// </summary>
-        /// <param name="dbDataReader">An UNREAD db data reader</param>
-        /// <returns>The offset into the file where the row was inserted</returns>
-        private async Task<long> AppendRowToBuffer(DbDataReader dbDataReader)
-        {
-            Validate.IsNotNull(nameof(dbDataReader), dbDataReader);
-            // Sanity check to make sure that results read has started
-            if (!hasStartedRead)
-            {
-                throw new InvalidOperationException(SR.QueryServiceResultSetNotRead);
-            }
-            // NOTE: We are no longer checking to see if the data reader has rows before reading 
-            // b/c of a quirk in SqlClient. In some scenarios, a SqlException isn't thrown until we
-            // read. In order to get appropriate errors back to the user, we'll read first.
-            // Returning false from .ReadAsync means there aren't any rows.
-
-            // Create a storage data reader, read it, make sure there were results
-            StorageDataReader dataReader = new StorageDataReader(dbDataReader);
-            if (!await dataReader.ReadAsync(CancellationToken.None))
-            {
-                throw new InvalidOperationException(SR.QueryServiceResultSetAddNoRows);
-            }
-            
-            using (IFileStreamWriter writer = fileStreamFactory.GetWriter(outputFileName))
-            {
-                // Write the row to the end of the file
-                long currentFileOffset = totalBytesWritten;
-                writer.Seek(currentFileOffset);
-                totalBytesWritten += writer.WriteRow(dataReader);
-                return currentFileOffset;
-            }
         }
 
         #endregion

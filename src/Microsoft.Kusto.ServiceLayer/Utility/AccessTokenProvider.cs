@@ -17,8 +17,6 @@ namespace Microsoft.Kusto.ServiceLayer.Utility
             _accessToken = accessToken;
         }
 
-        public bool IsTokenExpired() { return false; }
-
         public string GetValidAccessToken() { return _accessToken; }
     }
 }

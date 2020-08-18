@@ -265,19 +265,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
         #endregion
 
-        /// <summary>
-        /// Executes a Kusto control command.
-        /// </summary>
-        /// <param name="command">The command.</param>
-        public void ExecuteControlCommand(string command)
-        {
-            ValidationUtils.IsArgumentNotNullOrWhiteSpace(command, nameof(command));
-
-            using (var adminOutput = KustoAdminProvider.ExecuteControlCommand(command, null))
-            {
-            }
-        }
-
         private KustoConnectionStringBuilder GetKustoConnectionStringBuilder()
         {
             ValidationUtils.IsNotNull(ClusterName, nameof(ClusterName));
@@ -376,18 +363,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             }
 
             return _databaseMetadata;
-        }
-
-        /// <inheritdoc/>
-        public override bool Exists(DataSourceObjectMetadata objectMetadata)
-        {
-            ValidationUtils.IsNotNull(objectMetadata, "Need a datasource object");
-
-            switch(objectMetadata.MetadataType)
-            {
-                case DataSourceMetadataType.Database: return DatabaseExists(objectMetadata.Name).Result;
-                default: throw new ArgumentException($"Unexpected type {objectMetadata.MetadataType}.");
-            }
         }
 
         /// <summary>
@@ -504,58 +479,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             }
 
             return markers.ToArray();
-        }
-
-        /// <inheritdoc/>
-        public override void Refresh()
-        {
-            // This class caches objects. Throw them away so that the next call will re-query the data source for the objects.
-            _databaseMetadata = null;
-            _tableMetadata = new ConcurrentDictionary<string, IEnumerable<TableMetadata>>();
-            _columnMetadata  = new ConcurrentDictionary<string, IEnumerable<DataSourceObjectMetadata>>();
-            _folderMetadata = new ConcurrentDictionary<string, IEnumerable<FolderMetadata>>();
-            _functionMetadata = new ConcurrentDictionary<string, IEnumerable<FunctionMetadata>>();
-        }
-
-        /// <inheritdoc/>
-        public override void Refresh(DataSourceObjectMetadata objectMetadata)
-        {
-            ValidationUtils.IsNotNull(objectMetadata, nameof(objectMetadata));
-
-            switch(objectMetadata.MetadataType)
-            {
-                case DataSourceMetadataType.Cluster:
-                    Refresh();
-                    break;
-
-                case DataSourceMetadataType.Database:
-                    _tableMetadata.TryRemove(objectMetadata.Name, out _);
-                    break;
-
-                case DataSourceMetadataType.Table:
-                    var tm = objectMetadata as TableMetadata;
-                    _columnMetadata.TryRemove(GenerateMetadataKey(tm.DatabaseName, tm.Name), out _);
-                    break;
-
-                case DataSourceMetadataType.Column:
-                    // Remove column metadata for the whole table
-                    var cm = objectMetadata as ColumnMetadata;
-                    _columnMetadata.TryRemove(GenerateMetadataKey(cm.DatabaseName, cm.TableName), out _);
-                    break;
-                
-                case DataSourceMetadataType.Function:
-                    var fm = objectMetadata as FunctionMetadata;
-                    _functionMetadata.TryRemove(GenerateMetadataKey(fm.DatabaseName, fm.Name), out _);
-                    break;
-                
-                case DataSourceMetadataType.Folder:
-                    var folder = objectMetadata as FolderMetadata;
-                    _folderMetadata.TryRemove(GenerateMetadataKey(folder.ParentMetadata.Name, folder.Name), out _);
-                    break;
-
-                default:
-                    throw new ArgumentException($"Unexpected type {objectMetadata.MetadataType}.");
-            }
         }
 
         /// <inheritdoc/>

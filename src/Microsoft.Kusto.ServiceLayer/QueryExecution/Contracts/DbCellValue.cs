@@ -3,8 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.Utility;
-
 namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts
 {
     /// <summary>
@@ -37,20 +35,5 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts
         /// or other purposes.
         /// </summary>
         public long RowId { get; set; }
-
-        /// <summary>
-        /// Copies the values of this DbCellValue into another DbCellValue (or child object)
-        /// </summary>
-        /// <param name="other">The DbCellValue (or child) that will receive the values</param>
-        public virtual void CopyTo(DbCellValue other)
-        {
-            Validate.IsNotNull(nameof(other), other);
-
-            other.DisplayValue = DisplayValue;
-            other.InvariantCultureDisplayValue = InvariantCultureDisplayValue;
-            other.IsNull = IsNull;
-            other.RawObject = RawObject;
-            other.RowId = RowId;
-        }
     }
 }

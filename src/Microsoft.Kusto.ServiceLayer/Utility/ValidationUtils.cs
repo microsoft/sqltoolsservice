@@ -5,7 +5,6 @@
 namespace Microsoft.Kusto.ServiceLayer.Utility
 {
     using System;
-    using System.Collections.Generic;
     using System.ComponentModel;
 
     /// <summary>
@@ -40,53 +39,6 @@ namespace Microsoft.Kusto.ServiceLayer.Utility
         }
 
         /// <summary>
-        /// Validates whether a string argument is null or empty.
-        /// </summary>
-        /// <param name="param">The parameter.</param>
-        /// <param name="paramName">The parameter name.</param>
-        public static void IsArgumentNullOrEmpty(string param, [Localizable(false)] string paramName)
-        {
-            if (!string.IsNullOrEmpty(param))
-            {
-                throw new ArgumentException($"{paramName} must be null or empty.", paramName);
-            }
-        }
-
-        /// <summary>
-        /// Validates whether an argument equals an expected value.
-        /// </summary>
-        /// <typeparam name="T">The type of the argument.</typeparam>
-        /// <param name="actual"></param>
-        /// <param name="expected"></param>
-        /// <param name="paramName"></param>
-        /// <param name="comparer"></param>
-        public static void IsArgumentNotEqual<T>(T actual, T expected, [Localizable(false)] string paramName, IEqualityComparer<T> comparer = null)
-        {
-            comparer = comparer ?? EqualityComparer<T>.Default;
-            if (comparer.Equals(actual, expected))
-            {
-                throw new ArgumentException($"{paramName} is unsupported: '{actual}'.", paramName);
-            }
-        }
-
-        /// <summary>
-        /// Validates whether an argument equals an expected value.
-        /// </summary>
-        /// <typeparam name="T">The type of the argument.</typeparam>
-        /// <param name="actual"></param>
-        /// <param name="expected"></param>
-        /// <param name="paramName"></param>
-        /// <param name="comparer"></param>
-        public static void IsArgumentEqual<T>(T actual, T expected, [Localizable(false)] string paramName, IEqualityComparer<T> comparer = null)
-        {
-            comparer = comparer ?? EqualityComparer<T>.Default;
-            if (!comparer.Equals(actual, expected))
-            {
-                throw new ArgumentException($"{paramName} value is unexpected: actual '{actual}', expected '{expected}'.", paramName);
-            }
-        }
-
-        /// <summary>
         /// Validates whether an object is not null.
         /// </summary>
         /// <param name="value">The object value.</param>
@@ -97,21 +49,6 @@ namespace Microsoft.Kusto.ServiceLayer.Utility
             if (value == null)
             {
                 throw new InvalidOperationException($"{name} cannot be null.");
-            }
-        }
-
-        /// <summary>
-        /// Validates whether an object is not null.
-        /// </summary>
-        /// <typeparam name="TException">The type of the exception to throw.</typeparam>
-        /// <param name="value">The object value.</param>
-        /// <param name="message">The exception message.</param>
-        public static void IsNotNull<TException>(object value, [Localizable(false)] string message)
-            where TException : Exception, new()
-        {
-            if (value == null)
-            {
-                throw (TException)Activator.CreateInstance(typeof(TException), message);
             }
         }
 

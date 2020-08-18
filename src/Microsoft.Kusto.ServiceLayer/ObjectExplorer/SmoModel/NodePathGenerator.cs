@@ -159,19 +159,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
         {
             [XmlElement("Node", typeof(Node))]
             public List<Node> Nodes { get; set; }
-
-            public Node GetNode(string name)
-            {
-                foreach (var node in this.Nodes)
-                {
-                    if (node.Name == name)
-                    {
-                        return node;
-                    }
-                }
-
-                return null;
-            }
         }
 
         public class Node
@@ -191,20 +178,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
             [XmlElement("Child", typeof(Child))]
             public List<Child> Children { get; set; }
 
-            public HashSet<Node> ChildFolders()
-            {
-                var childSet = new HashSet<Node>();
-                foreach (var child in this.Children)
-                {
-                    var node = TreeRoot.GetNode(child.Name);
-                    if (node != null)
-                    {
-                        childSet.Add(node);
-                    }
-                }
-                return childSet;
-            }
-
             public string ContainedType()
             {
                 if (this.TreeNode != null)
@@ -216,23 +189,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
                     return this.NodeType;
                 }
                 return null;
-            }
-
-            public Node ContainedObject()
-            {
-                var containedType = this.ContainedType();
-                if (containedType == null)
-                {
-                    return null;
-                }
-                
-                var containedNode = TreeRoot.GetNode(containedType);
-                if (containedNode == this)
-                {
-                    return null;
-                }
-
-                return containedNode;
             }
 
             public string Label()

@@ -50,37 +50,6 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         /// Given a collection of candidate scripting objects, filters the items that match 
         /// based on the passed include and exclude criteria.
         /// </summary>
-        /// <param name="includeCriteria">The include object criteria.</param>
-        /// <param name="excludeCriteria">The exclude object criteria.</param>
-        /// <param name="includeSchemas">The include schema filter.</param>
-        /// <param name="excludeSchemas">The exclude schema filter.</param>
-        /// <param name="includeTypes">The include type filter.</param>
-        /// <param name="excludeTypes">The exclude type filter.</param>
-        /// <param name="candidates">The candidate object to filter.</param>
-        /// <returns>The matching scripting objects.</returns>
-        public static IEnumerable<ScriptingObject> Match(
-            ScriptingObject includeCriteria,
-            ScriptingObject excludeCriteria,
-            string includeSchemas,
-            string excludeSchemas,
-            string includeTypes,
-            string excludeTypes,
-            IEnumerable<ScriptingObject> candidates)
-        {
-            return Match(
-                includeCriteria == null ? new ScriptingObject[0] : new[] { includeCriteria },
-                excludeCriteria == null ? new ScriptingObject[0] : new[] { excludeCriteria },
-                includeSchemas == null ? new List<string>(): new List<string> { includeSchemas },
-                excludeSchemas == null ? new List<string>(): new List<string> { excludeSchemas },
-                includeTypes == null ? new List<string>(): new List<string> { includeTypes },
-                excludeTypes == null ? new List<string>(): new List<string> { excludeTypes },
-                candidates);
-        }
-
-        /// <summary>
-        /// Given a collection of candidate scripting objects, filters the items that match 
-        /// based on the passed include and exclude criteria.
-        /// </summary>
         /// <param name="includeCriteria">The collection of include object criteria items.</param>
         /// <param name="excludeCriteria">The collection of exclude object criteria items.</param>
         /// <param name="includeSchemas">The collection of include schema items.</param>

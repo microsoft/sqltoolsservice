@@ -66,24 +66,6 @@ namespace Microsoft.Kusto.ServiceLayer
         }
 
         /// <summary>
-        /// Update metric value given new number
-        /// </summary>
-        public void UpdateMetrics(double duration, T newValue, Func<string, T, T> updateValueFactory)
-        {
-            int metric = Metrics[Metrics.Length - 1];
-            for (int i = 0; i < Metrics.Length; i++)
-            {
-                if (duration <= Metrics[i])
-                {
-                    metric = Metrics[i];
-                    break;
-                }
-            }
-            string key = metric.ToString();
-            Counters.AddOrUpdate(key, newValue, updateValueFactory);
-        }
-
-        /// <summary>
         /// Returns the quantile
         /// </summary>
         public Dictionary<string, T> Quantile

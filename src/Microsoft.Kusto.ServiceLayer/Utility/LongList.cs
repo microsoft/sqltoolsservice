@@ -184,49 +184,6 @@ namespace Microsoft.Kusto.ServiceLayer.Utility
             }
         }
 
-        /// <summary>
-        /// Removes an item at the specified location and shifts all the items after the provided
-        /// index up by one.
-        /// </summary>
-        /// <param name="index">The index to remove from the list</param>
-        public void RemoveAt(long index)
-        {
-            Validate.IsWithinRange(nameof(index), index, 0, Count - 1);
-
-            if (Count <= this.ExpandListSize)
-            {
-                int iArray32MemberIndex = Convert.ToInt32(index); // 0 based
-                shortList.RemoveAt(iArray32MemberIndex);
-            }
-            else // handle the case of multiple arrays
-            {
-                // find out which array it is in
-                int arrayIndex = (int) (index / this.ExpandListSize);
-                List<T> arr = expandedList[arrayIndex];
-
-                // find out index into this array
-                int iArray32MemberIndex = (int) (index % this.ExpandListSize);
-                arr.RemoveAt(iArray32MemberIndex);
-
-                // now shift members of the array back one
-                //int iArray32TotalIndex = (int) (Count / this.ExpandListSize);
-                for (int i = arrayIndex + 1; i < expandedList.Count; i++)
-                {
-                    List<T> arr1 = expandedList[i - 1];
-                    List<T> arr2 = expandedList[i];
-
-                    arr1.Add(arr2[0]);
-                    arr2.RemoveAt(0);
-
-                    if (arr2.Count == 0)
-                    {
-                        expandedList.RemoveAt(i);
-                    }
-                }
-            }
-            --Count;
-        }
-
         #endregion
 
         #region IEnumerable<object> Implementation

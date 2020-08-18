@@ -78,12 +78,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         public abstract IEnumerable<DataSourceObjectMetadata> GetChildObjects(DataSourceObjectMetadata parentMetadata, bool includeSizeDetails = false);
 
         /// <inheritdoc/>
-        public abstract void Refresh();
-
-        /// <inheritdoc/>
-        public abstract void Refresh(DataSourceObjectMetadata objectMetadata);
-
-        /// <inheritdoc/>
         public abstract void UpdateDatabase(string databaseName);
 
         /// <inheritdoc/>
@@ -99,9 +93,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
         /// <inheritdoc/>
         public abstract Task<bool> Exists();
-
-        /// <inheritdoc/>
-        public abstract bool Exists(DataSourceObjectMetadata objectMetadata);
 
         public abstract string GenerateAlterFunctionScript(string functionName);
 
