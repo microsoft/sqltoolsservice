@@ -31,17 +31,18 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 
         private object bindingContextLock = new object();
 
+        private Task queueProcessorTask;
+        
         public delegate void UnhandledExceptionDelegate(string connectionKey, Exception ex);
 
         public event UnhandledExceptionDelegate OnUnhandledException;
-
+        
         /// <summary>
         /// Map from context keys to binding context instances
         /// Internal for testing purposes only
         /// </summary>
         internal Dictionary<string, IBindingContext> BindingContextMap { get; set; }
         
-        private Task queueProcessorTask;
 
         internal Dictionary<IBindingContext, Task> BindingContextTasks { get; set; } = new Dictionary<IBindingContext, Task>();
 
