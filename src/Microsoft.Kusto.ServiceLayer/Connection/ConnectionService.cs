@@ -31,6 +31,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
     /// </summary>
     public class ConnectionService
     {
+        private IMetadataFactory _metadataFactory;
         public const string AdminConnectionPrefix = "ADMIN:";
         internal const string PasswordPlaceholder = "******";
         private const string SqlAzureEdition = "SQL Azure";
@@ -425,7 +426,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
                 var reliableConnection = connection as ReliableDataSourceConnection;
                 IDataSource dataSource = reliableConnection.GetUnderlyingConnection();
-                DataSourceObjectMetadata clusterMetadata = DataSourceFactory.CreateClusterMetadata(connectionInfo.ConnectionDetails.ServerName);
+                DataSourceObjectMetadata clusterMetadata = _metadataFactory.CreateClusterMetadata(connectionInfo.ConnectionDetails.ServerName);
 
                 DiagnosticsInfo clusterDiagnostics = dataSource.GetDiagnostics(clusterMetadata);
                 ReliableConnectionHelper.ServerInfo serverInfo = DataSourceFactory.ConvertToServerinfoFormat(DataSourceType.Kusto, clusterDiagnostics);
@@ -801,14 +802,14 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             ConnectionDetails connectionDetails = info.ConnectionDetails.Clone();
 
             IDataSource dataSource = OpenDataSourceConnection(info);
-            DataSourceObjectMetadata objectMetadata = DataSourceFactory.CreateClusterMetadata(info.ConnectionDetails.ServerName);
+            DataSourceObjectMetadata objectMetadata = _metadataFactory.CreateClusterMetadata(info.ConnectionDetails.ServerName);
 
             ListDatabasesResponse response = new ListDatabasesResponse();
 
             // Mainly used by "manage" dashboard
             if(listDatabasesParams.IncludeDetails.HasTrue()){
                 IEnumerable<DataSourceObjectMetadata> databaseMetadataInfo = dataSource.GetChildObjects(objectMetadata, true);
-                List<DatabaseInfo> metadata = DataSourceFactory.ConvertToDatabaseInfo(databaseMetadataInfo);
+                List<DatabaseInfo> metadata = _metadataFactory.ConvertToDatabaseInfo(databaseMetadataInfo);
                 response.Databases = metadata.ToArray();
 
                 return response;
@@ -819,9 +820,10 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             return response;
         }
 
-        public void InitializeService(IProtocolEndpoint serviceHost)
+        public void InitializeService(IProtocolEndpoint serviceHost, IMetadataFactory metadataFactory)
         {
             this.ServiceHost = serviceHost;
+            _metadataFactory = metadataFactory;
 
             // Register request and event handlers with the Service Host
             serviceHost.SetRequestHandler(ConnectionRequest.Type, HandleConnectRequest);

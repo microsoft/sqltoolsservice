@@ -235,19 +235,13 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         {
             // Register the requests that this service will handle
 
-            // turn off until needed (10/28/2016)
-            // serviceHost.SetRequestHandler(ReferencesRequest.Type, HandleReferencesRequest);
-            // serviceHost.SetRequestHandler(DocumentHighlightRequest.Type, HandleDocumentHighlightRequest);
-
             //serviceHost.SetRequestHandler(SignatureHelpRequest.Type, HandleSignatureHelpRequest);     // Kusto api doesnt support this as of now. Implement it wherever applicable. Hover help is closest to signature help
             serviceHost.SetRequestHandler(CompletionResolveRequest.Type, HandleCompletionResolveRequest);
             serviceHost.SetRequestHandler(HoverRequest.Type, HandleHoverRequest);
             serviceHost.SetRequestHandler(CompletionRequest.Type, HandleCompletionRequest);
             serviceHost.SetRequestHandler(DefinitionRequest.Type, HandleDefinitionRequest);             // Parses "Go to definition" functionality
             serviceHost.SetRequestHandler(SyntaxParseRequest.Type, HandleSyntaxParseRequest);           // Parses syntax errors
-            //serviceHost.SetRequestHandler(CompletionExtLoadRequest.Type, HandleCompletionExtLoadRequest);
             serviceHost.SetEventHandler(RebuildIntelliSenseNotification.Type, HandleRebuildIntelliSenseNotification);
-            //serviceHost.SetEventHandler(LanguageFlavorChangeNotification.Type, HandleDidChangeLanguageFlavorNotification);
 
             // Register a no-op shutdown task for validation of the shutdown logic
             serviceHost.RegisterShutdownTask(async (shutdownParams, shutdownRequestContext) =>

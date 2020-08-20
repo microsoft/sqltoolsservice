@@ -36,6 +36,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
     /// </summary>
     public class KustoDataSource : DataSourceBase
     {
+        private readonly IMetadataFactory _metadataFactory;
         private ICslQueryProvider _kustoQueryProvider;
 
         private ICslAdminProvider _kustoAdminProvider;
@@ -83,8 +84,9 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// <summary>
         /// Prevents a default instance of the <see cref="IDataSource"/> class from being created.
         /// </summary>
-        public KustoDataSource(string connectionString, string azureAccountToken)
+        public KustoDataSource(string connectionString, string azureAccountToken, IMetadataFactory metadataFactory)
         {
+            _metadataFactory = metadataFactory;
             ClusterName = GetClusterName(connectionString);
             DatabaseName = GetDatabaseName(connectionString);
             UserToken = azureAccountToken;
@@ -736,7 +738,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             if (tableInfos.Any(x => !string.IsNullOrWhiteSpace(x.Folder)))
             {
                 // create Table folder to hold functions tables
-                var tableFolder = DataSourceFactory.CreateFolderMetadata(databaseMetadata, rootTableFolderKey.ToString(), "Tables");
+                var tableFolder = _metadataFactory.CreateFolderMetadata(databaseMetadata, rootTableFolderKey.ToString(), "Tables");
                 _folderMetadata.AddRange(rootTableFolderKey.ToString(), new List<FolderMetadata> {tableFolder});
                 rootTableFolderKey.Append($".{tableFolder.Name}");
                 
@@ -782,7 +784,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                     continue;
                 }
 
-                var folder = DataSourceFactory.CreateFolderMetadata(objectMetadata, rootTableFolderKey, columnGroup.Key);
+                var folder = _metadataFactory.CreateFolderMetadata(objectMetadata, rootTableFolderKey, columnGroup.Key);
                 tableFolders.Add(folder);
             }
 
@@ -800,7 +802,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
             // create Functions folder to hold functions folders
             var rootFunctionFolderKey = $"{databaseMetadata.Urn}";
-            var rootFunctionFolder = DataSourceFactory.CreateFolderMetadata(databaseMetadata, rootFunctionFolderKey, "Functions");
+            var rootFunctionFolder = _metadataFactory.CreateFolderMetadata(databaseMetadata, rootFunctionFolderKey, "Functions");
             _folderMetadata.AddRange(rootFunctionFolderKey, new List<FolderMetadata> {rootFunctionFolder});
 
             // create each folder to hold functions
@@ -834,13 +836,13 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 var topFolder = subFolders.First();
 
                 var folderKey = functionFolder.Urn;
-                var folder = DataSourceFactory.CreateFolderMetadata(databaseMetadata, folderKey, topFolder);
+                var folder = _metadataFactory.CreateFolderMetadata(databaseMetadata, folderKey, topFolder);
                 functionFolders.SafeAdd(folderKey, folder);
 
                 for (int i = 1; i < subFolders.Length; i++)
                 {
                     folderKey = $"{folderKey}.{subFolders[i - 1]}";
-                    var subFolder = DataSourceFactory.CreateFolderMetadata(databaseMetadata, folderKey, subFolders[i]);
+                    var subFolder = _metadataFactory.CreateFolderMetadata(databaseMetadata, folderKey, subFolders[i]);
                     functionFolders.SafeAdd(folderKey, subFolder);
                 }
             }

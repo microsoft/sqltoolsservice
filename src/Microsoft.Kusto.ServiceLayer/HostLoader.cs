@@ -11,6 +11,7 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.Kusto.ServiceLayer.Admin;
 using Microsoft.Kusto.ServiceLayer.Metadata;
 using Microsoft.Kusto.ServiceLayer.Connection;
+using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 using Microsoft.Kusto.ServiceLayer.Hosting;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
 using Microsoft.Kusto.ServiceLayer.QueryExecution;
@@ -66,6 +67,7 @@ namespace Microsoft.Kusto.ServiceLayer
             ExtensionServiceProvider serviceProvider = ExtensionServiceProvider.CreateDefaultServiceProvider(inclusionList);
             serviceProvider.RegisterSingleService(sqlToolsContext);
             serviceProvider.RegisterSingleService(serviceHost);
+            var metadataFactory = serviceProvider.GetService<IMetadataFactory>();
 
             // Initialize and register singleton services so they're accessible for any MEF service. In the future, these
             // could be updated to be IComposableServices, which would avoid the requirement to define a singleton instance
@@ -76,7 +78,7 @@ namespace Microsoft.Kusto.ServiceLayer
             LanguageService.Instance.InitializeService(serviceHost, sqlToolsContext);
             serviceProvider.RegisterSingleService(LanguageService.Instance);
 
-            ConnectionService.Instance.InitializeService(serviceHost);
+            ConnectionService.Instance.InitializeService(serviceHost, metadataFactory);
             serviceProvider.RegisterSingleService(ConnectionService.Instance);
 
             CredentialService.Instance.InitializeService(serviceHost);
@@ -88,12 +90,12 @@ namespace Microsoft.Kusto.ServiceLayer
             ScriptingService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(ScriptingService.Instance);
 
-            AdminService.Instance.InitializeService(serviceHost);
+            AdminService.Instance.InitializeService(serviceHost, metadataFactory);
             serviceProvider.RegisterSingleService(AdminService.Instance);
 
-            MetadataService.Instance.InitializeService(serviceHost);
+            MetadataService.Instance.InitializeService(serviceHost, metadataFactory);
             serviceProvider.RegisterSingleService(MetadataService.Instance);
-
+            
             InitializeHostedServices(serviceProvider, serviceHost);
             serviceHost.ServiceProvider = serviceProvider;
 

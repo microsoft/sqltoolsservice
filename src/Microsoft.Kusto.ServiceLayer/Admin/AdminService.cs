@@ -22,16 +22,10 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
     /// </summary>
     public class AdminService
     {
+        private IMetadataFactory _metadataFactory;
         private static readonly Lazy<AdminService> instance = new Lazy<AdminService>(() => new AdminService());
 
         private static ConnectionService connectionService = null;
-
-        /// <summary>
-        /// Default, parameterless constructor.
-        /// </summary>
-        internal AdminService()
-        {
-        }
 
         /// <summary>
         /// Internal for testing purposes only
@@ -64,15 +58,16 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
         /// <summary>
         /// Initializes the service instance
         /// </summary>
-        public void InitializeService(ServiceHost serviceHost)
+        public void InitializeService(ServiceHost serviceHost, IMetadataFactory metadataFactory)
         {
             serviceHost.SetRequestHandler(GetDatabaseInfoRequest.Type, HandleGetDatabaseInfoRequest);
+            _metadataFactory = metadataFactory;
         }
 
         /// <summary>
         /// Handle get database info request
         /// </summary>
-        internal static async Task HandleGetDatabaseInfoRequest(
+        internal async Task HandleGetDatabaseInfoRequest(
             GetDatabaseInfoParams databaseParams,
             RequestContext<GetDatabaseInfoResponse> requestContext)
         {
@@ -114,18 +109,18 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
         /// </summary>
         /// <param name="connInfo"></param>
         /// <returns></returns>
-        internal static DatabaseInfo GetDatabaseInfo(ConnectionInfo connInfo)
+        internal DatabaseInfo GetDatabaseInfo(ConnectionInfo connInfo)
         {
             if(!string.IsNullOrEmpty(connInfo.ConnectionDetails.DatabaseName)){
                 ReliableDataSourceConnection connection;
                 connInfo.TryGetConnection("Default", out connection);
                 IDataSource dataSource = connection.GetUnderlyingConnection();
-                DataSourceObjectMetadata objectMetadata = DataSourceFactory.CreateClusterMetadata(connInfo.ConnectionDetails.ServerName);
+                DataSourceObjectMetadata objectMetadata = _metadataFactory.CreateClusterMetadata(connInfo.ConnectionDetails.ServerName);
 
                 List<DataSourceObjectMetadata> metadata = dataSource.GetChildObjects(objectMetadata, true).ToList();
                 var databaseMetadata = metadata.Where(o => o.Name == connInfo.ConnectionDetails.DatabaseName);
 
-                List<DatabaseInfo> databaseInfo = DataSourceFactory.ConvertToDatabaseInfo(databaseMetadata);
+                List<DatabaseInfo> databaseInfo = _metadataFactory.ConvertToDatabaseInfo(databaseMetadata);
 
                 return databaseInfo.ElementAtOrDefault(0);
             }

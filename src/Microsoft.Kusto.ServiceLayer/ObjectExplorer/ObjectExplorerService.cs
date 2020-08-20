@@ -38,6 +38,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
     [Export(typeof(IHostedService))]
     public class ObjectExplorerService : HostedService<ObjectExplorerService>, IComposableService, IHostedService, IDisposable
     {
+        private static IMetadataFactory _metadataFactory;
         internal const string uriPrefix = "objectexplorer://";
 
         // Instance of the connection service, used to get the connection info for a given owner URI
@@ -57,8 +58,9 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
         /// <summary>
         /// Singleton constructor
         /// </summary>
-        public ObjectExplorerService()
+        public ObjectExplorerService([Import] IMetadataFactory metadataFactory)
         {
+            _metadataFactory = metadataFactory;
             sessionMap = new ConcurrentDictionary<string, ObjectExplorerSession>();
             applicableNodeChildFactories = new Lazy<Dictionary<string, HashSet<ChildFactory>>>(() => PopulateFactories());
             NodePathGenerator.Initialize();
@@ -74,15 +76,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
             {
                 this.bindingQueue = value;
             }
-        }        
-
-        /// <summary>
-        /// Internal for testing only
-        /// </summary>
-        internal ObjectExplorerService(ExtensionServiceProvider serviceProvider)
-            : this()
-        {
-            SetServiceProvider(serviceProvider);
         }
 
         private Dictionary<string, HashSet<ChildFactory>> ApplicableNodeChildFactories
@@ -787,21 +780,12 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
 
         internal class ObjectExplorerSession
         {
-            private ConnectionService connectionService;
-            private IMultiServiceProvider serviceProvider;
-            
-            // TODO decide whether a cache is needed to handle lookups in elements with a large # children
-            //private const int Cachesize = 10000;
-            //private Cache<string, NodeMapping> cache;
-
-            public ObjectExplorerSession(string uri, TreeNode root, IMultiServiceProvider serviceProvider, ConnectionService connectionService)
+            public ObjectExplorerSession(string uri, TreeNode root)
             {
                 Validate.IsNotNullOrEmptyString("uri", uri);
                 Validate.IsNotNull("root", root);
                 Uri = uri;
                 Root = root;
-                this.serviceProvider = serviceProvider;
-                this.connectionService = connectionService;
             }
 
             public string Uri { get; private set; }
@@ -813,13 +797,13 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
 
             public static ObjectExplorerSession CreateSession(ConnectionCompleteParams response, IMultiServiceProvider serviceProvider, ServerConnection serverConnection, IDataSource dataSource, bool isDefaultOrSystemDatabase)
             {
-                DataSourceObjectMetadata objectMetadata = DataSourceFactory.CreateClusterMetadata(dataSource.ClusterName);
+                DataSourceObjectMetadata objectMetadata = _metadataFactory.CreateClusterMetadata(dataSource.ClusterName);
                 ServerNode rootNode = new ServerNode(response, serviceProvider, serverConnection, dataSource, objectMetadata);
                 
-                var session = new ObjectExplorerSession(response.OwnerUri, rootNode, serviceProvider, serviceProvider.GetService<ConnectionService>());
+                var session = new ObjectExplorerSession(response.OwnerUri, rootNode);
                 if (!isDefaultOrSystemDatabase)
                 {
-                    DataSourceObjectMetadata databaseMetadata = DataSourceFactory.CreateDatabaseMetadata(objectMetadata, response.ConnectionSummary.DatabaseName);
+                    DataSourceObjectMetadata databaseMetadata = _metadataFactory.CreateDatabaseMetadata(objectMetadata, response.ConnectionSummary.DatabaseName);
 
                     // Assuming the databases are in a folder under server node
                     DataSourceTreeNode databaseNode = new DataSourceTreeNode(dataSource, databaseMetadata) {
