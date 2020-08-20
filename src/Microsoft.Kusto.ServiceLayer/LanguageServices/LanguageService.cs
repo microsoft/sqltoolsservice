@@ -84,7 +84,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 
         private ScriptParseInfo currentCompletionParseInfo;
 
-        private ConnectedBindingQueue _bindingQueue;
+        private IConnectedBindingQueue _bindingQueue;
 
         private ParseOptions defaultParseOptions = new ParseOptions(
             batchSeparator: LanguageService.DefaultBatchSeperator,
@@ -218,11 +218,11 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// <param name="serviceHost"></param>
         /// <param name="context"></param>
         /// <param name="dataSourceFactory"></param>
-        /// <param name="sqlConnectionOpener"></param>
-        public void InitializeService(ServiceHost serviceHost, SqlToolsContext context, IDataSourceFactory dataSourceFactory, ISqlConnectionOpener sqlConnectionOpener)
+        /// <param name="connectedBindingQueue"></param>
+        public void InitializeService(ServiceHost serviceHost, SqlToolsContext context, IDataSourceFactory dataSourceFactory, IConnectedBindingQueue connectedBindingQueue)
         {
             _dataSourceFactory = dataSourceFactory;
-            _bindingQueue = new ConnectedBindingQueue(_dataSourceFactory, sqlConnectionOpener);
+            _bindingQueue = connectedBindingQueue;
             // Register the requests that this service will handle
 
             //serviceHost.SetRequestHandler(SignatureHelpRequest.Type, HandleSignatureHelpRequest);     // Kusto api doesnt support this as of now. Implement it wherever applicable. Hover help is closest to signature help

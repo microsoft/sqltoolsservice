@@ -792,16 +792,15 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         }
 
         public void InitializeService(IProtocolEndpoint serviceHost, IMetadataFactory metadataFactory,
-            IDataSourceFactory dataSourceFactory, IDataSourceConnectionFactory dataSourceConnectionFactory,
-            ISqlConnectionOpener sqlConnectionOpener)
+            IDataSourceFactory dataSourceFactory, IDataSourceConnectionFactory dataSourceConnectionFactory, 
+            IConnectedBindingQueue connectedBindingQueue)
         {
             ServiceHost = serviceHost;
             _metadataFactory = metadataFactory;
             _dataSourceFactory = dataSourceFactory;
             _dataSourceConnectionFactory = dataSourceConnectionFactory;
-
-            var defaultQueue = new ConnectedBindingQueue(_dataSourceFactory, sqlConnectionOpener);
-            connectedQueues.AddOrUpdate("Default", defaultQueue, (key, old) => defaultQueue);
+            
+            connectedQueues.AddOrUpdate("Default", connectedBindingQueue, (key, old) => connectedBindingQueue);
             LockedDatabaseManager.ConnectionService = this;
 
             // Register request and event handlers with the Service Host

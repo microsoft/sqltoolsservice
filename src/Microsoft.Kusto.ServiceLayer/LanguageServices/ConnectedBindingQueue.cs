@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Composition;
 using Microsoft.SqlServer.Management.SmoMetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
@@ -18,6 +19,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
     /// <summary>
     /// ConnectedBindingQueue class for processing online binding requests
     /// </summary>
+    [Export(typeof(IConnectedBindingQueue))]
     public class ConnectedBindingQueue : BindingQueue<ConnectedBindingContext>, IConnectedBindingQueue
     {
         internal const int DefaultBindingTimeout = 500;
@@ -28,11 +30,12 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// <summary>
         /// Gets the current settings
         /// </summary>
-        internal SqlToolsSettings CurrentSettings
+        private SqlToolsSettings CurrentSettings
         {
             get { return WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings; }
         }
 
+        [ImportingConstructor]
         public ConnectedBindingQueue(IDataSourceFactory dataSourceFactory, ISqlConnectionOpener sqlConnectionOpener)
         {
             _dataSourceFactory = dataSourceFactory;

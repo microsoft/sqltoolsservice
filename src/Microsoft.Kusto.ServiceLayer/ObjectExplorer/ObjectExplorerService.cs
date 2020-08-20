@@ -39,8 +39,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
     public class ObjectExplorerService : HostedService<ObjectExplorerService>, IComposableService, IHostedService, IDisposable
     {
         private static IMetadataFactory _metadataFactory;
-        private static IDataSourceFactory _dataSourceFactory;
-        private readonly ISqlConnectionOpener _sqlConnectionOpener;
+        private readonly IConnectedBindingQueue _connectedBindingQueue;
         internal const string uriPrefix = "objectexplorer://";
 
         // Instance of the connection service, used to get the connection info for a given owner URI
@@ -49,7 +48,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
         private ConcurrentDictionary<string, ObjectExplorerSession> sessionMap;
         private readonly Lazy<Dictionary<string, HashSet<ChildFactory>>> applicableNodeChildFactories;
         private IMultiServiceProvider serviceProvider;
-        private ConnectedBindingQueue _bindingQueue;
         private string connectionName = "ObjectExplorer";
 
         /// <summary>
@@ -61,26 +59,13 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
         /// Singleton constructor
         /// </summary>
         [ImportingConstructor]
-        public ObjectExplorerService(IMetadataFactory metadataFactory, IDataSourceFactory dataSourceFactory, ISqlConnectionOpener sqlConnectionOpener)
+        public ObjectExplorerService(IMetadataFactory metadataFactory, IConnectedBindingQueue connectedBindingQueue)
         {
             _metadataFactory = metadataFactory;
-            _dataSourceFactory = dataSourceFactory;
-            _sqlConnectionOpener = sqlConnectionOpener;
+            _connectedBindingQueue = connectedBindingQueue;
             sessionMap = new ConcurrentDictionary<string, ObjectExplorerSession>();
             applicableNodeChildFactories = new Lazy<Dictionary<string, HashSet<ChildFactory>>>(PopulateFactories);
             NodePathGenerator.Initialize();
-        }
-
-        internal ConnectedBindingQueue ConnectedBindingQueue
-        {
-            get
-            {
-                return _bindingQueue;
-            }
-            set
-            {
-                this._bindingQueue = value;
-            }
         }
 
         private Dictionary<string, HashSet<ChildFactory>> ApplicableNodeChildFactories
@@ -114,7 +99,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
             connectionService = provider.GetService<ConnectionService>();
             try
             {
-                connectionService.RegisterConnectedQueue(connectionName, _bindingQueue);
+                connectionService.RegisterConnectedQueue(connectionName, _connectedBindingQueue);
 
             }
             catch(Exception ex)
@@ -131,9 +116,8 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
         {
             Logger.Write(TraceEventType.Verbose, "ObjectExplorer service initialized");
             _serviceHost = serviceHost;
-            _bindingQueue = new ConnectedBindingQueue(_dataSourceFactory, _sqlConnectionOpener);
 
-            ConnectedBindingQueue.OnUnhandledException += OnUnhandledException;
+            _connectedBindingQueue.OnUnhandledException += OnUnhandledException;
 
             // Register handlers for requests
             serviceHost.SetRequestHandler(CreateSessionRequest.Type, HandleCreateSessionRequest);
@@ -318,7 +302,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
                 {
                     if (session != null && session.ConnectionInfo != null)
                     {
-                        _bindingQueue.RemoveBindingContext(session.ConnectionInfo);
+                        _connectedBindingQueue.RemoveBindingContext(session.ConnectionInfo);
                     }
                 }
                 connectionService.Disconnect(new DisconnectParams()
@@ -425,8 +409,8 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
                 try
                 {
                     int timeout = (int)TimeSpan.FromSeconds(settings?.ExpandTimeout ?? ObjectExplorerSettings.DefaultExpandTimeout).TotalMilliseconds;
-                    QueueItem queueItem = _bindingQueue.QueueBindingOperation(
-                           key: _bindingQueue.AddConnectionContext(session.ConnectionInfo, false, connectionName, false),
+                    QueueItem queueItem = _connectedBindingQueue.QueueBindingOperation(
+                           key: _connectedBindingQueue.AddConnectionContext(session.ConnectionInfo, false, connectionName, false),
                            bindingTimeout: timeout,
                            waitForLockTimeout: timeout,
                            bindOperation: (bindingContext, cancelToken) =>
@@ -501,8 +485,8 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
                 }
 
                 int timeout = (int)TimeSpan.FromSeconds(settings?.CreateSessionTimeout ?? ObjectExplorerSettings.DefaultCreateSessionTimeout).TotalMilliseconds;
-                QueueItem queueItem = _bindingQueue.QueueBindingOperation(
-                           key: _bindingQueue.AddConnectionContext(connectionInfo, false, connectionName),
+                QueueItem queueItem = _connectedBindingQueue.QueueBindingOperation(
+                           key: _connectedBindingQueue.AddConnectionContext(connectionInfo, false, connectionName),
                            bindingTimeout: timeout,
                            waitForLockTimeout: timeout,
                            bindOperation: (bindingContext, cancelToken) =>
@@ -751,10 +735,10 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
 
         public void Dispose()
         {
-            if (_bindingQueue != null)
+            if (_connectedBindingQueue != null)
             {
-                _bindingQueue.OnUnhandledException -= OnUnhandledException;
-                _bindingQueue.Dispose();
+                _connectedBindingQueue.OnUnhandledException -= OnUnhandledException;
+                _connectedBindingQueue.Dispose();
             }            
         }
 
