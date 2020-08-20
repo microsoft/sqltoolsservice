@@ -19,6 +19,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
     {
         private readonly IDataSourceFactory _dataSourceFactory;
 
+        [ImportingConstructor]
         public DataSourceConnectionFactory(IDataSourceFactory dataSourceFactory)
         {
             _dataSourceFactory = dataSourceFactory;

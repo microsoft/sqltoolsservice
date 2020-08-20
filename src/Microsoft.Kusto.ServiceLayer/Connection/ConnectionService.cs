@@ -181,19 +181,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <summary>
         /// Gets the SQL connection factory instance
         /// </summary>
-        public IDataSourceConnectionFactory ConnectionFactory
-        {
-            get
-            {
-                if (this.connectionFactory == null)
-                {
-                    this.connectionFactory = new DataSourceConnectionFactory(_dataSourceFactory);
-                }
-                return this.connectionFactory;
-            }
-
-            internal set { this.connectionFactory = value; }
-        }
+        private IDataSourceConnectionFactory _dataSourceConnectionFactory;
 
         /// <summary>
         /// Test constructor that injects dependency interfaces
@@ -254,7 +242,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             bool connectionChanged = false;
             if (!OwnerToConnectionMap.TryGetValue(connectionParams.OwnerUri, out connectionInfo))
             {
-                connectionInfo = new ConnectionInfo(ConnectionFactory, connectionParams.OwnerUri, connectionParams.Connection);
+                connectionInfo = new ConnectionInfo(_dataSourceConnectionFactory, connectionParams.OwnerUri, connectionParams.Connection);
             }
             else if (IsConnectionChanged(connectionParams, connectionInfo))
             {
@@ -267,7 +255,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
             if (connectionChanged)
             {
-                connectionInfo = new ConnectionInfo(ConnectionFactory, connectionParams.OwnerUri, connectionParams.Connection);
+                connectionInfo = new ConnectionInfo(_dataSourceConnectionFactory, connectionParams.OwnerUri, connectionParams.Connection);
             }
 
             // Try to open a connection with the given ConnectParams
@@ -819,11 +807,12 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             return response;
         }
 
-        public void InitializeService(IProtocolEndpoint serviceHost, IMetadataFactory metadataFactory, IDataSourceFactory dataSourceFactory)
+        public void InitializeService(IProtocolEndpoint serviceHost, IMetadataFactory metadataFactory, IDataSourceFactory dataSourceFactory, IDataSourceConnectionFactory dataSourceConnectionFactory)
         {
             ServiceHost = serviceHost;
             _metadataFactory = metadataFactory;
             _dataSourceFactory = dataSourceFactory;
+            _dataSourceConnectionFactory = dataSourceConnectionFactory;
             
             var defaultQueue = new ConnectedBindingQueue(_dataSourceFactory, false);
             connectedQueues.AddOrUpdate("Default", defaultQueue, (key, old) => defaultQueue);
