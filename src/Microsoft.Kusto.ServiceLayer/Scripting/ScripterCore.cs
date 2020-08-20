@@ -29,6 +29,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
 {
     internal partial class Scripter
     {
+        private readonly IDataSourceFactory _dataSourceFactory;
         private bool error;
         private string errorMessage;
         private IDataSource DataSource { get; set; }
@@ -46,7 +47,10 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
 
         private Dictionary<string, string> objectScriptMap = new Dictionary<string, string>();
 
-        internal Scripter() {}
+        internal Scripter(IDataSourceFactory dataSourceFactory)
+        {
+            _dataSourceFactory = dataSourceFactory;
+        }
 
         /// <summary>
         /// Initialize a Peek Definition helper object
@@ -445,7 +449,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                 ScriptDestination = "ToEditor"
             };
 
-            return new ScriptAsScriptingOperation(parameters, DataSource);
+            return new ScriptAsScriptingOperation(parameters, DataSource, _dataSourceFactory);
         }
 
         internal bool LineContainsObject(string line, string objectName, string createSyntax)

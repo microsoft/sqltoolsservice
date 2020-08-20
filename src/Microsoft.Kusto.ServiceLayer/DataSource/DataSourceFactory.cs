@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Composition;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
@@ -10,12 +11,18 @@ using Microsoft.Kusto.ServiceLayer.LanguageServices.Completion;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource
 {
-    /// <summary>
-    /// Data source factory.
-    /// </summary>
-    public class DataSourceFactory
+    [Export(typeof(IDataSourceFactory))]
+    public class DataSourceFactory : IDataSourceFactory
     {
-        public static IDataSource Create(DataSourceType dataSourceType, string connectionString, string azureAccountToken)
+        private readonly IMetadataFactory _metadataFactory;
+        
+        [ImportingConstructor]
+        public DataSourceFactory(IMetadataFactory metadataFactory)
+        {
+            _metadataFactory = metadataFactory;
+        }
+        
+        public IDataSource Create(DataSourceType dataSourceType, string connectionString, string azureAccountToken)
         {
             ValidationUtils.IsArgumentNotNullOrWhiteSpace(connectionString, nameof(connectionString));
             ValidationUtils.IsArgumentNotNullOrWhiteSpace(azureAccountToken, nameof(azureAccountToken));
@@ -24,7 +31,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             {
                 case DataSourceType.Kusto:
                     {
-                        return new KustoDataSource(connectionString, azureAccountToken, new MetadataFactory());
+                        return new KustoDataSource(connectionString, azureAccountToken, _metadataFactory);
                     }
 
                 default:
@@ -33,7 +40,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         }
 
         // Gets default keywords for intellisense when there is no connection.
-        public static CompletionItem[] GetDefaultAutoComplete(DataSourceType dataSourceType, ScriptDocumentInfo scriptDocumentInfo, Position textDocumentPosition){
+        public CompletionItem[] GetDefaultAutoComplete(DataSourceType dataSourceType, ScriptDocumentInfo scriptDocumentInfo, Position textDocumentPosition){
             switch (dataSourceType)
             {
                 case DataSourceType.Kusto:
@@ -47,7 +54,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         }
 
         // Gets default keywords errors related to intellisense when there is no connection.
-        public static ScriptFileMarker[] GetDefaultSemanticMarkers(DataSourceType dataSourceType, ScriptParseInfo parseInfo, ScriptFile scriptFile, string queryText){
+        public ScriptFileMarker[] GetDefaultSemanticMarkers(DataSourceType dataSourceType, ScriptParseInfo parseInfo, ScriptFile scriptFile, string queryText){
             switch (dataSourceType)
             {
                 case DataSourceType.Kusto:
@@ -60,7 +67,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             }
         }
 
-        public static ReliableConnectionHelper.ServerInfo ConvertToServerinfoFormat(DataSourceType dataSourceType, DiagnosticsInfo clusterDiagnostics)
+        public ReliableConnectionHelper.ServerInfo ConvertToServerinfoFormat(DataSourceType dataSourceType, DiagnosticsInfo clusterDiagnostics)
         {
             switch (dataSourceType)
             {

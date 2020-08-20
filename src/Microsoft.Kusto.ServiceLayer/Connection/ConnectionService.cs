@@ -32,6 +32,8 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
     public class ConnectionService
     {
         private IMetadataFactory _metadataFactory;
+        private IDataSourceFactory _dataSourceFactory;
+        
         public const string AdminConnectionPrefix = "ADMIN:";
         internal const string PasswordPlaceholder = "******";
         private const string SqlAzureEdition = "SQL Azure";
@@ -114,9 +116,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// </summary>
         public ConnectionService()
         {
-            var defaultQueue = new ConnectedBindingQueue(needsMetadata: false);
-            connectedQueues.AddOrUpdate("Default", defaultQueue, (key, old) => defaultQueue);
-            this.LockedDatabaseManager.ConnectionService = this;
         }
 
         /// <summary>
@@ -188,7 +187,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             {
                 if (this.connectionFactory == null)
                 {
-                    this.connectionFactory = new DataSourceConnectionFactory();
+                    this.connectionFactory = new DataSourceConnectionFactory(_dataSourceFactory);
                 }
                 return this.connectionFactory;
             }
@@ -429,7 +428,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                 DataSourceObjectMetadata clusterMetadata = _metadataFactory.CreateClusterMetadata(connectionInfo.ConnectionDetails.ServerName);
 
                 DiagnosticsInfo clusterDiagnostics = dataSource.GetDiagnostics(clusterMetadata);
-                ReliableConnectionHelper.ServerInfo serverInfo = DataSourceFactory.ConvertToServerinfoFormat(DataSourceType.Kusto, clusterDiagnostics);
+                ReliableConnectionHelper.ServerInfo serverInfo = _dataSourceFactory.ConvertToServerinfoFormat(DataSourceType.Kusto, clusterDiagnostics);
 
                 response.ServerInfo = new ServerInfo
                 {
@@ -820,10 +819,15 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             return response;
         }
 
-        public void InitializeService(IProtocolEndpoint serviceHost, IMetadataFactory metadataFactory)
+        public void InitializeService(IProtocolEndpoint serviceHost, IMetadataFactory metadataFactory, IDataSourceFactory dataSourceFactory)
         {
-            this.ServiceHost = serviceHost;
+            ServiceHost = serviceHost;
             _metadataFactory = metadataFactory;
+            _dataSourceFactory = dataSourceFactory;
+            
+            var defaultQueue = new ConnectedBindingQueue(_dataSourceFactory, false);
+            connectedQueues.AddOrUpdate("Default", defaultQueue, (key, old) => defaultQueue);
+            LockedDatabaseManager.ConnectionService = this;
 
             // Register request and event handlers with the Service Host
             serviceHost.SetRequestHandler(ConnectionRequest.Type, HandleConnectRequest);
@@ -1431,15 +1435,15 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <param name="connInfo">The connection info to connect with</param>
         /// <param name="featureName">A plaintext string that will be included in the application name for the connection</param>
         /// <returns>A SqlConnection created with the given connection info</returns>
-        internal static IDataSource OpenDataSourceConnection(ConnectionInfo connInfo, string featureName = null)
+        internal IDataSource OpenDataSourceConnection(ConnectionInfo connInfo, string featureName = null)
         {
             try
             {
                 // generate connection string
-                string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
+                string connectionString = BuildConnectionString(connInfo.ConnectionDetails);
 
                 // TODOKusto: Pass in type of DataSource needed to make this generic. Hard coded to Kusto right now.
-                return DataSourceFactory.Create(DataSourceType.Kusto, connectionString, connInfo.ConnectionDetails.AzureAccountToken);
+                return _dataSourceFactory.Create(DataSourceType.Kusto, connectionString, connInfo.ConnectionDetails.AzureAccountToken);
             }
             catch (Exception ex)
             {

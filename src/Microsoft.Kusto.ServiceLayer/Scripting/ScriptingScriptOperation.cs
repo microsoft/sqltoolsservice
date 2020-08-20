@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
+using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.SqlServer.Management.SqlScriptPublish;
 using Microsoft.Kusto.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
@@ -28,7 +29,8 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
 
         private string azureAccessToken;
 
-        public ScriptingScriptOperation(ScriptingParams parameters, string azureAccessToken): base(parameters)
+        public ScriptingScriptOperation(ScriptingParams parameters, string azureAccessToken,
+            IDataSourceFactory dataSourceFactory) : base(parameters, dataSourceFactory)
         {
             this.azureAccessToken = azureAccessToken;
         }

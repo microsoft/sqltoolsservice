@@ -37,15 +37,18 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         /// </summary>
         public const char RightDelimiter = ']';
 
-        public ScriptAsScriptingOperation(ScriptingParams parameters, IDataSource dataSource): base(parameters)
+        public ScriptAsScriptingOperation(ScriptingParams parameters, IDataSource dataSource,
+            IDataSourceFactory dataSourceFactory) : base(parameters, dataSourceFactory)
         {
             Validate.IsNotNull("dataSource", dataSource);
             DataSource = dataSource;
         }
 
-        public ScriptAsScriptingOperation(ScriptingParams parameters, string azureAccountToken) : base(parameters)
+        public ScriptAsScriptingOperation(ScriptingParams parameters, string azureAccountToken,
+            IDataSourceFactory dataSourceFactory) : base(parameters, dataSourceFactory)
         {
-            DataSource = DataSourceFactory.Create(DataSourceType.Kusto, this.Parameters.ConnectionString, azureAccountToken);
+            DataSource = _dataSourceFactory.Create(DataSourceType.Kusto, this.Parameters.ConnectionString,
+                azureAccountToken);
         }
 
         internal IDataSource DataSource { get; set; }
@@ -150,7 +153,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
             // select from table
             if (string.Equals(scriptingObject.Type, "Table", StringComparison.CurrentCultureIgnoreCase))
             {
-                return new Scripter().SelectFromTableOrView(dataSource, objectUrn);
+                return new Scripter(_dataSourceFactory).SelectFromTableOrView(dataSource, objectUrn);
             }
 
             return string.Empty;
@@ -163,7 +166,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
 
             if (string.Equals(scriptingObject.Type, "Function", StringComparison.CurrentCultureIgnoreCase))
             {
-                return new Scripter().AlterFunction(dataSource, scriptingObject);
+                return new Scripter(_dataSourceFactory).AlterFunction(dataSource, scriptingObject);
             }
             
             return string.Empty;

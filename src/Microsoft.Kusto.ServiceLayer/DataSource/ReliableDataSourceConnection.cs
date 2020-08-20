@@ -21,16 +21,8 @@
 // =======================================================================================
 
 using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Collections;
-using System.Data.Common;
 using System.Data.SqlClient;
-using System.Diagnostics;
-using System.Globalization;
-using System.Text;
 using System.Threading;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
@@ -42,15 +34,16 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
     /// Provides a reliable way of opening connections to and executing commands
     /// taking into account potential network unreliability and a requirement for connection retry.
     /// </summary>
-    public sealed partial class ReliableDataSourceConnection : IDisposable
+    public sealed class ReliableDataSourceConnection : IDisposable
     {
         private IDataSource _dataSource;
         private readonly RetryPolicy _connectionRetryPolicy;
         private RetryPolicy _commandRetryPolicy;
-        private Guid _azureSessionId = Guid.NewGuid();
+        private readonly Guid _azureSessionId = Guid.NewGuid();
 
-        private string _connectionString;
-        private string _azureAccountToken;
+        private readonly string _connectionString;
+        private readonly string _azureAccountToken;
+        private readonly IDataSourceFactory _dataSourceFactory;
 
         /// <summary>
         /// Initializes a new instance of the ReliableKustoClient class with a given connection string
@@ -60,11 +53,12 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <param name="connectionString">The connection string used to open the SQL Azure database.</param>
         /// <param name="connectionRetryPolicy">The retry policy defining whether to retry a request if a connection fails to be established.</param>
         /// <param name="commandRetryPolicy">The retry policy defining whether to retry a request if a command fails to be executed.</param>
-        public ReliableDataSourceConnection(string connectionString, RetryPolicy connectionRetryPolicy, RetryPolicy commandRetryPolicy, string azureAccountToken)
+        public ReliableDataSourceConnection(string connectionString, RetryPolicy connectionRetryPolicy, RetryPolicy commandRetryPolicy, string azureAccountToken, IDataSourceFactory dataSourceFactory)
         {
             _connectionString = connectionString;
             _azureAccountToken = azureAccountToken;
-            _dataSource = DataSourceFactory.Create(DataSourceType.Kusto, connectionString, azureAccountToken);
+            _dataSourceFactory = dataSourceFactory;
+            _dataSource = dataSourceFactory.Create(DataSourceType.Kusto, connectionString, azureAccountToken);
             
             _connectionRetryPolicy = connectionRetryPolicy ?? RetryPolicyFactory.CreateNoRetryPolicy();
             _commandRetryPolicy = commandRetryPolicy ?? RetryPolicyFactory.CreateNoRetryPolicy();
@@ -190,7 +184,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             {
                 _connectionRetryPolicy.ExecuteAction(() =>
                 {
-                    _dataSource = DataSourceFactory.Create(DataSourceType.Kusto, _connectionString, _azureAccountToken);
+                    _dataSource = _dataSourceFactory.Create(DataSourceType.Kusto, _connectionString, _azureAccountToken);
                 });
             }
         }

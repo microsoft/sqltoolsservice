@@ -39,15 +39,16 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
     public class ObjectExplorerService : HostedService<ObjectExplorerService>, IComposableService, IHostedService, IDisposable
     {
         private static IMetadataFactory _metadataFactory;
+        private static IDataSourceFactory _dataSourceFactory;
         internal const string uriPrefix = "objectexplorer://";
 
         // Instance of the connection service, used to get the connection info for a given owner URI
         private ConnectionService connectionService;
-        private IProtocolEndpoint serviceHost;
+        private IProtocolEndpoint _serviceHost;
         private ConcurrentDictionary<string, ObjectExplorerSession> sessionMap;
         private readonly Lazy<Dictionary<string, HashSet<ChildFactory>>> applicableNodeChildFactories;
         private IMultiServiceProvider serviceProvider;
-        private ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue(needsMetadata: false);
+        private ConnectedBindingQueue _bindingQueue;
         private string connectionName = "ObjectExplorer";
 
         /// <summary>
@@ -58,11 +59,12 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
         /// <summary>
         /// Singleton constructor
         /// </summary>
-        public ObjectExplorerService([Import] IMetadataFactory metadataFactory)
+        public ObjectExplorerService([Import] IMetadataFactory metadataFactory, [Import] IDataSourceFactory dataSourceFactory)
         {
             _metadataFactory = metadataFactory;
+            _dataSourceFactory = dataSourceFactory;
             sessionMap = new ConcurrentDictionary<string, ObjectExplorerSession>();
-            applicableNodeChildFactories = new Lazy<Dictionary<string, HashSet<ChildFactory>>>(() => PopulateFactories());
+            applicableNodeChildFactories = new Lazy<Dictionary<string, HashSet<ChildFactory>>>(PopulateFactories);
             NodePathGenerator.Initialize();
         }
 
@@ -70,11 +72,11 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
         {
             get
             {
-                return bindingQueue;
+                return _bindingQueue;
             }
             set
             {
-                this.bindingQueue = value;
+                this._bindingQueue = value;
             }
         }
 
@@ -109,7 +111,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
             connectionService = provider.GetService<ConnectionService>();
             try
             {
-                connectionService.RegisterConnectedQueue(connectionName, bindingQueue);
+                connectionService.RegisterConnectedQueue(connectionName, _bindingQueue);
 
             }
             catch(Exception ex)
@@ -125,9 +127,10 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
         public override void InitializeService(IProtocolEndpoint serviceHost)
         {
             Logger.Write(TraceEventType.Verbose, "ObjectExplorer service initialized");
-            this.serviceHost = serviceHost;
+            _serviceHost = serviceHost;
+            _bindingQueue = new ConnectedBindingQueue(_dataSourceFactory, false);
 
-            this.ConnectedBindingQueue.OnUnhandledException += OnUnhandledException;
+            ConnectedBindingQueue.OnUnhandledException += OnUnhandledException;
 
             // Register handlers for requests
             serviceHost.SetRequestHandler(CreateSessionRequest.Type, HandleCreateSessionRequest);
@@ -210,7 +213,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
                 if (!sessionMap.TryGetValue(uri, out session))
                 {
                     Logger.Write(TraceEventType.Verbose, $"Cannot expand object explorer node. Couldn't find session for uri. {uri} ");
-                    await serviceHost.SendEvent(ExpandCompleteNotification.Type, new ExpandResponse
+                    await _serviceHost.SendEvent(ExpandCompleteNotification.Type, new ExpandResponse
                     {
                         SessionId = expandParams.SessionId,
                         NodePath = expandParams.NodePath,
@@ -240,7 +243,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
                 if (!sessionMap.TryGetValue(uri, out session))
                 {
                     Logger.Write(TraceEventType.Verbose, $"Cannot expand object explorer node. Couldn't find session for uri. {uri} ");
-                    await serviceHost.SendEvent(ExpandCompleteNotification.Type, new ExpandResponse
+                    await _serviceHost.SendEvent(ExpandCompleteNotification.Type, new ExpandResponse
                     {
                         SessionId = refreshParams.SessionId,
                         NodePath = refreshParams.NodePath,
@@ -312,7 +315,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
                 {
                     if (session != null && session.ConnectionInfo != null)
                     {
-                        bindingQueue.RemoveBindigContext(session.ConnectionInfo);
+                        _bindingQueue.RemoveBindigContext(session.ConnectionInfo);
                     }
                 }
                 connectionService.Disconnect(new DisconnectParams()
@@ -345,7 +348,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
                             ErrorMessage = result.Exception != null ? result.Exception.Message : $"Failed to create session for session id {uri}"
 
                         };
-                        await serviceHost.SendEvent(CreateSessionCompleteNotification.Type, response);
+                        await _serviceHost.SendEvent(CreateSessionCompleteNotification.Type, response);
                     }
                     return result;
                 }).ContinueWithOnFaulted(null);
@@ -381,7 +384,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
                     SessionId = uri,
                     ErrorMessage = session.ErrorMessage
                 };
-                await serviceHost.SendEvent(CreateSessionCompleteNotification.Type, response);
+                await _serviceHost.SendEvent(CreateSessionCompleteNotification.Type, response);
                 return response;
             }
             return null;
@@ -419,8 +422,8 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
                 try
                 {
                     int timeout = (int)TimeSpan.FromSeconds(settings?.ExpandTimeout ?? ObjectExplorerSettings.DefaultExpandTimeout).TotalMilliseconds;
-                    QueueItem queueItem = bindingQueue.QueueBindingOperation(
-                           key: bindingQueue.AddConnectionContext(session.ConnectionInfo, connectionName),
+                    QueueItem queueItem = _bindingQueue.QueueBindingOperation(
+                           key: _bindingQueue.AddConnectionContext(session.ConnectionInfo, connectionName),
                            bindingTimeout: timeout,
                            waitForLockTimeout: timeout,
                            bindOperation: (bindingContext, cancelToken) =>
@@ -495,8 +498,8 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
                 }
 
                 int timeout = (int)TimeSpan.FromSeconds(settings?.CreateSessionTimeout ?? ObjectExplorerSettings.DefaultCreateSessionTimeout).TotalMilliseconds;
-                QueueItem queueItem = bindingQueue.QueueBindingOperation(
-                           key: bindingQueue.AddConnectionContext(connectionInfo, connectionName),
+                QueueItem queueItem = _bindingQueue.QueueBindingOperation(
+                           key: _bindingQueue.AddConnectionContext(connectionInfo, connectionName),
                            bindingTimeout: timeout,
                            waitForLockTimeout: timeout,
                            bindOperation: (bindingContext, cancelToken) =>
@@ -557,7 +560,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
                 ErrorMessage = errorMessage,
                 SessionId = uri
             };
-            await serviceHost.SendEvent(CreateSessionCompleteNotification.Type, result);
+            await _serviceHost.SendEvent(CreateSessionCompleteNotification.Type, result);
         }
 
         internal async Task SendSessionDisconnectedNotification(string uri, bool success, string errorMessage)
@@ -569,7 +572,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
                 ErrorMessage = errorMessage,
                 SessionId = uri
             };
-            await serviceHost.SendEvent(SessionDisconnectedNotification.Type, result);
+            await _serviceHost.SendEvent(SessionDisconnectedNotification.Type, result);
         }
 
         private void RunExpandTask(ObjectExplorerSession session, ExpandParams expandParams, bool forceRefresh = false)
@@ -587,7 +590,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
                     cancellationTokenSource.Cancel();
                     ExpandResponse response = CreateExpandResponse(session, expandParams);
                     response.ErrorMessage = result.Exception != null ? result.Exception.Message: $"Failed to expand node: {expandParams.NodePath} in session {session.Uri}";
-                    await serviceHost.SendEvent(ExpandCompleteNotification.Type, response);
+                    await _serviceHost.SendEvent(ExpandCompleteNotification.Type, response);
                 }
                 return result;
             }).ContinueWithOnFaulted(null);
@@ -629,7 +632,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
             }
             else
             {
-                await serviceHost.SendEvent(ExpandCompleteNotification.Type, response);
+                await _serviceHost.SendEvent(ExpandCompleteNotification.Type, response);
             }
         }
 
@@ -745,10 +748,10 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
 
         public void Dispose()
         {
-            if (bindingQueue != null)
+            if (_bindingQueue != null)
             {
-                bindingQueue.OnUnhandledException -= OnUnhandledException;
-                bindingQueue.Dispose();
+                _bindingQueue.OnUnhandledException -= OnUnhandledException;
+                _bindingQueue.Dispose();
             }            
         }
 

@@ -58,6 +58,8 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// it's much cheaper to not construct these objects if not needed
         /// </summary>
         private bool needsMetadata;
+
+        private readonly IDataSourceFactory _dataSourceFactory;
         private SqlConnectionOpener connectionOpener;
 
         /// <summary>
@@ -68,14 +70,10 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
             get { return WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings; }
         }
 
-        public ConnectedBindingQueue()
-            : this(true)
-        {            
-        }
-
-        public ConnectedBindingQueue(bool needsMetadata)
+        public ConnectedBindingQueue(IDataSourceFactory dataSourceFactory, bool needsMetadata = true)
         {
             this.needsMetadata = needsMetadata;
+            _dataSourceFactory = dataSourceFactory;
             this.connectionOpener = new SqlConnectionOpener();
         }
 
@@ -203,7 +201,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                     bindingContext.ServerConnection = connectionOpener.OpenServerConnection(connInfo, featureName);
 
                     string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
-                    bindingContext.DataSource = DataSourceFactory.Create(DataSourceType.Kusto, connectionString, connInfo.ConnectionDetails.AzureAccountToken);
+                    bindingContext.DataSource = _dataSourceFactory.Create(DataSourceType.Kusto, connectionString, connInfo.ConnectionDetails.AzureAccountToken);
 
                     if (this.needsMetadata)
                     {

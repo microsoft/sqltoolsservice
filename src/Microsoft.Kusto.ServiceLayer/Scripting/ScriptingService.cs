@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.Kusto.ServiceLayer.Connection;
+using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.Hosting;
 using Microsoft.Kusto.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
@@ -21,7 +22,8 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
     /// Main class for Scripting Service functionality
     /// </summary>
     public sealed class ScriptingService : IDisposable
-    {    
+    {
+        private IDataSourceFactory _dataSourceFactory;
         private const int ScriptingOperationTimeout = 60000;
 
         private static readonly Lazy<ScriptingService> LazyInstance = new Lazy<ScriptingService>(() => new ScriptingService());
@@ -64,8 +66,9 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         /// </summary>
         /// <param name="serviceHost"></param>
         /// <param name="context"></param>
-        public void InitializeService(ServiceHost serviceHost)
+        public void InitializeService(ServiceHost serviceHost, IDataSourceFactory dataSourceFactory)
         {
+            _dataSourceFactory = dataSourceFactory;
             serviceHost.SetRequestHandler(ScriptingRequest.Type, this.HandleScriptExecuteRequest);
             serviceHost.SetRequestHandler(ScriptingCancelRequest.Type, this.HandleScriptCancelRequest);
             serviceHost.SetRequestHandler(ScriptingListObjectsRequest.Type, this.HandleListObjectsRequest);
@@ -128,11 +131,11 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
 
                 if (!ShouldCreateScriptAsOperation(parameters))
                 {
-                    operation = new ScriptingScriptOperation(parameters, accessToken);
+                    operation = new ScriptingScriptOperation(parameters, accessToken, _dataSourceFactory);
                 }
                 else
                 {
-                    operation = new ScriptAsScriptingOperation(parameters, accessToken);
+                    operation = new ScriptAsScriptingOperation(parameters, accessToken, _dataSourceFactory);
                 }
 
                 operation.PlanNotification += (sender, e) => requestContext.SendEvent(ScriptingPlanNotificationEvent.Type, e).Wait();

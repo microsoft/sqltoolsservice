@@ -22,10 +22,12 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
     /// </summary>
     public abstract class SmoScriptingOperation : ScriptingOperation
     {
-        private bool disposed = false;
+        protected readonly IDataSourceFactory _dataSourceFactory;
+        private bool _disposed;
 
-        public SmoScriptingOperation(ScriptingParams parameters)
+        public SmoScriptingOperation(ScriptingParams parameters, IDataSourceFactory dataSourceFactory)
         {
+            _dataSourceFactory = dataSourceFactory;
             Validate.IsNotNull("parameters", parameters);
 
             this.Parameters = parameters;
@@ -77,7 +79,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         {
             string serverName = string.Empty;
             
-            using(var dataSource = DataSourceFactory.Create(DataSourceType.Kusto, connectionString, azureAccessToken))
+            using(var dataSource = _dataSourceFactory.Create(DataSourceType.Kusto, connectionString, azureAccessToken))
             {
                 serverName = dataSource.ClusterName;
             }
@@ -177,10 +179,10 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         /// </summary>
         public override void Dispose()
         {
-            if (!disposed)
+            if (!_disposed)
             {
                 this.Cancel();
-                disposed = true;
+                _disposed = true;
             }
         }
 

@@ -37,6 +37,8 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
     /// </summary>
     public class LanguageService: IDisposable
     {
+        private static IDataSourceFactory _dataSourceFactory;
+
         #region Singleton Instance Implementation
 
         private static readonly Lazy<LanguageService> instance = new Lazy<LanguageService>(() => new LanguageService());
@@ -82,7 +84,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 
         private ScriptParseInfo currentCompletionParseInfo;
 
-        private ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue();
+        private ConnectedBindingQueue _bindingQueue;
 
         private ParseOptions defaultParseOptions = new ParseOptions(
             batchSeparator: LanguageService.DefaultBatchSeperator,
@@ -133,11 +135,11 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         {
             get
             {
-                return this.bindingQueue;
+                return this._bindingQueue;
             }
             set
             {
-                this.bindingQueue = value;
+                this._bindingQueue = value;
             }
         }
 
@@ -151,7 +153,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                 if (connectionService == null)
                 {
                     connectionService = ConnectionService.Instance;
-                    connectionService.RegisterConnectedQueue("LanguageService", bindingQueue);
+                    connectionService.RegisterConnectedQueue("LanguageService", _bindingQueue);
                 }
                 return connectionService;
             }
@@ -231,8 +233,10 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// </summary>
         /// <param name="serviceHost"></param>
         /// <param name="context"></param>
-        public void InitializeService(ServiceHost serviceHost, SqlToolsContext context)
+        public void InitializeService(ServiceHost serviceHost, SqlToolsContext context, IDataSourceFactory dataSourceFactory)
         {
+            _dataSourceFactory = dataSourceFactory;
+            _bindingQueue = new ConnectedBindingQueue(_dataSourceFactory);
             // Register the requests that this service will handle
 
             //serviceHost.SetRequestHandler(SignatureHelpRequest.Type, HandleSignatureHelpRequest);     // Kusto api doesnt support this as of now. Implement it wherever applicable. Hover help is closest to signature help
@@ -885,7 +889,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
             if (scriptParseInfo == null)
             {
                 var scriptDocInfo = ScriptDocumentInfo.CreateDefaultDocumentInfo(textDocumentPosition, scriptFile);
-                resultCompletionItems = resultCompletionItems = DataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocInfo, textDocumentPosition.Position);       //TODO_KUSTO: DataSourceFactory.GetDefaultAutoComplete 1st param should get the datasource type generically instead of hard coded DataSourceType.Kusto
+                resultCompletionItems = resultCompletionItems = _dataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocInfo, textDocumentPosition.Position);       //TODO_KUSTO: DataSourceFactory.GetDefaultAutoComplete 1st param should get the datasource type generically instead of hard coded DataSourceType.Kusto
                 return resultCompletionItems;
             }
 
@@ -899,7 +903,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                 resultCompletionItems = dataSource.GetAutoCompleteSuggestions(scriptDocumentInfo, textDocumentPosition.Position);
             }
             else{
-                resultCompletionItems = DataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocumentInfo, textDocumentPosition.Position);
+                resultCompletionItems = _dataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocumentInfo, textDocumentPosition.Position);
             }
 
             // cache the current script parse info object to resolve completions later. Used for the detailed description.
@@ -909,14 +913,14 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
             // if the parse failed then return the default list
             if (scriptParseInfo.ParseResult == null)
             {
-                resultCompletionItems = DataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocumentInfo, textDocumentPosition.Position);
+                resultCompletionItems = _dataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocumentInfo, textDocumentPosition.Position);
                 return resultCompletionItems;
             }
 
             // if there are no completions then provide the default list
             if (resultCompletionItems == null)          // this is the getting default keyword option when its not connected
             {
-                resultCompletionItems = DataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocumentInfo, textDocumentPosition.Position);
+                resultCompletionItems = _dataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocumentInfo, textDocumentPosition.Position);
             }
 
             return resultCompletionItems;
@@ -1044,7 +1048,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                     semanticMarkers = dataSource.GetSemanticMarkers(parseInfo, scriptFile, scriptFile.Contents);
 			    }
                 else{
-                    semanticMarkers = DataSourceFactory.GetDefaultSemanticMarkers(DataSourceType.Kusto, parseInfo, scriptFile, scriptFile.Contents);
+                    semanticMarkers = _dataSourceFactory.GetDefaultSemanticMarkers(DataSourceType.Kusto, parseInfo, scriptFile, scriptFile.Contents);
                 }
                 
                 Logger.Write(TraceEventType.Verbose, "Analysis complete.");
@@ -1185,9 +1189,9 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 
         public void Dispose()
         {
-            if (bindingQueue != null)
+            if (_bindingQueue != null)
             {
-                bindingQueue.Dispose();
+                _bindingQueue.Dispose();
             }
         }
     }
