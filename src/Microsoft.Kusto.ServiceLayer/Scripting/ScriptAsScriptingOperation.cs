@@ -26,6 +26,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
     /// </summary>
     public class ScriptAsScriptingOperation : SmoScriptingOperation
     {
+        private readonly IScripter _scripter;
         private static readonly Dictionary<string, SqlServerVersion> scriptCompatibilityMap = LoadScriptCompatibilityMap();
         /// <summary>
         /// Left delimiter for an named object
@@ -37,18 +38,12 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         /// </summary>
         public const char RightDelimiter = ']';
 
-        public ScriptAsScriptingOperation(ScriptingParams parameters, IDataSource dataSource,
-            IDataSourceFactory dataSourceFactory) : base(parameters, dataSourceFactory)
-        {
-            Validate.IsNotNull("dataSource", dataSource);
-            DataSource = dataSource;
-        }
-
         public ScriptAsScriptingOperation(ScriptingParams parameters, string azureAccountToken,
-            IDataSourceFactory dataSourceFactory) : base(parameters, dataSourceFactory)
+            IDataSourceFactory dataSourceFactory, IScripter scripter) : base(parameters, dataSourceFactory)
         {
             DataSource = _dataSourceFactory.Create(DataSourceType.Kusto, this.Parameters.ConnectionString,
                 azureAccountToken);
+            _scripter = scripter;
         }
 
         internal IDataSource DataSource { get; set; }
@@ -153,7 +148,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
             // select from table
             if (string.Equals(scriptingObject.Type, "Table", StringComparison.CurrentCultureIgnoreCase))
             {
-                return new Scripter(_dataSourceFactory).SelectFromTableOrView(dataSource, objectUrn);
+                return _scripter.SelectFromTableOrView(dataSource, objectUrn);
             }
 
             return string.Empty;
@@ -166,7 +161,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
 
             if (string.Equals(scriptingObject.Type, "Function", StringComparison.CurrentCultureIgnoreCase))
             {
-                return new Scripter(_dataSourceFactory).AlterFunction(dataSource, scriptingObject);
+                return _scripter.AlterFunction(dataSource, scriptingObject);
             }
             
             return string.Empty;
@@ -180,7 +175,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         /// <param name="objectName">The object name.</param>
         /// <param name="schemaQualify">Whether to schema qualify the object or not</param>
         /// <returns>The object name, quoted as appropriate and schema-qualified if the option is set</returns>
-        static private string GenerateSchemaQualifiedName(string schema, string objectName, bool schemaQualify)
+        private static string GenerateSchemaQualifiedName(string schema, string objectName, bool schemaQualify)
         {
             var qualifiedName = new StringBuilder();
 

@@ -70,6 +70,7 @@ namespace Microsoft.Kusto.ServiceLayer
             serviceProvider.RegisterSingleService(serviceHost);
             var metadataFactory = serviceProvider.GetService<IMetadataFactory>();
             var dataSourceFactory = serviceProvider.GetService<IDataSourceFactory>();
+            var scripter = serviceProvider.GetService<IScripter>();
 
             // Initialize and register singleton services so they're accessible for any MEF service. In the future, these
             // could be updated to be IComposableServices, which would avoid the requirement to define a singleton instance
@@ -89,7 +90,7 @@ namespace Microsoft.Kusto.ServiceLayer
             QueryExecutionService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(QueryExecutionService.Instance);
 
-            ScriptingService.Instance.InitializeService(serviceHost, dataSourceFactory);
+            ScriptingService.Instance.InitializeService(serviceHost, dataSourceFactory, scripter);
             serviceProvider.RegisterSingleService(ScriptingService.Instance);
 
             AdminService.Instance.InitializeService(serviceHost, metadataFactory);

@@ -30,12 +30,14 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
 
         public static ScriptingService Instance => LazyInstance.Value;
 
-        private static ConnectionService connectionService = null;
+        private static ConnectionService connectionService;
 
         private readonly Lazy<ConcurrentDictionary<string, ScriptingOperation>> operations =
             new Lazy<ConcurrentDictionary<string, ScriptingOperation>>(() => new ConcurrentDictionary<string, ScriptingOperation>());
 
         private bool disposed;
+        
+        private IScripter _scripter;
 
         /// <summary>
         /// Internal for testing purposes only
@@ -66,9 +68,10 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         /// </summary>
         /// <param name="serviceHost"></param>
         /// <param name="context"></param>
-        public void InitializeService(ServiceHost serviceHost, IDataSourceFactory dataSourceFactory)
+        public void InitializeService(ServiceHost serviceHost, IDataSourceFactory dataSourceFactory, IScripter scripter)
         {
             _dataSourceFactory = dataSourceFactory;
+            _scripter = scripter;
             serviceHost.SetRequestHandler(ScriptingRequest.Type, this.HandleScriptExecuteRequest);
             serviceHost.SetRequestHandler(ScriptingCancelRequest.Type, this.HandleScriptCancelRequest);
             serviceHost.SetRequestHandler(ScriptingListObjectsRequest.Type, this.HandleListObjectsRequest);
@@ -135,7 +138,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                 }
                 else
                 {
-                    operation = new ScriptAsScriptingOperation(parameters, accessToken, _dataSourceFactory);
+                    operation = new ScriptAsScriptingOperation(parameters, accessToken, _dataSourceFactory, _scripter);
                 }
 
                 operation.PlanNotification += (sender, e) => requestContext.SendEvent(ScriptingPlanNotificationEvent.Type, e).Wait();
