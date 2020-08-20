@@ -49,11 +49,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// </summary>
         public static ConnectionService Instance => instance.Value;
 
-        /// <summary>
-        /// The SQL connection factory object
-        /// </summary>
-        private IDataSourceConnectionFactory connectionFactory;
-
         private DatabaseLocksManager lockedDatabaseManager;
 
         /// <summary>
@@ -182,12 +177,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// Gets the SQL connection factory instance
         /// </summary>
         private IDataSourceConnectionFactory _dataSourceConnectionFactory;
-
-        /// <summary>
-        /// Test constructor that injects dependency interfaces
-        /// </summary>
-        /// <param name="testFactory"></param>
-        public ConnectionService(IDataSourceConnectionFactory testFactory) => this.connectionFactory = testFactory;
 
         // Attempts to link a URI to an actively used connection for this URI
         public virtual bool TryFindConnection(string ownerUri, out ConnectionInfo connectionInfo) => this.OwnerToConnectionMap.TryGetValue(ownerUri, out connectionInfo);
@@ -348,11 +337,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                 return true;
             }
             return false;
-        }
-
-        private bool IsDefaultConnectionType(string connectionType)
-        {
-            return string.IsNullOrEmpty(connectionType) || ConnectionType.Default.Equals(connectionType, StringComparison.CurrentCultureIgnoreCase);
         }
 
         private void DisconnectExistingConnectionIfNeeded(ConnectParams connectionParams, ConnectionInfo connectionInfo, bool disconnectAll)

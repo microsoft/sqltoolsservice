@@ -59,7 +59,8 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
         /// <summary>
         /// Singleton constructor
         /// </summary>
-        public ObjectExplorerService([Import] IMetadataFactory metadataFactory, [Import] IDataSourceFactory dataSourceFactory)
+        [ImportingConstructor]
+        public ObjectExplorerService(IMetadataFactory metadataFactory, IDataSourceFactory dataSourceFactory)
         {
             _metadataFactory = metadataFactory;
             _dataSourceFactory = dataSourceFactory;
