@@ -4,8 +4,6 @@
 //
 
 using System;
-using System.Data.SqlClient;
-using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SmoMetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
@@ -14,36 +12,9 @@ using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 using Microsoft.Kusto.ServiceLayer.SqlContext;
 using Microsoft.Kusto.ServiceLayer.Workspace;
 using Microsoft.Kusto.ServiceLayer.DataSource;
-using System.Threading;
 
 namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 {
-    public interface IConnectedBindingQueue
-    {
-        void CloseConnections(string serverName, string databaseName, int millisecondsTimeout);
-        void OpenConnections(string serverName, string databaseName, int millisecondsTimeout);
-        string AddConnectionContext(ConnectionInfo connInfo, string featureName = null, bool overwrite = false);
-        void Dispose();
-        QueueItem QueueBindingOperation(
-            string key,
-            Func<IBindingContext, CancellationToken, object> bindOperation,
-            Func<IBindingContext, object> timeoutOperation = null,
-            Func<Exception, object> errorHandler = null,
-            int? bindingTimeout = null,
-            int? waitForLockTimeout = null);
-    }
-
-    public class SqlConnectionOpener
-    {
-        /// <summary>
-        /// Virtual method used to support mocking and testing
-        /// </summary>
-        public virtual ServerConnection OpenServerConnection(ConnectionInfo connInfo, string featureName)
-        {
-            return ConnectionService.OpenServerConnection(connInfo, featureName);
-        }
-    }
-
     /// <summary>
     /// ConnectedBindingQueue class for processing online binding requests
     /// </summary>
@@ -60,7 +31,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         private bool needsMetadata;
 
         private readonly IDataSourceFactory _dataSourceFactory;
-        private SqlConnectionOpener connectionOpener;
+        private ISqlConnectionOpener connectionOpener;
 
         /// <summary>
         /// Gets the current settings
@@ -70,17 +41,11 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
             get { return WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings; }
         }
 
-        public ConnectedBindingQueue(IDataSourceFactory dataSourceFactory, bool needsMetadata = true)
+        public ConnectedBindingQueue(IDataSourceFactory dataSourceFactory, ISqlConnectionOpener sqlConnectionOpener, bool needsMetadata = true)
         {
             this.needsMetadata = needsMetadata;
             _dataSourceFactory = dataSourceFactory;
-            this.connectionOpener = new SqlConnectionOpener();
-        }
-
-        // For testing purposes only
-        internal void SetConnectionOpener(SqlConnectionOpener opener)
-        {
-            this.connectionOpener = opener;
+            connectionOpener = sqlConnectionOpener;
         }
 
         /// <summary>
@@ -154,7 +119,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
             }
         }
 
-        public void RemoveBindigContext(ConnectionInfo connInfo)
+        public void RemoveBindingContext(ConnectionInfo connInfo)
         {
             string connectionKey = GetConnectionContextKey(connInfo.ConnectionDetails);
             if (BindingContextExists(connectionKey))

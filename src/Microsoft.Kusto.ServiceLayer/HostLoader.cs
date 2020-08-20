@@ -68,10 +68,12 @@ namespace Microsoft.Kusto.ServiceLayer
             ExtensionServiceProvider serviceProvider = ExtensionServiceProvider.CreateDefaultServiceProvider(inclusionList);
             serviceProvider.RegisterSingleService(sqlToolsContext);
             serviceProvider.RegisterSingleService(serviceHost);
+            
             var metadataFactory = serviceProvider.GetService<IMetadataFactory>();
             var dataSourceFactory = serviceProvider.GetService<IDataSourceFactory>();
             var scripter = serviceProvider.GetService<IScripter>();
             var dataSourceConnectionFactory = serviceProvider.GetService<IDataSourceConnectionFactory>();
+            var sqlConnectionOpener = serviceProvider.GetService<ISqlConnectionOpener>();
 
             // Initialize and register singleton services so they're accessible for any MEF service. In the future, these
             // could be updated to be IComposableServices, which would avoid the requirement to define a singleton instance
@@ -79,10 +81,10 @@ namespace Microsoft.Kusto.ServiceLayer
             WorkspaceService<SqlToolsSettings>.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(WorkspaceService<SqlToolsSettings>.Instance);
 
-            LanguageService.Instance.InitializeService(serviceHost, sqlToolsContext, dataSourceFactory);
+            LanguageService.Instance.InitializeService(serviceHost, sqlToolsContext, dataSourceFactory, sqlConnectionOpener);
             serviceProvider.RegisterSingleService(LanguageService.Instance);
 
-            ConnectionService.Instance.InitializeService(serviceHost, metadataFactory, dataSourceFactory, dataSourceConnectionFactory);
+            ConnectionService.Instance.InitializeService(serviceHost, metadataFactory, dataSourceFactory, dataSourceConnectionFactory, sqlConnectionOpener);
             serviceProvider.RegisterSingleService(ConnectionService.Instance);
 
             CredentialService.Instance.InitializeService(serviceHost);

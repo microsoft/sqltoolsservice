@@ -40,6 +40,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
     {
         private static IMetadataFactory _metadataFactory;
         private static IDataSourceFactory _dataSourceFactory;
+        private readonly ISqlConnectionOpener _sqlConnectionOpener;
         internal const string uriPrefix = "objectexplorer://";
 
         // Instance of the connection service, used to get the connection info for a given owner URI
@@ -60,10 +61,11 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
         /// Singleton constructor
         /// </summary>
         [ImportingConstructor]
-        public ObjectExplorerService(IMetadataFactory metadataFactory, IDataSourceFactory dataSourceFactory)
+        public ObjectExplorerService(IMetadataFactory metadataFactory, IDataSourceFactory dataSourceFactory, ISqlConnectionOpener sqlConnectionOpener)
         {
             _metadataFactory = metadataFactory;
             _dataSourceFactory = dataSourceFactory;
+            _sqlConnectionOpener = sqlConnectionOpener;
             sessionMap = new ConcurrentDictionary<string, ObjectExplorerSession>();
             applicableNodeChildFactories = new Lazy<Dictionary<string, HashSet<ChildFactory>>>(PopulateFactories);
             NodePathGenerator.Initialize();
@@ -129,7 +131,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
         {
             Logger.Write(TraceEventType.Verbose, "ObjectExplorer service initialized");
             _serviceHost = serviceHost;
-            _bindingQueue = new ConnectedBindingQueue(_dataSourceFactory, false);
+            _bindingQueue = new ConnectedBindingQueue(_dataSourceFactory, _sqlConnectionOpener, false);
 
             ConnectedBindingQueue.OnUnhandledException += OnUnhandledException;
 
@@ -316,7 +318,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
                 {
                     if (session != null && session.ConnectionInfo != null)
                     {
-                        _bindingQueue.RemoveBindigContext(session.ConnectionInfo);
+                        _bindingQueue.RemoveBindingContext(session.ConnectionInfo);
                     }
                 }
                 connectionService.Disconnect(new DisconnectParams()
