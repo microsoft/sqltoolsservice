@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Composition;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
@@ -22,7 +23,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
     /// <summary>
     /// Kusto specific class for intellisense helper functions.
     /// </summary>
-    public static class KustoIntellisenseHelper
+    [Export(typeof(IKustoIntellisenseHelper))]
+    public class KustoIntellisenseHelper : IKustoIntellisenseHelper
     {
 
         public class ShowDatabasesResult
@@ -63,7 +65,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
         /// <summary>
         /// Convert CLR type name into a Kusto scalar type.
         /// </summary>
-        private static ScalarSymbol GetKustoType(string clrTypeName)
+        private ScalarSymbol GetKustoType(string clrTypeName)
         {
             switch (clrTypeName)
             {
@@ -134,12 +136,12 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
             }
         }
 
-        private static IReadOnlyList<Parameter> NoParameters = new Parameter[0];
+        private IReadOnlyList<Parameter> NoParameters = new Parameter[0];
 
         /// <summary>
         /// Translate Kusto parameter list declaration into into list of <see cref="Parameter"/> instances.
         /// </summary>
-        private static IReadOnlyList<Parameter> TranslateParameters(string parameters)
+        private IReadOnlyList<Parameter> TranslateParameters(string parameters)
         {
             parameters = parameters.Trim();
 
@@ -162,7 +164,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
         /// <summary>
         /// Loads the schema for the specified databasea into a a <see cref="DatabaseSymbol"/>.
         /// </summary>
-        public static async Task<DatabaseSymbol> LoadDatabaseAsync(IDataSource dataSource, string databaseName, bool throwOnError = false)
+        public async Task<DatabaseSymbol> LoadDatabaseAsync(IDataSource dataSource, string databaseName, bool throwOnError = false)
         {
             var members = new List<Symbol>();
             CancellationTokenSource source = new CancellationTokenSource();
@@ -198,7 +200,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
             return databaseSymbol;
         }
 
-        public static CompletionItemKind CreateCompletionItemKind(CompletionKind kustoKind)
+        public CompletionItemKind CreateCompletionItemKind(CompletionKind kustoKind)
         {
             CompletionItemKind kind = CompletionItemKind.Variable;
             switch (kustoKind)
@@ -235,7 +237,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
         /// <summary>
         /// Gets default keyword when user if not connected to any Kusto cluster.
         /// </summary>
-        public static LanguageServices.Contracts.CompletionItem[] GetDefaultKeywords(ScriptDocumentInfo scriptDocumentInfo, Position textDocumentPosition){
+        public LanguageServices.Contracts.CompletionItem[] GetDefaultKeywords(ScriptDocumentInfo scriptDocumentInfo, Position textDocumentPosition){
                 var kustoCodeService = new KustoCodeService(scriptDocumentInfo.Contents, GlobalState.Default);
                 var script = CodeScript.From(scriptDocumentInfo.Contents, GlobalState.Default);
                 script.TryGetTextPosition(textDocumentPosition.Line + 1, textDocumentPosition.Character, out int position);     // Gets the actual offset based on line and local offset      
@@ -255,7 +257,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
         /// <summary>
         /// Gets default diagnostics when user if not connected to any Kusto cluster.
         /// </summary>
-        public static ScriptFileMarker[] GetDefaultDiagnostics(ScriptParseInfo parseInfo, ScriptFile scriptFile, string queryText){
+        public ScriptFileMarker[] GetDefaultDiagnostics(ScriptParseInfo parseInfo, ScriptFile scriptFile, string queryText){
             var kustoCodeService = new KustoCodeService(queryText, GlobalState.Default);
             var script = CodeScript.From(queryText, GlobalState.Default);
             var parseResult = kustoCodeService.GetDiagnostics();
@@ -296,7 +298,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
         /// <summary>
         /// Loads the schema for the specified database and returns a new <see cref="GlobalState"/> with the database added or updated.
         /// </summary>
-        public static async Task<GlobalState> AddOrUpdateDatabaseAsync(IDataSource dataSource, GlobalState globals, string databaseName, string clusterName, bool throwOnError)
+        public async Task<GlobalState> AddOrUpdateDatabaseAsync(IDataSource dataSource, GlobalState globals, string databaseName, string clusterName, bool throwOnError)
         {   // try and show error from here.
             DatabaseSymbol databaseSymbol = null;
 

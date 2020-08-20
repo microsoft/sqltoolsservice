@@ -15,11 +15,13 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
     public class DataSourceFactory : IDataSourceFactory
     {
         private readonly IMetadataFactory _metadataFactory;
-        
+        private readonly IKustoIntellisenseHelper _kustoIntellisenseHelper;
+
         [ImportingConstructor]
-        public DataSourceFactory(IMetadataFactory metadataFactory)
+        public DataSourceFactory(IMetadataFactory metadataFactory, IKustoIntellisenseHelper kustoIntellisenseHelper)
         {
             _metadataFactory = metadataFactory;
+            _kustoIntellisenseHelper = kustoIntellisenseHelper;
         }
         
         public IDataSource Create(DataSourceType dataSourceType, string connectionString, string azureAccountToken)
@@ -31,7 +33,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             {
                 case DataSourceType.Kusto:
                     {
-                        return new KustoDataSource(connectionString, azureAccountToken, _metadataFactory);
+                        return new KustoDataSource(connectionString, azureAccountToken, _metadataFactory, _kustoIntellisenseHelper);
                     }
 
                 default:
@@ -45,7 +47,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             {
                 case DataSourceType.Kusto:
                     {
-                        return KustoIntellisenseHelper.GetDefaultKeywords(scriptDocumentInfo, textDocumentPosition);
+                        return _kustoIntellisenseHelper.GetDefaultKeywords(scriptDocumentInfo, textDocumentPosition);
                     }
 
                 default:
@@ -59,7 +61,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             {
                 case DataSourceType.Kusto:
                     {
-                        return KustoIntellisenseHelper.GetDefaultDiagnostics(parseInfo, scriptFile, queryText);
+                        return _kustoIntellisenseHelper.GetDefaultDiagnostics(parseInfo, scriptFile, queryText);
                     }
 
                 default:

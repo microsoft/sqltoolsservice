@@ -6,9 +6,7 @@ using Microsoft.Kusto.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
-using System.IO;
 using System.Diagnostics;
-//using SqlToolsContext = Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsContext;
 
 namespace Microsoft.Kusto.ServiceLayer
 {
