@@ -18,10 +18,8 @@ using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
 using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
-using Microsoft.Kusto.ServiceLayer.Hosting;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Completion;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
-using SqlToolsContext = Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsContext;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.Kusto.ServiceLayer.Workspace;
 using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
@@ -202,12 +200,6 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
             get { return WorkspaceServiceInstance.Workspace; }
         }
 
-        /// <summary>
-        /// Gets or sets the current SQL Tools context
-        /// </summary>
-        /// <returns></returns>
-        internal SqlToolsContext Context { get; set; }
-
         #endregion
 
         #region Public Methods
@@ -219,7 +211,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// <param name="context"></param>
         /// <param name="dataSourceFactory"></param>
         /// <param name="connectedBindingQueue"></param>
-        public void InitializeService(ServiceHost serviceHost, SqlToolsContext context, IDataSourceFactory dataSourceFactory, IConnectedBindingQueue connectedBindingQueue)
+        public void InitializeService(ServiceHost serviceHost, IDataSourceFactory dataSourceFactory, IConnectedBindingQueue connectedBindingQueue)
         {
             _dataSourceFactory = dataSourceFactory;
             _bindingQueue = connectedBindingQueue;
@@ -258,10 +250,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 
             // Register a callback for when a connection is closed
             ConnectionServiceInstance.RegisterOnDisconnectTask(RemoveAutoCompleteCacheUriReference);
-
-            // Store the SqlToolsContext for future use
-            Context = context;
-
+            
         }
 
         #endregion

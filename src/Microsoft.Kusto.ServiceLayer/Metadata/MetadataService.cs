@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.Kusto.ServiceLayer.Connection;
-using Microsoft.Kusto.ServiceLayer.Hosting;
 using Microsoft.Kusto.ServiceLayer.Metadata.Contracts;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.Kusto.ServiceLayer.DataSource;
@@ -53,7 +52,7 @@ namespace Microsoft.Kusto.ServiceLayer.Metadata
         /// </summary>
         /// <param name="serviceHost"></param>
         /// <param name="metadataFactory"></param>
-        public void InitializeService(ServiceHost serviceHost, IMetadataFactory metadataFactory)
+        public void InitializeService(IProtocolEndpoint serviceHost, IMetadataFactory metadataFactory)
         {
             serviceHost.SetRequestHandler(MetadataListRequest.Type, HandleMetadataListRequest);
             _metadataFactory = metadataFactory;
