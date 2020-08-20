@@ -800,7 +800,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             _dataSourceFactory = dataSourceFactory;
             _dataSourceConnectionFactory = dataSourceConnectionFactory;
 
-            var defaultQueue = new ConnectedBindingQueue(_dataSourceFactory, sqlConnectionOpener, false);
+            var defaultQueue = new ConnectedBindingQueue(_dataSourceFactory, sqlConnectionOpener);
             connectedQueues.AddOrUpdate("Default", defaultQueue, (key, old) => defaultQueue);
             LockedDatabaseManager.ConnectionService = this;
 

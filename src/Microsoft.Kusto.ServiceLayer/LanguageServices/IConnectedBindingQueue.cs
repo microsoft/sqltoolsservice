@@ -8,7 +8,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
     {
         void CloseConnections(string serverName, string databaseName, int millisecondsTimeout);
         void OpenConnections(string serverName, string databaseName, int millisecondsTimeout);
-        string AddConnectionContext(ConnectionInfo connInfo, string featureName = null, bool overwrite = false);
+        string AddConnectionContext(ConnectionInfo connInfo, bool needMetadata, string featureName = null, bool overwrite = false);
         void Dispose();
 
         QueueItem QueueBindingOperation(

@@ -128,22 +128,6 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         #region Properties
 
         /// <summary>
-        /// Gets or sets the binding queue instance
-        /// Internal for testing purposes only
-        /// </summary>
-        internal ConnectedBindingQueue BindingQueue
-        {
-            get
-            {
-                return this._bindingQueue;
-            }
-            set
-            {
-                this._bindingQueue = value;
-            }
-        }
-
-        /// <summary>
         /// Internal for testing purposes only
         /// </summary>
         internal ConnectionService ConnectionServiceInstance
@@ -599,7 +583,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                         {
                             try
                             {
-                                this.BindingQueue.AddConnectionContext(connInfo, featureName: "LanguageService", overwrite: true);
+                                _bindingQueue.AddConnectionContext(connInfo, true, featureName: "LanguageService", overwrite: true);
                                 RemoveScriptParseInfo(rebuildParams.OwnerUri);
                                 UpdateLanguageServiceOnConnection(connInfo).Wait();
                             }
@@ -724,8 +708,8 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                 {
                     try
                     {
-                        scriptInfo.ConnectionKey = this.BindingQueue.AddConnectionContext(connInfo, "languageService");
-                        scriptInfo.IsConnected = this.BindingQueue.IsBindingContextConnected(scriptInfo.ConnectionKey);
+                        scriptInfo.ConnectionKey = _bindingQueue.AddConnectionContext(connInfo, true,"languageService");
+                        scriptInfo.IsConnected = _bindingQueue.IsBindingContextConnected(scriptInfo.ConnectionKey);
                     }
                     catch (Exception ex)
                     {
@@ -822,13 +806,6 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// <param name="scriptFile"></param>
         internal Hover GetHoverItem(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile)
         {
-            int startLine = textDocumentPosition.Position.Line;
-            int startColumn = TextUtilities.PositionOfPrevDelimeter(
-                                scriptFile.Contents,
-                                textDocumentPosition.Position.Line,
-                                textDocumentPosition.Position.Character);
-            int endColumn = textDocumentPosition.Position.Character;
-
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(scriptFile.ClientUri);
             ConnectionInfo connInfo;
                     ConnectionServiceInstance.TryFindConnection(
@@ -841,7 +818,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                 {
                     try
                     {
-                        QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
+                        QueueItem queueItem = _bindingQueue.QueueBindingOperation(
                             key: scriptParseInfo.ConnectionKey,
                             bindingTimeout: LanguageService.HoverTimeout,
                             bindOperation: (bindingContext, cancelToken) =>

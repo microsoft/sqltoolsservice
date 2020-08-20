@@ -22,16 +22,8 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
     {
         internal const int DefaultBindingTimeout = 500;
 
-        internal const int DefaultMinimumConnectionTimeout = 30;
-
-        /// <summary>
-        /// flag determing if the connection queue requires online metadata objects
-        /// it's much cheaper to not construct these objects if not needed
-        /// </summary>
-        private bool needsMetadata;
-
         private readonly IDataSourceFactory _dataSourceFactory;
-        private ISqlConnectionOpener connectionOpener;
+        private readonly ISqlConnectionOpener _connectionOpener;
 
         /// <summary>
         /// Gets the current settings
@@ -41,17 +33,16 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
             get { return WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings; }
         }
 
-        public ConnectedBindingQueue(IDataSourceFactory dataSourceFactory, ISqlConnectionOpener sqlConnectionOpener, bool needsMetadata = true)
+        public ConnectedBindingQueue(IDataSourceFactory dataSourceFactory, ISqlConnectionOpener sqlConnectionOpener)
         {
-            this.needsMetadata = needsMetadata;
             _dataSourceFactory = dataSourceFactory;
-            connectionOpener = sqlConnectionOpener;
+            _connectionOpener = sqlConnectionOpener;
         }
 
         /// <summary>
         /// Generate a unique key based on the ConnectionInfo object
         /// </summary>
-        /// <param name="connInfo"></param>
+        /// <param name="details"></param>
         internal static string GetConnectionContextKey(ConnectionDetails details)
         {            
             string key = string.Format("{0}_{1}_{2}_{3}",
@@ -77,7 +68,8 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// <summary>
         /// Generate a unique key based on the ConnectionInfo object
         /// </summary>
-        /// <param name="connInfo"></param>
+        /// <param name="serverName"></param>
+        /// <param name="databaseName"></param>
         private string GetConnectionContextKey(string serverName, string databaseName)
         {
             return string.Format("{0}_{1}",
@@ -131,9 +123,11 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// <summary>
         /// Use a ConnectionInfo item to create a connected binding context
         /// </summary>
-        /// <param name="connInfo">Connection info used to create binding context</param>   
-        /// <param name="overwrite">Overwrite existing context</param>      
-        public virtual string AddConnectionContext(ConnectionInfo connInfo, string featureName = null, bool overwrite = false)
+        /// <param name="connInfo">Connection info used to create binding context</param>
+        /// <param name="needMetadata"></param>
+        /// <param name="featureName"></param>
+        /// <param name="overwrite">Overwrite existing context</param>
+        public string AddConnectionContext(ConnectionInfo connInfo, bool needMetadata, string featureName = null, bool overwrite = false)
         {
             if (connInfo == null)
             {
@@ -154,7 +148,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                     return connectionKey;
                 }
             }
-            IBindingContext bindingContext = this.GetOrCreateBindingContext(connectionKey);
+            IBindingContext bindingContext = GetOrCreateBindingContext(connectionKey);
 
             if (bindingContext.BindingLock.WaitOne())
             {
@@ -163,12 +157,12 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                     bindingContext.BindingLock.Reset();
                    
                     // populate the binding context to work with the SMO metadata provider
-                    bindingContext.ServerConnection = connectionOpener.OpenServerConnection(connInfo, featureName);
+                    bindingContext.ServerConnection = _connectionOpener.OpenServerConnection(connInfo, featureName);
 
                     string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
                     bindingContext.DataSource = _dataSourceFactory.Create(DataSourceType.Kusto, connectionString, connInfo.ConnectionDetails.AzureAccountToken);
 
-                    if (this.needsMetadata)
+                    if (needMetadata)
                     {
                         bindingContext.SmoMetadataProvider = SmoMetadataProvider.CreateConnectedProvider(bindingContext.ServerConnection);
                         bindingContext.MetadataDisplayInfoProvider = new MetadataDisplayInfoProvider();

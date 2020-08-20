@@ -131,7 +131,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
         {
             Logger.Write(TraceEventType.Verbose, "ObjectExplorer service initialized");
             _serviceHost = serviceHost;
-            _bindingQueue = new ConnectedBindingQueue(_dataSourceFactory, _sqlConnectionOpener, false);
+            _bindingQueue = new ConnectedBindingQueue(_dataSourceFactory, _sqlConnectionOpener);
 
             ConnectedBindingQueue.OnUnhandledException += OnUnhandledException;
 
@@ -426,7 +426,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
                 {
                     int timeout = (int)TimeSpan.FromSeconds(settings?.ExpandTimeout ?? ObjectExplorerSettings.DefaultExpandTimeout).TotalMilliseconds;
                     QueueItem queueItem = _bindingQueue.QueueBindingOperation(
-                           key: _bindingQueue.AddConnectionContext(session.ConnectionInfo, connectionName),
+                           key: _bindingQueue.AddConnectionContext(session.ConnectionInfo, false, connectionName, false),
                            bindingTimeout: timeout,
                            waitForLockTimeout: timeout,
                            bindOperation: (bindingContext, cancelToken) =>
@@ -502,7 +502,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
 
                 int timeout = (int)TimeSpan.FromSeconds(settings?.CreateSessionTimeout ?? ObjectExplorerSettings.DefaultCreateSessionTimeout).TotalMilliseconds;
                 QueueItem queueItem = _bindingQueue.QueueBindingOperation(
-                           key: _bindingQueue.AddConnectionContext(connectionInfo, connectionName),
+                           key: _bindingQueue.AddConnectionContext(connectionInfo, false, connectionName),
                            bindingTimeout: timeout,
                            waitForLockTimeout: timeout,
                            bindOperation: (bindingContext, cancelToken) =>
