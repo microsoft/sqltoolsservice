@@ -38,6 +38,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
     {
         private readonly IMetadataFactory _metadataFactory;
         private readonly IKustoIntellisenseHelper _kustoIntellisenseHelper;
+        private readonly IAutoCompleteHelper _autoCompleteHelper;
         private ICslQueryProvider _kustoQueryProvider;
 
         private ICslAdminProvider _kustoAdminProvider;
@@ -85,16 +86,21 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// <summary>
         /// Prevents a default instance of the <see cref="IDataSource"/> class from being created.
         /// </summary>
-        public KustoDataSource(string connectionString, string azureAccountToken, IMetadataFactory metadataFactory, IKustoIntellisenseHelper kustoIntellisenseHelper)
+        public KustoDataSource(string connectionString, string azureAccountToken, IMetadataFactory metadataFactory,
+            IKustoIntellisenseHelper kustoIntellisenseHelper, IAutoCompleteHelper autoCompleteHelper)
         {
             _metadataFactory = metadataFactory;
             _kustoIntellisenseHelper = kustoIntellisenseHelper;
+            _autoCompleteHelper = autoCompleteHelper;
             ClusterName = GetClusterName(connectionString);
             DatabaseName = GetDatabaseName(connectionString);
             UserToken = azureAccountToken;
-            SchemaState = Task.Run(() => _kustoIntellisenseHelper.AddOrUpdateDatabaseAsync(this, GlobalState.Default, DatabaseName, ClusterName, throwOnError: false)).Result;
+            SchemaState = Task.Run(() =>
+                _kustoIntellisenseHelper.AddOrUpdateDatabaseAsync(this, GlobalState.Default, DatabaseName, ClusterName,
+                    throwOnError: false)).Result;
             // Check if a connection can be made
-            ValidationUtils.IsTrue<ArgumentException>(Exists().Result, $"Unable to connect. ClusterName = {ClusterName}, DatabaseName = {DatabaseName}");
+            ValidationUtils.IsTrue<ArgumentException>(Exists().Result,
+                $"Unable to connect. ClusterName = {ClusterName}, DatabaseName = {DatabaseName}");
         }
 
         /// <summary>
@@ -431,7 +437,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             foreach (var autoCompleteItem in completion.Items)
             {
                 var label = autoCompleteItem.DisplayText;
-                completions.Add(AutoCompleteHelper.CreateCompletionItem(label, label + " keyword", label, _kustoIntellisenseHelper.CreateCompletionItemKind(autoCompleteItem.Kind), scriptDocumentInfo.StartLine, scriptDocumentInfo.StartColumn, textPosition.Character));
+                completions.Add(_autoCompleteHelper.CreateCompletionItem(label, label + " keyword", label, _kustoIntellisenseHelper.CreateCompletionItemKind(autoCompleteItem.Kind), scriptDocumentInfo.StartLine, scriptDocumentInfo.StartColumn, textPosition.Character));
             }
 
             return completions.ToArray();
@@ -445,7 +451,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
             var quickInfo = kustoCodeService.GetQuickInfo(position);
 
-            return AutoCompleteHelper.ConvertQuickInfoToHover(
+            return _autoCompleteHelper.ConvertQuickInfoToHover(
                                         quickInfo.Text,
                                         "kusto",
                                         scriptDocumentInfo.StartLine,

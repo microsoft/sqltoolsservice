@@ -26,7 +26,14 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
     [Export(typeof(IKustoIntellisenseHelper))]
     public class KustoIntellisenseHelper : IKustoIntellisenseHelper
     {
-
+        private readonly IAutoCompleteHelper _autoCompleteHelper;
+        
+        [ImportingConstructor]
+        public KustoIntellisenseHelper(IAutoCompleteHelper autoCompleteHelper)
+        {
+            _autoCompleteHelper = autoCompleteHelper;
+        }
+        
         public class ShowDatabasesResult
         {
             public string DatabaseName;
@@ -248,7 +255,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
                 {
                     var label = autoCompleteItem.DisplayText;
                     // convert the completion item candidates into vscode format CompletionItems
-                    completions.Add(AutoCompleteHelper.CreateCompletionItem(label, label + " keyword", label, CompletionItemKind.Keyword, scriptDocumentInfo.StartLine, scriptDocumentInfo.StartColumn, textDocumentPosition.Character));
+                    completions.Add(_autoCompleteHelper.CreateCompletionItem(label, label + " keyword", label, CompletionItemKind.Keyword, scriptDocumentInfo.StartLine, scriptDocumentInfo.StartColumn, textDocumentPosition.Character));
                 }
 
                 return completions.ToArray();

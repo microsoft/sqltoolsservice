@@ -5,6 +5,7 @@ using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
 using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
+using Microsoft.Kusto.ServiceLayer.LanguageServices;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Completion;
@@ -16,14 +17,17 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
     {
         private readonly IMetadataFactory _metadataFactory;
         private readonly IKustoIntellisenseHelper _kustoIntellisenseHelper;
+        private readonly IAutoCompleteHelper _autoCompleteHelper;
 
         [ImportingConstructor]
-        public DataSourceFactory(IMetadataFactory metadataFactory, IKustoIntellisenseHelper kustoIntellisenseHelper)
+        public DataSourceFactory(IMetadataFactory metadataFactory, IKustoIntellisenseHelper kustoIntellisenseHelper,
+            IAutoCompleteHelper autoCompleteHelper)
         {
             _metadataFactory = metadataFactory;
             _kustoIntellisenseHelper = kustoIntellisenseHelper;
+            _autoCompleteHelper = autoCompleteHelper;
         }
-        
+
         public IDataSource Create(DataSourceType dataSourceType, string connectionString, string azureAccountToken)
         {
             ValidationUtils.IsArgumentNotNullOrWhiteSpace(connectionString, nameof(connectionString));
@@ -32,12 +36,14 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             switch (dataSourceType)
             {
                 case DataSourceType.Kusto:
-                    {
-                        return new KustoDataSource(connectionString, azureAccountToken, _metadataFactory, _kustoIntellisenseHelper);
-                    }
+                {
+                    return new KustoDataSource(connectionString, azureAccountToken, _metadataFactory,
+                        _kustoIntellisenseHelper, _autoCompleteHelper);
+                }
 
                 default:
-                    throw new ArgumentException($"Unsupported data source type \"{dataSourceType}\"", nameof(dataSourceType));
+                    throw new ArgumentException($"Unsupported data source type \"{dataSourceType}\"",
+                        nameof(dataSourceType));
             }
         }
 
