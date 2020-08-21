@@ -111,7 +111,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts
         {
             this.SaveFormat = saveFormat;
             this.FilePath = savePath;
-            this.Rows = Rows;
+            this.Rows = rows;
             this.IsLastBatch = isLast;
         }
 
