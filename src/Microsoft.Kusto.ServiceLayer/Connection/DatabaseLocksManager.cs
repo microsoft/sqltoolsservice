@@ -11,13 +11,13 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 {
     public class DatabaseLocksManager: IDisposable
     {
-        private static readonly DatabaseLocksManager instance = new DatabaseLocksManager();
+        private static readonly DatabaseLocksManager _instance = new DatabaseLocksManager();
 
         public static DatabaseLocksManager Instance
         {
             get
             {
-                return instance;
+                return _instance;
             }
         }
 

@@ -41,13 +41,13 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <summary>
         /// Singleton service instance
         /// </summary>
-        private static readonly Lazy<ConnectionService> instance
+        private static readonly Lazy<ConnectionService> _instance
             = new Lazy<ConnectionService>(() => new ConnectionService());
 
         /// <summary>
         /// Gets the singleton service instance
         /// </summary>
-        public static ConnectionService Instance => instance.Value;
+        public static ConnectionService Instance => _instance.Value;
 
         private DatabaseLocksManager lockedDatabaseManager;
 
@@ -1409,7 +1409,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <param name="connInfo">The connection info to connect with</param>
         /// <param name="featureName">A plaintext string that will be included in the application name for the connection</param>
         /// <returns>A SqlConnection created with the given connection info</returns>
-        internal IDataSource OpenDataSourceConnection(ConnectionInfo connInfo, string featureName = null)
+        private IDataSource OpenDataSourceConnection(ConnectionInfo connInfo, string featureName = null)
         {
             try
             {
