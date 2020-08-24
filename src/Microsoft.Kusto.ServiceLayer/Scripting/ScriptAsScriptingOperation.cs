@@ -84,6 +84,10 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                     case ScriptingOperationType.Alter:
                         resultScript = GenerateScriptAlter(DataSource, urns);
                         break;
+                    
+                    case ScriptingOperationType.Execute:
+                        resultScript = GenerateScriptExecute(DataSource, urns);
+                        break;
                 }
 
                 this.CancellationToken.ThrowIfCancellationRequested();
@@ -161,6 +165,19 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
             if (string.Equals(scriptingObject.Type, "Function", StringComparison.CurrentCultureIgnoreCase))
             {
                 return _scripter.AlterFunction(dataSource, scriptingObject);
+            }
+            
+            return string.Empty;
+        }
+
+        private string GenerateScriptExecute(IDataSource dataSource, UrnCollection urns)
+        {
+            ScriptingObject scriptingObject = this.Parameters.ScriptingObjects[0];
+            Urn objectUrn = urns[0];
+
+            if (string.Equals(scriptingObject.Type, "Function", StringComparison.CurrentCultureIgnoreCase))
+            {
+                return _scripter.ExecuteFunction(dataSource, scriptingObject);
             }
             
             return string.Empty;

@@ -1039,6 +1039,15 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             return alterCommand.ToString();
         }
 
+        public override string GenerateExecuteFunctionScript(string functionName)
+        {
+            var functionInfo = GetFunctionInfo(functionName);
+            
+            return functionInfo == null 
+                ? string.Empty 
+                : $"{functionInfo.Name}{functionInfo.Parameters}";
+        }
+
         private string GenerateMetadataKey(string databaseName, string objectName)
         {
             return string.IsNullOrWhiteSpace(objectName) ? databaseName : $"{databaseName}.{objectName}";
