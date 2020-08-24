@@ -22,7 +22,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
     /// </summary>
     public abstract class SmoScriptingOperation : ScriptingOperation
     {
-        private bool disposed = false;
+        private bool _disposed;
 
         public SmoScriptingOperation(ScriptingParams parameters)
         {
@@ -177,10 +177,10 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         /// </summary>
         public override void Dispose()
         {
-            if (!disposed)
+            if (!_disposed)
             {
                 this.Cancel();
-                disposed = true;
+                _disposed = true;
             }
         }
 

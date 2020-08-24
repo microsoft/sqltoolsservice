@@ -4,8 +4,7 @@
 //
 
 using System;
-using System.Data.SqlClient;
-using Microsoft.SqlServer.Management.Common;
+using System.Composition;
 using Microsoft.SqlServer.Management.SmoMetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
@@ -14,81 +13,36 @@ using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 using Microsoft.Kusto.ServiceLayer.SqlContext;
 using Microsoft.Kusto.ServiceLayer.Workspace;
 using Microsoft.Kusto.ServiceLayer.DataSource;
-using System.Threading;
 
 namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 {
-    public interface IConnectedBindingQueue
-    {
-        void CloseConnections(string serverName, string databaseName, int millisecondsTimeout);
-        void OpenConnections(string serverName, string databaseName, int millisecondsTimeout);
-        string AddConnectionContext(ConnectionInfo connInfo, string featureName = null, bool overwrite = false);
-        void Dispose();
-        QueueItem QueueBindingOperation(
-            string key,
-            Func<IBindingContext, CancellationToken, object> bindOperation,
-            Func<IBindingContext, object> timeoutOperation = null,
-            Func<Exception, object> errorHandler = null,
-            int? bindingTimeout = null,
-            int? waitForLockTimeout = null);
-    }
-
-    public class SqlConnectionOpener
-    {
-        /// <summary>
-        /// Virtual method used to support mocking and testing
-        /// </summary>
-        public virtual ServerConnection OpenServerConnection(ConnectionInfo connInfo, string featureName)
-        {
-            return ConnectionService.OpenServerConnection(connInfo, featureName);
-        }
-    }
-
     /// <summary>
     /// ConnectedBindingQueue class for processing online binding requests
     /// </summary>
+    [Export(typeof(IConnectedBindingQueue))]
     public class ConnectedBindingQueue : BindingQueue<ConnectedBindingContext>, IConnectedBindingQueue
     {
         internal const int DefaultBindingTimeout = 500;
-
-        internal const int DefaultMinimumConnectionTimeout = 30;
-
-        /// <summary>
-        /// flag determing if the connection queue requires online metadata objects
-        /// it's much cheaper to not construct these objects if not needed
-        /// </summary>
-        private bool needsMetadata;
-        private SqlConnectionOpener connectionOpener;
+        private readonly ISqlConnectionOpener _connectionOpener;
 
         /// <summary>
         /// Gets the current settings
         /// </summary>
-        internal SqlToolsSettings CurrentSettings
+        private SqlToolsSettings CurrentSettings
         {
             get { return WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings; }
         }
 
-        public ConnectedBindingQueue()
-            : this(true)
-        {            
-        }
-
-        public ConnectedBindingQueue(bool needsMetadata)
+        [ImportingConstructor]
+        public ConnectedBindingQueue(ISqlConnectionOpener sqlConnectionOpener)
         {
-            this.needsMetadata = needsMetadata;
-            this.connectionOpener = new SqlConnectionOpener();
-        }
-
-        // For testing purposes only
-        internal void SetConnectionOpener(SqlConnectionOpener opener)
-        {
-            this.connectionOpener = opener;
+            _connectionOpener = sqlConnectionOpener;
         }
 
         /// <summary>
         /// Generate a unique key based on the ConnectionInfo object
         /// </summary>
-        /// <param name="connInfo"></param>
+        /// <param name="details"></param>
         internal static string GetConnectionContextKey(ConnectionDetails details)
         {            
             string key = string.Format("{0}_{1}_{2}_{3}",
@@ -114,7 +68,8 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// <summary>
         /// Generate a unique key based on the ConnectionInfo object
         /// </summary>
-        /// <param name="connInfo"></param>
+        /// <param name="serverName"></param>
+        /// <param name="databaseName"></param>
         private string GetConnectionContextKey(string serverName, string databaseName)
         {
             return string.Format("{0}_{1}",
@@ -156,7 +111,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
             }
         }
 
-        public void RemoveBindigContext(ConnectionInfo connInfo)
+        public void RemoveBindingContext(ConnectionInfo connInfo)
         {
             string connectionKey = GetConnectionContextKey(connInfo.ConnectionDetails);
             if (BindingContextExists(connectionKey))
@@ -168,9 +123,11 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// <summary>
         /// Use a ConnectionInfo item to create a connected binding context
         /// </summary>
-        /// <param name="connInfo">Connection info used to create binding context</param>   
-        /// <param name="overwrite">Overwrite existing context</param>      
-        public virtual string AddConnectionContext(ConnectionInfo connInfo, string featureName = null, bool overwrite = false)
+        /// <param name="connInfo">Connection info used to create binding context</param>
+        /// <param name="needMetadata"></param>
+        /// <param name="featureName"></param>
+        /// <param name="overwrite">Overwrite existing context</param>
+        public string AddConnectionContext(ConnectionInfo connInfo, bool needMetadata, string featureName = null, bool overwrite = false)
         {
             if (connInfo == null)
             {
@@ -191,7 +148,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                     return connectionKey;
                 }
             }
-            IBindingContext bindingContext = this.GetOrCreateBindingContext(connectionKey);
+            IBindingContext bindingContext = GetOrCreateBindingContext(connectionKey);
 
             if (bindingContext.BindingLock.WaitOne())
             {
@@ -200,12 +157,12 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                     bindingContext.BindingLock.Reset();
                    
                     // populate the binding context to work with the SMO metadata provider
-                    bindingContext.ServerConnection = connectionOpener.OpenServerConnection(connInfo, featureName);
+                    bindingContext.ServerConnection = _connectionOpener.OpenServerConnection(connInfo, featureName);
 
                     string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
                     bindingContext.DataSource = DataSourceFactory.Create(DataSourceType.Kusto, connectionString, connInfo.ConnectionDetails.AzureAccountToken);
 
-                    if (this.needsMetadata)
+                    if (needMetadata)
                     {
                         bindingContext.SmoMetadataProvider = SmoMetadataProvider.CreateConnectedProvider(bindingContext.ServerConnection);
                         bindingContext.MetadataDisplayInfoProvider = new MetadataDisplayInfoProvider();

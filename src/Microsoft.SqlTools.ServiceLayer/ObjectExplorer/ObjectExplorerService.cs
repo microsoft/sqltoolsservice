@@ -73,15 +73,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             {
                 this.bindingQueue = value;
             }
-        }        
-
-        /// <summary>
-        /// Internal for testing only
-        /// </summary>
-        internal ObjectExplorerService(ExtensionServiceProvider serviceProvider)
-            : this()
-        {
-            SetServiceProvider(serviceProvider);
         }
 
         private Dictionary<string, HashSet<ChildFactory>> ApplicableNodeChildFactories

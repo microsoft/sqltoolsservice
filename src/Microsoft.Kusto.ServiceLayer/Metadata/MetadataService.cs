@@ -4,12 +4,10 @@
 //
 
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.Kusto.ServiceLayer.Connection;
-using Microsoft.Kusto.ServiceLayer.Hosting;
 using Microsoft.Kusto.ServiceLayer.Metadata.Contracts;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.Kusto.ServiceLayer.DataSource;
@@ -22,7 +20,7 @@ namespace Microsoft.Kusto.ServiceLayer.Metadata
     /// </summary>
     public sealed class MetadataService
     {
-        private static readonly Lazy<MetadataService> LazyInstance = new Lazy<MetadataService>(() => new MetadataService());
+        private static readonly Lazy<MetadataService> LazyInstance = new Lazy<MetadataService>();
 
         public static MetadataService Instance => LazyInstance.Value;
 
@@ -52,8 +50,8 @@ namespace Microsoft.Kusto.ServiceLayer.Metadata
         /// Initializes the Metadata Service instance
         /// </summary>
         /// <param name="serviceHost"></param>
-        /// <param name="context"></param>
-        public void InitializeService(ServiceHost serviceHost)
+        /// <param name="metadataFactory"></param>
+        public void InitializeService(IProtocolEndpoint serviceHost)
         {
             serviceHost.SetRequestHandler(MetadataListRequest.Type, HandleMetadataListRequest);
         }
@@ -79,11 +77,11 @@ namespace Microsoft.Kusto.ServiceLayer.Metadata
                         connInfo.TryGetConnection("Default", out connection);
                         IDataSource dataSource = connection.GetUnderlyingConnection();
 
-                        DataSourceObjectMetadata objectMetadata = DataSourceFactory.CreateClusterMetadata(connInfo.ConnectionDetails.ServerName);
-                        DataSourceObjectMetadata databaseMetadata = DataSourceFactory.CreateDatabaseMetadata(objectMetadata, connInfo.ConnectionDetails.DatabaseName);
+                        DataSourceObjectMetadata objectMetadata = MetadataFactory.CreateClusterMetadata(connInfo.ConnectionDetails.ServerName);
+                        DataSourceObjectMetadata databaseMetadata = MetadataFactory.CreateDatabaseMetadata(objectMetadata, connInfo.ConnectionDetails.DatabaseName);
 
                         IEnumerable<DataSourceObjectMetadata> databaseChildMetadataInfo = dataSource.GetChildObjects(databaseMetadata, true);
-                        metadata = DataSourceFactory.ConvertToObjectMetadata(databaseChildMetadataInfo);
+                        metadata = MetadataFactory.ConvertToObjectMetadata(databaseChildMetadataInfo);
                     }
 
                     await requestContext.SendResult(new MetadataQueryResult
