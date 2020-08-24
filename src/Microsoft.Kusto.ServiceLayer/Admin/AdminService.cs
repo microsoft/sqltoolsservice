@@ -21,7 +21,6 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
     /// </summary>
     public class AdminService
     {
-        private IMetadataFactory _metadataFactory;
         private static readonly Lazy<AdminService> instance = new Lazy<AdminService>(() => new AdminService());
 
         private static ConnectionService connectionService = null;
@@ -57,10 +56,9 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
         /// <summary>
         /// Initializes the service instance
         /// </summary>
-        public void InitializeService(IProtocolEndpoint serviceHost, IMetadataFactory metadataFactory)
+        public void InitializeService(IProtocolEndpoint serviceHost)
         {
             serviceHost.SetRequestHandler(GetDatabaseInfoRequest.Type, HandleGetDatabaseInfoRequest);
-            _metadataFactory = metadataFactory;
         }
 
         /// <summary>
@@ -114,12 +112,12 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
                 ReliableDataSourceConnection connection;
                 connInfo.TryGetConnection("Default", out connection);
                 IDataSource dataSource = connection.GetUnderlyingConnection();
-                DataSourceObjectMetadata objectMetadata = _metadataFactory.CreateClusterMetadata(connInfo.ConnectionDetails.ServerName);
+                DataSourceObjectMetadata objectMetadata = MetadataFactory.CreateClusterMetadata(connInfo.ConnectionDetails.ServerName);
 
                 List<DataSourceObjectMetadata> metadata = dataSource.GetChildObjects(objectMetadata, true).ToList();
                 var databaseMetadata = metadata.Where(o => o.Name == connInfo.ConnectionDetails.DatabaseName);
 
-                List<DatabaseInfo> databaseInfo = _metadataFactory.ConvertToDatabaseInfo(databaseMetadata);
+                List<DatabaseInfo> databaseInfo = MetadataFactory.ConvertToDatabaseInfo(databaseMetadata);
 
                 return databaseInfo.ElementAtOrDefault(0);
             }

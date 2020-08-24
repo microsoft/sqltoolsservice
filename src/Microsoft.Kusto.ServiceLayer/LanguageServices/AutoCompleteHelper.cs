@@ -3,7 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System.Composition;
 using Range = Microsoft.Kusto.ServiceLayer.Workspace.Contracts.Range;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
@@ -13,8 +12,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
     /// <summary>
     /// All the conversion of intellisense info to vscode format is done in this class.
     /// </summary>
-    [Export(typeof(IAutoCompleteHelper))]
-    public class AutoCompleteHelper : IAutoCompleteHelper
+    public class AutoCompleteHelper
     {
         /// <summary>
         /// Create a completion item from the default item text since VS Code expects CompletionItems
@@ -26,7 +24,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// <param name="row"></param>
         /// <param name="startColumn"></param>
         /// <param name="endColumn"></param>
-        public CompletionItem CreateCompletionItem(
+        public static CompletionItem CreateCompletionItem(
             string label,
            string detail,
            string insertText,
@@ -71,7 +69,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// <param name="row"></param>
         /// <param name="startColumn"></param>
         /// <param name="endColumn"></param>
-        public Hover ConvertQuickInfoToHover(
+        public static Hover ConvertQuickInfoToHover(
             string quickInfoText,
             string language,
             int row,

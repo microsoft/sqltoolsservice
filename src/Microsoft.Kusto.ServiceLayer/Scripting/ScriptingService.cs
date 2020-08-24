@@ -22,7 +22,6 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
     /// </summary>
     public sealed class ScriptingService : IDisposable
     {
-        private IDataSourceFactory _dataSourceFactory;
         private const int ScriptingOperationTimeout = 60000;
 
         private static readonly Lazy<ScriptingService> LazyInstance = new Lazy<ScriptingService>(() => new ScriptingService());
@@ -67,9 +66,8 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         /// </summary>
         /// <param name="serviceHost"></param>
         /// <param name="context"></param>
-        public void InitializeService(ServiceHost serviceHost, IDataSourceFactory dataSourceFactory, IScripter scripter)
+        public void InitializeService(ServiceHost serviceHost, IScripter scripter)
         {
-            _dataSourceFactory = dataSourceFactory;
             _scripter = scripter;
             serviceHost.SetRequestHandler(ScriptingRequest.Type, this.HandleScriptExecuteRequest);
             serviceHost.SetRequestHandler(ScriptingCancelRequest.Type, this.HandleScriptCancelRequest);
@@ -133,11 +131,11 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
 
                 if (!ShouldCreateScriptAsOperation(parameters))
                 {
-                    operation = new ScriptingScriptOperation(parameters, accessToken, _dataSourceFactory);
+                    operation = new ScriptingScriptOperation(parameters, accessToken);
                 }
                 else
                 {
-                    operation = new ScriptAsScriptingOperation(parameters, accessToken, _dataSourceFactory, _scripter);
+                    operation = new ScriptAsScriptingOperation(parameters, accessToken, _scripter);
                 }
 
                 operation.PlanNotification += (sender, e) => requestContext.SendEvent(ScriptingPlanNotificationEvent.Type, e).Wait();

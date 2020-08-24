@@ -17,14 +17,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
     [Export(typeof(IDataSourceConnectionFactory))]
     public class DataSourceConnectionFactory : IDataSourceConnectionFactory
     {
-        private readonly IDataSourceFactory _dataSourceFactory;
-
-        [ImportingConstructor]
-        public DataSourceConnectionFactory(IDataSourceFactory dataSourceFactory)
-        {
-            _dataSourceFactory = dataSourceFactory;
-        }
-        
         /// <summary>
         /// Creates a new SqlConnection object
         /// </summary>
@@ -32,7 +24,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         {
             RetryPolicy connectionRetryPolicy = RetryPolicyFactory.CreateDefaultConnectionRetryPolicy();
             RetryPolicy commandRetryPolicy = RetryPolicyFactory.CreateDefaultConnectionRetryPolicy();
-            return new ReliableDataSourceConnection(connectionString, connectionRetryPolicy, commandRetryPolicy, azureAccountToken, _dataSourceFactory);
+            return new ReliableDataSourceConnection(connectionString, connectionRetryPolicy, commandRetryPolicy, azureAccountToken);
         }
     }
 }

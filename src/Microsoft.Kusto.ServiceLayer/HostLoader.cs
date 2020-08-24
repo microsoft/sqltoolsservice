@@ -68,8 +68,6 @@ namespace Microsoft.Kusto.ServiceLayer
             serviceProvider.RegisterSingleService(sqlToolsContext);
             serviceProvider.RegisterSingleService(serviceHost);
             
-            var metadataFactory = serviceProvider.GetService<IMetadataFactory>();
-            var dataSourceFactory = serviceProvider.GetService<IDataSourceFactory>();
             var scripter = serviceProvider.GetService<IScripter>();
             var dataSourceConnectionFactory = serviceProvider.GetService<IDataSourceConnectionFactory>();
             var connectedBindingQueue = serviceProvider.GetService<IConnectedBindingQueue>();
@@ -80,10 +78,10 @@ namespace Microsoft.Kusto.ServiceLayer
             WorkspaceService<SqlToolsSettings>.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(WorkspaceService<SqlToolsSettings>.Instance);
 
-            LanguageService.Instance.InitializeService(serviceHost, dataSourceFactory, connectedBindingQueue);
+            LanguageService.Instance.InitializeService(serviceHost, connectedBindingQueue);
             serviceProvider.RegisterSingleService(LanguageService.Instance);
 
-            ConnectionService.Instance.InitializeService(serviceHost, metadataFactory, dataSourceFactory, dataSourceConnectionFactory, connectedBindingQueue);
+            ConnectionService.Instance.InitializeService(serviceHost, dataSourceConnectionFactory, connectedBindingQueue);
             serviceProvider.RegisterSingleService(ConnectionService.Instance);
 
             CredentialService.Instance.InitializeService(serviceHost);
@@ -92,13 +90,13 @@ namespace Microsoft.Kusto.ServiceLayer
             QueryExecutionService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(QueryExecutionService.Instance);
 
-            ScriptingService.Instance.InitializeService(serviceHost, dataSourceFactory, scripter);
+            ScriptingService.Instance.InitializeService(serviceHost, scripter);
             serviceProvider.RegisterSingleService(ScriptingService.Instance);
 
-            AdminService.Instance.InitializeService(serviceHost, metadataFactory);
+            AdminService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(AdminService.Instance);
 
-            MetadataService.Instance.InitializeService(serviceHost, metadataFactory);
+            MetadataService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(MetadataService.Instance);
             
             InitializeHostedServices(serviceProvider, serviceHost);

@@ -38,10 +38,9 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         /// </summary>
         public const char RightDelimiter = ']';
 
-        public ScriptAsScriptingOperation(ScriptingParams parameters, string azureAccountToken,
-            IDataSourceFactory dataSourceFactory, IScripter scripter) : base(parameters, dataSourceFactory)
+        public ScriptAsScriptingOperation(ScriptingParams parameters, string azureAccountToken, IScripter scripter) : base(parameters)
         {
-            DataSource = _dataSourceFactory.Create(DataSourceType.Kusto, this.Parameters.ConnectionString,
+            DataSource = DataSourceFactory.Create(DataSourceType.Kusto, this.Parameters.ConnectionString,
                 azureAccountToken);
             _scripter = scripter;
         }

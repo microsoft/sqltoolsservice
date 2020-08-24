@@ -38,7 +38,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
     [Export(typeof(IHostedService))]
     public class ObjectExplorerService : HostedService<ObjectExplorerService>, IComposableService, IHostedService, IDisposable
     {
-        private static IMetadataFactory _metadataFactory;
         private readonly IConnectedBindingQueue _connectedBindingQueue;
         internal const string uriPrefix = "objectexplorer://";
 
@@ -59,9 +58,8 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
         /// Singleton constructor
         /// </summary>
         [ImportingConstructor]
-        public ObjectExplorerService(IMetadataFactory metadataFactory, IConnectedBindingQueue connectedBindingQueue)
+        public ObjectExplorerService(IConnectedBindingQueue connectedBindingQueue)
         {
-            _metadataFactory = metadataFactory;
             _connectedBindingQueue = connectedBindingQueue;
             sessionMap = new ConcurrentDictionary<string, ObjectExplorerSession>();
             applicableNodeChildFactories = new Lazy<Dictionary<string, HashSet<ChildFactory>>>(PopulateFactories);
@@ -787,13 +785,13 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
 
             public static ObjectExplorerSession CreateSession(ConnectionCompleteParams response, IMultiServiceProvider serviceProvider, ServerConnection serverConnection, IDataSource dataSource, bool isDefaultOrSystemDatabase)
             {
-                DataSourceObjectMetadata objectMetadata = _metadataFactory.CreateClusterMetadata(dataSource.ClusterName);
+                DataSourceObjectMetadata objectMetadata = MetadataFactory.CreateClusterMetadata(dataSource.ClusterName);
                 ServerNode rootNode = new ServerNode(response, serviceProvider, serverConnection, dataSource, objectMetadata);
                 
                 var session = new ObjectExplorerSession(response.OwnerUri, rootNode);
                 if (!isDefaultOrSystemDatabase)
                 {
-                    DataSourceObjectMetadata databaseMetadata = _metadataFactory.CreateDatabaseMetadata(objectMetadata, response.ConnectionSummary.DatabaseName);
+                    DataSourceObjectMetadata databaseMetadata = MetadataFactory.CreateDatabaseMetadata(objectMetadata, response.ConnectionSummary.DatabaseName);
 
                     // Assuming the databases are in a folder under server node
                     DataSourceTreeNode databaseNode = new DataSourceTreeNode(dataSource, databaseMetadata) {

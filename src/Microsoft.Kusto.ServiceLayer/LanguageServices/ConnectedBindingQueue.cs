@@ -23,8 +23,6 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
     public class ConnectedBindingQueue : BindingQueue<ConnectedBindingContext>, IConnectedBindingQueue
     {
         internal const int DefaultBindingTimeout = 500;
-
-        private readonly IDataSourceFactory _dataSourceFactory;
         private readonly ISqlConnectionOpener _connectionOpener;
 
         /// <summary>
@@ -36,9 +34,8 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         }
 
         [ImportingConstructor]
-        public ConnectedBindingQueue(IDataSourceFactory dataSourceFactory, ISqlConnectionOpener sqlConnectionOpener)
+        public ConnectedBindingQueue(ISqlConnectionOpener sqlConnectionOpener)
         {
-            _dataSourceFactory = dataSourceFactory;
             _connectionOpener = sqlConnectionOpener;
         }
 
@@ -163,7 +160,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                     bindingContext.ServerConnection = _connectionOpener.OpenServerConnection(connInfo, featureName);
 
                     string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
-                    bindingContext.DataSource = _dataSourceFactory.Create(DataSourceType.Kusto, connectionString, connInfo.ConnectionDetails.AzureAccountToken);
+                    bindingContext.DataSource = DataSourceFactory.Create(DataSourceType.Kusto, connectionString, connInfo.ConnectionDetails.AzureAccountToken);
 
                     if (needMetadata)
                     {

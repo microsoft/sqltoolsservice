@@ -35,8 +35,6 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
     /// </summary>
     public class LanguageService: IDisposable
     {
-        private static IDataSourceFactory _dataSourceFactory;
-
         #region Singleton Instance Implementation
 
         private static readonly Lazy<LanguageService> instance = new Lazy<LanguageService>(() => new LanguageService());
@@ -211,9 +209,8 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// <param name="context"></param>
         /// <param name="dataSourceFactory"></param>
         /// <param name="connectedBindingQueue"></param>
-        public void InitializeService(ServiceHost serviceHost, IDataSourceFactory dataSourceFactory, IConnectedBindingQueue connectedBindingQueue)
+        public void InitializeService(ServiceHost serviceHost, IConnectedBindingQueue connectedBindingQueue)
         {
-            _dataSourceFactory = dataSourceFactory;
             _bindingQueue = connectedBindingQueue;
             // Register the requests that this service will handle
 
@@ -857,7 +854,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
             if (scriptParseInfo == null)
             {
                 var scriptDocInfo = ScriptDocumentInfo.CreateDefaultDocumentInfo(textDocumentPosition, scriptFile);
-                resultCompletionItems = resultCompletionItems = _dataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocInfo, textDocumentPosition.Position);       //TODO_KUSTO: DataSourceFactory.GetDefaultAutoComplete 1st param should get the datasource type generically instead of hard coded DataSourceType.Kusto
+                resultCompletionItems = resultCompletionItems = DataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocInfo, textDocumentPosition.Position);       //TODO_KUSTO: DataSourceFactory.GetDefaultAutoComplete 1st param should get the datasource type generically instead of hard coded DataSourceType.Kusto
                 return resultCompletionItems;
             }
 
@@ -871,7 +868,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                 resultCompletionItems = dataSource.GetAutoCompleteSuggestions(scriptDocumentInfo, textDocumentPosition.Position);
             }
             else{
-                resultCompletionItems = _dataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocumentInfo, textDocumentPosition.Position);
+                resultCompletionItems = DataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocumentInfo, textDocumentPosition.Position);
             }
 
             // cache the current script parse info object to resolve completions later. Used for the detailed description.
@@ -881,14 +878,14 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
             // if the parse failed then return the default list
             if (scriptParseInfo.ParseResult == null)
             {
-                resultCompletionItems = _dataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocumentInfo, textDocumentPosition.Position);
+                resultCompletionItems = DataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocumentInfo, textDocumentPosition.Position);
                 return resultCompletionItems;
             }
 
             // if there are no completions then provide the default list
             if (resultCompletionItems == null)          // this is the getting default keyword option when its not connected
             {
-                resultCompletionItems = _dataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocumentInfo, textDocumentPosition.Position);
+                resultCompletionItems = DataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocumentInfo, textDocumentPosition.Position);
             }
 
             return resultCompletionItems;
@@ -1016,7 +1013,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                     semanticMarkers = dataSource.GetSemanticMarkers(parseInfo, scriptFile, scriptFile.Contents);
 			    }
                 else{
-                    semanticMarkers = _dataSourceFactory.GetDefaultSemanticMarkers(DataSourceType.Kusto, parseInfo, scriptFile, scriptFile.Contents);
+                    semanticMarkers = DataSourceFactory.GetDefaultSemanticMarkers(DataSourceType.Kusto, parseInfo, scriptFile, scriptFile.Contents);
                 }
                 
                 Logger.Write(TraceEventType.Verbose, "Analysis complete.");

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Composition;
 using System.Linq;
 using Microsoft.Kusto.ServiceLayer.Admin.Contracts;
 using Microsoft.Kusto.ServiceLayer.Metadata.Contracts;
@@ -8,10 +7,9 @@ using Microsoft.Kusto.ServiceLayer.Utility;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource.Metadata
 {
-    [Export(typeof(IMetadataFactory))]
-    public class MetadataFactory : IMetadataFactory
+    public class MetadataFactory
     {
-        public DataSourceObjectMetadata CreateClusterMetadata(string clusterName)
+        public static DataSourceObjectMetadata CreateClusterMetadata(string clusterName)
         {
             ValidationUtils.IsArgumentNotNullOrWhiteSpace(clusterName, nameof(clusterName));
 
@@ -25,7 +23,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Metadata
             };
         }
 
-        public DataSourceObjectMetadata CreateDatabaseMetadata(DataSourceObjectMetadata clusterMetadata,
+        public static DataSourceObjectMetadata CreateDatabaseMetadata(DataSourceObjectMetadata clusterMetadata,
             string databaseName)
         {
             ValidationUtils.IsTrue<ArgumentException>(clusterMetadata.MetadataType == DataSourceMetadataType.Cluster,
@@ -43,7 +41,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Metadata
             };
         }
 
-        public FolderMetadata CreateFolderMetadata(DataSourceObjectMetadata parentMetadata, string path, string name)
+        public static FolderMetadata CreateFolderMetadata(DataSourceObjectMetadata parentMetadata, string path, string name)
         {
             ValidationUtils.IsNotNull(parentMetadata, nameof(parentMetadata));
 
@@ -63,7 +61,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Metadata
         /// </summary>
         /// <param name="clusterDBDetails"></param>
         /// <returns></returns>
-        public List<DatabaseInfo> ConvertToDatabaseInfo(IEnumerable<DataSourceObjectMetadata> clusterDBDetails)
+        public static List<DatabaseInfo> ConvertToDatabaseInfo(IEnumerable<DataSourceObjectMetadata> clusterDBDetails)
         {
             var databaseDetails = new List<DatabaseInfo>();
 
@@ -87,7 +85,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Metadata
         /// </summary>
         /// <param name="dbChildDetails"></param>
         /// <returns></returns>
-        public List<ObjectMetadata> ConvertToObjectMetadata(IEnumerable<DataSourceObjectMetadata> dbChildDetails)
+        public static List<ObjectMetadata> ConvertToObjectMetadata(IEnumerable<DataSourceObjectMetadata> dbChildDetails)
         {
             var databaseChildDetails = new List<ObjectMetadata>();
 

@@ -36,9 +36,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
     /// </summary>
     public class KustoDataSource : DataSourceBase
     {
-        private readonly IMetadataFactory _metadataFactory;
-        private readonly IKustoIntellisenseHelper _kustoIntellisenseHelper;
-        private readonly IAutoCompleteHelper _autoCompleteHelper;
         private ICslQueryProvider _kustoQueryProvider;
 
         private ICslAdminProvider _kustoAdminProvider;
@@ -86,17 +83,13 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// <summary>
         /// Prevents a default instance of the <see cref="IDataSource"/> class from being created.
         /// </summary>
-        public KustoDataSource(string connectionString, string azureAccountToken, IMetadataFactory metadataFactory,
-            IKustoIntellisenseHelper kustoIntellisenseHelper, IAutoCompleteHelper autoCompleteHelper)
+        public KustoDataSource(string connectionString, string azureAccountToken)
         {
-            _metadataFactory = metadataFactory;
-            _kustoIntellisenseHelper = kustoIntellisenseHelper;
-            _autoCompleteHelper = autoCompleteHelper;
             ClusterName = GetClusterName(connectionString);
             DatabaseName = GetDatabaseName(connectionString);
             UserToken = azureAccountToken;
             SchemaState = Task.Run(() =>
-                _kustoIntellisenseHelper.AddOrUpdateDatabaseAsync(this, GlobalState.Default, DatabaseName, ClusterName,
+                KustoIntellisenseHelper.AddOrUpdateDatabaseAsync(this, GlobalState.Default, DatabaseName, ClusterName,
                     throwOnError: false)).Result;
             // Check if a connection can be made
             ValidationUtils.IsTrue<ArgumentException>(Exists().Result,
@@ -421,7 +414,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// <inheritdoc/>
         public override void UpdateDatabase(string databaseName){
             DatabaseName = databaseName;
-            SchemaState = Task.Run(() => _kustoIntellisenseHelper.AddOrUpdateDatabaseAsync(this, GlobalState.Default, DatabaseName, ClusterName, throwOnError: false)).Result;
+            SchemaState = Task.Run(() => KustoIntellisenseHelper.AddOrUpdateDatabaseAsync(this, GlobalState.Default, DatabaseName, ClusterName, throwOnError: false)).Result;
         }
 
         /// <inheritdoc/>
@@ -437,7 +430,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             foreach (var autoCompleteItem in completion.Items)
             {
                 var label = autoCompleteItem.DisplayText;
-                completions.Add(_autoCompleteHelper.CreateCompletionItem(label, label + " keyword", label, _kustoIntellisenseHelper.CreateCompletionItemKind(autoCompleteItem.Kind), scriptDocumentInfo.StartLine, scriptDocumentInfo.StartColumn, textPosition.Character));
+                completions.Add(AutoCompleteHelper.CreateCompletionItem(label, label + " keyword", label, KustoIntellisenseHelper.CreateCompletionItemKind(autoCompleteItem.Kind), scriptDocumentInfo.StartLine, scriptDocumentInfo.StartColumn, textPosition.Character));
             }
 
             return completions.ToArray();
@@ -451,7 +444,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
             var quickInfo = kustoCodeService.GetQuickInfo(position);
 
-            return _autoCompleteHelper.ConvertQuickInfoToHover(
+            return AutoCompleteHelper.ConvertQuickInfoToHover(
                                         quickInfo.Text,
                                         "kusto",
                                         scriptDocumentInfo.StartLine,
@@ -746,7 +739,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             if (tableInfos.Any(x => !string.IsNullOrWhiteSpace(x.Folder)))
             {
                 // create Table folder to hold functions tables
-                var tableFolder = _metadataFactory.CreateFolderMetadata(databaseMetadata, rootTableFolderKey.ToString(), "Tables");
+                var tableFolder = MetadataFactory.CreateFolderMetadata(databaseMetadata, rootTableFolderKey.ToString(), "Tables");
                 _folderMetadata.AddRange(rootTableFolderKey.ToString(), new List<FolderMetadata> {tableFolder});
                 rootTableFolderKey.Append($".{tableFolder.Name}");
                 
@@ -792,7 +785,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                     continue;
                 }
 
-                var folder = _metadataFactory.CreateFolderMetadata(objectMetadata, rootTableFolderKey, columnGroup.Key);
+                var folder = MetadataFactory.CreateFolderMetadata(objectMetadata, rootTableFolderKey, columnGroup.Key);
                 tableFolders.Add(folder);
             }
 
@@ -810,7 +803,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
             // create Functions folder to hold functions folders
             var rootFunctionFolderKey = $"{databaseMetadata.Urn}";
-            var rootFunctionFolder = _metadataFactory.CreateFolderMetadata(databaseMetadata, rootFunctionFolderKey, "Functions");
+            var rootFunctionFolder = MetadataFactory.CreateFolderMetadata(databaseMetadata, rootFunctionFolderKey, "Functions");
             _folderMetadata.AddRange(rootFunctionFolderKey, new List<FolderMetadata> {rootFunctionFolder});
 
             // create each folder to hold functions
@@ -844,13 +837,13 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 var topFolder = subFolders.First();
 
                 var folderKey = functionFolder.Urn;
-                var folder = _metadataFactory.CreateFolderMetadata(databaseMetadata, folderKey, topFolder);
+                var folder = MetadataFactory.CreateFolderMetadata(databaseMetadata, folderKey, topFolder);
                 functionFolders.SafeAdd(folderKey, folder);
 
                 for (int i = 1; i < subFolders.Length; i++)
                 {
                     folderKey = $"{folderKey}.{subFolders[i - 1]}";
-                    var subFolder = _metadataFactory.CreateFolderMetadata(databaseMetadata, folderKey, subFolders[i]);
+                    var subFolder = MetadataFactory.CreateFolderMetadata(databaseMetadata, folderKey, subFolders[i]);
                     functionFolders.SafeAdd(folderKey, subFolder);
                 }
             }

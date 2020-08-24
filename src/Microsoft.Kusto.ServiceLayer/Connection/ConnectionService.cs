@@ -31,9 +31,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
     /// </summary>
     public class ConnectionService
     {
-        private IMetadataFactory _metadataFactory;
-        private IDataSourceFactory _dataSourceFactory;
-        
         public const string AdminConnectionPrefix = "ADMIN:";
         internal const string PasswordPlaceholder = "******";
         private const string SqlAzureEdition = "SQL Azure";
@@ -397,10 +394,10 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
                 var reliableConnection = connection as ReliableDataSourceConnection;
                 IDataSource dataSource = reliableConnection.GetUnderlyingConnection();
-                DataSourceObjectMetadata clusterMetadata = _metadataFactory.CreateClusterMetadata(connectionInfo.ConnectionDetails.ServerName);
+                DataSourceObjectMetadata clusterMetadata = MetadataFactory.CreateClusterMetadata(connectionInfo.ConnectionDetails.ServerName);
 
                 DiagnosticsInfo clusterDiagnostics = dataSource.GetDiagnostics(clusterMetadata);
-                ReliableConnectionHelper.ServerInfo serverInfo = _dataSourceFactory.ConvertToServerinfoFormat(DataSourceType.Kusto, clusterDiagnostics);
+                ReliableConnectionHelper.ServerInfo serverInfo = DataSourceFactory.ConvertToServerinfoFormat(DataSourceType.Kusto, clusterDiagnostics);
 
                 response.ServerInfo = new ServerInfo
                 {
@@ -773,14 +770,14 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             ConnectionDetails connectionDetails = info.ConnectionDetails.Clone();
 
             IDataSource dataSource = OpenDataSourceConnection(info);
-            DataSourceObjectMetadata objectMetadata = _metadataFactory.CreateClusterMetadata(info.ConnectionDetails.ServerName);
+            DataSourceObjectMetadata objectMetadata = MetadataFactory.CreateClusterMetadata(info.ConnectionDetails.ServerName);
 
             ListDatabasesResponse response = new ListDatabasesResponse();
 
             // Mainly used by "manage" dashboard
             if(listDatabasesParams.IncludeDetails.HasTrue()){
                 IEnumerable<DataSourceObjectMetadata> databaseMetadataInfo = dataSource.GetChildObjects(objectMetadata, true);
-                List<DatabaseInfo> metadata = _metadataFactory.ConvertToDatabaseInfo(databaseMetadataInfo);
+                List<DatabaseInfo> metadata = MetadataFactory.ConvertToDatabaseInfo(databaseMetadataInfo);
                 response.Databases = metadata.ToArray();
 
                 return response;
@@ -791,13 +788,10 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             return response;
         }
 
-        public void InitializeService(IProtocolEndpoint serviceHost, IMetadataFactory metadataFactory,
-            IDataSourceFactory dataSourceFactory, IDataSourceConnectionFactory dataSourceConnectionFactory, 
+        public void InitializeService(IProtocolEndpoint serviceHost, IDataSourceConnectionFactory dataSourceConnectionFactory, 
             IConnectedBindingQueue connectedBindingQueue)
         {
             ServiceHost = serviceHost;
-            _metadataFactory = metadataFactory;
-            _dataSourceFactory = dataSourceFactory;
             _dataSourceConnectionFactory = dataSourceConnectionFactory;
             
             connectedQueues.AddOrUpdate("Default", connectedBindingQueue, (key, old) => connectedBindingQueue);
@@ -1417,7 +1411,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                 string connectionString = BuildConnectionString(connInfo.ConnectionDetails);
 
                 // TODOKusto: Pass in type of DataSource needed to make this generic. Hard coded to Kusto right now.
-                return _dataSourceFactory.Create(DataSourceType.Kusto, connectionString, connInfo.ConnectionDetails.AzureAccountToken);
+                return DataSourceFactory.Create(DataSourceType.Kusto, connectionString, connInfo.ConnectionDetails.AzureAccountToken);
             }
             catch (Exception ex)
             {

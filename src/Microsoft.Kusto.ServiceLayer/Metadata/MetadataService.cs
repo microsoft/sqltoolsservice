@@ -20,7 +20,6 @@ namespace Microsoft.Kusto.ServiceLayer.Metadata
     /// </summary>
     public sealed class MetadataService
     {
-        private IMetadataFactory _metadataFactory;
         private static readonly Lazy<MetadataService> LazyInstance = new Lazy<MetadataService>();
 
         public static MetadataService Instance => LazyInstance.Value;
@@ -52,10 +51,9 @@ namespace Microsoft.Kusto.ServiceLayer.Metadata
         /// </summary>
         /// <param name="serviceHost"></param>
         /// <param name="metadataFactory"></param>
-        public void InitializeService(IProtocolEndpoint serviceHost, IMetadataFactory metadataFactory)
+        public void InitializeService(IProtocolEndpoint serviceHost)
         {
             serviceHost.SetRequestHandler(MetadataListRequest.Type, HandleMetadataListRequest);
-            _metadataFactory = metadataFactory;
         }
 
         /// <summary>
@@ -79,11 +77,11 @@ namespace Microsoft.Kusto.ServiceLayer.Metadata
                         connInfo.TryGetConnection("Default", out connection);
                         IDataSource dataSource = connection.GetUnderlyingConnection();
 
-                        DataSourceObjectMetadata objectMetadata = _metadataFactory.CreateClusterMetadata(connInfo.ConnectionDetails.ServerName);
-                        DataSourceObjectMetadata databaseMetadata = _metadataFactory.CreateDatabaseMetadata(objectMetadata, connInfo.ConnectionDetails.DatabaseName);
+                        DataSourceObjectMetadata objectMetadata = MetadataFactory.CreateClusterMetadata(connInfo.ConnectionDetails.ServerName);
+                        DataSourceObjectMetadata databaseMetadata = MetadataFactory.CreateDatabaseMetadata(objectMetadata, connInfo.ConnectionDetails.DatabaseName);
 
                         IEnumerable<DataSourceObjectMetadata> databaseChildMetadataInfo = dataSource.GetChildObjects(databaseMetadata, true);
-                        metadata = _metadataFactory.ConvertToObjectMetadata(databaseChildMetadataInfo);
+                        metadata = MetadataFactory.ConvertToObjectMetadata(databaseChildMetadataInfo);
                     }
 
                     await requestContext.SendResult(new MetadataQueryResult

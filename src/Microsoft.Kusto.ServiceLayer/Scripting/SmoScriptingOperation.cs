@@ -22,12 +22,10 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
     /// </summary>
     public abstract class SmoScriptingOperation : ScriptingOperation
     {
-        protected readonly IDataSourceFactory _dataSourceFactory;
         private bool _disposed;
 
-        public SmoScriptingOperation(ScriptingParams parameters, IDataSourceFactory dataSourceFactory)
+        public SmoScriptingOperation(ScriptingParams parameters)
         {
-            _dataSourceFactory = dataSourceFactory;
             Validate.IsNotNull("parameters", parameters);
 
             this.Parameters = parameters;
@@ -79,7 +77,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         {
             string serverName = string.Empty;
             
-            using(var dataSource = _dataSourceFactory.Create(DataSourceType.Kusto, connectionString, azureAccessToken))
+            using(var dataSource = DataSourceFactory.Create(DataSourceType.Kusto, connectionString, azureAccessToken))
             {
                 serverName = dataSource.ClusterName;
             }
