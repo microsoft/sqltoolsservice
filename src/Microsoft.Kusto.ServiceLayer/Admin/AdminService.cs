@@ -56,7 +56,7 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
         /// <summary>
         /// Initializes the service instance
         /// </summary>
-        public void InitializeService(IProtocolEndpoint serviceHost)
+        public void InitializeService(ServiceHost serviceHost)
         {
             serviceHost.SetRequestHandler(GetDatabaseInfoRequest.Type, HandleGetDatabaseInfoRequest);
         }
