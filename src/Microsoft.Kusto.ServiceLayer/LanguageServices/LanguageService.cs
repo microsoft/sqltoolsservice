@@ -18,10 +18,8 @@ using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
 using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
-using Microsoft.Kusto.ServiceLayer.Hosting;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Completion;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
-using SqlToolsContext = Microsoft.SqlTools.ServiceLayer.SqlContext.SqlToolsContext;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.Kusto.ServiceLayer.Workspace;
 using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
@@ -82,7 +80,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 
         private ScriptParseInfo currentCompletionParseInfo;
 
-        private ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue();
+        private IConnectedBindingQueue _bindingQueue;
 
         private ParseOptions defaultParseOptions = new ParseOptions(
             batchSeparator: LanguageService.DefaultBatchSeperator,
@@ -126,22 +124,6 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         #region Properties
 
         /// <summary>
-        /// Gets or sets the binding queue instance
-        /// Internal for testing purposes only
-        /// </summary>
-        internal ConnectedBindingQueue BindingQueue
-        {
-            get
-            {
-                return this.bindingQueue;
-            }
-            set
-            {
-                this.bindingQueue = value;
-            }
-        }
-
-        /// <summary>
         /// Internal for testing purposes only
         /// </summary>
         internal ConnectionService ConnectionServiceInstance
@@ -151,7 +133,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                 if (connectionService == null)
                 {
                     connectionService = ConnectionService.Instance;
-                    connectionService.RegisterConnectedQueue("LanguageService", bindingQueue);
+                    connectionService.RegisterConnectedQueue("LanguageService", _bindingQueue);
                 }
                 return connectionService;
             }
@@ -216,12 +198,6 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
             get { return WorkspaceServiceInstance.Workspace; }
         }
 
-        /// <summary>
-        /// Gets or sets the current SQL Tools context
-        /// </summary>
-        /// <returns></returns>
-        internal SqlToolsContext Context { get; set; }
-
         #endregion
 
         #region Public Methods
@@ -231,13 +207,12 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// </summary>
         /// <param name="serviceHost"></param>
         /// <param name="context"></param>
-        public void InitializeService(ServiceHost serviceHost, SqlToolsContext context)
+        /// <param name="dataSourceFactory"></param>
+        /// <param name="connectedBindingQueue"></param>
+        public void InitializeService(ServiceHost serviceHost, IConnectedBindingQueue connectedBindingQueue)
         {
+            _bindingQueue = connectedBindingQueue;
             // Register the requests that this service will handle
-
-            // turn off until needed (10/28/2016)
-            // serviceHost.SetRequestHandler(ReferencesRequest.Type, HandleReferencesRequest);
-            // serviceHost.SetRequestHandler(DocumentHighlightRequest.Type, HandleDocumentHighlightRequest);
 
             //serviceHost.SetRequestHandler(SignatureHelpRequest.Type, HandleSignatureHelpRequest);     // Kusto api doesnt support this as of now. Implement it wherever applicable. Hover help is closest to signature help
             serviceHost.SetRequestHandler(CompletionResolveRequest.Type, HandleCompletionResolveRequest);
@@ -245,9 +220,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
             serviceHost.SetRequestHandler(CompletionRequest.Type, HandleCompletionRequest);
             serviceHost.SetRequestHandler(DefinitionRequest.Type, HandleDefinitionRequest);             // Parses "Go to definition" functionality
             serviceHost.SetRequestHandler(SyntaxParseRequest.Type, HandleSyntaxParseRequest);           // Parses syntax errors
-            //serviceHost.SetRequestHandler(CompletionExtLoadRequest.Type, HandleCompletionExtLoadRequest);
             serviceHost.SetEventHandler(RebuildIntelliSenseNotification.Type, HandleRebuildIntelliSenseNotification);
-            //serviceHost.SetEventHandler(LanguageFlavorChangeNotification.Type, HandleDidChangeLanguageFlavorNotification);
 
             // Register a no-op shutdown task for validation of the shutdown logic
             serviceHost.RegisterShutdownTask(async (shutdownParams, shutdownRequestContext) =>
@@ -274,10 +247,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 
             // Register a callback for when a connection is closed
             ConnectionServiceInstance.RegisterOnDisconnectTask(RemoveAutoCompleteCacheUriReference);
-
-            // Store the SqlToolsContext for future use
-            Context = context;
-
+            
         }
 
         #endregion
@@ -599,7 +569,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                         {
                             try
                             {
-                                this.BindingQueue.AddConnectionContext(connInfo, featureName: "LanguageService", overwrite: true);
+                                _bindingQueue.AddConnectionContext(connInfo, true, featureName: "LanguageService", overwrite: true);
                                 RemoveScriptParseInfo(rebuildParams.OwnerUri);
                                 UpdateLanguageServiceOnConnection(connInfo).Wait();
                             }
@@ -724,8 +694,8 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                 {
                     try
                     {
-                        scriptInfo.ConnectionKey = this.BindingQueue.AddConnectionContext(connInfo, "languageService");
-                        scriptInfo.IsConnected = this.BindingQueue.IsBindingContextConnected(scriptInfo.ConnectionKey);
+                        scriptInfo.ConnectionKey = _bindingQueue.AddConnectionContext(connInfo, true,"languageService");
+                        scriptInfo.IsConnected = _bindingQueue.IsBindingContextConnected(scriptInfo.ConnectionKey);
                     }
                     catch (Exception ex)
                     {
@@ -822,13 +792,6 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// <param name="scriptFile"></param>
         internal Hover GetHoverItem(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile)
         {
-            int startLine = textDocumentPosition.Position.Line;
-            int startColumn = TextUtilities.PositionOfPrevDelimeter(
-                                scriptFile.Contents,
-                                textDocumentPosition.Position.Line,
-                                textDocumentPosition.Position.Character);
-            int endColumn = textDocumentPosition.Position.Character;
-
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(scriptFile.ClientUri);
             ConnectionInfo connInfo;
                     ConnectionServiceInstance.TryFindConnection(
@@ -841,7 +804,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                 {
                     try
                     {
-                        QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
+                        QueueItem queueItem = _bindingQueue.QueueBindingOperation(
                             key: scriptParseInfo.ConnectionKey,
                             bindingTimeout: LanguageService.HoverTimeout,
                             bindOperation: (bindingContext, cancelToken) =>
@@ -1191,9 +1154,9 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 
         public void Dispose()
         {
-            if (bindingQueue != null)
+            if (_bindingQueue != null)
             {
-                bindingQueue.Dispose();
+                _bindingQueue.Dispose();
             }
         }
     }

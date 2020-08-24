@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.Kusto.ServiceLayer.Connection;
-using Microsoft.Kusto.ServiceLayer.Hosting;
+using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
 using Microsoft.Kusto.ServiceLayer.Utility;
@@ -21,19 +21,21 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
     /// Main class for Scripting Service functionality
     /// </summary>
     public sealed class ScriptingService : IDisposable
-    {    
+    {
         private const int ScriptingOperationTimeout = 60000;
 
         private static readonly Lazy<ScriptingService> LazyInstance = new Lazy<ScriptingService>(() => new ScriptingService());
 
         public static ScriptingService Instance => LazyInstance.Value;
 
-        private static ConnectionService connectionService = null;
+        private static ConnectionService connectionService;
 
         private readonly Lazy<ConcurrentDictionary<string, ScriptingOperation>> operations =
             new Lazy<ConcurrentDictionary<string, ScriptingOperation>>(() => new ConcurrentDictionary<string, ScriptingOperation>());
 
         private bool disposed;
+        
+        private IScripter _scripter;
 
         /// <summary>
         /// Internal for testing purposes only
@@ -64,8 +66,9 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         /// </summary>
         /// <param name="serviceHost"></param>
         /// <param name="context"></param>
-        public void InitializeService(ServiceHost serviceHost)
+        public void InitializeService(ServiceHost serviceHost, IScripter scripter)
         {
+            _scripter = scripter;
             serviceHost.SetRequestHandler(ScriptingRequest.Type, this.HandleScriptExecuteRequest);
             serviceHost.SetRequestHandler(ScriptingCancelRequest.Type, this.HandleScriptCancelRequest);
             serviceHost.SetRequestHandler(ScriptingListObjectsRequest.Type, this.HandleListObjectsRequest);
@@ -132,7 +135,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                 }
                 else
                 {
-                    operation = new ScriptAsScriptingOperation(parameters, accessToken);
+                    operation = new ScriptAsScriptingOperation(parameters, accessToken, _scripter);
                 }
 
                 operation.PlanNotification += (sender, e) => requestContext.SendEvent(ScriptingPlanNotificationEvent.Type, e).Wait();
