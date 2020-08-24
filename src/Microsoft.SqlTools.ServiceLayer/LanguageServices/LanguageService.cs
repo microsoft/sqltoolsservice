@@ -288,6 +288,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // Register the file open update handler
             WorkspaceServiceInstance.RegisterTextDocOpenCallback(HandleDidOpenTextDocumentNotification);
 
+            // Register the file open update handler
+            WorkspaceServiceInstance.RegisterTextDocCloseCallback(HandleDidCloseTextDocumentNotification);
+
             // Register a callback for when a connection is created
             ConnectionServiceInstance.RegisterOnConnectionTask(UpdateLanguageServiceOnConnection);
 
@@ -693,6 +696,34 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
 
                 await Task.FromResult(true);
+            }
+            catch (Exception ex)
+            {
+                Logger.Write(TraceEventType.Error, "Unknown error " + ex.ToString());
+                // TODO: need mechanism return errors from event handlers
+            }
+        }
+
+        /// <summary>
+        /// Handle the file close notification
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <param name="scriptFile"></param>
+        /// <param name="eventContext"></param>
+        /// <returns></returns>
+        public async Task HandleDidCloseTextDocumentNotification(
+            string uri,
+            ScriptFile scriptFile,
+            EventContext eventContext)
+        {
+            try
+            {
+                // if not in the preview window and diagnostics are enabled then clear diagnostics
+                if (!IsPreviewWindow(scriptFile)
+                    && CurrentWorkspaceSettings.IsDiagnosticsEnabled)
+                {
+                    await DiagnosticsHelper.ClearScriptDiagnostics(uri, eventContext);
+                }
             }
             catch (Exception ex)
             {

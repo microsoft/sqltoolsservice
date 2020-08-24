@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+
 using Range = Microsoft.Kusto.ServiceLayer.Workspace.Contracts.Range;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
@@ -11,7 +12,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
     /// <summary>
     /// All the conversion of intellisense info to vscode format is done in this class.
     /// </summary>
-    public static class AutoCompleteHelper
+    public class AutoCompleteHelper
     {
         /// <summary>
         /// Create a completion item from the default item text since VS Code expects CompletionItems

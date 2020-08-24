@@ -38,18 +38,13 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <summary>
         /// Singleton service instance
         /// </summary>
-        private static readonly Lazy<ConnectionService> instance
+        private static readonly Lazy<ConnectionService> _instance
             = new Lazy<ConnectionService>(() => new ConnectionService());
 
         /// <summary>
         /// Gets the singleton service instance
         /// </summary>
-        public static ConnectionService Instance => instance.Value;
-
-        /// <summary>
-        /// The SQL connection factory object
-        /// </summary>
-        private IDataSourceConnectionFactory connectionFactory;
+        public static ConnectionService Instance => _instance.Value;
 
         private DatabaseLocksManager lockedDatabaseManager;
 
@@ -113,9 +108,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// </summary>
         public ConnectionService()
         {
-            var defaultQueue = new ConnectedBindingQueue(needsMetadata: false);
-            connectedQueues.AddOrUpdate("Default", defaultQueue, (key, old) => defaultQueue);
-            this.LockedDatabaseManager.ConnectionService = this;
         }
 
         /// <summary>
@@ -181,25 +173,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <summary>
         /// Gets the SQL connection factory instance
         /// </summary>
-        public IDataSourceConnectionFactory ConnectionFactory
-        {
-            get
-            {
-                if (this.connectionFactory == null)
-                {
-                    this.connectionFactory = new DataSourceConnectionFactory();
-                }
-                return this.connectionFactory;
-            }
-
-            internal set { this.connectionFactory = value; }
-        }
-
-        /// <summary>
-        /// Test constructor that injects dependency interfaces
-        /// </summary>
-        /// <param name="testFactory"></param>
-        public ConnectionService(IDataSourceConnectionFactory testFactory) => this.connectionFactory = testFactory;
+        private IDataSourceConnectionFactory _dataSourceConnectionFactory;
 
         // Attempts to link a URI to an actively used connection for this URI
         public virtual bool TryFindConnection(string ownerUri, out ConnectionInfo connectionInfo) => this.OwnerToConnectionMap.TryGetValue(ownerUri, out connectionInfo);
@@ -254,7 +228,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             bool connectionChanged = false;
             if (!OwnerToConnectionMap.TryGetValue(connectionParams.OwnerUri, out connectionInfo))
             {
-                connectionInfo = new ConnectionInfo(ConnectionFactory, connectionParams.OwnerUri, connectionParams.Connection);
+                connectionInfo = new ConnectionInfo(_dataSourceConnectionFactory, connectionParams.OwnerUri, connectionParams.Connection);
             }
             else if (IsConnectionChanged(connectionParams, connectionInfo))
             {
@@ -267,7 +241,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
             if (connectionChanged)
             {
-                connectionInfo = new ConnectionInfo(ConnectionFactory, connectionParams.OwnerUri, connectionParams.Connection);
+                connectionInfo = new ConnectionInfo(_dataSourceConnectionFactory, connectionParams.OwnerUri, connectionParams.Connection);
             }
 
             // Try to open a connection with the given ConnectParams
@@ -362,11 +336,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             return false;
         }
 
-        private bool IsDefaultConnectionType(string connectionType)
-        {
-            return string.IsNullOrEmpty(connectionType) || ConnectionType.Default.Equals(connectionType, StringComparison.CurrentCultureIgnoreCase);
-        }
-
         private void DisconnectExistingConnectionIfNeeded(ConnectParams connectionParams, ConnectionInfo connectionInfo, bool disconnectAll)
         {
             // Resolve if it is an existing connection
@@ -425,7 +394,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
                 var reliableConnection = connection as ReliableDataSourceConnection;
                 IDataSource dataSource = reliableConnection.GetUnderlyingConnection();
-                DataSourceObjectMetadata clusterMetadata = DataSourceFactory.CreateClusterMetadata(connectionInfo.ConnectionDetails.ServerName);
+                DataSourceObjectMetadata clusterMetadata = MetadataFactory.CreateClusterMetadata(connectionInfo.ConnectionDetails.ServerName);
 
                 DiagnosticsInfo clusterDiagnostics = dataSource.GetDiagnostics(clusterMetadata);
                 ReliableConnectionHelper.ServerInfo serverInfo = DataSourceFactory.ConvertToServerinfoFormat(DataSourceType.Kusto, clusterDiagnostics);
@@ -801,7 +770,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             ConnectionDetails connectionDetails = info.ConnectionDetails.Clone();
 
             IDataSource dataSource = OpenDataSourceConnection(info);
-            DataSourceObjectMetadata objectMetadata = DataSourceFactory.CreateClusterMetadata(info.ConnectionDetails.ServerName);
+            DataSourceObjectMetadata objectMetadata = MetadataFactory.CreateClusterMetadata(info.ConnectionDetails.ServerName);
 
             ListDatabasesResponse response = new ListDatabasesResponse();
 
@@ -809,7 +778,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             if (listDatabasesParams.IncludeDetails.HasTrue())
             {
                 IEnumerable<DataSourceObjectMetadata> databaseMetadataInfo = dataSource.GetChildObjects(objectMetadata, true);
-                List<DatabaseInfo> metadata = DataSourceFactory.ConvertToDatabaseInfo(databaseMetadataInfo);
+                List<DatabaseInfo> metadata = MetadataFactory.ConvertToDatabaseInfo(databaseMetadataInfo);
                 response.Databases = metadata.ToArray();
 
                 return response;
@@ -820,9 +789,14 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             return response;
         }
 
-        public void InitializeService(IProtocolEndpoint serviceHost)
+        public void InitializeService(IProtocolEndpoint serviceHost, IDataSourceConnectionFactory dataSourceConnectionFactory, 
+            IConnectedBindingQueue connectedBindingQueue)
         {
-            this.ServiceHost = serviceHost;
+            ServiceHost = serviceHost;
+            _dataSourceConnectionFactory = dataSourceConnectionFactory;
+            
+            connectedQueues.AddOrUpdate("Default", connectedBindingQueue, (key, old) => connectedBindingQueue);
+            LockedDatabaseManager.ConnectionService = this;
 
             // Register request and event handlers with the Service Host
             serviceHost.SetRequestHandler(ConnectionRequest.Type, HandleConnectRequest);
@@ -1430,12 +1404,12 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <param name="connInfo">The connection info to connect with</param>
         /// <param name="featureName">A plaintext string that will be included in the application name for the connection</param>
         /// <returns>A SqlConnection created with the given connection info</returns>
-        internal static IDataSource OpenDataSourceConnection(ConnectionInfo connInfo, string featureName = null)
+        private IDataSource OpenDataSourceConnection(ConnectionInfo connInfo, string featureName = null)
         {
             try
             {
                 // generate connection string
-                string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
+                string connectionString = BuildConnectionString(connInfo.ConnectionDetails);
 
                 // TODOKusto: Pass in type of DataSource needed to make this generic. Hard coded to Kusto right now.
                 return DataSourceFactory.Create(DataSourceType.Kusto, connectionString, connInfo.ConnectionDetails.AzureAccountToken);

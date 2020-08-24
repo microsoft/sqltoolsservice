@@ -2,13 +2,11 @@
 // Copyright (c) Microsoft. All Rights Reserved.
 // </copyright>
 using System;
-using System.Text.RegularExpressions;
-using System.Linq;
 using System.Data;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource
 {
-    class DataReaderWrapper:IDataReader
+    public class DataReaderWrapper : IDataReader
     {
         private readonly IDataReader _inner ;
         public DataReaderWrapper(IDataReader inner)

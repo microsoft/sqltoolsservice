@@ -16,7 +16,6 @@ using Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.Kusto.ServiceLayer.SqlContext;
 using Microsoft.Kusto.ServiceLayer.Workspace;
 using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
-using Microsoft.Kusto.ServiceLayer.Hosting;
 using Microsoft.SqlTools.Utility;
 using System.Diagnostics;
 

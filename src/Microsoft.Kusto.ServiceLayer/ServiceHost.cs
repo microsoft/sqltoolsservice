@@ -5,20 +5,20 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.Kusto.ServiceLayer.Connection;
+using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Contracts;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Hosting.Protocol.Channel;
 using Microsoft.SqlTools.Utility;
-using Microsoft.Kusto.ServiceLayer.Connection;
-using Microsoft.Kusto.ServiceLayer.Utility;
-using System.Diagnostics;
 
-namespace Microsoft.Kusto.ServiceLayer.Hosting
+namespace Microsoft.Kusto.ServiceLayer
 {
     /// <summary>
     /// SQL Tools VS Code Language Server request handler. Provides the entire JSON RPC

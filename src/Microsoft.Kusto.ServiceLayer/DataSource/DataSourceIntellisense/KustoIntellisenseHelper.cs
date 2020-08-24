@@ -22,9 +22,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
     /// <summary>
     /// Kusto specific class for intellisense helper functions.
     /// </summary>
-    public static class KustoIntellisenseHelper
+    public class KustoIntellisenseHelper
     {
-
         public class ShowDatabasesResult
         {
             public string DatabaseName;
@@ -162,7 +161,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
         /// <summary>
         /// Loads the schema for the specified databasea into a a <see cref="DatabaseSymbol"/>.
         /// </summary>
-        public static async Task<DatabaseSymbol> LoadDatabaseAsync(IDataSource dataSource, string databaseName, bool throwOnError = false)
+        private static async Task<DatabaseSymbol> LoadDatabaseAsync(IDataSource dataSource, string databaseName, bool throwOnError = false)
         {
             var members = new List<Symbol>();
             CancellationTokenSource source = new CancellationTokenSource();

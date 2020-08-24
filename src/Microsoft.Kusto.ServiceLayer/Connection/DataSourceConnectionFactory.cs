@@ -3,8 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System.Data.Common;
-using Microsoft.Kusto.ServiceLayer.Connection;
+using System.Composition;
+using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 
 namespace Microsoft.Kusto.ServiceLayer.Connection
@@ -14,6 +14,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
     /// The purpose of the factory is to make it easier to mock out the database
     /// in 'offline' unit test scenarios.
     /// </summary>
+    [Export(typeof(IDataSourceConnectionFactory))]
     public class DataSourceConnectionFactory : IDataSourceConnectionFactory
     {
         /// <summary>

@@ -21,16 +21,8 @@
 // =======================================================================================
 
 using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Collections;
-using System.Data.Common;
 using System.Data.SqlClient;
-using System.Diagnostics;
-using System.Globalization;
-using System.Text;
 using System.Threading;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
@@ -42,15 +34,15 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
     /// Provides a reliable way of opening connections to and executing commands
     /// taking into account potential network unreliability and a requirement for connection retry.
     /// </summary>
-    public sealed partial class ReliableDataSourceConnection : IDisposable
+    public sealed class ReliableDataSourceConnection : IDisposable
     {
         private IDataSource _dataSource;
         private readonly RetryPolicy _connectionRetryPolicy;
         private RetryPolicy _commandRetryPolicy;
-        private Guid _azureSessionId = Guid.NewGuid();
+        private readonly Guid _azureSessionId = Guid.NewGuid();
 
-        private string _connectionString;
-        private string _azureAccountToken;
+        private readonly string _connectionString;
+        private readonly string _azureAccountToken;
 
         /// <summary>
         /// Initializes a new instance of the ReliableKustoClient class with a given connection string
