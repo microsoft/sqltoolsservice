@@ -71,7 +71,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                 // TODO: Not including the header by default. We have to get this option from client
                 options.IncludeHeaders = false;
 
-                // Scripting data is not avaialable in the scripter
+                // Scripting data is not available in the scripter
                 options.ScriptData = false;
                 SetScriptingOptions(options);
 
@@ -82,11 +82,8 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                         break;
                     
                     case ScriptingOperationType.Alter:
-                        resultScript = GenerateScriptAlter(DataSource, urns);
-                        break;
-                    
                     case ScriptingOperationType.Execute:
-                        resultScript = GenerateScriptExecute(DataSource, urns);
+                        resultScript = GenerateScriptForFunction(DataSource);
                         break;
                 }
 
@@ -157,29 +154,25 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
             return string.Empty;
         }
 
-        private string GenerateScriptAlter(IDataSource dataSource, UrnCollection urns)
+        private string GenerateScriptForFunction(IDataSource dataSource)
         {
             ScriptingObject scriptingObject = this.Parameters.ScriptingObjects[0];
-            Urn objectUrn = urns[0];
 
-            if (string.Equals(scriptingObject.Type, "Function", StringComparison.CurrentCultureIgnoreCase))
+            if (!string.Equals(scriptingObject.Type, "Function", StringComparison.CurrentCultureIgnoreCase))
             {
-                return _scripter.AlterFunction(dataSource, scriptingObject);
+                return string.Empty;
             }
-            
-            return string.Empty;
-        }
 
-        private string GenerateScriptExecute(IDataSource dataSource, UrnCollection urns)
-        {
-            ScriptingObject scriptingObject = this.Parameters.ScriptingObjects[0];
-            Urn objectUrn = urns[0];
+            if (Parameters.Operation == ScriptingOperationType.Alter)
+            {
+                return _scripter.AlterFunction(dataSource, scriptingObject);    
+            }
 
-            if (string.Equals(scriptingObject.Type, "Function", StringComparison.CurrentCultureIgnoreCase))
+            if (Parameters.Operation == ScriptingOperationType.Execute)
             {
                 return _scripter.ExecuteFunction(dataSource, scriptingObject);
             }
-            
+
             return string.Empty;
         }
 
