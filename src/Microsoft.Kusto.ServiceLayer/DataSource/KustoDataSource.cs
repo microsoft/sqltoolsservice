@@ -572,7 +572,9 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                     return GetDatabaseMetadata(includeSizeDetails);
                     
                 case DataSourceMetadataType.Database: // show folders, tables, and functions
-                    return GetDatabaseSchema(objectMetadata, includeSizeDetails);
+                    return includeSizeDetails
+                        ? GetTablesForDashboard(objectMetadata)
+                        : GetDatabaseSchema(objectMetadata);
 
                 case DataSourceMetadataType.Table: // show columns
                     var table = objectMetadata as TableMetadata;
@@ -621,13 +623,13 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         }
         
         /// <inheritdoc/>
-        private IEnumerable<DataSourceObjectMetadata> GetDatabaseSchema(DataSourceObjectMetadata objectMetadata, bool includeSizeDetails)
+        private IEnumerable<DataSourceObjectMetadata> GetDatabaseSchema(DataSourceObjectMetadata objectMetadata)
         {
             // Check if the database exists
             ValidationUtils.IsTrue<ArgumentException>(DatabaseExists(objectMetadata.Name).Result, $"Database '{objectMetadata}' does not exist.");
 
             var allMetadata = GetAllMetadata(objectMetadata.Urn);
-
+            
             // if the records have already been loaded them return them
             if (allMetadata.Any())
             {
@@ -636,13 +638,19 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
             LoadTableSchema(objectMetadata);
             LoadFunctionSchema(objectMetadata);
+            
+            return GetAllMetadata(objectMetadata.Urn);
+        }
 
-            if (!includeSizeDetails)
-            {
-                return GetAllMetadata(objectMetadata.Urn);
-            }
-                    
+        private IEnumerable<DataSourceObjectMetadata> GetTablesForDashboard(DataSourceObjectMetadata objectMetadata)
+        {
             string newKey = $"{DatabaseKeyPrefix}.{objectMetadata.Urn}";
+
+            if (!_tableMetadata.ContainsKey(newKey) || !_tableMetadata[newKey].Any())
+            {
+                 LoadTableSchema(objectMetadata);   
+            }
+            
             return _tableMetadata[newKey].OrderBy(x => x.PrettyName, StringComparer.OrdinalIgnoreCase);
         }
 
