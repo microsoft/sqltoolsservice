@@ -120,7 +120,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.DataSource.Metadata
             var databaseMetadata = new DatabaseMetadata
             {
                 Name = "FakeDatabaseName",
-                SizeInMB = "50000"
+                SizeInMB = "2097152" // stored in bytes
             };
             
             var inputList = new List<DatabaseMetadata>
@@ -134,8 +134,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.DataSource.Metadata
             
             var databaseInfo = databaseInfos.Single();
             Assert.AreEqual(databaseMetadata.Name, databaseInfo.Options["name"]);
-            // TODO Review SizeInMB. Current logic in function needs to be reevaluated
-            //Assert.AreEqual(databaseMetadata.SizeInMB, databaseInfo.Options["sizeInMB"]);
+            Assert.AreEqual("2", databaseInfo.Options["sizeInMB"]);
         }
 
         [Test]
