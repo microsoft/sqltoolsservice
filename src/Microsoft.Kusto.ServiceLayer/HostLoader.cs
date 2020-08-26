@@ -93,7 +93,7 @@ namespace Microsoft.Kusto.ServiceLayer
             ScriptingService.Instance.InitializeService(serviceHost, scripter);
             serviceProvider.RegisterSingleService(ScriptingService.Instance);
 
-            AdminService.Instance.InitializeService(serviceHost);
+            AdminService.Instance.InitializeService(serviceHost, ConnectionService.Instance);
             serviceProvider.RegisterSingleService(AdminService.Instance);
 
             MetadataService.Instance.InitializeService(serviceHost);
