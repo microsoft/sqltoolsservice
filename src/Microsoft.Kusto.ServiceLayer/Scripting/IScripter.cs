@@ -8,5 +8,6 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
     {
         string SelectFromTableOrView(IDataSource dataSource, Urn urn);
         string AlterFunction(IDataSource dataSource, ScriptingObject scriptingObject);
+        string ExecuteFunction(IDataSource dataSource, ScriptingObject scriptingObject);
     }
 }

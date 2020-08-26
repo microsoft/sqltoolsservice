@@ -105,6 +105,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
         public abstract string GenerateAlterFunctionScript(string functionName);
 
+        public abstract string GenerateExecuteFunctionScript(string functionName);
+
         /// <inheritdoc/>
         public DataSourceType DataSourceType { get; protected set; }
 
