@@ -24,7 +24,6 @@ using System;
 using System.Data.SqlClient;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 
@@ -43,6 +42,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
         private readonly string _connectionString;
         private readonly string _azureAccountToken;
+        private readonly IDataSourceFactory _dataSourceFactory;
 
         /// <summary>
         /// Initializes a new instance of the ReliableKustoClient class with a given connection string
@@ -52,11 +52,15 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <param name="connectionString">The connection string used to open the SQL Azure database.</param>
         /// <param name="connectionRetryPolicy">The retry policy defining whether to retry a request if a connection fails to be established.</param>
         /// <param name="commandRetryPolicy">The retry policy defining whether to retry a request if a command fails to be executed.</param>
-        public ReliableDataSourceConnection(string connectionString, RetryPolicy connectionRetryPolicy, RetryPolicy commandRetryPolicy, string azureAccountToken)
+        /// <param name="azureAccountToken"></param>
+        /// <param name="dataSourceFactory"></param>
+        public ReliableDataSourceConnection(string connectionString, RetryPolicy connectionRetryPolicy,
+            RetryPolicy commandRetryPolicy, string azureAccountToken, IDataSourceFactory dataSourceFactory)
         {
             _connectionString = connectionString;
             _azureAccountToken = azureAccountToken;
-            _dataSource = DataSourceFactory.Create(DataSourceType.Kusto, connectionString, azureAccountToken);
+            _dataSourceFactory = dataSourceFactory;
+            _dataSource = dataSourceFactory.Create(DataSourceType.Kusto, connectionString, azureAccountToken);
             
             _connectionRetryPolicy = connectionRetryPolicy ?? RetryPolicyFactory.CreateNoRetryPolicy();
             _commandRetryPolicy = commandRetryPolicy ?? RetryPolicyFactory.CreateNoRetryPolicy();
@@ -111,44 +115,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// Gets or sets the connection string for opening a connection to the SQL Azure database.
         /// </summary>
         public string ConnectionString { get; set; }
-        
-        /// <summary>
-        /// Gets the policy which decides whether to retry a connection request, based on how many
-        /// times the request has been made and the reason for the last failure. 
-        /// </summary>
-        public RetryPolicy ConnectionRetryPolicy
-        {
-            get { return _connectionRetryPolicy; }
-        }
-
-        /// <summary>
-        /// Gets the policy which decides whether to retry a command, based on how many
-        /// times the request has been made and the reason for the last failure. 
-        /// </summary>
-        public RetryPolicy CommandRetryPolicy
-        {
-            get { return _commandRetryPolicy; }
-            set
-            {
-                Validate.IsNotNull(nameof(value), value);
-
-                if (_commandRetryPolicy != null)
-                {
-                    _commandRetryPolicy.RetryOccurred -= RetryCommandCallback;
-                }
-
-                _commandRetryPolicy = value;
-                _commandRetryPolicy.RetryOccurred += RetryCommandCallback;
-            }
-        }
-
-        /// <summary>
-        /// Gets the server name from the underlying connection.
-        /// </summary>
-        public string ClusterName
-        {
-            get { return _dataSource.ClusterName; }
-        }
 
         /// <summary>
         /// If the underlying SqlConnection absolutely has to be accessed, for instance
@@ -182,7 +148,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             {
                 _connectionRetryPolicy.ExecuteAction(() =>
                 {
-                    _dataSource = DataSourceFactory.Create(DataSourceType.Kusto, _connectionString, _azureAccountToken);
+                    _dataSource = _dataSourceFactory.Create(DataSourceType.Kusto, _connectionString, _azureAccountToken);
                 });
             }
         }
@@ -221,29 +187,12 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         }
 
         /// <summary>
-        /// Gets the time to wait while trying to establish a connection before terminating
-        /// the attempt and generating an error.
-        /// </summary>
-        public int ConnectionTimeout
-        {
-            get { return 30; }
-        }
-
-        /// <summary>
         /// Gets the name of the current database or the database to be used after a
         /// connection is opened.
         /// </summary>
         public string Database
         {
             get { return _dataSource.DatabaseName; }
-        }
-
-        private void VerifyConnectionOpen(ReliableDataSourceConnection conn)
-        {
-            if(conn.GetUnderlyingConnection() == null)
-            {
-                conn.Open();
-            }
         }
     }
 }

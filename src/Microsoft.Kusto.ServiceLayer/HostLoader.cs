@@ -71,6 +71,7 @@ namespace Microsoft.Kusto.ServiceLayer
             var scripter = serviceProvider.GetService<IScripter>();
             var dataSourceConnectionFactory = serviceProvider.GetService<IDataSourceConnectionFactory>();
             var connectedBindingQueue = serviceProvider.GetService<IConnectedBindingQueue>();
+            var dataSourceFactory = serviceProvider.GetService<IDataSourceFactory>();
 
             // Initialize and register singleton services so they're accessible for any MEF service. In the future, these
             // could be updated to be IComposableServices, which would avoid the requirement to define a singleton instance
@@ -78,10 +79,10 @@ namespace Microsoft.Kusto.ServiceLayer
             WorkspaceService<SqlToolsSettings>.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(WorkspaceService<SqlToolsSettings>.Instance);
 
-            LanguageService.Instance.InitializeService(serviceHost, connectedBindingQueue);
+            LanguageService.Instance.InitializeService(serviceHost, connectedBindingQueue, dataSourceFactory);
             serviceProvider.RegisterSingleService(LanguageService.Instance);
 
-            ConnectionService.Instance.InitializeService(serviceHost, dataSourceConnectionFactory, connectedBindingQueue);
+            ConnectionService.Instance.InitializeService(serviceHost, dataSourceConnectionFactory, connectedBindingQueue, dataSourceFactory);
             serviceProvider.RegisterSingleService(ConnectionService.Instance);
 
             CredentialService.Instance.InitializeService(serviceHost);
@@ -90,7 +91,7 @@ namespace Microsoft.Kusto.ServiceLayer
             QueryExecutionService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(QueryExecutionService.Instance);
 
-            ScriptingService.Instance.InitializeService(serviceHost, scripter);
+            ScriptingService.Instance.InitializeService(serviceHost, scripter, dataSourceFactory);
             serviceProvider.RegisterSingleService(ScriptingService.Instance);
 
             AdminService.Instance.InitializeService(serviceHost, ConnectionService.Instance);

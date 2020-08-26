@@ -14,29 +14,33 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.DataSource
             string connectionString,
             string azureAccountToken)
         {
+            var dataSourceFactory = new DataSourceFactory();
             Assert.Throws(exceptionType,
-                () => DataSourceFactory.Create(DataSourceType.None, connectionString, azureAccountToken));
+                () => dataSourceFactory.Create(DataSourceType.None, connectionString, azureAccountToken));
         }
 
         [Test]
         public void GetDefaultAutoComplete_Throws_ArgumentException_For_InvalidDataSourceType()
         {
+            var dataSourceFactory = new DataSourceFactory();
             Assert.Throws<ArgumentException>(() =>
-                DataSourceFactory.GetDefaultAutoComplete(DataSourceType.None, null, null));
+                dataSourceFactory.GetDefaultAutoComplete(DataSourceType.None, null, null));
         }
 
         [Test]
         public void GetDefaultSemanticMarkers_Throws_ArgumentException_For_InvalidDataSourceType()
         {
+            var dataSourceFactory = new DataSourceFactory();
             Assert.Throws<ArgumentException>(() =>
-                DataSourceFactory.GetDefaultSemanticMarkers(DataSourceType.None, null, null, null));
+                dataSourceFactory.GetDefaultSemanticMarkers(DataSourceType.None, null, null, null));
         }
 
         [Test]
         public void ConvertToServerinfoFormat_Throws_ArgumentException_For_InvalidDataSourceType()
         {
+            var dataSourceFactory = new DataSourceFactory();
             Assert.Throws<ArgumentException>(() =>
-                DataSourceFactory.ConvertToServerinfoFormat(DataSourceType.None, null));
+                dataSourceFactory.ConvertToServerinfoFormat(DataSourceType.None, null));
         }
 
         [Test]
@@ -49,7 +53,9 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.DataSource
                     {"Key", "Object"}
                 }
             };
-            var serverInfo = DataSourceFactory.ConvertToServerinfoFormat(DataSourceType.Kusto, diagnosticsInfo);
+            
+            var dataSourceFactory = new DataSourceFactory();
+            var serverInfo = dataSourceFactory.ConvertToServerinfoFormat(DataSourceType.Kusto, diagnosticsInfo);
 
             Assert.IsNotNull(serverInfo.Options);
             Assert.AreEqual(diagnosticsInfo.Options["Key"], serverInfo.Options["Key"]);

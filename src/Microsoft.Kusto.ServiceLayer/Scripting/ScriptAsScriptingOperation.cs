@@ -25,9 +25,9 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         private readonly IScripter _scripter;
         private static readonly Dictionary<string, SqlServerVersion> scriptCompatibilityMap = LoadScriptCompatibilityMap();
 
-        public ScriptAsScriptingOperation(ScriptingParams parameters, string azureAccountToken, IScripter scripter) : base(parameters)
+        public ScriptAsScriptingOperation(ScriptingParams parameters, string azureAccountToken, IScripter scripter, IDataSourceFactory dataSourceFactory) : base(parameters, dataSourceFactory)
         {
-            DataSource = DataSourceFactory.Create(DataSourceType.Kusto, this.Parameters.ConnectionString,
+            DataSource = _dataSourceFactory.Create(DataSourceType.Kusto, this.Parameters.ConnectionString,
                 azureAccountToken);
             _scripter = scripter;
         }

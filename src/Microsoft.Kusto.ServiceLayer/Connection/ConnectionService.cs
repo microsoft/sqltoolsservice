@@ -59,6 +59,8 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
         private ConcurrentDictionary<string, IConnectedBindingQueue> connectedQueues = new ConcurrentDictionary<string, IConnectedBindingQueue>();
 
+        private IDataSourceFactory _dataSourceFactory;
+
         /// <summary>
         /// Map from script URIs to ConnectionInfo objects
         /// This is internal for testing access only
@@ -397,7 +399,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                 DataSourceObjectMetadata clusterMetadata = MetadataFactory.CreateClusterMetadata(connectionInfo.ConnectionDetails.ServerName);
 
                 DiagnosticsInfo clusterDiagnostics = dataSource.GetDiagnostics(clusterMetadata);
-                ReliableConnectionHelper.ServerInfo serverInfo = DataSourceFactory.ConvertToServerinfoFormat(DataSourceType.Kusto, clusterDiagnostics);
+                ReliableConnectionHelper.ServerInfo serverInfo = _dataSourceFactory.ConvertToServerinfoFormat(DataSourceType.Kusto, clusterDiagnostics);
 
                 response.ServerInfo = new ServerInfo
                 {
@@ -789,10 +791,11 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         }
 
         public void InitializeService(IProtocolEndpoint serviceHost, IDataSourceConnectionFactory dataSourceConnectionFactory, 
-            IConnectedBindingQueue connectedBindingQueue)
+            IConnectedBindingQueue connectedBindingQueue, IDataSourceFactory dataSourceFactory)
         {
             ServiceHost = serviceHost;
             _dataSourceConnectionFactory = dataSourceConnectionFactory;
+            _dataSourceFactory = dataSourceFactory;
             
             connectedQueues.AddOrUpdate("Default", connectedBindingQueue, (key, old) => connectedBindingQueue);
             LockedDatabaseManager.ConnectionService = this;
@@ -1411,7 +1414,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                 string connectionString = BuildConnectionString(connInfo.ConnectionDetails);
 
                 // TODOKusto: Pass in type of DataSource needed to make this generic. Hard coded to Kusto right now.
-                return DataSourceFactory.Create(DataSourceType.Kusto, connectionString, connInfo.ConnectionDetails.AzureAccountToken);
+                return _dataSourceFactory.Create(DataSourceType.Kusto, connectionString, connInfo.ConnectionDetails.AzureAccountToken);
             }
             catch (Exception ex)
             {
