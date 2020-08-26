@@ -1,0 +1,808 @@
+﻿# String resource file 
+#
+# When processed by the String Resource Tool, this file generates
+# both a .CS and a .RESX file with the same name as the file.
+# The .CS file contains a class which can be used to access these 
+# string resources, including the ability to format in 
+# parameters, which are identified with the .NET {x} format
+# (see String.Format help).  
+#
+# Comments below assume the file name is SR.strings.
+#
+# Lines starting with a semicolon ";" are also treated as comments, but
+# in a future version they will be extracted and made available in LocStudio
+# Put your comments to localizers _before_ the string they apply to.
+#
+# SMO build specific comment
+# after generating the .resx file, run srgen on it and get the .resx file
+# please remember to also check that .resx in, along with the 
+# .strings and .cs files
+
+[strings]
+
+############################################################################
+# Connection Service
+
+ConnectionServiceConnectErrorNullParams = Connection parameters cannot be null
+
+ConnectionServiceListDbErrorNullOwnerUri = OwnerUri cannot be null or empty
+
+ConnectionServiceListDbErrorNotConnected(string uri) = SpecifiedUri '{0}' does not have existing connection
+
+ConnectionServiceDbErrorDefaultNotConnected(string uri) = Specified URI '{0}' does not have a default connection
+
+ConnectionServiceConnStringInvalidAuthType(string authType) = Invalid value '{0}' for AuthenticationType.  Valid values are 'Integrated' and 'SqlLogin'.
+
+ConnectionServiceConnStringInvalidIntent(string intent) = Invalid value '{0}' for ApplicationIntent. Valid values are 'ReadWrite' and 'ReadOnly'.
+
+ConnectionServiceConnectionCanceled = Connection canceled
+
+### Connection Params Validation Errors
+
+ConnectionParamsValidateNullOwnerUri = OwnerUri cannot be null or empty
+
+ConnectionParamsValidateNullConnection = Connection details object cannot be null
+
+ConnectionParamsValidateNullServerName = ServerName cannot be null or empty
+
+ConnectionParamsValidateNullSqlAuth(string component) = {0} cannot be null or empty when using SqlLogin authentication
+
+### General connection service strings
+AzureSqlDbEdition = Azure SQL DB
+AzureSqlDwEdition = Azure SQL Data Warehouse
+AzureSqlStretchEdition = Azure SQL Stretch Database
+
+############################################################################
+# Query Execution Service
+
+### Cancel Request
+
+QueryServiceCancelAlreadyCompleted = The query has already completed, it cannot be cancelled
+
+QueryServiceCancelDisposeFailed = Query successfully cancelled, failed to dispose query. Owner URI not found.
+
+QueryServiceQueryCancelled = Query was canceled by user
+
+### Subset Request
+
+QueryServiceSubsetBatchNotCompleted = The batch has not completed, yet
+
+QueryServiceSubsetBatchOutOfRange = Batch index cannot be less than 0 or greater than the number of batches
+
+QueryServiceSubsetResultSetOutOfRange = Result set index cannot be less than 0 or greater than the number of result sets
+
+### Data Reader Exceptions
+
+QueryServiceDataReaderByteCountInvalid = Maximum number of bytes to return must be greater than zero
+
+QueryServiceDataReaderCharCountInvalid = Maximum number of chars to return must be greater than zero
+
+QueryServiceDataReaderXmlCountInvalid = Maximum number of XML bytes to return must be greater than zero
+
+### File Stream Wrapper Exceptions
+
+QueryServiceFileWrapperWriteOnly = Access method cannot be write-only
+
+QueryServiceFileWrapperNotInitialized = FileStreamWrapper must be initialized before performing operations
+
+QueryServiceFileWrapperReadOnly = This FileStreamWrapper cannot be used for writing
+
+### Query Request
+
+QueryServiceAffectedOneRow = (1 row affected)
+
+QueryServiceAffectedRows(long rows) = ({0} rows affected)
+
+QueryServiceCompletedSuccessfully = Commands completed successfully.
+
+QueryServiceErrorFormat(int msg, int lvl, int state, int line, string newLine, string message) = Msg {0}, Level {1}, State {2}, Line {3}{4}{5}
+
+QueryServiceQueryFailed(string message) = Query failed: {0}
+
+QueryServiceColumnNull = (No column name)
+
+QueryServiceCellNull = NULL
+
+QueryServiceRequestsNoQuery = The requested query does not exist
+
+QueryServiceQueryInvalidOwnerUri = This editor is not connected to a database
+
+QueryServiceQueryInProgress = A query is already in progress for this editor session. Please cancel this query or wait for its completion.
+
+QueryServiceMessageSenderNotSql = Sender for OnInfoMessage event must be a SqlConnection
+
+QueryServiceResultSetAddNoRows = Cannot add row to result buffer, data reader does not contain rows
+
+QueryServiceResultSetHasNoResults = Query has no results to return
+
+QueryServiceResultSetTooLarge = Result set has too many rows to be safely loaded
+
+### Save As Requests
+
+QueryServiceSaveAsResultSetNotComplete = Result cannot be saved until query execution has completed
+
+QueryServiceSaveAsMiscStartingError = Internal error occurred while starting save task
+
+QueryServiceSaveAsInProgress = A save request to the same path is in progress
+
+QueryServiceSaveAsFail(string fileName, string message) = Failed to save {0}: {1}
+
+### MISC
+
+QueryServiceResultSetNotRead = Cannot read subset unless the results have been read from the server
+
+QueryServiceResultSetStartRowOutOfRange = Start row cannot be less than 0 or greater than the number of rows in the result set
+
+QueryServiceResultSetRowCountOutOfRange = Row count must be a positive integer
+
+QueryServiceResultSetNoColumnSchema = Could not retrieve column schema for result set
+
+QueryServiceExecutionPlanNotFound = Could not retrieve an execution plan from the result set 
+
+############################################################################
+# Serialization Service
+
+SerializationServiceUnsupportedFormat (string formatName) = Unsupported Save Format: {0}
+SerializationServiceRequestInProgress (string filePath) = A request for file {0} is already in progress
+SerializationServiceRequestNotFound (string filePath) = Cannot serialize more data as no request for file {0} could be found
+ 
+############################################################################
+# Language Service
+
+PeekDefinitionAzureError(string errorMessage) = This feature is currently not supported on Azure SQL DB and Data Warehouse: {0}
+
+PeekDefinitionError(string errorMessage) = An unexpected error occurred during Peek Definition execution: {0}
+
+PeekDefinitionNoResultsError = No results were found.
+
+PeekDefinitionDatabaseError = No database object was retrieved.
+
+PeekDefinitionNotConnectedError = Please connect to a server.
+
+PeekDefinitionTimedoutError = Operation timed out.
+
+PeekDefinitionTypeNotSupportedError = This object type is currently not supported by this feature.
+
+ErrorEmptyStringReplacement = Replacement of an empty string by an empty string.
+
+############################################################################
+# Workspace Service
+
+WorkspaceServicePositionLineOutOfRange = Position is outside of file line range
+
+WorkspaceServicePositionColumnOutOfRange(int line) = Position is outside of column range for line {0}
+
+WorkspaceServiceBufferPositionOutOfOrder(int sLine, int sCol, int eLine, int eCol) = Start position ({0}, {1}) must come before or be equal to the end position ({2}, {3})
+
+############################################################################
+# Edit Data Service
+
+EditDataObjectNotFound = Table or view requested for edit could not be found
+
+EditDataSessionNotFound = Edit session does not exist.
+
+EditDataSessionAlreadyExists = Edit session already exists.
+
+EditDataSessionNotInitialized = Edit session has not been initialized
+
+EditDataSessionAlreadyInitialized = Edit session has already been initialized
+
+EditDataSessionAlreadyInitializing = Edit session has already been initialized or is in the process of initializing
+
+EditDataMetadataNotExtended = Table metadata does not have extended properties
+
+EditDataMetadataObjectNameRequired = A object name must be provided
+
+EditDataMetadataTooManyIdentifiers = Explicitly specifying server or database is not supported
+
+EditDataFilteringNegativeLimit = Result limit cannot be negative
+
+EditDataUnsupportedObjectType(string typeName) = Database object {0} cannot be used for editing.
+
+EditDataQueryFailed = Query execution failed, see messages for details
+
+EditDataQueryNotCompleted = Query has not completed execution
+
+EditDataQueryImproperResultSets = Query did not generate exactly one result set
+
+EditDataFailedAddRow = Failed to add new row to update cache
+
+EditDataRowOutOfRange = Given row ID is outside the range of rows in the edit cache
+
+EditDataUpdatePending = An update is already pending for this row and must be reverted first
+
+EditDataUpdateNotPending = Given row ID does not have pending update
+
+EditDataObjectMetadataNotFound = Table or view metadata could not be found
+
+EditDataInvalidFormat(string colName, string colType) = Invalid format for column '{0}', column is defined as {1}
+
+EditDataInvalidFormatBinary = Invalid format for binary column
+
+EditDataInvalidFormatBoolean = Allowed values for boolean columns are 0, 1, "true", or "false"
+
+EditDataCreateScriptMissingValue(string colName) = The column '{0}' is defined as NOT NULL but was not given a value
+
+EditDataDeleteSetCell = A delete is pending for this row, a cell update cannot be applied.
+
+EditDataColumnIdOutOfRange = Column ID must be in the range of columns for the query
+
+EditDataColumnCannotBeEdited = Column cannot be edited
+
+EditDataColumnNoKeyColumns = No key columns were found
+
+EditDataScriptFilePathNull = An output filename must be provided
+
+EditDataCommitInProgress = A commit task is in progress. Please wait for completion.
+
+EditDataComputedColumnPlaceholder = <TBD>
+
+EditDataTimeOver24Hrs = TIME column values must be between 00:00:00.0000000 and 23:59:59.9999999
+
+EditDataNullNotAllowed = NULL is not allowed for this column
+
+EditDataValueTooLarge(string value, string columnType) = Value {0} is too large to fit in column of type {1}
+
+EditDataMultiTableNotSupported = EditData queries targeting multiple tables are not supported
+
+EditDataAliasesNotSupported = EditData queries with aliased columns are not supported
+
+EditDataExpressionsNotSupported = EditData queries with aggregate or expression columns are not supported
+
+EditDataDuplicateColumnsNotSupported = EditData queries with duplicate columns are not supported
+
+EditDataIncorrectTable(string tableName) = EditData queries must query the originally targeted table '{0}'
+
+############################################################################
+# DacFx Resources
+
+EE_ExecutionInfo_InitializingLoop = Beginning execution loop
+
+EE_BatchExecutionError_Ignoring	= An error occurred while the batch was being executed, but the error has been ignored.
+
+EE_ExecutionInfo_FinalizingLoop	= Batch execution completed {0} times...
+
+BatchParserWrapperExecutionError = Batch parser wrapper execution: {0} found... at line {1}: {2}    Description: {3}
+
+############################################################################
+# Workspace Service
+
+TestLocalizationConstant = test
+
+############################################################################
+# Utilities
+
+SqlScriptFormatterDecimalMissingPrecision = Exact numeric column is missing numeric precision or numeric scale
+
+SqlScriptFormatterLengthTypeMissingSize = Column with length is missing size
+
+SqlScriptFormatterScalarTypeMissingScale = Scalar column missing scale
+
+############################################################################
+# Object Explorer Service
+
+TreeNodeError = Error expanding: {0}
+
+ServerNodeConnectionError = Error connecting to {0}
+
+SchemaHierarchy_Aggregates = Aggregates
+
+SchemaHierarchy_ServerRoles = Server Roles
+
+SchemaHierarchy_ApplicationRoles = Application Roles
+
+SchemaHierarchy_Assemblies = Assemblies
+
+SchemaHierarchy_AssemblyFiles = Assembly Files
+
+SchemaHierarchy_AsymmetricKeys = Asymmetric Keys
+
+SchemaHierarchy_DatabaseAsymmetricKeys = Asymmetric Keys
+
+SchemaHierarchy_DataCompressionOptions = Data Compression Options
+
+SchemaHierarchy_Certificates = Certificates
+
+SchemaHierarchy_FileTables = FileTables
+
+SchemaHierarchy_DatabaseCertificates = Certificates
+
+SchemaHierarchy_CheckConstraints = Check Constraints
+
+SchemaHierarchy_Columns = Columns
+
+SchemaHierarchy_Constraints = Constraints
+
+SchemaHierarchy_Contracts = Contracts
+
+SchemaHierarchy_Credentials = Credentials
+
+SchemaHierarchy_ErrorMessages = Error Messages
+
+SchemaHierarchy_ServerRoleMembership = Server Role Membership
+
+SchemaHierarchy_DatabaseOptions = Database Options
+
+SchemaHierarchy_DatabaseRoles = Database Roles
+
+SchemaHierarchy_RoleMemberships = Role Memberships
+
+SchemaHierarchy_DatabaseTriggers = Database Triggers
+
+SchemaHierarchy_DefaultConstraints = Default Constraints
+
+SchemaHierarchy_Defaults = Defaults
+
+SchemaHierarchy_Sequences = Sequences
+
+SchemaHierarchy_Endpoints = Endpoints
+
+SchemaHierarchy_EventNotifications = Event Notifications
+
+SchemaHierarchy_ServerEventNotifications = Server Event Notifications
+
+SchemaHierarchy_ExtendedProperties = Extended Properties
+
+SchemaHierarchy_FileGroups = Filegroups
+
+SchemaHierarchy_ForeignKeys = Foreign Keys
+
+SchemaHierarchy_FullTextCatalogs = Full-Text Catalogs
+
+SchemaHierarchy_FullTextIndexes = Full-Text Indexes
+
+SchemaHierarchy_Functions = Functions
+
+SchemaHierarchy_Indexes = Indexes
+
+SchemaHierarchy_InlineFunctions = Inline Functions
+
+SchemaHierarchy_Keys = Keys
+
+SchemaHierarchy_LinkedServers = Linked Servers
+
+SchemaHierarchy_LinkedServerLogins = Linked Server Logins
+
+SchemaHierarchy_Logins = Logins
+
+SchemaHierarchy_MasterKey = Master Key
+
+SchemaHierarchy_MasterKeys = Master Keys
+
+SchemaHierarchy_MessageTypes = Message Types
+
+SchemaHierarchy_MultiSelectFunctions = Table-Valued Functions
+
+SchemaHierarchy_Parameters = Parameters
+
+SchemaHierarchy_PartitionFunctions = Partition Functions
+
+SchemaHierarchy_PartitionSchemes = Partition Schemes
+
+SchemaHierarchy_Permissions = Permissions
+
+SchemaHierarchy_PrimaryKeys = Primary Keys
+
+SchemaHierarchy_Programmability = Programmability
+
+SchemaHierarchy_Queues = Queues
+
+SchemaHierarchy_RemoteServiceBindings = Remote Service Bindings
+
+SchemaHierarchy_ReturnedColumns = Returned Columns
+
+SchemaHierarchy_Roles = Roles
+
+SchemaHierarchy_Routes = Routes
+
+SchemaHierarchy_Rules = Rules
+
+SchemaHierarchy_Schemas = Schemas
+
+SchemaHierarchy_Security = Security
+
+SchemaHierarchy_ServerObjects = Server Objects
+
+SchemaHierarchy_Management = Management
+
+SchemaHierarchy_ServerTriggers = Triggers
+
+SchemaHierarchy_ServiceBroker = Service Broker
+
+SchemaHierarchy_Services = Services
+
+SchemaHierarchy_Signatures = Signatures
+
+SchemaHierarchy_LogFiles = Log Files
+
+SchemaHierarchy_Statistics = Statistics
+
+SchemaHierarchy_Storage = Storage
+
+SchemaHierarchy_StoredProcedures = Stored Procedures
+
+SchemaHierarchy_SymmetricKeys = Symmetric Keys
+
+SchemaHierarchy_Synonyms = Synonyms
+
+SchemaHierarchy_Tables = Tables
+
+SchemaHierarchy_Triggers = Triggers
+
+SchemaHierarchy_Types = Types
+
+SchemaHierarchy_UniqueKeys = Unique Keys
+
+SchemaHierarchy_UserDefinedDataTypes = User-Defined Data Types
+
+SchemaHierarchy_UserDefinedTypes = User-Defined Types (CLR)
+
+SchemaHierarchy_Users = Users
+
+SchemaHierarchy_Views = Views
+
+SchemaHierarchy_XmlIndexes = XML Indexes
+
+SchemaHierarchy_XMLSchemaCollections = XML Schema Collections
+
+SchemaHierarchy_UserDefinedTableTypes = User-Defined Table Types
+
+SchemaHierarchy_FilegroupFiles = Files
+
+MissingCaption = Missing Caption
+
+SchemaHierarchy_BrokerPriorities = Broker Priorities
+
+SchemaHierarchy_CryptographicProviders = Cryptographic Providers
+
+SchemaHierarchy_DatabaseAuditSpecifications = Database Audit Specifications
+
+SchemaHierarchy_DatabaseEncryptionKeys = Database Encryption Keys
+
+SchemaHierarchy_EventSessions = Event Sessions
+
+SchemaHierarchy_FullTextStopLists = Full Text Stoplists
+
+SchemaHierarchy_ResourcePools = Resource Pools
+
+SchemaHierarchy_ServerAudits = Audits
+
+SchemaHierarchy_ServerAuditSpecifications = Server Audit Specifications
+
+SchemaHierarchy_SpatialIndexes = Spatial Indexes
+
+SchemaHierarchy_WorkloadGroups = Workload Groups
+
+SchemaHierarchy_SqlFiles = SQL Files
+
+SchemaHierarchy_ServerFunctions = Server Functions
+
+SchemaHierarchy_SqlType = SQL Type
+
+SchemaHierarchy_ServerOptions = Server Options
+
+SchemaHierarchy_DatabaseDiagrams = Database Diagrams
+
+SchemaHierarchy_SystemTables = System Tables
+
+SchemaHierarchy_Databases = Databases
+
+SchemaHierarchy_SystemContracts = System Contracts
+
+SchemaHierarchy_SystemDatabases = System Databases
+
+SchemaHierarchy_SystemMessageTypes = System Message Types
+
+SchemaHierarchy_SystemQueues = System Queues
+
+SchemaHierarchy_SystemServices = System Services
+
+SchemaHierarchy_SystemStoredProcedures = System Stored Procedures
+
+SchemaHierarchy_SystemViews = System Views
+
+SchemaHierarchy_DataTierApplications = Data-tier Applications
+
+SchemaHierarchy_ExtendedStoredProcedures = Extended Stored Procedures
+
+SchemaHierarchy_SystemAggregateFunctions = Aggregate Functions
+
+SchemaHierarchy_SystemApproximateNumerics = Approximate Numerics
+
+SchemaHierarchy_SystemBinaryStrings = Binary Strings
+
+SchemaHierarchy_SystemCharacterStrings = Character Strings
+
+SchemaHierarchy_SystemCLRDataTypes = CLR Data Types
+
+SchemaHierarchy_SystemConfigurationFunctions = Configuration Functions
+
+SchemaHierarchy_SystemCursorFunctions = Cursor Functions
+
+SchemaHierarchy_SystemDataTypes = System Data Types
+
+SchemaHierarchy_SystemDateAndTime = Date and Time
+
+SchemaHierarchy_SystemDateAndTimeFunctions = Date and Time Functions
+
+SchemaHierarchy_SystemExactNumerics = Exact Numerics
+
+SchemaHierarchy_SystemFunctions = System Functions
+
+SchemaHierarchy_SystemHierarchyIdFunctions = Hierarchy Id Functions
+
+SchemaHierarchy_SystemMathematicalFunctions = Mathematical Functions
+
+SchemaHierarchy_SystemMetadataFunctions = Metadata Functions
+
+SchemaHierarchy_SystemOtherDataTypes = Other Data Types
+
+SchemaHierarchy_SystemOtherFunctions = Other Functions
+
+SchemaHierarchy_SystemRowsetFunctions = Rowset Functions
+
+SchemaHierarchy_SystemSecurityFunctions = Security Functions
+
+SchemaHierarchy_SystemSpatialDataTypes = Spatial Data Types
+
+SchemaHierarchy_SystemStringFunctions = String Functions
+
+SchemaHierarchy_SystemSystemStatisticalFunctions = System Statistical Functions
+
+SchemaHierarchy_SystemTextAndImageFunctions = Text and Image Functions
+
+SchemaHierarchy_SystemUnicodeCharacterStrings = Unicode Character Strings
+
+SchemaHierarchy_AggregateFunctions = Aggregate Functions
+
+SchemaHierarchy_ScalarValuedFunctions = Scalar-valued Functions
+
+SchemaHierarchy_TableValuedFunctions = Table-valued Functions
+
+SchemaHierarchy_SystemExtendedStoredProcedures = System Extended Stored Procedures
+
+SchemaHierarchy_BuiltInType = Built-in Types
+
+SchemaHierarchy_BuiltInServerRole = Built-in Server Roles
+
+SchemaHierarchy_UserWithPassword = User with Password
+
+SchemaHierarchy_SearchPropertyList = Search Property List
+
+SchemaHierarchy_SecurityPolicies = Security Policies
+
+SchemaHierarchy_SecurityPredicates = Security Predicates
+
+SchemaHierarchy_ServerRole = Server Role
+
+SchemaHierarchy_SearchPropertyLists = Search Property Lists
+
+SchemaHierarchy_ColumnStoreIndexes = Column Store Indexes
+
+SchemaHierarchy_TableTypeIndexes = Table Type Indexes
+
+SchemaHierarchy_Server = Server
+
+SchemaHierarchy_SelectiveXmlIndexes = Selective XML Indexes
+
+SchemaHierarchy_XmlNamespaces = XML Namespaces
+
+SchemaHierarchy_XmlTypedPromotedPaths = XML Typed Promoted Paths
+
+SchemaHierarchy_SqlTypedPromotedPaths = T-SQL Typed Promoted Paths
+
+SchemaHierarchy_DatabaseScopedCredentials = Database Scoped Credentials
+
+SchemaHierarchy_ExternalDataSources = External Data Sources
+
+SchemaHierarchy_ExternalFileFormats = External File Formats
+
+SchemaHierarchy_ExternalResources = External Resources
+
+SchemaHierarchy_ExternalTables = External Tables
+
+SchemaHierarchy_AlwaysEncryptedKeys = Always Encrypted Keys
+
+SchemaHierarchy_ColumnMasterKeys = Column Master Keys
+
+SchemaHierarchy_ColumnEncryptionKeys = Column Encryption Keys
+
+SchemaHierarchy_SubroutineParameterLabelFormatString = {0} ({1}, {2}, {3})
+
+SchemaHierarchy_SubroutineParameterNoDefaultLabel = No default
+
+SchemaHierarchy_SubroutineParameterInputLabel = Input
+
+SchemaHierarchy_SubroutineParameterInputOutputLabel = Input/Output
+
+SchemaHierarchy_SubroutineParameterInputReadOnlyLabel = Input/ReadOnly
+
+SchemaHierarchy_SubroutineParameterInputOutputReadOnlyLabel = Input/Output/ReadOnly
+
+SchemaHierarchy_SubroutineParameterDefaultLabel = Default
+
+SchemaHierarchy_NullColumn_Label = null
+
+SchemaHierarchy_NotNullColumn_Label = not null
+
+SchemaHierarchy_UDDTLabelWithType = {0} ({1}, {2})
+
+SchemaHierarchy_UDDTLabelWithoutType = {0} ({1})
+
+SchemaHierarchy_ComputedColumnLabelWithType = {0} ({1}Computed, {2}, {3})
+
+SchemaHierarchy_ComputedColumnLabelWithoutType = {0} ({1}Computed)
+
+SchemaHierarchy_ColumnSetLabelWithoutType = {0} (Column Set, {1})
+
+SchemaHierarchy_ColumnSetLabelWithType = {0} (Column Set, {1}{2}, {3})
+
+SchemaHierarchy_ColumnSetLabelWithTypeAndKeyString = {0} (Column Set, {1}, {2}, {3})
+
+UniqueIndex_LabelPart = Unique
+
+NonUniqueIndex_LabelPart = Non-Unique
+
+ClusteredIndex_LabelPart = Clustered
+
+NonClusteredIndex_LabelPart = Non-Clustered
+
+History_LabelPart = History
+
+SystemVersioned_LabelPart = System-Versioned
+
+External_LabelPart = External
+
+FileTable_LabelPart = File Table
+
+DatabaseNotAccessible = The database {0} is not accessible.
+
+
+############################################################################
+# Scripting Service
+
+ScriptingParams_ConnectionString_Property_Invalid = Error parsing ScriptingParams.ConnectionString property.
+
+ScriptingParams_FilePath_Property_Invalid = Invalid directory specified by the ScriptingParams.FilePath property.
+
+ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid = Error parsing ScriptingListObjectsCompleteParams.ConnectionString property.
+
+
+StoredProcedureScriptParameterComment = -- TODO: Set parameter values here.
+
+ScriptingGeneralError = An error occurred while scripting the objects.
+ScriptingExecuteNotSupportedError = Scripting as Execute is only supported for Stored Procedures
+
+
+############################################################################
+# Backup Service
+BackupTaskName = Backup Database
+
+# Backup File Validation Errors
+BackupPathIsFolderError = Please provide a file path instead of directory path
+InvalidBackupPathError =  The provided path is invalid
+
+############################################################################
+# Task Service
+TaskInProgress = In progress
+TaskCompleted = Completed
+
+###########################################################################
+# Restore
+ConflictWithNoRecovery = Specifying this option when restoring a backup with the NORECOVERY option is not permitted.
+InvalidPathForDatabaseFile = Invalid path for database file: '{0}'
+Log = Log
+RestorePlanFailed = Failed to create restore plan
+RestoreNotSupported = Restore database is not supported
+RestoreTaskName = Restore Database
+RestoreCopyOnly = (Copy Only)
+RestoreBackupSetComponent = Component
+RestoreBackupSetName = Name
+RestoreBackupSetType = Type
+RestoreBackupSetServer = Server
+RestoreBackupSetDatabase = Database
+RestoreBackupSetPosition = Position
+RestoreBackupSetFirstLsn = First LSN
+RestoreBackupSetLastLsn = Last LSN
+RestoreBackupSetCheckpointLsn = Checkpoint LSN
+RestoreBackupSetFullLsn = Full LSN
+RestoreBackupSetStartDate = Start Date
+RestoreBackupSetFinishDate = Finish Date
+RestoreBackupSetSize = Size
+RestoreBackupSetUserName = User Name
+RestoreBackupSetExpiration = Expiration
+TheLastBackupTaken = The last backup taken ({0})
+NoBackupsetsToRestore = No backupset selected to be restored
+
+############################################################################
+# Generate Script
+ScriptTaskName = scripting
+
+############################################################################
+# File Browser Validation Errors
+InvalidPathError = Cannot access the specified path on the server: {0}
+
+############################################################################
+# Profiler
+ProfilerConnectionNotFound = Connection not found
+AzureSystemDbProfilingError = Cannot profile Azure system databases
+CreateSessionFailed(String error) = Failed to create session: {0}
+StartSessionFailed(String error) = Failed to start session: {0}
+PauseSessionFailed(String error) = Failed to pause session: {0}
+StopSessionFailed(String error) = Failed to stop session: {0}
+SessionNotFound = Cannot find requested XEvent session
+SessionAlreadyExists(String sessionName) = An XEvent session named {0} already exists
+
+
+;job categories
+CategoryLocal = [Uncategorized (Local)]
+CategoryFromMsx = Jobs from MSX
+CategoryMultiServer = [Uncategorized (Multi-Server)]
+CategoryDBMaint = Database Maintenance
+CategoryWebAssistant = Web Assistant
+CategoryFullText = Full-Text
+CategoryReplDistribution = REPL-Distribution
+CategoryReplDistributionCleanup = REPL-Distribution Cleanup
+CategoryReplHistoryCleanup = REPL-History Cleanup
+CategoryReplLogReader = REPL-LogReader
+CategoryReplMerge = REPL-Merge
+CategoryReplSnapShot = REPL-Snapshot
+CategoryReplCheckup = REPL-Checkup
+CategoryReplCleanup = REPL-Subscription Cleanup
+CategoryReplAlert = REPL-Alert Response
+CategoryReplQReader = REPL-QueueReader
+CategoryReplication = Replication
+CategoryUncategorized = [Uncategorized]
+CategoryLogShipping = Log Shipping
+CategoryDBEngineTuningAdvisor = Database Engine Tuning Advisor
+CategoryDataCollector = Data Collector
+
+UnknownSizeUnit(unit) = Unknown size unit {0} 
+UnexpectedRunType = Unexpected run type.
+CredentialNoLongerExists = The object does no longer exist on server.
+UnknownServerType(string serverTypeName) = Unknown server type '{0}'.
+SetOwnerFailed(string ownerName) = The current login does not have permissions to set the database owner to '{0}'  The database was created successfully however.
+TargetServerNotSelected = You must specify the Target Servers on which this multi server job will execute.
+ProxyAccountNotFound(string proxyName) = Proxy account '{0}' does not exist on the server.
+SysadminAccount = SQL Server Agent Service Account
+JobAlreadyExists(string jobName) = A job named '{0}' already exists.  Enter a unique name for the job.
+JobStepNameCannotBeBlank = The name of the job step cannot be blank.
+JobStepNameAlreadyExists(string jobName) = There is already a step named '{0}' for this job. You must specify a different name.
+AlertNameCannotBeBlank = The name of the alert cannot be blank.
+CannotCreateNewAlert = Cannot create new alert.
+CannotAlterAlert = Cannot alter alert.
+
+; Schedule error message
+InvalidScheduleTitle = Invalid Schedule
+InvalidWeeklySchedule = Select at least one day to be part of this weekly schedule.
+StartDateGreaterThanEndDate = The job schedule starting date cannot be greater than the ending date.
+StartTimeGreaterThanEndTime = The job schedule starting time cannot be after the ending time.
+EndTimeEqualToStartTime = The job schedule ending time must be after the starting time.
+InvalidStartDate = Start date must be on or after January 1, 1990.
+ScheduleNameAlreadyExists(string scheduleName)=There is already a schedule named '{0}' for this job.  You must specify a different name.
+
+; Exception thrown when job server is not available
+JobServerIsNotAvailable = Job server is not available
+
+############################################################################
+# Admin Service
+
+NeverBackedUp = Never
+Error_InvalidDirectoryName = Path {0} is not a valid directory 
+Error_ExistingDirectoryName = For directory {0} a file with name {1} already exist
+
+############################################################################
+# DacFx
+ExportBacpacTaskName = Export bacpac
+ImportBacpacTaskName = Import bacpac
+ExtractDacpacTaskName = Extract dacpac
+DeployDacpacTaskName = Deploy dacpac
+GenerateScriptTaskName = Generate script
+ExtractInvalidVersion = Invalid version '{0}' passed. Version must be in the format x.x.x.x where x is a number.
+
+############################################################################
+# Schema Compare
+PublishChangesTaskName = Apply schema compare changes
+SchemaCompareExcludeIncludeNodeNotFound = Failed to find the specified change in the model
+OpenScmpConnectionBasedModelParsingError = Error encountered while trying to parse connection information for endpoint '{0}' with error message '{1}'
+SchemaCompareSessionNotFound = Could not find the schema compare session to cancel
