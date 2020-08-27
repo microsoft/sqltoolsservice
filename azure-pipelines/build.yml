@@ -74,13 +74,8 @@ steps:
     projects: '$(Build.SourcesDirectory)/src/Microsoft.Kusto.ServiceLayer '
     arguments: '--configuration Release'
 
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet build src/Microsoft.Kusto.ServiceLayer --configuration Release'
-  inputs:
-    projects: '$(Build.SourcesDirectory)/src/Microsoft.Kusto.ServiceLayer '
-    arguments: '--configuration Release'
-
 - task: CopyFiles@2
+  displayName: 'Copy Kusto Service Layer binaries'
   inputs:
     sourceFolder: '$(Build.SourcesDirectory)/src/Microsoft.Kusto.ServiceLayer/bin'
     contents: '**' 
@@ -100,6 +95,12 @@ steps:
   inputs:
     command: restore
     projects: test/Microsoft.SqlTools.ServiceLayer.UnitTests
+
+- task: DotNetCoreCLI@1
+  displayName: 'dotnet restore test/Microsoft.Kusto.ServiceLayer.UnitTests'
+  inputs:
+    command: restore
+    projects: test/Microsoft.Kusto.ServiceLayer.UnitTests
 
 - task: DotNetCoreCLI@1
   displayName: 'dotnet test test/Microsoft.SqlTools.ServiceLayer.UnitTests'
