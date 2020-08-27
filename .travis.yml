@@ -36,5 +36,7 @@ install:
 script:
   - dotnet build src/Microsoft.SqlTools.ServiceLayer
   - dotnet test test/Microsoft.SqlTools.ServiceLayer.UnitTests
+  - dotnet build src/Microsoft.Kusto.ServiceLayer
+  - dotnet test test/Microsoft.Kusto.ServiceLayer.UnitTests
   - dotnet build src/Microsoft.SqlTools.CoreServices
   - dotnet test test/Microsoft.SqlTools.Hosting.UnitTests
