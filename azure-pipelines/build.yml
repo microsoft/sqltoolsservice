@@ -74,15 +74,6 @@ steps:
     projects: '$(Build.SourcesDirectory)/src/Microsoft.Kusto.ServiceLayer '
     arguments: '--configuration Release'
 
-- task: CopyFiles@2
-  displayName: 'Copy Kusto Service Layer binaries'
-  inputs:
-    sourceFolder: '$(Build.SourcesDirectory)/src/Microsoft.Kusto.ServiceLayer/bin'
-    contents: '**' 
-    targetFolder: '$(Build.SourcesDirectory)/src/Microsoft.SqlTools.ServiceLayer/bin'
-    cleanTargetFolder: false
-    overWrite: false
-
 - task: BatchScript@1
   displayName: 'Run script build.cmd'
   inputs:
@@ -115,6 +106,15 @@ steps:
     command: test
     projects: test/Microsoft.Kusto.ServiceLayer.UnitTests
     arguments: '--logger "trx;LogFileName=xunit.trx"'
+
+- task: CopyFiles@2
+  displayName: 'Copy Kusto Service Layer binaries'
+  inputs:
+    sourceFolder: '$(Build.SourcesDirectory)/src/Microsoft.Kusto.ServiceLayer/bin'
+    contents: '**' 
+    targetFolder: '$(Build.SourcesDirectory)/src/Microsoft.SqlTools.ServiceLayer/bin'
+    cleanTargetFolder: false
+    overWrite: false
 
 - task: Npm@1
   displayName: 'npm install -g gulp-cli'
