@@ -445,7 +445,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
             {
                  case DataSourceMetadataType.Database:
                     return new DataSourceTreeNode(parent.DataSource, childMetadata) {
-                        Parent = parent as ServerNode,
                         NodeType = "Database",
     		            NodeTypeId = NodeTypes.Database
                     };

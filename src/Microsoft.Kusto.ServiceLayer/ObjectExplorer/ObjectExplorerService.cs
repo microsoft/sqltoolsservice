@@ -12,7 +12,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.SqlServer.Management.Common; // For ServerConnection
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
@@ -45,7 +44,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
         private ConnectionService connectionService;
         private IProtocolEndpoint _serviceHost;
         private ConcurrentDictionary<string, ObjectExplorerSession> sessionMap;
-        private readonly Lazy<Dictionary<string, HashSet<ChildFactory>>> applicableNodeChildFactories;
         private IMultiServiceProvider serviceProvider;
         private string connectionName = "ObjectExplorer";
 
@@ -62,16 +60,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
         {
             _connectedBindingQueue = connectedBindingQueue;
             sessionMap = new ConcurrentDictionary<string, ObjectExplorerSession>();
-            applicableNodeChildFactories = new Lazy<Dictionary<string, HashSet<ChildFactory>>>(PopulateFactories);
             NodePathGenerator.Initialize();
-        }
-
-        private Dictionary<string, HashSet<ChildFactory>> ApplicableNodeChildFactories
-        {
-            get
-            {
-                return applicableNodeChildFactories.Value;
-            }
         }
 
         /// <summary>
@@ -489,7 +478,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
                            waitForLockTimeout: timeout,
                            bindOperation: (bindingContext, cancelToken) =>
                            {
-                               session = ObjectExplorerSession.CreateSession(connectionResult, serviceProvider, bindingContext.ServerConnection, bindingContext.DataSource, isDefaultOrSystemDatabase);
+                               session = ObjectExplorerSession.CreateSession(connectionResult, serviceProvider, bindingContext.DataSource, isDefaultOrSystemDatabase);
                                session.ConnectionInfo = connectionInfo;
 
                                sessionMap.AddOrUpdate(uri, session, (key, oldSession) => session);
@@ -636,62 +625,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
         internal static string GenerateUri(ConnectionDetails details)
         {
             return ConnectedBindingQueue.GetConnectionContextKey(details);
-        }      
-
-        public IEnumerable<ChildFactory> GetApplicableChildFactories(TreeNode item)
-        {
-            if (ApplicableNodeChildFactories != null)
-            {
-                HashSet<ChildFactory> applicableFactories;
-                if (ApplicableNodeChildFactories.TryGetValue(item.NodeTypeId.ToString(), out applicableFactories))
-                {
-                    return applicableFactories;
-                }
-            }
-            return null;
-        }
-
-        internal Dictionary<string, HashSet<ChildFactory>> PopulateFactories()
-        {
-            VerifyServicesInitialized();
-
-            var childFactories = new Dictionary<string, HashSet<ChildFactory>>();
-            // Create our list of all NodeType to ChildFactory objects so we can expand appropriately
-            foreach (var factory in serviceProvider.GetServices<ChildFactory>())
-            {
-                var parents = factory.ApplicableParents();
-                if (parents != null)
-                {
-                    foreach (var parent in parents)
-                    {
-                        AddToApplicableChildFactories(childFactories, factory, parent);
-                    }
-                }
-            }
-            return childFactories;
-        }
-
-        private void VerifyServicesInitialized()
-        {
-            if (serviceProvider == null)
-            {
-                throw new InvalidOperationException(SqlTools.Hosting.SR.ServiceProviderNotSet);
-            }
-            if (connectionService == null)
-            {
-                throw new InvalidOperationException(SqlTools.Hosting.SR.ServiceProviderNotSet);
-            }
-        }
-
-        private static void AddToApplicableChildFactories(Dictionary<string, HashSet<ChildFactory>> childFactories, ChildFactory factory, string parent)
-        {
-            HashSet<ChildFactory> applicableFactories;
-            if (!childFactories.TryGetValue(parent, out applicableFactories))
-            {
-                applicableFactories = new HashSet<ChildFactory>();
-                childFactories[parent] = applicableFactories;
-            }
-            applicableFactories.Add(factory);
         }
 
         /// <summary>
@@ -768,12 +701,10 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
 
         internal class ObjectExplorerSession
         {
-            public ObjectExplorerSession(string uri, TreeNode root)
+            public ObjectExplorerSession(string uri)
             {
                 Validate.IsNotNullOrEmptyString("uri", uri);
-                Validate.IsNotNull("root", root);
                 Uri = uri;
-                Root = root;
             }
 
             public string Uri { get; private set; }
@@ -783,23 +714,14 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
 
             public string ErrorMessage { get; set; }
 
-            public static ObjectExplorerSession CreateSession(ConnectionCompleteParams response, IMultiServiceProvider serviceProvider, ServerConnection serverConnection, IDataSource dataSource, bool isDefaultOrSystemDatabase)
+            public static ObjectExplorerSession CreateSession(ConnectionCompleteParams response, IMultiServiceProvider serviceProvider, IDataSource dataSource, bool isDefaultOrSystemDatabase)
             {
                 DataSourceObjectMetadata objectMetadata = MetadataFactory.CreateClusterMetadata(dataSource.ClusterName);
-                ServerNode rootNode = new ServerNode(response, serviceProvider, serverConnection, dataSource, objectMetadata);
                 
-                var session = new ObjectExplorerSession(response.OwnerUri, rootNode);
+                var session = new ObjectExplorerSession(response.OwnerUri);
                 if (!isDefaultOrSystemDatabase)
                 {
                     DataSourceObjectMetadata databaseMetadata = MetadataFactory.CreateDatabaseMetadata(objectMetadata, response.ConnectionSummary.DatabaseName);
-
-                    // Assuming the databases are in a folder under server node
-                    DataSourceTreeNode databaseNode = new DataSourceTreeNode(dataSource, databaseMetadata) {
-                        Parent = rootNode,
-                        NodeType = "Database",
-    		            NodeTypeId = NodeTypes.Database
-                    };
-                    session.Root = databaseNode;
                 }
 
                 return session;
