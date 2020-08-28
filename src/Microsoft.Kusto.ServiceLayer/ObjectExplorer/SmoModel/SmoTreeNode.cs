@@ -25,11 +25,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
         }
 
         /// <summary>
-        /// Indicates which platforms a node is valid for
-        /// </summary>
-        public ValidForFlag ValidFor { get; set; }
-
-        /// <summary>
         /// Gets an incrementing sort priority value to assist in automatically sorting
         /// elements in a tree
         /// </summary>

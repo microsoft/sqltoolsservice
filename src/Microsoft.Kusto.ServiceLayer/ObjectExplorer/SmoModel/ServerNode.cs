@@ -6,7 +6,6 @@
 using System;
 using System.Diagnostics;
 using System.Globalization;
-using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes;
@@ -25,9 +24,8 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
         private ConnectionSummary connectionSummary;
         private ServerInfo serverInfo;
         private Lazy<QueryContext> context;
-        private ServerConnection serverConnection;
 
-        public ServerNode(ConnectionCompleteParams connInfo, IMultiServiceProvider serviceProvider, ServerConnection serverConnection, IDataSource dataSource, DataSourceObjectMetadata objectMetadata)
+        public ServerNode(ConnectionCompleteParams connInfo, IMultiServiceProvider serviceProvider, IDataSource dataSource, DataSourceObjectMetadata objectMetadata)
             : base(dataSource, objectMetadata)
         {
             Validate.IsNotNull(nameof(connInfo), connInfo);
@@ -38,7 +36,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
             this.serverInfo = connInfo.ServerInfo;
 
             this.context = new Lazy<QueryContext>(() => CreateContext(serviceProvider));
-            this.serverConnection = serverConnection;
 
             NodeValue = connectionSummary.ServerName;
             IsAlwaysLeaf = false;
