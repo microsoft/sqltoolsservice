@@ -24,6 +24,7 @@ using System;
 using System.Data.SqlClient;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 
@@ -115,6 +116,47 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// Gets or sets the connection string for opening a connection to the SQL Azure database.
         /// </summary>
         public string ConnectionString { get; set; }
+        
+        /// <summary>	
+        /// Gets the policy which decides whether to retry a connection request, based on how many	
+        /// times the request has been made and the reason for the last failure. 	
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public RetryPolicy ConnectionRetryPolicy
+        {	
+            get { return _connectionRetryPolicy; }	
+        }	
+
+        /// <summary>	
+        /// Gets the policy which decides whether to retry a command, based on how many	
+        /// times the request has been made and the reason for the last failure. 	
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public RetryPolicy CommandRetryPolicy	
+        {	
+            get { return _commandRetryPolicy; }	
+            set	
+            {	
+                Validate.IsNotNull(nameof(value), value);	
+
+                if (_commandRetryPolicy != null)	
+                {	
+                    _commandRetryPolicy.RetryOccurred -= RetryCommandCallback;	
+                }	
+
+                _commandRetryPolicy = value;	
+                _commandRetryPolicy.RetryOccurred += RetryCommandCallback;	
+            }	
+        }	
+
+        /// <summary>	
+        /// Gets the server name from the underlying connection.	
+        /// </summary>	
+        // ReSharper disable once UnusedMember.Global
+        public string ClusterName	
+        {	
+            get { return _dataSource.ClusterName; }	
+        }
 
         /// <summary>
         /// If the underlying SqlConnection absolutely has to be accessed, for instance
@@ -184,6 +226,16 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// </summary>
         public void Close()
         {
+        }
+        
+        /// <summary>	
+        /// Gets the time to wait while trying to establish a connection before terminating	
+        /// the attempt and generating an error.	
+        /// </summary>	
+        // ReSharper disable once UnusedMember.Global
+        public int ConnectionTimeout
+        {	
+            get { return 30; }	
         }
 
         /// <summary>
