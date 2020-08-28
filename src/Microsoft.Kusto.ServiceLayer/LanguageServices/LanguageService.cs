@@ -145,7 +145,6 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         }
 
         private CancellationTokenSource existingRequestCancellation;
-        private IDataSourceFactory _dataSourceFactory;
 
         /// <summary>
         /// Gets or sets the current workspace service instance
@@ -213,7 +212,6 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         public void InitializeService(ServiceHost serviceHost, IConnectedBindingQueue connectedBindingQueue, IDataSourceFactory dataSourceFactory)
         {
             _bindingQueue = connectedBindingQueue;
-            _dataSourceFactory = dataSourceFactory;
             // Register the requests that this service will handle
 
             //serviceHost.SetRequestHandler(SignatureHelpRequest.Type, HandleSignatureHelpRequest);     // Kusto api doesnt support this as of now. Implement it wherever applicable. Hover help is closest to signature help
@@ -856,7 +854,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
             if (scriptParseInfo == null)
             {
                 var scriptDocInfo = ScriptDocumentInfo.CreateDefaultDocumentInfo(textDocumentPosition, scriptFile);
-                resultCompletionItems = _dataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocInfo, textDocumentPosition.Position);       //TODO_KUSTO: DataSourceFactory.GetDefaultAutoComplete 1st param should get the datasource type generically instead of hard coded DataSourceType.Kusto
+                resultCompletionItems = DataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocInfo, textDocumentPosition.Position);       //TODO_KUSTO: DataSourceFactory.GetDefaultAutoComplete 1st param should get the datasource type generically instead of hard coded DataSourceType.Kusto
                 return resultCompletionItems;
             }
 
@@ -870,7 +868,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                 resultCompletionItems = dataSource.GetAutoCompleteSuggestions(scriptDocumentInfo, textDocumentPosition.Position);
             }
             else{
-                resultCompletionItems = _dataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocumentInfo, textDocumentPosition.Position);
+                resultCompletionItems = DataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocumentInfo, textDocumentPosition.Position);
             }
 
             // cache the current script parse info object to resolve completions later. Used for the detailed description.
@@ -880,14 +878,14 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
             // if the parse failed then return the default list
             if (scriptParseInfo.ParseResult == null)
             {
-                resultCompletionItems = _dataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocumentInfo, textDocumentPosition.Position);
+                resultCompletionItems = DataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocumentInfo, textDocumentPosition.Position);
                 return resultCompletionItems;
             }
 
             // if there are no completions then provide the default list
             if (resultCompletionItems == null)          // this is the getting default keyword option when its not connected
             {
-                resultCompletionItems = _dataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocumentInfo, textDocumentPosition.Position);
+                resultCompletionItems = DataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocumentInfo, textDocumentPosition.Position);
             }
 
             return resultCompletionItems;
@@ -1015,7 +1013,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                     semanticMarkers = dataSource.GetSemanticMarkers(parseInfo, scriptFile, scriptFile.Contents);
 			    }
                 else{
-                    semanticMarkers = _dataSourceFactory.GetDefaultSemanticMarkers(DataSourceType.Kusto, parseInfo, scriptFile, scriptFile.Contents);
+                    semanticMarkers = DataSourceFactory.GetDefaultSemanticMarkers(DataSourceType.Kusto, parseInfo, scriptFile, scriptFile.Contents);
                 }
                 
                 Logger.Write(TraceEventType.Verbose, "Analysis complete.");

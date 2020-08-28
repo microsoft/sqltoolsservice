@@ -32,7 +32,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         }
 
         // Gets default keywords for intellisense when there is no connection.
-        public CompletionItem[] GetDefaultAutoComplete(DataSourceType dataSourceType, ScriptDocumentInfo scriptDocumentInfo, Position textDocumentPosition){
+        public static CompletionItem[] GetDefaultAutoComplete(DataSourceType dataSourceType, ScriptDocumentInfo scriptDocumentInfo, Position textDocumentPosition){
             switch (dataSourceType)
             {
                 case DataSourceType.Kusto:
@@ -46,7 +46,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         }
 
         // Gets default keywords errors related to intellisense when there is no connection.
-        public ScriptFileMarker[] GetDefaultSemanticMarkers(DataSourceType dataSourceType, ScriptParseInfo parseInfo, ScriptFile scriptFile, string queryText){
+        public static ScriptFileMarker[] GetDefaultSemanticMarkers(DataSourceType dataSourceType, ScriptParseInfo parseInfo, ScriptFile scriptFile, string queryText){
             switch (dataSourceType)
             {
                 case DataSourceType.Kusto:

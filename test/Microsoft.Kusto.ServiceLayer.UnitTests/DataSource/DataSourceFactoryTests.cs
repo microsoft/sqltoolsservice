@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Kusto.ServiceLayer.DataSource;
+using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
+using Microsoft.Kusto.ServiceLayer.LanguageServices.Completion;
+using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
 using NUnit.Framework;
 
 namespace Microsoft.Kusto.ServiceLayer.UnitTests.DataSource
@@ -22,17 +25,43 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.DataSource
         [Test]
         public void GetDefaultAutoComplete_Throws_ArgumentException_For_InvalidDataSourceType()
         {
-            var dataSourceFactory = new DataSourceFactory();
             Assert.Throws<ArgumentException>(() =>
-                dataSourceFactory.GetDefaultAutoComplete(DataSourceType.None, null, null));
+                DataSourceFactory.GetDefaultAutoComplete(DataSourceType.None, null, null));
+        }
+
+        [Test]
+        public void GetDefaultAutoComplete_Returns_CompletionItems()
+        {
+            var textDocumentPosition = new TextDocumentPosition
+            {
+                Position = new Position()
+            };
+            var scriptFile = new ScriptFile("", "", "");
+            var scriptParseInfo = new ScriptParseInfo();
+            var documentInfo = new ScriptDocumentInfo(textDocumentPosition, scriptFile, scriptParseInfo);
+            var position = new Position();
+
+            var completionItems = DataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto, documentInfo, position);
+            Assert.AreNotEqual(0, completionItems.Length);
         }
 
         [Test]
         public void GetDefaultSemanticMarkers_Throws_ArgumentException_For_InvalidDataSourceType()
         {
-            var dataSourceFactory = new DataSourceFactory();
             Assert.Throws<ArgumentException>(() =>
-                dataSourceFactory.GetDefaultSemanticMarkers(DataSourceType.None, null, null, null));
+                DataSourceFactory.GetDefaultSemanticMarkers(DataSourceType.None, null, null, null));
+        }
+
+        [Test]
+        public void GetDefaultSemanticMarkers_Returns_ScriptFileMarker()
+        {
+            var parseInfo = new ScriptParseInfo();
+            var file = new ScriptFile("", "", "");
+            var queryText = ".show databases";
+            
+            var semanticMarkers = DataSourceFactory.GetDefaultSemanticMarkers(DataSourceType.Kusto, parseInfo, file, queryText);
+            
+            Assert.AreNotEqual(0, semanticMarkers.Length);
         }
 
         [Test]
