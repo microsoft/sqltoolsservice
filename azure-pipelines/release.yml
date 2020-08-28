@@ -51,6 +51,7 @@ stages:
       inputs:
         filePath: '$(System.DefaultWorkingDirectory)/CrossPlatBuildScripts/AutomatedReleases/sqltoolsserviceRelease.ps1'
         arguments: '-workspace $(System.DefaultWorkingDirectory)/sqltoolsservice -minTag v3.0.0.0 -target main -tagFormat release'
+        arguments: '-workspace $(System.DefaultWorkingDirectory)/sqltoolsservice -minTag v4.0.0.0 -target main -tagFormat release'
         workingDirectory: '$(System.DefaultWorkingDirectory)/sqltoolsservice'
       env:
         GITHUB_DISTRO_MIXIN_PASSWORD: $(github-distro-mixin-password)
