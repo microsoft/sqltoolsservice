@@ -106,7 +106,7 @@ QueryServiceCellNull = NULL
 
 QueryServiceRequestsNoQuery = The requested query does not exist
 
-QueryServiceQueryInvalidOwnerUri = This editor is not connected to a database
+QueryServiceQueryInvalidOwnerUri = Cannot connect to the database due to invalid OwnerUri
 
 QueryServiceQueryInProgress = A query is already in progress for this editor session. Please cancel this query or wait for its completion.
 

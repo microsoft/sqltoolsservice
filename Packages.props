@@ -20,7 +20,9 @@
 		<PackageReference Update="Microsoft.Data.SqlClient" Version="2.0.0"/>
 		<PackageReference Update="Microsoft.SqlServer.SqlManagementObjects" Version="160.2004021.0" />
 		<PackageReference Update="Microsoft.SqlServer.XEvent.XELite" Version="2019.11.20.2" />
-		<PackageReference Update="Microsoft.SqlServer.DACFx" Version="150.4861.1-preview" GeneratePathProperty="true" />
+		<PackageReference Update="Microsoft.SqlServer.DACFx" Version="150.4870.3-preview" GeneratePathProperty="true" />
+		<PackageReference Update="Microsoft.Azure.Kusto.Data" Version="8.0.2" />
+		<PackageReference Update="Microsoft.Azure.Kusto.Language" Version="8.1.2"/>
 
 		<PackageReference Update="Moq" Version="4.8.2" />
 		<PackageReference Update="NUnit" Version="3.12.0" />
