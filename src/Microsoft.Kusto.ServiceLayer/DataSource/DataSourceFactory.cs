@@ -59,15 +59,16 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             }
         }
 
-        public ReliableConnectionHelper.ServerInfo ConvertToServerinfoFormat(DataSourceType dataSourceType, DiagnosticsInfo clusterDiagnostics)
+        public static ReliableConnectionHelper.ServerInfo ConvertToServerInfoFormat(DataSourceType dataSourceType, DiagnosticsInfo clusterDiagnostics)
         {
             switch (dataSourceType)
             {
                 case DataSourceType.Kusto:
                     {
-                        ReliableConnectionHelper.ServerInfo serverInfo = new ReliableConnectionHelper.ServerInfo();
-                        serverInfo.Options = new Dictionary<string, object>(clusterDiagnostics.Options);
-                        return serverInfo;
+                        return new ReliableConnectionHelper.ServerInfo
+                        {
+                            Options = new Dictionary<string, object>(clusterDiagnostics.Options)
+                        };
                     }
 
                 default:

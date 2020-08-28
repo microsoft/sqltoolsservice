@@ -399,7 +399,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                 DataSourceObjectMetadata clusterMetadata = MetadataFactory.CreateClusterMetadata(connectionInfo.ConnectionDetails.ServerName);
 
                 DiagnosticsInfo clusterDiagnostics = dataSource.GetDiagnostics(clusterMetadata);
-                ReliableConnectionHelper.ServerInfo serverInfo = _dataSourceFactory.ConvertToServerinfoFormat(DataSourceType.Kusto, clusterDiagnostics);
+                ReliableConnectionHelper.ServerInfo serverInfo = DataSourceFactory.ConvertToServerInfoFormat(DataSourceType.Kusto, clusterDiagnostics);
 
                 response.ServerInfo = new ServerInfo
                 {

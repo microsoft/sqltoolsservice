@@ -36,15 +36,14 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.DataSource
         }
 
         [Test]
-        public void ConvertToServerinfoFormat_Throws_ArgumentException_For_InvalidDataSourceType()
+        public void ConvertToServerInfoFormat_Throws_ArgumentException_For_InvalidDataSourceType()
         {
-            var dataSourceFactory = new DataSourceFactory();
             Assert.Throws<ArgumentException>(() =>
-                dataSourceFactory.ConvertToServerinfoFormat(DataSourceType.None, null));
+                DataSourceFactory.ConvertToServerInfoFormat(DataSourceType.None, null));
         }
 
         [Test]
-        public void ConvertToServerinfoFormat_Returns_ServerInfo_With_Options()
+        public void ConvertToServerInfoFormat_Returns_ServerInfo_With_Options()
         {
             var diagnosticsInfo = new DiagnosticsInfo
             {
@@ -54,8 +53,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.DataSource
                 }
             };
             
-            var dataSourceFactory = new DataSourceFactory();
-            var serverInfo = dataSourceFactory.ConvertToServerinfoFormat(DataSourceType.Kusto, diagnosticsInfo);
+            var serverInfo = DataSourceFactory.ConvertToServerInfoFormat(DataSourceType.Kusto, diagnosticsInfo);
 
             Assert.IsNotNull(serverInfo.Options);
             Assert.AreEqual(diagnosticsInfo.Options["Key"], serverInfo.Options["Key"]);

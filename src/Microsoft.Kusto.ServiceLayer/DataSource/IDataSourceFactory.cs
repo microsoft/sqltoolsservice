@@ -11,6 +11,5 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         IDataSource Create(DataSourceType dataSourceType, string connectionString, string azureAccountToken);
         CompletionItem[] GetDefaultAutoComplete(DataSourceType dataSourceType, ScriptDocumentInfo scriptDocumentInfo, Position textDocumentPosition);
         ScriptFileMarker[] GetDefaultSemanticMarkers(DataSourceType dataSourceType, ScriptParseInfo parseInfo, ScriptFile scriptFile, string queryText);
-        ReliableConnectionHelper.ServerInfo ConvertToServerinfoFormat(DataSourceType dataSourceType, DiagnosticsInfo clusterDiagnostics);
     }
 }
