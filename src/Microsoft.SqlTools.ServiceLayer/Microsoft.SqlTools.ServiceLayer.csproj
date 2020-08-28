@@ -27,7 +27,15 @@
 
 	<ItemGroup>
 		<Reference Include="Microsoft.SqlServer.Assessment, Version=1.100.0.0, PublicKeyToken=89845dcd8080cc91">
-			<HintPath>..\..\bin\ref\Microsoft.SqlServer.Assessment.dll</HintPath>
+			<HintPath>..\..\bin\ref\migration\Microsoft.SqlServer.Assessment.dll</HintPath>
+			<SpecificVersion>True</SpecificVersion>
+		</Reference>
+		<Reference Include="Microsoft.SqlServer.Migration.Assessment, Version=0.0.0.0, PublicKeyToken=15194179b10d770a">
+			<HintPath>..\..\bin\ref\migration\Microsoft.SqlServer.Migration.Assessment.dll</HintPath>
+			<SpecificVersion>True</SpecificVersion>
+		</Reference>
+		<Reference Include="Microsoft.SqlServer.Migration.SkuRecommendation, Version=0.0.0.0">
+			<HintPath>..\..\bin\ref\migration\Microsoft.SqlServer.Migration.SkuRecommendation.dll</HintPath>
 			<SpecificVersion>True</SpecificVersion>
 		</Reference>
 	</ItemGroup>

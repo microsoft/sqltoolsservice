@@ -8,10 +8,12 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Management.Assessment;
 using Microsoft.SqlServer.Management.Assessment.Checks;
 using Microsoft.SqlServer.Management.Assessment.Configuration;
 using Microsoft.SqlServer.Management.Assessment.Logics;
+using Microsoft.SqlServer.Migration.Assessment.Common.Engine;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
@@ -20,6 +22,8 @@ using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Migration.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlAssessment;
 using Microsoft.SqlTools.ServiceLayer.SqlAssessment.Contracts;
+
+using Microsoft.SqlServer.Migration.SkuRecommendation;
 
 namespace Microsoft.SqlTools.ServiceLayer.Migration
 {
@@ -141,11 +145,49 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 var connection = await ConnectionService.Instance.GetOrOpenConnection(randomUri, ConnectionType.Default);
 
 
+                tt();
+
+
             }
             finally
             {
                 ConnectionService.Disconnect(new DisconnectParams { OwnerUri = randomUri, Type = null });
             }
+        }
+
+        internal void tt()
+        {
+            var t = GetAssessmentItems();
+            t.Wait();
+            var results = t.Result;
+            results = null;
+        }
+
+        internal async Task<List<IAssessmentResult>> GetAssessmentItems()
+        {
+            DbConnection conn = null;
+            string connString = "Data Source=192.168.0.75;Initial Catalog=AdventureWorks2016CTP3;Integrated Security=True;Pooling=False;Application Name=sqlops-connection-string"; ;
+            conn = new SqlConnection(connString);
+            conn.Open();
+
+            var server = new SqlObjectLocator
+            {
+                Connection = conn,
+                EngineEdition = SqlEngineEdition.Enterprise,
+                Name = "AdventureWorks2016CTP3",
+                ServerName = "ADSDC",
+                Type = SqlObjectType.Database,
+                Urn = "ADSDC:AdventureWorks2016CTP3",
+                Version = Version.Parse("15.0.2000.5"),
+                Platform = "Windows"
+            };
+
+            DmaEngine engine = new DmaEngine();
+            var results = await engine.GetTargetAssessmentResultsList(server);
+
+            SkuRecommendationServiceProvider skuRecommendation = new SkuRecommendationServiceProvider();
+            var recommendations = skuRecommendation.GetSkuRecommendation("ADSSQL", "Default", null);
+            return results;
         }
 
         /// <summary>
