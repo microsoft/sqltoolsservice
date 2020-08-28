@@ -95,21 +95,26 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlAssessment
                 @"IF (NOT EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND  TABLE_NAME = 'AssessmentResult'))
 BEGIN
     CREATE TABLE [dbo].[AssessmentResult](
-    [CheckName] [nvarchar](max) NOT NULL,
-    [CheckId] [nvarchar](max) NOT NULL,
-    [RulesetName] [nvarchar](max) NOT NULL,
-    [RulesetVersion] [nvarchar](max) NOT NULL,
-    [Severity] [nvarchar](max) NOT NULL,
-    [Message] [nvarchar](max) NOT NULL,
-    [TargetPath] [nvarchar](max) NOT NULL,
-    [TargetType] [nvarchar](max) NOT NULL,
-    [HelpLink] [nvarchar](max) NOT NULL,
-    [Timestamp] [datetimeoffset](7) NOT NULL
+    [CheckName] [nvarchar](max),
+    [CheckId] [nvarchar](max),
+    [RulesetName] [nvarchar](max),
+    [RulesetVersion] [nvarchar](max),
+    [Severity] [nvarchar](max),
+    [Message] [nvarchar](max),
+    [TargetPath] [nvarchar](max),
+    [TargetType] [nvarchar](max),
+    [HelpLink] [nvarchar](max),
+    [Timestamp] [datetimeoffset](7)
     )
 END
 GO
 INSERT INTO [dbo].[AssessmentResult] ([CheckName],[CheckId],[RulesetName],[RulesetVersion],[Severity],[Message],[TargetPath],[TargetType],[HelpLink],[Timestamp])
-VALUES";
+    SELECT rpt.[CheckName],rpt.[CheckId],rpt.[RulesetName],rpt.[RulesetVersion],rpt.[Severity],rpt.[Message],rpt.[TargetPath],rpt.[TargetType],rpt.[HelpLink],rpt.[Timestamp]
+    FROM (VALUES ";
+
+        const string scriptEpilogue = 
+        @"
+    ) rpt([CheckName],[CheckId],[RulesetName],[RulesetVersion],[Severity],[Message],[TargetPath],[TargetType],[HelpLink],[Timestamp])";
 
             var sb = new StringBuilder();
             if (generateScriptParams.Items != null)
@@ -122,11 +127,14 @@ VALUES";
                     if (item.Kind == AssessmentResultItemKind.Note)
                     {
                         sb.Append(
-                            $"\r\n('{CUtils.EscapeStringSQuote(item.DisplayName)}','{CUtils.EscapeStringSQuote(item.CheckId)}','{CUtils.EscapeStringSQuote(item.RulesetName)}','{item.RulesetVersion}','{item.Level}','{CUtils.EscapeStringSQuote(item.Message)}','{CUtils.EscapeStringSQuote(item.TargetName)}','{item.TargetType}','{CUtils.EscapeStringSQuote(item.HelpLink)}','{item.Timestamp:yyyy-MM-dd hh:mm:ss.fff zzz}'),");
+                            $@"
+        ('{CUtils.EscapeStringSQuote(item.DisplayName)}','{CUtils.EscapeStringSQuote(item.CheckId)}','{CUtils.EscapeStringSQuote(item.RulesetName)}','{item.RulesetVersion}','{item.Level}','{CUtils.EscapeStringSQuote(item.Message)}','{CUtils.EscapeStringSQuote(item.TargetName)}','{item.TargetType}','{CUtils.EscapeStringSQuote(item.HelpLink)}','{item.Timestamp:yyyy-MM-dd hh:mm:ss.fff zzz}'),");
                     }
                 }
 
                 sb.Length -= 1;
+
+                sb.Append(scriptEpilogue);
             }
 
             return sb.ToString();
