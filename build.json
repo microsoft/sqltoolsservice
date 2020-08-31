@@ -10,15 +10,19 @@
   "TestProjects": {
     "Microsoft.SqlTools.ServiceLayer.UnitTests": [
       "netcoreapp3.1"
-   ]
+    ],
+    "Microsoft.Kusto.ServiceLayer.UnitTests": [
+      "netcoreapp3.1"
+    ]
   },
-  "Frameworks": [  
+  "Frameworks": [
     "netcoreapp3.1"
   ],
-  "MainProjects": [     
+  "MainProjects": [
     "Microsoft.SqlTools.Credentials",
     "Microsoft.SqlTools.ResourceProvider",
-    "Microsoft.SqlTools.ServiceLayer"
+    "Microsoft.SqlTools.ServiceLayer",
+    "Microsoft.Kusto.ServiceLayer"
   ],
   "PackageProjects": [
     "Microsoft.SqlTools.CoreServices",

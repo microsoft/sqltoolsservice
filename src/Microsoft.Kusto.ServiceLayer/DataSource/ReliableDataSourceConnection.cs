@@ -43,6 +43,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
         private readonly string _connectionString;
         private readonly string _azureAccountToken;
+        private readonly IDataSourceFactory _dataSourceFactory;
 
         /// <summary>
         /// Initializes a new instance of the ReliableKustoClient class with a given connection string
@@ -52,11 +53,15 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <param name="connectionString">The connection string used to open the SQL Azure database.</param>
         /// <param name="connectionRetryPolicy">The retry policy defining whether to retry a request if a connection fails to be established.</param>
         /// <param name="commandRetryPolicy">The retry policy defining whether to retry a request if a command fails to be executed.</param>
-        public ReliableDataSourceConnection(string connectionString, RetryPolicy connectionRetryPolicy, RetryPolicy commandRetryPolicy, string azureAccountToken)
+        /// <param name="azureAccountToken"></param>
+        /// <param name="dataSourceFactory"></param>
+        public ReliableDataSourceConnection(string connectionString, RetryPolicy connectionRetryPolicy,
+            RetryPolicy commandRetryPolicy, string azureAccountToken, IDataSourceFactory dataSourceFactory)
         {
             _connectionString = connectionString;
             _azureAccountToken = azureAccountToken;
-            _dataSource = DataSourceFactory.Create(DataSourceType.Kusto, connectionString, azureAccountToken);
+            _dataSourceFactory = dataSourceFactory;
+            _dataSource = dataSourceFactory.Create(DataSourceType.Kusto, connectionString, azureAccountToken);
             
             _connectionRetryPolicy = connectionRetryPolicy ?? RetryPolicyFactory.CreateNoRetryPolicy();
             _commandRetryPolicy = commandRetryPolicy ?? RetryPolicyFactory.CreateNoRetryPolicy();
@@ -112,42 +117,45 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// </summary>
         public string ConnectionString { get; set; }
         
-        /// <summary>
-        /// Gets the policy which decides whether to retry a connection request, based on how many
-        /// times the request has been made and the reason for the last failure. 
+        /// <summary>	
+        /// Gets the policy which decides whether to retry a connection request, based on how many	
+        /// times the request has been made and the reason for the last failure. 	
         /// </summary>
+        // ReSharper disable once UnusedMember.Global
         public RetryPolicy ConnectionRetryPolicy
-        {
-            get { return _connectionRetryPolicy; }
-        }
+        {	
+            get { return _connectionRetryPolicy; }	
+        }	
 
-        /// <summary>
-        /// Gets the policy which decides whether to retry a command, based on how many
-        /// times the request has been made and the reason for the last failure. 
+        /// <summary>	
+        /// Gets the policy which decides whether to retry a command, based on how many	
+        /// times the request has been made and the reason for the last failure. 	
         /// </summary>
-        public RetryPolicy CommandRetryPolicy
-        {
-            get { return _commandRetryPolicy; }
-            set
-            {
-                Validate.IsNotNull(nameof(value), value);
+        // ReSharper disable once UnusedMember.Global
+        public RetryPolicy CommandRetryPolicy	
+        {	
+            get { return _commandRetryPolicy; }	
+            set	
+            {	
+                Validate.IsNotNull(nameof(value), value);	
 
-                if (_commandRetryPolicy != null)
-                {
-                    _commandRetryPolicy.RetryOccurred -= RetryCommandCallback;
-                }
+                if (_commandRetryPolicy != null)	
+                {	
+                    _commandRetryPolicy.RetryOccurred -= RetryCommandCallback;	
+                }	
 
-                _commandRetryPolicy = value;
-                _commandRetryPolicy.RetryOccurred += RetryCommandCallback;
-            }
-        }
+                _commandRetryPolicy = value;	
+                _commandRetryPolicy.RetryOccurred += RetryCommandCallback;	
+            }	
+        }	
 
-        /// <summary>
-        /// Gets the server name from the underlying connection.
-        /// </summary>
-        public string ClusterName
-        {
-            get { return _dataSource.ClusterName; }
+        /// <summary>	
+        /// Gets the server name from the underlying connection.	
+        /// </summary>	
+        // ReSharper disable once UnusedMember.Global
+        public string ClusterName	
+        {	
+            get { return _dataSource.ClusterName; }	
         }
 
         /// <summary>
@@ -182,7 +190,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             {
                 _connectionRetryPolicy.ExecuteAction(() =>
                 {
-                    _dataSource = DataSourceFactory.Create(DataSourceType.Kusto, _connectionString, _azureAccountToken);
+                    _dataSource = _dataSourceFactory.Create(DataSourceType.Kusto, _connectionString, _azureAccountToken);
                 });
             }
         }
@@ -219,14 +227,15 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         public void Close()
         {
         }
-
-        /// <summary>
-        /// Gets the time to wait while trying to establish a connection before terminating
-        /// the attempt and generating an error.
-        /// </summary>
+        
+        /// <summary>	
+        /// Gets the time to wait while trying to establish a connection before terminating	
+        /// the attempt and generating an error.	
+        /// </summary>	
+        // ReSharper disable once UnusedMember.Global
         public int ConnectionTimeout
-        {
-            get { return 30; }
+        {	
+            get { return 30; }	
         }
 
         /// <summary>
@@ -236,14 +245,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         public string Database
         {
             get { return _dataSource.DatabaseName; }
-        }
-
-        private void VerifyConnectionOpen(ReliableDataSourceConnection conn)
-        {
-            if(conn.GetUnderlyingConnection() == null)
-            {
-                conn.Open();
-            }
         }
     }
 }

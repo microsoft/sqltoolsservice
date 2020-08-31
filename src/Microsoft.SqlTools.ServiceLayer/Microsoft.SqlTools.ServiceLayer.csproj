@@ -33,6 +33,7 @@
 		<ProjectReference Include="../Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
 		<ProjectReference Include="../Microsoft.SqlTools.Credentials/Microsoft.SqlTools.Credentials.csproj" />
 		<ProjectReference Include="../Microsoft.SqlTools.ManagedBatchParser/Microsoft.SqlTools.ManagedBatchParser.csproj" />
+		<ProjectReference Include="../Microsoft.Kusto.ServiceLayer/Microsoft.Kusto.ServiceLayer.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<Content Include="$(PkgMicrosoft_SqlServer_DacFx)\lib\netstandard2.0\Microsoft.Data.Tools.Schema.SqlTasks.targets">
@@ -48,20 +49,10 @@
 	<!-- this target enables dependency files to be copied as part of the output of ProjectReference.
 	https://github.com/dotnet/sdk/issues/1675
 	 -->
-	<Target Name="AddRuntimeDependenciesToContent"
-		  Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp'"
-		  BeforeTargets="GetCopyToOutputDirectoryItems"
-		  DependsOnTargets="GenerateBuildDependencyFile;
-							GenerateBuildRuntimeConfigurationFiles">
+	<Target Name="AddRuntimeDependenciesToContent" Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp'" BeforeTargets="GetCopyToOutputDirectoryItems" DependsOnTargets="GenerateBuildDependencyFile;&#xD;&#xA;							GenerateBuildRuntimeConfigurationFiles">
 		<ItemGroup>
-			<ContentWithTargetPath Include="$(ProjectDepsFilePath)"
-							Condition="'$(GenerateDependencyFile)' == 'true'"
-							CopyToOutputDirectory="PreserveNewest"
-							TargetPath="$(ProjectDepsFileName)" />
-			<ContentWithTargetPath Include="$(ProjectRuntimeConfigFilePath)"
-							Condition="'$(GenerateRuntimeConfigurationFiles)' == 'true'"
-							CopyToOutputDirectory="PreserveNewest"
-							TargetPath="$(ProjectRuntimeConfigFileName)" />
+			<ContentWithTargetPath Include="$(ProjectDepsFilePath)" Condition="'$(GenerateDependencyFile)' == 'true'" CopyToOutputDirectory="PreserveNewest" TargetPath="$(ProjectDepsFileName)" />
+			<ContentWithTargetPath Include="$(ProjectRuntimeConfigFilePath)" Condition="'$(GenerateRuntimeConfigurationFiles)' == 'true'" CopyToOutputDirectory="PreserveNewest" TargetPath="$(ProjectRuntimeConfigFileName)" />
 		</ItemGroup>
 	</Target>
 </Project>

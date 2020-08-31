@@ -99,14 +99,6 @@ namespace Microsoft.Kusto.ServiceLayer.Workspace.Contracts
         #region Constructors
 
         /// <summary>
-        /// Add a default constructor for testing
-        /// </summary>
-        public ScriptFile()
-        {
-            ClientUri = "test.sql";
-        }
-
-        /// <summary>
         /// Creates a new ScriptFile instance by reading file contents from
         /// the given TextReader.
         /// </summary>
