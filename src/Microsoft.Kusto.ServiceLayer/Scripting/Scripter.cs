@@ -32,5 +32,11 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
             var functionName = scriptingObject.Name.Substring(0, scriptingObject.Name.IndexOf('('));
             return dataSource.GenerateAlterFunctionScript(functionName);
         }
+        
+        public string ExecuteFunction(IDataSource dataSource, ScriptingObject scriptingObject)
+        {
+            var functionName = scriptingObject.Name.Substring(0, scriptingObject.Name.IndexOf('('));
+            return dataSource.GenerateExecuteFunctionScript(functionName);
+        }
     }
 }

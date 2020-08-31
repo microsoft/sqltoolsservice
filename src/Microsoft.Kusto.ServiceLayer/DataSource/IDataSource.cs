@@ -123,10 +123,17 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         bool Exists(DataSourceObjectMetadata objectMetadata);
 
         /// <summary>
-        /// Gets FunctionInfo object for a function
+        /// Generates an alter script for a function
         /// </summary>
         /// <param name="functionName"></param>
         /// <returns></returns>
         string GenerateAlterFunctionScript(string functionName);
+
+        /// <summary>
+        /// Generates an execute script for a function
+        /// </summary>
+        /// <param name="functionName"></param>
+        /// <returns></returns>
+        string GenerateExecuteFunctionScript(string functionName);
     }
 }
