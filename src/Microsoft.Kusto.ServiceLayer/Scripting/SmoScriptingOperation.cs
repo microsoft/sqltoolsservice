@@ -3,8 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlServer.Management.Common;
-using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.Scripting.Contracts;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.SqlTools.Utility;
@@ -22,10 +20,12 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
     /// </summary>
     public abstract class SmoScriptingOperation : ScriptingOperation
     {
+        protected readonly IDataSourceFactory _dataSourceFactory;
         private bool _disposed;
 
-        public SmoScriptingOperation(ScriptingParams parameters)
+        protected SmoScriptingOperation(ScriptingParams parameters, IDataSourceFactory dataSourceFactory)
         {
+            _dataSourceFactory = dataSourceFactory;
             Validate.IsNotNull("parameters", parameters);
 
             this.Parameters = parameters;
@@ -77,7 +77,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         {
             string serverName = string.Empty;
             
-            using(var dataSource = DataSourceFactory.Create(DataSourceType.Kusto, connectionString, azureAccessToken))
+            using(var dataSource = _dataSourceFactory.Create(DataSourceType.Kusto, connectionString, azureAccessToken))
             {
                 serverName = dataSource.ClusterName;
             }

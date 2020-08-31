@@ -209,7 +209,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// <param name="context"></param>
         /// <param name="dataSourceFactory"></param>
         /// <param name="connectedBindingQueue"></param>
-        public void InitializeService(ServiceHost serviceHost, IConnectedBindingQueue connectedBindingQueue)
+        public void InitializeService(ServiceHost serviceHost, IConnectedBindingQueue connectedBindingQueue, IDataSourceFactory dataSourceFactory)
         {
             _bindingQueue = connectedBindingQueue;
             // Register the requests that this service will handle
@@ -854,7 +854,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
             if (scriptParseInfo == null)
             {
                 var scriptDocInfo = ScriptDocumentInfo.CreateDefaultDocumentInfo(textDocumentPosition, scriptFile);
-                resultCompletionItems = resultCompletionItems = DataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocInfo, textDocumentPosition.Position);       //TODO_KUSTO: DataSourceFactory.GetDefaultAutoComplete 1st param should get the datasource type generically instead of hard coded DataSourceType.Kusto
+                resultCompletionItems = DataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocInfo, textDocumentPosition.Position);       //TODO_KUSTO: DataSourceFactory.GetDefaultAutoComplete 1st param should get the datasource type generically instead of hard coded DataSourceType.Kusto
                 return resultCompletionItems;
             }
 

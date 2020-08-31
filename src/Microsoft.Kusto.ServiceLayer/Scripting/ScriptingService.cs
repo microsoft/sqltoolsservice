@@ -36,6 +36,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         private bool disposed;
         
         private IScripter _scripter;
+        private IDataSourceFactory _dataSourceFactory;
 
         /// <summary>
         /// Internal for testing purposes only
@@ -66,9 +67,10 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         /// </summary>
         /// <param name="serviceHost"></param>
         /// <param name="context"></param>
-        public void InitializeService(ServiceHost serviceHost, IScripter scripter)
+        public void InitializeService(ServiceHost serviceHost, IScripter scripter, IDataSourceFactory dataSourceFactory)
         {
             _scripter = scripter;
+            _dataSourceFactory = dataSourceFactory;
             serviceHost.SetRequestHandler(ScriptingRequest.Type, this.HandleScriptExecuteRequest);
             serviceHost.SetRequestHandler(ScriptingCancelRequest.Type, this.HandleScriptCancelRequest);
             serviceHost.SetRequestHandler(ScriptingListObjectsRequest.Type, this.HandleListObjectsRequest);
@@ -131,11 +133,11 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
 
                 if (!ShouldCreateScriptAsOperation(parameters))
                 {
-                    operation = new ScriptingScriptOperation(parameters, accessToken);
+                    operation = new ScriptingScriptOperation(parameters, accessToken, _dataSourceFactory);
                 }
                 else
                 {
-                    operation = new ScriptAsScriptingOperation(parameters, accessToken, _scripter);
+                    operation = new ScriptAsScriptingOperation(parameters, accessToken, _scripter, _dataSourceFactory);
                 }
 
                 operation.PlanNotification += (sender, e) => requestContext.SendEvent(ScriptingPlanNotificationEvent.Type, e).Wait();
