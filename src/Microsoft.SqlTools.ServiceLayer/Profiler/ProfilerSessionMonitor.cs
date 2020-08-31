@@ -247,7 +247,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     }
                     if (session.Completed)
                     {
-                        SendStoppedSessionInfoToListeners(session.XEventSession.Id, session.Error.Message);
+                        SendStoppedSessionInfoToListeners(session.XEventSession.Id, session.Error?.Message);
                         RemoveSession(session.XEventSession.Id, out ProfilerSession tempSession);
                         tempSession.Dispose();
                     }
