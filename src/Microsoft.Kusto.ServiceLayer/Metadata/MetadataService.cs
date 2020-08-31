@@ -24,35 +24,18 @@ namespace Microsoft.Kusto.ServiceLayer.Metadata
 
         public static MetadataService Instance => LazyInstance.Value;
 
-        private static ConnectionService connectionService = null;
-
-        /// <summary>
-        /// Internal for testing purposes only
-        /// </summary>
-        internal static ConnectionService ConnectionServiceInstance
-        {
-            get
-            {
-                if (connectionService == null)
-                {
-                    connectionService = ConnectionService.Instance;
-                }
-                return connectionService;
-            }
-
-            set
-            {
-                connectionService = value;
-            }
-        }
+        private static ConnectionService _connectionService;
+        
+        internal Task MetadataListTask { get; private set; }
 
         /// <summary>
         /// Initializes the Metadata Service instance
         /// </summary>
         /// <param name="serviceHost"></param>
-        /// <param name="metadataFactory"></param>
-        public void InitializeService(IProtocolEndpoint serviceHost)
+        /// <param name="connectionService"></param>
+        public void InitializeService(IProtocolEndpoint serviceHost, ConnectionService connectionService)
         {
+            _connectionService = connectionService;
             serviceHost.SetRequestHandler(MetadataListRequest.Type, HandleMetadataListRequest);
         }
 
@@ -68,7 +51,7 @@ namespace Microsoft.Kusto.ServiceLayer.Metadata
                 Func<Task> requestHandler = async () =>
                 {
                     ConnectionInfo connInfo;
-                    MetadataService.ConnectionServiceInstance.TryFindConnection(metadataParams.OwnerUri, out connInfo);
+                    _connectionService.TryFindConnection(metadataParams.OwnerUri, out connInfo);
 
                     var metadata = new List<ObjectMetadata>();
                     if (connInfo != null)
@@ -102,6 +85,6 @@ namespace Microsoft.Kusto.ServiceLayer.Metadata
             }
         }
 
-        internal Task MetadataListTask { get; set; }
+        
     }
 }
