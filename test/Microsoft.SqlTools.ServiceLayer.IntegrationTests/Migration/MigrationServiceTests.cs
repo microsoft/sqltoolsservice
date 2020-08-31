@@ -16,27 +16,7 @@ using NUnit.Framework;
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Migration
 {
     public class MigrationgentServiceTests
-    {     
-        [Test]
-        public async Task TestHandleMigrationSkuRecommendationsRequest()
-        {
-            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            {
-                var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
-
-                var requestParams = new MigrationSkuRecommendationsParams()
-                {
-                    OwnerUri = connectionResult.ConnectionInfo.OwnerUri
-                };
-
-                var requestContext = new Mock<RequestContext<MigrationSkuRecommendationsResult>>();
-
-                MigrationService service = new MigrationService();
-                await service.HandleMigrationSkuRecommendations(requestParams, requestContext.Object);
-                requestContext.VerifyAll();
-            }     
-        }
-  
+    {
         [Test]
         public async Task TestHandleMigrationAssessmentRequest()
         {

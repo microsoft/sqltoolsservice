@@ -29,6 +29,7 @@ using Microsoft.SqlTools.ServiceLayer.Security;
 using Microsoft.SqlTools.ServiceLayer.SqlAssessment;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.ServiceLayer.Migration;
 
 namespace Microsoft.SqlTools.ServiceLayer
 {
@@ -136,6 +137,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
             NotebookConvertService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(NotebookConvertService.Instance);
+
+            MigrationService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(MigrationService.Instance);
 
             InitializeHostedServices(serviceProvider, serviceHost);
             serviceHost.ServiceProvider = serviceProvider;
