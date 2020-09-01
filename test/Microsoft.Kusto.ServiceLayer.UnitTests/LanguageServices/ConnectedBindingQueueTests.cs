@@ -88,47 +88,39 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.LanguageServices
             
             Assert.AreEqual("NULL_NULL_NULL_NULL", connectionKey);
         }
-        
+
         [TestCase(false)]
-        [TestCase(true)]
         public void AddConnectionContext_Sets_BindingContext(bool needsMetadata)
         {
             var connectionDetails = new ConnectionDetails();
             var connectionFactory = new Mock<IDataSourceConnectionFactory>();
             var connectionInfo = new ConnectionInfo(connectionFactory.Object, "ownerUri", connectionDetails);
-            
+
             var connectionOpenerMock = new Mock<ISqlConnectionOpener>();
             var fakeServerConnection = new ServerConnection();
             connectionOpenerMock
                 .Setup(x => x.OpenServerConnection(It.IsAny<ConnectionInfo>(), It.IsAny<string>()))
                 .Returns(fakeServerConnection);
-            
+
             var dataSourceFactory = new Mock<IDataSourceFactory>();
             var dataSourceMock = new Mock<IDataSource>();
             dataSourceFactory
                 .Setup(x => x.Create(It.IsAny<DataSourceType>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(dataSourceMock.Object);
-            
-            var connectedBindingQueue = new ConnectedBindingQueue(connectionOpenerMock.Object, dataSourceFactory.Object);
-            var connectionKey = connectedBindingQueue.AddConnectionContext(connectionInfo, needsMetadata, "featureName");
+
+            var connectedBindingQueue =
+                new ConnectedBindingQueue(connectionOpenerMock.Object, dataSourceFactory.Object);
+            var connectionKey =
+                connectedBindingQueue.AddConnectionContext(connectionInfo, needsMetadata, "featureName");
             var bindingContext = connectedBindingQueue.GetOrCreateBindingContext(connectionKey);
-            
+
             Assert.AreEqual(fakeServerConnection, bindingContext.ServerConnection);
             Assert.AreEqual(dataSourceMock.Object, bindingContext.DataSource);
             Assert.AreEqual(500, bindingContext.BindingTimeout);
             Assert.AreEqual(true, bindingContext.IsConnected);
             Assert.AreEqual(CasingStyle.Uppercase, bindingContext.MetadataDisplayInfoProvider.BuiltInCasing);
-            
-            if (needsMetadata)
-            {
-                Assert.IsNotNull(bindingContext.SmoMetadataProvider);
-                Assert.IsNotNull(bindingContext.Binder);
-            }
-            else
-            {
-                Assert.IsNull(bindingContext.SmoMetadataProvider);
-                Assert.IsNull(bindingContext.Binder);
-            }
+            Assert.IsNull(bindingContext.SmoMetadataProvider);
+            Assert.IsNull(bindingContext.Binder);
         }
 
         [Test]
