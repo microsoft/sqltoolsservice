@@ -177,8 +177,9 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                     bindingContext.BindingTimeout = ConnectedBindingQueue.DefaultBindingTimeout;
                     bindingContext.IsConnected = true;
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    throw;
                     bindingContext.IsConnected = false;
                 }       
                 finally
