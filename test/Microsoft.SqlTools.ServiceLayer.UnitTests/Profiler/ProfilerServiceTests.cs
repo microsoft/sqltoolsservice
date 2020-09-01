@@ -329,7 +329,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         }
 
         [Test]
-        public async Task ProfilerServer_includes_ErrorMessage_in_session_stop_notification()
+        public async Task ProfilerService_includes_ErrorMessage_in_session_stop_notification()
         {
             var param = new StartProfilingParams() { OwnerUri = "someUri", SessionName = "someSession" };
             var mockSession = new Mock<IXEventSession>();
@@ -356,8 +356,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             var listener = new TestSessionListener();
             profilerService.SessionMonitor.AddSessionListener(listener);
             await profilerService.HandleStartProfilingRequest(param, requestContext.Object);
-
-            Assert.That(listener.ErrorMessages, Is.EqualTo(new[] { "test!" }), "listener.ErrorMessages");
+            var retries = 10;
+            while (retries-- > 0 && !listener.StoppedSessions.Any())
+            {
+                Thread.Sleep(100);
+            }
+            Assert.Multiple(() =>
+            {
+                Assert.That(listener.ErrorMessages, Is.EqualTo(new[] { "test!" }), "listener.ErrorMessages");
+                Assert.That(listener.StoppedSessions, Has.Member("someUri"), "listener.StoppedSessions");
+            });
+            sessionFactory.Verify();
         }
     }
 }

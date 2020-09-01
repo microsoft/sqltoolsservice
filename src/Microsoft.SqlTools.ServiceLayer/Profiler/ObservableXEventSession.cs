@@ -47,7 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
     /// </summary>
     public class XeStreamObservable : IObservable<ProfilerEvent>
     {
-        private readonly object syncobj = new object();
+        private readonly object syncObj = new object();
         private readonly List<IObserver<ProfilerEvent>> observers = new List<IObserver<ProfilerEvent>>();
         private CancellationTokenSource cancellationTokenSource;
         private readonly IXEventFetcher xeventFetcher;
@@ -80,7 +80,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             cancellationTokenSource.Cancel();
             var currentObservers = CurrentObservers;
             currentObservers.ForEach(o => o.OnCompleted());
-            lock (syncobj)
+            lock (syncObj)
             {
                 currentObservers.ForEach(o => observers.Remove(o));
             }
@@ -93,7 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// <returns>An IDisposable for the listener to call when it no longer wishes to receive events</returns>
         public IDisposable Subscribe(IObserver<ProfilerEvent> observer)
         {
-            lock (syncobj)
+            lock (syncObj)
             {
                 if (!observers.Contains(observer))
                 {
@@ -107,7 +107,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         {
             get
             {
-                lock (syncobj)
+                lock (syncObj)
                 {
                     return new List<IObserver<ProfilerEvent>>(observers);
                 }
