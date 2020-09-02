@@ -509,11 +509,16 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             return markers.ToArray();
         }
 
-        /// <inheritdoc/>
-        public override void Refresh()
+        /// <summary>
+        /// Clears everything
+        /// </summary>
+        private void RefreshAll(bool includeDatabase)
         {
             // This class caches objects. Throw them away so that the next call will re-query the data source for the objects.
-            _databaseMetadata = null;
+            if (includeDatabase)
+            {
+                _databaseMetadata = null;
+            }
             _tableMetadata = new ConcurrentDictionary<string, IEnumerable<TableMetadata>>();
             _columnMetadata  = new ConcurrentDictionary<string, IEnumerable<DataSourceObjectMetadata>>();
             _folderMetadata = new ConcurrentDictionary<string, IEnumerable<FolderMetadata>>();
@@ -528,49 +533,41 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             switch(objectMetadata.MetadataType)
             {
                 case DataSourceMetadataType.Cluster:
-                    Refresh();
+                    RefreshAll(true);
                     break;
-
+                
                 case DataSourceMetadataType.Database:
-                    _tableMetadata.TryRemove(objectMetadata.Name, out _);
+                    RefreshAll(false);
                     break;
 
                 case DataSourceMetadataType.Table:
-                    var tm = objectMetadata as TableMetadata;
-                    _columnMetadata.TryRemove(GenerateMetadataKey(tm.DatabaseName, tm.Name), out _);
+                    var table = objectMetadata as TableMetadata;
+                    _columnMetadata.TryRemove(GenerateMetadataKey(table.DatabaseName, table.Name), out _);
+                    GetTableSchema(table);
                     break;
 
-                case DataSourceMetadataType.Column:
-                    // Remove column metadata for the whole table
-                    var cm = objectMetadata as ColumnMetadata;
-                    _columnMetadata.TryRemove(GenerateMetadataKey(cm.DatabaseName, cm.TableName), out _);
-                    break;
-                
-                case DataSourceMetadataType.Function:
-                    var fm = objectMetadata as FunctionMetadata;
-                    _functionMetadata.TryRemove(GenerateMetadataKey(fm.DatabaseName, fm.Name), out _);
-                    break;
-                
                 case DataSourceMetadataType.Folder:
+                    RefreshAll(false);
                     var folder = objectMetadata as FolderMetadata;
-                    _folderMetadata.TryRemove(GenerateMetadataKey(folder.ParentMetadata.Name, folder.Name), out _);
+                    GetDatabaseSchema(folder.DatabaseMetadata);
                     break;
-
+                
                 default:
                     throw new ArgumentException($"Unexpected type {objectMetadata.MetadataType}.");
             }
         }
 
         /// <inheritdoc/>
-        public override IEnumerable<DataSourceObjectMetadata> GetChildObjects(DataSourceObjectMetadata objectMetadata, bool includeSizeDetails)
+        public override IEnumerable<DataSourceObjectMetadata> GetChildObjects(DataSourceObjectMetadata objectMetadata,
+            bool includeSizeDetails = false)
         {
             ValidationUtils.IsNotNull(objectMetadata, nameof(objectMetadata));
 
-            switch(objectMetadata.MetadataType)
+            switch (objectMetadata.MetadataType)
             {
                 case DataSourceMetadataType.Cluster: // show databases
                     return GetDatabaseMetadata(includeSizeDetails);
-                    
+
                 case DataSourceMetadataType.Database: // show folders, tables, and functions
                     return includeSizeDetails
                         ? GetTablesForDashboard(objectMetadata)
@@ -589,7 +586,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             }
         }
 
-         public override DiagnosticsInfo GetDiagnostics(DataSourceObjectMetadata objectMetadata)
+        public override DiagnosticsInfo GetDiagnostics(DataSourceObjectMetadata objectMetadata)
         {
             ValidationUtils.IsNotNull(objectMetadata, nameof(objectMetadata));
 

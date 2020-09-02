@@ -78,9 +78,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         public abstract IEnumerable<DataSourceObjectMetadata> GetChildObjects(DataSourceObjectMetadata parentMetadata, bool includeSizeDetails = false);
 
         /// <inheritdoc/>
-        public abstract void Refresh();
-
-        /// <inheritdoc/>
         public abstract void Refresh(DataSourceObjectMetadata objectMetadata);
 
         /// <inheritdoc/>

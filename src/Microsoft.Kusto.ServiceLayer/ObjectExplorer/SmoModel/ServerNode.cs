@@ -47,7 +47,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
         /// <summary>
         /// Returns the label to display to the user.
         /// </summary>
-        internal string GetConnectionLabel()
+        private string GetConnectionLabel()
         {
             string userName = connectionSummary.UserName;
 
