@@ -420,7 +420,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlAssessment
         /// <param name="server">Target server locator.</param>
         /// <param name="databaseName">Target database name.</param>
         /// <returns>Returns a locator for target database.</returns>
-        private static SqlObjectLocator GetDatabaseLocator(SqlObjectLocator server, string databaseName)
+        internal static SqlObjectLocator GetDatabaseLocator(SqlObjectLocator server, string databaseName)
         {
             return new SqlObjectLocator
             {

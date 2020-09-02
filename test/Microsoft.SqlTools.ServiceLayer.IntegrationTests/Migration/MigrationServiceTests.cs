@@ -29,7 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Migration
                     OwnerUri = connectionResult.ConnectionInfo.OwnerUri
                 };
 
-                var requestContext = new Mock<RequestContext<AssessmentResult<CheckInfo>>>();
+                var requestContext = new Mock<RequestContext<MigrationAssessmentResult>>();
 
                 MigrationService service = new MigrationService();
                 await service.HandleMigrationAssessmentsRequest(requestParams, requestContext.Object);

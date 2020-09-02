@@ -8,8 +8,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Assessment;
+using Microsoft.SqlServer.Management.Assessment.Checks;
 using Microsoft.SqlServer.Migration.Assessment.Common.Contracts.Models;
 using Microsoft.SqlServer.Migration.Assessment.Common.Engine;
+using Microsoft.SqlServer.Migration.Assessment.Common.Models;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
@@ -132,12 +134,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                     Version = Version.Parse(serverInfo.ServerVersion),
                     Platform = hostInfo.Platform
                 };
+
+                var db = SqlAssessmentService.GetDatabaseLocator(server, connection.Database);
   
                 var results = await GetAssessmentItems(server);
                 var result = new MigrationAssessmentResult();
                 result.Items.AddRange(results);
                 await requestContext.SendResult(result);
-
             }
             finally
             {
@@ -145,12 +148,49 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             }
         }
 
+        
+        internal class AssessmentRequest : IAssessmentRequest
+        {
+            private readonly Check[] checks;
+
+            public AssessmentRequest(ISqlObjectLocator locator)
+            {
+                Target = locator ?? throw new ArgumentNullException(nameof(locator));
+            }
+
+            public EvaluationContext<object> EvaluationContext { get; }
+
+            public ISqlObjectLocator Target { get; }
+
+            public IEnumerable<Check> Checks
+            {
+                get
+                {
+                    return checks;
+                }
+            }
+
+            public bool TryGetData(string column, out object value)
+            {
+                return EvaluationContext.TryGetData(column, out value);
+            }
+        }
+
         internal async Task<List<MigrationAssessmentInfo>> GetAssessmentItems(SqlObjectLocator target)
         {
+            // var ruleset = DmaEngine.LoadMigrationAssessmentRuleset() as MigrationAssessmentRuleset;
+            // var request = new AssessmentRequest(target);
+            // List<IAssessmentResult> assessmentResults = new List<IAssessmentResult>();
+            // foreach (ICheck check in ruleset.Checks)
+            // {
+            //    assessmentResults.AddRange(await check.Logics.GetAssessmentResults(request, target.Connection, null));
+            // }
+
             DmaEngine engine = new DmaEngine();
-            var resultsList = await engine.GetTargetAssessmentResultsList(target);
+            var assessmentResults = await engine.GetTargetAssessmentResultsList(target);
+        
             var result = new List<MigrationAssessmentInfo>();
-            foreach (var r in resultsList)
+            foreach (var r in assessmentResults)
             {
                 var migrationResult = r as ISqlMigrationAssessmentResult;
                 if (migrationResult == null)
