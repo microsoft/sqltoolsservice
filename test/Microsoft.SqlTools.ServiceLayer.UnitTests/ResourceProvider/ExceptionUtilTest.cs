@@ -6,7 +6,7 @@ using System;
 using System.Data.Common;
 using Microsoft.SqlTools.ResourceProvider.Core;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
 {
@@ -15,34 +15,34 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
     /// </summary>
     public class ExceptionUtilTest
     {
-        [Fact]
+        [Test]
         public void IsSqlExceptionShouldReturnFalseGivenNullException()
         {
             Exception exception = null;
             bool expected = false;
             bool actual = exception.IsDbException();
-            Assert.Equal(expected, actual);
+            Assert.AreEqual(expected, actual);
         }
 
-        [Fact]
+        [Test]
         public void IsSqlExceptionShouldReturnFalseGivenNonSqlException()
         {
             Exception exception = new ApplicationException();
             bool expected = false;
             bool actual = exception.IsDbException();
-            Assert.Equal(expected, actual);
+            Assert.AreEqual(expected, actual);
         }
 
-        [Fact]
+        [Test]
         public void IsSqlExceptionShouldReturnFalseGivenNonSqlExceptionWithInternalException()
         {
             Exception exception = new ApplicationException("Exception message", new ServiceFailedException());
             bool expected = false;
             bool actual = exception.IsDbException();
-            Assert.Equal(expected, actual);
+            Assert.AreEqual(expected, actual);
         }
 
-        [Fact]
+        [Test]
         public void IsSqlExceptionShouldReturnTrueGivenSqlException()
         {
             Exception exception = CreateDbException();
@@ -50,10 +50,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
 
             bool expected = true;
             bool actual = exception.IsDbException();
-            Assert.Equal(expected, actual);
+            Assert.AreEqual(expected, actual);
         }
 
-        [Fact]
+        [Test]
         public void IsSqlExceptionShouldReturnTrueGivenExceptionWithInnerSqlException()
         {
             Exception exception = new ApplicationException("", CreateDbException());
@@ -61,7 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
 
             bool expected = true;
             bool actual = exception.IsDbException();
-            Assert.Equal(expected, actual);
+            Assert.AreEqual(expected, actual);
         }
 
         private Exception CreateDbException()

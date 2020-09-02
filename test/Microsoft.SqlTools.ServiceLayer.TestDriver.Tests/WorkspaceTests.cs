@@ -7,10 +7,11 @@ using System.IO;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 {
+    [TestFixture]
     /// <summary>
     /// Language Service end-to-end integration tests
     /// </summary>
@@ -19,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
         /// <summary>
         /// Validate workspace lifecycle events
         /// </summary>
-        [Fact]
+        [Test]
         public async Task InitializeRequestTest()
         {
             using (TestServiceDriverProvider testService = new TestServiceDriverProvider())

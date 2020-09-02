@@ -135,7 +135,10 @@ namespace Microsoft.SqlTools.ServiceLayer
             SqlAssessmentService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(SqlAssessmentService.Instance);
 
-            InsightsGeneratorService.Instance.InitializeService(serviceHost);
+            NotebookConvertService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(NotebookConvertService.Instance);
+
+			InsightsGeneratorService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(InsightsGeneratorService.Instance);
 
             InitializeHostedServices(serviceProvider, serviceHost);

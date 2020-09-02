@@ -8,6 +8,7 @@ using Microsoft.SqlTools.Hosting.Contracts;
 using Microsoft.SqlTools.Hosting.Contracts.Internal;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Newtonsoft.Json.Linq;
+using NUnit.Framework.Interfaces;
 
 namespace Microsoft.SqlTools.Hosting.UnitTests
 {
@@ -51,6 +52,15 @@ namespace Microsoft.SqlTools.Hosting.UnitTests
                        && Number == other.Number;
             }
 
+            public override bool Equals(object obj)
+            {
+                return Equals(obj as TestMessageContents);
+            }
+
+            public override int GetHashCode()
+            {
+                return SomeField.GetHashCode() ^ Number;
+            }
             public static bool operator ==(TestMessageContents obj1, TestMessageContents obj2)
             {
                 bool bothNull = ReferenceEquals(obj1, null) && ReferenceEquals(obj2, null);

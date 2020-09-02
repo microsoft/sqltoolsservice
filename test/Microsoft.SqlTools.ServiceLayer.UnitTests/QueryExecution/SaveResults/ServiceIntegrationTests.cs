@@ -17,7 +17,7 @@ using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
 {
@@ -25,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
     {
         #region CSV Tests
 
-        [Fact]
+        [Test]
         public async Task SaveResultsCsvNonExistentQuery()
         {
             // Given: A working query and workspace service
@@ -48,7 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             evf.Validate();
         }
 
-        [Fact]
+        [Test]
         public async Task SaveResultAsCsvFailure()
         {
             // Given: 
@@ -94,7 +94,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             efv.Validate();
         }
 
-        [Fact]
+        [Test]
         public async Task SaveResultsAsCsvSuccess()
         {
             // Given: 
@@ -139,7 +139,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
 
         #region JSON tests
 
-        [Fact]
+        [Test]
         public async Task SaveResultsJsonNonExistentQuery()
         {
             // Given: A working query and workspace service
@@ -162,7 +162,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             efv.Validate();
         }
 
-        [Fact]
+        [Test]
         public async Task SaveResultAsJsonFailure()
         {
             // Given: 
@@ -206,7 +206,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             efv.Validate();
         }
 
-        [Fact]
+        [Test]
         public async Task SaveResultsAsJsonSuccess()
         {
             // Given: 
@@ -250,7 +250,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
         
         #region XML tests
 
-        [Fact]
+        [Test]
         public async Task SaveResultsXmlNonExistentQuery()
         {
             // Given: A working query and workspace service
@@ -273,7 +273,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             efv.Validate();
         }
 
-        [Fact]
+        [Test]
         public async Task SaveResultAsXmlFailure()
         {
             // Given: 
@@ -317,7 +317,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             efv.Validate();
         }
 
-        [Fact]
+        [Test]
         public async Task SaveResultsAsXmlSuccess()
         {
             // Given: 
@@ -363,7 +363,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
         
         #region Excel Tests 
         
-        [Fact]
+        [Test]
         public async Task SaveResultsExcelNonExistentQuery()
         {
             // Given: A working query and workspace service
@@ -386,7 +386,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             efv.Validate();
         }
 
-        [Fact]
+        [Test]
         public async Task SaveResultAsExcelFailure()
         {
             // Given: 
@@ -430,7 +430,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             efv.Validate();
         }
 
-        [Fact]
+        [Test]
         public async Task SaveResultsAsExcelSuccess()
         {
             // Given: 

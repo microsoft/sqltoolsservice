@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using Microsoft.SqlTools.Credentials.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 {

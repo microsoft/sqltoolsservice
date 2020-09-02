@@ -17,7 +17,7 @@ using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Moq;
 using Moq.Protected;
-using Xunit;
+using NUnit.Framework;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
@@ -42,7 +42,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 
         ConnectedBindingQueue connectedBindingQueue;
         Mock<SqlConnectionOpener> mockConnectionOpener;
-        public ObjectExplorerServiceTests()
+
+        [SetUp]
+        public void InitObjectExplorerServiceTests()
         {
             connectionServiceMock = new Mock<ConnectionService>();
             serviceHostMock = new Mock<IProtocolEndpoint>();
@@ -59,7 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             service.ConnectedBindingQueue = connectedBindingQueue;
         }
 
-        [Fact]
+        [Test]
         public async Task CreateSessionRequestErrorsIfConnectionDetailsIsNull()
         {
             object errorResponse = null;
@@ -71,7 +73,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             Assert.True(((string)errorResponse).Contains("ArgumentNullException"));
         }
 
-        [Fact]
+        [Test]
         public async Task CreateSessionRequestReturnsFalseOnConnectionFailure()
         {
             // Given the connection service fails to connect
@@ -97,7 +99,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         }
 
 
-        [Fact]
+        [Test]
         public async Task CreateSessionRequestWithMasterConnectionReturnsServerSuccessAndNodeInfo()
         {
             // Given the connection service fails to connect
@@ -111,7 +113,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             await CreateSessionRequestAndVerifyServerNodeHelper(details);
         }
 
-        [Fact]
+        [Test]
         public async Task CreateSessionRequestWithEmptyConnectionReturnsServerSuccessAndNodeInfo()
         {
             // Given the connection service fails to connect
@@ -125,7 +127,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             await CreateSessionRequestAndVerifyServerNodeHelper(details);
         }
 
-        [Fact]
+        [Test]
         public async Task CreateSessionRequestWithMsdbConnectionReturnsServerSuccessAndNodeInfo()
         {
             // Given the connection service fails to connect
@@ -139,7 +141,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             await CreateSessionRequestAndVerifyServerNodeHelper(details);
         }
 
-        [Fact]
+        [Test]
         public async Task CreateSessionRequestWithDefaultConnectionReturnsServerSuccessAndNodeInfo()
         {
             // Given the connection service fails to connect
@@ -154,19 +156,19 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             await CreateSessionRequestAndVerifyServerNodeHelper(details);
         }
 
-        [Fact]
+        [Test]
         public async Task ExpandNodeGivenValidSessionShouldReturnTheNodeChildren()
         {
             await ExpandAndVerifyServerNodes();
         }
 
-        [Fact]
+        [Test]
         public async Task RefreshNodeGivenValidSessionShouldReturnTheNodeChildren()
         {
             await RefreshAndVerifyServerNodes();
         }
 
-        [Fact]
+        [Test]
         public async Task ExpandNodeGivenInvalidSessionShouldReturnEmptyList()
         {
             ExpandParams expandParams = new ExpandParams()
@@ -182,12 +184,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 test: (requestContext) => CallServiceExpand(expandParams, requestContext),
                 verify: (actual =>
                 {
-                    Assert.Equal(actual.SessionId, expandParams.SessionId);
+                    Assert.AreEqual(actual.SessionId, expandParams.SessionId);
                     Assert.Null(actual.Nodes);
                 }));
         }
 
-        [Fact]
+        [Test]
         public async Task RefreshNodeGivenInvalidSessionShouldReturnEmptyList()
         {
             RefreshParams expandParams = new RefreshParams()
@@ -202,12 +204,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 test: (requestContext) => CallServiceRefresh(expandParams, requestContext),
                 verify: (actual =>
                 {
-                    Assert.Equal(actual.SessionId, expandParams.SessionId);
+                    Assert.AreEqual(actual.SessionId, expandParams.SessionId);
                     Assert.Null(actual.Nodes);
                 }));
         }
 
-        [Fact]
+        [Test]
         public async Task RefreshNodeGivenNullSessionShouldReturnEmptyList()
         {
             RefreshParams expandParams = new RefreshParams()
@@ -222,12 +224,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 test: (requestContext) => CallServiceRefresh(expandParams, requestContext),
                 verify: (actual =>
                 {
-                    Assert.Equal(actual.SessionId, expandParams.SessionId);
+                    Assert.AreEqual(actual.SessionId, expandParams.SessionId);
                     Assert.Null(actual.Nodes);
                 }));
         }
 
-        [Fact]
+        [Test]
         public async Task CloseSessionGivenInvalidSessionShouldReturnEmptyList()
         {
             CloseSessionParams closeSessionParamsparams = new CloseSessionParams()
@@ -241,12 +243,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 test: (requestContext) => CallCloseSession(closeSessionParamsparams, requestContext),
                 verify: (actual =>
                 {
-                    Assert.Equal(actual.SessionId, closeSessionParamsparams.SessionId);
+                    Assert.AreEqual(actual.SessionId, closeSessionParamsparams.SessionId);
                     Assert.False(actual.Success);
                 }));
         }
 
-        [Fact]
+        [Test]
         public async Task CloseSessionGivenValidSessionShouldCloseTheSessionAndDisconnect()
         {
             var session = await CreateSession();
@@ -261,7 +263,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 test: (requestContext) => CallCloseSession(closeSessionParamsparams, requestContext),
                 verify: (actual =>
                 {
-                    Assert.Equal(actual.SessionId, closeSessionParamsparams.SessionId);
+                    Assert.AreEqual(actual.SessionId, closeSessionParamsparams.SessionId);
                     Assert.True(actual.Success);
                     Assert.False(service.SessionIds.Contains(session.SessionId));
                 }));
@@ -269,27 +271,27 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             connectionServiceMock.Verify(c => c.Disconnect(It.IsAny<DisconnectParams>()));
         }
 
-        [Fact]
+        [Test]
         public async Task FindNodesReturnsMatchingNode()
         {
             var session = await CreateSession();
 
             var foundNodes = service.FindNodes(session.SessionId, "Server", null, null, null);
-            Assert.Equal(1, foundNodes.Count);
-            Assert.Equal("Server", foundNodes[0].NodeType);
-            Assert.Equal(session.RootNode.NodePath, foundNodes[0].ToNodeInfo().NodePath);
+            Assert.AreEqual(1, foundNodes.Count);
+            Assert.AreEqual("Server", foundNodes[0].NodeType);
+            Assert.AreEqual(session.RootNode.NodePath, foundNodes[0].ToNodeInfo().NodePath);
         }
 
-        [Fact]
+        [Test]
         public async Task FindNodesReturnsEmptyListForNoMatch()
         {
             var session = await CreateSession();
 
             var foundNodes = service.FindNodes(session.SessionId, "Table", "testSchema", "testTable", "testDatabase");
-            Assert.Equal(0, foundNodes.Count);
+            Assert.AreEqual(0, foundNodes.Count);
         }
 
-        [Fact]
+        [Test]
         public void FindNodeCanExpandParentNodes()
         {
             var mockTreeNode = new Mock<TreeNode>();
@@ -342,7 +344,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 test: (requestContext) => CallServiceExpand(expandParams, requestContext),
                 verify: (actual =>
                 {
-                    Assert.Equal(actual.SessionId, session.SessionId);
+                    Assert.AreEqual(actual.SessionId, session.SessionId);
                     Assert.NotNull(actual.SessionId);
                     VerifyServerNodeChildren(actual.Nodes);
                 }));
@@ -363,7 +365,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 test: (requestContext) => CallServiceRefresh(expandParams, requestContext),
                 verify: (actual =>
                 {
-                    Assert.Equal(actual.SessionId, session.SessionId);
+                    Assert.AreEqual(actual.SessionId, session.SessionId);
                     Assert.NotNull(actual.SessionId);
                     VerifyServerNodeChildren(actual.Nodes);
                 }));
@@ -460,10 +462,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         private void VerifyServerNode(NodeInfo serverNode, ConnectionDetails details)
         {
             Assert.NotNull(serverNode);
-            Assert.Equal(NodeTypes.Server.ToString(), serverNode.NodeType);
+            Assert.AreEqual(NodeTypes.Server.ToString(), serverNode.NodeType);
             string[] pathParts = serverNode.NodePath.Split(TreeNode.PathPartSeperator);
-            Assert.Equal(1, pathParts.Length);
-            Assert.Equal(details.ServerName, pathParts[0]);
+            Assert.AreEqual(1, pathParts.Length);
+            Assert.AreEqual(details.ServerName, pathParts[0]);
             Assert.True(serverNode.Label.Contains(details.ServerName));
             Assert.False(serverNode.IsLeaf);
         }

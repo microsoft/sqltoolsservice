@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Contracts;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
 {
     public class ServiceHostTests
     {
-        [Fact]
+        [Test]
         public async Task InitializeResultShouldIncludeTheCharactersThatWouldTriggerTheCompletion()
         {
             Hosting.ServiceHost host = Hosting.ServiceHost.Instance;

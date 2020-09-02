@@ -13,8 +13,6 @@ using Microsoft.SqlTools.ServiceLayer.SqlAssessment.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Moq;
 using NUnit.Framework;
-using Xunit;
-using Assert = Xunit.Assert;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlAssessment
 {
@@ -106,33 +104,35 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlAssessment
                 @"IF (NOT EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND  TABLE_NAME = 'AssessmentResult'))
 BEGIN
     CREATE TABLE [dbo].[AssessmentResult](
-    [CheckName] [nvarchar](max) NOT NULL,
-    [CheckId] [nvarchar](max) NOT NULL,
-    [RulesetName] [nvarchar](max) NOT NULL,
-    [RulesetVersion] [nvarchar](max) NOT NULL,
-    [Severity] [nvarchar](max) NOT NULL,
-    [Message] [nvarchar](max) NOT NULL,
-    [TargetPath] [nvarchar](max) NOT NULL,
-    [TargetType] [nvarchar](max) NOT NULL,
-    [HelpLink] [nvarchar](max) NOT NULL,
-    [Timestamp] [datetimeoffset](7) NOT NULL
+    [CheckName] [nvarchar](max),
+    [CheckId] [nvarchar](max),
+    [RulesetName] [nvarchar](max),
+    [RulesetVersion] [nvarchar](max),
+    [Severity] [nvarchar](max),
+    [Message] [nvarchar](max),
+    [TargetPath] [nvarchar](max),
+    [TargetType] [nvarchar](max),
+    [HelpLink] [nvarchar](max),
+    [Timestamp] [datetimeoffset](7)
     )
 END
 GO
 INSERT INTO [dbo].[AssessmentResult] ([CheckName],[CheckId],[RulesetName],[RulesetVersion],[Severity],[Message],[TargetPath],[TargetType],[HelpLink],[Timestamp])
-VALUES
-('DN1','C1','Microsoft Ruleset','1.3','Information','Msg''1','proj[*]_dev','Server','HL1','2001-05-25 01:42:00.000 +00:00'),
-('D N2','C-2','Microsoft Ruleset','1.3','Warning','Msg''1','proj[*]_dev','Database','http://HL2','2001-05-25 01:42:00.000 +03:00'),
-('D''N1','C''3','Microsoft Ruleset','1.3','Critical','Msg''1','proj[*]_dev','Server','HL''1','2001-05-25 01:42:00.000 -01:30')";
+    SELECT rpt.[CheckName],rpt.[CheckId],rpt.[RulesetName],rpt.[RulesetVersion],rpt.[Severity],rpt.[Message],rpt.[TargetPath],rpt.[TargetType],rpt.[HelpLink],rpt.[Timestamp]
+    FROM (VALUES 
+        ('DN1','C1','Microsoft Ruleset','1.3','Information','Msg''1','proj[*]_dev','Server','HL1','2001-05-25 01:42:00.000 +00:00'),
+        ('D N2','C-2','Microsoft Ruleset','1.3','Warning','Msg''1','proj[*]_dev','Database','http://HL2','2001-05-25 01:42:00.000 +03:00'),
+        ('D''N1','C''3','Microsoft Ruleset','1.3','Critical','Msg''1','proj[*]_dev','Server','HL''1','2001-05-25 01:42:00.000 -01:30')
+    ) rpt([CheckName],[CheckId],[RulesetName],[RulesetVersion],[Severity],[Message],[TargetPath],[TargetType],[HelpLink],[Timestamp])";
 
-        [Fact]
+        [Test]
         public void GenerateScriptTest()
         {
             var scriptText = GenerateScriptOperation.GenerateScript(SampleParams, CancellationToken.None);
-            Assert.Equal(SampleScript, scriptText);
+            Assert.AreEqual(SampleScript, scriptText);
         }
 
-        [Fact]
+        [Test]
         public void ExecuteTest()
         {
             var subject = new GenerateScriptOperation(SampleParams);
@@ -147,8 +147,8 @@ VALUES
 
         private void ValidateScriptAdded(object sender, TaskEventArgs<TaskScript> e)
         {
-            Assert.Equal(SqlTaskStatus.Succeeded, e.TaskData.Status);
-            Assert.Equal(SampleScript, e.TaskData.Script);
+            Assert.AreEqual(SqlTaskStatus.Succeeded, e.TaskData.Status);
+            Assert.AreEqual(SampleScript, e.TaskData.Script);
         }
 
         private static Task<TaskResult> DummyOpFunction(SqlTask _)

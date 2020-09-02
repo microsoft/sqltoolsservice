@@ -10,7 +10,7 @@ using Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.FileBrowser
 {
@@ -21,8 +21,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.FileBrowser
     {
         #region Request handle tests
 
-        [Fact]
-        public async void HandleFileBrowserOpenRequestTest()
+        [Test]
+        public async Task HandleFileBrowserOpenRequestTest()
         {
             var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo();
             FileBrowserService service = new FileBrowserService();
@@ -41,8 +41,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.FileBrowser
             openRequestContext.Verify(x => x.SendResult(It.Is<bool>(p => p == true)));
         }
 
-        [Fact]
-        public async void HandleFileBrowserExpandRequestTest()
+        [Test]
+        public async Task HandleFileBrowserExpandRequestTest()
         {
             var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo();
             FileBrowserService service = new FileBrowserService();
@@ -59,8 +59,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.FileBrowser
             requestContext.Verify(x => x.SendResult(It.Is<bool>(p => p == true)));
         }
 
-        [Fact]
-        public async void HandleFileBrowserValidateRequestTest()
+        [Test]
+        public async Task HandleFileBrowserValidateRequestTest()
         {
             var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo();
             FileBrowserService service = new FileBrowserService();
@@ -77,8 +77,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.FileBrowser
             requestContext.Verify(x => x.SendResult(It.Is<bool>(p => p == true)));
         }
 
-        [Fact]
-        public async void HandleFileBrowserCloseRequestTest()
+        [Test]
+        public async Task HandleFileBrowserCloseRequestTest()
         {
             var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo();
             FileBrowserService service = new FileBrowserService();
@@ -96,8 +96,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.FileBrowser
 
         #endregion
 
-        [Fact]
-        public async void OpenFileBrowserTest()
+        [Test]
+        public async Task OpenFileBrowserTest()
         {
             var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo();
             FileBrowserService service = new FileBrowserService();
@@ -123,8 +123,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.FileBrowser
             efv.Validate();
         }
 
-        [Fact]
-        public async void ValidateSelectedFilesWithNullValidatorTest()
+        [Test]
+        public async Task ValidateSelectedFilesWithNullValidatorTest()
         {
             var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo();
             FileBrowserService service = new FileBrowserService();
@@ -146,8 +146,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.FileBrowser
             efv.Validate();
         }
 
-        [Fact]
-        public async void InvalidFileValidationTest()
+        [Test]
+        public async Task InvalidFileValidationTest()
         {
             FileBrowserService service = new FileBrowserService();
             service.RegisterValidatePathsCallback("TestService", ValidatePaths);

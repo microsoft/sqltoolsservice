@@ -5,7 +5,7 @@
 
 using System.Data.Common;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 {
@@ -55,7 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         /// <summary>
         /// Basic data type and properties test
         /// </summary>
-        [Fact]
+        [Test]
         public void DataTypeAndPropertiesTest()
         {          
             // check default constructor doesn't throw
@@ -89,7 +89,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         /// <summary>
         /// constructor test 
         /// </summary>
-        [Fact]
+        [Test]
         public void DbColumnConstructorTests()
         {
             // check that various constructor parameters initial the wrapper correctly

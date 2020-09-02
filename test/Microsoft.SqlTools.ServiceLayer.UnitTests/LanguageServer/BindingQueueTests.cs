@@ -13,7 +13,7 @@ using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 {
@@ -115,7 +115,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         /// <summary>
         /// Queues a single task
         /// </summary>
-        [Fact]
+        [Test]
         public void QueueOneBindingOperationTest()
         {
             InitializeTestSettings();
@@ -129,15 +129,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             
             this.bindingQueue.StopQueueProcessor(15000);     
 
-            Assert.Equal(1, this.bindCallCount);
-            Assert.Equal(0, this.timeoutCallCount);  
+            Assert.AreEqual(1, this.bindCallCount);
+            Assert.AreEqual(0, this.timeoutCallCount);  
             Assert.False(this.isCancelationRequested);
         }
 
         /// <summary>
         /// Queues a single task
         /// </summary>
-        [Fact]
+        [Test]
         public void QueueWithUnhandledExceptionTest()
         {
             InitializeTestSettings();
@@ -158,14 +158,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 
             Assert.True(isExceptionHandled);
             var result = queueItem.GetResultAsT<object>();
-            Assert.Equal(defaultReturnObject, result);
+            Assert.AreEqual(defaultReturnObject, result);
         }
 
         /// <summary>
         /// Queue a 100 short tasks
         /// </summary>
         // Disable flaky test (mairvine - 3/15/2018)
-        // [Fact]
+        // [Test]
         public void Queue100BindingOperationTest()
         {
             InitializeTestSettings();
@@ -182,15 +182,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 
             this.bindingQueue.StopQueueProcessor(15000);     
 
-            Assert.Equal(100, this.bindCallCount);
-            Assert.Equal(0, this.timeoutCallCount);
+            Assert.AreEqual(100, this.bindCallCount);
+            Assert.AreEqual(0, this.timeoutCallCount);
             Assert.False(this.isCancelationRequested);
         }
 
         /// <summary>
         /// Queue an task with a long operation causing a timeout
         /// </summary>
-        [Fact]
+        [Test]
         public void QueueWithTimeout()
         {
             InitializeTestSettings();
@@ -207,8 +207,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             
             this.bindingQueue.StopQueueProcessor(15000);
 
-            Assert.Equal(0, this.bindCallCount);
-            Assert.Equal(1, this.timeoutCallCount);
+            Assert.AreEqual(0, this.bindCallCount);
+            Assert.AreEqual(1, this.timeoutCallCount);
             Assert.True(this.isCancelationRequested);
         }
 
@@ -216,7 +216,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         /// Queue a task with a long operation causing a timeout 
         /// and make sure subsequent tasks don't execute while task is completing
         /// </summary>
-        [Fact]
+        [Test]
         public void QueueWithTimeoutDoesNotRunNextTask()
         {
             string operationKey = "testkey";
@@ -261,7 +261,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 
             this.bindingQueue.StopQueueProcessor(15000);
 
-            Assert.Equal(1, this.timeoutCallCount);
+            Assert.AreEqual(1, this.timeoutCallCount);
             Assert.False(firstOperationCanceled);
             Assert.False(secondOperationExecuted);
         }
