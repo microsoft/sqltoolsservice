@@ -22,19 +22,17 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
     /// </summary>
     public class BindingQueue<T> : IDisposable where T : IBindingContext, new()
     {
-        internal const int QueueThreadStackSize = 5 * 1024 * 1024;
+        private CancellationTokenSource _processQueueCancelToken;
 
-        private CancellationTokenSource processQueueCancelToken = null;
+        private readonly ManualResetEvent _itemQueuedEvent;
 
-        private ManualResetEvent itemQueuedEvent = new ManualResetEvent(initialState: false);
+        private readonly object _bindingQueueLock;
 
-        private object bindingQueueLock = new object();
+        private readonly LinkedList<QueueItem> _bindingQueue;
 
-        private LinkedList<QueueItem> bindingQueue = new LinkedList<QueueItem>();
+        private readonly object _bindingContextLock ;
 
-        private object bindingContextLock = new object();
-
-        private Task queueProcessorTask;
+        private Task _queueProcessorTask;
 
         public delegate void UnhandledExceptionDelegate(string connectionKey, Exception ex);
 
@@ -44,22 +42,27 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// Map from context keys to binding context instances
         /// Internal for testing purposes only
         /// </summary>
-        internal Dictionary<string, IBindingContext> BindingContextMap { get; set; }
+        internal Dictionary<string, IBindingContext> BindingContextMap { get; }
 
-        internal Dictionary<IBindingContext, Task> BindingContextTasks { get; set; } = new Dictionary<IBindingContext, Task>();
+        private Dictionary<IBindingContext, Task> BindingContextTasks { get; }
 
         /// <summary>
         /// Constructor for a binding queue instance
         /// </summary>
-        public BindingQueue()
+        internal BindingQueue()
         {
-            this.BindingContextMap = new Dictionary<string, IBindingContext>();
-            this.StartQueueProcessor();
+            BindingContextMap = new Dictionary<string, IBindingContext>();
+            _itemQueuedEvent = new ManualResetEvent(initialState: false);
+            _bindingQueueLock = new object();
+            _bindingQueue = new LinkedList<QueueItem>();
+            _bindingContextLock = new object();
+            BindingContextTasks = new Dictionary<IBindingContext, Task>();
+            StartQueueProcessor();
         }
 
-        public void StartQueueProcessor()
+        private void StartQueueProcessor()
         {
-            this.queueProcessorTask = StartQueueProcessorAsync();
+            this._queueProcessorTask = StartQueueProcessorAsync();
         }
 
         /// <summary>
@@ -68,8 +71,8 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// <param name="timeout"></param>
         public bool StopQueueProcessor(int timeout)
         {
-            this.processQueueCancelToken.Cancel();
-            return this.queueProcessorTask.Wait(timeout);
+            this._processQueueCancelToken.Cancel();
+            return this._queueProcessorTask.Wait(timeout);
         }
 
         /// <summary>
@@ -80,14 +83,14 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         {
             get
             {
-                return this.processQueueCancelToken.IsCancellationRequested;
+                return this._processQueueCancelToken.IsCancellationRequested;
             }
         }
 
         /// <summary>
         /// Queue a binding request item
         /// </summary>
-        public virtual QueueItem QueueBindingOperation(
+        public QueueItem QueueBindingOperation(
             string key,
             Func<IBindingContext, CancellationToken, object> bindOperation,
             Func<IBindingContext, object> timeoutOperation = null,
@@ -111,12 +114,12 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                 WaitForLockTimeout = waitForLockTimeout
             };
 
-            lock (this.bindingQueueLock)
+            lock (this._bindingQueueLock)
             {
-                this.bindingQueue.AddLast(queueItem);
+                this._bindingQueue.AddLast(queueItem);
             }
 
-            this.itemQueuedEvent.Set();
+            this._itemQueuedEvent.Set();
 
             return queueItem;
         }
@@ -127,7 +130,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// <param name="key"></param>
         public bool IsBindingContextConnected(string key)
         {
-            lock (this.bindingContextLock)
+            lock (this._bindingContextLock)
             {
                 IBindingContext context;
                 if (this.BindingContextMap.TryGetValue(key, out context))
@@ -142,7 +145,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// Gets or creates a binding context for the provided context key
         /// </summary>
         /// <param name="key"></param>
-        protected IBindingContext GetOrCreateBindingContext(string key)
+        internal IBindingContext GetOrCreateBindingContext(string key)
         {
             // use a default binding context for disconnected requests
             if (string.IsNullOrWhiteSpace(key))
@@ -150,7 +153,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                 key = "disconnected_binding_context";
             }
                         
-            lock (this.bindingContextLock)
+            lock (this._bindingContextLock)
             {
                 if (!this.BindingContextMap.ContainsKey(key))
                 {
@@ -171,7 +174,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                 keyPrefix = "disconnected_binding_context";
             }
 
-            lock (this.bindingContextLock)
+            lock (this._bindingContextLock)
             {
                 return this.BindingContextMap.Where(x => x.Key.StartsWith(keyPrefix)).Select(v => v.Value);
             }
@@ -182,7 +185,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// </summary>
         protected bool BindingContextExists(string key)
         {
-            lock (this.bindingContextLock)
+            lock (this._bindingContextLock)
             {
                 return this.BindingContextMap.ContainsKey(key);
             }
@@ -193,7 +196,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// </summary>
         protected void RemoveBindingContext(string key)
         {
-            lock (this.bindingContextLock)
+            lock (this._bindingContextLock)
             {
                 if (this.BindingContextMap.ContainsKey(key))
                 {
@@ -216,13 +219,13 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
             }
         }
 
-        public bool HasPendingQueueItems
+        private bool HasPendingQueueItems
         {
             get
             {
-                lock (this.bindingQueueLock)
+                lock (this._bindingQueueLock)
                 {
-                    return this.bindingQueue.Count > 0;
+                    return this._bindingQueue.Count > 0;
                 }
             }
         }
@@ -232,15 +235,15 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// </summary>
         private QueueItem GetNextQueueItem()
         {
-            lock (this.bindingQueueLock)
+            lock (this._bindingQueueLock)
             {
-                if (this.bindingQueue.Count == 0)
+                if (this._bindingQueue.Count == 0)
                 {
                     return null;
                 }
 
-                QueueItem queueItem = this.bindingQueue.First.Value;
-                this.bindingQueue.RemoveFirst();
+                QueueItem queueItem = this._bindingQueue.First.Value;
+                this._bindingQueue.RemoveFirst();
                 return queueItem;
             }
         }
@@ -250,15 +253,15 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// </summary>        
         private Task StartQueueProcessorAsync()
         {
-            if (this.processQueueCancelToken != null)
+            if (this._processQueueCancelToken != null)
             {
-                this.processQueueCancelToken.Dispose();
+                this._processQueueCancelToken.Dispose();
             }
-            this.processQueueCancelToken = new CancellationTokenSource();
+            this._processQueueCancelToken = new CancellationTokenSource();
 
             return Task.Factory.StartNew(
                 ProcessQueue,
-                this.processQueueCancelToken.Token,
+                this._processQueueCancelToken.Token,
                 TaskCreationOptions.LongRunning,
                 TaskScheduler.Default);
         }
@@ -266,13 +269,12 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// <summary>
         /// The core queue processing method
         /// </summary>
-        /// <param name="state"></param>
         private void ProcessQueue()
         {
-            CancellationToken token = this.processQueueCancelToken.Token;
+            CancellationToken token = this._processQueueCancelToken.Token;
             WaitHandle[] waitHandles = new WaitHandle[2]
             {
-                this.itemQueuedEvent,
+                this._itemQueuedEvent,
                 token.WaitHandle
             };
     
@@ -443,13 +445,13 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                 }
                 finally
                 {
-                    lock (this.bindingQueueLock)
+                    lock (this._bindingQueueLock)
                     {
                         // verify the binding queue is still empty
-                        if (this.bindingQueue.Count == 0)
+                        if (this._bindingQueue.Count == 0)
                         {
                             // reset the item queued event since we've processed all the pending items
-                            this.itemQueuedEvent.Reset();
+                            this._itemQueuedEvent.Reset();
                         }
                     }
                 }
@@ -461,25 +463,25 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// </summary>
         public void ClearQueuedItems()
         {
-            lock (this.bindingQueueLock)
+            lock (this._bindingQueueLock)
             {
-                if (this.bindingQueue.Count > 0)
+                if (this._bindingQueue.Count > 0)
                 {
-                    this.bindingQueue.Clear();
+                    this._bindingQueue.Clear();
                 }
             }
         }
 
         public void Dispose()
         {
-            if (this.processQueueCancelToken != null)
+            if (this._processQueueCancelToken != null)
             {
-                this.processQueueCancelToken.Dispose();
+                this._processQueueCancelToken.Dispose();
             }
 
-            if (itemQueuedEvent != null)
+            if (_itemQueuedEvent != null)
             {
-                itemQueuedEvent.Dispose();
+                _itemQueuedEvent.Dispose();
             }
 
             if (this.BindingContextMap != null)
