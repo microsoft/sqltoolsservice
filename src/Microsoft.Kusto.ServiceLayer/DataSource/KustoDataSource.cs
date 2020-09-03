@@ -517,7 +517,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// <summary>
         /// Clears everything
         /// </summary>
-        private void RefreshAll(bool includeDatabase)
+        /// <param name="includeDatabase"></param>
+        public override void Refresh(bool includeDatabase)
         {
             // This class caches objects. Throw them away so that the next call will re-query the data source for the objects.
             if (includeDatabase)
@@ -538,12 +539,12 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             switch(objectMetadata.MetadataType)
             {
                 case DataSourceMetadataType.Cluster:
-                    RefreshAll(true);
+                    Refresh(true);
                     SetDatabaseMetadata(false);
                     break;
                 
                 case DataSourceMetadataType.Database:
-                    RefreshAll(false);
+                    Refresh(false);
                     LoadTableSchema(objectMetadata);
                     LoadFunctionSchema(objectMetadata);
                     break;
@@ -555,10 +556,10 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                     break;
 
                 case DataSourceMetadataType.Folder:
-                    RefreshAll(false);
+                    Refresh(false);
                     var folder = objectMetadata as FolderMetadata;
-                    LoadTableSchema(folder.DatabaseMetadata);
-                    LoadFunctionSchema(folder.DatabaseMetadata);
+                    LoadTableSchema(folder.ParentMetadata);
+                    LoadFunctionSchema(folder.ParentMetadata);
                     break;
                 
                 default:

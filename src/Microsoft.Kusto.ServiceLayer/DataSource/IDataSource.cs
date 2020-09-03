@@ -71,6 +71,12 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         IEnumerable<DataSourceObjectMetadata> GetChildObjects(DataSourceObjectMetadata parentMetadata, bool includeSizeDetails = false);
 
         /// <summary>
+        /// Refresh object list for entire cluster.
+        /// </summary>
+        /// <param name="includeDatabase"></param>
+        void Refresh(bool includeDatabase);
+
+        /// <summary>
         /// Refresh object list for given object.
         /// </summary>
         /// <param name="objectMetadata">Object metadata.</param>

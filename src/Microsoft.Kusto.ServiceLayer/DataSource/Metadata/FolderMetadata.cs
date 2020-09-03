@@ -5,6 +5,6 @@
     /// </summary>
     public class FolderMetadata : DataSourceObjectMetadata
     {
-        public DataSourceObjectMetadata DatabaseMetadata { get; set; }
+        public DataSourceObjectMetadata ParentMetadata { get; set; }
     }
 }

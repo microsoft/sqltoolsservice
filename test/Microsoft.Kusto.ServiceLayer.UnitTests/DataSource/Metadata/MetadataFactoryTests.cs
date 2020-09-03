@@ -95,7 +95,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.DataSource.Metadata
             Assert.AreEqual(name, objectMetadata.Name);
             Assert.AreEqual(name, objectMetadata.PrettyName);
             Assert.AreEqual($"{path}.{name}", objectMetadata.Urn);
-            Assert.AreEqual(parentMetadata, objectMetadata.DatabaseMetadata);
+            Assert.AreEqual(parentMetadata, objectMetadata.ParentMetadata);
         }
 
         [Test]

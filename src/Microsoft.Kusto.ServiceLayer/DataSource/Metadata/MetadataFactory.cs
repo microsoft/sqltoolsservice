@@ -51,7 +51,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Metadata
                 MetadataTypeName = DataSourceMetadataType.Folder.ToString(),
                 Name = name,
                 PrettyName = name,
-                DatabaseMetadata = parentMetadata,
+                ParentMetadata = parentMetadata,
                 Urn = $"{path}.{name}"
             };
         }
