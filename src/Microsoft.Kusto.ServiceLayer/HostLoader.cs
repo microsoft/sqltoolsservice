@@ -97,7 +97,7 @@ namespace Microsoft.Kusto.ServiceLayer
             AdminService.Instance.InitializeService(serviceHost, ConnectionService.Instance);
             serviceProvider.RegisterSingleService(AdminService.Instance);
 
-            MetadataService.Instance.InitializeService(serviceHost);
+            MetadataService.Instance.InitializeService(serviceHost, ConnectionService.Instance);
             serviceProvider.RegisterSingleService(MetadataService.Instance);
             
             InitializeHostedServices(serviceProvider, serviceHost);
