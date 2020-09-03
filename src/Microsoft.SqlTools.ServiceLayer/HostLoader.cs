@@ -67,7 +67,11 @@ namespace Microsoft.SqlTools.ServiceLayer
         {
             // Load extension provider, which currently finds all exports in current DLL. Can be changed to find based
             // on directory or assembly list quite easily in the future
-            ExtensionServiceProvider serviceProvider = ExtensionServiceProvider.CreateDefaultServiceProvider();
+            ExtensionServiceProvider serviceProvider = ExtensionServiceProvider.CreateDefaultServiceProvider(new string[] {
+                "microsofsqltoolscredentials.dll",
+                "microsoft.sqltools.hosting.dll",
+                "microsoftsqltoolsservicelayer.dll"
+            });
             serviceProvider.RegisterSingleService(sqlToolsContext);
             serviceProvider.RegisterSingleService(serviceHost);
 
