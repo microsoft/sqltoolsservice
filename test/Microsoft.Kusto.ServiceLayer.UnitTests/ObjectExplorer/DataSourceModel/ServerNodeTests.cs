@@ -12,7 +12,7 @@ using Microsoft.SqlTools.Extensibility;
 using Moq;
 using NUnit.Framework;
 
-namespace Microsoft.Kusto.ServiceLayer.UnitTests.ObjectExplorer.SmoModel
+namespace Microsoft.Kusto.ServiceLayer.UnitTests.ObjectExplorer.DataSourceModel
 { 
     public class ServerNodeTests
     {
