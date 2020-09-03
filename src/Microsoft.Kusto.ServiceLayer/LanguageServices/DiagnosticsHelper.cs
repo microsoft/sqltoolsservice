@@ -77,7 +77,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// </summary>
         /// <param name="scriptFileMarker"></param>
         /// <returns></returns>
-        internal static Diagnostic GetDiagnosticFromMarker(ScriptFileMarker scriptFileMarker)
+        private static Diagnostic GetDiagnosticFromMarker(ScriptFileMarker scriptFileMarker)
         {
             return new Diagnostic
             {
@@ -103,7 +103,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// Map ScriptFileMarker severity to Diagnostic severity
         /// </summary>
         /// <param name="markerLevel"></param>        
-        internal static DiagnosticSeverity MapDiagnosticSeverity(ScriptFileMarkerLevel markerLevel)
+        private static DiagnosticSeverity MapDiagnosticSeverity(ScriptFileMarkerLevel markerLevel)
         {
             switch (markerLevel)
             {
