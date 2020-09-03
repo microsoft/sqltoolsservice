@@ -158,7 +158,11 @@ namespace Microsoft.InsightsGenerator
         public static List<Template> GetTemplates()
         {
             var templateHolder = new List<Template>();
-            using (StreamReader streamReader = new StreamReader($"Templates/templates.txt", Encoding.UTF8))
+            string assemblyPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            string assemblyDirectoryPath = System.IO.Path.GetDirectoryName(assemblyPath);
+            string templateFilePath = Path.Combine(assemblyDirectoryPath, "Templates", "templates.txt");
+
+            using (StreamReader streamReader = new StreamReader(templateFilePath, Encoding.UTF8))
             {
                 int temId = 0;
                 var wholeText = streamReader.ReadToEnd();
