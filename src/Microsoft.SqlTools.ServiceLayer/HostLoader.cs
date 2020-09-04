@@ -17,19 +17,20 @@ using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
 using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.FileBrowser;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
-using Microsoft.SqlTools.ServiceLayer.ServerConfigurations;
+using Microsoft.SqlTools.ServiceLayer.InsightsGenerator;
 using Microsoft.SqlTools.ServiceLayer.LanguageExtensibility;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.Metadata;
+using Microsoft.SqlTools.ServiceLayer.Migration;
 using Microsoft.SqlTools.ServiceLayer.Profiler;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare;
 using Microsoft.SqlTools.ServiceLayer.Scripting;
 using Microsoft.SqlTools.ServiceLayer.Security;
+using Microsoft.SqlTools.ServiceLayer.ServerConfigurations;
 using Microsoft.SqlTools.ServiceLayer.SqlAssessment;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
-using Microsoft.SqlTools.ServiceLayer.Migration;
 
 namespace Microsoft.SqlTools.ServiceLayer
 {
@@ -68,7 +69,11 @@ namespace Microsoft.SqlTools.ServiceLayer
         {
             // Load extension provider, which currently finds all exports in current DLL. Can be changed to find based
             // on directory or assembly list quite easily in the future
-            ExtensionServiceProvider serviceProvider = ExtensionServiceProvider.CreateDefaultServiceProvider();
+            ExtensionServiceProvider serviceProvider = ExtensionServiceProvider.CreateDefaultServiceProvider(new string[] {
+                "microsofsqltoolscredentials.dll",
+                "microsoft.sqltools.hosting.dll",
+                "microsoftsqltoolsservicelayer.dll"
+            });
             serviceProvider.RegisterSingleService(sqlToolsContext);
             serviceProvider.RegisterSingleService(serviceHost);
 
@@ -138,6 +143,9 @@ namespace Microsoft.SqlTools.ServiceLayer
             NotebookConvertService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(NotebookConvertService.Instance);
 
+			InsightsGeneratorService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(InsightsGeneratorService.Instance);
+			
             MigrationService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(MigrationService.Instance);
 

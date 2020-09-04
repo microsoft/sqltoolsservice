@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Composition;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
@@ -9,9 +10,10 @@ using Microsoft.Kusto.ServiceLayer.LanguageServices.Completion;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource
 {
-    public class DataSourceFactory
+    [Export(typeof(IDataSourceFactory))]
+    public class DataSourceFactory : IDataSourceFactory
     {
-        public static IDataSource Create(DataSourceType dataSourceType, string connectionString, string azureAccountToken)
+        public IDataSource Create(DataSourceType dataSourceType, string connectionString, string azureAccountToken)
         {
             ValidationUtils.IsArgumentNotNullOrWhiteSpace(connectionString, nameof(connectionString));
             ValidationUtils.IsArgumentNotNullOrWhiteSpace(azureAccountToken, nameof(azureAccountToken));
@@ -57,15 +59,16 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             }
         }
 
-        public static ReliableConnectionHelper.ServerInfo ConvertToServerinfoFormat(DataSourceType dataSourceType, DiagnosticsInfo clusterDiagnostics)
+        public static ReliableConnectionHelper.ServerInfo ConvertToServerInfoFormat(DataSourceType dataSourceType, DiagnosticsInfo clusterDiagnostics)
         {
             switch (dataSourceType)
             {
                 case DataSourceType.Kusto:
                     {
-                        ReliableConnectionHelper.ServerInfo serverInfo = new ReliableConnectionHelper.ServerInfo();
-                        serverInfo.Options = new Dictionary<string, object>(clusterDiagnostics.Options);
-                        return serverInfo;
+                        return new ReliableConnectionHelper.ServerInfo
+                        {
+                            Options = new Dictionary<string, object>(clusterDiagnostics.Options)
+                        };
                     }
 
                 default:

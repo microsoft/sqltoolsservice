@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Data.Common;
 using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.Utility;
 
@@ -27,6 +26,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             ConnectionDetails = details;
             ConnectionId = Guid.NewGuid();
             IntellisenseMetrics = new InteractionMetrics<double>(new int[] {50, 100, 200, 500, 1000, 2000});
+            _connectionTypeToConnectionMap = new ConcurrentDictionary<string, ReliableDataSourceConnection>();
         }
 
         /// <summary>
@@ -54,13 +54,12 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// this ConnectionInfo's OwnerUri.
         /// This is internal for testing access only
         /// </summary>
-        internal readonly ConcurrentDictionary<string, ReliableDataSourceConnection> ConnectionTypeToConnectionMap =
-            new ConcurrentDictionary<string, ReliableDataSourceConnection>();
+        private readonly ConcurrentDictionary<string, ReliableDataSourceConnection> _connectionTypeToConnectionMap;
 
         /// <summary>
         /// Intellisense Metrics
         /// </summary>
-        public InteractionMetrics<double> IntellisenseMetrics { get; private set; }
+        public InteractionMetrics<double> IntellisenseMetrics { get; }
 
         /// <summary>
         /// Returns true if the db connection is to any cloud instance
@@ -79,7 +78,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         {
             get
             {
-                return ConnectionTypeToConnectionMap.Values;
+                return _connectionTypeToConnectionMap.Values;
             }
         }
 
@@ -91,14 +90,14 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         {
             get
             {
-                return ConnectionTypeToConnectionMap.Keys;
+                return _connectionTypeToConnectionMap.Keys;
             }
         }
 
         public bool HasConnectionType(string connectionType)
         {
             connectionType = connectionType ?? ConnectionType.Default;
-            return ConnectionTypeToConnectionMap.ContainsKey(connectionType);
+            return _connectionTypeToConnectionMap.ContainsKey(connectionType);
         }
 
         /// <summary>
@@ -108,7 +107,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         {
             get
             {
-                return ConnectionTypeToConnectionMap.Count;
+                return _connectionTypeToConnectionMap.Count;
             }
         }
 
@@ -121,7 +120,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         public bool TryGetConnection(string connectionType, out ReliableDataSourceConnection connection)
         {
             Validate.IsNotNullOrEmptyString("Connection Type", connectionType);
-            return ConnectionTypeToConnectionMap.TryGetValue(connectionType, out connection);
+            return _connectionTypeToConnectionMap.TryGetValue(connectionType, out connection);
         }
 
         /// <summary>
@@ -133,7 +132,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         public void AddConnection(string connectionType, ReliableDataSourceConnection connection)
         {
             Validate.IsNotNullOrEmptyString("Connection Type", connectionType);
-            ConnectionTypeToConnectionMap.TryAdd(connectionType, connection);
+            _connectionTypeToConnectionMap.TryAdd(connectionType, connection);
         }
 
         /// <summary>
@@ -144,7 +143,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         {
             Validate.IsNotNullOrEmptyString("Connection Type", connectionType);
             ReliableDataSourceConnection connection;
-            ConnectionTypeToConnectionMap.TryRemove(connectionType, out connection);
+            _connectionTypeToConnectionMap.TryRemove(connectionType, out connection);
         }
 
         /// <summary>
@@ -155,7 +154,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             foreach (var type in AllConnectionTypes)
             {
                 ReliableDataSourceConnection connection;
-                ConnectionTypeToConnectionMap.TryRemove(type, out connection);
+                _connectionTypeToConnectionMap.TryRemove(type, out connection);
             }
         } 
     }

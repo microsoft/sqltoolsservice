@@ -29,7 +29,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
 
         private string azureAccessToken;
 
-        public ScriptingScriptOperation(ScriptingParams parameters, string azureAccessToken) : base(parameters)
+        public ScriptingScriptOperation(ScriptingParams parameters, string azureAccessToken, IDataSourceFactory dataSourceFactory) : base(parameters, dataSourceFactory)
         {
             this.azureAccessToken = azureAccessToken;
         }

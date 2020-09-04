@@ -45,15 +45,33 @@ steps:
     projects: '$(Build.SourcesDirectory)/src/Microsoft.SqlTools.ServiceLayer'
     arguments: '--configfile $(Build.SourcesDirectory)/nuget.config'
 
+- task: DotNetCoreCLI@1
+  displayName: 'dotnet restore src/Microsoft.Kusto.ServiceLayer'
+  inputs:
+    command: restore
+    projects: '$(Build.SourcesDirectory)/src/Microsoft.Kusto.ServiceLayer'
+    arguments: '--configfile $(Build.SourcesDirectory)/nuget.config'
+
 - task: DotNetCoreCLI@2
   displayName: 'dotnet build src/Microsoft.SqlTools.ServiceLayer'
   inputs:
     projects: '$(Build.SourcesDirectory)/src/Microsoft.SqlTools.ServiceLayer'
 
 - task: DotNetCoreCLI@2
+  displayName: 'dotnet build src/Microsoft.Kusto.ServiceLayer'
+  inputs:
+    projects: '$(Build.SourcesDirectory)/src/Microsoft.Kusto.ServiceLayer'
+
+- task: DotNetCoreCLI@2
   displayName: 'dotnet build src/Microsoft.SqlTools.ServiceLayer --configuration Release'
   inputs:
     projects: '$(Build.SourcesDirectory)/src/Microsoft.SqlTools.ServiceLayer '
+    arguments: '--configuration Release'
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet build src/Microsoft.Kusto.ServiceLayer --configuration Release'
+  inputs:
+    projects: '$(Build.SourcesDirectory)/src/Microsoft.Kusto.ServiceLayer '
     arguments: '--configuration Release'
 
 - task: BatchScript@1
@@ -70,10 +88,23 @@ steps:
     projects: test/Microsoft.SqlTools.ServiceLayer.UnitTests
 
 - task: DotNetCoreCLI@1
+  displayName: 'dotnet restore test/Microsoft.Kusto.ServiceLayer.UnitTests'
+  inputs:
+    command: restore
+    projects: test/Microsoft.Kusto.ServiceLayer.UnitTests
+
+- task: DotNetCoreCLI@1
   displayName: 'dotnet test test/Microsoft.SqlTools.ServiceLayer.UnitTests'
   inputs:
     command: test
     projects: test/Microsoft.SqlTools.ServiceLayer.UnitTests
+    arguments: '--logger "trx;LogFileName=xunit.trx"'
+
+- task: DotNetCoreCLI@1
+  displayName: 'dotnet test test/Microsoft.Kusto.ServiceLayer.UnitTests'
+  inputs:
+    command: test
+    projects: test/Microsoft.Kusto.ServiceLayer.UnitTests
     arguments: '--logger "trx;LogFileName=xunit.trx"'
 
 - task: Npm@1
