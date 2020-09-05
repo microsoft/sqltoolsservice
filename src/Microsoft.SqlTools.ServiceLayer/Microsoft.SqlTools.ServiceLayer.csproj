@@ -34,10 +34,6 @@
 			<HintPath>..\..\bin\ref\migration\Microsoft.SqlServer.Migration.Assessment.dll</HintPath>
 			<SpecificVersion>True</SpecificVersion>
 		</Reference>
-		<Reference Include="Microsoft.SqlServer.Migration.SkuRecommendation, Version=0.0.0.0">
-			<HintPath>..\..\bin\ref\migration\Microsoft.SqlServer.Migration.SkuRecommendation.dll</HintPath>
-			<SpecificVersion>True</SpecificVersion>
-		</Reference>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -70,5 +66,14 @@
 			<ContentWithTargetPath Include="$(ProjectDepsFilePath)" Condition="'$(GenerateDependencyFile)' == 'true'" CopyToOutputDirectory="PreserveNewest" TargetPath="$(ProjectDepsFileName)" />
 			<ContentWithTargetPath Include="$(ProjectRuntimeConfigFilePath)" Condition="'$(GenerateRuntimeConfigurationFiles)' == 'true'" CopyToOutputDirectory="PreserveNewest" TargetPath="$(ProjectRuntimeConfigFileName)" />
 		</ItemGroup>
+	</Target>
+
+	<Target Name="CopyMigrationFeatureMetadata" AfterTargets="Build">
+		<ItemGroup>
+			<AzureSqlDbFeatureXml Include="..\..\bin\ref\migration\TargetAssessment\AzureSQLDatabase\AzureSQLDbFeatureRuleMetadataStore.xml" />
+			<AzureMiFeatureXml Include="..\..\bin\ref\migration\TargetAssessment\ManagedInstance\MIFeatureRuleMetadataStore.xml" />
+		</ItemGroup>
+		<Copy SourceFiles="@(AzureSqlDbFeatureXml)" DestinationFolder="$(OutputPath)\TargetAssessment\AzureSQLDatabase\" SkipUnchangedFiles="true" />
+		<Copy SourceFiles="@(AzureMiFeatureXml)" DestinationFolder="$(OutputPath)\TargetAssessment\ManagedInstance\" SkipUnchangedFiles="true" />
 	</Target>
 </Project>

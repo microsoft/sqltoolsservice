@@ -1,0 +1,215 @@
+﻿{
+  "Name": "Migration Assessment Feature Metadata",
+  "SchemaVersion": "0.1",
+  "Version": "0.1",
+  "Checks": [
+    {
+      "target": {},
+      "id": "LinkedServer",
+      "tags": [ "Feature" ],
+      "displayName": "Linked server functionality",
+      "description": "Linked servers enable the SQL Server Database Engine to execute commands against OLE DB data sources outside of the instance of SQL Server.",
+      "message": "Linked servers enable the SQL Server Database Engine to execute commands against OLE DB data sources outside of the instance of SQL Server.",
+      "helpLink": "https://go.microsoft.com/fwlink/?linkid=872319",
+      "level": "Critical"
+    },
+    {
+      "target": {},
+      "id": "Filestream",
+      "tags": [ "Feature" ],
+      "displayName": "Filestream",
+      "description": "The Filestream feature allows you to store unstructured data such as text documents, images, and videos in NTFS file system.",
+      "message": "The Filestream feature allows you to store unstructured data such as text documents, images, and videos in NTFS file system.",
+      "helpLink": "https://go.microsoft.com/fwlink/?linkid=872319",
+      "level": "Critical"
+    },
+    {
+      "target": {},
+      "id": "MultipleLogFiles",
+      "tags": [ "Feature" ],
+      "displayName": "Multiple log files",
+      "description": "SQL Server allows a database to log to multiple files. This database has multiple log files.",
+      "message": "SQL Server allows a database to log to multiple files. This database has multiple log files.",
+      "helpLink": "https://go.microsoft.com/fwlink/?linkid=872319",
+      "level": "Critical"
+    },
+    {
+      "target": {},
+      "id": "ServiceBroker",
+      "tags": [ "Feature" ],
+      "displayName": "Service broker",
+      "description": "SQL Server Service Broker provides native support for messaging and queuing applications in the SQL Server Database Engine.",
+      "message": "SQL Server Service Broker provides native support for messaging and queuing applications in the SQL Server Database Engine.",
+      "helpLink": "https://aka.ms/service-bus-messaging",
+      "level": "Critical"
+    },
+    {
+      "target": {},
+      "id": "SysDatabases",
+      "tags": [ "Feature" ],
+      "displayName": "System databases features",
+      "description": "Collecting source databases features from sys.databases",
+      "message": "Collecting source databases features from sys.databases",
+      "helpLink": "",
+      "level": "Critical"
+    },
+    {
+      "target": {},
+      "id": "UnsupportedObjectTypes",
+      "tags": [ "Feature" ],
+      "displayName": "Unsupported object types",
+      "description": "Collecting unsupported objects from sys.objects",
+      "message": "Collecting unsupported objects from sys.objects",
+      "helpLink": "",
+      "level": "Critical"
+    },
+    {
+      "target": {},
+      "id": "AgentJobs",
+      "tags": [ "Feature" ],
+      "displayName": "Agent jobs",
+      "description": "SQL Server Agent is a Microsoft Windows service that executes scheduled administrative tasks, which are called jobs in SQL Server.",
+      "message": "SQL Server Agent is a Microsoft Windows service that executes scheduled administrative tasks, which are called jobs in SQL Server.",
+      "helpLink": "https://go.microsoft.com/fwlink/?linkid=838286",
+      "level": "Critical"
+    },
+    {
+      "target": {},
+      "id": "Configurations",
+      "tags": [ "Feature" ],
+      "displayName": "System configurations",
+      "description": "SQL Server provides several types of encryption that help protect sensitive data, including Transparent Data Encryption (TDE), Column Level Encryption (CLE), and Backup Encryption. In all of these cases, in this traditional key hierarchy, the data is encrypted using a symmetric data encryption key (DEK). The symmetric data encryption key is further protected by encrypting it with a hierarchy of keys stored in SQL Server. Instead of this model, the alternative is the EKM Provider Model. Using the EKM provider architecture enables SQL Server to protect the data encryption keys by using an asymmetric key stored outside of SQL Server in an external cryptographic provider. This model adds an additional layer of security and separates the management of keys and data.",
+      "message": "SQL Server provides several types of encryption that help protect sensitive data, including Transparent Data Encryption (TDE), Column Level Encryption (CLE), and Backup Encryption. In all of these cases, in this traditional key hierarchy, the data is encrypted using a symmetric data encryption key (DEK). The symmetric data encryption key is further protected by encrypting it with a hierarchy of keys stored in SQL Server. Instead of this model, the alternative is the EKM Provider Model. Using the EKM provider architecture enables SQL Server to protect the data encryption keys by using an asymmetric key stored outside of SQL Server in an external cryptographic provider. This model adds an additional layer of security and separates the management of keys and data.",
+      "helpLink": "https://go.microsoft.com/fwlink/?linkid=838286",
+      "level": "Critical"
+    },
+    {
+      "target": {},
+      "id": "DatabaseFilesMaxCountLimitation",
+      "tags": [ "Feature" ],
+      "displayName": "Databse files max count limitation",
+      "description": "Max number of database files per Managed Instance in general purpose is up to 280, unless the instance storage size(max 2TB - 8TB) and Azure premium Disk storage allocation space limit has been reached.",
+      "message": "Max number of database files per Managed Instance in general purpose is up to 280, unless the instance storage size(max 2TB - 8TB) and Azure premium Disk storage allocation space limit has been reached.",
+      "helpLink": "https://aka.ms/mi-resource-limits",
+      "level": "Critical"
+    },
+    {
+      "target": {},
+      "id": "DatabaseMails",
+      "tags": [ "Feature" ],
+      "displayName": "Databse mails",
+      "description": "",
+      "message": "",
+      "helpLink": "",
+      "level": "Critical"
+    },
+    {
+      "target": {},
+      "id": "DataCollection",
+      "tags": [ "Feature" ],
+      "displayName": "Data collection",
+      "description": "The data collector is a component of SQL Server that collects different sets of data. Data collection either runs constantly or on a user-defined schedule. The data collector stores the collected data in a relational database known as the management data warehouse.",
+      "message": "The data collector is a component of SQL Server that collects different sets of data. Data collection either runs constantly or on a user-defined schedule. The data collector stores the collected data in a relational database known as the management data warehouse.",
+      "helpLink": "https://go.microsoft.com/fwlink/?linkid=838301",
+      "level": "Critical"
+    },
+    {
+      "target": {},
+      "id": "InstalledServices",
+      "tags": [ "Feature" ],
+      "displayName": "Installed services",
+      "description": "Query the info of installed services like SSAS, SSRS, browser service, stream insight, RServices, MDS, DQS, certificate.",
+      "message": "Query the info of installed services like SSAS, SSRS, browser service, stream insight, RServices, MDS, DQS, certificate.",
+      "helpLink": "",
+      "level": "Critical"
+    },
+    {
+      "target": {},
+      "id": "MaintenancePlans",
+      "tags": [ "Feature" ],
+      "displayName": "Maintenance plans",
+      "description": "SQL Server maintenance plans are used to automate various database administration tasks, including backups, database integrity checks, or database statistics updates, at specified intervals.",
+      "message": "SQL Server maintenance plans are used to automate various database administration tasks, including backups, database integrity checks, or database statistics updates, at specified intervals.",
+      "helpLink": "https://go.microsoft.com/fwlink/?linkid=838279",
+      "level": "Critical"
+    },
+    {
+      "target": {},
+      "id": "UserDefinedErrorMessages",
+      "tags": [ "Feature" ],
+      "displayName": "User defined error messages",
+      "description": "The sp_addmessage system stored procedure lets you add error messages to SQL Server that can be referenced in code. This is helpful for standardized error messages that will be used throughout your application, especially if they need to be able to support multiple languages, but not so much for ad-hoc error messages.  But this feature is not supported in Azure SQL Database.",
+      "message": "The sp_addmessage system stored procedure lets you add error messages to SQL Server that can be referenced in code. This is helpful for standardized error messages that will be used throughout your application, especially if they need to be able to support multiple languages, but not so much for ad-hoc error messages.  But this feature is not supported in Azure SQL Database.",
+      "helpLink": "https://go.microsoft.com/fwlink/?linkid=838295",
+      "level": "Critical"
+    },
+    {
+      "target": {},
+      "id": "PolicyBasedManagement",
+      "tags": [ "Feature" ],
+      "displayName": "Policy-Based Management",
+      "description": "Policy-Based Management is a policy-based system for managing one or more instances of SQL Server. It is used to create conditions that contain condition expressions and then create policies that apply the conditions to database target objects.",
+      "message": "Policy-Based Management is a policy-based system for managing one or more instances of SQL Server. It is used to create conditions that contain condition expressions and then create policies that apply the conditions to database target objects.",
+      "helpLink": "https://go.microsoft.com/fwlink/?linkid=838285",
+      "level": "Critical"
+    },
+    {
+      "target": {},
+      "id": "ServerAudits",
+      "tags": [ "Feature" ],
+      "displayName": "Server audits",
+      "description": "Auditing an instance of the SQL Server Database Engine or an individual database involves tracking and logging events that occur on the Database Engine. SQL Server audit lets you create server audits, which can contain server audit specifications for server level events, and database audit specifications for database level events.",
+      "message": "Auditing an instance of the SQL Server Database Engine or an individual database involves tracking and logging events that occur on the Database Engine. SQL Server audit lets you create server audits, which can contain server audit specifications for server level events, and database audit specifications for database level events.",
+      "helpLink": "https://go.microsoft.com/fwlink/?linkid=872319",
+      "level": "Critical"
+    },
+    {
+      "target": {},
+      "id": "ServerCredentials",
+      "tags": [ "Feature" ],
+      "displayName": "Server credentials",
+      "description": "A credential is a record that contains the authentication information (credentials) required to connect to a resource outside SQL Server.",
+      "message": "A credential is a record that contains the authentication information (credentials) required to connect to a resource outside SQL Server.",
+      "helpLink": "https://go.microsoft.com/fwlink/?linkid=838290",
+      "level": "Critical"
+    },
+    {
+      "target": {},
+      "id": "ServerProperties",
+      "tags": [ "Feature" ],
+      "displayName": "Server properties",
+      "description": "Collects SERVERPROPERTIES like IsClustered, IsIntegratedSecurityOnly, IsPolyBaseInstalled and IsBufferPoolExtensionEnabled.",
+      "message": "Collects SERVERPROPERTIES like IsClustered, IsIntegratedSecurityOnly, IsPolyBaseInstalled and IsBufferPoolExtensionEnabled.",
+      "helpLink": "https://go.microsoft.com/fwlink/?linkid=838290",
+      "level": "Critical"
+    },
+    {
+      "target": {},
+      "id": "ServerTriggers",
+      "tags": [ "Feature" ],
+      "displayName": "Server scoped triggers",
+      "description": "A trigger is a special kind of stored procedure that executes in response to certain action on a table like insertion, deletion or updating of data.",
+      "message": "A trigger is a special kind of stored procedure that executes in response to certain action on a table like insertion, deletion or updating of data.",
+      "helpLink": "",
+      "level": "Critical"
+    },
+    {
+      "target": {},
+      "id": "TraceFlags",
+      "tags": [ "Feature" ],
+      "displayName": "Trace flags",
+      "description": "Trace flags are used to temporarily set specific server characteristics or to switch off a particular behavior.  Trace flags are frequently used to diagnose performance issues or to debug stored procedures or complex computer systems.",
+      "message": "Trace flags are used to temporarily set specific server characteristics or to switch off a particular behavior.  Trace flags are frequently used to diagnose performance issues or to debug stored procedures or complex computer systems.",
+      "helpLink": "",
+      "level": "Critical"
+    },
+    {
+      "target": {},
+      "id": "TSqlScript",
+      "tags": [ "Feature" ],
+      "displayName": "Analyzing TSQL script",
+      "description": "Collect TSQL scripts and using TSqlScriptDom to analyze the scripts",
+      "level": "Critical"
+    }
+  ]
+}

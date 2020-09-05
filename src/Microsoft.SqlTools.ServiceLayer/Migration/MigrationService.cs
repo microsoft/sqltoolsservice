@@ -186,8 +186,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             //    assessmentResults.AddRange(await check.Logics.GetAssessmentResults(request, target.Connection, null));
             // }
 
-            DmaEngine engine = new DmaEngine();
-            var assessmentResults = await engine.GetTargetAssessmentResultsList(target);
+            DmaEngine engine = new DmaEngine(target);
+            var assessmentResults = await engine.GetTargetAssessmentResultsList();
         
             var result = new List<MigrationAssessmentInfo>();
             foreach (var r in assessmentResults)
