@@ -77,8 +77,9 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// <inheritdoc/>
         public abstract IEnumerable<DataSourceObjectMetadata> GetChildObjects(DataSourceObjectMetadata parentMetadata, bool includeSizeDetails = false);
 
+        /// <param name="includeDatabase"></param>
         /// <inheritdoc/>
-        public abstract void Refresh();
+        public abstract void Refresh(bool includeDatabase);
 
         /// <inheritdoc/>
         public abstract void Refresh(DataSourceObjectMetadata objectMetadata);

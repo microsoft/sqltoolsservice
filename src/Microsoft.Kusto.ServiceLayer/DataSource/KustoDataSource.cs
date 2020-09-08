@@ -347,38 +347,43 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         {
             if (_databaseMetadata == null)
             {
-                CancellationTokenSource source = new CancellationTokenSource();
-                CancellationToken token = source.Token;
-
-                // Getting database names when we are connected to a specific database should not happen.
-                ValidationUtils.IsNotNull(DatabaseName, nameof(DatabaseName));
-
-                var query = ".show databases" + (this.ClusterName.IndexOf(AriaProxyURL, StringComparison.CurrentCultureIgnoreCase) == -1 ? " | project DatabaseName, PrettyName" : "");
-                
-                if (includeSizeDetails == true){
-                    query =  ".show cluster extents | summarize sum(OriginalSize) by tostring(DatabaseName)";
-                }
-
-                using (var reader = ExecuteQuery(query, token))
-                {
-                    _databaseMetadata = reader.ToEnumerable()
-                        .Where(row => !string.IsNullOrWhiteSpace(row["DatabaseName"].ToString()))
-                        .Select(row => new DatabaseMetadata
-                        {
-                            ClusterName = this.ClusterName,
-                            MetadataType = DataSourceMetadataType.Database,
-                            MetadataTypeName = DataSourceMetadataType.Database.ToString(),
-                            SizeInMB = includeSizeDetails == true ? row["sum_OriginalSize"].ToString() : null,
-                            Name = row["DatabaseName"].ToString(),
-                            PrettyName = includeSizeDetails == true ? row["DatabaseName"].ToString(): (String.IsNullOrEmpty(row["PrettyName"]?.ToString()) ? row["DatabaseName"].ToString() : row["PrettyName"].ToString()),
-                            Urn = $"{this.ClusterName}.{row["DatabaseName"].ToString()}"
-                        })
-                        .Materialize()
-                        .OrderBy(row => row.Name, StringComparer.Ordinal); // case-sensitive
-                }
+                SetDatabaseMetadata(includeSizeDetails);
             }
 
             return _databaseMetadata;
+        }
+
+        private void SetDatabaseMetadata(bool includeSizeDetails)
+        {
+            CancellationTokenSource source = new CancellationTokenSource();
+            CancellationToken token = source.Token;
+
+            // Getting database names when we are connected to a specific database should not happen.
+            ValidationUtils.IsNotNull(DatabaseName, nameof(DatabaseName));
+
+            var query = ".show databases" + (this.ClusterName.IndexOf(AriaProxyURL, StringComparison.CurrentCultureIgnoreCase) == -1 ? " | project DatabaseName, PrettyName" : "");
+                
+            if (includeSizeDetails == true){
+                query =  ".show cluster extents | summarize sum(OriginalSize) by tostring(DatabaseName)";
+            }
+
+            using (var reader = ExecuteQuery(query, token))
+            {
+                _databaseMetadata = reader.ToEnumerable()
+                    .Where(row => !string.IsNullOrWhiteSpace(row["DatabaseName"].ToString()))
+                    .Select(row => new DatabaseMetadata
+                    {
+                        ClusterName = this.ClusterName,
+                        MetadataType = DataSourceMetadataType.Database,
+                        MetadataTypeName = DataSourceMetadataType.Database.ToString(),
+                        SizeInMB = includeSizeDetails == true ? row["sum_OriginalSize"].ToString() : null,
+                        Name = row["DatabaseName"].ToString(),
+                        PrettyName = includeSizeDetails == true ? row["DatabaseName"].ToString(): (String.IsNullOrEmpty(row["PrettyName"]?.ToString()) ? row["DatabaseName"].ToString() : row["PrettyName"].ToString()),
+                        Urn = $"{this.ClusterName}.{row["DatabaseName"].ToString()}"
+                    })
+                    .Materialize()
+                    .OrderBy(row => row.Name, StringComparer.Ordinal); // case-sensitive
+            }
         }
 
         /// <inheritdoc/>
@@ -509,11 +514,17 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             return markers.ToArray();
         }
 
-        /// <inheritdoc/>
-        public override void Refresh()
+        /// <summary>
+        /// Clears everything
+        /// </summary>
+        /// <param name="includeDatabase"></param>
+        public override void Refresh(bool includeDatabase)
         {
             // This class caches objects. Throw them away so that the next call will re-query the data source for the objects.
-            _databaseMetadata = null;
+            if (includeDatabase)
+            {
+                _databaseMetadata = null;
+            }
             _tableMetadata = new ConcurrentDictionary<string, IEnumerable<TableMetadata>>();
             _columnMetadata  = new ConcurrentDictionary<string, IEnumerable<DataSourceObjectMetadata>>();
             _folderMetadata = new ConcurrentDictionary<string, IEnumerable<FolderMetadata>>();
@@ -528,49 +539,45 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             switch(objectMetadata.MetadataType)
             {
                 case DataSourceMetadataType.Cluster:
-                    Refresh();
+                    Refresh(true);
+                    SetDatabaseMetadata(false);
                     break;
-
+                
                 case DataSourceMetadataType.Database:
-                    _tableMetadata.TryRemove(objectMetadata.Name, out _);
+                    Refresh(false);
+                    LoadTableSchema(objectMetadata);
+                    LoadFunctionSchema(objectMetadata);
                     break;
 
                 case DataSourceMetadataType.Table:
-                    var tm = objectMetadata as TableMetadata;
-                    _columnMetadata.TryRemove(GenerateMetadataKey(tm.DatabaseName, tm.Name), out _);
+                    var table = objectMetadata as TableMetadata;
+                    _columnMetadata.TryRemove(GenerateMetadataKey(table.DatabaseName, table.Name), out _);
+                    SetTableSchema(table);
                     break;
 
-                case DataSourceMetadataType.Column:
-                    // Remove column metadata for the whole table
-                    var cm = objectMetadata as ColumnMetadata;
-                    _columnMetadata.TryRemove(GenerateMetadataKey(cm.DatabaseName, cm.TableName), out _);
-                    break;
-                
-                case DataSourceMetadataType.Function:
-                    var fm = objectMetadata as FunctionMetadata;
-                    _functionMetadata.TryRemove(GenerateMetadataKey(fm.DatabaseName, fm.Name), out _);
-                    break;
-                
                 case DataSourceMetadataType.Folder:
+                    Refresh(false);
                     var folder = objectMetadata as FolderMetadata;
-                    _folderMetadata.TryRemove(GenerateMetadataKey(folder.ParentMetadata.Name, folder.Name), out _);
+                    LoadTableSchema(folder.ParentMetadata);
+                    LoadFunctionSchema(folder.ParentMetadata);
                     break;
-
+                
                 default:
                     throw new ArgumentException($"Unexpected type {objectMetadata.MetadataType}.");
             }
         }
 
         /// <inheritdoc/>
-        public override IEnumerable<DataSourceObjectMetadata> GetChildObjects(DataSourceObjectMetadata objectMetadata, bool includeSizeDetails)
+        public override IEnumerable<DataSourceObjectMetadata> GetChildObjects(DataSourceObjectMetadata objectMetadata,
+            bool includeSizeDetails = false)
         {
             ValidationUtils.IsNotNull(objectMetadata, nameof(objectMetadata));
 
-            switch(objectMetadata.MetadataType)
+            switch (objectMetadata.MetadataType)
             {
                 case DataSourceMetadataType.Cluster: // show databases
                     return GetDatabaseMetadata(includeSizeDetails);
-                    
+
                 case DataSourceMetadataType.Database: // show folders, tables, and functions
                     return includeSizeDetails
                         ? GetTablesForDashboard(objectMetadata)
@@ -589,7 +596,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             }
         }
 
-         public override DiagnosticsInfo GetDiagnostics(DataSourceObjectMetadata objectMetadata)
+        public override DiagnosticsInfo GetDiagnostics(DataSourceObjectMetadata objectMetadata)
         {
             ValidationUtils.IsNotNull(objectMetadata, nameof(objectMetadata));
 
@@ -765,16 +772,23 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 return _columnMetadata[key];
             }
             
+            SetTableSchema(tableMetadata);
+
+            return _columnMetadata.ContainsKey(key)
+                ? _columnMetadata[key]
+                : Enumerable.Empty<DataSourceObjectMetadata>();
+        }
+
+        private void SetTableSchema(TableMetadata tableMetadata)
+        {
             IEnumerable<ColumnInfo> columnInfos = GetColumnInfos(tableMetadata.DatabaseName, tableMetadata.Name);
 
             if (!columnInfos.Any())
             {
-                return Enumerable.Empty<DataSourceObjectMetadata>();
+                return;
             }
             
             SetColumnMetadata(tableMetadata.DatabaseName, tableMetadata.Name, columnInfos);
-            
-            return _columnMetadata[key];
         }
 
         private void SetFolderMetadataForTables(DataSourceObjectMetadata objectMetadata, IEnumerable<TableInfo> tableInfos, string rootTableFolderKey)

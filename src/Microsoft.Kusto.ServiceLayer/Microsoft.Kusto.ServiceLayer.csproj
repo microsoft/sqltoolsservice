@@ -36,7 +36,7 @@
     <ProjectReference Include="../Microsoft.SqlTools.ManagedBatchParser/Microsoft.SqlTools.ManagedBatchParser.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="ObjectExplorer\SmoModel\TreeNodeDefinition.xml" />
+    <EmbeddedResource Include="ObjectExplorer\DataSourceModel\TreeNodeDefinition.xml" />
     <EmbeddedResource Include="Localization\sr.resx" />
     <None Include="Localization\sr.strings" />
   </ItemGroup>

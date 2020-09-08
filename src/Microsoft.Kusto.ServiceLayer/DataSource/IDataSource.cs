@@ -73,7 +73,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// <summary>
         /// Refresh object list for entire cluster.
         /// </summary>
-        void Refresh();
+        /// <param name="includeDatabase"></param>
+        void Refresh(bool includeDatabase);
 
         /// <summary>
         /// Refresh object list for given object.
