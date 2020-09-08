@@ -228,7 +228,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             {
                 cancellationToken.Register(() => CancelQuery(clientRequestProperties.ClientRequestId));
             }
-
+            
             IDataReader origReader = KustoQueryProvider.ExecuteQuery(
                 KustoQueryUtils.IsClusterLevelQuery(query) ? "" : databaseName, 
                 query, 
@@ -239,14 +239,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
         private void CancelQuery(string clientRequestId)
         {
-            var query = ".cancel query " + clientRequestId;
-            CancellationTokenSource source = new CancellationTokenSource();
-            CancellationToken token = source.Token;
-
-            using (var reader = ExecuteQuery(query, token))
-            {
-                // No-op
-            }
+            var query = $".cancel query \"{clientRequestId}\"";
+            ExecuteControlCommand(query);
         }
 
         /// <inheritdoc/>
