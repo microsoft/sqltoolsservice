@@ -718,15 +718,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             // SQL Server 2016 and earlier versions does not provide sys.dm_os_host_info and we know the host OS can only be Windows.
             if (!Version.TryParse(ReadServerVersion(connection), out var hostVersion) || hostVersion.Major <= 13)
             {
-                ExecuteReader(
-                    connection,
-                    SqlConnectionHelperScripts.GetHostWindowsVersion,
-                    reader =>
-                    {
-                        reader.Read();
-                        hostInfo.Platform = "Windows";
-                        hostInfo.Release = reader[0].ToString();
-                    });
+                try
+                {
+                    hostInfo.Platform = "Windows";
+                    ExecuteReader(
+                        connection,
+                        SqlConnectionHelperScripts.GetHostWindowsVersion,
+                        reader =>
+                        {
+                            reader.Read();
+                            hostInfo.Release = reader[0].ToString();
+                        });
+                }
+                catch
+                {
+                    // Ignore the error and only set the Platform to Windows by default
+                }
             }
             else
             {
