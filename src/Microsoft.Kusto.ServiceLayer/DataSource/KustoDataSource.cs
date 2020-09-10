@@ -420,7 +420,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         public override LanguageServices.Contracts.CompletionItem[] GetAutoCompleteSuggestions(ScriptDocumentInfo scriptDocumentInfo, Position textPosition, bool throwOnError = false){
             var kustoCodeService = new KustoCodeService(scriptDocumentInfo.Contents, SchemaState);
             var script = CodeScript.From(scriptDocumentInfo.Contents, SchemaState);
-            script.TryGetTextPosition(textPosition.Line + 1, textPosition.Character, out int position);     // Gets the actual offset based on line and local offset
+            script.TryGetTextPosition(textPosition.Line + 1, textPosition.Character + 1, out int position);     // Gets the actual offset based on line and local offset
             
             var completion = kustoCodeService.GetCompletionItems(position);
             scriptDocumentInfo.ScriptParseInfo.CurrentSuggestions = completion.Items;         // this is declaration item so removed for now, but keep the info when api gets updated
