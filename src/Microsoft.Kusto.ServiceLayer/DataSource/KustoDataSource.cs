@@ -429,7 +429,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             foreach (var autoCompleteItem in completion.Items)
             {
                 var label = autoCompleteItem.DisplayText;
-                var insertText = KustoQueryUtils.EscapeName(autoCompleteItem.DisplayText);
+                var insertText = KustoQueryUtils.EscapeName(label);
                 var completionKind = KustoIntellisenseHelper.CreateCompletionItemKind(autoCompleteItem.Kind);
                 completions.Add(AutoCompleteHelper.CreateCompletionItem(label, autoCompleteItem.Kind.ToString(),
                     insertText, completionKind, scriptDocumentInfo.StartLine, scriptDocumentInfo.StartColumn,
