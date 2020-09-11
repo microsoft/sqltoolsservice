@@ -429,7 +429,11 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             foreach (var autoCompleteItem in completion.Items)
             {
                 var label = autoCompleteItem.DisplayText;
-                completions.Add(AutoCompleteHelper.CreateCompletionItem(label, label + " keyword", label, KustoIntellisenseHelper.CreateCompletionItemKind(autoCompleteItem.Kind), scriptDocumentInfo.StartLine, scriptDocumentInfo.StartColumn, textPosition.Character));
+                var insertText = KustoQueryUtils.EscapeName(label);
+                var completionKind = KustoIntellisenseHelper.CreateCompletionItemKind(autoCompleteItem.Kind);
+                completions.Add(AutoCompleteHelper.CreateCompletionItem(label, autoCompleteItem.Kind.ToString(),
+                    insertText, completionKind, scriptDocumentInfo.StartLine, scriptDocumentInfo.StartColumn,
+                    textPosition.Character));
             }
 
             return completions.ToArray();
