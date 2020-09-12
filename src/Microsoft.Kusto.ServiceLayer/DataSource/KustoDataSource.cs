@@ -229,6 +229,9 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 cancellationToken.Register(() => CancelQuery(clientRequestProperties.ClientRequestId));
             }
             
+            var kustoCodeService = new KustoCodeService(query);
+            query = kustoCodeService.GetMinimalText(MinimalTextKind.RemoveLeadingWhitespaceAndComments);
+
             IDataReader origReader = KustoQueryProvider.ExecuteQuery(
                 KustoQueryUtils.IsClusterLevelQuery(query) ? "" : databaseName, 
                 query, 
