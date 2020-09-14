@@ -86,8 +86,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         public KustoDataSource(string connectionString, string azureAccountToken)
         {
             ClusterName = GetClusterName(connectionString);
-            DatabaseName = GetDatabaseName(connectionString);
             UserToken = azureAccountToken;
+            DatabaseName = GetDatabaseName(connectionString);
             SchemaState = Task.Run(() =>
                 KustoIntellisenseHelper.AddOrUpdateDatabaseAsync(this, GlobalState.Default, DatabaseName, ClusterName,
                     throwOnError: false)).Result;
@@ -117,14 +117,32 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         }
 
         /// <summary>
-        /// Extracts the database name from the connectionstring, if it exists
-        /// <summary>
-        /// <param name="connectionString">A connection string coming over the Data management protocol</param>
-        private static string GetDatabaseName(string connectionString)
+        /// Extracts the database name from the connectionString if it exists
+        /// otherwise it takes the first database name from the server
+        /// </summary>
+        /// <param name="connectionString"></param>
+        /// <returns>Database Name</returns>
+        private string GetDatabaseName(string connectionString)
         {
             var csb = new SqlConnectionStringBuilder(connectionString);
 
-            return csb.InitialCatalog;
+            if (!string.IsNullOrWhiteSpace(csb.InitialCatalog))
+            {
+                return csb.InitialCatalog;    
+            }
+            
+            CancellationTokenSource source = new CancellationTokenSource();
+            CancellationToken token = source.Token;
+
+            string query = ".show databases | project DatabaseName";
+
+            using (var reader = ExecuteQuery(query, token))
+            {
+                var rows = reader.ToEnumerable();
+                var row = rows?.FirstOrDefault();
+                var tableName = row?[0].ToString() ?? string.Empty; 
+                return tableName;
+            }
         }
 
         /// <summary>
