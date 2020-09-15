@@ -140,8 +140,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             {
                 var rows = reader.ToEnumerable();
                 var row = rows?.FirstOrDefault();
-                var tableName = row?[0].ToString() ?? string.Empty; 
-                return tableName;
+                return row?[0].ToString() ?? string.Empty;
             }
         }
 
