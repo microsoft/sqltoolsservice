@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Diagnostics;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
@@ -16,7 +15,7 @@ using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.Utility;
 using System.Globalization;
-using System.Collections.ObjectModel;
+using Microsoft.Kusto.ServiceLayer.DataSource;
 
 namespace Microsoft.Kusto.ServiceLayer.QueryExecution
 {
@@ -369,6 +368,14 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
 
                 } while (reader.NextResult());
 
+                KustoResultsReader kreader = reader as KustoResultsReader;
+                kreader.SanitizeResults(resultSets);
+
+                foreach (var resultSet in resultSets)
+                {
+                    await resultSet.SendCurrentResults();
+                }
+                
                 // If there were no messages, for whatever reason (NO COUNT set, messages 
                 // were emitted, records returned), output a "successful" message
                 if (!messagesSent)
