@@ -74,7 +74,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
         /// <summary>
         /// Row count to use in special scenarios where we want to override the number of rows.
         /// </summary>
-        private long? rowCountOverride=null;
+        private long? rowCountOverride = null;
 
         /// <summary>
         /// The special action which applied to this result set
@@ -304,7 +304,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
 
 
             return Task.Factory.StartNew(() =>
-            { 
+            {
                 string content;
                 string format = null;
 
@@ -313,12 +313,12 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                     // Determine the format and get the first col/row of XML
                     content = fileStreamReader.ReadRow(0, 0, Columns)[0].DisplayValue;
 
-                    if (specialAction.ExpectYukonXMLShowPlan) 
+                    if (specialAction.ExpectYukonXMLShowPlan)
                     {
                         format = "xml";
                     }
                 }
-                    
+
                 return new ExecutionPlan
                 {
                     Format = format,
@@ -338,7 +338,6 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
             //
             Validate.IsNotNull(nameof(dbDataReader), dbDataReader);
 
-            Task availableTask = null;
             try
             {
                 // Verify the request hasn't been cancelled
@@ -357,11 +356,6 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                     //
                     hasStartedRead = true;
 
-                    // Invoke the SendCurrentResults() asynchronously that will send the results available notification
-                    //   and also trigger the timer to send periodic updates.
-                    //
-                    availableTask = SendCurrentResults();
-
                     while (await dataReader.ReadAsync(cancellationToken))
                     {
                         fileOffsets.Add(totalBytesWritten);
@@ -371,25 +365,9 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
             }
             finally
             {
-
-                // await the completion of available notification in case it is not already done before proceeding
-                //
-                await availableTask;
-
                 // now set the flag to indicate that we are done reading. this equates to Complete flag to be marked 'True' in any future notifications.
                 //
                 hasCompletedRead = true;
-
-
-                // Make a final call to SendCurrentResults() and await its completion. If the previously scheduled task already took care of latest status send then this should be a no-op
-                //
-                await SendCurrentResults();
-
-
-                // and finally:
-                // Make a call to send ResultCompletion and await its completion. This is just for backward compatibility with older protocol
-                //
-                await (ResultCompletion?.Invoke(this) ?? Task.CompletedTask);
             }
         }
 
@@ -518,7 +496,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                     }
                 }
             });
-            
+
             // Add exception handling to the save task
             Task taskWithHandling = saveAsTask.ContinueWithOnFaulted(async t =>
             {
@@ -582,19 +560,8 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
 
         #endregion
 
-        #region Private Helper Methods
-        /// <summary>
-        /// Sends the ResultsUpdated message if the number of rows has changed since last send.
-        /// </summary>
-        /// <param name="stateInfo"></param>
-        private void SendResultAvailableOrUpdated (object stateInfo = null)
-        {
-            // Make the call to send current results and synchronously wait for it to finish
-            //
-            SendCurrentResults().Wait();
-        }
-
-        private async Task SendCurrentResults()
+        #region Public Helper Methods
+        public async Task SendCurrentResults()
         {
             try
             {
@@ -603,7 +570,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                 //
                 sendResultsSemphore.Wait();
 
-                ResultSet currentResultSetSnapshot = (ResultSet) MemberwiseClone();
+                ResultSet currentResultSetSnapshot = (ResultSet)MemberwiseClone();
                 if (LastUpdatedSummary == null) // We need to send results available message.
                 {
                     // Fire off results Available task and await it
@@ -658,11 +625,29 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                 }
             }
             finally
-            { 
+            {
+                // and finally:
+                // Make a call to send ResultCompletion and await its completion. This is just for backward compatibility with older protocol
+                //
+                await (ResultCompletion?.Invoke(this) ?? Task.CompletedTask);
+
                 // Release the sendResultsSemphore so the next invocation gets unblocked
                 //
                 sendResultsSemphore.Release();
             }
+        }
+        #endregion
+
+        #region Private Helper Methods
+        /// <summary>
+        /// Sends the ResultsUpdated message if the number of rows has changed since last send.
+        /// </summary>
+        /// <param name="stateInfo"></param>
+        private void SendResultAvailableOrUpdated(object stateInfo = null)
+        {
+            // Make the call to send current results and synchronously wait for it to finish
+            //
+            SendCurrentResults().Wait();
         }
 
         private uint ResultsIntervalMultiplier { get; set; } = 1;
@@ -696,8 +681,8 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
         /// <summary>
         /// Determine the special action, if any, for this result set
         /// </summary>
-        private SpecialAction ProcessSpecialAction() 
-        {           
+        private SpecialAction ProcessSpecialAction()
+        {
 
             // Check if this result set is a showplan 
             if (Columns.Length == 1 && string.Compare(Columns[0].ColumnName, YukonXmlShowPlanColumn, StringComparison.OrdinalIgnoreCase) == 0)
@@ -732,7 +717,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
             {
                 throw new InvalidOperationException(SR.QueryServiceResultSetAddNoRows);
             }
-            
+
             using (IFileStreamWriter writer = fileStreamFactory.GetWriter(outputFileName))
             {
                 // Write the row to the end of the file
