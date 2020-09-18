@@ -6,8 +6,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Collections.Concurrent;
 using System.Data;
-using System.Data.SqlClient;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -15,9 +13,7 @@ using Newtonsoft.Json;
 using System.Threading.Tasks;
 using Kusto.Cloud.Platform.Data;
 using Kusto.Data;
-using Kusto.Data.Common;
 using Kusto.Data.Data;
-using Kusto.Data.Net.Client;
 using Kusto.Language;
 using Kusto.Language.Editor;
 using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
@@ -36,9 +32,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
     /// </summary>
     public class KustoDataSource : DataSourceBase
     {
-        private ICslQueryProvider _kustoQueryProvider;
-
-        private ICslAdminProvider _kustoAdminProvider;
+        private readonly IKustoClient _kustoClient;
 
         /// <summary>
         /// List of databases.
@@ -65,6 +59,10 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// </summary>
         private ConcurrentDictionary<string, IEnumerable<FunctionMetadata>> _functionMetadata = new ConcurrentDictionary<string, IEnumerable<FunctionMetadata>>();
 
+        public override string DatabaseName => _kustoClient.DatabaseName;
+
+        public override string ClusterName => _kustoClient.ClusterName;
+
         // Some clusters have this signature. Queries might slightly differ for Aria
         private const string AriaProxyURL = "kusto.aria.microsoft.com"; 
 
@@ -83,122 +81,14 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// <summary>
         /// Prevents a default instance of the <see cref="IDataSource"/> class from being created.
         /// </summary>
-        public KustoDataSource(string connectionString, string azureAccountToken)
+        public KustoDataSource(IKustoClient kustoClient)
         {
-            ClusterName = GetClusterName(connectionString);
-            UserToken = azureAccountToken;
-            DatabaseName = GetDatabaseName(connectionString);
-            SchemaState = Task.Run(() =>
-                KustoIntellisenseHelper.AddOrUpdateDatabaseAsync(this, GlobalState.Default, DatabaseName, ClusterName,
-                    throwOnError: false)).Result;
+            _kustoClient = kustoClient;
             // Check if a connection can be made
             ValidationUtils.IsTrue<ArgumentException>(Exists().Result,
                 $"Unable to connect. ClusterName = {ClusterName}, DatabaseName = {DatabaseName}");
         }
-
-        /// <summary>
-        /// Extracts the cluster name from the connectionstring. The string looks like the following:
-        /// "Data Source=clustername.kusto.windows.net;User ID=;Password=;Pooling=False;Application Name=azdata-GeneralConnection"
-        /// <summary>
-        /// <param name="connectionString">A connection string coming over the Data management protocol</param>
-        private static string GetClusterName(string connectionString)
-        {
-            var csb = new SqlConnectionStringBuilder(connectionString);
-
-            // If there is no https:// prefix, add it
-            Uri uri;
-            if ((Uri.TryCreate(csb.DataSource, UriKind.Absolute, out uri) || Uri.TryCreate("https://" + csb.DataSource, UriKind.Absolute, out uri)) &&
-                (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
-            {
-                return uri.AbsoluteUri;
-            }
-
-            throw new ArgumentException("Expected a URL of the form clustername.kusto.windows.net");
-        }
-
-        /// <summary>
-        /// Extracts the database name from the connectionString if it exists
-        /// otherwise it takes the first database name from the server
-        /// </summary>
-        /// <param name="connectionString"></param>
-        /// <returns>Database Name</returns>
-        private string GetDatabaseName(string connectionString)
-        {
-            var csb = new SqlConnectionStringBuilder(connectionString);
-
-            if (!string.IsNullOrWhiteSpace(csb.InitialCatalog))
-            {
-                return csb.InitialCatalog;    
-            }
-            
-            CancellationTokenSource source = new CancellationTokenSource();
-            CancellationToken token = source.Token;
-
-            string query = ".show databases | project DatabaseName";
-
-            using (var reader = ExecuteQuery(query, token))
-            {
-                var rows = reader.ToEnumerable();
-                var row = rows?.FirstOrDefault();
-                return row?[0].ToString() ?? string.Empty;
-            }
-        }
-
-        /// <summary>
-        /// SchemaState used for getting intellisense info.
-        /// </summary>
-        public GlobalState SchemaState { get; private set; }
-
-        /// <summary>
-        /// The AAD user token.
-        /// </summary>
-        public string UserToken { get; private set; }
-
-        /// <summary>
-        /// The AAD application client id.
-        /// </summary>
-        public string ApplicationClientId { get; private set; }
-
-        /// <summary>
-        /// The AAD application client key.
-        /// </summary>
-        public string ApplicationKey { get; private set; }
-
-        // The Kusto query provider.
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private ICslQueryProvider KustoQueryProvider
-        {
-            get
-            {
-                if (_kustoQueryProvider == null)
-                {
-                    var kcsb = GetKustoConnectionStringBuilder();
-                    _kustoQueryProvider = KustoClientFactory.CreateCslQueryProvider(kcsb);
-                }
-
-                return _kustoQueryProvider;
-            }
-        }
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private ICslAdminProvider KustoAdminProvider
-        {
-            get
-            {
-                if (_kustoAdminProvider == null)
-                {
-                    var kcsb = GetKustoConnectionStringBuilder();
-                    _kustoAdminProvider = KustoClientFactory.CreateCslAdminProvider(kcsb);
-                    if (!string.IsNullOrWhiteSpace(DatabaseName))
-                    {
-                        _kustoAdminProvider.DefaultDatabaseName = DatabaseName;
-                    }
-                }
-
-                return _kustoAdminProvider;
-            }
-        }
-
+        
         /// <summary>
         /// Disposes resources.
         /// </summary>
@@ -208,11 +98,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             // Dispose managed resources.
             if (disposing)
             {
-                _kustoQueryProvider?.Dispose();
-                _kustoQueryProvider = null;
-
-                _kustoAdminProvider?.Dispose();
-                _kustoAdminProvider = null;
+                _kustoClient.Dispose();
             }
 
             base.Dispose(disposing);
@@ -227,40 +113,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// <returns>The results.</returns>
         public override Task<IDataReader> ExecuteQueryAsync(string query, CancellationToken cancellationToken, string databaseName = null)
         {
-            var reader = ExecuteQuery(query, cancellationToken, databaseName);
+            var reader = _kustoClient.ExecuteQuery(query, cancellationToken, databaseName);
             return Task.FromResult(reader);
-        }
-
-        private IDataReader ExecuteQuery(string query, CancellationToken cancellationToken, string databaseName = null)
-        {
-            ValidationUtils.IsArgumentNotNullOrWhiteSpace(query, nameof(query));
-
-            var clientRequestProperties = new ClientRequestProperties
-            {
-                ClientRequestId = Guid.NewGuid().ToString()
-            };
-            clientRequestProperties.SetOption(ClientRequestProperties.OptionNoTruncation, true);
-
-            if(cancellationToken != null)
-            {
-                cancellationToken.Register(() => CancelQuery(clientRequestProperties.ClientRequestId));
-            }
-            
-            var kustoCodeService = new KustoCodeService(query);
-            query = kustoCodeService.GetMinimalText(MinimalTextKind.RemoveLeadingWhitespaceAndComments);
-
-            IDataReader origReader = KustoQueryProvider.ExecuteQuery(
-                KustoQueryUtils.IsClusterLevelQuery(query) ? "" : databaseName, 
-                query, 
-                clientRequestProperties);
-
-            return new KustoResultsReader(origReader);
-        }
-
-        private void CancelQuery(string clientRequestId)
-        {
-            var query = $".cancel query \"{clientRequestId}\"";
-            ExecuteControlCommand(query);
         }
 
         /// <inheritdoc/>
@@ -281,68 +135,17 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         }
 
         #endregion
-
-        /// <summary>
-        /// Executes a Kusto control command.
-        /// </summary>
-        /// <param name="command">The command.</param>
-        public void ExecuteControlCommand(string command)
-        {
-            ValidationUtils.IsArgumentNotNullOrWhiteSpace(command, nameof(command));
-
-            using (var adminOutput = KustoAdminProvider.ExecuteControlCommand(command, null))
-            {
-            }
-        }
-
-        private KustoConnectionStringBuilder GetKustoConnectionStringBuilder()
-        {
-            ValidationUtils.IsNotNull(ClusterName, nameof(ClusterName));
-            ValidationUtils.IsTrue<ArgumentException>(
-                !string.IsNullOrWhiteSpace(UserToken)
-                || (!string.IsNullOrWhiteSpace(ApplicationClientId) && !string.IsNullOrWhiteSpace(ApplicationKey)),
-                $"the Kusto authentication is not specified - either set {nameof(UserToken)}, or set {nameof(ApplicationClientId)} and {nameof(ApplicationKey)}");
-
-            var kcsb = new KustoConnectionStringBuilder
-            {
-                DataSource = ClusterName,
-
-                // Perform federated auth based on the AAD user token, or based on the AAD application client id and key.
-                FederatedSecurity = true
-            };
-
-            if (!string.IsNullOrWhiteSpace(DatabaseName))
-            {
-                kcsb.InitialCatalog = DatabaseName;
-            }
-
-            if (!string.IsNullOrWhiteSpace(UserToken))
-            {
-                kcsb.UserToken = UserToken;
-            }
-
-            if (!string.IsNullOrWhiteSpace(ApplicationClientId))
-            {
-                kcsb.ApplicationClientId = ApplicationClientId;
-            }
-
-            if (!string.IsNullOrWhiteSpace(ApplicationKey))
-            {
-                kcsb.ApplicationKey = ApplicationKey;
-            }
-
-            return kcsb;
-        }
-
+        
         #region IDataSource
 
-        protected DiagnosticsInfo GetClusterDiagnostics(){
+        private DiagnosticsInfo GetClusterDiagnostics()
+        {
             CancellationTokenSource source = new CancellationTokenSource();
             CancellationToken token = source.Token;
             DiagnosticsInfo clusterDiagnostics = new DiagnosticsInfo();
 
             var query =  ".show diagnostics | extend Passed= (IsHealthy) and not(IsScaleOutRequired) | extend Summary = strcat('Cluster is ', iif(Passed, '', 'NOT'), 'healthy.'),Details=pack('MachinesTotal', MachinesTotal, 'DiskCacheCapacity', round(ClusterDataCapacityFactor,1)) | project Action = 'Cluster Diagnostics', Category='Info', Summary, Details;";
-            using (var reader = ExecuteQuery(query, token))
+            using (var reader = _kustoClient.ExecuteQuery(query, token))
                 {
                     while(reader.Read()) 
                     {
@@ -381,7 +184,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 query =  ".show cluster extents | summarize sum(OriginalSize) by tostring(DatabaseName)";
             }
 
-            using (var reader = ExecuteQuery(query, token))
+            using (var reader = _kustoClient.ExecuteQuery(query, token))
             {
                 _databaseMetadata = reader.ToEnumerable()
                     .Where(row => !string.IsNullOrWhiteSpace(row["DatabaseName"].ToString()))
@@ -432,14 +235,13 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
         /// <inheritdoc/>
         public override void UpdateDatabase(string databaseName){
-            DatabaseName = databaseName;
-            SchemaState = Task.Run(() => KustoIntellisenseHelper.AddOrUpdateDatabaseAsync(this, GlobalState.Default, DatabaseName, ClusterName, throwOnError: false)).Result;
+            _kustoClient.UpdateDatabase(databaseName);
         }
 
         /// <inheritdoc/>
         public override LanguageServices.Contracts.CompletionItem[] GetAutoCompleteSuggestions(ScriptDocumentInfo scriptDocumentInfo, Position textPosition, bool throwOnError = false){
-            var kustoCodeService = new KustoCodeService(scriptDocumentInfo.Contents, SchemaState);
-            var script = CodeScript.From(scriptDocumentInfo.Contents, SchemaState);
+            var kustoCodeService = new KustoCodeService(scriptDocumentInfo.Contents, _kustoClient.SchemaState);
+            var script = CodeScript.From(scriptDocumentInfo.Contents, _kustoClient.SchemaState);
             script.TryGetTextPosition(textPosition.Line + 1, textPosition.Character + 1, out int position);     // Gets the actual offset based on line and local offset
             
             var completion = kustoCodeService.GetCompletionItems(position);
@@ -461,8 +263,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
         /// <inheritdoc/>
         public override Hover GetHoverHelp(ScriptDocumentInfo scriptDocumentInfo, Position textPosition, bool throwOnError = false){
-            var kustoCodeService = new KustoCodeService(scriptDocumentInfo.Contents, SchemaState);
-            var script = CodeScript.From(scriptDocumentInfo.Contents, SchemaState);
+            var kustoCodeService = new KustoCodeService(scriptDocumentInfo.Contents, _kustoClient.SchemaState);
+            var script = CodeScript.From(scriptDocumentInfo.Contents, _kustoClient.SchemaState);
             script.TryGetTextPosition(textPosition.Line + 1, textPosition.Character, out int position);
 
             var quickInfo = kustoCodeService.GetQuickInfo(position);
@@ -478,7 +280,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
         /// <inheritdoc/>
         public override DefinitionResult GetDefinition(string queryText, int index, int startLine, int startColumn, bool throwOnError = false){
-            var abc = KustoCode.ParseAndAnalyze(queryText, SchemaState);        //TODOKusto: API wasnt working properly, need to check that part.
+            var abc = KustoCode.ParseAndAnalyze(queryText, _kustoClient.SchemaState);        //TODOKusto: API wasnt working properly, need to check that part.
             var kustoCodeService = new KustoCodeService(abc);
             //var kustoCodeService = new KustoCodeService(queryText, globals);
             var relatedInfo = kustoCodeService.GetRelatedElements(index);
@@ -494,8 +296,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// <inheritdoc/>
         public override ScriptFileMarker[] GetSemanticMarkers(ScriptParseInfo parseInfo, ScriptFile scriptFile, string queryText)
         {
-            var kustoCodeService = new KustoCodeService(queryText, SchemaState);
-            var script = CodeScript.From(queryText, SchemaState);
+            var kustoCodeService = new KustoCodeService(queryText, _kustoClient.SchemaState);
+            var script = CodeScript.From(queryText, _kustoClient.SchemaState);
             var parseResult = kustoCodeService.GetDiagnostics();
             
 
@@ -723,7 +525,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             query.Append($" | where TableName == '{tableName}' ");
             query.Append(" | project TableName, ColumnName, ColumnType, Folder");
 
-            using (var reader = ExecuteQuery(query.ToString(), token, databaseName))
+            using (var reader = _kustoClient.ExecuteQuery(query.ToString(), token, databaseName))
             {
                 var columns = reader.ToEnumerable()
                     .Select(row => new ColumnInfo
@@ -747,7 +549,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
             string query = $".show database {databaseName} cslschema";
 
-            using (var reader = ExecuteQuery(query, token, databaseName))
+            using (var reader = _kustoClient.ExecuteQuery(query, token, databaseName))
             {
                 return reader.ToEnumerable()
                     .Select(row => new TableInfo
@@ -1023,7 +825,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
             string query = ".show functions";
 
-            using (var reader = ExecuteQuery(query, token, databaseName))
+            using (var reader = _kustoClient.ExecuteQuery(query, token, databaseName))
             {
                 return reader.ToEnumerable()
                     .Select(row => new FunctionInfo
@@ -1045,7 +847,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
             string query = $".show function {functionName}";
 
-            using (var reader = ExecuteQuery(query, token, DatabaseName))
+            using (var reader = _kustoClient.ExecuteQuery(query, token, DatabaseName))
             {
                 return reader.ToEnumerable()
                     .Select(row => new FunctionInfo

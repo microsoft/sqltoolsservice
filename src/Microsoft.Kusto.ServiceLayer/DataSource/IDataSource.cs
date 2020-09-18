@@ -30,7 +30,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// <summary>
         /// The current database name, if there is one.
         /// </summary>
-        string DatabaseName { get; set; }
+        string DatabaseName { get; }
 
         /// <summary>
         /// Executes a query.

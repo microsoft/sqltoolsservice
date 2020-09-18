@@ -20,10 +20,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
     /// <inheritdoc cref="IDataSource"/>
     public abstract class DataSourceBase : IDataSource
     {
-        protected Object dataSourceLock = new Object();
-
-        private string _database;
-
         #region IDisposable
 
         /// <summary>
@@ -110,25 +106,11 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
         /// <inheritdoc/>
         public DataSourceType DataSourceType { get; protected set; }
-
+        
         /// <inheritdoc/>
-        public string ClusterName { get; protected set; }
+        public abstract string ClusterName { get; }
 
-        /// <inheritdoc/>
-        public string DatabaseName { 
-            get
-            {
-                return _database;
-            }
-            
-            set
-            {
-                lock(dataSourceLock)
-                {
-                    _database = value;
-                }
-            }
-        }
+        public abstract string DatabaseName { get; }
 
         #endregion
     }

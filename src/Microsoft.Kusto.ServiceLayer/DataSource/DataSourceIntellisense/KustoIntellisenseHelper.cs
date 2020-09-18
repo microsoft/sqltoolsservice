@@ -161,13 +161,16 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
         /// <summary>
         /// Loads the schema for the specified databasea into a a <see cref="DatabaseSymbol"/>.
         /// </summary>
-        private static async Task<DatabaseSymbol> LoadDatabaseAsync(IDataSource dataSource, string databaseName, bool throwOnError = false)
+        private static async Task<DatabaseSymbol> LoadDatabaseAsync(IKustoClient kustoClient, string databaseName,
+            bool throwOnError = false)
         {
             var members = new List<Symbol>();
             CancellationTokenSource source = new CancellationTokenSource();
             CancellationToken cancellationToken = source.Token;
 
-            var tableSchemas = await dataSource.ExecuteControlCommandAsync<ShowDatabaseSchemaResult>($".show database {databaseName} schema", throwOnError, cancellationToken).ConfigureAwait(false);
+            var tableSchemas = await kustoClient
+                .ExecuteControlCommandAsync<ShowDatabaseSchemaResult>($".show database {databaseName} schema",
+                    throwOnError, cancellationToken).ConfigureAwait(false);
             if (tableSchemas == null)
                 return null;
 
@@ -182,7 +185,9 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
                 members.Add(tableSymbol);
             }
 
-            var functionSchemas = await dataSource.ExecuteControlCommandAsync<ShowFunctionsResult>(".show functions", throwOnError, cancellationToken).ConfigureAwait(false);
+            var functionSchemas = await kustoClient
+                .ExecuteControlCommandAsync<ShowFunctionsResult>(".show functions", throwOnError, cancellationToken)
+                .ConfigureAwait(false);
             if (functionSchemas == null)
                 return null;
 
@@ -234,33 +239,41 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
         /// <summary>
         /// Gets default keyword when user if not connected to any Kusto cluster.
         /// </summary>
-        public static LanguageServices.Contracts.CompletionItem[] GetDefaultKeywords(ScriptDocumentInfo scriptDocumentInfo, Position textDocumentPosition){
-                var kustoCodeService = new KustoCodeService(scriptDocumentInfo.Contents, GlobalState.Default);
-                var script = CodeScript.From(scriptDocumentInfo.Contents, GlobalState.Default);
-                script.TryGetTextPosition(textDocumentPosition.Line + 1, textDocumentPosition.Character, out int position);     // Gets the actual offset based on line and local offset      
-                var completion = kustoCodeService.GetCompletionItems(position);
+        public static LanguageServices.Contracts.CompletionItem[] GetDefaultKeywords(
+            ScriptDocumentInfo scriptDocumentInfo, Position textDocumentPosition)
+        {
+            var kustoCodeService = new KustoCodeService(scriptDocumentInfo.Contents, GlobalState.Default);
+            var script = CodeScript.From(scriptDocumentInfo.Contents, GlobalState.Default);
+            script.TryGetTextPosition(textDocumentPosition.Line + 1, textDocumentPosition.Character,
+                out int position); // Gets the actual offset based on line and local offset      
+            var completion = kustoCodeService.GetCompletionItems(position);
 
-                List<LanguageServices.Contracts.CompletionItem> completions = new List<LanguageServices.Contracts.CompletionItem>();
-                foreach (var autoCompleteItem in completion.Items)
-                {
-                    var label = autoCompleteItem.DisplayText;
-                    // convert the completion item candidates into vscode format CompletionItems
-                    completions.Add(AutoCompleteHelper.CreateCompletionItem(label, label + " keyword", label, CompletionItemKind.Keyword, scriptDocumentInfo.StartLine, scriptDocumentInfo.StartColumn, textDocumentPosition.Character));
-                }
+            List<LanguageServices.Contracts.CompletionItem> completions =
+                new List<LanguageServices.Contracts.CompletionItem>();
+            foreach (var autoCompleteItem in completion.Items)
+            {
+                var label = autoCompleteItem.DisplayText;
+                // convert the completion item candidates into vscode format CompletionItems
+                completions.Add(AutoCompleteHelper.CreateCompletionItem(label, label + " keyword", label,
+                    CompletionItemKind.Keyword, scriptDocumentInfo.StartLine, scriptDocumentInfo.StartColumn,
+                    textDocumentPosition.Character));
+            }
 
-                return completions.ToArray();
+            return completions.ToArray();
         }
 
         /// <summary>
         /// Gets default diagnostics when user if not connected to any Kusto cluster.
         /// </summary>
-        public static ScriptFileMarker[] GetDefaultDiagnostics(ScriptParseInfo parseInfo, ScriptFile scriptFile, string queryText){
+        public static ScriptFileMarker[] GetDefaultDiagnostics(ScriptParseInfo parseInfo, ScriptFile scriptFile,
+            string queryText)
+        {
             var kustoCodeService = new KustoCodeService(queryText, GlobalState.Default);
             var script = CodeScript.From(queryText, GlobalState.Default);
             var parseResult = kustoCodeService.GetDiagnostics();
-            
+
             parseInfo.ParseResult = parseResult;
-            
+
             // build a list of Kusto script file markers from the errors.
             List<ScriptFileMarker> markers = new List<ScriptFileMarker>();
             if (parseResult != null && parseResult.Count() > 0)
@@ -295,22 +308,26 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
         /// <summary>
         /// Loads the schema for the specified database and returns a new <see cref="GlobalState"/> with the database added or updated.
         /// </summary>
-        public static async Task<GlobalState> AddOrUpdateDatabaseAsync(IDataSource dataSource, GlobalState globals, string databaseName, string clusterName, bool throwOnError)
-        {   // try and show error from here.
+        public static async Task<GlobalState> AddOrUpdateDatabaseAsync(IKustoClient dataSource, GlobalState globals,
+            string databaseName, string clusterName, bool throwOnError)
+        {
+            // try and show error from here.
             DatabaseSymbol databaseSymbol = null;
 
-            if(databaseName != null){
+            if (databaseName != null)
+            {
                 databaseSymbol = await LoadDatabaseAsync(dataSource, databaseName, throwOnError).ConfigureAwait(false);
             }
 
-            if(databaseSymbol == null){
+            if (databaseSymbol == null)
+            {
                 return globals;
             }
 
             var cluster = globals.GetCluster(clusterName);
             if (cluster == null)
             {
-                cluster = new ClusterSymbol(clusterName, new[] { databaseSymbol }, isOpen: true);
+                cluster = new ClusterSymbol(clusterName, new[] {databaseSymbol}, isOpen: true);
                 globals = globals.AddOrUpdateCluster(cluster);
             }
             else
