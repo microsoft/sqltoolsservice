@@ -47,6 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             serviceHost.SetRequestHandler(GenerateDeployScriptRequest.Type, this.HandleGenerateDeployScriptRequest);
             serviceHost.SetRequestHandler(GenerateDeployPlanRequest.Type, this.HandleGenerateDeployPlanRequest);
             serviceHost.SetRequestHandler(GetOptionsFromProfileRequest.Type, this.HandleGetOptionsFromProfileRequest);
+            serviceHost.SetRequestHandler(ValidateStreamingJobRequest.Type, this.HandleValidateStreamingJobRequest);
         }
 
         /// <summary>
@@ -249,6 +250,23 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     Success = true,
                     ErrorMessage = string.Empty,
                 });
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e);
+            }
+        }
+
+        /// <summary>
+        /// Handles request to validate an ASA streaming job
+        /// </summary>
+        /// <returns></returns>
+        public async Task HandleValidateStreamingJobRequest(ValidateStreamingJobParams parameters, RequestContext<StreamingJobValidationResult> requestContext)
+        {
+            try
+            {
+                ValidateStreamingJobOperation operation = new ValidateStreamingJobOperation(parameters);
+                ExecuteOperation(operation, parameters, SR.ValidateStreamingJobTaskName, requestContext);
             }
             catch (Exception e)
             {
