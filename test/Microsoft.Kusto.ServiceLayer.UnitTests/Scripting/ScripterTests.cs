@@ -17,7 +17,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.Scripting
             var scripter = new Scripter();
             var result = scripter.SelectFromTableOrView(mockDataSource.Object, urn);
             
-            Assert.AreEqual("[@\"quoted'Name\"]\n | limit 1000", result);
+            Assert.AreEqual("[@\"quoted'Name\"]\n | take 10", result);
         }
 
         [Test]
