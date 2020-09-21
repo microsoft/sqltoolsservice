@@ -226,6 +226,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// </summary>
         public void Close()
         {
+            _dataSource?.Dispose();
         }
         
         /// <summary>	
