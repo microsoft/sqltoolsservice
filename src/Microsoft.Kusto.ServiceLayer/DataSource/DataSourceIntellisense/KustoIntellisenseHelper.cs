@@ -341,5 +341,110 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
             return globals;
         }
 
+        /// <inheritdoc/>
+        public static LanguageServices.Contracts.CompletionItem[] GetAutoCompleteSuggestions(
+            ScriptDocumentInfo scriptDocumentInfo, Position textPosition, GlobalState schemaState,
+            bool throwOnError = false)
+        {
+            var kustoCodeService = new KustoCodeService(scriptDocumentInfo.Contents, schemaState);
+            var script = CodeScript.From(scriptDocumentInfo.Contents, schemaState);
+            script.TryGetTextPosition(textPosition.Line + 1, textPosition.Character + 1,
+                out int position); // Gets the actual offset based on line and local offset
+
+            var completion = kustoCodeService.GetCompletionItems(position);
+            scriptDocumentInfo.ScriptParseInfo.CurrentSuggestions =
+                completion.Items; // this is declaration item so removed for now, but keep the info when api gets updated
+
+            var completions = new List<LanguageServices.Contracts.CompletionItem>();
+            foreach (var autoCompleteItem in completion.Items)
+            {
+                var label = autoCompleteItem.DisplayText;
+                var insertText = autoCompleteItem.Kind == CompletionKind.Table
+                    ? KustoQueryUtils.EscapeName(label)
+                    : label;
+                
+                var completionKind = CreateCompletionItemKind(autoCompleteItem.Kind);
+                completions.Add(AutoCompleteHelper.CreateCompletionItem(label, autoCompleteItem.Kind.ToString(),
+                    insertText, completionKind, scriptDocumentInfo.StartLine, scriptDocumentInfo.StartColumn,
+                    textPosition.Character));
+            }
+
+            return completions.ToArray();
+        }
+
+        /// <inheritdoc/>
+        public static Hover GetHoverHelp(ScriptDocumentInfo scriptDocumentInfo, Position textPosition,
+            GlobalState schemaState, bool throwOnError = false)
+        {
+            var kustoCodeService = new KustoCodeService(scriptDocumentInfo.Contents, schemaState);
+            var script = CodeScript.From(scriptDocumentInfo.Contents, schemaState);
+            script.TryGetTextPosition(textPosition.Line + 1, textPosition.Character, out int position);
+
+            var quickInfo = kustoCodeService.GetQuickInfo(position);
+
+            return AutoCompleteHelper.ConvertQuickInfoToHover(
+                quickInfo.Text,
+                "kusto",
+                scriptDocumentInfo.StartLine,
+                scriptDocumentInfo.StartColumn,
+                textPosition.Character);
+        }
+
+        /// <inheritdoc/>
+        public static DefinitionResult GetDefinition(string queryText, int index, int startLine, int startColumn,
+            GlobalState schemaState, bool throwOnError = false)
+        {
+            var abc = KustoCode.ParseAndAnalyze(queryText,
+                schemaState); //TODOKusto: API wasnt working properly, need to check that part.
+            var kustoCodeService = new KustoCodeService(abc);
+            //var kustoCodeService = new KustoCodeService(queryText, globals);
+            var relatedInfo = kustoCodeService.GetRelatedElements(index);
+
+            if (relatedInfo != null && relatedInfo.Elements.Count > 1)
+            {
+            }
+
+            return null;
+        }
+
+        /// <inheritdoc/>
+        public static ScriptFileMarker[] GetSemanticMarkers(ScriptParseInfo parseInfo, ScriptFile scriptFile,
+            string queryText, GlobalState schemaState)
+        {
+            var kustoCodeService = new KustoCodeService(queryText, schemaState);
+            var script = CodeScript.From(queryText, schemaState);
+            var parseResult = kustoCodeService.GetDiagnostics();
+            parseInfo.ParseResult = parseResult;
+
+            // build a list of Kusto script file markers from the errors.
+            List<ScriptFileMarker> markers = new List<ScriptFileMarker>();
+            if (parseResult != null && parseResult.Any())
+            {
+                foreach (var error in parseResult)
+                {
+                    script.TryGetLineAndOffset(error.Start, out var startLine, out var startOffset);
+                    script.TryGetLineAndOffset(error.End, out var endLine, out var endOffset);
+
+                    // vscode specific format for error markers.
+                    markers.Add(new ScriptFileMarker()
+                    {
+                        Message = error.Message,
+                        Level = ScriptFileMarkerLevel.Error,
+                        ScriptRegion = new ScriptRegion()
+                        {
+                            File = scriptFile.FilePath,
+                            StartLineNumber = startLine,
+                            StartColumnNumber = startOffset,
+                            StartOffset = 0,
+                            EndLineNumber = endLine,
+                            EndColumnNumber = endOffset,
+                            EndOffset = 0
+                        }
+                    });
+                }
+            }
+
+            return markers.ToArray();
+        }
     }
 }

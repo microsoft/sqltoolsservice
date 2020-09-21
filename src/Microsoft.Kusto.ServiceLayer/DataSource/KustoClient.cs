@@ -16,7 +16,6 @@ using Kusto.Language.Editor;
 using Microsoft.Data.SqlClient;
 using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
 using Microsoft.Kusto.ServiceLayer.Utility;
-using Microsoft.SqlServer.Management.Smo;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource
 {
@@ -161,23 +160,12 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             var kustoCodeService = new KustoCodeService(query);
             var minimalQuery = kustoCodeService.GetMinimalText(MinimalTextKind.RemoveLeadingWhitespaceAndComments);
 
-            try
-            {
-                IDataReader origReader = _kustoQueryProvider.ExecuteQuery(
-                    KustoQueryUtils.IsClusterLevelQuery(minimalQuery) ? "" : databaseName,
-                    minimalQuery,
-                    clientRequestProperties);
+            IDataReader origReader = _kustoQueryProvider.ExecuteQuery(
+                KustoQueryUtils.IsClusterLevelQuery(minimalQuery) ? "" : databaseName,
+                minimalQuery,
+                clientRequestProperties);
 
-                return new KustoResultsReader(origReader);
-            }
-            catch (KustoRequestException exception)
-            {
-                if (exception.ErrorMessage == "Unauthorized")
-                {
-                    // call ADS for new token
-                }
-                throw;
-            }
+            return new KustoResultsReader(origReader);
         }
 
         /// <summary>

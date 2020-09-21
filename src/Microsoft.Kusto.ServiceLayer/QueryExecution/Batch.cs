@@ -15,6 +15,7 @@ using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.Utility;
 using System.Globalization;
+using Kusto.Data.Exceptions;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 
 namespace Microsoft.Kusto.ServiceLayer.QueryExecution
@@ -306,6 +307,10 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                 try
                 {
                     await ExecuteOnce(conn, cancellationToken);
+                }
+                catch (KustoRequestException exception)
+                {
+                    
                 }
                 catch (DbException dbe)
                 {

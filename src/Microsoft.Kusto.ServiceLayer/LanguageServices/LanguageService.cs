@@ -771,7 +771,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                 connInfo.TryGetConnection("Default", out connection);
                 IDataSource dataSource = connection.GetUnderlyingConnection();
                 
-                return dataSource.GetDefinition(scriptFile.Contents, textDocumentPosition.Position.Character, 1, 1);
+                return KustoIntellisenseHelper.GetDefinition(scriptFile.Contents, textDocumentPosition.Position.Character, 1, 1, dataSource.SchemaState);
             }
             else
             {
@@ -816,7 +816,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                                 connInfo.TryGetConnection("Default", out connection);
                                 IDataSource dataSource = connection.GetUnderlyingConnection();               
                                 
-                                return dataSource.GetHoverHelp(scriptDocumentInfo, textDocumentPosition.Position);
+                                return KustoIntellisenseHelper.GetHoverHelp(scriptDocumentInfo, textDocumentPosition.Position, dataSource.SchemaState);
                             });
 
                         queueItem.ItemProcessed.WaitOne();
@@ -865,7 +865,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                 connInfo.TryGetConnection("Default", out connection);
                 IDataSource dataSource = connection.GetUnderlyingConnection();
 			    
-                resultCompletionItems = dataSource.GetAutoCompleteSuggestions(scriptDocumentInfo, textDocumentPosition.Position);
+                resultCompletionItems = KustoIntellisenseHelper.GetAutoCompleteSuggestions(scriptDocumentInfo, textDocumentPosition.Position, dataSource.SchemaState);
             }
             else{
                 resultCompletionItems = DataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocumentInfo, textDocumentPosition.Position);
@@ -1010,7 +1010,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                     connInfo.TryGetConnection("Default", out var connection);
                     IDataSource dataSource = connection.GetUnderlyingConnection();
                     
-                    semanticMarkers = dataSource.GetSemanticMarkers(parseInfo, scriptFile, scriptFile.Contents);
+                    semanticMarkers = KustoIntellisenseHelper.GetSemanticMarkers(parseInfo, scriptFile, scriptFile.Contents, dataSource.SchemaState);
 			    }
                 else{
                     semanticMarkers = DataSourceFactory.GetDefaultSemanticMarkers(DataSourceType.Kusto, parseInfo, scriptFile, scriptFile.Contents);

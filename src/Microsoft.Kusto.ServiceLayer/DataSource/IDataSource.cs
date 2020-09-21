@@ -3,12 +3,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
+using Kusto.Language;
 using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
-using Microsoft.Kusto.ServiceLayer.LanguageServices;
-using Microsoft.Kusto.ServiceLayer.LanguageServices.Completion;
-using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
-using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource
 {
@@ -31,6 +27,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// The current database name, if there is one.
         /// </summary>
         string DatabaseName { get; }
+        
+        GlobalState SchemaState { get; }
 
         /// <summary>
         /// Executes a query.
@@ -87,29 +85,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// </summary>
         /// <param name="updateDatabase">Object metadata.</param>
         void UpdateDatabase(string databaseName);
-
-        /// <summary>
-        /// Gets autocomplete suggestions at given position.
-        /// </summary>
-        /// <param name="GetAutoCompleteSuggestions">Object metadata.</param>
-        CompletionItem[] GetAutoCompleteSuggestions(ScriptDocumentInfo queryText, Position index, bool throwOnError = false);
-        /// <summary>
-        /// Gets quick info hover tooltips for the current position.
-        /// </summary>
-        /// <param name="GetHoverHelp">Object metadata.</param>
-        Hover GetHoverHelp(ScriptDocumentInfo scriptDocumentInfo, Position textPosition, bool throwOnError = false);
-
-        /// <summary>
-        /// Gets definition for a selected query text.
-        /// </summary>
-        /// <param name="GetDefinition">Object metadata.</param>
-        DefinitionResult GetDefinition(string queryText, int index, int startLine, int startColumn, bool throwOnError = false);
-        
-        /// <summary>
-        /// Gets a list of semantic diagnostic marks for the provided script file
-        /// </summary>
-        /// <param name="GetSemanticMarkers">Object metadata.</param>
-        ScriptFileMarker[] GetSemanticMarkers(ScriptParseInfo parseInfo, ScriptFile scriptFile, string queryText);
 
         /// <summary>
         /// Tells whether the data source exists.

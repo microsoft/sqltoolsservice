@@ -15,15 +15,9 @@ using Kusto.Cloud.Platform.Data;
 using Kusto.Data;
 using Kusto.Data.Data;
 using Kusto.Language;
-using Kusto.Language.Editor;
-using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
 using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 using Microsoft.Kusto.ServiceLayer.DataSource.Models;
-using Microsoft.Kusto.ServiceLayer.LanguageServices;
-using Microsoft.Kusto.ServiceLayer.LanguageServices.Completion;
-using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.Kusto.ServiceLayer.Utility;
-using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource
 {
@@ -62,6 +56,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         public override string DatabaseName => _kustoClient.DatabaseName;
 
         public override string ClusterName => _kustoClient.ClusterName;
+        
+        public override GlobalState SchemaState => _kustoClient.SchemaState;
 
         // Some clusters have this signature. Queries might slightly differ for Aria
         private const string AriaProxyURL = "kusto.aria.microsoft.com"; 
@@ -236,102 +232,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// <inheritdoc/>
         public override void UpdateDatabase(string databaseName){
             _kustoClient.UpdateDatabase(databaseName);
-        }
-
-        /// <inheritdoc/>
-        public override LanguageServices.Contracts.CompletionItem[] GetAutoCompleteSuggestions(ScriptDocumentInfo scriptDocumentInfo, Position textPosition, bool throwOnError = false){
-            var kustoCodeService = new KustoCodeService(scriptDocumentInfo.Contents, _kustoClient.SchemaState);
-            var script = CodeScript.From(scriptDocumentInfo.Contents, _kustoClient.SchemaState);
-            script.TryGetTextPosition(textPosition.Line + 1, textPosition.Character + 1, out int position);     // Gets the actual offset based on line and local offset
-            
-            var completion = kustoCodeService.GetCompletionItems(position);
-            scriptDocumentInfo.ScriptParseInfo.CurrentSuggestions = completion.Items;         // this is declaration item so removed for now, but keep the info when api gets updated
-
-            List<LanguageServices.Contracts.CompletionItem> completions = new List<LanguageServices.Contracts.CompletionItem>();
-            foreach (var autoCompleteItem in completion.Items)
-            {
-                var label = autoCompleteItem.DisplayText;
-                var insertText = KustoQueryUtils.EscapeName(label);
-                var completionKind = KustoIntellisenseHelper.CreateCompletionItemKind(autoCompleteItem.Kind);
-                completions.Add(AutoCompleteHelper.CreateCompletionItem(label, autoCompleteItem.Kind.ToString(),
-                    insertText, completionKind, scriptDocumentInfo.StartLine, scriptDocumentInfo.StartColumn,
-                    textPosition.Character));
-            }
-
-            return completions.ToArray();
-        }
-
-        /// <inheritdoc/>
-        public override Hover GetHoverHelp(ScriptDocumentInfo scriptDocumentInfo, Position textPosition, bool throwOnError = false){
-            var kustoCodeService = new KustoCodeService(scriptDocumentInfo.Contents, _kustoClient.SchemaState);
-            var script = CodeScript.From(scriptDocumentInfo.Contents, _kustoClient.SchemaState);
-            script.TryGetTextPosition(textPosition.Line + 1, textPosition.Character, out int position);
-
-            var quickInfo = kustoCodeService.GetQuickInfo(position);
-
-            return AutoCompleteHelper.ConvertQuickInfoToHover(
-                                        quickInfo.Text,
-                                        "kusto",
-                                        scriptDocumentInfo.StartLine,
-                                        scriptDocumentInfo.StartColumn,
-                                        textPosition.Character);
-
-        }
-
-        /// <inheritdoc/>
-        public override DefinitionResult GetDefinition(string queryText, int index, int startLine, int startColumn, bool throwOnError = false){
-            var abc = KustoCode.ParseAndAnalyze(queryText, _kustoClient.SchemaState);        //TODOKusto: API wasnt working properly, need to check that part.
-            var kustoCodeService = new KustoCodeService(abc);
-            //var kustoCodeService = new KustoCodeService(queryText, globals);
-            var relatedInfo = kustoCodeService.GetRelatedElements(index);
-
-            if (relatedInfo != null && relatedInfo.Elements.Count > 1)
-            {
-
-            }
-
-            return null;
-        }
-
-        /// <inheritdoc/>
-        public override ScriptFileMarker[] GetSemanticMarkers(ScriptParseInfo parseInfo, ScriptFile scriptFile, string queryText)
-        {
-            var kustoCodeService = new KustoCodeService(queryText, _kustoClient.SchemaState);
-            var script = CodeScript.From(queryText, _kustoClient.SchemaState);
-            var parseResult = kustoCodeService.GetDiagnostics();
-            
-
-            parseInfo.ParseResult = parseResult;
-            
-            // build a list of Kusto script file markers from the errors.
-            List<ScriptFileMarker> markers = new List<ScriptFileMarker>();
-            if (parseResult != null && parseResult.Count() > 0)
-            {
-                foreach (var error in parseResult)
-                {
-                    script.TryGetLineAndOffset(error.Start, out var startLine, out var startOffset);
-                    script.TryGetLineAndOffset(error.End, out var endLine, out var endOffset);
-
-                    // vscode specific format for error markers.
-                    markers.Add(new ScriptFileMarker()
-                    {
-                        Message = error.Message,
-                        Level = ScriptFileMarkerLevel.Error,
-                        ScriptRegion = new ScriptRegion()
-                        {
-                            File = scriptFile.FilePath,
-                            StartLineNumber = startLine,
-                            StartColumnNumber = startOffset,
-                            StartOffset = 0,
-                            EndLineNumber = endLine,
-                            EndColumnNumber = endOffset,
-                            EndOffset = 0
-                        }
-                    });
-                }
-            }
-
-            return markers.ToArray();
         }
 
         /// <summary>
