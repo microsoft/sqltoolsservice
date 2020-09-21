@@ -19,6 +19,7 @@ using Kusto.Data.Common;
 using Kusto.Data.Data;
 using Kusto.Data.Net.Client;
 using Kusto.Language;
+using KustoDiagnostic = Kusto.Language.Diagnostic;
 using Kusto.Language.Editor;
 using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
 using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
@@ -437,12 +438,12 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         }
 
         /// <inheritdoc/>
-        public override LanguageServices.Contracts.CompletionItem[] GetAutoCompleteSuggestions(ScriptDocumentInfo scriptDocumentInfo, Position textPosition, bool throwOnError = false){
-            var kustoCodeService = new KustoCodeService(scriptDocumentInfo.Contents, SchemaState);
+        public override LanguageServices.Contracts.CompletionItem[] GetAutoCompleteSuggestions(ScriptDocumentInfo scriptDocumentInfo, Position textPosition, bool throwOnError = false){            
             var script = CodeScript.From(scriptDocumentInfo.Contents, SchemaState);
             script.TryGetTextPosition(textPosition.Line + 1, textPosition.Character + 1, out int position);     // Gets the actual offset based on line and local offset
             
-            var completion = kustoCodeService.GetCompletionItems(position);
+            var codeBlock = script.GetBlockAtPosition(position);
+            var completion = codeBlock.Service.GetCompletionItems(position);
             scriptDocumentInfo.ScriptParseInfo.CurrentSuggestions = completion.Items;         // this is declaration item so removed for now, but keep the info when api gets updated
 
             List<LanguageServices.Contracts.CompletionItem> completions = new List<LanguageServices.Contracts.CompletionItem>();
@@ -461,11 +462,11 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
         /// <inheritdoc/>
         public override Hover GetHoverHelp(ScriptDocumentInfo scriptDocumentInfo, Position textPosition, bool throwOnError = false){
-            var kustoCodeService = new KustoCodeService(scriptDocumentInfo.Contents, SchemaState);
             var script = CodeScript.From(scriptDocumentInfo.Contents, SchemaState);
-            script.TryGetTextPosition(textPosition.Line + 1, textPosition.Character, out int position);
+            script.TryGetTextPosition(textPosition.Line + 1, textPosition.Character + 1, out int position);
 
-            var quickInfo = kustoCodeService.GetQuickInfo(position);
+            var codeBlock = script.GetBlockAtPosition(position);
+            var quickInfo = codeBlock.Service.GetQuickInfo(position);
 
             return AutoCompleteHelper.ConvertQuickInfoToHover(
                                         quickInfo.Text,
@@ -496,8 +497,12 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         {
             var kustoCodeService = new KustoCodeService(queryText, SchemaState);
             var script = CodeScript.From(queryText, SchemaState);
-            var parseResult = kustoCodeService.GetDiagnostics();
-            
+            var parseResult = new List<KustoDiagnostic>();
+
+            foreach (var codeBlock in script.Blocks)
+            {
+                parseResult.AddRange(codeBlock.Service.GetDiagnostics());
+            }
 
             parseInfo.ParseResult = parseResult;
             
