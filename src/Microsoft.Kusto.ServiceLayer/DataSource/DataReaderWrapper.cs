@@ -8,8 +8,18 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 {
     public class DataReaderWrapper : IDataReader
     {
-        private readonly IDataReader _inner ;
-        public DataReaderWrapper(IDataReader inner)
+        private IDataReader _inner ;
+
+        protected DataReaderWrapper()
+        {
+        }
+
+        protected DataReaderWrapper(IDataReader inner)
+        {
+            SetDataReader(inner);
+        }
+
+        protected void SetDataReader(IDataReader inner)
         {
             _inner = inner;
         }
