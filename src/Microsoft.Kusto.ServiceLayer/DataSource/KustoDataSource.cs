@@ -230,10 +230,11 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         }
 
         /// <inheritdoc/>
-        public override void UpdateDatabase(string databaseName){
+        public override void UpdateDatabase(string databaseName)
+        {
             _kustoClient.UpdateDatabase(databaseName);
         }
-
+        
         /// <summary>
         /// Clears everything
         /// </summary>
