@@ -11,10 +11,5 @@ namespace Microsoft.Kusto.ServiceLayer.Connection.Contracts
         /// Gets or sets the access token.
         /// </summary>
         public string Token { get; set; }
-
-        /// <summary>
-        /// Expiration of the access token in seconds epoch seconds.
-        /// </summary>
-        public long Expiration { get; set; }
     }
 }
