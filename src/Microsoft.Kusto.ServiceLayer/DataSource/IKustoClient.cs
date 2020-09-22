@@ -14,8 +14,11 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         GlobalState SchemaState { get; }
 
         string ClusterName { get; }
+        
         string DatabaseName { get; }
-        bool RefreshToken(string azureAccountToken);
+        
+        void UpdateAzureToken(string azureAccountToken);
+        
         IDataReader ExecuteQuery(string query, CancellationToken cancellationToken, string databaseName = null);
 
         /// <summary>
@@ -37,6 +40,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         void ExecuteControlCommand(string command);
 
         void UpdateDatabase(string databaseName);
+        
         void Dispose();
     }
 }

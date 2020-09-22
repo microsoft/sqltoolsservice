@@ -16,6 +16,7 @@ using Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.Utility;
 using System.Globalization;
 using Kusto.Data.Exceptions;
+using Microsoft.Kusto.ServiceLayer.QueryExecution.Exceptions;
 
 namespace Microsoft.Kusto.ServiceLayer.QueryExecution
 {
@@ -179,6 +180,8 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
         /// Whether or not this batch has been executed, regardless of success or failure 
         /// </summary>
         public bool HasExecuted { get; set; }
+        
+        private bool ReRunQuery { get; set; }
 
         /// <summary>
         /// Ordinal of the batch in the query
@@ -250,7 +253,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
         public async Task Execute(ReliableDataSourceConnection conn, CancellationToken cancellationToken)
         {
             // Sanity check to make sure we haven't already run this batch
-            if (HasExecuted)
+            if (HasExecuted && !ReRunQuery)
             {
                 throw new InvalidOperationException("Batch has already executed.");
             }
@@ -264,6 +267,16 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
             try
             {
                 await DoExecute(conn, cancellationToken);
+            }
+            catch (KustoUnauthorizedException)
+            {
+                // Rerun the query once
+                if (!ReRunQuery)
+                {
+                    ReRunQuery = true;    
+                }
+                
+                throw;
             }
             catch (TaskCanceledException)
             {
@@ -309,7 +322,10 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                 }
                 catch (KustoRequestException exception)
                 {
-                    
+                    if (exception.FailureCode == 401) // Unauthorized
+                    {
+                        throw new KustoUnauthorizedException(exception.Message);
+                    }
                 }
                 catch (DbException dbe)
                 {

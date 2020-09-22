@@ -26,7 +26,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
     /// </summary>
     public class KustoDataSource : DataSourceBase
     {
-        private readonly IKustoClient _kustoClient;
+        private IKustoClient _kustoClient;
 
         /// <summary>
         /// List of databases.
@@ -794,6 +794,11 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         private string GenerateMetadataKey(string databaseName, string objectName)
         {
             return string.IsNullOrWhiteSpace(objectName) ? databaseName : $"{databaseName}.{objectName}";
+        }
+
+        public override void UpdateAzureToken(string azureToken)
+        {
+            _kustoClient.UpdateAzureToken(azureToken);
         }
         #endregion
     }

@@ -9,7 +9,6 @@ using Kusto.Cloud.Platform.Data;
 using Kusto.Data;
 using Kusto.Data.Common;
 using Kusto.Data.Data;
-using Kusto.Data.Exceptions;
 using Kusto.Data.Net.Client;
 using Kusto.Language;
 using Kusto.Language.Editor;
@@ -53,17 +52,11 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             _kustoAdminProvider = KustoClientFactory.CreateCslAdminProvider(stringBuilder);
         }
 
-        public bool RefreshToken(string azureAccountToken)
+        public void UpdateAzureToken(string azureAccountToken)
         {
-            try
-            {
-                Initialize(ClusterName, DatabaseName, azureAccountToken);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+            _kustoQueryProvider.Dispose();
+            _kustoAdminProvider.Dispose();
+            Initialize(ClusterName, DatabaseName, azureAccountToken);
         }
 
         /// <summary>
