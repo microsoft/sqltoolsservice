@@ -5,8 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Linq;
 using Kusto.Language;
 using Kusto.Language.Editor;
@@ -24,41 +22,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
     /// </summary>
     public class KustoIntellisenseHelper
     {
-        public class ShowDatabasesResult
-        {
-            public string DatabaseName;
-            public string PersistentStorage;
-            public string Version;
-            public bool IsCurrent;
-            public string DatabaseAccessMode;
-            public string PrettyName;
-            public bool CurrentUserIsUnrestrictedViewer;
-            public string DatabaseId;
-        }
-
-        public class ShowDatabaseSchemaResult
-        {
-            public string DatabaseName;
-            public string TableName;
-            public string ColumnName;
-            public string ColumnType;
-            public bool IsDefaultTable;
-            public bool IsDefaultColumn;
-            public string PrettyName;
-            public string Version;
-            public string Folder;
-            public string DocName;
-        }
-
-        public class ShowFunctionsResult
-        {
-            public string Name;
-            public string Parameters;
-            public string Body;
-            public string Folder;
-            public string DocString;
-        }
-
         /// <summary>
         /// Convert CLR type name into a Kusto scalar type.
         /// </summary>
@@ -161,23 +124,20 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
         /// <summary>
         /// Loads the schema for the specified databasea into a a <see cref="DatabaseSymbol"/>.
         /// </summary>
-        private static async Task<DatabaseSymbol> LoadDatabaseAsync(IKustoClient kustoClient, string databaseName,
-            bool throwOnError = false)
+        private static DatabaseSymbol LoadDatabaseAsync(IEnumerable<ShowDatabaseSchemaResult> tableSchemas,
+            IEnumerable<ShowFunctionsResult> functionSchemas,
+            string databaseName)
         {
-            var members = new List<Symbol>();
-            CancellationTokenSource source = new CancellationTokenSource();
-            CancellationToken cancellationToken = source.Token;
-
-            var tableSchemas = await kustoClient
-                .ExecuteControlCommandAsync<ShowDatabaseSchemaResult>($".show database {databaseName} schema",
-                    throwOnError, cancellationToken).ConfigureAwait(false);
             if (tableSchemas == null)
+            {
                 return null;
+            }
 
             tableSchemas = tableSchemas
                 .Where(r => !string.IsNullOrEmpty(r.TableName) && !string.IsNullOrEmpty(r.ColumnName))
                 .ToArray();
 
+            var members = new List<Symbol>();
             foreach (var table in tableSchemas.GroupBy(s => s.TableName))
             {
                 var columns = table.Select(s => new ColumnSymbol(s.ColumnName, GetKustoType(s.ColumnType))).ToList();
@@ -185,11 +145,10 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
                 members.Add(tableSymbol);
             }
 
-            var functionSchemas = await kustoClient
-                .ExecuteControlCommandAsync<ShowFunctionsResult>(".show functions", throwOnError, cancellationToken)
-                .ConfigureAwait(false);
             if (functionSchemas == null)
+            {
                 return null;
+            }
 
             foreach (var fun in functionSchemas)
             {
@@ -198,8 +157,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
                 members.Add(functionSymbol);
             }
 
-            var databaseSymbol = new DatabaseSymbol(databaseName, members);
-            return databaseSymbol;
+            return new DatabaseSymbol(databaseName, members);
         }
 
         public static CompletionItemKind CreateCompletionItemKind(CompletionKind kustoKind)
@@ -308,15 +266,16 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
         /// <summary>
         /// Loads the schema for the specified database and returns a new <see cref="GlobalState"/> with the database added or updated.
         /// </summary>
-        public static async Task<GlobalState> AddOrUpdateDatabaseAsync(IKustoClient dataSource, GlobalState globals,
-            string databaseName, string clusterName, bool throwOnError)
+        public static GlobalState AddOrUpdateDatabase(IEnumerable<ShowDatabaseSchemaResult> tableSchemas,
+            IEnumerable<ShowFunctionsResult> functionSchemas, GlobalState globals,
+            string databaseName, string clusterName)
         {
             // try and show error from here.
             DatabaseSymbol databaseSymbol = null;
 
             if (databaseName != null)
             {
-                databaseSymbol = await LoadDatabaseAsync(dataSource, databaseName, throwOnError).ConfigureAwait(false);
+                databaseSymbol = LoadDatabaseAsync(tableSchemas, functionSchemas, databaseName);
             }
 
             if (databaseSymbol == null)

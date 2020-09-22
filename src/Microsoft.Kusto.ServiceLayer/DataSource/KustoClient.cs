@@ -40,9 +40,30 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             var databaseName = new SqlConnectionStringBuilder(connectionString).InitialCatalog;
             Initialize(ClusterName, databaseName, azureAccountToken);
             DatabaseName = string.IsNullOrWhiteSpace(databaseName) ? GetFirstDatabaseName() : databaseName;
-            SchemaState = Task.Run(() =>
-                KustoIntellisenseHelper.AddOrUpdateDatabaseAsync(this, GlobalState.Default, DatabaseName, ClusterName,
-                    throwOnError: false)).Result;
+            SchemaState = LoadSchemaState();
+        }
+
+        private GlobalState LoadSchemaState()
+        {
+            CancellationTokenSource source = new CancellationTokenSource();
+
+            IEnumerable<ShowDatabaseSchemaResult> tableSchemas = Enumerable.Empty<ShowDatabaseSchemaResult>();
+            IEnumerable<ShowFunctionsResult> functionSchemas = Enumerable.Empty<ShowFunctionsResult>();
+
+            Parallel.Invoke(() =>
+            {
+                tableSchemas = ExecuteControlCommandAsync<ShowDatabaseSchemaResult>(
+                    $".show database {DatabaseName} schema",
+                    false, source.Token).Result;
+            }, () =>
+            {
+                functionSchemas = ExecuteControlCommandAsync<ShowFunctionsResult>(".show functions", false,
+                    source.Token).Result;
+            });
+
+            return KustoIntellisenseHelper.AddOrUpdateDatabase(tableSchemas, functionSchemas,
+                GlobalState.Default,
+                DatabaseName, ClusterName);
         }
 
         private void Initialize(string clusterName, string databaseName, string azureAccountToken)
@@ -214,9 +235,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         public void UpdateDatabase(string databaseName)
         {
             DatabaseName = databaseName;
-            SchemaState = Task.Run(() =>
-                KustoIntellisenseHelper.AddOrUpdateDatabaseAsync(this, GlobalState.Default, databaseName, ClusterName,
-                    throwOnError: false)).Result;
+            SchemaState = LoadSchemaState();
         }
 
         public void Dispose()
