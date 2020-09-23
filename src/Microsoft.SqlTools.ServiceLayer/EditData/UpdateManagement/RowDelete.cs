@@ -111,9 +111,9 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             {
                 command.CommandText = input;
                 command.Parameters.AddRange(where.Parameters.ToArray());
-                using (DbDataReader reader = command.ExecuteReader())
+                try
                 {
-                    try
+                    using (DbDataReader reader = command.ExecuteReader())
                     {
                         while (reader.Read())
                         {
@@ -124,97 +124,99 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                             }
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        Logger.Write(TraceEventType.Error, ex.ToString());
-                    }
-                    finally{
-                        command.Parameters.Clear();
-                    }
                 }
-            }
+                catch (Exception ex)
+                {
+                    Logger.Write(TraceEventType.Error, ex.ToString());
+                }
+                finally
+                {
+                    command.Parameters.Clear();
+                }
+
             return true;
         }
-
-        /// <summary>
-        /// Generates a edit row that represents a row pending deletion. All the original cells are
-        /// intact but the state is dirty.
-        /// </summary>
-        /// <param name="cachedRow">Original, cached cell contents</param>
-        /// <returns>EditRow that is pending deletion</returns>
-        public override EditRow GetEditRow(DbCellValue[] cachedRow)
-        {
-            Validate.IsNotNull(nameof(cachedRow), cachedRow);
-
-            return new EditRow
-            {
-                Id = RowId,
-                Cells = cachedRow.Select(cell => new EditCell(cell, true)).ToArray(),
-                State = EditRow.EditRowState.DirtyDelete
-            };
-        }
-
-        /// <summary>
-        /// Generates a DELETE statement to delete this row
-        /// </summary>
-        /// <returns>String of the DELETE statement</returns>
-        public override string GetScript()
-        {
-            return GetCommandText(GetWhereClause(false).CommandText);
-        }
-
-        /// <summary>
-        /// Generates a WHERE statement to verify the row delete is unique.
-        /// </summary>
-        /// <returns>String of the WHERE statement</returns>
-        public string GetVerifyScript()
-        {
-            return GetVerifyText(GetWhereClause(false).CommandText);
-        }
-
-        /// <summary>
-        /// This method should not be called. A cell cannot be reverted on a row that is pending
-        /// deletion.
-        /// </summary>
-        /// <param name="columnId">Ordinal of the column to update</param>
-        public override EditRevertCellResult RevertCell(int columnId)
-        {
-            throw new InvalidOperationException(SR.EditDataDeleteSetCell);
-        }
-
-        /// <summary>
-        /// This method should not be called. A cell cannot be updated on a row that is pending
-        /// deletion.
-        /// </summary>
-        /// <exception cref="InvalidOperationException">Always thrown</exception>
-        /// <param name="columnId">Ordinal of the column to update</param>
-        /// <param name="newValue">New value for the cell</param>
-        public override EditUpdateCellResult SetCell(int columnId, string newValue)
-        {
-            throw new InvalidOperationException(SR.EditDataDeleteSetCell);
-        }
-
-        protected override int CompareToSameType(RowEditBase rowEdit)
-        {
-            // We want to sort by row ID *IN REVERSE* to make sure we delete from the bottom first.
-            // If we delete from the top first, it will change IDs, making all subsequent deletes
-            // off by one or more!
-            return RowId.CompareTo(rowEdit.RowId) * -1;
-        }
-
-        private string GetVerifyText(string whereText)
-        {
-            return $"{VerifyStatement}{AssociatedObjectMetadata.EscapedMultipartName} {whereText}";
-        }
-
-        private string GetCommandText(string whereText)
-        {
-            string formatString = AssociatedObjectMetadata.IsMemoryOptimized
-                ? DeleteMemoryOptimizedStatement
-                : DeleteStatement;
-
-            return string.Format(CultureInfo.InvariantCulture, formatString,
-                AssociatedObjectMetadata.EscapedMultipartName, whereText);
-        }
     }
+
+    /// <summary>
+    /// Generates a edit row that represents a row pending deletion. All the original cells are
+    /// intact but the state is dirty.
+    /// </summary>
+    /// <param name="cachedRow">Original, cached cell contents</param>
+    /// <returns>EditRow that is pending deletion</returns>
+    public override EditRow GetEditRow(DbCellValue[] cachedRow)
+    {
+        Validate.IsNotNull(nameof(cachedRow), cachedRow);
+
+        return new EditRow
+        {
+            Id = RowId,
+            Cells = cachedRow.Select(cell => new EditCell(cell, true)).ToArray(),
+            State = EditRow.EditRowState.DirtyDelete
+        };
+    }
+
+    /// <summary>
+    /// Generates a DELETE statement to delete this row
+    /// </summary>
+    /// <returns>String of the DELETE statement</returns>
+    public override string GetScript()
+    {
+        return GetCommandText(GetWhereClause(false).CommandText);
+    }
+
+    /// <summary>
+    /// Generates a WHERE statement to verify the row delete is unique.
+    /// </summary>
+    /// <returns>String of the WHERE statement</returns>
+    public string GetVerifyScript()
+    {
+        return GetVerifyText(GetWhereClause(false).CommandText);
+    }
+
+    /// <summary>
+    /// This method should not be called. A cell cannot be reverted on a row that is pending
+    /// deletion.
+    /// </summary>
+    /// <param name="columnId">Ordinal of the column to update</param>
+    public override EditRevertCellResult RevertCell(int columnId)
+    {
+        throw new InvalidOperationException(SR.EditDataDeleteSetCell);
+    }
+
+    /// <summary>
+    /// This method should not be called. A cell cannot be updated on a row that is pending
+    /// deletion.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Always thrown</exception>
+    /// <param name="columnId">Ordinal of the column to update</param>
+    /// <param name="newValue">New value for the cell</param>
+    public override EditUpdateCellResult SetCell(int columnId, string newValue)
+    {
+        throw new InvalidOperationException(SR.EditDataDeleteSetCell);
+    }
+
+    protected override int CompareToSameType(RowEditBase rowEdit)
+    {
+        // We want to sort by row ID *IN REVERSE* to make sure we delete from the bottom first.
+        // If we delete from the top first, it will change IDs, making all subsequent deletes
+        // off by one or more!
+        return RowId.CompareTo(rowEdit.RowId) * -1;
+    }
+
+    private string GetVerifyText(string whereText)
+    {
+        return $"{VerifyStatement}{AssociatedObjectMetadata.EscapedMultipartName} {whereText}";
+    }
+
+    private string GetCommandText(string whereText)
+    {
+        string formatString = AssociatedObjectMetadata.IsMemoryOptimized
+            ? DeleteMemoryOptimizedStatement
+            : DeleteStatement;
+
+        return string.Format(CultureInfo.InvariantCulture, formatString,
+            AssociatedObjectMetadata.EscapedMultipartName, whereText);
+    }
+}
 }
