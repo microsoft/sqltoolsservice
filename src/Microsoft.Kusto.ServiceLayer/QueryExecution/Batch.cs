@@ -271,11 +271,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
             catch (KustoUnauthorizedException)
             {
                 // Rerun the query once
-                if (!ReRunQuery)
-                {
-                    ReRunQuery = true;    
-                }
-                
+                ReRunQuery = !ReRunQuery;
                 throw;
             }
             catch (TaskCanceledException)
