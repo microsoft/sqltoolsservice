@@ -120,17 +120,17 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                             //If the count of the row is
                             if (reader.GetInt32(0) != 1)
                             {
-                                command.Parameters.Clear();
                                 return false;
                             }
                         }
                     }
                     catch (Exception ex)
                     {
-                        command.Parameters.Clear();
                         Logger.Write(TraceEventType.Error, ex.ToString());
                     }
-                    command.Parameters.Clear();
+                    finally{
+                        command.Parameters.Clear();
+                    }
                 }
             }
             return true;
