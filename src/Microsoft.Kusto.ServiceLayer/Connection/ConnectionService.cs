@@ -275,6 +275,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             
             var requestMessage = new RequestSecurityTokenParams
             {
+                AccountId = existingConnection.ConnectionDetails.GetOptionValue("azureAccount", string.Empty),
                 Authority = existingConnection.ConnectionDetails.GetOptionValue("azureTenantId", string.Empty),
                 Provider = "Azure",
                 Resource = "SQL"

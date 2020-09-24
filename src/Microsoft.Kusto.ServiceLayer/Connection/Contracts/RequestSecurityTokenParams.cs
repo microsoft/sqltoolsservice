@@ -16,5 +16,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection.Contracts
         /// Gets or sets the identifier of the target resource that is the recipient of the requested token.
         /// </summary>
         public string Resource { get; set; }
+        
+        public string AccountId { get; set; }
     }
 }

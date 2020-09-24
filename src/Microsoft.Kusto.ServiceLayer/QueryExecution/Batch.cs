@@ -322,6 +322,8 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                     {
                         throw new KustoUnauthorizedException(exception.Message);
                     }
+
+                    throw;
                 }
                 catch (DbException dbe)
                 {
