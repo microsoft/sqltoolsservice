@@ -316,14 +316,9 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                 {
                     await ExecuteOnce(conn, cancellationToken);
                 }
-                catch (KustoRequestException exception)
+                catch (KustoRequestException exception) when (exception.FailureCode == 401) // Unauthorized
                 {
-                    if (exception.FailureCode == 401) // Unauthorized
-                    {
-                        throw new KustoUnauthorizedException(exception.Message);
-                    }
-
-                    throw;
+                    throw new KustoUnauthorizedException(exception);
                 }
                 catch (DbException dbe)
                 {
