@@ -49,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... The script should not be null
             Assert.NotNull(script);
 
-            // ...
+            // ... 
             string scriptStart = $"DELETE FROM {data.TableMetadata.EscapedMultipartName}";
             if (isMemoryOptimized)
             {
