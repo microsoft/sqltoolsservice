@@ -188,7 +188,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             }
             else
             {
-                return 1;
+                return 0;
             }
         }
 

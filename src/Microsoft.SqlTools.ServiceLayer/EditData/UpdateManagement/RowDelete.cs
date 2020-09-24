@@ -121,7 +121,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                     command.Parameters.Clear();
                 }
             }
-            return count == 1;
+            return count <= 1;
         }
 
         /// <summary>
