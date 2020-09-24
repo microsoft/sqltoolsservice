@@ -158,6 +158,48 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             throw new NotImplementedException();
         }
 
+        public override object ExecuteScalar()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Prepare()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string CommandText { get; set; }
+        public override int CommandTimeout { get; set; }
+        public override CommandType CommandType { get; set; }
+        public override UpdateRowSource UpdatedRowSource { get; set; }
+        protected override DbConnection DbConnection { get; set; }
+        protected override DbParameterCollection DbParameterCollection { get; }
+        protected override DbTransaction DbTransaction { get; set; }
+        public override bool DesignTimeVisible { get; set; }
+
+        protected override DbParameter CreateDbParameter()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
+        {
+            return new TestDbDataReader(Data, false);
+        }
+
+        private List<DbParameter> listParams = new List<DbParameter>();
+    }
+
+    /// <summary>
+    /// Test mock class for IDbCommand (Modified for Edit Data)
+    /// </summary>
+    public class TestEditDataSqlCommand : TestSqlCommand
+    {
+        internal TestEditDataSqlCommand(TestResultSet[] data) : base(data)
+        {
+
+        }
+
         /// <summary>
         /// Function to check for duplicates in Data's rows.
         /// Returns the max duplicate count for a unique row value (int).
@@ -203,32 +245,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
                 return 0;
             }
         }
-
-        public override void Prepare()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override string CommandText { get; set; }
-        public override int CommandTimeout { get; set; }
-        public override CommandType CommandType { get; set; }
-        public override UpdateRowSource UpdatedRowSource { get; set; }
-        protected override DbConnection DbConnection { get; set; }
-        protected override DbParameterCollection DbParameterCollection { get; }
-        protected override DbTransaction DbTransaction { get; set; }
-        public override bool DesignTimeVisible { get; set; }
-
-        protected override DbParameter CreateDbParameter()
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
-        {
-            return new TestDbDataReader(Data, false);
-        }
-
-        private List<DbParameter> listParams = new List<DbParameter>();
     }
 
     /// <summary>
@@ -308,6 +324,27 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         public void SetState(ConnectionState state)
         {
             this._state = state;
+        }
+    }
+
+    /// <summary>
+    /// Test mock class for SqlConnection wrapper (Modified for Edit Data)
+    /// </summary>
+    public class TestEditDataSqlConnection : TestSqlConnection
+    {
+        public TestEditDataSqlConnection()
+        {
+
+        }
+
+        public TestEditDataSqlConnection(TestResultSet[] data) : base(data)
+        {
+
+        }
+
+        protected override DbCommand CreateDbCommand()
+        {
+            return new TestEditDataSqlCommand(Data);
         }
     }
 

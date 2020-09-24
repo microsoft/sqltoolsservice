@@ -49,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... The script should not be null
             Assert.NotNull(script);
 
-            // ... 
+            // ...
             string scriptStart = $"DELETE FROM {data.TableMetadata.EscapedMultipartName}";
             if (isMemoryOptimized)
             {
@@ -83,7 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             RowDelete rd = new RowDelete(0, rs, data.TableMetadata);
 
             // ... Mock db connection for building the command
-            var mockConn = new TestSqlConnection(null);
+            var mockConn = new TestEditDataSqlConnection(null);
 
             // If: I attempt to get a command for the edit
             DbCommand cmd = rd.GetCommand(mockConn);
@@ -235,7 +235,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.AreEqual(expectedKeys, whereComponents.Length);
 
             // ... Mock db connection for building the command
-            var mockConn = new TestSqlConnection(new[] { testResultSet });
+            var mockConn = new TestEditDataSqlConnection(new[] { testResultSet });
 
             // If: I attempt to get a command for a simulated delete of a row with duplicates.
             // Then: The Command will throw an exception as it detects there are
