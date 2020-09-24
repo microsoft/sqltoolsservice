@@ -107,21 +107,36 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// </summary>
         private bool CheckForDuplicateDeleteRows(WhereClause where, string input, DbConnection connection)
         {
-            int count = 0;
             using (DbCommand command = connection.CreateCommand())
             {
                 command.CommandText = input;
                 command.Parameters.AddRange(where.Parameters.ToArray());
+
                 try
                 {
-                    count = Convert.ToInt32(command.ExecuteScalar());
+                    using (DbDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            //If the count of the row is
+                            if (reader.GetInt32(0) != 1)
+                            {
+                                return false;
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Write(TraceEventType.Error, ex.ToString());
                 }
                 finally
                 {
                     command.Parameters.Clear();
                 }
+
+                return true;
             }
-            return count == 1;
         }
 
         /// <summary>
