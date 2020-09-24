@@ -105,7 +105,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// Runs a query using the where clause to determine if duplicates are found (causes issues when deleting).
         /// If no duplicates are found, the check passes, else it returns false;
         /// </summary>
-          private bool CheckForDuplicateDeleteRows(WhereClause where, string input, DbConnection connection)
+        private bool CheckForDuplicateDeleteRows(WhereClause where, string input, DbConnection connection)
         {
             int count = 0;
             using (DbCommand command = connection.CreateCommand())
