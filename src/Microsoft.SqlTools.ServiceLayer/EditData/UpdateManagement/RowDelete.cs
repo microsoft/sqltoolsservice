@@ -126,6 +126,10 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                         }
                     }
                 }
+                catch (Exception ex)
+                {
+                        Logger.Write(TraceEventType.Error, ex.ToString());
+                }
                 finally
                 {
                     command.Parameters.Clear();
