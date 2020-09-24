@@ -180,7 +180,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
                     }
                     else
                     {
-                        // New unique value found, add to map.
+                        // New unique value found, add to map with 1 count.
                         rowCountMap.Add(rowValue, 1);
                     }
                 }
