@@ -89,7 +89,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             WhereClause where = GetWhereClause(true);
             string commandText = GetCommandText(where.CommandText);
             string verifyText = GetVerifyText(where.CommandText);
-            if (!CheckForDuplicateDeleteRows(where, verifyText, connection))
+            if (HasDuplicateRows(where, verifyText, connection))
             {
                 throw new EditDataDeleteException("Cannot delete: Action will delete more than one row");
             }
@@ -103,25 +103,23 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 
         /// <summary>
         /// Runs a query using the where clause to determine if duplicates are found (causes issues when deleting).
-        /// If no duplicates are found, the check passes, else it returns false;
+        /// If duplicates are found, the check returns true, else it returns false;
         /// </summary>
-        private bool CheckForDuplicateDeleteRows(WhereClause where, string input, DbConnection connection)
+        private bool HasDuplicateRows(WhereClause where, string input, DbConnection connection)
         {
-            int count = 0;
             using (DbCommand command = connection.CreateCommand())
             {
                 command.CommandText = input;
                 command.Parameters.AddRange(where.Parameters.ToArray());
                 try
                 {
-                    count = Convert.ToInt32(command.ExecuteScalar());
+                    return (Convert.ToInt32(command.ExecuteScalar())) > 1;
                 }
                 finally
                 {
                     command.Parameters.Clear();
                 }
             }
-            return count <= 1;
         }
 
         /// <summary>
