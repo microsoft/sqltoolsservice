@@ -111,6 +111,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             {
                 command.CommandText = input;
                 command.Parameters.AddRange(where.Parameters.ToArray());
+
                 try
                 {
                     using (DbDataReader reader = command.ExecuteReader())
