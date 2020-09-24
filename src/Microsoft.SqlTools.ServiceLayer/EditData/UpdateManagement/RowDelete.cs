@@ -91,7 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             string verifyText = GetVerifyText(where.CommandText);
             if (!CheckForDuplicateDeleteRows(where, verifyText, connection))
             {
-                throw new EditDataDeleteException("This action will delete more than one row!");
+                throw new EditDataDeleteException("Cannot delete: Action will delete more than one row");
             }
 
             DbCommand command = connection.CreateCommand();
@@ -125,10 +125,6 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                             }
                         }
                     }
-                }
-                catch (Exception ex)
-                {
-                    Logger.Write(TraceEventType.Error, ex.ToString());
                 }
                 finally
                 {
