@@ -160,7 +160,36 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 
         public override object ExecuteScalar()
         {
-            throw new NotImplementedException();
+            // Tailored for Row Delete tests
+            if (Data != null)
+            {
+                object[] rowData = Data[0].Rows[0];
+                Dictionary<object, int> rowCountMap = new Dictionary<object, int>();
+                foreach (object rowValue in rowData)
+                {
+                    if (rowCountMap.ContainsKey(rowValue))
+                    {
+                        rowCountMap[rowValue] += 1;
+                    }
+                    else
+                    {
+                        rowCountMap.Add(rowValue, 1);
+                    }
+                }
+                int maxCount = 0;
+                foreach (var rowCount in rowCountMap)
+                {
+                    if (rowCount.Value > maxCount)
+                    {
+                        maxCount = rowCount.Value;
+                    }
+                }
+                return maxCount;
+            }
+            else
+            {
+                return 1;
+            }
         }
 
         public override void Prepare()
