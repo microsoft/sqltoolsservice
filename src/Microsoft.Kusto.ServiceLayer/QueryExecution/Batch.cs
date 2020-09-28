@@ -252,7 +252,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
         public async Task Execute(ReliableDataSourceConnection conn, CancellationToken cancellationToken)
         {
             // Sanity check to make sure we haven't already run this batch
-            if (HasExecuted && _retryCount <= 0)
+            if (HasExecuted && _retryCount < 0)
             {
                 throw new InvalidOperationException("Batch has already executed.");
             }
