@@ -11,9 +11,6 @@ using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
-using Kusto.Data.Net.Client;
-using Kusto.Data.Common;
-using Kusto.Data;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 
 namespace Microsoft.Kusto.ServiceLayer.LanguageServices

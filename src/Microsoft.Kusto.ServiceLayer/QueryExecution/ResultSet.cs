@@ -74,7 +74,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
         /// <summary>
         /// Row count to use in special scenarios where we want to override the number of rows.
         /// </summary>
-        private long? rowCountOverride=null;
+        private long? rowCountOverride = null;
 
         /// <summary>
         /// The special action which applied to this result set

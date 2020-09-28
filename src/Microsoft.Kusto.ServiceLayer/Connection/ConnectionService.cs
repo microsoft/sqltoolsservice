@@ -63,9 +63,8 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
         /// <summary>
         /// Map from script URIs to ConnectionInfo objects
-        /// This is internal for testing access only
         /// </summary>
-        internal Dictionary<string, ConnectionInfo> OwnerToConnectionMap { get; } = new Dictionary<string, ConnectionInfo>();
+        private Dictionary<string, ConnectionInfo> OwnerToConnectionMap { get; } = new Dictionary<string, ConnectionInfo>();
 
         /// <summary>
         /// Database Lock manager instance
@@ -268,6 +267,25 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             TryCloseConnectionTemporaryConnection(connectionParams, connectionInfo);
 
             return completeParams;
+        }
+
+        internal void RefreshAzureToken(string ownerUri)
+        {
+            ConnectionInfo existingConnection = OwnerToConnectionMap[ownerUri];
+            
+            var requestMessage = new RequestSecurityTokenParams
+            {
+                AccountId = existingConnection.ConnectionDetails.GetOptionValue("azureAccount", string.Empty),
+                Authority = existingConnection.ConnectionDetails.GetOptionValue("azureTenantId", string.Empty),
+                Provider = "Azure",
+                Resource = "SQL"
+            };
+
+            var response = Instance.ServiceHost.SendRequest(SecurityTokenRequest.Type, requestMessage, true).Result;
+            existingConnection.UpdateAzureToken(response.Token);
+            
+            existingConnection.TryGetConnection(ConnectionType.Query, out var reliableDataSourceConnection);
+            reliableDataSourceConnection.GetUnderlyingConnection().UpdateAzureToken(response.Token);
         }
 
         private void TryCloseConnectionTemporaryConnection(ConnectParams connectionParams, ConnectionInfo connectionInfo)
