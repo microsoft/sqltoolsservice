@@ -22,7 +22,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             {
                 case DataSourceType.Kusto:
                 {
-                    return new KustoDataSource(connectionString, azureAccountToken);
+                    var kustoClient = new KustoClient(connectionString, azureAccountToken);
+                    return new KustoDataSource(kustoClient);
                 }
 
                 default:

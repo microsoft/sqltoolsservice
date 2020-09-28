@@ -5,10 +5,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Linq;
 using Kusto.Language;
+using KustoDiagnostic = Kusto.Language.Diagnostic;
 using Kusto.Language.Editor;
 using Kusto.Language.Syntax;
 using Kusto.Language.Symbols;
@@ -24,41 +23,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
     /// </summary>
     public class KustoIntellisenseHelper
     {
-        public class ShowDatabasesResult
-        {
-            public string DatabaseName;
-            public string PersistentStorage;
-            public string Version;
-            public bool IsCurrent;
-            public string DatabaseAccessMode;
-            public string PrettyName;
-            public bool CurrentUserIsUnrestrictedViewer;
-            public string DatabaseId;
-        }
-
-        public class ShowDatabaseSchemaResult
-        {
-            public string DatabaseName;
-            public string TableName;
-            public string ColumnName;
-            public string ColumnType;
-            public bool IsDefaultTable;
-            public bool IsDefaultColumn;
-            public string PrettyName;
-            public string Version;
-            public string Folder;
-            public string DocName;
-        }
-
-        public class ShowFunctionsResult
-        {
-            public string Name;
-            public string Parameters;
-            public string Body;
-            public string Folder;
-            public string DocString;
-        }
-
         /// <summary>
         /// Convert CLR type name into a Kusto scalar type.
         /// </summary>
@@ -161,20 +125,20 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
         /// <summary>
         /// Loads the schema for the specified databasea into a a <see cref="DatabaseSymbol"/>.
         /// </summary>
-        private static async Task<DatabaseSymbol> LoadDatabaseAsync(IDataSource dataSource, string databaseName, bool throwOnError = false)
+        private static DatabaseSymbol LoadDatabaseAsync(IEnumerable<ShowDatabaseSchemaResult> tableSchemas,
+            IEnumerable<ShowFunctionsResult> functionSchemas,
+            string databaseName)
         {
-            var members = new List<Symbol>();
-            CancellationTokenSource source = new CancellationTokenSource();
-            CancellationToken cancellationToken = source.Token;
-
-            var tableSchemas = await dataSource.ExecuteControlCommandAsync<ShowDatabaseSchemaResult>($".show database {databaseName} schema", throwOnError, cancellationToken).ConfigureAwait(false);
             if (tableSchemas == null)
+            {
                 return null;
+            }
 
             tableSchemas = tableSchemas
                 .Where(r => !string.IsNullOrEmpty(r.TableName) && !string.IsNullOrEmpty(r.ColumnName))
                 .ToArray();
 
+            var members = new List<Symbol>();
             foreach (var table in tableSchemas.GroupBy(s => s.TableName))
             {
                 var columns = table.Select(s => new ColumnSymbol(s.ColumnName, GetKustoType(s.ColumnType))).ToList();
@@ -182,9 +146,10 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
                 members.Add(tableSymbol);
             }
 
-            var functionSchemas = await dataSource.ExecuteControlCommandAsync<ShowFunctionsResult>(".show functions", throwOnError, cancellationToken).ConfigureAwait(false);
             if (functionSchemas == null)
+            {
                 return null;
+            }
 
             foreach (var fun in functionSchemas)
             {
@@ -193,8 +158,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
                 members.Add(functionSymbol);
             }
 
-            var databaseSymbol = new DatabaseSymbol(databaseName, members);
-            return databaseSymbol;
+            return new DatabaseSymbol(databaseName, members);
         }
 
         public static CompletionItemKind CreateCompletionItemKind(CompletionKind kustoKind)
@@ -234,33 +198,41 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
         /// <summary>
         /// Gets default keyword when user if not connected to any Kusto cluster.
         /// </summary>
-        public static LanguageServices.Contracts.CompletionItem[] GetDefaultKeywords(ScriptDocumentInfo scriptDocumentInfo, Position textDocumentPosition){
-                var kustoCodeService = new KustoCodeService(scriptDocumentInfo.Contents, GlobalState.Default);
-                var script = CodeScript.From(scriptDocumentInfo.Contents, GlobalState.Default);
-                script.TryGetTextPosition(textDocumentPosition.Line + 1, textDocumentPosition.Character, out int position);     // Gets the actual offset based on line and local offset      
-                var completion = kustoCodeService.GetCompletionItems(position);
+        public static LanguageServices.Contracts.CompletionItem[] GetDefaultKeywords(
+            ScriptDocumentInfo scriptDocumentInfo, Position textDocumentPosition)
+        {
+            var kustoCodeService = new KustoCodeService(scriptDocumentInfo.Contents, GlobalState.Default);
+            var script = CodeScript.From(scriptDocumentInfo.Contents, GlobalState.Default);
+            script.TryGetTextPosition(textDocumentPosition.Line + 1, textDocumentPosition.Character,
+                out int position); // Gets the actual offset based on line and local offset      
+            var completion = kustoCodeService.GetCompletionItems(position);
 
-                List<LanguageServices.Contracts.CompletionItem> completions = new List<LanguageServices.Contracts.CompletionItem>();
-                foreach (var autoCompleteItem in completion.Items)
-                {
-                    var label = autoCompleteItem.DisplayText;
-                    // convert the completion item candidates into vscode format CompletionItems
-                    completions.Add(AutoCompleteHelper.CreateCompletionItem(label, label + " keyword", label, CompletionItemKind.Keyword, scriptDocumentInfo.StartLine, scriptDocumentInfo.StartColumn, textDocumentPosition.Character));
-                }
+            List<LanguageServices.Contracts.CompletionItem> completions =
+                new List<LanguageServices.Contracts.CompletionItem>();
+            foreach (var autoCompleteItem in completion.Items)
+            {
+                var label = autoCompleteItem.DisplayText;
+                // convert the completion item candidates into vscode format CompletionItems
+                completions.Add(AutoCompleteHelper.CreateCompletionItem(label, label + " keyword", label,
+                    CompletionItemKind.Keyword, scriptDocumentInfo.StartLine, scriptDocumentInfo.StartColumn,
+                    textDocumentPosition.Character));
+            }
 
-                return completions.ToArray();
+            return completions.ToArray();
         }
 
         /// <summary>
         /// Gets default diagnostics when user if not connected to any Kusto cluster.
         /// </summary>
-        public static ScriptFileMarker[] GetDefaultDiagnostics(ScriptParseInfo parseInfo, ScriptFile scriptFile, string queryText){
+        public static ScriptFileMarker[] GetDefaultDiagnostics(ScriptParseInfo parseInfo, ScriptFile scriptFile,
+            string queryText)
+        {
             var kustoCodeService = new KustoCodeService(queryText, GlobalState.Default);
             var script = CodeScript.From(queryText, GlobalState.Default);
             var parseResult = kustoCodeService.GetDiagnostics();
-            
+
             parseInfo.ParseResult = parseResult;
-            
+
             // build a list of Kusto script file markers from the errors.
             List<ScriptFileMarker> markers = new List<ScriptFileMarker>();
             if (parseResult != null && parseResult.Count() > 0)
@@ -295,22 +267,27 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
         /// <summary>
         /// Loads the schema for the specified database and returns a new <see cref="GlobalState"/> with the database added or updated.
         /// </summary>
-        public static async Task<GlobalState> AddOrUpdateDatabaseAsync(IDataSource dataSource, GlobalState globals, string databaseName, string clusterName, bool throwOnError)
-        {   // try and show error from here.
+        public static GlobalState AddOrUpdateDatabase(IEnumerable<ShowDatabaseSchemaResult> tableSchemas,
+            IEnumerable<ShowFunctionsResult> functionSchemas, GlobalState globals,
+            string databaseName, string clusterName)
+        {
+            // try and show error from here.
             DatabaseSymbol databaseSymbol = null;
 
-            if(databaseName != null){
-                databaseSymbol = await LoadDatabaseAsync(dataSource, databaseName, throwOnError).ConfigureAwait(false);
+            if (databaseName != null)
+            {
+                databaseSymbol = LoadDatabaseAsync(tableSchemas, functionSchemas, databaseName);
             }
 
-            if(databaseSymbol == null){
+            if (databaseSymbol == null)
+            {
                 return globals;
             }
 
             var cluster = globals.GetCluster(clusterName);
             if (cluster == null)
             {
-                cluster = new ClusterSymbol(clusterName, new[] { databaseSymbol }, isOpen: true);
+                cluster = new ClusterSymbol(clusterName, new[] {databaseSymbol}, isOpen: true);
                 globals = globals.AddOrUpdateCluster(cluster);
             }
             else
@@ -324,5 +301,116 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
             return globals;
         }
 
+        /// <inheritdoc/>
+        public static LanguageServices.Contracts.CompletionItem[] GetAutoCompleteSuggestions(
+            ScriptDocumentInfo scriptDocumentInfo, Position textPosition, GlobalState schemaState,
+            bool throwOnError = false)
+        {
+            var script = CodeScript.From(scriptDocumentInfo.Contents, schemaState);
+            script.TryGetTextPosition(textPosition.Line + 1, textPosition.Character + 1,
+                out int position); // Gets the actual offset based on line and local offset
+
+            var codeBlock = script.GetBlockAtPosition(position);
+            var completion = codeBlock.Service.GetCompletionItems(position);
+            scriptDocumentInfo.ScriptParseInfo.CurrentSuggestions =
+                completion.Items; // this is declaration item so removed for now, but keep the info when api gets updated
+
+            var completions = new List<LanguageServices.Contracts.CompletionItem>();
+            foreach (var autoCompleteItem in completion.Items)
+            {
+                var label = autoCompleteItem.DisplayText;
+                var insertText = autoCompleteItem.Kind == CompletionKind.Table
+                    ? KustoQueryUtils.EscapeName(label)
+                    : label;
+                
+                var completionKind = CreateCompletionItemKind(autoCompleteItem.Kind);
+                completions.Add(AutoCompleteHelper.CreateCompletionItem(label, autoCompleteItem.Kind.ToString(),
+                    insertText, completionKind, scriptDocumentInfo.StartLine, scriptDocumentInfo.StartColumn,
+                    textPosition.Character));
+            }
+
+            return completions.ToArray();
+        }
+
+        /// <inheritdoc/>
+        public static Hover GetHoverHelp(ScriptDocumentInfo scriptDocumentInfo, Position textPosition,
+            GlobalState schemaState, bool throwOnError = false)
+        {
+            var script = CodeScript.From(scriptDocumentInfo.Contents, schemaState);
+            script.TryGetTextPosition(textPosition.Line + 1, textPosition.Character + 1, out int position);
+
+            var codeBlock = script.GetBlockAtPosition(position);
+            var quickInfo = codeBlock.Service.GetQuickInfo(position);
+
+            return AutoCompleteHelper.ConvertQuickInfoToHover(
+                quickInfo.Text,
+                "kusto",
+                scriptDocumentInfo.StartLine,
+                scriptDocumentInfo.StartColumn,
+                textPosition.Character);
+        }
+
+        /// <inheritdoc/>
+        public static DefinitionResult GetDefinition(string queryText, int index, int startLine, int startColumn,
+            GlobalState schemaState, bool throwOnError = false)
+        {
+            var abc = KustoCode.ParseAndAnalyze(queryText,
+                schemaState); //TODOKusto: API wasnt working properly, need to check that part.
+            var kustoCodeService = new KustoCodeService(abc);
+            //var kustoCodeService = new KustoCodeService(queryText, globals);
+            var relatedInfo = kustoCodeService.GetRelatedElements(index);
+
+            if (relatedInfo != null && relatedInfo.Elements.Count > 1)
+            {
+            }
+
+            return null;
+        }
+
+        /// <inheritdoc/>
+        public static ScriptFileMarker[] GetSemanticMarkers(ScriptParseInfo parseInfo, ScriptFile scriptFile,
+            string queryText, GlobalState schemaState)
+        {
+            var kustoCodeService = new KustoCodeService(queryText, schemaState);
+            var script = CodeScript.From(queryText, schemaState);
+            var parseResult = new List<KustoDiagnostic>();
+
+            foreach (var codeBlock in script.Blocks)
+            {
+                parseResult.AddRange(codeBlock.Service.GetDiagnostics());
+            }
+
+            parseInfo.ParseResult = parseResult;
+
+            // build a list of Kusto script file markers from the errors.
+            List<ScriptFileMarker> markers = new List<ScriptFileMarker>();
+            if (parseResult != null && parseResult.Any())
+            {
+                foreach (var error in parseResult)
+                {
+                    script.TryGetLineAndOffset(error.Start, out var startLine, out var startOffset);
+                    script.TryGetLineAndOffset(error.End, out var endLine, out var endOffset);
+
+                    // vscode specific format for error markers.
+                    markers.Add(new ScriptFileMarker()
+                    {
+                        Message = error.Message,
+                        Level = ScriptFileMarkerLevel.Error,
+                        ScriptRegion = new ScriptRegion()
+                        {
+                            File = scriptFile.FilePath,
+                            StartLineNumber = startLine,
+                            StartColumnNumber = startOffset,
+                            StartOffset = 0,
+                            EndLineNumber = endLine,
+                            EndColumnNumber = endOffset,
+                            EndOffset = 0
+                        }
+                    });
+                }
+            }
+
+            return markers.ToArray();
+        }
     }
 }
