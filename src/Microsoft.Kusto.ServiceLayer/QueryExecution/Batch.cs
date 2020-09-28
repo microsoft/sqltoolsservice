@@ -15,8 +15,7 @@ using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.Utility;
 using System.Globalization;
-using Kusto.Data.Exceptions;
-using Microsoft.Kusto.ServiceLayer.QueryExecution.Exceptions;
+using Microsoft.Kusto.ServiceLayer.DataSource.Exceptions;
 
 namespace Microsoft.Kusto.ServiceLayer.QueryExecution
 {
@@ -67,6 +66,8 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
         /// </summary>
         private readonly bool getFullColumnSchema;
 
+        private int _retryCount;
+
         #endregion
 
         internal Batch(string batchText, SelectionData selection, int ordinalId,
@@ -87,7 +88,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
             this.outputFileFactory = outputFileFactory;
             specialAction = new SpecialAction();
             BatchExecutionCount = executionCount > 0 ? executionCount : 1;
-
+            _retryCount = 1;
             this.getFullColumnSchema = getFullColumnSchema;
         }
 
@@ -180,8 +181,6 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
         /// Whether or not this batch has been executed, regardless of success or failure 
         /// </summary>
         public bool HasExecuted { get; set; }
-        
-        private bool ReRunQuery { get; set; }
 
         /// <summary>
         /// Ordinal of the batch in the query
@@ -253,7 +252,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
         public async Task Execute(ReliableDataSourceConnection conn, CancellationToken cancellationToken)
         {
             // Sanity check to make sure we haven't already run this batch
-            if (HasExecuted && !ReRunQuery)
+            if (HasExecuted && _retryCount <= 0)
             {
                 throw new InvalidOperationException("Batch has already executed.");
             }
@@ -268,10 +267,10 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
             {
                 await DoExecute(conn, cancellationToken);
             }
-            catch (KustoUnauthorizedException)
+            catch (DataSourceUnauthorizedException)
             {
-                // Rerun the query once
-                ReRunQuery = !ReRunQuery;
+                // Rerun the query once if unauthorized
+                _retryCount--;
                 throw;
             }
             catch (TaskCanceledException)
@@ -298,7 +297,6 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                     await BatchCompletion(this);
                 }
             }
-
         }
 
         private async Task DoExecute(ReliableDataSourceConnection conn, CancellationToken cancellationToken)
@@ -316,10 +314,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                 {
                     await ExecuteOnce(conn, cancellationToken);
                 }
-                catch (KustoRequestException exception) when (exception.FailureCode == 401) // Unauthorized
-                {
-                    throw new KustoUnauthorizedException(exception);
-                }
+                
                 catch (DbException dbe)
                 {
                     HasError = true;

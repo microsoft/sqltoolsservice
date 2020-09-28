@@ -9,11 +9,13 @@ using Kusto.Cloud.Platform.Data;
 using Kusto.Data;
 using Kusto.Data.Common;
 using Kusto.Data.Data;
+using Kusto.Data.Exceptions;
 using Kusto.Data.Net.Client;
 using Kusto.Language;
 using Kusto.Language.Editor;
 using Microsoft.Data.SqlClient;
 using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
+using Microsoft.Kusto.ServiceLayer.DataSource.Exceptions;
 using Microsoft.Kusto.ServiceLayer.Utility;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource
@@ -174,12 +176,19 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             var kustoCodeService = new KustoCodeService(query);
             var minimalQuery = kustoCodeService.GetMinimalText(MinimalTextKind.RemoveLeadingWhitespaceAndComments);
 
-            IDataReader origReader = _kustoQueryProvider.ExecuteQuery(
-                KustoQueryUtils.IsClusterLevelQuery(minimalQuery) ? "" : databaseName,
-                minimalQuery,
-                clientRequestProperties);
-
-            return new KustoResultsReader(origReader);
+            try
+            {
+                IDataReader origReader = _kustoQueryProvider.ExecuteQuery(
+                    KustoQueryUtils.IsClusterLevelQuery(minimalQuery) ? "" : databaseName,
+                    minimalQuery,
+                    clientRequestProperties);
+                
+                return new KustoResultsReader(origReader);
+            }
+            catch (KustoRequestException exception) when (exception.FailureCode == 401) // Unauthorized
+            {
+                throw new DataSourceUnauthorizedException(exception);
+            }
         }
 
         /// <summary>
@@ -194,6 +203,10 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 var results = KustoDataReaderParser.ParseV1(resultReader, null);
                 var tableReader = results[WellKnownDataSet.PrimaryResult].Single().TableData.CreateDataReader();
                 return new ObjectReader<T>(tableReader);
+            }
+            catch (DataSourceUnauthorizedException)
+            {
+                throw;
             }
             catch (Exception) when (!throwOnError)
             {

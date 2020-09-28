@@ -16,8 +16,8 @@ using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Microsoft.Kusto.ServiceLayer.DataSource.Exceptions;
 using Microsoft.Kusto.ServiceLayer.Utility;
-using Microsoft.Kusto.ServiceLayer.QueryExecution.Exceptions;
 
 namespace Microsoft.Kusto.ServiceLayer.QueryExecution
 {
@@ -391,7 +391,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                     await QueryCompleted(this);
                 }
             }
-            catch (KustoUnauthorizedException)
+            catch (DataSourceUnauthorizedException)
             {
                 ConnectionService.Instance.RefreshAzureToken(editorConnection.OwnerUri);
                 await ExecuteInternal();
