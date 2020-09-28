@@ -89,7 +89,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts
             NumericScale = SafeGetValue<int?>(row, "NumericScale");
             UdtAssemblyQualifiedName = SafeGetValue<string>(row, "UdtAssemblyQualifiedName");
             DataType = SafeGetValue<Type>(row, "DataType");
-            DataTypeName = SafeGetValue<string>(row, "ColumnType") ?? UnknownTypeName;
+            DataTypeName = SafeGetValue<string>(row, "ColumnType") ?? "dynamic";
             ColumnName = SafeGetValue<string>(row, "ColumnName");
         }
         

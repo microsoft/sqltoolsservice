@@ -191,6 +191,63 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
     }
 
     /// <summary>
+    /// Test mock class for IDbCommand (Modified for Edit Data)
+    /// </summary>
+    public class TestEditDataSqlCommand : TestSqlCommand
+    {
+        internal TestEditDataSqlCommand(TestResultSet[] data) : base(data)
+        {
+
+        }
+
+        /// <summary>
+        /// Function to check for duplicates in Data's rows.
+        /// Returns the max duplicate count for a unique row value (int).
+        /// </summary>
+        public override object ExecuteScalar()
+        {
+            if (Data != null)
+            {
+                //Get row data and set up row count map.
+                object[] rowData = Data[0].Rows[0];
+                Dictionary<object, int> rowCountMap = new Dictionary<object, int>();
+
+                //Go through each row value.
+                foreach (object rowValue in rowData)
+                {
+                    if (rowCountMap.ContainsKey(rowValue))
+                    {
+                        // Add to existing count
+                        rowCountMap[rowValue] += 1;
+                    }
+                    else
+                    {
+                        // New unique value found, add to map with 1 count.
+                        rowCountMap.Add(rowValue, 1);
+                    }
+                }
+
+                // Find the greatest number of duplicates among unique values
+                // in the map and return it.
+                int maxCount = 0;
+                foreach (var rowCount in rowCountMap)
+                {
+                    if (rowCount.Value > maxCount)
+                    {
+                        maxCount = rowCount.Value;
+                    }
+                }
+                return maxCount;
+            }
+            else
+            {
+                // Return 0 if Data is not provided.
+                return 0;
+            }
+        }
+    }
+
+    /// <summary>
     /// Test mock class for SqlConnection wrapper
     /// </summary>
     public class TestSqlConnection : DbConnection
@@ -267,6 +324,27 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         public void SetState(ConnectionState state)
         {
             this._state = state;
+        }
+    }
+
+    /// <summary>
+    /// Test mock class for SqlConnection wrapper (Modified for Edit Data)
+    /// </summary>
+    public class TestEditDataSqlConnection : TestSqlConnection
+    {
+        public TestEditDataSqlConnection()
+        {
+
+        }
+
+        public TestEditDataSqlConnection(TestResultSet[] data) : base(data)
+        {
+
+        }
+
+        protected override DbCommand CreateDbCommand()
+        {
+            return new TestEditDataSqlCommand(Data);
         }
     }
 
