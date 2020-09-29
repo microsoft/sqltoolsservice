@@ -162,7 +162,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                     bindingContext.ServerConnection = _connectionOpener.OpenServerConnection(connInfo, featureName);
 
                     string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
-                    bindingContext.DataSource = _dataSourceFactory.Create(DataSourceType.Kusto, connectionString, connInfo.ConnectionDetails.AzureAccountToken);
+                    bindingContext.DataSource = _dataSourceFactory.Create(DataSourceType.Kusto, connectionString, connInfo.ConnectionDetails.AzureAccountToken, connInfo.OwnerUri);
 
                     if (needMetadata)
                     {

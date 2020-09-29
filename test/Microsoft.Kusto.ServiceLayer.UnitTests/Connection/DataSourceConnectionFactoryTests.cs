@@ -12,7 +12,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.Connection
         {
             var dataSourceFactoryMock = new Mock<IDataSourceFactory>(); 
             var connectionFactory = new DataSourceConnectionFactory(dataSourceFactoryMock.Object);
-            var connection = connectionFactory.CreateDataSourceConnection("", "");
+            var connection = connectionFactory.CreateDataSourceConnection("", "", "");
             
             Assert.IsNotNull(connection);
         }

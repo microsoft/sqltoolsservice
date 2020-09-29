@@ -12,7 +12,6 @@ using Microsoft.Kusto.ServiceLayer.Admin;
 using Microsoft.Kusto.ServiceLayer.Metadata;
 using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.DataSource;
-using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
 using Microsoft.Kusto.ServiceLayer.QueryExecution;
 using Microsoft.Kusto.ServiceLayer.Scripting;
@@ -91,7 +90,7 @@ namespace Microsoft.Kusto.ServiceLayer
             QueryExecutionService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(QueryExecutionService.Instance);
 
-            ScriptingService.Instance.InitializeService(serviceHost, scripter, dataSourceFactory);
+            ScriptingService.Instance.InitializeService(serviceHost, scripter, ConnectionService.Instance);
             serviceProvider.RegisterSingleService(ScriptingService.Instance);
 
             AdminService.Instance.InitializeService(serviceHost, ConnectionService.Instance);

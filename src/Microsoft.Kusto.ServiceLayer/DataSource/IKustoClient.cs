@@ -17,8 +17,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         
         string DatabaseName { get; }
         
-        void UpdateAzureToken(string azureAccountToken);
-        
         IDataReader ExecuteQuery(string query, CancellationToken cancellationToken, string databaseName = null);
 
         /// <summary>

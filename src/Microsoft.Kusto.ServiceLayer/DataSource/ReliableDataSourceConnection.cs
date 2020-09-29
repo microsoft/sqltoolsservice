@@ -44,6 +44,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         private readonly string _connectionString;
         private readonly string _azureAccountToken;
         private readonly IDataSourceFactory _dataSourceFactory;
+        private readonly string _ownerUri;
 
         /// <summary>
         /// Initializes a new instance of the ReliableKustoClient class with a given connection string
@@ -55,13 +56,15 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <param name="commandRetryPolicy">The retry policy defining whether to retry a request if a command fails to be executed.</param>
         /// <param name="azureAccountToken"></param>
         /// <param name="dataSourceFactory"></param>
+        /// <param name="ownerUri"></param>
         public ReliableDataSourceConnection(string connectionString, RetryPolicy connectionRetryPolicy,
-            RetryPolicy commandRetryPolicy, string azureAccountToken, IDataSourceFactory dataSourceFactory)
+            RetryPolicy commandRetryPolicy, string azureAccountToken, IDataSourceFactory dataSourceFactory, string ownerUri)
         {
             _connectionString = connectionString;
             _azureAccountToken = azureAccountToken;
             _dataSourceFactory = dataSourceFactory;
-            _dataSource = dataSourceFactory.Create(DataSourceType.Kusto, connectionString, azureAccountToken);
+            _ownerUri = ownerUri;
+            _dataSource = dataSourceFactory.Create(DataSourceType.Kusto, connectionString, azureAccountToken, _ownerUri);
             
             _connectionRetryPolicy = connectionRetryPolicy ?? RetryPolicyFactory.CreateNoRetryPolicy();
             _commandRetryPolicy = commandRetryPolicy ?? RetryPolicyFactory.CreateNoRetryPolicy();
@@ -184,13 +187,13 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// </summary>
         public void Open()
         {
-            // TODOKusto: Should we initialize in the constructor or here. Set a breapoint and check.
+            // TODOKusto: Should we initialize in the constructor or here. Set a breakpoint and check.
             // Check if retry policy was specified, if not, disable retries by executing the Open method using RetryPolicy.NoRetry.
             if(_dataSource == null)
             {
                 _connectionRetryPolicy.ExecuteAction(() =>
                 {
-                    _dataSource = _dataSourceFactory.Create(DataSourceType.Kusto, _connectionString, _azureAccountToken);
+                    _dataSource = _dataSourceFactory.Create(DataSourceType.Kusto, _connectionString, _azureAccountToken, _ownerUri);
                 });
             }
         }

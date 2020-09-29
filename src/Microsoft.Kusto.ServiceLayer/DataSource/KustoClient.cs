@@ -14,6 +14,7 @@ using Kusto.Data.Net.Client;
 using Kusto.Language;
 using Kusto.Language.Editor;
 using Microsoft.Data.SqlClient;
+using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
 using Microsoft.Kusto.ServiceLayer.DataSource.Exceptions;
 using Microsoft.Kusto.ServiceLayer.Utility;
@@ -22,6 +23,10 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 {
     public class KustoClient : IKustoClient
     {
+        private readonly string _ownerUri;
+
+        private int _retryCount;
+
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private ICslAdminProvider _kustoAdminProvider;
 
@@ -36,8 +41,10 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         public string ClusterName { get; }
         public string DatabaseName { get; private set; }
 
-        public KustoClient(string connectionString, string azureAccountToken)
+        public KustoClient(string connectionString, string azureAccountToken, string ownerUri)
         {
+            _ownerUri = ownerUri;
+            _retryCount = 1;
             ClusterName = GetClusterName(connectionString);
             var databaseName = new SqlConnectionStringBuilder(connectionString).InitialCatalog;
             Initialize(ClusterName, databaseName, azureAccountToken);
@@ -75,8 +82,9 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             _kustoAdminProvider = KustoClientFactory.CreateCslAdminProvider(stringBuilder);
         }
 
-        public void UpdateAzureToken(string azureAccountToken)
+        private void RefreshAzureToken()
         {
+            string azureAccountToken = ConnectionService.Instance.RefreshAzureToken(_ownerUri);
             _kustoQueryProvider.Dispose();
             _kustoAdminProvider.Dispose();
             Initialize(ClusterName, DatabaseName, azureAccountToken);
@@ -187,7 +195,14 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             }
             catch (KustoRequestException exception) when (exception.FailureCode == 401) // Unauthorized
             {
-                throw new DataSourceUnauthorizedException(exception);
+                if (_retryCount <= 0)
+                {
+                    throw;
+                }
+
+                _retryCount--;
+                RefreshAzureToken();
+                return ExecuteQuery(query, cancellationToken, databaseName);
             }
         }
 

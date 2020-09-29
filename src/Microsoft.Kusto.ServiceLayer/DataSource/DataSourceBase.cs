@@ -89,8 +89,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
         public abstract string GenerateExecuteFunctionScript(string functionName);
 
-        public abstract void UpdateAzureToken(string azureToken);
-
         /// <inheritdoc/>
         public DataSourceType DataSourceType { get; protected set; }
         

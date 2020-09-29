@@ -269,7 +269,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             return completeParams;
         }
 
-        internal void RefreshAzureToken(string ownerUri)
+        internal string RefreshAzureToken(string ownerUri)
         {
             ConnectionInfo existingConnection = OwnerToConnectionMap[ownerUri];
             
@@ -284,8 +284,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             var response = Instance.ServiceHost.SendRequest(SecurityTokenRequest.Type, requestMessage, true).Result;
             existingConnection.UpdateAzureToken(response.Token);
             
-            existingConnection.TryGetConnection(ConnectionType.Query, out var reliableDataSourceConnection);
-            reliableDataSourceConnection.GetUnderlyingConnection().UpdateAzureToken(response.Token);
+            return response.Token;
         }
 
         private void TryCloseConnectionTemporaryConnection(ConnectParams connectionParams, ConnectionInfo connectionInfo)
@@ -453,7 +452,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                 string connectionString = BuildConnectionString(connectionInfo.ConnectionDetails);
 
                 // create a sql connection instance
-                connection = connectionInfo.Factory.CreateDataSourceConnection(connectionString, connectionInfo.ConnectionDetails.AzureAccountToken);
+                connection = connectionInfo.Factory.CreateDataSourceConnection(connectionString, connectionInfo.ConnectionDetails.AzureAccountToken, connectionInfo.OwnerUri);
                 connectionInfo.AddConnection(connectionParams.Type, connection);
 
                 // Add a cancellation token source so that the connection OpenAsync() can be cancelled
@@ -814,7 +813,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             ServiceHost = serviceHost;
             _dataSourceConnectionFactory = dataSourceConnectionFactory;
             _dataSourceFactory = dataSourceFactory;
-            
             connectedQueues.AddOrUpdate("Default", connectedBindingQueue, (key, old) => connectedBindingQueue);
             LockedDatabaseManager.ConnectionService = this;
 
@@ -1263,7 +1261,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                                 string connectionString = BuildConnectionString(info.ConnectionDetails);
 
                                 // create a sql connection instance
-                                ReliableDataSourceConnection connection = info.Factory.CreateDataSourceConnection(connectionString, info.ConnectionDetails.AzureAccountToken);
+                                ReliableDataSourceConnection connection = info.Factory.CreateDataSourceConnection(connectionString, info.ConnectionDetails.AzureAccountToken, info.OwnerUri);
                                 connection.Open();
                                 info.AddConnection(key, connection);
                             }
@@ -1432,7 +1430,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                 string connectionString = BuildConnectionString(connInfo.ConnectionDetails);
 
                 // TODOKusto: Pass in type of DataSource needed to make this generic. Hard coded to Kusto right now.
-                return _dataSourceFactory.Create(DataSourceType.Kusto, connectionString, connInfo.ConnectionDetails.AzureAccountToken);
+                return _dataSourceFactory.Create(DataSourceType.Kusto, connectionString, connInfo.ConnectionDetails.AzureAccountToken, connInfo.OwnerUri);
             }
             catch (Exception ex)
             {

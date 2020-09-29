@@ -15,6 +15,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <summary>
         /// Create a new SQL Connection object
         /// </summary>
-        ReliableDataSourceConnection CreateDataSourceConnection(string connectionString, string azureAccountToken);
+        ReliableDataSourceConnection CreateDataSourceConnection(string connectionString, string azureAccountToken,
+            string ownerUri);
     }
 }
