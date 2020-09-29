@@ -178,14 +178,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
 
         internal async Task<List<MigrationAssessmentInfo>> GetAssessmentItems(SqlObjectLocator target)
         {
-            // var ruleset = DmaEngine.LoadMigrationAssessmentRuleset() as MigrationAssessmentRuleset;
-            // var request = new AssessmentRequest(target);
-            // List<IAssessmentResult> assessmentResults = new List<IAssessmentResult>();
-            // foreach (ICheck check in ruleset.Checks)
-            // {
-            //    assessmentResults.AddRange(await check.Logics.GetAssessmentResults(request, target.Connection, null));
-            // }
-
             DmaEngine engine = new DmaEngine(target);
             var assessmentResults = await engine.GetTargetAssessmentResultsList();
         
@@ -197,10 +189,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 {
                     continue;
                 }
-                
-                var targetName = target.Type != SqlObjectType.Server
-                                     ? $"{target.ServerName}:{target.Name}"
-                                     : target.Name;
+
+                var targetName = !string.IsNullOrWhiteSpace(migrationResult.DatabaseName)
+                                     ? $"{target.ServerName}:{migrationResult.DatabaseName}"
+                                     : target.Name;                                     
 
                 var item = new MigrationAssessmentInfo()
                 {
