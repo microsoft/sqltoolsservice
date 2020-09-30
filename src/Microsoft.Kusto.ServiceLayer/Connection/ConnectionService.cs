@@ -984,7 +984,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// Build a connection string builder a connection details instance
         /// </summary>
         /// <param name="connectionDetails"></param>
-        public static SqlConnectionStringBuilder CreateConnectionStringBuilder(ConnectionDetails connectionDetails)
+        private static SqlConnectionStringBuilder CreateConnectionStringBuilder(ConnectionDetails connectionDetails)
         {
             SqlConnectionStringBuilder connectionBuilder;
 
@@ -1367,7 +1367,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <param name="connInfo">The connection info to connect with</param>
         /// <param name="featureName">A plaintext string that will be included in the application name for the connection</param>
         /// <returns>A SqlConnection created with the given connection info</returns>
-        internal static SqlConnection OpenSqlConnection(ConnectionInfo connInfo, string featureName = null)
+        private static SqlConnection CreateSqlConnection(ConnectionInfo connInfo, string featureName = null)
         {
             try
             {
@@ -1382,7 +1382,8 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                 connInfo.ConnectionDetails.PersistSecurityInfo = true;
                 // turn off connection pool to avoid hold locks on server resources after calling SqlConnection Close method
                 connInfo.ConnectionDetails.Pooling = false;
-                connInfo.ConnectionDetails.ApplicationName = GetApplicationNameWithFeature(connInfo.ConnectionDetails.ApplicationName, featureName);
+                connInfo.ConnectionDetails.ApplicationName =
+                    GetApplicationNameWithFeature(connInfo.ConnectionDetails.ApplicationName, featureName);
 
                 // generate connection string
                 string connectionString = BuildConnectionString(connInfo.ConnectionDetails);
@@ -1393,17 +1394,15 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                 connInfo.ConnectionDetails.Pooling = originalPooling;
 
                 // open a dedicated binding server connection
-                using (SqlConnection sqlConn = new SqlConnection(connectionString))
-                {
-                    // Fill in Azure authentication token if needed
-                    if (connInfo.ConnectionDetails.AzureAccountToken != null)
-                    {
-                        sqlConn.AccessToken = connInfo.ConnectionDetails.AzureAccountToken;
-                    }
+                var sqlConn = new SqlConnection(connectionString);
 
-                    sqlConn.Open();
-                    return sqlConn;
+                // Fill in Azure authentication token if needed
+                if (connInfo.ConnectionDetails.AzureAccountToken != null)
+                {
+                    sqlConn.AccessToken = connInfo.ConnectionDetails.AzureAccountToken;
                 }
+
+                return sqlConn;
             }
             catch (Exception ex)
             {
@@ -1453,9 +1452,9 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <param name="connInfo">The connection info to connect with</param>
         /// <param name="featureName">A plaintext string that will be included in the application name for the connection</param>
         /// <returns>A ServerConnection (wrapping a SqlConnection) created with the given connection info</returns>
-        internal static ServerConnection OpenServerConnection(ConnectionInfo connInfo, string featureName = null)
+        internal static ServerConnection CreateServerConnection(ConnectionInfo connInfo, string featureName = null)
         {
-            SqlConnection sqlConnection = OpenSqlConnection(connInfo, featureName);
+            SqlConnection sqlConnection = CreateSqlConnection(connInfo, featureName);
 
             return connInfo.ConnectionDetails.AzureAccountToken != null 
                 ? new ServerConnection(sqlConnection, new AzureAccessToken(connInfo.ConnectionDetails.AzureAccountToken)) 

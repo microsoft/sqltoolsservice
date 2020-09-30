@@ -9,7 +9,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
     {
         public ServerConnection OpenServerConnection(ConnectionInfo connInfo, string featureName)
         {
-            return ConnectionService.OpenServerConnection(connInfo, featureName);
+            return ConnectionService.CreateServerConnection(connInfo, featureName);
         }
     }
 }
