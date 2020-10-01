@@ -67,8 +67,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.LanguageServices
         public void AddConnectionContext_Returns_EmptyString_For_NullConnectionInfo()
         {
             var connectionOpenerMock = new Mock<ISqlConnectionOpener>();
-            var dataSourceFactory = new Mock<IDataSourceFactory>();
-            var connectedBindingQueue = new ConnectedBindingQueue(connectionOpenerMock.Object, dataSourceFactory.Object);
+            var connectedBindingQueue = new ConnectedBindingQueue(connectionOpenerMock.Object);
             var connectionKey = connectedBindingQueue.AddConnectionContext(null, false);
             
             Assert.AreEqual(string.Empty, connectionKey);
@@ -82,8 +81,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.LanguageServices
             var connectionInfo = new ConnectionInfo(connectionFactory.Object, "ownerUri", connectionDetails);
             
             var connectionOpenerMock = new Mock<ISqlConnectionOpener>();
-            var dataSourceFactory = new Mock<IDataSourceFactory>();
-            var connectedBindingQueue = new ConnectedBindingQueue(connectionOpenerMock.Object, dataSourceFactory.Object);
+            var connectedBindingQueue = new ConnectedBindingQueue(connectionOpenerMock.Object);
             var connectionKey = connectedBindingQueue.AddConnectionContext(connectionInfo, false, "featureName");
             
             Assert.AreEqual("NULL_NULL_NULL_NULL", connectionKey);
@@ -92,9 +90,18 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.LanguageServices
         [TestCase(false)]
         public void AddConnectionContext_Sets_BindingContext(bool needsMetadata)
         {
+            var dataSourceMock = new Mock<IDataSource>();
+            var dataSourceFactory = new Mock<IDataSourceFactory>();
+            dataSourceFactory
+                .Setup(x => x.Create(It.IsAny<DataSourceType>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(dataSourceMock.Object);
+            var reliableDataSource = new ReliableDataSourceConnection("", null, null, "", dataSourceFactory.Object, "");
+
             var connectionDetails = new ConnectionDetails();
             var connectionFactory = new Mock<IDataSourceConnectionFactory>();
+            
             var connectionInfo = new ConnectionInfo(connectionFactory.Object, "ownerUri", connectionDetails);
+            connectionInfo.AddConnection("Default", reliableDataSource);
 
             var connectionOpenerMock = new Mock<ISqlConnectionOpener>();
             var fakeServerConnection = new ServerConnection();
@@ -102,14 +109,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.LanguageServices
                 .Setup(x => x.OpenServerConnection(It.IsAny<ConnectionInfo>(), It.IsAny<string>()))
                 .Returns(fakeServerConnection);
 
-            var dataSourceFactory = new Mock<IDataSourceFactory>();
-            var dataSourceMock = new Mock<IDataSource>();
-            dataSourceFactory
-                .Setup(x => x.Create(It.IsAny<DataSourceType>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-                .Returns(dataSourceMock.Object);
-
-            var connectedBindingQueue =
-                new ConnectedBindingQueue(connectionOpenerMock.Object, dataSourceFactory.Object);
+            var connectedBindingQueue = new ConnectedBindingQueue(connectionOpenerMock.Object);
             var connectionKey =
                 connectedBindingQueue.AddConnectionContext(connectionInfo, needsMetadata, "featureName");
             var bindingContext = connectedBindingQueue.GetOrCreateBindingContext(connectionKey);
@@ -131,8 +131,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.LanguageServices
             var connectionInfo = new ConnectionInfo(connectionFactory.Object, "ownerUri", connectionDetails);
             
             var connectionOpenerMock = new Mock<ISqlConnectionOpener>();
-            var dataSourceFactory = new Mock<IDataSourceFactory>();
-            var connectedBindingQueue = new ConnectedBindingQueue(connectionOpenerMock.Object, dataSourceFactory.Object);
+            var connectedBindingQueue = new ConnectedBindingQueue(connectionOpenerMock.Object);
             var connectionKey = connectedBindingQueue.AddConnectionContext(connectionInfo, false, "featureName");
             
             

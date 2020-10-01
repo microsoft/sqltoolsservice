@@ -58,8 +58,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
         private ConcurrentDictionary<string, IConnectedBindingQueue> connectedQueues = new ConcurrentDictionary<string, IConnectedBindingQueue>();
 
-        private IDataSourceFactory _dataSourceFactory;
-
         /// <summary>
         /// Database Lock manager instance
         /// </summary>
@@ -773,21 +771,22 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             }
 
             // Use the existing connection as a base for the search
-            ConnectionInfo info;
-            if (!_connectionManager.TryFindConnection(owner, out info))
+            if (!_connectionManager.TryFindConnection(owner, out ConnectionInfo info))
             {
                 throw new Exception(SR.ConnectionServiceListDbErrorNotConnected(owner));
             }
-            ConnectionDetails connectionDetails = info.ConnectionDetails.Clone();
-
-            IDataSource dataSource = OpenDataSourceConnection(info);
+            
+            info.TryGetConnection(ConnectionType.Default, out ReliableDataSourceConnection dataSourceConnection);
+            IDataSource dataSource = dataSourceConnection.GetUnderlyingConnection();
             DataSourceObjectMetadata objectMetadata = MetadataFactory.CreateClusterMetadata(info.ConnectionDetails.ServerName);
 
             ListDatabasesResponse response = new ListDatabasesResponse();
 
             // Mainly used by "manage" dashboard
-            if(listDatabasesParams.IncludeDetails.HasTrue()){
-                IEnumerable<DataSourceObjectMetadata> databaseMetadataInfo = dataSource.GetChildObjects(objectMetadata, true);
+            if (listDatabasesParams.IncludeDetails.HasTrue())
+            {
+                IEnumerable<DataSourceObjectMetadata> databaseMetadataInfo =
+                    dataSource.GetChildObjects(objectMetadata, true);
                 List<DatabaseInfo> metadata = MetadataFactory.ConvertToDatabaseInfo(databaseMetadataInfo);
                 response.Databases = metadata.ToArray();
 
@@ -801,12 +800,11 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
         public void InitializeService(IProtocolEndpoint serviceHost,
             IDataSourceConnectionFactory dataSourceConnectionFactory,
-            IConnectedBindingQueue connectedBindingQueue, IDataSourceFactory dataSourceFactory,
+            IConnectedBindingQueue connectedBindingQueue,
             IConnectionManager connectionManager)
         {
             ServiceHost = serviceHost;
             _dataSourceConnectionFactory = dataSourceConnectionFactory;
-            _dataSourceFactory = dataSourceFactory;
             _connectionManager = connectionManager;
             connectedQueues.AddOrUpdate("Default", connectedBindingQueue, (key, old) => connectedBindingQueue);
             LockedDatabaseManager.ConnectionService = this;
@@ -1360,7 +1358,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <param name="connInfo">The connection info to connect with</param>
         /// <param name="featureName">A plaintext string that will be included in the application name for the connection</param>
         /// <returns>A SqlConnection created with the given connection info</returns>
-        internal static SqlConnection OpenSqlConnection(ConnectionInfo connInfo, string featureName = null)
+        private static SqlConnection OpenSqlConnection(ConnectionInfo connInfo, string featureName = null)
         {
             try
             {
@@ -1403,35 +1401,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                 string error = string.Format(CultureInfo.InvariantCulture,
                     "Failed opening a SqlConnection: error:{0} inner:{1} stacktrace:{2}",
                     ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty, ex.StackTrace);
-                Logger.Write(TraceEventType.Error, error);
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Create and open a new SqlConnection from a ConnectionInfo object
-        /// Note: we need to audit all uses of this method to determine why we're
-        /// bypassing normal ConnectionService connection management
-        /// </summary>
-        /// <param name="connInfo">The connection info to connect with</param>
-        /// <param name="featureName">A plaintext string that will be included in the application name for the connection</param>
-        /// <returns>A SqlConnection created with the given connection info</returns>
-        private IDataSource OpenDataSourceConnection(ConnectionInfo connInfo, string featureName = null)
-        {
-            try
-            {
-                // generate connection string
-                string connectionString = BuildConnectionString(connInfo.ConnectionDetails);
-
-                // TODOKusto: Pass in type of DataSource needed to make this generic. Hard coded to Kusto right now.
-                return _dataSourceFactory.Create(DataSourceType.Kusto, connectionString, connInfo.ConnectionDetails.AzureAccountToken, connInfo.OwnerUri);
-            }
-            catch (Exception ex)
-            {
-                string error = string.Format(CultureInfo.InvariantCulture,
-                    "Failed opening a DataSource of type {0}: error:{1} inner:{2} stacktrace:{3}",
-                    DataSourceType.Kusto, ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty, ex.StackTrace);
                 Logger.Write(TraceEventType.Error, error);
             }
 

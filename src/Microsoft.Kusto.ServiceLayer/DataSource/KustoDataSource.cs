@@ -364,8 +364,13 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 return allMetadata;
             }
 
-            LoadTableSchema(objectMetadata);
-            LoadFunctionSchema(objectMetadata);
+            Parallel.Invoke(() =>
+            {
+                LoadTableSchema(objectMetadata);
+            }, () =>
+            {
+                LoadFunctionSchema(objectMetadata);
+            });
             
             return GetAllMetadata(objectMetadata.Urn);
         }

@@ -12,7 +12,6 @@ using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 using Microsoft.Kusto.ServiceLayer.SqlContext;
 using Microsoft.Kusto.ServiceLayer.Workspace;
-using Microsoft.Kusto.ServiceLayer.DataSource;
 
 namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 {
@@ -24,7 +23,6 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
     {
         internal const int DefaultBindingTimeout = 500;
         private readonly ISqlConnectionOpener _connectionOpener;
-        private readonly IDataSourceFactory _dataSourceFactory;
 
         /// <summary>
         /// Gets the current settings
@@ -35,10 +33,9 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         }
 
         [ImportingConstructor]
-        public ConnectedBindingQueue(ISqlConnectionOpener sqlConnectionOpener, IDataSourceFactory dataSourceFactory)
+        public ConnectedBindingQueue(ISqlConnectionOpener sqlConnectionOpener)
         {
             _connectionOpener = sqlConnectionOpener;
-            _dataSourceFactory = dataSourceFactory;
         }
 
         /// <summary>
@@ -160,9 +157,9 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                    
                     // populate the binding context to work with the SMO metadata provider
                     bindingContext.ServerConnection = _connectionOpener.OpenServerConnection(connInfo, featureName);
-
-                    string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
-                    bindingContext.DataSource = _dataSourceFactory.Create(DataSourceType.Kusto, connectionString, connInfo.ConnectionDetails.AzureAccountToken, connInfo.OwnerUri);
+                    
+                    connInfo.TryGetConnection(ConnectionType.Default, out ReliableDataSourceConnection connection);
+                    bindingContext.DataSource = connection.GetUnderlyingConnection();
 
                     if (needMetadata)
                     {

@@ -11,7 +11,6 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.Kusto.ServiceLayer.Admin;
 using Microsoft.Kusto.ServiceLayer.Metadata;
 using Microsoft.Kusto.ServiceLayer.Connection;
-using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
 using Microsoft.Kusto.ServiceLayer.QueryExecution;
 using Microsoft.Kusto.ServiceLayer.Scripting;
@@ -70,7 +69,6 @@ namespace Microsoft.Kusto.ServiceLayer
             var scripter = serviceProvider.GetService<IScripter>();
             var dataSourceConnectionFactory = serviceProvider.GetService<IDataSourceConnectionFactory>();
             var connectedBindingQueue = serviceProvider.GetService<IConnectedBindingQueue>();
-            var dataSourceFactory = serviceProvider.GetService<IDataSourceFactory>();
             var connectionManager = serviceProvider.GetService<IConnectionManager>();
 
             // Initialize and register singleton services so they're accessible for any MEF service. In the future, these
@@ -82,7 +80,7 @@ namespace Microsoft.Kusto.ServiceLayer
             LanguageService.Instance.InitializeService(serviceHost, connectedBindingQueue, connectionManager);
             serviceProvider.RegisterSingleService(LanguageService.Instance);
 
-            ConnectionService.Instance.InitializeService(serviceHost, dataSourceConnectionFactory, connectedBindingQueue, dataSourceFactory, connectionManager);
+            ConnectionService.Instance.InitializeService(serviceHost, dataSourceConnectionFactory, connectedBindingQueue, connectionManager);
             serviceProvider.RegisterSingleService(ConnectionService.Instance);
 
             CredentialService.Instance.InitializeService(serviceHost);
