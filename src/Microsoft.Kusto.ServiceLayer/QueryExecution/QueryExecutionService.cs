@@ -29,6 +29,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
         #region Singleton Instance Implementation
 
         private static readonly Lazy<QueryExecutionService> LazyInstance = new Lazy<QueryExecutionService>(() => new QueryExecutionService());
+        private IConnectionManager _connectionManager;
 
         /// <summary>
         /// Singleton instance of the query execution service
@@ -160,8 +161,9 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
         /// event handler.
         /// </summary>
         /// <param name="serviceHost">The service host instance to register with</param>
-        public void InitializeService(ServiceHost serviceHost)
+        public void InitializeService(ServiceHost serviceHost, IConnectionManager connectionManager)
         {
+            _connectionManager = connectionManager;
             // Register handlers for requests
             serviceHost.SetRequestHandler(ExecuteDocumentSelectionRequest.Type, HandleExecuteRequest);
             serviceHost.SetRequestHandler(ExecuteDocumentStatementRequest.Type, HandleExecuteRequest);
@@ -252,7 +254,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
 
                 // get connection
                 ConnectionInfo connInfo;
-                if (!ConnectionService.TryFindConnection(executeParams.OwnerUri, out connInfo))
+                if (!_connectionManager.TryFindConnection(executeParams.OwnerUri, out connInfo))
                 {
                     await requestContext.SendError(SR.QueryServiceQueryInvalidOwnerUri);
                     return;
@@ -269,7 +271,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                     await ConnectionService.Connect(connectParams);
 
                     ConnectionInfo newConn;
-                    ConnectionService.TryFindConnection(randomUri, out newConn);
+                    _connectionManager.TryFindConnection(randomUri, out newConn);
 
                     Func<string, Task> queryCreateFailureAction = message => requestContext.SendError(message);
 
@@ -707,7 +709,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
             {
                 connectionInfo = connInfo;
             } 
-            else if (!ConnectionService.TryFindConnection(executeParams.OwnerUri, out connectionInfo))
+            else if (!_connectionManager.TryFindConnection(executeParams.OwnerUri, out connectionInfo))
             {
                 throw new ArgumentOutOfRangeException(nameof(executeParams.OwnerUri), SR.QueryServiceQueryInvalidOwnerUri);
             }

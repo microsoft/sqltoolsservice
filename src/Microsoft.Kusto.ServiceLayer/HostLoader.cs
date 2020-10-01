@@ -71,6 +71,7 @@ namespace Microsoft.Kusto.ServiceLayer
             var dataSourceConnectionFactory = serviceProvider.GetService<IDataSourceConnectionFactory>();
             var connectedBindingQueue = serviceProvider.GetService<IConnectedBindingQueue>();
             var dataSourceFactory = serviceProvider.GetService<IDataSourceFactory>();
+            var connectionManager = serviceProvider.GetService<IConnectionManager>();
 
             // Initialize and register singleton services so they're accessible for any MEF service. In the future, these
             // could be updated to be IComposableServices, which would avoid the requirement to define a singleton instance
@@ -78,25 +79,25 @@ namespace Microsoft.Kusto.ServiceLayer
             WorkspaceService<SqlToolsSettings>.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(WorkspaceService<SqlToolsSettings>.Instance);
 
-            LanguageService.Instance.InitializeService(serviceHost, connectedBindingQueue, dataSourceFactory);
+            LanguageService.Instance.InitializeService(serviceHost, connectedBindingQueue, connectionManager);
             serviceProvider.RegisterSingleService(LanguageService.Instance);
 
-            ConnectionService.Instance.InitializeService(serviceHost, dataSourceConnectionFactory, connectedBindingQueue, dataSourceFactory);
+            ConnectionService.Instance.InitializeService(serviceHost, dataSourceConnectionFactory, connectedBindingQueue, dataSourceFactory, connectionManager);
             serviceProvider.RegisterSingleService(ConnectionService.Instance);
 
             CredentialService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(CredentialService.Instance);
 
-            QueryExecutionService.Instance.InitializeService(serviceHost);
+            QueryExecutionService.Instance.InitializeService(serviceHost, connectionManager);
             serviceProvider.RegisterSingleService(QueryExecutionService.Instance);
 
-            ScriptingService.Instance.InitializeService(serviceHost, scripter, ConnectionService.Instance);
+            ScriptingService.Instance.InitializeService(serviceHost, scripter, ConnectionService.Instance, connectionManager);
             serviceProvider.RegisterSingleService(ScriptingService.Instance);
 
-            AdminService.Instance.InitializeService(serviceHost, ConnectionService.Instance);
+            AdminService.Instance.InitializeService(serviceHost, connectionManager);
             serviceProvider.RegisterSingleService(AdminService.Instance);
 
-            MetadataService.Instance.InitializeService(serviceHost, ConnectionService.Instance);
+            MetadataService.Instance.InitializeService(serviceHost, connectionManager);
             serviceProvider.RegisterSingleService(MetadataService.Instance);
             
             InitializeHostedServices(serviceProvider, serviceHost);

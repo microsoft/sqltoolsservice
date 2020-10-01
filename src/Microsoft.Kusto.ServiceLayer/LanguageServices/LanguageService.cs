@@ -145,6 +145,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         }
 
         private CancellationTokenSource existingRequestCancellation;
+        private IConnectionManager _connectionManager;
 
         /// <summary>
         /// Gets or sets the current workspace service instance
@@ -209,9 +210,10 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// <param name="context"></param>
         /// <param name="dataSourceFactory"></param>
         /// <param name="connectedBindingQueue"></param>
-        public void InitializeService(ServiceHost serviceHost, IConnectedBindingQueue connectedBindingQueue, IDataSourceFactory dataSourceFactory)
+        public void InitializeService(ServiceHost serviceHost, IConnectedBindingQueue connectedBindingQueue, IConnectionManager connectionManager)
         {
             _bindingQueue = connectedBindingQueue;
+            _connectionManager = connectionManager;
             // Register the requests that this service will handle
 
             //serviceHost.SetRequestHandler(SignatureHelpRequest.Type, HandleSignatureHelpRequest);     // Kusto api doesnt support this as of now. Implement it wherever applicable. Hover help is closest to signature help
@@ -319,7 +321,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                     }
 
                     ConnectionInfo connInfo;
-                    ConnectionServiceInstance.TryFindConnection(
+                    _connectionManager.TryFindConnection(
                         scriptFile.ClientUri,
                         out connInfo);
 
@@ -382,7 +384,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                     DefinitionResult definitionResult = null;
                     if (scriptFile != null)
                     {
-                        isConnected = ConnectionServiceInstance.TryFindConnection(scriptFile.ClientUri, out connInfo);
+                        isConnected = _connectionManager.TryFindConnection(scriptFile.ClientUri, out connInfo);
                         definitionResult = GetDefinition(textDocumentPosition, scriptFile, connInfo);
                     }
 
@@ -553,7 +555,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                 }
 
                 ConnectionInfo connInfo;
-                ConnectionServiceInstance.TryFindConnection(
+                _connectionManager.TryFindConnection(
                     scriptFile.ClientUri,
                     out connInfo);
 
@@ -793,10 +795,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         internal Hover GetHoverItem(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile)
         {
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(scriptFile.ClientUri);
-            ConnectionInfo connInfo;
-                    ConnectionServiceInstance.TryFindConnection(
-                        scriptFile.ClientUri,
-                        out connInfo);
+            _connectionManager.TryFindConnection(scriptFile.ClientUri, out ConnectionInfo connInfo);
 
             if (scriptParseInfo != null && scriptParseInfo.ParseResult != null)     // populate parseresult or check why it is used.
             {
@@ -1001,21 +1000,22 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                 ScriptParseInfo parseInfo = GetScriptParseInfo(scriptFile.ClientUri, createIfNotExists: true);
 
                 ScriptFileMarker[] semanticMarkers = null;
-                ConnectionInfo connInfo;
-                ConnectionServiceInstance.TryFindConnection(
-                    scriptFile.ClientUri,
-                    out connInfo);
-                
-                if(connInfo != null){
+                _connectionManager.TryFindConnection(scriptFile.ClientUri, out ConnectionInfo connInfo);
+
+                if (connInfo != null)
+                {
                     connInfo.TryGetConnection("Default", out var connection);
                     IDataSource dataSource = connection.GetUnderlyingConnection();
-                    
-                    semanticMarkers = KustoIntellisenseHelper.GetSemanticMarkers(parseInfo, scriptFile, scriptFile.Contents, dataSource.SchemaState);
-			    }
-                else{
-                    semanticMarkers = DataSourceFactory.GetDefaultSemanticMarkers(DataSourceType.Kusto, parseInfo, scriptFile, scriptFile.Contents);
+
+                    semanticMarkers = KustoIntellisenseHelper.GetSemanticMarkers(parseInfo, scriptFile,
+                        scriptFile.Contents, dataSource.SchemaState);
                 }
-                
+                else
+                {
+                    semanticMarkers = DataSourceFactory.GetDefaultSemanticMarkers(DataSourceType.Kusto, parseInfo,
+                        scriptFile, scriptFile.Contents);
+                }
+
                 Logger.Write(TraceEventType.Verbose, "Analysis complete.");
 
                 await DiagnosticsHelper.PublishScriptDiagnostics(scriptFile, semanticMarkers, eventContext);

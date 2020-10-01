@@ -23,7 +23,7 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
     {
         private static readonly Lazy<AdminService> _instance = new Lazy<AdminService>(() => new AdminService());
 
-        private static ConnectionService _connectionService;
+        private static IConnectionManager _connectionManager;
 
         /// <summary>
         /// Gets the singleton instance object
@@ -33,10 +33,10 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
         /// <summary>
         /// Initializes the service instance
         /// </summary>
-        public void InitializeService(ServiceHost serviceHost, ConnectionService connectionService)
+        public void InitializeService(ServiceHost serviceHost, IConnectionManager connectionManager)
         {
             serviceHost.SetRequestHandler(GetDatabaseInfoRequest.Type, HandleGetDatabaseInfoRequest);
-            _connectionService = connectionService;
+            _connectionManager = connectionManager;
         }
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
             {
                 Func<Task> requestHandler = async () =>
                 {
-                    _connectionService.TryFindConnection(databaseParams.OwnerUri, out var connInfo);
+                    _connectionManager.TryFindConnection(databaseParams.OwnerUri, out var connInfo);
                     DatabaseInfo info = null;
 
                     if (connInfo != null)

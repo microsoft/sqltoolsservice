@@ -33,6 +33,8 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         private bool disposed;
         
         private IScripter _scripter;
+        
+        private IConnectionManager _connectionManager;
 
         /// <summary>
         /// The collection of active operations
@@ -45,10 +47,11 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         /// <param name="serviceHost"></param>
         /// <param name="scripter"></param>
         /// <param name="connectionService"></param>
-        public void InitializeService(ServiceHost serviceHost, IScripter scripter, ConnectionService connectionService)
+        public void InitializeService(ServiceHost serviceHost, IScripter scripter, ConnectionService connectionService, IConnectionManager connectionManager)
         {
             _scripter = scripter;
             _connectionService = connectionService;
+            _connectionManager = connectionManager;
             
             serviceHost.SetRequestHandler(ScriptingRequest.Type, this.HandleScriptExecuteRequest);
             serviceHost.SetRequestHandler(ScriptingCancelRequest.Type, this.HandleScriptCancelRequest);
@@ -95,7 +98,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                 if (parameters.ConnectionString == null)
                 {
                     ConnectionInfo connInfo;
-                    _connectionService.TryFindConnection(parameters.OwnerUri, out connInfo);
+                    _connectionManager.TryFindConnection(parameters.OwnerUri, out connInfo);
                     if (connInfo != null)
                     {
                         parameters.ConnectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);

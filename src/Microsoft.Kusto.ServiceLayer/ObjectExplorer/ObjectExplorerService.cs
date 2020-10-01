@@ -37,7 +37,8 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
     [Export(typeof(IHostedService))]
     public class ObjectExplorerService : HostedService<ObjectExplorerService>, IComposableService, IHostedService, IDisposable
     {
-        private readonly IConnectedBindingQueue _connectedBindingQueue;
+        private IConnectedBindingQueue _connectedBindingQueue;
+        private IConnectionManager _connectionManager;
         internal const string uriPrefix = "objectexplorer://";
 
         // Instance of the connection service, used to get the connection info for a given owner URI
@@ -56,9 +57,8 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
         /// Singleton constructor
         /// </summary>
         [ImportingConstructor]
-        public ObjectExplorerService(IConnectedBindingQueue connectedBindingQueue)
+        public ObjectExplorerService()
         {
-            _connectedBindingQueue = connectedBindingQueue;
             sessionMap = new ConcurrentDictionary<string, ObjectExplorerSession>();
             NodePathGenerator.Initialize();
         }
@@ -84,6 +84,8 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
             Validate.IsNotNull(nameof(provider), provider);
             serviceProvider = provider;
             connectionService = provider.GetService<ConnectionService>();
+            _connectionManager = provider.GetService<IConnectionManager>();
+            _connectedBindingQueue = provider.GetService<IConnectedBindingQueue>();
             try
             {
                 connectionService.RegisterConnectedQueue(connectionName, _connectedBindingQueue);
@@ -460,7 +462,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
 
                 ConnectionInfo connectionInfo;
                 ConnectionCompleteParams connectionResult = await Connect(connectParams, uri);
-                if (!connectionService.TryFindConnection(uri, out connectionInfo))
+                if (!_connectionManager.TryFindConnection(uri, out connectionInfo))
                 {
                     return null;
                 }

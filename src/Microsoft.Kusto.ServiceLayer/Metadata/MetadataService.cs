@@ -24,7 +24,7 @@ namespace Microsoft.Kusto.ServiceLayer.Metadata
 
         public static MetadataService Instance => LazyInstance.Value;
 
-        private static ConnectionService _connectionService;
+        private static IConnectionManager _connectionManager;
         
         internal Task MetadataListTask { get; private set; }
 
@@ -32,10 +32,10 @@ namespace Microsoft.Kusto.ServiceLayer.Metadata
         /// Initializes the Metadata Service instance
         /// </summary>
         /// <param name="serviceHost"></param>
-        /// <param name="connectionService"></param>
-        public void InitializeService(IProtocolEndpoint serviceHost, ConnectionService connectionService)
+        /// <param name="connectionManager"></param>
+        public void InitializeService(IProtocolEndpoint serviceHost, IConnectionManager connectionManager)
         {
-            _connectionService = connectionService;
+            _connectionManager = connectionManager;
             serviceHost.SetRequestHandler(MetadataListRequest.Type, HandleMetadataListRequest);
         }
 
@@ -51,7 +51,7 @@ namespace Microsoft.Kusto.ServiceLayer.Metadata
                 Func<Task> requestHandler = async () =>
                 {
                     ConnectionInfo connInfo;
-                    _connectionService.TryFindConnection(metadataParams.OwnerUri, out connInfo);
+                    _connectionManager.TryFindConnection(metadataParams.OwnerUri, out connInfo);
 
                     var metadata = new List<ObjectMetadata>();
                     if (connInfo != null)

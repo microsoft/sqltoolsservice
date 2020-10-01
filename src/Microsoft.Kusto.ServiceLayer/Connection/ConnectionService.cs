@@ -31,9 +31,8 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
     /// </summary>
     public class ConnectionService
     {
-        public const string AdminConnectionPrefix = "ADMIN:";
-        internal const string PasswordPlaceholder = "******";
-        private const string SqlAzureEdition = "SQL Azure";
+        private const string AdminConnectionPrefix = "ADMIN:";
+        private const string PasswordPlaceholder = "******";
 
         /// <summary>
         /// Singleton service instance
@@ -60,11 +59,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         private ConcurrentDictionary<string, IConnectedBindingQueue> connectedQueues = new ConcurrentDictionary<string, IConnectedBindingQueue>();
 
         private IDataSourceFactory _dataSourceFactory;
-
-        /// <summary>
-        /// Map from script URIs to ConnectionInfo objects
-        /// </summary>
-        private Dictionary<string, ConnectionInfo> OwnerToConnectionMap { get; } = new Dictionary<string, ConnectionInfo>();
 
         /// <summary>
         /// Database Lock manager instance
@@ -176,8 +170,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// </summary>
         private IDataSourceConnectionFactory _dataSourceConnectionFactory;
 
-        // Attempts to link a URI to an actively used connection for this URI
-        public virtual bool TryFindConnection(string ownerUri, out ConnectionInfo connectionInfo) => this.OwnerToConnectionMap.TryGetValue(ownerUri, out connectionInfo);
+        private IConnectionManager _connectionManager;
 
         /// <summary>
         /// Validates the given ConnectParams object. 
@@ -227,7 +220,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             // but wait until later when we are connected to add it to the map.
             ConnectionInfo connectionInfo;
             bool connectionChanged = false;
-            if (!OwnerToConnectionMap.TryGetValue(connectionParams.OwnerUri, out connectionInfo))
+            if (!_connectionManager.TryFindConnection(connectionParams.OwnerUri, out connectionInfo))
             {
                 connectionInfo = new ConnectionInfo(_dataSourceConnectionFactory, connectionParams.OwnerUri, connectionParams.Connection);
             }
@@ -253,10 +246,10 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             }
 
             // If this is the first connection for this URI, add the ConnectionInfo to the map
-            bool addToMap = connectionChanged || !OwnerToConnectionMap.ContainsKey(connectionParams.OwnerUri);
+            bool addToMap = connectionChanged || !_connectionManager.Exists(connectionParams.OwnerUri);
             if (addToMap)
             {
-                OwnerToConnectionMap[connectionParams.OwnerUri] = connectionInfo;
+                _connectionManager.Set(connectionParams.OwnerUri, connectionInfo);
             }
 
             // Return information about the connected SQL Server instance
@@ -271,7 +264,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
         internal string RefreshAzureToken(string ownerUri)
         {
-            ConnectionInfo existingConnection = OwnerToConnectionMap[ownerUri];
+            _connectionManager.TryFindConnection(ownerUri, out ConnectionInfo existingConnection);
             
             var requestMessage = new RequestSecurityTokenParams
             {
@@ -537,8 +530,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             Validate.IsNotNullOrEmptyString(nameof(connectionType), connectionType);
 
             // Try to get the ConnectionInfo, if it exists
-            ConnectionInfo connectionInfo;
-            if (!OwnerToConnectionMap.TryGetValue(ownerUri, out connectionInfo))
+            if (!_connectionManager.TryFindConnection(ownerUri, out ConnectionInfo connectionInfo))
             {
                 throw new ArgumentOutOfRangeException(SR.ConnectionServiceListDbErrorNotConnected(ownerUri));
             }
@@ -653,7 +645,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
             // Lookup the ConnectionInfo owned by the URI
             ConnectionInfo info;
-            if (!OwnerToConnectionMap.TryGetValue(disconnectParams.OwnerUri, out info))
+            if (!_connectionManager.TryFindConnection(disconnectParams.OwnerUri, out info))
             {
                 return false;
             }
@@ -678,7 +670,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             // If the ConnectionInfo has no more connections, remove the ConnectionInfo
             if (info.CountConnections == 0)
             {
-                OwnerToConnectionMap.Remove(disconnectParams.OwnerUri);
+                _connectionManager.Remove(disconnectParams.OwnerUri);
             }
 
             // Handle Telemetry disconnect events if we are disconnecting the default connection
@@ -782,7 +774,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
             // Use the existing connection as a base for the search
             ConnectionInfo info;
-            if (!TryFindConnection(owner, out info))
+            if (!_connectionManager.TryFindConnection(owner, out info))
             {
                 throw new Exception(SR.ConnectionServiceListDbErrorNotConnected(owner));
             }
@@ -807,12 +799,15 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             return response;
         }
 
-        public void InitializeService(IProtocolEndpoint serviceHost, IDataSourceConnectionFactory dataSourceConnectionFactory, 
-            IConnectedBindingQueue connectedBindingQueue, IDataSourceFactory dataSourceFactory)
+        public void InitializeService(IProtocolEndpoint serviceHost,
+            IDataSourceConnectionFactory dataSourceConnectionFactory,
+            IConnectedBindingQueue connectedBindingQueue, IDataSourceFactory dataSourceFactory,
+            IConnectionManager connectionManager)
         {
             ServiceHost = serviceHost;
             _dataSourceConnectionFactory = dataSourceConnectionFactory;
             _dataSourceFactory = dataSourceFactory;
+            _connectionManager = connectionManager;
             connectedQueues.AddOrUpdate("Default", connectedBindingQueue, (key, old) => connectedBindingQueue);
             LockedDatabaseManager.ConnectionService = this;
 
@@ -1141,7 +1136,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             {
                 string connectionString = string.Empty;
                 ConnectionInfo info;
-                if (TryFindConnection(connStringParams.OwnerUri, out info))
+                if (_connectionManager.TryFindConnection(connStringParams.OwnerUri, out info))
                 {
                     try
                     {
@@ -1240,7 +1235,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         public bool ChangeConnectionDatabaseContext(string ownerUri, string newDatabaseName, bool force = false)
         {
             ConnectionInfo info;
-            if (TryFindConnection(ownerUri, out info))
+            if (_connectionManager.TryFindConnection(ownerUri, out info))
             {
                 try
                 {
