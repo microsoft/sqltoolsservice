@@ -219,10 +219,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 var tableReader = results[WellKnownDataSet.PrimaryResult].Single().TableData.CreateDataReader();
                 return new ObjectReader<T>(tableReader);
             }
-            catch (DataSourceUnauthorizedException)
-            {
-                throw;
-            }
             catch (Exception) when (!throwOnError)
             {
                 return null;
