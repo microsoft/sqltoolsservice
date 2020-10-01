@@ -176,9 +176,8 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <param name="connectionParams">The params to validate</param>
         /// <returns>A ConnectionCompleteParams object upon validation error, 
         /// null upon validation success</returns>
-        public ConnectionCompleteParams ValidateConnectParams(ConnectParams connectionParams)
+        private ConnectionCompleteParams ValidateConnectParams(ConnectParams connectionParams)
         {
-            string paramValidationErrorMessage;
             if (connectionParams == null)
             {
                 return new ConnectionCompleteParams
@@ -186,7 +185,8 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                     Messages = SR.ConnectionServiceConnectErrorNullParams
                 };
             }
-            if (!connectionParams.IsValid(out paramValidationErrorMessage))
+
+            if (!connectionParams.IsValid(out string paramValidationErrorMessage))
             {
                 return new ConnectionCompleteParams
                 {
@@ -848,45 +848,38 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         {
             Logger.Write(TraceEventType.Verbose, "HandleConnectRequest");
 
-            try
-            {
-                RunConnectRequestHandlerTask(connectParams);
-                await requestContext.SendResult(true);
-            }
-            catch
-            {
-                await requestContext.SendResult(false);
-            }
-        }
-
-        private void RunConnectRequestHandlerTask(ConnectParams connectParams)
-        {
-            // create a task to connect asynchronously so that other requests are not blocked in the meantime
-            Task.Run(async () =>
+            await Task.Run(async () =>
             {
                 try
                 {
-                    // result is null if the ConnectParams was successfully validated 
-                    ConnectionCompleteParams result = ValidateConnectParams(connectParams);
-                    if (result != null)
-                    {
-                        await ServiceHost.SendEvent(ConnectionCompleteNotification.Type, result);
-                        return;
-                    }
-
-                    // open connection based on request details
-                    result = await Connect(connectParams);
-                    await ServiceHost.SendEvent(ConnectionCompleteNotification.Type, result);
+                    await RunConnectRequestHandlerAsync(connectParams);
+                    await requestContext.SendResult(true);
                 }
-                catch (Exception ex)
+                catch
                 {
-                    ConnectionCompleteParams result = new ConnectionCompleteParams()
-                    {
-                        Messages = ex.ToString()
-                    };
-                    await ServiceHost.SendEvent(ConnectionCompleteNotification.Type, result);
+                    await requestContext.SendResult(false);
                 }
+
             }).ContinueWithOnFaulted(null);
+        }
+
+        private async Task RunConnectRequestHandlerAsync(ConnectParams connectParams)
+        {
+            // connect asynchronously so that other requests are not blocked in the meantime
+            try
+            {
+                // open connection based on request details
+                var result = await Connect(connectParams);
+                await ServiceHost.SendEvent(ConnectionCompleteNotification.Type, result);
+            }
+            catch (Exception ex)
+            {
+                ConnectionCompleteParams result = new ConnectionCompleteParams()
+                {
+                    Messages = ex.ToString()
+                };
+                await ServiceHost.SendEvent(ConnectionCompleteNotification.Type, result);
+            }
         }
 
         /// <summary>

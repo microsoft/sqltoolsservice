@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Kusto.Language;
 using KustoDiagnostic = Kusto.Language.Diagnostic;
 using Kusto.Language.Editor;
@@ -123,42 +124,46 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
         }
 
         /// <summary>
-        /// Loads the schema for the specified databasea into a a <see cref="DatabaseSymbol"/>.
+        /// Loads the schema for the specified database into a a <see cref="DatabaseSymbol"/>.
         /// </summary>
-        private static DatabaseSymbol LoadDatabaseAsync(IEnumerable<ShowDatabaseSchemaResult> tableSchemas,
+        private static DatabaseSymbol LoadDatabaseSymbol(IEnumerable<ShowDatabaseSchemaResult> tableSchemas,
             IEnumerable<ShowFunctionsResult> functionSchemas,
             string databaseName)
         {
-            if (tableSchemas == null)
+            if (tableSchemas == null && functionSchemas == null)
             {
                 return null;
             }
-
-            tableSchemas = tableSchemas
-                .Where(r => !string.IsNullOrEmpty(r.TableName) && !string.IsNullOrEmpty(r.ColumnName))
-                .ToArray();
-
-            var members = new List<Symbol>();
-            foreach (var table in tableSchemas.GroupBy(s => s.TableName))
+            
+            var tableMembers = new List<Symbol>();
+            var functionMembers = new List<Symbol>();
+            Parallel.Invoke(() =>
             {
-                var columns = table.Select(s => new ColumnSymbol(s.ColumnName, GetKustoType(s.ColumnType))).ToList();
-                var tableSymbol = new TableSymbol(table.Key, columns);
-                members.Add(tableSymbol);
-            }
+                var groupedTableSchemas = tableSchemas
+                    .Where(r => !string.IsNullOrEmpty(r.TableName) && !string.IsNullOrEmpty(r.ColumnName))
+                    .GroupBy(s => s.TableName)
+                    .ToArray();
 
-            if (functionSchemas == null)
+                foreach (var table in groupedTableSchemas)
+                {
+                    var columns = table
+                        .Select(s => new ColumnSymbol(s.ColumnName, GetKustoType(s.ColumnType)))
+                        .ToList();
+                    var tableSymbol = new TableSymbol(table.Key, columns);
+                    tableMembers.Add(tableSymbol);
+                }
+            }, () =>
             {
-                return null;
-            }
+                foreach (var fun in functionSchemas)
+                {
+                    var parameters = TranslateParameters(fun.Parameters);
+                    var functionSymbol = new FunctionSymbol(fun.Name, fun.Body, parameters);
+                    functionMembers.Add(functionSymbol);
+                }
+            });
 
-            foreach (var fun in functionSchemas)
-            {
-                var parameters = TranslateParameters(fun.Parameters);
-                var functionSymbol = new FunctionSymbol(fun.Name, fun.Body, parameters);
-                members.Add(functionSymbol);
-            }
-
-            return new DatabaseSymbol(databaseName, members);
+            tableMembers.AddRange(functionMembers);
+            return new DatabaseSymbol(databaseName, tableMembers);
         }
 
         public static CompletionItemKind CreateCompletionItemKind(CompletionKind kustoKind)
@@ -272,17 +277,12 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
             string databaseName, string clusterName)
         {
             // try and show error from here.
-            DatabaseSymbol databaseSymbol = null;
-
-            if (databaseName != null)
-            {
-                databaseSymbol = LoadDatabaseAsync(tableSchemas, functionSchemas, databaseName);
-            }
-
-            if (databaseSymbol == null)
+            if (databaseName == null)
             {
                 return globals;
             }
+            
+            DatabaseSymbol databaseSymbol = LoadDatabaseSymbol(tableSchemas, functionSchemas, databaseName);
 
             var cluster = globals.GetCluster(clusterName);
             if (cluster == null)
@@ -296,9 +296,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
                 globals = globals.AddOrUpdateCluster(cluster);
             }
 
-            globals = globals.WithCluster(cluster).WithDatabase(databaseSymbol);
-
-            return globals;
+            return globals.WithCluster(cluster).WithDatabase(databaseSymbol);
         }
 
         /// <inheritdoc/>

@@ -59,15 +59,14 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             IEnumerable<ShowDatabaseSchemaResult> tableSchemas = Enumerable.Empty<ShowDatabaseSchemaResult>();
             IEnumerable<ShowFunctionsResult> functionSchemas = Enumerable.Empty<ShowFunctionsResult>();
 
-            Parallel.Invoke(() =>
+            Parallel.Invoke(async () =>
             {
-                tableSchemas = ExecuteControlCommandAsync<ShowDatabaseSchemaResult>(
-                    $".show database {DatabaseName} schema",
-                    false, source.Token).Result;
-            }, () =>
+                tableSchemas = await ExecuteControlCommandAsync<ShowDatabaseSchemaResult>(
+                    $".show database {DatabaseName} schema", false, source.Token);
+            }, async () =>
             {
-                functionSchemas = ExecuteControlCommandAsync<ShowFunctionsResult>(".show functions", false,
-                    source.Token).Result;
+                functionSchemas = await ExecuteControlCommandAsync<ShowFunctionsResult>(
+                    ".show functions", false, source.Token);
             });
 
             return KustoIntellisenseHelper.AddOrUpdateDatabase(tableSchemas, functionSchemas,

@@ -165,7 +165,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
                 CreateSessionResponse response = await HandleRequestAsync(doCreateSession, context, "HandleCreateSessionRequest");
                 if (response != null)
                 {
-                    RunCreateSessionTask(connectionDetails, response.SessionId);
+                    await RunCreateSessionTaskAsync(connectionDetails, response.SessionId);
                 }
             }
             catch (Exception ex)
@@ -197,11 +197,9 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
                     });
                     return false;
                 }
-                else
-                {
-                    RunExpandTask(session, expandParams);
-                    return true;
-                }
+
+                await RunExpandTaskAsync(session, expandParams);
+                return true;
             };
             await HandleRequestAsync(expandNode, context, "HandleExpandRequest");
         }
@@ -228,7 +226,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
                 }
                 else
                 {
-                    RunExpandTask(session, refreshParams, true);
+                    await RunExpandTaskAsync(session, refreshParams, true);
                 }
                 await context.SendResult(true);
             }
@@ -301,7 +299,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
             }
         }
 
-        private void RunCreateSessionTask(ConnectionDetails connectionDetails, string uri)
+        private async Task RunCreateSessionTaskAsync(ConnectionDetails connectionDetails, string uri)
         {
             Logger.Write(TraceEventType.Information, "Creating OE session");
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
@@ -309,7 +307,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
             {
                 Task task = CreateSessionAsync(connectionDetails, uri, cancellationTokenSource.Token);
                 CreateSessionTask = task;
-                Task.Run(async () =>
+                await Task.Run(async () =>
                 {
                     ObjectExplorerTaskResult result = await RunTaskWithTimeout(task,
                         settings?.CreateSessionTimeout ?? ObjectExplorerSettings.DefaultCreateSessionTimeout);
@@ -327,7 +325,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
                         await _serviceHost.SendEvent(CreateSessionCompleteNotification.Type, response);
                     }
                     return result;
-                }).ContinueWithOnFaulted(null);
+                }, cancellationTokenSource.Token).ContinueWithOnFaulted(null);
             }
         }
 
@@ -551,12 +549,12 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
             await _serviceHost.SendEvent(SessionDisconnectedNotification.Type, result);
         }
 
-        private void RunExpandTask(ObjectExplorerSession session, ExpandParams expandParams, bool forceRefresh = false)
+        private async Task RunExpandTaskAsync(ObjectExplorerSession session, ExpandParams expandParams, bool forceRefresh = false)
         {
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
             Task task = ExpandNodeAsync(session, expandParams,  cancellationTokenSource.Token, forceRefresh);
             ExpandTask = task;
-            Task.Run(async () =>
+            await Task.Run(async () =>
             {
                 ObjectExplorerTaskResult result =  await RunTaskWithTimeout(task, 
                     settings?.ExpandTimeout ?? ObjectExplorerSettings.DefaultExpandTimeout);
@@ -569,7 +567,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
                     await _serviceHost.SendEvent(ExpandCompleteNotification.Type, response);
                 }
                 return result;
-            }).ContinueWithOnFaulted(null);
+            }, cancellationTokenSource.Token).ContinueWithOnFaulted(null);
         }
 
         private async Task<ObjectExplorerTaskResult> RunTaskWithTimeout(Task task, int timeoutInSec)

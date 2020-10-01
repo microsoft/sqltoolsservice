@@ -64,7 +64,7 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
                     });
                 };
 
-                Task task = Task.Run(async () => await requestHandler()).ContinueWithOnFaulted(async t =>
+                await Task.Run(async () => await requestHandler()).ContinueWithOnFaulted(async t =>
                 {
                     await requestContext.SendError(t.Exception.ToString());
                 });
