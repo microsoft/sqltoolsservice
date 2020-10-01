@@ -173,22 +173,29 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             clientRequestProperties.SetOption(ClientRequestProperties.OptionNoTruncation, true);
             cancellationToken.Register(() => CancelQuery(clientRequestProperties.ClientRequestId));
 
-            var kustoCodeService = new KustoCodeService(query);
-            var minimalQuery = kustoCodeService.GetMinimalText(MinimalTextKind.RemoveLeadingWhitespaceAndComments);
+            var script = CodeScript.From(query, GlobalState.Default);
+            List<IDataReader> origReaders = new List<IDataReader>();
 
-            try
+            foreach (var codeBlock in script.Blocks)
             {
-                IDataReader origReader = _kustoQueryProvider.ExecuteQuery(
-                    KustoQueryUtils.IsClusterLevelQuery(minimalQuery) ? "" : databaseName,
-                    minimalQuery,
-                    clientRequestProperties);
+                var minimalQuery = codeBlock.Service.GetMinimalText(MinimalTextKind.RemoveLeadingWhitespaceAndComments);
                 
-                return new KustoResultsReader(origReader);
+                try
+                {
+                    IDataReader origReader = _kustoQueryProvider.ExecuteQuery(
+                        KustoQueryUtils.IsClusterLevelQuery(minimalQuery) ? "" : databaseName,
+                        minimalQuery,
+                        clientRequestProperties);
+                    
+                    origReaders.Add(origReader);
+                }
+                catch (KustoRequestException exception) when (exception.FailureCode == 401) // Unauthorized
+                {
+                    throw new DataSourceUnauthorizedException(exception);
+                }
             }
-            catch (KustoRequestException exception) when (exception.FailureCode == 401) // Unauthorized
-            {
-                throw new DataSourceUnauthorizedException(exception);
-            }
+
+            return new KustoResultsReader(origReaders);
         }
 
         /// <summary>
