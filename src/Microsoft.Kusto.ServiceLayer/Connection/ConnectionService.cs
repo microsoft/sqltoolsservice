@@ -31,9 +31,8 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
     /// </summary>
     public class ConnectionService
     {
-        public const string AdminConnectionPrefix = "ADMIN:";
-        internal const string PasswordPlaceholder = "******";
-        private const string SqlAzureEdition = "SQL Azure";
+        private const string AdminConnectionPrefix = "ADMIN:";
+        private const string PasswordPlaceholder = "******";
 
         /// <summary>
         /// Singleton service instance
@@ -1367,62 +1366,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <param name="connInfo">The connection info to connect with</param>
         /// <param name="featureName">A plaintext string that will be included in the application name for the connection</param>
         /// <returns>A SqlConnection created with the given connection info</returns>
-        private static SqlConnection CreateSqlConnection(ConnectionInfo connInfo, string featureName = null)
-        {
-            try
-            {
-                // capture original values
-                int? originalTimeout = connInfo.ConnectionDetails.ConnectTimeout;
-                bool? originalPersistSecurityInfo = connInfo.ConnectionDetails.PersistSecurityInfo;
-                bool? originalPooling = connInfo.ConnectionDetails.Pooling;
-
-                // increase the connection timeout to at least 30 seconds and and build connection string
-                connInfo.ConnectionDetails.ConnectTimeout = Math.Max(30, originalTimeout ?? 0);
-                // enable PersistSecurityInfo to handle issues in SMO where the connection context is lost in reconnections
-                connInfo.ConnectionDetails.PersistSecurityInfo = true;
-                // turn off connection pool to avoid hold locks on server resources after calling SqlConnection Close method
-                connInfo.ConnectionDetails.Pooling = false;
-                connInfo.ConnectionDetails.ApplicationName =
-                    GetApplicationNameWithFeature(connInfo.ConnectionDetails.ApplicationName, featureName);
-
-                // generate connection string
-                string connectionString = BuildConnectionString(connInfo.ConnectionDetails);
-
-                // restore original values
-                connInfo.ConnectionDetails.ConnectTimeout = originalTimeout;
-                connInfo.ConnectionDetails.PersistSecurityInfo = originalPersistSecurityInfo;
-                connInfo.ConnectionDetails.Pooling = originalPooling;
-
-                // open a dedicated binding server connection
-                var sqlConn = new SqlConnection(connectionString);
-
-                // Fill in Azure authentication token if needed
-                if (connInfo.ConnectionDetails.AzureAccountToken != null)
-                {
-                    sqlConn.AccessToken = connInfo.ConnectionDetails.AzureAccountToken;
-                }
-
-                return sqlConn;
-            }
-            catch (Exception ex)
-            {
-                string error = string.Format(CultureInfo.InvariantCulture,
-                    "Failed opening a SqlConnection: error:{0} inner:{1} stacktrace:{2}",
-                    ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty, ex.StackTrace);
-                Logger.Write(TraceEventType.Error, error);
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Create and open a new SqlConnection from a ConnectionInfo object
-        /// Note: we need to audit all uses of this method to determine why we're
-        /// bypassing normal ConnectionService connection management
-        /// </summary>
-        /// <param name="connInfo">The connection info to connect with</param>
-        /// <param name="featureName">A plaintext string that will be included in the application name for the connection</param>
-        /// <returns>A SqlConnection created with the given connection info</returns>
         private IDataSource OpenDataSourceConnection(ConnectionInfo connInfo, string featureName = null)
         {
             try
@@ -1442,23 +1385,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             }
 
             return null;
-        }
-
-        /// <summary>
-        /// Create and open a new ServerConnection from a ConnectionInfo object.
-        /// This calls ConnectionService.OpenSqlConnection and then creates a
-        /// ServerConnection from it.
-        /// </summary>
-        /// <param name="connInfo">The connection info to connect with</param>
-        /// <param name="featureName">A plaintext string that will be included in the application name for the connection</param>
-        /// <returns>A ServerConnection (wrapping a SqlConnection) created with the given connection info</returns>
-        internal static ServerConnection CreateServerConnection(ConnectionInfo connInfo, string featureName = null)
-        {
-            SqlConnection sqlConnection = CreateSqlConnection(connInfo, featureName);
-
-            return connInfo.ConnectionDetails.AzureAccountToken != null 
-                ? new ServerConnection(sqlConnection, new AzureAccessToken(connInfo.ConnectionDetails.AzureAccountToken)) 
-                : new ServerConnection(sqlConnection);
         }
 
         public static void EnsureConnectionIsOpen(ReliableDataSourceConnection conn, bool forceReopen = false)

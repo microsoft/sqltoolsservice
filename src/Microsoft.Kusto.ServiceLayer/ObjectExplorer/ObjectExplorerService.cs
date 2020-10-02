@@ -412,19 +412,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
                                }
                                response.Nodes = nodes;
                                response.ErrorMessage = node.ErrorMessage;
-                               try
-                               {
-                                   // SMO changes the database when getting sql objects. Make sure the database is changed back to the original one
-                                   if (bindingContext.ServerConnection.CurrentDatabase != bindingContext.ServerConnection.DatabaseName)
-                                   {
-                                       bindingContext.ServerConnection.SqlConnectionObject.ChangeDatabase(bindingContext.ServerConnection.DatabaseName);
-                                   }
-                               }
-                               catch(Exception ex)
-                               {
-                                   Logger.Write(TraceEventType.Warning, $"Failed to change the database in OE connection. error: {ex.Message}");
-                                   // We should just try to change the connection. If it fails, there's not much we can do
-                               }
+
                                return response;
                            });
 

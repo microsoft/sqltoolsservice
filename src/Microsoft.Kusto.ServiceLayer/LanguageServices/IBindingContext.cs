@@ -4,10 +4,6 @@
 //
 
 using System.Threading;
-using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.SmoMetadataProvider;
-using Microsoft.SqlServer.Management.SqlParser.Binder;
-using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 
 
@@ -24,29 +20,9 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         bool IsConnected { get; set; }
 
         /// <summary>
-        /// Gets or sets the binding server connection
-        /// </summary>
-        ServerConnection ServerConnection { get; set; }
-
-        /// <summary>
         /// Gets or sets data source interface
         /// </summary>
         IDataSource DataSource { get; set; }
-
-        /// <summary>
-        /// Gets or sets the metadata display info provider
-        /// </summary>
-        MetadataDisplayInfoProvider MetadataDisplayInfoProvider { get; set; }
-
-        /// <summary>
-        /// Gets or sets the SMO metadata provider
-        /// </summary>
-        SmoMetadataProvider SmoMetadataProvider { get; set; }
-
-        /// <summary>
-        /// Gets or sets the binder
-        /// </summary>
-        IBinder Binder { get; set; }
 
         /// <summary>
         /// Gets the binding lock object
