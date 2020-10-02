@@ -67,52 +67,6 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
             return Uri.EscapeUriString(key);
         }
 
-        /// <summary>
-        /// Generate a unique key based on the ConnectionInfo object
-        /// </summary>
-        /// <param name="serverName"></param>
-        /// <param name="databaseName"></param>
-        private string GetConnectionContextKey(string serverName, string databaseName)
-        {
-            return string.Format("{0}_{1}",
-                serverName ?? "NULL",
-                databaseName ?? "NULL");
-            
-        }
-
-        public void CloseConnections(string serverName, string databaseName, int millisecondsTimeout)
-        {
-            string connectionKey = GetConnectionContextKey(serverName, databaseName);
-            var contexts = GetBindingContexts(connectionKey);
-            foreach (var bindingContext in contexts)
-            {
-                if (bindingContext.BindingLock.WaitOne(millisecondsTimeout))
-                {
-                    bindingContext.ServerConnection.Disconnect();
-                }
-            }
-        }
-
-        public void OpenConnections(string serverName, string databaseName, int millisecondsTimeout)
-        {
-            string connectionKey = GetConnectionContextKey(serverName, databaseName);
-            var contexts = GetBindingContexts(connectionKey);
-            foreach (var bindingContext in contexts)
-            {
-                if (bindingContext.BindingLock.WaitOne(millisecondsTimeout))
-                {
-                    try
-                    {
-                        bindingContext.ServerConnection.Connect();
-                    }
-                    catch
-                    {
-                        //TODO: remove the binding context? 
-                    }
-                }
-            }
-        }
-
         public void RemoveBindingContext(ConnectionInfo connInfo)
         {
             string connectionKey = GetConnectionContextKey(connInfo.ConnectionDetails);
