@@ -174,9 +174,9 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             cancellationToken.Register(() => CancelQuery(clientRequestProperties.ClientRequestId));
 
             var script = CodeScript.From(query, GlobalState.Default);
-            List<IDataReader> origReaders = new List<IDataReader>();
+            IDataReader[] origReaders = new IDataReader[script.Blocks.Count];
 
-            foreach (var codeBlock in script.Blocks)
+            Parallel.ForEach(script.Blocks, (codeBlock, state, index) =>
             {
                 var minimalQuery = codeBlock.Service.GetMinimalText(MinimalTextKind.RemoveLeadingWhitespaceAndComments);
                 
@@ -187,13 +187,13 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                         minimalQuery,
                         clientRequestProperties);
                     
-                    origReaders.Add(origReader);
+                    origReaders[index] = origReader;
                 }
                 catch (KustoRequestException exception) when (exception.FailureCode == 401) // Unauthorized
                 {
                     throw new DataSourceUnauthorizedException(exception);
                 }
-            }
+            });
 
             return new KustoResultsReader(origReaders);
         }

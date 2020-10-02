@@ -11,7 +11,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// Kusto returns atleast 4 results tables - QueryResults(sometimes more than one), QueryProperties, QueryStatus and Query Results Metadata Table. 
         /// ADS just needs query results. When returning query results we need to trim off the last 3 tables. 
         /// </summary> 
-        public KustoResultsReader(List <IDataReader> readers)
+        public KustoResultsReader(IDataReader[] readers)
             : base()
         {
             // Read out all tables
