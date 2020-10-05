@@ -4,12 +4,6 @@
 //
 
 using System.Threading;
-using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.SmoMetadataProvider;
-using Microsoft.SqlServer.Management.SqlParser.Binder;
-using Microsoft.SqlServer.Management.SqlParser.Common;
-using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
-using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 
 
@@ -26,29 +20,9 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         bool IsConnected { get; set; }
 
         /// <summary>
-        /// Gets or sets the binding server connection
-        /// </summary>
-        ServerConnection ServerConnection { get; set; }
-
-        /// <summary>
         /// Gets or sets data source interface
         /// </summary>
         IDataSource DataSource { get; set; }
-
-        /// <summary>
-        /// Gets or sets the metadata display info provider
-        /// </summary>
-        MetadataDisplayInfoProvider MetadataDisplayInfoProvider { get; set; }
-
-        /// <summary>
-        /// Gets or sets the SMO metadata provider
-        /// </summary>
-        SmoMetadataProvider SmoMetadataProvider { get; set; }
-
-        /// <summary>
-        /// Gets or sets the binder
-        /// </summary>
-        IBinder Binder { get; set; }
 
         /// <summary>
         /// Gets the binding lock object
@@ -59,30 +33,5 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// Gets or sets the binding operation timeout in milliseconds
         /// </summary>
         int BindingTimeout { get; set; }
-
-        /// <summary>
-        /// Gets or sets the current connection parse options
-        /// </summary>
-        ParseOptions ParseOptions { get; }
-
-        /// <summary>
-        /// Gets or sets the current connection server version
-        /// </summary>
-        ServerVersion ServerVersion { get; }
-
-        /// <summary>
-        /// Gets or sets the database engine type
-        /// </summary>
-        DatabaseEngineType DatabaseEngineType {  get; }
-
-        /// <summary>
-        /// Gets or sets the T-SQL version
-        /// </summary>
-        TransactSqlVersion TransactSqlVersion { get; }
-
-        /// <summary>
-        /// Gets or sets the database compatibility level
-        /// </summary>
-        DatabaseCompatibilityLevel DatabaseCompatibilityLevel { get; }
     }
 }
