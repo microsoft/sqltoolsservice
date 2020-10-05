@@ -17,10 +17,12 @@ before_build:
 
 build_script:
   - dotnet build src/Microsoft.SqlTools.ServiceLayer
+  - dotnet build src/Microsoft.Kusto.ServiceLayer
   - dotnet build src/Microsoft.SqlTools.CoreServices
 
 test_script:
   - dotnet test test/Microsoft.SqlTools.ServiceLayer.UnitTests
+  - dotnet test test/Microsoft.Kusto.ServiceLayer.UnitTests
   - dotnet test test/Microsoft.SqlTools.Hosting.UnitTests
 
 after_test:

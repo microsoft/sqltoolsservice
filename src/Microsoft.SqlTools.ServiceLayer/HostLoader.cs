@@ -29,6 +29,7 @@ using Microsoft.SqlTools.ServiceLayer.Security;
 using Microsoft.SqlTools.ServiceLayer.SqlAssessment;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.ServiceLayer.InsightsGenerator;
 
 namespace Microsoft.SqlTools.ServiceLayer
 {
@@ -67,7 +68,11 @@ namespace Microsoft.SqlTools.ServiceLayer
         {
             // Load extension provider, which currently finds all exports in current DLL. Can be changed to find based
             // on directory or assembly list quite easily in the future
-            ExtensionServiceProvider serviceProvider = ExtensionServiceProvider.CreateDefaultServiceProvider();
+            ExtensionServiceProvider serviceProvider = ExtensionServiceProvider.CreateDefaultServiceProvider(new string[] {
+                "microsofsqltoolscredentials.dll",
+                "microsoft.sqltools.hosting.dll",
+                "microsoftsqltoolsservicelayer.dll"
+            });
             serviceProvider.RegisterSingleService(sqlToolsContext);
             serviceProvider.RegisterSingleService(serviceHost);
 
@@ -136,6 +141,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
             NotebookConvertService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(NotebookConvertService.Instance);
+
+			InsightsGeneratorService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(InsightsGeneratorService.Instance);
 
             InitializeHostedServices(serviceProvider, serviceHost);
             serviceHost.ServiceProvider = serviceProvider;

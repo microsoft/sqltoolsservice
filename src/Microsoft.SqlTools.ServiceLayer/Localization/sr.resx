@@ -280,7 +280,7 @@
     <comment></comment>
   </data>
   <data name="QueryServiceQueryInvalidOwnerUri" xml:space="preserve">
-    <value>This editor is not connected to a database</value>
+    <value>Cannot connect to the database due to invalid OwnerUri</value>
     <comment></comment>
   </data>
   <data name="QueryServiceQueryInProgress" xml:space="preserve">

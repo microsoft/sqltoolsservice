@@ -155,8 +155,8 @@
         <note></note>
       </trans-unit>
       <trans-unit id="QueryServiceQueryInvalidOwnerUri">
-        <source>This editor is not connected to a database</source>
-        <target state="new">This editor is not connected to a database</target>
+        <source>Cannot connect to the database due to invalid OwnerUri</source>
+        <target state="new">Cannot connect to the database due to invalid OwnerUri</target>
         <note></note>
       </trans-unit>
       <trans-unit id="QueryServiceQueryInProgress">

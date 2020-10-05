@@ -129,14 +129,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             };
             var parser = new TSql150Parser(false);
             IList<ParseError> errors = new List<ParseError>();
-            var tokens = parser.GetTokenStream(new StringReader(sql), out errors);
+            var parseResult = parser.Parse(new StringReader(sql), out errors);
+            var batches = (parseResult as TSqlScript).Batches;
+            var tokens = parseResult.ScriptTokenStream;
 
             /**
              * Split the text into separate chunks - blocks of Mutliline comments and blocks 
              * of everything else. We then create a markdown cell for each multiline comment and a code
              * cell for the other blocks.
+             * We only take multiline comments which aren't part of a batch - since otherwise they would 
+             * break up the T-SQL in separate code cells and since we currently don't share state between 
+             * cells that could break the script
              */
-            var multilineComments = tokens.Where(token => token.TokenType == TSqlTokenType.MultilineComment);
+            var multilineComments = tokens
+                .Where(token => token.TokenType == TSqlTokenType.MultilineComment)
+                // Ignore comments that are within a batch. This won't include comments at the start/end of a batch though  - the parser is smart enough
+                // to have the batch only contain the code and any comments that are embedded within it
+                .Where(token => !batches.Any(batch => token.Offset > batch.StartOffset && token.Offset < (batch.StartOffset + batch.FragmentLength)));
 
             int currentIndex = 0;
             int codeLength = 0;
@@ -153,9 +162,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 }
 
                 string commentBlock = comment.Text.Trim();
-                // Trim off the starting /* and ending */
-                commentBlock = commentBlock.Remove(0, 2);
-                commentBlock = commentBlock.Remove(commentBlock.Length - 2);
+                // Trim off the starting comment tokens (/** or /*)
+                if (commentBlock.StartsWith("/**"))
+                {
+                    commentBlock = commentBlock.Remove(0, 3);
+                }
+                else if (commentBlock.StartsWith("/*"))
+                {
+                    commentBlock = commentBlock.Remove(0, 2);
+                }
+                // Trim off the ending comment tokens (**/ or */)
+                if (commentBlock.EndsWith("**/"))
+                {
+                    commentBlock = commentBlock.Remove(commentBlock.Length - 3);
+                }
+                else if (commentBlock.EndsWith("*/"))
+                {
+                    commentBlock = commentBlock.Remove(commentBlock.Length - 2);
+                }
+
                 doc.Cells.Add(GenerateMarkdownCell(commentBlock.Trim()));
 
                 currentIndex = comment.Offset + comment.Text.Length;
