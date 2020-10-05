@@ -16,7 +16,6 @@ using Kusto.Language.Editor;
 using Microsoft.Data.SqlClient;
 using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
-using Microsoft.Kusto.ServiceLayer.DataSource.Exceptions;
 using Microsoft.Kusto.ServiceLayer.Utility;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource
@@ -181,29 +180,36 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             clientRequestProperties.SetOption(ClientRequestProperties.OptionNoTruncation, true);
             cancellationToken.Register(() => CancelQuery(clientRequestProperties.ClientRequestId));
 
-            var kustoCodeService = new KustoCodeService(query);
-            var minimalQuery = kustoCodeService.GetMinimalText(MinimalTextKind.RemoveLeadingWhitespaceAndComments);
+            var script = CodeScript.From(query, GlobalState.Default);
+            IDataReader[] origReaders = new IDataReader[script.Blocks.Count];
 
-            try
+            Parallel.ForEach(script.Blocks, (codeBlock, state, index) =>
             {
-                IDataReader origReader = _kustoQueryProvider.ExecuteQuery(
-                    KustoQueryUtils.IsClusterLevelQuery(minimalQuery) ? "" : databaseName,
-                    minimalQuery,
-                    clientRequestProperties);
+                var minimalQuery = codeBlock.Service.GetMinimalText(MinimalTextKind.RemoveLeadingWhitespaceAndComments);
                 
-                return new KustoResultsReader(origReader);
-            }
-            catch (KustoRequestException exception) when (exception.FailureCode == 401) // Unauthorized
-            {
-                if (_retryCount <= 0)
+                try
                 {
-                    throw;
+                    IDataReader origReader = _kustoQueryProvider.ExecuteQuery(
+                        KustoQueryUtils.IsClusterLevelQuery(minimalQuery) ? "" : databaseName,
+                        minimalQuery,
+                        clientRequestProperties);
+                    
+                    origReaders[index] = origReader;
                 }
+                catch (KustoRequestException exception) when (exception.FailureCode == 401) // Unauthorized
+                {
+                    if (_retryCount <= 0)
+                    {
+                        throw;
+                    }
 
-                _retryCount--;
-                RefreshAzureToken();
-                return ExecuteQuery(query, cancellationToken, databaseName);
-            }
+                    _retryCount--;
+                    RefreshAzureToken();
+                    //return ExecuteQuery(query, cancellationToken, databaseName);
+                }
+            });
+
+            return new KustoResultsReader(origReaders);
         }
 
         /// <summary>
