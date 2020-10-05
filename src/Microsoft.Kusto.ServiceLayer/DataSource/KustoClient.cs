@@ -22,10 +22,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 {
     public class KustoClient : IKustoClient
     {
-        private readonly string _ownerUri;
-
-        private int _retryCount;
-
+        private readonly string _azureAccountToken;
+        
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private ICslAdminProvider _kustoAdminProvider;
 
@@ -40,10 +38,9 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         public string ClusterName { get; }
         public string DatabaseName { get; private set; }
 
-        public KustoClient(string connectionString, string azureAccountToken, string ownerUri)
+        public KustoClient(string connectionString, string azureAccountToken)
         {
-            _ownerUri = ownerUri;
-            _retryCount = 1;
+            _azureAccountToken = azureAccountToken;
             ClusterName = GetClusterName(connectionString);
             var databaseName = new SqlConnectionStringBuilder(connectionString).InitialCatalog;
             Initialize(ClusterName, databaseName, azureAccountToken);
@@ -83,7 +80,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
         private void RefreshAzureToken()
         {
-            string azureAccountToken = ConnectionService.Instance.RefreshAzureToken(_ownerUri);
+            string azureAccountToken = ConnectionService.Instance.RefreshAzureToken(_azureAccountToken);
             _kustoQueryProvider.Dispose();
             _kustoAdminProvider.Dispose();
             Initialize(ClusterName, DatabaseName, azureAccountToken);
@@ -198,12 +195,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 }
                 catch (KustoRequestException exception) when (exception.FailureCode == 401) // Unauthorized
                 {
-                    if (_retryCount <= 0)
-                    {
-                        throw;
-                    }
-
-                    _retryCount--;
                     RefreshAzureToken();
                     //return ExecuteQuery(query, cancellationToken, databaseName);
                 }

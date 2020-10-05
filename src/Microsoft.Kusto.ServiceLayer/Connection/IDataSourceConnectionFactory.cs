@@ -3,8 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System.Data.Common;
-
 namespace Microsoft.Kusto.ServiceLayer.Connection
 {
     /// <summary>
@@ -15,7 +13,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <summary>
         /// Create a new SQL Connection object
         /// </summary>
-        ReliableDataSourceConnection CreateDataSourceConnection(string connectionString, string azureAccountToken,
-            string ownerUri);
+        ReliableDataSourceConnection CreateDataSourceConnection(string connectionString, string azureAccountToken);
     }
 }

@@ -98,7 +98,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                     bindingContext.BindingLock.Reset();
                     
                     string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
-                    bindingContext.DataSource = _dataSourceFactory.Create(DataSourceType.Kusto, connectionString, connInfo.ConnectionDetails.AzureAccountToken, connInfo.OwnerUri);
+                    bindingContext.DataSource = _dataSourceFactory.Create(DataSourceType.Kusto, connectionString, connInfo.ConnectionDetails.AzureAccountToken);
                     bindingContext.BindingTimeout = DefaultBindingTimeout;
                     bindingContext.IsConnected = true;
                 }

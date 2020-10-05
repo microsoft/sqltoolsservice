@@ -268,21 +268,27 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             return completeParams;
         }
 
-        internal string RefreshAzureToken(string ownerUri)
+        internal string RefreshAzureToken(string azureToken)
         {
-            ConnectionInfo existingConnection = OwnerToConnectionMap[ownerUri];
+            var connections = OwnerToConnectionMap.Values
+                .Where(x => x.ConnectionDetails.AzureAccountToken == azureToken)
+                .ToList();
+            
+            var firstConnection = connections.First();
             
             var requestMessage = new RequestSecurityTokenParams
             {
-                AccountId = existingConnection.ConnectionDetails.GetOptionValue("azureAccount", string.Empty),
-                Authority = existingConnection.ConnectionDetails.GetOptionValue("azureTenantId", string.Empty),
+                AccountId = firstConnection.ConnectionDetails.GetOptionValue("azureAccount", string.Empty),
+                Authority = firstConnection.ConnectionDetails.GetOptionValue("azureTenantId", string.Empty),
                 Provider = "Azure",
                 Resource = "SQL"
             };
 
             var response = Instance.ServiceHost.SendRequest(SecurityTokenRequest.Type, requestMessage, true).Result;
-            existingConnection.UpdateAzureToken(response.Token);
-            
+            foreach (var connection in connections)
+            {
+                connection.UpdateAzureToken(response.Token);
+            }
             return response.Token;
         }
 
@@ -451,7 +457,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                 string connectionString = BuildConnectionString(connectionInfo.ConnectionDetails);
 
                 // create a sql connection instance
-                connection = connectionInfo.Factory.CreateDataSourceConnection(connectionString, connectionInfo.ConnectionDetails.AzureAccountToken, connectionInfo.OwnerUri);
+                connection = connectionInfo.Factory.CreateDataSourceConnection(connectionString, connectionInfo.ConnectionDetails.AzureAccountToken);
                 connectionInfo.AddConnection(connectionParams.Type, connection);
 
                 // Add a cancellation token source so that the connection OpenAsync() can be cancelled
@@ -1260,7 +1266,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                                 string connectionString = BuildConnectionString(info.ConnectionDetails);
 
                                 // create a sql connection instance
-                                ReliableDataSourceConnection connection = info.Factory.CreateDataSourceConnection(connectionString, info.ConnectionDetails.AzureAccountToken, info.OwnerUri);
+                                ReliableDataSourceConnection connection = info.Factory.CreateDataSourceConnection(connectionString, info.ConnectionDetails.AzureAccountToken);
                                 connection.Open();
                                 info.AddConnection(key, connection);
                             }
@@ -1372,7 +1378,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                 string connectionString = BuildConnectionString(connInfo.ConnectionDetails);
 
                 // TODOKusto: Pass in type of DataSource needed to make this generic. Hard coded to Kusto right now.
-                return _dataSourceFactory.Create(DataSourceType.Kusto, connectionString, connInfo.ConnectionDetails.AzureAccountToken, connInfo.OwnerUri);
+                return _dataSourceFactory.Create(DataSourceType.Kusto, connectionString, connInfo.ConnectionDetails.AzureAccountToken);
             }
             catch (Exception ex)
             {

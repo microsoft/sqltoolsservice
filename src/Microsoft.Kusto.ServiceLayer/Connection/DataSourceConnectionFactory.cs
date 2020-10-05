@@ -29,11 +29,11 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// Creates a new SqlConnection object
         /// </summary>
         public ReliableDataSourceConnection CreateDataSourceConnection(string connectionString,
-            string azureAccountToken, string ownerUri)
+            string azureAccountToken)
         {
             RetryPolicy connectionRetryPolicy = RetryPolicyFactory.CreateDefaultConnectionRetryPolicy();
             RetryPolicy commandRetryPolicy = RetryPolicyFactory.CreateDefaultConnectionRetryPolicy();
-            return new ReliableDataSourceConnection(connectionString, connectionRetryPolicy, commandRetryPolicy, azureAccountToken, _dataSourceFactory, ownerUri);
+            return new ReliableDataSourceConnection(connectionString, connectionRetryPolicy, commandRetryPolicy, azureAccountToken, _dataSourceFactory);
         }
     }
 }

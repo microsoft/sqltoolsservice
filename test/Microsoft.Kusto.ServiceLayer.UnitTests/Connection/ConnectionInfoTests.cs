@@ -36,7 +36,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.Connection
 
             var dataSourceFactoryMock = new Mock<IDataSourceFactory>();
             var reliableDataSource = new ReliableDataSourceConnection("", RetryPolicyFactory.NoRetryPolicy,
-                RetryPolicyFactory.NoRetryPolicy, "", dataSourceFactoryMock.Object, "");
+                RetryPolicyFactory.NoRetryPolicy, "", dataSourceFactoryMock.Object);
             connectionInfo.AddConnection("ConnectionType", reliableDataSource);
 
             connectionInfo.TryGetConnection("ConnectionType", out var connection);
@@ -60,7 +60,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.Connection
 
             var dataSourceFactoryMock = new Mock<IDataSourceFactory>();
             var reliableDataSource = new ReliableDataSourceConnection("", RetryPolicyFactory.NoRetryPolicy,
-                RetryPolicyFactory.NoRetryPolicy, "", dataSourceFactoryMock.Object, "");
+                RetryPolicyFactory.NoRetryPolicy, "", dataSourceFactoryMock.Object);
             connectionInfo.AddConnection("ConnectionType", reliableDataSource);
 
             connectionInfo.RemoveConnection("ConnectionType");
@@ -77,7 +77,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.Connection
 
             var dataSourceFactoryMock = new Mock<IDataSourceFactory>();
             var reliableDataSource = new ReliableDataSourceConnection("", RetryPolicyFactory.NoRetryPolicy,
-                RetryPolicyFactory.NoRetryPolicy, "", dataSourceFactoryMock.Object, "");
+                RetryPolicyFactory.NoRetryPolicy, "", dataSourceFactoryMock.Object);
             connectionInfo.AddConnection("ConnectionType", reliableDataSource);
 
             connectionInfo.RemoveAllConnections();

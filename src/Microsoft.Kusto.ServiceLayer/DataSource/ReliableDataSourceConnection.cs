@@ -44,7 +44,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         private readonly string _connectionString;
         private readonly string _azureAccountToken;
         private readonly IDataSourceFactory _dataSourceFactory;
-        private readonly string _ownerUri;
 
         /// <summary>
         /// Initializes a new instance of the ReliableKustoClient class with a given connection string
@@ -58,13 +57,12 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <param name="dataSourceFactory"></param>
         /// <param name="ownerUri"></param>
         public ReliableDataSourceConnection(string connectionString, RetryPolicy connectionRetryPolicy,
-            RetryPolicy commandRetryPolicy, string azureAccountToken, IDataSourceFactory dataSourceFactory, string ownerUri)
+            RetryPolicy commandRetryPolicy, string azureAccountToken, IDataSourceFactory dataSourceFactory)
         {
             _connectionString = connectionString;
             _azureAccountToken = azureAccountToken;
             _dataSourceFactory = dataSourceFactory;
-            _ownerUri = ownerUri;
-            _dataSource = dataSourceFactory.Create(DataSourceType.Kusto, connectionString, azureAccountToken, _ownerUri);
+            _dataSource = dataSourceFactory.Create(DataSourceType.Kusto, connectionString, azureAccountToken);
             
             _connectionRetryPolicy = connectionRetryPolicy ?? RetryPolicyFactory.CreateNoRetryPolicy();
             _commandRetryPolicy = commandRetryPolicy ?? RetryPolicyFactory.CreateNoRetryPolicy();
@@ -193,7 +191,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             {
                 _connectionRetryPolicy.ExecuteAction(() =>
                 {
-                    _dataSource = _dataSourceFactory.Create(DataSourceType.Kusto, _connectionString, _azureAccountToken, _ownerUri);
+                    _dataSource = _dataSourceFactory.Create(DataSourceType.Kusto, _connectionString, _azureAccountToken);
                 });
             }
         }

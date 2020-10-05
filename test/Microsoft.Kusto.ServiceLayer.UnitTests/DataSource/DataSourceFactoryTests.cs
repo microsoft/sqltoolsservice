@@ -19,7 +19,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.DataSource
         {
             var dataSourceFactory = new DataSourceFactory();
             Assert.Throws(exceptionType,
-                () => dataSourceFactory.Create(DataSourceType.None, connectionString, azureAccountToken, ""));
+                () => dataSourceFactory.Create(DataSourceType.None, connectionString, azureAccountToken));
         }
 
         [Test]
