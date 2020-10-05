@@ -202,15 +202,6 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                 {
                     // disconnect existing connection
                     var bindingContext = this.BindingContextMap[key];
-                    if (bindingContext.ServerConnection != null && bindingContext.ServerConnection.IsOpen)
-                    {
-                        // Disconnecting can take some time so run it in a separate task so that it doesn't block removal
-                        Task.Run(() =>
-                        {
-                            bindingContext.ServerConnection.Cancel();
-                            bindingContext.ServerConnection.Disconnect();
-                        });
-                    }
 
                     // remove key from the map
                     this.BindingContextMap.Remove(key);
@@ -482,17 +473,6 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
             if (_itemQueuedEvent != null)
             {
                 _itemQueuedEvent.Dispose();
-            }
-
-            if (this.BindingContextMap != null)
-            {
-                foreach (var item in this.BindingContextMap)
-                {
-                    if (item.Value != null && item.Value.ServerConnection != null && item.Value.ServerConnection.SqlConnectionObject != null)
-                    {
-                        item.Value.ServerConnection.SqlConnectionObject.Close();
-                    }
-                }
             }
         }
         
