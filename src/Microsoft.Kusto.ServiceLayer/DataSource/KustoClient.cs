@@ -173,22 +173,29 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             clientRequestProperties.SetOption(ClientRequestProperties.OptionNoTruncation, true);
             cancellationToken.Register(() => CancelQuery(clientRequestProperties.ClientRequestId));
 
-            var kustoCodeService = new KustoCodeService(query);
-            var minimalQuery = kustoCodeService.GetMinimalText(MinimalTextKind.RemoveLeadingWhitespaceAndComments);
+            var script = CodeScript.From(query, GlobalState.Default);
+            IDataReader[] origReaders = new IDataReader[script.Blocks.Count];
 
-            try
+            Parallel.ForEach(script.Blocks, (codeBlock, state, index) =>
             {
-                IDataReader origReader = _kustoQueryProvider.ExecuteQuery(
-                    KustoQueryUtils.IsClusterLevelQuery(minimalQuery) ? "" : databaseName,
-                    minimalQuery,
-                    clientRequestProperties);
+                var minimalQuery = codeBlock.Service.GetMinimalText(MinimalTextKind.RemoveLeadingWhitespaceAndComments);
                 
-                return new KustoResultsReader(origReader);
-            }
-            catch (KustoRequestException exception) when (exception.FailureCode == 401) // Unauthorized
-            {
-                throw new DataSourceUnauthorizedException(exception);
-            }
+                try
+                {
+                    IDataReader origReader = _kustoQueryProvider.ExecuteQuery(
+                        KustoQueryUtils.IsClusterLevelQuery(minimalQuery) ? "" : databaseName,
+                        minimalQuery,
+                        clientRequestProperties);
+                    
+                    origReaders[index] = origReader;
+                }
+                catch (KustoRequestException exception) when (exception.FailureCode == 401) // Unauthorized
+                {
+                    throw new DataSourceUnauthorizedException(exception);
+                }
+            });
+
+            return new KustoResultsReader(origReaders);
         }
 
         /// <summary>
