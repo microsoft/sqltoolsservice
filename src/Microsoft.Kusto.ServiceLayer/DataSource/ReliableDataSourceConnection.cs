@@ -1,4 +1,4 @@
-﻿﻿//
+﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -44,6 +44,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         private readonly string _connectionString;
         private readonly string _azureAccountToken;
         private readonly IDataSourceFactory _dataSourceFactory;
+        private readonly string _ownerUri;
 
         /// <summary>
         /// Initializes a new instance of the ReliableKustoClient class with a given connection string
@@ -56,12 +57,13 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <param name="azureAccountToken"></param>
         /// <param name="dataSourceFactory"></param>
         public ReliableDataSourceConnection(string connectionString, RetryPolicy connectionRetryPolicy,
-            RetryPolicy commandRetryPolicy, string azureAccountToken, IDataSourceFactory dataSourceFactory)
+            RetryPolicy commandRetryPolicy, string azureAccountToken, IDataSourceFactory dataSourceFactory, string ownerUri)
         {
             _connectionString = connectionString;
             _azureAccountToken = azureAccountToken;
             _dataSourceFactory = dataSourceFactory;
-            _dataSource = dataSourceFactory.Create(DataSourceType.Kusto, connectionString, azureAccountToken);
+            _ownerUri = ownerUri;
+            _dataSource = dataSourceFactory.Create(DataSourceType.Kusto, connectionString, azureAccountToken, ownerUri);
             
             _connectionRetryPolicy = connectionRetryPolicy ?? RetryPolicyFactory.CreateNoRetryPolicy();
             _commandRetryPolicy = commandRetryPolicy ?? RetryPolicyFactory.CreateNoRetryPolicy();
@@ -190,7 +192,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             {
                 _connectionRetryPolicy.ExecuteAction(() =>
                 {
-                    _dataSource = _dataSourceFactory.Create(DataSourceType.Kusto, _connectionString, _azureAccountToken);
+                    _dataSource = _dataSourceFactory.Create(DataSourceType.Kusto, _connectionString, _azureAccountToken, _ownerUri);
                 });
             }
         }
