@@ -280,7 +280,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 SELECT so.name as configured_slo_name, so2.name as current_slo_name
 FROM dbo.slo_database_objectives do 
     INNER JOIN dbo.slo_service_objectives so ON do.configured_objective_id = so.objective_id
-	INNER JOIN dbo.slo_service_objectives so2 ON do.current_objective_id = so2.objective_id
+    INNER JOIN dbo.slo_service_objectives so2 ON do.current_objective_id = so2.objective_id
 WHERE do.database_id = @DbID
 ";
 
@@ -586,7 +586,8 @@ WHERE do.database_id = @DbID
                 }
 
                 //Only fill in the Azure properties when connected to an Azure server
-                if (context.Server.ServerType == DatabaseEngineType.SqlAzureDatabase)
+                if (context.Server.ServerType == DatabaseEngineType.SqlAzureDatabase
+                && context.Server.DatabaseEngineEdition != DatabaseEngineEdition.SqlOnDemand)
                 {
                     this.azureEditionDisplayValue = db.AzureEdition;
                     AzureEdition edition;
