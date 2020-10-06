@@ -785,7 +785,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                 throw new Exception(SR.ConnectionServiceListDbErrorNotConnected(owner));
             }
 
-            info.TryGetConnection("Default", out ReliableDataSourceConnection connection);
+            info.TryGetConnection(ConnectionType.Default, out ReliableDataSourceConnection connection);
             IDataSource dataSource = connection.GetUnderlyingConnection();
             
             DataSourceObjectMetadata objectMetadata = MetadataFactory.CreateClusterMetadata(info.ConnectionDetails.ServerName);

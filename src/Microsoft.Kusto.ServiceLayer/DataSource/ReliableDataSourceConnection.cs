@@ -42,7 +42,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         private readonly Guid _azureSessionId = Guid.NewGuid();
 
         private readonly string _connectionString;
-        private readonly string _azureAccountToken;
+        private string _azureAccountToken;
         private readonly IDataSourceFactory _dataSourceFactory;
         private readonly string _ownerUri;
 
@@ -56,6 +56,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <param name="commandRetryPolicy">The retry policy defining whether to retry a request if a command fails to be executed.</param>
         /// <param name="azureAccountToken"></param>
         /// <param name="dataSourceFactory"></param>
+        /// <param name="ownerUri"></param>
         public ReliableDataSourceConnection(string connectionString, RetryPolicy connectionRetryPolicy,
             RetryPolicy commandRetryPolicy, string azureAccountToken, IDataSourceFactory dataSourceFactory, string ownerUri)
         {
@@ -248,6 +249,11 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         public string Database
         {
             get { return _dataSource.DatabaseName; }
+        }
+
+        public void UpdateAzureToken(string token)
+        {
+            _azureAccountToken = token;
         }
     }
 }

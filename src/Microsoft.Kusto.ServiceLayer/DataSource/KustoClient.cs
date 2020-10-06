@@ -203,8 +203,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 return ExecuteQuery(query, cancellationToken, databaseName);
             }
         }
-
-
+        
         /// <summary>
         /// Executes a query or command against a kusto cluster and returns a sequence of result row instances.
         /// </summary>
