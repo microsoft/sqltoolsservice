@@ -166,7 +166,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             }
         }
 
-        public IDataReader ExecuteQuery(string query, CancellationToken cancellationToken, string databaseName = null)
+        public IDataReader ExecuteQuery(string query, CancellationToken cancellationToken, string databaseName = null, int retryCount = 1)
         {
             ValidationUtils.IsArgumentNotNullOrWhiteSpace(query, nameof(query));
 
@@ -196,11 +196,13 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 return new KustoResultsReader(origReaders);
             }
             catch (AggregateException exception) 
-                when (exception.InnerException is KustoRequestException innerException 
+                when (retryCount > 0 &&
+                      exception.InnerException is KustoRequestException innerException 
                       && innerException.FailureCode == 401) // Unauthorized
             {
                 RefreshAzureToken();
-                return ExecuteQuery(query, cancellationToken, databaseName);
+                retryCount--;
+                return ExecuteQuery(query, cancellationToken, databaseName, retryCount);
             }
         }
         
@@ -245,7 +247,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// Executes a Kusto control command.
         /// </summary>
         /// <param name="command">The command.</param>
-        public void ExecuteControlCommand(string command)
+        /// <param name="retryCount"></param>
+        public void ExecuteControlCommand(string command, int retryCount = 1)
         {
             ValidationUtils.IsArgumentNotNullOrWhiteSpace(command, nameof(command));
 
@@ -255,10 +258,11 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 {
                 }
             }
-            catch (KustoRequestException exception) when (exception.FailureCode == 401) // Unauthorized
+            catch (KustoRequestException exception) when (retryCount > 0 && exception.FailureCode == 401) // Unauthorized
             {
                 RefreshAzureToken();
-                ExecuteControlCommand(command);
+                retryCount--;
+                ExecuteControlCommand(command, retryCount);
             }
         }
 
