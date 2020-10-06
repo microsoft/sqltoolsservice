@@ -1,4 +1,4 @@
-﻿//
+﻿﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -55,7 +55,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <param name="commandRetryPolicy">The retry policy defining whether to retry a request if a command fails to be executed.</param>
         /// <param name="azureAccountToken"></param>
         /// <param name="dataSourceFactory"></param>
-        /// <param name="ownerUri"></param>
         public ReliableDataSourceConnection(string connectionString, RetryPolicy connectionRetryPolicy,
             RetryPolicy commandRetryPolicy, string azureAccountToken, IDataSourceFactory dataSourceFactory)
         {
@@ -185,7 +184,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// </summary>
         public void Open()
         {
-            // TODOKusto: Should we initialize in the constructor or here. Set a breakpoint and check.
+            // TODOKusto: Should we initialize in the constructor or here. Set a breapoint and check.
             // Check if retry policy was specified, if not, disable retries by executing the Open method using RetryPolicy.NoRetry.
             if(_dataSource == null)
             {

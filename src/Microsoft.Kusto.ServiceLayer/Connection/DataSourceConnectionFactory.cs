@@ -1,4 +1,4 @@
-﻿//
+﻿﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -28,8 +28,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <summary>
         /// Creates a new SqlConnection object
         /// </summary>
-        public ReliableDataSourceConnection CreateDataSourceConnection(string connectionString,
-            string azureAccountToken)
+        public ReliableDataSourceConnection CreateDataSourceConnection(string connectionString, string azureAccountToken)
         {
             RetryPolicy connectionRetryPolicy = RetryPolicyFactory.CreateDefaultConnectionRetryPolicy();
             RetryPolicy commandRetryPolicy = RetryPolicyFactory.CreateDefaultConnectionRetryPolicy();
