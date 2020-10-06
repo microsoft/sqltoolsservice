@@ -25,14 +25,10 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         private readonly IScripter _scripter;
         private static readonly Dictionary<string, SqlServerVersion> scriptCompatibilityMap = LoadScriptCompatibilityMap();
 
-        public ScriptAsScriptingOperation(ScriptingParams parameters, string azureAccountToken, IScripter scripter, IDataSourceFactory dataSourceFactory) : base(parameters, dataSourceFactory)
+        public ScriptAsScriptingOperation(ScriptingParams parameters, string azureAccountToken, IScripter scripter, IDataSource dataSource) : base(parameters, dataSource)
         {
-            DataSource = _dataSourceFactory.Create(DataSourceType.Kusto, this.Parameters.ConnectionString,
-                azureAccountToken);
             _scripter = scripter;
         }
-
-        internal IDataSource DataSource { get; set; }
 
         private string serverName;
         private string databaseName;
@@ -49,7 +45,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                 this.CancellationToken.ThrowIfCancellationRequested();
                 string resultScript = string.Empty;
                 
-                UrnCollection urns = CreateUrns(DataSource);
+                UrnCollection urns = CreateUrns(dataSource);
                 ScriptingOptions options = new ScriptingOptions();
                 SetScriptBehavior(options);
                 ScriptAsOptions scriptAsOptions = new ScriptAsOptions(this.Parameters.ScriptOptions);
@@ -65,12 +61,12 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                 switch (this.Parameters.Operation)
                 {
                     case ScriptingOperationType.Select:
-                        resultScript = GenerateScriptSelect(DataSource, urns);
+                        resultScript = GenerateScriptSelect(dataSource, urns);
                         break;
                     
                     case ScriptingOperationType.Alter:
                     case ScriptingOperationType.Execute:
-                        resultScript = GenerateScriptForFunction(DataSource);
+                        resultScript = GenerateScriptForFunction(dataSource);
                         break;
                 }
 
@@ -116,13 +112,6 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                         ErrorMessage = $"{SR.ScriptingGeneralError} {e.Message}",
                         ErrorDetails = e.ToString(),
                     });
-                }
-            }
-            finally
-            {
-                if (disconnectAtDispose && DataSource != null)
-                {
-                    DataSource.Dispose();
                 }
             }
         }

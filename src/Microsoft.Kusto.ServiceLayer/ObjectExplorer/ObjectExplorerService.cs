@@ -37,11 +37,12 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
     [Export(typeof(IHostedService))]
     public class ObjectExplorerService : HostedService<ObjectExplorerService>, IComposableService, IHostedService, IDisposable
     {
-        private readonly IConnectedBindingQueue _connectedBindingQueue;
+        private IConnectedBindingQueue _connectedBindingQueue;
+        private IConnectionManager _connectionManager;
         internal const string uriPrefix = "objectexplorer://";
 
         // Instance of the connection service, used to get the connection info for a given owner URI
-        private ConnectionService connectionService;
+        private ConnectionService _connectionService;
         private IProtocolEndpoint _serviceHost;
         private ConcurrentDictionary<string, ObjectExplorerSession> sessionMap;
         private IMultiServiceProvider serviceProvider;
@@ -56,9 +57,8 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
         /// Singleton constructor
         /// </summary>
         [ImportingConstructor]
-        public ObjectExplorerService(IConnectedBindingQueue connectedBindingQueue)
+        public ObjectExplorerService()
         {
-            _connectedBindingQueue = connectedBindingQueue;
             sessionMap = new ConcurrentDictionary<string, ObjectExplorerSession>();
             NodePathGenerator.Initialize();
         }
@@ -83,10 +83,12 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
         {
             Validate.IsNotNull(nameof(provider), provider);
             serviceProvider = provider;
-            connectionService = provider.GetService<ConnectionService>();
+            _connectionService = provider.GetService<ConnectionService>();
+            _connectionManager = provider.GetService<IConnectionManager>();
+            _connectedBindingQueue = provider.GetService<IConnectedBindingQueue>();
             try
             {
-                connectionService.RegisterConnectedQueue(connectionName, _connectedBindingQueue);
+                _connectionService.RegisterConnectedQueue(connectionName, _connectedBindingQueue);
 
             }
             catch(Exception ex)
@@ -163,7 +165,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
                 CreateSessionResponse response = await HandleRequestAsync(doCreateSession, context, "HandleCreateSessionRequest");
                 if (response != null)
                 {
-                    RunCreateSessionTask(connectionDetails, response.SessionId);
+                    await RunCreateSessionTask(connectionDetails, response.SessionId);
                 }
             }
             catch (Exception ex)
@@ -292,14 +294,14 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
                         _connectedBindingQueue.RemoveBindingContext(session.ConnectionInfo);
                     }
                 }
-                connectionService.Disconnect(new DisconnectParams()
+                _connectionService.Disconnect(new DisconnectParams()
                 {
                     OwnerUri = uri
                 });
             }
         }
 
-        private void RunCreateSessionTask(ConnectionDetails connectionDetails, string uri)
+        private async Task RunCreateSessionTask(ConnectionDetails connectionDetails, string uri)
         {
             Logger.Write(TraceEventType.Information, "Creating OE session");
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
@@ -307,7 +309,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
             {
                 Task task = CreateSessionAsync(connectionDetails, uri, cancellationTokenSource.Token);
                 CreateSessionTask = task;
-                Task.Run(async () =>
+                await Task.Run(async () =>
                 {
                     ObjectExplorerTaskResult result = await RunTaskWithTimeout(task,
                         settings?.CreateSessionTimeout ?? ObjectExplorerSettings.DefaultCreateSessionTimeout);
@@ -448,7 +450,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
 
                 ConnectionInfo connectionInfo;
                 ConnectionCompleteParams connectionResult = await Connect(connectParams, uri);
-                if (!connectionService.TryFindConnection(uri, out connectionInfo))
+                if (!_connectionManager.TryFindConnection(uri, out connectionInfo))
                 {
                     return null;
                 }
@@ -493,7 +495,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
             try
             {
                 // open connection based on request details
-                ConnectionCompleteParams result = await connectionService.Connect(connectParams);
+                ConnectionCompleteParams result = await _connectionService.Connect(connectParams);
                 connectionErrorMessage = result != null ? $"{result.Messages} error code:{result.ErrorNumber}"  : string.Empty;
                 if (result != null && !string.IsNullOrEmpty(result.ConnectionId))
                 {

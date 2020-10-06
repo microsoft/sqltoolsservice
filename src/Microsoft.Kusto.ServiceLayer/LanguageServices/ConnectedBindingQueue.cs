@@ -18,13 +18,6 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
     public class ConnectedBindingQueue : BindingQueue<ConnectedBindingContext>, IConnectedBindingQueue
     {
         internal const int DefaultBindingTimeout = 500;
-        private readonly IDataSourceFactory _dataSourceFactory;
-
-        [ImportingConstructor]
-        public ConnectedBindingQueue(IDataSourceFactory dataSourceFactory)
-        {
-            _dataSourceFactory = dataSourceFactory;
-        }
 
         /// <summary>
         /// Generate a unique key based on the ConnectionInfo object
@@ -97,8 +90,8 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                 {
                     bindingContext.BindingLock.Reset();
                     
-                    string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
-                    bindingContext.DataSource = _dataSourceFactory.Create(DataSourceType.Kusto, connectionString, connInfo.ConnectionDetails.AzureAccountToken);
+                    connInfo.TryGetConnection(ConnectionType.Default, out ReliableDataSourceConnection connection);
+                    bindingContext.DataSource = connection.GetUnderlyingConnection();
                     bindingContext.BindingTimeout = DefaultBindingTimeout;
                     bindingContext.IsConnected = true;
                 }

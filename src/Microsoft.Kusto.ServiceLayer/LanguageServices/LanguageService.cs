@@ -82,6 +82,8 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 
         private IConnectedBindingQueue _bindingQueue;
 
+        private IConnectionManager _connectionManager;
+
         private ParseOptions defaultParseOptions = new ParseOptions(
             batchSeparator: LanguageService.DefaultBatchSeperator,
             isQuotedIdentifierSet: true,
@@ -126,7 +128,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// <summary>
         /// Internal for testing purposes only
         /// </summary>
-        internal ConnectionService ConnectionServiceInstance
+        private ConnectionService ConnectionServiceInstance
         {
             get
             {
@@ -209,9 +211,10 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// <param name="context"></param>
         /// <param name="dataSourceFactory"></param>
         /// <param name="connectedBindingQueue"></param>
-        public void InitializeService(ServiceHost serviceHost, IConnectedBindingQueue connectedBindingQueue, IDataSourceFactory dataSourceFactory)
+        public void InitializeService(ServiceHost serviceHost, IConnectedBindingQueue connectedBindingQueue, IConnectionManager connectionManager)
         {
             _bindingQueue = connectedBindingQueue;
+            _connectionManager = connectionManager;
             // Register the requests that this service will handle
 
             //serviceHost.SetRequestHandler(SignatureHelpRequest.Type, HandleSignatureHelpRequest);     // Kusto api doesnt support this as of now. Implement it wherever applicable. Hover help is closest to signature help
@@ -319,7 +322,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                     }
 
                     ConnectionInfo connInfo;
-                    ConnectionServiceInstance.TryFindConnection(
+                    _connectionManager.TryFindConnection(
                         scriptFile.ClientUri,
                         out connInfo);
 
@@ -382,7 +385,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                     DefinitionResult definitionResult = null;
                     if (scriptFile != null)
                     {
-                        isConnected = ConnectionServiceInstance.TryFindConnection(scriptFile.ClientUri, out connInfo);
+                        isConnected = _connectionManager.TryFindConnection(scriptFile.ClientUri, out connInfo);
                         definitionResult = GetDefinition(textDocumentPosition, scriptFile, connInfo);
                     }
 
@@ -553,7 +556,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                 }
 
                 ConnectionInfo connInfo;
-                ConnectionServiceInstance.TryFindConnection(
+                _connectionManager.TryFindConnection(
                     scriptFile.ClientUri,
                     out connInfo);
 
@@ -794,7 +797,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         {
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(scriptFile.ClientUri);
             ConnectionInfo connInfo;
-                    ConnectionServiceInstance.TryFindConnection(
+            _connectionManager.TryFindConnection(
                         scriptFile.ClientUri,
                         out connInfo);
 
@@ -1002,7 +1005,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 
                 ScriptFileMarker[] semanticMarkers = null;
                 ConnectionInfo connInfo;
-                ConnectionServiceInstance.TryFindConnection(
+                _connectionManager.TryFindConnection(
                     scriptFile.ClientUri,
                     out connInfo);
                 

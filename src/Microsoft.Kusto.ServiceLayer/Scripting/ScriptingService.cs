@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.Kusto.ServiceLayer.Connection;
-using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
 using Microsoft.Kusto.ServiceLayer.Utility;
@@ -22,13 +21,11 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
     /// </summary>
     public sealed class ScriptingService : IDisposable
     {
-        private const int ScriptingOperationTimeout = 60000;
-
         private static readonly Lazy<ScriptingService> LazyInstance = new Lazy<ScriptingService>(() => new ScriptingService());
 
         public static ScriptingService Instance => LazyInstance.Value;
 
-        private static ConnectionService connectionService;
+        private ConnectionService _connectionService;
 
         private readonly Lazy<ConcurrentDictionary<string, ScriptingOperation>> operations =
             new Lazy<ConcurrentDictionary<string, ScriptingOperation>>(() => new ConcurrentDictionary<string, ScriptingOperation>());
@@ -36,26 +33,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         private bool disposed;
         
         private IScripter _scripter;
-        private IDataSourceFactory _dataSourceFactory;
-
-        /// <summary>
-        /// Internal for testing purposes only
-        /// </summary>
-        internal static ConnectionService ConnectionServiceInstance
-        {
-            get
-            {
-                if (connectionService == null)
-                {
-                    connectionService = ConnectionService.Instance;
-                }
-                return connectionService;
-            }
-            set
-            {
-                connectionService = value;
-            }
-        }
+        private IConnectionManager _connectionManager;
 
         /// <summary>
         /// The collection of active operations
@@ -67,10 +45,11 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         /// </summary>
         /// <param name="serviceHost"></param>
         /// <param name="context"></param>
-        public void InitializeService(ServiceHost serviceHost, IScripter scripter, IDataSourceFactory dataSourceFactory)
+        public void InitializeService(ServiceHost serviceHost, IScripter scripter, ConnectionService connectionService, IConnectionManager connectionManager)
         {
             _scripter = scripter;
-            _dataSourceFactory = dataSourceFactory;
+            _connectionService = connectionService;
+            _connectionManager = connectionManager;
             serviceHost.SetRequestHandler(ScriptingRequest.Type, this.HandleScriptExecuteRequest);
             serviceHost.SetRequestHandler(ScriptingCancelRequest.Type, this.HandleScriptCancelRequest);
             serviceHost.SetRequestHandler(ScriptingListObjectsRequest.Type, this.HandleListObjectsRequest);
@@ -108,7 +87,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         /// </summary>
         public async Task HandleScriptExecuteRequest(ScriptingParams parameters, RequestContext<ScriptingResult> requestContext)
         {
-            SmoScriptingOperation operation = null;
+            
 
             try
             {
@@ -119,7 +98,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                 string accessToken = null;
                 if (parameters.ConnectionString == null)
                 {
-                    ScriptingService.ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
+                    _connectionManager.TryFindConnection(parameters.OwnerUri, out connInfo);
                     if (connInfo != null)
                     {
                         parameters.ConnectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
@@ -131,13 +110,16 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                     }
                 }
 
+                SmoScriptingOperation operation;
+                var datasource = _connectionService.GetOrOpenConnection(parameters.OwnerUri, ConnectionType.Default)
+                    .Result.GetUnderlyingConnection();
                 if (!ShouldCreateScriptAsOperation(parameters))
                 {
-                    operation = new ScriptingScriptOperation(parameters, accessToken, _dataSourceFactory);
+                    operation = new ScriptingScriptOperation(parameters, datasource);
                 }
                 else
                 {
-                    operation = new ScriptAsScriptingOperation(parameters, accessToken, _scripter, _dataSourceFactory);
+                    operation = new ScriptAsScriptingOperation(parameters, accessToken, _scripter, datasource);
                 }
 
                 operation.PlanNotification += (sender, e) => requestContext.SendEvent(ScriptingPlanNotificationEvent.Type, e).Wait();
