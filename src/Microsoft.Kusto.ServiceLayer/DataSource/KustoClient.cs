@@ -178,29 +178,63 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             cancellationToken.Register(() => CancelQuery(clientRequestProperties.ClientRequestId));
 
             var script = CodeScript.From(query, GlobalState.Default);
-            IDataReader[] origReaders = new IDataReader[script.Blocks.Count];
 
-            Parallel.ForEach(script.Blocks, (codeBlock, state, index) =>
+            var firstQuery = ExecuteSingleQuery(script.Blocks[0], databaseName, clientRequestProperties);
+
+            if (script.Blocks.Count == 1)
             {
-                var minimalQuery = codeBlock.Service.GetMinimalText(MinimalTextKind.RemoveLeadingWhitespaceAndComments);
-                
-                try
+                return new KustoResultsReader(new[]
                 {
-                    IDataReader origReader = _kustoQueryProvider.ExecuteQuery(
-                        KustoQueryUtils.IsClusterLevelQuery(minimalQuery) ? "" : databaseName,
-                        minimalQuery,
-                        clientRequestProperties);
-                    
-                    origReaders[index] = origReader;
-                }
-                catch (KustoRequestException exception) when (exception.FailureCode == 401) // Unauthorized
-                {
-                    RefreshAzureToken();
-                    //return ExecuteQuery(query, cancellationToken, databaseName);
-                }
+                    firstQuery
+                });
+            }
+
+            var remainingBlocks = new List<CodeBlock>(script.Blocks);
+            remainingBlocks.RemoveAt(0);
+            
+            var remainingQueries = ExecuteMultipleQueries(remainingBlocks, databaseName, clientRequestProperties);
+
+            var results = new List<IDataReader> {firstQuery};
+            results.AddRange(remainingQueries);
+            
+            return new KustoResultsReader(results.ToArray());
+        }
+
+        private IDataReader ExecuteSingleQuery(CodeBlock codeBlock, string databaseName, ClientRequestProperties clientRequestProperties)
+        {
+            var minimalQuery = codeBlock.Service.GetMinimalText(MinimalTextKind.RemoveLeadingWhitespaceAndComments);
+            
+            try
+            {
+                return _kustoQueryProvider.ExecuteQuery(
+                    KustoQueryUtils.IsClusterLevelQuery(minimalQuery) ? "" : databaseName,
+                    minimalQuery,
+                    clientRequestProperties);
+            }
+            catch (KustoRequestException exception) when (exception.FailureCode == 401) // Unauthorized
+            {
+                RefreshAzureToken();
+                return ExecuteSingleQuery(codeBlock, databaseName, clientRequestProperties);
+            }
+        }
+        
+        private IDataReader[] ExecuteMultipleQueries(List<CodeBlock> codeBlocks, string databaseName, ClientRequestProperties clientRequestProperties)
+        {
+            var origReaders = new IDataReader[codeBlocks.Count];
+            Parallel.ForEach(codeBlocks, (codeBlock, state, index) =>
+            {
+                var minimalQuery =
+                    codeBlock.Service.GetMinimalText(MinimalTextKind.RemoveLeadingWhitespaceAndComments);
+
+                IDataReader origReader = _kustoQueryProvider.ExecuteQuery(
+                    KustoQueryUtils.IsClusterLevelQuery(minimalQuery) ? "" : databaseName,
+                    minimalQuery,
+                    clientRequestProperties);
+
+                origReaders[index] = origReader;
             });
 
-            return new KustoResultsReader(origReaders);
+            return origReaders;
         }
 
         /// <summary>
