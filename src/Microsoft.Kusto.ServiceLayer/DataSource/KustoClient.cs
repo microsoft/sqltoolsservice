@@ -178,64 +178,32 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             cancellationToken.Register(() => CancelQuery(clientRequestProperties.ClientRequestId));
 
             var script = CodeScript.From(query, GlobalState.Default);
-
-            var firstQuery = ExecuteSingleQuery(script.Blocks[0], databaseName, clientRequestProperties);
-
-            if (script.Blocks.Count == 1)
-            {
-                return new KustoResultsReader(new[]
-                {
-                    firstQuery
-                });
-            }
-
-            var remainingBlocks = new List<CodeBlock>(script.Blocks);
-            remainingBlocks.RemoveAt(0);
-            
-            var remainingQueries = ExecuteMultipleQueries(remainingBlocks, databaseName, clientRequestProperties);
-
-            var results = new List<IDataReader> {firstQuery};
-            results.AddRange(remainingQueries);
-            
-            return new KustoResultsReader(results.ToArray());
-        }
-
-        private IDataReader ExecuteSingleQuery(CodeBlock codeBlock, string databaseName, ClientRequestProperties clientRequestProperties)
-        {
-            var minimalQuery = codeBlock.Service.GetMinimalText(MinimalTextKind.RemoveLeadingWhitespaceAndComments);
-            
+            IDataReader[] origReaders = new IDataReader[script.Blocks.Count];
             try
             {
-                return _kustoQueryProvider.ExecuteQuery(
-                    KustoQueryUtils.IsClusterLevelQuery(minimalQuery) ? "" : databaseName,
-                    minimalQuery,
-                    clientRequestProperties);
+                Parallel.ForEach(script.Blocks, (codeBlock, state, index) =>
+                {
+                    var minimalQuery =
+                        codeBlock.Service.GetMinimalText(MinimalTextKind.RemoveLeadingWhitespaceAndComments);
+                    IDataReader origReader = _kustoQueryProvider.ExecuteQuery(
+                        KustoQueryUtils.IsClusterLevelQuery(minimalQuery) ? "" : databaseName,
+                        minimalQuery,
+                        clientRequestProperties);
+
+                    origReaders[index] = origReader;
+                });
+                
+                return new KustoResultsReader(origReaders);
             }
-            catch (KustoRequestException exception) when (exception.FailureCode == 401) // Unauthorized
+            catch (AggregateException exception) 
+                when (exception.InnerException is KustoRequestException innerException 
+                      && innerException.FailureCode == 401) // Unauthorized
             {
                 RefreshAzureToken();
-                return ExecuteSingleQuery(codeBlock, databaseName, clientRequestProperties);
+                return ExecuteQuery(query, cancellationToken, databaseName);
             }
         }
-        
-        private IDataReader[] ExecuteMultipleQueries(List<CodeBlock> codeBlocks, string databaseName, ClientRequestProperties clientRequestProperties)
-        {
-            var origReaders = new IDataReader[codeBlocks.Count];
-            Parallel.ForEach(codeBlocks, (codeBlock, state, index) =>
-            {
-                var minimalQuery =
-                    codeBlock.Service.GetMinimalText(MinimalTextKind.RemoveLeadingWhitespaceAndComments);
 
-                IDataReader origReader = _kustoQueryProvider.ExecuteQuery(
-                    KustoQueryUtils.IsClusterLevelQuery(minimalQuery) ? "" : databaseName,
-                    minimalQuery,
-                    clientRequestProperties);
-
-                origReaders[index] = origReader;
-            });
-
-            return origReaders;
-        }
 
         /// <summary>
         /// Executes a query or command against a kusto cluster and returns a sequence of result row instances.
@@ -282,8 +250,16 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         {
             ValidationUtils.IsArgumentNotNullOrWhiteSpace(command, nameof(command));
 
-            using (var adminOutput = _kustoAdminProvider.ExecuteControlCommand(command, null))
+            try
             {
+                using (var adminOutput = _kustoAdminProvider.ExecuteControlCommand(command, null))
+                {
+                }
+            }
+            catch (KustoRequestException exception) when (exception.FailureCode == 401) // Unauthorized
+            {
+                RefreshAzureToken();
+                ExecuteControlCommand(command);
             }
         }
 
