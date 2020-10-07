@@ -14,14 +14,16 @@ using Kusto.Data.Net.Client;
 using Kusto.Language;
 using Kusto.Language.Editor;
 using Microsoft.Data.SqlClient;
+using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
-using Microsoft.Kusto.ServiceLayer.DataSource.Exceptions;
 using Microsoft.Kusto.ServiceLayer.Utility;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource
 {
     public class KustoClient : IKustoClient
     {
+        private readonly string _ownerUri;
+
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private ICslAdminProvider _kustoAdminProvider;
 
@@ -36,12 +38,12 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         public string ClusterName { get; }
         public string DatabaseName { get; private set; }
 
-        public KustoClient(string connectionString, string azureAccountToken)
+        public KustoClient(string connectionString, string azureAccountToken, string ownerUri)
         {
+            _ownerUri = ownerUri;
             ClusterName = GetClusterName(connectionString);
-            var databaseName = new SqlConnectionStringBuilder(connectionString).InitialCatalog;
-            Initialize(ClusterName, databaseName, azureAccountToken);
-            DatabaseName = string.IsNullOrWhiteSpace(databaseName) ? GetFirstDatabaseName() : databaseName;
+            DatabaseName = new SqlConnectionStringBuilder(connectionString).InitialCatalog;
+            Initialize(ClusterName, DatabaseName, azureAccountToken);
             SchemaState = LoadSchemaState();
         }
 
@@ -75,8 +77,9 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             _kustoAdminProvider = KustoClientFactory.CreateCslAdminProvider(stringBuilder);
         }
 
-        public void UpdateAzureToken(string azureAccountToken)
+        private void RefreshAzureToken()
         {
+            string azureAccountToken = ConnectionService.Instance.RefreshAzureToken(_ownerUri);
             _kustoQueryProvider.Dispose();
             _kustoAdminProvider.Dispose();
             Initialize(ClusterName, DatabaseName, azureAccountToken);
@@ -143,26 +146,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             return kcsb;
         }
 
-        /// <summary>
-        /// Extracts the database name from the connectionString if it exists
-        /// otherwise it takes the first database name from the server
-        /// </summary>
-        /// <param name="connectionString"></param>
-        /// <returns>Database Name</returns>
-        private string GetFirstDatabaseName()
-        {
-            var source = new CancellationTokenSource();
-            string query = ".show databases | project DatabaseName";
-
-            using (var reader = ExecuteQuery(query, source.Token))
-            {
-                var rows = reader.ToEnumerable();
-                var row = rows?.FirstOrDefault();
-                return row?[0].ToString() ?? string.Empty;
-            }
-        }
-
-        public IDataReader ExecuteQuery(string query, CancellationToken cancellationToken, string databaseName = null)
+        public IDataReader ExecuteQuery(string query, CancellationToken cancellationToken, string databaseName = null, int retryCount = 1)
         {
             ValidationUtils.IsArgumentNotNullOrWhiteSpace(query, nameof(query));
 
@@ -175,29 +159,33 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
             var script = CodeScript.From(query, GlobalState.Default);
             IDataReader[] origReaders = new IDataReader[script.Blocks.Count];
-
-            Parallel.ForEach(script.Blocks, (codeBlock, state, index) =>
+            try
             {
-                var minimalQuery = codeBlock.Service.GetMinimalText(MinimalTextKind.RemoveLeadingWhitespaceAndComments);
-                
-                try
+                Parallel.ForEach(script.Blocks, (codeBlock, state, index) =>
                 {
+                    var minimalQuery =
+                        codeBlock.Service.GetMinimalText(MinimalTextKind.RemoveLeadingWhitespaceAndComments);
                     IDataReader origReader = _kustoQueryProvider.ExecuteQuery(
                         KustoQueryUtils.IsClusterLevelQuery(minimalQuery) ? "" : databaseName,
                         minimalQuery,
                         clientRequestProperties);
-                    
+
                     origReaders[index] = origReader;
-                }
-                catch (KustoRequestException exception) when (exception.FailureCode == 401) // Unauthorized
-                {
-                    throw new DataSourceUnauthorizedException(exception);
-                }
-            });
-
-            return new KustoResultsReader(origReaders);
+                });
+                
+                return new KustoResultsReader(origReaders);
+            }
+            catch (AggregateException exception) 
+                when (retryCount > 0 &&
+                      exception.InnerException is KustoRequestException innerException 
+                      && innerException.FailureCode == 401) // Unauthorized
+            {
+                RefreshAzureToken();
+                retryCount--;
+                return ExecuteQuery(query, cancellationToken, databaseName, retryCount);
+            }
         }
-
+        
         /// <summary>
         /// Executes a query or command against a kusto cluster and returns a sequence of result row instances.
         /// </summary>
@@ -210,10 +198,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 var results = KustoDataReaderParser.ParseV1(resultReader, null);
                 var tableReader = results[WellKnownDataSet.PrimaryResult].Single().TableData.CreateDataReader();
                 return new ObjectReader<T>(tableReader);
-            }
-            catch (DataSourceUnauthorizedException)
-            {
-                throw;
             }
             catch (Exception) when (!throwOnError)
             {
@@ -243,12 +227,22 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// Executes a Kusto control command.
         /// </summary>
         /// <param name="command">The command.</param>
-        public void ExecuteControlCommand(string command)
+        /// <param name="retryCount"></param>
+        public void ExecuteControlCommand(string command, int retryCount = 1)
         {
             ValidationUtils.IsArgumentNotNullOrWhiteSpace(command, nameof(command));
 
-            using (var adminOutput = _kustoAdminProvider.ExecuteControlCommand(command, null))
+            try
             {
+                using (var adminOutput = _kustoAdminProvider.ExecuteControlCommand(command, null))
+                {
+                }
+            }
+            catch (KustoRequestException exception) when (retryCount > 0 && exception.FailureCode == 401) // Unauthorized
+            {
+                RefreshAzureToken();
+                retryCount--;
+                ExecuteControlCommand(command, retryCount);
             }
         }
 

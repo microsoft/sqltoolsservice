@@ -7,7 +7,6 @@ using System;
 using System.Composition;
 using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
-using Microsoft.Kusto.ServiceLayer.DataSource;
 
 namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 {
@@ -89,8 +88,12 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                 try
                 {
                     bindingContext.BindingLock.Reset();
+                    connInfo.TryGetConnection(ConnectionType.ObjectExplorer, out ReliableDataSourceConnection  connection);
                     
-                    connInfo.TryGetConnection(ConnectionType.Default, out ReliableDataSourceConnection connection);
+                    if (connection == null)
+                    {
+                        connInfo.TryGetConnection(ConnectionType.Default, out connection);    
+                    }
                     bindingContext.DataSource = connection.GetUnderlyingConnection();
                     bindingContext.BindingTimeout = DefaultBindingTimeout;
                     bindingContext.IsConnected = true;

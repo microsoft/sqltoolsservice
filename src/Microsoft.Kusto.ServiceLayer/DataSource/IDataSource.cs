@@ -111,11 +111,5 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// <param name="functionName"></param>
         /// <returns></returns>
         string GenerateExecuteFunctionScript(string functionName);
-
-        /// <summary>
-        /// Updates Azure Token
-        /// </summary>
-        /// <param name="azureToken"></param>
-        void UpdateAzureToken(string azureToken);
     }
 }

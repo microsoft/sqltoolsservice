@@ -15,7 +15,6 @@ using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.Utility;
 using System.Globalization;
-using Microsoft.Kusto.ServiceLayer.DataSource.Exceptions;
 
 namespace Microsoft.Kusto.ServiceLayer.QueryExecution
 {
@@ -66,8 +65,6 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
         /// </summary>
         private readonly bool getFullColumnSchema;
 
-        private int _retryCount;
-
         #endregion
 
         internal Batch(string batchText, SelectionData selection, int ordinalId,
@@ -88,7 +85,6 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
             this.outputFileFactory = outputFileFactory;
             specialAction = new SpecialAction();
             BatchExecutionCount = executionCount > 0 ? executionCount : 1;
-            _retryCount = 1;
             this.getFullColumnSchema = getFullColumnSchema;
         }
 
@@ -252,7 +248,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
         public async Task Execute(ReliableDataSourceConnection conn, CancellationToken cancellationToken)
         {
             // Sanity check to make sure we haven't already run this batch
-            if (HasExecuted && _retryCount < 0)
+            if (HasExecuted)
             {
                 throw new InvalidOperationException("Batch has already executed.");
             }
@@ -266,12 +262,6 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
             try
             {
                 await DoExecute(conn, cancellationToken);
-            }
-            catch (DataSourceUnauthorizedException)
-            {
-                // Rerun the query once if unauthorized
-                _retryCount--;
-                throw;
             }
             catch (TaskCanceledException)
             {

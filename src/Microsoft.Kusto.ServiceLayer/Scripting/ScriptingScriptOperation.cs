@@ -20,7 +20,6 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
     /// </summary>
     public sealed class ScriptingScriptOperation : SmoScriptingOperation
     {
-
         private int scriptedObjectCount = 0;
 
         private int totalScriptedObjectCount = 0;
@@ -29,6 +28,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
 
         public ScriptingScriptOperation(ScriptingParams parameters, IDataSource dataSource) : base(parameters, dataSource)
         {
+            
         }
 
         public override void Execute()

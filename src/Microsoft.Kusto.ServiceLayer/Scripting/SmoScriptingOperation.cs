@@ -20,14 +20,13 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
     /// </summary>
     public abstract class SmoScriptingOperation : ScriptingOperation
     {
-        protected readonly IDataSource dataSource;
+        protected readonly IDataSource _dataSource;
         private bool _disposed;
 
-        protected SmoScriptingOperation(ScriptingParams parameters, IDataSource dataSource)
+        protected SmoScriptingOperation(ScriptingParams parameters, IDataSource datasource)
         {
-            this.dataSource = dataSource;
+            _dataSource = datasource;
             Validate.IsNotNull("parameters", parameters);
-
             this.Parameters = parameters;
         }
 
@@ -75,8 +74,8 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
 
         protected string GetServerNameFromLiveInstance()
         {
-            Logger.Write(TraceEventType.Verbose, string.Format("Resolved server name '{0}'", dataSource.ClusterName));
-            return dataSource.ClusterName;
+            Logger.Write(TraceEventType.Verbose, string.Format("Resolved server name '{0}'", _dataSource.ClusterName));
+            return _dataSource.ClusterName;
         }
 
         protected void ValidateScriptDatabaseParams()

@@ -796,10 +796,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             return string.IsNullOrWhiteSpace(objectName) ? databaseName : $"{databaseName}.{objectName}";
         }
 
-        public override void UpdateAzureToken(string azureToken)
-        {
-            _kustoClient.UpdateAzureToken(azureToken);
-        }
         #endregion
     }
 }

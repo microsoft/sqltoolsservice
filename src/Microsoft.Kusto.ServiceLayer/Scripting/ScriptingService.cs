@@ -44,7 +44,9 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         /// Initializes the Scripting Service instance
         /// </summary>
         /// <param name="serviceHost"></param>
-        /// <param name="context"></param>
+        /// <param name="scripter"></param>
+        /// <param name="connectionService"></param>
+        /// <param name="connectionManager"></param>
         public void InitializeService(ServiceHost serviceHost, IScripter scripter, ConnectionService connectionService, IConnectionManager connectionManager)
         {
             _scripter = scripter;
@@ -94,15 +96,12 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                 // if a connection string wasn't provided as a parameter then
                 // use the owner uri property to lookup its associated ConnectionInfo
                 // and then build a connection string out of that
-                ConnectionInfo connInfo = null;
-                string accessToken = null;
                 if (parameters.ConnectionString == null)
                 {
-                    _connectionManager.TryFindConnection(parameters.OwnerUri, out connInfo);
+                    _connectionManager.TryFindConnection(parameters.OwnerUri, out ConnectionInfo connInfo);
                     if (connInfo != null)
                     {
                         parameters.ConnectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
-                        accessToken = connInfo.ConnectionDetails.AzureAccountToken;
                     }
                     else
                     {
@@ -119,7 +118,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                 }
                 else
                 {
-                    operation = new ScriptAsScriptingOperation(parameters, accessToken, _scripter, datasource);
+                    operation = new ScriptAsScriptingOperation(parameters, _scripter, datasource);
                 }
 
                 operation.PlanNotification += (sender, e) => requestContext.SendEvent(ScriptingPlanNotificationEvent.Type, e).Wait();

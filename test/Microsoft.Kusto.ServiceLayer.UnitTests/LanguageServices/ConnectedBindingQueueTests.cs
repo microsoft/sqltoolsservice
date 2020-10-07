@@ -91,9 +91,9 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.LanguageServices
             var dataSourceMock = new Mock<IDataSource>();
             var dataSourceFactory = new Mock<IDataSourceFactory>();
             dataSourceFactory
-                .Setup(x => x.Create(It.IsAny<DataSourceType>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Setup(x => x.Create(It.IsAny<DataSourceType>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(dataSourceMock.Object);
-            var reliableDataSource = new ReliableDataSourceConnection("", null, null, "", dataSourceFactory.Object);
+            var reliableDataSource = new ReliableDataSourceConnection("", null, null, "", dataSourceFactory.Object, "");
             
             var connectionDetails = new ConnectionDetails();
             var connectionFactory = new Mock<IDataSourceConnectionFactory>();
@@ -101,7 +101,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.LanguageServices
             connectionInfo.AddConnection("Default", reliableDataSource);
             
             dataSourceFactory
-                .Setup(x => x.Create(It.IsAny<DataSourceType>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Setup(x => x.Create(It.IsAny<DataSourceType>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(dataSourceMock.Object);
 
             var connectedBindingQueue = new ConnectedBindingQueue();
