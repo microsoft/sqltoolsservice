@@ -161,6 +161,11 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         public void UpdateAzureToken(string token)
         {
             ConnectionDetails.AzureAccountToken = token;
+
+            foreach (var connection in _connectionTypeToConnectionMap.Values)
+            {
+                connection.UpdateAzureToken(token);
+            }
         }
     }
 }

@@ -20,14 +20,13 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
     /// </summary>
     public abstract class SmoScriptingOperation : ScriptingOperation
     {
-        protected readonly IDataSourceFactory _dataSourceFactory;
+        protected readonly IDataSource _dataSource;
         private bool _disposed;
 
-        protected SmoScriptingOperation(ScriptingParams parameters, IDataSourceFactory dataSourceFactory)
+        protected SmoScriptingOperation(ScriptingParams parameters, IDataSource datasource)
         {
-            _dataSourceFactory = dataSourceFactory;
+            _dataSource = datasource;
             Validate.IsNotNull("parameters", parameters);
-
             this.Parameters = parameters;
         }
 
@@ -73,17 +72,10 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
             parameters.OperationId = this.OperationId;
         }
 
-        protected string GetServerNameFromLiveInstance(string connectionString, string azureAccessToken)
+        protected string GetServerNameFromLiveInstance()
         {
-            string serverName = string.Empty;
-            
-            using(var dataSource = _dataSourceFactory.Create(DataSourceType.Kusto, connectionString, azureAccessToken))
-            {
-                serverName = dataSource.ClusterName;
-            }
-
-            Logger.Write(TraceEventType.Verbose, string.Format("Resolved server name '{0}'", serverName));
-            return serverName;
+            Logger.Write(TraceEventType.Verbose, string.Format("Resolved server name '{0}'", _dataSource.ClusterName));
+            return _dataSource.ClusterName;
         }
 
         protected void ValidateScriptDatabaseParams()

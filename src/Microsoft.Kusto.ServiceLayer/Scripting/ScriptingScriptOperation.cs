@@ -20,18 +20,15 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
     /// </summary>
     public sealed class ScriptingScriptOperation : SmoScriptingOperation
     {
-
         private int scriptedObjectCount = 0;
 
         private int totalScriptedObjectCount = 0;
 
         private int eventSequenceNumber = 1;
 
-        private string azureAccessToken;
-
-        public ScriptingScriptOperation(ScriptingParams parameters, string azureAccessToken, IDataSourceFactory dataSourceFactory) : base(parameters, dataSourceFactory)
+        public ScriptingScriptOperation(ScriptingParams parameters, IDataSource dataSource) : base(parameters, dataSource)
         {
-            this.azureAccessToken = azureAccessToken;
+            
         }
 
         public override void Execute()
@@ -204,7 +201,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                     selectedObjects.Count(),
                     string.Join(", ", selectedObjects)));
 
-            string server = GetServerNameFromLiveInstance(this.Parameters.ConnectionString, this.azureAccessToken);
+            string server = GetServerNameFromLiveInstance();
             string database = new SqlConnectionStringBuilder(this.Parameters.ConnectionString).InitialCatalog;
 
             foreach (ScriptingObject scriptingObject in selectedObjects)
