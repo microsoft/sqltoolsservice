@@ -42,9 +42,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         {
             _ownerUri = ownerUri;
             ClusterName = GetClusterName(connectionString);
-            var databaseName = new SqlConnectionStringBuilder(connectionString).InitialCatalog;
-            Initialize(ClusterName, databaseName, azureAccountToken);
-            DatabaseName = string.IsNullOrWhiteSpace(databaseName) ? GetFirstDatabaseName() : databaseName;
+            DatabaseName = new SqlConnectionStringBuilder(connectionString).InitialCatalog;
+            Initialize(ClusterName, DatabaseName, azureAccountToken);
             SchemaState = LoadSchemaState();
         }
 
@@ -145,25 +144,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             }
 
             return kcsb;
-        }
-
-        /// <summary>
-        /// Extracts the database name from the connectionString if it exists
-        /// otherwise it takes the first database name from the server
-        /// </summary>
-        /// <param name="connectionString"></param>
-        /// <returns>Database Name</returns>
-        private string GetFirstDatabaseName()
-        {
-            var source = new CancellationTokenSource();
-            string query = ".show databases | project DatabaseName";
-
-            using (var reader = ExecuteQuery(query, source.Token))
-            {
-                var rows = reader.ToEnumerable();
-                var row = rows?.FirstOrDefault();
-                return row?[0].ToString() ?? string.Empty;
-            }
         }
 
         public IDataReader ExecuteQuery(string query, CancellationToken cancellationToken, string databaseName = null, int retryCount = 1)
