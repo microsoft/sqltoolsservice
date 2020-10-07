@@ -13,7 +13,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
     [Export(typeof(IDataSourceFactory))]
     public class DataSourceFactory : IDataSourceFactory
     {
-        public IDataSource Create(DataSourceType dataSourceType, string connectionString, string azureAccountToken)
+        public IDataSource Create(DataSourceType dataSourceType, string connectionString, string azureAccountToken, string ownerUri)
         {
             ValidationUtils.IsArgumentNotNullOrWhiteSpace(connectionString, nameof(connectionString));
             ValidationUtils.IsArgumentNotNullOrWhiteSpace(azureAccountToken, nameof(azureAccountToken));
@@ -22,7 +22,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             {
                 case DataSourceType.Kusto:
                 {
-                    var kustoClient = new KustoClient(connectionString, azureAccountToken);
+                    var kustoClient = new KustoClient(connectionString, azureAccountToken, ownerUri);
                     return new KustoDataSource(kustoClient);
                 }
 
