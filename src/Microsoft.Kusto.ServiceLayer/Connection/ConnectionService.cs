@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -31,9 +30,8 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
     /// </summary>
     public class ConnectionService
     {
-        public const string AdminConnectionPrefix = "ADMIN:";
-        internal const string PasswordPlaceholder = "******";
-        private const string SqlAzureEdition = "SQL Azure";
+        private const string AdminConnectionPrefix = "ADMIN:";
+        private const string PasswordPlaceholder = "******";
 
         /// <summary>
         /// Singleton service instance
@@ -63,9 +61,8 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
         /// <summary>
         /// Map from script URIs to ConnectionInfo objects
-        /// This is internal for testing access only
         /// </summary>
-        internal Dictionary<string, ConnectionInfo> OwnerToConnectionMap { get; } = new Dictionary<string, ConnectionInfo>();
+        private Dictionary<string, ConnectionInfo> OwnerToConnectionMap { get; } = new Dictionary<string, ConnectionInfo>();
 
         /// <summary>
         /// Database Lock manager instance
@@ -270,6 +267,24 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             return completeParams;
         }
 
+        internal string RefreshAzureToken(string ownerUri)
+        {
+            TryFindConnection(ownerUri, out ConnectionInfo connection);
+
+            var requestMessage = new RequestSecurityTokenParams
+            {
+                AccountId = connection.ConnectionDetails.GetOptionValue("azureAccount", string.Empty),
+                Authority = connection.ConnectionDetails.GetOptionValue("azureTenantId", string.Empty),
+                Provider = "Azure",
+                Resource = "SQL"
+            };
+
+            var response = Instance.ServiceHost.SendRequest(SecurityTokenRequest.Type, requestMessage, true).Result;
+            connection.UpdateAzureToken(response.Token);
+
+            return response.Token;
+        }
+
         private void TryCloseConnectionTemporaryConnection(ConnectParams connectionParams, ConnectionInfo connectionInfo)
         {
             try
@@ -435,7 +450,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                 string connectionString = BuildConnectionString(connectionInfo.ConnectionDetails);
 
                 // create a sql connection instance
-                connection = connectionInfo.Factory.CreateDataSourceConnection(connectionString, connectionInfo.ConnectionDetails.AzureAccountToken);
+                connection = connectionInfo.Factory.CreateDataSourceConnection(connectionString, connectionInfo.ConnectionDetails.AzureAccountToken, connectionInfo.OwnerUri);
                 connectionInfo.AddConnection(connectionParams.Type, connection);
 
                 // Add a cancellation token source so that the connection OpenAsync() can be cancelled
@@ -769,9 +784,10 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             {
                 throw new Exception(SR.ConnectionServiceListDbErrorNotConnected(owner));
             }
-            ConnectionDetails connectionDetails = info.ConnectionDetails.Clone();
 
-            IDataSource dataSource = OpenDataSourceConnection(info);
+            info.TryGetConnection(ConnectionType.Default, out ReliableDataSourceConnection connection);
+            IDataSource dataSource = connection.GetUnderlyingConnection();
+            
             DataSourceObjectMetadata objectMetadata = MetadataFactory.CreateClusterMetadata(info.ConnectionDetails.ServerName);
 
             ListDatabasesResponse response = new ListDatabasesResponse();
@@ -796,7 +812,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             ServiceHost = serviceHost;
             _dataSourceConnectionFactory = dataSourceConnectionFactory;
             _dataSourceFactory = dataSourceFactory;
-            
             connectedQueues.AddOrUpdate("Default", connectedBindingQueue, (key, old) => connectedBindingQueue);
             LockedDatabaseManager.ConnectionService = this;
 
@@ -966,7 +981,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// Build a connection string builder a connection details instance
         /// </summary>
         /// <param name="connectionDetails"></param>
-        public static SqlConnectionStringBuilder CreateConnectionStringBuilder(ConnectionDetails connectionDetails)
+        private static SqlConnectionStringBuilder CreateConnectionStringBuilder(ConnectionDetails connectionDetails)
         {
             SqlConnectionStringBuilder connectionBuilder;
 
@@ -1245,7 +1260,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                                 string connectionString = BuildConnectionString(info.ConnectionDetails);
 
                                 // create a sql connection instance
-                                ReliableDataSourceConnection connection = info.Factory.CreateDataSourceConnection(connectionString, info.ConnectionDetails.AzureAccountToken);
+                                ReliableDataSourceConnection connection = info.Factory.CreateDataSourceConnection(connectionString, info.ConnectionDetails.AzureAccountToken, ownerUri);
                                 connection.Open();
                                 info.AddConnection(key, connection);
                             }
@@ -1339,109 +1354,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                     Logger.Write(TraceEventType.Verbose, "Could not send Connection telemetry event " + ex.ToString());
                 }
             }
-        }
-
-        /// <summary>
-        /// Create and open a new SqlConnection from a ConnectionInfo object
-        /// Note: we need to audit all uses of this method to determine why we're
-        /// bypassing normal ConnectionService connection management
-        /// </summary>
-        /// <param name="connInfo">The connection info to connect with</param>
-        /// <param name="featureName">A plaintext string that will be included in the application name for the connection</param>
-        /// <returns>A SqlConnection created with the given connection info</returns>
-        internal static SqlConnection OpenSqlConnection(ConnectionInfo connInfo, string featureName = null)
-        {
-            try
-            {
-                // capture original values
-                int? originalTimeout = connInfo.ConnectionDetails.ConnectTimeout;
-                bool? originalPersistSecurityInfo = connInfo.ConnectionDetails.PersistSecurityInfo;
-                bool? originalPooling = connInfo.ConnectionDetails.Pooling;
-
-                // increase the connection timeout to at least 30 seconds and and build connection string
-                connInfo.ConnectionDetails.ConnectTimeout = Math.Max(30, originalTimeout ?? 0);
-                // enable PersistSecurityInfo to handle issues in SMO where the connection context is lost in reconnections
-                connInfo.ConnectionDetails.PersistSecurityInfo = true;
-                // turn off connection pool to avoid hold locks on server resources after calling SqlConnection Close method
-                connInfo.ConnectionDetails.Pooling = false;
-                connInfo.ConnectionDetails.ApplicationName = GetApplicationNameWithFeature(connInfo.ConnectionDetails.ApplicationName, featureName);
-
-                // generate connection string
-                string connectionString = BuildConnectionString(connInfo.ConnectionDetails);
-
-                // restore original values
-                connInfo.ConnectionDetails.ConnectTimeout = originalTimeout;
-                connInfo.ConnectionDetails.PersistSecurityInfo = originalPersistSecurityInfo;
-                connInfo.ConnectionDetails.Pooling = originalPooling;
-
-                // open a dedicated binding server connection
-                using (SqlConnection sqlConn = new SqlConnection(connectionString))
-                {
-                    // Fill in Azure authentication token if needed
-                    if (connInfo.ConnectionDetails.AzureAccountToken != null)
-                    {
-                        sqlConn.AccessToken = connInfo.ConnectionDetails.AzureAccountToken;
-                    }
-
-                    sqlConn.Open();
-                    return sqlConn;
-                }
-            }
-            catch (Exception ex)
-            {
-                string error = string.Format(CultureInfo.InvariantCulture,
-                    "Failed opening a SqlConnection: error:{0} inner:{1} stacktrace:{2}",
-                    ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty, ex.StackTrace);
-                Logger.Write(TraceEventType.Error, error);
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Create and open a new SqlConnection from a ConnectionInfo object
-        /// Note: we need to audit all uses of this method to determine why we're
-        /// bypassing normal ConnectionService connection management
-        /// </summary>
-        /// <param name="connInfo">The connection info to connect with</param>
-        /// <param name="featureName">A plaintext string that will be included in the application name for the connection</param>
-        /// <returns>A SqlConnection created with the given connection info</returns>
-        private IDataSource OpenDataSourceConnection(ConnectionInfo connInfo, string featureName = null)
-        {
-            try
-            {
-                // generate connection string
-                string connectionString = BuildConnectionString(connInfo.ConnectionDetails);
-
-                // TODOKusto: Pass in type of DataSource needed to make this generic. Hard coded to Kusto right now.
-                return _dataSourceFactory.Create(DataSourceType.Kusto, connectionString, connInfo.ConnectionDetails.AzureAccountToken);
-            }
-            catch (Exception ex)
-            {
-                string error = string.Format(CultureInfo.InvariantCulture,
-                    "Failed opening a DataSource of type {0}: error:{1} inner:{2} stacktrace:{3}",
-                    DataSourceType.Kusto, ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty, ex.StackTrace);
-                Logger.Write(TraceEventType.Error, error);
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Create and open a new ServerConnection from a ConnectionInfo object.
-        /// This calls ConnectionService.OpenSqlConnection and then creates a
-        /// ServerConnection from it.
-        /// </summary>
-        /// <param name="connInfo">The connection info to connect with</param>
-        /// <param name="featureName">A plaintext string that will be included in the application name for the connection</param>
-        /// <returns>A ServerConnection (wrapping a SqlConnection) created with the given connection info</returns>
-        internal static ServerConnection OpenServerConnection(ConnectionInfo connInfo, string featureName = null)
-        {
-            SqlConnection sqlConnection = OpenSqlConnection(connInfo, featureName);
-
-            return connInfo.ConnectionDetails.AzureAccountToken != null 
-                ? new ServerConnection(sqlConnection, new AzureAccessToken(connInfo.ConnectionDetails.AzureAccountToken)) 
-                : new ServerConnection(sqlConnection);
         }
 
         public static void EnsureConnectionIsOpen(ReliableDataSourceConnection conn, bool forceReopen = false)

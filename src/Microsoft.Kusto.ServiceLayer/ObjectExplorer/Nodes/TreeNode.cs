@@ -30,7 +30,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
         private string nodePath;
         private string label;
         private string nodePathName;
-        public const char PathPartSeperator = '/';
+        private const char PathPartSeperator = '/';
 
         /// <summary>
         /// Object metadata
@@ -43,25 +43,15 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
         public IDataSource DataSource { get; set; }
 
         /// <summary>
-        /// Constructor with no required inputs
+        /// Constructor with DataSource and DataSourceObjectMetadata 
         /// </summary>
-        public TreeNode(IDataSource dataSource, DataSourceObjectMetadata objectMetadata)
+        /// <param name="dataSource"></param>
+        /// <param name="objectMetadata"></param>
+        protected TreeNode(IDataSource dataSource, DataSourceObjectMetadata objectMetadata)
         {
             DataSource = dataSource;
             ObjectMetadata = objectMetadata;
             NodeValue = objectMetadata.Name;
-        }
-
-        /// <summary>
-        /// Constructor that accepts a label to identify the node
-        /// </summary>
-        /// <param name="value">Label identifying the node</param>
-        public TreeNode(string value, IDataSource dataSource, DataSourceObjectMetadata objectMetadata)
-            : this(dataSource, objectMetadata)
-        {
-            // We intentionally do not valid this being null or empty since
-            // some nodes may need to set it 
-            NodeValue = value;
         }
 
         private object buildingMetadataLock = new object();
@@ -133,7 +123,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
         /// for many nodes such as the server, the display label will be different
         /// to the value.
         /// </summary>
-        public string Label {
+        protected string Label {
             get
             {
                 if(label == null)
@@ -291,17 +281,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
         }
 
         /// <summary>
-        /// Adds a child to the list of children under this node
-        /// </summary>
-        /// <param name="newChild"><see cref="TreeNode"/></param>
-        public void AddChild(TreeNode newChild)
-        {
-            Validate.IsNotNull(nameof(newChild), newChild);
-            children.Add(newChild);
-            newChild.Parent = this;
-        }
-        
-        /// <summary>
         /// Optional context to help with lookup of children
         /// </summary>
         public virtual object GetContext()
@@ -326,7 +305,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
             return Parent as T;
         }
 
-        protected virtual void PopulateChildren(bool refresh, string name, CancellationToken cancellationToken)
+        protected void PopulateChildren(bool refresh, string name, CancellationToken cancellationToken)
         {
             Logger.Write(TraceEventType.Verbose, string.Format(CultureInfo.InvariantCulture, "Populating oe node :{0}", this.GetNodePath()));
             Debug.Assert(IsAlwaysLeaf == false);
@@ -368,25 +347,22 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
             }
         }
 
-        protected IEnumerable<TreeNode> ExpandChildren(TreeNode parent, bool refresh, string name, bool includeSystemObjects, CancellationToken cancellationToken)
+        protected IEnumerable<TreeNode> ExpandChildren(TreeNode parent, bool refresh, string name,
+            bool includeSystemObjects, CancellationToken cancellationToken)
         {
-            List<TreeNode> allChildren = new List<TreeNode>();
-
             try
             {
-                OnExpandPopulateNonFolders(allChildren, parent, refresh, name, cancellationToken);
+                return OnExpandPopulateNonFolders(parent, refresh, name, cancellationToken);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                string error = string.Format(CultureInfo.InvariantCulture, "Failed expanding oe children. parent:{0} error:{1} inner:{2} stacktrace:{3}", 
-                    parent != null ? parent.GetNodePath() : "", ex.Message, ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);
+                string error = string.Format(CultureInfo.InvariantCulture,
+                    "Failed expanding oe children. parent:{0} error:{1} inner:{2} stacktrace:{3}",
+                    parent != null ? parent.GetNodePath() : "", ex.Message,
+                    ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);
                 Logger.Write(TraceEventType.Error, error);
                 throw ex;
             }
-            finally
-            {
-            }
-            return allChildren;
         }
 
         /// <summary>
@@ -394,7 +370,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
         /// </summary>
         /// <param name="allChildren">List to which nodes should be added</param>
         /// <param name="parent">Parent the nodes are being added to</param>
-        private void OnExpandPopulateNonFolders(IList<TreeNode> allChildren, TreeNode parent, bool refresh, string name, CancellationToken cancellationToken)
+        private List<TreeNode> OnExpandPopulateNonFolders(TreeNode parent, bool refresh, string name, CancellationToken cancellationToken)
         {
             Logger.Write(TraceEventType.Verbose, string.Format(CultureInfo.InvariantCulture, "child factory parent :{0}", parent.GetNodePath()));
 
@@ -406,9 +382,15 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
 
                 if (parent.DataSource != null)
                 {
+                    if (refresh)
+                    {
+                        parent.DataSource.Refresh(parent.ObjectMetadata);
+                    }
+                    
                     objectMetadataList = parent.DataSource.GetChildObjects(parent.ObjectMetadata);
                 }
 
+                List<TreeNode> allChildren = new List<TreeNode>();
                 foreach (var objectMetadata in objectMetadataList)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
@@ -423,6 +405,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
                     }
                 }
 
+                return allChildren;
             }
             catch (Exception ex)
             {
@@ -436,7 +419,12 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
         /// <summary>
         /// The glue between the DataSource and the Object Explorer models. Creates the right tree node for each data source type
         /// </summary>
-        protected TreeNode CreateChild(TreeNode parent, DataSourceObjectMetadata childMetadata)
+        /// <param name="parent"></param>
+        /// <param name="childMetadata"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        
+        private TreeNode CreateChild(TreeNode parent, DataSourceObjectMetadata childMetadata)
         {
             ValidationUtils.IsNotNull(parent, nameof(parent));
             ValidationUtils.IsNotNull(childMetadata, nameof(childMetadata));

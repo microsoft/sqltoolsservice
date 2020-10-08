@@ -156,6 +156,16 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                 ReliableDataSourceConnection connection;
                 _connectionTypeToConnectionMap.TryRemove(type, out connection);
             }
-        } 
+        }
+
+        public void UpdateAzureToken(string token)
+        {
+            ConnectionDetails.AzureAccountToken = token;
+
+            foreach (var connection in _connectionTypeToConnectionMap.Values)
+            {
+                connection.UpdateAzureToken(token);
+            }
+        }
     }
 }

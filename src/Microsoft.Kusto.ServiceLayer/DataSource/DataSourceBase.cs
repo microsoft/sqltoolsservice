@@ -7,23 +7,15 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Data;
 using System.Threading.Tasks;
+using Kusto.Language;
 using Microsoft.Kusto.ServiceLayer.Utility;
-using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
 using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
-using Microsoft.Kusto.ServiceLayer.LanguageServices;
-using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
-using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
-using Microsoft.Kusto.ServiceLayer.LanguageServices.Completion;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource
 {
     /// <inheritdoc cref="IDataSource"/>
     public abstract class DataSourceBase : IDataSource
     {
-        protected Object dataSourceLock = new Object();
-
-        private string _database;
-
         #region IDisposable
 
         /// <summary>
@@ -77,25 +69,15 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// <inheritdoc/>
         public abstract IEnumerable<DataSourceObjectMetadata> GetChildObjects(DataSourceObjectMetadata parentMetadata, bool includeSizeDetails = false);
 
+        /// <param name="includeDatabase"></param>
         /// <inheritdoc/>
-        public abstract void Refresh();
+        public abstract void Refresh(bool includeDatabase);
 
         /// <inheritdoc/>
         public abstract void Refresh(DataSourceObjectMetadata objectMetadata);
 
         /// <inheritdoc/>
         public abstract void UpdateDatabase(string databaseName);
-
-        /// <inheritdoc/>
-        public abstract CompletionItem[] GetAutoCompleteSuggestions(ScriptDocumentInfo queryText, Position index, bool throwOnError = false);
-        /// <inheritdoc/>
-        public abstract Hover GetHoverHelp(ScriptDocumentInfo scriptDocumentInfo, Position textPosition, bool throwOnError = false);
-        
-        /// <inheritdoc/>
-        public abstract DefinitionResult GetDefinition(string queryText, int index, int startLine, int startColumn, bool throwOnError = false);
-
-        /// <inheritdoc/>
-        public abstract ScriptFileMarker[] GetSemanticMarkers(ScriptParseInfo parseInfo, ScriptFile scriptFile, string queryText);
 
         /// <inheritdoc/>
         public abstract Task<bool> Exists();
@@ -109,25 +91,12 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
         /// <inheritdoc/>
         public DataSourceType DataSourceType { get; protected set; }
-
+        
         /// <inheritdoc/>
-        public string ClusterName { get; protected set; }
+        public abstract string ClusterName { get; }
 
-        /// <inheritdoc/>
-        public string DatabaseName { 
-            get
-            {
-                return _database;
-            }
-            
-            set
-            {
-                lock(dataSourceLock)
-                {
-                    _database = value;
-                }
-            }
-        }
+        public abstract string DatabaseName { get; }
+        public abstract GlobalState SchemaState { get; }
 
         #endregion
     }

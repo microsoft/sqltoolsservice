@@ -4,8 +4,6 @@
 //
 
 using System;
-using System.Data.Common;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,7 +17,6 @@ using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.Kusto.ServiceLayer.Utility;
-using System.Text;
 
 namespace Microsoft.Kusto.ServiceLayer.QueryExecution
 {
@@ -333,7 +330,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
         /// </summary>
         private async Task ExecuteInternal()
         {
-            ReliableDataSourceConnection sqlConn = null;
+            ReliableDataSourceConnection queryConnection = null;
             try
             {
                 // check for cancellation token before actually making connection
@@ -341,7 +338,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
 
                 // Mark that we've internally executed
                 hasExecuteBeenCalled = true;
-                
+
                 // Don't actually execute if there aren't any batches to execute
                 if (Batches.Length == 0)
                 {
@@ -349,16 +346,19 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                     {
                         await BatchMessageSent(new ResultMessage(SR.QueryServiceCompletedSuccessfully, false, null));
                     }
+
                     if (QueryCompleted != null)
                     {
                         await QueryCompleted(this);
                     }
+
                     return;
                 }
-                
+
                 // Locate and setup the connection
-                ReliableDataSourceConnection queryConnection = await ConnectionService.Instance.GetOrOpenConnection(editorConnection.OwnerUri, ConnectionType.Query);
-                
+                queryConnection = await ConnectionService.Instance.GetOrOpenConnection(editorConnection.OwnerUri,
+                        ConnectionType.Query);
+
                 // Execute beforeBatches synchronously, before the user defined batches 
                 foreach (Batch b in BeforeBatches)
                 {
@@ -409,7 +409,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                 {
                     if (b.HasError)
                     {
-                        ConnectionService.EnsureConnectionIsOpen(sqlConn);
+                        ConnectionService.EnsureConnectionIsOpen(queryConnection);
                         break;
                     }
                 }

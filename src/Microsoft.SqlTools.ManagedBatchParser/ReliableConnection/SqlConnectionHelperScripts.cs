@@ -45,9 +45,22 @@ IF (@filepath IS NULL)
 
 SELECT @filepath AS FilePath
 ";
-
-    public const string GetOsVersion = @"SELECT OSVersion = RIGHT(@@version, LEN(@@version)- 3 -charindex (' on ', LOWER(@@version)))";
-        public const string GetClusterEndpoints = @"SELECT [name], [description], [endpoint], [protocol_desc] FROM .[sys].[dm_cluster_endpoints];";
+        /**
+         * Query to get the server endpoints. We first try to query the dm_cluster_endpoints DMV since that will contain all
+         * of the endpoints. But if that fails (such as if the user doesn't have VIEW SERVER STATE permissions) then we'll
+         * fall back to just querying the ControllerEndpoint server property to at least get the endpoint of the controller
+         * and rely on the caller to connect to the controller to query for any of the other endpoints it needs.
+         */
+        public const string GetClusterEndpoints = @"BEGIN TRY
+SELECT [name], [description], [endpoint], [protocol_desc] FROM .[sys].[dm_cluster_endpoints]
+END TRY
+BEGIN CATCH
+DECLARE @endpoint VARCHAR(max)
+select @endpoint = CONVERT(VARCHAR(max),SERVERPROPERTY('ControllerEndpoint'))
+SELECT 'controller' AS name, 'Cluster Management Service' AS description, @endpoint as endpoint, SUBSTRING(@endpoint, 0, CHARINDEX(':', @endpoint))
+END CATCH
+";
         public const string GetHostInfo = @"SELECT [host_platform], [host_distribution], [host_release], [host_service_pack_level], [host_sku], [os_language_version] FROM sys.dm_os_host_info";
+        public const string GetHostWindowsVersion = @"SELECT windows_release FROM sys.dm_os_windows_info";
     }
 }

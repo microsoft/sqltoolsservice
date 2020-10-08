@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Diagnostics;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
@@ -16,7 +15,6 @@ using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.Utility;
 using System.Globalization;
-using System.Collections.ObjectModel;
 
 namespace Microsoft.Kusto.ServiceLayer.QueryExecution
 {
@@ -87,7 +85,6 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
             this.outputFileFactory = outputFileFactory;
             specialAction = new SpecialAction();
             BatchExecutionCount = executionCount > 0 ? executionCount : 1;
-
             this.getFullColumnSchema = getFullColumnSchema;
         }
 
@@ -290,7 +287,6 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                     await BatchCompletion(this);
                 }
             }
-
         }
 
         private async Task DoExecute(ReliableDataSourceConnection conn, CancellationToken cancellationToken)
@@ -308,6 +304,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                 {
                     await ExecuteOnce(conn, cancellationToken);
                 }
+                
                 catch (DbException dbe)
                 {
                     HasError = true;
