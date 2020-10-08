@@ -39,6 +39,10 @@
 		<Content Include="$(PkgMicrosoft_SqlServer_DacFx)\lib\netstandard2.0\Microsoft.Data.Tools.Schema.SqlTasks.targets">
 			<CopyToPublishDirectory>Always</CopyToPublishDirectory>
 		</Content>
+		<Content Include=".\Migration\Metadata\**">
+			<Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
 		<EmbeddedResource Include="ObjectExplorer\SmoModel\TreeNodeDefinition.xml" />
 		<EmbeddedResource Include="Localization\sr.resx" />
 		<None Include="Localization\sr.strings" />
@@ -54,15 +58,5 @@
 			<ContentWithTargetPath Include="$(ProjectDepsFilePath)" Condition="'$(GenerateDependencyFile)' == 'true'" CopyToOutputDirectory="PreserveNewest" TargetPath="$(ProjectDepsFileName)" />
 			<ContentWithTargetPath Include="$(ProjectRuntimeConfigFilePath)" Condition="'$(GenerateRuntimeConfigurationFiles)' == 'true'" CopyToOutputDirectory="PreserveNewest" TargetPath="$(ProjectRuntimeConfigFileName)" />
 		</ItemGroup>
-	</Target>
-	<Target Name="CopyMigrationFeatureMetadata" AfterTargets="Build">
-		<ItemGroup>
-			<FeatureMetadataJson Include=".\Migration\Metadata\featuremetadata.json" />
-			<AzureSqlDbFeatureXml Include=".\Migration\Metadata\TargetAssessment\AzureSQLDatabase\AzureSQLDbFeatureRuleMetadataStore.xml" />
-			<AzureMiFeatureXml Include=".\Migration\Metadata\TargetAssessment\ManagedInstance\MIFeatureRuleMetadataStore.xml" />
-		</ItemGroup>
-		<Copy SourceFiles="@(FeatureMetadataJson)" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="true" />
-		<Copy SourceFiles="@(AzureSqlDbFeatureXml)" DestinationFolder="$(OutputPath)\TargetAssessment\AzureSQLDatabase\" SkipUnchangedFiles="true" />
-		<Copy SourceFiles="@(AzureMiFeatureXml)" DestinationFolder="$(OutputPath)\TargetAssessment\ManagedInstance\" SkipUnchangedFiles="true" />
 	</Target>
 </Project>

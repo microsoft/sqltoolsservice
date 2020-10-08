@@ -32,18 +32,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Remove=".\Agent\NotebookResources\TestNotebook.ipynb" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include=".\Agent\NotebookResources\TestNotebook.ipynb" />
-  </ItemGroup>
-  <Target Name="CopyMigrationFeatureMetadata" AfterTargets="Build">
-		<ItemGroup>
-			<FeatureMetadataJson Include="..\..\src\Microsoft.SqlTools.ServiceLayer\Migration\Metadata\featuremetadata.json" />
-			<AzureSqlDbFeatureXml Include="..\..\src\Microsoft.SqlTools.ServiceLayer\Migration\Metadata\TargetAssessment\AzureSQLDatabase\AzureSQLDbFeatureRuleMetadataStore.xml" />
-			<AzureMiFeatureXml Include="..\..\src\Microsoft.SqlTools.ServiceLayer\Migration\Metadata\TargetAssessment\ManagedInstance\MIFeatureRuleMetadataStore.xml" />
-		</ItemGroup>
-		<Copy SourceFiles="@(FeatureMetadataJson)" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="true" />
-		<Copy SourceFiles="@(AzureSqlDbFeatureXml)" DestinationFolder="$(OutputPath)\TargetAssessment\AzureSQLDatabase\" SkipUnchangedFiles="true" />
-		<Copy SourceFiles="@(AzureMiFeatureXml)" DestinationFolder="$(OutputPath)\TargetAssessment\ManagedInstance\" SkipUnchangedFiles="true" />
-	</Target>
+		<Content Include="..\..\src\Microsoft.SqlTools.ServiceLayer\Migration\Metadata\**">
+			<Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
 </Project>
