@@ -23,23 +23,12 @@
 		<PackageReference Include="Microsoft.SqlServer.DACFx" />
 		<PackageReference Include="Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider" />
 		<PackageReference Include="System.Text.Encoding.CodePages" />
+		<PackageReference Include="Microsoft.SqlServer.Assessment" />
+		<PackageReference Include="Microsoft.SqlServer.Migration.Assessment" />
 	</ItemGroup>
-
-	<ItemGroup>
-		<Reference Include="Microsoft.SqlServer.Assessment, Version=1.100.0.0, PublicKeyToken=89845dcd8080cc91">
-			<HintPath>..\..\bin\ref\migration\Microsoft.SqlServer.Assessment.dll</HintPath>
-			<SpecificVersion>True</SpecificVersion>
-		</Reference>
-		<Reference Include="Microsoft.SqlServer.Migration.Assessment, Version=0.0.0.0, PublicKeyToken=15194179b10d770a">
-			<HintPath>..\..\bin\ref\migration\Microsoft.SqlServer.Migration.Assessment.dll</HintPath>
-			<SpecificVersion>True</SpecificVersion>
-		</Reference>
-	</ItemGroup>
-
 	<ItemGroup>
 		<Compile Include="**\*.cs" Exclude="**/obj/**/*.cs" />
 	</ItemGroup>
-	
 	<ItemGroup>
 		<ProjectReference Include="../Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
 		<ProjectReference Include="../Microsoft.SqlTools.Credentials/Microsoft.SqlTools.Credentials.csproj" />
@@ -66,12 +55,13 @@
 			<ContentWithTargetPath Include="$(ProjectRuntimeConfigFilePath)" Condition="'$(GenerateRuntimeConfigurationFiles)' == 'true'" CopyToOutputDirectory="PreserveNewest" TargetPath="$(ProjectRuntimeConfigFileName)" />
 		</ItemGroup>
 	</Target>
-
 	<Target Name="CopyMigrationFeatureMetadata" AfterTargets="Build">
 		<ItemGroup>
-			<AzureSqlDbFeatureXml Include="..\..\bin\ref\migration\TargetAssessment\AzureSQLDatabase\AzureSQLDbFeatureRuleMetadataStore.xml" />
-			<AzureMiFeatureXml Include="..\..\bin\ref\migration\TargetAssessment\ManagedInstance\MIFeatureRuleMetadataStore.xml" />
+			<FeatureMetadataJson Include=".\Migration\Metadata\featuremetadata.json" />
+			<AzureSqlDbFeatureXml Include=".\Migration\Metadata\TargetAssessment\AzureSQLDatabase\AzureSQLDbFeatureRuleMetadataStore.xml" />
+			<AzureMiFeatureXml Include=".\Migration\Metadata\TargetAssessment\ManagedInstance\MIFeatureRuleMetadataStore.xml" />
 		</ItemGroup>
+		<Copy SourceFiles="@(FeatureMetadataJson)" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="true" />
 		<Copy SourceFiles="@(AzureSqlDbFeatureXml)" DestinationFolder="$(OutputPath)\TargetAssessment\AzureSQLDatabase\" SkipUnchangedFiles="true" />
 		<Copy SourceFiles="@(AzureMiFeatureXml)" DestinationFolder="$(OutputPath)\TargetAssessment\ManagedInstance\" SkipUnchangedFiles="true" />
 	</Target>

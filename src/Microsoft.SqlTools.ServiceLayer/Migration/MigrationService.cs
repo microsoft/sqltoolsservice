@@ -151,7 +151,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         
         internal class AssessmentRequest : IAssessmentRequest
         {
-            private readonly Check[] checks;
+            private readonly Check[] checks = null;
 
             public AssessmentRequest(ISqlObjectLocator locator)
             {
@@ -208,7 +208,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                     RulesetVersion = Engine.Configuration.DefaultRuleset.Version.ToString(),
                     Message = r.Message,
                     AppliesToMigrationTargetPlatform = migrationResult.AppliesToMigrationTargetPlatform.ToString(),
-                    IssueCategory = migrationResult.IssueCategory.ToString()
+                    IssueCategory = "Category_Unknown"
                 };
 
                 if (migrationResult.ImpactedObjects != null)
