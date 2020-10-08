@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
+using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 
@@ -25,9 +26,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
     /// </summary>
     static class ListDatabaseRequestHandlerFactory
     {
-        public static IListDatabaseRequestHandler getHandler(bool includeDetails, bool isSqlDB)
+        public static IListDatabaseRequestHandler getHandler(bool includeDetails, bool isSqlDB, ConnectionInfo connectionInfo = null)
         {
-            if (!includeDetails)
+            if (!includeDetails || connectionInfo?.EngineEdition == DatabaseEngineEdition.SqlOnDemand)
             {
                 return new DatabaseNamesHandler();
             }
