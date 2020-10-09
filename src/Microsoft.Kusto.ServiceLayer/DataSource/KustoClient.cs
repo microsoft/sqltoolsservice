@@ -165,10 +165,21 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 {
                     var minimalQuery =
                         codeBlock.Service.GetMinimalText(MinimalTextKind.RemoveLeadingWhitespaceAndComments);
-                    IDataReader origReader = _kustoQueryProvider.ExecuteQuery(
-                        KustoQueryUtils.IsClusterLevelQuery(minimalQuery) ? "" : databaseName,
-                        minimalQuery,
-                        clientRequestProperties);
+                    
+                    IDataReader origReader;
+                
+                    if(minimalQuery.StartsWith(".") && !minimalQuery.StartsWith(".show")){
+                        origReader = _kustoAdminProvider.ExecuteControlCommand(
+                            KustoQueryUtils.IsClusterLevelQuery(minimalQuery) ? "" : databaseName,
+                            minimalQuery,
+                            clientRequestProperties);
+                    }
+                    else{
+                        origReader = _kustoQueryProvider.ExecuteQuery(
+                            KustoQueryUtils.IsClusterLevelQuery(minimalQuery) ? "" : databaseName,
+                            minimalQuery,
+                            clientRequestProperties);
+                    }
 
                     origReaders[index] = origReader;
                 });
