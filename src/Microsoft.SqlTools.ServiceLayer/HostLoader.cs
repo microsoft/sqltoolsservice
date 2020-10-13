@@ -17,19 +17,20 @@ using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
 using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.FileBrowser;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
-using Microsoft.SqlTools.ServiceLayer.ServerConfigurations;
+using Microsoft.SqlTools.ServiceLayer.InsightsGenerator;
 using Microsoft.SqlTools.ServiceLayer.LanguageExtensibility;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.Metadata;
+using Microsoft.SqlTools.ServiceLayer.Migration;
 using Microsoft.SqlTools.ServiceLayer.Profiler;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare;
 using Microsoft.SqlTools.ServiceLayer.Scripting;
 using Microsoft.SqlTools.ServiceLayer.Security;
+using Microsoft.SqlTools.ServiceLayer.ServerConfigurations;
 using Microsoft.SqlTools.ServiceLayer.SqlAssessment;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
-using Microsoft.SqlTools.ServiceLayer.InsightsGenerator;
 
 namespace Microsoft.SqlTools.ServiceLayer
 {
@@ -144,6 +145,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 			InsightsGeneratorService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(InsightsGeneratorService.Instance);
+			
+            MigrationService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(MigrationService.Instance);
 
             InitializeHostedServices(serviceProvider, serviceHost);
             serviceHost.ServiceProvider = serviceProvider;

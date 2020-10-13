@@ -32,8 +32,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Remove=".\Agent\NotebookResources\TestNotebook.ipynb" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include=".\Agent\NotebookResources\TestNotebook.ipynb" />
-  </ItemGroup>
+		<Content Include="..\..\src\Microsoft.SqlTools.ServiceLayer\Migration\Metadata\**">
+			<Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
 </Project>
