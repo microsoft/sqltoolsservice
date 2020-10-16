@@ -420,7 +420,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlAssessment
         /// <param name="server">Target server locator.</param>
         /// <param name="databaseName">Target database name.</param>
         /// <returns>Returns a locator for target database.</returns>
-        private static SqlObjectLocator GetDatabaseLocator(SqlObjectLocator server, string databaseName)
+        internal static SqlObjectLocator GetDatabaseLocator(SqlObjectLocator server, string databaseName)
         {
             return new SqlObjectLocator
             {
@@ -447,7 +447,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlAssessment
         /// Returns a <see cref="SqlEngineEdition"/>
         /// corresponding to the <paramref name="representation"/>.
         /// </returns>
-        private static SqlEngineEdition GetEngineEdition(int representation)
+        internal static SqlEngineEdition GetEngineEdition(int representation)
         {
             switch (representation)
             {

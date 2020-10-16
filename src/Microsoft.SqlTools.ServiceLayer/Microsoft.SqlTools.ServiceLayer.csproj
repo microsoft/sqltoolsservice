@@ -23,12 +23,12 @@
 		<PackageReference Include="Microsoft.SqlServer.DACFx" />
 		<PackageReference Include="Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider" />
 		<PackageReference Include="System.Text.Encoding.CodePages" />
+		<PackageReference Include="Microsoft.SqlServer.Assessment" />
+		<PackageReference Include="Microsoft.SqlServer.Migration.Assessment" />
 	</ItemGroup>
-
 	<ItemGroup>
 		<Compile Include="**\*.cs" Exclude="**/obj/**/*.cs" />
 	</ItemGroup>
-	
 	<ItemGroup>
 		<ProjectReference Include="../Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
 		<ProjectReference Include="../Microsoft.SqlTools.Credentials/Microsoft.SqlTools.Credentials.csproj" />
@@ -38,6 +38,10 @@
 	<ItemGroup>
 		<Content Include="$(PkgMicrosoft_SqlServer_DacFx)\lib\netstandard2.0\Microsoft.Data.Tools.Schema.SqlTasks.targets">
 			<CopyToPublishDirectory>Always</CopyToPublishDirectory>
+		</Content>
+		<Content Include=".\Migration\Metadata\**">
+			<Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 		<EmbeddedResource Include="ObjectExplorer\SmoModel\TreeNodeDefinition.xml" />
 		<EmbeddedResource Include="Localization\sr.resx" />
