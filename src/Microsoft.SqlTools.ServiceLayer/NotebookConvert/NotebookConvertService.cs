@@ -17,7 +17,7 @@ using Microsoft.SqlServer.TransactSql.ScriptDom;
 using System.IO;
 using Microsoft.SqlTools.ServiceLayer.NotebookConvert;
 
-namespace Microsoft.SqlTools.ServiceLayer.Agent
+namespace Microsoft.SqlTools.ServiceLayer.NotebookConvert
 {
     /// <summary>
     /// Main class for Notebook Convert Service
