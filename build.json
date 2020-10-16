@@ -21,8 +21,8 @@
   "MainProjects": [
     "Microsoft.SqlTools.Credentials",
     "Microsoft.SqlTools.ResourceProvider",
-    "Microsoft.SqlTools.ServiceLayer",
-    "Microsoft.Kusto.ServiceLayer"
+    "Microsoft.Kusto.ServiceLayer",
+    "Microsoft.SqlTools.ServiceLayer"
   ],
   "PackageProjects": [
     "Microsoft.SqlTools.CoreServices",
