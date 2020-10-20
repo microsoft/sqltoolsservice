@@ -161,14 +161,14 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             IDataReader[] origReaders = new IDataReader[script.Blocks.Count];
             try
             {
+                var numOfQueries = 0;
                 Parallel.ForEach(script.Blocks, (codeBlock, state, index) =>
                 {
                     var minimalQuery =
                         codeBlock.Service.GetMinimalText(MinimalTextKind.RemoveLeadingWhitespaceAndComments);
                     
-                    IDataReader origReader;
-
                     if(!string.IsNullOrEmpty(minimalQuery)){        // Query is empty in case of comments
+                        IDataReader origReader;
                         if(minimalQuery.StartsWith(".") && !minimalQuery.StartsWith(".show")){
                             origReader = _kustoAdminProvider.ExecuteControlCommand(
                                 KustoQueryUtils.IsClusterLevelQuery(minimalQuery) ? "" : databaseName,
@@ -183,8 +183,17 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                         }
 
                         origReaders[index] = origReader;
+                        numOfQueries++;
                     }
                 });
+
+                if (numOfQueries == 0)                  // Covers the scenario when user tries to run comments.
+                {
+                    origReaders[0] = _kustoQueryProvider.ExecuteQuery(
+                                KustoQueryUtils.IsClusterLevelQuery(query) ? "" : databaseName,
+                                query,
+                                clientRequestProperties);
+                }
                 
                 return new KustoResultsReader(origReaders);
             }
