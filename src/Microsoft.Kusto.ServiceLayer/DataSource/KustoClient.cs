@@ -146,10 +146,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             return kcsb;
         }
 
-        public IDataReader ExecuteQuery(string query, CancellationToken cancellationToken, string databaseName = null, int retryCount = 1)
-        {
-            ValidationUtils.IsArgumentNotNullOrWhiteSpace(query, nameof(query));
-
+        private ClientRequestProperties GetCLientRequestProperties(CancellationToken cancellationToken){
             var clientRequestProperties = new ClientRequestProperties
             {
                 ClientRequestId = Guid.NewGuid().ToString()
@@ -157,32 +154,53 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             clientRequestProperties.SetOption(ClientRequestProperties.OptionNoTruncation, true);
             cancellationToken.Register(() => CancelQuery(clientRequestProperties.ClientRequestId));
 
+            return clientRequestProperties;
+        }
+
+        public IDataReader ExecuteQuery(string query, CancellationToken cancellationToken, string databaseName = null, int retryCount = 1)
+        {
+            ValidationUtils.IsArgumentNotNullOrWhiteSpace(query, nameof(query));
+
             var script = CodeScript.From(query, GlobalState.Default);
             IDataReader[] origReaders = new IDataReader[script.Blocks.Count];
             try
             {
+                var numOfQueries = 0;
                 Parallel.ForEach(script.Blocks, (codeBlock, state, index) =>
                 {
                     var minimalQuery =
                         codeBlock.Service.GetMinimalText(MinimalTextKind.RemoveLeadingWhitespaceAndComments);
                     
-                    IDataReader origReader;
-                
-                    if(minimalQuery.StartsWith(".") && !minimalQuery.StartsWith(".show")){
-                        origReader = _kustoAdminProvider.ExecuteControlCommand(
-                            KustoQueryUtils.IsClusterLevelQuery(minimalQuery) ? "" : databaseName,
-                            minimalQuery,
-                            clientRequestProperties);
-                    }
-                    else{
-                        origReader = _kustoQueryProvider.ExecuteQuery(
-                            KustoQueryUtils.IsClusterLevelQuery(minimalQuery) ? "" : databaseName,
-                            minimalQuery,
-                            clientRequestProperties);
-                    }
+                    if(!string.IsNullOrEmpty(minimalQuery)){        // Query is empty in case of comments
+                        IDataReader origReader;
+                        var clientRequestProperties = GetCLientRequestProperties(cancellationToken);
 
-                    origReaders[index] = origReader;
+                        if(minimalQuery.StartsWith(".") && !minimalQuery.StartsWith(".show")){
+                            origReader = _kustoAdminProvider.ExecuteControlCommand(
+                                KustoQueryUtils.IsClusterLevelQuery(minimalQuery) ? "" : databaseName,
+                                minimalQuery,
+                                clientRequestProperties);
+                        }
+                        else{
+                            origReader = _kustoQueryProvider.ExecuteQuery(
+                                KustoQueryUtils.IsClusterLevelQuery(minimalQuery) ? "" : databaseName,
+                                minimalQuery,
+                                clientRequestProperties);
+                        }
+
+                        origReaders[index] = origReader;
+                        numOfQueries++;
+                    }
                 });
+
+                if (numOfQueries == 0 && origReaders.Length > 0)                  // Covers the scenario when user tries to run comments.
+                {
+                    var clientRequestProperties = GetCLientRequestProperties(cancellationToken);
+                    origReaders[0] = _kustoQueryProvider.ExecuteQuery(
+                                KustoQueryUtils.IsClusterLevelQuery(query) ? "" : databaseName,
+                                query,
+                                clientRequestProperties);
+                }
                 
                 return new KustoResultsReader(origReaders);
             }
