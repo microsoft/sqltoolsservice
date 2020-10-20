@@ -64,7 +64,7 @@ RETURN 0
 
         private string dacpacsFolder = Path.Combine("..", "..", "..", "DacFx", "Dacpacs");
 
-        private const string streamingJobStatement = @"
+        private const string goodStreamingJobStatement = @"
 INSERT INTO SqlOutputStream SELECT
     timeCreated, 
     machine.temperature as machine_temperature, 
@@ -72,6 +72,14 @@ INSERT INTO SqlOutputStream SELECT
     ambient.temperature as ambient_temperature, 
     ambient.humidity as ambient_humidity
 FROM EdgeHubInputStream";
+        private const string missingBothStreamingJobStatement = @"
+INSERT INTO MissingSqlOutputStream SELECT
+    timeCreated, 
+    machine.temperature as machine_temperature, 
+    machine.pressure as machine_pressure, 
+    ambient.temperature as ambient_temperature, 
+    ambient.humidity as ambient_humidity
+FROM MissingEdgeHubInputStream";
 
         private LiveConnectionHelper.TestConnectionResult GetLiveAutoCompleteTestObjects()
         {
@@ -772,17 +780,36 @@ FROM EdgeHubInputStream";
         [Test]
         public async Task ValidateStreamingJob()
         {
-            ValidateStreamingJobResult expectedResult = new ValidateStreamingJobResult();
-
             var dacfxRequestContext = new Mock<RequestContext<ValidateStreamingJobResult>>();
-            dacfxRequestContext.Setup((RequestContext<ValidateStreamingJobResult> x) => x.SendResult(It.Is<ValidateStreamingJobResult>((result) => ValidateStreamingJobErrors(expectedResult, result) == true))).Returns(Task.FromResult(new object()));
-
             DacFxService service = new DacFxService();
+
+            ValidateStreamingJobResult expectedResult;
+
+            // Positive case: both input and output are present
+
+            expectedResult = new ValidateStreamingJobResult() { Success = true };
+            dacfxRequestContext.Setup((RequestContext<ValidateStreamingJobResult> x) => x.SendResult(It.Is<ValidateStreamingJobResult>((result) => ValidateStreamingJobErrors(expectedResult, result) == true))).Returns(Task.FromResult(new object()));
 
             ValidateStreamingJobParams parameters = new ValidateStreamingJobParams()
             {
                 PackageFilePath = Path.Combine(dacpacsFolder, "StreamingJobTestDb.dacpac"),
-                Statement = streamingJobStatement
+                Statement = goodStreamingJobStatement
+            };
+
+            await service.HandleValidateStreamingJobRequest(parameters, dacfxRequestContext.Object);
+            dacfxRequestContext.VerifyAll();
+
+            // Negative case: input and output streams are both missing from model
+
+            const string errorMessage = @"Streaming query statement contains a reference to missing input stream 'MissingEdgeHubInputStream'.  You must add it to the database model.
+Streaming query statement contains a reference to missing output stream 'MissingSqlOutputStream'.  You must add it to the database model.";
+            expectedResult = new ValidateStreamingJobResult() { Success = false, ErrorMessage = errorMessage };
+            dacfxRequestContext.Setup((RequestContext<ValidateStreamingJobResult> x) => x.SendResult(It.Is<ValidateStreamingJobResult>((result) => ValidateStreamingJobErrors(expectedResult, result) == true))).Returns(Task.FromResult(new object()));
+
+            parameters = new ValidateStreamingJobParams()
+            {
+                PackageFilePath = Path.Combine(dacpacsFolder, "StreamingJobTestDb.dacpac"),
+                Statement = missingBothStreamingJobStatement
             };
 
             await service.HandleValidateStreamingJobRequest(parameters, dacfxRequestContext.Object);

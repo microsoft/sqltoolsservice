@@ -2965,6 +2965,22 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string Input
+        {
+            get
+            {
+                return Keys.GetString(Keys.Input);
+            }
+        }
+
+        public static string Output
+        {
+            get
+            {
+                return Keys.GetString(Keys.Output);
+            }
+        }
+
         public static string PublishChangesTaskName
         {
             get
@@ -3229,6 +3245,11 @@ namespace Microsoft.SqlTools.ServiceLayer
         public static string ScheduleNameAlreadyExists(string scheduleName)
         {
             return Keys.GetString(Keys.ScheduleNameAlreadyExists, scheduleName);
+        }
+
+        public static string StreamNotFoundInModel(string streamType, string missingStreamName)
+        {
+            return Keys.GetString(Keys.StreamNotFoundInModel, streamType, missingStreamName);
         }
 
         public static string SqlAssessmentUnsuppoertedEdition(int editionCode)
@@ -4469,6 +4490,15 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ExtractInvalidVersion = "ExtractInvalidVersion";
+
+
+            public const string StreamNotFoundInModel = "StreamNotFoundInModel";
+
+
+            public const string Input = "Input";
+
+
+            public const string Output = "Output";
 
 
             public const string PublishChangesTaskName = "PublishChangesTaskName";

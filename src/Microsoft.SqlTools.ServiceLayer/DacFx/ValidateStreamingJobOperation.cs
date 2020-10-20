@@ -63,7 +63,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 return new ValidateStreamingJobResult()
                 {
                     Success = errors.Count == 0,
-                    ErrorMessage = String.Join(Environment.NewLine, errors)
+                    ErrorMessage = errors.Count == 0 ? null : String.Join(Environment.NewLine, errors)
                 };
             }
             catch (Exception ex)
