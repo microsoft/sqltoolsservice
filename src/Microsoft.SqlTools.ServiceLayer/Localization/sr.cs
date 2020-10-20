@@ -2949,6 +2949,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string ValidateStreamingJobTaskName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ValidateStreamingJobTaskName);
+            }
+        }
+
         public static string ExtractInvalidVersion
         {
             get
@@ -4455,6 +4463,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ProjectExtractTaskName = "ProjectExtractTaskName";
+
+
+            public const string ValidateStreamingJobTaskName = "ValidateStreamingJobTaskName";
 
 
             public const string ExtractInvalidVersion = "ExtractInvalidVersion";

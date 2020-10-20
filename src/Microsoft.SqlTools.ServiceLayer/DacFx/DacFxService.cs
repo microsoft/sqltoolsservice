@@ -261,12 +261,14 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// Handles request to validate an ASA streaming job
         /// </summary>
         /// <returns></returns>
-        public async Task HandleValidateStreamingJobRequest(ValidateStreamingJobParams parameters, RequestContext<StreamingJobValidationResult> requestContext)
+        public async Task HandleValidateStreamingJobRequest(ValidateStreamingJobParams parameters, RequestContext<ValidateStreamingJobResult> requestContext)
         {
             try
             {
                 ValidateStreamingJobOperation operation = new ValidateStreamingJobOperation(parameters);
-                ExecuteOperation(operation, parameters, SR.ValidateStreamingJobTaskName, requestContext);
+                 ValidateStreamingJobResult result = operation.ValidateQuery();
+
+                await requestContext.SendResult(result);
             }
             catch (Exception e)
             {

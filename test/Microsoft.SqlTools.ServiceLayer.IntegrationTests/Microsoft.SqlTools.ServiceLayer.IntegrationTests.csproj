@@ -17,9 +17,9 @@
     <ProjectReference Include="../Microsoft.SqlTools.Test.CompletionExtension/Microsoft.SqlTools.Test.CompletionExtension.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Moq"  />
-    <PackageReference Include="System.Net.Http"/>
-    <PackageReference Include="Microsoft.NET.Test.Sdk"  />
+    <PackageReference Include="Moq" />
+    <PackageReference Include="System.Net.Http" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="nunit" />
     <PackageReference Include="nunit3testadapter" />
     <PackageReference Include="nunit.console" />
@@ -35,5 +35,8 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include=".\Agent\NotebookResources\TestNotebook.ipynb" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="DacFx\Dacpacs\" />
   </ItemGroup>
 </Project>

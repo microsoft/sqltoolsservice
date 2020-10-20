@@ -62,6 +62,17 @@ AS
 RETURN 0
 ";
 
+        private string dacpacsFolder = Path.Combine("..", "..", "..", "DacFx", "Dacpacs");
+
+        private const string streamingJobStatement = @"
+INSERT INTO SqlOutputStream SELECT
+    timeCreated, 
+    machine.temperature as machine_temperature, 
+    machine.pressure as machine_pressure, 
+    ambient.temperature as ambient_temperature, 
+    ambient.humidity as ambient_humidity
+FROM EdgeHubInputStream";
+
         private LiveConnectionHelper.TestConnectionResult GetLiveAutoCompleteTestObjects()
         {
             var result = LiveConnectionHelper.InitLiveConnectionInfo();
@@ -752,6 +763,36 @@ RETURN 0
 
             await service.HandleGetOptionsFromProfileRequest(getOptionsFromProfileParams, dacfxRequestContext.Object);
             dacfxRequestContext.VerifyAll();
+        }
+
+        /// <summary>
+        /// Verify that streaming job
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public async Task ValidateStreamingJob()
+        {
+            ValidateStreamingJobResult expectedResult = new ValidateStreamingJobResult();
+
+            var dacfxRequestContext = new Mock<RequestContext<ValidateStreamingJobResult>>();
+            dacfxRequestContext.Setup((RequestContext<ValidateStreamingJobResult> x) => x.SendResult(It.Is<ValidateStreamingJobResult>((result) => ValidateStreamingJobErrors(expectedResult, result) == true))).Returns(Task.FromResult(new object()));
+
+            DacFxService service = new DacFxService();
+
+            ValidateStreamingJobParams parameters = new ValidateStreamingJobParams()
+            {
+                PackageFilePath = Path.Combine(dacpacsFolder, "StreamingJobTestDb.dacpac"),
+                Statement = streamingJobStatement
+            };
+
+            await service.HandleValidateStreamingJobRequest(parameters, dacfxRequestContext.Object);
+            dacfxRequestContext.VerifyAll();
+        }
+
+        private bool ValidateStreamingJobErrors(ValidateStreamingJobResult expected, ValidateStreamingJobResult actual)
+        {
+            return expected.Success == actual.Success
+                && expected.ErrorMessage == actual.ErrorMessage;
         }
 
         private bool ValidateOptions(DeploymentOptions expected, DeploymentOptions actual)

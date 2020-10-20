@@ -10,30 +10,35 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 {
     /// <summary>
-    /// Parameters for a DacFx get options from profile request.
+    /// Parameters for a Validate Streaming Job request.
     /// </summary>
     public class ValidateStreamingJobParams
     {
         /// <summary>
-        /// Gets or sets the profile path
+        /// Gets or sets the package file path
         /// </summary>
-        public string ProfilePath { get; set; }
+        public string PackageFilePath { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the Streaming query statement
+        /// </summary>
+        public string Statement { get; set; }
     }
 
     /// <summary>
     /// Parameters returned from a DacFx get options from profile request.
     /// </summary>
-    public class StreamingJobValidationResult : ResultStatus
+    public class ValidateStreamingJobResult : ResultStatus
     {
-        public DeploymentOptions DeploymentOptions { get; set; }
+        
     }
 
     /// <summary>
     /// Defines the DacFx get options from profile request type
     /// </summary>
-    class GetOptionsFromProfileRequest
+    class ValidateStreamingJobRequest
     {
-        public static readonly RequestType<GetOptionsFromProfileParams, DacFxOptionsResult> Type =
-            RequestType<GetOptionsFromProfileParams, DacFxOptionsResult>.Create("dacfx/getOptionsFromProfile");
+        public static readonly RequestType<ValidateStreamingJobParams, ValidateStreamingJobResult> Type =
+            RequestType<ValidateStreamingJobParams, ValidateStreamingJobResult>.Create("dacfx/validateStreamingJob");
     }
 }

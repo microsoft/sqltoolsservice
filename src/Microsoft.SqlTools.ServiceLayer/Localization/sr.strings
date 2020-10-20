@@ -828,6 +828,9 @@ GenerateScriptTaskName = Generate script
 ProjectExtractTaskName = Extract project files
 ValidateStreamingJobTaskName = Validate streaming job
 ExtractInvalidVersion = Invalid version '{0}' passed. Version must be in the format x.x.x.x where x is a number.
+StreamNotFoundInModel(string streamType, string missingStreamName) = Streaming query statement contains a reference to missing {0} stream '{1}'.  You must add it to the database model.
+Input = input
+Output = output
 
 ############################################################################
 # Schema Compare
