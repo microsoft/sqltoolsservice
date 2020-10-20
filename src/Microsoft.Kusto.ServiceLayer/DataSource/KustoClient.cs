@@ -146,16 +146,20 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             return kcsb;
         }
 
-        public IDataReader ExecuteQuery(string query, CancellationToken cancellationToken, string databaseName = null, int retryCount = 1)
-        {
-            ValidationUtils.IsArgumentNotNullOrWhiteSpace(query, nameof(query));
-
+        private ClientRequestProperties GetCLientRequestProperties(CancellationToken cancellationToken){
             var clientRequestProperties = new ClientRequestProperties
             {
                 ClientRequestId = Guid.NewGuid().ToString()
             };
             clientRequestProperties.SetOption(ClientRequestProperties.OptionNoTruncation, true);
             cancellationToken.Register(() => CancelQuery(clientRequestProperties.ClientRequestId));
+
+            return clientRequestProperties;
+        }
+
+        public IDataReader ExecuteQuery(string query, CancellationToken cancellationToken, string databaseName = null, int retryCount = 1)
+        {
+            ValidationUtils.IsArgumentNotNullOrWhiteSpace(query, nameof(query));
 
             var script = CodeScript.From(query, GlobalState.Default);
             IDataReader[] origReaders = new IDataReader[script.Blocks.Count];
@@ -169,6 +173,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                     
                     if(!string.IsNullOrEmpty(minimalQuery)){        // Query is empty in case of comments
                         IDataReader origReader;
+                        var clientRequestProperties = GetCLientRequestProperties(cancellationToken);
+
                         if(minimalQuery.StartsWith(".") && !minimalQuery.StartsWith(".show")){
                             origReader = _kustoAdminProvider.ExecuteControlCommand(
                                 KustoQueryUtils.IsClusterLevelQuery(minimalQuery) ? "" : databaseName,
@@ -189,6 +195,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
                 if (numOfQueries == 0 && origReaders.Length > 0)                  // Covers the scenario when user tries to run comments.
                 {
+                    var clientRequestProperties = GetCLientRequestProperties(cancellationToken);
                     origReaders[0] = _kustoQueryProvider.ExecuteQuery(
                                 KustoQueryUtils.IsClusterLevelQuery(query) ? "" : databaseName,
                                 query,
