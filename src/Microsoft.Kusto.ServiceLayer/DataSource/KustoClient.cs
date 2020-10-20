@@ -187,7 +187,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                     }
                 });
 
-                if (numOfQueries == 0)                  // Covers the scenario when user tries to run comments.
+                if (numOfQueries == 0 && origReaders.Length > 0)                  // Covers the scenario when user tries to run comments.
                 {
                     origReaders[0] = _kustoQueryProvider.ExecuteQuery(
                                 KustoQueryUtils.IsClusterLevelQuery(query) ? "" : databaseName,
