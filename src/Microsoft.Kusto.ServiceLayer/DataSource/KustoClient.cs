@@ -38,8 +38,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         public string ClusterName { get; }
         public string DatabaseName { get; private set; }
 
-        private const int RetryLimit = 60;
-
         public KustoClient(string connectionString, string azureAccountToken, string ownerUri)
         {
             _ownerUri = ownerUri;
@@ -214,13 +212,12 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 return new KustoResultsReader(origReaders);
             }
             catch (AggregateException exception)
-                when (retryCount < RetryLimit &&
+                when (retryCount > 0 &&
                       exception.InnerException is KustoRequestException innerException
                       && innerException.FailureCode == 401) // Unauthorized
             {
-                Thread.Sleep(retryCount * 1000);
-                retryCount *= 2;
                 RefreshAzureToken();
+                retryCount--;
                 return ExecuteQuery(query, cancellationToken, databaseName, retryCount);
             }
         }
@@ -282,12 +279,11 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 {
                 }
             }
-            catch (KustoRequestException exception) when (retryCount < RetryLimit && exception.FailureCode == 401
+            catch (KustoRequestException exception) when (retryCount > 0 && exception.FailureCode == 401
             ) // Unauthorized
             {
-                Thread.Sleep(retryCount * 1000);
-                retryCount *= 2;
                 RefreshAzureToken();
+                retryCount--;
                 ExecuteControlCommand(command, retryCount);
             }
         }
