@@ -58,12 +58,11 @@ namespace Microsoft.Kusto.ServiceLayer.Metadata
                     {
                         ReliableDataSourceConnection connection;
                         connInfo.TryGetConnection("Default", out connection);
-                        IDataSource dataSource = connection.GetUnderlyingConnection();
 
                         DataSourceObjectMetadata objectMetadata = MetadataFactory.CreateClusterMetadata(connInfo.ConnectionDetails.ServerName);
                         DataSourceObjectMetadata databaseMetadata = MetadataFactory.CreateDatabaseMetadata(objectMetadata, connInfo.ConnectionDetails.DatabaseName);
 
-                        IEnumerable<DataSourceObjectMetadata> databaseChildMetadataInfo = dataSource.GetChildObjects(databaseMetadata, true);
+                        IEnumerable<DataSourceObjectMetadata> databaseChildMetadataInfo = connection.GetChildObjects(databaseMetadata, true);
                         metadata = MetadataFactory.ConvertToObjectMetadata(databaseChildMetadataInfo);
                     }
 

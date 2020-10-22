@@ -90,11 +90,10 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
             
             ReliableDataSourceConnection connection;
             connInfo.TryGetConnection("Default", out connection);
-            IDataSource dataSource = connection.GetUnderlyingConnection();
             DataSourceObjectMetadata objectMetadata =
                 MetadataFactory.CreateClusterMetadata(connInfo.ConnectionDetails.ServerName);
 
-            List<DataSourceObjectMetadata> metadata = dataSource.GetChildObjects(objectMetadata, true).ToList();
+            List<DataSourceObjectMetadata> metadata = connection.GetChildObjects(objectMetadata, true).ToList();
             var databaseMetadata = metadata.Where(o => o.Name == connInfo.ConnectionDetails.DatabaseName);
 
             List<DatabaseInfo> databaseInfo = MetadataFactory.ConvertToDatabaseInfo(databaseMetadata);

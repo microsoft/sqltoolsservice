@@ -21,12 +21,15 @@
 // =======================================================================================
 
 using System;
-using System.Data.SqlClient;
+using System.Collections.Generic;
+using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
+using Kusto.Language;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.Kusto.ServiceLayer.DataSource;
+using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 
 namespace Microsoft.Kusto.ServiceLayer.Connection
 {
@@ -65,7 +68,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             _dataSourceFactory = dataSourceFactory;
             _ownerUri = ownerUri;
             _dataSource = dataSourceFactory.Create(DataSourceType.Kusto, connectionString, azureAccountToken, ownerUri);
-            
+
             _connectionRetryPolicy = connectionRetryPolicy ?? RetryPolicyFactory.CreateNoRetryPolicy();
             _commandRetryPolicy = commandRetryPolicy ?? RetryPolicyFactory.CreateNoRetryPolicy();
 
@@ -156,21 +159,9 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// Gets the server name from the underlying connection.	
         /// </summary>	
         // ReSharper disable once UnusedMember.Global
-        public string ClusterName	
-        {	
-            get { return _dataSource.ClusterName; }	
-        }
+        public string ClusterName => _dataSource.ClusterName;
 
-        /// <summary>
-        /// If the underlying SqlConnection absolutely has to be accessed, for instance
-        /// to pass to external APIs that require this type of connection, then this
-        /// can be used.  
-        /// </summary>
-        /// <returns><see cref="SqlConnection"/></returns>
-        public IDataSource GetUnderlyingConnection()
-        {
-            return _dataSource;
-        }
+        public GlobalState SchemaState => _dataSource.SchemaState;
 
         /// <summary>
         /// Changes the current database for an open Connection object.
@@ -215,13 +206,41 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             {
                 return _connectionRetryPolicy.ExecuteAction(async () =>
                 {
-                    await Task.Run(() => Open());
+                    await Task.Run(Open, token);
                 });
             }
             catch (Exception e)
             {
                 return Task.FromException(e);
             }
+        }
+
+        public async Task<IDataReader> ExecuteQueryAsync(string query, CancellationToken cancellationToken, string databaseName)
+        {
+            return await _commandRetryPolicy.ExecuteAction(() =>
+                _dataSource.ExecuteQueryAsync(query, cancellationToken, databaseName));
+        }
+
+        public IEnumerable<DataSourceObjectMetadata> GetChildObjects(DataSourceObjectMetadata objectMetadata,
+            bool includeSizeDetails = false)
+        {
+            return _commandRetryPolicy.ExecuteAction(() =>
+                _dataSource.GetChildObjects(objectMetadata, includeSizeDetails));
+        }
+
+        public DiagnosticsInfo GetDiagnostics(DataSourceObjectMetadata objectMetadata)
+        {
+            return _commandRetryPolicy.ExecuteAction(() => _dataSource.GetDiagnostics(objectMetadata));
+        }
+
+        public string GenerateAlterFunctionScript(string functionName)
+        {
+            return _commandRetryPolicy.ExecuteAction(() => _dataSource.GenerateAlterFunctionScript(functionName));
+        }
+
+        public string GenerateExecuteFunctionScript(string functionName)
+        {
+            return _commandRetryPolicy.ExecuteAction(() => _dataSource.GenerateExecuteFunctionScript(functionName));
         }
 
         /// <summary>

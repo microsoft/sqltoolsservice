@@ -342,7 +342,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
             ConnectionService.EnsureConnectionIsOpen(conn);
 
             // Execute the command to get back a reader
-            using (IDataReader reader = await conn.GetUnderlyingConnection().ExecuteQueryAsync(BatchText, cancellationToken, conn.Database))
+            using (IDataReader reader = await conn.ExecuteQueryAsync(BatchText, cancellationToken, conn.Database))
             {
                 do
                 {

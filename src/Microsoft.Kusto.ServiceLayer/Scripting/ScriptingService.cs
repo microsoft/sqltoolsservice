@@ -107,15 +107,15 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                 }
 
                 SmoScriptingOperation operation;
-                var datasource = _connectionService.GetOrOpenConnection(parameters.OwnerUri, ConnectionType.Default)
-                    .Result.GetUnderlyingConnection();
+                var connection = _connectionService.GetOrOpenConnection(parameters.OwnerUri, ConnectionType.Default)
+                    .Result;
                 if (!ShouldCreateScriptAsOperation(parameters))
                 {
-                    operation = new ScriptingScriptOperation(parameters, datasource);
+                    operation = new ScriptingScriptOperation(parameters, connection);
                 }
                 else
                 {
-                    operation = new ScriptAsScriptingOperation(parameters, _scripter, datasource);
+                    operation = new ScriptAsScriptingOperation(parameters, _scripter, connection);
                 }
 
                 operation.PlanNotification += (sender, e) => requestContext.SendEvent(ScriptingPlanNotificationEvent.Type, e).Wait();

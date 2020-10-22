@@ -408,12 +408,10 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                 }
 
                 response.ConnectionId = connectionInfo.ConnectionId.ToString();
-
-                var reliableConnection = connection as ReliableDataSourceConnection;
-                IDataSource dataSource = reliableConnection.GetUnderlyingConnection();
+                
                 DataSourceObjectMetadata clusterMetadata = MetadataFactory.CreateClusterMetadata(connectionInfo.ConnectionDetails.ServerName);
 
-                DiagnosticsInfo clusterDiagnostics = dataSource.GetDiagnostics(clusterMetadata);
+                DiagnosticsInfo clusterDiagnostics = connection.GetDiagnostics(clusterMetadata);
                 ReliableConnectionHelper.ServerInfo serverInfo = DataSourceFactory.ConvertToServerInfoFormat(DataSourceType.Kusto, clusterDiagnostics);
 
                 response.ServerInfo = new ServerInfo
@@ -786,7 +784,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             }
 
             info.TryGetConnection(ConnectionType.Default, out ReliableDataSourceConnection connection);
-            IDataSource dataSource = connection.GetUnderlyingConnection();
             
             DataSourceObjectMetadata objectMetadata = MetadataFactory.CreateClusterMetadata(info.ConnectionDetails.ServerName);
 
@@ -794,14 +791,14 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
             // Mainly used by "manage" dashboard
             if(listDatabasesParams.IncludeDetails.HasTrue()){
-                IEnumerable<DataSourceObjectMetadata> databaseMetadataInfo = dataSource.GetChildObjects(objectMetadata, true);
+                IEnumerable<DataSourceObjectMetadata> databaseMetadataInfo = connection.GetChildObjects(objectMetadata, true);
                 List<DatabaseInfo> metadata = MetadataFactory.ConvertToDatabaseInfo(databaseMetadataInfo);
                 response.Databases = metadata.ToArray();
 
                 return response;
             }
 
-            IEnumerable<DataSourceObjectMetadata> databaseMetadata = dataSource.GetChildObjects(objectMetadata);
+            IEnumerable<DataSourceObjectMetadata> databaseMetadata = connection.GetChildObjects(objectMetadata);
             if(databaseMetadata != null) response.DatabaseNames = databaseMetadata.Select(objMeta => objMeta.PrettyName).ToArray();
             return response;
         }

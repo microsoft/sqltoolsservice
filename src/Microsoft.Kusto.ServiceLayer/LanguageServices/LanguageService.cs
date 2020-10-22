@@ -769,9 +769,8 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
             {
                 ReliableDataSourceConnection connection;
                 connInfo.TryGetConnection("Default", out connection);
-                IDataSource dataSource = connection.GetUnderlyingConnection();
-                
-                return KustoIntellisenseHelper.GetDefinition(scriptFile.Contents, textDocumentPosition.Position.Character, 1, 1, dataSource.SchemaState);
+
+                return KustoIntellisenseHelper.GetDefinition(scriptFile.Contents, textDocumentPosition.Position.Character, 1, 1, connection.SchemaState);
             }
             else
             {
@@ -814,9 +813,8 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                                 
                                 ReliableDataSourceConnection connection;
                                 connInfo.TryGetConnection("Default", out connection);
-                                IDataSource dataSource = connection.GetUnderlyingConnection();               
-                                
-                                return KustoIntellisenseHelper.GetHoverHelp(scriptDocumentInfo, textDocumentPosition.Position, dataSource.SchemaState);
+
+                                return KustoIntellisenseHelper.GetHoverHelp(scriptDocumentInfo, textDocumentPosition.Position, connection.SchemaState);
                             });
 
                         queueItem.ItemProcessed.WaitOne();
@@ -860,15 +858,17 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 
             ScriptDocumentInfo scriptDocumentInfo = new ScriptDocumentInfo(textDocumentPosition, scriptFile, scriptParseInfo);
 
-            if(connInfo != null){
+            if (connInfo != null)
+            {
                 ReliableDataSourceConnection connection;
                 connInfo.TryGetConnection("Default", out connection);
-                IDataSource dataSource = connection.GetUnderlyingConnection();
-			    
-                resultCompletionItems = KustoIntellisenseHelper.GetAutoCompleteSuggestions(scriptDocumentInfo, textDocumentPosition.Position, dataSource.SchemaState);
+                resultCompletionItems = KustoIntellisenseHelper.GetAutoCompleteSuggestions(scriptDocumentInfo,
+                    textDocumentPosition.Position, connection.SchemaState);
             }
-            else{
-                resultCompletionItems = DataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocumentInfo, textDocumentPosition.Position);
+            else
+            {
+                resultCompletionItems = DataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto,
+                    scriptDocumentInfo, textDocumentPosition.Position);
             }
 
             // cache the current script parse info object to resolve completions later. Used for the detailed description.
@@ -1005,17 +1005,20 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                 ConnectionServiceInstance.TryFindConnection(
                     scriptFile.ClientUri,
                     out connInfo);
-                
-                if(connInfo != null){
+
+                if (connInfo != null)
+                {
                     connInfo.TryGetConnection("Default", out var connection);
-                    IDataSource dataSource = connection.GetUnderlyingConnection();
-                    
-                    semanticMarkers = KustoIntellisenseHelper.GetSemanticMarkers(parseInfo, scriptFile, scriptFile.Contents, dataSource.SchemaState);
-			    }
-                else{
-                    semanticMarkers = DataSourceFactory.GetDefaultSemanticMarkers(DataSourceType.Kusto, parseInfo, scriptFile, scriptFile.Contents);
+
+                    semanticMarkers = KustoIntellisenseHelper.GetSemanticMarkers(parseInfo, scriptFile,
+                        scriptFile.Contents, connection.SchemaState);
                 }
-                
+                else
+                {
+                    semanticMarkers = DataSourceFactory.GetDefaultSemanticMarkers(DataSourceType.Kusto, parseInfo,
+                        scriptFile, scriptFile.Contents);
+                }
+
                 Logger.Write(TraceEventType.Verbose, "Analysis complete.");
 
                 await DiagnosticsHelper.PublishScriptDiagnostics(scriptFile, semanticMarkers, eventContext);

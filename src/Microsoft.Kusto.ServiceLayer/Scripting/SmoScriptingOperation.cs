@@ -4,13 +4,13 @@
 //
 
 using Microsoft.Kusto.ServiceLayer.Scripting.Contracts;
-using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.SqlTools.Utility;
 using System;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using Microsoft.Kusto.ServiceLayer.Connection;
 using static Microsoft.SqlServer.Management.SqlScriptPublish.SqlScriptOptions;
 
 namespace Microsoft.Kusto.ServiceLayer.Scripting
@@ -20,12 +20,12 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
     /// </summary>
     public abstract class SmoScriptingOperation : ScriptingOperation
     {
-        protected readonly IDataSource _dataSource;
+        protected readonly ReliableDataSourceConnection _connection;
         private bool _disposed;
 
-        protected SmoScriptingOperation(ScriptingParams parameters, IDataSource datasource)
+        protected SmoScriptingOperation(ScriptingParams parameters, ReliableDataSourceConnection connection)
         {
-            _dataSource = datasource;
+            _connection = connection;
             Validate.IsNotNull("parameters", parameters);
             this.Parameters = parameters;
         }
@@ -74,8 +74,8 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
 
         protected string GetServerNameFromLiveInstance()
         {
-            Logger.Write(TraceEventType.Verbose, string.Format("Resolved server name '{0}'", _dataSource.ClusterName));
-            return _dataSource.ClusterName;
+            Logger.Write(TraceEventType.Verbose, $"Resolved server name '{_connection.ClusterName}'");
+            return _connection.ClusterName;
         }
 
         protected void ValidateScriptDatabaseParams()

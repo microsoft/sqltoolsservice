@@ -14,6 +14,7 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.SqlScriptPublish;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using System.Diagnostics;
+using Microsoft.Kusto.ServiceLayer.Connection;
 
 namespace Microsoft.Kusto.ServiceLayer.Scripting
 {
@@ -27,8 +28,8 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         private string _serverName;
         private string _databaseName;
 
-        public ScriptAsScriptingOperation(ScriptingParams parameters, IScripter scripter, IDataSource datasource) :
-            base(parameters, datasource)
+        public ScriptAsScriptingOperation(ScriptingParams parameters, IScripter scripter, ReliableDataSourceConnection connection) :
+            base(parameters, connection)
         {
             _scripter = scripter;
         }
@@ -44,7 +45,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                 this.CancellationToken.ThrowIfCancellationRequested();
                 string resultScript = string.Empty;
                 
-                UrnCollection urns = CreateUrns(_dataSource);
+                UrnCollection urns = CreateUrns(_connection);
                 ScriptingOptions options = new ScriptingOptions();
                 SetScriptBehavior(options);
                 ScriptAsOptions scriptAsOptions = new ScriptAsOptions(this.Parameters.ScriptOptions);
@@ -60,12 +61,12 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                 switch (this.Parameters.Operation)
                 {
                     case ScriptingOperationType.Select:
-                        resultScript = GenerateScriptSelect(_dataSource, urns);
+                        resultScript = GenerateScriptSelect(_connection, urns);
                         break;
                     
                     case ScriptingOperationType.Alter:
                     case ScriptingOperationType.Execute:
-                        resultScript = GenerateScriptForFunction(_dataSource);
+                        resultScript = GenerateScriptForFunction(_connection);
                         break;
                 }
 
@@ -115,7 +116,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
             }
         }
 
-        private string GenerateScriptSelect(IDataSource dataSource, UrnCollection urns)
+        private string GenerateScriptSelect(ReliableDataSourceConnection dataSource, UrnCollection urns)
         {
             ScriptingObject scriptingObject = this.Parameters.ScriptingObjects[0];
             Urn objectUrn = urns[0];
@@ -123,13 +124,13 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
             // select from table
             if (string.Equals(scriptingObject.Type, "Table", StringComparison.CurrentCultureIgnoreCase))
             {
-                return _scripter.SelectFromTableOrView(dataSource, objectUrn);
+                return _scripter.SelectFromTableOrView(objectUrn);
             }
 
             return string.Empty;
         }
 
-        private string GenerateScriptForFunction(IDataSource dataSource)
+        private string GenerateScriptForFunction(ReliableDataSourceConnection connection)
         {
             ScriptingObject scriptingObject = this.Parameters.ScriptingObjects[0];
 
@@ -140,19 +141,19 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
 
             if (Parameters.Operation == ScriptingOperationType.Alter)
             {
-                return _scripter.AlterFunction(dataSource, scriptingObject);    
+                return _scripter.AlterFunction(connection, scriptingObject);    
             }
 
             if (Parameters.Operation == ScriptingOperationType.Execute)
             {
-                return _scripter.ExecuteFunction(dataSource, scriptingObject);
+                return _scripter.ExecuteFunction(connection, scriptingObject);
             }
 
             return string.Empty;
         }
 
 
-        private UrnCollection CreateUrns(IDataSource dataSource)
+        private UrnCollection CreateUrns(ReliableDataSourceConnection dataSource)
         {
             IEnumerable<ScriptingObject> selectedObjects = new List<ScriptingObject>(this.Parameters.ScriptingObjects);
 

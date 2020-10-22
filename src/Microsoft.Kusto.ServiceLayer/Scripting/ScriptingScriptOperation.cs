@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
-using Microsoft.Kusto.ServiceLayer.DataSource;
+using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.SqlServer.Management.SqlScriptPublish;
 using Microsoft.Kusto.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
@@ -26,7 +26,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
 
         private int eventSequenceNumber = 1;
 
-        public ScriptingScriptOperation(ScriptingParams parameters, IDataSource dataSource) : base(parameters, dataSource)
+        public ScriptingScriptOperation(ScriptingParams parameters, ReliableDataSourceConnection connection) : base(parameters, connection)
         {
             
         }

@@ -8,13 +8,14 @@ using Microsoft.Kusto.ServiceLayer.Scripting.Contracts;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using System.Text;
+using Microsoft.Kusto.ServiceLayer.Connection;
 
 namespace Microsoft.Kusto.ServiceLayer.Scripting
 {
     [Export(typeof(IScripter))]
     public class Scripter : IScripter
     {
-        public string SelectFromTableOrView(IDataSource dataSource, Urn urn)
+        public string SelectFromTableOrView(Urn urn)
         {
             StringBuilder selectQuery = new StringBuilder();
 
@@ -27,16 +28,16 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
             return selectQuery.ToString();
         }
 
-        public string AlterFunction(IDataSource dataSource, ScriptingObject scriptingObject)
+        public string AlterFunction(ReliableDataSourceConnection connection, ScriptingObject scriptingObject)
         {
             var functionName = scriptingObject.Name.Substring(0, scriptingObject.Name.IndexOf('('));
-            return dataSource.GenerateAlterFunctionScript(functionName);
+            return connection.GenerateAlterFunctionScript(functionName);
         }
         
-        public string ExecuteFunction(IDataSource dataSource, ScriptingObject scriptingObject)
+        public string ExecuteFunction(ReliableDataSourceConnection connection, ScriptingObject scriptingObject)
         {
             var functionName = scriptingObject.Name.Substring(0, scriptingObject.Name.IndexOf('('));
-            return dataSource.GenerateExecuteFunctionScript(functionName);
+            return connection.GenerateExecuteFunctionScript(functionName);
         }
     }
 }

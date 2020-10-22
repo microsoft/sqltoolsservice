@@ -223,13 +223,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 RefreshAzureToken();
                 return ExecuteQuery(query, cancellationToken, databaseName, retryCount);
             }
-            catch (AggregateException exception) when (retryCount < RetryLimit
-                                                       && exception.InnerException is KustoRequestException)
-            {
-                Thread.Sleep(retryCount * 1000);
-                retryCount *= 2;
-                return ExecuteQuery(query, cancellationToken, databaseName, retryCount);
-            }
         }
 
         /// <summary>
@@ -295,12 +288,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 Thread.Sleep(retryCount * 1000);
                 retryCount *= 2;
                 RefreshAzureToken();
-                ExecuteControlCommand(command, retryCount);
-            }
-            catch (KustoRequestException) when (retryCount < RetryLimit)
-            {
-                Thread.Sleep(retryCount * 1000);
-                retryCount *= 2;
                 ExecuteControlCommand(command, retryCount);
             }
         }
