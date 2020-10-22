@@ -150,10 +150,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             return kcsb;
         }
 
-        public IDataReader ExecuteQuery(string query, CancellationToken cancellationToken, string databaseName = null, int retryCount = 1)
-        {
-            ValidationUtils.IsArgumentNotNullOrWhiteSpace(query, nameof(query));
-
+        private ClientRequestProperties GetClientRequestProperties(CancellationToken cancellationToken){
             var clientRequestProperties = new ClientRequestProperties
             {
                 ClientRequestId = Guid.NewGuid().ToString()
@@ -161,34 +158,58 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             clientRequestProperties.SetOption(ClientRequestProperties.OptionNoTruncation, true);
             cancellationToken.Register(() => CancelQuery(clientRequestProperties.ClientRequestId));
 
+            return clientRequestProperties;
+        }
+
+        public IDataReader ExecuteQuery(string query, CancellationToken cancellationToken, string databaseName = null,
+            int retryCount = 1)
+        {
+            ValidationUtils.IsArgumentNotNullOrWhiteSpace(query, nameof(query));
+
             var script = CodeScript.From(query, GlobalState.Default);
             IDataReader[] origReaders = new IDataReader[script.Blocks.Count];
             try
             {
+                var numOfQueries = 0;
                 Parallel.ForEach(script.Blocks, (codeBlock, state, index) =>
                 {
                     var minimalQuery =
                         codeBlock.Service.GetMinimalText(MinimalTextKind.RemoveLeadingWhitespaceAndComments);
 
-                    IDataReader origReader;
-
-                    if (minimalQuery.StartsWith(".") && minimalQuery.StartsWith(".show"))
+                    if (!string.IsNullOrEmpty(minimalQuery))
                     {
-                        origReader = _kustoAdminProvider.ExecuteControlCommand(
-                            KustoQueryUtils.IsClusterLevelQuery(minimalQuery) ? "" : databaseName,
-                            minimalQuery,
-                            clientRequestProperties);
-                    }
-                    else
-                    {
-                        origReader = _kustoQueryProvider.ExecuteQuery(
-                            KustoQueryUtils.IsClusterLevelQuery(minimalQuery) ? "" : databaseName,
-                            minimalQuery,
-                            clientRequestProperties);
-                    }
+                        // Query is empty in case of comments
+                        IDataReader origReader;
+                        var clientRequestProperties = GetClientRequestProperties(cancellationToken);
 
-                    origReaders[index] = origReader;
+                        if (minimalQuery.StartsWith(".") && !minimalQuery.StartsWith(".show"))
+                        {
+                            origReader = _kustoAdminProvider.ExecuteControlCommand(
+                                KustoQueryUtils.IsClusterLevelQuery(minimalQuery) ? "" : databaseName,
+                                minimalQuery,
+                                clientRequestProperties);
+                        }
+                        else
+                        {
+                            origReader = _kustoQueryProvider.ExecuteQuery(
+                                KustoQueryUtils.IsClusterLevelQuery(minimalQuery) ? "" : databaseName,
+                                minimalQuery,
+                                clientRequestProperties);
+                        }
+
+                        origReaders[index] = origReader;
+                        numOfQueries++;
+                    }
                 });
+
+                if (numOfQueries == 0 && origReaders.Length > 0) // Covers the scenario when user tries to run comments.
+                {
+                    var clientRequestProperties = GetClientRequestProperties(cancellationToken);
+                    origReaders[0] = _kustoQueryProvider.ExecuteQuery(
+                        KustoQueryUtils.IsClusterLevelQuery(query) ? "" : databaseName,
+                        query,
+                        clientRequestProperties);
+                }
 
                 return new KustoResultsReader(origReaders);
             }
@@ -202,7 +223,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 RefreshAzureToken();
                 return ExecuteQuery(query, cancellationToken, databaseName, retryCount);
             }
-            catch (AggregateException exception) when (retryCount < RetryLimit 
+            catch (AggregateException exception) when (retryCount < RetryLimit
                                                        && exception.InnerException is KustoRequestException)
             {
                 Thread.Sleep(retryCount * 1000);
@@ -210,7 +231,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 return ExecuteQuery(query, cancellationToken, databaseName, retryCount);
             }
         }
-        
+
         /// <summary>
         /// Executes a query or command against a kusto cluster and returns a sequence of result row instances.
         /// </summary>
