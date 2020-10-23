@@ -22,14 +22,14 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// <summary>
         /// Executes a query or command against a kusto cluster and returns a sequence of result row instances.
         /// </summary>
-        Task<IEnumerable<T>> ExecuteControlCommandAsync<T>(string command, bool throwOnError, CancellationToken cancellationToken);
+        Task ExecuteControlCommandAsync(string command, bool throwOnError, CancellationToken cancellationToken);
 
         /// <summary>
         /// Executes a query.
         /// </summary>
         /// <param name="query">The query.</param>
         /// <returns>The results.</returns>
-        Task<IDataReader> ExecuteQueryAsync(string query, CancellationToken cancellationToken, string databaseName = null);
+        Task<IEnumerable<T>> ExecuteQueryAsync<T>(string query, CancellationToken cancellationToken, string databaseName = null);
 
         /// <summary>
         /// Executes a Kusto control command.
