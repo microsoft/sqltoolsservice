@@ -3,6 +3,7 @@ using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
 using Kusto.Language;
+using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource
 {
@@ -39,7 +40,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// <param name="retryCount"></param>
         void ExecuteControlCommand(string command, int retryCount = 1);
 
-        void UpdateDatabase(string databaseName);
+        void UpdateDatabase(string databaseName, RetryPolicy commandRetryPolicy);
         
         void Dispose();
     }

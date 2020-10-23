@@ -8,6 +8,7 @@ using System.Composition;
 using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 using Microsoft.Kusto.ServiceLayer.DataSource;
+using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 
 namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 {
@@ -98,7 +99,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                     bindingContext.BindingLock.Reset();
                     
                     string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
-                    bindingContext.DataSource = _dataSourceFactory.Create(DataSourceType.Kusto, connectionString, connInfo.ConnectionDetails.AzureAccountToken, connInfo.OwnerUri);
+                    bindingContext.DataSource = _dataSourceFactory.Create(DataSourceType.Kusto, connectionString, connInfo.ConnectionDetails.AzureAccountToken, connInfo.OwnerUri, RetryPolicyFactory.NoRetryPolicy);
                     bindingContext.BindingTimeout = DefaultBindingTimeout;
                     bindingContext.IsConnected = true;
                 }

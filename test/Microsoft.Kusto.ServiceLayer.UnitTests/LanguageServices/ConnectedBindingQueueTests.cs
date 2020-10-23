@@ -4,8 +4,7 @@ using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
-using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
+using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Moq;
 using NUnit.Framework;
 
@@ -97,7 +96,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.LanguageServices
             var dataSourceFactory = new Mock<IDataSourceFactory>();
             var dataSourceMock = new Mock<IDataSource>();
             dataSourceFactory
-                .Setup(x => x.Create(It.IsAny<DataSourceType>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Setup(x => x.Create(It.IsAny<DataSourceType>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<RetryPolicy>()))
                 .Returns(dataSourceMock.Object);
 
             var connectedBindingQueue =

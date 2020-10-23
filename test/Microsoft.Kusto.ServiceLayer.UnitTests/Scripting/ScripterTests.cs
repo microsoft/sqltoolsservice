@@ -32,7 +32,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.Scripting
             
             var dataSourceFactoryMock = new Mock<IDataSourceFactory>();
             dataSourceFactoryMock.Setup(x =>
-                    x.Create(DataSourceType.Kusto, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                    x.Create(DataSourceType.Kusto, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<RetryPolicy>()))
                 .Returns(mockDataSource.Object);
             var reliableDataSource = new ReliableDataSourceConnection("", RetryPolicyFactory.NoRetryPolicy,
                 RetryPolicyFactory.NoRetryPolicy, "", dataSourceFactoryMock.Object, "");
@@ -56,7 +56,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.Scripting
             
             var dataSourceFactoryMock = new Mock<IDataSourceFactory>();
             dataSourceFactoryMock.Setup(x =>
-                    x.Create(DataSourceType.Kusto, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                    x.Create(DataSourceType.Kusto, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<RetryPolicy>()))
                 .Returns(mockDataSource.Object);
             var reliableDataSource = new ReliableDataSourceConnection("", RetryPolicyFactory.NoRetryPolicy,
                 RetryPolicyFactory.NoRetryPolicy, "", dataSourceFactoryMock.Object, "");

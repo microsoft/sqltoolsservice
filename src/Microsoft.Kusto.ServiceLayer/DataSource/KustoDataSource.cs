@@ -18,6 +18,7 @@ using Kusto.Language;
 using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 using Microsoft.Kusto.ServiceLayer.DataSource.Models;
 using Microsoft.Kusto.ServiceLayer.Utility;
+using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource
 {
@@ -230,9 +231,9 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         }
 
         /// <inheritdoc/>
-        public override void UpdateDatabase(string databaseName)
+        public override void UpdateDatabase(string databaseName, RetryPolicy commandRetryPolicy)
         {
-            _kustoClient.UpdateDatabase(databaseName);
+            _kustoClient.UpdateDatabase(databaseName, commandRetryPolicy);
         }
         
         /// <summary>

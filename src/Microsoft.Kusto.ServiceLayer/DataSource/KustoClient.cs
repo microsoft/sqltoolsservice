@@ -17,6 +17,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
 using Microsoft.Kusto.ServiceLayer.Utility;
+using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource
 {
@@ -38,16 +39,16 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         public string ClusterName { get; }
         public string DatabaseName { get; private set; }
 
-        public KustoClient(string connectionString, string azureAccountToken, string ownerUri)
+        public KustoClient(string connectionString, string azureAccountToken, string ownerUri, RetryPolicy commandRetryPolicy)
         {
             _ownerUri = ownerUri;
             ClusterName = GetClusterName(connectionString);
             DatabaseName = new SqlConnectionStringBuilder(connectionString).InitialCatalog;
             Initialize(ClusterName, DatabaseName, azureAccountToken);
-            SchemaState = LoadSchemaState();
+            SchemaState = LoadSchemaState(commandRetryPolicy);
         }
 
-        private GlobalState LoadSchemaState()
+        private GlobalState LoadSchemaState(RetryPolicy commandRetryPolicy)
         {
             IEnumerable<ShowDatabaseSchemaResult> tableSchemas = Enumerable.Empty<ShowDatabaseSchemaResult>();
             IEnumerable<ShowFunctionsResult> functionSchemas = Enumerable.Empty<ShowFunctionsResult>();
@@ -57,13 +58,13 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 var source = new CancellationTokenSource();
                 Parallel.Invoke(() =>
                 {
-                    tableSchemas =
+                    tableSchemas = commandRetryPolicy.ExecuteAction(() =>
                         ExecuteQueryAsync<ShowDatabaseSchemaResult>($".show database {DatabaseName} schema",
-                            source.Token, DatabaseName).Result;
+                            source.Token, DatabaseName).Result);
                 }, () =>
                 {
-                    functionSchemas =
-                        ExecuteQueryAsync<ShowFunctionsResult>(".show functions", source.Token, DatabaseName).Result;
+                    functionSchemas = commandRetryPolicy.ExecuteAction(() =>
+                        ExecuteQueryAsync<ShowFunctionsResult>(".show functions", source.Token, DatabaseName).Result);
                 });
             }
 
@@ -288,10 +289,10 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             }
         }
 
-        public void UpdateDatabase(string databaseName)
+        public void UpdateDatabase(string databaseName, RetryPolicy commandRetryPolicy)
         {
             DatabaseName = databaseName;
-            SchemaState = LoadSchemaState();
+            SchemaState = LoadSchemaState(commandRetryPolicy);
         }
 
         public void Dispose()

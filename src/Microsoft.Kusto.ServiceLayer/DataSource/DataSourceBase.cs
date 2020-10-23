@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Kusto.Language;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
+using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource
 {
@@ -77,7 +78,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         public abstract void Refresh(DataSourceObjectMetadata objectMetadata);
 
         /// <inheritdoc/>
-        public abstract void UpdateDatabase(string databaseName);
+        public abstract void UpdateDatabase(string databaseName, RetryPolicy commandRetryPolicy);
 
         /// <inheritdoc/>
         public abstract Task<bool> Exists();

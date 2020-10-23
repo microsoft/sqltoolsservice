@@ -67,13 +67,13 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             _azureAccountToken = azureAccountToken;
             _dataSourceFactory = dataSourceFactory;
             _ownerUri = ownerUri;
-            _dataSource = dataSourceFactory.Create(DataSourceType.Kusto, connectionString, azureAccountToken, ownerUri);
-
+            
             _connectionRetryPolicy = connectionRetryPolicy ?? RetryPolicyFactory.CreateNoRetryPolicy();
             _commandRetryPolicy = commandRetryPolicy ?? RetryPolicyFactory.CreateNoRetryPolicy();
-
             _connectionRetryPolicy.RetryOccurred += RetryConnectionCallback;
             _commandRetryPolicy.RetryOccurred += RetryCommandCallback;
+            
+            _dataSource = dataSourceFactory.Create(DataSourceType.Kusto, connectionString, azureAccountToken, ownerUri, _commandRetryPolicy);
         }
 
         private void RetryCommandCallback(RetryState retryState)
@@ -169,7 +169,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <param name="databaseName">The name of the database to use in place of the current database.</param>
         public void ChangeDatabase(string databaseName)
         {
-            _dataSource.UpdateDatabase(databaseName);
+            _dataSource.UpdateDatabase(databaseName, _commandRetryPolicy);
         }
 
         /// <summary>
@@ -184,7 +184,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             {
                 _connectionRetryPolicy.ExecuteAction(() =>
                 {
-                    _dataSource = _dataSourceFactory.Create(DataSourceType.Kusto, _connectionString, _azureAccountToken, _ownerUri);
+                    _dataSource = _dataSourceFactory.Create(DataSourceType.Kusto, _connectionString, _azureAccountToken, _ownerUri, _commandRetryPolicy);
                 });
             }
         }

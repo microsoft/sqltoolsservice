@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Kusto.Language;
 using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
+using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource
 {
@@ -83,8 +84,10 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// <summary>
         /// Updates database and affected variables like GlobalState for given object.
         /// </summary>
+        /// <param name="databaseName"></param>
+        /// <param name="commandRetryPolicy"></param>
         /// <param name="updateDatabase">Object metadata.</param>
-        void UpdateDatabase(string databaseName);
+        void UpdateDatabase(string databaseName, RetryPolicy commandRetryPolicy);
 
         /// <summary>
         /// Tells whether the data source exists.

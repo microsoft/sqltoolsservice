@@ -4,6 +4,7 @@ using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Completion;
 using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using NUnit.Framework;
 
 namespace Microsoft.Kusto.ServiceLayer.UnitTests.DataSource
@@ -19,7 +20,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.DataSource
         {
             var dataSourceFactory = new DataSourceFactory();
             Assert.Throws(exceptionType,
-                () => dataSourceFactory.Create(DataSourceType.None, connectionString, azureAccountToken, ""));
+                () => dataSourceFactory.Create(DataSourceType.None, connectionString, azureAccountToken, "", RetryPolicyFactory.NoRetryPolicy));
         }
 
         [Test]
