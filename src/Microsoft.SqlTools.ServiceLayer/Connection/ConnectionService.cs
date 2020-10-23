@@ -472,6 +472,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 connectionInfo.MajorVersion = serverInfo.ServerMajorVersion;
                 connectionInfo.IsSqlDb = serverInfo.EngineEditionId == (int)DatabaseEngineEdition.SqlDatabase;
                 connectionInfo.IsSqlDW = (serverInfo.EngineEditionId == (int)DatabaseEngineEdition.SqlDataWarehouse);
+                connectionInfo.EngineEdition = (DatabaseEngineEdition) serverInfo.EngineEditionId;
             }
             catch (Exception ex)
             {

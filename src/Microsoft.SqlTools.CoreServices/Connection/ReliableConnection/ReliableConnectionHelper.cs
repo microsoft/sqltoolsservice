@@ -39,6 +39,7 @@ namespace Microsoft.SqlTools.CoreServices.Connection.ReliableConnection
             (int)DatabaseEngineEdition.SqlDatabase,
             (int)DatabaseEngineEdition.SqlDataWarehouse,
             (int)DatabaseEngineEdition.SqlStretchDatabase,
+            (int)DatabaseEngineEdition.SqlOnDemand,
             // Note: for now, ignoring managed instance as it should be treated just like on prem.
         });
 
