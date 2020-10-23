@@ -7,6 +7,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Common;
+using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.Utility;
 
@@ -75,6 +76,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// Returns true if the sql connection is to a DW instance
         /// </summary>
         public bool IsSqlDW { get; set; }
+
+        /// <summary>
+        /// Returns the connection Engine Edition
+        /// </summary>
+        public DatabaseEngineEdition EngineEdition { get; set; }
 
         /// <summary>
         /// Returns the major version number of the db we are connected to 
