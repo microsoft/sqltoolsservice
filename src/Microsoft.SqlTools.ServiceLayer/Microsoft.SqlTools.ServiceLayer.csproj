@@ -22,7 +22,10 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.SqlServer.DACFx" />
 		<PackageReference Include="Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider" />
-		<PackageReference Include="System.Text.Encoding.CodePages" />
+    <PackageReference Include="System.Text.Encoding.CodePages" />
+    <PackageReference Include="Microsoft.SqlServer.TransactSql.ScriptDom.NRT">
+      <Aliases>ASAScriptDom</Aliases>
+    </PackageReference>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -45,12 +48,6 @@
 	</ItemGroup>
 	<ItemGroup>
 		<EmbeddedResource Include=".\Agent\NotebookResources\NotebookJobScript.ps1" />
-	</ItemGroup>
-	<ItemGroup>
-	  <Reference Include="Microsoft.SqlServer.TransactSql.ScriptDom.Nrt">
-	    <HintPath>Externals\Microsoft.SqlServer.TransactSql.ScriptDom.Nrt.dll</HintPath>
-	    <Aliases>ASAScriptDom</Aliases>
-	  </Reference>
 	</ItemGroup>
 	<!-- this target enables dependency files to be copied as part of the output of ProjectReference.
 	https://github.com/dotnet/sdk/issues/1675

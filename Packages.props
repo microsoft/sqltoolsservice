@@ -30,5 +30,6 @@
 		<PackageReference Update="xunit" Version="2.4.1" />
 		<PackageReference Update="xunit.runner.visualstudio" Version="2.4.1" />
 		<PackageReference Update="Microsoft.NET.Test.Sdk" Version="16.6.1" />
+		<PackageReference Update="Microsoft.SqlServer.TransactSql.ScriptDom.NRT" Version="1.2.65626.134" />
 	</ItemGroup>
 </Project>

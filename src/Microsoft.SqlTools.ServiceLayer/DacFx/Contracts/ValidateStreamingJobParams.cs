@@ -18,11 +18,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         /// Gets or sets the package file path
         /// </summary>
         public string PackageFilePath { get; set; }
-        
+
         /// <summary>
-        /// Gets or sets the Streaming query statement
+        /// Gets or sets the create streaming job TSQL.  Should not be used if Statement is set.
         /// </summary>
-        public string Statement { get; set; }
+        public string CreateStreamingJobTsql { get; set;}
     }
 
     /// <summary>

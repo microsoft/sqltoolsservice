@@ -7,6 +7,7 @@ extern alias ASAScriptDom;
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using Microsoft.SqlServer.Dac.Model;
@@ -37,7 +38,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             {
                 TSqlModel model = TSqlModel.LoadFromDacpac(Parameters.PackageFilePath, new ModelLoadOptions(SqlServer.Dac.DacSchemaModelStorageType.Memory, loadAsScriptBackedModel: true));
 
-                ASA::ParseResult referencedStreams = ParseStatement(Parameters.Statement);
+                string statement = ExtractStatement(Parameters.CreateStreamingJobTsql);
+                ASA::ParseResult referencedStreams = ParseStatement(statement);
 
                 List<TSqlObject> streams = model.GetObjects(DacQueryScopes.Default, ExternalStream.TypeClass).ToList();
                 HashSet<string> identifiers = streams.Select(x => x.Name.Parts[^1]).ToHashSet();
@@ -74,6 +76,29 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     ErrorMessage = ex.Message
                 };
             }
+        }
+
+        private string ExtractStatement(string createStreamingJobTsql)
+        {
+            TSqlParser parser = new TSql150Parser(initialQuotedIdentifiers: true);
+
+            TSqlFragment fragment = parser.Parse(new StringReader(createStreamingJobTsql), out IList<ParseError> errors);
+
+            if (((TSqlScript)fragment).Batches.Count != 1)
+            {
+                throw new ArgumentException("TSQL fragment should contain exactly one batch.");
+            }
+
+            TSqlBatch batch = ((TSqlScript)fragment).Batches[0];
+            TSqlStatement statement = batch.Statements[0];
+            CreateExternalStreamingJobStatement createStatement = statement as CreateExternalStreamingJobStatement;
+
+            if (createStatement == null)
+            {
+                throw new ArgumentException("No External Streaming Job creation TSQL found (EXEC sp_create_streaming_job statement).");
+            }
+
+            return createStatement.Statement.Value;
         }
 
         private ASA::ParseResult ParseStatement(string query)

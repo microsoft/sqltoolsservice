@@ -64,22 +64,21 @@ RETURN 0
 
         private string dacpacsFolder = Path.Combine("..", "..", "..", "DacFx", "Dacpacs");
 
-        private const string goodStreamingJobStatement = @"
-INSERT INTO SqlOutputStream SELECT
+        private string goodCreateStreamingJob = @"EXEC sys.sp_create_streaming_job @NAME = 'myJob', @STATEMENT = 'INSERT INTO SqlOutputStream SELECT
     timeCreated, 
     machine.temperature as machine_temperature, 
     machine.pressure as machine_pressure, 
     ambient.temperature as ambient_temperature, 
     ambient.humidity as ambient_humidity
-FROM EdgeHubInputStream";
-        private const string missingBothStreamingJobStatement = @"
-INSERT INTO MissingSqlOutputStream SELECT
+FROM EdgeHubInputStream'";
+
+        private string missingCreateBothStreamingJob = @$"EXEC sys.sp_create_streaming_job @NAME = 'myJob', @STATEMENT = 'INSERT INTO MissingSqlOutputStream SELECT
     timeCreated, 
     machine.temperature as machine_temperature, 
     machine.pressure as machine_pressure, 
     ambient.temperature as ambient_temperature, 
     ambient.humidity as ambient_humidity
-FROM MissingEdgeHubInputStream";
+FROM MissingEdgeHubInputStream'";
 
         private LiveConnectionHelper.TestConnectionResult GetLiveAutoCompleteTestObjects()
         {
@@ -793,7 +792,7 @@ FROM MissingEdgeHubInputStream";
             ValidateStreamingJobParams parameters = new ValidateStreamingJobParams()
             {
                 PackageFilePath = Path.Combine(dacpacsFolder, "StreamingJobTestDb.dacpac"),
-                Statement = goodStreamingJobStatement
+                CreateStreamingJobTsql = goodCreateStreamingJob
             };
 
             await service.HandleValidateStreamingJobRequest(parameters, dacfxRequestContext.Object);
@@ -809,7 +808,7 @@ Streaming query statement contains a reference to missing output stream 'Missing
             parameters = new ValidateStreamingJobParams()
             {
                 PackageFilePath = Path.Combine(dacpacsFolder, "StreamingJobTestDb.dacpac"),
-                Statement = missingBothStreamingJobStatement
+                CreateStreamingJobTsql = missingCreateBothStreamingJob
             };
 
             await service.HandleValidateStreamingJobRequest(parameters, dacfxRequestContext.Object);
