@@ -6,9 +6,7 @@ using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
-using System.IO;
 using System.Diagnostics;
-using System.Threading.Tasks;
 using System.Threading;
 
 namespace Microsoft.SqlTools.ServiceLayer
