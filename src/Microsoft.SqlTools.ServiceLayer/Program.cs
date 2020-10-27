@@ -8,6 +8,8 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using System.IO;
 using System.Diagnostics;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace Microsoft.SqlTools.ServiceLayer
 {
@@ -46,6 +48,14 @@ namespace Microsoft.SqlTools.ServiceLayer
                 SqlToolsContext sqlToolsContext = new SqlToolsContext(hostDetails);
                 ServiceHost serviceHost = HostLoader.CreateAndStartServiceHost(sqlToolsContext);
 
+                // If this service was started by another process, then it should shutdown when that parent process does.
+                if (commandOptions.ParentProcessId != null)
+                {
+                    var parentProcess = Process.GetProcessById(commandOptions.ParentProcessId.Value);
+                    var statusThread = new Thread(() => CheckParentStatusLoop(parentProcess));
+                    statusThread.Start();
+                }
+
                 serviceHost.WaitForExit();
             }
             catch (Exception ex)
@@ -64,6 +74,18 @@ namespace Microsoft.SqlTools.ServiceLayer
             finally
             {
                 Logger.Close();
+            }
+        }
+
+        private static void CheckParentStatusLoop(Process parent)
+        {
+            while (true)
+            {
+                if (parent.HasExited)
+                {
+                    Environment.Exit(0);
+                }
+                Thread.Sleep(5000);
             }
         }
     }
