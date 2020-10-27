@@ -222,12 +222,13 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
             
             if (user != null)
             {
-                result = _subscriptionCache.Get(user.UniqueId);
-                if (result == null)
-                {
-                    result = await GetSubscriptionFromServiceAsync(user);
-                    _subscriptionCache.UpdateCache(user.UniqueId, result);
-                }
+                // @cssuh commenting out subscription cache because the user.uniqueId is never set anywhere
+                // result = _subscriptionCache.Get(user.UniqueId);
+                // if (result == null)
+                // {
+                result = await GetSubscriptionFromServiceAsync(user);
+                // _subscriptionCache.UpdateCache(user.UniqueId, result);
+                // }
             }
             result = result ?? Enumerable.Empty<IAzureUserAccountSubscriptionContext>();
             return result;
