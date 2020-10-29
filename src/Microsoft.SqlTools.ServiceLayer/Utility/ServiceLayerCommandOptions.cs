@@ -45,13 +45,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                         break;
                     case "--parent-pid":
                         string nextArg = args[++i];
-                        if (!string.IsNullOrEmpty(nextArg))
+                        if (Int32.TryParse(nextArg, out int parsedInt))
                         {
-                            int parsedInt;
-                            if (Int32.TryParse(nextArg, out parsedInt))
-                            {
-                                ParentProcessId = parsedInt;
-                            }
+                            ParentProcessId = parsedInt;
                         }
                         break;
                 }
