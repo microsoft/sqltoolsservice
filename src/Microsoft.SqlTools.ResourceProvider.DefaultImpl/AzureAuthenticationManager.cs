@@ -225,7 +225,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
                 if (user.UniqueId != "") {
                     result = _subscriptionCache.Get(user.UniqueId);
                 }
-                else {
+                if (result == null) {
                     result = await GetSubscriptionFromServiceAsync(user);
                     _subscriptionCache.UpdateCache(user.UniqueId, result);
                 }
