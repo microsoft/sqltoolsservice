@@ -24,19 +24,14 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
     {
         private readonly IScripter _scripter;
         private static readonly Dictionary<string, SqlServerVersion> scriptCompatibilityMap = LoadScriptCompatibilityMap();
+        private string _serverName;
+        private string _databaseName;
 
-        public ScriptAsScriptingOperation(ScriptingParams parameters, string azureAccountToken, IScripter scripter, IDataSourceFactory dataSourceFactory) : base(parameters, dataSourceFactory)
+        public ScriptAsScriptingOperation(ScriptingParams parameters, IScripter scripter, IDataSource datasource) :
+            base(parameters, datasource)
         {
-            DataSource = _dataSourceFactory.Create(DataSourceType.Kusto, this.Parameters.ConnectionString,
-                azureAccountToken);
             _scripter = scripter;
         }
-
-        internal IDataSource DataSource { get; set; }
-
-        private string serverName;
-        private string databaseName;
-        private bool disconnectAtDispose = false;
 
         public override void Execute()
         {
@@ -49,7 +44,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                 this.CancellationToken.ThrowIfCancellationRequested();
                 string resultScript = string.Empty;
                 
-                UrnCollection urns = CreateUrns(DataSource);
+                UrnCollection urns = CreateUrns(_dataSource);
                 ScriptingOptions options = new ScriptingOptions();
                 SetScriptBehavior(options);
                 ScriptAsOptions scriptAsOptions = new ScriptAsOptions(this.Parameters.ScriptOptions);
@@ -65,12 +60,12 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                 switch (this.Parameters.Operation)
                 {
                     case ScriptingOperationType.Select:
-                        resultScript = GenerateScriptSelect(DataSource, urns);
+                        resultScript = GenerateScriptSelect(_dataSource, urns);
                         break;
                     
                     case ScriptingOperationType.Alter:
                     case ScriptingOperationType.Execute:
-                        resultScript = GenerateScriptForFunction(DataSource);
+                        resultScript = GenerateScriptForFunction(_dataSource);
                         break;
                 }
 
@@ -118,13 +113,6 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                     });
                 }
             }
-            finally
-            {
-                if (disconnectAtDispose && DataSource != null)
-                {
-                    DataSource.Dispose();
-                }
-            }
         }
 
         private string GenerateScriptSelect(IDataSource dataSource, UrnCollection urns)
@@ -168,8 +156,8 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         {
             IEnumerable<ScriptingObject> selectedObjects = new List<ScriptingObject>(this.Parameters.ScriptingObjects);
 
-            serverName = dataSource.ClusterName;
-            databaseName = new SqlConnectionStringBuilder(this.Parameters.ConnectionString).InitialCatalog;
+            _serverName = dataSource.ClusterName;
+            _databaseName = new SqlConnectionStringBuilder(this.Parameters.ConnectionString).InitialCatalog;
             UrnCollection urnCollection = new UrnCollection();
             foreach (var scriptingObject in selectedObjects)
             {
@@ -178,7 +166,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                     // TODO: get the default schema
                     scriptingObject.Schema = "dbo";
                 }
-                urnCollection.Add(scriptingObject.ToUrn(serverName, databaseName));
+                urnCollection.Add(scriptingObject.ToUrn(_serverName, _databaseName));
             }
             return urnCollection;
         }

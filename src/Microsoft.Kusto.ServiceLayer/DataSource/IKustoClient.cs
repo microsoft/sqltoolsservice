@@ -17,9 +17,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         
         string DatabaseName { get; }
         
-        void UpdateAzureToken(string azureAccountToken);
-        
-        IDataReader ExecuteQuery(string query, CancellationToken cancellationToken, string databaseName = null);
+        IDataReader ExecuteQuery(string query, CancellationToken cancellationToken, string databaseName = null, int retryCount = 1);
 
         /// <summary>
         /// Executes a query or command against a kusto cluster and returns a sequence of result row instances.
@@ -37,7 +35,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// Executes a Kusto control command.
         /// </summary>
         /// <param name="command">The command.</param>
-        void ExecuteControlCommand(string command);
+        /// <param name="retryCount"></param>
+        void ExecuteControlCommand(string command, int retryCount = 1);
 
         void UpdateDatabase(string databaseName);
         

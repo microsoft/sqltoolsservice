@@ -16,9 +16,23 @@ using Newtonsoft.Json;
 using Microsoft.SqlServer.TransactSql.ScriptDom;
 using System.IO;
 using Microsoft.SqlTools.ServiceLayer.NotebookConvert;
+using Newtonsoft.Json.Linq;
 
-namespace Microsoft.SqlTools.ServiceLayer.Agent
+namespace Microsoft.SqlTools.ServiceLayer.NotebookConvert
 {
+    enum NotebookTokenType
+    {
+        MultilineComment,
+        Batch
+    }
+
+    class NotebookToken
+    {
+        public int StartOffset;
+        public string Text;
+        public NotebookTokenType TokenType;
+    }
+
     /// <summary>
     /// Main class for Notebook Convert Service
     /// </summary>
@@ -135,7 +149,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
             /**
              * Split the text into separate chunks - blocks of Mutliline comments and blocks 
-             * of everything else. We then create a markdown cell for each multiline comment and a code
+             * of everything else (batches). We then create a markdown cell for each multiline comment and a code
              * cell for the other blocks.
              * We only take multiline comments which aren't part of a batch - since otherwise they would 
              * break up the T-SQL in separate code cells and since we currently don't share state between 
@@ -145,55 +159,50 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 .Where(token => token.TokenType == TSqlTokenType.MultilineComment)
                 // Ignore comments that are within a batch. This won't include comments at the start/end of a batch though  - the parser is smart enough
                 // to have the batch only contain the code and any comments that are embedded within it
-                .Where(token => !batches.Any(batch => token.Offset > batch.StartOffset && token.Offset < (batch.StartOffset + batch.FragmentLength)));
+                .Where(token => !batches.Any(batch => token.Offset > batch.StartOffset && token.Offset < (batch.StartOffset + batch.FragmentLength)))
+                .Select(token => new NotebookToken() { StartOffset = token.Offset, Text = token.Text.Trim(), TokenType = NotebookTokenType.MultilineComment });
 
-            int currentIndex = 0;
-            int codeLength = 0;
-            string codeBlock = "";
-            foreach (var comment in multilineComments)
+            // Combine batches and comments into a single list of all the fragments we need to add to the Notebook
+            var allFragments = batches.Select(batch =>
+                {
+                    string text = sql.Substring(batch.StartOffset, batch.FragmentLength).Trim();
+                    return new NotebookToken() { StartOffset = batch.StartOffset, Text = text, TokenType = NotebookTokenType.Batch };
+                })
+                .Concat(multilineComments)
+                .OrderBy(token => token.StartOffset);
+
+            foreach (var fragment in allFragments)
             {
-                // The code blocks are everything since the end of the last comment block up to the
-                // start of the next comment block
-                codeLength = comment.Offset - currentIndex;
-                codeBlock = sql.Substring(currentIndex, codeLength).Trim();
-                if (!string.IsNullOrEmpty(codeBlock))
+                if (fragment.TokenType == NotebookTokenType.Batch)
                 {
-                    doc.Cells.Add(GenerateCodeCell(codeBlock));
+                    // Batches are just simple code cells so no additional logic needed
+                    doc.Cells.Add(GenerateCodeCell(fragment.Text));
                 }
+                else if (fragment.TokenType == NotebookTokenType.MultilineComment)
+                {
+                    string commentBlock = fragment.Text;
+                    // Trim off the starting comment tokens (/** or /*)
+                    if (commentBlock.StartsWith("/**"))
+                    {
+                        commentBlock = commentBlock.Remove(0, 3);
+                    }
+                    else if (commentBlock.StartsWith("/*"))
+                    {
+                        commentBlock = commentBlock.Remove(0, 2);
+                    }
+                    // Trim off the ending comment tokens (**/ or */)
+                    if (commentBlock.EndsWith("**/"))
+                    {
+                        commentBlock = commentBlock.Remove(commentBlock.Length - 3);
+                    }
+                    else if (commentBlock.EndsWith("*/"))
+                    {
+                        commentBlock = commentBlock.Remove(commentBlock.Length - 2);
+                    }
 
-                string commentBlock = comment.Text.Trim();
-                // Trim off the starting comment tokens (/** or /*)
-                if (commentBlock.StartsWith("/**"))
-                {
-                    commentBlock = commentBlock.Remove(0, 3);
+                    doc.Cells.Add(GenerateMarkdownCell(commentBlock.Trim()));
                 }
-                else if (commentBlock.StartsWith("/*"))
-                {
-                    commentBlock = commentBlock.Remove(0, 2);
-                }
-                // Trim off the ending comment tokens (**/ or */)
-                if (commentBlock.EndsWith("**/"))
-                {
-                    commentBlock = commentBlock.Remove(commentBlock.Length - 3);
-                }
-                else if (commentBlock.EndsWith("*/"))
-                {
-                    commentBlock = commentBlock.Remove(commentBlock.Length - 2);
-                }
-
-                doc.Cells.Add(GenerateMarkdownCell(commentBlock.Trim()));
-
-                currentIndex = comment.Offset + comment.Text.Length;
             }
-
-            // Add any remaining text in a final code block
-            codeLength = sql.Length - currentIndex;
-            codeBlock = sql.Substring(currentIndex, codeLength).Trim();
-            if (!string.IsNullOrEmpty(codeBlock))
-            {
-                doc.Cells.Add(GenerateCodeCell(codeBlock));
-            }
-
             return doc;
         }
 
