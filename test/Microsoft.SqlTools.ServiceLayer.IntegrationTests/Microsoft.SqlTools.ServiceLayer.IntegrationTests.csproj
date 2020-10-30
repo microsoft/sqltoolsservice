@@ -34,12 +34,6 @@
     <Content Remove=".\Agent\NotebookResources\TestNotebook.ipynb" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="DacFx\DacFxServiceTests.csx" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="DacFx\DacFxServiceTests.csx" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include=".\Agent\NotebookResources\TestNotebook.ipynb" />
   </ItemGroup>
   <ItemGroup>
