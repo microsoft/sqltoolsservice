@@ -800,10 +800,11 @@ FROM MissingEdgeHubInputStream'";
 
             // Negative case: input and output streams are both missing from model
 
-            const string errorMessage = @"Streaming query statement contains a reference to missing input stream 'MissingEdgeHubInputStream'.  You must add it to the database model.
+            const string errorMessage = @"Validation for external streaming job 'myJob' failed:
+Streaming query statement contains a reference to missing input stream 'MissingEdgeHubInputStream'.  You must add it to the database model.
 Streaming query statement contains a reference to missing output stream 'MissingSqlOutputStream'.  You must add it to the database model.";
             expectedResult = new ValidateStreamingJobResult() { Success = false, ErrorMessage = errorMessage };
-            dacfxRequestContext.Setup((RequestContext<ValidateStreamingJobResult> x) => x.SendResult(It.Is<ValidateStreamingJobResult>((result) => ValidateStreamingJobErrors(expectedResult, result) == true))).Returns(Task.FromResult(new object()));
+            dacfxRequestContext.Setup((RequestContext<ValidateStreamingJobResult> x) => x.SendResult(It.Is<ValidateStreamingJobResult>((result) => ValidateStreamingJobErrors(expectedResult, result)))).Returns(Task.FromResult(new object()));
 
             parameters = new ValidateStreamingJobParams()
             {

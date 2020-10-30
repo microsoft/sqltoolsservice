@@ -266,7 +266,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             try
             {
                 ValidateStreamingJobOperation operation = new ValidateStreamingJobOperation(parameters);
-                 ValidateStreamingJobResult result = operation.ValidateQuery();
+                ValidateStreamingJobResult result = operation.ValidateQuery();
 
                 await requestContext.SendResult(result);
             }

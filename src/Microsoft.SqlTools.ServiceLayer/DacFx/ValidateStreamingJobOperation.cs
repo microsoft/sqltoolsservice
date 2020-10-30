@@ -38,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             {
                 TSqlModel model = TSqlModel.LoadFromDacpac(Parameters.PackageFilePath, new ModelLoadOptions(SqlServer.Dac.DacSchemaModelStorageType.Memory, loadAsScriptBackedModel: true));
 
-                string statement = ExtractStatement(Parameters.CreateStreamingJobTsql);
+                (string name, string statement) = ExtractStreamingJobData(Parameters.CreateStreamingJobTsql);
                 ASA::ParseResult referencedStreams = ParseStatement(statement);
 
                 List<TSqlObject> streams = model.GetObjects(DacQueryScopes.Default, ExternalStream.TypeClass).ToList();
@@ -65,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 return new ValidateStreamingJobResult()
                 {
                     Success = errors.Count == 0,
-                    ErrorMessage = errors.Count == 0 ? null : String.Join(Environment.NewLine, errors)
+                    ErrorMessage = errors.Count == 0 ? null : SR.StreamingJobValidationFailed(name) + Environment.NewLine + String.Join(Environment.NewLine, errors)
                 };
             }
             catch (Exception ex)
@@ -78,7 +78,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             }
         }
 
-        private string ExtractStatement(string createStreamingJobTsql)
+        private (string JobName, string JobStatement) ExtractStreamingJobData(string createStreamingJobTsql)
         {
             TSqlParser parser = new TSql150Parser(initialQuotedIdentifiers: true);
 
@@ -98,7 +98,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 throw new ArgumentException("No External Streaming Job creation TSQL found (EXEC sp_create_streaming_job statement).");
             }
 
-            return createStatement.Statement.Value;
+            return (createStatement.Name.Value, createStatement.Statement.Value);
         }
 
         private ASA::ParseResult ParseStatement(string query)
