@@ -2981,6 +2981,22 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string FragmentShouldHaveOnlyOneBatch
+        {
+            get
+            {
+                return Keys.GetString(Keys.FragmentShouldHaveOnlyOneBatch);
+            }
+        }
+
+        public static string NoCreateStreamingJobStatementFound
+        {
+            get
+            {
+                return Keys.GetString(Keys.NoCreateStreamingJobStatementFound);
+            }
+        }
+
         public static string PublishChangesTaskName
         {
             get
@@ -4507,6 +4523,12 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string StreamingJobValidationFailed = "StreamingJobValidationFailed";
+
+
+            public const string FragmentShouldHaveOnlyOneBatch = "FragmentShouldHaveOnlyOneBatch";
+
+
+            public const string NoCreateStreamingJobStatementFound = "NoCreateStreamingJobStatementFound";
 
 
             public const string PublishChangesTaskName = "PublishChangesTaskName";

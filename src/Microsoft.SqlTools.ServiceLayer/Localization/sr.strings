@@ -832,6 +832,8 @@ StreamNotFoundInModel(string streamType, string missingStreamName) = Streaming q
 Input = input
 Output = output
 StreamingJobValidationFailed(string jobName) = Validation for external streaming job '{0}' failed:
+FragmentShouldHaveOnlyOneBatch = TSQL fragment should contain exactly one batch.
+NoCreateStreamingJobStatementFound = No External Streaming Job creation TSQL found (EXEC sp_create_streaming_job statement).
 
 ############################################################################
 # Schema Compare

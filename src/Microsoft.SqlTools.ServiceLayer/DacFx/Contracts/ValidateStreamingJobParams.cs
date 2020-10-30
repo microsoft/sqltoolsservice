@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     }
 
     /// <summary>
-    /// Parameters returned from a DacFx get options from profile request.
+    /// Parameters returned from a DacFx validate streaming job request.
     /// </summary>
     public class ValidateStreamingJobResult : ResultStatus
     {
@@ -34,7 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     }
 
     /// <summary>
-    /// Defines the DacFx get options from profile request type
+    /// Defines the DacFx validate streaming job request type
     /// </summary>
     class ValidateStreamingJobRequest
     {

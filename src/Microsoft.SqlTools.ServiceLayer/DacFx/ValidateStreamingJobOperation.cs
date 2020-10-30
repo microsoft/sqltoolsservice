@@ -20,7 +20,7 @@ using ASA = ASAScriptDom::Microsoft.SqlServer.TransactSql.ScriptDom;
 namespace Microsoft.SqlTools.ServiceLayer.DacFx
 {
     /// <summary>
-    /// Class to represent an in-progress deploy operation
+    /// Class to represent a validate streaming job operation
     /// </summary>
     class ValidateStreamingJobOperation
     {
@@ -32,14 +32,20 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             this.Parameters = parameters;
         }
 
+        /// <summary>
+        /// Validates the transformation query/statement for a streaming job against the model contained in a dacpac
+        /// </summary>
+        /// <returns></returns>
         public ValidateStreamingJobResult ValidateQuery()
         {
             try
             {
                 TSqlModel model = TSqlModel.LoadFromDacpac(Parameters.PackageFilePath, new ModelLoadOptions(SqlServer.Dac.DacSchemaModelStorageType.Memory, loadAsScriptBackedModel: true));
 
-                (string name, string statement) = ExtractStreamingJobData(Parameters.CreateStreamingJobTsql);
-                ASA::ParseResult referencedStreams = ParseStatement(statement);
+                (string name, string statement) = ExtractStreamingJobData(Parameters.CreateStreamingJobTsql); // extract the streaming job's name and statement
+                ASA::ParseResult referencedStreams = ParseStatement(statement); // parse the input and output streams from the statement
+
+                // Match up the referenced streams with the External Streams contained in the model
 
                 List<TSqlObject> streams = model.GetObjects(DacQueryScopes.Default, ExternalStream.TypeClass).ToList();
                 HashSet<string> identifiers = streams.Select(x => x.Name.Parts[^1]).ToHashSet();
@@ -78,6 +84,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             }
         }
 
+        /// <summary>
+        /// Extracts the streaming job's name and transformation statement/query from the TSQL script
+        /// </summary>
+        /// <param name="createStreamingJobTsql"></param>
+        /// <returns></returns>
         private (string JobName, string JobStatement) ExtractStreamingJobData(string createStreamingJobTsql)
         {
             TSqlParser parser = new TSql150Parser(initialQuotedIdentifiers: true);
@@ -86,16 +97,19 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
             if (((TSqlScript)fragment).Batches.Count != 1)
             {
-                throw new ArgumentException("TSQL fragment should contain exactly one batch.");
+                throw new ArgumentException(SR.FragmentShouldHaveOnlyOneBatch);
             }
 
             TSqlBatch batch = ((TSqlScript)fragment).Batches[0];
             TSqlStatement statement = batch.Statements[0];
+
             CreateExternalStreamingJobStatement createStatement = statement as CreateExternalStreamingJobStatement;
+
+            // if the TSQL doesn't contain a CreateExternalStreamingJobStatement, we're in a bad path.
 
             if (createStatement == null)
             {
-                throw new ArgumentException("No External Streaming Job creation TSQL found (EXEC sp_create_streaming_job statement).");
+                throw new ArgumentException(SR.NoCreateStreamingJobStatementFound);
             }
 
             return (createStatement.Name.Value, createStatement.Statement.Value);
