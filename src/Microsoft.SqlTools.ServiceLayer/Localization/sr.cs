@@ -3252,9 +3252,9 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.StreamNotFoundInModel, streamType, missingStreamName);
         }
 
-        public static string StreamingJobValidationFailed(string name)
+        public static string StreamingJobValidationFailed(string jobName)
         {
-            return Keys.GetString(Keys.StreamingJobValidationFailed, name);
+            return Keys.GetString(Keys.StreamingJobValidationFailed, jobName);
         }
 
         public static string SqlAssessmentUnsuppoertedEdition(int editionCode)
