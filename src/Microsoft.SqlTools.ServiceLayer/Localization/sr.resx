@@ -1791,6 +1791,32 @@
     <value>Invalid version &apos;{0}&apos; passed. Version must be in the format x.x.x.x where x is a number.</value>
     <comment></comment>
   </data>
+    <data name="StreamNotFoundInModel" xml:space="preserve">
+    <value>Streaming query statement contains a reference to missing {0} stream &apos;{1}&apos;.  You must add it to the database model.</value>
+    <comment>.
+ Parameters: 0 - streamType (string), 1 - missingStreamName (string) </comment>
+  </data>
+  <data name="Input" xml:space="preserve">
+    <value>input</value>
+    <comment></comment>
+  </data>
+  <data name="Output" xml:space="preserve">
+    <value>output</value>
+    <comment></comment>
+  </data>
+  <data name="StreamingJobValidationFailed" xml:space="preserve">
+    <value>Validation for external streaming job &apos;{0}&apos; failed:</value>
+    <comment>.
+ Parameters: 0 - jobName (string) </comment>
+  </data>
+  <data name="FragmentShouldHaveOnlyOneBatch" xml:space="preserve">
+    <value>TSQL fragment should contain exactly one batch.</value>
+    <comment></comment>
+  </data>
+  <data name="NoCreateStreamingJobStatementFound" xml:space="preserve">
+    <value>No External Streaming Job creation TSQL found (EXEC sp_create_streaming_job statement).</value>
+    <comment></comment>
+  </data>
   <data name="PublishChangesTaskName" xml:space="preserve">
     <value>Apply schema compare changes</value>
     <comment></comment>
