@@ -1314,4 +1314,19 @@
   <data name="SerializationServiceRequestNotFound" xml:space="preserve">
     <value>Non è possibile serializzare altri dati perché non è stata trovata alcuna richiesta relativa al file {0}</value>
   </data>
+  <data name="ConnectionServiceConnStringInvalidColumnEncryptionSetting" xml:space="preserve">
+    <value>Il valore '{0}' non è valido per ComlumEncryption. I valori validi sono 'Enabled' e 'Disabled'.</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
+    <value>Il valore '{0}' non è valido per EnclaveAttestationProtocol. I valori validi sono 'AAS' e 'HGS'.</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination" xml:space="preserve">
+    <value>Il protocollo di attestazione e l'URL di attestazione dell'enclave richiedono che Always Encrypted sia impostato su Abilitato.</value>
+  </data>
+  <data name="SqlCmdExitOnError" xml:space="preserve">
+    <value>Si è verificato un errore durante l'esecuzione del batch. Chiusura in corso.</value>
+  </data>
+  <data name="SqlCmdUnsupportedToken" xml:space="preserve">
+    <value>È stato rilevato il token {0} non supportato</value>
+  </data>
 </root>
