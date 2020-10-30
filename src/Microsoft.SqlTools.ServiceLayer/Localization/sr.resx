@@ -1787,11 +1787,15 @@
     <value>Extract project files</value>
     <comment></comment>
   </data>
+  <data name="ValidateStreamingJobTaskName" xml:space="preserve">
+    <value>Validate streaming job</value>
+    <comment></comment>
+  </data>
   <data name="ExtractInvalidVersion" xml:space="preserve">
     <value>Invalid version &apos;{0}&apos; passed. Version must be in the format x.x.x.x where x is a number.</value>
     <comment></comment>
   </data>
-    <data name="StreamNotFoundInModel" xml:space="preserve">
+  <data name="StreamNotFoundInModel" xml:space="preserve">
     <value>Streaming query statement contains a reference to missing {0} stream &apos;{1}&apos;.  You must add it to the database model.</value>
     <comment>.
  Parameters: 0 - streamType (string), 1 - missingStreamName (string) </comment>
