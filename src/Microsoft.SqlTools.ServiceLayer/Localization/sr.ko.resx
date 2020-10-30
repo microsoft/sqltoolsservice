@@ -1066,7 +1066,7 @@
     <value>주문형 Azure SQL 분석</value>
   </data>
   <data name="EditDataValueTooLarge" xml:space="preserve">
-    <value>값 {0}이 너무 커서 {1} 유형의 열에 맞지 않습니다.</value>
+    <value>값 {0}이(가) 너무 커서 {1} 유형의 열에 맞지 않습니다.</value>
   </data>
   <data name="EditDataInvalidFormat" xml:space="preserve">
     <value>열 '{0}'에 서식이 잘못되었습니다. 열은 {1}(으)로 정의됩니다.</value>
@@ -1313,5 +1313,20 @@
   </data>
   <data name="SerializationServiceRequestNotFound" xml:space="preserve">
     <value>파일 {0}에 대한 요청을 찾을 수 없으므로 추가 데이터를 직렬화할 수 없습니다.</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidColumnEncryptionSetting" xml:space="preserve">
+    <value>ComlumEncryption에 대한 '{0}' 값이 잘못되었습니다. 유효한 값은 'Enabled' 및 'Disabled'입니다.</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
+    <value>EnclaveAttestationProtocol에 대한 '{0}' 값이 잘못되었습니다. 유효한 값은 'AAS' 및 'HGS'입니다.</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination" xml:space="preserve">
+    <value>증명 프로토콜 및 enclave 증명 URL을 사용하려면 Always Encrypted를 Enabled(사용)로 설정해야 합니다.</value>
+  </data>
+  <data name="SqlCmdExitOnError" xml:space="preserve">
+    <value>일괄 처리를 실행하는 동안 오류가 발생하여 종료합니다.</value>
+  </data>
+  <data name="SqlCmdUnsupportedToken" xml:space="preserve">
+    <value>지원되지 않는 {0} 토큰이 발생했습니다.</value>
   </data>
 </root>
