@@ -3252,6 +3252,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.StreamNotFoundInModel, streamType, missingStreamName);
         }
 
+        public static string StreamingJobValidationFailed(string name)
+        {
+            return Keys.GetString(Keys.StreamingJobValidationFailed, name);
+        }
+
         public static string SqlAssessmentUnsuppoertedEdition(int editionCode)
         {
             return Keys.GetString(Keys.SqlAssessmentUnsuppoertedEdition, editionCode);
@@ -4499,6 +4504,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string Output = "Output";
+
+
+            public const string StreamingJobValidationFailed = "StreamingJobValidationFailed";
 
 
             public const string PublishChangesTaskName = "PublishChangesTaskName";
