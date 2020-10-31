@@ -184,10 +184,10 @@
     <value>该 FileStreamWrapper 不能用于写入</value>
   </data>
   <data name="QueryServiceAffectedOneRow" xml:space="preserve">
-    <value>（1 行受到影响）</value>
+    <value>(1 行受到影响)</value>
   </data>
   <data name="QueryServiceAffectedRows" xml:space="preserve">
-    <value>（{0} 行受到影响）</value>
+    <value>({0} 行受到影响)</value>
   </data>
   <data name="QueryServiceCompletedSuccessfully" xml:space="preserve">
     <value>命令已成功完成。</value>
@@ -1078,7 +1078,7 @@
     <value>标量列缺失小数位数</value>
   </data>
   <data name="StoredProcedureScriptParameterComment" xml:space="preserve">
-    <value>-- 待办事项：在此处设置参数值</value>
+    <value>-- 待办事项: 在此处设置参数值</value>
   </data>
   <data name="ScriptingGeneralError" xml:space="preserve">
     <value>编写对象脚本时出错。</value>
@@ -1222,10 +1222,10 @@
     <value>启动会话失败: {0}</value>
   </data>
   <data name="CreateSessionFailed" xml:space="preserve">
-    <value>创建会话失败：{0}</value>
+    <value>创建会话失败: {0}</value>
   </data>
   <data name="PauseSessionFailed" xml:space="preserve">
-    <value>暂停会话失败：{0}</value>
+    <value>暂停会话失败: {0}</value>
   </data>
   <data name="SessionAlreadyExists" xml:space="preserve">
     <value>已存在名为 {0} 的 XEvent 会话</value>
@@ -1279,10 +1279,10 @@
     <value>传递的版本 "{0}" 无效。版本必须采用 x.x.x.x 格式，其中 x 是数字。</value>
   </data>
   <data name="ExportBacpacTaskName" xml:space="preserve">
-    <value>导出 DACPAC</value>
+    <value>导出 BACPAC</value>
   </data>
   <data name="ImportBacpacTaskName" xml:space="preserve">
-    <value>导入 DACPAC</value>
+    <value>导入 BACPAC</value>
   </data>
   <data name="ExtractDacpacTaskName" xml:space="preserve">
     <value>提取 DACPAC</value>
@@ -1313,5 +1313,20 @@
   </data>
   <data name="SerializationServiceRequestNotFound" xml:space="preserve">
     <value>无法序列化更多数据，因为找不到对文件 {0} 的请求</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidColumnEncryptionSetting" xml:space="preserve">
+    <value>ComlumEncryption 的值“{0}”无效。有效值为 "Enabled" 和 "Disabled"。</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
+    <value>EnclaveAttestationProtocol 的值“{0}”无效。有效值为 "AAS" 和 "HGS"。</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination" xml:space="preserve">
+    <value>证明协议和 Enclave 证明 URL 需要将 Always Encrypted 设置为“启用”。</value>
+  </data>
+  <data name="SqlCmdExitOnError" xml:space="preserve">
+    <value>在执行批处理期间遇到错误。正在退出。</value>
+  </data>
+  <data name="SqlCmdUnsupportedToken" xml:space="preserve">
+    <value>遇到不支持的令牌 {0}</value>
   </data>
 </root>
