@@ -25,6 +25,10 @@
 		<PackageReference Include="System.Text.Encoding.CodePages" />
 		<PackageReference Include="Microsoft.SqlServer.Assessment" />
 		<PackageReference Include="Microsoft.SqlServer.Migration.Assessment" />
+		<PackageReference Include="System.Text.Encoding.CodePages" />
+		<PackageReference Include="Microsoft.SqlServer.TransactSql.ScriptDom.NRT">
+			<Aliases>ASAScriptDom</Aliases>
+		</PackageReference>
 	</ItemGroup>
 	<ItemGroup>
 		<Compile Include="**\*.cs" Exclude="**/obj/**/*.cs" />

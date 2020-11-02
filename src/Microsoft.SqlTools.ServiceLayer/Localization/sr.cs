@@ -2949,11 +2949,51 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string ValidateStreamingJobTaskName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ValidateStreamingJobTaskName);
+            }
+        }
+
         public static string ExtractInvalidVersion
         {
             get
             {
                 return Keys.GetString(Keys.ExtractInvalidVersion);
+            }
+        }
+
+        public static string Input
+        {
+            get
+            {
+                return Keys.GetString(Keys.Input);
+            }
+        }
+
+        public static string Output
+        {
+            get
+            {
+                return Keys.GetString(Keys.Output);
+            }
+        }
+
+        public static string FragmentShouldHaveOnlyOneBatch
+        {
+            get
+            {
+                return Keys.GetString(Keys.FragmentShouldHaveOnlyOneBatch);
+            }
+        }
+
+        public static string NoCreateStreamingJobStatementFound
+        {
+            get
+            {
+                return Keys.GetString(Keys.NoCreateStreamingJobStatementFound);
             }
         }
 
@@ -3221,6 +3261,16 @@ namespace Microsoft.SqlTools.ServiceLayer
         public static string ScheduleNameAlreadyExists(string scheduleName)
         {
             return Keys.GetString(Keys.ScheduleNameAlreadyExists, scheduleName);
+        }
+
+        public static string StreamNotFoundInModel(string streamType, string missingStreamName)
+        {
+            return Keys.GetString(Keys.StreamNotFoundInModel, streamType, missingStreamName);
+        }
+
+        public static string StreamingJobValidationFailed(string jobName)
+        {
+            return Keys.GetString(Keys.StreamingJobValidationFailed, jobName);
         }
 
         public static string SqlAssessmentUnsuppoertedEdition(int editionCode)
@@ -4457,7 +4507,28 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string ProjectExtractTaskName = "ProjectExtractTaskName";
 
 
+            public const string ValidateStreamingJobTaskName = "ValidateStreamingJobTaskName";
+
+
             public const string ExtractInvalidVersion = "ExtractInvalidVersion";
+
+
+            public const string StreamNotFoundInModel = "StreamNotFoundInModel";
+
+
+            public const string Input = "Input";
+
+
+            public const string Output = "Output";
+
+
+            public const string StreamingJobValidationFailed = "StreamingJobValidationFailed";
+
+
+            public const string FragmentShouldHaveOnlyOneBatch = "FragmentShouldHaveOnlyOneBatch";
+
+
+            public const string NoCreateStreamingJobStatementFound = "NoCreateStreamingJobStatementFound";
 
 
             public const string PublishChangesTaskName = "PublishChangesTaskName";

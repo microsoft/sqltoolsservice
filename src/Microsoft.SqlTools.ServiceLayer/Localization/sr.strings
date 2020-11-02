@@ -826,7 +826,14 @@ ExtractDacpacTaskName = Extract dacpac
 DeployDacpacTaskName = Deploy dacpac
 GenerateScriptTaskName = Generate script
 ProjectExtractTaskName = Extract project files
+ValidateStreamingJobTaskName = Validate streaming job
 ExtractInvalidVersion = Invalid version '{0}' passed. Version must be in the format x.x.x.x where x is a number.
+StreamNotFoundInModel(string streamType, string missingStreamName) = Streaming query statement contains a reference to missing {0} stream '{1}'.  You must add it to the database model.
+Input = input
+Output = output
+StreamingJobValidationFailed(string jobName) = Validation for external streaming job '{0}' failed:
+FragmentShouldHaveOnlyOneBatch = TSQL fragment should contain exactly one batch.
+NoCreateStreamingJobStatementFound = No External Streaming Job creation TSQL found (EXEC sp_create_streaming_job statement).
 
 ############################################################################
 # Schema Compare
