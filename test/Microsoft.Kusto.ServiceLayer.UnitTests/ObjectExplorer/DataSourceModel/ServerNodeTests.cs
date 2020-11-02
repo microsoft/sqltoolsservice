@@ -154,7 +154,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.ObjectExplorer.DataSourceModel
             
             Assert.AreEqual(childMetadata.MetadataTypeName, child.NodeType);
             Assert.AreEqual(NodeTypes.Database, child.NodeTypeId);
-            Assert.AreEqual(childMetadata.Name, child.NodeValue);
+            Assert.AreEqual(childMetadata.PrettyName, child.NodeValue);
         }
     }
 }

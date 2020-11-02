@@ -118,10 +118,16 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         {
             try
             {
-                CancellationTokenSource source = new CancellationTokenSource();
-                CancellationToken token = source.Token;
+                var source = new CancellationTokenSource();
 
-                var count = await ExecuteScalarQueryAsync<long>(".show databases | count", token);
+                if (ClusterName.Contains(AriaProxyURL, StringComparison.OrdinalIgnoreCase))
+                {
+
+                    var result = await ExecuteScalarQueryAsync<string>(".show databases | take 1 | project DatabaseName", source.Token); 
+                    return !string.IsNullOrWhiteSpace(result);
+                }
+                
+                var count = await ExecuteScalarQueryAsync<long>(".show databases | count", source.Token);
                 return count >= 0;
             }
             catch
@@ -136,21 +142,25 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
         private DiagnosticsInfo GetClusterDiagnostics()
         {
-            CancellationTokenSource source = new CancellationTokenSource();
-            CancellationToken token = source.Token;
-            DiagnosticsInfo clusterDiagnostics = new DiagnosticsInfo();
+            if (ClusterName.Contains(AriaProxyURL, StringComparison.CurrentCultureIgnoreCase))
+            {
+                return new DiagnosticsInfo();
+            }
+            
+            var source = new CancellationTokenSource();
+            var clusterDiagnostics = new DiagnosticsInfo();
 
             var query =  ".show diagnostics | extend Passed= (IsHealthy) and not(IsScaleOutRequired) | extend Summary = strcat('Cluster is ', iif(Passed, '', 'NOT'), 'healthy.'),Details=pack('MachinesTotal', MachinesTotal, 'DiskCacheCapacity', round(ClusterDataCapacityFactor,1)) | project Action = 'Cluster Diagnostics', Category='Info', Summary, Details;";
-            using (var reader = _kustoClient.ExecuteQuery(query, token))
+            using (var reader = _kustoClient.ExecuteQuery(query, source.Token))
+            {
+                while (reader.Read())
                 {
-                    while(reader.Read()) 
-                    {
-                        var details = JsonConvert.DeserializeObject<Dictionary<string, string>>(reader["Details"].ToString());
-                        clusterDiagnostics.Options["summary"] = reader["Summary"].ToString();
-                        clusterDiagnostics.Options["machinesTotal"] = details["MachinesTotal"].ToString();
-                        clusterDiagnostics.Options["diskCacheCapacity"] = details["DiskCacheCapacity"].ToString() + "%";
-                    }
+                    var details = JsonConvert.DeserializeObject<Dictionary<string, string>>(reader["Details"].ToString());
+                    clusterDiagnostics.Options["summary"] = reader["Summary"].ToString();
+                    clusterDiagnostics.Options["machinesTotal"] = details["MachinesTotal"].ToString();
+                    clusterDiagnostics.Options["diskCacheCapacity"] = details["DiskCacheCapacity"].ToString() + "%";
                 }
+            }
 
             return clusterDiagnostics;
         }
@@ -163,22 +173,25 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 SetDatabaseMetadata(includeSizeDetails);
             }
 
-            return _databaseMetadata;
+            return _databaseMetadata.OrderBy(x => x.PrettyName);
         }
 
         private void SetDatabaseMetadata(bool includeSizeDetails)
         {
+            if (ClusterName.Contains(AriaProxyURL, StringComparison.CurrentCultureIgnoreCase))
+            {
+                includeSizeDetails = false;
+            }
+            
             CancellationTokenSource source = new CancellationTokenSource();
             CancellationToken token = source.Token;
 
             // Getting database names when we are connected to a specific database should not happen.
             ValidationUtils.IsNotNull(DatabaseName, nameof(DatabaseName));
 
-            var query = ".show databases" + (this.ClusterName.IndexOf(AriaProxyURL, StringComparison.CurrentCultureIgnoreCase) == -1 ? " | project DatabaseName, PrettyName" : "");
-                
-            if (includeSizeDetails == true){
-                query =  ".show cluster extents | summarize sum(OriginalSize) by tostring(DatabaseName)";
-            }
+            var query = includeSizeDetails
+                ? ".show cluster extents | summarize sum(OriginalSize) by tostring(DatabaseName)"
+                : ".show databases | project DatabaseName, PrettyName";
 
             using (var reader = _kustoClient.ExecuteQuery(query, token))
             {
@@ -189,10 +202,10 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                         ClusterName = this.ClusterName,
                         MetadataType = DataSourceMetadataType.Database,
                         MetadataTypeName = DataSourceMetadataType.Database.ToString(),
-                        SizeInMB = includeSizeDetails == true ? row["sum_OriginalSize"].ToString() : null,
+                        SizeInMB = includeSizeDetails ? row["sum_OriginalSize"].ToString() : "",
                         Name = row["DatabaseName"].ToString(),
-                        PrettyName = includeSizeDetails == true ? row["DatabaseName"].ToString(): (String.IsNullOrEmpty(row["PrettyName"]?.ToString()) ? row["DatabaseName"].ToString() : row["PrettyName"].ToString()),
-                        Urn = $"{this.ClusterName}.{row["DatabaseName"].ToString()}"
+                        PrettyName = includeSizeDetails ? row["DatabaseName"].ToString(): (string.IsNullOrEmpty(row["PrettyName"]?.ToString()) ? row["DatabaseName"].ToString() : row["PrettyName"].ToString()),
+                        Urn = $"{ClusterName}.{row["DatabaseName"]}"
                     })
                     .Materialize()
                     .OrderBy(row => row.Name, StringComparer.Ordinal); // case-sensitive
