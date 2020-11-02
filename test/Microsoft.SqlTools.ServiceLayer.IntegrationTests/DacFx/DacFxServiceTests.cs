@@ -62,6 +62,24 @@ AS
 RETURN 0
 ";
 
+        private string dacpacsFolder = Path.Combine("..", "..", "..", "DacFx", "Dacpacs");
+
+        private string goodCreateStreamingJob = @"EXEC sys.sp_create_streaming_job @NAME = 'myJob', @STATEMENT = 'INSERT INTO SqlOutputStream SELECT
+    timeCreated, 
+    machine.temperature as machine_temperature, 
+    machine.pressure as machine_pressure, 
+    ambient.temperature as ambient_temperature, 
+    ambient.humidity as ambient_humidity
+FROM EdgeHubInputStream'";
+
+        private string missingCreateBothStreamingJob = @$"EXEC sys.sp_create_streaming_job @NAME = 'myJob', @STATEMENT = 'INSERT INTO MissingSqlOutputStream SELECT
+    timeCreated, 
+    machine.temperature as machine_temperature, 
+    machine.pressure as machine_pressure, 
+    ambient.temperature as ambient_temperature, 
+    ambient.humidity as ambient_humidity
+FROM MissingEdgeHubInputStream'";
+
         private LiveConnectionHelper.TestConnectionResult GetLiveAutoCompleteTestObjects()
         {
             var result = LiveConnectionHelper.InitLiveConnectionInfo();
@@ -752,6 +770,56 @@ RETURN 0
 
             await service.HandleGetOptionsFromProfileRequest(getOptionsFromProfileParams, dacfxRequestContext.Object);
             dacfxRequestContext.VerifyAll();
+        }
+
+        /// <summary>
+        /// Verify that streaming job
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public async Task ValidateStreamingJob()
+        {
+            var dacfxRequestContext = new Mock<RequestContext<ValidateStreamingJobResult>>();
+            DacFxService service = new DacFxService();
+
+            ValidateStreamingJobResult expectedResult;
+
+            // Positive case: both input and output are present
+
+            expectedResult = new ValidateStreamingJobResult() { Success = true };
+            dacfxRequestContext.Setup((RequestContext<ValidateStreamingJobResult> x) => x.SendResult(It.Is<ValidateStreamingJobResult>((result) => ValidateStreamingJobErrors(expectedResult, result) == true))).Returns(Task.FromResult(new object()));
+
+            ValidateStreamingJobParams parameters = new ValidateStreamingJobParams()
+            {
+                PackageFilePath = Path.Combine(dacpacsFolder, "StreamingJobTestDb.dacpac"),
+                CreateStreamingJobTsql = goodCreateStreamingJob
+            };
+
+            await service.HandleValidateStreamingJobRequest(parameters, dacfxRequestContext.Object);
+            dacfxRequestContext.VerifyAll();
+
+            // Negative case: input and output streams are both missing from model
+
+            const string errorMessage = @"Validation for external streaming job 'myJob' failed:
+Streaming query statement contains a reference to missing input stream 'MissingEdgeHubInputStream'.  You must add it to the database model.
+Streaming query statement contains a reference to missing output stream 'MissingSqlOutputStream'.  You must add it to the database model.";
+            expectedResult = new ValidateStreamingJobResult() { Success = false, ErrorMessage = errorMessage };
+            dacfxRequestContext.Setup((RequestContext<ValidateStreamingJobResult> x) => x.SendResult(It.Is<ValidateStreamingJobResult>((result) => ValidateStreamingJobErrors(expectedResult, result)))).Returns(Task.FromResult(new object()));
+
+            parameters = new ValidateStreamingJobParams()
+            {
+                PackageFilePath = Path.Combine(dacpacsFolder, "StreamingJobTestDb.dacpac"),
+                CreateStreamingJobTsql = missingCreateBothStreamingJob
+            };
+
+            await service.HandleValidateStreamingJobRequest(parameters, dacfxRequestContext.Object);
+            dacfxRequestContext.VerifyAll();
+        }
+
+        private bool ValidateStreamingJobErrors(ValidateStreamingJobResult expected, ValidateStreamingJobResult actual)
+        {
+            return expected.Success == actual.Success
+                && expected.ErrorMessage == actual.ErrorMessage;
         }
 
         private bool ValidateOptions(DeploymentOptions expected, DeploymentOptions actual)
