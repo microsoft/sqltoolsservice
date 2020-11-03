@@ -126,14 +126,14 @@ INSERT INTO [dbo].[AssessmentResult] ([CheckName],[CheckId],[RulesetName],[Rules
     ) rpt([CheckName],[CheckId],[RulesetName],[RulesetVersion],[Severity],[Message],[TargetPath],[TargetType],[HelpLink],[Timestamp])";
 
         [Test]
-        public void GenerateScriptTest()
+        public void GenerateSqlAssessmentScriptTest()
         {
             var scriptText = GenerateScriptOperation.GenerateScript(SampleParams, CancellationToken.None);
             Assert.AreEqual(SampleScript, scriptText);
         }
 
         [Test]
-        public void ExecuteTest()
+        public void ExecuteSqlAssessmentScriptTest()
         {
             var subject = new GenerateScriptOperation(SampleParams);
             var taskMetadata = new TaskMetadata();
