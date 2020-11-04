@@ -40,7 +40,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         public KustoClient(string connectionString, string azureAccountToken, string ownerUri)
         {
             _ownerUri = ownerUri;
-            Initialize(connectionString, azureAccountToken);
+            Initialize(azureAccountToken, connectionString);
             SchemaState = LoadSchemaState();
         }
 
@@ -67,7 +67,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 DatabaseName, ClusterName);
         }
 
-        private void Initialize(string connectionString, string azureAccountToken)
+        private void Initialize(string azureAccountToken, string connectionString = "")
         {
             var stringBuilder = GetKustoConnectionStringBuilder(azureAccountToken, connectionString);
             _kustoQueryProvider = KustoClientFactory.CreateCslQueryProvider(stringBuilder);
@@ -79,17 +79,17 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             string azureAccountToken = ConnectionService.Instance.RefreshAzureToken(_ownerUri);
             _kustoQueryProvider.Dispose();
             _kustoAdminProvider.Dispose();
-            Initialize("", azureAccountToken);
+            Initialize(azureAccountToken);
         }
 
         private KustoConnectionStringBuilder GetKustoConnectionStringBuilder(string userToken, string connectionString)
         {
             ValidationUtils.IsTrue<ArgumentException>(!string.IsNullOrWhiteSpace(userToken),
                 $"the Kusto authentication is not specified - either set {nameof(userToken)}");
-            
+
             var stringBuilder = string.IsNullOrWhiteSpace(connectionString)
-                ? new KustoConnectionStringBuilder(connectionString)
-                : new KustoConnectionStringBuilder(ClusterName, DatabaseName);
+                ? new KustoConnectionStringBuilder(ClusterName, DatabaseName)
+                : new KustoConnectionStringBuilder(connectionString);
             ClusterName = stringBuilder.DataSource;
             DatabaseName = stringBuilder.InitialCatalog;
             

@@ -1049,38 +1049,15 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
         public ConnectionDetails ParseConnectionString(string connectionString)
         {
-            KustoConnectionStringBuilder builder = new KustoConnectionStringBuilder(connectionString);
-            ConnectionDetails details = new ConnectionDetails()
+            var builder = new KustoConnectionStringBuilder(connectionString);
+            return new ConnectionDetails
             {
-                // ApplicationIntent = builder.ApplicationIntent.ToString(),
-                // ApplicationName = builder.ApplicationName,
-                // AttachDbFilename = builder.AttachDBFilename,
-                 AuthenticationType = "AzureMFA",
-                // ConnectRetryCount = builder.ConnectRetryCount,
-                // ConnectRetryInterval = builder.ConnectRetryInterval,
-                // ConnectTimeout = builder.ConnectTimeout,F
-                // CurrentLanguage = builder.CurrentLanguage,
+                ApplicationName = builder.ApplicationNameForTracing,
+                AuthenticationType = "AzureMFA",
                 DatabaseName = builder.InitialCatalog,
-                // Encrypt = builder.Encrypt,
-                // FailoverPartner = builder.FailoverPartner,
-                // LoadBalanceTimeout = builder.LoadBalanceTimeout,
-                // MaxPoolSize = builder.MaxPoolSize,
-                // MinPoolSize = builder.MinPoolSize,
-                // MultipleActiveResultSets = builder.MultipleActiveResultSets,
-                // MultiSubnetFailover = builder.MultiSubnetFailover,
-                // PacketSize = builder.PacketSize,
-                // Password = !builder.IntegratedSecurity ? builder.Password : string.Empty,
-                // PersistSecurityInfo = builder.PersistSecurityInfo,
-                // Pooling = builder.Pooling,
-                // Replication = builder.Replication,
                 ServerName = builder.DataSource,
-                // TrustServerCertificate = builder.TrustServerCertificate,
-                // TypeSystemVersion = builder.TypeSystemVersion,
                 UserName = builder.UserID,
-                // WorkstationId = builder.WorkstationID,
             };
-
-            return details;
         }
 
         /// <summary>
