@@ -13,7 +13,6 @@ using Kusto.Data.Exceptions;
 using Kusto.Data.Net.Client;
 using Kusto.Language;
 using Kusto.Language.Editor;
-using Microsoft.Data.SqlClient;
 using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
 using Microsoft.Kusto.ServiceLayer.Utility;
@@ -35,15 +34,13 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// </summary>
         public GlobalState SchemaState { get; private set; }
 
-        public string ClusterName { get; }
+        public string ClusterName { get; private set; }
         public string DatabaseName { get; private set; }
 
         public KustoClient(string connectionString, string azureAccountToken, string ownerUri)
         {
             _ownerUri = ownerUri;
-            ClusterName = GetClusterName(connectionString);
-            DatabaseName = new SqlConnectionStringBuilder(connectionString).InitialCatalog;
-            Initialize(ClusterName, DatabaseName, azureAccountToken);
+            Initialize(connectionString, azureAccountToken);
             SchemaState = LoadSchemaState();
         }
 
@@ -70,9 +67,9 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 DatabaseName, ClusterName);
         }
 
-        private void Initialize(string clusterName, string databaseName, string azureAccountToken)
+        private void Initialize(string connectionString, string azureAccountToken)
         {
-            var stringBuilder = GetKustoConnectionStringBuilder(clusterName, databaseName, azureAccountToken, "", "");
+            var stringBuilder = GetKustoConnectionStringBuilder(azureAccountToken, connectionString);
             _kustoQueryProvider = KustoClientFactory.CreateCslQueryProvider(stringBuilder);
             _kustoAdminProvider = KustoClientFactory.CreateCslAdminProvider(stringBuilder);
         }
@@ -82,68 +79,23 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             string azureAccountToken = ConnectionService.Instance.RefreshAzureToken(_ownerUri);
             _kustoQueryProvider.Dispose();
             _kustoAdminProvider.Dispose();
-            Initialize(ClusterName, DatabaseName, azureAccountToken);
+            Initialize("", azureAccountToken);
         }
 
-        /// <summary>
-        /// Extracts the cluster name from the connectionstring. The string looks like the following:
-        /// "Data Source=clustername.kusto.windows.net;User ID=;Password=;Pooling=False;Application Name=azdata-GeneralConnection"
-        /// <summary>
-        /// <param name="connectionString">A connection string coming over the Data management protocol</param>
-        private string GetClusterName(string connectionString)
+        private KustoConnectionStringBuilder GetKustoConnectionStringBuilder(string userToken, string connectionString)
         {
-            var csb = new SqlConnectionStringBuilder(connectionString);
-
-            // If there is no https:// prefix, add it
-            Uri uri;
-            if ((Uri.TryCreate(csb.DataSource, UriKind.Absolute, out uri) ||
-                 Uri.TryCreate("https://" + csb.DataSource, UriKind.Absolute, out uri)) &&
-                (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
-            {
-                return uri.AbsoluteUri;
-            }
-
-            throw new ArgumentException("Expected a URL of the form clustername.kusto.windows.net");
-        }
-
-        private KustoConnectionStringBuilder GetKustoConnectionStringBuilder(string clusterName, string databaseName,
-            string userToken, string applicationClientId, string applicationKey)
-        {
-            ValidationUtils.IsNotNull(clusterName, nameof(clusterName));
-            ValidationUtils.IsTrue<ArgumentException>(
-                !string.IsNullOrWhiteSpace(userToken)
-                || (!string.IsNullOrWhiteSpace(applicationClientId) && !string.IsNullOrWhiteSpace(applicationKey)),
-                $"the Kusto authentication is not specified - either set {nameof(userToken)}, or set {nameof(applicationClientId)} and {nameof(applicationKey)}");
-
-            var kcsb = new KustoConnectionStringBuilder
-            {
-                DataSource = clusterName,
-
-                // Perform federated auth based on the AAD user token, or based on the AAD application client id and key.
-                FederatedSecurity = true
-            };
-
-            if (!string.IsNullOrWhiteSpace(databaseName))
-            {
-                kcsb.InitialCatalog = databaseName;
-            }
-
-            if (!string.IsNullOrWhiteSpace(userToken))
-            {
-                kcsb.UserToken = userToken;
-            }
-
-            if (!string.IsNullOrWhiteSpace(applicationClientId))
-            {
-                kcsb.ApplicationClientId = applicationClientId;
-            }
-
-            if (!string.IsNullOrWhiteSpace(applicationKey))
-            {
-                kcsb.ApplicationKey = applicationKey;
-            }
-
-            return kcsb;
+            ValidationUtils.IsTrue<ArgumentException>(!string.IsNullOrWhiteSpace(userToken),
+                $"the Kusto authentication is not specified - either set {nameof(userToken)}");
+            
+            var stringBuilder = string.IsNullOrWhiteSpace(connectionString)
+                ? new KustoConnectionStringBuilder(connectionString)
+                : new KustoConnectionStringBuilder(ClusterName, DatabaseName);
+            ClusterName = stringBuilder.DataSource;
+            DatabaseName = stringBuilder.InitialCatalog;
+            
+            ValidationUtils.IsNotNull(ClusterName, nameof(ClusterName));
+            
+            return stringBuilder.WithAadUserTokenAuthentication(userToken);
         }
 
         private ClientRequestProperties GetCLientRequestProperties(CancellationToken cancellationToken){
