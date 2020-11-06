@@ -10,7 +10,7 @@ stages:
       inputs:
         azureSubscription: 'ClientToolsInfra_670062 (88d5392f-a34f-4769-b405-f597fc533613)'
         KeyVaultName: 'ado-secrets'
-        SecretsFilter: 'github-distro-mixin-password,ado-crossplatbuildscripts-password'
+        SecretsFilter: 'github-distro-mixin-password,ado-crossplatbuildscripts-password,ado-crossplatbuildscripts-builds-password'
     - powershell: |
         git clone https://$(ado-crossplatbuildscripts-password)@dev.azure.com/mssqltools/_git/CrossPlatBuildScripts
         cd CrossPlatBuildScripts/AutomatedReleases/
@@ -56,7 +56,7 @@ stages:
         workingDirectory: '$(System.DefaultWorkingDirectory)/sqltoolsservice'
       env:
         GITHUB_DISTRO_MIXIN_PASSWORD: $(github-distro-mixin-password)
-        ADO_CROSSPLATBUILDSCRIPTS_PASSWORD: $(ado-crossplatbuildscripts-password)
+        ADO_CROSSPLATBUILDSCRIPTS_PASSWORD: $(ado-crossplatbuildscripts-builds-password)
 
 trigger: none
 pr: none
