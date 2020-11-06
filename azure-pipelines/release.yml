@@ -10,7 +10,7 @@ stages:
       inputs:
         azureSubscription: 'ClientToolsInfra_670062 (88d5392f-a34f-4769-b405-f597fc533613)'
         KeyVaultName: 'ado-secrets'
-        SecretsFilter: 'github-distro-mixin-password,ado-crossplatbuildscripts-password,ado-crossplatbuildscripts-builds-password'
+        SecretsFilter: 'github-distro-mixin-password,ado-crossplatbuildscripts-password'
     - powershell: |
         git clone https://$(ado-crossplatbuildscripts-password)@dev.azure.com/mssqltools/_git/CrossPlatBuildScripts
       displayName: Clone CrossPlatBuildScripts
