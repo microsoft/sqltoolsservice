@@ -15,6 +15,7 @@ stages:
         git clone https://$(ado-crossplatbuildscripts-password)@dev.azure.com/mssqltools/_git/CrossPlatBuildScripts
         git checkout chgagnon/checkCommit
         git pull
+        Get-Content $(System.DefaultWorkingDirectory)/CrossPlatBuildScripts/AutomatedReleases/sqltoolsserviceRelease.ps1 | Write-Host
       displayName: Clone CrossPlatBuildScripts
     - task: DownloadPipelineArtifact@2
       displayName: 'Download pipeline source artifacts'
