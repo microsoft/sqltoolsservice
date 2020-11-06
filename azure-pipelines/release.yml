@@ -13,9 +13,8 @@ stages:
         SecretsFilter: 'github-distro-mixin-password,ado-crossplatbuildscripts-password'
     - powershell: |
         git clone https://$(ado-crossplatbuildscripts-password)@dev.azure.com/mssqltools/_git/CrossPlatBuildScripts
+        cd CrossPlatBuildScripts/AutomatedReleases/
         git checkout chgagnon/checkCommit
-        git pull
-        Get-Content $(System.DefaultWorkingDirectory)/CrossPlatBuildScripts/AutomatedReleases/sqltoolsserviceRelease.ps1 | Write-Host
       displayName: Clone CrossPlatBuildScripts
     - task: DownloadPipelineArtifact@2
       displayName: 'Download pipeline source artifacts'
