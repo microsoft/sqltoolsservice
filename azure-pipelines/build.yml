@@ -1,9 +1,3 @@
-pool:
-  vmImage: 'windows-latest'
-  demands:
-  - Cmd
-  - npm
-
 steps:
 - task: ArchiveFiles@1
   displayName: 'Archive source '
@@ -243,13 +237,3 @@ steps:
   inputs:
     testResultsFormat: VSTest
     testResultsFiles: '**/xunit.trx'
-
-trigger: none
-pr: none
-
-schedules:
-- cron: "0 5 * * Mon-Fri"
-  displayName: Mon-Fri at 5:00AM
-  branches:
-    include:
-    - main

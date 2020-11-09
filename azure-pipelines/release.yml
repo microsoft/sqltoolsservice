@@ -52,7 +52,3 @@ steps:
   env:
     GITHUB_DISTRO_MIXIN_PASSWORD: $(github-distro-mixin-password)
     ADO_CROSSPLATBUILDSCRIPTS_PASSWORD: $(ado-crossplatbuildscripts-password)
-
-trigger: none
-pr: none
-schedules: none
