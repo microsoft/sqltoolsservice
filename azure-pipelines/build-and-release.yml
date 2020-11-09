@@ -1,6 +1,5 @@
 trigger: none
 pr: none
-schedules: none
 
 stages:
 - stage: Build
