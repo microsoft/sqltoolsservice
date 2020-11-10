@@ -7,6 +7,7 @@ steps:
     SecretsFilter: 'github-distro-mixin-password,ado-crossplatbuildscripts-password'
 - powershell: |
     git clone https://$(ado-crossplatbuildscripts-password)@dev.azure.com/mssqltools/_git/CrossPlatBuildScripts
+    git checkout chgagnon/fixCheck
   displayName: Clone CrossPlatBuildScripts
 - task: DownloadPipelineArtifact@2
   displayName: 'Download pipeline source artifacts'
@@ -31,17 +32,17 @@ steps:
     itemPattern: '**/*'
     targetPath: '$(Agent.TempDirectory)/drop'
 - task: ExtractFiles@1
-  displayName: 'Extract files '
+  displayName: 'Extract source from build'
   inputs:
     archiveFilePatterns: '$(Agent.TempDirectory)/source/source.tar.gz'
     destinationFolder: '$(System.DefaultWorkingDirectory)/sqltoolsservice'
 - task: CopyFiles@2
-  displayName: 'Copy Files to: $(System.DefaultWorkingDirectory)/sqltoolsservice/artifacts/package'
+  displayName: 'Copy Source Files to: $(System.DefaultWorkingDirectory)/sqltoolsservice/artifacts/package'
   inputs:
     SourceFolder: '$(Agent.TempDirectory)/drop'
     TargetFolder: '$(System.DefaultWorkingDirectory)/sqltoolsservice/artifacts/package'
 - task: PowerShell@2
-  displayName: 'PowerShell Script'
+  displayName: 'Run Automated Release Script'
   inputs:
     filePath: '$(System.DefaultWorkingDirectory)/CrossPlatBuildScripts/AutomatedReleases/sqltoolsserviceRelease.ps1'
     arguments: '-workspace $(System.DefaultWorkingDirectory)/sqltoolsservice -minTag v3.0.0.0 -target main -tagFormat release -isPrerelease $false -artifactsBuildId $(Build.BuildId)'
