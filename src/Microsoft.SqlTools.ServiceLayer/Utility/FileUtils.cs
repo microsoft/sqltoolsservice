@@ -4,6 +4,8 @@
 //
 using System;
 using System.IO;
+using System.Text;
+
 namespace Microsoft.SqlTools.ServiceLayer.Utility
 {
     internal static class FileUtilities
@@ -136,6 +138,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             {
                 File.SetAttributes(fullFilePath, FileAttributes.Normal);
             }
+        }
+
+        internal static string GetContentInHex(string fileName)
+        {
+            byte[] contentBytes;
+            using (var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read))
+            {
+                using (var reader = new BinaryReader(stream))
+                {
+                    contentBytes = reader.ReadBytes((int)stream.Length);
+                }
+            }
+            StringBuilder hex = new StringBuilder(contentBytes.Length * 2);
+            foreach (byte b in contentBytes)
+                hex.AppendFormat("{0:x2}", b);
+            return hex.ToString();
         }
 
         /// <summary>
