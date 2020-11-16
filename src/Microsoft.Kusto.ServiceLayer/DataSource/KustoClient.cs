@@ -148,7 +148,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             return kcsb;
         }
 
-        private ClientRequestProperties GetClientRequestProperties(CancellationToken cancellationToken){
+        private ClientRequestProperties GetClientRequestProperties(CancellationToken cancellationToken)
+        {
             var clientRequestProperties = new ClientRequestProperties
             {
                 ClientRequestId = Guid.NewGuid().ToString()
@@ -224,12 +225,21 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// <summary>
         /// Executes a query or command against a kusto cluster and returns a sequence of result row instances.
         /// </summary>
-        public async Task ExecuteControlCommandAsync(string command, bool throwOnError,
-            CancellationToken cancellationToken)
+        public async Task ExecuteControlCommandAsync(string command, bool throwOnError, int retryCount = 1)
         {
+            ValidationUtils.IsArgumentNotNullOrWhiteSpace(command, nameof(command));
+
             try
             {
-                await Task.Run(() => ExecuteControlCommand(command), cancellationToken);
+                using (var adminOutput = await _kustoAdminProvider.ExecuteControlCommandAsync(DatabaseName, command))
+                {
+                }
+            }
+            catch (KustoRequestException exception) when (retryCount > 0 && exception.FailureCode == 401) // Unauthorized
+            {
+                RefreshAzureToken();
+                retryCount--;
+                await ExecuteControlCommandAsync(command, throwOnError, retryCount);
             }
             catch (Exception) when (!throwOnError)
             {
@@ -273,7 +283,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
             try
             {
-                using (var adminOutput = _kustoAdminProvider.ExecuteControlCommand(command, null))
+                using (var adminOutput = _kustoAdminProvider.ExecuteControlCommand(command))
                 {
                 }
             }

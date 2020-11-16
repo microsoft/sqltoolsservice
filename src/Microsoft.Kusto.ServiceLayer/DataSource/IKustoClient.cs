@@ -22,7 +22,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// <summary>
         /// Executes a query or command against a kusto cluster and returns a sequence of result row instances.
         /// </summary>
-        Task ExecuteControlCommandAsync(string command, bool throwOnError, CancellationToken cancellationToken);
+        Task ExecuteControlCommandAsync(string command, bool throwOnError, int retryCount = 1);
 
         /// <summary>
         /// Executes a query.
