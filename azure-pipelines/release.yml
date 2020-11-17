@@ -8,28 +8,22 @@ steps:
 - powershell: |
     git clone https://$(ado-crossplatbuildscripts-password)@dev.azure.com/mssqltools/_git/CrossPlatBuildScripts
   displayName: Clone CrossPlatBuildScripts
-- task: DownloadPipelineArtifact@2
-  displayName: 'Download pipeline source artifacts'
+- task: DownloadBuildArtifacts@0
+  displayName: 'Download build source artifacts'
   inputs:
-    buildType: 'specific'
-    project: 'ae14e11c-7eb2-46af-b588-471e6116d635'
-    definition: '309'
-    specificBuildWithTriggering: true
-    buildVersionToDownload: 'latest'
+    buildType: 'current'
+    downloadType: 'single'
     artifactName: 'source'
     itemPattern: '**/source.tar.gz'
-    targetPath: '$(Agent.TempDirectory)/source'
-- task: DownloadPipelineArtifact@2
-  displayName: 'Download pipeline drop artifacts'
+    downloadPath: '$(Agent.TempDirectory)'
+- task: DownloadBuildArtifacts@0
+  displayName: 'Download build drop artifacts'
   inputs:
-    buildType: 'specific'
-    project: 'ae14e11c-7eb2-46af-b588-471e6116d635'
-    definition: '309'
-    specificBuildWithTriggering: true
-    buildVersionToDownload: 'latest'
+    buildType: 'current'
+    downloadType: 'single'
     artifactName: 'drop'
     itemPattern: '**/*'
-    targetPath: '$(Agent.TempDirectory)/drop'
+    downloadPath: '$(Agent.TempDirectory)'
 - task: ExtractFiles@1
   displayName: 'Extract source from build'
   inputs:
