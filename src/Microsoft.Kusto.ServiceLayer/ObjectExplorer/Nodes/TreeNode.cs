@@ -51,7 +51,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
         {
             DataSource = dataSource;
             ObjectMetadata = objectMetadata;
-            NodeValue = objectMetadata.Name;
+            NodeValue = objectMetadata.PrettyName;
         }
 
         private object buildingMetadataLock = new object();

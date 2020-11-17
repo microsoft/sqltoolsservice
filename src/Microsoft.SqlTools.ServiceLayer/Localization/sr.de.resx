@@ -1279,10 +1279,10 @@
     <value>Ungültige Version {0} übergeben. Die Version muss im Format x.x.x.x übergeben werden, wobei x für eine Zahl steht.</value>
   </data>
   <data name="ExportBacpacTaskName" xml:space="preserve">
-    <value>BACPAC exportieren</value>
+    <value>BACPAC-Datei exportieren</value>
   </data>
   <data name="ImportBacpacTaskName" xml:space="preserve">
-    <value>BACPAC importieren</value>
+    <value>BACPAC-Datei importieren</value>
   </data>
   <data name="ExtractDacpacTaskName" xml:space="preserve">
     <value>BACPAC extrahieren</value>
@@ -1313,5 +1313,20 @@
   </data>
   <data name="SerializationServiceRequestNotFound" xml:space="preserve">
     <value>Serialisierung weiterer Daten nicht möglich, weil keine Anforderung für die Datei "{0}" gefunden wurde.</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidColumnEncryptionSetting" xml:space="preserve">
+    <value>Ungültiger Wert "{0}" für ColumnEncryption. Gültige Werte sind "Enabled" und "Disabled".</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
+    <value>Ungültiger Wert "{0}" für EnclaveAttestationProtocol. Gültige Werte sind "AAS" und "HGS".</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination" xml:space="preserve">
+    <value>Für das Nachweisprotokoll und die Enclave-Nachweis-URL muss Always Encrypted auf "Enabled" festgelegt sein.</value>
+  </data>
+  <data name="SqlCmdExitOnError" xml:space="preserve">
+    <value>Fehler bei der Batchausführung. Der Vorgang wird beendet.</value>
+  </data>
+  <data name="SqlCmdUnsupportedToken" xml:space="preserve">
+    <value>Es wurde ein nicht unterstütztes Token "{0}" gefunden.</value>
   </data>
 </root>

@@ -2124,6 +2124,43 @@
         <target state="new">Extract project files</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="ValidateStreamingJobTaskName">
+        <source>Validate streaming job</source>
+        <target state="new">Validate streaming job</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="StreamNotFoundInModel">
+        <source>Streaming query statement contains a reference to missing {0} stream '{1}'.  You must add it to the database model.</source>
+        <target state="new">Streaming query statement contains a reference to missing {0} stream '{1}'.  You must add it to the database model.</target>
+        <note>.
+ Parameters: 0 - streamType (string), 1 - missingStreamName (string) </note>
+      </trans-unit>
+      <trans-unit id="Input">
+        <source>input</source>
+        <target state="new">input</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Output">
+        <source>output</source>
+        <target state="new">output</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="StreamingJobValidationFailed">
+        <source>Validation for external streaming job '{0}' failed:</source>
+        <target state="new">Validation for external streaming job '{0}' failed:</target>
+        <note>.
+ Parameters: 0 - jobName (string) </note>
+      </trans-unit>
+      <trans-unit id="FragmentShouldHaveOnlyOneBatch">
+        <source>TSQL fragment should contain exactly one batch.</source>
+        <target state="new">TSQL fragment should contain exactly one batch.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="NoCreateStreamingJobStatementFound">
+        <source>No External Streaming Job creation TSQL found (EXEC sp_create_streaming_job statement).</source>
+        <target state="new">No External Streaming Job creation TSQL found (EXEC sp_create_streaming_job statement).</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

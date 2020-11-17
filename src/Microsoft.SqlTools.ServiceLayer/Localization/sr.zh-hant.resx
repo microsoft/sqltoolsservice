@@ -508,10 +508,10 @@
     <value>登入</value>
   </data>
   <data name="SchemaHierarchy_MasterKey" xml:space="preserve">
-    <value>主要索引鍵</value>
+    <value>主要金鑰</value>
   </data>
   <data name="SchemaHierarchy_MasterKeys" xml:space="preserve">
-    <value>主要索引鍵</value>
+    <value>主要金鑰</value>
   </data>
   <data name="SchemaHierarchy_MessageTypes" xml:space="preserve">
     <value>訊息類型</value>
@@ -1313,5 +1313,20 @@
   </data>
   <data name="SerializationServiceRequestNotFound" xml:space="preserve">
     <value>無法序列化更多資料，因為找不到檔案 {0} 的要求</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidColumnEncryptionSetting" xml:space="preserve">
+    <value>ComlumEncryption 的值 '{0}' 無效。有效值為 'Enabled' 及 'Disabled'。</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
+    <value>EnclaveAttestationProtocol 的值 '{0}' 無效。有效值為 'AAS' 及 'HGS'。</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination" xml:space="preserve">
+    <value>證明通訊協定與記憶體保護區證明 URL 需要將 Always Encrypted 設定為「啟用」。</value>
+  </data>
+  <data name="SqlCmdExitOnError" xml:space="preserve">
+    <value>執行批次期間發生錯誤，結束中。</value>
+  </data>
+  <data name="SqlCmdUnsupportedToken" xml:space="preserve">
+    <value>發現不支援的權杖 {0}</value>
   </data>
 </root>

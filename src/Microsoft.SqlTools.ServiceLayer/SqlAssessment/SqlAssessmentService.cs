@@ -384,14 +384,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlAssessment
         {
             var item = new AssessmentResultItem
                            {
-                               CheckId = r.Check.Id,
-                               Description = r.Check.Description,
-                               DisplayName = r.Check.DisplayName,
-                               HelpLink = r.Check.HelpLink,
-                               Level = r.Check.Level.ToString(),
+                               CheckId = r.Check?.Id ?? string.Empty,
+                               Description = r.Check?.Description ?? string.Empty,
+                               DisplayName = r.Check?.DisplayName ?? string.Empty,
+                               HelpLink = r.Check?.HelpLink ?? string.Empty,
+                               Level = r.Check?.Level.ToString() ?? string.Empty,
                                Message = r.Message,
                                TargetName = r.TargetPath,
-                               Tags = r.Check.Tags.ToArray(),
+                               Tags = r.Check?.Tags.ToArray() ?? Array.Empty<string>(),
                                TargetType = r.TargetType,
                                RulesetVersion = Engine.Configuration.DefaultRuleset.Version.ToString(),
                                RulesetName = Engine.Configuration.DefaultRuleset.Name,
