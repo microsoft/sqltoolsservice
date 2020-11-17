@@ -144,6 +144,10 @@ namespace Microsoft.SqlTools.ServiceLayer.NotebookConvert
             var parser = new TSql150Parser(false);
             IList<ParseError> errors = new List<ParseError>();
             var parseResult = parser.Parse(new StringReader(sql), out errors);
+            if (errors.Count > 0)
+            {
+                throw new Exception(string.Join(Environment.NewLine, errors.Select(error => error.Message)));
+            }
             var batches = (parseResult as TSqlScript).Batches;
             var tokens = parseResult.ScriptTokenStream;
 
