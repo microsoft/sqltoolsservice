@@ -54,7 +54,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
             if (!string.IsNullOrWhiteSpace(DatabaseName))
             {
-                CancellationTokenSource source = new CancellationTokenSource();
+                var source = new CancellationTokenSource();
                 Parallel.Invoke(() =>
                     {
                         tableSchemas =
@@ -255,10 +255,10 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         {
             try
             {
-                var resultReader = await Task.Run(() => ExecuteQuery(query, cancellationToken, databaseName), cancellationToken);
+                var resultReader = ExecuteQuery(query, cancellationToken, databaseName);
                 var results = KustoDataReaderParser.ParseV1(resultReader, null);
                 var tableReader = results[WellKnownDataSet.PrimaryResult].Single().TableData.CreateDataReader();
-                return new ObjectReader<T>(tableReader);
+                return await Task.FromResult(new ObjectReader<T>(tableReader));
             }
             catch (Exception)
             {
