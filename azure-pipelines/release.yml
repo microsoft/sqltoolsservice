@@ -15,7 +15,7 @@ steps:
     downloadType: 'single'
     artifactName: 'source'
     itemPattern: '**/source.tar.gz'
-    downloadPath: '$(Agent.TempDirectory)/source'
+    downloadPath: '$(Agent.TempDirectory)'
 - task: DownloadBuildArtifacts@0
   displayName: 'Download build drop artifacts'
   inputs:
@@ -23,7 +23,7 @@ steps:
     downloadType: 'single'
     artifactName: 'drop'
     itemPattern: '**/*'
-    downloadPath: '$(Agent.TempDirectory)/drop'
+    downloadPath: '$(Agent.TempDirectory)'
 - task: ExtractFiles@1
   displayName: 'Extract source from build'
   inputs:
