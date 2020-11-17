@@ -31,7 +31,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
     /// </summary>
     public class ConnectionService
     {
-        private const string AdminConnectionPrefix = "ADMIN:";
         private const string PasswordPlaceholder = "******";
 
         /// <summary>
@@ -549,19 +548,11 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             {
                 throw new InvalidOperationException(SR.ConnectionServiceDbErrorDefaultNotConnected(ownerUri));
             }
-
-            if (IsDedicatedAdminConnection(connectionInfo.ConnectionDetails))
+            
+            // Try to get the ReliableDataSourceClient and create if it doesn't already exist
+            if (!connectionInfo.TryGetConnection(connectionType, out connection) && ConnectionType.Default != connectionType)
             {
-                // Since this is a dedicated connection only 1 is allowed at any time. Return the default connection for use in the requested action
-                connection = defaultConnection;
-            }
-            else
-            {
-                // Try to get the ReliableDataSourceClient and create if it doesn't already exist
-                if (!connectionInfo.TryGetConnection(connectionType, out connection) && ConnectionType.Default != connectionType)
-                {
-                    connection = await TryOpenConnectionForConnectionType(ownerUri, connectionType, alwaysPersistSecurity, connectionInfo);
-                }
+                connection = await TryOpenConnectionForConnectionType(ownerUri, connectionType, alwaysPersistSecurity, connectionInfo);
             }
 
             return connection;
@@ -955,18 +946,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             {
                 await requestContext.SendError(ex.ToString());
             }
-        }
-
-        /// <summary>
-        /// Checks if a ConnectionDetails object represents a DAC connection
-        /// </summary>
-        /// <param name="connectionDetails"></param>
-        public static bool IsDedicatedAdminConnection(ConnectionDetails connectionDetails)
-        {
-            Validate.IsNotNull(nameof(connectionDetails), connectionDetails);
-            KustoConnectionStringBuilder builder = CreateConnectionStringBuilder(connectionDetails);
-            string serverName = builder.DataSource;
-            return serverName != null && serverName.StartsWith(AdminConnectionPrefix, StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>
