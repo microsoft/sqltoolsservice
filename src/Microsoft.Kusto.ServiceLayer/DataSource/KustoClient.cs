@@ -49,21 +49,23 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
         private GlobalState LoadSchemaState()
         {
-            CancellationTokenSource source = new CancellationTokenSource();
-
             IEnumerable<ShowDatabaseSchemaResult> tableSchemas = Enumerable.Empty<ShowDatabaseSchemaResult>();
             IEnumerable<ShowFunctionsResult> functionSchemas = Enumerable.Empty<ShowFunctionsResult>();
 
-            Parallel.Invoke(() =>
+            if (!string.IsNullOrWhiteSpace(DatabaseName))
             {
-                tableSchemas = ExecuteControlCommandAsync<ShowDatabaseSchemaResult>(
-                    $".show database {DatabaseName} schema",
-                    false, source.Token).Result;
-            }, () =>
-            {
-                functionSchemas = ExecuteControlCommandAsync<ShowFunctionsResult>(".show functions", false,
-                    source.Token).Result;
-            });
+                var source = new CancellationTokenSource();
+                Parallel.Invoke(() =>
+                    {
+                        tableSchemas =
+                            ExecuteQueryAsync<ShowDatabaseSchemaResult>($".show database {DatabaseName} schema", source.Token, DatabaseName)
+                                .Result;
+                    },
+                    () =>
+                    {
+                        functionSchemas = ExecuteQueryAsync<ShowFunctionsResult>(".show functions", source.Token, DatabaseName).Result;
+                    });
+            }
 
             return KustoIntellisenseHelper.AddOrUpdateDatabase(tableSchemas, functionSchemas,
                 GlobalState.Default,
@@ -146,7 +148,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             return kcsb;
         }
 
-        private ClientRequestProperties GetCLientRequestProperties(CancellationToken cancellationToken){
+        private ClientRequestProperties GetClientRequestProperties(CancellationToken cancellationToken)
+        {
             var clientRequestProperties = new ClientRequestProperties
             {
                 ClientRequestId = Guid.NewGuid().ToString()
@@ -170,18 +173,22 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 {
                     var minimalQuery =
                         codeBlock.Service.GetMinimalText(MinimalTextKind.RemoveLeadingWhitespaceAndComments);
-                    
-                    if(!string.IsNullOrEmpty(minimalQuery)){        // Query is empty in case of comments
-                        IDataReader origReader;
-                        var clientRequestProperties = GetCLientRequestProperties(cancellationToken);
 
-                        if(minimalQuery.StartsWith(".") && !minimalQuery.StartsWith(".show")){
+                    if (!string.IsNullOrEmpty(minimalQuery))
+                    {
+                        // Query is empty in case of comments
+                        IDataReader origReader;
+                        var clientRequestProperties = GetClientRequestProperties(cancellationToken);
+
+                        if (minimalQuery.StartsWith(".") && !minimalQuery.StartsWith(".show"))
+                        {
                             origReader = _kustoAdminProvider.ExecuteControlCommand(
                                 KustoQueryUtils.IsClusterLevelQuery(minimalQuery) ? "" : databaseName,
                                 minimalQuery,
                                 clientRequestProperties);
                         }
-                        else{
+                        else
+                        {
                             origReader = _kustoQueryProvider.ExecuteQuery(
                                 KustoQueryUtils.IsClusterLevelQuery(minimalQuery) ? "" : databaseName,
                                 minimalQuery,
@@ -193,20 +200,20 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                     }
                 });
 
-                if (numOfQueries == 0 && origReaders.Length > 0)                  // Covers the scenario when user tries to run comments.
+                if (numOfQueries == 0 && origReaders.Length > 0) // Covers the scenario when user tries to run comments.
                 {
-                    var clientRequestProperties = GetCLientRequestProperties(cancellationToken);
+                    var clientRequestProperties = GetClientRequestProperties(cancellationToken);
                     origReaders[0] = _kustoQueryProvider.ExecuteQuery(
-                                KustoQueryUtils.IsClusterLevelQuery(query) ? "" : databaseName,
-                                query,
-                                clientRequestProperties);
+                        KustoQueryUtils.IsClusterLevelQuery(query) ? "" : databaseName,
+                        query,
+                        clientRequestProperties);
                 }
-                
+
                 return new KustoResultsReader(origReaders);
             }
-            catch (AggregateException exception) 
+            catch (AggregateException exception)
                 when (retryCount > 0 &&
-                      exception.InnerException is KustoRequestException innerException 
+                      exception.InnerException is KustoRequestException innerException
                       && innerException.FailureCode == 401) // Unauthorized
             {
                 RefreshAzureToken();
@@ -214,23 +221,28 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 return ExecuteQuery(query, cancellationToken, databaseName, retryCount);
             }
         }
-        
+
         /// <summary>
         /// Executes a query or command against a kusto cluster and returns a sequence of result row instances.
         /// </summary>
-        public async Task<IEnumerable<T>> ExecuteControlCommandAsync<T>(string command, bool throwOnError,
-            CancellationToken cancellationToken)
+        public async Task ExecuteControlCommandAsync(string command, bool throwOnError, int retryCount = 1)
         {
+            ValidationUtils.IsArgumentNotNullOrWhiteSpace(command, nameof(command));
+
             try
             {
-                var resultReader = await ExecuteQueryAsync(command, cancellationToken, DatabaseName);
-                var results = KustoDataReaderParser.ParseV1(resultReader, null);
-                var tableReader = results[WellKnownDataSet.PrimaryResult].Single().TableData.CreateDataReader();
-                return new ObjectReader<T>(tableReader);
+                using (var adminOutput = await _kustoAdminProvider.ExecuteControlCommandAsync(DatabaseName, command))
+                {
+                }
+            }
+            catch (KustoRequestException exception) when (retryCount > 0 && exception.FailureCode == 401) // Unauthorized
+            {
+                RefreshAzureToken();
+                retryCount--;
+                await ExecuteControlCommandAsync(command, throwOnError, retryCount);
             }
             catch (Exception) when (!throwOnError)
             {
-                return null;
             }
         }
 
@@ -239,11 +251,19 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// </summary>
         /// <param name="query">The query.</param>
         /// <returns>The results.</returns>
-        public Task<IDataReader> ExecuteQueryAsync(string query, CancellationToken cancellationToken,
-            string databaseName = null)
+        public async Task<IEnumerable<T>> ExecuteQueryAsync<T>(string query, CancellationToken cancellationToken, string databaseName = null)
         {
-            var reader = ExecuteQuery(query, cancellationToken, databaseName);
-            return Task.FromResult(reader);
+            try
+            {
+                var resultReader = ExecuteQuery(query, cancellationToken, databaseName);
+                var results = KustoDataReaderParser.ParseV1(resultReader, null);
+                var tableReader = results[WellKnownDataSet.PrimaryResult].Single().TableData.CreateDataReader();
+                return await Task.FromResult(new ObjectReader<T>(tableReader));
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
         private void CancelQuery(string clientRequestId)
@@ -263,7 +283,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
             try
             {
-                using (var adminOutput = _kustoAdminProvider.ExecuteControlCommand(command, null))
+                using (var adminOutput = _kustoAdminProvider.ExecuteControlCommand(command))
                 {
                 }
             }
