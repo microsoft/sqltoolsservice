@@ -793,7 +793,8 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             ListDatabasesResponse response = new ListDatabasesResponse();
 
             // Mainly used by "manage" dashboard
-            if(listDatabasesParams.IncludeDetails.HasTrue()){
+            if (listDatabasesParams.IncludeDetails.HasTrue())
+            {
                 IEnumerable<DataSourceObjectMetadata> databaseMetadataInfo = dataSource.GetChildObjects(objectMetadata, true);
                 List<DatabaseInfo> metadata = MetadataFactory.ConvertToDatabaseInfo(databaseMetadataInfo);
                 response.Databases = metadata.ToArray();
@@ -802,7 +803,13 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             }
 
             IEnumerable<DataSourceObjectMetadata> databaseMetadata = dataSource.GetChildObjects(objectMetadata);
-            if(databaseMetadata != null) response.DatabaseNames = databaseMetadata.Select(objMeta => objMeta.PrettyName).ToArray();
+            if (databaseMetadata != null)
+            {
+                response.DatabaseNames = databaseMetadata
+                    .Select(objMeta => objMeta.PrettyName == objMeta.Name ? objMeta.PrettyName : $"{objMeta.PrettyName} ({objMeta.Name})")
+                    .ToArray();
+            }
+
             return response;
         }
 
