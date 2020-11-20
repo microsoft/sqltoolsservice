@@ -106,18 +106,15 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                     }
                 }
 
-                SmoScriptingOperation operation;
+                if (!ShouldCreateScriptAsOperation(parameters))
+                {
+                    throw new InvalidOperationException("Unable to create script.");
+                }
+                
                 var datasource = _connectionService.GetOrOpenConnection(parameters.OwnerUri, ConnectionType.Default)
                     .Result.GetUnderlyingConnection();
-                if (ShouldCreateScriptAsOperation(parameters))
-                {
-                    operation = new ScriptAsScriptingOperation(parameters, _scripter, datasource);
-                }
-                else
-                {
-                    operation = new ScriptingScriptOperation(parameters, datasource);
-                }
 
+                SmoScriptingOperation operation = new ScriptAsScriptingOperation(parameters, _scripter, datasource);
                 operation.PlanNotification += (sender, e) => requestContext.SendEvent(ScriptingPlanNotificationEvent.Type, e).Wait();
                 operation.ProgressNotification += (sender, e) => requestContext.SendEvent(ScriptingProgressNotificationEvent.Type, e).Wait();
                 operation.CompleteNotification += (sender, e) => this.SendScriptingCompleteEvent(requestContext, ScriptingCompleteEvent.Type, e, operation, parameters.ScriptDestination);
@@ -221,7 +218,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
             {
                 disposed = true;
                 
-                foreach (ScriptingScriptOperation operation in this.ActiveOperations.Values)
+                foreach (var operation in this.ActiveOperations.Values)
                 {
                     operation.Dispose();
                 }
