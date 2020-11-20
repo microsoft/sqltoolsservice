@@ -61,7 +61,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.DataSource
             
             var semanticMarkers = DataSourceFactory.GetDefaultSemanticMarkers(DataSourceType.Kusto, parseInfo, file, queryText);
             
-            Assert.AreNotEqual(0, semanticMarkers.Length);
+            Assert.AreEqual(0, semanticMarkers.Length);
         }
 
         [Test]

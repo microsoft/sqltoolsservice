@@ -65,7 +65,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.DataSource.DataSourceIntellisen
             var queryText = ".show databases";
             var completionItems = KustoIntellisenseHelper.GetDefaultDiagnostics(parseInfo, scriptFile, queryText);
             
-            Assert.AreEqual(6, completionItems.Length);
+            Assert.AreEqual(0, completionItems.Length);
         }
     }
 }

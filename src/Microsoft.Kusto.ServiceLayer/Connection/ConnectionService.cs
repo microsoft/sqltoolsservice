@@ -19,6 +19,7 @@ using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using System.Diagnostics;
+using Kusto.Data;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
@@ -30,7 +31,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
     /// </summary>
     public class ConnectionService
     {
-        private const string AdminConnectionPrefix = "ADMIN:";
         private const string PasswordPlaceholder = "******";
 
         /// <summary>
@@ -389,7 +389,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                 if (!string.IsNullOrEmpty(connectionInfo.ConnectionDetails.ConnectionString))
                 {
                     // If the connection was set up with a connection string, use the connection string to get the details
-                    var connectionString = new SqlConnectionStringBuilder(connection.ConnectionString);
+                    var connectionString = new KustoConnectionStringBuilder(connection.ConnectionString);
                     response.ConnectionSummary = new ConnectionSummary
                     {
                         ServerName = connectionString.DataSource,
@@ -548,19 +548,11 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             {
                 throw new InvalidOperationException(SR.ConnectionServiceDbErrorDefaultNotConnected(ownerUri));
             }
-
-            if (IsDedicatedAdminConnection(connectionInfo.ConnectionDetails))
+            
+            // Try to get the ReliableDataSourceClient and create if it doesn't already exist
+            if (!connectionInfo.TryGetConnection(connectionType, out connection) && ConnectionType.Default != connectionType)
             {
-                // Since this is a dedicated connection only 1 is allowed at any time. Return the default connection for use in the requested action
-                connection = defaultConnection;
-            }
-            else
-            {
-                // Try to get the ReliableDataSourceClient and create if it doesn't already exist
-                if (!connectionInfo.TryGetConnection(connectionType, out connection) && ConnectionType.Default != connectionType)
-                {
-                    connection = await TryOpenConnectionForConnectionType(ownerUri, connectionType, alwaysPersistSecurity, connectionInfo);
-                }
+                connection = await TryOpenConnectionForConnectionType(ownerUri, connectionType, alwaysPersistSecurity, connectionInfo);
             }
 
             return connection;
@@ -964,18 +956,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         }
 
         /// <summary>
-        /// Checks if a ConnectionDetails object represents a DAC connection
-        /// </summary>
-        /// <param name="connectionDetails"></param>
-        public static bool IsDedicatedAdminConnection(ConnectionDetails connectionDetails)
-        {
-            Validate.IsNotNull(nameof(connectionDetails), connectionDetails);
-            SqlConnectionStringBuilder builder = CreateConnectionStringBuilder(connectionDetails);
-            string serverName = builder.DataSource;
-            return serverName != null && serverName.StartsWith(AdminConnectionPrefix, StringComparison.OrdinalIgnoreCase);
-        }
-
-        /// <summary>
         /// Build a connection string from a connection details instance
         /// </summary>
         /// <param name="connectionDetails"></param>
@@ -988,152 +968,13 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// Build a connection string builder a connection details instance
         /// </summary>
         /// <param name="connectionDetails"></param>
-        private static SqlConnectionStringBuilder CreateConnectionStringBuilder(ConnectionDetails connectionDetails)
+        private static KustoConnectionStringBuilder CreateConnectionStringBuilder(ConnectionDetails connectionDetails)
         {
-            SqlConnectionStringBuilder connectionBuilder;
+            var stringBuilder = string.IsNullOrWhiteSpace(connectionDetails.ConnectionString)
+                ? new KustoConnectionStringBuilder(connectionDetails.ServerName, connectionDetails.DatabaseName)
+                : new KustoConnectionStringBuilder(connectionDetails.ConnectionString);
 
-            // If connectionDetails has a connection string already, use it to initialize the connection builder, then override any provided options.
-            // Otherwise use the server name, username, and password from the connection details.
-            if (!string.IsNullOrEmpty(connectionDetails.ConnectionString))
-            {
-                connectionBuilder = new SqlConnectionStringBuilder(connectionDetails.ConnectionString);
-            }
-            else
-            {
-                // add alternate port to data source property if provided
-                string dataSource = !connectionDetails.Port.HasValue
-                    ? connectionDetails.ServerName
-                    : string.Format("{0},{1}", connectionDetails.ServerName, connectionDetails.Port.Value);
-
-                connectionBuilder = new SqlConnectionStringBuilder
-                {
-                    ["Data Source"] = dataSource,
-                    ["User Id"] = connectionDetails.UserName,
-                    ["Password"] = connectionDetails.Password
-                };
-            }
-
-            // Check for any optional parameters
-            if (!string.IsNullOrEmpty(connectionDetails.DatabaseName))
-            {
-                connectionBuilder["Initial Catalog"] = connectionDetails.DatabaseName;
-            }
-            if (!string.IsNullOrEmpty(connectionDetails.AuthenticationType))
-            {
-                switch (connectionDetails.AuthenticationType)
-                {
-                    case "Integrated":
-                        connectionBuilder.IntegratedSecurity = true;
-                        break;
-                    case "SqlLogin":
-                        break;
-                    case "AzureMFA":
-                        connectionBuilder.UserID = "";
-                        connectionBuilder.Password = "";
-                        break;
-                    default:
-                        throw new ArgumentException(SR.ConnectionServiceConnStringInvalidAuthType(connectionDetails.AuthenticationType));
-                }
-            }
-            if (connectionDetails.Encrypt.HasValue)
-            {
-                connectionBuilder.Encrypt = connectionDetails.Encrypt.Value;
-            }
-            if (connectionDetails.TrustServerCertificate.HasValue)
-            {
-                connectionBuilder.TrustServerCertificate = connectionDetails.TrustServerCertificate.Value;
-            }
-            if (connectionDetails.PersistSecurityInfo.HasValue)
-            {
-                connectionBuilder.PersistSecurityInfo = connectionDetails.PersistSecurityInfo.Value;
-            }
-            if (connectionDetails.ConnectTimeout.HasValue)
-            {
-                connectionBuilder.ConnectTimeout = connectionDetails.ConnectTimeout.Value;
-            }
-            if (connectionDetails.ConnectRetryCount.HasValue)
-            {
-                connectionBuilder.ConnectRetryCount = connectionDetails.ConnectRetryCount.Value;
-            }
-            if (connectionDetails.ConnectRetryInterval.HasValue)
-            {
-                connectionBuilder.ConnectRetryInterval = connectionDetails.ConnectRetryInterval.Value;
-            }
-            if (!string.IsNullOrEmpty(connectionDetails.ApplicationName))
-            {
-                connectionBuilder.ApplicationName = connectionDetails.ApplicationName;
-            }
-            if (!string.IsNullOrEmpty(connectionDetails.WorkstationId))
-            {
-                connectionBuilder.WorkstationID = connectionDetails.WorkstationId;
-            }
-            if (!string.IsNullOrEmpty(connectionDetails.ApplicationIntent))
-            {
-                ApplicationIntent intent;
-                switch (connectionDetails.ApplicationIntent)
-                {
-                    case "ReadOnly":
-                        intent = ApplicationIntent.ReadOnly;
-                        break;
-                    case "ReadWrite":
-                        intent = ApplicationIntent.ReadWrite;
-                        break;
-                    default:
-                        throw new ArgumentException(SR.ConnectionServiceConnStringInvalidIntent(connectionDetails.ApplicationIntent));
-                }
-                connectionBuilder.ApplicationIntent = intent;
-            }
-            if (!string.IsNullOrEmpty(connectionDetails.CurrentLanguage))
-            {
-                connectionBuilder.CurrentLanguage = connectionDetails.CurrentLanguage;
-            }
-            if (connectionDetails.Pooling.HasValue)
-            {
-                connectionBuilder.Pooling = connectionDetails.Pooling.Value;
-            }
-            if (connectionDetails.MaxPoolSize.HasValue)
-            {
-                connectionBuilder.MaxPoolSize = connectionDetails.MaxPoolSize.Value;
-            }
-            if (connectionDetails.MinPoolSize.HasValue)
-            {
-                connectionBuilder.MinPoolSize = connectionDetails.MinPoolSize.Value;
-            }
-            if (connectionDetails.LoadBalanceTimeout.HasValue)
-            {
-                connectionBuilder.LoadBalanceTimeout = connectionDetails.LoadBalanceTimeout.Value;
-            }
-            if (connectionDetails.Replication.HasValue)
-            {
-                connectionBuilder.Replication = connectionDetails.Replication.Value;
-            }
-            if (!string.IsNullOrEmpty(connectionDetails.AttachDbFilename))
-            {
-                connectionBuilder.AttachDBFilename = connectionDetails.AttachDbFilename;
-            }
-            if (!string.IsNullOrEmpty(connectionDetails.FailoverPartner))
-            {
-                connectionBuilder.FailoverPartner = connectionDetails.FailoverPartner;
-            }
-            if (connectionDetails.MultiSubnetFailover.HasValue)
-            {
-                connectionBuilder.MultiSubnetFailover = connectionDetails.MultiSubnetFailover.Value;
-            }
-            if (connectionDetails.MultipleActiveResultSets.HasValue)
-            {
-                connectionBuilder.MultipleActiveResultSets = connectionDetails.MultipleActiveResultSets.Value;
-            }
-            if (connectionDetails.PacketSize.HasValue)
-            {
-                connectionBuilder.PacketSize = connectionDetails.PacketSize.Value;
-            }
-            if (!string.IsNullOrEmpty(connectionDetails.TypeSystemVersion))
-            {
-                connectionBuilder.TypeSystemVersion = connectionDetails.TypeSystemVersion;
-            }
-            connectionBuilder.Pooling = false;
-
-            return connectionBuilder;
+            return stringBuilder.WithAadUserTokenAuthentication(connectionDetails.AzureAccountToken);
         }
 
         /// <summary>
@@ -1194,38 +1035,15 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
         public ConnectionDetails ParseConnectionString(string connectionString)
         {
-            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connectionString);
-            ConnectionDetails details = new ConnectionDetails()
+            var builder = new KustoConnectionStringBuilder(connectionString);
+            return new ConnectionDetails
             {
-                ApplicationIntent = builder.ApplicationIntent.ToString(),
-                ApplicationName = builder.ApplicationName,
-                AttachDbFilename = builder.AttachDBFilename,
-                AuthenticationType = builder.IntegratedSecurity ? "Integrated" : "SqlLogin",
-                ConnectRetryCount = builder.ConnectRetryCount,
-                ConnectRetryInterval = builder.ConnectRetryInterval,
-                ConnectTimeout = builder.ConnectTimeout,
-                CurrentLanguage = builder.CurrentLanguage,
+                ApplicationName = builder.ApplicationNameForTracing,
+                AuthenticationType = "AzureMFA",
                 DatabaseName = builder.InitialCatalog,
-                Encrypt = builder.Encrypt,
-                FailoverPartner = builder.FailoverPartner,
-                LoadBalanceTimeout = builder.LoadBalanceTimeout,
-                MaxPoolSize = builder.MaxPoolSize,
-                MinPoolSize = builder.MinPoolSize,
-                MultipleActiveResultSets = builder.MultipleActiveResultSets,
-                MultiSubnetFailover = builder.MultiSubnetFailover,
-                PacketSize = builder.PacketSize,
-                Password = !builder.IntegratedSecurity ? builder.Password : string.Empty,
-                PersistSecurityInfo = builder.PersistSecurityInfo,
-                Pooling = builder.Pooling,
-                Replication = builder.Replication,
                 ServerName = builder.DataSource,
-                TrustServerCertificate = builder.TrustServerCertificate,
-                TypeSystemVersion = builder.TypeSystemVersion,
                 UserName = builder.UserID,
-                WorkstationId = builder.WorkstationID,
             };
-
-            return details;
         }
 
         /// <summary>
