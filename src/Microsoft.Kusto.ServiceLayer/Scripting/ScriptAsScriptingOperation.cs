@@ -14,6 +14,7 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.SqlScriptPublish;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using System.Diagnostics;
+using Kusto.Data;
 
 namespace Microsoft.Kusto.ServiceLayer.Scripting
 {
@@ -157,7 +158,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
             IEnumerable<ScriptingObject> selectedObjects = new List<ScriptingObject>(this.Parameters.ScriptingObjects);
 
             _serverName = dataSource.ClusterName;
-            _databaseName = new SqlConnectionStringBuilder(this.Parameters.ConnectionString).InitialCatalog;
+            _databaseName = new KustoConnectionStringBuilder(this.Parameters.ConnectionString).InitialCatalog;
             UrnCollection urnCollection = new UrnCollection();
             foreach (var scriptingObject in selectedObjects)
             {

@@ -7,10 +7,10 @@ using Microsoft.Kusto.ServiceLayer.Scripting.Contracts;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.SqlTools.Utility;
 using System;
-using System.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using Kusto.Data;
 using static Microsoft.SqlServer.Management.SqlScriptPublish.SqlScriptOptions;
 
 namespace Microsoft.Kusto.ServiceLayer.Scripting
@@ -82,7 +82,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         {
             try
             {
-                SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(this.Parameters.ConnectionString);
+                var builder = new KustoConnectionStringBuilder(this.Parameters.ConnectionString);
             }
             catch (Exception e)
             {

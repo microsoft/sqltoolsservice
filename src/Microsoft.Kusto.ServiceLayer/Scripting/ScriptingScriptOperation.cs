@@ -5,9 +5,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
+using Kusto.Data;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.SqlServer.Management.SqlScriptPublish;
 using Microsoft.Kusto.ServiceLayer.Scripting.Contracts;
@@ -202,7 +202,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                     string.Join(", ", selectedObjects)));
 
             string server = GetServerNameFromLiveInstance();
-            string database = new SqlConnectionStringBuilder(this.Parameters.ConnectionString).InitialCatalog;
+            string database = new KustoConnectionStringBuilder(this.Parameters.ConnectionString).InitialCatalog;
 
             foreach (ScriptingObject scriptingObject in selectedObjects)
             {
