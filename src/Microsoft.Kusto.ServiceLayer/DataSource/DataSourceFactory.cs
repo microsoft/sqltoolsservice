@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Composition;
-using Microsoft.Kusto.ServiceLayer.Utility;
+using System.Diagnostics;
+using System.IO;
+using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
+using Microsoft.Kusto.ServiceLayer.DataSource.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
@@ -13,22 +16,56 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
     [Export(typeof(IDataSourceFactory))]
     public class DataSourceFactory : IDataSourceFactory
     {
-        public IDataSource Create(DataSourceType dataSourceType, string connectionString, string azureAccountToken, string ownerUri)
+        public IDataSource Create(DataSourceType dataSourceType, ConnectionDetails connectionDetails, string ownerUri)
         {
-            ValidationUtils.IsArgumentNotNullOrWhiteSpace(connectionString, nameof(connectionString));
-            ValidationUtils.IsArgumentNotNullOrWhiteSpace(azureAccountToken, nameof(azureAccountToken));
-
             switch (dataSourceType)
             {
                 case DataSourceType.Kusto:
                 {
-                    var kustoClient = new KustoClient(connectionString, azureAccountToken, ownerUri);
+                    var kustoConnectionDetails = MapKustoConnectionDetails(connectionDetails);
+                    var kustoClient = new KustoClient(kustoConnectionDetails, ownerUri);
                     return new KustoDataSource(kustoClient);
                 }
 
                 default:
                     throw new ArgumentException($"Unsupported data source type \"{dataSourceType}\"",
                         nameof(dataSourceType));
+            }
+        }
+
+        private KustoConnectionDetails MapKustoConnectionDetails(ConnectionDetails connectionDetails)
+        {
+            var kustoConnectionDetails = new KustoConnectionDetails
+            {
+                ServerName = connectionDetails.ServerName,
+                DatabaseName = connectionDetails.DatabaseName,
+                ConnectionString = connectionDetails.ConnectionString,
+                AuthenticationType = connectionDetails.AuthenticationType
+            };
+
+            kustoConnectionDetails.UserToken = kustoConnectionDetails.AuthenticationType == "AzureMFA" 
+                ? connectionDetails.AzureAccountToken 
+                : GetDstsAuthToken(connectionDetails.ServerName, connectionDetails.DatabaseName);
+
+            return kustoConnectionDetails;
+        }
+
+        private string GetDstsAuthToken(string clusterName, string databaseName)
+        {
+            using (var process = new Process())
+            {
+                process.StartInfo.FileName =
+                    @"C:\Git\dSTSTokenApp\dSTSTokenApp\bin\Debug\dSTSTokenApp.exe";
+                process.StartInfo.Arguments = $"{clusterName} {databaseName}";
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.RedirectStandardOutput = true;
+                process.Start();
+
+                StreamReader reader = process.StandardOutput;
+                string token = reader.ReadToEnd();
+
+                process.WaitForExit();
+                return token;
             }
         }
 

@@ -24,6 +24,7 @@ using System;
 using System.Data.SqlClient;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.Kusto.ServiceLayer.DataSource;
@@ -41,8 +42,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         private RetryPolicy _commandRetryPolicy;
         private readonly Guid _azureSessionId = Guid.NewGuid();
 
-        private readonly string _connectionString;
-        private string _azureAccountToken;
+        private readonly ConnectionDetails _connectionDetails;
         private readonly IDataSourceFactory _dataSourceFactory;
         private readonly string _ownerUri;
 
@@ -51,20 +51,18 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// and a policy defining whether to retry a request if the connection fails to be opened or a command
         /// fails to be successfully executed.
         /// </summary>
-        /// <param name="connectionString">The connection string used to open the SQL Azure database.</param>
+        /// <param name="connectionDetails"></param>
         /// <param name="connectionRetryPolicy">The retry policy defining whether to retry a request if a connection fails to be established.</param>
         /// <param name="commandRetryPolicy">The retry policy defining whether to retry a request if a command fails to be executed.</param>
-        /// <param name="azureAccountToken"></param>
         /// <param name="dataSourceFactory"></param>
         /// <param name="ownerUri"></param>
-        public ReliableDataSourceConnection(string connectionString, RetryPolicy connectionRetryPolicy,
-            RetryPolicy commandRetryPolicy, string azureAccountToken, IDataSourceFactory dataSourceFactory, string ownerUri)
+        public ReliableDataSourceConnection(ConnectionDetails connectionDetails, RetryPolicy connectionRetryPolicy,
+            RetryPolicy commandRetryPolicy, IDataSourceFactory dataSourceFactory, string ownerUri)
         {
-            _connectionString = connectionString;
-            _azureAccountToken = azureAccountToken;
+            _connectionDetails = connectionDetails;
             _dataSourceFactory = dataSourceFactory;
             _ownerUri = ownerUri;
-            _dataSource = dataSourceFactory.Create(DataSourceType.Kusto, connectionString, azureAccountToken, ownerUri);
+            _dataSource = dataSourceFactory.Create(DataSourceType.Kusto, connectionDetails, ownerUri);
             
             _connectionRetryPolicy = connectionRetryPolicy ?? RetryPolicyFactory.CreateNoRetryPolicy();
             _commandRetryPolicy = commandRetryPolicy ?? RetryPolicyFactory.CreateNoRetryPolicy();
@@ -193,7 +191,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             {
                 _connectionRetryPolicy.ExecuteAction(() =>
                 {
-                    _dataSource = _dataSourceFactory.Create(DataSourceType.Kusto, _connectionString, _azureAccountToken, _ownerUri);
+                    _dataSource = _dataSourceFactory.Create(DataSourceType.Kusto, _connectionDetails, _ownerUri);
                 });
             }
         }
@@ -253,7 +251,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
         public void UpdateAzureToken(string token)
         {
-            _azureAccountToken = token;
+            _connectionDetails.AzureAccountToken = token;
         }
     }
 }

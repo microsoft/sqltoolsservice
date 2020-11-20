@@ -137,7 +137,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
 
         private SqlScriptPublishModel BuildPublishModel()
         {
-            SqlScriptPublishModel publishModel = new SqlScriptPublishModel(this.Parameters.ConnectionString);
+            SqlScriptPublishModel publishModel = new SqlScriptPublishModel(this.Parameters.DatabaseName);
 
             // See if any filtering criteria was specified.  If not, we're scripting the entire database.  Otherwise, the filtering
             // criteria should include the target objects to script.
@@ -202,7 +202,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                     string.Join(", ", selectedObjects)));
 
             string server = GetServerNameFromLiveInstance();
-            string database = new KustoConnectionStringBuilder(this.Parameters.ConnectionString).InitialCatalog;
+            string database = Parameters.DatabaseName;
 
             foreach (ScriptingObject scriptingObject in selectedObjects)
             {

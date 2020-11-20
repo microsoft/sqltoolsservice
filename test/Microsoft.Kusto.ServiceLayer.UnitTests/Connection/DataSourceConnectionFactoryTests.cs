@@ -1,4 +1,5 @@
 using Microsoft.Kusto.ServiceLayer.Connection;
+using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 using Moq;
 using NUnit.Framework;
@@ -12,7 +13,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.Connection
         {
             var dataSourceFactoryMock = new Mock<IDataSourceFactory>(); 
             var connectionFactory = new DataSourceConnectionFactory(dataSourceFactoryMock.Object);
-            var connection = connectionFactory.CreateDataSourceConnection("", "", "");
+            var connection = connectionFactory.CreateDataSourceConnection(new ConnectionDetails(), "");
             
             Assert.IsNotNull(connection);
         }
