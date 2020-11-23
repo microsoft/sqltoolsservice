@@ -48,6 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             serviceHost.SetRequestHandler(GenerateDeployPlanRequest.Type, this.HandleGenerateDeployPlanRequest);
             serviceHost.SetRequestHandler(GetOptionsFromProfileRequest.Type, this.HandleGetOptionsFromProfileRequest);
             serviceHost.SetRequestHandler(ValidateStreamingJobRequest.Type, this.HandleValidateStreamingJobRequest);
+            serviceHost.SetRequestHandler(GetDefaultPublishOptionsRequest.Type, this.HandleGetDefaultPublishOptions);
         }
 
         /// <summary>
@@ -239,7 +240,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     DacProfile profile = DacProfile.Load(parameters.ProfilePath);
                     if (profile.DeployOptions != null)
                     {
-                        options = new DeploymentOptions();
+                        options = DeploymentOptions.GetDefaultPublishOptions();
                         await options.InitializeFromProfile(profile.DeployOptions, parameters.ProfilePath);
                     }
                 }
@@ -273,6 +274,35 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             catch (Exception e)
             {
                 await requestContext.SendError(e);
+            }
+        }
+
+        /// <summary>
+        /// Handles request to create default publish options for DacFx
+        /// </summary>
+        /// <returns></returns>
+        public async Task HandleGetDefaultPublishOptions(GetDefaultPublishOptionsParams parameters, RequestContext<DacFxOptionsResult> requestContext)
+        {
+            try
+            {
+                // this does not need to be an async operation since this only creates and returns the default object
+                DeploymentOptions options = DeploymentOptions.GetDefaultPublishOptions();
+
+                await requestContext.SendResult(new DacFxOptionsResult()
+                {
+                    DeploymentOptions = options,
+                    Success = true,
+                    ErrorMessage = null
+                });
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendResult(new DacFxOptionsResult()
+                {
+                    DeploymentOptions = null,
+                    Success = false,
+                    ErrorMessage = e.Message
+                });
             }
         }
 

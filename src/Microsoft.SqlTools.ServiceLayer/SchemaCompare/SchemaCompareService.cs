@@ -278,8 +278,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         {
             try
             {
-                // this does not need to be an async operation since this only creates and resturn the default opbject
-                DeploymentOptions options = new DeploymentOptions();
+                // this does not need to be an async operation since this only creates and returns the default object
+                DeploymentOptions options = DeploymentOptions.GetDefaultSchemaCompareOptions();
 
                 await requestContext.SendResult(new SchemaCompareOptionsResult()
                 {
