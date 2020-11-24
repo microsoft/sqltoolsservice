@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     }
 
     /// <summary>
-    /// Defines the DacFx get options from profile request type
+    /// Defines the DacFx get default publish options request type
     /// </summary>
     class GetDefaultPublishOptionsRequest
     {

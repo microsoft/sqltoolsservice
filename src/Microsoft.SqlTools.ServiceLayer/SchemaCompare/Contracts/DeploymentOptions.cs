@@ -304,12 +304,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
             }
         }
 
-        internal static DeploymentOptions GetDefaultSchemaCompareOptions()
+        public static DeploymentOptions GetDefaultSchemaCompareOptions()
         {
             return new DeploymentOptions();
         }
 
-        internal static DeploymentOptions GetDefaultPublishOptions()
+        public static DeploymentOptions GetDefaultPublishOptions()
         {
             DeploymentOptions result = new DeploymentOptions();
 

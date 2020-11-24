@@ -772,7 +772,7 @@ FROM MissingEdgeHubInputStream'";
         }
 
         /// <summary>
-        /// Verify the schema compare default creation test
+        /// Verify the default dacFx options for publishing
         /// </summary>
         [Test]
         public async Task ValidateGetDefaultPublishOptionsCallFromService()
