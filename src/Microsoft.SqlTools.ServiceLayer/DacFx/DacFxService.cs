@@ -48,7 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             serviceHost.SetRequestHandler(GenerateDeployPlanRequest.Type, this.HandleGenerateDeployPlanRequest);
             serviceHost.SetRequestHandler(GetOptionsFromProfileRequest.Type, this.HandleGetOptionsFromProfileRequest);
             serviceHost.SetRequestHandler(ValidateStreamingJobRequest.Type, this.HandleValidateStreamingJobRequest);
-            serviceHost.SetRequestHandler(GetDefaultPublishOptionsRequest.Type, this.HandleGetDefaultPublishOptions);
+            serviceHost.SetRequestHandler(GetDefaultPublishOptionsRequest.Type, this.HandleGetDefaultPublishOptionsRequest);
         }
 
         /// <summary>
@@ -281,7 +281,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// Handles request to create default publish options for DacFx
         /// </summary>
         /// <returns></returns>
-        public async Task HandleGetDefaultPublishOptions(GetDefaultPublishOptionsParams parameters, RequestContext<DacFxOptionsResult> requestContext)
+        public async Task HandleGetDefaultPublishOptionsRequest(GetDefaultPublishOptionsParams parameters, RequestContext<DacFxOptionsResult> requestContext)
         {
             try
             {

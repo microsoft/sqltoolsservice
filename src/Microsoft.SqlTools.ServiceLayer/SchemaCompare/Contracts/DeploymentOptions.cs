@@ -313,7 +313,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
         {
             DeploymentOptions result = new DeploymentOptions();
 
-            result.ExcludeObjectTypes = (ObjectType[])result.ExcludeObjectTypes.Where(x => x != ObjectType.DatabaseScopedCredentials); // re-include database-scoped credentials
+            result.ExcludeObjectTypes = result.ExcludeObjectTypes.Where(x => x != ObjectType.DatabaseScopedCredentials).ToArray(); // re-include database-scoped credentials
 
             return result;
         }

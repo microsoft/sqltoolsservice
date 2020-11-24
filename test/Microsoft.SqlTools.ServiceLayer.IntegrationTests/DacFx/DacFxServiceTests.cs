@@ -725,13 +725,12 @@ FROM MissingEdgeHubInputStream'";
         [Test]
         public async Task GetOptionsFromProfile()
         {
-            DeploymentOptions expectedResults = new DeploymentOptions()
-            {
-                ExcludeObjectTypes = null,
-                IncludeCompositeObjects = true,
-                BlockOnPossibleDataLoss = true,
-                AllowIncompatiblePlatform = true
-            };
+            DeploymentOptions expectedResults = DeploymentOptions.GetDefaultPublishOptions();
+
+            expectedResults.ExcludeObjectTypes = null;
+            expectedResults.IncludeCompositeObjects = true;
+            expectedResults.BlockOnPossibleDataLoss = true;
+            expectedResults.AllowIncompatiblePlatform = true;
 
             var dacfxRequestContext = new Mock<RequestContext<DacFxOptionsResult>>();
             dacfxRequestContext.Setup((RequestContext<DacFxOptionsResult> x) => x.SendResult(It.Is<DacFxOptionsResult>((result) => ValidateOptions(expectedResults, result.DeploymentOptions) == true))).Returns(Task.FromResult(new object()));
@@ -754,7 +753,7 @@ FROM MissingEdgeHubInputStream'";
         [Test]
         public async Task GetOptionsFromProfileWithoutOptions()
         {
-            DeploymentOptions expectedResults = new DeploymentOptions();
+            DeploymentOptions expectedResults = DeploymentOptions.GetDefaultPublishOptions();
             expectedResults.ExcludeObjectTypes = null;
 
             var dacfxRequestContext = new Mock<RequestContext<DacFxOptionsResult>>();
@@ -770,6 +769,23 @@ FROM MissingEdgeHubInputStream'";
 
             await service.HandleGetOptionsFromProfileRequest(getOptionsFromProfileParams, dacfxRequestContext.Object);
             dacfxRequestContext.VerifyAll();
+        }
+
+        /// <summary>
+        /// Verify the schema compare default creation test
+        /// </summary>
+        [Test]
+        public async Task ValidateGetDefaultPublishOptionsCallFromService()
+        {
+            DeploymentOptions expectedResults = DeploymentOptions.GetDefaultPublishOptions();
+
+            var dacfxRequestContext = new Mock<RequestContext<DacFxOptionsResult>>();
+            dacfxRequestContext.Setup((RequestContext<DacFxOptionsResult> x) => x.SendResult(It.Is<DacFxOptionsResult>((result) => ValidateOptions(expectedResults, result.DeploymentOptions) == true))).Returns(Task.FromResult(new object()));
+
+            GetDefaultPublishOptionsParams p = new GetDefaultPublishOptionsParams();
+
+            DacFxService service = new DacFxService();
+            await service.HandleGetDefaultPublishOptionsRequest(p, dacfxRequestContext.Object);
         }
 
         /// <summary>
