@@ -8,7 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Dac;
 
-namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
+namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 {
     /// <summary>
     /// Class to define deployment options. 

@@ -2,16 +2,17 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
-using Microsoft.SqlServer.Dac;
-using Microsoft.SqlServer.Dac.Compare;
-using Microsoft.SqlServer.Dac.Model;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Microsoft.SqlServer.Dac;
+using Microsoft.SqlServer.Dac.Compare;
+using Microsoft.SqlServer.Dac.Model;
+using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
+using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 {
