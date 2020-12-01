@@ -1,0 +1,15 @@
+{
+  "Projects": [
+    {
+      "LanguageSet": "AzureKatal_Languages",
+      "LocItems": [
+        {
+          "SourceFile": "sqltoolsservice\\src\\Microsoft.SqlTools.ServiceLayer\\Localization\\sr.resx",
+          "LclFile": "sqltoolsservice\\src\\Microsoft.SqlTools.ServiceLayer\\Localization\\LCL\\{Lang}\\sr.resx.lcl",
+          "CopyOption": "LangIDOnName",
+		  "OutputPath": "sqltoolsservice\\src\\Microsoft.SqlTools.ServiceLayer\\Localization"
+        }
+      ]
+    }
+  ]
+}
