@@ -68,6 +68,13 @@ The build script itself is `build.cake`, written in Cake's C#-like DSL using the
 **SRGen**: Generates a new version of the `sr.resx`, `sr.cs`, and `sr.designer.cs` files that contain
   the string resources defined in `sr.strings`. Run this after adding a new string to `sr.strings`
 
+## Common Issues
+
+### Can't download all Nuget packages (Underlying connection was closed)
+
+If you're having issues installing all of the Nuget packages from the `build.(cmd|ps1|sh)` it may be because TLS 1.2 is disabled on your machine. See https://stackoverflow.com/questions/20445638/nuget-fails-the-underlying-connection-was-closed-an-unexpected-error-occurred for more details and ways to fix it.
+
+
 ## Cake Configuration files
 
 ### build.json
