@@ -118,65 +118,65 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ConnectionServiceConnectErrorNullParams" xml:space="preserve">
-    <value>接続パラメーターを null にすることはできません</value>
+    <value>連線參數不能是 Null</value>
     <comment></comment>
   </data>
   <data name="ConnectionServiceListDbErrorNullOwnerUri" xml:space="preserve">
-    <value>OwnerUri を null または空にすることはできません</value>
+    <value>OwnerUri 不能是 Null 或空白</value>
     <comment></comment>
   </data>
   <data name="ConnectionServiceListDbErrorNotConnected" xml:space="preserve">
-    <value>SpecifiedUri '{0}' には、既存の接続はありません</value>
+    <value>SpecifiedUri '{0}' 沒有現有的連線</value>
     <comment>.
  Parameters: 0 - uri (string) </comment>
   </data>
   <data name="ConnectionServiceDbErrorDefaultNotConnected" xml:space="preserve">
-    <value>指定された URI '{0}' には既定の接続はありません</value>
+    <value>指定的 URI '{0}' 沒有預設的連線</value>
     <comment>.
  Parameters: 0 - uri (string) </comment>
   </data>
   <data name="ConnectionServiceConnStringInvalidAuthType" xml:space="preserve">
-    <value>AuthenticationType の値 '{0}' が無効です。有効な値は 'Integrated' または 'SqlLogin' です。</value>
+    <value>AuthenticationType 值 "{0}" 無效。有效值為 'Integrated' 和 'SqlLogin'。</value>
     <comment>.
  Parameters: 0 - authType (string) </comment>
   </data>
   <data name="ConnectionServiceConnStringInvalidColumnEncryptionSetting" xml:space="preserve">
-    <value>ComlumEncryption の値 '{0}' が無効です。有効な値は 'Enabled' と 'Disabled' です。</value>
+    <value>ComlumEncryption 的值 '{0}' 無效。有效值為 'Enabled' 及 'Disabled'。</value>
     <comment>.
  Parameters: 0 - columnEncryptionSetting (string) </comment>
   </data>
   <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
-    <value>EnclaveAttestationProtocol の値 '{0}' が無効です。有効な値は、'AAS' と 'HGS' です。</value>
+    <value>EnclaveAttestationProtocol 的值 '{0}' 無效。有效值為 'AAS' 及 'HGS'。</value>
     <comment>.
  Parameters: 0 - enclaveAttestationProtocol (string) </comment>
   </data>
   <data name="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination" xml:space="preserve">
-    <value>構成証明プロトコルおよびエンクレーブ構成証明の URL では、Always Encrypted を Enabled に設定することが必要です。</value>
+    <value>證明通訊協定與記憶體保護區證明 URL 需要將 Always Encrypted 設定為「啟用」。</value>
     <comment></comment>
   </data>
   <data name="ConnectionServiceConnStringInvalidIntent" xml:space="preserve">
-    <value>ApplicationIntent の値 '{0}' が無効です。有効な値は 'ReadWrite' または 'ReadOnly' です。</value>
+    <value>ApplicationIntent 值 '{0}' 無效。有效值為 'ReadWrite' 和 'ReadOnly'。</value>
     <comment>.
  Parameters: 0 - intent (string) </comment>
   </data>
   <data name="ConnectionServiceConnectionCanceled" xml:space="preserve">
-    <value>接続がキャンセルされました</value>
+    <value>已取消連線</value>
     <comment></comment>
   </data>
   <data name="ConnectionParamsValidateNullOwnerUri" xml:space="preserve">
-    <value>OwnerUri を null または空にすることはできません</value>
+    <value>OwnerUri 不能是 Null 或空白</value>
     <comment></comment>
   </data>
   <data name="ConnectionParamsValidateNullConnection" xml:space="preserve">
-    <value>接続の詳細オブジェクトを null にすることはできません</value>
+    <value>連線詳細資料物件不能是 Null</value>
     <comment></comment>
   </data>
   <data name="ConnectionParamsValidateNullServerName" xml:space="preserve">
-    <value>ServerName を null または空にすることはできません</value>
+    <value>ServerName 不能是 Null 或空白</value>
     <comment></comment>
   </data>
   <data name="ConnectionParamsValidateNullSqlAuth" xml:space="preserve">
-    <value>SqlLogin 認証を使用する場合に、{0} を null または空にすることはできません</value>
+    <value>使用 SqlLogin 驗證時，{0} 不能是 Null 或是空白</value>
     <comment>.
  Parameters: 0 - component (string) </comment>
   </data>
@@ -185,7 +185,7 @@
     <comment></comment>
   </data>
   <data name="AzureSqlDwEdition" xml:space="preserve">
-    <value>Azure SQL Data Warehouse</value>
+    <value>Azure SQL 資料倉儲</value>
     <comment></comment>
   </data>
   <data name="AzureSqlStretchEdition" xml:space="preserve">
@@ -193,82 +193,82 @@
     <comment></comment>
   </data>
   <data name="AzureSqlAnalyticsOnDemandEdition" xml:space="preserve">
-    <value>Azure SQL Analytics on-demand</value>
+    <value>Azure SQL 隨需分析</value>
     <comment></comment>
   </data>
   <data name="QueryServiceCancelAlreadyCompleted" xml:space="preserve">
-    <value>クエリは既に完了して、取り消すことができません</value>
+    <value>查詢已完成，無法取消</value>
     <comment></comment>
   </data>
   <data name="QueryServiceCancelDisposeFailed" xml:space="preserve">
-    <value>クエリのキャンセルに成功しましたが、クエリの破棄に失敗しました。OwnerURI が見つかりません。</value>
+    <value>已成功取消查詢，無法處置查詢。找不到擁有者 URI。</value>
     <comment></comment>
   </data>
   <data name="QueryServiceQueryCancelled" xml:space="preserve">
-    <value>クエリはユーザーによってキャンセルされました</value>
+    <value>使用者已取消查詢</value>
     <comment></comment>
   </data>
   <data name="QueryServiceSubsetBatchNotCompleted" xml:space="preserve">
-    <value>バッチがまだ完了していません</value>
+    <value>批次尚未完成</value>
     <comment></comment>
   </data>
   <data name="QueryServiceSubsetBatchOutOfRange" xml:space="preserve">
-    <value>バッチのインデックスは、0 未満あるいは、バッチの数より大きい値にすることはできません</value>
+    <value>批次索引不能小於 0 或大於批次的總數</value>
     <comment></comment>
   </data>
   <data name="QueryServiceSubsetResultSetOutOfRange" xml:space="preserve">
-    <value>結果セットのインデックスは、0 未満あるいは、結果セットの数より大きい値にすることはできません</value>
+    <value>結果集索引不能小於 0 或大於結果集的總數</value>
     <comment></comment>
   </data>
   <data name="QueryServiceDataReaderByteCountInvalid" xml:space="preserve">
-    <value>戻り値の最大バイト数は 0 より大きくする必要があります</value>
+    <value>傳回的最大位元組數目必須大於零</value>
     <comment></comment>
   </data>
   <data name="QueryServiceDataReaderCharCountInvalid" xml:space="preserve">
-    <value>戻り値の最大文字数は 0 より大きくする必要があります</value>
+    <value>傳回的最大字元數目必須大於零</value>
     <comment></comment>
   </data>
   <data name="QueryServiceDataReaderXmlCountInvalid" xml:space="preserve">
-    <value>戻り値の最大の XML バイト数は 0 より大きくする必要があります</value>
+    <value>傳回的最大 XML 位元組數目必須大於零</value>
     <comment></comment>
   </data>
   <data name="QueryServiceFileWrapperWriteOnly" xml:space="preserve">
-    <value>アクセス メソッドを書き込み専用にすることはできません</value>
+    <value>存取方法不可以設為唯寫</value>
     <comment></comment>
   </data>
   <data name="QueryServiceFileWrapperNotInitialized" xml:space="preserve">
-    <value>FileStreamWrapper は、操作を実行する前に初期化されなければなりません</value>
+    <value>執行作業前，必須先初始化 FileStreamWrapper</value>
     <comment></comment>
   </data>
   <data name="QueryServiceFileWrapperReadOnly" xml:space="preserve">
-    <value>この FileStreamWrapper は、書き込みには利用できません</value>
+    <value>這個 FileStreamWrapper 不能用於寫入</value>
     <comment></comment>
   </data>
   <data name="QueryServiceAffectedOneRow" xml:space="preserve">
-    <value>(1 行に影響しました)</value>
+    <value>(1 列受影響)</value>
     <comment></comment>
   </data>
   <data name="QueryServiceAffectedRows" xml:space="preserve">
-    <value>({0} 行に影響しました)</value>
+    <value>({0} 個資料列受到影響)</value>
     <comment>.
  Parameters: 0 - rows (long) </comment>
   </data>
   <data name="QueryServiceCompletedSuccessfully" xml:space="preserve">
-    <value>コマンドが正常に完了しました。</value>
+    <value>命令已順利完成。</value>
     <comment></comment>
   </data>
   <data name="QueryServiceErrorFormat" xml:space="preserve">
-    <value>メッセージ {0}、レベル {1}、状態 {2}、行 {3}{4}{5}</value>
+    <value>訊息 {0}，層級 {1}，狀態 {2}，第 {3} {4} {5} 行</value>
     <comment>.
  Parameters: 0 - msg (int), 1 - lvl (int), 2 - state (int), 3 - line (int), 4 - newLine (string), 5 - message (string) </comment>
   </data>
   <data name="QueryServiceQueryFailed" xml:space="preserve">
-    <value>クエリに失敗しました: {0}</value>
+    <value>查詢失敗︰{0}</value>
     <comment>.
  Parameters: 0 - message (string) </comment>
   </data>
   <data name="QueryServiceColumnNull" xml:space="preserve">
-    <value>(列名なし)</value>
+    <value>(沒有資料行名稱)</value>
     <comment></comment>
   </data>
   <data name="QueryServiceCellNull" xml:space="preserve">
@@ -276,7 +276,7 @@
     <comment></comment>
   </data>
   <data name="QueryServiceRequestsNoQuery" xml:space="preserve">
-    <value>要求されたクエリは存在しません</value>
+    <value>所要求的查詢不存在</value>
     <comment></comment>
   </data>
   <data name="QueryServiceQueryInvalidOwnerUri" xml:space="preserve">
@@ -284,285 +284,285 @@
     <comment></comment>
   </data>
   <data name="QueryServiceQueryInProgress" xml:space="preserve">
-    <value>このエディター セッションのクエリは既に実行中です。このクエリをキャンセルするか、完了まで待ってください。</value>
+    <value>此編輯器工作階段正在進行一項查詢。請取消這項查詢，或等待查詢完成。</value>
     <comment></comment>
   </data>
   <data name="QueryServiceMessageSenderNotSql" xml:space="preserve">
-    <value>OnInfoMessage イベントのセンダーは、SqlConnection である必要があります</value>
+    <value>OnInfoMessage 事件的傳送者必須是 SqlConnection</value>
     <comment></comment>
   </data>
   <data name="QueryServiceResultSetAddNoRows" xml:space="preserve">
-    <value>結果バッファーへ行を追加できません。データ リーダーは行を含んでいません</value>
+    <value>無法在結果緩衝區新增資料列，資料讀取器不包含資料列</value>
     <comment></comment>
   </data>
   <data name="QueryServiceResultSetHasNoResults" xml:space="preserve">
-    <value>クエリは結果を返しませんでした</value>
+    <value>沒有查詢結果可以回傳</value>
     <comment></comment>
   </data>
   <data name="QueryServiceResultSetTooLarge" xml:space="preserve">
-    <value>結果セットの行数が多すぎるため、安全にロードすることはできません</value>
+    <value>結果集因資料列過多而無法安全載入</value>
     <comment></comment>
   </data>
   <data name="QueryServiceSaveAsResultSetNotComplete" xml:space="preserve">
-    <value>クエリの実行が完了するまで、結果を保存することはできません</value>
+    <value>完成查詢執行前無法儲存結果</value>
     <comment></comment>
   </data>
   <data name="QueryServiceSaveAsMiscStartingError" xml:space="preserve">
-    <value>保存タスクの開始中に内部エラーが発生しました</value>
+    <value>儲存工作啟動時，發生內部錯誤</value>
     <comment></comment>
   </data>
   <data name="QueryServiceSaveAsInProgress" xml:space="preserve">
-    <value>同一のパスへの保存要求を実行中です</value>
+    <value>相同路徑的儲存要求正在進行中</value>
     <comment></comment>
   </data>
   <data name="QueryServiceSaveAsFail" xml:space="preserve">
-    <value>{0} を保存できませんでした: {1}</value>
+    <value>無法儲存 {0}: {1}</value>
     <comment>.
  Parameters: 0 - fileName (string), 1 - message (string) </comment>
   </data>
   <data name="QueryServiceResultSetNotRead" xml:space="preserve">
-    <value>サーバーから結果が受信されていなければ、サブセットを読み取ることができません</value>
+    <value>從伺服器讀取結果前，無法讀取子集</value>
     <comment></comment>
   </data>
   <data name="QueryServiceResultSetStartRowOutOfRange" xml:space="preserve">
-    <value>開始行は 0 未満あるいは、結果セット内の行数より大きい値にすることはできません</value>
+    <value>開始資料列不能小於 0 或大於結果集中的資料列總數</value>
     <comment></comment>
   </data>
   <data name="QueryServiceResultSetRowCountOutOfRange" xml:space="preserve">
-    <value>行数は正の整数でなければなりません</value>
+    <value>資料列計數必須是正整數</value>
     <comment></comment>
   </data>
   <data name="QueryServiceResultSetNoColumnSchema" xml:space="preserve">
-    <value>結果セットの列のスキーマを取得できませんでした</value>
+    <value>無法從結果集擷取資料行結構描述</value>
     <comment></comment>
   </data>
   <data name="QueryServiceExecutionPlanNotFound" xml:space="preserve">
-    <value>結果セットから実行プランを取得できませんでした </value>
+    <value>無法從結果集擷取執行計畫</value>
     <comment></comment>
   </data>
   <data name="SqlCmdExitOnError" xml:space="preserve">
-    <value>バッチの実行中にエラーが発生しました。終了します。</value>
+    <value>執行批次期間發生錯誤，結束中。</value>
     <comment></comment>
   </data>
   <data name="SqlCmdUnsupportedToken" xml:space="preserve">
-    <value>サポートされていないトークン {0} が見つかりました</value>
+    <value>發現不支援的權杖 {0}</value>
     <comment></comment>
   </data>
   <data name="ParameterizationDetails" xml:space="preserve">
-    <value>{0} は、次のプロパティを使用して Microsoft.Data.SqlClient.SqlParameter オブジェクトに変換されます: SqlDbType = {1}、サイズ = {2}、有効桁数 = {3}、小数点以下桁数 = {4}、SqlValue = {5}</value>
+    <value>{0} 將會轉換成具下列屬性的 Microsoft.Data.SqlClient.SqlParameter 物件: SqlDbType = {1}，Size = {2}，Precision = {3}，Scale = {4}，SqlValue = {5}</value>
     <comment>.
  Parameters: 0 - variableName (string), 1 - sqlDbType (string), 2 - size (int), 3 - precision (int), 4 - scale (int), 5 - sqlValue (string) </comment>
   </data>
   <data name="ErrorMessageHeader" xml:space="preserve">
-    <value>行 {0}</value>
+    <value>第 {0} 行</value>
     <comment>.
  Parameters: 0 - lineNumber (int) </comment>
   </data>
   <data name="ErrorMessage" xml:space="preserve">
-    <value>{0} を Microsoft.Data.SqlClient.SqlParameter オブジェクトに変換できません。指定されたリテラルを {1}(Microsoft.Data.SqlDbType) に変換できません。リテラル値: {2} </value>
+    <value>無法將 {0} 轉換為 Microsoft.Data.SqlClient.SqlParameter 物件。指定的常值無法轉換為 {1}(Microsoft.Data.SqlDbType)。常值: {2} </value>
     <comment>.
  Parameters: 0 - variableName (string), 1 - sqlDataType (string), 2 - literalValue (string) </comment>
   </data>
   <data name="DateTimeErrorMessage" xml:space="preserve">
-    <value>{0} を Microsoft.Data.SqlClient.SqlParameter オブジェクトに変換できません。サポートされていない日付/時間の形式が使用されているため、指定されたリテラルを {1}(Microsoft.Data.SqlDbType) に変換できません。サポートされている日付/時間の形式のいずれかをお使いください。リテラル値: {2}</value>
+    <value>無法將 {0} 轉換為 Microsoft.Data.SqlClient.SqlParameter 物件。指定的常值無法轉換為 {1}(Microsoft.Data.SqlDbType)，因為其使用了不支援的日期/時間格式。請使用支援的日期/時間格式。常值: {2}</value>
     <comment>.
  Parameters: 0 - variableName (string), 1 - sqlDataType (string), 2 - literalValue (string) </comment>
   </data>
   <data name="BinaryLiteralPrefixMissingError" xml:space="preserve">
-    <value>{0} を Microsoft.Data.SqlClient.SqlParameter オブジェクトに変換できません。プレフィックス 0x をバイナリ リテラルにする必要があるため、指定されたリテラルを {1}(Microsoft.Data.SqlDbType) に変換できません。リテラル値: {2}</value>
+    <value>無法將 {0} 轉換為 Microsoft.Data.SqlClient.SqlParameter 物件。指定的常值無法轉換為 {1}(Microsoft.Data.SqlDbType)，因為前置的 0x 應為二進位常值。常值: {2} </value>
     <comment>.
  Parameters: 0 - variableName (string), 1 - sqlDataType (string), 2 - literalValue (string) </comment>
   </data>
   <data name="ParsingErrorHeader" xml:space="preserve">
-    <value>行 {0}、列 {1}</value>
+    <value>第 {0} 行，資料行 {1}</value>
     <comment>.
  Parameters: 0 - lineNumber (int), 1 - columnNumber (int) </comment>
   </data>
   <data name="ScriptTooLarge" xml:space="preserve">
-    <value>現在のスクリプトのサイズは、Always Encrypted のパラメーター化に対して大きすぎます。クエリ オプション ([クエリ] &gt; [クエリ オプション] &gt; [実行] &gt; [詳細設定]) で Always Encrypted のパラメーター化を無効にしてください。許可されている最大長: {0} 文字、現在のスクリプトの長さ: {1} 文字</value>
+    <value>目前的指令碼對 Always Encrypted 的參數化而言太大。請停用查詢選項 ([查詢] &gt; [查詢選項] &gt; [執行] &gt; [進階]) 中的 [Always Encrypted 的參數化]。允許的長度上限: {0} 個字元。目前的指令碼長度: {1} 個字元</value>
     <comment>.
  Parameters: 0 - maxChars (int), 1 - currentChars (int) </comment>
   </data>
   <data name="SerializationServiceUnsupportedFormat" xml:space="preserve">
-    <value>サポートされていない保存形式: {0}</value>
+    <value>不支援的儲存格式: {0}</value>
     <comment>.
  Parameters: 0 - formatName (string) </comment>
   </data>
   <data name="SerializationServiceRequestInProgress" xml:space="preserve">
-    <value>ファイル {0} に対する要求は既に進行中です</value>
+    <value>正在進行檔案 {0} 的要求</value>
     <comment>.
  Parameters: 0 - filePath (string) </comment>
   </data>
   <data name="SerializationServiceRequestNotFound" xml:space="preserve">
-    <value>ファイル {0} に対する要求が見つからなかったので、これ以上のデータはシリアル化できません</value>
+    <value>無法序列化更多資料，因為找不到檔案 {0} 的要求</value>
     <comment>.
  Parameters: 0 - filePath (string) </comment>
   </data>
   <data name="PeekDefinitionAzureError" xml:space="preserve">
-    <value>Azure SQL DB と Data Warehouse では、この機能は現在サポートされていません: {0}</value>
+    <value>Azure SQL DB 和資料倉儲目前不支援此功能︰{0}</value>
     <comment>.
  Parameters: 0 - errorMessage (string) </comment>
   </data>
   <data name="PeekDefinitionError" xml:space="preserve">
-    <value>定義をここに表示の実行中に予期しないエラーが発生しました: {0}</value>
+    <value>瞄核定義執行過程中發生未預期的錯誤︰{0}</value>
     <comment>.
  Parameters: 0 - errorMessage (string) </comment>
   </data>
   <data name="PeekDefinitionNoResultsError" xml:space="preserve">
-    <value>結果は見つかりませんでした。</value>
+    <value>找不到任何結果。</value>
     <comment></comment>
   </data>
   <data name="PeekDefinitionDatabaseError" xml:space="preserve">
-    <value>データベース オブジェクトを取得できませんでした。</value>
+    <value>未擷取資料庫物件。</value>
     <comment></comment>
   </data>
   <data name="PeekDefinitionNotConnectedError" xml:space="preserve">
-    <value>サーバーに接続してください。</value>
+    <value>請連線到伺服器。</value>
     <comment></comment>
   </data>
   <data name="PeekDefinitionTimedoutError" xml:space="preserve">
-    <value>操作がタイムアウトになりました。</value>
+    <value>作業逾時。</value>
     <comment></comment>
   </data>
   <data name="PeekDefinitionTypeNotSupportedError" xml:space="preserve">
-    <value>このオブジェクトの種類は現在この機能ではサポートされていません。</value>
+    <value>此功能目前不支援這種物件類型。</value>
     <comment></comment>
   </data>
   <data name="ErrorEmptyStringReplacement" xml:space="preserve">
-    <value>空の文字列で空の文字列を置換しています。</value>
+    <value>用空白字串取代空白字串。</value>
     <comment></comment>
   </data>
   <data name="WorkspaceServicePositionLineOutOfRange" xml:space="preserve">
-    <value>位置がファイルの行の範囲外です</value>
+    <value>位置超出檔案行範圍</value>
     <comment></comment>
   </data>
   <data name="WorkspaceServicePositionColumnOutOfRange" xml:space="preserve">
-    <value>位置が行 {0} の列の範囲外です</value>
+    <value>第 {0} 行位置超出資料行範圍</value>
     <comment>.
  Parameters: 0 - line (int) </comment>
   </data>
   <data name="WorkspaceServiceBufferPositionOutOfOrder" xml:space="preserve">
-    <value>開始位置 ({0}, {1}) は、終了位置 ({2}, {3}) より前、または同じでなければなりません</value>
+    <value>開始位置 ({0}, {1}) 必須在結束位置之前或正好在結束位置上 ({2}, {3})</value>
     <comment>.
  Parameters: 0 - sLine (int), 1 - sCol (int), 2 - eLine (int), 3 - eCol (int) </comment>
   </data>
   <data name="EditDataObjectNotFound" xml:space="preserve">
-    <value>編集を要求したテーブルもしくはビューが見つかりませんでした</value>
+    <value>找不到要編輯的資料表或檢視表</value>
     <comment></comment>
   </data>
   <data name="EditDataSessionNotFound" xml:space="preserve">
-    <value>編集セッションは存在しません。</value>
+    <value>編輯工作階段不存在。</value>
     <comment></comment>
   </data>
   <data name="EditDataSessionAlreadyExists" xml:space="preserve">
-    <value>編集セッションが既に存在します。</value>
+    <value>編輯工作階段已存在。</value>
     <comment></comment>
   </data>
   <data name="EditDataSessionNotInitialized" xml:space="preserve">
-    <value>編集セッションが初期化されていません</value>
+    <value>編輯工作階段尚未初始化</value>
     <comment></comment>
   </data>
   <data name="EditDataSessionAlreadyInitialized" xml:space="preserve">
-    <value>編集セッションは既に初期化されました</value>
+    <value>編輯工作階段已初始化</value>
     <comment></comment>
   </data>
   <data name="EditDataSessionAlreadyInitializing" xml:space="preserve">
-    <value>編集セッションは既に初期化されたか、初期化中です</value>
+    <value>編輯工作階段已初始化或正在初始化</value>
     <comment></comment>
   </data>
   <data name="EditDataMetadataNotExtended" xml:space="preserve">
-    <value>テーブル メタデータは拡張プロパティを持っていません</value>
+    <value>資料表中繼資料沒有擴充屬性</value>
     <comment></comment>
   </data>
   <data name="EditDataMetadataObjectNameRequired" xml:space="preserve">
-    <value>オブジェクトの名前を指定する必要があります</value>
+    <value>必須提供物件名稱</value>
     <comment></comment>
   </data>
   <data name="EditDataMetadataTooManyIdentifiers" xml:space="preserve">
-    <value>明示的なサーバーもしくはデータベースの指定はサポートされていません</value>
+    <value>不支援明確指定的伺服器或資料庫</value>
     <comment></comment>
   </data>
   <data name="EditDataFilteringNegativeLimit" xml:space="preserve">
-    <value>結果の上限は負の値にできません</value>
+    <value>結果限制不能為負</value>
     <comment></comment>
   </data>
   <data name="EditDataUnsupportedObjectType" xml:space="preserve">
-    <value>データベース オブジェクト {0} は、編集用に使用できません。</value>
+    <value>無法編輯資料庫物件 {0}。</value>
     <comment>.
  Parameters: 0 - typeName (string) </comment>
   </data>
   <data name="EditDataQueryFailed" xml:space="preserve">
-    <value>クエリの実行が失敗しました。詳細はメッセージを確認してください</value>
+    <value>查詢執行失敗，請查看詳細資訊</value>
     <comment></comment>
   </data>
   <data name="EditDataQueryNotCompleted" xml:space="preserve">
-    <value>クエリの実行が完了していません</value>
+    <value>查詢尚未執行完成</value>
     <comment></comment>
   </data>
   <data name="EditDataQueryImproperResultSets" xml:space="preserve">
-    <value>クエリは 1 つの結果セットを生成できませんでした</value>
+    <value>查詢並非產生單一結果集</value>
     <comment></comment>
   </data>
   <data name="EditDataFailedAddRow" xml:space="preserve">
-    <value>キャッシュを更新する新しい行を追加できませんでした</value>
+    <value>無法在更新快取中新增新資料列</value>
     <comment></comment>
   </data>
   <data name="EditDataRowOutOfRange" xml:space="preserve">
-    <value>与えられた行 ID は、編集キャッシュに存在する行の範囲外です</value>
+    <value>提供的資料列識別碼已超出編輯快取中資料列的範圍</value>
     <comment></comment>
   </data>
   <data name="EditDataUpdatePending" xml:space="preserve">
-    <value>この行に対する更新が既に保留されていて、まず更新を戻す必要があります</value>
+    <value>這個資料列已經有一個更新正在等待使用，因此必須先還原</value>
     <comment></comment>
   </data>
   <data name="EditDataUpdateNotPending" xml:space="preserve">
-    <value>与えられた行 ID には保留中の更新はありません</value>
+    <value>提供的資料列識別碼並沒有擱置的更新</value>
     <comment></comment>
   </data>
   <data name="EditDataObjectMetadataNotFound" xml:space="preserve">
-    <value>テーブルまたはビューのメタデータが見つかりませんでした</value>
+    <value>找不到資料表或檢視表中繼資料</value>
     <comment></comment>
   </data>
   <data name="EditDataInvalidFormat" xml:space="preserve">
-    <value>列 '{0}' のフォーマットが無効です。列は {1} と定義されています</value>
+    <value>資料行 '{0}' 為無效格式，資料行定義為 {1}</value>
     <comment>.
  Parameters: 0 - colName (string), 1 - colType (string) </comment>
   </data>
   <data name="EditDataInvalidFormatBinary" xml:space="preserve">
-    <value>バイナリ列の形式が無効です</value>
+    <value>二進位資料行格示錯誤</value>
     <comment></comment>
   </data>
   <data name="EditDataInvalidFormatBoolean" xml:space="preserve">
-    <value>ブール列に許可されている値は 0、1、"true"、または "false" です</value>
+    <value>布林值欄位可填入的值為 1、0、"true" 或 "false"</value>
     <comment></comment>
   </data>
   <data name="EditDataCreateScriptMissingValue" xml:space="preserve">
-    <value>列 '{0}' は NOT NULL と定義されていますが、値がありません</value>
+    <value>資料行 '{0}' 已定義為 NOT NULL，但並未提供值</value>
     <comment>.
  Parameters: 0 - colName (string) </comment>
   </data>
   <data name="EditDataDeleteSetCell" xml:space="preserve">
-    <value>この行の削除が保留中であるため、セルの更新は適用できません。</value>
+    <value>即將刪除此資料列，無法套用儲存格更新</value>
     <comment></comment>
   </data>
   <data name="EditDataColumnIdOutOfRange" xml:space="preserve">
-    <value>列 ID はクエリの列の範囲内である必要があります</value>
+    <value>資料行識別碼必須在資料行範圍內才可查詢</value>
     <comment></comment>
   </data>
   <data name="EditDataColumnCannotBeEdited" xml:space="preserve">
-    <value>列を編集できません</value>
+    <value>無法編輯資料行</value>
     <comment></comment>
   </data>
   <data name="EditDataColumnNoKeyColumns" xml:space="preserve">
-    <value>キー列が見つかりませんでした</value>
+    <value>找不到索引鍵資料行</value>
     <comment></comment>
   </data>
   <data name="EditDataScriptFilePathNull" xml:space="preserve">
-    <value>出力ファイル名を指定する必要があります</value>
+    <value>必須提供輸出檔名</value>
     <comment></comment>
   </data>
   <data name="EditDataCommitInProgress" xml:space="preserve">
-    <value>コミット処理は実行中です。完了するまで待機してください。</value>
+    <value>認可的工作正在進行，請等待作業完成。</value>
     <comment></comment>
   </data>
   <data name="EditDataComputedColumnPlaceholder" xml:space="preserve">
@@ -570,113 +570,113 @@
     <comment></comment>
   </data>
   <data name="EditDataTimeOver24Hrs" xml:space="preserve">
-    <value>TIME 列の値は 00:00:00.0000000 から 23:59:59.9999999 までの範囲内になければなりません</value>
+    <value>TIME 資料行的值範圍必須介於 00:00:00.0000000 和 23:59:59.9999999 之間</value>
     <comment></comment>
   </data>
   <data name="EditDataNullNotAllowed" xml:space="preserve">
-    <value>この列では NULL は許可されていません</value>
+    <value>此資料行不允許填入 NULL 值</value>
     <comment></comment>
   </data>
   <data name="EditDataValueTooLarge" xml:space="preserve">
-    <value>値 {0} は大きすぎるため、型 {1} の列に収まりません</value>
+    <value>數值 {0} 太大無法符合欄位類型 {1}</value>
     <comment>.
  Parameters: 0 - value (string), 1 - columnType (string) </comment>
   </data>
   <data name="EditDataMultiTableNotSupported" xml:space="preserve">
-    <value>複数のテーブルを対象とした EditData クエリはサポートされていません</value>
+    <value>EditData 不支援多個目標資料表查詢</value>
     <comment></comment>
   </data>
   <data name="EditDataAliasesNotSupported" xml:space="preserve">
-    <value>別名の列が含まれる EditData クエリはサポートされていません</value>
+    <value>EditData 不支援資料行別名查詢</value>
     <comment></comment>
   </data>
   <data name="EditDataExpressionsNotSupported" xml:space="preserve">
-    <value>集計または式の列が含まれる EditData クエリはサポートされていません</value>
+    <value>EditData 不支援彙總或運算式資料行查詢</value>
     <comment></comment>
   </data>
   <data name="EditDataDuplicateColumnsNotSupported" xml:space="preserve">
-    <value>重複した列を持つ EditData クエリはサポートされていません</value>
+    <value>EditData 不支援重覆資料行查詢</value>
     <comment></comment>
   </data>
   <data name="EditDataIncorrectTable" xml:space="preserve">
-    <value>EditData クエリは、元のターゲット テーブル '{0}' に対してクエリを実行する必要があります</value>
+    <value>EditData 查詢必須查詢原始鎖定的資料表 '{0}'</value>
     <comment>.
  Parameters: 0 - tableName (string) </comment>
   </data>
   <data name="EE_ExecutionInfo_InitializingLoop" xml:space="preserve">
-    <value>実行ループを開始しています</value>
+    <value>開始執行迴圈</value>
     <comment></comment>
   </data>
   <data name="EE_BatchExecutionError_Ignoring" xml:space="preserve">
-    <value>バッチの実行中にエラーが発生しましたが、エラーは無視されました。</value>
+    <value>執行此批次時發生錯誤，但已忽略錯誤。</value>
     <comment></comment>
   </data>
   <data name="EE_ExecutionInfo_FinalizingLoop" xml:space="preserve">
-    <value>バッチの実行が {0} 回完了しました...</value>
+    <value>已完成 {0} 次批次執行...</value>
     <comment></comment>
   </data>
   <data name="BatchParserWrapperExecutionError" xml:space="preserve">
-    <value>バッチ パーサー ラッパー実行: {0} が見つかりました... 行 {1}: {2}    説明: {3}</value>
+    <value>批次剖析器包裝函式執行: 已找到 {0}，位於行 {1}: {2}    描述: {3}</value>
     <comment></comment>
   </data>
   <data name="TestLocalizationConstant" xml:space="preserve">
-    <value>テスト</value>
+    <value>測試</value>
     <comment></comment>
   </data>
   <data name="SqlScriptFormatterDecimalMissingPrecision" xml:space="preserve">
-    <value>真数の列に、有効桁数もしくは小数点以下桁数のどちらかが存在していません</value>
+    <value>完全數值資料行缺少數值精確度或數值範圍</value>
     <comment></comment>
   </data>
   <data name="SqlScriptFormatterLengthTypeMissingSize" xml:space="preserve">
-    <value>長さを持つ列にサイズが指定されていません</value>
+    <value>包含長度的資料行缺少大小資訊</value>
     <comment></comment>
   </data>
   <data name="SqlScriptFormatterScalarTypeMissingScale" xml:space="preserve">
-    <value>スカラー列のスケールが欠落しています</value>
+    <value>純量資料行缺少範圍</value>
     <comment></comment>
   </data>
   <data name="TreeNodeError" xml:space="preserve">
-    <value>'{0}' の拡張中にエラーが発生しました</value>
+    <value>擴充時發生錯誤: {0}</value>
     <comment></comment>
   </data>
   <data name="ServerNodeConnectionError" xml:space="preserve">
-    <value>{0} への接続中にエラーが発生しました</value>
+    <value>連線至 {0} 時發生錯誤</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_Aggregates" xml:space="preserve">
-    <value>集約</value>
+    <value>彙總</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_ServerRoles" xml:space="preserve">
-    <value>サーバー ロール</value>
+    <value>伺服器角色</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_ApplicationRoles" xml:space="preserve">
-    <value>アプリケーション ロール</value>
+    <value>應用程式角色</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_Assemblies" xml:space="preserve">
-    <value>アセンブリ</value>
+    <value>組件</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_AssemblyFiles" xml:space="preserve">
-    <value>アセンブリ ファイル</value>
+    <value>組件檔</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_AsymmetricKeys" xml:space="preserve">
-    <value>非対称キー</value>
+    <value>非對稱金鑰</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_DatabaseAsymmetricKeys" xml:space="preserve">
-    <value>非対称キー</value>
+    <value>非對稱金鑰</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_DataCompressionOptions" xml:space="preserve">
-    <value>データ圧縮オプション</value>
+    <value>資料壓縮選項</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_Certificates" xml:space="preserve">
-    <value>証明書</value>
+    <value>憑證</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_FileTables" xml:space="preserve">
@@ -684,199 +684,199 @@
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_DatabaseCertificates" xml:space="preserve">
-    <value>証明書</value>
+    <value>憑證</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_CheckConstraints" xml:space="preserve">
-    <value>CHECK 制約</value>
+    <value>檢查限制式</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_Columns" xml:space="preserve">
-    <value>列</value>
+    <value>資料行</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_Constraints" xml:space="preserve">
-    <value>制約</value>
+    <value>限制式</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_Contracts" xml:space="preserve">
-    <value>コントラクト</value>
+    <value>合約</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_Credentials" xml:space="preserve">
-    <value>資格情報</value>
+    <value>認證</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_ErrorMessages" xml:space="preserve">
-    <value>エラー メッセージ</value>
+    <value>錯誤訊息</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_ServerRoleMembership" xml:space="preserve">
-    <value>サーバー ロール メンバーシップ</value>
+    <value>伺服器角色成員資格</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_DatabaseOptions" xml:space="preserve">
-    <value>データベース オプション</value>
+    <value>資料庫選項</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_DatabaseRoles" xml:space="preserve">
-    <value>データベース ロール</value>
+    <value>資料庫角色</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_RoleMemberships" xml:space="preserve">
-    <value>ロール メンバーシップ</value>
+    <value>角色成員資格</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_DatabaseTriggers" xml:space="preserve">
-    <value>データベース トリガー</value>
+    <value>資料庫觸發程序</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_DefaultConstraints" xml:space="preserve">
-    <value>既定の制約</value>
+    <value>預設限制式</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_Defaults" xml:space="preserve">
-    <value>既定値</value>
+    <value>預設</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_Sequences" xml:space="preserve">
-    <value>シーケンス</value>
+    <value>序列</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_Endpoints" xml:space="preserve">
-    <value>エンドポイント</value>
+    <value>端點</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_EventNotifications" xml:space="preserve">
-    <value>イベント通知</value>
+    <value>事件通知</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_ServerEventNotifications" xml:space="preserve">
-    <value>サーバー イベント通知</value>
+    <value>伺服器事件通知</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_ExtendedProperties" xml:space="preserve">
-    <value>拡張プロパティ</value>
+    <value>擴充屬性</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_FileGroups" xml:space="preserve">
-    <value>ファイル グループ</value>
+    <value>檔案群組</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_ForeignKeys" xml:space="preserve">
-    <value>外部キー</value>
+    <value>外部索引鍵</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_FullTextCatalogs" xml:space="preserve">
-    <value>フルテキスト カタログ</value>
+    <value>全文檢索目錄</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_FullTextIndexes" xml:space="preserve">
-    <value>フルテキスト インデックス</value>
+    <value>全文檢索索引</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_Functions" xml:space="preserve">
-    <value>関数</value>
+    <value>函式</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_Indexes" xml:space="preserve">
-    <value>インデックス</value>
+    <value>索引</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_InlineFunctions" xml:space="preserve">
-    <value>インライン関数</value>
+    <value>內嵌函式</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_Keys" xml:space="preserve">
-    <value>キー</value>
+    <value>索引鍵</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_LinkedServers" xml:space="preserve">
-    <value>リンク サーバー</value>
+    <value>連結的伺服器</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_LinkedServerLogins" xml:space="preserve">
-    <value>リンク サーバー ログイン</value>
+    <value>連結的伺服器登入</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_Logins" xml:space="preserve">
-    <value>ログイン</value>
+    <value>登入</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_MasterKey" xml:space="preserve">
-    <value>マスター キー</value>
+    <value>主要金鑰</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_MasterKeys" xml:space="preserve">
-    <value>マスター キー</value>
+    <value>主要金鑰</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_MessageTypes" xml:space="preserve">
-    <value>メッセージ型</value>
+    <value>訊息類型</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_MultiSelectFunctions" xml:space="preserve">
-    <value>テーブル値関数</value>
+    <value>資料表值函式</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_Parameters" xml:space="preserve">
-    <value>パラメーター</value>
+    <value>參數</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_PartitionFunctions" xml:space="preserve">
-    <value>パーティション関数</value>
+    <value>資料分割函式</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_PartitionSchemes" xml:space="preserve">
-    <value>パーティション構成</value>
+    <value>資料分割配置</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_Permissions" xml:space="preserve">
-    <value>アクセス許可</value>
+    <value>權限</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_PrimaryKeys" xml:space="preserve">
-    <value>主キー</value>
+    <value>主索引鍵</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_Programmability" xml:space="preserve">
-    <value>プログラミング</value>
+    <value>可程式性</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_Queues" xml:space="preserve">
-    <value>キュー</value>
+    <value>佇列</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_RemoteServiceBindings" xml:space="preserve">
-    <value>リモート サービス バインド</value>
+    <value>遠端服務繫結</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_ReturnedColumns" xml:space="preserve">
-    <value>返された列</value>
+    <value>傳回的資料行</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_Roles" xml:space="preserve">
-    <value>ロール</value>
+    <value>角色</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_Routes" xml:space="preserve">
-    <value>ルート</value>
+    <value>路由</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_Rules" xml:space="preserve">
-    <value>ルール</value>
+    <value>規則</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_Schemas" xml:space="preserve">
-    <value>スキーマ</value>
+    <value>結構描述</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_Security" xml:space="preserve">
-    <value>セキュリティ</value>
+    <value>安全性</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_ServerObjects" xml:space="preserve">
-    <value>サーバー オブジェクト</value>
+    <value>伺服器物件</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_Management" xml:space="preserve">
@@ -884,7 +884,7 @@
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_ServerTriggers" xml:space="preserve">
-    <value>トリガー</value>
+    <value>觸發程序</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_ServiceBroker" xml:space="preserve">
@@ -892,439 +892,439 @@
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_Services" xml:space="preserve">
-    <value>サービス</value>
+    <value>服務</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_Signatures" xml:space="preserve">
-    <value>署名</value>
+    <value>簽章</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_LogFiles" xml:space="preserve">
-    <value>ログ ファイル</value>
+    <value>記錄檔</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_Statistics" xml:space="preserve">
-    <value>統計</value>
+    <value>統計資料</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_Storage" xml:space="preserve">
-    <value>ストレージ</value>
+    <value>儲存體</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_StoredProcedures" xml:space="preserve">
-    <value>ストアド プロシージャ</value>
+    <value>預存程序</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SymmetricKeys" xml:space="preserve">
-    <value>対称キー</value>
+    <value>對稱金鑰</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_Synonyms" xml:space="preserve">
-    <value>シノニム</value>
+    <value>同義資料表</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_Tables" xml:space="preserve">
-    <value>テーブル</value>
+    <value>資料表</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_Triggers" xml:space="preserve">
-    <value>トリガー</value>
+    <value>觸發程序</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_Types" xml:space="preserve">
-    <value>型</value>
+    <value>類型</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_UniqueKeys" xml:space="preserve">
-    <value>一意キー</value>
+    <value>唯一索引鍵</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_UserDefinedDataTypes" xml:space="preserve">
-    <value>ユーザー定義データ型</value>
+    <value>使用者定義資料類型</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_UserDefinedTypes" xml:space="preserve">
-    <value>ユーザー定義型 (CLR)</value>
+    <value>使用者定義型別 (CLR)</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_Users" xml:space="preserve">
-    <value>ユーザー</value>
+    <value>使用者</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_Views" xml:space="preserve">
-    <value>ビュー</value>
+    <value>檢視</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_XmlIndexes" xml:space="preserve">
-    <value>XML インデックス</value>
+    <value>XML 索引</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_XMLSchemaCollections" xml:space="preserve">
-    <value>XML スキーマ コレクション</value>
+    <value>XML 結構描述集合</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_UserDefinedTableTypes" xml:space="preserve">
-    <value>ユーザー定義テーブル型</value>
+    <value>使用者定義資料表類型</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_FilegroupFiles" xml:space="preserve">
-    <value>ファイル</value>
+    <value>檔案</value>
     <comment></comment>
   </data>
   <data name="MissingCaption" xml:space="preserve">
-    <value>キャプションが見つかりません</value>
+    <value>遺漏標題</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_BrokerPriorities" xml:space="preserve">
-    <value>ブローカーの優先度</value>
+    <value>訊息代理程式優先權</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_CryptographicProviders" xml:space="preserve">
-    <value>暗号化プロバイダー</value>
+    <value>密碼編譯提供者</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_DatabaseAuditSpecifications" xml:space="preserve">
-    <value>データベース監査の仕様</value>
+    <value>資料庫稽核規格</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_DatabaseEncryptionKeys" xml:space="preserve">
-    <value>データベース暗号化キー</value>
+    <value>資料庫加密金鑰</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_EventSessions" xml:space="preserve">
-    <value>イベント セッション</value>
+    <value>事件工作階段</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_FullTextStopLists" xml:space="preserve">
-    <value>フルテキスト ストップリスト</value>
+    <value>全文檢索停用字詞表</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_ResourcePools" xml:space="preserve">
-    <value>リソース プール</value>
+    <value>資源集區</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_ServerAudits" xml:space="preserve">
-    <value>監査</value>
+    <value>稽核</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_ServerAuditSpecifications" xml:space="preserve">
-    <value>サーバー監査の仕様</value>
+    <value>伺服器稽核規格</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SpatialIndexes" xml:space="preserve">
-    <value>空間インデックス</value>
+    <value>空間索引</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_WorkloadGroups" xml:space="preserve">
-    <value>ワークロード グループ</value>
+    <value>工作負載群組</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SqlFiles" xml:space="preserve">
-    <value>SQL ファイル</value>
+    <value>SQL 檔案</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_ServerFunctions" xml:space="preserve">
-    <value>サーバー関数</value>
+    <value>伺服器函式</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SqlType" xml:space="preserve">
-    <value>SQL 型</value>
+    <value>SQL 類型</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_ServerOptions" xml:space="preserve">
-    <value>サーバー オプション</value>
+    <value>伺服器選項</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_DatabaseDiagrams" xml:space="preserve">
-    <value>データベース ダイアグラム</value>
+    <value>資料庫圖表</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SystemTables" xml:space="preserve">
-    <value>システム テーブル</value>
+    <value>系統資料表</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_Databases" xml:space="preserve">
-    <value>データベース</value>
+    <value>資料庫</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SystemContracts" xml:space="preserve">
-    <value>システム コントラクト</value>
+    <value>系統合約</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SystemDatabases" xml:space="preserve">
-    <value>システム データベース</value>
+    <value>系統資料庫</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SystemMessageTypes" xml:space="preserve">
-    <value>システム メッセージの種類</value>
+    <value>系統訊息類型</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SystemQueues" xml:space="preserve">
-    <value>システム キュー</value>
+    <value>系統佇列</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SystemServices" xml:space="preserve">
-    <value>システム サービス</value>
+    <value>系統服務</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SystemStoredProcedures" xml:space="preserve">
-    <value>システム ストアド プロシージャ</value>
+    <value>系統預存程序</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SystemViews" xml:space="preserve">
-    <value>システム ビュー</value>
+    <value>系統檢視表</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_DataTierApplications" xml:space="preserve">
-    <value>データ層アプリケーション</value>
+    <value>資料層應用程式</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_ExtendedStoredProcedures" xml:space="preserve">
-    <value>拡張ストアド プロシージャ</value>
+    <value>擴充預存程序</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SystemAggregateFunctions" xml:space="preserve">
-    <value>集計関数</value>
+    <value>彙總函式</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SystemApproximateNumerics" xml:space="preserve">
-    <value>概数</value>
+    <value>近似數值</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SystemBinaryStrings" xml:space="preserve">
-    <value>バイナリ文字列</value>
+    <value>二進位字串</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SystemCharacterStrings" xml:space="preserve">
-    <value>文字列</value>
+    <value>字元字串</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SystemCLRDataTypes" xml:space="preserve">
-    <value>CLR データ型</value>
+    <value>CLR 資料類型</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SystemConfigurationFunctions" xml:space="preserve">
-    <value>構成関数</value>
+    <value>組態函式</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SystemCursorFunctions" xml:space="preserve">
-    <value>カーソル関数</value>
+    <value>資料指標函式</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SystemDataTypes" xml:space="preserve">
-    <value>システム データ型</value>
+    <value>系統資料類型</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SystemDateAndTime" xml:space="preserve">
-    <value>日付と時刻</value>
+    <value>日期與時間</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SystemDateAndTimeFunctions" xml:space="preserve">
-    <value>日付と時刻関数</value>
+    <value>日期和時間函式</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SystemExactNumerics" xml:space="preserve">
-    <value>真数</value>
+    <value>精確數值</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SystemFunctions" xml:space="preserve">
-    <value>システム関数</value>
+    <value>系統函式</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SystemHierarchyIdFunctions" xml:space="preserve">
-    <value>階層 ID 関数</value>
+    <value>階層識別碼函式</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SystemMathematicalFunctions" xml:space="preserve">
-    <value>数学関数</value>
+    <value>數學函式</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SystemMetadataFunctions" xml:space="preserve">
-    <value>メタデータ関数</value>
+    <value>中繼資料函式</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SystemOtherDataTypes" xml:space="preserve">
-    <value>その他のデータ型</value>
+    <value>其他資料類型</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SystemOtherFunctions" xml:space="preserve">
-    <value>その他の関数</value>
+    <value>其他函式</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SystemRowsetFunctions" xml:space="preserve">
-    <value>行セット関数</value>
+    <value>資料列集函式</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SystemSecurityFunctions" xml:space="preserve">
-    <value>セキュリティ関数</value>
+    <value>安全性函式</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SystemSpatialDataTypes" xml:space="preserve">
-    <value>空間データ型</value>
+    <value>空間資料類型</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SystemStringFunctions" xml:space="preserve">
-    <value>文字列関数</value>
+    <value>字串函式</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SystemSystemStatisticalFunctions" xml:space="preserve">
-    <value>システム統計関数</value>
+    <value>系統統計函式</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SystemTextAndImageFunctions" xml:space="preserve">
-    <value>テキストとイメージ関数</value>
+    <value>文字和影像函式</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SystemUnicodeCharacterStrings" xml:space="preserve">
-    <value>Unicode 文字列</value>
+    <value>Unicode 字元字串</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_AggregateFunctions" xml:space="preserve">
-    <value>集計関数</value>
+    <value>彙總函式</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_ScalarValuedFunctions" xml:space="preserve">
-    <value>スカラー値関数</value>
+    <value>純量值函式</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_TableValuedFunctions" xml:space="preserve">
-    <value>テーブル値関数</value>
+    <value>資料表值函式</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SystemExtendedStoredProcedures" xml:space="preserve">
-    <value>システム拡張ストアド プロシージャ</value>
+    <value>系統擴充預存程序</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_BuiltInType" xml:space="preserve">
-    <value>組み込み型</value>
+    <value>內建類型</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_BuiltInServerRole" xml:space="preserve">
-    <value>組み込みのサーバー ロール</value>
+    <value>內建伺服器角色</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_UserWithPassword" xml:space="preserve">
-    <value>ユーザーとパスワード</value>
+    <value>有密碼的使用者</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SearchPropertyList" xml:space="preserve">
-    <value>検索プロパティ リスト</value>
+    <value>搜尋屬性清單</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SecurityPolicies" xml:space="preserve">
-    <value>セキュリティ ポリシー</value>
+    <value>安全性原則</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SecurityPredicates" xml:space="preserve">
-    <value>セキュリティ述語</value>
+    <value>安全性述詞</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_ServerRole" xml:space="preserve">
-    <value>サーバー ロール</value>
+    <value>伺服器角色</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SearchPropertyLists" xml:space="preserve">
-    <value>検索プロパティ リスト</value>
+    <value>搜尋屬性清單</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_ColumnStoreIndexes" xml:space="preserve">
-    <value>列のストア インデックス</value>
+    <value>資料行儲存索引</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_TableTypeIndexes" xml:space="preserve">
-    <value>テーブル型インデックス</value>
+    <value>資料表類型索引</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_Server" xml:space="preserve">
-    <value>サーバー</value>
+    <value>伺服器</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SelectiveXmlIndexes" xml:space="preserve">
-    <value>選択的 XML インデックス</value>
+    <value>選擇性 XML 索引</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_XmlNamespaces" xml:space="preserve">
-    <value>XML 名前空間</value>
+    <value>XML 命名空間</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_XmlTypedPromotedPaths" xml:space="preserve">
-    <value>XML 型の昇格パス</value>
+    <value>具 XML 類型的升階路徑</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SqlTypedPromotedPaths" xml:space="preserve">
-    <value>T-SQL 型の昇格パス</value>
+    <value>具 T-SQL 類型的升階路徑</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_DatabaseScopedCredentials" xml:space="preserve">
-    <value>データベース スコープ資格情報</value>
+    <value>資料庫範圍認證</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_ExternalDataSources" xml:space="preserve">
-    <value>外部データ ソース</value>
+    <value>外部資料來源</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_ExternalFileFormats" xml:space="preserve">
-    <value>外部ファイル形式</value>
+    <value>外部檔案格式</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_ExternalResources" xml:space="preserve">
-    <value>外部リソース</value>
+    <value>外部資源</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_ExternalTables" xml:space="preserve">
-    <value>外部テーブル</value>
+    <value>外部資料表</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_AlwaysEncryptedKeys" xml:space="preserve">
-    <value>Always Encrypted キー</value>
+    <value>Always Encrypted 金鑰</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_ColumnMasterKeys" xml:space="preserve">
-    <value>列マスター キー</value>
+    <value>資料行主要金鑰</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_ColumnEncryptionKeys" xml:space="preserve">
-    <value>列暗号化キー</value>
+    <value>資料行加密金鑰</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterLabelFormatString" xml:space="preserve">
-    <value>{0} ({1}、{2}、{3})</value>
+    <value>{0} ({1}，{2}，{3})</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterNoDefaultLabel" xml:space="preserve">
-    <value>既定値以外</value>
+    <value>無預設值</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterInputLabel" xml:space="preserve">
-    <value>入力</value>
+    <value>輸入</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterInputOutputLabel" xml:space="preserve">
-    <value>入力/出力</value>
+    <value>輸入/輸出</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterInputReadOnlyLabel" xml:space="preserve">
-    <value>入力/読み取り専用</value>
+    <value>輸入/唯讀</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterInputOutputReadOnlyLabel" xml:space="preserve">
-    <value>入力/出力/読み取り専用</value>
+    <value>輸入/輸出/唯讀</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterDefaultLabel" xml:space="preserve">
-    <value>既定</value>
+    <value>預設</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_NullColumn_Label" xml:space="preserve">
-    <value>NULL</value>
+    <value>Null</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_NotNullColumn_Label" xml:space="preserve">
-    <value>NULL 以外</value>
+    <value>非 Null</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_UDDTLabelWithType" xml:space="preserve">
-    <value>{0} ({1}、{2})</value>
+    <value>{0} ({1}，{2})</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_UDDTLabelWithoutType" xml:space="preserve">
@@ -1332,47 +1332,47 @@
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_ComputedColumnLabelWithType" xml:space="preserve">
-    <value>{0} ({1} 計算値、{2}、{3})</value>
+    <value>{0} ({1} 已計算，{2}，{3})</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_ComputedColumnLabelWithoutType" xml:space="preserve">
-    <value>{0} ({1} 計算値)</value>
+    <value>{0} ({1} 已計算)</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_ColumnSetLabelWithoutType" xml:space="preserve">
-    <value>{0} (列セット、{1})</value>
+    <value>{0} (資料行集，{1})</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_ColumnSetLabelWithType" xml:space="preserve">
-    <value>{0} (列セット、{1}{2}、{3})</value>
+    <value>{0} (資料行集，{1}{2}，{3})</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_ColumnSetLabelWithTypeAndKeyString" xml:space="preserve">
-    <value>{0} (列セット、{1}、{2}、{3})</value>
+    <value>{0} (資料行集，{1}，{2}，{3})</value>
     <comment></comment>
   </data>
   <data name="UniqueIndex_LabelPart" xml:space="preserve">
-    <value>一意</value>
+    <value>唯一</value>
     <comment></comment>
   </data>
   <data name="NonUniqueIndex_LabelPart" xml:space="preserve">
-    <value>一意でない</value>
+    <value>非唯一</value>
     <comment></comment>
   </data>
   <data name="ClusteredIndex_LabelPart" xml:space="preserve">
-    <value>クラスター化</value>
+    <value>叢集</value>
     <comment></comment>
   </data>
   <data name="NonClusteredIndex_LabelPart" xml:space="preserve">
-    <value>非クラスター化</value>
+    <value>非叢集</value>
     <comment></comment>
   </data>
   <data name="History_LabelPart" xml:space="preserve">
-    <value>履歴</value>
+    <value>歷程</value>
     <comment></comment>
   </data>
   <data name="SystemVersioned_LabelPart" xml:space="preserve">
-    <value>システムバージョン管理</value>
+    <value>系統建立版本</value>
     <comment></comment>
   </data>
   <data name="External_LabelPart" xml:space="preserve">
@@ -1380,47 +1380,47 @@
     <comment></comment>
   </data>
   <data name="FileTable_LabelPart" xml:space="preserve">
-    <value>ファイル テーブル</value>
+    <value>檔案資料表</value>
     <comment></comment>
   </data>
   <data name="DatabaseNotAccessible" xml:space="preserve">
-    <value>データベース {0} にアクセスできません。</value>
+    <value>無法存取資料庫 {0}。</value>
     <comment></comment>
   </data>
   <data name="ScriptingParams_ConnectionString_Property_Invalid" xml:space="preserve">
-    <value>ScriptingParams.ConnectionString プロパティの解析エラーです。</value>
+    <value>剖析屬性 ScriptingParams.ConnectionString 時發生錯誤</value>
     <comment></comment>
   </data>
   <data name="ScriptingParams_FilePath_Property_Invalid" xml:space="preserve">
-    <value>ScriptingParams.FilePath プロパティで指定されたディレクトリが無効です。</value>
+    <value>ScriptingParams.FilePath 屬性指定的路徑是無效目錄。</value>
     <comment></comment>
   </data>
   <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid" xml:space="preserve">
-    <value>ScriptingListObjectsCompleteParams.ConnectionString プロパティの解析エラーです。</value>
+    <value>剖析屬性 ScriptingListObjectsCompleteParams.ConnectionString 時發生錯誤</value>
     <comment></comment>
   </data>
   <data name="StoredProcedureScriptParameterComment" xml:space="preserve">
-    <value>-- TODO: ここにパラメーター値を設定します。</value>
+    <value>-- TODO: 在此處設定參數值。</value>
     <comment></comment>
   </data>
   <data name="ScriptingGeneralError" xml:space="preserve">
-    <value>オブジェクトのスクリプト作成中にエラーが発生しました。</value>
+    <value>編寫物件指令碼時發生錯誤。</value>
     <comment></comment>
   </data>
   <data name="ScriptingExecuteNotSupportedError" xml:space="preserve">
-    <value>Execute としてのスクリプトはストアド プロシージャでのみサポートされます</value>
+    <value>僅預存程序支援指令碼執行</value>
     <comment></comment>
   </data>
   <data name="BackupTaskName" xml:space="preserve">
-    <value>データベースをバックアップする</value>
+    <value>備份資料庫</value>
     <comment></comment>
   </data>
   <data name="BackupPathIsFolderError" xml:space="preserve">
-    <value>ディレクトリ パスではなく、ファイル パスを指定してください</value>
+    <value>請提供檔案路徑而非目錄路徑</value>
     <comment></comment>
   </data>
   <data name="InvalidBackupPathError" xml:space="preserve">
-    <value> 指定されたパスは無効です</value>
+    <value>提供的路徑無效</value>
     <comment></comment>
   </data>
   <data name="TaskInProgress" xml:space="preserve">
@@ -1428,55 +1428,55 @@
     <comment></comment>
   </data>
   <data name="TaskCompleted" xml:space="preserve">
-    <value>完了</value>
+    <value>已完成</value>
     <comment></comment>
   </data>
   <data name="ConflictWithNoRecovery" xml:space="preserve">
-    <value>NORECOVERY オプションを使用してバックアップを復元するときに、このオプションを指定することはできません。</value>
+    <value>不允許使用 NORECOVERY 選項還原備份時，請指定這個選項。</value>
     <comment></comment>
   </data>
   <data name="InvalidPathForDatabaseFile" xml:space="preserve">
-    <value>データベース ファイルのパスが無効です: '{0}'</value>
+    <value>資料庫檔案的路徑無效: '{0}'</value>
     <comment></comment>
   </data>
   <data name="Log" xml:space="preserve">
-    <value>ログ</value>
+    <value>記錄</value>
     <comment></comment>
   </data>
   <data name="RestorePlanFailed" xml:space="preserve">
-    <value>リストア プランの作成に失敗しました</value>
+    <value>無法建立還原計畫</value>
     <comment></comment>
   </data>
   <data name="RestoreNotSupported" xml:space="preserve">
-    <value>データベースのリストアはサポートされていません</value>
+    <value>不支援還原資料庫</value>
     <comment></comment>
   </data>
   <data name="RestoreTaskName" xml:space="preserve">
-    <value>データベースのリストア</value>
+    <value>還原資料庫</value>
     <comment></comment>
   </data>
   <data name="RestoreCopyOnly" xml:space="preserve">
-    <value>(コピーのみ)</value>
+    <value>(僅複製)</value>
     <comment></comment>
   </data>
   <data name="RestoreBackupSetComponent" xml:space="preserve">
-    <value>コンポーネント</value>
+    <value>元件</value>
     <comment></comment>
   </data>
   <data name="RestoreBackupSetName" xml:space="preserve">
-    <value>名前</value>
+    <value>名稱</value>
     <comment></comment>
   </data>
   <data name="RestoreBackupSetType" xml:space="preserve">
-    <value>種類</value>
+    <value>類型</value>
     <comment></comment>
   </data>
   <data name="RestoreBackupSetServer" xml:space="preserve">
-    <value>サーバー</value>
+    <value>伺服器</value>
     <comment></comment>
   </data>
   <data name="RestoreBackupSetDatabase" xml:space="preserve">
-    <value>データベース</value>
+    <value>資料庫</value>
     <comment></comment>
   </data>
   <data name="RestoreBackupSetPosition" xml:space="preserve">
@@ -1484,160 +1484,160 @@
     <comment></comment>
   </data>
   <data name="RestoreBackupSetFirstLsn" xml:space="preserve">
-    <value>最初の LSN</value>
+    <value>第一個 LSN</value>
     <comment></comment>
   </data>
   <data name="RestoreBackupSetLastLsn" xml:space="preserve">
-    <value>最後の LSN</value>
+    <value>最後一個 LSN</value>
     <comment></comment>
   </data>
   <data name="RestoreBackupSetCheckpointLsn" xml:space="preserve">
-    <value>チェックポイントの LSN</value>
+    <value>檢查點 LSN</value>
     <comment></comment>
   </data>
   <data name="RestoreBackupSetFullLsn" xml:space="preserve">
-    <value>全 LSN</value>
+    <value>完整 LSN</value>
     <comment></comment>
   </data>
   <data name="RestoreBackupSetStartDate" xml:space="preserve">
-    <value>開始日</value>
+    <value>開始日期</value>
     <comment></comment>
   </data>
   <data name="RestoreBackupSetFinishDate" xml:space="preserve">
-    <value>完了日</value>
+    <value>完成日期</value>
     <comment></comment>
   </data>
   <data name="RestoreBackupSetSize" xml:space="preserve">
-    <value>サイズ</value>
+    <value>大小</value>
     <comment></comment>
   </data>
   <data name="RestoreBackupSetUserName" xml:space="preserve">
-    <value>ユーザー名</value>
+    <value>使用者名稱</value>
     <comment></comment>
   </data>
   <data name="RestoreBackupSetExpiration" xml:space="preserve">
-    <value>有効期限</value>
+    <value>逾期</value>
     <comment></comment>
   </data>
   <data name="TheLastBackupTaken" xml:space="preserve">
-    <value>最後に作成されたバックアップ ({0})</value>
+    <value>上次建立的備份 ({0})</value>
     <comment></comment>
   </data>
   <data name="NoBackupsetsToRestore" xml:space="preserve">
-    <value>リストアするバックアップセットが選択されていません</value>
+    <value>無選擇的備份集可還原</value>
     <comment></comment>
   </data>
   <data name="ScriptTaskName" xml:space="preserve">
-    <value>スクリプト</value>
+    <value>指令碼</value>
     <comment></comment>
   </data>
   <data name="InvalidPathError" xml:space="preserve">
-    <value>サーバー上の指定されたパスにアクセスできません: {0}</value>
+    <value>無法存取伺服器上指定的路徑: {0}</value>
     <comment></comment>
   </data>
   <data name="ProfilerConnectionNotFound" xml:space="preserve">
-    <value>接続が見つかりません</value>
+    <value>找不到連線</value>
     <comment></comment>
   </data>
   <data name="AzureSystemDbProfilingError" xml:space="preserve">
-    <value>Azure システム データベースのプロファイルを生成できません</value>
+    <value>無法為 Azure 系統資料庫設立設定檔</value>
     <comment></comment>
   </data>
   <data name="CreateSessionFailed" xml:space="preserve">
-    <value>セッションを作成できませんでした: {0}</value>
+    <value>無法建立工作階段: {0}</value>
     <comment>.
  Parameters: 0 - error (String) </comment>
   </data>
   <data name="StartSessionFailed" xml:space="preserve">
-    <value>セッションを開始できませんでした: {0}</value>
+    <value>無法開始工作階段: {0}</value>
     <comment>.
  Parameters: 0 - error (String) </comment>
   </data>
   <data name="PauseSessionFailed" xml:space="preserve">
-    <value>セッションを一時停止できませんでした: {0}</value>
+    <value>無法暫停工作階段: {0}</value>
     <comment>.
  Parameters: 0 - error (String) </comment>
   </data>
   <data name="StopSessionFailed" xml:space="preserve">
-    <value>セッションを停止できませんでした: {0}</value>
+    <value>無法停止工作階段: {0}</value>
     <comment>.
  Parameters: 0 - error (String) </comment>
   </data>
   <data name="SessionNotFound" xml:space="preserve">
-    <value>要求された XEvent セッションが見つかりません</value>
+    <value>找不到要求的 XEvent 工作階段</value>
     <comment></comment>
   </data>
   <data name="SessionAlreadyExists" xml:space="preserve">
-    <value>{0} という名前の XEvent セッションは既に存在します</value>
+    <value>名為 {0} 的 XEvent 工作階段已存在</value>
     <comment>.
  Parameters: 0 - sessionName (String) </comment>
   </data>
   <data name="CategoryLocal" xml:space="preserve">
-    <value>[未分類 (ローカル)]</value>
+    <value>[未分類 (本機)]</value>
     <comment>job categories</comment>
   </data>
   <data name="CategoryFromMsx" xml:space="preserve">
-    <value>MSX からのジョブ</value>
+    <value>來自 MSX 的作業</value>
     <comment></comment>
   </data>
   <data name="CategoryMultiServer" xml:space="preserve">
-    <value>[未分類 (マルチサーバー)]</value>
+    <value>[未分類 (多伺服器)]</value>
     <comment></comment>
   </data>
   <data name="CategoryDBMaint" xml:space="preserve">
-    <value>データベース メンテナンス</value>
+    <value>資料庫維護</value>
     <comment></comment>
   </data>
   <data name="CategoryWebAssistant" xml:space="preserve">
-    <value>Web Assistant</value>
+    <value>Web 助理</value>
     <comment></comment>
   </data>
   <data name="CategoryFullText" xml:space="preserve">
-    <value>フルテキスト</value>
+    <value>全文</value>
     <comment></comment>
   </data>
   <data name="CategoryReplDistribution" xml:space="preserve">
-    <value>REPL - ディストリビューション</value>
+    <value>REPL-分佈</value>
     <comment></comment>
   </data>
   <data name="CategoryReplDistributionCleanup" xml:space="preserve">
-    <value>REPL - ディストリビューション クリーンアップ</value>
+    <value>REPL-分佈清除</value>
     <comment></comment>
   </data>
   <data name="CategoryReplHistoryCleanup" xml:space="preserve">
-    <value>REPL - 履歴のクリーンアップ</value>
+    <value>REPL-歷程清除</value>
     <comment></comment>
   </data>
   <data name="CategoryReplLogReader" xml:space="preserve">
-    <value>REPL-LogReader</value>
+    <value>REPL-日誌閱讀器</value>
     <comment></comment>
   </data>
   <data name="CategoryReplMerge" xml:space="preserve">
-    <value>REPL - マージ</value>
+    <value>REPL-合併</value>
     <comment></comment>
   </data>
   <data name="CategoryReplSnapShot" xml:space="preserve">
-    <value>REPL - スナップショット</value>
+    <value>REPL-快照</value>
     <comment></comment>
   </data>
   <data name="CategoryReplCheckup" xml:space="preserve">
-    <value>REPL - 照合</value>
+    <value>REPL-檢查</value>
     <comment></comment>
   </data>
   <data name="CategoryReplCleanup" xml:space="preserve">
-    <value>REPL - サブスクリプション クリーンアップ</value>
+    <value>REPL-訂用帳戶清除</value>
     <comment></comment>
   </data>
   <data name="CategoryReplAlert" xml:space="preserve">
-    <value>REPL - 警告応答</value>
+    <value>REPL-警報回應</value>
     <comment></comment>
   </data>
   <data name="CategoryReplQReader" xml:space="preserve">
-    <value>REPL-QueueReader</value>
+    <value>REPL-佇列閱讀器</value>
     <comment></comment>
   </data>
   <data name="CategoryReplication" xml:space="preserve">
-    <value>レプリケーション</value>
+    <value>複寫</value>
     <comment></comment>
   </data>
   <data name="CategoryUncategorized" xml:space="preserve">
@@ -1645,146 +1645,146 @@
     <comment></comment>
   </data>
   <data name="CategoryLogShipping" xml:space="preserve">
-    <value>ログ配布</value>
+    <value>記錄傳送</value>
     <comment></comment>
   </data>
   <data name="CategoryDBEngineTuningAdvisor" xml:space="preserve">
-    <value>データベース エンジン チューニング アドバイザー</value>
+    <value>Database Engine Tuning Advisor</value>
     <comment></comment>
   </data>
   <data name="CategoryDataCollector" xml:space="preserve">
-    <value>データ コレクター</value>
+    <value>資料收集器</value>
     <comment></comment>
   </data>
   <data name="UnknownSizeUnit" xml:space="preserve">
-    <value>{0} は不明なサイズの単位です</value>
+    <value>未知的大小單位 {0}</value>
     <comment>.
  Parameters: 0 - unit (string) </comment>
   </data>
   <data name="UnexpectedRunType" xml:space="preserve">
-    <value>予期しない実行の種類です。</value>
+    <value>未知的執行類型。</value>
     <comment></comment>
   </data>
   <data name="CredentialNoLongerExists" xml:space="preserve">
-    <value>オブジェクトはサーバーにもはや存在しません。</value>
+    <value>伺服器上不再存在該物件。</value>
     <comment></comment>
   </data>
   <data name="UnknownServerType" xml:space="preserve">
-    <value>サーバーの種類 '{0}' が不明です。</value>
+    <value>未知的伺服器類型 '{0}'。</value>
     <comment>.
  Parameters: 0 - serverTypeName (string) </comment>
   </data>
   <data name="SetOwnerFailed" xml:space="preserve">
-    <value>現在のログインにはデータベースの所有者を '{0}' に設定する権限がありませんが、データベースは正常に作成されました。</value>
+    <value>目前的登入沒有權限將資料庫擁有者設為 '{0}'  但已順利建立資料庫。</value>
     <comment>.
  Parameters: 0 - ownerName (string) </comment>
   </data>
   <data name="TargetServerNotSelected" xml:space="preserve">
-    <value>このマルチ サーバー ジョブを実行するターゲット サーバーを指定する必要があります。</value>
+    <value>您必須指定目標伺服器以執行此多伺服器作業。</value>
     <comment></comment>
   </data>
   <data name="ProxyAccountNotFound" xml:space="preserve">
-    <value>プロキシ アカウント '{0}' はサーバーに存在しません。</value>
+    <value>伺服器上不存在 Proxy 帳戶 '{0}'。</value>
     <comment>.
  Parameters: 0 - proxyName (string) </comment>
   </data>
   <data name="SysadminAccount" xml:space="preserve">
-    <value>SQL Server エージェント サービス アカウント</value>
+    <value>SQL Server Agent 服務帳戶</value>
     <comment></comment>
   </data>
   <data name="JobAlreadyExists" xml:space="preserve">
-    <value>'{0}' という名前のジョブは既に存在します。ジョブの一意の名前を入力してください。</value>
+    <value>名為 '{0}' 的作業已存在。輸入該作業的唯一名稱。</value>
     <comment>.
  Parameters: 0 - jobName (string) </comment>
   </data>
   <data name="JobStepNameCannotBeBlank" xml:space="preserve">
-    <value>ジョブ ステップの名前を空白にすることはできません。</value>
+    <value>作業名稱步驟不能空白。</value>
     <comment></comment>
   </data>
   <data name="JobStepNameAlreadyExists" xml:space="preserve">
-    <value>このジョブには '{0}' という名前のステップが既に存在します。別の名前を指定する必要があります。</value>
+    <value>此作業已有名為 '{0}' 的步驟。您必須指定不同的名稱。</value>
     <comment>.
  Parameters: 0 - jobName (string) </comment>
   </data>
   <data name="AlertNameCannotBeBlank" xml:space="preserve">
-    <value>アラートの名前を空白にすることはできません。</value>
+    <value>警示名稱不能空白。</value>
     <comment></comment>
   </data>
   <data name="CannotCreateNewAlert" xml:space="preserve">
-    <value>新しいアラートを作成できません。</value>
+    <value>無法建立新的警告。</value>
     <comment></comment>
   </data>
   <data name="CannotAlterAlert" xml:space="preserve">
-    <value>アラートを変更できません。</value>
+    <value>無法修改警告。</value>
     <comment></comment>
   </data>
   <data name="InvalidScheduleTitle" xml:space="preserve">
-    <value>無効なスケジュール</value>
+    <value>無效的排程</value>
     <comment> Schedule error message</comment>
   </data>
   <data name="InvalidWeeklySchedule" xml:space="preserve">
-    <value>この週のスケジュールに含める日を少なくとも 1 日選択してください。</value>
+    <value>請選取至少一天，成為每週排程的一部份。</value>
     <comment></comment>
   </data>
   <data name="StartDateGreaterThanEndDate" xml:space="preserve">
-    <value>ジョブ スケジュールの開始日は、終了日より後の日付にすることはできません。</value>
+    <value>作業排程開始日期不能晚於結束日期。</value>
     <comment></comment>
   </data>
   <data name="StartTimeGreaterThanEndTime" xml:space="preserve">
-    <value>ジョブ スケジュールの開始時刻は、終了時間より後にすることはできません。</value>
+    <value>作業排程開始時間不能晚於結束時間。</value>
     <comment></comment>
   </data>
   <data name="EndTimeEqualToStartTime" xml:space="preserve">
-    <value>ジョブ スケジュールの終了時刻は、開始時刻より後にする必要があります。</value>
+    <value>作業排程結束時間必須晚於開始時間。</value>
     <comment></comment>
   </data>
   <data name="InvalidStartDate" xml:space="preserve">
-    <value>開始日は、1990 年 1 月 1 日以降にする必要があります。</value>
+    <value>開始日期必須在 1990 年 1 月 1 日或之後。</value>
     <comment></comment>
   </data>
   <data name="ScheduleNameAlreadyExists" xml:space="preserve">
-    <value>このジョブには既に '{0}' という名前のスケジュールが存在します。別の名前を指定する必要があります。</value>
+    <value>此作業已有名為 '{0}' 的排程。您必須指定不同的名稱。</value>
     <comment>.
  Parameters: 0 - scheduleName (string) </comment>
   </data>
   <data name="JobServerIsNotAvailable" xml:space="preserve">
-    <value>ジョブ サーバーが使用できません</value>
+    <value>作業伺服器無法使用</value>
     <comment> Exception thrown when job server is not available</comment>
   </data>
   <data name="NeverBackedUp" xml:space="preserve">
-    <value>なし</value>
+    <value>永不</value>
     <comment></comment>
   </data>
   <data name="Error_InvalidDirectoryName" xml:space="preserve">
-    <value>パス {0} は有効なディレクトリではありません</value>
+    <value>路徑 {0} 不是有效的目錄</value>
     <comment></comment>
   </data>
   <data name="Error_ExistingDirectoryName" xml:space="preserve">
-    <value>ディレクトリ {0} では、{1} という名前のファイルは既に存在します</value>
+    <value>目錄 {0} 中已存在名為 {1} 的檔案</value>
     <comment></comment>
   </data>
   <data name="ExportBacpacTaskName" xml:space="preserve">
-    <value>bacpac のエクスポート</value>
+    <value>匯出 bacpac</value>
     <comment></comment>
   </data>
   <data name="ImportBacpacTaskName" xml:space="preserve">
-    <value>bacpac のインポート</value>
+    <value>匯入 bacpac</value>
     <comment></comment>
   </data>
   <data name="ExtractDacpacTaskName" xml:space="preserve">
-    <value>dacpac の抽出</value>
+    <value>擷取 dacpac</value>
     <comment></comment>
   </data>
   <data name="DeployDacpacTaskName" xml:space="preserve">
-    <value>dacpac のデプロイ</value>
+    <value>部署 dacpac</value>
     <comment></comment>
   </data>
   <data name="GenerateScriptTaskName" xml:space="preserve">
-    <value>スクリプトの生成</value>
+    <value>產生指令碼</value>
     <comment></comment>
   </data>
   <data name="ProjectExtractTaskName" xml:space="preserve">
-    <value>プロジェクト ファイルの抽出</value>
+    <value>解壓縮專案檔</value>
     <comment></comment>
   </data>
   <data name="ValidateStreamingJobTaskName" xml:space="preserve">
@@ -1792,7 +1792,7 @@
     <comment></comment>
   </data>
   <data name="ExtractInvalidVersion" xml:space="preserve">
-    <value>無効なバージョン '{0}' が渡されました。バージョンの形式は x.x.x.x (x は数値) でなければなりません。</value>
+    <value>已傳遞無效版本 '{0}'。版本格式必須是 x.x.x.x，其中 x 是數字。</value>
     <comment></comment>
   </data>
   <data name="StreamNotFoundInModel" xml:space="preserve">
@@ -1822,35 +1822,35 @@
     <comment></comment>
   </data>
   <data name="PublishChangesTaskName" xml:space="preserve">
-    <value>スキーマ比較変更の適用</value>
+    <value>套用結構描述比較變更</value>
     <comment></comment>
   </data>
   <data name="SchemaCompareExcludeIncludeNodeNotFound" xml:space="preserve">
-    <value>指定された変更をモデル内に見つけられませんでした</value>
+    <value>在模型中找不到指定的變更</value>
     <comment></comment>
   </data>
   <data name="OpenScmpConnectionBasedModelParsingError" xml:space="preserve">
-    <value>エンドポイント '{0}' の接続情報を解析しようとしているときにエラーが発生しました。エラー メッセージ: '{1}'</value>
+    <value>嘗試剖析包含錯誤訊息 '{1}' 的端點 '{0}' 連線資訊時發生錯誤</value>
     <comment></comment>
   </data>
   <data name="SchemaCompareSessionNotFound" xml:space="preserve">
-    <value>キャンセルするスキーマ比較セッションが見つかりませんでした</value>
+    <value>找不到要取消的結構描述比較工作階段</value>
     <comment></comment>
   </data>
   <data name="SqlAssessmentGenerateScriptTaskName" xml:space="preserve">
-    <value>SQL Assessment スクリプトの生成</value>
+    <value>產生 SQL 評定指令碼</value>
     <comment></comment>
   </data>
   <data name="SqlAssessmentQueryInvalidOwnerUri" xml:space="preserve">
-    <value>サーバーに接続されていません</value>
+    <value>未連線到伺服器</value>
     <comment></comment>
   </data>
   <data name="SqlAssessmentConnectingError" xml:space="preserve">
-    <value>サーバーに接続できません</value>
+    <value>無法連線到伺服器</value>
     <comment></comment>
   </data>
   <data name="SqlAssessmentUnsuppoertedEdition" xml:space="preserve">
-    <value>サポートされていないエンジンのエディション {0}</value>
+    <value>不支援的引擎版本 {0}</value>
     <comment>.
  Parameters: 0 - editionCode (int) </comment>
   </data>
