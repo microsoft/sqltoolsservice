@@ -1,5 +1,5 @@
 ------------------------------------------ START OF LICENSE -----------------------------------------
-microsoft-vscode-mssql
+microsoft-sqltoolsservice
 Copyright (c) Microsoft Corporation
 All rights reserved. 
 MIT License
