@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Composition;
-using System.Diagnostics;
-using System.IO;
 using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 using Microsoft.Kusto.ServiceLayer.DataSource.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
@@ -32,7 +30,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                         nameof(dataSourceType));
             }
         }
-
+        
         private KustoConnectionDetails MapKustoConnectionDetails(ConnectionDetails connectionDetails)
         {
             var kustoConnectionDetails = new KustoConnectionDetails
@@ -45,28 +43,9 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
             kustoConnectionDetails.UserToken = kustoConnectionDetails.AuthenticationType == "AzureMFA" 
                 ? connectionDetails.AzureAccountToken 
-                : GetDstsAuthToken(connectionDetails.ServerName, connectionDetails.DatabaseName);
+                : DstsAuthenticationManager.Instance.GetDstsAuthToken(connectionDetails.ServerName, connectionDetails.DatabaseName);
 
             return kustoConnectionDetails;
-        }
-
-        private string GetDstsAuthToken(string clusterName, string databaseName)
-        {
-            using (var process = new Process())
-            {
-                process.StartInfo.FileName =
-                    @"C:\Git\dSTSTokenApp\dSTSTokenApp\bin\Debug\dSTSTokenApp.exe";
-                process.StartInfo.Arguments = $"{clusterName} {databaseName}";
-                process.StartInfo.UseShellExecute = false;
-                process.StartInfo.RedirectStandardOutput = true;
-                process.Start();
-
-                StreamReader reader = process.StandardOutput;
-                string token = reader.ReadToEnd();
-
-                process.WaitForExit();
-                return token;
-            }
         }
 
         // Gets default keywords for intellisense when there is no connection.

@@ -97,7 +97,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             {
                 ServerName = ClusterName,
                 DatabaseName = DatabaseName,
-                UserToken = azureAccountToken
+                UserToken = azureAccountToken,
+                AuthenticationType = "AzureMFA"
             };
             
             Initialize(connectionDetails);
@@ -106,7 +107,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         private KustoConnectionStringBuilder GetKustoConnectionStringBuilder(KustoConnectionDetails connectionDetails)
         {
             ValidationUtils.IsTrue<ArgumentException>(!string.IsNullOrWhiteSpace(connectionDetails.UserToken),
-                $"the Kusto authentication is not specified - either set {nameof(connectionDetails.UserToken)}");
+                $"The Kusto User Token is not specified - set {nameof(connectionDetails.UserToken)}");
             
             var stringBuilder = string.IsNullOrWhiteSpace(connectionDetails.ConnectionString)
                 ? new KustoConnectionStringBuilder(connectionDetails.ServerName, connectionDetails.DatabaseName)
