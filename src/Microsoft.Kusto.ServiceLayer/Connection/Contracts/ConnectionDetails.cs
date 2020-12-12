@@ -508,6 +508,18 @@ namespace Microsoft.Kusto.ServiceLayer.Connection.Contracts
             }
         }
 
+        public string DstsToken
+        {
+            get
+            {
+                return GetOptionValue<string>("dstsToken");
+            }
+            set
+            {
+                SetOptionValue("dstsToken", value);
+            }
+        }
+
         public bool IsComparableTo(ConnectionDetails other)
         {
             if (other == null)

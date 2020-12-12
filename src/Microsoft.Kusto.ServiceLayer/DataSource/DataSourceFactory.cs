@@ -33,19 +33,16 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         
         private KustoConnectionDetails MapKustoConnectionDetails(ConnectionDetails connectionDetails)
         {
-            var kustoConnectionDetails = new KustoConnectionDetails
+            return new KustoConnectionDetails
             {
                 ServerName = connectionDetails.ServerName,
                 DatabaseName = connectionDetails.DatabaseName,
                 ConnectionString = connectionDetails.ConnectionString,
-                AuthenticationType = connectionDetails.AuthenticationType
+                AuthenticationType = connectionDetails.AuthenticationType,
+                UserToken = connectionDetails.AuthenticationType == "AzureMFA" 
+                    ? connectionDetails.AzureAccountToken 
+                    : connectionDetails.DstsToken
             };
-
-            kustoConnectionDetails.UserToken = kustoConnectionDetails.AuthenticationType == "AzureMFA" 
-                ? connectionDetails.AzureAccountToken 
-                : DstsAuthenticationManager.Instance.GetDstsAuthToken(connectionDetails.ServerName, connectionDetails.DatabaseName);
-
-            return kustoConnectionDetails;
         }
 
         // Gets default keywords for intellisense when there is no connection.
