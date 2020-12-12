@@ -15,14 +15,13 @@ using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Newtonsoft.Json;
 using Microsoft.SqlServer.TransactSql.ScriptDom;
 using System.IO;
-using Microsoft.SqlTools.ServiceLayer.NotebookConvert;
-using Newtonsoft.Json.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.NotebookConvert
 {
     enum NotebookTokenType
     {
         MultilineComment,
+        SinglelineComment,
         Batch
     }
 
@@ -119,7 +118,7 @@ namespace Microsoft.SqlTools.ServiceLayer.NotebookConvert
 
         #endregion // Convert Handlers
 
-        private static NotebookDocument ConvertSqlToNotebook(string sql)
+        internal static NotebookDocument ConvertSqlToNotebook(string sql)
         {
             // Notebooks use \n so convert any other newlines now
             sql = sql.Replace("\r\n", "\n");
@@ -160,11 +159,11 @@ namespace Microsoft.SqlTools.ServiceLayer.NotebookConvert
              * cells that could break the script
              */
             var multilineComments = tokens
-                .Where(token => token.TokenType == TSqlTokenType.MultilineComment)
+                .Where(token => token.TokenType == TSqlTokenType.MultilineComment || token.TokenType == TSqlTokenType.SingleLineComment)
                 // Ignore comments that are within a batch. This won't include comments at the start/end of a batch though  - the parser is smart enough
                 // to have the batch only contain the code and any comments that are embedded within it
                 .Where(token => !batches.Any(batch => token.Offset > batch.StartOffset && token.Offset < (batch.StartOffset + batch.FragmentLength)))
-                .Select(token => new NotebookToken() { StartOffset = token.Offset, Text = token.Text.Trim(), TokenType = NotebookTokenType.MultilineComment });
+                .Select(token => new NotebookToken() { StartOffset = token.Offset, Text = token.Text.Trim(), TokenType = token.TokenType == TSqlTokenType.MultilineComment ? NotebookTokenType.MultilineComment : NotebookTokenType.SinglelineComment });
 
             // Combine batches and comments into a single list of all the fragments we need to add to the Notebook
             var allFragments = batches.Select(batch =>
@@ -202,6 +201,16 @@ namespace Microsoft.SqlTools.ServiceLayer.NotebookConvert
                     else if (commentBlock.EndsWith("*/"))
                     {
                         commentBlock = commentBlock.Remove(commentBlock.Length - 2);
+                    }
+
+                    doc.Cells.Add(GenerateMarkdownCell(commentBlock.Trim()));
+                } else if (fragment.TokenType == NotebookTokenType.SinglelineComment)
+                {
+                    string commentBlock = fragment.Text;
+                    // Trim off the starting comment token (--)
+                    if (commentBlock.StartsWith("--"))
+                    {
+                        commentBlock = commentBlock.Remove(0, 2);
                     }
 
                     doc.Cells.Add(GenerateMarkdownCell(commentBlock.Trim()));
