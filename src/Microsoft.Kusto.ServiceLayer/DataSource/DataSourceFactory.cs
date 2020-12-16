@@ -39,9 +39,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 DatabaseName = connectionDetails.DatabaseName,
                 ConnectionString = connectionDetails.ConnectionString,
                 AuthenticationType = connectionDetails.AuthenticationType,
-                UserToken = connectionDetails.AuthenticationType == "AzureMFA" 
-                    ? connectionDetails.AzureAccountToken 
-                    : connectionDetails.DstsToken
+                UserToken = connectionDetails.AccountToken
             };
         }
 

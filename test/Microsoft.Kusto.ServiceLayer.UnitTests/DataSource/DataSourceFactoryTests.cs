@@ -20,7 +20,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.DataSource
             var connectionDetails = new ConnectionDetails
             {
                 ConnectionString = connectionString,
-                AzureAccountToken = azureAccountToken
+                AccountToken = azureAccountToken
             };
             Assert.Throws(exceptionType,
                 () => dataSourceFactory.Create(DataSourceType.None, connectionDetails, ""));

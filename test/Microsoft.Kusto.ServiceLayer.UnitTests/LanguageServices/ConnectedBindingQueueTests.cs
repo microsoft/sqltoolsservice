@@ -92,7 +92,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.LanguageServices
         {
             var connectionDetails = new ConnectionDetails
             {
-                AzureAccountToken = "AzureAccountToken" 
+                AccountToken = "AzureAccountToken" 
             };
             var connectionFactory = new Mock<IDataSourceConnectionFactory>();
             var connectionInfo = new ConnectionInfo(connectionFactory.Object, "ownerUri", connectionDetails);

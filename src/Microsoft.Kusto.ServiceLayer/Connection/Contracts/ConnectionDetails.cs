@@ -496,7 +496,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection.Contracts
             }
         }
 
-        public string AzureAccountToken
+        public string AccountToken
         {
             get
             {
@@ -505,18 +505,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection.Contracts
             set
             {
                 SetOptionValue("azureAccountToken", value);
-            }
-        }
-
-        public string DstsToken
-        {
-            get
-            {
-                return GetOptionValue<string>("dstsToken");
-            }
-            set
-            {
-                SetOptionValue("dstsToken", value);
             }
         }
 
@@ -530,7 +518,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection.Contracts
             if (ServerName != other.ServerName
                 || AuthenticationType != other.AuthenticationType
                 || UserName != other.UserName
-                || AzureAccountToken != other.AzureAccountToken)
+                || AccountToken != other.AccountToken)
             {
                 return false;
             }

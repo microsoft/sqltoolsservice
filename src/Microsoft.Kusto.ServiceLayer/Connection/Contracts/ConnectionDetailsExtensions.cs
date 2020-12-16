@@ -45,7 +45,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection.Contracts
                 TypeSystemVersion = details.TypeSystemVersion,
                 ConnectionString = details.ConnectionString,
                 Port = details.Port,
-                AzureAccountToken = details.AzureAccountToken
+                AccountToken = details.AccountToken
             };
         }
     }
