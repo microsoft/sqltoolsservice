@@ -9,7 +9,7 @@ using Microsoft.SqlServer.Management.SqlScriptPublish;
 using Microsoft.Kusto.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
 using System.Diagnostics;
-using Kusto.Data;
+using Microsoft.Kusto.ServiceLayer.DataSource;
 
 namespace Microsoft.Kusto.ServiceLayer.Scripting
 {
@@ -103,7 +103,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         {
             try
             {
-                var builder = new KustoConnectionStringBuilder(this.Parameters.ConnectionString);
+                var builder = DataSourceFactory.CreateConnectionStringBuilder(DataSourceType.Kusto, Parameters.ConnectionString);
             }
             catch (Exception e)
             {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Composition;
+using Kusto.Data;
 using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 using Microsoft.Kusto.ServiceLayer.DataSource.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
@@ -26,7 +27,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 }
 
                 default:
-                    throw new ArgumentException($"Unsupported data source type \"{dataSourceType}\"",
+                    
+                    throw new ArgumentException($@"Unsupported data source type ""{dataSourceType}""",
                         nameof(dataSourceType));
             }
         }
@@ -41,6 +43,36 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 AuthenticationType = connectionDetails.AuthenticationType,
                 UserToken = connectionDetails.AccountToken
             };
+        }
+
+        public static KustoConnectionStringBuilder CreateConnectionStringBuilder(DataSourceType dataSourceType, string serverName, string databaseName)
+        {
+            switch (dataSourceType)
+            {
+                case DataSourceType.Kusto:
+                {
+                    return new KustoConnectionStringBuilder(serverName, databaseName);
+                }
+
+                default:
+                    throw new ArgumentException($@"Unsupported data source type ""{dataSourceType}""",
+                        nameof(dataSourceType));
+            }
+        }
+
+        public static KustoConnectionStringBuilder CreateConnectionStringBuilder(DataSourceType dataSourceType, string connectionString)
+        {
+            switch (dataSourceType)
+            {
+                case DataSourceType.Kusto:
+                {
+                    return new KustoConnectionStringBuilder(connectionString);
+                }
+
+                default:
+                    throw new ArgumentException($@"Unsupported data source type ""{dataSourceType}""",
+                        nameof(dataSourceType));
+            }
         }
 
         // Gets default keywords for intellisense when there is no connection.

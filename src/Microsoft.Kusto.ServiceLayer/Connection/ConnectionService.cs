@@ -19,7 +19,6 @@ using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using System.Diagnostics;
-using Kusto.Data;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
@@ -389,12 +388,13 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                 if (!string.IsNullOrEmpty(connectionInfo.ConnectionDetails.ConnectionString))
                 {
                     // If the connection was set up with a connection string, use the connection string to get the details
-                    var connectionString = new KustoConnectionStringBuilder(connection.ConnectionString);
+                    var connectionStringBuilder = DataSourceFactory.CreateConnectionStringBuilder(DataSourceType.Kusto, connection.ConnectionString);
+                    
                     response.ConnectionSummary = new ConnectionSummary
                     {
-                        ServerName = connectionString.DataSource,
-                        DatabaseName = connectionString.InitialCatalog,
-                        UserName = connectionString.UserID
+                        ServerName = connectionStringBuilder.DataSource,
+                        DatabaseName = connectionStringBuilder.InitialCatalog,
+                        UserName = connectionStringBuilder.UserID
                     };
                 }
                 else
@@ -447,7 +447,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             {
                 connectionInfo.ConnectionDetails.Pooling = false;
 
-                // create a kusto connection instance
+                // create a data source connection instance
                 connection = connectionInfo.Factory.CreateDataSourceConnection(connectionInfo.ConnectionDetails, connectionInfo.OwnerUri);
                 connectionInfo.AddConnection(connectionParams.Type, connection);
 
@@ -974,11 +974,8 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                         }
 
                         info.ConnectionDetails.ApplicationName = "sqlops-connection-string";
-
-                        var stringBuilder =
-                            new KustoConnectionStringBuilder(info.ConnectionDetails.ServerName, info.ConnectionDetails.DatabaseName);
-
-                        connectionString = stringBuilder.ToString();
+                        connectionString = DataSourceFactory.CreateConnectionStringBuilder(DataSourceType.Kusto,
+                            info.ConnectionDetails.ServerName, info.ConnectionDetails.DatabaseName).ToString();
                     }
                     catch (Exception e)
                     {
@@ -1014,7 +1011,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
         public ConnectionDetails ParseConnectionString(string connectionString)
         {
-            var builder = new KustoConnectionStringBuilder(connectionString);
+            var builder = DataSourceFactory.CreateConnectionStringBuilder(DataSourceType.Kusto, connectionString);
             return new ConnectionDetails
             {
                 ApplicationName = builder.ApplicationNameForTracing,
