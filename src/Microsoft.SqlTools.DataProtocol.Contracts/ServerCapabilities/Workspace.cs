@@ -9,14 +9,20 @@ using Newtonsoft.Json.Linq;
 
 namespace Microsoft.SqlTools.DataProtocol.Contracts.ServerCapabilities
 {
+    /// <summary>
+    /// Defines workspace capabilities supported by the server.
+    /// </summary>
     public class WorkspaceCapabilities
     {
         /// <summary>
         /// Options specific to workspace folders the server supports
         /// </summary>
-        public WorkspaceFolderCapabilities WorkspaceFolders { get; set; }
+        public WorkspaceFolderCapabilities WorkspaceFolders { get; } = new WorkspaceFolderCapabilities();
     }
     
+    /// <summary>
+    /// Defines workspace folders capabilities supported by the server.
+    /// </summary>
     public class WorkspaceFolderCapabilities
     {
         /// <summary>

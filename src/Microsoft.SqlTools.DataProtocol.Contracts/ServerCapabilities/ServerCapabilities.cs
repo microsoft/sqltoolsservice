@@ -4,7 +4,10 @@
 //
 
 namespace Microsoft.SqlTools.DataProtocol.Contracts.ServerCapabilities
-{    
+{
+    /// <summary>
+    /// Defines common server capabilities.
+    /// </summary>
     public class ServerCapabilities
     {
         /// <summary>
@@ -107,12 +110,11 @@ namespace Microsoft.SqlTools.DataProtocol.Contracts.ServerCapabilities
         /// </summary>
         /// TODO: Union type
         public bool? TypeDefinitionProvider { get; set; }
-        
+
         /// <summary>
-        /// Options specific to workspaces the server supoorts. Can be <c>null</c> to indicate the
-        /// server does not support workspace requests.
+        /// Options specific to workspaces the server supports.
         /// </summary>
-        public WorkspaceCapabilities Workspace { get; set; }
+        public WorkspaceCapabilities Workspace { get; } = new WorkspaceCapabilities();
         
         /// <summary>
         /// Whether the server provides workpace symbol support. Can be <c>null</c>
