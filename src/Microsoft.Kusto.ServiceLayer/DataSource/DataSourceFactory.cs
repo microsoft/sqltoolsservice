@@ -9,6 +9,7 @@ using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Completion;
+using Microsoft.Kusto.ServiceLayer.Utility;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource
 {
@@ -17,6 +18,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
     {
         public IDataSource Create(DataSourceType dataSourceType, ConnectionDetails connectionDetails, string ownerUri)
         {
+            ValidationUtils.IsArgumentNotNullOrWhiteSpace(connectionDetails.AccountToken, nameof(connectionDetails.AccountToken));
+            
             switch (dataSourceType)
             {
                 case DataSourceType.Kusto:
