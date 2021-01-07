@@ -279,7 +279,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             };
 
             var response = Instance.ServiceHost.SendRequest(SecurityTokenRequest.Type, requestMessage, true).Result;
-            connection.UpdateAzureToken(response.Token);
+            connection.UpdateAuthToken(response.Token);
 
             return response.Token;
         }
@@ -973,7 +973,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                             info.ConnectionDetails.Password = ConnectionService.PasswordPlaceholder;
                         }
 
-                        info.ConnectionDetails.ApplicationName = "sqlops-connection-string";
+                        info.ConnectionDetails.ApplicationName = "ads-connection-string";
                         connectionString = DataSourceFactory.CreateConnectionStringBuilder(DataSourceType.Kusto,
                             info.ConnectionDetails.ServerName, info.ConnectionDetails.DatabaseName).ToString();
                     }

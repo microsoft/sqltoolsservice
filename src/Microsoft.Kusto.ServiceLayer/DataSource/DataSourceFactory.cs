@@ -35,10 +35,10 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                         nameof(dataSourceType));
             }
         }
-        
-        private KustoConnectionDetails MapKustoConnectionDetails(ConnectionDetails connectionDetails)
+
+        private DataSourceConnectionDetails MapKustoConnectionDetails(ConnectionDetails connectionDetails)
         {
-            return new KustoConnectionDetails
+            return new DataSourceConnectionDetails
             {
                 ServerName = connectionDetails.ServerName,
                 DatabaseName = connectionDetails.DatabaseName,

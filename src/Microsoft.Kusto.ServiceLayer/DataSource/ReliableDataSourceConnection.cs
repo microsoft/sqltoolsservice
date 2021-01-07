@@ -249,7 +249,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             get { return _dataSource.DatabaseName; }
         }
 
-        public void UpdateAzureToken(string token)
+        public void UpdateAuthToken(string token)
         {
             _connectionDetails.AccountToken = token;
         }

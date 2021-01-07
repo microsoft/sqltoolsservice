@@ -39,7 +39,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         public string ClusterName { get; private set; }
         public string DatabaseName { get; private set; }
 
-        public KustoClient(KustoConnectionDetails connectionDetails, string ownerUri)
+        public KustoClient(DataSourceConnectionDetails connectionDetails, string ownerUri)
         {
             _ownerUri = ownerUri;
             Initialize(connectionDetails);
@@ -80,31 +80,31 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 DatabaseName, ClusterName);
         }
 
-        private void Initialize(KustoConnectionDetails connectionDetails)
+        private void Initialize(DataSourceConnectionDetails connectionDetails)
         {
             var stringBuilder = GetKustoConnectionStringBuilder(connectionDetails);
             _kustoQueryProvider = KustoClientFactory.CreateCslQueryProvider(stringBuilder);
             _kustoAdminProvider = KustoClientFactory.CreateCslAdminProvider(stringBuilder);
         }
 
-        private void RefreshAzureToken()
+        private void RefreshAuthToken()
         {
-            string azureAccountToken = ConnectionService.Instance.RefreshAzureToken(_ownerUri);
+            string accountToken = ConnectionService.Instance.RefreshAzureToken(_ownerUri);
             _kustoQueryProvider.Dispose();
             _kustoAdminProvider.Dispose();
             
-            var connectionDetails = new KustoConnectionDetails
+            var connectionDetails = new DataSourceConnectionDetails
             {
                 ServerName = ClusterName,
                 DatabaseName = DatabaseName,
-                UserToken = azureAccountToken,
+                UserToken = accountToken,
                 AuthenticationType = "AzureMFA"
             };
             
             Initialize(connectionDetails);
         }
 
-        private KustoConnectionStringBuilder GetKustoConnectionStringBuilder(KustoConnectionDetails connectionDetails)
+        private KustoConnectionStringBuilder GetKustoConnectionStringBuilder(DataSourceConnectionDetails connectionDetails)
         {
             ValidationUtils.IsTrue<ArgumentException>(!string.IsNullOrWhiteSpace(connectionDetails.UserToken),
                 $"The Kusto User Token is not specified - set {nameof(connectionDetails.UserToken)}");
@@ -193,7 +193,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                       exception.InnerException is KustoRequestException innerException
                       && innerException.FailureCode == 401) // Unauthorized
             {
-                RefreshAzureToken();
+                RefreshAuthToken();
                 retryCount--;
                 return ExecuteQuery(query, cancellationToken, databaseName, retryCount);
             }
@@ -214,7 +214,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             }
             catch (KustoRequestException exception) when (retryCount > 0 && exception.FailureCode == 401) // Unauthorized
             {
-                RefreshAzureToken();
+                RefreshAuthToken();
                 retryCount--;
                 await ExecuteControlCommandAsync(command, throwOnError, retryCount);
             }
@@ -266,7 +266,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             }
             catch (KustoRequestException exception) when (retryCount > 0 && exception.FailureCode == 401) // Unauthorized
             {
-                RefreshAzureToken();
+                RefreshAuthToken();
                 retryCount--;
                 ExecuteControlCommand(command, retryCount);
             }

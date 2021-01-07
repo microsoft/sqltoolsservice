@@ -1,6 +1,6 @@
 namespace Microsoft.Kusto.ServiceLayer.DataSource.Contracts
 {
-    public class KustoConnectionDetails
+    public class DataSourceConnectionDetails
     {
         public string ServerName { get; set; }
         public string DatabaseName { get; set; }
