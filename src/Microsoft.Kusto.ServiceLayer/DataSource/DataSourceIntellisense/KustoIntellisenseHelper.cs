@@ -3,14 +3,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Kusto.Language;
 using KustoDiagnostic = Kusto.Language.Diagnostic;
 using Kusto.Language.Editor;
-using Kusto.Language.Syntax;
-using Kusto.Language.Symbols;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Completion;
@@ -23,179 +20,28 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
     /// </summary>
     public class KustoIntellisenseHelper
     {
-        /// <summary>
-        /// Convert CLR type name into a Kusto scalar type.
-        /// </summary>
-        private static ScalarSymbol GetKustoType(string clrTypeName)
-        {
-            switch (clrTypeName)
-            {
-                case "System.Byte":
-                case "Byte":
-                case "byte":
-                case "System.SByte":
-                case "SByte":
-                case "sbyte":
-                case "System.Int16":
-                case "Int16":
-                case "short":
-                case "System.UInt16":
-                case "UInt16":
-                case "ushort":
-                case "System.Int32":
-                case "System.Single":
-                case "Int32":
-                case "int":
-                    return ScalarTypes.Int;
-                case "System.UInt32": // unsigned ints don't fit into int, use long
-                case "UInt32":
-                case "uint":
-                case "System.Int64":
-                case "Int64":
-                case "long":
-                    return ScalarTypes.Long;
-                case "System.Double":
-                case "Double":
-                case "double":
-                case "float":
-                    return ScalarTypes.Real;
-                case "System.UInt64": // unsigned longs do not fit into long, use decimal
-                case "UInt64":
-                case "ulong":
-                case "System.Decimal":
-                case "Decimal":
-                case "decimal":
-                case "System.Data.SqlTypes.SqlDecimal":
-                case "SqlDecimal":
-                    return ScalarTypes.Decimal;
-                case "System.Guid":
-                case "Guid":
-                    return ScalarTypes.Guid;
-                case "System.DateTime":
-                case "DateTime":
-                    return ScalarTypes.DateTime;
-                case "System.TimeSpan":
-                case "TimeSpan":
-                    return ScalarTypes.TimeSpan;
-                case "System.String":
-                case "String":
-                case "string":
-                    return ScalarTypes.String;
-                case "System.Boolean":
-                case "Boolean":
-                case "bool":
-                    return ScalarTypes.Bool;
-                case "System.Object":
-                case "Object":
-                case "object":
-                    return ScalarTypes.Dynamic;
-                case "System.Type":
-                case "Type":
-                    return ScalarTypes.Type;
-                default:
-                    throw new InvalidOperationException($"Unhandled clr type: {clrTypeName}");
-            }
-        }
-
-        private static IReadOnlyList<Parameter> NoParameters = new Parameter[0];
-
-        /// <summary>
-        /// Translate Kusto parameter list declaration into into list of <see cref="Parameter"/> instances.
-        /// </summary>
-        private static IReadOnlyList<Parameter> TranslateParameters(string parameters)
-        {
-            parameters = parameters.Trim();
-
-            if (string.IsNullOrEmpty(parameters) || parameters == "()")
-                return NoParameters;
-
-            if (parameters[0] != '(')
-                parameters = "(" + parameters;
-            if (parameters[parameters.Length - 1] != ')')
-                parameters = parameters + ")";
-
-            var query = "let fn = " + parameters + " { };";
-            var code = KustoCode.ParseAndAnalyze(query);
-            var let = code.Syntax.GetFirstDescendant<LetStatement>();
-            
-             FunctionSymbol function = let.Name.ReferencedSymbol is VariableSymbol variable
-                ? variable.Type as FunctionSymbol
-                : let.Name.ReferencedSymbol as FunctionSymbol;
-
-            return function.Signatures[0].Parameters;
-        }
-
-        /// <summary>
-        /// Loads the schema for the specified databasea into a a <see cref="DatabaseSymbol"/>.
-        /// </summary>
-        private static DatabaseSymbol LoadDatabaseAsync(IEnumerable<ShowDatabaseSchemaResult> tableSchemas,
-            IEnumerable<ShowFunctionsResult> functionSchemas,
-            string databaseName)
-        {
-            if (tableSchemas == null)
-            {
-                return null;
-            }
-
-            tableSchemas = tableSchemas
-                .Where(r => !string.IsNullOrEmpty(r.TableName) && !string.IsNullOrEmpty(r.ColumnName))
-                .ToArray();
-
-            var members = new List<Symbol>();
-            foreach (var table in tableSchemas.GroupBy(s => s.TableName))
-            {
-                var columns = table.Select(s => new ColumnSymbol(s.ColumnName, GetKustoType(s.ColumnType))).ToList();
-                var tableSymbol = new TableSymbol(table.Key, columns);
-                members.Add(tableSymbol);
-            }
-
-            if (functionSchemas == null)
-            {
-                return null;
-            }
-
-            foreach (var fun in functionSchemas)
-            {
-                var parameters = TranslateParameters(fun.Parameters);
-                var functionSymbol = new FunctionSymbol(fun.Name, fun.Body, parameters);
-                members.Add(functionSymbol);
-            }
-
-            return new DatabaseSymbol(databaseName, members);
-        }
-
         public static CompletionItemKind CreateCompletionItemKind(CompletionKind kustoKind)
         {
-            CompletionItemKind kind = CompletionItemKind.Variable;
             switch (kustoKind)
             {
                 case CompletionKind.Syntax:
-                    kind = CompletionItemKind.Module;
-                    break;
+                    return CompletionItemKind.Module;
                 case CompletionKind.Column:
-                    kind = CompletionItemKind.Field;
-                    break;
+                    return CompletionItemKind.Field;
                 case CompletionKind.Variable:
-                    kind = CompletionItemKind.Variable;
-                    break;
+                    return CompletionItemKind.Variable;
                 case CompletionKind.Table:
-                    kind = CompletionItemKind.File;
-                    break;
+                    return CompletionItemKind.File;
                 case CompletionKind.Database:
-                    kind = CompletionItemKind.Method;
-                    break;
+                    return CompletionItemKind.Method;
                 case CompletionKind.LocalFunction:
                 case CompletionKind.DatabaseFunction:
                 case CompletionKind.BuiltInFunction:
                 case CompletionKind.AggregateFunction:
-                    kind = CompletionItemKind.Function;
-                    break;
+                    return CompletionItemKind.Function;
                 default:
-                    kind = CompletionItemKind.Keyword;
-                    break;
+                    return CompletionItemKind.Keyword;
             }
-
-            return kind;
         }
 
         /// <summary>
@@ -265,43 +111,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
             }
 
             return markers.ToArray();
-        }
-
-        /// <summary>
-        /// Loads the schema for the specified database and returns a new <see cref="GlobalState"/> with the database added or updated.
-        /// </summary>
-        public static GlobalState AddOrUpdateDatabase(IEnumerable<ShowDatabaseSchemaResult> tableSchemas,
-            IEnumerable<ShowFunctionsResult> functionSchemas, GlobalState globals,
-            string databaseName, string clusterName)
-        {
-            // try and show error from here.
-            DatabaseSymbol databaseSymbol = null;
-
-            if (databaseName != null)
-            {
-                databaseSymbol = LoadDatabaseAsync(tableSchemas, functionSchemas, databaseName);
-            }
-
-            if (databaseSymbol == null)
-            {
-                return globals;
-            }
-
-            var cluster = globals.GetCluster(clusterName);
-            if (cluster == null)
-            {
-                cluster = new ClusterSymbol(clusterName, new[] {databaseSymbol}, isOpen: true);
-                globals = globals.AddOrUpdateCluster(cluster);
-            }
-            else
-            {
-                cluster = cluster.AddOrUpdateDatabase(databaseSymbol);
-                globals = globals.AddOrUpdateCluster(cluster);
-            }
-
-            globals = globals.WithCluster(cluster).WithDatabase(databaseSymbol);
-
-            return globals;
         }
 
         /// <inheritdoc/>

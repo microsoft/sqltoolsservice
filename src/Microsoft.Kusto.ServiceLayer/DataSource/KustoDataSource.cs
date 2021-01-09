@@ -15,6 +15,7 @@ using Kusto.Cloud.Platform.Data;
 using Kusto.Data;
 using Kusto.Data.Data;
 using Kusto.Language;
+using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
 using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 using Microsoft.Kusto.ServiceLayer.DataSource.Models;
 using Microsoft.Kusto.ServiceLayer.Utility;
@@ -27,6 +28,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
     public class KustoDataSource : DataSourceBase
     {
         private IKustoClient _kustoClient;
+        private readonly IIntellisenseClient _intellisenseClient;
 
         /// <summary>
         /// List of databases.
@@ -57,7 +59,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
         public override string ClusterName => _kustoClient.ClusterName;
         
-        public override GlobalState SchemaState => _kustoClient.SchemaState;
+        public override GlobalState SchemaState => _intellisenseClient.SchemaState;
 
         // Some clusters have this signature. Queries might slightly differ for Aria
         private const string AriaProxyURL = "kusto.aria.microsoft.com"; 
@@ -77,9 +79,10 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// <summary>
         /// Prevents a default instance of the <see cref="IDataSource"/> class from being created.
         /// </summary>
-        public KustoDataSource(IKustoClient kustoClient)
+        public KustoDataSource(IKustoClient kustoClient, IIntellisenseClient intellisenseClient)
         {
             _kustoClient = kustoClient;
+            _intellisenseClient = intellisenseClient;
             // Check if a connection can be made
             ValidationUtils.IsTrue<ArgumentException>(Exists().Result,
                 $"Unable to connect. ClusterName = {ClusterName}, DatabaseName = {DatabaseName}");
@@ -246,6 +249,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         public override void UpdateDatabase(string databaseName)
         {
             _kustoClient.UpdateDatabase(databaseName);
+            _intellisenseClient.UpdateDatabase(databaseName);
         }
         
         /// <summary>

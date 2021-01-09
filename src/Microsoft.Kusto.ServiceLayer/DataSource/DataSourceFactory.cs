@@ -26,7 +26,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 {
                     var kustoConnectionDetails = MapKustoConnectionDetails(connectionDetails);
                     var kustoClient = new KustoClient(kustoConnectionDetails, ownerUri);
-                    return new KustoDataSource(kustoClient);
+                    var intellisenseClient = new KustoIntellisenseClient(kustoClient);
+                    return new KustoDataSource(kustoClient, intellisenseClient);
                 }
 
                 default:
