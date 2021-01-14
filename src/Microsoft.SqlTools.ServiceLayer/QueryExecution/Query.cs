@@ -623,7 +623,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 // "set noexec off" should be the very first command, cause everything after 
                 // corresponding "set noexec on" is not executed until "set noexec off"
                 // is encounted
-                if (!settings.NoExec)
+                // NOEXEC is not currently supported by SqlOnDemand servers
+                if (!settings.NoExec && connection.EngineEdition != SqlServer.Management.Common.DatabaseEngineEdition.SqlOnDemand)
                 {
                     builderBefore.AppendFormat("{0} ", helper.SetNoExecString);
                 }
@@ -684,7 +685,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 // "set noexec on" should be the very last command, cause everything after it is not
                 // being executed unitl "set noexec off" is encounered
-                if (settings.NoExec)
+                // NOEXEC is not currently supported by SqlOnDemand servers
+                if (settings.NoExec && connection.EngineEdition != SqlServer.Management.Common.DatabaseEngineEdition.SqlOnDemand)
                 {
                     builderBefore.AppendFormat("{0} ", helper.SetNoExecString);
                 }
