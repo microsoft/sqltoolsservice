@@ -1,7 +1,9 @@
+using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
+
 namespace Microsoft.Kusto.ServiceLayer.DataSource
 {
     public interface IDataSourceFactory
     {
-        IDataSource Create(DataSourceType dataSourceType, string connectionString, string azureAccountToken, string ownerUri);
+        IDataSource Create(DataSourceType dataSourceType, ConnectionDetails connectionDetails, string ownerUri);
     }
 }

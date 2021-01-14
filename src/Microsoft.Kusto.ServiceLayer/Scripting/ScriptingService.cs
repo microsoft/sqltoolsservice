@@ -92,13 +92,13 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                 // if a connection string wasn't provided as a parameter then
                 // use the owner uri property to lookup its associated ConnectionInfo
                 // and then build a connection string out of that
-                if (parameters.ConnectionString == null)
+                if (parameters.DatabaseName == null)
                 {
                     ConnectionInfo connInfo;
                     _connectionService.TryFindConnection(parameters.OwnerUri, out connInfo);
                     if (connInfo != null)
                     {
-                        parameters.ConnectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
+                        parameters.DatabaseName = connInfo.ConnectionDetails.DatabaseName;
                     }
                     else
                     {
@@ -106,18 +106,15 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                     }
                 }
 
-                SmoScriptingOperation operation;
-                var datasource = _connectionService.GetOrOpenConnection(parameters.OwnerUri, ConnectionType.Default)
-                    .Result.GetUnderlyingConnection();
                 if (!ShouldCreateScriptAsOperation(parameters))
                 {
-                    operation = new ScriptingScriptOperation(parameters, datasource);
+                    throw new InvalidOperationException("Unable to create script.");
                 }
-                else
-                {
-                    operation = new ScriptAsScriptingOperation(parameters, _scripter, datasource);
-                }
+                
+                var datasource = _connectionService.GetOrOpenConnection(parameters.OwnerUri, ConnectionType.Default)
+                    .Result.GetUnderlyingConnection();
 
+                SmoScriptingOperation operation = new ScriptAsScriptingOperation(parameters, _scripter, datasource);
                 operation.PlanNotification += (sender, e) => requestContext.SendEvent(ScriptingPlanNotificationEvent.Type, e).Wait();
                 operation.ProgressNotification += (sender, e) => requestContext.SendEvent(ScriptingProgressNotificationEvent.Type, e).Wait();
                 operation.CompleteNotification += (sender, e) => this.SendScriptingCompleteEvent(requestContext, ScriptingCompleteEvent.Type, e, operation, parameters.ScriptDestination);
@@ -136,17 +133,11 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
             // Scripting as operation should be used to script one object.
             // Scripting data and scripting to file is not supported by scripting as operation
             // To script Select, alter and execute use scripting as operation. The other operation doesn't support those types
-            if( (parameters.ScriptingObjects != null && parameters.ScriptingObjects.Count == 1 && parameters.ScriptOptions != null 
-                && parameters.ScriptOptions.TypeOfDataToScript == "SchemaOnly" && parameters.ScriptDestination == "ToEditor") || 
-                parameters.Operation == ScriptingOperationType.Select || parameters.Operation == ScriptingOperationType.Execute || 
-                parameters.Operation == ScriptingOperationType.Alter) 
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return parameters.ScriptingObjects != null && parameters.ScriptingObjects.Count == 1 && parameters.ScriptOptions != null 
+                   && parameters.ScriptOptions.TypeOfDataToScript == "SchemaOnly" && parameters.ScriptDestination == "ToEditor" 
+                   || parameters.Operation == ScriptingOperationType.Select 
+                   || parameters.Operation == ScriptingOperationType.Execute 
+                   || parameters.Operation == ScriptingOperationType.Alter;
         }
 
         /// <summary>
@@ -227,7 +218,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
             {
                 disposed = true;
                 
-                foreach (ScriptingScriptOperation operation in this.ActiveOperations.Values)
+                foreach (var operation in this.ActiveOperations.Values)
                 {
                     operation.Dispose();
                 }

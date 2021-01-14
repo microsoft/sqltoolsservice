@@ -24,9 +24,9 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting.Contracts
         public string ScriptDestination { get; set; }
 
         /// <summary>
-        /// Gets or sets connection string of the target database the scripting operation will run against.
+        /// Gets or sets the target database the scripting operation will run against.
         /// </summary>
-        public string ConnectionString { get; set; }
+        public string DatabaseName { get; set; }
 
         /// <summary>
         /// Gets or sets a list of scripting objects to script.

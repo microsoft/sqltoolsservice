@@ -1,33 +1,79 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Composition;
-using Microsoft.Kusto.ServiceLayer.Utility;
+using Kusto.Data;
+using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
+using Microsoft.Kusto.ServiceLayer.DataSource.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Completion;
+using Microsoft.Kusto.ServiceLayer.Utility;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource
 {
     [Export(typeof(IDataSourceFactory))]
     public class DataSourceFactory : IDataSourceFactory
     {
-        public IDataSource Create(DataSourceType dataSourceType, string connectionString, string azureAccountToken, string ownerUri)
+        public IDataSource Create(DataSourceType dataSourceType, ConnectionDetails connectionDetails, string ownerUri)
         {
-            ValidationUtils.IsArgumentNotNullOrWhiteSpace(connectionString, nameof(connectionString));
-            ValidationUtils.IsArgumentNotNullOrWhiteSpace(azureAccountToken, nameof(azureAccountToken));
-
+            ValidationUtils.IsArgumentNotNullOrWhiteSpace(connectionDetails.AccountToken, nameof(connectionDetails.AccountToken));
+            
             switch (dataSourceType)
             {
                 case DataSourceType.Kusto:
                 {
-                    var kustoClient = new KustoClient(connectionString, azureAccountToken, ownerUri);
+                    var kustoConnectionDetails = MapKustoConnectionDetails(connectionDetails);
+                    var kustoClient = new KustoClient(kustoConnectionDetails, ownerUri);
                     return new KustoDataSource(kustoClient);
                 }
 
                 default:
-                    throw new ArgumentException($"Unsupported data source type \"{dataSourceType}\"",
+                    
+                    throw new ArgumentException($@"Unsupported data source type ""{dataSourceType}""",
+                        nameof(dataSourceType));
+            }
+        }
+
+        private DataSourceConnectionDetails MapKustoConnectionDetails(ConnectionDetails connectionDetails)
+        {
+            return new DataSourceConnectionDetails
+            {
+                ServerName = connectionDetails.ServerName,
+                DatabaseName = connectionDetails.DatabaseName,
+                ConnectionString = connectionDetails.ConnectionString,
+                AuthenticationType = connectionDetails.AuthenticationType,
+                UserToken = connectionDetails.AccountToken
+            };
+        }
+
+        public static KustoConnectionStringBuilder CreateConnectionStringBuilder(DataSourceType dataSourceType, string serverName, string databaseName)
+        {
+            switch (dataSourceType)
+            {
+                case DataSourceType.Kusto:
+                {
+                    return new KustoConnectionStringBuilder(serverName, databaseName);
+                }
+
+                default:
+                    throw new ArgumentException($@"Unsupported data source type ""{dataSourceType}""",
+                        nameof(dataSourceType));
+            }
+        }
+
+        public static KustoConnectionStringBuilder CreateConnectionStringBuilder(DataSourceType dataSourceType, string connectionString)
+        {
+            switch (dataSourceType)
+            {
+                case DataSourceType.Kusto:
+                {
+                    return new KustoConnectionStringBuilder(connectionString);
+                }
+
+                default:
+                    throw new ArgumentException($@"Unsupported data source type ""{dataSourceType}""",
                         nameof(dataSourceType));
             }
         }
