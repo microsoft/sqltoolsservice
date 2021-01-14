@@ -3,7 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
- namespace Microsoft.Kusto.ServiceLayer.Connection
+using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
+
+namespace Microsoft.Kusto.ServiceLayer.Connection
 {
     /// <summary>
     /// Interface for the SQL Connection factory
@@ -13,6 +15,6 @@
         /// <summary>
         /// Create a new SQL Connection object
         /// </summary>
-        ReliableDataSourceConnection CreateDataSourceConnection(string connectionString, string azureAccountToken, string ownerUri);
+        ReliableDataSourceConnection CreateDataSourceConnection(ConnectionDetails connectionDetails, string ownerUri);
     }
 }

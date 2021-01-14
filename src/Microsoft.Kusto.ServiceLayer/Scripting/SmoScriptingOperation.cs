@@ -10,7 +10,6 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using Kusto.Data;
 using static Microsoft.SqlServer.Management.SqlScriptPublish.SqlScriptOptions;
 
 namespace Microsoft.Kusto.ServiceLayer.Scripting
@@ -80,19 +79,15 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
 
         protected void ValidateScriptDatabaseParams()
         {
-            try
+            if (string.IsNullOrWhiteSpace(Parameters.DatabaseName))
             {
-                var builder = new KustoConnectionStringBuilder(this.Parameters.ConnectionString);
+                throw new ArgumentException(SR.ScriptingParams_ConnectionString_Property_Invalid);
             }
-            catch (Exception e)
-            {
-                throw new ArgumentException(SR.ScriptingParams_ConnectionString_Property_Invalid, e);
-            }
-            if (this.Parameters.FilePath == null && this.Parameters.ScriptDestination != "ToEditor")
+            if (Parameters.FilePath == null && this.Parameters.ScriptDestination != "ToEditor")
             {
                 throw new ArgumentException(SR.ScriptingParams_FilePath_Property_Invalid);
             }
-            else if (this.Parameters.FilePath != null && this.Parameters.ScriptDestination != "ToEditor")
+            if (Parameters.FilePath != null && this.Parameters.ScriptDestination != "ToEditor")
             {
                 if (!Directory.Exists(Path.GetDirectoryName(this.Parameters.FilePath)))
                 {
