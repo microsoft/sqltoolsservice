@@ -1,8 +1,11 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
+using Microsoft.Kusto.ServiceLayer.LanguageServices.Completion;
+using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
 using Moq;
 using NUnit.Framework;
 
@@ -10,8 +13,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.DataSource.DataSourceIntellisen
 {
     public class KustoIntellisenseClientTests
     {
-        [Test]
-        public void Constructor_Sets_SchemaState_For_Functions_And_Tables()
+        private Mock<IKustoClient> GetMockKustoClient()
         {
             var kustoClientMock = new Mock<IKustoClient>();
             kustoClientMock.Setup(x => x.ClusterName).Returns("https://fake.url.com");
@@ -32,7 +34,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.DataSource.DataSourceIntellisen
             };
 
             var databaseSchemaResults = new List<ShowDatabaseSchemaResult> {databaseSchema} as IEnumerable<ShowDatabaseSchemaResult>;
-            kustoClientMock.Setup(x => x.ExecuteQueryAsync<ShowDatabaseSchemaResult>(It.IsAny<string>(), It.IsAny<CancellationToken>(), It.IsAny<string>()))
+            kustoClientMock.Setup(x => x.ExecuteQueryAsync<ShowDatabaseSchemaResult>(It.IsAny<string>(), It.IsAny<CancellationToken>(), "FakeDatabaseName"))
                 .Returns(Task.FromResult(databaseSchemaResults));
 
             var functionSchema = new ShowFunctionsResult
@@ -45,32 +47,91 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.DataSource.DataSourceIntellisen
             };
 
             var functionSchemaResults = new List<ShowFunctionsResult> {functionSchema} as IEnumerable<ShowFunctionsResult>;
-            kustoClientMock.Setup(x => x.ExecuteQueryAsync<ShowFunctionsResult>(It.IsAny<string>(), It.IsAny<CancellationToken>(), It.IsAny<string>()))
+            kustoClientMock.Setup(x => x.ExecuteQueryAsync<ShowFunctionsResult>(It.IsAny<string>(), It.IsAny<CancellationToken>(), "FakeDatabaseName"))
                 .Returns(Task.FromResult(functionSchemaResults));
 
-            var client = new KustoIntellisenseClient(kustoClientMock.Object);
-
-            var schemaState = client.SchemaState;
-            Assert.AreEqual("cluster(https://fake.url.com)", schemaState.Cluster.Display);
-            Assert.AreEqual("https://fake.url.com", schemaState.Cluster.Name);
-            
-            Assert.AreEqual("database(FakeDatabaseName)", schemaState.Database.Display);
-            Assert.AreEqual("FakeDatabaseName", schemaState.Database.Name);
-            
-            Assert.AreEqual(1, schemaState.Database.Functions.Count);
-            var functionSymbol = schemaState.Database.Functions[0];
-            Assert.AreEqual("FakeFunctionName(a, b)", functionSymbol.Display);
-            Assert.AreEqual("FakeFunctionName", functionSymbol.Name);
+            return kustoClientMock;
         }
         
         [Test]
+        public void GetSemanticMarkers_Returns_Error_For_InvalidText()
+        {
+            var kustoClientMock = GetMockKustoClient();
+            
+            var client = new KustoIntellisenseClient(kustoClientMock.Object);
+            var semanticMarkers = client.GetSemanticMarkers(new ScriptParseInfo(), new ScriptFile("", "", ""), "InvalidText");
+            
+            var semanticMarker = semanticMarkers.Single();
+            Assert.AreEqual(ScriptFileMarkerLevel.Error, semanticMarker.Level);
+            Assert.AreEqual("The name 'InvalidText' does not refer to any known column, table, variable or function.", semanticMarker.Message);
+            Assert.IsNotNull(semanticMarker.ScriptRegion);
+        }
+
+        [Test]
+        public void GetSemanticMarkers_Returns_Zero_SemanticMarkers_For_ValidQueryText()
+        {
+            var kustoClientMock = GetMockKustoClient();
+            
+            var client = new KustoIntellisenseClient(kustoClientMock.Object);
+            var queryText = @".show commands";
+            var semanticMarkers = client.GetSemanticMarkers(new ScriptParseInfo(), new ScriptFile("", "", ""), queryText);
+            
+            Assert.AreEqual(0, semanticMarkers.Length);
+        }
+
+        [Test]
+        public void GetDefinition_Returns_Null()
+        {
+            var kustoClientMock = GetMockKustoClient();
+            var client = new KustoIntellisenseClient(kustoClientMock.Object);
+            var definition = client.GetDefinition("queryText", 0, 1, 1);
+            
+            // finish these assertions once the function is implemented
+            Assert.IsNull(definition);
+        }
+
+        [Test]
+        public void GetHoverHelp_Returns_Hover()
+        {
+            var kustoClientMock = GetMockKustoClient();
+            var client = new KustoIntellisenseClient(kustoClientMock.Object);
+            var textDocumentPosition = new TextDocumentPosition
+            {
+                Position = new Position()
+            };
+            var scriptFile = new ScriptFile("", "", "");
+            var scriptParseInfo = new ScriptParseInfo();
+            var documentInfo = new ScriptDocumentInfo(textDocumentPosition, scriptFile, scriptParseInfo);
+            
+            var hover = client.GetHoverHelp(documentInfo, new Position());
+
+            Assert.IsNotNull(hover);
+        }
+
+        [Test]
+        public void GetAutoCompleteSuggestions_Returns_CompletionItems()
+        {
+            var kustoClientMock = GetMockKustoClient();
+            var client = new KustoIntellisenseClient(kustoClientMock.Object);
+
+            var position = new Position();
+            var textDocumentPosition = new TextDocumentPosition
+            {
+                Position = position
+            };
+            var scriptFile = new ScriptFile("", "", "");
+            var scriptParseInfo = new ScriptParseInfo();
+            var documentInfo = new ScriptDocumentInfo(textDocumentPosition, scriptFile, scriptParseInfo);
+            var items = client.GetAutoCompleteSuggestions(documentInfo, position);
+            
+            Assert.AreEqual(20, items.Length);
+        }
+        [Test]
         public void UpdateDatabase_Updates_SchemaState()
         {
-            var kustoClientMock = new Mock<IKustoClient>();
-            kustoClientMock.Setup(x => x.ClusterName).Returns("https://fake.url.com");
-            kustoClientMock.Setup(x => x.DatabaseName).Returns("FakeDatabaseName");
-
-            var newDatabaseSchema = new ShowDatabaseSchemaResult
+            var kustoClientMock = GetMockKustoClient();
+            
+            var databaseSchema = new ShowDatabaseSchemaResult
             {
                 DatabaseName = "NewDatabaseName",
                 TableName = "NewTableName",
@@ -84,19 +145,30 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.DataSource.DataSourceIntellisen
                 DocName = ""
             };
 
-            var newDatabaseSchemaResults = new List<ShowDatabaseSchemaResult> {newDatabaseSchema} as IEnumerable<ShowDatabaseSchemaResult>;
-            kustoClientMock.Setup(x => x.ExecuteQueryAsync<ShowDatabaseSchemaResult>(It.IsAny<string>(), It.IsAny<CancellationToken>(), newDatabaseSchema.DatabaseName))
-                .Returns(Task.FromResult(newDatabaseSchemaResults));
-
+            var databaseSchemaResults = new List<ShowDatabaseSchemaResult> {databaseSchema} as IEnumerable<ShowDatabaseSchemaResult>;
+            kustoClientMock.Setup(x => x.ExecuteQueryAsync<ShowDatabaseSchemaResult>(It.IsAny<string>(), It.IsAny<CancellationToken>(), "NewDatabaseName"))
+                .Returns(Task.FromResult(databaseSchemaResults));
+            
             var client = new KustoIntellisenseClient(kustoClientMock.Object);
             client.UpdateDatabase("NewDatabaseName");
 
-            var schemaState = client.SchemaState;
-            Assert.AreEqual("cluster(https://fake.url.com)", schemaState.Cluster.Display);
-            Assert.AreEqual("https://fake.url.com", schemaState.Cluster.Name);
+            var position = new Position();
+            var textDocumentPosition = new TextDocumentPosition
+            {
+                Position = position
+            };
+            var scriptFile = new ScriptFile("", "", "");
+            var scriptParseInfo = new ScriptParseInfo();
+            var documentInfo = new ScriptDocumentInfo(textDocumentPosition, scriptFile, scriptParseInfo);
+            var items = client.GetAutoCompleteSuggestions(documentInfo, position);
             
-            Assert.AreEqual("database(NewDatabaseName)", schemaState.Database.Display);
-            Assert.AreEqual("NewDatabaseName", schemaState.Database.Name);
+            Assert.AreEqual(19, items.Length);
+            var tableItem = items.FirstOrDefault(x => x.Detail == "Table");
+
+            // assert new table is being returned to show database has changed
+            Assert.IsNotNull(tableItem);
+            Assert.AreEqual("NewTableName", tableItem.InsertText);
+            Assert.AreEqual("NewTableName", tableItem.Label);
         }
     }
 }

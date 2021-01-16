@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
-using Kusto.Language;
+using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
 using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource
@@ -27,8 +27,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// The current database name, if there is one.
         /// </summary>
         string DatabaseName { get; }
-        
-        GlobalState SchemaState { get; }
+
+        IIntellisenseClient IntellisenseClient { get; }
 
         /// <summary>
         /// Executes a query.

@@ -59,7 +59,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
         public override string ClusterName => _kustoClient.ClusterName;
         
-        public override GlobalState SchemaState => _intellisenseClient.SchemaState;
+        public override IIntellisenseClient IntellisenseClient => _intellisenseClient;
 
         // Some clusters have this signature. Queries might slightly differ for Aria
         private const string AriaProxyURL = "kusto.aria.microsoft.com"; 

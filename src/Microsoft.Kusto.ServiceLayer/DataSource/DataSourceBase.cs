@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Data;
 using System.Threading.Tasks;
-using Kusto.Language;
+using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 
@@ -96,7 +96,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         public abstract string ClusterName { get; }
 
         public abstract string DatabaseName { get; }
-        public abstract GlobalState SchemaState { get; }
+
+        public abstract IIntellisenseClient IntellisenseClient { get; }
 
         #endregion
     }

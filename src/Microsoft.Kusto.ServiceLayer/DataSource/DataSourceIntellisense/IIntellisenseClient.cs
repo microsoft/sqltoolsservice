@@ -1,14 +1,16 @@
-using Kusto.Language;
+using Microsoft.Kusto.ServiceLayer.LanguageServices;
+using Microsoft.Kusto.ServiceLayer.LanguageServices.Completion;
+using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
+using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
 {
     public interface IIntellisenseClient
     {
-        /// <summary>
-        /// SchemaState used for getting intellisense info.
-        /// </summary>
-        GlobalState SchemaState { get; }
-
         void UpdateDatabase(string databaseName);
+        ScriptFileMarker[] GetSemanticMarkers(ScriptParseInfo parseInfo, ScriptFile scriptFile, string queryText);
+        DefinitionResult GetDefinition(string queryText, int index, int startLine, int startColumn, bool throwOnError = false);
+        Hover GetHoverHelp(ScriptDocumentInfo scriptDocumentInfo, Position textPosition, bool throwOnError = false);
+        CompletionItem[] GetAutoCompleteSuggestions(ScriptDocumentInfo scriptDocumentInfo, Position textPosition, bool throwOnError = false);
     }
 }
