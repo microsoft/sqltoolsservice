@@ -197,9 +197,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ModelManagement
         public async Task HandleConfigureModelTableRequest(ConfigureModelTableRequestParams parameters, RequestContext<ConfigureModelTableResponseParams> requestContext)
         {
             Logger.Write(TraceEventType.Verbose, "HandleConfigureModelTableRequest");
-            ConfigureModelTableResponseParams response = new ConfigureModelTableResponseParams
-            {
-            };
+            ConfigureModelTableResponseParams response = new ConfigureModelTableResponseParams();
 
             await HandleRequest(parameters, response, requestContext, (dbConnection, parameters, response) =>
             {
@@ -222,26 +220,22 @@ namespace Microsoft.SqlTools.ServiceLayer.ModelManagement
                     out connInfo);
                 if (connInfo == null)
                 {
-                    response.ErrorMessage = SR.ConnectionServiceDbErrorDefaultNotConnected(parameters.OwnerUri);
-                    response.Success = false;
+                    await requestContext.SendError(new Exception(SR.ConnectionServiceDbErrorDefaultNotConnected(parameters.OwnerUri)));
                 }
                 else
                 {
-                    response.Success = true;
                     using (IDbConnection dbConnection = ConnectionService.OpenSqlConnection(connInfo))
                     {
                         response = operation(dbConnection, parameters, response);
-                        response.Success = true;
                     }
+                    await requestContext.SendResult(response);
                 }
             }
             catch (Exception e)
             {
-                response.ErrorMessage = e.Message;
-                response.Success = false;
+                // Exception related to run task will be captured here
+                await requestContext.SendError(e);
             }
-
-            await requestContext.SendResult(response);
         }
     }
 }

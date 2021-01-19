@@ -50,8 +50,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ModelManagement
                verify: (actual =>
                {
                    Assert.NotNull(actual);
-                   Assert.True(actual.Success);
-                   Assert.True(string.IsNullOrWhiteSpace(actual.ErrorMessage));
                }));
         }
 
@@ -82,8 +80,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ModelManagement
                verify: (actual =>
                {
                    Assert.NotNull(actual);
-                   Assert.True(actual.Success);
-                   Assert.True(string.IsNullOrWhiteSpace(actual.ErrorMessage));
                }));
         }
 
@@ -114,8 +110,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ModelManagement
                verify: (actual =>
                {
                    Assert.NotNull(actual);
-                   Assert.True(actual.Success);
-                   Assert.True(string.IsNullOrWhiteSpace(actual.ErrorMessage));
                }));
         }
 
@@ -147,8 +141,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ModelManagement
                {
                    Assert.NotNull(actual);
                    Assert.AreEqual(actual.FilePath, "file path");
-                   Assert.True(actual.Success);
-                   Assert.True(string.IsNullOrWhiteSpace(actual.ErrorMessage));
                }));
         }
 
@@ -179,8 +171,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ModelManagement
                {
                    Assert.NotNull(actual);
                    Assert.AreEqual(actual.Verified, true);
-                   Assert.True(actual.Success);
-                   Assert.True(string.IsNullOrWhiteSpace(actual.ErrorMessage));
                }));
         }
 
@@ -210,8 +200,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ModelManagement
                verify: (actual =>
                {
                    Assert.NotNull(actual);
-                   Assert.True(actual.Success);
-                   Assert.True(string.IsNullOrWhiteSpace(actual.ErrorMessage));
                }));
         }
 
@@ -242,8 +230,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ModelManagement
                {
                    Assert.NotNull(actual);
                    Assert.True(actual.Models.Count == 1);
-                   Assert.True(actual.Success);
-                   Assert.True(string.IsNullOrWhiteSpace(actual.ErrorMessage));
                }));
         }
 
@@ -264,19 +250,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ModelManagement
                 ModelOperations = operations.Object
             };
 
-            await VerifyRequst<DeleteModelResponseParams>(
+            await VerifyError<DeleteModelResponseParams>(
                test: async (requestContext, connectionUrl) =>
                {
                    requestParams.OwnerUri = connectionUrl;
                    await service.HandleDeleteModelRequest(requestParams, requestContext);
                    return null;
-               },
-               verify: (actual =>
-               {
-                   Assert.NotNull(actual);
-                   Assert.False(actual.Success);
-                   Assert.False(string.IsNullOrWhiteSpace(actual.ErrorMessage));
-               }));
+               });
         }
 
         [Test]
@@ -296,19 +276,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ModelManagement
                 ModelOperations = operations.Object
             };
 
-            await VerifyRequst<DeleteModelResponseParams>(
+            await VerifyError<DeleteModelResponseParams>(
                test: async (requestContext, connectionUrl) =>
                {
                    requestParams.OwnerUri = "Invalid connection uri";
                    await service.HandleDeleteModelRequest(requestParams, requestContext);
                    return null;
-               },
-               verify: (actual =>
-               {
-                   Assert.NotNull(actual);
-                   Assert.False(actual.Success);
-                   Assert.False(string.IsNullOrWhiteSpace(actual.ErrorMessage));
-               }));
+               });
         }
 
         public async Task VerifyRequst<T>(Func<RequestContext<T>, string, Task<T>> test, Action<T> verify)
@@ -319,6 +293,22 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ModelManagement
                 await RunAndVerify<T>(
                test: (requestContext) => test(requestContext, queryTempFile.FilePath),
                verify: verify);
+
+                ModelManagementService.Instance.ConnectionServiceInstance.Disconnect(new DisconnectParams
+                {
+                    OwnerUri = queryTempFile.FilePath,
+                    Type = ServiceLayer.Connection.ConnectionType.Default
+                });
+            }
+        }
+
+        public async Task VerifyError<T>(Func<RequestContext<T>, string, Task<T>> test)
+        {
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            {
+                var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
+                await RunAndVerifyError<T>(
+               test: (requestContext) => test(requestContext, queryTempFile.FilePath));
 
                 ModelManagementService.Instance.ConnectionServiceInstance.Disconnect(new DisconnectParams
                 {

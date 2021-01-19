@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ModelManagement.Contracts
         public string OwnerUri { get; set; }
     }
 
-    public class ModelResponseBase : ResultStatus
+    public class ModelResponseBase
     {
     }
 }
