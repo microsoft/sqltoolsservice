@@ -32,6 +32,7 @@ using Microsoft.SqlTools.ServiceLayer.SqlAssessment;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.NotebookConvert;
+using Microsoft.SqlTools.ServiceLayer.ModelManagement;
 
 namespace Microsoft.SqlTools.ServiceLayer
 {
@@ -137,7 +138,10 @@ namespace Microsoft.SqlTools.ServiceLayer
 
             ExternalLanguageService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(ExternalLanguageService.Instance);
-            
+
+            ModelManagementService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(ModelManagementService.Instance);
+
             SqlAssessmentService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(SqlAssessmentService.Instance);
 
