@@ -2,11 +2,13 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Dac;
 
-namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
+namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 {
     /// <summary>
     /// Class to define deployment options. 
@@ -15,6 +17,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
     /// </summary>
     public class DeploymentOptions
     {
+        #region Properties
+
         public bool IgnoreTableOptions { get; set; }
 
         public bool IgnoreSemicolonBetweenStatements { get; set; }
@@ -209,6 +213,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
                 ObjectType.AssemblyFiles,
         };
 
+        #endregion
+
         public DeploymentOptions()
         {
             DacDeployOptions options = new DacDeployOptions();
@@ -296,6 +302,20 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
                     deployOptionsProp.SetValue(this, prop.GetValue(options));
                 }
             }
+        }
+
+        public static DeploymentOptions GetDefaultSchemaCompareOptions()
+        {
+            return new DeploymentOptions();
+        }
+
+        public static DeploymentOptions GetDefaultPublishOptions()
+        {
+            DeploymentOptions result = new DeploymentOptions();
+
+            result.ExcludeObjectTypes = result.ExcludeObjectTypes.Where(x => x != ObjectType.DatabaseScopedCredentials).ToArray(); // re-include database-scoped credentials
+
+            return result;
         }
     }
 }

@@ -86,24 +86,27 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.LanguageServices
             
             Assert.AreEqual("NULL_NULL_NULL_NULL", connectionKey);
         }
-
-        [TestCase(false)]
-        public void AddConnectionContext_Sets_BindingContext(bool needsMetadata)
+        
+        [Test]
+        public void AddConnectionContext_Sets_BindingContext()
         {
-            var connectionDetails = new ConnectionDetails();
+            var connectionDetails = new ConnectionDetails
+            {
+                AccountToken = "AzureAccountToken" 
+            };
             var connectionFactory = new Mock<IDataSourceConnectionFactory>();
             var connectionInfo = new ConnectionInfo(connectionFactory.Object, "ownerUri", connectionDetails);
 
             var dataSourceFactory = new Mock<IDataSourceFactory>();
             var dataSourceMock = new Mock<IDataSource>();
             dataSourceFactory
-                .Setup(x => x.Create(It.IsAny<DataSourceType>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Setup(x => x.Create(It.IsAny<DataSourceType>(), It.IsAny<ConnectionDetails>(), It.IsAny<string>()))
                 .Returns(dataSourceMock.Object);
 
             var connectedBindingQueue =
                 new ConnectedBindingQueue(dataSourceFactory.Object);
             var connectionKey =
-                connectedBindingQueue.AddConnectionContext(connectionInfo, needsMetadata, "featureName");
+                connectedBindingQueue.AddConnectionContext(connectionInfo, false, "featureName");
             var bindingContext = connectedBindingQueue.GetOrCreateBindingContext(connectionKey);
             
             Assert.AreEqual(dataSourceMock.Object, bindingContext.DataSource);

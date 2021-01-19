@@ -65,12 +65,12 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Metadata
         {
             var databaseDetails = new List<DatabaseInfo>();
 
-            if (typeof(DatabaseMetadata) == clusterDBDetails.FirstOrDefault().GetType())
+            if (clusterDBDetails.FirstOrDefault() is DatabaseMetadata)
             {
                 foreach (var dbDetail in clusterDBDetails)
                 {
                     DatabaseInfo databaseInfo = new DatabaseInfo();
-                    Int64.TryParse(dbDetail.SizeInMB.ToString(), out long sum_OriginalSize);
+                    long.TryParse(dbDetail.SizeInMB, out long sum_OriginalSize);
                     databaseInfo.Options["name"] = dbDetail.Name;
                     databaseInfo.Options["sizeInMB"] = (sum_OriginalSize / (1024 * 1024)).ToString();
                     databaseDetails.Add(databaseInfo);

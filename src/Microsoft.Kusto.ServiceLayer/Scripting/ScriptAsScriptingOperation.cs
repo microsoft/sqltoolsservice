@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using Microsoft.Kusto.ServiceLayer.Scripting.Contracts;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.SqlTools.Utility;
@@ -157,7 +156,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
             IEnumerable<ScriptingObject> selectedObjects = new List<ScriptingObject>(this.Parameters.ScriptingObjects);
 
             _serverName = dataSource.ClusterName;
-            _databaseName = new SqlConnectionStringBuilder(this.Parameters.ConnectionString).InitialCatalog;
+            _databaseName = Parameters.DatabaseName;
             UrnCollection urnCollection = new UrnCollection();
             foreach (var scriptingObject in selectedObjects)
             {

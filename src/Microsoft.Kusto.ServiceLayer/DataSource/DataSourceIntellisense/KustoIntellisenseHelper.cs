@@ -117,8 +117,11 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
             var query = "let fn = " + parameters + " { };";
             var code = KustoCode.ParseAndAnalyze(query);
             var let = code.Syntax.GetFirstDescendant<LetStatement>();
-            var variable = let.Name.ReferencedSymbol as VariableSymbol;
-            var function = variable.Type as FunctionSymbol;
+            
+             FunctionSymbol function = let.Name.ReferencedSymbol is VariableSymbol variable
+                ? variable.Type as FunctionSymbol
+                : let.Name.ReferencedSymbol as FunctionSymbol;
+
             return function.Signatures[0].Parameters;
         }
 

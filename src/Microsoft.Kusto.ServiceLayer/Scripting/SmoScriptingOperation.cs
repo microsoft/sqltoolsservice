@@ -7,7 +7,6 @@ using Microsoft.Kusto.ServiceLayer.Scripting.Contracts;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.SqlTools.Utility;
 using System;
-using System.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
@@ -80,19 +79,15 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
 
         protected void ValidateScriptDatabaseParams()
         {
-            try
+            if (string.IsNullOrWhiteSpace(Parameters.DatabaseName))
             {
-                SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(this.Parameters.ConnectionString);
+                throw new ArgumentException(SR.ScriptingParams_ConnectionString_Property_Invalid);
             }
-            catch (Exception e)
-            {
-                throw new ArgumentException(SR.ScriptingParams_ConnectionString_Property_Invalid, e);
-            }
-            if (this.Parameters.FilePath == null && this.Parameters.ScriptDestination != "ToEditor")
+            if (Parameters.FilePath == null && this.Parameters.ScriptDestination != "ToEditor")
             {
                 throw new ArgumentException(SR.ScriptingParams_FilePath_Property_Invalid);
             }
-            else if (this.Parameters.FilePath != null && this.Parameters.ScriptDestination != "ToEditor")
+            if (Parameters.FilePath != null && this.Parameters.ScriptDestination != "ToEditor")
             {
                 if (!Directory.Exists(Path.GetDirectoryName(this.Parameters.FilePath)))
                 {
