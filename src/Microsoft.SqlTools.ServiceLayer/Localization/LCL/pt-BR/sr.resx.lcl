@@ -15,11 +15,9 @@
     <Cmt Name="Rccx" />
   </OwnedComments>
   <Item ItemId=";sr.resx" ItemType="0" PsrId="211" Leaf="false">
-    <Disp Icon="Str" Expand="true" Disp="true" LocTbl="false" />
-    <Modified By="khoiph" DateTime="2020-12-01T08:02:34Z" />
+    <Disp Icon="Expand" Expand="true" Disp="true" LocTbl="false" />
     <Item ItemId=";Strings" ItemType="0" PsrId="211" Leaf="false">
-      <Disp Icon="Str" LocTbl="false" />
-      <Modified By="khoiph" DateTime="2020-12-01T08:02:34Z" />
+      <Disp Icon="Str" Disp="true" LocTbl="false" />
       <Item ItemId=";AlertNameCannotBeBlank" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[The name of the alert cannot be blank.]]></Val>
@@ -28,10 +26,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:53Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";AzureSqlAnalyticsOnDemandEdition" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -41,10 +35,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:53Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";AzureSqlDbEdition" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -54,36 +44,24 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:53Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";AzureSqlDwEdition" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Azure SQL Data Warehouse]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="Auto" AutoAppr="N/A" Confidence="100">
-            <Val><![CDATA[SQL Data Warehouse do Azure]]></Val>
+            <Val><![CDATA[Data Warehouse do SQL do Azure]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:53Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";AzureSqlStretchEdition" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Azure SQL Stretch Database]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="Auto" AutoAppr="N/A" Confidence="100">
-            <Val><![CDATA[SQL Stretch Database do Azure]]></Val>
+            <Val><![CDATA[Stretch Database do SQL do Azure]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:53Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";AzureSystemDbProfilingError" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -93,10 +71,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:53Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";BackupPathIsFolderError" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -106,10 +80,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:53Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";BackupTaskName" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -119,10 +89,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:53Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";BatchParserWrapperExecutionError" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -132,10 +98,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:53Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";BinaryLiteralPrefixMissingError" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -145,10 +107,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:53Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - variableName (string), 1 - sqlDataType (string), 2 - literalValue (string) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";CannotAlterAlert" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -158,10 +116,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:53Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";CannotCreateNewAlert" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -171,10 +125,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:53Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";CategoryDBEngineTuningAdvisor" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -184,10 +134,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:53Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";CategoryDBMaint" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -197,10 +143,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:53Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";CategoryDataCollector" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -210,10 +152,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:53Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";CategoryFromMsx" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -223,10 +161,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:53Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";CategoryFullText" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -236,23 +170,15 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:53Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";CategoryLocal" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[[Uncategorized (Local)]5D;]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="Auto" AutoAppr="N/A" Confidence="100">
-            <Val><![CDATA[[Sem categoria (local)]5D;]]></Val>
+            <Val><![CDATA[[Sem categoria (Local)]5D;]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:53Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[job categories]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";CategoryLogShipping" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -262,10 +188,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:53Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";CategoryMultiServer" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -275,10 +197,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:53Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";CategoryReplAlert" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -288,10 +206,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:53Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";CategoryReplCheckup" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -301,10 +215,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:53Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";CategoryReplCleanup" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -314,10 +224,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:53Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";CategoryReplDistribution" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -327,10 +233,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:53Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";CategoryReplDistributionCleanup" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -340,10 +242,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:53Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";CategoryReplHistoryCleanup" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -353,10 +251,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:53Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";CategoryReplLogReader" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -366,10 +260,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:53Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";CategoryReplMerge" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -379,10 +269,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:53Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";CategoryReplQReader" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -392,10 +278,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:53Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";CategoryReplSnapShot" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -405,10 +287,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:53Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";CategoryReplication" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -418,10 +296,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:53Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";CategoryUncategorized" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -431,10 +305,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:53Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";CategoryWebAssistant" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -444,10 +314,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:53Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";ClusteredIndex_LabelPart" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -457,10 +323,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:53Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";ConflictWithNoRecovery" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -470,10 +332,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:53Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";ConnectionParamsValidateNullConnection" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -483,10 +341,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:53Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";ConnectionParamsValidateNullOwnerUri" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -496,10 +350,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:53Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";ConnectionParamsValidateNullServerName" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -509,10 +359,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:53Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";ConnectionParamsValidateNullSqlAuth" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -522,10 +368,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:53Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - component (string) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -535,10 +377,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";ConnectionServiceConnStringInvalidAuthType" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -548,10 +386,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - authType (string) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";ConnectionServiceConnStringInvalidColumnEncryptionSetting" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -561,10 +395,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - columnEncryptionSetting (string) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -574,10 +404,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - enclaveAttestationProtocol (string) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";ConnectionServiceConnStringInvalidIntent" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -587,10 +413,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - intent (string) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";ConnectionServiceConnectErrorNullParams" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -600,10 +422,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";ConnectionServiceConnectionCanceled" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -613,10 +431,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";ConnectionServiceDbErrorDefaultNotConnected" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -626,10 +440,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - uri (string) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";ConnectionServiceListDbErrorNotConnected" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -639,10 +449,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - uri (string) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";ConnectionServiceListDbErrorNullOwnerUri" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -652,10 +458,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";CreateSessionFailed" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -665,10 +467,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - error (String) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";CredentialNoLongerExists" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -678,10 +476,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";DatabaseNotAccessible" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -691,10 +485,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";DateTimeErrorMessage" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -704,10 +494,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - variableName (string), 1 - sqlDataType (string), 2 - literalValue (string) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";DeployDacpacTaskName" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -717,10 +503,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";EE_BatchExecutionError_Ignoring" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -730,10 +512,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";EE_ExecutionInfo_FinalizingLoop" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -743,10 +521,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";EE_ExecutionInfo_InitializingLoop" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -756,10 +530,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";EditDataAliasesNotSupported" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -769,10 +539,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";EditDataColumnCannotBeEdited" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -782,10 +548,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";EditDataColumnIdOutOfRange" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -795,10 +557,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";EditDataColumnNoKeyColumns" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -808,10 +566,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";EditDataCommitInProgress" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -821,10 +575,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";EditDataComputedColumnPlaceholder" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -834,10 +584,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";EditDataCreateScriptMissingValue" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -847,10 +593,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - colName (string) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";EditDataDeleteSetCell" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -860,10 +602,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";EditDataDuplicateColumnsNotSupported" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -873,10 +611,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";EditDataExpressionsNotSupported" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -886,10 +620,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";EditDataFailedAddRow" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -899,10 +629,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";EditDataFilteringNegativeLimit" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -912,10 +638,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";EditDataIncorrectTable" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -925,10 +647,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - tableName (string) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";EditDataInvalidFormat" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -938,10 +656,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - colName (string), 1 - colType (string) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";EditDataInvalidFormatBinary" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -951,10 +665,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";EditDataInvalidFormatBoolean" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -964,10 +674,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";EditDataMetadataNotExtended" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -977,10 +683,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";EditDataMetadataObjectNameRequired" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -990,10 +692,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";EditDataMetadataTooManyIdentifiers" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1003,10 +701,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";EditDataMultiTableNotSupported" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1016,10 +710,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";EditDataNullNotAllowed" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1029,10 +719,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";EditDataObjectMetadataNotFound" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1042,10 +728,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";EditDataObjectNotFound" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1055,10 +737,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";EditDataQueryFailed" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1068,10 +746,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";EditDataQueryImproperResultSets" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1081,10 +755,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";EditDataQueryNotCompleted" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1094,10 +764,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";EditDataRowOutOfRange" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1107,10 +773,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";EditDataScriptFilePathNull" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1120,10 +782,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";EditDataSessionAlreadyExists" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1133,10 +791,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";EditDataSessionAlreadyInitialized" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1146,10 +800,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";EditDataSessionAlreadyInitializing" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1159,10 +809,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";EditDataSessionNotFound" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1172,10 +818,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";EditDataSessionNotInitialized" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1185,10 +827,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";EditDataTimeOver24Hrs" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1198,10 +836,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";EditDataUnsupportedObjectType" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -1211,10 +845,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - typeName (string) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";EditDataUpdateNotPending" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1224,10 +854,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";EditDataUpdatePending" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1237,10 +863,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";EditDataValueTooLarge" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -1250,10 +872,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - value (string), 1 - columnType (string) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";EndTimeEqualToStartTime" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1263,10 +881,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";ErrorEmptyStringReplacement" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1276,10 +890,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";ErrorMessage" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -1289,10 +899,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - variableName (string), 1 - sqlDataType (string), 2 - literalValue (string) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";ErrorMessageHeader" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -1302,10 +908,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - lineNumber (int) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";Error_ExistingDirectoryName" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1315,10 +917,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";Error_InvalidDirectoryName" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1328,10 +926,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";ExportBacpacTaskName" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1341,10 +935,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";External_LabelPart" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1354,10 +944,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";ExtractDacpacTaskName" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1367,10 +953,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";ExtractInvalidVersion" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1380,10 +962,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";FileTable_LabelPart" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1393,20 +971,15 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";FragmentShouldHaveOnlyOneBatch" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[TSQL fragment should contain exactly one batch.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[O fragmento TSQL deve conter exatamente um lote.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-01T08:02:34Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";GenerateScriptTaskName" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1416,10 +989,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";History_LabelPart" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1429,10 +998,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";ImportBacpacTaskName" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1442,20 +1007,15 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";Input" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[input]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[entrada]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-01T08:02:34Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";InvalidBackupPathError" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1465,10 +1025,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";InvalidPathError" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1478,10 +1034,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";InvalidPathForDatabaseFile" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1491,23 +1043,15 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";InvalidScheduleTitle" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Invalid Schedule]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="Auto" AutoAppr="N/A" Confidence="100">
-            <Val><![CDATA[Agendamento inválido]]></Val>
+            <Val><![CDATA[Agendamento Inválido]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[ Schedule error message]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";InvalidStartDate" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1517,10 +1061,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";InvalidWeeklySchedule" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1530,10 +1070,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";JobAlreadyExists" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -1543,10 +1079,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - jobName (string) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";JobServerIsNotAvailable" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -1556,10 +1088,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[ Exception thrown when job server is not available]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";JobStepNameAlreadyExists" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -1569,10 +1097,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - jobName (string) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";JobStepNameCannotBeBlank" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1582,10 +1106,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";Log" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1595,10 +1115,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";MissingCaption" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1608,10 +1124,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";NeverBackedUp" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1621,10 +1133,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";NoBackupsetsToRestore" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1634,20 +1142,15 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";NoCreateStreamingJobStatementFound" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[No External Streaming Job creation TSQL found (EXEC sp_create_streaming_job statement).]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Nenhum TSQL de criação de Trabalho de Streaming Externo encontrado (instrução EXEC sp_create_streaming_job).]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-01T08:02:34Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";NonClusteredIndex_LabelPart" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1657,10 +1160,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";NonUniqueIndex_LabelPart" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1670,10 +1169,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";OpenScmpConnectionBasedModelParsingError" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1683,20 +1178,15 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";Output" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[output]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[saída]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-01T08:02:34Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";ParameterizationDetails" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -1706,23 +1196,15 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - variableName (string), 1 - sqlDbType (string), 2 - size (int), 3 - precision (int), 4 - scale (int), 5 - sqlValue (string) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";ParsingErrorHeader" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Line {0}, column {1}]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="Auto" AutoAppr="N/A" Confidence="100">
-            <Val><![CDATA[Linha: {0}, coluna {1}]]></Val>
+            <Val><![CDATA[Linha {0}, coluna {1}]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - lineNumber (int), 1 - columnNumber (int) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";PauseSessionFailed" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -1732,10 +1214,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - error (String) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";PeekDefinitionAzureError" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -1745,10 +1223,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - errorMessage (string) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";PeekDefinitionDatabaseError" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1758,10 +1232,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";PeekDefinitionError" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -1771,10 +1241,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - errorMessage (string) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";PeekDefinitionNoResultsError" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1784,10 +1250,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";PeekDefinitionNotConnectedError" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1797,10 +1259,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";PeekDefinitionTimedoutError" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1810,10 +1268,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";PeekDefinitionTypeNotSupportedError" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1823,10 +1277,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";ProfilerConnectionNotFound" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1836,10 +1286,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:54Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";ProjectExtractTaskName" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1849,10 +1295,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";ProxyAccountNotFound" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -1862,10 +1304,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - proxyName (string) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";PublishChangesTaskName" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1875,10 +1313,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";QueryServiceAffectedOneRow" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1888,10 +1322,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";QueryServiceAffectedRows" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -1901,10 +1331,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - rows (long) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";QueryServiceCancelAlreadyCompleted" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1914,10 +1340,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";QueryServiceCancelDisposeFailed" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1927,10 +1349,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";QueryServiceCellNull" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1940,10 +1358,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";QueryServiceColumnNull" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1953,10 +1367,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";QueryServiceCompletedSuccessfully" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1966,10 +1376,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";QueryServiceDataReaderByteCountInvalid" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1979,10 +1385,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";QueryServiceDataReaderCharCountInvalid" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -1992,10 +1394,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";QueryServiceDataReaderXmlCountInvalid" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2005,10 +1403,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";QueryServiceErrorFormat" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -2018,10 +1412,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - msg (int), 1 - lvl (int), 2 - state (int), 3 - line (int), 4 - newLine (string), 5 - message (string) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";QueryServiceExecutionPlanNotFound" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2031,10 +1421,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";QueryServiceFileWrapperNotInitialized" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2044,10 +1430,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";QueryServiceFileWrapperReadOnly" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2057,10 +1439,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";QueryServiceFileWrapperWriteOnly" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2070,10 +1448,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";QueryServiceMessageSenderNotSql" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2083,10 +1457,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";QueryServiceQueryCancelled" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2096,10 +1466,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";QueryServiceQueryFailed" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -2109,10 +1475,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - message (string) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";QueryServiceQueryInProgress" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2122,20 +1484,15 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";QueryServiceQueryInvalidOwnerUri" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Cannot connect to the database due to invalid OwnerUri]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Não é possível estabelecer conexão com o banco de dados devido a um OwnerUri inválido]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-01T08:02:34Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";QueryServiceRequestsNoQuery" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2145,10 +1502,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";QueryServiceResultSetAddNoRows" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2158,10 +1511,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";QueryServiceResultSetHasNoResults" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2171,10 +1520,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";QueryServiceResultSetNoColumnSchema" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2184,10 +1529,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";QueryServiceResultSetNotRead" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2197,10 +1538,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";QueryServiceResultSetRowCountOutOfRange" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2210,10 +1547,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";QueryServiceResultSetStartRowOutOfRange" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2223,10 +1556,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";QueryServiceResultSetTooLarge" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2236,10 +1565,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";QueryServiceSaveAsFail" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -2249,10 +1574,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - fileName (string), 1 - message (string) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";QueryServiceSaveAsInProgress" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2262,10 +1583,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";QueryServiceSaveAsMiscStartingError" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2275,10 +1592,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";QueryServiceSaveAsResultSetNotComplete" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2288,10 +1601,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";QueryServiceSubsetBatchNotCompleted" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2301,10 +1610,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";QueryServiceSubsetBatchOutOfRange" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2314,10 +1619,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";QueryServiceSubsetResultSetOutOfRange" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2327,10 +1628,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";RestoreBackupSetCheckpointLsn" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2340,10 +1637,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";RestoreBackupSetComponent" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2353,10 +1646,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";RestoreBackupSetDatabase" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2366,10 +1655,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";RestoreBackupSetExpiration" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2379,10 +1664,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";RestoreBackupSetFinishDate" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2392,10 +1673,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";RestoreBackupSetFirstLsn" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2405,10 +1682,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";RestoreBackupSetFullLsn" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2418,10 +1691,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";RestoreBackupSetLastLsn" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2431,10 +1700,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";RestoreBackupSetName" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2444,10 +1709,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";RestoreBackupSetPosition" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2457,10 +1718,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";RestoreBackupSetServer" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2470,10 +1727,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";RestoreBackupSetSize" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2483,10 +1736,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";RestoreBackupSetStartDate" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2496,10 +1745,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";RestoreBackupSetType" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2509,10 +1754,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";RestoreBackupSetUserName" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2522,10 +1763,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";RestoreCopyOnly" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2535,10 +1772,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";RestoreNotSupported" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2548,10 +1781,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";RestorePlanFailed" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2561,10 +1790,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";RestoreTaskName" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2574,10 +1799,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";ScheduleNameAlreadyExists" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -2587,10 +1808,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - scheduleName (string) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaCompareExcludeIncludeNodeNotFound" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2600,10 +1817,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaCompareSessionNotFound" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2613,10 +1826,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_AggregateFunctions" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2626,10 +1835,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_Aggregates" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2639,10 +1844,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_AlwaysEncryptedKeys" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2652,10 +1853,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_ApplicationRoles" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2665,10 +1862,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_Assemblies" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2678,10 +1871,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_AssemblyFiles" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2691,10 +1880,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_AsymmetricKeys" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2704,10 +1889,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_BrokerPriorities" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2717,10 +1898,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_BuiltInServerRole" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2730,10 +1907,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_BuiltInType" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2743,10 +1916,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_Certificates" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2756,10 +1925,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_CheckConstraints" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2769,10 +1934,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_ColumnEncryptionKeys" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2782,10 +1943,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_ColumnMasterKeys" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2795,10 +1952,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_ColumnSetLabelWithType" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2808,10 +1961,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_ColumnSetLabelWithTypeAndKeyString" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2821,10 +1970,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_ColumnSetLabelWithoutType" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2834,10 +1979,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_ColumnStoreIndexes" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2847,10 +1988,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_Columns" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2860,10 +1997,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_ComputedColumnLabelWithType" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2873,10 +2006,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_ComputedColumnLabelWithoutType" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2886,10 +2015,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_Constraints" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2899,10 +2024,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_Contracts" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2912,10 +2033,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_Credentials" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2925,10 +2042,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_CryptographicProviders" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2938,10 +2051,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_DataCompressionOptions" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2951,10 +2060,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_DataTierApplications" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2964,10 +2069,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_DatabaseAsymmetricKeys" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2977,10 +2078,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_DatabaseAuditSpecifications" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -2990,10 +2087,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_DatabaseCertificates" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3003,10 +2096,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_DatabaseDiagrams" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3016,10 +2105,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_DatabaseEncryptionKeys" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3029,10 +2114,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_DatabaseOptions" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3042,10 +2123,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_DatabaseRoles" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3055,10 +2132,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_DatabaseScopedCredentials" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3068,10 +2141,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_DatabaseTriggers" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3081,10 +2150,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_Databases" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3094,10 +2159,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:55Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_DefaultConstraints" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3107,10 +2168,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_Defaults" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3120,10 +2177,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_Endpoints" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3133,10 +2186,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_ErrorMessages" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3146,10 +2195,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_EventNotifications" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3159,10 +2204,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_EventSessions" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3172,10 +2213,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_ExtendedProperties" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3185,10 +2222,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_ExtendedStoredProcedures" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3198,10 +2231,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_ExternalDataSources" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3211,10 +2240,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_ExternalFileFormats" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3224,10 +2249,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_ExternalResources" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3237,10 +2258,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_ExternalTables" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3250,10 +2267,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_FileGroups" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3263,10 +2276,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_FileTables" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3276,10 +2285,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_FilegroupFiles" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3289,10 +2294,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_ForeignKeys" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3302,10 +2303,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_FullTextCatalogs" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3315,10 +2312,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_FullTextIndexes" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3328,10 +2321,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_FullTextStopLists" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3341,10 +2330,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_Functions" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3354,10 +2339,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_Indexes" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3367,10 +2348,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_InlineFunctions" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3380,10 +2357,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_Keys" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3393,10 +2366,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_LinkedServerLogins" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3406,10 +2375,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_LinkedServers" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3419,10 +2384,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_LogFiles" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3432,10 +2393,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_Logins" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3445,10 +2402,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_Management" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3458,10 +2411,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_MasterKey" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3471,10 +2420,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_MasterKeys" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3484,10 +2429,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_MessageTypes" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3497,10 +2438,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_MultiSelectFunctions" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3510,10 +2447,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_NotNullColumn_Label" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3523,10 +2456,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_NullColumn_Label" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3536,10 +2465,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_Parameters" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3549,10 +2474,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_PartitionFunctions" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3562,10 +2483,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_PartitionSchemes" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3575,10 +2492,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_Permissions" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3588,10 +2501,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_PrimaryKeys" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3601,10 +2510,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_Programmability" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3614,10 +2519,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_Queues" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3627,10 +2528,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_RemoteServiceBindings" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3640,10 +2537,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_ResourcePools" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3653,10 +2546,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_ReturnedColumns" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3666,10 +2555,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_RoleMemberships" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3679,10 +2564,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_Roles" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3692,10 +2573,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_Routes" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3705,10 +2582,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_Rules" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3718,10 +2591,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_ScalarValuedFunctions" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3731,10 +2600,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_Schemas" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3744,10 +2609,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SearchPropertyList" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3757,10 +2618,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SearchPropertyLists" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3770,10 +2627,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_Security" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3783,10 +2636,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SecurityPolicies" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3796,10 +2645,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SecurityPredicates" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3809,10 +2654,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SelectiveXmlIndexes" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3822,10 +2663,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_Sequences" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3835,10 +2672,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_Server" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3848,10 +2681,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_ServerAuditSpecifications" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3861,10 +2690,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_ServerAudits" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3874,10 +2699,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_ServerEventNotifications" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3887,10 +2708,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_ServerFunctions" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3900,10 +2717,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_ServerObjects" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3913,10 +2726,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_ServerOptions" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3926,10 +2735,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_ServerRole" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3939,10 +2744,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_ServerRoleMembership" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3952,10 +2753,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_ServerRoles" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3965,10 +2762,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_ServerTriggers" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3978,10 +2771,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_ServiceBroker" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -3991,10 +2780,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_Services" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4004,10 +2789,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_Signatures" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4017,10 +2798,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SpatialIndexes" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4030,10 +2807,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SqlFiles" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4043,10 +2816,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SqlType" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4056,10 +2825,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SqlTypedPromotedPaths" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4069,10 +2834,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_Statistics" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4082,10 +2843,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_Storage" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4095,10 +2852,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_StoredProcedures" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4108,10 +2861,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SubroutineParameterDefaultLabel" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4121,10 +2870,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SubroutineParameterInputLabel" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4134,10 +2879,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SubroutineParameterInputOutputLabel" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4147,10 +2888,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SubroutineParameterInputOutputReadOnlyLabel" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4160,10 +2897,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SubroutineParameterInputReadOnlyLabel" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4173,10 +2906,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SubroutineParameterLabelFormatString" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4186,10 +2915,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SubroutineParameterNoDefaultLabel" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4199,10 +2924,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SymmetricKeys" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4212,10 +2933,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_Synonyms" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4225,10 +2942,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SystemAggregateFunctions" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4238,10 +2951,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SystemApproximateNumerics" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4251,10 +2960,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SystemBinaryStrings" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4264,10 +2969,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SystemCLRDataTypes" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4277,10 +2978,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SystemCharacterStrings" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4290,10 +2987,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SystemConfigurationFunctions" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4303,10 +2996,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SystemContracts" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4316,10 +3005,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SystemCursorFunctions" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4329,10 +3014,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SystemDataTypes" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4342,10 +3023,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SystemDatabases" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4355,10 +3032,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SystemDateAndTime" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4368,10 +3041,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SystemDateAndTimeFunctions" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4381,10 +3050,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:56Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SystemExactNumerics" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4394,10 +3059,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SystemExtendedStoredProcedures" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4407,10 +3068,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SystemFunctions" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4420,10 +3077,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SystemHierarchyIdFunctions" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4433,10 +3086,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SystemMathematicalFunctions" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4446,10 +3095,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SystemMessageTypes" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4459,10 +3104,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SystemMetadataFunctions" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4472,10 +3113,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SystemOtherDataTypes" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4485,10 +3122,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SystemOtherFunctions" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4498,10 +3131,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SystemQueues" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4511,10 +3140,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SystemRowsetFunctions" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4524,10 +3149,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SystemSecurityFunctions" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4537,10 +3158,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SystemServices" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4550,10 +3167,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SystemSpatialDataTypes" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4563,10 +3176,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SystemStoredProcedures" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4576,10 +3185,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SystemStringFunctions" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4589,10 +3194,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SystemSystemStatisticalFunctions" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4602,10 +3203,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SystemTables" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4615,10 +3212,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SystemTextAndImageFunctions" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4628,10 +3221,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SystemUnicodeCharacterStrings" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4641,10 +3230,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_SystemViews" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4654,10 +3239,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_TableTypeIndexes" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4667,10 +3248,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_TableValuedFunctions" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4680,10 +3257,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_Tables" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4693,10 +3266,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_Triggers" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4706,10 +3275,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_Types" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4719,10 +3284,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_UDDTLabelWithType" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4732,10 +3293,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_UDDTLabelWithoutType" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4745,10 +3302,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_UniqueKeys" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4758,10 +3311,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_UserDefinedDataTypes" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4771,10 +3320,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_UserDefinedTableTypes" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4784,10 +3329,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_UserDefinedTypes" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4797,10 +3338,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_UserWithPassword" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4810,10 +3347,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_Users" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4823,10 +3356,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_Views" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4836,10 +3365,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_WorkloadGroups" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4849,10 +3374,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_XMLSchemaCollections" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4862,10 +3383,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_XmlIndexes" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4875,10 +3392,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_XmlNamespaces" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4888,10 +3401,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SchemaHierarchy_XmlTypedPromotedPaths" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4901,10 +3410,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";ScriptTaskName" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4914,23 +3419,15 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";ScriptTooLarge" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[The current script is too large for Parameterization for Always Encrypted, please disable Parameterization for Always Encrypted in Query Options (Query > Query Options > Execution > Advanced). Maximum allowable length: {0} characters, Current script length: {1} characters]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="Auto" AutoAppr="N/A" Confidence="100">
-            <Val><![CDATA[O script atual é muito grande para Parametrização para Always Encrypted, desabilite a Parametrização para Always Encrypted em Opções de Consulta (Consulta > Opções de Consulta > Execução > Avançado). Comprimento máximo permitido: {0} caracteres, Tamanho do script atual: {1} caracteres]]></Val>
+            <Val><![CDATA[O script atual é muito grande para a Parametrização para Always Encrypted. Desabilite a Parametrização para Always Encrypted em Opções de Consulta (Consulta > Opções de Consulta > Execução > Avançado). Comprimento máximo permitido: {0} caracteres. Comprimento do script atual: {1} caracteres]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - maxChars (int), 1 - currentChars (int) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";ScriptingExecuteNotSupportedError" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4940,10 +3437,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";ScriptingGeneralError" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4953,10 +3446,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4966,10 +3455,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";ScriptingParams_ConnectionString_Property_Invalid" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4979,10 +3464,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";ScriptingParams_FilePath_Property_Invalid" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -4992,10 +3473,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SerializationServiceRequestInProgress" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -5005,10 +3482,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - filePath (string) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";SerializationServiceRequestNotFound" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -5018,10 +3491,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - filePath (string) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";SerializationServiceUnsupportedFormat" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -5031,10 +3500,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - formatName (string) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";ServerNodeConnectionError" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -5044,10 +3509,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SessionAlreadyExists" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -5057,10 +3518,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - sessionName (String) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";SessionNotFound" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -5070,10 +3527,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SetOwnerFailed" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -5083,10 +3536,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - ownerName (string) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";SqlAssessmentConnectingError" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -5096,10 +3545,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SqlAssessmentGenerateScriptTaskName" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -5109,10 +3554,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SqlAssessmentQueryInvalidOwnerUri" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -5122,10 +3563,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SqlAssessmentUnsuppoertedEdition" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -5135,10 +3572,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - editionCode (int) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";SqlCmdExitOnError" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -5148,10 +3581,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SqlCmdUnsupportedToken" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -5161,10 +3590,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SqlScriptFormatterDecimalMissingPrecision" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -5174,10 +3599,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SqlScriptFormatterLengthTypeMissingSize" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -5187,10 +3608,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SqlScriptFormatterScalarTypeMissingScale" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -5200,10 +3617,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";StartDateGreaterThanEndDate" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -5213,10 +3626,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";StartSessionFailed" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -5226,10 +3635,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - error (String) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";StartTimeGreaterThanEndTime" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -5239,10 +3644,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";StopSessionFailed" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -5252,10 +3653,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - error (String) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";StoredProcedureScriptParameterComment" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -5265,30 +3662,24 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";StreamNotFoundInModel" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Streaming query statement contains a reference to missing {0} stream '{1}'.  You must add it to the database model.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[A instrução de consulta de streaming contém uma referência ao fluxo '{1}' do tipo {0} ausente.  Você deve adicioná-lo ao modelo de banco de dados.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-01T08:02:34Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - streamType (string), 1 - missingStreamName (string) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";StreamingJobValidationFailed" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Validation for external streaming job '{0}' failed:]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Falha na validação do trabalho de streaming externo '{0}':]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-01T08:02:34Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - jobName (string) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";SysadminAccount" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -5298,10 +3689,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";SystemVersioned_LabelPart" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -5311,10 +3698,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";TargetServerNotSelected" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -5324,10 +3707,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";TaskCompleted" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -5337,10 +3716,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";TaskInProgress" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -5350,10 +3725,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";TestLocalizationConstant" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -5363,10 +3734,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";TheLastBackupTaken" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -5376,10 +3743,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";TreeNodeError" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -5389,10 +3752,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";UnexpectedRunType" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -5402,10 +3761,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";UniqueIndex_LabelPart" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -5415,10 +3770,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";UnknownServerType" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -5428,10 +3779,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - serverTypeName (string) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";UnknownSizeUnit" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -5441,20 +3788,15 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - unit (string) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";ValidateStreamingJobTaskName" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Validate streaming job]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Validar trabalho de streaming]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-01T08:02:34Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
       <Item ItemId=";WorkspaceServiceBufferPositionOutOfOrder" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -5464,10 +3806,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - sLine (int), 1 - sCol (int), 2 - eLine (int), 3 - eCol (int) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";WorkspaceServicePositionColumnOutOfRange" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
@@ -5477,10 +3815,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev"><![CDATA[.]D;]A; Parameters: 0 - line (int) ]]></Cmt>
-        </Cmts>
       </Item>
       <Item ItemId=";WorkspaceServicePositionLineOutOfRange" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
@@ -5490,10 +3824,6 @@
           </Tgt>
         </Str>
         <Disp Icon="Str" />
-        <Modified By="khoiph" DateTime="2020-12-07T19:05:57Z" />
-        <Cmts>
-          <Cmt Name="Dev" />
-        </Cmts>
       </Item>
     </Item>
   </Item>
