@@ -78,7 +78,7 @@ namespace Microsoft.Kusto.ServiceLayer
             WorkspaceService<SqlToolsSettings>.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(WorkspaceService<SqlToolsSettings>.Instance);
 
-            LanguageService.Instance.InitializeService(serviceHost, connectedBindingQueue, dataSourceFactory);
+            LanguageService.Instance.InitializeService(serviceHost, connectedBindingQueue);
             serviceProvider.RegisterSingleService(LanguageService.Instance);
 
             ConnectionService.Instance.InitializeService(serviceHost, dataSourceConnectionFactory, connectedBindingQueue, dataSourceFactory);

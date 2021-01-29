@@ -3,12 +3,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using Microsoft.Kusto.ServiceLayer.DataSource.Intellisense;
+using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.Utility;
-using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
-using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
 
-namespace Microsoft.Kusto.ServiceLayer.LanguageServices.Completion
+namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 {
     /// <summary>
     /// A class to calculate the numbers used by SQL parser using the text positions and content
