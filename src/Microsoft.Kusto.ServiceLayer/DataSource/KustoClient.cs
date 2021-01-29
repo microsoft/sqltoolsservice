@@ -16,7 +16,6 @@ using Kusto.Language;
 using Kusto.Language.Editor;
 using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.DataSource.Contracts;
-using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
 using Microsoft.Kusto.ServiceLayer.Utility;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource
@@ -30,12 +29,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private ICslQueryProvider _kustoQueryProvider;
-
-        /// <summary>
-        /// SchemaState used for getting intellisense info.
-        /// </summary>
-        public GlobalState SchemaState { get; private set; }
-
+        
         public string ClusterName { get; private set; }
         public string DatabaseName { get; private set; }
 
@@ -43,7 +37,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         {
             _ownerUri = ownerUri;
             Initialize(connectionDetails);
-            SchemaState = LoadSchemaState();
         }
 
         private string ParseDatabaseName(string databaseName)
@@ -53,31 +46,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             return regex.IsMatch(databaseName)
                 ? regex.Match(databaseName).Value
                 : databaseName;
-        }
-
-        private GlobalState LoadSchemaState()
-        {
-            IEnumerable<ShowDatabaseSchemaResult> tableSchemas = Enumerable.Empty<ShowDatabaseSchemaResult>();
-            IEnumerable<ShowFunctionsResult> functionSchemas = Enumerable.Empty<ShowFunctionsResult>();
-
-            if (!string.IsNullOrWhiteSpace(DatabaseName))
-            {
-                var source = new CancellationTokenSource();
-                Parallel.Invoke(() =>
-                    {
-                        tableSchemas =
-                            ExecuteQueryAsync<ShowDatabaseSchemaResult>($".show database {DatabaseName} schema", source.Token, DatabaseName)
-                                .Result;
-                    },
-                    () =>
-                    {
-                        functionSchemas = ExecuteQueryAsync<ShowFunctionsResult>(".show functions", source.Token, DatabaseName).Result;
-                    });
-            }
-
-            return KustoIntellisenseHelper.AddOrUpdateDatabase(tableSchemas, functionSchemas,
-                GlobalState.Default,
-                DatabaseName, ClusterName);
         }
 
         private void Initialize(DataSourceConnectionDetails connectionDetails)
@@ -275,7 +243,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         public void UpdateDatabase(string databaseName)
         {
             DatabaseName = ParseDatabaseName(databaseName);
-            SchemaState = LoadSchemaState();
         }
 
         public void Dispose()

@@ -15,10 +15,9 @@ using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlServer.Management.SqlParser.SqlCodeDom;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.Kusto.ServiceLayer.DataSource;
-using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
 using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
-using Microsoft.Kusto.ServiceLayer.LanguageServices.Completion;
+using Microsoft.Kusto.ServiceLayer.DataSource.Intellisense;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.Kusto.ServiceLayer.Workspace;
@@ -66,9 +65,6 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         internal const int OnConnectionWaitTimeout = 300 * OneSecond;
 
         internal const int PeekDefinitionTimeout = 10 * OneSecond;
-
-        // For testability only
-        internal Task DelayedDiagnosticsTask = null;
 
         private ConnectionService connectionService = null;
 
@@ -209,7 +205,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// <param name="context"></param>
         /// <param name="dataSourceFactory"></param>
         /// <param name="connectedBindingQueue"></param>
-        public void InitializeService(ServiceHost serviceHost, IConnectedBindingQueue connectedBindingQueue, IDataSourceFactory dataSourceFactory)
+        public void InitializeService(ServiceHost serviceHost, IConnectedBindingQueue connectedBindingQueue)
         {
             _bindingQueue = connectedBindingQueue;
             // Register the requests that this service will handle
@@ -766,18 +762,16 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                 connInfo.TryGetConnection("Default", out connection);
                 IDataSource dataSource = connection.GetUnderlyingConnection();
                 
-                return KustoIntellisenseHelper.GetDefinition(scriptFile.Contents, textDocumentPosition.Position.Character, 1, 1, dataSource.SchemaState);
+                return dataSource.GetDefinition(scriptFile.Contents, textDocumentPosition.Position.Character, 1, 1);
             }
-            else
+
+            // User is not connected.
+            return new DefinitionResult
             {
-                // User is not connected.
-                return new DefinitionResult
-                {
-                    IsErrorResult = true,
-                    Message = SR.PeekDefinitionNotConnectedError,
-                    Locations = null
-                };
-            }
+                IsErrorResult = true,
+                Message = SR.PeekDefinitionNotConnectedError,
+                Locations = null
+            };
         }
 
         /// <summary>
@@ -809,9 +803,8 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                                 
                                 ReliableDataSourceConnection connection;
                                 connInfo.TryGetConnection("Default", out connection);
-                                IDataSource dataSource = connection.GetUnderlyingConnection();               
-                                
-                                return KustoIntellisenseHelper.GetHoverHelp(scriptDocumentInfo, textDocumentPosition.Position, dataSource.SchemaState);
+                                IDataSource dataSource = connection.GetUnderlyingConnection();
+                                return dataSource.GetHoverHelp(scriptDocumentInfo, textDocumentPosition.Position);
                             });
 
                         queueItem.ItemProcessed.WaitOne();
@@ -855,14 +848,17 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 
             ScriptDocumentInfo scriptDocumentInfo = new ScriptDocumentInfo(textDocumentPosition, scriptFile, scriptParseInfo);
 
-            if(connInfo != null){
+            if (connInfo != null)
+            {
                 ReliableDataSourceConnection connection;
                 connInfo.TryGetConnection("Default", out connection);
                 IDataSource dataSource = connection.GetUnderlyingConnection();
-			    
-                resultCompletionItems = KustoIntellisenseHelper.GetAutoCompleteSuggestions(scriptDocumentInfo, textDocumentPosition.Position, dataSource.SchemaState);
+
+                resultCompletionItems =
+                    dataSource.GetAutoCompleteSuggestions(scriptDocumentInfo, textDocumentPosition.Position);
             }
-            else{
+            else
+            {
                 resultCompletionItems = DataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocumentInfo, textDocumentPosition.Position);
             }
 
@@ -932,7 +928,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
             existingRequestCancellation = new CancellationTokenSource();
             Task.Factory.StartNew(
                 () =>
-                    this.DelayedDiagnosticsTask = DelayThenInvokeDiagnostics(
+                    DelayThenInvokeDiagnostics(
                         LanguageService.DiagnosticParseDelay,
                         filesToAnalyze,
                         eventContext,
@@ -1000,17 +996,19 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                 ConnectionServiceInstance.TryFindConnection(
                     scriptFile.ClientUri,
                     out connInfo);
-                
-                if(connInfo != null){
+
+                if (connInfo != null)
+                {
                     connInfo.TryGetConnection("Default", out var connection);
                     IDataSource dataSource = connection.GetUnderlyingConnection();
-                    
-                    semanticMarkers = KustoIntellisenseHelper.GetSemanticMarkers(parseInfo, scriptFile, scriptFile.Contents, dataSource.SchemaState);
-			    }
-                else{
+
+                    semanticMarkers = dataSource.GetSemanticMarkers(parseInfo, scriptFile, scriptFile.Contents);
+                }
+                else
+                {
                     semanticMarkers = DataSourceFactory.GetDefaultSemanticMarkers(DataSourceType.Kusto, parseInfo, scriptFile, scriptFile.Contents);
                 }
-                
+
                 Logger.Write(TraceEventType.Verbose, "Analysis complete.");
 
                 await DiagnosticsHelper.PublishScriptDiagnostics(scriptFile, semanticMarkers, eventContext);
