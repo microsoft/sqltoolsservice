@@ -8,12 +8,11 @@ using Kusto.Language.Editor;
 using Kusto.Language.Symbols;
 using Kusto.Language.Syntax;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
-using Microsoft.Kusto.ServiceLayer.LanguageServices.Completion;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
 using Diagnostic = Kusto.Language.Diagnostic;
 
-namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
+namespace Microsoft.Kusto.ServiceLayer.DataSource.Intellisense
 {
     public class KustoIntellisenseClient : IIntellisenseClient
     {

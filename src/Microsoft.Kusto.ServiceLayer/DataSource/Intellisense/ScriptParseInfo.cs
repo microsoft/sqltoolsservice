@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using Kusto.Language;
 using Kusto.Language.Editor;
 
-namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
+namespace Microsoft.Kusto.ServiceLayer.DataSource.Intellisense
 {
     /// <summary>
     /// Data Source specific class for storing cached metadata regarding a parsed KQL file.

@@ -1,4 +1,4 @@
-namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
+namespace Microsoft.Kusto.ServiceLayer.DataSource.Intellisense
 {
     public class ShowDatabasesResult
     {

@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
+using Microsoft.Kusto.ServiceLayer.DataSource.Intellisense;
 using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
+using Microsoft.Kusto.ServiceLayer.LanguageServices;
+using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
+using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource
 {
@@ -27,8 +30,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// The current database name, if there is one.
         /// </summary>
         string DatabaseName { get; }
-
-        IIntellisenseClient IntellisenseClient { get; }
 
         /// <summary>
         /// Executes a query.
@@ -111,5 +112,10 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// <param name="functionName"></param>
         /// <returns></returns>
         string GenerateExecuteFunctionScript(string functionName);
+        
+        ScriptFileMarker[] GetSemanticMarkers(ScriptParseInfo parseInfo, ScriptFile scriptFile, string queryText);
+        DefinitionResult GetDefinition(string queryText, int index, int startLine, int startColumn, bool throwOnError = false);
+        Hover GetHoverHelp(ScriptDocumentInfo scriptDocumentInfo, Position textPosition, bool throwOnError = false);
+        CompletionItem[] GetAutoCompleteSuggestions(ScriptDocumentInfo scriptDocumentInfo, Position textPosition, bool throwOnError = false);
     }
 }

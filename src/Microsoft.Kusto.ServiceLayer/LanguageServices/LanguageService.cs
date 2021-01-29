@@ -15,10 +15,9 @@ using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlServer.Management.SqlParser.SqlCodeDom;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.Kusto.ServiceLayer.DataSource;
-using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
 using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
-using Microsoft.Kusto.ServiceLayer.LanguageServices.Completion;
+using Microsoft.Kusto.ServiceLayer.DataSource.Intellisense;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.Kusto.ServiceLayer.Workspace;
@@ -763,7 +762,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                 connInfo.TryGetConnection("Default", out connection);
                 IDataSource dataSource = connection.GetUnderlyingConnection();
                 
-                return dataSource.IntellisenseClient.GetDefinition(scriptFile.Contents, textDocumentPosition.Position.Character, 1, 1);
+                return dataSource.GetDefinition(scriptFile.Contents, textDocumentPosition.Position.Character, 1, 1);
             }
 
             // User is not connected.
@@ -805,7 +804,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                                 ReliableDataSourceConnection connection;
                                 connInfo.TryGetConnection("Default", out connection);
                                 IDataSource dataSource = connection.GetUnderlyingConnection();
-                                return dataSource.IntellisenseClient.GetHoverHelp(scriptDocumentInfo, textDocumentPosition.Position);
+                                return dataSource.GetHoverHelp(scriptDocumentInfo, textDocumentPosition.Position);
                             });
 
                         queueItem.ItemProcessed.WaitOne();
@@ -856,7 +855,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                 IDataSource dataSource = connection.GetUnderlyingConnection();
 
                 resultCompletionItems =
-                    dataSource.IntellisenseClient.GetAutoCompleteSuggestions(scriptDocumentInfo, textDocumentPosition.Position);
+                    dataSource.GetAutoCompleteSuggestions(scriptDocumentInfo, textDocumentPosition.Position);
             }
             else
             {
@@ -1003,7 +1002,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                     connInfo.TryGetConnection("Default", out var connection);
                     IDataSource dataSource = connection.GetUnderlyingConnection();
 
-                    semanticMarkers = dataSource.IntellisenseClient.GetSemanticMarkers(parseInfo, scriptFile, scriptFile.Contents);
+                    semanticMarkers = dataSource.GetSemanticMarkers(parseInfo, scriptFile, scriptFile.Contents);
                 }
                 else
                 {

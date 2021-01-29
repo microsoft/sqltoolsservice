@@ -1,9 +1,8 @@
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
-using Microsoft.Kusto.ServiceLayer.LanguageServices.Completion;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
 
-namespace Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense
+namespace Microsoft.Kusto.ServiceLayer.DataSource.Intellisense
 {
     public interface IIntellisenseClient
     {
