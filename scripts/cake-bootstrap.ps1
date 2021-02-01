@@ -62,6 +62,7 @@ if($WhatIf.IsPresent) {
     $UseDryRun = "-dryrun"
 }
 
+Write-Verbose -Message "Checking $PSScriptRoot and $TOOLS_DIR"
 # Make sure tools folder exists
 if ((Test-Path $PSScriptRoot) -and !(Test-Path $TOOLS_DIR)) {
     Write-Verbose -Message "Creating tools directory..."
