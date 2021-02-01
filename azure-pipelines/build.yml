@@ -24,7 +24,7 @@ steps:
     command: restore
     projects: '$(Build.SourcesDirectory)/sqltoolsservice.sln'
     feedsToUse: config
-    nugetConfigPath: nuget.config'
+    nugetConfigPath: nuget.config
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet build src/Microsoft.Kusto.ServiceLayer'
