@@ -31,7 +31,7 @@ http://cakebuild.net
 Param(
     [string]$Script = "build.cake",
     [ValidateSet("Quiet", "Minimal", "Normal", "Verbose", "Diagnostic")]
-    [string]$Verbosity = "Verbose",    
+    [string]$Verbosity = "Verbose",
     [Alias("DryRun","Noop")]
     [switch]$WhatIf,
     [switch]$Mono,
@@ -62,16 +62,16 @@ if($WhatIf.IsPresent) {
     $UseDryRun = "-dryrun"
 }
 
-Write-Verbose -Message "Checking $PSScriptRoot and $TOOLS_DIR"
+Write-Host -Message "Checking $PSScriptRoot and $TOOLS_DIR"
 # Make sure tools folder exists
 if ((Test-Path $PSScriptRoot) -and !(Test-Path $TOOLS_DIR)) {
-    Write-Verbose -Message "Creating tools directory..."
+    Write-Host -Message "Creating tools directory..."
     New-Item -Path $TOOLS_DIR -Type directory | out-null
 }
 
 # Try download NuGet.exe if not exists
 if (!(Test-Path $NUGET_EXE)) {
-    Write-Verbose -Message "Downloading NuGet.exe..."
+    Write-Host -Message "Downloading NuGet.exe..."
     try {
         (New-Object System.Net.WebClient).DownloadFile($NUGET_URL, $NUGET_EXE)
     } catch {
@@ -89,10 +89,10 @@ if(-Not $SkipToolPackageRestore.IsPresent)
     Push-Location
     Set-Location $TOOLS_DIR
 
-    Write-Verbose -Message "Restoring tools from NuGet..."
+    Write-Host -Message "Restoring tools from NuGet..."
     $NuGetConfig = Invoke-Expression "&`"$NUGET_EXE`" config -configfile ../nuget.config"
     $NuGetOutput = Invoke-Expression "&`"$NUGET_EXE`" install $PACKAGES_CONFIG -ExcludeVersion -OutputDirectory `"$TOOLS_DIR`""
-    Write-Verbose -Message ($NuGetOutput | out-string)
+    Write-Host -Message ($NuGetOutput | out-string)
 
     Pop-Location
     if ($LASTEXITCODE -ne 0)
