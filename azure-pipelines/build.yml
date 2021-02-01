@@ -24,7 +24,7 @@ steps:
     command: restore
     projects: '$(Build.SourcesDirectory)/sqltoolsservice.sln'
     feedsToUse: config
-    nugetConfigPath: $(Build.SourcesDirectory)/nuget.config'
+    nugetConfigPath: nuget.config'
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet build src/Microsoft.Kusto.ServiceLayer'
@@ -50,26 +50,26 @@ steps:
     arguments: '-target=all -mono'
   continueOnError: true
 
-- task: DotNetCoreCLI@1
+- task: DotNetCoreCLI@2
   displayName: 'dotnet restore test/Microsoft.SqlTools.ServiceLayer.UnitTests'
   inputs:
     command: restore
     projects: test/Microsoft.SqlTools.ServiceLayer.UnitTests
 
-- task: DotNetCoreCLI@1
+- task: DotNetCoreCLI@2
   displayName: 'dotnet restore test/Microsoft.Kusto.ServiceLayer.UnitTests'
   inputs:
     command: restore
     projects: test/Microsoft.Kusto.ServiceLayer.UnitTests
 
-- task: DotNetCoreCLI@1
+- task: DotNetCoreCLI@2
   displayName: 'dotnet test test/Microsoft.SqlTools.ServiceLayer.UnitTests'
   inputs:
     command: test
     projects: test/Microsoft.SqlTools.ServiceLayer.UnitTests
     arguments: '--logger "trx;LogFileName=xunit.trx"'
 
-- task: DotNetCoreCLI@1
+- task: DotNetCoreCLI@2
   displayName: 'dotnet test test/Microsoft.Kusto.ServiceLayer.UnitTests'
   inputs:
     command: test
