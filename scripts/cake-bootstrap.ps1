@@ -45,14 +45,14 @@ Write-Host "Preparing to run build script..."
 $PS_SCRIPT_ROOT = split-path -parent $MyInvocation.MyCommand.Definition;
 $TOOLS_DIR = Join-Path $PSScriptRoot "..\.tools"
 $NUGET_EXE = Join-Path $TOOLS_DIR "nuget.exe"
-$NUGET_URL = "https://dist.nuget.org/win-x86-commandline/v3.3.0/nuget.exe"
+$NUGET_URL = "https://dist.nuget.org/win-x86-commandline/latest/nuget.exe"
 $CAKE_EXE = Join-Path $TOOLS_DIR "Cake/Cake.exe"
 $PACKAGES_CONFIG = Join-Path $PS_SCRIPT_ROOT "packages.config"
 
 # Should we use mono?
 $UseMono = "";
 if($Mono.IsPresent) {
-    Write-Verbose -Message "Using the Mono based scripting engine."
+    Write-Host "Using the Mono based scripting engine."
     $UseMono = "-mono"
 }
 
@@ -62,16 +62,16 @@ if($WhatIf.IsPresent) {
     $UseDryRun = "-dryrun"
 }
 
-Write-Host -Message "Checking $PSScriptRoot and $TOOLS_DIR"
+Write-Host "Checking $PSScriptRoot and $TOOLS_DIR"
 # Make sure tools folder exists
 if ((Test-Path $PSScriptRoot) -and !(Test-Path $TOOLS_DIR)) {
-    Write-Host -Message "Creating tools directory..."
+    Write-Host "Creating tools directory..."
     New-Item -Path $TOOLS_DIR -Type directory | out-null
 }
 
 # Try download NuGet.exe if not exists
 if (!(Test-Path $NUGET_EXE)) {
-    Write-Host -Message "Downloading NuGet.exe..."
+    Write-Host "Downloading NuGet.exe..."
     try {
         (New-Object System.Net.WebClient).DownloadFile($NUGET_URL, $NUGET_EXE)
     } catch {
@@ -89,10 +89,10 @@ if(-Not $SkipToolPackageRestore.IsPresent)
     Push-Location
     Set-Location $TOOLS_DIR
 
-    Write-Host -Message "Restoring tools from NuGet..."
+    Write-Host "Restoring tools from NuGet..."
     $NuGetConfig = Invoke-Expression "&`"$NUGET_EXE`" config -configfile ../nuget.config"
     $NuGetOutput = Invoke-Expression "&`"$NUGET_EXE`" install $PACKAGES_CONFIG -ExcludeVersion -OutputDirectory `"$TOOLS_DIR`""
-    Write-Host -Message ($NuGetOutput | out-string)
+    Write-Host ($NuGetOutput | out-string)
 
     Pop-Location
     if ($LASTEXITCODE -ne 0)
