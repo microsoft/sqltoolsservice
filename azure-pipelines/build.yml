@@ -40,7 +40,7 @@ steps:
 - task: DotNetCoreCLI@2
   displayName: 'dotnet build src/Microsoft.Kusto.ServiceLayer --configuration Release'
   inputs:
-    projects: '$(Build.SourcesDirectory)/src/Microsoft.Kusto.ServiceLayer '
+    projects: '$(Build.SourcesDirectory)/src/Microsoft.Kusto.ServiceLayer'
     arguments: '--configuration Release'
 
 - task: NuGetCommand@2
@@ -49,7 +49,7 @@ steps:
     restoreSolution: scripts/packages.config
     feedsToUse: config
     nugetConfigPath: nuget.config
-    restoreDirectory: .tools
+    restoreDirectory: '$(Build.SourcesDirectory)/.tools'
 
 - task: BatchScript@1
   displayName: 'Run script build.cmd'
