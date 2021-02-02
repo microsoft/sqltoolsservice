@@ -43,15 +43,6 @@ steps:
     projects: '$(Build.SourcesDirectory)/src/Microsoft.Kusto.ServiceLayer'
     arguments: '--configuration Release'
 
-- task: NuGetCommand@2
-  displayName: 'Restore tools'
-  inputs:
-    command: custom
-    feedsToUse: config
-    nugetConfigPath: nuget.config
-    restoreDirectory: .tools
-    arguments: 'install $(Build.SourcesDirectory)/scripts/packages.config -ExcludeVersion -OutputDirectory $(Build.SourcesDirectory)/.tools'
-
 - task: NuGetAuthenticate@0
 
 - task: BatchScript@1
