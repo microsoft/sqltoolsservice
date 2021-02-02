@@ -46,10 +46,11 @@ steps:
 - task: NuGetCommand@2
   displayName: 'Restore tools'
   inputs:
-    restoreSolution: scripts/packages.config
+    command: custom
     feedsToUse: config
     nugetConfigPath: nuget.config
-    restoreDirectory: '$(Build.SourcesDirectory)/.tools'
+    restoreDirectory: .tools
+    arguments: 'install $(Build.SourcesDirectory)/scripts/packages.config -ExcludeVersion -OutputDirectory $(Build.SourcesDirectory)/.tools'
 
 - task: BatchScript@1
   displayName: 'Run script build.cmd'
