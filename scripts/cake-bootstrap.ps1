@@ -101,6 +101,8 @@ if(-Not $SkipToolPackageRestore.IsPresent)
     }
 }
 
+Get-ChildItem $TOOLS_DIR
+Get-ChildItem $TOOLS_DIR\Cake
 # Make sure that Cake has been installed.
 if (!(Test-Path $CAKE_EXE)) {
     Throw "Could not find Cake.exe at $CAKE_EXE"
