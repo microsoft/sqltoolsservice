@@ -62,7 +62,6 @@ if($WhatIf.IsPresent) {
     $UseDryRun = "-dryrun"
 }
 
-Write-Host "Checking $PSScriptRoot and $TOOLS_DIR"
 # Make sure tools folder exists
 if ((Test-Path $PSScriptRoot) -and !(Test-Path $TOOLS_DIR)) {
     Write-Host "Creating tools directory..."
@@ -101,8 +100,6 @@ if(-Not $SkipToolPackageRestore.IsPresent)
     }
 }
 
-Get-ChildItem $TOOLS_DIR
-Get-ChildItem $TOOLS_DIR\Cake
 # Make sure that Cake has been installed.
 if (!(Test-Path $CAKE_EXE)) {
     Throw "Could not find Cake.exe at $CAKE_EXE"
