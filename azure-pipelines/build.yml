@@ -52,6 +52,8 @@ steps:
     restoreDirectory: .tools
     arguments: 'install $(Build.SourcesDirectory)/scripts/packages.config -ExcludeVersion -OutputDirectory $(Build.SourcesDirectory)/.tools'
 
+- task: NuGetAuthenticate@0
+
 - task: BatchScript@1
   displayName: 'Run script build.cmd'
   inputs:
