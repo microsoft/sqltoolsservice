@@ -50,7 +50,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CodeCoverage", "CodeCoverag
 	ProjectSection(SolutionItems) = preProject
 		test\CodeCoverage\codecoverage.bat = test\CodeCoverage\codecoverage.bat
 		test\CodeCoverage\gulpfile.js = test\CodeCoverage\gulpfile.js
-		test\CodeCoverage\nuget.config = test\CodeCoverage\nuget.config
 		test\CodeCoverage\package.json = test\CodeCoverage\package.json
 		test\CodeCoverage\packages.config = test\CodeCoverage\packages.config
 		test\CodeCoverage\ReplaceText.vbs = test\CodeCoverage\ReplaceText.vbs
@@ -280,7 +279,7 @@ Global
 		{BB7FF5B5-84E3-4F4B-A2A7-2CC4C75632E9}.Integration|Any CPU.ActiveCfg = Debug|Any CPU
 		{BB7FF5B5-84E3-4F4B-A2A7-2CC4C75632E9}.Integration|Any CPU.Build.0 = Debug|Any CPU
 		{BB7FF5B5-84E3-4F4B-A2A7-2CC4C75632E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BB7FF5B5-84E3-4F4B-A2A7-2CC4C75632E9}.Release|Any CPU.Build.0 = Release|Any CPU		
+		{BB7FF5B5-84E3-4F4B-A2A7-2CC4C75632E9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -313,7 +312,7 @@ Global
 		{E0C941C8-91F2-4BE1-8B79-AC88EDB78729} = {2BBD7364-054F-4693-97CD-1C395E3E84A9}
 		{AFCDED82-B659-4BE1-86ED-0F4F8BC661AE} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
 		{7F2659DB-92C8-4823-AFB9-88BC1B6D959F} = {2BBD7364-054F-4693-97CD-1C395E3E84A9}
-		{BB7FF5B5-84E3-4F4B-A2A7-2CC4C75632E9} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}		
+		{BB7FF5B5-84E3-4F4B-A2A7-2CC4C75632E9} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B31CDF4B-2851-45E5-8C5F-BE97125D9DD8}
