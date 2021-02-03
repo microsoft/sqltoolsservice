@@ -4,7 +4,7 @@
   "description": "SQL Tools Service Layer",
   "main": "gulpfile.js",
   "dependencies": {
-    "del": "^6.0.0",
+    "del": "^2.2.1",
     "gulp": "^4.0.2",
     "gulp-cli": "^2.3.0",
     "gulp-install": "^1.1.0",
