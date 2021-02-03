@@ -6,7 +6,7 @@
   "dependencies": {
     "del": "^2.2.1",
     "gulp": "^4.0.2",
-    "gulp-cli": "^2.0.1",
+    "gulp-cli": "^2.3.0",
     "gulp-install": "^1.1.0",
     "request": "^2.73.0",
     "through2": "^2.0.3"
