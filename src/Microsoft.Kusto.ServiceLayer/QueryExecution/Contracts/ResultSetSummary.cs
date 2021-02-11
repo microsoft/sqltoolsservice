@@ -2,6 +2,9 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+using System.Runtime.Serialization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts
 {
@@ -40,7 +43,38 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts
         /// </summary>
         public SpecialAction SpecialAction { get; set; }
 
-        public override string ToString() => $"Result Summary Id:{Id}, Batch Id:'{BatchId}', RowCount:'{RowCount}', Complete:'{Complete}', SpecialAction:'{SpecialAction}'";
+        public VisualizationOptions Visualization { get; set; }
 
+        public override string ToString() => $"Result Summary Id:{Id}, Batch Id:'{BatchId}', RowCount:'{RowCount}', Complete:'{Complete}', SpecialAction:'{SpecialAction}', Visualization:'{Visualization}'";
+    }
+
+    public class VisualizationOptions
+    {
+        public VisualizationType Type { get; set; }
+    }
+
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum VisualizationType
+    {
+        [EnumMember(Value = "bar")]
+        Bar,
+        [EnumMember(Value = "count")]
+        Count,
+        [EnumMember(Value = "doughnut")]
+        Doughnut,
+        [EnumMember(Value = "horizontalBar")]
+        HorizontalBar,
+        [EnumMember(Value = "image")]
+        Image,
+        [EnumMember(Value = "line")]
+        Line,
+        [EnumMember(Value = "pie")]
+        Pie,
+        [EnumMember(Value = "scatter")]
+        Scatter,
+        [EnumMember(Value = "table")]
+        Table,
+        [EnumMember(Value = "timeSeries")]
+        TimeSeries
     }
 }
