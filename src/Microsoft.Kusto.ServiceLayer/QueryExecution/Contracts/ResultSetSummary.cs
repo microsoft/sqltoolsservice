@@ -43,16 +43,31 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts
         /// </summary>
         public SpecialAction SpecialAction { get; set; }
 
+        /// <summary>
+        /// The visualization options for the client to render charts.
+        /// </summary>
         public VisualizationOptions Visualization { get; set; }
 
+        /// <summary>
+        /// Returns a string represents the current object.
+        /// </summary>
         public override string ToString() => $"Result Summary Id:{Id}, Batch Id:'{BatchId}', RowCount:'{RowCount}', Complete:'{Complete}', SpecialAction:'{SpecialAction}', Visualization:'{Visualization}'";
     }
 
+    /// <summary>
+    /// Represents the configuration options for data visualization
+    /// </summary>
     public class VisualizationOptions
     {
+        /// <summary>
+        /// Gets or sets the type of the visualization
+        /// </summary>
         public VisualizationType Type { get; set; }
     }
 
+    /// <summary>
+    /// The supported visualization types
+    /// </summary>
     [JsonConverter(typeof(StringEnumConverter))]
     public enum VisualizationType
     {
