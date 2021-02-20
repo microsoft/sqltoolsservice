@@ -18,8 +18,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
     {
         public IDataSource Create(DataSourceType dataSourceType, ConnectionDetails connectionDetails, string ownerUri)
         {
-            ValidationUtils.IsArgumentNotNullOrWhiteSpace(connectionDetails.AccountToken, nameof(connectionDetails.AccountToken));
-            
             switch (dataSourceType)
             {
                 case DataSourceType.Kusto:
@@ -45,7 +43,9 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 DatabaseName = connectionDetails.DatabaseName,
                 ConnectionString = connectionDetails.ConnectionString,
                 AuthenticationType = connectionDetails.AuthenticationType,
-                UserToken = connectionDetails.AccountToken
+                UserToken = connectionDetails.AccountToken,
+                UserName = connectionDetails.UserName,
+                Password = connectionDetails.Password
             };
         }
 

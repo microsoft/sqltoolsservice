@@ -74,9 +74,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
         private KustoConnectionStringBuilder GetKustoConnectionStringBuilder(DataSourceConnectionDetails connectionDetails)
         {
-            ValidationUtils.IsTrue<ArgumentException>(!string.IsNullOrWhiteSpace(connectionDetails.UserToken),
-                $"The Kusto User Token is not specified - set {nameof(connectionDetails.UserToken)}");
-            
             var stringBuilder = string.IsNullOrWhiteSpace(connectionDetails.ConnectionString)
                 ? new KustoConnectionStringBuilder(connectionDetails.ServerName, connectionDetails.DatabaseName)
                 : new KustoConnectionStringBuilder(connectionDetails.ConnectionString);
@@ -87,10 +84,16 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             stringBuilder.InitialCatalog = databaseName;
             
             ValidationUtils.IsNotNull(ClusterName, nameof(ClusterName));
-            
-            return connectionDetails.AuthenticationType == "dstsAuth" 
-                ? stringBuilder.WithDstsUserTokenAuthentication(connectionDetails.UserToken) 
-                : stringBuilder.WithAadUserTokenAuthentication(connectionDetails.UserToken);
+
+            switch (connectionDetails.AuthenticationType)
+            {
+                case "AzureMFA": return stringBuilder.WithAadUserTokenAuthentication(connectionDetails.UserToken);
+                case "dstsAuth": return stringBuilder.WithDstsUserTokenAuthentication(connectionDetails.UserToken);
+                default:
+                    return string.IsNullOrWhiteSpace(connectionDetails.UserName) && string.IsNullOrWhiteSpace(connectionDetails.Password)
+                        ? stringBuilder
+                        : stringBuilder.WithKustoBasicAuthentication(connectionDetails.UserName, connectionDetails.Password);
+            }
         }
 
         private ClientRequestProperties GetClientRequestProperties(CancellationToken cancellationToken)
