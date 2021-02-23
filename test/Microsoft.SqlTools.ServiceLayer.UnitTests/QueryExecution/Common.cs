@@ -60,7 +60,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
         public static readonly ConnectionDetails StandardConnectionDetails = new ConnectionDetails
         {
             DatabaseName = "123",
-            Password = "456",
             ServerName = "789",
             UserName = "012"
         };
