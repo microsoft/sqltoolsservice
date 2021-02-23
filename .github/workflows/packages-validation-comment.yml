@@ -1,4 +1,4 @@
-name: Leave validation comment on Packages.props changes
+name: Packages.props validation message
 on:
   pull_request:
     paths:
