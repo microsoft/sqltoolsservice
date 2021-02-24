@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.DataSource.Contracts;
 using NUnit.Framework;
@@ -6,6 +7,19 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.DataSource
 {
     public class KustoClientTests
     {
+        [TestCase("dstsAuth")]	
+        [TestCase("AzureMFA")]	
+        public void Constructor_Throws_ArgumentException_For_MissingToken(string authType)	
+        {	
+            var connectionDetails = new DataSourceConnectionDetails	
+            {	
+                UserToken = "",
+                AuthenticationType = authType
+            };	
+
+            Assert.Throws<ArgumentException>(() => new KustoClient(connectionDetails, "ownerUri"));	
+        }
+        
         [Test]
         public void Constructor_Sets_ClusterName_With_DefaultDatabaseName()
         {

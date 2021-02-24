@@ -8,6 +8,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.Kusto.ServiceLayer.DataSource.Intellisense;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
+using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource
@@ -36,6 +37,12 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
         private DataSourceConnectionDetails MapKustoConnectionDetails(ConnectionDetails connectionDetails)
         {
+            if (connectionDetails.AuthenticationType == "dstsAuth" || connectionDetails.AuthenticationType == "AzureMFA")
+            {
+                ValidationUtils.IsTrue<ArgumentException>(!string.IsNullOrWhiteSpace(connectionDetails.AccountToken),
+                    $"The Kusto User Token is not specified - set {nameof(connectionDetails.AccountToken)}");
+            }
+
             return new DataSourceConnectionDetails
             {
                 ServerName = connectionDetails.ServerName,
