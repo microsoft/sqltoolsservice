@@ -7,5 +7,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Contracts
         public string UserToken { get; set; }
         public string ConnectionString { get; set; }
         public string AuthenticationType { get; set; }
+        public string UserName { get; set; }
+        public string Password { get; set; } 
     }
 }
