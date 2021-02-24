@@ -34,6 +34,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
         public string TargetName { get; set; }
 
         /// <summary>
+        /// Gets or sets the database name.
+        /// </summary>
+        public string DatabaseName { get; set; }
+
+        /// <summary>
         /// Gets or sets check's ID.
         /// </summary>
         public string CheckId { get; set; }
