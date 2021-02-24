@@ -202,6 +202,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                     HelpLink = r.Check.HelpLink,
                     Level = r.Check.Level.ToString(),
                     TargetName = targetName,
+                    DatabaseName = migrationResult.DatabaseName,
                     Tags = r.Check.Tags.ToArray(),
                     TargetType = target.Type,
                     RulesetName = Engine.Configuration.DefaultRuleset.Name,
