@@ -1,4 +1,3 @@
-using System;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.DataSource.Contracts;
 using NUnit.Framework;
@@ -7,17 +6,6 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.DataSource
 {
     public class KustoClientTests
     {
-        [Test]
-        public void Constructor_Throws_ArgumentException_For_MissingToken()
-        {
-            var connectionDetails = new DataSourceConnectionDetails
-            {
-                UserToken = ""
-            };
-            
-            Assert.Throws<ArgumentException>(() => new KustoClient(connectionDetails, "ownerUri"));
-        }
-
         [Test]
         public void Constructor_Sets_ClusterName_With_DefaultDatabaseName()
         {
@@ -38,6 +26,8 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.DataSource
 
         [TestCase("dstsAuth")]
         [TestCase("AzureMFA")]
+        [TestCase("NoAuth")]
+        [TestCase("SqlLogin")]
         public void Constructor_Creates_Client_With_Valid_AuthenticationType(string authenticationType)
         {
             string clusterName = "https://fake.url.com";
@@ -46,7 +36,9 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.DataSource
                 UserToken = "UserToken",
                 ServerName = clusterName,
                 DatabaseName = "FakeDatabaseName",
-                AuthenticationType = authenticationType
+                AuthenticationType = authenticationType,
+                UserName = authenticationType == "SqlLogin" ? "username": null,
+                Password = authenticationType == "SqlLogin" ? "password": null
             };
 
             var client = new KustoClient(connectionDetails, "ownerUri");
