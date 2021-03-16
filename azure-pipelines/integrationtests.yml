@@ -7,17 +7,19 @@ steps:
     displayName: 'Download secure file'
     inputs:
       secureFile: 'testsettings.json'
-  
+
   - task: VisualStudioTestPlatformInstaller@1
     displayName: 'Visual Studio Test Platform Installer'
     inputs:
       versionSelector: latestStable
-  
+
   - task: UseDotNet@2
     displayName: 'Use .NET Core sdk '
     inputs:
       useGlobalJson: true
-  
+
+  - task: NuGetAuthenticate@0
+
   - task: DotNetCoreCLI@2
     displayName: 'dotnet build'
     inputs:
@@ -30,7 +32,7 @@ steps:
       SourceFolder: '$(Agent.TempDirectory)'
       Contents: '**\testsettings.json'
       TargetFolder: '$(Build.SourcesDirectory)\test\Microsoft.SqlTools.ServiceLayer.IntegrationTests\bin\Debug\netcoreapp3.1'
-  
+
   - task: DotNetCoreCLI@2
     displayName: 'Run integration tests'
     inputs:
@@ -39,7 +41,7 @@ steps:
       arguments: '--no-build'
       testRunTitle: 'SqlToolsService Integration Tests'
     enabled: false
-  
+
   - task: VSTest@2
     displayName: 'Run integration tests with code coverage'
     inputs:
@@ -52,4 +54,3 @@ steps:
       rerunFailedThreshold: 15
       rerunMaxAttempts: 1
     continueOnError: true
-  

@@ -198,20 +198,16 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// Executes a query.
         /// </summary>
         /// <param name="query">The query.</param>
+        /// <param name="cancellationToken"></param>
+        /// <param name="databaseName"></param>
         /// <returns>The results.</returns>
-        public async Task<IEnumerable<T>> ExecuteQueryAsync<T>(string query, CancellationToken cancellationToken, string databaseName = null)
+        public async Task<IEnumerable<T>> ExecuteQueryAsync<T>(string query, CancellationToken cancellationToken,
+            string databaseName = null)
         {
-            try
-            {
-                var resultReader = ExecuteQuery(query, cancellationToken, databaseName);
-                var results = KustoDataReaderParser.ParseV1(resultReader, null);
-                var tableReader = results[WellKnownDataSet.PrimaryResult].Single().TableData.CreateDataReader();
-                return await Task.FromResult(new ObjectReader<T>(tableReader));
-            }
-            catch (Exception)
-            {
-                return null;
-            }
+            var resultReader = ExecuteQuery(query, cancellationToken, databaseName);
+            var results = KustoDataReaderParser.ParseV1(resultReader, null);
+            var tableReader = results[WellKnownDataSet.PrimaryResult].Single().TableData.CreateDataReader();
+            return await Task.FromResult(new ObjectReader<T>(tableReader));
         }
 
         private void CancelQuery(string clientRequestId)
