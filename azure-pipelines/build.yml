@@ -18,11 +18,13 @@ steps:
   inputs:
     useGlobalJson: true
 
-- task: DotNetCoreCLI@2
+- task: DotNetCoreCLI@1
   displayName: 'dotnet restore sqltoolsservice.sln'
   inputs:
-    command: custom
-    arguments: 'restore $(Build.SourcesDirectory)/sqltoolsservice.sln --configfile $(Build.SourcesDirectory)/nuget.config'
+    command: restore
+    projects: '$(Build.SourcesDirectory)/sqltoolsservice.sln'
+    feedsToUse: config
+    nugetConfigPath: nuget.config
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet build src/Microsoft.Kusto.ServiceLayer'
