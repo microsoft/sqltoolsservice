@@ -43,8 +43,6 @@ steps:
     projects: '$(Build.SourcesDirectory)/src/Microsoft.Kusto.ServiceLayer'
     arguments: '--configuration Release'
 
-- task: NuGetAuthenticate@0
-
 - task: BatchScript@1
   displayName: 'Run script build.cmd'
   inputs:
