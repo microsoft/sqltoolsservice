@@ -1,4 +1,4 @@
-syntax: glob 
+syntax: glob
 
 ### VisualStudio ###
 *.dgml
@@ -32,7 +32,6 @@ x64/
 x86/
 build/
 bld/
-[Bb]in/
 [Oo]bj/
 msbuild.log
 msbuild.err
@@ -173,7 +172,7 @@ publish/
 # NuGet Packages
 *.nuget.props
 *.nuget.targets
-*.nupkg
+src/**/*.nupkg
 **/packages/*
 
 # Windows Azure Build Output
