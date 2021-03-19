@@ -18,7 +18,7 @@ steps:
   inputs:
     useGlobalJson: true
 
-- task: DotNetCoreCLI@2
+- task: DotNetCoreCLI@1
   displayName: 'dotnet restore sqltoolsservice.sln'
   inputs:
     command: restore
@@ -42,8 +42,6 @@ steps:
   inputs:
     projects: '$(Build.SourcesDirectory)/src/Microsoft.Kusto.ServiceLayer'
     arguments: '--configuration Release'
-
-- task: NuGetAuthenticate@0
 
 - task: BatchScript@1
   displayName: 'Run script build.cmd'
