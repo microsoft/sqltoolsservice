@@ -25,6 +25,7 @@ steps:
     projects: '$(Build.SourcesDirectory)/sqltoolsservice.sln'
     feedsToUse: config
     nugetConfigPath: nuget.config
+    workingDirectory: $(Build.SourcesDirectory)
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet build src/Microsoft.Kusto.ServiceLayer'
