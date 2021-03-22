@@ -142,6 +142,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 result.Items.AddRange(results);
                 await requestContext.SendResult(result);
             }
+            catch(Exception e){
+                await requestContext.SendError(e.ToString());
+            }
             finally
             {
                 ConnectionService.Disconnect(new DisconnectParams { OwnerUri = randomUri, Type = null });
