@@ -56,7 +56,7 @@ SELECT [name], [description], [endpoint], [protocol_desc] FROM .[sys].[dm_cluste
 END TRY
 BEGIN CATCH
 DECLARE @endpoint VARCHAR(max)
-select @endpoint = CONVERT(VARCHAR(max),SERVERPROPERTY('ControllerEndpoint'))
+select @endpoint = ISNULL(CONVERT(VARCHAR(max),SERVERPROPERTY('ControllerEndpoint')), '')
 SELECT 'controller' AS name, 'Cluster Management Service' AS description, @endpoint as endpoint, SUBSTRING(@endpoint, 0, CHARINDEX(':', @endpoint))
 END CATCH
 ";
