@@ -119,7 +119,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 await ConnectionService.Connect(connectParams);
 
                 var connection = await ConnectionService.Instance.GetOrOpenConnection(randomUri, ConnectionType.Default);
-
                 var serverInfo = ReliableConnectionHelper.GetServerVersion(connection);
                 var hostInfo = ReliableConnectionHelper.GetServerHostInfo(connection);
 
@@ -136,8 +135,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 };
 
                 var db = SqlAssessmentService.GetDatabaseLocator(server, connection.Database);
-  
-                var results = await GetAssessmentItems(server);
+                var connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
+                var results = await GetAssessmentItems(server, connectionString);
                 var result = new MigrationAssessmentResult();
                 result.Items.AddRange(results);
                 await requestContext.SendResult(result);
@@ -179,9 +178,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             }
         }
 
-        internal async Task<List<MigrationAssessmentInfo>> GetAssessmentItems(SqlObjectLocator target)
+        internal async Task<List<MigrationAssessmentInfo>> GetAssessmentItems(SqlObjectLocator target, string connectionString)
         {
-            DmaEngine engine = new DmaEngine(target);
+            DmaEngine engine = new DmaEngine(connectionString);
             var assessmentResults = await engine.GetTargetAssessmentResultsList();
         
             var result = new List<MigrationAssessmentInfo>();
