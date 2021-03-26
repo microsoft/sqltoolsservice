@@ -135,9 +135,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 };
 
                 var db = SqlAssessmentService.GetDatabaseLocator(server, connection.Database);
-                var results = new List<MigrationAssessmentInfo>();
                 var connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
-                results = await GetAssessmentItems(server, connectionString);
+                var results = await GetAssessmentItems(server, connectionString);
                 var result = new MigrationAssessmentResult();
                 result.Items.AddRange(results);
                 await requestContext.SendResult(result);
