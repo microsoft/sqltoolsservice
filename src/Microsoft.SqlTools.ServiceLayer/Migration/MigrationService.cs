@@ -178,7 +178,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             }
         }
 
-        internal async Task<List<MigrationAssessmentInfo>> GetAssessmentItems(SqlObjectLocator target, string connectionString = "")
+        internal async Task<List<MigrationAssessmentInfo>> GetAssessmentItems(SqlObjectLocator target, string connectionString)
         {
             DmaEngine engine = new DmaEngine(connectionString);
             var assessmentResults = await engine.GetTargetAssessmentResultsList();
