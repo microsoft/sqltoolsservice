@@ -266,7 +266,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             return completeParams;
         }
 
-        internal string RefreshAzureToken(string ownerUri)
+        internal string RefreshAuthToken(string ownerUri)
         {
             TryFindConnection(ownerUri, out ConnectionInfo connection);
 
@@ -274,7 +274,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             {
                 AccountId = connection.ConnectionDetails.GetOptionValue("azureAccount", string.Empty),
                 Authority = connection.ConnectionDetails.GetOptionValue("azureTenantId", string.Empty),
-                Provider = "Azure",
+                Provider = connection.ConnectionDetails.AuthenticationType,
                 Resource = "SQL"
             };
 

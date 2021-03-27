@@ -57,7 +57,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
         private void RefreshAuthToken()
         {
-            string accountToken = ConnectionService.Instance.RefreshAzureToken(_ownerUri);
+            string accountToken = ConnectionService.Instance.RefreshAuthToken(_ownerUri);
             _kustoQueryProvider.Dispose();
             _kustoAdminProvider.Dispose();
             
