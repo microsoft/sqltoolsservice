@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security;
@@ -277,25 +278,31 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                     Success = returnValue,
                     ErrorMessage = String.Format("LogonUser failed with error code : {0}", ret)
                 });
-            } 
+            }
 
-            WindowsIdentity.RunImpersonated(
+            await WindowsIdentity.RunImpersonated(
                 safeAccessTokenHandle,
                 // User action  
-                () =>
+                async () =>
                 {
                     // Check the identity.  
                     Console.WriteLine("During impersonation: " + WindowsIdentity.GetCurrent().Name);
+                    bool exists = File.Exists(parameters.Path);
+                    if (exists)
+                    {
+                        await requestContext.SendResult(new ValidateFileShareResult()
+                        {
+                            Success = exists
+                        });
+                    } else {
+                        await requestContext.SendResult(new ValidateFileShareResult()
+                        {
+                            Success = exists,
+                            ErrorMessage = String.Format("{0} is not a valid file or directory.", parameters.Path)
+                        });
+                    }
                 }
                 );
-
-            // Check the identity again.  
-            string impersonatedUser = WindowsIdentity.GetCurrent().Name;
-
-            await requestContext.SendResult(new ValidateFileShareResult()
-            {
-                Success = true
-            });
         }
 
     }
