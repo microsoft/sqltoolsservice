@@ -6,6 +6,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Security;
+using System.Security.Principal;
+using Microsoft.Win32.SafeHandles;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Assessment;
 using Microsoft.SqlServer.Management.Assessment.Checks;
@@ -27,9 +31,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
     /// Main class for Migration Service functionality
     /// </summary>
     public sealed class MigrationService : IDisposable
-    {        
+    {
         private static ConnectionService connectionService = null;
-     
+
         private static readonly Lazy<MigrationService> instance = new Lazy<MigrationService>(() => new MigrationService());
 
         private bool disposed;
@@ -90,13 +94,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         {
             this.ServiceHost = serviceHost;
             this.ServiceHost.SetRequestHandler(MigrationAssessmentsRequest.Type, HandleMigrationAssessmentsRequest);
+            this.ServiceHost.SetRequestHandler(ValidateFileShareRequest.Type, HandleValidateFileShareRequest);
         }
 
         /// <summary>
         /// Handle request to start a migration session
         /// </summary>
         internal async Task HandleMigrationAssessmentsRequest(
-            MigrationAssessmentsParams parameters, 
+            MigrationAssessmentsParams parameters,
             RequestContext<MigrationAssessmentResult> requestContext)
         {
             string randomUri = Guid.NewGuid().ToString();
@@ -141,7 +146,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 result.Items.AddRange(results);
                 await requestContext.SendResult(result);
             }
-            catch(Exception e){
+            catch (Exception e)
+            {
                 await requestContext.SendError(e.ToString());
             }
             finally
@@ -150,7 +156,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             }
         }
 
-        
+
         internal class AssessmentRequest : IAssessmentRequest
         {
             private readonly Check[] checks = null;
@@ -182,7 +188,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         {
             DmaEngine engine = new DmaEngine(connectionString);
             var assessmentResults = await engine.GetTargetAssessmentResultsList();
-        
+
             var result = new List<MigrationAssessmentInfo>();
             foreach (var r in assessmentResults)
             {
@@ -194,12 +200,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
 
                 var targetName = !string.IsNullOrWhiteSpace(migrationResult.DatabaseName)
                                      ? $"{target.ServerName}:{migrationResult.DatabaseName}"
-                                     : target.Name;                                     
+                                     : target.Name;
 
                 var item = new MigrationAssessmentInfo()
                 {
                     CheckId = r.Check.Id,
-                    Description =  r.Check.Description,
+                    Description = r.Check.Description,
                     DisplayName = r.Check.DisplayName,
                     HelpLink = r.Check.HelpLink,
                     Level = r.Check.Level.ToString(),
@@ -246,5 +252,51 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 disposed = true;
             }
         }
+
+        [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+        public static extern bool LogonUser(String lpszUsername, String lpszDomain, String lpszPassword,
+        int dwLogonType, int dwLogonProvider, out SafeAccessTokenHandle phToken);
+
+        internal async Task HandleValidateFileShareRequest(
+            ValidateFileShareRequestParams parameters,
+            RequestContext<ValidateFileShareResult> requestContext)
+        {
+            const int LOGON32_PROVIDER_DEFAULT = 0;
+            //This parameter causes LogonUser to create a primary token.   
+            const int LOGON32_LOGON_INTERACTIVE = 2;
+            SafeAccessTokenHandle safeAccessTokenHandle;
+            bool returnValue = LogonUser(parameters.Username, parameters.Path, parameters.Password,
+                LOGON32_LOGON_INTERACTIVE, LOGON32_PROVIDER_DEFAULT,
+                out safeAccessTokenHandle);
+
+            if (!returnValue)
+            {
+                int ret = Marshal.GetLastWin32Error();
+                await requestContext.SendResult(new ValidateFileShareResult()
+                {
+                    Success = returnValue,
+                    ErrorMessage = String.Format("LogonUser failed with error code : {0}", ret)
+                });
+            } 
+
+            WindowsIdentity.RunImpersonated(
+                safeAccessTokenHandle,
+                // User action  
+                () =>
+                {
+                    // Check the identity.  
+                    Console.WriteLine("During impersonation: " + WindowsIdentity.GetCurrent().Name);
+                }
+                );
+
+            // Check the identity again.  
+            string impersonatedUser = WindowsIdentity.GetCurrent().Name;
+
+            await requestContext.SendResult(new ValidateFileShareResult()
+            {
+                Success = true
+            });
+        }
+
     }
 }
