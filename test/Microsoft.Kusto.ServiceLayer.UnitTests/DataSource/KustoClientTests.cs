@@ -21,6 +21,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.DataSource
         }
         
         [Test]
+        [Ignore("This should be moved to an integration test since Kusto Client calls Query")]
         public void Constructor_Sets_ClusterName_With_DefaultDatabaseName()
         {
             string clusterName = "https://fake.url.com";
