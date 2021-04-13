@@ -59,7 +59,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 return;
             }
             
-            var dataReader = ExecuteQuery(".show databases schema | order by DatabaseName asc | take 1", new CancellationToken());
+            var dataReader = ExecuteQuery(".show databases | top 1 by DatabaseName | project DatabaseName", new CancellationToken());
             var databaseName = dataReader.ToEnumerable().Select(row => row["DatabaseName"]).FirstOrDefault();
             DatabaseName = databaseName?.ToString() ?? "";
         }
