@@ -53,6 +53,15 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             var stringBuilder = GetKustoConnectionStringBuilder(connectionDetails);
             _kustoQueryProvider = KustoClientFactory.CreateCslQueryProvider(stringBuilder);
             _kustoAdminProvider = KustoClientFactory.CreateCslAdminProvider(stringBuilder);
+
+            if (DatabaseName != "NetDefaultDB")
+            {
+                return;
+            }
+            
+            var dataReader = ExecuteQuery(".show databases | top 1 by DatabaseName | project DatabaseName", new CancellationToken());
+            var databaseName = dataReader.ToEnumerable().Select(row => row["DatabaseName"]).FirstOrDefault();
+            DatabaseName = databaseName?.ToString() ?? "";
         }
 
         private void RefreshAuthToken()
