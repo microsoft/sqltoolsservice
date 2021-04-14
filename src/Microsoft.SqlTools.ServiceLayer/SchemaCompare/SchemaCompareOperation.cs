@@ -118,6 +118,15 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                         this.Differences.Add(diffEntry);
                     }
                 }
+
+                // HashSet contains the set of errors that are stopping the schema compare
+                // Error Message support single message only, so breaking the functionality with single error each time
+                HashSet<string> errorsSet = ComparisonResult.GetAllErrorsList();
+                foreach (string errMsg in errorsSet)
+                {
+                    ErrorMessage = errMsg;
+                    break;
+                }
             }
             catch (Exception e)
             {
