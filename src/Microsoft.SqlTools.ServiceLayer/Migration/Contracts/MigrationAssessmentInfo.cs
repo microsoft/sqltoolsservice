@@ -23,6 +23,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
         public string RulesetName { get; set; }
 
         /// <summary>
+        /// Gets or sets assessment ruleset name
+        /// </summary>
+        public string RuleId { get; set; }
+
+        /// <summary>
         /// Gets or sets assessed target's type.
         /// Supported values: 1 - server, 2 - database.
         /// </summary>
