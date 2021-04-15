@@ -423,7 +423,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
                 // Update with the actual database name in connectionInfo and result
                 // Doing this here as we know the connection is open - expect to do this only on connecting
-                connectionInfo.ConnectionDetails.DatabaseName = connection.Database;
+                // Do not update the DB name if it is a DB Pool database name (e.g. "db@pool")           
+                if (!ConnectionService.IsDbPool(connectionInfo.ConnectionDetails.DatabaseName))
+                {
+                    connectionInfo.ConnectionDetails.DatabaseName = connection.Database;
+                }                
+                
                 if (!string.IsNullOrEmpty(connectionInfo.ConnectionDetails.ConnectionString))
                 {
                     // If the connection was set up with a connection string, use the connection string to get the details
@@ -1608,6 +1613,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     conn.Open();
                 }
             }
+        }
+
+        public static bool IsDbPool(string databaseName)
+        {
+            return databaseName != null ? databaseName.IndexOf('@') != -1 : false;
         }
     }
 

@@ -1663,5 +1663,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             // Then the connection factory got called with details including an account token
             mockFactory.Verify(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.Is<string>(accountToken => accountToken == azureAccountToken)), Times.Once());
         }
+
+        /// <summary>
+        /// Test is IsDbPool method correctly works for various database names
+        /// </summary>
+        [Test]
+        public void CheckIsDbPool()
+        {
+            Assert.IsTrue(ConnectionService.IsDbPool("db@pool"));
+            Assert.IsFalse(ConnectionService.IsDbPool("db"));
+            Assert.IsFalse(ConnectionService.IsDbPool(null));
+        }
     }
 }
