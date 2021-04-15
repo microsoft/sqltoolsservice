@@ -424,7 +424,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 // Update with the actual database name in connectionInfo and result
                 // Doing this here as we know the connection is open - expect to do this only on connecting
                 // Do not update the DB name if it is a DB Pool database name (e.g. "db@pool")           
-                if (ConnectionService.IsDbPool(connectionInfo.ConnectionDetails.DatabaseName))
+                if (!ConnectionService.IsDbPool(connectionInfo.ConnectionDetails.DatabaseName))
                 {
                     connectionInfo.ConnectionDetails.DatabaseName = connection.Database;
                 }                
