@@ -194,7 +194,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
 
                 var targetName = !string.IsNullOrWhiteSpace(migrationResult.DatabaseName)
                                      ? $"{target.ServerName}:{migrationResult.DatabaseName}"
-                                     : target.Name;                                     
+                                     : target.Name;  
+                var ruleId = migrationResult.FeatureId.ToString();
 
                 var item = new MigrationAssessmentInfo()
                 {
@@ -210,6 +211,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                     TargetType = target.Type,
                     RulesetName = Engine.Configuration.DefaultRuleset.Name,
                     RulesetVersion = Engine.Configuration.DefaultRuleset.Version.ToString(),
+                    RuleId = ruleId,
                     Message = r.Message,
                     AppliesToMigrationTargetPlatform = migrationResult.AppliesToMigrationTargetPlatform.ToString(),
                     IssueCategory = "Category_Unknown"
