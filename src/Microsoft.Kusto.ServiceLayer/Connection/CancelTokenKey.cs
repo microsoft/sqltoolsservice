@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.Hosting.Contracts.Connection;
 
 namespace Microsoft.Kusto.ServiceLayer.Connection
 {

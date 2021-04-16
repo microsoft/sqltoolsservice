@@ -6,10 +6,10 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.SqlServer.Management.SqlScriptPublish;
-using Microsoft.Kusto.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
 using System.Diagnostics;
 using Microsoft.Kusto.ServiceLayer.DataSource;
+using Microsoft.SqlTools.Hosting.Contracts.Scripting;
 
 namespace Microsoft.Kusto.ServiceLayer.Scripting
 {

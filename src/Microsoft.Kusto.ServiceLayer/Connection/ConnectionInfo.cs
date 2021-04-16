@@ -6,7 +6,8 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
+using Microsoft.Kusto.ServiceLayer.DataSource;
+using Microsoft.SqlTools.Hosting.Contracts.Connection;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.Kusto.ServiceLayer.Connection

@@ -4,8 +4,8 @@
 //
 
 using System.IO;
-using Microsoft.Kusto.ServiceLayer.SqlContext;
 using Microsoft.Kusto.ServiceLayer.Utility;
+using Microsoft.SqlTools.Hosting.Contracts.QueryExecution;
 
 namespace Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage
 {

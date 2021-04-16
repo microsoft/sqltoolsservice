@@ -11,10 +11,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Kusto.ServiceLayer.Connection;
-using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.Utility;
 using System.Globalization;
+using Microsoft.Kusto.ServiceLayer.DataSource;
+using Microsoft.SqlTools.Hosting.Contracts.QueryExecution;
 
 namespace Microsoft.Kusto.ServiceLayer.QueryExecution
 {

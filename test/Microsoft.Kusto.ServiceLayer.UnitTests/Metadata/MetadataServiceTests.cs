@@ -1,7 +1,7 @@
 using Microsoft.Kusto.ServiceLayer.Connection;
-using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 using Microsoft.Kusto.ServiceLayer.Metadata;
-using Microsoft.Kusto.ServiceLayer.Metadata.Contracts;
+using Microsoft.SqlTools.Hosting.Contracts.Connection;
+using Microsoft.SqlTools.Hosting.Contracts.Metadata;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Moq;
 using NUnit.Framework;

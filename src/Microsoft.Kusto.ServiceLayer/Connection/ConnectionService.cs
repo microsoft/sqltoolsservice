@@ -12,16 +12,18 @@ using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
-using Microsoft.Kusto.ServiceLayer.Admin.Contracts;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
-using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using System.Diagnostics;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
+using Microsoft.SqlTools.Hosting.Contracts.Admin;
+using Microsoft.SqlTools.Hosting.Contracts.Connection;
+using Microsoft.SqlTools.Hosting.Contracts.Language;
+using Microsoft.SqlTools.Hosting.Contracts.ObjectExplorer;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
+using ConnectionType = Microsoft.SqlTools.Hosting.Contracts.Connection.ConnectionType;
 
 namespace Microsoft.Kusto.ServiceLayer.Connection
 {

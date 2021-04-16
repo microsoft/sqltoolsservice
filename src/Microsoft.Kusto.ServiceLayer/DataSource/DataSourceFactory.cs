@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Composition;
 using Kusto.Data;
-using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 using Microsoft.Kusto.ServiceLayer.DataSource.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.Kusto.ServiceLayer.DataSource.Intellisense;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
-using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.Kusto.ServiceLayer.Utility;
-using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.Hosting.Contracts.Connection;
+using Microsoft.SqlTools.Hosting.Contracts.Language;
+using Microsoft.SqlTools.Hosting.Contracts.Workspace;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource
 {

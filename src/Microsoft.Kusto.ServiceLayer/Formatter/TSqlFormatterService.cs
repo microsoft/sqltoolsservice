@@ -9,19 +9,17 @@ using System.Composition;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
-//using Kusto.Language;
-//using Kusto.Language.Editor;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.Kusto.ServiceLayer.Formatter.Contracts;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
-using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.Kusto.ServiceLayer.SqlContext;
 using Microsoft.Kusto.ServiceLayer.Workspace;
-using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.Hosting.Contracts.Formatter;
+using Microsoft.SqlTools.Hosting.Contracts.Language;
+using Microsoft.SqlTools.Hosting.Contracts.Workspace;
 using Microsoft.SqlTools.Utility;
-using Range = Microsoft.Kusto.ServiceLayer.Workspace.Contracts.Range;
+using Range = Microsoft.SqlTools.Hosting.Contracts.Workspace.Range;
 
 namespace Microsoft.Kusto.ServiceLayer.Formatter
 {

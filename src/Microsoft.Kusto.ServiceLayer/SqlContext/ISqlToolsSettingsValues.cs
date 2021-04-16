@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using Microsoft.SqlTools.Hosting.Contracts.QueryExecution;
+
 namespace Microsoft.Kusto.ServiceLayer.SqlContext
 {
     /// <summary>

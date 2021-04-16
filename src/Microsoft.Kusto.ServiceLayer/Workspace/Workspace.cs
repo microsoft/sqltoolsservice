@@ -10,10 +10,10 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Linq;
 using Microsoft.SqlTools.Utility;
-using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
 using System.Runtime.InteropServices;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using System.Diagnostics;
+using Microsoft.SqlTools.Hosting.Contracts.Workspace;
 
 namespace Microsoft.Kusto.ServiceLayer.Workspace
 {
@@ -137,7 +137,7 @@ namespace Microsoft.Kusto.ServiceLayer.Workspace
         {
             bool canReadFromDisk = false;
             string filePath = clientUri;
-            if (!IsPathInMemoryOrNonFileUri(clientUri))
+            if (!WorkspaceHelper.IsPathInMemoryOrNonFileUri(clientUri))
             {
                 if (clientUri.StartsWith(@"file://"))
                 {
@@ -263,7 +263,7 @@ namespace Microsoft.Kusto.ServiceLayer.Workspace
 
         internal string GetBaseFilePath(string filePath)
         {
-            if (IsPathInMemoryOrNonFileUri(filePath))
+            if (WorkspaceHelper.IsPathInMemoryOrNonFileUri(filePath))
             {
                 // If the file is in memory, use the workspace path
                 return this.WorkspacePath;
@@ -299,38 +299,13 @@ namespace Microsoft.Kusto.ServiceLayer.Workspace
 
             return combinedPath;
         }
-        internal static bool IsPathInMemoryOrNonFileUri(string path)
-        {
-            string scheme = GetScheme(path);
-            if (!string.IsNullOrEmpty(scheme))
-            {
-                return !scheme.Equals("file");
-            }
-            return false;
-        }
+        
 
-        public static string GetScheme(string uri)
-        {
-            string windowsFilePattern = @"^(?:[\w]\:|\\)";
-            if (Regex.IsMatch(uri, windowsFilePattern))
-            {
-                // Handle windows paths, these conflict with other "URI" handling
-                return null;
-            }
-
-            // Match anything that starts with xyz:, as VSCode send URIs in the format untitled:, git: etc.
-            string pattern = "^([a-z][a-z0-9+.-]*):";
-            Match match = Regex.Match(uri, pattern);
-            if (match != null && match.Success)
-            {
-                return match.Groups[1].Value;
-            }
-            return null;
-        }
+        
 
         private bool IsNonFileUri(string path)
         {
-            string scheme = GetScheme(path);
+            string scheme = WorkspaceHelper.GetScheme(path);
             if (!string.IsNullOrEmpty(scheme))
             {
                 return !fileUriSchemes.Contains(scheme); ;
@@ -340,7 +315,7 @@ namespace Microsoft.Kusto.ServiceLayer.Workspace
         
         private bool IsUntitled(string path)
         {
-            string scheme = GetScheme(path);
+            string scheme = WorkspaceHelper.GetScheme(path);
             if (scheme != null && scheme.Length > 0)
             {
                 return string.Compare(UntitledScheme, scheme, StringComparison.OrdinalIgnoreCase) == 0;

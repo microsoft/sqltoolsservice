@@ -2,6 +2,7 @@ using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.Scripting;
 using Microsoft.Kusto.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
+using Microsoft.SqlTools.Hosting.Contracts.Scripting;
 using Moq;
 using NUnit.Framework;
 

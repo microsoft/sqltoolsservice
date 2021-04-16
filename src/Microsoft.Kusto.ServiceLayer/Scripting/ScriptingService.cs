@@ -13,6 +13,8 @@ using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
 using Microsoft.Kusto.ServiceLayer.Utility;
+using Microsoft.SqlTools.Hosting.Contracts.Connection;
+using Microsoft.SqlTools.Hosting.Contracts.Scripting;
 
 namespace Microsoft.Kusto.ServiceLayer.Scripting
 {

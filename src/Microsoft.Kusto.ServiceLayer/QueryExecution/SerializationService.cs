@@ -12,9 +12,9 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.Kusto.ServiceLayer.Utility;
+using Microsoft.SqlTools.Hosting.Contracts.QueryExecution;
 using Microsoft.SqlTools.Utility;
 
 

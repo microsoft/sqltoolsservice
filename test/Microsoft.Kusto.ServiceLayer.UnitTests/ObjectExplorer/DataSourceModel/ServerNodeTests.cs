@@ -2,13 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.SqlTools.Extensibility;
+using Microsoft.SqlTools.Hosting.Contracts.Connection;
+using Microsoft.SqlTools.Hosting.Contracts.ObjectExplorer;
 using Moq;
 using NUnit.Framework;
 

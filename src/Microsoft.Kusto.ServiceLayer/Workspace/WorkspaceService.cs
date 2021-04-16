@@ -10,9 +10,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.Hosting.Contracts.Workspace;
 using Microsoft.SqlTools.Utility;
-using Range = Microsoft.Kusto.ServiceLayer.Workspace.Contracts.Range;
+using Range = Microsoft.SqlTools.Hosting.Contracts.Workspace.Range;
 
 namespace Microsoft.Kusto.ServiceLayer.Workspace
 {

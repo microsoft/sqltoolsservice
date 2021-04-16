@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Xml;
-using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.Hosting.Contracts.QueryExecution;
 
 namespace Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage
 {

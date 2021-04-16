@@ -8,11 +8,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.Kusto.ServiceLayer.Admin.Contracts;
 using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 using Microsoft.Kusto.ServiceLayer.Utility;
+using Microsoft.SqlTools.Hosting.Contracts.Admin;
+using Microsoft.SqlTools.Hosting.Contracts.ObjectExplorer;
 
 namespace Microsoft.Kusto.ServiceLayer.Admin
 {

@@ -24,12 +24,11 @@ using System;
 using System.Data.SqlClient;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.Utility;
+using Microsoft.SqlTools.Hosting.Contracts.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
-using Microsoft.Kusto.ServiceLayer.DataSource;
+using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.Kusto.ServiceLayer.Connection
+namespace Microsoft.Kusto.ServiceLayer.DataSource
 {
     /// <summary>
     /// Provides a reliable way of opening connections to and executing commands

@@ -10,6 +10,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using Microsoft.SqlTools.Hosting.Contracts.Scripting;
 using static Microsoft.SqlServer.Management.SqlScriptPublish.SqlScriptOptions;
 
 namespace Microsoft.Kusto.ServiceLayer.Scripting

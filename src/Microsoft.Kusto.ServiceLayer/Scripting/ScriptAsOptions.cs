@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.Kusto.ServiceLayer.Scripting.Contracts;
+using Microsoft.SqlTools.Hosting.Contracts.Scripting;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.Kusto.ServiceLayer.Scripting

@@ -6,7 +6,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Linq;
-using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
+using Microsoft.SqlTools.Hosting.Contracts.ObjectExplorer;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource
 {

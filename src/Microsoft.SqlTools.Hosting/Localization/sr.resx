@@ -13,16 +13,16 @@
     Example:
     
     ... ado.net/XML headers & schema ...
-    <resheader name="resmimetype=">text/microsoft-resx</resheader>
-    <resheader name="version=">2.0</resheader>
-    <resheader name="reader=">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
-    <resheader name="writer=">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
-    <data name="Name1="><value>this is my long string</value><comment>this is a comment</comment></data>
-    <data name="Color1" type="System.Drawing.Color, System.Drawing=">Blue</data>
-    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64=">
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
         <value>[base64 mime encoded serialized .NET Framework object]</value>
     </data>
-    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64=">
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
@@ -59,9 +59,9 @@
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
-  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata=">
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
-    <xsd:element name="root" msdata:IsDataSet="true=">
+    <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
         <xsd:choice maxOccurs="unbounded">
           <xsd:element name="metadata">
@@ -119,62 +119,59 @@
   </resheader>
   <data name="CredentialsServiceInvalidCriticalHandle" xml:space="preserve">
     <value>Invalid CriticalHandle!</value>
-    <comment></comment>
   </data>
   <data name="CredentialsServicePasswordLengthExceeded" xml:space="preserve">
     <value>The password has exceeded 512 bytes</value>
-    <comment></comment>
   </data>
   <data name="CredentialsServiceTargetForDelete" xml:space="preserve">
     <value>Target must be specified to delete a credential</value>
-    <comment></comment>
   </data>
   <data name="CredentialsServiceTargetForLookup" xml:space="preserve">
     <value>Target must be specified to check existance of a credential</value>
-    <comment></comment>
   </data>
   <data name="CredentialServiceWin32CredentialDisposed" xml:space="preserve">
     <value>Win32Credential object is already disposed</value>
-    <comment></comment>
   </data>
   <data name="ServiceAlreadyRegistered" xml:space="preserve">
     <value>Cannot register service for type {0}, one or more services already registered</value>
-    <comment></comment>
   </data>
   <data name="MultipleServicesFound" xml:space="preserve">
     <value>Multiple services found for type {0}, expected only 1</value>
-    <comment></comment>
   </data>
   <data name="IncompatibleServiceForExtensionLoader" xml:space="preserve">
     <value>Service of type {0} cannot be created by ExtensionLoader&lt;{1}&gt;</value>
-    <comment></comment>
   </data>
   <data name="ServiceProviderNotSet" xml:space="preserve">
     <value>SetServiceProvider() was not called to establish the required service provider</value>
-    <comment></comment>
   </data>
   <data name="ServiceNotFound" xml:space="preserve">
     <value>Service {0} was not found in the service provider</value>
-    <comment></comment>
   </data>
   <data name="ServiceNotOfExpectedType" xml:space="preserve">
     <value>Service of Type {0} is not compatible with registered Type {1}</value>
-    <comment></comment>
   </data>
   <data name="HostingUnexpectedEndOfStream" xml:space="preserve">
-    <value>MessageReader&apos;s input stream ended unexpectedly, terminating</value>
-    <comment></comment>
+    <value>MessageReader's input stream ended unexpectedly, terminating</value>
   </data>
   <data name="HostingHeaderMissingColon" xml:space="preserve">
-    <value>Message header must separate key and value using &apos;:&apos;</value>
-    <comment></comment>
+    <value>Message header must separate key and value using ':'</value>
   </data>
   <data name="HostingHeaderMissingContentLengthHeader" xml:space="preserve">
     <value>Fatal error: Content-Length header must be provided</value>
-    <comment></comment>
   </data>
   <data name="HostingHeaderMissingContentLengthValue" xml:space="preserve">
     <value>Fatal error: Content-Length value is not an integer</value>
-    <comment></comment>
+  </data>
+  <data name="WorkspaceServiceBufferPositionOutOfOrder" xml:space="preserve">
+    <value>Start position ({0}, {1}) must come before or be equal to the end position ({2}, {3})</value>
+  </data>
+  <data name="WorkspaceServicePositionColumnOutOfRange" xml:space="preserve">
+    <value>Position is outside of column range for line {0}</value>
+  </data>
+  <data name="WorkspaceServicePositionLineOutOfRange" xml:space="preserve">
+    <value>Position is outside of file line range</value>
+  </data>
+  <data name="QueryServiceColumnNull" xml:space="preserve">
+    <value>(No column name)</value>
   </data>
 </root>

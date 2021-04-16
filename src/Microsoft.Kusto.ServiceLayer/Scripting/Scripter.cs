@@ -4,10 +4,10 @@
 //
 
 using System.Composition;
-using Microsoft.Kusto.ServiceLayer.Scripting.Contracts;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using System.Text;
+using Microsoft.SqlTools.Hosting.Contracts.Scripting;
 
 namespace Microsoft.Kusto.ServiceLayer.Scripting
 {

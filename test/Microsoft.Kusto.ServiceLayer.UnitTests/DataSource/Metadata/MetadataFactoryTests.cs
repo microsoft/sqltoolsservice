@@ -2,7 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
-using Microsoft.Kusto.ServiceLayer.Metadata.Contracts;
+using Microsoft.SqlTools.Hosting.Contracts.Metadata;
+using Microsoft.SqlTools.Hosting.Contracts.ObjectExplorer;
 using NUnit.Framework;
 
 namespace Microsoft.Kusto.ServiceLayer.UnitTests.DataSource.Metadata

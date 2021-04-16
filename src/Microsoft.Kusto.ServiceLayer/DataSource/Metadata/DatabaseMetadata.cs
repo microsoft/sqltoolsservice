@@ -1,4 +1,6 @@
-﻿namespace Microsoft.Kusto.ServiceLayer.DataSource.Metadata
+﻿using Microsoft.SqlTools.Hosting.Contracts.ObjectExplorer;
+
+namespace Microsoft.Kusto.ServiceLayer.DataSource.Metadata
 {
     /// <summary>
     /// Database metadata information

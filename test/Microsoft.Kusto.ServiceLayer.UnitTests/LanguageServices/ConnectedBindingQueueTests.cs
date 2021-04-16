@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Kusto.ServiceLayer.Connection;
-using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
-using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
+using Microsoft.SqlTools.Hosting.Contracts.Connection;
 using Moq;
 using NUnit.Framework;
 

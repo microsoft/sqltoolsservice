@@ -4,7 +4,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
@@ -18,6 +17,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.Hosting.Contracts.QueryExecution;
 
 namespace Microsoft.Kusto.ServiceLayer.QueryExecution
 {

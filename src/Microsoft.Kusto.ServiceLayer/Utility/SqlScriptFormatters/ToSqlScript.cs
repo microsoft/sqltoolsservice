@@ -9,7 +9,7 @@ using System.Data.Common;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.Hosting.Contracts.QueryExecution;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.Kusto.ServiceLayer.Utility.SqlScriptFormatters

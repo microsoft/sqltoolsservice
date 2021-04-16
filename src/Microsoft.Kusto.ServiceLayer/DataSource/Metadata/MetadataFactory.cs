@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Kusto.ServiceLayer.Admin.Contracts;
-using Microsoft.Kusto.ServiceLayer.Metadata.Contracts;
 using Microsoft.Kusto.ServiceLayer.Utility;
+using Microsoft.SqlTools.Hosting.Contracts.Admin;
+using Microsoft.SqlTools.Hosting.Contracts.Metadata;
+using Microsoft.SqlTools.Hosting.Contracts.ObjectExplorer;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource.Metadata
 {

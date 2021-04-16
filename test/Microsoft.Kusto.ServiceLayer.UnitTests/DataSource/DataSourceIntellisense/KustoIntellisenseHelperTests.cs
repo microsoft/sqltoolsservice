@@ -1,6 +1,6 @@
 using Microsoft.Kusto.ServiceLayer.DataSource.Intellisense;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
-using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.Hosting.Contracts.Workspace;
 using NUnit.Framework;
 
 namespace Microsoft.Kusto.ServiceLayer.UnitTests.DataSource.DataSourceIntellisense

@@ -4,8 +4,8 @@
 //
 
 using System.Composition;
-using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 using Microsoft.Kusto.ServiceLayer.DataSource;
+using Microsoft.SqlTools.Hosting.Contracts.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 
 namespace Microsoft.Kusto.ServiceLayer.Connection

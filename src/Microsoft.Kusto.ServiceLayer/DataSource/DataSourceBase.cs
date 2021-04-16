@@ -9,10 +9,10 @@ using System.Data;
 using System.Threading.Tasks;
 using Microsoft.Kusto.ServiceLayer.DataSource.Intellisense;
 using Microsoft.Kusto.ServiceLayer.Utility;
-using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
-using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
-using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.Hosting.Contracts.Language;
+using Microsoft.SqlTools.Hosting.Contracts.ObjectExplorer;
+using Microsoft.SqlTools.Hosting.Contracts.Workspace;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource
 {

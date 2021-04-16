@@ -9,14 +9,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.BatchParser;
 using Microsoft.Kusto.ServiceLayer.Connection;
-using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage;
-using Microsoft.Kusto.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.Utility;
+using Microsoft.SqlTools.Hosting.Contracts.Connection;
+using Microsoft.SqlTools.Hosting.Contracts.QueryExecution;
 
 namespace Microsoft.Kusto.ServiceLayer.QueryExecution
 {

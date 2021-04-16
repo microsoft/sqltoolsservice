@@ -16,14 +16,14 @@ using Microsoft.SqlServer.Management.SqlParser.SqlCodeDom;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.Connection;
-using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 using Microsoft.Kusto.ServiceLayer.DataSource.Intellisense;
-using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.Kusto.ServiceLayer.Workspace;
-using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.Hosting.Contracts.Connection;
+using Microsoft.SqlTools.Hosting.Contracts.Language;
+using Microsoft.SqlTools.Hosting.Contracts.Workspace;
 using Microsoft.SqlTools.Utility;
-using Location = Microsoft.Kusto.ServiceLayer.Workspace.Contracts.Location;
+using Location = Microsoft.SqlTools.Hosting.Contracts.Workspace.Location;
 using SqlToolsSettings = Microsoft.Kusto.ServiceLayer.SqlContext.SqlToolsSettings;
 
 namespace Microsoft.Kusto.ServiceLayer.LanguageServices

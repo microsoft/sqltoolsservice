@@ -13,6 +13,7 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.SqlScriptPublish;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using System.Diagnostics;
+using Microsoft.SqlTools.Hosting.Contracts.Scripting;
 
 namespace Microsoft.Kusto.ServiceLayer.Scripting
 {

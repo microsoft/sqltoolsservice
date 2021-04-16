@@ -9,15 +9,15 @@ using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.Kusto.ServiceLayer.Connection;
-using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
-using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts;
-using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.Kusto.ServiceLayer.SqlContext;
 using Microsoft.Kusto.ServiceLayer.Workspace;
-using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.Utility;
 using System.Diagnostics;
+using Microsoft.SqlTools.Hosting.Contracts.Connection;
+using Microsoft.SqlTools.Hosting.Contracts.QueryExecution;
+using Microsoft.SqlTools.Hosting.Contracts.QueryExecution.ExecuteRequests;
+using Microsoft.SqlTools.Hosting.Contracts.Workspace;
 
 namespace Microsoft.Kusto.ServiceLayer.QueryExecution
 {

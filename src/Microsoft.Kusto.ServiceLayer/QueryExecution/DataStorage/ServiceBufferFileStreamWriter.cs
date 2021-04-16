@@ -9,9 +9,8 @@ using System.Data.SqlTypes;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
-using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts;
-using Microsoft.Kusto.ServiceLayer.SqlContext;
 using Microsoft.Kusto.ServiceLayer.Utility;
+using Microsoft.SqlTools.Hosting.Contracts.QueryExecution;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage

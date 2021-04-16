@@ -8,8 +8,9 @@ using Kusto.Language.Editor;
 using Kusto.Language.Symbols;
 using Kusto.Language.Syntax;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
-using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
-using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.Hosting.Contracts.Language;
+using Microsoft.SqlTools.Hosting.Contracts.Workspace;
+using CompletionItem = Microsoft.SqlTools.Hosting.Contracts.Language.CompletionItem;
 using Diagnostic = Kusto.Language.Diagnostic;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource.Intellisense
@@ -317,7 +318,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Intellisense
                 textPosition.Character);
         }
         
-        public LanguageServices.Contracts.CompletionItem[] GetAutoCompleteSuggestions(ScriptDocumentInfo scriptDocumentInfo, Position textPosition, bool throwOnError = false)
+        public CompletionItem[] GetAutoCompleteSuggestions(ScriptDocumentInfo scriptDocumentInfo, Position textPosition, bool throwOnError = false)
         {
             var script = CodeScript.From(scriptDocumentInfo.Contents, _schemaState);
             script.TryGetTextPosition(textPosition.Line + 1, textPosition.Character + 1,
@@ -328,7 +329,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Intellisense
             scriptDocumentInfo.ScriptParseInfo.CurrentSuggestions =
                 completion.Items; // this is declaration item so removed for now, but keep the info when api gets updated
 
-            var completions = new List<LanguageServices.Contracts.CompletionItem>();
+            var completions = new List<CompletionItem>();
             foreach (var autoCompleteItem in completion.Items)
             {
                 var label = autoCompleteItem.DisplayText;

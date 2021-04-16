@@ -5,7 +5,7 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.Hosting.Contracts.QueryExecution;
 
 
 namespace Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage

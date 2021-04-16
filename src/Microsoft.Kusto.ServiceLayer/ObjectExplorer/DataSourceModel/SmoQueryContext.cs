@@ -6,7 +6,7 @@
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.Kusto.ServiceLayer.DataSource;
-using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
+using Microsoft.SqlTools.Hosting.Contracts.ObjectExplorer;
 
 namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
 {

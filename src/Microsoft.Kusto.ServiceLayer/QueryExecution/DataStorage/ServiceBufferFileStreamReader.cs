@@ -8,8 +8,8 @@ using System.Collections.Generic;
 using System.Data.SqlTypes;
 using System.IO;
 using System.Text;
-using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.Kusto.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.Hosting.Contracts.QueryExecution;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage

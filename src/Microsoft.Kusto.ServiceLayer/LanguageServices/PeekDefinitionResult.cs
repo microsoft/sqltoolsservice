@@ -2,7 +2,9 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
-using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
+
+using Microsoft.SqlTools.Hosting.Contracts.Workspace;
+
 namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 {
     /// <summary>

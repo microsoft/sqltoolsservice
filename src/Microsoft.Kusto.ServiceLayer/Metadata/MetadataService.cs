@@ -8,10 +8,11 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.Kusto.ServiceLayer.Connection;
-using Microsoft.Kusto.ServiceLayer.Metadata.Contracts;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
+using Microsoft.SqlTools.Hosting.Contracts.Metadata;
+using Microsoft.SqlTools.Hosting.Contracts.ObjectExplorer;
 
 namespace Microsoft.Kusto.ServiceLayer.Metadata
 {

@@ -1,6 +1,6 @@
 using Microsoft.Kusto.ServiceLayer.Admin;
 using Microsoft.Kusto.ServiceLayer.Connection;
-using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.Hosting.Contracts.Connection;
 using Moq;
 using NUnit.Framework;
 

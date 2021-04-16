@@ -16,9 +16,7 @@ using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.Kusto.ServiceLayer.Connection;
-using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
-using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel;
 using Microsoft.Kusto.ServiceLayer.SqlContext;
@@ -26,6 +24,8 @@ using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.Kusto.ServiceLayer.Workspace;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
+using Microsoft.SqlTools.Hosting.Contracts.Connection;
+using Microsoft.SqlTools.Hosting.Contracts.ObjectExplorer;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
@@ -443,7 +443,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
             {
                 ObjectExplorerSession session = null;
                 connectionDetails.PersistSecurityInfo = true;
-                ConnectParams connectParams = new ConnectParams() { OwnerUri = uri, Connection = connectionDetails, Type = Connection.ConnectionType.ObjectExplorer };
+                ConnectParams connectParams = new ConnectParams() { OwnerUri = uri, Connection = connectionDetails, Type = ConnectionType.ObjectExplorer };
                 bool isDefaultOrSystemDatabase = DatabaseUtils.IsSystemDatabaseConnection(connectionDetails.DatabaseName) || string.IsNullOrWhiteSpace(connectionDetails.DatabaseDisplayName);
 
                 ConnectionInfo connectionInfo;

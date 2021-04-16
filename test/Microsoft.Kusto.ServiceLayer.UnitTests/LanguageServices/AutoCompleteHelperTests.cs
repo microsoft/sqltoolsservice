@@ -1,6 +1,6 @@
 using System.Linq;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
-using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
+using Microsoft.SqlTools.Hosting.Contracts.Language;
 using NUnit.Framework;
 
 namespace Microsoft.Kusto.ServiceLayer.UnitTests.LanguageServices

@@ -4,10 +4,10 @@
 //
 
 using System.Threading.Tasks;
+using Microsoft.SqlTools.Hosting.Contracts.Language;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.Utility;
-using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.Hosting.Contracts.Workspace;
 
 namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 {

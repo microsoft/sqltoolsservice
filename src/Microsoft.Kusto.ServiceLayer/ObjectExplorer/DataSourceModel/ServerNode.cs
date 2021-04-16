@@ -7,11 +7,11 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using Microsoft.SqlTools.Extensibility;
-using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.Kusto.ServiceLayer.DataSource;
-using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
+using Microsoft.SqlTools.Hosting.Contracts.Connection;
+using Microsoft.SqlTools.Hosting.Contracts.ObjectExplorer;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel

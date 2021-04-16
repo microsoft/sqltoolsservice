@@ -3,7 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
+using Microsoft.Kusto.ServiceLayer.DataSource;
+using Microsoft.SqlTools.Hosting.Contracts.Connection;
 
 namespace Microsoft.Kusto.ServiceLayer.Connection
 {

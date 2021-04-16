@@ -8,8 +8,9 @@ using System.Linq;
 using Kusto.Language;
 using Kusto.Language.Editor;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
-using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
-using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.Hosting.Contracts.Language;
+using Microsoft.SqlTools.Hosting.Contracts.Workspace;
+using CompletionItem = Microsoft.SqlTools.Hosting.Contracts.Language.CompletionItem;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource.Intellisense
 {
@@ -21,7 +22,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Intellisense
         /// <summary>
         /// Gets default keyword when user if not connected to any Kusto cluster.
         /// </summary>
-        public static LanguageServices.Contracts.CompletionItem[] GetDefaultKeywords(
+        public static CompletionItem[] GetDefaultKeywords(
             ScriptDocumentInfo scriptDocumentInfo, Position textDocumentPosition)
         {
             var kustoCodeService = new KustoCodeService(scriptDocumentInfo.Contents, GlobalState.Default);
@@ -30,8 +31,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Intellisense
                 out int position); // Gets the actual offset based on line and local offset      
             var completion = kustoCodeService.GetCompletionItems(position);
 
-            List<LanguageServices.Contracts.CompletionItem> completions =
-                new List<LanguageServices.Contracts.CompletionItem>();
+            List<CompletionItem> completions =
+                new List<CompletionItem>();
             foreach (var autoCompleteItem in completion.Items)
             {
                 var label = autoCompleteItem.DisplayText;

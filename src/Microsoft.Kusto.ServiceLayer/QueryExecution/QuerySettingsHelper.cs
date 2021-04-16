@@ -4,7 +4,7 @@
 //
 
 using System;
-using Microsoft.Kusto.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.Hosting.Contracts.QueryExecution;
 
 namespace Microsoft.Kusto.ServiceLayer.QueryExecution
 {
