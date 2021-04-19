@@ -148,7 +148,7 @@ namespace Microsoft.SqlTools.Hosting.Utility
         /// culture-specific messages
         /// </summary>
         /// <param name="locale"></param>
-        internal void LocaleSetter(string locale)
+        public void LocaleSetter(string locale)
         {
             // Creating cultureInfo from our given locale
             CultureInfo language = new CultureInfo(locale);
