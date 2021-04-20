@@ -50,28 +50,10 @@ namespace Microsoft.AzureMonitor.ServiceLayer.Connection
         private async Task HandleConnectRequest(ConnectParams connectParams, RequestContext<bool> requestContext)
         {
             Logger.Write(TraceEventType.Verbose, "HandleConnectRequest");
-            
-            var connectTask = ValidateAndConnect(connectParams);
-
-            await requestContext.SendResult(true);
-            await connectTask;
-        }
-
-        private async Task ValidateAndConnect(ConnectParams connectParams)
-        {
             try
             {
-                // result is null if the ConnectParams was successfully validated 
-                ConnectionCompleteParams errorResult = ValidateConnectParams(connectParams);
-                if (errorResult != null)
-                {
-                    await _serviceHost.SendEvent(ConnectionCompleteNotification.Type, errorResult);
-                    return;
-                }
-
-                // open connection based on request details
-                var connectionResult = Connect(connectParams);
-                await _serviceHost.SendEvent(ConnectionCompleteNotification.Type, connectionResult);
+                await ValidateAndConnect(connectParams);
+                await requestContext.SendResult(true);
             }
             catch (Exception ex)
             {
@@ -81,7 +63,23 @@ namespace Microsoft.AzureMonitor.ServiceLayer.Connection
                 };
 
                 await _serviceHost.SendEvent(ConnectionCompleteNotification.Type, result);
+                await requestContext.SendResult(false);
             }
+        }
+
+        private async Task ValidateAndConnect(ConnectParams connectParams)
+        {
+            // result is null if the ConnectParams was successfully validated 
+            ConnectionCompleteParams errorResult = ValidateConnectParams(connectParams);
+            if (errorResult != null)
+            {
+                await _serviceHost.SendEvent(ConnectionCompleteNotification.Type, errorResult);
+                return;
+            }
+
+            // open connection based on request details
+            var connectionResult = Connect(connectParams);
+            await _serviceHost.SendEvent(ConnectionCompleteNotification.Type, connectionResult);
         }
 
         /// <summary>
@@ -120,7 +118,7 @@ namespace Microsoft.AzureMonitor.ServiceLayer.Connection
                 _connectionByOwner.TryAdd(connectionParams.OwnerUri, datasource);    
             }
 
-            var completeParams = new ConnectionCompleteParams
+            return new ConnectionCompleteParams
             {
                 ConnectionId = Guid.NewGuid().ToString(),
                 OwnerUri = connectionParams.OwnerUri,
@@ -133,11 +131,10 @@ namespace Microsoft.AzureMonitor.ServiceLayer.Connection
                 ServerInfo = new ServerInfo
                 {
                     // todo JM Server properties for Manage dashboard
-                    Options = new Dictionary<string, object>()
+                    Options = new Dictionary<string, object>(),
+                    IsCloud = true
                 }
             };
-
-            return completeParams;
         }
 
         private async Task HandleCancelConnectRequest(CancelConnectParams cancelParams, RequestContext<bool> requestContext)
@@ -244,8 +241,7 @@ namespace Microsoft.AzureMonitor.ServiceLayer.Connection
             }
 
             datasource.ChangeDatabase(changeDatabaseParams.NewDatabase);
-            await requestContext.SendResult(true);
-
+            
             var returnParameters = new ConnectionChangedParams
             {
                 OwnerUri = changeDatabaseParams.OwnerUri,
@@ -258,6 +254,7 @@ namespace Microsoft.AzureMonitor.ServiceLayer.Connection
             };
             
             await _serviceHost.SendEvent(ConnectionChangedNotification.Type, returnParameters);
+            await requestContext.SendResult(true);
         }
 
         public bool CancelOrDisconnect(string ownerUri)

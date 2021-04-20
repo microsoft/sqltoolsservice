@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,8 @@ using Microsoft.AzureMonitor.ServiceLayer.Connection;
 using Microsoft.SqlTools.Hosting.DataContracts.Connection.Models;
 using Microsoft.SqlTools.Hosting.DataContracts.ObjectExplorer;
 using Microsoft.SqlTools.Hosting.DataContracts.ObjectExplorer.Models;
+using Microsoft.SqlTools.Hosting.DataContracts.QueryExecution;
+using Microsoft.SqlTools.Hosting.DataContracts.QueryExecution.Models;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Utility;
 
@@ -38,6 +41,7 @@ namespace Microsoft.AzureMonitor.ServiceLayer.ObjectExplorer
             serviceHost.SetRequestHandler(ExpandRequest.Type, HandleExpandRequest);
             serviceHost.SetRequestHandler(RefreshRequest.Type, HandleRefreshRequest);
             serviceHost.SetRequestHandler(CloseSessionRequest.Type, HandleCloseSessionRequest);
+            serviceHost.SetRequestHandler(FindNodesRequest.Type, HandleFindNodesRequest);
         }
 
         private async Task HandleCreateSessionRequest(ConnectionDetails connectionDetails, RequestContext<CreateSessionResponse> context)
@@ -51,7 +55,7 @@ namespace Microsoft.AzureMonitor.ServiceLayer.ObjectExplorer
                     SessionId = ownerUri
                 };
                 await context.SendResult(response);
-
+                
                 if (!_sessionMap.TryGetValue(ownerUri, out ConnectionCompleteParams session))
                 {
                     var connectParams = new ConnectParams
@@ -79,6 +83,7 @@ namespace Microsoft.AzureMonitor.ServiceLayer.ObjectExplorer
                 };
 
                 await _serviceHost.SendEvent(CreateSessionCompleteNotification.Type, successParams);
+                
             }
             catch (Exception ex)
             {
@@ -115,9 +120,8 @@ namespace Microsoft.AzureMonitor.ServiceLayer.ObjectExplorer
         {
             try
             {
-                var task = ExpandNode(expandParams);
+                await ExpandNode(expandParams);
                 await context.SendResult(true);
-                await task;
             }
             catch (Exception ex)
             {
@@ -129,9 +133,8 @@ namespace Microsoft.AzureMonitor.ServiceLayer.ObjectExplorer
         {
             try
             {
-                var task = ExpandNode(refreshParams);
+                await ExpandNode(refreshParams);
                 await context.SendResult(true);
-                await task;
             }
             catch(Exception ex)
             {
@@ -176,6 +179,16 @@ namespace Microsoft.AzureMonitor.ServiceLayer.ObjectExplorer
             };
 
             await context.SendResult(closeSessionResponse);
+        }
+        
+        private async Task HandleFindNodesRequest(FindNodesParams findNodesParams, RequestContext<FindNodesResponse> context)
+        {
+            var response = new FindNodesResponse
+            {
+                Nodes = new List<NodeInfo>()
+            };
+            
+            await context.SendResult(response);
         }
     }
 }

@@ -5,6 +5,7 @@
 using Microsoft.AzureMonitor.ServiceLayer.Connection;
 using Microsoft.AzureMonitor.ServiceLayer.DataSource;
 using Microsoft.AzureMonitor.ServiceLayer.ObjectExplorer;
+using Microsoft.AzureMonitor.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.Extensibility;
 
 namespace Microsoft.AzureMonitor.ServiceLayer
@@ -61,6 +62,9 @@ namespace Microsoft.AzureMonitor.ServiceLayer
             
             ObjectExplorerService.Instance.InitializeService(serviceHost, ConnectionService.Instance);
             serviceProvider.RegisterSingleService(ObjectExplorerService.Instance);
+            
+            QueryExecutionService.Instance.InitializeService(serviceHost, ConnectionService.Instance);
+            serviceProvider.RegisterSingleService(QueryExecutionService.Instance);
             
             serviceHost.InitializeRequestHandlers();
         }

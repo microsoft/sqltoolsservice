@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Azure.OperationalInsights.Models;
 using Microsoft.AzureMonitor.ServiceLayer.DataSource.Client;
 using Microsoft.AzureMonitor.ServiceLayer.DataSource.Client.Contracts.Responses;
 using Microsoft.AzureMonitor.ServiceLayer.DataSource.Client.Contracts.Responses.Models;
@@ -133,6 +136,11 @@ namespace Microsoft.AzureMonitor.ServiceLayer.DataSource
         public IEnumerable<NodeInfo> Expand(string nodePath)
         {
             return _nodes[nodePath].OrderBy(x => x.Label, StringComparer.OrdinalIgnoreCase);
+        }
+
+        public async Task<QueryResults> QueryAsync(string query, CancellationToken cancellationToken)
+        {
+            return await _monitorClient.QueryAsync(query, cancellationToken);
         }
     }
 }

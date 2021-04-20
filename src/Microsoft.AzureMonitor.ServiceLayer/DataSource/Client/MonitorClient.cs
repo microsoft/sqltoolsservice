@@ -1,6 +1,7 @@
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.OperationalInsights;
 using Microsoft.Azure.OperationalInsights.Models;
@@ -52,9 +53,9 @@ namespace Microsoft.AzureMonitor.ServiceLayer.DataSource.Client
             return httpClient;
         }
 
-        public async Task<QueryResults> QueryAsync(string query)
+        public async Task<QueryResults> QueryAsync(string query, CancellationToken cancellationToken)
         {
-            return await _queryClient.QueryAsync(query);
+            return await _queryClient.QueryAsync(query, cancellationToken: cancellationToken);
         }
 
         public QueryResults Query(string query)
