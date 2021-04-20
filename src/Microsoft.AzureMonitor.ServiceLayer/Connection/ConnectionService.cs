@@ -127,7 +127,7 @@ namespace Microsoft.AzureMonitor.ServiceLayer.Connection
                 ConnectionSummary = new ConnectionSummary
                 {
                     ServerName = datasource.ServerName,
-                    DatabaseName = datasource.ServerName,
+                    DatabaseName = datasource.DatabaseName,
                     UserName = connectionParams.Connection.UserName
                 },
                 ServerInfo = new ServerInfo
@@ -251,7 +251,7 @@ namespace Microsoft.AzureMonitor.ServiceLayer.Connection
                 OwnerUri = changeDatabaseParams.OwnerUri,
                 Connection = new ConnectionSummary
                 {
-                    DatabaseName = datasource.ServerName,
+                    DatabaseName = datasource.DatabaseName,
                     ServerName = datasource.ServerName,
                     UserName = datasource.UserName
                 }

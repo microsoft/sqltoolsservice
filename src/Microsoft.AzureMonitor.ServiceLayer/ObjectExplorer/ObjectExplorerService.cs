@@ -63,8 +63,9 @@ namespace Microsoft.AzureMonitor.ServiceLayer.ObjectExplorer
 
                     ConnectionCompleteParams resultParams = _connectionService.Connect(connectParams);
                     _sessionMap.TryAdd(ownerUri, resultParams);
+                    session = resultParams;
                 }
-
+                
                 var successParams = new SessionCreatedParameters
                 {
                     SessionId = ownerUri,

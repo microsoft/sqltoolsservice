@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AzureMonitor.ServiceLayer.DataSource.Client;
 using Microsoft.AzureMonitor.ServiceLayer.DataSource.Client.Contracts.Responses;
 using Microsoft.AzureMonitor.ServiceLayer.DataSource.Client.Contracts.Responses.Models;
@@ -15,6 +14,7 @@ namespace Microsoft.AzureMonitor.ServiceLayer.DataSource
         private readonly MonitorClient _monitorClient;
         private readonly WorkspaceResponse _metadata;        
         public string ServerName => _monitorClient.WorkspaceId;
+        public string DatabaseName { get; private set; }
         public string UserName { get; }
         private readonly Dictionary<string, List<NodeInfo>> _nodes;
 
@@ -30,6 +30,7 @@ namespace Microsoft.AzureMonitor.ServiceLayer.DataSource
         private void SetupTableGroups(string workspaceId)
         {
             var workspace = _metadata.Workspaces.First(x => x.Id == workspaceId);
+            DatabaseName = workspace.Name;
             var metadataTableGroups = _metadata.TableGroups.ToDictionary(x => x.Id);
             
             foreach (string workspaceTableGroup in workspace.TableGroups)
@@ -57,7 +58,7 @@ namespace Microsoft.AzureMonitor.ServiceLayer.DataSource
         
         private void SetupTables(NodeInfo tableGroupNodeInfo)
         {
-            var tables = GetNonEmptyTableNames().Result;
+            var tables = GetNonEmptyTableNames();
             var metadataTables = _metadata.Tables.ToDictionary(x => x.Name);
             
             foreach (string tableName in tables)
@@ -117,10 +118,10 @@ namespace Microsoft.AzureMonitor.ServiceLayer.DataSource
             }).ToList();
         }
 
-        private async Task<IEnumerable<string>> GetNonEmptyTableNames()
+        private IEnumerable<string> GetNonEmptyTableNames()
         {
             string query = "union * | summarize count() by Type";
-            var results = await _monitorClient.QueryAsync(query);
+            var results = _monitorClient.Query(query);
             return results.Tables[0].Rows.Select(x => x[0]).OrderBy(x => x);
         }
 

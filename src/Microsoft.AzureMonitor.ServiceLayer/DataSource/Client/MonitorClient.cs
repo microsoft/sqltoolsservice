@@ -56,5 +56,10 @@ namespace Microsoft.AzureMonitor.ServiceLayer.DataSource.Client
         {
             return await _queryClient.QueryAsync(query);
         }
+
+        public QueryResults Query(string query)
+        {
+            return _queryClient.Query(query);
+        }
     }
 }
