@@ -52,7 +52,10 @@ namespace Microsoft.AzureMonitor.ServiceLayer.Connection
             Logger.Write(TraceEventType.Verbose, "HandleConnectRequest");
             try
             {
-                await ValidateAndConnect(connectParams);
+                Parallel.Invoke(async () =>
+                {
+                    await ValidateAndConnect(connectParams);
+                });
                 await requestContext.SendResult(true);
             }
             catch (Exception ex)
@@ -231,7 +234,7 @@ namespace Microsoft.AzureMonitor.ServiceLayer.Connection
 
             return databaseInfos.ToArray();
         }
-        
+
         private async Task HandleChangeDatabaseRequest(ChangeDatabaseParams changeDatabaseParams, RequestContext<bool> requestContext)
         {
             if (!_connectionByOwner.TryGetValue(changeDatabaseParams.OwnerUri, out MonitorDataSource datasource))
@@ -241,7 +244,7 @@ namespace Microsoft.AzureMonitor.ServiceLayer.Connection
             }
 
             datasource.ChangeWorkspace(changeDatabaseParams.NewDatabase);
-            
+
             var returnParameters = new ConnectionChangedParams
             {
                 OwnerUri = changeDatabaseParams.OwnerUri,
@@ -252,7 +255,7 @@ namespace Microsoft.AzureMonitor.ServiceLayer.Connection
                     UserName = datasource.UserName
                 }
             };
-            
+
             await _serviceHost.SendEvent(ConnectionChangedNotification.Type, returnParameters);
             await requestContext.SendResult(true);
         }

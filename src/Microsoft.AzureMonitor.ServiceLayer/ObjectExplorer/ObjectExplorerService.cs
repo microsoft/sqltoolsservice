@@ -65,7 +65,11 @@ namespace Microsoft.AzureMonitor.ServiceLayer.ObjectExplorer
                         Type = ConnectionType.ObjectExplorer
                     };
 
-                    ConnectionCompleteParams resultParams = _connectionService.Connect(connectParams);
+                    var resultParams = new ConnectionCompleteParams();
+                    Parallel.Invoke(() =>
+                    {
+                        resultParams = _connectionService.Connect(connectParams);
+                    });
                     _sessionMap.TryAdd(ownerUri, resultParams);
                     session = resultParams;
                 }
@@ -78,7 +82,8 @@ namespace Microsoft.AzureMonitor.ServiceLayer.ObjectExplorer
                     {
                         NodeType = NodeTypes.Server.ToString(),
                         NodePath = "/",
-                        Label = $"{session?.ConnectionSummary.ServerName} (Log Analytics {session?.ConnectionSummary.UserName})"
+                        Label = $"{session?.ConnectionSummary.ServerName} (Log Analytics {session?.ConnectionSummary.UserName})",
+                        IsLeaf = false
                     },
                 };
 

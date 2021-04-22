@@ -156,12 +156,24 @@ namespace Microsoft.AzureMonitor.ServiceLayer.DataSource
             var columns = results.Tables.Select(x => x.Columns);
             var columnWrapper = columns.First().Select(x => new DbColumnWrapper(x.Name, x.Type));
 
+            IList<IList<string>> rows = results.Tables.First().Rows;
+
             var queryResult = new MonitorQueryResult
             {
-                Columns = columnWrapper.ToArray()
+                Columns = columnWrapper.ToArray(),
+                ResultSubset = new ResultSetSubset
+                {
+                    RowCount = rows.Count,
+                    Rows = MapRows(rows)
+                }
             };
 
             return await Task.FromResult(queryResult);
+        }
+
+        private DbCellValue[][] MapRows(IList<IList<string>> rows)
+        {
+            return rows.Select(x => x.Select(y => new DbCellValue {DisplayValue = y}).ToArray()).ToArray();
         }
     }
 }
