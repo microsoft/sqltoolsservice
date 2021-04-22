@@ -110,6 +110,18 @@ namespace Microsoft.SqlTools.Hosting.DataContracts.QueryExecution.Models
             return default(T);
         }
 
+        public DbColumnWrapper(string name, string dataType)
+        {
+            DataTypeName = dataType.ToLowerInvariant();
+            DetermineSqlDbType();
+            DataType = TypeConvertor.ToNetType(this.SqlDbType);
+            if (DataType == typeof(string))
+            {
+                ColumnSize = int.MaxValue;
+            }
+            AddNameAndDataFields(name);
+        }
+
         public DbColumnWrapper(ColumnInfo columnInfo)
         {
             DataTypeName = columnInfo.DataTypeName.ToLowerInvariant();

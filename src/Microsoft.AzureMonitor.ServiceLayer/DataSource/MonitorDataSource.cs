@@ -1,14 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Azure.OperationalInsights.Models;
 using Microsoft.AzureMonitor.ServiceLayer.DataSource.Client;
 using Microsoft.AzureMonitor.ServiceLayer.DataSource.Client.Contracts.Responses;
 using Microsoft.AzureMonitor.ServiceLayer.DataSource.Client.Contracts.Responses.Models;
 using Microsoft.SqlTools.Hosting.DataContracts.Connection.Models;
 using Microsoft.SqlTools.Hosting.DataContracts.ObjectExplorer.Models;
+using Microsoft.SqlTools.Hosting.DataContracts.QueryExecution.Models;
 
 namespace Microsoft.AzureMonitor.ServiceLayer.DataSource
 {
@@ -33,7 +34,7 @@ namespace Microsoft.AzureMonitor.ServiceLayer.DataSource
         private void SetupTableGroups(string workspaceId)
         {
             var workspace = _metadata.Workspaces.First(x => x.Id == workspaceId);
-            DatabaseName = workspace.Name;
+            DatabaseName = $"{workspace.Name} ({workspace.Id})";
             var metadataTableGroups = _metadata.TableGroups.ToDictionary(x => x.Id);
             
             foreach (string workspaceTableGroup in workspace.TableGroups)
@@ -128,9 +129,20 @@ namespace Microsoft.AzureMonitor.ServiceLayer.DataSource
             return results.Tables[0].Rows.Select(x => x[0]).OrderBy(x => x);
         }
 
-        public void ChangeDatabase(string newDatabase)
+        public void ChangeWorkspace(string newWorkspaceId)
         {
-            throw new NotImplementedException();
+            var workspaceId = ParseWorkspaceId(newWorkspaceId);
+            var workspace = _metadata.Workspaces.First(x => x.Id == workspaceId);
+            DatabaseName = $"{workspace.Name} ({workspace.Id})";
+        }
+        
+        private string ParseWorkspaceId(string workspace)
+        {
+            var regex = new Regex(@"(?<=\().+?(?=\))");
+            
+            return regex.IsMatch(workspace)
+                ? regex.Match(workspace).Value
+                : workspace;
         }
 
         public IEnumerable<NodeInfo> Expand(string nodePath)
@@ -138,9 +150,18 @@ namespace Microsoft.AzureMonitor.ServiceLayer.DataSource
             return _nodes[nodePath].OrderBy(x => x.Label, StringComparer.OrdinalIgnoreCase);
         }
 
-        public async Task<QueryResults> QueryAsync(string query, CancellationToken cancellationToken)
+        public async Task<MonitorQueryResult> QueryAsync(string query, CancellationToken cancellationToken)
         {
-            return await _monitorClient.QueryAsync(query, cancellationToken);
+            var results = await _monitorClient.QueryAsync(query, cancellationToken);
+            var columns = results.Tables.Select(x => x.Columns);
+            var columnWrapper = columns.First().Select(x => new DbColumnWrapper(x.Name, x.Type));
+
+            var queryResult = new MonitorQueryResult
+            {
+                Columns = columnWrapper.ToArray()
+            };
+
+            return await Task.FromResult(queryResult);
         }
     }
 }

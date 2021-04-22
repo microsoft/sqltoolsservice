@@ -6,7 +6,9 @@ using Microsoft.AzureMonitor.ServiceLayer.Connection;
 using Microsoft.AzureMonitor.ServiceLayer.DataSource;
 using Microsoft.AzureMonitor.ServiceLayer.ObjectExplorer;
 using Microsoft.AzureMonitor.ServiceLayer.QueryExecution;
+using Microsoft.AzureMonitor.ServiceLayer.Workspace;
 using Microsoft.SqlTools.Extensibility;
+using Microsoft.SqlTools.Hosting.DataContracts.SqlContext;
 
 namespace Microsoft.AzureMonitor.ServiceLayer
 {
@@ -57,13 +59,16 @@ namespace Microsoft.AzureMonitor.ServiceLayer
             // Initialize and register singleton services so they're accessible for any MEF service. In the future, these
             // could be updated to be IComposableServices, which would avoid the requirement to define a singleton instance
             // and instead have MEF handle discovery & loading
+            WorkspaceService<SqlToolsSettings>.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(WorkspaceService<SqlToolsSettings>.Instance);
+            
             ConnectionService.Instance.InitializeService(serviceHost, new DataSourceFactory());
             serviceProvider.RegisterSingleService(ConnectionService.Instance);
             
             ObjectExplorerService.Instance.InitializeService(serviceHost, ConnectionService.Instance);
             serviceProvider.RegisterSingleService(ObjectExplorerService.Instance);
             
-            QueryExecutionService.Instance.InitializeService(serviceHost, ConnectionService.Instance);
+            QueryExecutionService.Instance.InitializeService(serviceHost, ConnectionService.Instance, WorkspaceService<SqlToolsSettings>.Instance);
             serviceProvider.RegisterSingleService(QueryExecutionService.Instance);
             
             serviceHost.InitializeRequestHandlers();

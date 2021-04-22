@@ -240,7 +240,7 @@ namespace Microsoft.AzureMonitor.ServiceLayer.Connection
                 return;
             }
 
-            datasource.ChangeDatabase(changeDatabaseParams.NewDatabase);
+            datasource.ChangeWorkspace(changeDatabaseParams.NewDatabase);
             
             var returnParameters = new ConnectionChangedParams
             {

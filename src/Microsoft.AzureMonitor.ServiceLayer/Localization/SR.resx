@@ -39,4 +39,13 @@
     <data name="ConnectionServiceListDbErrorNotConnected" xml:space="preserve">
         <value>SpecifiedUri &apos;{0}&apos; does not have existing connection</value>
   </data>
+    <data name="WorkspaceServiceBufferPositionOutOfOrder" xml:space="preserve">
+        <value>Start position ({0}, {1}) must come before or be equal to the end position ({2}, {3})</value>
+    </data>
+    <data name="WorkspaceServicePositionLineOutOfRange" xml:space="preserve">
+        <value>Position is outside of file line range</value>
+    </data>
+    <data name="WorkspaceServicePositionColumnOutOfRange" xml:space="preserve">
+        <value>Position is outside of column range for line {0}</value>
+    </data>
 </root>
