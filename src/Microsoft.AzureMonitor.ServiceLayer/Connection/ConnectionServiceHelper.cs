@@ -33,7 +33,7 @@ namespace Microsoft.AzureMonitor.ServiceLayer.Connection
                 // For SqlLogin, username cannot be empty
                 if (string.IsNullOrEmpty(parameters.Connection.UserName))
                 {
-                    errorMessage = string.Format(SR.ConnectionParamsValidateNullSqlAuth, "UserName");
+                    errorMessage = SR.ConnectionParamsValidateNullSqlAuth("UserName");
                 }
             }
 

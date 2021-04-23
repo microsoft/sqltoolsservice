@@ -196,7 +196,7 @@ namespace Microsoft.AzureMonitor.ServiceLayer.Connection
             // Use the existing connection as a base for the search
             if (!_connectionByOwner.TryGetValue(listDatabasesParams.OwnerUri, out MonitorDataSource datasource))
             {
-                throw new Exception(string.Format(SR.ConnectionServiceListDbErrorNotConnected, listDatabasesParams.OwnerUri));
+                throw new Exception(SR.ConnectionServiceListDbErrorNotConnected(listDatabasesParams.OwnerUri));
             }
             
             List<ObjectMetadata> databases = datasource.GetDatabases(true);

@@ -5,7 +5,7 @@
 
 using System.Diagnostics;
 
-namespace Microsoft.AzureMonitor.ServiceLayer.Workspace.Contracts
+namespace Microsoft.SqlTools.Hosting.DataContracts.QueryExecution.Models
 {
     /// <summary>
     /// Provides details about a position in a file buffer.  All

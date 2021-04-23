@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.AzureMonitor.ServiceLayer.Localization;
+using Microsoft.SqlTools.Hosting.DataContracts.QueryExecution.Models;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.AzureMonitor.ServiceLayer.Workspace.Contracts
@@ -234,8 +235,7 @@ namespace Microsoft.AzureMonitor.ServiceLayer.Workspace.Contracts
 
             if (column < 1 || column > maxColumn)
             {
-                var message = string.Format(SR.WorkspaceServicePositionColumnOutOfRange, line);
-                throw new ArgumentOutOfRangeException(nameof(column), message);
+                throw new ArgumentOutOfRangeException(nameof(column), SR.WorkspaceServicePositionColumnOutOfRange(line));
             }
         }
 

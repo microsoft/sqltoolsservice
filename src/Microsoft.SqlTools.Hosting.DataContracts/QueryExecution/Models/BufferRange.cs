@@ -5,9 +5,8 @@
 
 using System;
 using System.Diagnostics;
-using Microsoft.AzureMonitor.ServiceLayer.Localization;
 
-namespace Microsoft.AzureMonitor.ServiceLayer.Workspace.Contracts
+namespace Microsoft.SqlTools.Hosting.DataContracts.QueryExecution.Models
 {
     /// <summary>
     /// Provides details about a range between two positions in
@@ -58,9 +57,9 @@ namespace Microsoft.AzureMonitor.ServiceLayer.Workspace.Contracts
         {
             if (start > end)
             {
-                var message = string.Format(SR.WorkspaceServiceBufferPositionOutOfOrder, start.Line, start.Column,
-                    end.Line, end.Column);
-                throw new ArgumentException(message);
+                // todo JM fix this error message
+                throw new ArgumentException(@"SR.WorkspaceServiceBufferPositionOutOfOrder(start.Line, start.Column,
+                    end.Line, end.Column)");
             }
 
             this.Start = start;
