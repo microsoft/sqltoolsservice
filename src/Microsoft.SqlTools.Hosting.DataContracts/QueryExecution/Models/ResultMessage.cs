@@ -1,11 +1,6 @@
-//
-// Copyright (c) Microsoft. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
-//
-
 using System;
 
-namespace Microsoft.AzureMonitor.ServiceLayer.QueryExecution.Contracts
+namespace Microsoft.SqlTools.Hosting.DataContracts.QueryExecution.Models
 {
     /// <summary>
     /// Result message object with timestamp and actual message
@@ -51,6 +46,6 @@ namespace Microsoft.AzureMonitor.ServiceLayer.QueryExecution.Contracts
         public ResultMessage()
         {
         }
-        public override string ToString() => $"Message on Batch Id:'{BatchId}', IsError:'{IsError}', Message:'{Message}'";
+        public override string ToString() => $"Message on Batch Id:'{BatchId}', IsError:'{IsError}', Message:'{Message}'"; 
     }
 }

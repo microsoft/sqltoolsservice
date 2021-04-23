@@ -1,10 +1,7 @@
 using System;
-using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AzureMonitor.ServiceLayer.Connection;
-using Microsoft.AzureMonitor.ServiceLayer.Localization;
 using Microsoft.AzureMonitor.ServiceLayer.Workspace;
 using Microsoft.AzureMonitor.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.Hosting.DataContracts.QueryExecution;
@@ -15,88 +12,73 @@ using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.AzureMonitor.ServiceLayer.QueryExecution
 {
-    public class QueryExecutionService: IDisposable
+    public class QueryExecutionService
     {
-        private ConnectionService _connectionService;
-        private WorkspaceService<SqlToolsSettings> _workspaceService;
-        private readonly ConcurrentDictionary<string, Query> _activeQueries;
-        private readonly Lazy<ConcurrentDictionary<string, QueryExecutionSettings>> _queryExecutionSettings =
-            new Lazy<ConcurrentDictionary<string, QueryExecutionSettings>>(() => new ConcurrentDictionary<string, QueryExecutionSettings>());    
+        private QueryExecutionManager _queryExecutionManager;
         private static readonly Lazy<QueryExecutionService> LazyInstance = new Lazy<QueryExecutionService>(() => new QueryExecutionService());
-        private bool _disposed;
-        
         public static QueryExecutionService Instance => LazyInstance.Value;
 
-        public QueryExecutionService()
+        public void InitializeService(ServiceHost serviceHost, ConnectionService connectionService, WorkspaceService<SqlToolsSettings> workspaceService)
         {
-            _activeQueries = new ConcurrentDictionary<string, Query>();
-        }
-        
-        public void InitializeService(IProtocolEndpoint serviceHost, ConnectionService connectionService, WorkspaceService<SqlToolsSettings> workspaceService)
-        {
-            _connectionService = connectionService;
-            _workspaceService = workspaceService;
+            _queryExecutionManager = new QueryExecutionManager(connectionService, workspaceService);
             
             serviceHost.SetRequestHandler(ExecuteDocumentSelectionRequest.Type, HandleExecuteRequest);
             serviceHost.SetRequestHandler(ExecuteDocumentStatementRequest.Type, HandleExecuteRequest);
             serviceHost.SetRequestHandler(ExecuteStringRequest.Type, HandleExecuteRequest);
             serviceHost.SetRequestHandler(SubsetRequest.Type, HandleResultSubsetRequest);
+            serviceHost.SetRequestHandler(QueryDisposeRequest.Type, HandleDisposeRequest);
             serviceHost.SetRequestHandler(QueryCancelRequest.Type, HandleCancelRequest);
+            serviceHost.SetRequestHandler(SimpleExecuteRequest.Type, HandleSimpleExecuteRequest);
             
             // Register the file open update handler
             workspaceService.RegisterTextDocCloseCallback(HandleDidCloseTextDocumentNotification);
+            
+            // Register handler for shutdown event
+            serviceHost.RegisterShutdownTask((shutdownParams, requestContext) =>
+            {
+                _queryExecutionManager.Dispose();
+                return Task.FromResult(0);
+            });
+            
+            // Register a handler for when the configuration changes
+            workspaceService.RegisterConfigChangeCallback(UpdateSettings);
         }
-
+        
         private async Task HandleExecuteRequest(ExecuteRequestParamsBase executeParams, RequestContext<ExecuteRequestResult> requestContext)
         {
             try
             {
-                var datasource = _connectionService.GetDataSource(executeParams.OwnerUri);
-                var query = GetQueryString(executeParams);
-                var result = await datasource.QueryAsync(query, new CancellationToken());
-                await requestContext.SendResult(new ExecuteRequestResult());
-                
-                var queryCompleteParams = new QueryCompleteParams
+                // Setup actions to perform upon successful start and on failure to start
+                async Task<bool> QueryCreateSuccessAction(Query q)
                 {
-                    OwnerUri = executeParams.OwnerUri,
-                    BatchSummaries = new []
-                    {
-                        new BatchSummary
-                        {
-                            ResultSetSummaries = new []
-                            {
-                                new ResultSetSummary
-                                {
-                                    ColumnInfo = result.Columns
-                                }
-                            }
-                        }
-                    }
-                };
+                    await requestContext.SendResult(new ExecuteRequestResult());
+                    Logger.Write(TraceEventType.Stop, $"Response for Query: '{executeParams.OwnerUri} sent. Query Complete!");
+                    return true;
+                }
 
-                await requestContext.SendEvent(QueryCompleteEvent.Type, queryCompleteParams);
+                Task QueryCreateFailureAction(string message)
+                {
+                    Logger.Write(TraceEventType.Warning, $"Failed to create Query: '{executeParams.OwnerUri}. Message: '{message}' Complete!");
+                    return requestContext.SendError(message);
+                }
+
+                // Use the internal handler to launch the query
+                Parallel.Invoke(async () =>
+                {
+                    await _queryExecutionManager.InterServiceExecuteQuery(executeParams, requestContext, QueryCreateSuccessAction, QueryCreateFailureAction);
+                });
             }
             catch (Exception ex)
             {
                 await requestContext.SendError(ex.ToString());
             }
         }
-
-        private string GetQueryString(ExecuteRequestParamsBase executeParams)
-        {
-            if (executeParams is ExecuteDocumentSelectionParams selectionParams)
-            {
-                return _workspaceService.GetSqlTextFromSelectionData(executeParams.OwnerUri, selectionParams.QuerySelection);    
-            }
-
-            return string.Empty;
-        }
         
         private async Task HandleResultSubsetRequest(SubsetParams subsetParams, RequestContext<SubsetResult> requestContext)
         {
             try
             {
-                ResultSetSubset subset = await InterServiceResultSubset(subsetParams);
+                ResultSetSubset subset = await _queryExecutionManager.GetResultSubset(subsetParams);
                 var result = new SubsetResult
                 {
                     ResultSubset = subset
@@ -111,44 +93,21 @@ namespace Microsoft.AzureMonitor.ServiceLayer.QueryExecution
             }
         }
         
-        /// <summary>
-        /// Retrieves the requested subset of rows from the requested result set. Intended to be
-        /// called by another service.
-        /// </summary>
-        /// <param name="subsetParams">Parameters for the subset to retrieve</param>
-        /// <returns>The requested subset</returns>
-        /// <exception cref="ArgumentOutOfRangeException">The requested query does not exist</exception>
-        private async Task<ResultSetSubset> InterServiceResultSubset(SubsetParams subsetParams)
+        private async Task HandleDisposeRequest(QueryDisposeParams disposeParams, RequestContext<QueryDisposeResult> requestContext)
         {
-            Validate.IsNotNullOrEmptyString(nameof(subsetParams.OwnerUri), subsetParams.OwnerUri);
+            // Setup action for success and failure
+            Task SuccessAction() => requestContext.SendResult(new QueryDisposeResult());
+            Task FailureAction(string message) => requestContext.SendError(message);
 
-            // Attempt to load the query
-            if (!_activeQueries.TryGetValue(subsetParams.OwnerUri, out Query query))
-            {
-                throw new ArgumentOutOfRangeException(SR.QueryServiceRequestsNoQuery);
-            }
-
-            // Retrieve the requested subset and return it
-            return await query.GetSubset(subsetParams.BatchIndex, subsetParams.ResultSetIndex,
-                subsetParams.RowsStartIndex, subsetParams.RowsCount);
+            // Use the inter-service dispose functionality
+            await _queryExecutionManager.InterServiceDisposeQuery(disposeParams.OwnerUri, SuccessAction, FailureAction);
         }
 
         private async Task HandleCancelRequest(QueryCancelParams cancelParams, RequestContext<QueryCancelResult> requestContext)
         {
             try
             {
-                // Attempt to find the query for the owner uri
-                if (!_activeQueries.TryGetValue(cancelParams.OwnerUri, out Query query))
-                {
-                    await requestContext.SendResult(new QueryCancelResult
-                    {
-                        Messages = SR.QueryServiceRequestsNoQuery
-                    });
-                    return;
-                }
-
-                // Cancel the query and send a success message
-                query.Cancel();
+                await _queryExecutionManager.CancelQuery(cancelParams.OwnerUri, requestContext);
                 await requestContext.SendResult(new QueryCancelResult());
             }
             catch (InvalidOperationException e)
@@ -164,6 +123,11 @@ namespace Microsoft.AzureMonitor.ServiceLayer.QueryExecution
                 await requestContext.SendError(e.Message);
             }
         }
+        
+        private Task HandleSimpleExecuteRequest(SimpleExecuteParams executeParams, RequestContext<SimpleExecuteResult> requestContext)
+        {
+            throw new NotImplementedException();
+        }
 
         /// <summary>
         /// Handle the file open notification
@@ -177,54 +141,19 @@ namespace Microsoft.AzureMonitor.ServiceLayer.QueryExecution
             try
             {
                 // remove any query execution settings when an editor is closed
-                if (_queryExecutionSettings.Value.ContainsKey(uri))
-                {
-                    _queryExecutionSettings.Value.TryRemove(uri, out _);
-                }                
+                _queryExecutionManager.RemoveExecutionSetting(uri);
             }
             catch (Exception ex)
             {
-                Logger.Write(TraceEventType.Error, "Unknown error " + ex.ToString());
+                Logger.Write(TraceEventType.Error, "Unknown error " + ex);
             }
             await Task.FromResult(true);
         }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
         
-        private void Dispose(bool disposing)
+        private Task UpdateSettings(SqlToolsSettings newSettings, SqlToolsSettings oldSettings, EventContext eventContext)
         {
-            if (_disposed)
-            {
-                return;
-            }
-
-            if (disposing)
-            {
-                foreach (var query in _activeQueries)
-                {
-                    if (!query.Value.HasExecuted)
-                    {
-                        try
-                        {
-                            query.Value.Cancel();
-                        }
-                        catch (Exception e)
-                        {
-                            // We don't particularly care if we fail to cancel during shutdown
-                            string message = $"Failed to cancel query {query.Key} during query service disposal: {e}";
-                            Logger.Write(TraceEventType.Warning, message);
-                        }
-                    }
-                    query.Value.Dispose();
-                }
-                _activeQueries.Clear();
-            }
-
-            _disposed = true;
+            _queryExecutionManager.UpdateExecutionSettings(newSettings.QueryExecutionSettings);
+            return Task.FromResult(0);
         }
     }
 }

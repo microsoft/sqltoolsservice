@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.Hosting.DataContracts.QueryExecution.Models
         /// <summary>
         /// The raw object for the cell, for use internally
         /// </summary>
-        internal object RawObject { get; set; }
+        public object RawObject { get; set; }
 
         /// <summary>
         /// The internal ID for the row. Should be used when directly referencing the row for edit

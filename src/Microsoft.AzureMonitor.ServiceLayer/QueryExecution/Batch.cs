@@ -12,7 +12,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AzureMonitor.ServiceLayer.DataSource;
 using Microsoft.AzureMonitor.ServiceLayer.Localization;
-using Microsoft.AzureMonitor.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.AzureMonitor.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.Hosting.DataContracts.QueryExecution.Models;
 using Microsoft.SqlTools.Utility;
