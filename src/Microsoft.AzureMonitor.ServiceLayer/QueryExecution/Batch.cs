@@ -337,29 +337,38 @@ namespace Microsoft.AzureMonitor.ServiceLayer.QueryExecution
         {
             // Make sure we haven't cancelled yet
             cancellationToken.ThrowIfCancellationRequested();
-
-            var result = await datasource.QueryAsync(BatchText, cancellationToken);
-            // Verify that the cancellation token hasn't been canceled
-            cancellationToken.ThrowIfCancellationRequested();
-
-            // This resultset has results (i.e. SELECT/etc queries)
-            ResultSet resultSet = new ResultSet(_resultSets.Count, Id, _outputFileFactory);
-            resultSet.ResultAvailable += ResultSetAvailable;
-            resultSet.ResultUpdated += ResultSetUpdated;
-            resultSet.ResultCompletion += ResultSetCompletion;
-
-            // Add the result set to the results of the query
-            lock (_resultSets)
+            
+            // Execute the command to get back a reader
+            using (IDataReader reader = await datasource.QueryAsync(BatchText, cancellationToken))
             {
-                _resultSets.Add(resultSet);
-            }
+                do
+                {
+                    // Verify that the cancellation token hasn't been canceled
+                    cancellationToken.ThrowIfCancellationRequested();
 
+                    // This result set has results (i.e. SELECT/etc queries)
+                    var resultSet = new ResultSet(_resultSets.Count, Id, _outputFileFactory);
+                    resultSet.ResultAvailable += ResultSetAvailable;
+                    resultSet.ResultUpdated += ResultSetUpdated;
+                    resultSet.ResultCompletion += ResultSetCompletion;
 
-            // If there were no messages, for whatever reason (NO COUNT set, messages 
-            // were emitted, records returned), output a "successful" message
-            if (!_messagesSent)
-            {
-                await SendMessage(SR.QueryServiceCompletedSuccessfully, false);
+                    // Add the result set to the results of the query
+                    lock (_resultSets)
+                    {
+                        _resultSets.Add(resultSet);
+                    }
+
+                    // Read until we hit the end of the result set
+                    await resultSet.ReadResultToEnd(reader, cancellationToken);
+
+                } while (reader.NextResult());
+
+                // If there were no messages, for whatever reason (NO COUNT set, messages 
+                // were emitted, records returned), output a "successful" message
+                if (!_messagesSent)
+                {
+                    await SendMessage(SR.QueryServiceCompletedSuccessfully, false);
+                }
             }
         }
 

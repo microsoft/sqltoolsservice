@@ -3118,7 +3118,7 @@ namespace Microsoft.AzureMonitor.ServiceLayer.Localization
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class Keys
         {
-            static ResourceManager resourceManager = new ResourceManager("Microsoft.Kusto.ServiceLayer.Localization.SR", typeof(SR).GetTypeInfo().Assembly);
+            static ResourceManager resourceManager = new ResourceManager("Microsoft.AzureMonitor.ServiceLayer.Localization.SR", typeof(SR).GetTypeInfo().Assembly);
 
             static CultureInfo _culture = null;
 

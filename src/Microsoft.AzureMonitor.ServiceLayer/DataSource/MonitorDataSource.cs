@@ -1,15 +1,16 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Azure.OperationalInsights.Models;
 using Microsoft.AzureMonitor.ServiceLayer.DataSource.Client;
 using Microsoft.AzureMonitor.ServiceLayer.DataSource.Client.Contracts.Responses;
 using Microsoft.AzureMonitor.ServiceLayer.DataSource.Client.Contracts.Responses.Models;
 using Microsoft.SqlTools.Hosting.DataContracts.Connection.Models;
 using Microsoft.SqlTools.Hosting.DataContracts.ObjectExplorer.Models;
-using Microsoft.SqlTools.Hosting.DataContracts.QueryExecution.Models;
 
 namespace Microsoft.AzureMonitor.ServiceLayer.DataSource
 {
@@ -150,30 +151,68 @@ namespace Microsoft.AzureMonitor.ServiceLayer.DataSource
             return _nodes[nodePath].OrderBy(x => x.Label, StringComparer.OrdinalIgnoreCase);
         }
 
-        public async Task<MonitorQueryResult> QueryAsync(string query, CancellationToken cancellationToken)
+        public async Task<IDataReader> QueryAsync(string query, CancellationToken cancellationToken)
         {
             var results = await _monitorClient.QueryAsync(query, cancellationToken);
-            var columns = results.Tables.Select(x => x.Columns);
-            var columnWrapper = columns.First().Select(x => new DbColumnWrapper(x.Name, x.Type));
+            var dataReader = MapToDataReader(results);
 
-            IList<IList<string>> rows = results.Tables.First().Rows;
-
-            var queryResult = new MonitorQueryResult
-            {
-                Columns = columnWrapper.ToArray(),
-                ResultSubset = new ResultSetSubset
-                {
-                    RowCount = rows.Count,
-                    Rows = MapRows(rows)
-                }
-            };
-
-            return await Task.FromResult(queryResult);
+            return await Task.FromResult(dataReader);
         }
 
-        private DbCellValue[][] MapRows(IList<IList<string>> rows)
+        private IDataReader MapToDataReader(QueryResults queryResults)
         {
-            return rows.Select(x => x.Select(y => new DbCellValue {DisplayValue = y}).ToArray()).ToArray();
+            var resultTable = queryResults.Tables.FirstOrDefault();
+
+            if (resultTable == null)
+            {
+                return new DataTableReader(new DataTable());
+            }
+            
+            var dataTable = new DataTable(resultTable.Name);
+            
+            foreach (var column in resultTable.Columns)
+            {
+                dataTable.Columns.Add(column.Name, MapType(column.Type));
+            }
+
+            foreach (var row in resultTable.Rows)
+            {
+                var dataRow = dataTable.NewRow();
+
+                for (int i = 0; i < row.Count; i++)
+                {
+                    dataRow[i] = row[i];
+                }
+                
+                dataTable.Rows.Add(dataRow);
+            }
+            
+            return new DataTableReader(dataTable);
+        }
+
+        /// <summary>
+        /// Map Kusto type to .NET Type equivalent using scalar data types
+        /// </summary>
+        /// <seealso href="https://docs.microsoft.com/en-us/azure/data-explorer/kusto/query/scalar-data-types/">Here</seealso>
+        /// <param name="type">Kusto Type</param>
+        /// <returns>.NET Equivalent Type</returns>
+        private Type MapType(string type)
+        {
+            switch (type)
+            {
+                case "bool": return Type.GetType("System.Boolean");
+                case "datetime": return Type.GetType("System.DateTime");
+                case "dynamic": return Type.GetType("System.Object");
+                case "guid": return Type.GetType("System.Guid");
+                case "int": return Type.GetType("System.Int32");
+                case "long": return Type.GetType("System.Int64");
+                case "real": return Type.GetType("System.Double");
+                case "string": return Type.GetType("System.String");
+                case "timespan": return Type.GetType("System.TimeSpan");
+                case "decimal": return Type.GetType("System.Data.SqlTypes.SqlDecimal");
+                
+                default: return typeof(string);
+            }
         }
     }
 }
