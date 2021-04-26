@@ -2,8 +2,10 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Microsoft.AzureMonitor.ServiceLayer.Admin;
 using Microsoft.AzureMonitor.ServiceLayer.Connection;
 using Microsoft.AzureMonitor.ServiceLayer.DataSource;
+using Microsoft.AzureMonitor.ServiceLayer.Metadata;
 using Microsoft.AzureMonitor.ServiceLayer.ObjectExplorer;
 using Microsoft.AzureMonitor.ServiceLayer.QueryExecution;
 using Microsoft.AzureMonitor.ServiceLayer.Workspace;
@@ -70,6 +72,12 @@ namespace Microsoft.AzureMonitor.ServiceLayer
             
             QueryExecutionService.Instance.InitializeService(serviceHost, ConnectionService.Instance, WorkspaceService<SqlToolsSettings>.Instance);
             serviceProvider.RegisterSingleService(QueryExecutionService.Instance);
+            
+            AdminService.Instance.InitializeService(serviceHost, ConnectionService.Instance);
+            serviceProvider.RegisterSingleService(AdminService.Instance);
+            
+            MetadataService.Instance.InitializeService(serviceHost, ConnectionService.Instance);
+            serviceProvider.RegisterSingleService(MetadataService.Instance);
             
             serviceHost.InitializeRequestHandlers();
         }
