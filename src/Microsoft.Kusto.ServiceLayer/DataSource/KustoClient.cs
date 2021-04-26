@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Kusto.Cloud.Platform.Data;
@@ -37,15 +36,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         {
             _ownerUri = ownerUri;
             Initialize(connectionDetails);
-        }
-
-        private string ParseDatabaseName(string databaseName)
-        {
-            var regex = new Regex(@"(?<=\().+?(?=\))");
-            
-            return regex.IsMatch(databaseName)
-                ? regex.Match(databaseName).Value
-                : databaseName;
         }
 
         private void Initialize(DataSourceConnectionDetails connectionDetails)
@@ -88,7 +78,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 : new KustoConnectionStringBuilder(connectionDetails.ConnectionString);
             
             ClusterName = stringBuilder.DataSource;
-            var databaseName = ParseDatabaseName(stringBuilder.InitialCatalog);
+            var databaseName = KustoQueryUtils.ParseDatabaseName(stringBuilder.InitialCatalog);
             DatabaseName = databaseName;
             stringBuilder.InitialCatalog = databaseName;
             
@@ -250,7 +240,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
         public void UpdateDatabase(string databaseName)
         {
-            DatabaseName = ParseDatabaseName(databaseName);
+            DatabaseName = databaseName;
         }
 
         public void Dispose()
