@@ -111,5 +111,13 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             dictionary[key] = metadatas.OrderBy(x => x.PrettyName, StringComparer.OrdinalIgnoreCase).ToList();
         }
 
+        public static string ParseDatabaseName(string databaseName)
+        {
+            var regex = new Regex(@"(?<=\().+?(?=\))");
+            
+            return regex.IsMatch(databaseName)
+                ? regex.Match(databaseName).Value
+                : databaseName;
+        }
     }
 }
