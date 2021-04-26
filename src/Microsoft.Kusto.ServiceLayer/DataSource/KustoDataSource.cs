@@ -248,8 +248,10 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// <inheritdoc/>
         public override void UpdateDatabase(string databaseName)
         {
-            _kustoClient.UpdateDatabase(databaseName);
-            _intellisenseClient.UpdateDatabase(databaseName);
+            // Aria has a GUID as a database name so parse it from the display name
+            var parsedDatabase = KustoQueryUtils.ParseDatabaseName(databaseName);
+            _kustoClient.UpdateDatabase(parsedDatabase);
+            _intellisenseClient.UpdateDatabase(parsedDatabase);
         }
         
         /// <summary>
