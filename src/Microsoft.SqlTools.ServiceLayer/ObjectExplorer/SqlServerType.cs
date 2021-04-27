@@ -88,7 +88,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             if (serverInfo.EngineEditionId == 11)
             {
                 serverType = SqlServerType.SqlOnDemand;
-            }            
+            }
             else if (serverInfo.IsCloud)
             {
                 if (serverInfo.EngineEditionId == 6 && serverVersion.StartsWith("12", StringComparison.Ordinal))
