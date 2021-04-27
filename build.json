@@ -25,9 +25,6 @@
     "Microsoft.SqlTools.ServiceLayer"
   ],
   "PackageProjects": [
-    "Microsoft.SqlTools.CoreServices",
-    "Microsoft.SqlTools.DataProtocol.Contracts",
-    "Microsoft.SqlTools.Hosting.Contracts",
-    "Microsoft.SqlTools.Hosting.v2"
+    "Microsoft.SqlTools.Hosting"
   ]
 }

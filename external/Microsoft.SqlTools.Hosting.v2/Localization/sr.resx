@@ -117,44 +117,65 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="FailedToGetAzureDatabasesErrorMessage" xml:space="preserve">
-    <value>An error occurred while getting Azure databases</value>
+  <data name="ServiceAlreadyRegistered" xml:space="preserve">
+    <value>Cannot register service for type {0}, one or more services already registered</value>
     <comment></comment>
   </data>
-  <data name="FailedToGetAzureSubscriptionsErrorMessage" xml:space="preserve">
-    <value>An error occurred while getting Azure subscriptions: {0}</value>
+  <data name="MultipleServicesFound" xml:space="preserve">
+    <value>Multiple services found for type {0}, expected only 1</value>
     <comment></comment>
   </data>
-  <data name="FailedToGetAzureResourceGroupsErrorMessage" xml:space="preserve">
-    <value>An error occurred while getting Azure resource groups: {0}</value>
+  <data name="IncompatibleServiceForExtensionLoader" xml:space="preserve">
+    <value>Service of type {0} cannot be created by ExtensionLoader&lt;{1}&gt;</value>
     <comment></comment>
   </data>
-  <data name="FailedToGetAzureSqlServersErrorMessage" xml:space="preserve">
-    <value>An error occurred while getting Azure Sql Servers</value>
+  <data name="ServiceProviderNotSet" xml:space="preserve">
+    <value>SetServiceProvider() was not called to establish the required service provider</value>
     <comment></comment>
   </data>
-  <data name="FailedToGetAzureSqlServersWithError" xml:space="preserve">
-    <value>An error occurred while getting Azure Sql Servers: &apos;{0}&apos;</value>
+  <data name="ServiceNotFound" xml:space="preserve">
+    <value>Service {0} was not found in the service provider</value>
     <comment></comment>
   </data>
-  <data name="FirewallRuleCreationFailed" xml:space="preserve">
-    <value>An error occurred while creating a new firewall rule.</value>
+  <data name="ServiceNotOfExpectedType" xml:space="preserve">
+    <value>Service of Type {0} is not compatible with registered Type {1}</value>
     <comment></comment>
   </data>
-  <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
-    <value>An error occurred while creating a new firewall rule: &apos;{0}&apos;</value>
+  <data name="HostingUnexpectedEndOfStream" xml:space="preserve">
+    <value>MessageReader&apos;s input stream ended unexpectedly, terminating</value>
     <comment></comment>
   </data>
-  <data name="UnsupportedAuthType" xml:space="preserve">
-    <value>Unsupported account type &apos;{0}&apos; for this provider</value>
+  <data name="HostingHeaderMissingColon" xml:space="preserve">
+    <value>Message header must separate key and value using &apos;:&apos;</value>
     <comment></comment>
   </data>
-  <data name="UserNotFoundError" xml:space="preserve">
-    <value>No user was found, cannot execute the operation</value>
+  <data name="HostingHeaderMissingContentLengthHeader" xml:space="preserve">
+    <value>Fatal error: Content-Length header must be provided</value>
     <comment></comment>
   </data>
-  <data name="UserNeedsAuthenticationError" xml:space="preserve">
-    <value>The current user must be reauthenticated before executing this operation </value>
+  <data name="HostingHeaderMissingContentLengthValue" xml:space="preserve">
+    <value>Fatal error: Content-Length value is not an integer</value>
     <comment></comment>
+  </data>
+  <data name="HostingJsonRpcHostAlreadyStarted" xml:space="preserve">
+    <value>JSON RPC host has already started</value>
+    <comment></comment>
+  </data>
+  <data name="HostingJsonRpcHostNotStarted" xml:space="preserve">
+    <value>JSON RPC host has not started</value>
+    <comment></comment>
+  </data>
+  <data name="HostingJsonRpcVersionMissing" xml:space="preserve">
+    <value>JSON RPC version parameter is missing or invalid</value>
+    <comment></comment>
+  </data>
+  <data name="HostingMessageMissingMethod" xml:space="preserve">
+    <value>JSON RPC message is missing required method parameter</value>
+    <comment></comment>
+  </data>
+  <data name="HostingMethodHandlerDoesNotExist" xml:space="preserve">
+    <value>{0} handler for method &apos;{1}&apos; does not exist.</value>
+    <comment>.
+ Parameters: 0 - messageType (string), 1 - method (string) </comment>
   </data>
 </root>

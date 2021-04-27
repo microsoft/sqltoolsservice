@@ -198,22 +198,28 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Workspace
         }
 
         [Test]
-        public async Task WorkspaceContainsFile()
+        [TestCase(TestObjects.ScriptUri)]
+        [TestCase("file://some/path%20with%20encoded%20spaces/file.sql")]
+        [TestCase("file://some/path with spaces/file.sql")]
+        [TestCase("file://some/fileWith#.sql")]
+        [TestCase("file://some/fileUriWithQuery.sql?var=foo")]
+        [TestCase("file://some/fileUriWithFragment.sql#foo")]
+        public async Task WorkspaceContainsFile(string uri)
         {
             var workspace = new ServiceLayer.Workspace.Workspace();
             var workspaceService = new WorkspaceService<SqlToolsSettings> {Workspace = workspace};
-            var openedFile = workspace.GetFileBuffer(TestObjects.ScriptUri, string.Empty);
+            workspace.GetFileBuffer(uri, string.Empty);
 
             // send a document open event            
             var openParams = new DidOpenTextDocumentNotification
             {
-                TextDocument = new TextDocumentItem { Uri = TestObjects.ScriptUri }
+                TextDocument = new TextDocumentItem { Uri = uri }
             };
 
             await workspaceService.HandleDidOpenTextDocumentNotification(openParams, eventContext: null);
 
             // verify the file is being tracked by workspace
-            Assert.True(workspaceService.Workspace.ContainsFile(TestObjects.ScriptUri));
+            Assert.True(workspaceService.Workspace.ContainsFile(uri));
         }
 
         [Test]
