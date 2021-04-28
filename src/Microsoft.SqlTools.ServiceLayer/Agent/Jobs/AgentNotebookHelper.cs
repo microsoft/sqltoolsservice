@@ -258,12 +258,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             @"
             SELECT
             materialized_id,
-            run_time,
-            run_date,
             notebook_error,
             pin,
             notebook_name,
-            is_deleted
+            is_deleted,
+            FORMAT(msdb.dbo.agent_datetime(run_date, run_time), 'yyyyMMddHHmmss') as job_runtime 
             FROM 
             notebooks.nb_materialized 
             WHERE job_id = @jobId";
@@ -671,6 +670,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 notebook = '',
                 notebook_error = ''
                 WHERE 
+                materialized
                 job_id = @jobId AND run_time = @startTime AND run_date = @startDate
             END
             ELSE
