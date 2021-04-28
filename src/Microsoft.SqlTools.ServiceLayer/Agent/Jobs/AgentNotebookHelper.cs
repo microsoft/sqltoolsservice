@@ -670,7 +670,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 notebook = '',
                 notebook_error = ''
                 WHERE 
-                materialized
                 job_id = @jobId AND run_time = @startTime AND run_date = @startDate
             END
             ELSE
