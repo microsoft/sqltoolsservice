@@ -1551,8 +1551,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 DataTable materializedNotebookTable = await AgentNotebookHelper.GetAgentNotebookHistories(connInfo, jobId, targetDatabase);
                 foreach (DataRow materializedNotebookRow in materializedNotebookTable.Rows)
                 {
-                    string materializedRunDateTime = materializedNotebookRow["run_date"].ToString() + materializedNotebookRow["run_time"].ToString();
-                    notebookHistoriesDict.Add(materializedRunDateTime, materializedNotebookRow);
+                    notebookHistoriesDict.Add(materializedNotebookRow["job_runtime"].ToString(), materializedNotebookRow);
                 }
 
                 // adding notebook information to job histories
