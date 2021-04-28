@@ -1551,7 +1551,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 DataTable materializedNotebookTable = await AgentNotebookHelper.GetAgentNotebookHistories(connInfo, jobId, targetDatabase);
                 foreach (DataRow materializedNotebookRow in materializedNotebookTable.Rows)
                 {
-                    string materializedRunDateTime = materializedNotebookRow["run_date"].ToString() + materializedNotebookRow["run_time"].ToString();
+                    // Adding a leading zero if the for run times less than 10am. Example: 9:10:00 will become 09:10:00 
+                    string notebookRuntime = (materializedNotebookRow["run_time"].ToString().Length == 5) ? "0" + materializedNotebookRow["run_time"].ToString() : materializedNotebookRow["run_time"].ToString();
+                    string materializedRunDateTime = materializedNotebookRow["run_date"].ToString() + notebookRuntime;
                     notebookHistoriesDict.Add(materializedRunDateTime, materializedNotebookRow);
                 }
 
