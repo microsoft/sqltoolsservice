@@ -25,19 +25,8 @@ namespace Microsoft.AzureMonitor.ServiceLayer.Admin
         {
             try
             {
-                var datasource = _connectionService.GetDataSource(databaseParams.OwnerUri);
-                
-                var metadata = datasource.Expand("/").Select(x => x.Metadata).FirstOrDefault();
-
-                var info = new DatabaseInfo
-                {
-                    Options =
-                    {
-                        ["Name"] = metadata?.Name,
-                        ["sizeInMB"] = "0"
-                    }
-                    
-                };
+                var info = new DatabaseInfo();
+                Parallel.Invoke(() => info = GetDatabaseInfo(databaseParams));
 
                 await requestContext.SendResult(new GetDatabaseInfoResponse()
                 {
@@ -48,6 +37,22 @@ namespace Microsoft.AzureMonitor.ServiceLayer.Admin
             {
                 await requestContext.SendError(ex.ToString());
             }
+        }
+
+        private static DatabaseInfo GetDatabaseInfo(GetDatabaseInfoParams databaseParams)
+        {
+            var datasource = _connectionService.GetDataSource(databaseParams.OwnerUri);
+
+            var metadata = datasource.Expand("/").Select(x => x.Metadata).FirstOrDefault();
+
+            return new DatabaseInfo
+            {
+                Options =
+                {
+                    ["Name"] = metadata?.Name,
+                    ["sizeInMB"] = "0"
+                }
+            };
         }
     }
 }

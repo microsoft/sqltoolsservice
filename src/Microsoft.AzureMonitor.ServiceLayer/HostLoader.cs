@@ -8,6 +8,7 @@ using Microsoft.AzureMonitor.ServiceLayer.DataSource;
 using Microsoft.AzureMonitor.ServiceLayer.Metadata;
 using Microsoft.AzureMonitor.ServiceLayer.ObjectExplorer;
 using Microsoft.AzureMonitor.ServiceLayer.QueryExecution;
+using Microsoft.AzureMonitor.ServiceLayer.Scripting;
 using Microsoft.AzureMonitor.ServiceLayer.Workspace;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting.DataContracts.SqlContext;
@@ -72,6 +73,9 @@ namespace Microsoft.AzureMonitor.ServiceLayer
             
             QueryExecutionService.Instance.InitializeService(serviceHost, ConnectionService.Instance, WorkspaceService<SqlToolsSettings>.Instance);
             serviceProvider.RegisterSingleService(QueryExecutionService.Instance);
+            
+            ScriptingService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(ScriptingService.Instance);
             
             AdminService.Instance.InitializeService(serviceHost, ConnectionService.Instance);
             serviceProvider.RegisterSingleService(AdminService.Instance);

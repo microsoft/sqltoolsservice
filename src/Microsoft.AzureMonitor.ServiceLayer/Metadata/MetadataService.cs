@@ -27,13 +27,8 @@ namespace Microsoft.AzureMonitor.ServiceLayer.Metadata
         {
             try
             {
-                var datasource = _connectionService.GetDataSource(metadataParams.OwnerUri);
-
                 var metadata = new List<ObjectMetadata>();
-                if (datasource != null)
-                {
-                    metadata.AddRange(datasource.Expand("/").Select(x => x.Metadata));
-                }
+                Parallel.Invoke(() => metadata = LoadMetadata(metadataParams));
 
                 await requestContext.SendResult(new MetadataQueryResult
                 {
@@ -44,6 +39,19 @@ namespace Microsoft.AzureMonitor.ServiceLayer.Metadata
             {
                 await requestContext.SendError(ex.ToString());
             }
+        }
+
+        private List<ObjectMetadata> LoadMetadata(MetadataQueryParams metadataParams)
+        {
+            var datasource = _connectionService.GetDataSource(metadataParams.OwnerUri);
+
+            var metadata = new List<ObjectMetadata>();
+            if (datasource != null)
+            {
+                metadata.AddRange(datasource.Expand("/").Select(x => x.Metadata));
+            }
+
+            return metadata;
         }
     }
 }

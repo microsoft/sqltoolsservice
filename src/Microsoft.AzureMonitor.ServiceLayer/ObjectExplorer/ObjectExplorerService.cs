@@ -49,53 +49,53 @@ namespace Microsoft.AzureMonitor.ServiceLayer.ObjectExplorer
             Logger.Write(TraceEventType.Verbose, "HandleCreateSessionRequest");
             try
             {
-                string ownerUri = BuildOwnerUri(connectionDetails);
-                var response = new CreateSessionResponse
-                {
-                    SessionId = ownerUri
-                };
-                await context.SendResult(response);
-                
-                if (!_sessionMap.TryGetValue(ownerUri, out ConnectionCompleteParams session))
-                {
-                    var connectParams = new ConnectParams
-                    {
-                        OwnerUri = ownerUri,
-                        Connection = connectionDetails,
-                        Type = ConnectionType.ObjectExplorer
-                    };
-
-                    var resultParams = new ConnectionCompleteParams();
-                    Parallel.Invoke(() =>
-                    {
-                        resultParams = _connectionService.Connect(connectParams);
-                    });
-                    _sessionMap.TryAdd(ownerUri, resultParams);
-                    session = resultParams;
-                }
-                
-                var successParams = new SessionCreatedParameters
-                {
-                    SessionId = ownerUri,
-                    Success = true,
-                    RootNode = new NodeInfo
-                    {
-                        NodeType = NodeTypes.Server.ToString(),
-                        NodePath = "/",
-                        Label = $"{session?.ConnectionSummary.ServerName} (Log Analytics {session?.ConnectionSummary.UserName})",
-                        IsLeaf = false
-                    },
-                };
-
-                await _serviceHost.SendEvent(CreateSessionCompleteNotification.Type, successParams);
-                
+                Parallel.Invoke(async () => await CreateSession(connectionDetails, context));
             }
             catch (Exception ex)
             {
                 await context.SendError(ex.ToString());
             }
         }
-        
+
+        private async Task CreateSession(ConnectionDetails connectionDetails, RequestContext<CreateSessionResponse> context)
+        {
+            string ownerUri = BuildOwnerUri(connectionDetails);
+            var response = new CreateSessionResponse
+            {
+                SessionId = ownerUri
+            };
+            await context.SendResult(response);
+
+            if (!_sessionMap.TryGetValue(ownerUri, out ConnectionCompleteParams session))
+            {
+                var connectParams = new ConnectParams
+                {
+                    OwnerUri = ownerUri,
+                    Connection = connectionDetails,
+                    Type = ConnectionType.ObjectExplorer
+                };
+
+                ConnectionCompleteParams resultParams = _connectionService.Connect(connectParams);
+                _sessionMap.TryAdd(ownerUri, resultParams);
+                session = resultParams;
+            }
+
+            var successParams = new SessionCreatedParameters
+            {
+                SessionId = ownerUri,
+                Success = true,
+                RootNode = new NodeInfo
+                {
+                    NodeType = NodeTypes.Server.ToString(),
+                    NodePath = "/",
+                    Label = $"{session?.ConnectionSummary.ServerName} (Log Analytics {session?.ConnectionSummary.UserName})",
+                    IsLeaf = false
+                },
+            };
+
+            await _serviceHost.SendEvent(CreateSessionCompleteNotification.Type, successParams);
+        }
+
         /// <summary>
         /// Generates an owner URI for the connection based on given details.
         /// </summary>
@@ -125,7 +125,7 @@ namespace Microsoft.AzureMonitor.ServiceLayer.ObjectExplorer
         {
             try
             {
-                await ExpandNode(expandParams);
+                Parallel.Invoke(async () => await ExpandNode(expandParams));
                 await context.SendResult(true);
             }
             catch (Exception ex)
@@ -138,7 +138,7 @@ namespace Microsoft.AzureMonitor.ServiceLayer.ObjectExplorer
         {
             try
             {
-                await ExpandNode(refreshParams);
+                Parallel.Invoke(async () => await ExpandNode(refreshParams));
                 await context.SendResult(true);
             }
             catch(Exception ex)
@@ -164,18 +164,7 @@ namespace Microsoft.AzureMonitor.ServiceLayer.ObjectExplorer
         private async Task HandleCloseSessionRequest(CloseSessionParams sessionParams, RequestContext<CloseSessionResponse> context)
         {
             bool success = false;
-            try
-            {
-                if (_sessionMap.TryRemove(sessionParams.SessionId, out _))
-                {
-                    _connectionService.CancelOrDisconnect(sessionParams.SessionId);
-                    success = true;
-                }
-            }
-            catch
-            {
-                success = false;
-            }
+            Parallel.Invoke(() => success = CloseSession(sessionParams));            
 
             var closeSessionResponse = new CloseSessionResponse
             {
@@ -185,7 +174,25 @@ namespace Microsoft.AzureMonitor.ServiceLayer.ObjectExplorer
 
             await context.SendResult(closeSessionResponse);
         }
-        
+
+        private bool CloseSession(CloseSessionParams sessionParams)
+        {
+            try
+            {
+                if (_sessionMap.TryRemove(sessionParams.SessionId, out _))
+                {
+                    _connectionService.CancelOrDisconnect(sessionParams.SessionId);
+                    return true;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+
+            return false;
+        }
+
         private async Task HandleFindNodesRequest(FindNodesParams findNodesParams, RequestContext<FindNodesResponse> context)
         {
             var response = new FindNodesResponse
