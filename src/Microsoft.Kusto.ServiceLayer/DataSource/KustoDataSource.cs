@@ -467,7 +467,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             CancellationTokenSource source = new CancellationTokenSource();
             CancellationToken token = source.Token;
 
-            string query = $".show database {databaseName} cslschema";
+            string query = $".show database {KustoQueryUtils.EscapeName(databaseName)} cslschema";
 
             using (var reader = _kustoClient.ExecuteQuery(query, token, databaseName))
             {

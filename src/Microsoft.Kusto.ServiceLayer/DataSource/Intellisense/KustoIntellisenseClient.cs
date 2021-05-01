@@ -44,9 +44,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Intellisense
                 var source = new CancellationTokenSource();
                 Parallel.Invoke(() =>
                     {
-                        tableSchemas =
-                            _kustoClient.ExecuteQueryAsync<ShowDatabaseSchemaResult>($".show database {databaseName} schema", source.Token, databaseName)
-                                .Result;
+                        var tableQuery = $".show database {KustoQueryUtils.EscapeName(databaseName)} schema";
+                        tableSchemas = _kustoClient.ExecuteQueryAsync<ShowDatabaseSchemaResult>(tableQuery, source.Token, databaseName).Result;
                     },
                     () =>
                     {
@@ -332,7 +331,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Intellisense
             foreach (var autoCompleteItem in completion.Items)
             {
                 var label = autoCompleteItem.DisplayText;
-                var insertText = autoCompleteItem.Kind == CompletionKind.Table
+                var insertText = autoCompleteItem.Kind == CompletionKind.Table || autoCompleteItem.Kind == CompletionKind.Database
                     ? KustoQueryUtils.EscapeName(label)
                     : label;
                 
