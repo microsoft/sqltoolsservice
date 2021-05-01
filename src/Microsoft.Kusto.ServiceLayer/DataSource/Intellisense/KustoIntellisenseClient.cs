@@ -42,10 +42,15 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Intellisense
             if (!string.IsNullOrWhiteSpace(databaseName))
             {
                 var source = new CancellationTokenSource();
-                var tableQuery = $".show database {KustoQueryUtils.EscapeName(databaseName)} schema";
-                
-                tableSchemas = _kustoClient.ExecuteQueryAsync<ShowDatabaseSchemaResult>(tableQuery, source.Token, databaseName).Result;
-                functionSchemas = _kustoClient.ExecuteQueryAsync<ShowFunctionsResult>(".show functions", source.Token, databaseName).Result;
+                Parallel.Invoke(() =>
+                    {
+                        var tableQuery = $".show database {KustoQueryUtils.EscapeName(databaseName)} schema";
+                        tableSchemas = _kustoClient.ExecuteQueryAsync<ShowDatabaseSchemaResult>(tableQuery, source.Token, databaseName).Result;
+                    },
+                    () =>
+                    {
+                        functionSchemas = _kustoClient.ExecuteQueryAsync<ShowFunctionsResult>(".show functions", source.Token, databaseName).Result;
+                    });
             }
 
             return AddOrUpdateDatabase(tableSchemas, functionSchemas, GlobalState.Default, databaseName,
