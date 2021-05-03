@@ -21,6 +21,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
 
     public class ValidateWindowsAccountRequest
     {
-        public static readonly RequestType<ValidateWindowsAccountRequestParams, ValidateWindowsAccountResult> Type = RequestType<ValidateWindowsAccountRequestParams, ValidateWindowsAccountResult>.Create("migration/validatewindowsaccount");
+        public static readonly RequestType<ValidateWindowsAccountRequestParams, ValidateWindowsAccountResult> Type = RequestType<ValidateWindowsAccountRequestParams, ValidateWindowsAccountResult>.Create("migration/validateWindowsAccount");
     }
 }
