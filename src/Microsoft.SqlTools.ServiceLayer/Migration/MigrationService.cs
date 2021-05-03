@@ -21,7 +21,6 @@ using Microsoft.SqlTools.ServiceLayer.Migration.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlAssessment;
 using Microsoft.Win32.SafeHandles;
 using System.ComponentModel;
-using System.Security.Principal;
 
 namespace Microsoft.SqlTools.ServiceLayer.Migration
 {
