@@ -21,6 +21,7 @@ using Microsoft.SqlTools.ServiceLayer.SqlAssessment;
 using Microsoft.Win32.SafeHandles;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 
 namespace Microsoft.SqlTools.ServiceLayer.Migration
 {
@@ -260,7 +261,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             ValidateWindowsAccountRequestParams parameters,
             RequestContext<ValidateWindowsAccountResult> requestContext)
         {
-
+            var domainUserRegex = new Regex(@"^[A-Za-z0-9\\\._-]{7,}$");
+            // Checking if the username string is in 'domain\name' format
+            if (!domainUserRegex.Match(parameters.Username).Success)
+            {
+                await requestContext.SendResult(new ValidateWindowsAccountResult()
+                {
+                    Success = false,
+                    ErrorMessage = "Invalid user name format. Example: Domain\\username"
+                });
+                return;
+            }
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 int separator = parameters.Username.IndexOf("\\");
