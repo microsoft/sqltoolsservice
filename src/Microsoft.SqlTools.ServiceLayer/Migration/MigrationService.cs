@@ -5,18 +5,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Security;
-using System.Security.Principal;
-using Microsoft.Win32.SafeHandles;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Assessment;
 using Microsoft.SqlServer.Management.Assessment.Checks;
 using Microsoft.SqlServer.Migration.Assessment.Common.Contracts.Models;
 using Microsoft.SqlServer.Migration.Assessment.Common.Engine;
-using Microsoft.SqlServer.Migration.Assessment.Common.Models;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
@@ -24,7 +19,9 @@ using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Migration.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlAssessment;
-using Microsoft.SqlTools.ServiceLayer.SqlAssessment.Contracts;
+using Microsoft.Win32.SafeHandles;
+using System.ComponentModel;
+using System.Security.Principal;
 
 namespace Microsoft.SqlTools.ServiceLayer.Migration
 {
@@ -95,7 +92,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         {
             this.ServiceHost = serviceHost;
             this.ServiceHost.SetRequestHandler(MigrationAssessmentsRequest.Type, HandleMigrationAssessmentsRequest);
-            this.ServiceHost.SetRequestHandler(ValidateFileShareRequest.Type, HandleValidateFileShareRequest);
+            this.ServiceHost.SetRequestHandler(ValidateWindowsAccountRequest.Type, HandleValidateWindowsAccountRequest);
         }
 
         /// <summary>
@@ -258,52 +255,91 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         public static extern bool LogonUser(String lpszUsername, String lpszDomain, String lpszPassword,
         int dwLogonType, int dwLogonProvider, out SafeAccessTokenHandle phToken);
 
-        internal async Task HandleValidateFileShareRequest(
-            ValidateFileShareRequestParams parameters,
-            RequestContext<ValidateFileShareResult> requestContext)
+        internal async Task HandleValidateWindowsAccountRequest(
+            ValidateWindowsAccountRequestParams parameters,
+            RequestContext<ValidateWindowsAccountResult> requestContext)
         {
-            const int LOGON32_PROVIDER_DEFAULT = 0;
-            //This parameter causes LogonUser to create a primary token.   
-            const int LOGON32_LOGON_INTERACTIVE = 2;
-            SafeAccessTokenHandle safeAccessTokenHandle;
-            bool returnValue = LogonUser(parameters.Username, parameters.Path, parameters.Password,
-                LOGON32_LOGON_INTERACTIVE, LOGON32_PROVIDER_DEFAULT,
-                out safeAccessTokenHandle);
 
-            if (!returnValue)
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                int ret = Marshal.GetLastWin32Error();
-                await requestContext.SendResult(new ValidateFileShareResult()
-                {
-                    Success = returnValue,
-                    ErrorMessage = String.Format("LogonUser failed with error code : {0}", ret)
-                });
-            }
+                int stop = parameters.Username.IndexOf("\\");
+                string domainName = (stop > -1) ? parameters.Username.Substring(0, stop) : string.Empty;
+                string userName = (stop > -1) ? parameters.Username.Substring(stop + 1, parameters.Username.Length - stop - 1) : string.Empty;
 
-            await WindowsIdentity.RunImpersonated(
-                safeAccessTokenHandle,
-                // User action  
-                async () =>
+                const int LOGON32_PROVIDER_DEFAULT = 0;
+                //This parameter causes LogonUser to create a primary token.   
+                const int LOGON32_LOGON_INTERACTIVE = 2;
+
+                // Call LogonUser to obtain a handle to an access token.   
+                SafeAccessTokenHandle safeAccessTokenHandle;
+                bool returnValue = LogonUser(userName, domainName, parameters.Password,
+                    LOGON32_LOGON_INTERACTIVE, LOGON32_PROVIDER_DEFAULT,
+                    out safeAccessTokenHandle);
+
+                if (false == returnValue)
                 {
-                    // Check the identity.  
-                    Console.WriteLine("During impersonation: " + WindowsIdentity.GetCurrent().Name);
-                    bool exists = File.Exists(parameters.Path);
-                    if (exists)
+                    int ret = Marshal.GetLastWin32Error();
+                    string errorMessage = new Win32Exception(Marshal.GetLastWin32Error()).Message;
+                    await requestContext.SendResult(new ValidateWindowsAccountResult()
                     {
-                        await requestContext.SendResult(new ValidateFileShareResult()
-                        {
-                            Success = exists
-                        });
-                    } else {
-                        await requestContext.SendResult(new ValidateFileShareResult()
-                        {
-                            Success = exists,
-                            ErrorMessage = String.Format("{0} is not a valid file or directory.", parameters.Path)
-                        });
-                    }
+                        Success = returnValue,
+                        ErrorMessage = errorMessage
+                    });
+                    return;
                 }
-                );
+            }
+            await requestContext.SendResult(new ValidateWindowsAccountResult()
+            {
+                Success = true,
+                ErrorMessage = ""
+            });
         }
 
     }
+}
+
+[StructLayout(LayoutKind.Sequential)]
+public class NetResource
+{
+    public ResourceScope Scope;
+    public ResourceType ResourceType;
+    public ResourceDisplaytype DisplayType;
+    public int Usage;
+    public string LocalName;
+    public string RemoteName;
+    public string Comment;
+    public string Provider;
+}
+
+public enum ResourceScope : int
+{
+    Connected = 1,
+    GlobalNetwork,
+    Remembered,
+    Recent,
+    Context
+};
+
+public enum ResourceType : int
+{
+    Any = 0,
+    Disk = 1,
+    Print = 2,
+    Reserved = 8,
+}
+
+public enum ResourceDisplaytype : int
+{
+    Generic = 0x0,
+    Domain = 0x01,
+    Server = 0x02,
+    Share = 0x03,
+    File = 0x04,
+    Group = 0x05,
+    Network = 0x06,
+    Root = 0x07,
+    Shareadmin = 0x08,
+    Directory = 0x09,
+    Tree = 0x0a,
+    Ndscontainer = 0x0b
 }
