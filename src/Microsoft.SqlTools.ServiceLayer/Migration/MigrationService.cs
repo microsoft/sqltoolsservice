@@ -11,7 +11,6 @@ using Microsoft.SqlServer.Management.Assessment;
 using Microsoft.SqlServer.Management.Assessment.Checks;
 using Microsoft.SqlServer.Migration.Assessment.Common.Contracts.Models;
 using Microsoft.SqlServer.Migration.Assessment.Common.Engine;
-using Microsoft.SqlServer.Migration.Assessment.Common.Models;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
@@ -19,7 +18,9 @@ using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Migration.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlAssessment;
-using Microsoft.SqlTools.ServiceLayer.SqlAssessment.Contracts;
+using Microsoft.Win32.SafeHandles;
+using System.ComponentModel;
+using System.Runtime.InteropServices;
 
 namespace Microsoft.SqlTools.ServiceLayer.Migration
 {
@@ -27,9 +28,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
     /// Main class for Migration Service functionality
     /// </summary>
     public sealed class MigrationService : IDisposable
-    {        
+    {
         private static ConnectionService connectionService = null;
-     
+
         private static readonly Lazy<MigrationService> instance = new Lazy<MigrationService>(() => new MigrationService());
 
         private bool disposed;
@@ -90,13 +91,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         {
             this.ServiceHost = serviceHost;
             this.ServiceHost.SetRequestHandler(MigrationAssessmentsRequest.Type, HandleMigrationAssessmentsRequest);
+            this.ServiceHost.SetRequestHandler(ValidateWindowsAccountRequest.Type, HandleValidateWindowsAccountRequest);
         }
 
         /// <summary>
         /// Handle request to start a migration session
         /// </summary>
         internal async Task HandleMigrationAssessmentsRequest(
-            MigrationAssessmentsParams parameters, 
+            MigrationAssessmentsParams parameters,
             RequestContext<MigrationAssessmentResult> requestContext)
         {
             string randomUri = Guid.NewGuid().ToString();
@@ -141,7 +143,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 result.Items.AddRange(results);
                 await requestContext.SendResult(result);
             }
-            catch(Exception e){
+            catch (Exception e)
+            {
                 await requestContext.SendError(e.ToString());
             }
             finally
@@ -150,7 +153,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             }
         }
 
-        
+
         internal class AssessmentRequest : IAssessmentRequest
         {
             private readonly Check[] checks = null;
@@ -182,7 +185,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         {
             DmaEngine engine = new DmaEngine(connectionString);
             var assessmentResults = await engine.GetTargetAssessmentResultsList();
-        
+
             var result = new List<MigrationAssessmentInfo>();
             foreach (var r in assessmentResults)
             {
@@ -194,13 +197,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
 
                 var targetName = !string.IsNullOrWhiteSpace(migrationResult.DatabaseName)
                                      ? $"{target.ServerName}:{migrationResult.DatabaseName}"
-                                     : target.Name;  
+                                     : target.Name;
                 var ruleId = migrationResult.FeatureId.ToString();
 
                 var item = new MigrationAssessmentInfo()
                 {
                     CheckId = r.Check.Id,
-                    Description =  r.Check.Description,
+                    Description = r.Check.Description,
                     DisplayName = r.Check.DisplayName,
                     HelpLink = r.Check.HelpLink,
                     Level = r.Check.Level.ToString(),
@@ -247,6 +250,48 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             {
                 disposed = true;
             }
+        }
+
+        [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+        public static extern bool LogonUser(String lpszUsername, String lpszDomain, String lpszPassword,
+       int dwLogonType, int dwLogonProvider, out SafeAccessTokenHandle phToken);
+
+        internal async Task HandleValidateWindowsAccountRequest(
+            ValidateWindowsAccountRequestParams parameters,
+            RequestContext<ValidateWindowsAccountResult> requestContext)
+        {
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                int separator = parameters.Username.IndexOf("\\");
+                string domainName = (separator > -1) ? parameters.Username.Substring(0, separator) : string.Empty;
+                string userName = (separator > -1) ? parameters.Username.Substring(separator + 1, parameters.Username.Length - separator - 1) : string.Empty;
+
+                const int LOGON32_PROVIDER_DEFAULT = 0;
+                const int LOGON32_LOGON_INTERACTIVE = 2;
+
+                SafeAccessTokenHandle safeAccessTokenHandle;
+                bool returnValue = LogonUser(userName, domainName, parameters.Password,
+                    LOGON32_LOGON_INTERACTIVE, LOGON32_PROVIDER_DEFAULT,
+                    out safeAccessTokenHandle);
+
+                if (false == returnValue)
+                {
+                    int ret = Marshal.GetLastWin32Error();
+                    string errorMessage = new Win32Exception(Marshal.GetLastWin32Error()).Message;
+                    await requestContext.SendResult(new ValidateWindowsAccountResult()
+                    {
+                        Success = returnValue,
+                        ErrorMessage = errorMessage
+                    });
+                    return;
+                }
+            }
+            await requestContext.SendResult(new ValidateWindowsAccountResult()
+            {
+                Success = true,
+                ErrorMessage = ""
+            });
         }
     }
 }
