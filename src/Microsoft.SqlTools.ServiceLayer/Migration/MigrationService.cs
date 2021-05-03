@@ -262,15 +262,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                int stop = parameters.Username.IndexOf("\\");
-                string domainName = (stop > -1) ? parameters.Username.Substring(0, stop) : string.Empty;
-                string userName = (stop > -1) ? parameters.Username.Substring(stop + 1, parameters.Username.Length - stop - 1) : string.Empty;
+                int separator = parameters.Username.IndexOf("\\");
+                string domainName = (separator > -1) ? parameters.Username.Substring(0, separator) : string.Empty;
+                string userName = (separator > -1) ? parameters.Username.Substring(separator + 1, parameters.Username.Length - separator - 1) : string.Empty;
 
                 const int LOGON32_PROVIDER_DEFAULT = 0;
-                //This parameter causes LogonUser to create a primary token.   
                 const int LOGON32_LOGON_INTERACTIVE = 2;
 
-                // Call LogonUser to obtain a handle to an access token.   
                 SafeAccessTokenHandle safeAccessTokenHandle;
                 bool returnValue = LogonUser(userName, domainName, parameters.Password,
                     LOGON32_LOGON_INTERACTIVE, LOGON32_PROVIDER_DEFAULT,
