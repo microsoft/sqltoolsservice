@@ -263,9 +263,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             ValidateWindowsAccountRequestParams parameters,
             RequestContext<bool> requestContext)
         {
-            var domainUserRegex = new Regex(@"^[A-Za-z0-9\\\._-]{7,}$");
-            // Checking if the username string is in 'domain\name' format
-            if (!domainUserRegex.Match(parameters.Username).Success)
+            if (!ValidateWindowsDomainUsername(parameters.Username))
             {
                 await requestContext.SendError("Invalid user name format. Example: Domain\\username");
                 return;
@@ -273,8 +271,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 int separator = parameters.Username.IndexOf("\\");
-                string domainName = (separator > -1) ? parameters.Username.Substring(0, separator) : string.Empty;
-                string userName = (separator > -1) ? parameters.Username.Substring(separator + 1, parameters.Username.Length - separator - 1) : string.Empty;
+                string domainName = parameters.Username.Substring(0, separator);
+                string userName = parameters.Username.Substring(separator + 1, parameters.Username.Length - separator - 1);
 
                 const int LOGON32_PROVIDER_DEFAULT = 0;
                 const int LOGON32_LOGON_INTERACTIVE = 2;
@@ -320,8 +318,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 int separator = parameters.Username.IndexOf("\\");
-                string domainName = (separator > -1) ? parameters.Username.Substring(0, separator) : string.Empty;
-                string userName = (separator > -1) ? parameters.Username.Substring(separator + 1, parameters.Username.Length - separator - 1) : string.Empty;
+                string domainName = parameters.Username.Substring(0, separator);
+                string userName = parameters.Username.Substring(separator + 1, parameters.Username.Length - separator - 1);
 
                 const int LOGON32_PROVIDER_WINNT50 = 3;
                 const int LOGON32_LOGON_NEW_CREDENTIALS = 9;
