@@ -309,7 +309,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 return;
             }
 
-            if (!ValidateUNCPath(parameters.Username))
+            if (!ValidateUNCPath(parameters.Path))
             {
                 await requestContext.SendError("Invalid network share path. Example: \\\\Servername.domainname.com\\Backupfolder");
                 return;
