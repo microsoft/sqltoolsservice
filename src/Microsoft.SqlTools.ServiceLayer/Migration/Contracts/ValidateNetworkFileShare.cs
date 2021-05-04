@@ -7,14 +7,15 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
 {
-    public class ValidateWindowsAccountRequestParams
+    public class ValidateNetworkFileShareRequestParams
     {
+        public string Path { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
     }
 
-    public class ValidateWindowsAccountRequest
+    public class ValidateNetworkFileShareRequest
     {
-        public static readonly RequestType<ValidateWindowsAccountRequestParams, bool> Type = RequestType<ValidateWindowsAccountRequestParams, bool>.Create("migration/validateWindowsAccount");
+        public static readonly RequestType<ValidateNetworkFileShareRequestParams, bool> Type = RequestType<ValidateNetworkFileShareRequestParams, bool>.Create("migration/validateNetworkFileShare");
     }
 }
