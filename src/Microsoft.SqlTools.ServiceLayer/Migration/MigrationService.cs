@@ -282,7 +282,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                     LOGON32_LOGON_INTERACTIVE, LOGON32_PROVIDER_DEFAULT,
                     out safeAccessTokenHandle);
 
-                if (false == returnValue)
+                if (!returnValue)
                 {
                     int ret = Marshal.GetLastWin32Error();
                     string errorMessage = new Win32Exception(Marshal.GetLastWin32Error()).Message;
@@ -333,7 +333,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                     LOGON32_PROVIDER_WINNT50,
                     out safeAccessTokenHandle);
 
-                if (false == returnValue)
+                if (!returnValue)
                 {
                     int ret = Marshal.GetLastWin32Error();
                     string errorMessage = new Win32Exception(Marshal.GetLastWin32Error()).Message;
