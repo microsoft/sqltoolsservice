@@ -4,6 +4,7 @@
 //
 
 using System;
+using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 
@@ -22,7 +23,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         Sql2016,
         Sql2017,
         AzureV12,
-        SqlOnDemand
+        SqlOnDemand,
+        AzureSqlDWGen3
     }
 
     /// <summary>
@@ -59,7 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             ValidForFlag validforFlag = ValidForFlag.All;
             if (Enum.TryParse<ValidForFlag>(serverType.ToString(), out validforFlag))
             {
-                if (isSqlDw && serverType == SqlServerType.AzureV12)
+                if ((isSqlDw && serverType == SqlServerType.AzureV12) || serverType == SqlServerType.AzureSqlDWGen3)
                 {
                     validforFlag = ValidForFlag.SqlDw;
                 }
@@ -90,7 +92,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             }
             else if (serverInfo.IsCloud)
             {
-                serverType = SqlServerType.AzureV12;
+                if (serverInfo.EngineEditionId == (int)DatabaseEngineEdition.SqlDataWarehouse 
+                    && serverVersion.StartsWith("12", StringComparison.Ordinal))
+                {
+                    serverType = SqlServerType.AzureSqlDWGen3;
+                }
+                else
+                {
+                    serverType = SqlServerType.AzureV12;
+                }
             }
             else if (!string.IsNullOrWhiteSpace(serverVersion))
             {

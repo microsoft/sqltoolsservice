@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Threading;
+using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Utility;
 
@@ -25,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             // the user connected directly to the master of a readable secondary
             // In that case, the name in the connection string won't be found in sys.databases
             // We detect that here and fall back to master
-            if (db.State == SqlSmoState.Creating)
+            if (db.State == SqlSmoState.Creating && !IsDWGen3(db))
             {
                 db = new Database(serverNode.GetContextAs<SmoQueryContext>().Server, "master");
                 db.Refresh();
@@ -75,12 +76,28 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             }
             catch (Exception ex)
             {
-                var error = string.Format(CultureInfo.InvariantCulture, "Failed to get IsAccessible. error:{0} inner:{1} stacktrace:{2}",
-                    ex.Message, ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);
-                Logger.Write(TraceEventType.Error, error);
-                ErrorMessage = ex.Message;
-                return false;
+                // IsAccessible is not set of DW Gen3 so exception is expected in this case
+                if (IsDWGen3(context?.Database))
+                {                    
+                    return true;
+                }
+                else
+                {
+                    var error = string.Format(CultureInfo.InvariantCulture, "Failed to get IsAccessible. error:{0} inner:{1} stacktrace:{2}",
+                        ex.Message, ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);
+                    Logger.Write(TraceEventType.Error, error);
+                    ErrorMessage = ex.Message;
+                    return false;
+                }
+                
             }
+        }
+
+        private bool IsDWGen3(Database db)
+        {
+            return db != null 
+                && db.DatabaseEngineEdition == DatabaseEngineEdition.SqlDataWarehouse 
+                && db.ServerVersion.Major == 12;
         }
     }
 }
