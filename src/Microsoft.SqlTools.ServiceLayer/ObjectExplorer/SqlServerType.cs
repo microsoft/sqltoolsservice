@@ -4,6 +4,7 @@
 //
 
 using System;
+using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 
@@ -91,7 +92,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             }
             else if (serverInfo.IsCloud)
             {
-                if (serverInfo.EngineEditionId == 6 && serverVersion.StartsWith("12", StringComparison.Ordinal))
+                if (serverInfo.EngineEditionId == (int)DatabaseEngineEdition.SqlDataWarehouse 
+                    && serverVersion.StartsWith("12", StringComparison.Ordinal))
                 {
                     serverType = SqlServerType.AzureSqlDWGen3;
                 }
