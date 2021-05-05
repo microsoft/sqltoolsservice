@@ -21,6 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         Sql2017 = 0x40,
         SqlDw = 0x80,
         SqlOnDemand = 0x100,
+        AzureSqlDWGen3 = 0x200,
         AllOnPrem = Sql2005 | Sql2008 | Sql2012 | Sql2014 | Sql2016 | Sql2017,
         AllAzure = AzureV12,
         All = Sql2005 | Sql2008 | Sql2012 | Sql2014 | Sql2016 | Sql2017 | AzureV12 | SqlDw | SqlOnDemand,
