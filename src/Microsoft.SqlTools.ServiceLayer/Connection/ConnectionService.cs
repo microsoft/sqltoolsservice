@@ -427,8 +427,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 if (!ConnectionService.IsDbPool(connectionInfo.ConnectionDetails.DatabaseName))
                 {
                     connectionInfo.ConnectionDetails.DatabaseName = connection.Database;
-                }                
-                
+                }
+
                 if (!string.IsNullOrEmpty(connectionInfo.ConnectionDetails.ConnectionString))
                 {
                     // If the connection was set up with a connection string, use the connection string to get the details
@@ -477,7 +477,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 connectionInfo.MajorVersion = serverInfo.ServerMajorVersion;
                 connectionInfo.IsSqlDb = serverInfo.EngineEditionId == (int)DatabaseEngineEdition.SqlDatabase;
                 connectionInfo.IsSqlDW = (serverInfo.EngineEditionId == (int)DatabaseEngineEdition.SqlDataWarehouse);
-                connectionInfo.EngineEdition = (DatabaseEngineEdition) serverInfo.EngineEditionId;
+                connectionInfo.EngineEdition = (DatabaseEngineEdition)serverInfo.EngineEditionId;
             }
             catch (Exception ex)
             {
@@ -1048,21 +1048,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// Handle requests to list databases on the current server
         /// </summary>
-        protected async Task HandleListDatabasesRequest(
+        protected Task HandleListDatabasesRequest(
             ListDatabasesParams listDatabasesParams,
             RequestContext<ListDatabasesResponse> requestContext)
         {
-            Logger.Write(TraceEventType.Verbose, "ListDatabasesRequest");
-
-            try
+            Task.Run(async () =>
             {
-                ListDatabasesResponse result = ListDatabases(listDatabasesParams);
-                await requestContext.SendResult(result);
-            }
-            catch (Exception ex)
-            {
-                await requestContext.SendError(ex.ToString());
-            }
+                Logger.Write(TraceEventType.Verbose, "ListDatabasesRequest");
+                try
+                {
+                    ListDatabasesResponse result = ListDatabases(listDatabasesParams);
+                    await requestContext.SendResult(result);
+                }
+                catch (Exception ex)
+                {
+                    await requestContext.SendError(ex.ToString());
+                }
+            });
+            return Task.CompletedTask;
         }
 
         /// <summary>
