@@ -22,14 +22,10 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.Metadata
             
             var metadataService = new MetadataService();
             metadataService.InitializeService(serviceHostMock.Object, connectionServiceMock.Object);
-            
-            Assert.IsNull(metadataService.MetadataListTask);
-            
+
             var task = metadataService.HandleMetadataListRequest(new MetadataQueryParams(),
                 new RequestContext<MetadataQueryResult>());
             task.Wait();
-            
-            Assert.IsNotNull(metadataService.MetadataListTask);
         }
     }
 }

@@ -57,7 +57,11 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// </summary>
         private ConcurrentDictionary<string, IEnumerable<FunctionMetadata>> _functionMetadata = new ConcurrentDictionary<string, IEnumerable<FunctionMetadata>>();
 
-        public override string DatabaseName => _kustoClient.DatabaseName;
+        public override string DatabaseName
+        {
+            get => _kustoClient.DatabaseName;
+            set => throw new NotImplementedException();
+        }
 
         public override string ClusterName => _kustoClient.ClusterName;
 

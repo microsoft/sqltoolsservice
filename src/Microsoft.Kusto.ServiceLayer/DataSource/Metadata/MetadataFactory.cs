@@ -100,5 +100,18 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Metadata
 
             return databaseChildDetails;
         }
+
+        public static DataSourceObjectMetadata CreateDataSourceObjectMetadata(DataSourceMetadataType datatype, string name, string urn)
+        {
+            return new DataSourceObjectMetadata
+            {
+                MetadataType = datatype,
+                MetadataTypeName = datatype.ToString(),
+                Name = name,
+                PrettyName = name,
+                Urn = $"{urn}",
+                SizeInMB = ""
+            };
+        }
     }
 }

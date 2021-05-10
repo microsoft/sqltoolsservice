@@ -23,7 +23,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.DataSource
                 AccountToken = azureAccountToken
             };
             Assert.Throws(exceptionType,
-                () => dataSourceFactory.Create(DataSourceType.None, connectionDetails, ""));
+                () => dataSourceFactory.Create(connectionDetails, ""));
         }
 
         [Test]

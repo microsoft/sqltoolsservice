@@ -4,6 +4,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 {
     public interface IDataSourceFactory
     {
-        IDataSource Create(DataSourceType dataSourceType, ConnectionDetails connectionDetails, string ownerUri);
+        IDataSource Create(ConnectionDetails connectionDetails, string ownerUri);
     }
 }

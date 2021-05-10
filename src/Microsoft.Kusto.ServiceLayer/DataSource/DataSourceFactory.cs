@@ -6,6 +6,7 @@ using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 using Microsoft.Kusto.ServiceLayer.DataSource.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.Kusto.ServiceLayer.DataSource.Intellisense;
+using Microsoft.Kusto.ServiceLayer.DataSource.Monitor;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.Kusto.ServiceLayer.Utility;
@@ -16,8 +17,9 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
     [Export(typeof(IDataSourceFactory))]
     public class DataSourceFactory : IDataSourceFactory
     {
-        public IDataSource Create(DataSourceType dataSourceType, ConnectionDetails connectionDetails, string ownerUri)
+        public IDataSource Create(ConnectionDetails connectionDetails, string ownerUri)
         {
+            var dataSourceType = GetDataSourceType(connectionDetails.ServerName);
             switch (dataSourceType)
             {
                 case DataSourceType.Kusto:
@@ -27,12 +29,23 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                     var intellisenseClient = new KustoIntellisenseClient(kustoClient);
                     return new KustoDataSource(kustoClient, intellisenseClient);
                 }
-
+                case DataSourceType.LogAnalytics:
+                {
+                    var httpClient = new MonitorClient(connectionDetails.ServerName, connectionDetails.AccountToken);
+                    return new MonitorDataSource(httpClient);
+                }
                 default:
                     
                     throw new ArgumentException($@"Unsupported data source type ""{dataSourceType}""",
                         nameof(dataSourceType));
             }
+        }
+
+        private DataSourceType GetDataSourceType(string server)
+        {
+            return Guid.TryParse(server, out _) 
+                ? DataSourceType.LogAnalytics 
+                : DataSourceType.Kusto;
         }
 
         private DataSourceConnectionDetails MapKustoConnectionDetails(ConnectionDetails connectionDetails)
@@ -95,7 +108,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                     }
 
                 default:
-                    throw new ArgumentException($"Unsupported data source type \"{dataSourceType}\"", nameof(dataSourceType));
+                    throw new ArgumentException($@"Unsupported data source type ""{dataSourceType}""", nameof(dataSourceType));
             }
         }
 
@@ -109,7 +122,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                     }
 
                 default:
-                    throw new ArgumentException($"Unsupported data source type \"{dataSourceType}\"", nameof(dataSourceType));
+                    throw new ArgumentException($@"Unsupported data source type ""{dataSourceType}""", nameof(dataSourceType));
             }
         }
 
@@ -126,7 +139,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                     }
 
                 default:
-                    throw new ArgumentException($"Unsupported data source type \"{dataSourceType}\"", nameof(dataSourceType));
+                    throw new ArgumentException($@"Unsupported data source type ""{dataSourceType}""", nameof(dataSourceType));
             }
         }
     }

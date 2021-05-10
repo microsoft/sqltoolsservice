@@ -13,6 +13,7 @@ using Microsoft.Kusto.ServiceLayer.Metadata;
 using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
+using Microsoft.Kusto.ServiceLayer.ObjectExplorer;
 using Microsoft.Kusto.ServiceLayer.QueryExecution;
 using Microsoft.Kusto.ServiceLayer.Scripting;
 using Microsoft.Kusto.ServiceLayer.SqlContext;
@@ -83,6 +84,9 @@ namespace Microsoft.Kusto.ServiceLayer
 
             ConnectionService.Instance.InitializeService(serviceHost, dataSourceConnectionFactory, connectedBindingQueue, dataSourceFactory);
             serviceProvider.RegisterSingleService(ConnectionService.Instance);
+
+            ObjectExplorerService.Instance.InitializeService(serviceHost, connectedBindingQueue, WorkspaceService<SqlToolsSettings>.Instance, ConnectionService.Instance, serviceProvider);
+            serviceProvider.RegisterSingleService(ObjectExplorerService.Instance);
 
             CredentialService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(CredentialService.Instance);

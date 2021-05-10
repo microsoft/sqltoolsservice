@@ -88,8 +88,7 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
                 return null;
             }
             
-            ReliableDataSourceConnection connection;
-            connInfo.TryGetConnection("Default", out connection);
+            connInfo.TryGetConnection(ConnectionType.Default, out ReliableDataSourceConnection connection);
             IDataSource dataSource = connection.GetUnderlyingConnection();
             DataSourceObjectMetadata objectMetadata =
                 MetadataFactory.CreateClusterMetadata(connInfo.ConnectionDetails.ServerName);

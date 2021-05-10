@@ -50,7 +50,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
             NodeTypeDictionary.Add("Server", serverSet);
         }
 
-        internal static HashSet<string> FindNodePaths(ObjectExplorerService.ObjectExplorerSession objectExplorerSession, string typeName, string schema, string name, string databaseName, List<string> parentNames = null)
+        internal static HashSet<string> FindNodePaths(ObjectExplorerSession objectExplorerSession, string typeName, string schema, string name, string databaseName, List<string> parentNames = null)
         {
             if (TreeRoot == null)
             {
@@ -86,7 +86,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
             return returnSet;
         }
 
-        private static HashSet<string> GenerateNodePath(ObjectExplorerService.ObjectExplorerSession objectExplorerSession, Node currentNode, string databaseName, List<string> parentNames, string path)
+        private static HashSet<string> GenerateNodePath(ObjectExplorerSession objectExplorerSession, Node currentNode, string databaseName, List<string> parentNames, string path)
         {
             if (parentNames != null)
             {
