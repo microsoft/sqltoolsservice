@@ -122,11 +122,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
                 // Appending the set of errors that are stopping the schema compare to the ErrorMessage 
                 var errorsList = ComparisonResult.GetErrors().Select(e => e.Message).Distinct().ToList();
-                foreach (string errMsg in errorsList)
-                {
-                    ErrorMessage += errMsg + "; ";
-                }
-                ErrorMessage = ErrorMessage.Trim().TrimEnd(';');
+                ErrorMessage = string.Join("\n", errorsList);
             }
             catch (Exception e)
             {
