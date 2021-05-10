@@ -10,6 +10,7 @@ using Microsoft.SqlTools.Utility;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
@@ -119,14 +120,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                     }
                 }
 
-                // HashSet contains the set of errors that are stopping the schema compare
-                // Error Message support single message only, so breaking the functionality with single error each time
-                HashSet<string> errorsSet = ComparisonResult.GetAllErrorsList();
-                foreach (string errMsg in errorsSet)
+                // Appending the set of errors that are stopping the schema compare to the ErrorMessage 
+                var errorsList = ComparisonResult.GetErrors().Select(e => e.Message).Distinct().ToList();
+                foreach (string errMsg in errorsList)
                 {
-                    ErrorMessage = errMsg;
-                    break;
+                    ErrorMessage += errMsg + "; ";
                 }
+                ErrorMessage = ErrorMessage.Trim().TrimEnd(';');
             }
             catch (Exception e)
             {
