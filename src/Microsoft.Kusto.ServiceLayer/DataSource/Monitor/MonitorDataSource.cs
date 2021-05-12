@@ -18,15 +18,17 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
     public class MonitorDataSource : DataSourceBase
     {
         private readonly MonitorClient _monitorClient;
+        private readonly IntellisenseClientBase _intellisenseClient;
         private WorkspaceResponse _metadata;
         private Dictionary<string, List<DataSourceObjectMetadata>> _nodes;
         
         public override string ClusterName => _monitorClient.WorkspaceId;
         public override string DatabaseName { get; set; }
 
-        public MonitorDataSource(MonitorClient monitorClient)
+        public MonitorDataSource(MonitorClient monitorClient, IntellisenseClientBase intellisenseClient)
         {
             _monitorClient = monitorClient;
+            _intellisenseClient = intellisenseClient;
             _nodes = new Dictionary<string, List<DataSourceObjectMetadata>>();
             _metadata = _monitorClient.LoadMetadata();
             DataSourceType = DataSourceType.LogAnalytics;
@@ -132,8 +134,10 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
         {
             // LogAnalytics is treating the workspace name as the database name
             var workspaceId = ParseWorkspaceId(databaseName);
+            _metadata = _monitorClient.LoadMetadata(true);
             var workspace = _metadata.Workspaces.First(x => x.Id == workspaceId);
             DatabaseName = $"{workspace.Name} ({workspace.Id})";
+            _intellisenseClient.UpdateDatabase(databaseName);
         }
         
         private string ParseWorkspaceId(string workspace)
@@ -167,22 +171,22 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
 
         public override ScriptFileMarker[] GetSemanticMarkers(ScriptParseInfo parseInfo, ScriptFile scriptFile, string queryText)
         {
-            return Enumerable.Empty<ScriptFileMarker>() as ScriptFileMarker[];
+            return _intellisenseClient.GetSemanticMarkers(parseInfo, scriptFile, queryText);
         }
 
         public override DefinitionResult GetDefinition(string queryText, int index, int startLine, int startColumn, bool throwOnError = false)
         {
-            return new DefinitionResult();
+            return _intellisenseClient.GetDefinition(queryText, index, startLine, startColumn, throwOnError);
         }
 
         public override Hover GetHoverHelp(ScriptDocumentInfo scriptDocumentInfo, Position textPosition, bool throwOnError = false)
         {
-            return new Hover();
+            return _intellisenseClient.GetHoverHelp(scriptDocumentInfo, textPosition, throwOnError);
         }
 
         public override CompletionItem[] GetAutoCompleteSuggestions(ScriptDocumentInfo scriptDocumentInfo, Position textPosition, bool throwOnError = false)
         {
-            return Enumerable.Empty<CompletionItem>() as CompletionItem[];
+            return _intellisenseClient.GetAutoCompleteSuggestions(scriptDocumentInfo, textPosition, throwOnError);
         }
     }
 }

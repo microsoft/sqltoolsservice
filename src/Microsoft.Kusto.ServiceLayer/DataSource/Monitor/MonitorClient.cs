@@ -16,6 +16,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
         private readonly string _workspaceId;
         private readonly string _token;
         private const string BaseUri = "https://api.loganalytics.io/v1/workspaces";
+        private WorkspaceResponse _metadata;
 
         public string WorkspaceId => _workspaceId;
 
@@ -29,8 +30,13 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
             };
         }
 
-        public WorkspaceResponse LoadMetadata()
+        public WorkspaceResponse LoadMetadata(bool refresh = false)
         {
+            if (_metadata != null && !refresh)
+            {
+                return _metadata;
+            }
+            
             using (var httpClient = GetHttpClient())
             {
                 var url = $"{BaseUri}/{_workspaceId}/metadata";
@@ -42,7 +48,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
                     PropertyNameCaseInsensitive = true
                 };
 
-                return JsonSerializer.Deserialize<WorkspaceResponse>(results, options);
+                _metadata = JsonSerializer.Deserialize<WorkspaceResponse>(results, options); 
+                return _metadata;
             }
         }
 

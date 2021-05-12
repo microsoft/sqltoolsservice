@@ -1,6 +1,7 @@
 using System;
 using System.Data;
 using System.Linq;
+using Kusto.Language.Symbols;
 using Microsoft.Azure.OperationalInsights.Models;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
@@ -65,6 +66,25 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
                 case "decimal": return Type.GetType("System.Data.SqlTypes.SqlDecimal");
                 
                 default: return typeof(string);
+            }
+        }
+
+        public static ScalarSymbol ToSymbolType(this string type)
+        {
+            switch (type)
+            {
+                case "bool": return ScalarTypes.Bool;
+                case "datetime": return ScalarTypes.DateTime;
+                case "dynamic": return ScalarTypes.Dynamic;
+                case "guid": return ScalarTypes.Guid;
+                case "int": return ScalarTypes.Int;
+                case "long": return ScalarTypes.Long;
+                case "real": return ScalarTypes.Real;
+                case "string": return ScalarTypes.String;
+                case "timespan": return ScalarTypes.TimeSpan;
+                case "decimal": return ScalarTypes.Decimal;
+                
+                default: return ScalarTypes.String;
             }
         }
     }

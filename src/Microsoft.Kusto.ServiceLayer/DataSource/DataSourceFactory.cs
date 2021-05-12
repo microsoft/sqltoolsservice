@@ -32,7 +32,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 case DataSourceType.LogAnalytics:
                 {
                     var httpClient = new MonitorClient(connectionDetails.ServerName, connectionDetails.AccountToken);
-                    return new MonitorDataSource(httpClient);
+                    var intellisenseClient = new MonitorIntellisenseClient(httpClient);
+                    return new MonitorDataSource(httpClient, intellisenseClient);
                 }
                 default:
                     
