@@ -11,6 +11,7 @@ using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
+using SMO = Microsoft.SqlServer.Management.Smo;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -24,6 +25,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         private ManualResetEvent bindingLock;
 
         private ServerConnection serverConnection;
+
+        private SMO.Server server;
 
         /// <summary>
         /// Connected binding context constructor
@@ -55,7 +58,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                 // reset the parse options so the get recreated for the current connection
                 this.parseOptions = null;
-            } 
+                this.server = new SMO.Server(this.serverConnection);
+            }
+        }
+
+        public SMO.Server Server
+        {
+            get
+            {
+                // Use the Server from the SmoMetadataProvider if we have it to avoid
+                // unnecessary overhead of querying a new object
+                return this.SmoMetadataProvider?.SmoServer ?? this.server;
+            }
         }
 
         /// <summary>
@@ -92,26 +106,30 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Gets the Language Service ServerVersion
         /// </summary>
-        public ServerVersion ServerVersion 
-        { 
-            get 
-            { 
-                return this.ServerConnection != null
-                    ? this.ServerConnection.ServerVersion
-                    : null; 
+        public ServerVersion ServerVersion
+        {
+            get
+            {
+                return this.ServerConnection?.ServerVersion;
             }
         }
 
         /// <summary>
         /// Gets the current DataEngineType
         /// </summary>
-        public DatabaseEngineType DatabaseEngineType 
-        { 
-            get 
-            { 
-                return this.ServerConnection != null
-                    ? this.ServerConnection.DatabaseEngineType
-                    : DatabaseEngineType.Standalone; 
+        public DatabaseEngineType DatabaseEngineType
+        {
+            get
+            {
+                return this.ServerConnection?.DatabaseEngineType ?? DatabaseEngineType.Standalone;
+            }
+        }
+
+        public DatabaseEngineEdition DatabaseEngineEdition
+        {
+            get
+            {
+                return this.ServerConnection?.DatabaseEngineEdition ?? DatabaseEngineEdition.Standard;
             }
         }
 
@@ -123,7 +141,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             get
             {
                 return this.IsConnected
-                    ? GetTransactSqlVersion(this.DatabaseEngineType, this.ServerVersion)
+                    ? GetTransactSqlVersion(this.Server)
                     : TransactSqlVersion.Current;
             }
         }
@@ -136,7 +154,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             get
             {
                 return this.IsConnected
-                    ? GetDatabaseCompatibilityLevel(this.DatabaseEngineType, this.ServerVersion)
+                    ? GetDatabaseCompatibilityLevel(this.Server)
                     : DatabaseCompatibilityLevel.Current;
             }
         }
@@ -162,34 +180,34 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
 
         /// <summary>
-        /// Gets the database compatibility level from a server version
+        /// Gets the database compatibility level for a given server connection
         /// </summary>
-        /// <param name="serverVersion"></param>
-        private static DatabaseCompatibilityLevel GetDatabaseCompatibilityLevel(DatabaseEngineType engineType, ServerVersion serverVersion)
+        /// <param name="server"></param>
+        private static DatabaseCompatibilityLevel GetDatabaseCompatibilityLevel(SMO.Server server)
         {
-            if (engineType == DatabaseEngineType.SqlAzureDatabase)
+            if (server.DatabaseEngineType == DatabaseEngineType.SqlAzureDatabase)
             {
                 return DatabaseCompatibilityLevel.Azure;
             }
-            int versionMajor = Math.Max(serverVersion.Major, 8);
 
-            switch (versionMajor)
+            // Get the actual compat level of the database we're connected to
+            switch (server.Databases[server.ConnectionContext.DatabaseName].CompatibilityLevel)
             {
-                case 8:
+                case SMO.CompatibilityLevel.Version80:
                     return DatabaseCompatibilityLevel.Version80;
-                case 9:
+                case SMO.CompatibilityLevel.Version90:
                     return DatabaseCompatibilityLevel.Version90;
-                case 10:
+                case SMO.CompatibilityLevel.Version100:
                     return DatabaseCompatibilityLevel.Version100;
-                case 11:
+                case SMO.CompatibilityLevel.Version110:
                     return DatabaseCompatibilityLevel.Version110;
-                case 12:
+                case SMO.CompatibilityLevel.Version120:
                     return DatabaseCompatibilityLevel.Version120;
-                case 13:
+                case SMO.CompatibilityLevel.Version130:
                     return DatabaseCompatibilityLevel.Version130;
-                case 14:
+                case SMO.CompatibilityLevel.Version140:
                     return DatabaseCompatibilityLevel.Version140;
-                case 15:
+                case SMO.CompatibilityLevel.Version150:
                     return DatabaseCompatibilityLevel.Version150;
                 default:
                     return DatabaseCompatibilityLevel.Current;
@@ -197,33 +215,33 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
-        /// Gets the transaction sql version from a server version
+        /// Gets the transaction sql version for a given server connection
         /// </summary>
-        /// <param name="serverVersion"></param>
-        private static TransactSqlVersion GetTransactSqlVersion(DatabaseEngineType engineType, ServerVersion serverVersion)
+        /// <param name="server"></param>
+        private static TransactSqlVersion GetTransactSqlVersion(SMO.Server server)
         {
-            if (engineType == DatabaseEngineType.SqlAzureDatabase)
+            if (server.DatabaseEngineType == DatabaseEngineType.SqlAzureDatabase)
             {
                 return TransactSqlVersion.Azure;
             }
 
-            int versionMajor = Math.Max(serverVersion.Major, 9);
-
-            switch (versionMajor)
+            // Use the compat level of the database we're connected to for determing what verison
+            // of T-SQL to support
+            switch (server.Databases[server.ConnectionContext.DatabaseName].CompatibilityLevel)
             {
-                case 9:
-                case 10:
+                case SMO.CompatibilityLevel.Version90:
+                case SMO.CompatibilityLevel.Version100:
                     // In case of 10.0 we still use Version 10.5 as it is the closest available.
                     return TransactSqlVersion.Version105;
-                case 11:
+                case SMO.CompatibilityLevel.Version110:
                     return TransactSqlVersion.Version110;
-                case 12:
+                case SMO.CompatibilityLevel.Version120:
                     return TransactSqlVersion.Version120;
-                case 13:
+                case SMO.CompatibilityLevel.Version130:
                     return TransactSqlVersion.Version130;
-                case 14:
+                case SMO.CompatibilityLevel.Version140:
                     return TransactSqlVersion.Version140;
-                case 15:
+                case SMO.CompatibilityLevel.Version150:
                     return TransactSqlVersion.Version150;
                 default:
                     return TransactSqlVersion.Current;
