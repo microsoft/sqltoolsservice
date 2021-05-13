@@ -123,7 +123,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             get
             {
                 return this.IsConnected 
-                    ? GetTransactSqlVersion(this.ServerVersion)
+                    ? GetTransactSqlVersion(this.DatabaseEngineType, this.ServerVersion)
                     : TransactSqlVersion.Current;
             }
         }
@@ -136,7 +136,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             get
             {
                 return this.IsConnected
-                    ? GetDatabaseCompatibilityLevel(this.ServerVersion)
+                    ? GetDatabaseCompatibilityLevel(this.DatabaseEngineType, this.ServerVersion)
                     : DatabaseCompatibilityLevel.Current;
             }
         }
@@ -165,8 +165,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Gets the database compatibility level from a server version
         /// </summary>
         /// <param name="serverVersion"></param>
-        private static DatabaseCompatibilityLevel GetDatabaseCompatibilityLevel(ServerVersion serverVersion)
+        private static DatabaseCompatibilityLevel GetDatabaseCompatibilityLevel(DatabaseEngineType engineType, ServerVersion serverVersion)
         {
+            if(engineType == DatabaseEngineType.SqlAzureDatabase)
+            {
+                return DatabaseCompatibilityLevel.Azure;
+            }
             int versionMajor = Math.Max(serverVersion.Major, 8);
 
             switch (versionMajor)
@@ -183,6 +187,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     return DatabaseCompatibilityLevel.Version120;
                 case 13:
                     return DatabaseCompatibilityLevel.Version130;
+                case 14:
+                    return DatabaseCompatibilityLevel.Version140;
+                case 15:
+                    return DatabaseCompatibilityLevel.Version150;
                 default:
                     return DatabaseCompatibilityLevel.Current;
             }
@@ -192,8 +200,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Gets the transaction sql version from a server version
         /// </summary>
         /// <param name="serverVersion"></param>
-        private static TransactSqlVersion GetTransactSqlVersion(ServerVersion serverVersion)
+        private static TransactSqlVersion GetTransactSqlVersion(DatabaseEngineType engineType, ServerVersion serverVersion)
         {
+            if(engineType == DatabaseEngineType.SqlAzureDatabase)
+            {
+                return TransactSqlVersion.Azure;
+            }
+
             int versionMajor = Math.Max(serverVersion.Major, 9);
 
             switch (versionMajor)
@@ -208,6 +221,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     return TransactSqlVersion.Version120;
                 case 13:
                     return TransactSqlVersion.Version130;
+                case 14:
+                    return TransactSqlVersion.Version140;
+                case 15:
+                    return TransactSqlVersion.Version150;
                 default:
                     return TransactSqlVersion.Current;
             }
