@@ -10,6 +10,7 @@ using Microsoft.SqlTools.Utility;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
@@ -118,6 +119,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                         this.Differences.Add(diffEntry);
                     }
                 }
+
+                // Appending the set of errors that are stopping the schema compare to the ErrorMessage 
+                var errorsList = ComparisonResult.GetErrors().Select(e => e.Message).Distinct().ToList();
+                ErrorMessage = string.Join("\n", errorsList);
             }
             catch (Exception e)
             {
