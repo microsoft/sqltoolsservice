@@ -6,12 +6,14 @@
 using System;
 using System.Threading;
 using Microsoft.SqlServer.Management.Common;
+using SMO = Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.SmoMetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
-using SMO = Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlTools.Utility;
+using System.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -58,6 +60,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                 // reset the parse options so the get recreated for the current connection
                 this.parseOptions = null;
+                // Set up a SMO Server to query when determing parse options and we don't have a metadataprovider 
                 this.server = new SMO.Server(this.serverConnection);
             }
         }
@@ -191,7 +194,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
 
             // Get the actual compat level of the database we're connected to
-            switch (server.Databases[server.ConnectionContext.DatabaseName].CompatibilityLevel)
+            switch (GetServerCompatabilityLevel(server))
             {
                 case SMO.CompatibilityLevel.Version80:
                     return DatabaseCompatibilityLevel.Version80;
@@ -225,27 +228,66 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 return TransactSqlVersion.Azure;
             }
 
-            // Use the compat level of the database we're connected to for determing what verison
-            // of T-SQL to support
-            switch (server.Databases[server.ConnectionContext.DatabaseName].CompatibilityLevel)
+            // Determine the language version to use - we can't just use VersionMajor directly because there are engine versions (such as MI)
+            // whose language version they support is higher than the actual server version. So we choose the highest compat level from
+            // between the server version and compat level
+            var compatLevel = Math.Max(server.VersionMajor * 10, (int)GetServerCompatabilityLevel(server));
+            switch (compatLevel)
             {
-                case SMO.CompatibilityLevel.Version90:
-                case SMO.CompatibilityLevel.Version100:
+                case 90:
+                case 100:
                     // In case of 10.0 we still use Version 10.5 as it is the closest available.
                     return TransactSqlVersion.Version105;
-                case SMO.CompatibilityLevel.Version110:
+                case 110:
                     return TransactSqlVersion.Version110;
-                case SMO.CompatibilityLevel.Version120:
+                case 120:
                     return TransactSqlVersion.Version120;
-                case SMO.CompatibilityLevel.Version130:
+                case 130:
                     return TransactSqlVersion.Version130;
-                case SMO.CompatibilityLevel.Version140:
+                case 140:
                     return TransactSqlVersion.Version140;
-                case SMO.CompatibilityLevel.Version150:
+                case 150:
                     return TransactSqlVersion.Version150;
                 default:
                     return TransactSqlVersion.Current;
             }
+        }
+
+        /// <summary>
+        /// Gets the SMO compatability level for the given server, defaulting to the highest available level if an
+        /// error occurs while querying. 
+        /// </summary>
+        /// <param name="server">The server object to get the compat level of</param>
+        /// <returns></returns>
+        private static SMO.CompatibilityLevel GetServerCompatabilityLevel(SMO.Server server)
+        {
+            // Set the default fields so that we avoid the overhead of querying for properties we don't need right now
+            server.SetDefaultInitFields(typeof(SMO.Database), nameof(SMO.Database.CompatibilityLevel));
+
+            SMO.CompatibilityLevel compatLevel;
+            try
+            {
+                // First try the master DB since it will have the highest compat level for that instance
+                compatLevel = server.Databases["master"].CompatibilityLevel;
+                Logger.Write(System.Diagnostics.TraceEventType.Information, $"Got compat level {compatLevel} after querying master");
+            }
+            catch
+            {
+                // If we can't get it from master then fall back to the current database
+                try
+                {
+                    compatLevel = server.Databases[server.ConnectionContext.DatabaseName].CompatibilityLevel;
+                    Logger.Write(System.Diagnostics.TraceEventType.Information, $"Got compat level {compatLevel} after querying connection DB");
+                }
+                catch
+                {
+                    // There's nothing else we can do so just default to the highest available version
+                    compatLevel = Enum.GetValues(typeof(SMO.CompatibilityLevel)).Cast<SMO.CompatibilityLevel>().Max();
+                    Logger.Write(System.Diagnostics.TraceEventType.Information, $"Failed to get compat level from querying server - using default of {compatLevel}");
+                }
+
+            }
+            return compatLevel;
         }
     }
 }
