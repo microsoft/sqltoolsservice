@@ -194,7 +194,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
 
             // Get the actual compat level of the database we're connected to
-            switch (GetServerCompatabilityLevel(server))
+            switch (GetServerCompatibilityLevel(server))
             {
                 case SMO.CompatibilityLevel.Version80:
                     return DatabaseCompatibilityLevel.Version80;
@@ -231,7 +231,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // Determine the language version to use - we can't just use VersionMajor directly because there are engine versions (such as MI)
             // whose language version they support is higher than the actual server version. So we choose the highest compat level from
             // between the server version and compat level
-            var compatLevel = Math.Max(server.VersionMajor * 10, (int)GetServerCompatabilityLevel(server));
+            var compatLevel = Math.Max(server.VersionMajor * 10, (int)GetServerCompatibilityLevel(server));
             switch (compatLevel)
             {
                 case 90:
@@ -254,12 +254,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
-        /// Gets the SMO compatability level for the given server, defaulting to the highest available level if an
+        /// Gets the SMO compatibility level for the given server, defaulting to the highest available level if an
         /// error occurs while querying. 
         /// </summary>
         /// <param name="server">The server object to get the compat level of</param>
         /// <returns></returns>
-        private static SMO.CompatibilityLevel GetServerCompatabilityLevel(SMO.Server server)
+        private static SMO.CompatibilityLevel GetServerCompatibilityLevel(SMO.Server server)
         {
             // Set the default fields so that we avoid the overhead of querying for properties we don't need right now
             server.SetDefaultInitFields(typeof(SMO.Database), nameof(SMO.Database.CompatibilityLevel));
