@@ -269,7 +269,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 // First try the master DB since it will have the highest compat level for that instance
                 compatLevel = server.Databases["master"].CompatibilityLevel;
-                Logger.Write(System.Diagnostics.TraceEventType.Information, $"Got compat level {compatLevel} after querying master");
+                Logger.Write(System.Diagnostics.TraceEventType.Information, $"Got compat level for binding context {compatLevel} after querying master");
             }
             catch
             {
@@ -277,13 +277,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 try
                 {
                     compatLevel = server.Databases[server.ConnectionContext.DatabaseName].CompatibilityLevel;
-                    Logger.Write(System.Diagnostics.TraceEventType.Information, $"Got compat level {compatLevel} after querying connection DB");
+                    Logger.Write(System.Diagnostics.TraceEventType.Information, $"Got compat level for binding context {compatLevel} after querying connection DB");
                 }
                 catch
                 {
                     // There's nothing else we can do so just default to the highest available version
                     compatLevel = Enum.GetValues(typeof(SMO.CompatibilityLevel)).Cast<SMO.CompatibilityLevel>().Max();
-                    Logger.Write(System.Diagnostics.TraceEventType.Information, $"Failed to get compat level from querying server - using default of {compatLevel}");
+                    Logger.Write(System.Diagnostics.TraceEventType.Information, $"Failed to get compat level for binding context from querying server - using default of {compatLevel}");
                 }
 
             }
