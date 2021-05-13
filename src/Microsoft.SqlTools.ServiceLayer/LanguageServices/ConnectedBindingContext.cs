@@ -122,12 +122,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             get
             {
-                return this.IsConnected 
+                return this.IsConnected
                     ? GetTransactSqlVersion(this.DatabaseEngineType, this.ServerVersion)
                     : TransactSqlVersion.Current;
             }
         }
-          
+
         /// <summary>
         /// Gets the current DatabaseCompatibilityLevel
         /// </summary>
@@ -167,7 +167,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="serverVersion"></param>
         private static DatabaseCompatibilityLevel GetDatabaseCompatibilityLevel(DatabaseEngineType engineType, ServerVersion serverVersion)
         {
-            if(engineType == DatabaseEngineType.SqlAzureDatabase)
+            if (engineType == DatabaseEngineType.SqlAzureDatabase)
             {
                 return DatabaseCompatibilityLevel.Azure;
             }
@@ -202,7 +202,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="serverVersion"></param>
         private static TransactSqlVersion GetTransactSqlVersion(DatabaseEngineType engineType, ServerVersion serverVersion)
         {
-            if(engineType == DatabaseEngineType.SqlAzureDatabase)
+            if (engineType == DatabaseEngineType.SqlAzureDatabase)
             {
                 return TransactSqlVersion.Azure;
             }
