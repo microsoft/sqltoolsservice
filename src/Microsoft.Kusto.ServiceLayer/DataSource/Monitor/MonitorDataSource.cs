@@ -38,7 +38,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
         private void SetupTableGroups(string workspaceId)
         {
             var workspace = _metadata.Workspaces.First(x => x.Id == workspaceId);
-            DatabaseName = $"{workspace.Name} ({workspace.Id})";
+            DatabaseName = $"{workspace.Name}";
             var metadataTableGroups = _metadata.TableGroups.ToDictionary(x => x.Id);
             
             foreach (string workspaceTableGroup in workspace.TableGroups)
@@ -112,6 +112,12 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
             if (parentMetadata.MetadataType == DataSourceMetadataType.Column)
             {
                 return Enumerable.Empty<DataSourceObjectMetadata>();
+            }
+
+            if (parentMetadata.MetadataType == DataSourceMetadataType.Cluster && includeSizeDetails)
+            {
+                var child = _nodes[parentMetadata.Urn].FirstOrDefault();
+                return child == null ? Enumerable.Empty<DataSourceObjectMetadata>() : _nodes[child.Urn];
             }
             
             return _nodes[parentMetadata.Urn].OrderBy(x => x.PrettyName, StringComparer.OrdinalIgnoreCase);

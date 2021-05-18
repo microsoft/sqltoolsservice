@@ -68,21 +68,12 @@ namespace Microsoft.Kusto.ServiceLayer.Metadata
 
             connInfo.TryGetConnection(ConnectionType.Default, out ReliableDataSourceConnection connection);
             IDataSource dataSource = connection.GetUnderlyingConnection();
-
-            IEnumerable<DataSourceObjectMetadata> databaseChildMetadataInfo;
-            if (dataSource.DataSourceType == DataSourceType.LogAnalytics)
-            {
-                var clusterMetadata = MetadataFactory.CreateClusterMetadata(connInfo.ConnectionDetails.ServerName);
-                var clusterChildren = dataSource.GetChildObjects(clusterMetadata, true);
-                databaseChildMetadataInfo = dataSource.GetChildObjects(clusterChildren.First(), true);
-            }
-            else
-            {
-                var objectMetadata = MetadataFactory.CreateClusterMetadata(connInfo.ConnectionDetails.ServerName);
-                var databaseMetadata = MetadataFactory.CreateDatabaseMetadata(objectMetadata, connInfo.ConnectionDetails.DatabaseName);
-                databaseChildMetadataInfo = dataSource.GetChildObjects(databaseMetadata, true);    
-            }
             
+            var clusterMetadata = MetadataFactory.CreateClusterMetadata(connInfo.ConnectionDetails.ServerName);
+            var databaseMetadata = MetadataFactory.CreateDatabaseMetadata(clusterMetadata, connInfo.ConnectionDetails.DatabaseName);
+            var parentMetadata = dataSource.DataSourceType == DataSourceType.LogAnalytics ? clusterMetadata : databaseMetadata; 
+            
+            var databaseChildMetadataInfo = dataSource.GetChildObjects(parentMetadata, true);
             return MetadataFactory.ConvertToObjectMetadata(databaseChildMetadataInfo);
         }
     }

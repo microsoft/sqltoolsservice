@@ -42,33 +42,24 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
         /// <summary>
         /// Handle get database info request
         /// </summary>
-        private async Task HandleGetDatabaseInfoRequest(
-            GetDatabaseInfoParams databaseParams,
-            RequestContext<GetDatabaseInfoResponse> requestContext)
+        private async Task HandleGetDatabaseInfoRequest(GetDatabaseInfoParams databaseParams, RequestContext<GetDatabaseInfoResponse> requestContext)
         {
             try
             {
-                Func<Task> requestHandler = async () =>
-                {
-                    _connectionService.TryFindConnection(databaseParams.OwnerUri, out var connInfo);
-                    DatabaseInfo info = null;
+                var response = new GetDatabaseInfoResponse();
 
-                    if (connInfo != null)
+                Parallel.Invoke(() =>
+                {
+                    DatabaseInfo info = null;
+                    if (_connectionService.TryFindConnection(databaseParams.OwnerUri, out var connInfo))
                     {
                         info = GetDatabaseInfo(connInfo);
                     }
 
-                    await requestContext.SendResult(new GetDatabaseInfoResponse()
-                    {
-                        DatabaseInfo = info
-                    });
-                };
-
-                Task task = Task.Run(async () => await requestHandler()).ContinueWithOnFaulted(async t =>
-                {
-                    await requestContext.SendError(t.Exception.ToString());
+                    response.DatabaseInfo = info;
                 });
-
+                
+                await requestContext.SendResult(response);
             }
             catch (Exception ex)
             {
@@ -94,10 +85,19 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
             
             List<DataSourceObjectMetadata> metadata = dataSource.GetChildObjects(objectMetadata, true).ToList();
 
-            var databaseMetadata = dataSource.DataSourceType == DataSourceType.LogAnalytics 
-                ? dataSource.GetChildObjects(metadata.First(), true) 
-                : metadata.Where(o => o.Name == connInfo.ConnectionDetails.DatabaseName);
-
+            if (dataSource.DataSourceType == DataSourceType.LogAnalytics)
+            {
+                return new DatabaseInfo
+                {
+                    Options = new Dictionary<string, object>
+                    {
+                        {"id", dataSource.ClusterName},
+                        {"name", dataSource.DatabaseName}
+                    }
+                };
+            }
+            
+            var databaseMetadata = metadata.Where(o => o.Name == connInfo.ConnectionDetails.DatabaseName);
             List<DatabaseInfo> databaseInfo = MetadataFactory.ConvertToDatabaseInfo(databaseMetadata);
 
             return databaseInfo.ElementAtOrDefault(0);
