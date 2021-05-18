@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.Kusto.ServiceLayer.Connection;
@@ -59,7 +60,7 @@ namespace Microsoft.Kusto.ServiceLayer.Metadata
         private List<ObjectMetadata> LoadMetadata(MetadataQueryParams metadataParams)
         {
             _connectionService.TryFindConnection(metadataParams.OwnerUri, out ConnectionInfo connInfo);
-            
+
             if (connInfo == null)
             {
                 return new List<ObjectMetadata>();
@@ -71,19 +72,17 @@ namespace Microsoft.Kusto.ServiceLayer.Metadata
             IEnumerable<DataSourceObjectMetadata> databaseChildMetadataInfo;
             if (dataSource.DataSourceType == DataSourceType.LogAnalytics)
             {
-                databaseChildMetadataInfo = new List<DataSourceObjectMetadata>
-                {
-                    MetadataFactory.CreateDataSourceObjectMetadata(DataSourceMetadataType.Database, dataSource.DatabaseName,
-                        dataSource.ClusterName)
-                };
+                var clusterMetadata = MetadataFactory.CreateClusterMetadata(connInfo.ConnectionDetails.ServerName);
+                var clusterChildren = dataSource.GetChildObjects(clusterMetadata, true);
+                databaseChildMetadataInfo = dataSource.GetChildObjects(clusterChildren.First(), true);
             }
             else
             {
                 var objectMetadata = MetadataFactory.CreateClusterMetadata(connInfo.ConnectionDetails.ServerName);
                 var databaseMetadata = MetadataFactory.CreateDatabaseMetadata(objectMetadata, connInfo.ConnectionDetails.DatabaseName);
-                databaseChildMetadataInfo = dataSource.GetChildObjects(databaseMetadata, true);
+                databaseChildMetadataInfo = dataSource.GetChildObjects(databaseMetadata, true);    
             }
-
+            
             return MetadataFactory.ConvertToObjectMetadata(databaseChildMetadataInfo);
         }
     }
