@@ -402,6 +402,8 @@ WITH VALUES
                 Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
                 Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
                 Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
+                Assert.IsEmpty(schemaCompareOperation.ErrorMessage);
+
                 var enumerator = schemaCompareOperation.ComparisonResult.Differences.GetEnumerator();
                 enumerator.MoveNext();
                 Assert.True(enumerator.Current.SourceObject.Name.ToString().Equals("[dbo].[table1]"));
@@ -426,6 +428,7 @@ WITH VALUES
                 Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
                 Assert.True(schemaCompareOperation.ComparisonResult.IsEqual);
                 Assert.That(schemaCompareOperation.ComparisonResult.Differences, Is.Empty);
+                Assert.IsEmpty(schemaCompareOperation.ErrorMessage);
             }
             finally
             {
@@ -736,6 +739,7 @@ WITH VALUES
                 }
 
                 Assert.Null(schemaCompareOperation.ComparisonResult.Differences);
+                Assert.AreEqual("The operation was canceled.", schemaCompareOperation.ErrorMessage);
             }
             finally
             {
@@ -851,6 +855,7 @@ WITH VALUES
                 Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
                 Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
                 Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
+                Assert.IsEmpty(schemaCompareOperation.ErrorMessage);
 
                 // try to exclude
                 DiffEntry t2Diff = SchemaCompareUtils.CreateDiffEntry(schemaCompareOperation.ComparisonResult.Differences.Where(x => x.SourceObject != null && x.SourceObject.Name.Parts[1] == "t2").First(), null);
@@ -921,6 +926,7 @@ WITH VALUES
             Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
             Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
             Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
+            Assert.IsEmpty(schemaCompareOperation.ErrorMessage);
 
             // create Diff Entry from Difference
             DiffEntry diff = SchemaCompareUtils.CreateDiffEntry(schemaCompareOperation.ComparisonResult.Differences.First(), null);
@@ -963,6 +969,7 @@ WITH VALUES
             Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
             Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
             Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
+            Assert.IsEmpty(schemaCompareOperation.ErrorMessage);
 
             SchemaCompareGenerateScriptOperation generateScriptOperation = new SchemaCompareGenerateScriptOperation(generateScriptParams, schemaCompareOperation.ComparisonResult);
             generateScriptOperation.Execute(TaskExecutionMode.Script);
