@@ -919,6 +919,54 @@ WITH VALUES
             }
         }
 
+        /// <summary>
+        /// Verify the schema compare warning messages being excluded
+        /// </summary>
+        [Test]
+        public async Task VerifySchemaCompareWarningsBeingExcluded()
+        {
+            var result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "SchemaCompareSource");
+            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareTarget");
+
+            try
+            {
+                SchemaCompareEndpointInfo sourceInfo = new SchemaCompareEndpointInfo();
+                SchemaCompareEndpointInfo targetInfo = new SchemaCompareEndpointInfo();
+
+                sourceInfo.EndpointType = SchemaCompareEndpointType.Database;
+                sourceInfo.DatabaseName = sourceDb.DatabaseName;
+                targetInfo.EndpointType = SchemaCompareEndpointType.Database;
+                targetInfo.DatabaseName = targetDb.DatabaseName;
+
+                var schemaCompareParams = new SchemaCompareParams
+                {
+                    SourceEndpointInfo = sourceInfo,
+                    TargetEndpointInfo = targetInfo
+                };
+
+                // Do Schema compare
+                SchemaCompareOperation schemaCompareOperation = new SchemaCompareOperation(schemaCompareParams, result.ConnectionInfo, result.ConnectionInfo);
+                schemaCompareOperation.Execute(TaskExecutionMode.Execute);
+
+                // Expected 'data loss could occur' warning messages while comparing 
+                var warnings = schemaCompareOperation.ComparisonResult.GetErrors().Where(x => x.MessageType.Equals(Microsoft.SqlServer.Dac.DacMessageType.Warning)).Select(e => e.Message).Distinct().ToList();
+                var errors = schemaCompareOperation.ComparisonResult.GetErrors().Where(x => x.MessageType.Equals(Microsoft.SqlServer.Dac.DacMessageType.Error)).Select(e => e.Message).Distinct().ToList();
+
+                // Assertions
+                Assert.AreEqual(2, schemaCompareOperation.ComparisonResult.Differences.Count());
+                Assert.AreEqual(2, warnings.Count);
+                Assert.AreEqual(0, errors.Count);
+                Assert.IsEmpty(schemaCompareOperation.ErrorMessage, "Error message should be empty as the warnings being excluded");
+            }
+            finally
+            {
+                // cleanup
+                sourceDb.Cleanup();
+                targetDb.Cleanup();
+            }
+        }
+
         private void ValidateSchemaCompareWithExcludeIncludeResults(SchemaCompareOperation schemaCompareOperation)
         {
             schemaCompareOperation.Execute(TaskExecutionMode.Execute);
