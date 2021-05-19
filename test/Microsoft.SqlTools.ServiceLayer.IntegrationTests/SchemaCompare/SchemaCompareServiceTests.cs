@@ -953,9 +953,12 @@ WITH VALUES
                 var warnings = schemaCompareOperation.ComparisonResult.GetErrors().Where(x => x.MessageType.Equals(Microsoft.SqlServer.Dac.DacMessageType.Warning)).Select(e => e.Message).Distinct().ToList();
                 var errors = schemaCompareOperation.ComparisonResult.GetErrors().Where(x => x.MessageType.Equals(Microsoft.SqlServer.Dac.DacMessageType.Error)).Select(e => e.Message).Distinct().ToList();
 
-                // Assertions
+                // Assertions: 
+                // Target database have two tables created and will be shown as two differnces
                 Assert.AreEqual(2, schemaCompareOperation.ComparisonResult.Differences.Count());
+                // These two warnings are "data loss could occur" messages for two tables 
                 Assert.AreEqual(2, warnings.Count);
+                // SC is successful with no errors, hence error message should be empty
                 Assert.AreEqual(0, errors.Count);
                 Assert.IsEmpty(schemaCompareOperation.ErrorMessage, "Error message should be empty as the warnings being excluded");
             }
