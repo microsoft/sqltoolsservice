@@ -150,7 +150,7 @@ END
                 SchemaCompareOperation schemaCompareOperation2 = new SchemaCompareOperation(schemaCompareParams2, null, null);
                 schemaCompareOperation2.Execute(TaskExecutionMode.Execute);
                 Assert.False(schemaCompareOperation2.ComparisonResult.IsEqual);
-                Assert.NotNull(schemaCompareOperation2.ComparisonResult.Differences); ;
+                Assert.NotNull(schemaCompareOperation2.ComparisonResult.Differences);
                 Assert.IsEmpty(schemaCompareOperation2.ErrorMessage);
 
                 // cleanup
@@ -401,15 +401,6 @@ END
 
             SchemaCompareGetOptionsParams p = new SchemaCompareGetOptionsParams();
             await SchemaCompareService.Instance.HandleSchemaCompareGetDefaultOptionsRequest(p, schemaCompareRequestContext.Object);
-        }
-
-        /// <summary>
-        /// Verify the Error message is only having the real error by excluding the warnings
-        /// </summary>
-        [Test]
-        public void ValidateErrorMessageExcludingWarnings()
-        {
-
         }
     }
 }
