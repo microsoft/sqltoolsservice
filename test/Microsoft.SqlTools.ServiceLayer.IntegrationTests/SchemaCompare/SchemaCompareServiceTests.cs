@@ -402,7 +402,7 @@ WITH VALUES
                 Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
                 Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
                 Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
-                Assert.IsEmpty(schemaCompareOperation.ErrorMessage);
+                Assert.IsNull(schemaCompareOperation.ErrorMessage);
 
                 var enumerator = schemaCompareOperation.ComparisonResult.Differences.GetEnumerator();
                 enumerator.MoveNext();
@@ -428,7 +428,7 @@ WITH VALUES
                 Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
                 Assert.True(schemaCompareOperation.ComparisonResult.IsEqual);
                 Assert.That(schemaCompareOperation.ComparisonResult.Differences, Is.Empty);
-                Assert.IsEmpty(schemaCompareOperation.ErrorMessage);
+                Assert.IsNull(schemaCompareOperation.ErrorMessage);
             }
             finally
             {
@@ -855,7 +855,7 @@ WITH VALUES
                 Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
                 Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
                 Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
-                Assert.IsEmpty(schemaCompareOperation.ErrorMessage);
+                Assert.IsNull(schemaCompareOperation.ErrorMessage);
 
                 // try to exclude
                 DiffEntry t2Diff = SchemaCompareUtils.CreateDiffEntry(schemaCompareOperation.ComparisonResult.Differences.Where(x => x.SourceObject != null && x.SourceObject.Name.Parts[1] == "t2").First(), null);
@@ -960,7 +960,7 @@ WITH VALUES
                 Assert.AreEqual(2, warnings.Count);
                 // SC is successful with no errors, hence error message should be empty
                 Assert.AreEqual(0, errors.Count);
-                Assert.IsEmpty(schemaCompareOperation.ErrorMessage, "Error message should be empty as the warnings being excluded");
+                Assert.IsNull(schemaCompareOperation.ErrorMessage, "Error message should be empty as the warnings being excluded");
             }
             finally
             {
@@ -977,7 +977,7 @@ WITH VALUES
             Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
             Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
             Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
-            Assert.IsEmpty(schemaCompareOperation.ErrorMessage);
+            Assert.IsNull(schemaCompareOperation.ErrorMessage);
 
             // create Diff Entry from Difference
             DiffEntry diff = SchemaCompareUtils.CreateDiffEntry(schemaCompareOperation.ComparisonResult.Differences.First(), null);
@@ -1020,7 +1020,7 @@ WITH VALUES
             Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
             Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
             Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
-            Assert.IsEmpty(schemaCompareOperation.ErrorMessage);
+            Assert.IsNull(schemaCompareOperation.ErrorMessage);
 
             SchemaCompareGenerateScriptOperation generateScriptOperation = new SchemaCompareGenerateScriptOperation(generateScriptParams, schemaCompareOperation.ComparisonResult);
             generateScriptOperation.Execute(TaskExecutionMode.Script);

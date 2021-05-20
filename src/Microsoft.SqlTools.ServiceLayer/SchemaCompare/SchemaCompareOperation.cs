@@ -123,7 +123,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 // Appending the set of errors that are stopping the schema compare to the ErrorMessage
                 // GetErrors return all type of warnings, and error messages. Only filtering the error type messages here
                 var errorsList = ComparisonResult.GetErrors().Where(x => x.MessageType.Equals(Microsoft.SqlServer.Dac.DacMessageType.Error)).Select(e => e.Message).Distinct().ToList();
-                ErrorMessage = string.Join("\n", errorsList);
+                if (errorsList.Count > 0)
+                {
+                    ErrorMessage = string.Join("\n", errorsList);
+                }
             }
             catch (Exception e)
             {
