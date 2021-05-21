@@ -138,6 +138,7 @@ END
                 SchemaCompareOperation schemaCompareOperation1 = new SchemaCompareOperation(schemaCompareParams1, null, null);
                 schemaCompareOperation1.Execute(TaskExecutionMode.Execute);
                 Assert.True(schemaCompareOperation1.ComparisonResult.IsEqual);
+                Assert.IsNull(schemaCompareOperation1.ErrorMessage);
 
                 var schemaCompareParams2 = new SchemaCompareParams
                 {
@@ -150,6 +151,7 @@ END
                 schemaCompareOperation2.Execute(TaskExecutionMode.Execute);
                 Assert.False(schemaCompareOperation2.ComparisonResult.IsEqual);
                 Assert.NotNull(schemaCompareOperation2.ComparisonResult.Differences);
+                Assert.IsNull(schemaCompareOperation2.ErrorMessage);
 
                 // cleanup
                 SchemaCompareTestUtils.VerifyAndCleanup(sourceDacpacFilePath);
@@ -193,6 +195,7 @@ END
                 Assert.True(schemaCompareOperation1.ComparisonResult.IsValid);
                 Assert.True(schemaCompareOperation1.ComparisonResult.IsEqual);
                 Assert.NotNull(schemaCompareOperation1.ComparisonResult.Differences);
+                Assert.IsNull(schemaCompareOperation1.ErrorMessage);
 
                 var schemaCompareParams2 = new SchemaCompareParams
                 {
@@ -205,6 +208,7 @@ END
                 schemaCompareOperation2.Execute(TaskExecutionMode.Execute);
                 Assert.False(schemaCompareOperation2.ComparisonResult.IsEqual);
                 Assert.NotNull(schemaCompareOperation2.ComparisonResult.Differences);
+                Assert.IsNull(schemaCompareOperation2.ErrorMessage);
             }
             finally
             {
@@ -247,6 +251,7 @@ END
                 Assert.True(schemaCompareOperation1.ComparisonResult.IsValid);
                 Assert.True(schemaCompareOperation1.ComparisonResult.IsEqual);
                 Assert.NotNull(schemaCompareOperation1.ComparisonResult.Differences);
+                Assert.IsNull(schemaCompareOperation1.ErrorMessage);
 
                 // generate script
                 var generateScriptParams1 = new SchemaCompareGenerateScriptParams
@@ -283,6 +288,7 @@ END
                 Assert.True(schemaCompareOperation2.ComparisonResult.IsValid);
                 Assert.False(schemaCompareOperation2.ComparisonResult.IsEqual);
                 Assert.NotNull(schemaCompareOperation2.ComparisonResult.Differences);
+                Assert.IsNull(schemaCompareOperation2.ErrorMessage);
 
                 // generate script
                 var generateScriptParams2 = new SchemaCompareGenerateScriptParams
