@@ -17,6 +17,11 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
     [Export(typeof(IDataSourceFactory))]
     public class DataSourceFactory : IDataSourceFactory
     {
+        private const string KustoProviderName = "KUSTO";
+        private const string LogAnalyticsProviderName = "LogAnalytics";
+        private const string KustoProviderDescription = "Microsoft Azure Data Explorer";
+        private const string LogAnalyticsProviderDescription = "Microsoft Azure Monitor Explorer";
+        
         public IDataSource Create(ConnectionDetails connectionDetails, string ownerUri)
         {
             var dataSourceType = GetDataSourceType(connectionDetails.ServerName);
@@ -142,6 +147,16 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 default:
                     throw new ArgumentException($@"Unsupported data source type ""{dataSourceType}""", nameof(dataSourceType));
             }
+        }
+
+        public static string GetProviderName()
+        {
+            return Program.ServiceName.Contains("Kusto") ? KustoProviderName : LogAnalyticsProviderName;
+        }
+
+        public static string GetProviderDescription()
+        {
+            return Program.ServiceName.Contains("Kusto") ? KustoProviderDescription : LogAnalyticsProviderDescription;
         }
     }
 }

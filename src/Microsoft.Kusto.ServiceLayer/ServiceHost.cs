@@ -10,6 +10,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Kusto.ServiceLayer.Connection;
+using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
@@ -27,10 +28,6 @@ namespace Microsoft.Kusto.ServiceLayer
     /// </summary>
     public sealed class ServiceHost : ServiceHostBase
     {
-        private const string KustoProviderName = "KUSTO";
-        private const string LogAnalyticsProviderName = "LogAnalytics";
-        private const string KustoProviderDescription = "Microsoft Azure Data Explorer";
-        private const string LogAnalyticsProviderDescription = "Microsoft Azure Monitor Explorer";
         private const string ProviderProtocolVersion = "1.0";
 
         /// <summary>
@@ -201,18 +198,8 @@ namespace Microsoft.Kusto.ServiceLayer
         /// </summary>
         private async Task HandleCapabilitiesRequest(CapabilitiesRequest initializeParams, RequestContext<CapabilitiesResult> requestContext)
         {
-            string providerName;
-            string providerDescription;
-            if (Program.ServiceName.Contains("Kusto"))
-            {
-                providerName = KustoProviderName;
-                providerDescription = KustoProviderDescription;
-            }
-            else
-            {
-                providerName = LogAnalyticsProviderName;
-                providerDescription = LogAnalyticsProviderDescription;
-            }
+            string providerName = DataSourceFactory.GetProviderName();
+            string providerDescription = DataSourceFactory.GetProviderDescription();
 
             var capabilitiesResult = new CapabilitiesResult
             {
