@@ -24,7 +24,7 @@
     <ProjectReference Include="..\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Localization\sr.resx" />
+    <EmbeddedResource Include="Localization\*.resx" />
     <None Include="Localization\sr.strings" />
   </ItemGroup>
 </Project>
