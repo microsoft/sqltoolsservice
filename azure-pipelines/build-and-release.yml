@@ -18,7 +18,7 @@ stages:
   - Build
   condition: and(succeeded(), eq(variables['RELEASE'], 'true'))
   pool:
-    vmImage: 'Ubuntu-16.04'
+    vmImage: 'ubuntu-latest'
   jobs:
   - job: Release
     steps:
