@@ -19,6 +19,7 @@ using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Migration.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlAssessment;
 using Microsoft.Win32.SafeHandles;
+using Microsoft.SqlServer.DataCollection.Common;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
@@ -186,6 +187,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
 
         internal async Task<List<MigrationAssessmentInfo>> GetAssessmentItems(SqlObjectLocator target, string connectionString)
         {
+            SqlAssessmentConfiguration.EnableLocalLogging = true;
+            SqlAssessmentConfiguration.EnableReportCreation = true;
             DmaEngine engine = new DmaEngine(connectionString);
             var assessmentResults = await engine.GetTargetAssessmentResultsList();
 
