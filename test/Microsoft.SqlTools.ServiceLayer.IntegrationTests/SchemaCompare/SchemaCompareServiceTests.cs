@@ -402,6 +402,8 @@ WITH VALUES
                 Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
                 Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
                 Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
+                Assert.IsNull(schemaCompareOperation.ErrorMessage);
+
                 var enumerator = schemaCompareOperation.ComparisonResult.Differences.GetEnumerator();
                 enumerator.MoveNext();
                 Assert.True(enumerator.Current.SourceObject.Name.ToString().Equals("[dbo].[table1]"));
@@ -426,6 +428,7 @@ WITH VALUES
                 Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
                 Assert.True(schemaCompareOperation.ComparisonResult.IsEqual);
                 Assert.That(schemaCompareOperation.ComparisonResult.Differences, Is.Empty);
+                Assert.IsNull(schemaCompareOperation.ErrorMessage);
             }
             finally
             {
@@ -736,6 +739,7 @@ WITH VALUES
                 }
 
                 Assert.Null(schemaCompareOperation.ComparisonResult.Differences);
+                Assert.AreEqual("The operation was canceled.", schemaCompareOperation.ErrorMessage);
             }
             finally
             {
@@ -851,6 +855,7 @@ WITH VALUES
                 Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
                 Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
                 Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
+                Assert.IsNull(schemaCompareOperation.ErrorMessage);
 
                 // try to exclude
                 DiffEntry t2Diff = SchemaCompareUtils.CreateDiffEntry(schemaCompareOperation.ComparisonResult.Differences.Where(x => x.SourceObject != null && x.SourceObject.Name.Parts[1] == "t2").First(), null);
@@ -914,6 +919,57 @@ WITH VALUES
             }
         }
 
+        /// <summary>
+        /// Verify the schema compare warning messages being excluded
+        /// </summary>
+        [Test]
+        public async Task VerifySchemaCompareWarningsBeingExcluded()
+        {
+            var result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "SchemaCompareSource");
+            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareTarget");
+
+            try
+            {
+                SchemaCompareEndpointInfo sourceInfo = new SchemaCompareEndpointInfo();
+                SchemaCompareEndpointInfo targetInfo = new SchemaCompareEndpointInfo();
+
+                sourceInfo.EndpointType = SchemaCompareEndpointType.Database;
+                sourceInfo.DatabaseName = sourceDb.DatabaseName;
+                targetInfo.EndpointType = SchemaCompareEndpointType.Database;
+                targetInfo.DatabaseName = targetDb.DatabaseName;
+
+                var schemaCompareParams = new SchemaCompareParams
+                {
+                    SourceEndpointInfo = sourceInfo,
+                    TargetEndpointInfo = targetInfo
+                };
+
+                // Do Schema compare
+                SchemaCompareOperation schemaCompareOperation = new SchemaCompareOperation(schemaCompareParams, result.ConnectionInfo, result.ConnectionInfo);
+                schemaCompareOperation.Execute(TaskExecutionMode.Execute);
+
+                // Expected 'data loss could occur' warning messages while comparing 
+                var warnings = schemaCompareOperation.ComparisonResult.GetErrors().Where(x => x.MessageType.Equals(Microsoft.SqlServer.Dac.DacMessageType.Warning)).Select(e => e.Message).Distinct().ToList();
+                var errors = schemaCompareOperation.ComparisonResult.GetErrors().Where(x => x.MessageType.Equals(Microsoft.SqlServer.Dac.DacMessageType.Error)).Select(e => e.Message).Distinct().ToList();
+
+                // Assertions: 
+                // Target database have two tables created and will be shown as two differnces
+                Assert.AreEqual(2, schemaCompareOperation.ComparisonResult.Differences.Count());
+                // These two warnings are "data loss could occur" messages for two tables 
+                Assert.AreEqual(2, warnings.Count);
+                // SC is successful with no errors, hence error message should be empty
+                Assert.AreEqual(0, errors.Count);
+                Assert.IsNull(schemaCompareOperation.ErrorMessage, "Error message should be empty as the warnings being excluded");
+            }
+            finally
+            {
+                // cleanup
+                sourceDb.Cleanup();
+                targetDb.Cleanup();
+            }
+        }
+
         private void ValidateSchemaCompareWithExcludeIncludeResults(SchemaCompareOperation schemaCompareOperation)
         {
             schemaCompareOperation.Execute(TaskExecutionMode.Execute);
@@ -921,6 +977,7 @@ WITH VALUES
             Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
             Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
             Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
+            Assert.IsNull(schemaCompareOperation.ErrorMessage);
 
             // create Diff Entry from Difference
             DiffEntry diff = SchemaCompareUtils.CreateDiffEntry(schemaCompareOperation.ComparisonResult.Differences.First(), null);
@@ -963,6 +1020,7 @@ WITH VALUES
             Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
             Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
             Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
+            Assert.IsNull(schemaCompareOperation.ErrorMessage);
 
             SchemaCompareGenerateScriptOperation generateScriptOperation = new SchemaCompareGenerateScriptOperation(generateScriptParams, schemaCompareOperation.ComparisonResult);
             generateScriptOperation.Execute(TaskExecutionMode.Script);
