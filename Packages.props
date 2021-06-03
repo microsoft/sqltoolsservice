@@ -23,7 +23,7 @@
 		<PackageReference Update="Microsoft.Azure.Kusto.Data" Version="9.0.4" />
 		<PackageReference Update="Microsoft.Azure.Kusto.Language" Version="9.0.4"/>
 		<PackageReference Update="Microsoft.SqlServer.Assessment"  Version="[1.0.305]" />
-		<PackageReference Update="Microsoft.SqlServer.Migration.Assessment"  Version="1.0.20210319.291" />
+		<PackageReference Update="Microsoft.SqlServer.Migration.Assessment"  Version="1.0.20210510.492" />
 		<PackageReference Update="Microsoft.Azure.OperationalInsights" Version="1.0.0" />
 
 		<PackageReference Update="Moq" Version="4.8.2" />
