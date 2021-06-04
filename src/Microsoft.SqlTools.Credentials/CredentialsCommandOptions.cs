@@ -9,9 +9,9 @@ namespace Microsoft.SqlTools.Credentials.Utility
 {
     class CredentialsCommandOptions : CommandOptions
     {
-        internal const string ServiceName = "MicrosoftSqlToolsCredentials.exe";
+        internal const string CredentialsServiceName = "MicrosoftSqlToolsCredentials.exe";
 
-        public CredentialsCommandOptions(string[] args) : base(args, ServiceName)
+        public CredentialsCommandOptions(string[] args) : base(args, CredentialsServiceName)
         {
         }
 
