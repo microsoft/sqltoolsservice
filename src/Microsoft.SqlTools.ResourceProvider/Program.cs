@@ -16,8 +16,6 @@ namespace Microsoft.SqlTools.ResourceProvider
     /// </summary>
     internal class Program
     {
-        private const string ServiceName = "SqlToolsResourceProviderService.exe";
-
         /// <summary>
         /// Main entry point into the Credentials Service Host
         /// </summary>
@@ -26,7 +24,7 @@ namespace Microsoft.SqlTools.ResourceProvider
             try
             {
                 // read command-line arguments
-                CommandOptions commandOptions = new CommandOptions(args, ServiceName);
+                ResourceProviderCommandOptions commandOptions = new ResourceProviderCommandOptions(args);
                 if (commandOptions.ShouldExit)
                 {
                     return;

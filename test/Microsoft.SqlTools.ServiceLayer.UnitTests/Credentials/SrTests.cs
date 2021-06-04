@@ -5,6 +5,8 @@
 using Microsoft.SqlTools.Credentials.Utility;
 using NUnit.Framework;
 
+using CredSR = Microsoft.SqlTools.Credentials.SR;
+
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
 {
     /// <summary>
@@ -20,15 +22,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
         [Test]
         public void SrStringsTest()
         {
-            var culture = Microsoft.SqlTools.Credentials.SR.Culture;
-            Microsoft.SqlTools.Credentials.SR.Culture = culture;
-            Assert.True(Microsoft.SqlTools.Credentials.SR.Culture == culture);
+            var culture = CredSR.Culture;
+            CredSR.Culture = culture;
+            Assert.True(CredSR.Culture == culture);
 
-            var CredentialsServiceInvalidCriticalHandle = Microsoft.SqlTools.Credentials.SR.CredentialsServiceInvalidCriticalHandle;
-            var CredentialsServicePasswordLengthExceeded = Microsoft.SqlTools.Credentials.SR.CredentialsServicePasswordLengthExceeded;
-            var CredentialsServiceTargetForDelete = Microsoft.SqlTools.Credentials.SR.CredentialsServiceTargetForDelete;
-            var CredentialsServiceTargetForLookup = Microsoft.SqlTools.Credentials.SR.CredentialsServiceTargetForLookup;
-            var CredentialServiceWin32CredentialDisposed = Microsoft.SqlTools.Credentials.SR.CredentialServiceWin32CredentialDisposed;
+            var CredentialsServiceInvalidCriticalHandle = CredSR.CredentialsServiceInvalidCriticalHandle;
+            var CredentialsServicePasswordLengthExceeded = CredSR.CredentialsServicePasswordLengthExceeded;
+            var CredentialsServiceTargetForDelete = CredSR.CredentialsServiceTargetForDelete;
+            var CredentialsServiceTargetForLookup = CredSR.CredentialsServiceTargetForLookup;
+            var CredentialServiceWin32CredentialDisposed = CredSR.CredentialServiceWin32CredentialDisposed;
         }
 
         [Test]
@@ -37,10 +39,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
             string locale = "en";
             var args = new string[] { "--locale", locale };
             CredentialsCommandOptions options = new CredentialsCommandOptions(args);
-            Assert.AreEqual(Microsoft.SqlTools.Credentials.SR.Culture.Name, options.Locale);
+            Assert.AreEqual(CredSR.Culture.Name, options.Locale);
             Assert.AreEqual(options.Locale, locale);
 
-            var TestLocalizationConstant = Microsoft.SqlTools.Credentials.SR.TestLocalizationConstant;
+            var TestLocalizationConstant = CredSR.TestLocalizationConstant;
             Assert.AreEqual("test", TestLocalizationConstant);
         }
 
@@ -50,10 +52,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
             string locale = "es";
             var args = new string[] { "--locale", locale };
             CredentialsCommandOptions options = new CredentialsCommandOptions(args);
-            Assert.AreEqual(Microsoft.SqlTools.Credentials.SR.Culture.Name, options.Locale);
+            Assert.AreEqual(CredSR.Culture.Name, options.Locale);
             Assert.AreEqual(options.Locale, locale);
 
-            var TestLocalizationConstant = Microsoft.SqlTools.Credentials.SR.TestLocalizationConstant;
+            var TestLocalizationConstant = CredSR.TestLocalizationConstant;
             Assert.AreEqual("prueba", TestLocalizationConstant);
 
             // Reset the locale
@@ -63,13 +65,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
         [Test]
         public void SrStringsTestWithNullLocalization()
         {
-            Microsoft.SqlTools.Credentials.SR.Culture = null;
+            CredSR.Culture = null;
             var args = new string[] { "" };
             CredentialsCommandOptions options = new CredentialsCommandOptions(args);
-            Assert.Null(Microsoft.SqlTools.Credentials.SR.Culture);
+            Assert.Null(CredSR.Culture);
             Assert.AreEqual("", options.Locale);
 
-            var TestLocalizationConstant = Microsoft.SqlTools.Credentials.SR.TestLocalizationConstant;
+            var TestLocalizationConstant = CredSR.TestLocalizationConstant;
             Assert.AreEqual("test", TestLocalizationConstant);
         }
     }

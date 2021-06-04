@@ -17,7 +17,6 @@ namespace Microsoft.SqlTools.Credentials
     /// </summary>
     internal class Program
     {
-
         /// <summary>
         /// Main entry point into the Credentials Service Host
         /// </summary>
