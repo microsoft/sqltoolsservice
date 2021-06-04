@@ -23,10 +23,6 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.ServiceHost
 
             var TestLocalizationConstant = SR.TestLocalizationConstant;
             Assert.AreEqual("test", TestLocalizationConstant);
-
-            // Test for unique string in Kusto ServiceLayer.
-            var QueryServiceQueryInvalidOwnerUri = SR.QueryServiceQueryInvalidOwnerUri;
-            Assert.AreEqual("This editor is not connected to a database", QueryServiceQueryInvalidOwnerUri);
         }
 
         [Test]
@@ -40,10 +36,6 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.ServiceHost
 
             var TestLocalizationConstant = SR.TestLocalizationConstant;
             Assert.AreEqual("prueba", TestLocalizationConstant);
-
-            // Test for unique string in Kusto ServiceLayer.
-            var QueryServiceQueryInvalidOwnerUri = SR.QueryServiceQueryInvalidOwnerUri;
-            Assert.AreEqual("Este editor no está conectado a una base de datos", QueryServiceQueryInvalidOwnerUri);
 
             // Reset the locale
             SrStringsTestWithEnLocalization(); 
@@ -60,10 +52,6 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.ServiceHost
 
             var TestLocalizationConstant = SR.TestLocalizationConstant;
             Assert.AreEqual("test", TestLocalizationConstant);
-
-            // Test for unique string in Kusto ServiceLayer.
-            var QueryServiceQueryInvalidOwnerUri = SR.QueryServiceQueryInvalidOwnerUri;
-            Assert.AreEqual("This editor is not connected to a database", QueryServiceQueryInvalidOwnerUri);
         }
     }
 }

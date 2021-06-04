@@ -32,3 +32,8 @@ CredentialsServiceTargetForDelete = Target must be specified to delete a credent
 CredentialsServiceTargetForLookup = Target must be specified to check existance of a credential
 
 CredentialServiceWin32CredentialDisposed = Win32Credential object is already disposed
+
+############################################################################
+# Workspace Service
+
+TestLocalizationConstant = test

@@ -27,6 +27,11 @@
         <target state="new">Win32Credential object is already disposed</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="TestLocalizationConstant">
+        <source>test</source>
+        <target state="new">test</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -17,7 +17,6 @@ namespace Microsoft.SqlTools.Credentials
     /// </summary>
     internal class Program
     {
-        private const string ServiceName = "MicrosoftSqlToolsCredentials.exe";
 
         /// <summary>
         /// Main entry point into the Credentials Service Host
@@ -27,7 +26,7 @@ namespace Microsoft.SqlTools.Credentials
             try
             {
                 // read command-line arguments
-                CommandOptions commandOptions = new CommandOptions(args, ServiceName);
+                CredentialsCommandOptions commandOptions = new CredentialsCommandOptions(args);
                 if (commandOptions.ShouldExit)
                 {
                     return;

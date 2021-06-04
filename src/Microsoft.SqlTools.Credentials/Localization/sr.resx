@@ -137,4 +137,8 @@
     <value>Win32Credential object is already disposed</value>
     <comment></comment>
   </data>
+  <data name="TestLocalizationConstant" xml:space="preserve">
+    <value>test</value>
+    <comment></comment>
+  </data>
 </root>

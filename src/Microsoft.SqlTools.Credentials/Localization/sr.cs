@@ -69,6 +69,14 @@ namespace Microsoft.SqlTools.Credentials
             }
         }
 
+        public static string TestLocalizationConstant
+        {
+            get
+            {
+                return Keys.GetString(Keys.TestLocalizationConstant);
+            }
+        }
+
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class Keys
         {
@@ -90,6 +98,9 @@ namespace Microsoft.SqlTools.Credentials
 
 
             public const string CredentialServiceWin32CredentialDisposed = "CredentialServiceWin32CredentialDisposed";
+
+
+            public const string TestLocalizationConstant = "TestLocalizationConstant";
 
 
             private Keys()

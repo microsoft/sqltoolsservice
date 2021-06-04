@@ -32,6 +32,12 @@
         <note>
         </note>
       </trans-unit>
+      <trans-unit id="TestLocalizationConstant">
+        <source>test</source>
+        <target state="translated">prueba</target>
+        <note>
+        </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
