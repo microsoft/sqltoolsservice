@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en" target-language="zh-Hans">
+    <body>
+      <trans-unit id="CredentialsServiceInvalidCriticalHandle">
+        <source>Invalid CriticalHandle!</source>
+        <target state="translated">无效的 CriticalHandle!</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="CredentialsServicePasswordLengthExceeded">
+        <source>The password has exceeded 512 bytes</source>
+        <target state="translated">密码已超过 512 字节</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="CredentialsServiceTargetForDelete">
+        <source>Target must be specified to delete a credential</source>
+        <target state="translated">必须指定目标才能删除凭据</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="CredentialsServiceTargetForLookup">
+        <source>Target must be specified to check existance of a credential</source>
+        <target state="translated">必须指定目标以检查凭据的存在</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="CredentialServiceWin32CredentialDisposed">
+        <source>Win32Credential object is already disposed</source>
+        <target state="translated">Win32 信用对象已处理</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="TestLocalizationConstant">
+        <source>test</source>
+        <target state="translated">测试</target>
+        <note>
+        </note>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

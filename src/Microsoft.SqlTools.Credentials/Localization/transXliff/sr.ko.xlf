@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en" target-language="ko">
+    <body>
+      <trans-unit id="CredentialsServiceInvalidCriticalHandle">
+        <source>Invalid CriticalHandle!</source>
+        <target state="translated">무효 크리티컬 핸들!</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="CredentialsServicePasswordLengthExceeded">
+        <source>The password has exceeded 512 bytes</source>
+        <target state="translated">암호가 512바이트를 초과했습니다.</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="CredentialsServiceTargetForDelete">
+        <source>Target must be specified to delete a credential</source>
+        <target state="translated">자격 증명을 삭제하려면 대상을 지정해야 합니다.</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="CredentialsServiceTargetForLookup">
+        <source>Target must be specified to check existance of a credential</source>
+        <target state="translated">자격 증명의 존재를 확인하려면 대상을 지정해야 합니다.</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="CredentialServiceWin32CredentialDisposed">
+        <source>Win32Credential object is already disposed</source>
+        <target state="translated">Win32자격 증명 개체가 이미 삭제되었습니다.</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="TestLocalizationConstant">
+        <source>test</source>
+        <target state="translated">테스트</target>
+        <note>
+        </note>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
