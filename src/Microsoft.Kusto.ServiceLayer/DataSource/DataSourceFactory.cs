@@ -18,7 +18,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
     public class DataSourceFactory : IDataSourceFactory
     {
         private const string KustoProviderName = "KUSTO";
-        private const string LogAnalyticsProviderName = "LogAnalytics";
+        private const string LogAnalyticsProviderName = "LOGANALYTICS";
         private const string KustoProviderDescription = "Microsoft Azure Data Explorer";
         private const string LogAnalyticsProviderDescription = "Microsoft Azure Monitor Explorer";
         

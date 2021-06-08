@@ -38,7 +38,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
         private void SetupTableGroups(string workspaceId)
         {
             var workspace = _metadata.Workspaces.First(x => x.Id == workspaceId);
-            DatabaseName = $"{workspace.Name}";
+            DatabaseName = $"{workspace.Name} ({workspace.Id})";
             var metadataTableGroups = _metadata.TableGroups.ToDictionary(x => x.Id);
             
             foreach (string workspaceTableGroup in workspace.TableGroups)
