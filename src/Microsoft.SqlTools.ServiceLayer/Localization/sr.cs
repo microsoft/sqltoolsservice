@@ -22,10 +22,10 @@ namespace Microsoft.SqlTools.ServiceLayer
             {
                 return Keys.Culture;
             }
-            // set
-            // {
-            //     Keys.Culture = value;
-            // }
+            set
+            {
+                Keys.Culture = value;
+            }
         }
 
 
