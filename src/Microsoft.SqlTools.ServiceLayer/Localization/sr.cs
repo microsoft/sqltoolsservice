@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
             set
             {
-                Keys.Culture = value;
+                //Keys.Culture = value;
             }
         }
 
