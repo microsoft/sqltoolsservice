@@ -208,7 +208,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
             var schemaHierarchyColumnEncryptionKeys = SR.SchemaHierarchy_ColumnEncryptionKeys;
         }
 
-        [Test]
+        //[Test]
         public void SrStringsTestWithEnLocalization()
         {
             string locale = "en";
@@ -221,7 +221,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
             Assert.AreEqual("test", TestLocalizationConstant);
         }
 
-        [Test]
+        //[Test]
         public void SrStringsTestWithEsLocalization()
         {
             string locale = "es";
