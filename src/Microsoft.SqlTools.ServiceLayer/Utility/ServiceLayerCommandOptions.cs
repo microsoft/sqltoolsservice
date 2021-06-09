@@ -61,7 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                 LocaleSetter(locale);
 
                 // Setting our internal SR culture to our global culture
-                SR.Culture = CultureInfo.CurrentCulture;
+                // SR.Culture = CultureInfo.CurrentCulture;
             }
             catch (CultureNotFoundException)
             {
