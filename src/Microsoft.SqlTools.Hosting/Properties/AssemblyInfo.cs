@@ -49,3 +49,4 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("MicrosoftSqlToolsServiceLayer")]
 [assembly: InternalsVisibleTo("MicrosoftKustoServiceLayer")]
 [assembly: InternalsVisibleTo("MicrosoftSqlToolsCredentials")]
+[assembly: InternalsVisibleTo("SqlToolsResourceProviderService")]

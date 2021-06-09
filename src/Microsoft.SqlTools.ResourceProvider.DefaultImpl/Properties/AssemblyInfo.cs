@@ -7,12 +7,5 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-[assembly: InternalsVisibleTo("Microsoft.SqlTools.ServiceLayer.UnitTests")]
-[assembly: InternalsVisibleTo("Microsoft.SqlTools.ServiceLayer.IntegrationTests")]
-[assembly: InternalsVisibleTo("Microsoft.SqlTools.ServiceLayer.Test.Common")]
-
-// Allowing internals visible access to Moq library to help testing
-[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
-
 // Allowing internals visible access to Resource Provider to allow for translation.
 [assembly: InternalsVisibleTo("SqlToolsResourceProviderService")]
