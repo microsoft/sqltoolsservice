@@ -29,7 +29,7 @@
     <ProjectReference Include="..\Microsoft.SqlTools.ResourceProvider.DefaultImpl\Microsoft.SqlTools.ResourceProvider.DefaultImpl.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Localization\sr.resx" />
+    <EmbeddedResource Include="Localization\*.resx" />
     <None Include="Localization\sr.strings" />
   </ItemGroup>
 </Project>

@@ -51,7 +51,7 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 		<EmbeddedResource Include="ObjectExplorer\SmoModel\TreeNodeDefinition.xml" />
-		<EmbeddedResource Include="Localization\sr.resx" />
+		<EmbeddedResource Include="Localization\*.resx" />
 		<None Include="Localization\sr.strings" />
 	</ItemGroup>
 	<ItemGroup>
