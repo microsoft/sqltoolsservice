@@ -2,7 +2,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using Microsoft.SqlTools.Credentials.Utility;
+using Microsoft.SqlTools.Hosting.Utility;
 using NUnit.Framework;
 
 using CredSR = Microsoft.SqlTools.Credentials.SR;
@@ -14,6 +14,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
     /// </summary>
     public class SrTests
     {
+        const string CredentialsServiceName = "MicrosoftSqlToolsCredentials.exe";
         /// <summary>
         /// Simple "test" to access string resources
         /// The purpose of this test is for code coverage.  It's probably better to just 
@@ -38,8 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
         {
             string locale = "en";
             var args = new string[] { "--locale", locale };
-            CredentialsCommandOptions options = new CredentialsCommandOptions(args);
-            Assert.AreEqual(CredSR.Culture.Name, options.Locale);
+            CommandOptions options = new CommandOptions(args, CredentialsServiceName);
             Assert.AreEqual(options.Locale, locale);
 
             var CredentialsServiceInvalidCriticalHandle = CredSR.CredentialsServiceInvalidCriticalHandle;
@@ -51,10 +51,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
         {
             string locale = "es";
             var args = new string[] { "--locale", locale };
-            CredentialsCommandOptions options = new CredentialsCommandOptions(args);
-            Assert.AreEqual(CredSR.Culture.Name, options.Locale);
+            CommandOptions options = new CommandOptions(args, CredentialsServiceName);
             Assert.AreEqual(options.Locale, locale);
-
+            
             var CredentialsServiceInvalidCriticalHandle = CredSR.CredentialsServiceInvalidCriticalHandle;
             Assert.AreEqual("CriticalHandle no válido!", CredentialsServiceInvalidCriticalHandle);
 
@@ -67,8 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
         {
             CredSR.Culture = null;
             var args = new string[] { "" };
-            CredentialsCommandOptions options = new CredentialsCommandOptions(args);
-            Assert.Null(CredSR.Culture);
+            CommandOptions options = new CommandOptions(args, CredentialsServiceName);
             Assert.AreEqual("", options.Locale);
 
             var CredentialsServiceInvalidCriticalHandle = CredSR.CredentialsServiceInvalidCriticalHandle;
