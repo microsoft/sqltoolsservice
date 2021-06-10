@@ -24,7 +24,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         
         public IDataSource Create(ConnectionDetails connectionDetails, string ownerUri)
         {
-            var dataSourceType = GetDataSourceType(connectionDetails.ServerName);
+            var dataSourceType = GetDataSourceType();
             switch (dataSourceType)
             {
                 case DataSourceType.Kusto:
@@ -47,11 +47,9 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             }
         }
 
-        private DataSourceType GetDataSourceType(string server)
+        private DataSourceType GetDataSourceType()
         {
-            return Guid.TryParse(server, out _) 
-                ? DataSourceType.LogAnalytics 
-                : DataSourceType.Kusto;
+            return Program.ServiceName.Contains("Kusto") ? DataSourceType.Kusto : DataSourceType.LogAnalytics;
         }
 
         private DataSourceConnectionDetails MapKustoConnectionDetails(ConnectionDetails connectionDetails)
