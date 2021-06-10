@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en" target-language="ko">
+    <body>
+      <trans-unit id="AzureServerNotFound">
+        <source>The server you specified {0} does not exist in any subscription in {1}. Either you have signed in with an incorrect account or your server was removed from subscription(s) in this account. Please check your account and try again.</source>
+        <target state="translated">{0} 지정한 서버는 {1} 구독에 존재하지 않습니다.잘못된 계정으로 로그인했거나 서버가 이 계정의 구독에서 제거되었습니다.계정을 확인하고 다시 시도하십시오.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="AzureSubscriptionFailedErrorMessage">
+        <source>An error occurred while getting Azure subscriptions: {0}</source>
+        <target state="translated">Azure 구독을 가져오는 동안 오류가 발생했습니다: {0}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="DatabaseDiscoveryFailedErrorMessage">
+        <source>An error occurred while getting databases from servers of type {0} from {1}</source>
+        <target state="translated">{1}에서 {0} 유형의 서버에서 데이터베이스를 가져 오는 동안 오류가 발생했습니다.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FirewallRuleAccessForbidden">
+        <source>{0} does not have permission to change the server firewall rule. Try again with a different account that is an Owner or Contributor of the Azure subscription or the server.</source>
+        <target state="translated">{0}에는 서버 방화벽 규칙을 변경할 권한이 없습니다. Azure 구독 또는 서버의 소유자 또는 기여자 인 다른 계정으로 다시 시도하세요.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="InvalidIpAddress">
+        <source>Invalid IP address</source>
+        <target state="translated">잘못된 IP 주소</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="InvalidServerTypeErrorMessage">
+        <source>Server Type is invalid.</source>
+        <target state="translated">서버 유형이 잘못되었습니다.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="LoadingExportableFailedGeneralErrorMessage">
+        <source>A required dll cannot be loaded. Please repair your application.</source>
+        <target state="translated">필요한 dll을 로드할 수 없습니다. 응용 프로그램을 복구하십시오.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FirewallRuleCreationFailed">
+        <source>An error occurred while creating a new firewall rule.</source>
+        <target state="translated">새 방화벽 규칙을 만드는 동안 오류가 발생했습니다.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FirewallRuleUnsupportedConnectionType">
+        <source>Cannot open a firewall rule for the specified connection type</source>
+        <target state="translated">지정된 연결 유형에 대한 방화벽 규칙을 열 수 없습니다.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FirewallRuleCreationFailedWithError">
+        <source>An error occurred while creating a new firewall rule: '{0}'</source>
+        <target state="translated">새 방화벽 규칙을 만드는 동안 오류가 발생했습니다: '{0}'</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="NoSubscriptionsFound">
+        <source>No subscriptions were found for the currently logged in user account.</source>
+        <target state="translated">현재 로그인한 사용자 계정에 대한 구독은 발견되지 않았습니다.</target>
+        <note></note>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
