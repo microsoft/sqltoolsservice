@@ -62,9 +62,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
 
                 // Setting our internal SR culture to our global culture
                 SR.Culture = CultureInfo.CurrentCulture;
-
-                // Setting ManagedBatchParser SR culture to our global culture
-                Microsoft.SqlTools.ManagedBatchParser.SR.Culture = CultureInfo.CurrentCulture;
             }
             catch (CultureNotFoundException)
             {

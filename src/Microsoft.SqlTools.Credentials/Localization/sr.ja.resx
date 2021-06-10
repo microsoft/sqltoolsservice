@@ -132,7 +132,4 @@
   <data name="CredentialServiceWin32CredentialDisposed" xml:space="preserve">
     <value>Win32Credential オブジェクトは既に破棄されています。</value>
   </data>
-  <data name="TestLocalizationConstant" xml:space="preserve">
-    <value>テスト</value>
-  </data>
 </root>

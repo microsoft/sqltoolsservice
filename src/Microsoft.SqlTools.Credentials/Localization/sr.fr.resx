@@ -132,7 +132,4 @@
   <data name="CredentialServiceWin32CredentialDisposed" xml:space="preserve">
     <value>L’objet Win32Credential est déjà supprimé</value>
   </data>
-  <data name="TestLocalizationConstant" xml:space="preserve">
-    <value>test</value>
-  </data>
 </root>

@@ -132,7 +132,4 @@
   <data name="CredentialServiceWin32CredentialDisposed" xml:space="preserve">
     <value>Win32 信用物件已處理</value>
   </data>
-  <data name="TestLocalizationConstant" xml:space="preserve">
-    <value>測試</value>
-  </data>
 </root>

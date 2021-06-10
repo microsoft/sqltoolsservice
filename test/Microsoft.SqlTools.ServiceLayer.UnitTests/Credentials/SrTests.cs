@@ -42,8 +42,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
             Assert.AreEqual(CredSR.Culture.Name, options.Locale);
             Assert.AreEqual(options.Locale, locale);
 
-            var TestLocalizationConstant = CredSR.TestLocalizationConstant;
-            Assert.AreEqual("test", TestLocalizationConstant);
+            var CredentialsServiceInvalidCriticalHandle = CredSR.CredentialsServiceInvalidCriticalHandle;
+            Assert.AreEqual("Invalid CriticalHandle!", CredentialsServiceInvalidCriticalHandle);
         }
 
         [Test]
@@ -55,8 +55,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
             Assert.AreEqual(CredSR.Culture.Name, options.Locale);
             Assert.AreEqual(options.Locale, locale);
 
-            var TestLocalizationConstant = CredSR.TestLocalizationConstant;
-            Assert.AreEqual("prueba", TestLocalizationConstant);
+            var CredentialsServiceInvalidCriticalHandle = CredSR.CredentialsServiceInvalidCriticalHandle;
+            Assert.AreEqual("CriticalHandle no válido!", CredentialsServiceInvalidCriticalHandle);
 
             // Reset the locale
             SrStringsTestWithEnLocalization(); 
@@ -71,8 +71,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
             Assert.Null(CredSR.Culture);
             Assert.AreEqual("", options.Locale);
 
-            var TestLocalizationConstant = CredSR.TestLocalizationConstant;
-            Assert.AreEqual("test", TestLocalizationConstant);
+            var CredentialsServiceInvalidCriticalHandle = CredSR.CredentialsServiceInvalidCriticalHandle;
+            Assert.AreEqual("Invalid CriticalHandle!", CredentialsServiceInvalidCriticalHandle);
         }
     }
 }

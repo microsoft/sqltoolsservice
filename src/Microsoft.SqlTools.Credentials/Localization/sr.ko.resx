@@ -132,7 +132,4 @@
   <data name="CredentialServiceWin32CredentialDisposed" xml:space="preserve">
     <value>Win32자격 증명 개체가 이미 삭제되었습니다.</value>
   </data>
-  <data name="TestLocalizationConstant" xml:space="preserve">
-    <value>테스트</value>
-  </data>
 </root>

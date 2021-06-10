@@ -13,6 +13,3 @@ using System.Runtime.InteropServices;
 
 // Allowing internals visible access to Moq library to help testing
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
-
-// Allowing internals visible access to Resource Provider to allow for translation.
-[assembly: InternalsVisibleTo("SqlToolsResourceProviderService")]

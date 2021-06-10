@@ -132,7 +132,4 @@
   <data name="CredentialServiceWin32CredentialDisposed" xml:space="preserve">
     <value>Win32Креденциальный объект уже утилизирован</value>
   </data>
-  <data name="TestLocalizationConstant" xml:space="preserve">
-    <value>тест</value>
-  </data>
 </root>
