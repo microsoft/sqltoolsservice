@@ -1,0 +1,165 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="CredentialsServiceInvalidCriticalHandle" xml:space="preserve">
+    <value>Ungültiges CriticalHandle!</value>
+  </data>
+  <data name="CredentialsServicePasswordLengthExceeded" xml:space="preserve">
+    <value>Das Passwort hat 512 Byte überschritten</value>
+  </data>
+  <data name="CredentialsServiceTargetForDelete" xml:space="preserve">
+    <value>Ziel muss angegeben werden, um Anmeldeinformationen zu löschen</value>
+  </data>
+  <data name="CredentialsServiceTargetForLookup" xml:space="preserve">
+    <value>Das Ziel muss angegeben werden, um die Existenz eines Berechtigungsnachweises zu prüfen</value>
+  </data>
+  <data name="CredentialServiceWin32CredentialDisposed" xml:space="preserve">
+    <value>Win32Credential-Objekt ist bereits verworfen</value>
+  </data>
+  <data name="HostingUnexpectedEndOfStream" xml:space="preserve">
+    <value>Der Eingangsstream von MessageReader wurde unerwartet beendet und beendet</value>
+  </data>
+  <data name="HostingHeaderMissingColon" xml:space="preserve">
+    <value>Der Nachrichtenkopf muss Schlüssel und Wert mit ':' trennen.</value>
+  </data>
+  <data name="HostingHeaderMissingContentLengthHeader" xml:space="preserve">
+    <value>Schwerwiegender Fehler: Content-Length-Header muss bereitgestellt werden</value>
+  </data>
+  <data name="HostingHeaderMissingContentLengthValue" xml:space="preserve">
+    <value>Schwerwiegender Fehler: Der Content-Length-Wert ist keine ganze Zahl</value>
+  </data>
+  <data name="ServiceAlreadyRegistered" xml:space="preserve">
+    <value>Der Dienst kann nicht für den Typ {0} registriert werden, ein oder mehrere Dienste sind bereits registriert.</value>
+  </data>
+  <data name="MultipleServicesFound" xml:space="preserve">
+    <value>Mehrere Dienste für Typ {0} gefunden, erwartet nur 1</value>
+  </data>
+  <data name="IncompatibleServiceForExtensionLoader" xml:space="preserve">
+    <value>Dienst vom Typ {0} kann nicht von ExtensionLoader &lt;{1}&gt; erstellt werden</value>
+  </data>
+  <data name="ServiceProviderNotSet" xml:space="preserve">
+    <value>SetServiceProvider() wurde nicht aufgerufen, um den erforderlichen Dienstanbieter einzurichten.</value>
+  </data>
+  <data name="ServiceNotFound" xml:space="preserve">
+    <value>Der Dienst{0} wurde im Dienstanbieter nicht gefunden.</value>
+  </data>
+  <data name="ServiceNotOfExpectedType" xml:space="preserve">
+    <value>Der Dienst vom Typ {0} ist nicht mit registriertem Typ {1} kompatibel</value>
+  </data>
+</root>

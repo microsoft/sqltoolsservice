@@ -221,7 +221,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
             Assert.AreEqual("test", TestLocalizationConstant);
         }
 
-        // [Test]
+        [Test]
         public void SrStringsTestWithEsLocalization()
         {
             string locale = "es";
