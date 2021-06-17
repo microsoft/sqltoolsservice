@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en" target-language="zh-Hant">
+    <body>
+      <trans-unit id="AzureServerNotFound">
+        <source>The server you specified {0} does not exist in any subscription in {1}. Either you have signed in with an incorrect account or your server was removed from subscription(s) in this account. Please check your account and try again.</source>
+        <target state="translated">你指定的服務器{0}不存在於{1}的任何訂閱中。要么你用一個錯誤的賬戶登錄，要么你的服務器被從這個賬戶的訂閱中刪除。請檢查您的賬戶並重試。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="AzureSubscriptionFailedErrorMessage">
+        <source>An error occurred while getting Azure subscriptions: {0}</source>
+        <target state="translated">在獲取Azure訂閱時，發生了一個錯誤。{0}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="DatabaseDiscoveryFailedErrorMessage">
+        <source>An error occurred while getting databases from servers of type {0} from {1}</source>
+        <target state="translated">在从{1}的{0}类型的服务器中获取数据库时发生了错误。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FirewallRuleAccessForbidden">
+        <source>{0} does not have permission to change the server firewall rule. Try again with a different account that is an Owner or Contributor of the Azure subscription or the server.</source>
+        <target state="translated">在從{1}的{0}類型的服務器中獲取數據庫時發生了錯誤。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="InvalidIpAddress">
+        <source>Invalid IP address</source>
+        <target state="translated">無效的IP地址</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="InvalidServerTypeErrorMessage">
+        <source>Server Type is invalid.</source>
+        <target state="translated">服務器類型是無效的。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="LoadingExportableFailedGeneralErrorMessage">
+        <source>A required dll cannot be loaded. Please repair your application.</source>
+        <target state="translated">無法加載一個所需的dll。請修復您的應用程序。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FirewallRuleCreationFailed">
+        <source>An error occurred while creating a new firewall rule.</source>
+        <target state="translated">在創建一個新的防火牆規則時發生了錯誤。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FirewallRuleUnsupportedConnectionType">
+        <source>Cannot open a firewall rule for the specified connection type</source>
+        <target state="translated">無法為指定的連接類型打開一個防火牆規則。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FirewallRuleCreationFailedWithError">
+        <source>An error occurred while creating a new firewall rule: '{0}'</source>
+        <target state="translated">在創建新的防火牆規則時發生了一個錯誤：'{0}'</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="NoSubscriptionsFound">
+        <source>No subscriptions were found for the currently logged in user account.</source>
+        <target state="translated">沒有發現當前登錄的用戶賬戶有任何訂閱。</target>
+        <note></note>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

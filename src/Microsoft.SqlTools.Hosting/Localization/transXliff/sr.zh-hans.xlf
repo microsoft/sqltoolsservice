@@ -1,0 +1,97 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en" target-language="zh-Hans">
+    <body>
+      <trans-unit id="CredentialsServiceInvalidCriticalHandle">
+        <source>Invalid CriticalHandle!</source>
+        <target state="translated">无效的 CriticalHandle!</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="CredentialsServicePasswordLengthExceeded">
+        <source>The password has exceeded 512 bytes</source>
+        <target state="translated">密码已超过 512 字节</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="CredentialsServiceTargetForDelete">
+        <source>Target must be specified to delete a credential</source>
+        <target state="translated">必须指定目标才能删除凭据</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="CredentialsServiceTargetForLookup">
+        <source>Target must be specified to check existance of a credential</source>
+        <target state="translated">必须指定目标以检查凭据的存在</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="CredentialServiceWin32CredentialDisposed">
+        <source>Win32Credential object is already disposed</source>
+        <target state="translated">Win32 信用对象已处理</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="HostingUnexpectedEndOfStream">
+        <source>MessageReader's input stream ended unexpectedly, terminating</source>
+        <target state="translated">消息阅读器的输入流意外结束，终止</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="HostingHeaderMissingColon">
+        <source>Message header must separate key and value using ':'</source>
+        <target state="translated">消息标题必须使用':'分离密钥和值</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="HostingHeaderMissingContentLengthHeader">
+        <source>Fatal error: Content-Length header must be provided</source>
+        <target state="translated">致命错误：必须提供内容长度标题</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="HostingHeaderMissingContentLengthValue">
+        <source>Fatal error: Content-Length value is not an integer</source>
+        <target state="translated">致命错误：内容长度值不是整数</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ServiceAlreadyRegistered">
+        <source>Cannot register service for type {0}, one or more services already registered</source>
+        <target state="translated">无法注册已注册的 {0} 类、一种或多种服务的服务</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="MultipleServicesFound">
+        <source>Multiple services found for type {0}, expected only 1</source>
+        <target state="translated">为 {0} 型找到多个服务，预计只有 1 个</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="IncompatibleServiceForExtensionLoader">
+        <source>Service of type {0} cannot be created by ExtensionLoader&lt;{1}&gt;</source>
+        <target state="translated">扩展加载器 &lt;{1}&gt; 无法创建 {0} 型服务</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ServiceProviderNotSet">
+        <source>SetServiceProvider() was not called to establish the required service provider</source>
+        <target state="translated">SetServiceProvider() 没有调用，它需要建立所需的服务提供商</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ServiceNotFound">
+        <source>Service {0} was not found in the service provider</source>
+        <target state="translated">服务 {0} 未在服务提供商中找到</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ServiceNotOfExpectedType">
+        <source>Service of Type {0} is not compatible with registered Type {1}</source>
+        <target state="translated">{0} 型服务与已注册的 {1} 型不兼容</target>
+        <note>
+        </note>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

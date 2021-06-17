@@ -20,7 +20,7 @@
 		<PackageReference Include="System.Composition" />
 	</ItemGroup>
 	<ItemGroup>
-		<EmbeddedResource Include="Localization\sr.resx" />
+		<EmbeddedResource Include="Localization\*.resx" />
 		<None Include="Localization\sr.strings" />
 	</ItemGroup>
 </Project>

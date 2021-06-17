@@ -15,10 +15,12 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
+using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Migration.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlAssessment;
 using Microsoft.Win32.SafeHandles;
+using Microsoft.SqlServer.DataCollection.Common;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
@@ -186,6 +188,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
 
         internal async Task<List<MigrationAssessmentInfo>> GetAssessmentItems(SqlObjectLocator target, string connectionString)
         {
+            SqlAssessmentConfiguration.EnableLocalLogging = true;
+            SqlAssessmentConfiguration.EnableReportCreation = true;
+            SqlAssessmentConfiguration.AssessmentReportAndLogsRootFolderPath = Path.GetDirectoryName(Logger.LogFileFullPath);
             DmaEngine engine = new DmaEngine(connectionString);
             var assessmentResults = await engine.GetTargetAssessmentResultsList();
 

@@ -1,0 +1,97 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en" target-language="pt-br">
+    <body>
+      <trans-unit id="CredentialsServiceInvalidCriticalHandle">
+        <source>Invalid CriticalHandle!</source>
+        <target state="translated">CriticalHandle inválido!</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="CredentialsServicePasswordLengthExceeded">
+        <source>The password has exceeded 512 bytes</source>
+        <target state="translated">A senha ultrapassou 512 bytes</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="CredentialsServiceTargetForDelete">
+        <source>Target must be specified to delete a credential</source>
+        <target state="translated">O alvo deve ser especificado para excluir uma credencial</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="CredentialsServiceTargetForLookup">
+        <source>Target must be specified to check existance of a credential</source>
+        <target state="translated">O alvo deve ser especificado para verificar a existência de uma credencial</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="CredentialServiceWin32CredentialDisposed">
+        <source>Win32Credential object is already disposed</source>
+        <target state="translated">O objeto Win32Credential já está descartado</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="HostingUnexpectedEndOfStream">
+        <source>MessageReader's input stream ended unexpectedly, terminating</source>
+        <target state="translated">O fluxo de entrada do MessageReader terminou inesperadamente, terminando</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="HostingHeaderMissingColon">
+        <source>Message header must separate key and value using ':'</source>
+        <target state="translated">O cabeçalho da mensagem deve separar a chave e o valor usando ':'</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="HostingHeaderMissingContentLengthHeader">
+        <source>Fatal error: Content-Length header must be provided</source>
+        <target state="translated">Erro fatal: O cabeçalho de comprimento de conteúdo deve ser fornecido</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="HostingHeaderMissingContentLengthValue">
+        <source>Fatal error: Content-Length value is not an integer</source>
+        <target state="translated">Erro fatal: O valor do comprimento do conteúdo não é um inteiro</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ServiceAlreadyRegistered">
+        <source>Cannot register service for type {0}, one or more services already registered</source>
+        <target state="translated">Não é possível registrar serviço para o tipo {0}, um ou mais serviços já cadastrados</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="MultipleServicesFound">
+        <source>Multiple services found for type {0}, expected only 1</source>
+        <target state="translated">Múltiplos serviços encontrados para {0} tipo, esperados apenas 1</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="IncompatibleServiceForExtensionLoader">
+        <source>Service of type {0} cannot be created by ExtensionLoader&lt;{1}&gt;</source>
+        <target state="translated">O serviço de {0} tipo não pode ser criado pelo ExtensionLoader&lt;{1}&gt;</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ServiceProviderNotSet">
+        <source>SetServiceProvider() was not called to establish the required service provider</source>
+        <target state="translated">SetServiceProvider() não foi chamado para estabelecer o provedor de serviços necessário</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ServiceNotFound">
+        <source>Service {0} was not found in the service provider</source>
+        <target state="translated">O {0} de serviços não foi encontrado no prestador de serviços</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ServiceNotOfExpectedType">
+        <source>Service of Type {0} is not compatible with registered Type {1}</source>
+        <target state="translated">O serviço de {0} tipo não é compatível com {1} tipo registrado</target>
+        <note>
+        </note>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
