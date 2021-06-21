@@ -423,7 +423,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
                 // Update with the actual database name in connectionInfo and result
                 // Doing this here as we know the connection is open - expect to do this only on connecting
-                connectionInfo.ConnectionDetails.DatabaseName = connection.Database;
+                // Do not update the DB name if it is a DB Pool database name (e.g. "db@pool")           
+                if (!ConnectionService.IsDbPool(connectionInfo.ConnectionDetails.DatabaseName))
+                {
+                    connectionInfo.ConnectionDetails.DatabaseName = connection.Database;
+                }
+
                 if (!string.IsNullOrEmpty(connectionInfo.ConnectionDetails.ConnectionString))
                 {
                     // If the connection was set up with a connection string, use the connection string to get the details
@@ -472,7 +477,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 connectionInfo.MajorVersion = serverInfo.ServerMajorVersion;
                 connectionInfo.IsSqlDb = serverInfo.EngineEditionId == (int)DatabaseEngineEdition.SqlDatabase;
                 connectionInfo.IsSqlDW = (serverInfo.EngineEditionId == (int)DatabaseEngineEdition.SqlDataWarehouse);
-                connectionInfo.EngineEdition = (DatabaseEngineEdition) serverInfo.EngineEditionId;
+                connectionInfo.EngineEdition = (DatabaseEngineEdition)serverInfo.EngineEditionId;
             }
             catch (Exception ex)
             {
@@ -1043,21 +1048,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// Handle requests to list databases on the current server
         /// </summary>
-        protected async Task HandleListDatabasesRequest(
+        protected Task HandleListDatabasesRequest(
             ListDatabasesParams listDatabasesParams,
             RequestContext<ListDatabasesResponse> requestContext)
         {
-            Logger.Write(TraceEventType.Verbose, "ListDatabasesRequest");
-
-            try
+            Task.Run(async () =>
             {
-                ListDatabasesResponse result = ListDatabases(listDatabasesParams);
-                await requestContext.SendResult(result);
-            }
-            catch (Exception ex)
-            {
-                await requestContext.SendError(ex.ToString());
-            }
+                Logger.Write(TraceEventType.Verbose, "ListDatabasesRequest");
+                try
+                {
+                    ListDatabasesResponse result = ListDatabases(listDatabasesParams);
+                    await requestContext.SendResult(result);
+                }
+                catch (Exception ex)
+                {
+                    await requestContext.SendError(ex.ToString());
+                }
+            });
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -1611,6 +1619,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     conn.Open();
                 }
             }
+        }
+
+        public static bool IsDbPool(string databaseName)
+        {
+            return databaseName != null ? databaseName.IndexOf('@') != -1 : false;
         }
     }
 

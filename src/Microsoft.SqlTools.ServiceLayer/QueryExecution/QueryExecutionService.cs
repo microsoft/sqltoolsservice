@@ -930,18 +930,22 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         // Internal for testing purposes
         internal string GetSqlText(ExecuteRequestParamsBase request)
         {
+            // This URI doesn't come in escaped - so if it's a file path with reserved characters (such as %)
+            // then we'll fail to find it since GetFile expects the URI to be a fully-escaped URI as that's
+            // what the document events are sent in as.
+            var escapedOwnerUri = Uri.EscapeUriString(request.OwnerUri);
             // If it is a document selection, we'll retrieve the text from the document
             ExecuteDocumentSelectionParams docRequest = request as ExecuteDocumentSelectionParams;
             if (docRequest != null)
             {
-                return GetSqlTextFromSelectionData(docRequest.OwnerUri, docRequest.QuerySelection);
+                return GetSqlTextFromSelectionData(escapedOwnerUri, docRequest.QuerySelection);
             }
 
             // If it is a document statement, we'll retrieve the text from the document
             ExecuteDocumentStatementParams stmtRequest = request as ExecuteDocumentStatementParams;
             if (stmtRequest != null)
             {
-                return GetSqlStatementAtPosition(stmtRequest.OwnerUri, stmtRequest.Line, stmtRequest.Column);
+                return GetSqlStatementAtPosition(escapedOwnerUri, stmtRequest.Line, stmtRequest.Column);
             }
 
             // If it is an ExecuteStringParams, return the text as is
@@ -964,6 +968,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             ScriptFile queryFile = WorkspaceService.Workspace.GetFile(ownerUri);
             if (queryFile == null)
             {
+                Logger.Write(TraceEventType.Warning, $"[GetSqlTextFromSelectionData] Unable to find document with OwnerUri {ownerUri}");
                 return string.Empty;
             }
             // If a selection was not provided, use the entire document

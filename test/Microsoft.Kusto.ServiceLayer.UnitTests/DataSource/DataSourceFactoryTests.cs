@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
+using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 using Microsoft.Kusto.ServiceLayer.DataSource;
-using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
-using Microsoft.Kusto.ServiceLayer.LanguageServices.Completion;
+using Microsoft.Kusto.ServiceLayer.DataSource.Intellisense;
+using Microsoft.Kusto.ServiceLayer.LanguageServices;
 using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
 using NUnit.Framework;
 
@@ -10,16 +11,19 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.DataSource
 {
     public class DataSourceFactoryTests
     {
-        [TestCase(typeof(ArgumentNullException), "", "AzureAccountToken")]
-        [TestCase(typeof(ArgumentNullException), "ConnectionString", "")]
         [TestCase(typeof(ArgumentException), "ConnectionString", "AzureAccountToken")]
         public void Create_Throws_Exceptions_For_InvalidParams(Type exceptionType,
             string connectionString,
             string azureAccountToken)
         {
             var dataSourceFactory = new DataSourceFactory();
+            var connectionDetails = new ConnectionDetails
+            {
+                ConnectionString = connectionString,
+                AccountToken = azureAccountToken
+            };
             Assert.Throws(exceptionType,
-                () => dataSourceFactory.Create(DataSourceType.None, connectionString, azureAccountToken, ""));
+                () => dataSourceFactory.Create(DataSourceType.None, connectionDetails, ""));
         }
 
         [Test]

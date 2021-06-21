@@ -92,7 +92,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.LanguageServices
         {
             var connectionDetails = new ConnectionDetails
             {
-                AzureAccountToken = "AzureAccountToken" 
+                AccountToken = "AzureAccountToken" 
             };
             var connectionFactory = new Mock<IDataSourceConnectionFactory>();
             var connectionInfo = new ConnectionInfo(connectionFactory.Object, "ownerUri", connectionDetails);
@@ -100,7 +100,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.LanguageServices
             var dataSourceFactory = new Mock<IDataSourceFactory>();
             var dataSourceMock = new Mock<IDataSource>();
             dataSourceFactory
-                .Setup(x => x.Create(It.IsAny<DataSourceType>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Setup(x => x.Create(It.IsAny<DataSourceType>(), It.IsAny<ConnectionDetails>(), It.IsAny<string>()))
                 .Returns(dataSourceMock.Object);
 
             var connectedBindingQueue =

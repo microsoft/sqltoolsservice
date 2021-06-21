@@ -43,12 +43,15 @@
 		<Content Include="$(PkgMicrosoft_SqlServer_DacFx)\lib\netstandard2.0\Microsoft.Data.Tools.Schema.SqlTasks.targets">
 			<CopyToPublishDirectory>Always</CopyToPublishDirectory>
 		</Content>
+		<Content Include="..\..\Notice.txt">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
 		<Content Include=".\Migration\Metadata\**">
 			<Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 		<EmbeddedResource Include="ObjectExplorer\SmoModel\TreeNodeDefinition.xml" />
-		<EmbeddedResource Include="Localization\sr.resx" />
+		<EmbeddedResource Include="Localization\*.resx" />
 		<None Include="Localization\sr.strings" />
 	</ItemGroup>
 	<ItemGroup>

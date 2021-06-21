@@ -55,9 +55,13 @@ SELECT @filepath AS FilePath
 SELECT [name], [description], [endpoint], [protocol_desc] FROM .[sys].[dm_cluster_endpoints]
 END TRY
 BEGIN CATCH
-DECLARE @endpoint VARCHAR(max)
-select @endpoint = CONVERT(VARCHAR(max),SERVERPROPERTY('ControllerEndpoint'))
+DECLARE @endpoint VARCHAR(MAX)
+SELECT @endpoint = CONVERT(VARCHAR(MAX),SERVERPROPERTY('ControllerEndpoint'))
+-- If the endpoint is empty/null then return 0 rows (we don't have any cluster endpoints)
+IF @endpoint <> ''
 SELECT 'controller' AS name, 'Cluster Management Service' AS description, @endpoint as endpoint, SUBSTRING(@endpoint, 0, CHARINDEX(':', @endpoint))
+ELSE
+SELECT TOP 0 ''
 END CATCH
 ";
         public const string GetHostInfo = @"SELECT [host_platform], [host_distribution], [host_release], [host_service_pack_level], [host_sku], [os_language_version] FROM sys.dm_os_host_info";

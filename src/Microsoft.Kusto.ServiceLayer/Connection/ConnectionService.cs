@@ -19,7 +19,6 @@ using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using System.Diagnostics;
-using Kusto.Data;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
@@ -267,7 +266,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             return completeParams;
         }
 
-        internal string RefreshAzureToken(string ownerUri)
+        internal string RefreshAuthToken(string ownerUri)
         {
             TryFindConnection(ownerUri, out ConnectionInfo connection);
 
@@ -275,12 +274,12 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             {
                 AccountId = connection.ConnectionDetails.GetOptionValue("azureAccount", string.Empty),
                 Authority = connection.ConnectionDetails.GetOptionValue("azureTenantId", string.Empty),
-                Provider = "Azure",
+                Provider = connection.ConnectionDetails.AuthenticationType,
                 Resource = "SQL"
             };
 
             var response = Instance.ServiceHost.SendRequest(SecurityTokenRequest.Type, requestMessage, true).Result;
-            connection.UpdateAzureToken(response.Token);
+            connection.UpdateAuthToken(response.Token);
 
             return response.Token;
         }
@@ -389,12 +388,13 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                 if (!string.IsNullOrEmpty(connectionInfo.ConnectionDetails.ConnectionString))
                 {
                     // If the connection was set up with a connection string, use the connection string to get the details
-                    var connectionString = new KustoConnectionStringBuilder(connection.ConnectionString);
+                    var connectionStringBuilder = DataSourceFactory.CreateConnectionStringBuilder(DataSourceType.Kusto, connection.ConnectionString);
+                    
                     response.ConnectionSummary = new ConnectionSummary
                     {
-                        ServerName = connectionString.DataSource,
-                        DatabaseName = connectionString.InitialCatalog,
-                        UserName = connectionString.UserID
+                        ServerName = connectionStringBuilder.DataSource,
+                        DatabaseName = connectionStringBuilder.InitialCatalog,
+                        UserName = connectionStringBuilder.UserID
                     };
                 }
                 else
@@ -446,11 +446,9 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             try
             {
                 connectionInfo.ConnectionDetails.Pooling = false;
-                // build the connection string from the input parameters
-                string connectionString = BuildConnectionString(connectionInfo.ConnectionDetails);
 
-                // create a sql connection instance
-                connection = connectionInfo.Factory.CreateDataSourceConnection(connectionString, connectionInfo.ConnectionDetails.AzureAccountToken, connectionInfo.OwnerUri);
+                // create a data source connection instance
+                connection = connectionInfo.Factory.CreateDataSourceConnection(connectionInfo.ConnectionDetails, connectionInfo.OwnerUri);
                 connectionInfo.AddConnection(connectionParams.Type, connection);
 
                 // Add a cancellation token source so that the connection OpenAsync() can be cancelled
@@ -956,28 +954,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         }
 
         /// <summary>
-        /// Build a connection string from a connection details instance
-        /// </summary>
-        /// <param name="connectionDetails"></param>
-        public static string BuildConnectionString(ConnectionDetails connectionDetails)
-        {
-            return CreateConnectionStringBuilder(connectionDetails).ToString();
-        }
-
-        /// <summary>
-        /// Build a connection string builder a connection details instance
-        /// </summary>
-        /// <param name="connectionDetails"></param>
-        private static KustoConnectionStringBuilder CreateConnectionStringBuilder(ConnectionDetails connectionDetails)
-        {
-            var stringBuilder = string.IsNullOrWhiteSpace(connectionDetails.ConnectionString)
-                ? new KustoConnectionStringBuilder(connectionDetails.ServerName, connectionDetails.DatabaseName)
-                : new KustoConnectionStringBuilder(connectionDetails.ConnectionString);
-
-            return stringBuilder.WithAadUserTokenAuthentication(connectionDetails.AzureAccountToken);
-        }
-
-        /// <summary>
         /// Handles a request to get a connection string for the provided connection
         /// </summary>
         public async Task HandleGetConnectionStringRequest(
@@ -997,9 +973,9 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                             info.ConnectionDetails.Password = ConnectionService.PasswordPlaceholder;
                         }
 
-                        info.ConnectionDetails.ApplicationName = "sqlops-connection-string";
-
-                        connectionString = BuildConnectionString(info.ConnectionDetails);
+                        info.ConnectionDetails.ApplicationName = "ads-connection-string";
+                        connectionString = DataSourceFactory.CreateConnectionStringBuilder(DataSourceType.Kusto,
+                            info.ConnectionDetails.ServerName, info.ConnectionDetails.DatabaseName).ToString();
                     }
                     catch (Exception e)
                     {
@@ -1035,7 +1011,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
         public ConnectionDetails ParseConnectionString(string connectionString)
         {
-            var builder = new KustoConnectionStringBuilder(connectionString);
+            var builder = DataSourceFactory.CreateConnectionStringBuilder(DataSourceType.Kusto, connectionString);
             return new ConnectionDetails
             {
                 ApplicationName = builder.ApplicationNameForTracing,
@@ -1082,10 +1058,8 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                                 conn.Dispose();
                                 info.RemoveConnection(key);
 
-                                string connectionString = BuildConnectionString(info.ConnectionDetails);
-
-                                // create a sql connection instance
-                                ReliableDataSourceConnection connection = info.Factory.CreateDataSourceConnection(connectionString, info.ConnectionDetails.AzureAccountToken, ownerUri);
+                                // create a kusto connection instance
+                                ReliableDataSourceConnection connection = info.Factory.CreateDataSourceConnection(info.ConnectionDetails, ownerUri);
                                 connection.Open();
                                 info.AddConnection(key, connection);
                             }
@@ -1094,7 +1068,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                                 conn.ChangeDatabase(newDatabaseName);
                             }
                         }
-
                     }
 
                     // Fire a connection changed event

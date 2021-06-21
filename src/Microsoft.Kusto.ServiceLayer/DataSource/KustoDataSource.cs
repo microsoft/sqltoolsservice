@@ -14,10 +14,13 @@ using System.Threading.Tasks;
 using Kusto.Cloud.Platform.Data;
 using Kusto.Data;
 using Kusto.Data.Data;
-using Kusto.Language;
+using Microsoft.Kusto.ServiceLayer.DataSource.Intellisense;
 using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 using Microsoft.Kusto.ServiceLayer.DataSource.Models;
+using Microsoft.Kusto.ServiceLayer.LanguageServices;
+using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.Kusto.ServiceLayer.Utility;
+using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource
 {
@@ -26,7 +29,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
     /// </summary>
     public class KustoDataSource : DataSourceBase
     {
-        private IKustoClient _kustoClient;
+        private readonly IKustoClient _kustoClient;
+        private readonly IIntellisenseClient _intellisenseClient;
 
         /// <summary>
         /// List of databases.
@@ -56,8 +60,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         public override string DatabaseName => _kustoClient.DatabaseName;
 
         public override string ClusterName => _kustoClient.ClusterName;
-        
-        public override GlobalState SchemaState => _kustoClient.SchemaState;
 
         // Some clusters have this signature. Queries might slightly differ for Aria
         private const string AriaProxyURL = "kusto.aria.microsoft.com"; 
@@ -77,9 +79,10 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// <summary>
         /// Prevents a default instance of the <see cref="IDataSource"/> class from being created.
         /// </summary>
-        public KustoDataSource(IKustoClient kustoClient)
+        public KustoDataSource(IKustoClient kustoClient, IIntellisenseClient intellisenseClient)
         {
             _kustoClient = kustoClient;
+            _intellisenseClient = intellisenseClient;
             // Check if a connection can be made
             ValidationUtils.IsTrue<ArgumentException>(Exists().Result,
                 $"Unable to connect. ClusterName = {ClusterName}, DatabaseName = {DatabaseName}");
@@ -245,7 +248,10 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// <inheritdoc/>
         public override void UpdateDatabase(string databaseName)
         {
-            _kustoClient.UpdateDatabase(databaseName);
+            // Aria has a GUID as a database name so parse it from the display name
+            var parsedDatabase = KustoQueryUtils.ParseDatabaseName(databaseName);
+            _kustoClient.UpdateDatabase(parsedDatabase);
+            _intellisenseClient.UpdateDatabase(parsedDatabase);
         }
         
         /// <summary>
@@ -461,7 +467,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             CancellationTokenSource source = new CancellationTokenSource();
             CancellationToken token = source.Token;
 
-            string query = $".show database {databaseName} cslschema";
+            string query = $".show database {KustoQueryUtils.EscapeName(databaseName)} cslschema";
 
             using (var reader = _kustoClient.ExecuteQuery(query, token, databaseName))
             {
@@ -803,10 +809,30 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 ? string.Empty 
                 : $"{functionInfo.Name}{functionInfo.Parameters}";
         }
-
+        
         private string GenerateMetadataKey(string databaseName, string objectName)
         {
             return string.IsNullOrWhiteSpace(objectName) ? databaseName : $"{databaseName}.{objectName}";
+        }
+
+        public override ScriptFileMarker[] GetSemanticMarkers(ScriptParseInfo parseInfo, ScriptFile scriptFile, string queryText)
+        {
+            return _intellisenseClient.GetSemanticMarkers(parseInfo, scriptFile, queryText);
+        }
+
+        public override DefinitionResult GetDefinition(string queryText, int index, int startLine, int startColumn, bool throwOnError = false)
+        {
+            return _intellisenseClient.GetDefinition(queryText, index, startLine, startColumn, throwOnError);
+        }
+
+        public override Hover GetHoverHelp(ScriptDocumentInfo scriptDocumentInfo, Position textPosition, bool throwOnError = false)
+        {
+            return _intellisenseClient.GetHoverHelp(scriptDocumentInfo, textPosition, throwOnError);
+        }
+
+        public override CompletionItem[] GetAutoCompleteSuggestions(ScriptDocumentInfo scriptDocumentInfo, Position textPosition, bool throwOnError = false)
+        {
+            return _intellisenseClient.GetAutoCompleteSuggestions(scriptDocumentInfo, textPosition, throwOnError);
         }
 
         #endregion

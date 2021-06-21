@@ -2,17 +2,11 @@ using System.Collections.Generic;
 using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
-using Kusto.Language;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource
 {
     public interface IKustoClient
     {
-        /// <summary>
-        /// SchemaState used for getting intellisense info.
-        /// </summary>
-        GlobalState SchemaState { get; }
-
         string ClusterName { get; }
         
         string DatabaseName { get; }
