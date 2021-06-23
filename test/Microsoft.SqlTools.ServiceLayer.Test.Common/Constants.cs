@@ -34,5 +34,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         public const string OwnerUri = "testFile";
 
         public const string StandardQuery = "SELECT * FROM sys.objects";
+
+        /// <summary>
+        /// Local path on agent machine where source code resides, set by Azure pipeline.
+        /// </summary>
+        public const string BuildSourcesDirectory = "BUILD_SOURCESDIRECTORY";
     }
 }
