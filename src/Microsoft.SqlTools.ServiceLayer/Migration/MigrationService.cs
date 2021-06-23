@@ -15,14 +15,17 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
+using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Migration.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlAssessment;
 using Microsoft.Win32.SafeHandles;
+using Microsoft.SqlServer.DataCollection.Common;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
-
+using System.Security.Principal;
+using System.IO;
 namespace Microsoft.SqlTools.ServiceLayer.Migration
 {
     /// <summary>
@@ -93,6 +96,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             this.ServiceHost = serviceHost;
             this.ServiceHost.SetRequestHandler(MigrationAssessmentsRequest.Type, HandleMigrationAssessmentsRequest);
             this.ServiceHost.SetRequestHandler(ValidateWindowsAccountRequest.Type, HandleValidateWindowsAccountRequest);
+            this.ServiceHost.SetRequestHandler(ValidateNetworkFileShareRequest.Type, HandleValidateNetworkFileShareRequest);
         }
 
         /// <summary>
@@ -184,6 +188,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
 
         internal async Task<List<MigrationAssessmentInfo>> GetAssessmentItems(SqlObjectLocator target, string connectionString)
         {
+            SqlAssessmentConfiguration.EnableLocalLogging = true;
+            SqlAssessmentConfiguration.EnableReportCreation = true;
+            SqlAssessmentConfiguration.AssessmentReportAndLogsRootFolderPath = Path.GetDirectoryName(Logger.LogFileFullPath);
             DmaEngine engine = new DmaEngine(connectionString);
             var assessmentResults = await engine.GetTargetAssessmentResultsList();
 
@@ -259,24 +266,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
 
         internal async Task HandleValidateWindowsAccountRequest(
             ValidateWindowsAccountRequestParams parameters,
-            RequestContext<ValidateWindowsAccountResult> requestContext)
+            RequestContext<bool> requestContext)
         {
-            var domainUserRegex = new Regex(@"^[A-Za-z0-9\\\._-]{7,}$");
-            // Checking if the username string is in 'domain\name' format
-            if (!domainUserRegex.Match(parameters.Username).Success)
+            if (!ValidateWindowsDomainUsername(parameters.Username))
             {
-                await requestContext.SendResult(new ValidateWindowsAccountResult()
-                {
-                    Success = false,
-                    ErrorMessage = "Invalid user name format. Example: Domain\\username"
-                });
+                await requestContext.SendError("Invalid user name format. Example: Domain\\username");
                 return;
             }
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 int separator = parameters.Username.IndexOf("\\");
-                string domainName = (separator > -1) ? parameters.Username.Substring(0, separator) : string.Empty;
-                string userName = (separator > -1) ? parameters.Username.Substring(separator + 1, parameters.Username.Length - separator - 1) : string.Empty;
+                string domainName = parameters.Username.Substring(0, separator);
+                string userName = parameters.Username.Substring(separator + 1, parameters.Username.Length - separator - 1);
 
                 const int LOGON32_PROVIDER_DEFAULT = 0;
                 const int LOGON32_LOGON_INTERACTIVE = 2;
@@ -286,23 +287,102 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                     LOGON32_LOGON_INTERACTIVE, LOGON32_PROVIDER_DEFAULT,
                     out safeAccessTokenHandle);
 
-                if (false == returnValue)
+                if (!returnValue)
                 {
                     int ret = Marshal.GetLastWin32Error();
                     string errorMessage = new Win32Exception(Marshal.GetLastWin32Error()).Message;
-                    await requestContext.SendResult(new ValidateWindowsAccountResult()
-                    {
-                        Success = returnValue,
-                        ErrorMessage = errorMessage
-                    });
+                    await requestContext.SendError(errorMessage);
+                }
+                else
+                {
+                    await requestContext.SendResult(true);
+                }
+            } 
+            else 
+            {
+                await requestContext.SendResult(true);
+            }
+        }
+
+        internal async Task HandleValidateNetworkFileShareRequest(
+            ValidateNetworkFileShareRequestParams parameters,
+            RequestContext<bool> requestContext)
+        {
+            if (!ValidateWindowsDomainUsername(parameters.Username))
+            {
+                await requestContext.SendError("Invalid user name format. Example: Domain\\username");
+                return;
+            }
+
+            if (!ValidateUNCPath(parameters.Path))
+            {
+                await requestContext.SendError("Invalid network share path. Example: \\\\Servername.domainname.com\\Backupfolder");
+                return;
+            }
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                int separator = parameters.Username.IndexOf("\\");
+                string domainName = parameters.Username.Substring(0, separator);
+                string userName = parameters.Username.Substring(separator + 1, parameters.Username.Length - separator - 1);
+
+                const int LOGON32_PROVIDER_WINNT50 = 3;
+                const int LOGON32_LOGON_NEW_CREDENTIALS = 9;
+
+                SafeAccessTokenHandle safeAccessTokenHandle;
+                bool returnValue = LogonUser(
+                    userName, 
+                    domainName, 
+                    parameters.Password,
+                    LOGON32_LOGON_NEW_CREDENTIALS,
+                    LOGON32_PROVIDER_WINNT50,
+                    out safeAccessTokenHandle);
+
+                if (!returnValue)
+                {
+                    int ret = Marshal.GetLastWin32Error();
+                    string errorMessage = new Win32Exception(Marshal.GetLastWin32Error()).Message;
+                    await requestContext.SendError(errorMessage);
                     return;
                 }
-            }
-            await requestContext.SendResult(new ValidateWindowsAccountResult()
+                await WindowsIdentity.RunImpersonated(
+                safeAccessTokenHandle,
+                // User action  
+                async () =>
+                {
+                    if(!Directory.Exists(parameters.Path)){
+                        await requestContext.SendError("Cannot connect to file share");
+                    } else {
+                        await requestContext.SendResult(true);
+                    }
+                }
+                );
+            } 
+            else 
             {
-                Success = true,
-                ErrorMessage = ""
-            });
+                await requestContext.SendResult(true);
+            }
+        }
+
+        /// <summary>
+        /// Check if the username is in 'domain\username' format.
+        /// </summary>
+        /// <returns></returns>
+        internal bool ValidateWindowsDomainUsername(string username)
+        {
+            var domainUserRegex = new Regex(@"^(?<domain>[A-Za-z0-9\._-]*)\\(?<username>[A-Za-z0-9\._-]*)$");
+            return domainUserRegex.IsMatch(username);
+        }
+
+
+        /// <summary>
+        /// Checks if the file path is in UNC format '\\Servername.domainname.com\Backupfolder'
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        internal bool ValidateUNCPath(string path)
+        {
+            return new Uri(path).IsUnc;
         }
     }
 }

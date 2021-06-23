@@ -13,14 +13,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
         public string Password { get; set; }
     }
 
-    public class ValidateWindowsAccountResult
-    {
-        public bool Success { get; set; }
-        public string ErrorMessage { get; set; }
-    }
-
     public class ValidateWindowsAccountRequest
     {
-        public static readonly RequestType<ValidateWindowsAccountRequestParams, ValidateWindowsAccountResult> Type = RequestType<ValidateWindowsAccountRequestParams, ValidateWindowsAccountResult>.Create("migration/validateWindowsAccount");
+        public static readonly RequestType<ValidateWindowsAccountRequestParams, bool> Type = RequestType<ValidateWindowsAccountRequestParams, bool>.Create("migration/validateWindowsAccount");
     }
 }
