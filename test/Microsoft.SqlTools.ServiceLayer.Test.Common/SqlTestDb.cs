@@ -122,7 +122,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 
             if (string.IsNullOrEmpty(dbName))
             {
-                throw new ArgumentOutOfRangeException("dbName");
+                throw new InvalidArgumentException("dbName");
             }
 
             testDb.DatabaseName = dbName;

@@ -19,6 +19,26 @@
 		<GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
 	</PropertyGroup>
 
+	<!-- Reference for runtime identifiers (RID): https://docs.microsoft.com/en-us/dotnet/core/rid-catalog -->
+	<Choose>
+		<!-- When a RID is specified, we'll get SqlPackage executables from same platform as RID. -->
+		<When Condition=" '$(RuntimeIdentifier)' != '' ">
+			<PropertyGroup>
+				<SqlpackageDir Condition=" '$(RuntimeIdentifier.Substring(0, 3))' == 'win' ">win7-x64</SqlpackageDir>
+				<SqlpackageDir Condition=" '$(RuntimeIdentifier.Substring(0, 3))' == 'osx' ">osx-x64</SqlpackageDir>
+				<SqlpackageDir Condition=" '$(RuntimeIdentifier.Substring(0, 5))' == 'linux' Or '$(RuntimeIdentifier).Substring(0, 5)' == 'tizen' Or '$(RuntimeIdentifier).Substring(0, 4)' == 'rhel' ">linux-x64</SqlpackageDir>
+			</PropertyGroup>
+		</When>
+		<!-- When no RID is specified, we'll get SqlPackage executables based on current machine platform. -->
+		<When Condition=" '$(RuntimeIdentifier)' == '' ">
+			<PropertyGroup>
+				<SqlpackageDir Condition=" '$(OS)' == 'Windows_NT' ">win7-x64</SqlpackageDir>
+				<SqlpackageDir Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' ">osx-x64</SqlpackageDir>
+				<SqlpackageDir Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' ">linux-x64</SqlpackageDir>
+			</PropertyGroup>
+		</When>
+	</Choose>
+
 	<ItemGroup>
 		<PackageReference Include="Microsoft.SqlServer.DACFx" />
 		<PackageReference Include="Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider" />
@@ -40,6 +60,9 @@
 		<ProjectReference Include="../Microsoft.InsightsGenerator/Microsoft.InsightsGenerator.csproj" />
 	</ItemGroup>
 	<ItemGroup>
+		<Content Include="$(PkgMicrosoft_SqlServer_DacFx)\tools\netstandard2.0\$(SqlpackageDir)\**" Condition=" '$(SqlpackageDir)' != '' ">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
 		<Content Include="$(PkgMicrosoft_SqlServer_DacFx)\lib\netstandard2.0\Microsoft.Data.Tools.Schema.SqlTasks.targets">
 			<CopyToPublishDirectory>Always</CopyToPublishDirectory>
 		</Content>
@@ -55,17 +78,6 @@
 		<None Include="Localization\sr.strings" />
 	</ItemGroup>
 	<ItemGroup>
-		<Content Include="$(PkgMicrosoft_SqlServer_DacFx)\tools\netstandard2.0\win7-x64\**" Condition=" '$(OS)' == 'Windows_NT' ">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
-		<Content Include="$(PkgMicrosoft_SqlServer_DacFx)\tools\netstandard2.0\linux-x64\**" Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' ">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
-		<Content Include="$(PkgMicrosoft_SqlServer_DacFx)\tools\netstandard2.0\osx-x64\**" Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' ">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
-	</ItemGroup>
-	<ItemGroup>
 		<EmbeddedResource Include=".\Agent\NotebookResources\NotebookJobScript.ps1" />
 	</ItemGroup>
 	<!-- this target enables dependency files to be copied as part of the output of ProjectReference.
@@ -76,5 +88,11 @@
 			<ContentWithTargetPath Include="$(ProjectDepsFilePath)" Condition="'$(GenerateDependencyFile)' == 'true'" CopyToOutputDirectory="PreserveNewest" TargetPath="$(ProjectDepsFileName)" />
 			<ContentWithTargetPath Include="$(ProjectRuntimeConfigFilePath)" Condition="'$(GenerateRuntimeConfigurationFiles)' == 'true'" CopyToOutputDirectory="PreserveNewest" TargetPath="$(ProjectRuntimeConfigFileName)" />
 		</ItemGroup>
+	</Target>
+
+	<!-- zijchen: Testing code, remove -->
+	<Target Name="TestMessage" AfterTargets="Build">
+		<Message Text="RID: $(RuntimeIdentifier)" Importance="high"/>
+		<Message Text="Using Sqlpackage Dir: $(SqlpackageDir)" Importance="high"/>
 	</Target>
 </Project>
