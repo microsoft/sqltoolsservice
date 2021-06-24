@@ -68,15 +68,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Intellisense
             bool throwOnError = false)
         {
             //TODOKusto: API wasnt working properly, need to check that part.
-            var abc = KustoCode.ParseAndAnalyze(queryText, schemaState);
-            var kustoCodeService = new KustoCodeService(abc);
-            //var kustoCodeService = new KustoCodeService(queryText, globals);
-            var relatedInfo = kustoCodeService.GetRelatedElements(index);
-
-            if (relatedInfo != null && relatedInfo.Elements.Count > 1)
-            {
-            }
-
             return null;
         }
 

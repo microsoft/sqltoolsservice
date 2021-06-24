@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.Kusto.ServiceLayer.Connection;
@@ -42,8 +41,7 @@ namespace Microsoft.Kusto.ServiceLayer.Metadata
         {
             try
             {
-                var metadata = new List<ObjectMetadata>();
-                Parallel.Invoke(() => metadata = LoadMetadata(metadataParams));
+                List<ObjectMetadata> metadata = await Task.Run(() => LoadMetadata(metadataParams));
                 
                 await requestContext.SendResult(new MetadataQueryResult
                 {

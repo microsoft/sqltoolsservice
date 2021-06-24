@@ -13,6 +13,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
     public class MonitorClient
     {
         private readonly OperationalInsightsDataClient _queryClient;
+        private readonly HttpClient _httpClient;
         private readonly string _workspaceId;
         private readonly string _token;
         private const string BaseUri = "https://api.loganalytics.io/v1/workspaces";
@@ -24,6 +25,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
         {
             _workspaceId = workspaceId;
             _token = token;
+            _httpClient = GetHttpClient(token);
             _queryClient = new OperationalInsightsDataClient(new TokenCredentials(token))
             {
                 WorkspaceId = workspaceId
@@ -36,27 +38,24 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
             {
                 return _metadata;
             }
-            
-            using (var httpClient = GetHttpClient())
+
+            var url = $"{BaseUri}/{_workspaceId}/metadata";
+            var httpResponseMessage = _httpClient.GetAsync(url).Result;
+            var results = httpResponseMessage.Content.ReadAsStringAsync().Result;
+
+            var options = new JsonSerializerOptions
             {
-                var url = $"{BaseUri}/{_workspaceId}/metadata";
-                var httpResponseMessage = httpClient.GetAsync(url).Result;
-                var results = httpResponseMessage.Content.ReadAsStringAsync().Result;
+                PropertyNameCaseInsensitive = true
+            };
 
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                };
-
-                _metadata = JsonSerializer.Deserialize<WorkspaceResponse>(results, options); 
-                return _metadata;
-            }
+            _metadata = JsonSerializer.Deserialize<WorkspaceResponse>(results, options);
+            return _metadata;
         }
 
-        private HttpClient GetHttpClient()
+        private HttpClient GetHttpClient(string token)
         {
             var httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             return httpClient;
         }
 
@@ -68,6 +67,12 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
         public QueryResults Query(string query)
         {
             return _queryClient.Query(query);
+        }
+
+        ~MonitorClient()
+        {
+            _httpClient.Dispose();
+            _queryClient.Dispose();
         }
     }
 }

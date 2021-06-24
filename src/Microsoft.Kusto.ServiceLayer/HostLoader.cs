@@ -85,9 +85,6 @@ namespace Microsoft.Kusto.ServiceLayer
             ConnectionService.Instance.InitializeService(serviceHost, dataSourceConnectionFactory, connectedBindingQueue, dataSourceFactory);
             serviceProvider.RegisterSingleService(ConnectionService.Instance);
 
-            ObjectExplorerService.Instance.InitializeService(serviceHost, connectedBindingQueue, WorkspaceService<SqlToolsSettings>.Instance, ConnectionService.Instance, serviceProvider);
-            serviceProvider.RegisterSingleService(ObjectExplorerService.Instance);
-
             CredentialService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(CredentialService.Instance);
 

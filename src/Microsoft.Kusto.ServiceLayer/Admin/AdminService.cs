@@ -46,9 +46,7 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
         {
             try
             {
-                var response = new GetDatabaseInfoResponse();
-
-                Parallel.Invoke(() =>
+                var infoResponse = await Task.Run(() =>
                 {
                     DatabaseInfo info = null;
                     if (_connectionService.TryFindConnection(databaseParams.OwnerUri, out var connInfo))
@@ -56,10 +54,10 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
                         info = GetDatabaseInfo(connInfo);
                     }
 
-                    response.DatabaseInfo = info;
+                    return new GetDatabaseInfoResponse {DatabaseInfo = info};
                 });
                 
-                await requestContext.SendResult(response);
+                await requestContext.SendResult(infoResponse);
             }
             catch (Exception ex)
             {
