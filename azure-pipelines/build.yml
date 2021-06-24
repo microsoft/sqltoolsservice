@@ -20,9 +20,10 @@ steps:
 
 - task: UseDotNet@2
   displayName: 'Use defined .NET Core sdk'
-  version: 3.1.406
   inputs:
     useGlobalJson: true
+    version: 3.1.406
+
 
 - task: DotNetCoreCLI@1
   displayName: 'dotnet restore sqltoolsservice.sln'
