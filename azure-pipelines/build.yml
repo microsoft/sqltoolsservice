@@ -18,7 +18,7 @@ steps:
   inputs:
     useGlobalJson: true
 
-- task: DotNetCoreCLI@2
+- task: DotNetCoreCLI@1
   displayName: 'dotnet restore sqltoolsservice.sln'
   inputs:
     command: restore
