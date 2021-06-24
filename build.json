@@ -3,7 +3,7 @@
   "DotNetFolder": ".dotnet",
   "DotNetInstallScriptURL": "https://dotnet.microsoft.com/download/dotnet-core/scripts/v1/",
   "DotNetChannel": "preview",
-  "DotNetVersion": "3.1.202",
+  "DotNetVersion": "5.0.301",
   "BuildToolsFolder": ".tools",
   "ArtifactsFolder": "artifacts",
   "PackageName": "Microsoft.SqlTools.ServiceLayer",

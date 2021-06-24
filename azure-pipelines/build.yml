@@ -23,7 +23,6 @@ steps:
   inputs:
     version: 3.1.406
 
-
 - task: DotNetCoreCLI@1
   displayName: 'dotnet restore sqltoolsservice.sln'
   inputs:
