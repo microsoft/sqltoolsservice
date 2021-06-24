@@ -64,7 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
             // Given a connection that times out and responds to cancellation
             var mockConnection = new Mock<DbConnection> { CallBase = true };
-            CancellationToken token;
+            CancellationToken token = new CancellationToken();
             bool ready = false;
             mockConnection.Setup(x => x.OpenAsync(It.IsAny<CancellationToken>()))
                 .Callback<CancellationToken>(t =>
@@ -125,7 +125,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
             // Given a connection that times out and responds to cancellation
             var mockConnection = new Mock<DbConnection> { CallBase = true };
-            CancellationToken token;
+            CancellationToken token = new CancellationToken();
             bool ready = false;
             mockConnection.Setup(x => x.OpenAsync(It.IsAny<CancellationToken>()))
                 .Callback<CancellationToken>(t =>
@@ -193,7 +193,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
             // Given a connection that times out and responds to cancellation
             var mockConnection = new Mock<DbConnection> { CallBase = true };
-            CancellationToken token;
+            CancellationToken token = new CancellationToken();
             bool ready = false;
             mockConnection.Setup(x => x.OpenAsync(It.IsAny<CancellationToken>()))
                 .Callback<CancellationToken>(t =>
