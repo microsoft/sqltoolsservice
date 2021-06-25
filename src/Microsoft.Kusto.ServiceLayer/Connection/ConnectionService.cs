@@ -79,7 +79,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
         /// <summary>
         /// Service host object for sending/receiving requests/events.
-        /// Internal for testing purposes.
         /// </summary>
         private IProtocolEndpoint _serviceHost;
 
