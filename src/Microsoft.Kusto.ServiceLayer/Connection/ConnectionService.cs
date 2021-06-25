@@ -835,7 +835,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
             try
             {
-                Parallel.Invoke(async () => await RunConnectRequestHandlerTask(connectParams));
+                await Task.Run(async () => await RunConnectRequestHandlerTask(connectParams));
                 await requestContext.SendResult(true);
             }
             catch
@@ -910,8 +910,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
             try
             {
-                var result = new ListDatabasesResponse();
-                Parallel.Invoke(() => result = ListDatabases(listDatabasesParams));
+                var result = await Task.Run(() => ListDatabases(listDatabasesParams));
                 await requestContext.SendResult(result);
             }
             catch (Exception ex)
@@ -994,8 +993,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// </summary>
         private async Task HandleChangeDatabaseRequest(ChangeDatabaseParams changeDatabaseParams, RequestContext<bool> requestContext)
         {
-            bool result = false;
-            Parallel.Invoke(() => result = ChangeConnectionDatabaseContext(changeDatabaseParams.OwnerUri, changeDatabaseParams.NewDatabase, true));
+            bool result = await Task.Run(() => result = ChangeConnectionDatabaseContext(changeDatabaseParams.OwnerUri, changeDatabaseParams.NewDatabase, true));
             await requestContext.SendResult(result);
         }
 
