@@ -6,6 +6,7 @@ using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 using Microsoft.Kusto.ServiceLayer.DataSource.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.Kusto.ServiceLayer.DataSource.Intellisense;
+using Microsoft.Kusto.ServiceLayer.DataSource.Kusto;
 using Microsoft.Kusto.ServiceLayer.DataSource.Monitor;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;

@@ -1,15 +1,15 @@
 // <copyright file="KustoDataSource.cs" company="Microsoft">
 // Copyright (c) Microsoft. All Rights Reserved.
 // </copyright>
+
 using System;
-using System.Collections.Generic;
-using System.Threading;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using Newtonsoft.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Kusto.Cloud.Platform.Data;
 using Kusto.Data;
@@ -21,8 +21,9 @@ using Microsoft.Kusto.ServiceLayer.LanguageServices;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
+using Newtonsoft.Json;
 
-namespace Microsoft.Kusto.ServiceLayer.DataSource
+namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
 {
     /// <summary>
     /// Represents Kusto utilities.

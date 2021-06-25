@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 using Kusto.Language;
 using Kusto.Language.Symbols;
 using Kusto.Language.Syntax;
+using Microsoft.Kusto.ServiceLayer.DataSource.Intellisense;
 
-namespace Microsoft.Kusto.ServiceLayer.DataSource.Intellisense
+namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
 {
     public class KustoIntellisenseClient : IntellisenseClientBase
     {
