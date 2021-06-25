@@ -13,7 +13,6 @@ using Microsoft.Kusto.ServiceLayer.Metadata;
 using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
-using Microsoft.Kusto.ServiceLayer.ObjectExplorer;
 using Microsoft.Kusto.ServiceLayer.QueryExecution;
 using Microsoft.Kusto.ServiceLayer.Scripting;
 using Microsoft.Kusto.ServiceLayer.SqlContext;
