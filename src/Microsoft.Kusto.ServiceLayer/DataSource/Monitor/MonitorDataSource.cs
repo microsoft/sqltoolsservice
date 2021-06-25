@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Kusto.ServiceLayer.Admin.Contracts;
+using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 using Microsoft.Kusto.ServiceLayer.DataSource.Intellisense;
 using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 using Microsoft.Kusto.ServiceLayer.DataSource.Monitor.Responses;
@@ -193,6 +195,29 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
         public override CompletionItem[] GetAutoCompleteSuggestions(ScriptDocumentInfo scriptDocumentInfo, Position textPosition, bool throwOnError = false)
         {
             return _intellisenseClient.GetAutoCompleteSuggestions(scriptDocumentInfo, textPosition, throwOnError);
+        }
+
+        public override ListDatabasesResponse GetDatabases(string serverName, bool includeDetails)
+        {
+            return new ListDatabasesResponse
+            {
+                DatabaseNames = new[]
+                {
+                    DatabaseName
+                }
+            };
+        }
+
+        public override DatabaseInfo GetDatabaseInfo(string serverName, string databaseName)
+        {
+            return new DatabaseInfo
+            {
+                Options = new Dictionary<string, object>
+                {
+                    {"id", ClusterName},
+                    {"name", DatabaseName}
+                }
+            };
         }
     }
 }

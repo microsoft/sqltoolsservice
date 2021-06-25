@@ -70,7 +70,6 @@ namespace Microsoft.Kusto.ServiceLayer
             var scripter = serviceProvider.GetService<IScripter>();
             var dataSourceConnectionFactory = serviceProvider.GetService<IDataSourceConnectionFactory>();
             var connectedBindingQueue = serviceProvider.GetService<IConnectedBindingQueue>();
-            var dataSourceFactory = serviceProvider.GetService<IDataSourceFactory>();
 
             // Initialize and register singleton services so they're accessible for any MEF service. In the future, these
             // could be updated to be IComposableServices, which would avoid the requirement to define a singleton instance
@@ -81,7 +80,7 @@ namespace Microsoft.Kusto.ServiceLayer
             LanguageService.Instance.InitializeService(serviceHost, connectedBindingQueue);
             serviceProvider.RegisterSingleService(LanguageService.Instance);
 
-            ConnectionService.Instance.InitializeService(serviceHost, dataSourceConnectionFactory, connectedBindingQueue, dataSourceFactory);
+            ConnectionService.Instance.InitializeService(serviceHost, dataSourceConnectionFactory, connectedBindingQueue);
             serviceProvider.RegisterSingleService(ConnectionService.Instance);
 
             CredentialService.Instance.InitializeService(serviceHost);

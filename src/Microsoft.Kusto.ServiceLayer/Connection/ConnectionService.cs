@@ -6,14 +6,12 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
-using Microsoft.Kusto.ServiceLayer.Admin.Contracts;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.Utility;
@@ -55,8 +53,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
         private ConcurrentDictionary<string, IConnectedBindingQueue> connectedQueues = new ConcurrentDictionary<string, IConnectedBindingQueue>();
 
-        private IDataSourceFactory _dataSourceFactory;
-
         /// <summary>
         /// Map from script URIs to ConnectionInfo objects
         /// </summary>
@@ -87,32 +83,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// </summary>
         private IProtocolEndpoint _serviceHost;
 
-
-        /// <summary>
-        /// Returns a connection queue for given type
-        /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        public IConnectedBindingQueue GetConnectedQueue(string type)
-        {
-            IConnectedBindingQueue connectedBindingQueue;
-            if (connectedQueues.TryGetValue(type, out connectedBindingQueue))
-            {
-                return connectedBindingQueue;
-            }
-            return null;
-        }
-
-        /// <summary>
-        /// Returns all the connection queues
-        /// </summary>
-        public IEnumerable<IConnectedBindingQueue> ConnectedQueues
-        {
-            get
-            {
-                return this.connectedQueues.Values;
-            }
-        }
 
         /// <summary>
         /// Register a new connection queue if not already registered
@@ -753,46 +723,15 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
             info.TryGetConnection(ConnectionType.Default, out ReliableDataSourceConnection connection);
             IDataSource dataSource = connection.GetUnderlyingConnection();
-            
-            ListDatabasesResponse response = new ListDatabasesResponse();
-            if (dataSource.DataSourceType == DataSourceType.LogAnalytics)
-            {
-                response.DatabaseNames = new[]
-                {
-                    dataSource.DatabaseName
-                };
-                return response;
-            }
-            
-            DataSourceObjectMetadata objectMetadata = MetadataFactory.CreateClusterMetadata(info.ConnectionDetails.ServerName);
 
-            // Mainly used by "manage" dashboard
-            if (listDatabasesParams.IncludeDetails.HasTrue())
-            {
-                IEnumerable<DataSourceObjectMetadata> databaseMetadataInfo = dataSource.GetChildObjects(objectMetadata, true);
-                List<DatabaseInfo> metadata = MetadataFactory.ConvertToDatabaseInfo(databaseMetadataInfo);
-                response.Databases = metadata.ToArray();
-
-                return response;
-            }
-
-            IEnumerable<DataSourceObjectMetadata> databaseMetadata = dataSource.GetChildObjects(objectMetadata);
-            if (databaseMetadata != null)
-            {
-                response.DatabaseNames = databaseMetadata
-                    .Select(objMeta => objMeta.PrettyName == objMeta.Name ? objMeta.PrettyName : $"{objMeta.PrettyName} ({objMeta.Name})")
-                    .ToArray();
-            }
-
-            return response;
+            return dataSource.GetDatabases(info.ConnectionDetails.ServerName, listDatabasesParams.IncludeDetails.HasTrue());
         }
 
         public void InitializeService(IProtocolEndpoint serviceHost, IDataSourceConnectionFactory dataSourceConnectionFactory, 
-            IConnectedBindingQueue connectedBindingQueue, IDataSourceFactory dataSourceFactory)
+            IConnectedBindingQueue connectedBindingQueue)
         {
             _serviceHost = serviceHost;
             _dataSourceConnectionFactory = dataSourceConnectionFactory;
-            _dataSourceFactory = dataSourceFactory;
             connectedQueues.AddOrUpdate("Default", connectedBindingQueue, (key, old) => connectedBindingQueue);
             LockedDatabaseManager.ConnectionService = this;
 

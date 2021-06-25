@@ -14,6 +14,8 @@ using System.Threading.Tasks;
 using Kusto.Cloud.Platform.Data;
 using Kusto.Data;
 using Kusto.Data.Data;
+using Microsoft.Kusto.ServiceLayer.Admin.Contracts;
+using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 using Microsoft.Kusto.ServiceLayer.DataSource.Intellisense;
 using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 using Microsoft.Kusto.ServiceLayer.DataSource.Models;
@@ -838,6 +840,44 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
         public override CompletionItem[] GetAutoCompleteSuggestions(ScriptDocumentInfo scriptDocumentInfo, Position textPosition, bool throwOnError = false)
         {
             return _intellisenseClient.GetAutoCompleteSuggestions(scriptDocumentInfo, textPosition, throwOnError);
+        }
+
+        public override ListDatabasesResponse GetDatabases(string serverName, bool includeDetails)
+        {
+            DataSourceObjectMetadata objectMetadata = MetadataFactory.CreateClusterMetadata(serverName);
+
+            // Mainly used by "manage" dashboard
+            if (includeDetails)
+            {
+                IEnumerable<DataSourceObjectMetadata> databaseMetadataInfo = GetChildObjects(objectMetadata, true);
+                List<DatabaseInfo> metadata = MetadataFactory.ConvertToDatabaseInfo(databaseMetadataInfo);
+
+                return new ListDatabasesResponse
+                {
+                    Databases = metadata.ToArray()
+                };
+            }
+
+            IEnumerable<DataSourceObjectMetadata> databaseMetadata = GetChildObjects(objectMetadata);
+            if (databaseMetadata != null)
+            {
+                return new ListDatabasesResponse
+                {
+                    DatabaseNames = databaseMetadata
+                        .Select(objMeta => objMeta.PrettyName == objMeta.Name ? objMeta.PrettyName : $"{objMeta.PrettyName} ({objMeta.Name})")
+                        .ToArray()
+                };
+            }
+
+            return new ListDatabasesResponse();;
+        }
+        
+        public override DatabaseInfo GetDatabaseInfo(string serverName, string databaseName)
+        {
+            DataSourceObjectMetadata objectMetadata = MetadataFactory.CreateClusterMetadata(serverName);
+            var metadata = GetChildObjects(objectMetadata, true).Where(o => o.Name == databaseName).ToList();
+            List<DatabaseInfo> databaseInfo = MetadataFactory.ConvertToDatabaseInfo(metadata);
+            return databaseInfo.ElementAtOrDefault(0);
         }
 
         #endregion

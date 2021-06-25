@@ -79,26 +79,7 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
             
             connInfo.TryGetConnection(ConnectionType.Default, out ReliableDataSourceConnection connection);
             IDataSource dataSource = connection.GetUnderlyingConnection();
-            DataSourceObjectMetadata objectMetadata = MetadataFactory.CreateClusterMetadata(connInfo.ConnectionDetails.ServerName);
-            
-            List<DataSourceObjectMetadata> metadata = dataSource.GetChildObjects(objectMetadata, true).ToList();
-
-            if (dataSource.DataSourceType == DataSourceType.LogAnalytics)
-            {
-                return new DatabaseInfo
-                {
-                    Options = new Dictionary<string, object>
-                    {
-                        {"id", dataSource.ClusterName},
-                        {"name", dataSource.DatabaseName}
-                    }
-                };
-            }
-            
-            var databaseMetadata = metadata.Where(o => o.Name == connInfo.ConnectionDetails.DatabaseName);
-            List<DatabaseInfo> databaseInfo = MetadataFactory.ConvertToDatabaseInfo(databaseMetadata);
-
-            return databaseInfo.ElementAtOrDefault(0);
+            return dataSource.GetDatabaseInfo(connInfo.ConnectionDetails.ServerName, connInfo.ConnectionDetails.DatabaseName);
         }
     }
 }
