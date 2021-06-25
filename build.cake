@@ -271,7 +271,7 @@ Task("TestCore")
     .Does(() =>
 {
     var testProjects = buildPlan.TestProjects
-                                .Where(pair => pair.Value.Any(framework => framework.Contains("netcoreapp")))
+                                .Where(pair => pair.Value.Any(framework => framework.Contains("net")))
                                 .Select(pair => pair.Key)
                                 .ToList();
 
@@ -299,7 +299,7 @@ Task("Test")
         foreach (var framework in pair.Value)
         {
             // Testing against core happens in TestCore
-            if (framework.Contains("netcoreapp"))
+            if (framework.Contains("net"))
             {
                 continue;
             }
