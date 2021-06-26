@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Data;
 
-namespace Microsoft.Kusto.ServiceLayer.DataSource
+namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
 {
     internal class KustoResultsReader : DataReaderWrapper
     {

@@ -62,7 +62,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             _connectionDetails = connectionDetails;
             _dataSourceFactory = dataSourceFactory;
             _ownerUri = ownerUri;
-            _dataSource = dataSourceFactory.Create(DataSourceType.Kusto, connectionDetails, ownerUri);
+            _dataSource = dataSourceFactory.Create(connectionDetails, ownerUri);
             
             _connectionRetryPolicy = connectionRetryPolicy ?? RetryPolicyFactory.CreateNoRetryPolicy();
             _commandRetryPolicy = commandRetryPolicy ?? RetryPolicyFactory.CreateNoRetryPolicy();
@@ -191,7 +191,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             {
                 _connectionRetryPolicy.ExecuteAction(() =>
                 {
-                    _dataSource = _dataSourceFactory.Create(DataSourceType.Kusto, _connectionDetails, _ownerUri);
+                    _dataSource = _dataSourceFactory.Create(_connectionDetails, _ownerUri);
                 });
             }
         }

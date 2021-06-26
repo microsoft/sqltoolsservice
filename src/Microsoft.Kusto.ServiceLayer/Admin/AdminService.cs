@@ -42,33 +42,22 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
         /// <summary>
         /// Handle get database info request
         /// </summary>
-        private async Task HandleGetDatabaseInfoRequest(
-            GetDatabaseInfoParams databaseParams,
-            RequestContext<GetDatabaseInfoResponse> requestContext)
+        private async Task HandleGetDatabaseInfoRequest(GetDatabaseInfoParams databaseParams, RequestContext<GetDatabaseInfoResponse> requestContext)
         {
             try
             {
-                Func<Task> requestHandler = async () =>
+                var infoResponse = await Task.Run(() =>
                 {
-                    _connectionService.TryFindConnection(databaseParams.OwnerUri, out var connInfo);
                     DatabaseInfo info = null;
-
-                    if (connInfo != null)
+                    if (_connectionService.TryFindConnection(databaseParams.OwnerUri, out var connInfo))
                     {
                         info = GetDatabaseInfo(connInfo);
                     }
 
-                    await requestContext.SendResult(new GetDatabaseInfoResponse()
-                    {
-                        DatabaseInfo = info
-                    });
-                };
-
-                Task task = Task.Run(async () => await requestHandler()).ContinueWithOnFaulted(async t =>
-                {
-                    await requestContext.SendError(t.Exception.ToString());
+                    return new GetDatabaseInfoResponse {DatabaseInfo = info};
                 });
-
+                
+                await requestContext.SendResult(infoResponse);
             }
             catch (Exception ex)
             {
@@ -88,18 +77,9 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
                 return null;
             }
             
-            ReliableDataSourceConnection connection;
-            connInfo.TryGetConnection("Default", out connection);
+            connInfo.TryGetConnection(ConnectionType.Default, out ReliableDataSourceConnection connection);
             IDataSource dataSource = connection.GetUnderlyingConnection();
-            DataSourceObjectMetadata objectMetadata =
-                MetadataFactory.CreateClusterMetadata(connInfo.ConnectionDetails.ServerName);
-
-            List<DataSourceObjectMetadata> metadata = dataSource.GetChildObjects(objectMetadata, true).ToList();
-            var databaseMetadata = metadata.Where(o => o.Name == connInfo.ConnectionDetails.DatabaseName);
-
-            List<DatabaseInfo> databaseInfo = MetadataFactory.ConvertToDatabaseInfo(databaseMetadata);
-
-            return databaseInfo.ElementAtOrDefault(0);
+            return dataSource.GetDatabaseInfo(connInfo.ConnectionDetails.ServerName, connInfo.ConnectionDetails.DatabaseName);
         }
     }
 }

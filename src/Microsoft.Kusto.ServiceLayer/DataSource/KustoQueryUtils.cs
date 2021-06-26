@@ -92,6 +92,18 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             }
         }
         
+        public static void SafeAdd(this Dictionary<string, List<DataSourceObjectMetadata>> dictionary, string key, DataSourceObjectMetadata node)
+        {
+            if (dictionary.ContainsKey(key))
+            {
+                dictionary[key].Add(node);
+            }
+            else
+            {
+                dictionary[key] = new List<DataSourceObjectMetadata> {node};
+            }
+        }
+        
         /// <summary>
         /// Add a range to a dictionary of ConcurrentDictionary. Adds range to existing IEnumerable within dictionary
         /// at the same key.
