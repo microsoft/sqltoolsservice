@@ -59,24 +59,34 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Metadata
         /// <summary>
         /// Converts database details shown on cluster manage dashboard to DatabaseInfo type. Add DataSourceType as param if required to show different properties
         /// </summary>
-        /// <param name="clusterDBDetails"></param>
+        /// <param name="clusterDbDetails"></param>
         /// <returns></returns>
-        public static List<DatabaseInfo> ConvertToDatabaseInfo(IEnumerable<DataSourceObjectMetadata> clusterDBDetails)
+        public static List<DatabaseInfo> ConvertToDatabaseInfo(IEnumerable<DataSourceObjectMetadata> clusterDbDetails)
         {
-            var databaseDetails = new List<DatabaseInfo>();
-
-            if (clusterDBDetails.FirstOrDefault() is DatabaseMetadata)
+            if (clusterDbDetails.FirstOrDefault() is not DatabaseMetadata)
             {
-                foreach (var dbDetail in clusterDBDetails)
-                {
-                    DatabaseInfo databaseInfo = new DatabaseInfo();
-                    long.TryParse(dbDetail.SizeInMB, out long sum_OriginalSize);
-                    databaseInfo.Options["name"] = dbDetail.Name;
-                    databaseInfo.Options["sizeInMB"] = (sum_OriginalSize / (1024 * 1024)).ToString();
-                    databaseDetails.Add(databaseInfo);
-                }
+                return new List<DatabaseInfo>();
             }
 
+            var databaseDetails = new List<DatabaseInfo>();
+            
+            foreach (var dataSourceObjectMetadata in clusterDbDetails)
+            {
+                var dbDetail = (DatabaseMetadata) dataSourceObjectMetadata;
+                long.TryParse(dbDetail.SizeInMB, out long sizeInMb);
+
+                var databaseInfo = new DatabaseInfo
+                {
+                    Options =
+                    {
+                        ["name"] = dbDetail.Name, 
+                        ["sizeInMB"] = (sizeInMb / (1024 * 1024)).ToString()
+                    }
+                };
+                
+                databaseDetails.Add(databaseInfo);
+            }
+            
             return databaseDetails;
         }
 
@@ -110,7 +120,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Metadata
                 Name = name,
                 PrettyName = name,
                 Urn = $"{urn}",
-                SizeInMB = ""
             };
         }
     }
