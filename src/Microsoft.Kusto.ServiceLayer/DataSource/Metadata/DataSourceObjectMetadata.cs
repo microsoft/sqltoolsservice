@@ -15,6 +15,6 @@
         
         public string Urn { get; set; }
         
-        public string SizeInMB { get; set; }
+        
     }
 }

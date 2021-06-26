@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Data;
 using System.Threading.Tasks;
+using Microsoft.Kusto.ServiceLayer.Admin.Contracts;
+using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 using Microsoft.Kusto.ServiceLayer.DataSource.Intellisense;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
@@ -100,13 +102,16 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         public abstract CompletionItem[] GetAutoCompleteSuggestions(ScriptDocumentInfo scriptDocumentInfo, Position textPosition,
             bool throwOnError = false);
 
+        public abstract ListDatabasesResponse GetDatabases(string serverName, bool includeDetails);
+        public abstract DatabaseInfo GetDatabaseInfo(string serverName, string databaseName);
+
         /// <inheritdoc/>
         public DataSourceType DataSourceType { get; protected set; }
         
         /// <inheritdoc/>
         public abstract string ClusterName { get; }
 
-        public abstract string DatabaseName { get; }
+        public abstract string DatabaseName { get; set; }
 
         #endregion
     }

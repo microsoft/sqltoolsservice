@@ -11,19 +11,19 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.DataSource
 {
     public class DataSourceFactoryTests
     {
-        [TestCase(typeof(ArgumentException), "ConnectionString", "AzureAccountToken")]
-        public void Create_Throws_Exceptions_For_InvalidParams(Type exceptionType,
-            string connectionString,
-            string azureAccountToken)
+        [TestCase(typeof(ArgumentException), "ConnectionString", "", "AzureMFA")]
+        [TestCase(typeof(ArgumentException), "ConnectionString", "", "dstsAuth")]
+        public void Create_Throws_Exceptions_For_InvalidAzureAccountToken(Type exceptionType, string connectionString, string azureAccountToken, string authType)
         {
+            Program.ServiceName = "Kusto";
             var dataSourceFactory = new DataSourceFactory();
             var connectionDetails = new ConnectionDetails
             {
                 ConnectionString = connectionString,
-                AccountToken = azureAccountToken
+                AccountToken = azureAccountToken,
+                AuthenticationType = authType
             };
-            Assert.Throws(exceptionType,
-                () => dataSourceFactory.Create(DataSourceType.None, connectionDetails, ""));
+            Assert.Throws(exceptionType, () => dataSourceFactory.Create(connectionDetails, ""));
         }
 
         [Test]
