@@ -213,7 +213,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
                 }
                 else
                 {
-                    RunExpandTask(session, refreshParams, true);
+                    await RunExpandTask(session, refreshParams, true);
                 }
                 await context.SendResult(true);
             }
