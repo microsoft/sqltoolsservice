@@ -17,7 +17,7 @@ using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.DataSource.Contracts;
 using Microsoft.Kusto.ServiceLayer.Utility;
 
-namespace Microsoft.Kusto.ServiceLayer.DataSource
+namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
 {
     public class KustoClient : IKustoClient
     {

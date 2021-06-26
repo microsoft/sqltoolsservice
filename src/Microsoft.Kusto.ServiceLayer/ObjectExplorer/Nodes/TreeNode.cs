@@ -361,7 +361,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
                     parent != null ? parent.GetNodePath() : "", ex.Message,
                     ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);
                 Logger.Write(TraceEventType.Error, error);
-                throw ex;
+                throw;
             }
         }
 
@@ -412,7 +412,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
                 string error = string.Format(CultureInfo.InvariantCulture, "Failed getting child objects. parent:{0} error:{1} inner:{2} stacktrace:{3}",
                 parent != null ? parent.GetNodePath() : "", ex.Message, ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);
                 Logger.Write(TraceEventType.Error, error);
-                throw ex;
+                throw;
             }
         }
 

@@ -10,6 +10,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Kusto.ServiceLayer.Connection;
+using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
@@ -27,8 +28,6 @@ namespace Microsoft.Kusto.ServiceLayer
     /// </summary>
     public sealed class ServiceHost : ServiceHostBase
     {
-        public const string ProviderName = "KUSTO";
-        private const string ProviderDescription = "Microsoft Azure Data Explorer";
         private const string ProviderProtocolVersion = "1.0";
 
         /// <summary>
@@ -36,8 +35,9 @@ namespace Microsoft.Kusto.ServiceLayer
         /// prior to the process shutting down.
         /// </summary>
         private const int ShutdownTimeoutInSeconds = 120;
-        public static readonly string[] CompletionTriggerCharacters = new string[] { ".", "-", ":", "\\", "[", "\"" };
-        private IMultiServiceProvider serviceProvider;
+
+        private static readonly string[] CompletionTriggerCharacters = new[] { ".", "-", ":", "\\", "[", "\"" };
+        private IMultiServiceProvider _serviceProvider;
 
         #region Singleton Instance Code
 
@@ -69,11 +69,11 @@ namespace Microsoft.Kusto.ServiceLayer
         {
             get
             {
-                return serviceProvider;
+                return _serviceProvider;
             }
             internal set
             {
-                serviceProvider = value;
+                _serviceProvider = value;
             }
         }
 
@@ -196,32 +196,31 @@ namespace Microsoft.Kusto.ServiceLayer
         /// <summary>
         /// Handles a request for the capabilities request
         /// </summary>
-        internal async Task HandleCapabilitiesRequest(
-            CapabilitiesRequest initializeParams, 
-            RequestContext<CapabilitiesResult> requestContext)            
+        private async Task HandleCapabilitiesRequest(CapabilitiesRequest initializeParams, RequestContext<CapabilitiesResult> requestContext)
         {
-            await requestContext.SendResult(
-                new CapabilitiesResult
+            string providerName = DataSourceFactory.GetProviderName();
+            string providerDescription = DataSourceFactory.GetProviderDescription();
+
+            var capabilitiesResult = new CapabilitiesResult
+            {
+                Capabilities = new DmpServerCapabilities
                 {
-                    Capabilities = new DmpServerCapabilities
-                    {
-                        ProtocolVersion = ServiceHost.ProviderProtocolVersion,
-                        ProviderName = ServiceHost.ProviderName,
-                        ProviderDisplayName = ServiceHost.ProviderDescription,
-                        ConnectionProvider = ConnectionProviderOptionsHelper.BuildConnectionProviderOptions(),
-                        // AdminServicesProvider = AdminServicesProviderOptionsHelper.BuildAdminServicesProviderOptions(), // TODOKusto: May need it later as its in SqlTools.ServiceLayer
-                        Features = FeaturesMetadataProviderHelper.CreateFeatureMetadataProviders()
-                    }
+                    ProtocolVersion = ProviderProtocolVersion,
+                    ProviderName = providerName,
+                    ProviderDisplayName = providerDescription,
+                    ConnectionProvider = ConnectionProviderOptionsHelper.BuildConnectionProviderOptions(),
+                    // AdminServicesProvider = AdminServicesProviderOptionsHelper.BuildAdminServicesProviderOptions(), // TODOKusto: May need it later as its in SqlTools.ServiceLayer
+                    Features = FeaturesMetadataProviderHelper.CreateFeatureMetadataProviders()
                 }
-            );            
+            };
+            
+            await requestContext.SendResult(capabilitiesResult);            
         }
 
         /// <summary>
         /// Handles the version request. Sends back the server version as result.
         /// </summary>
-        private static async Task HandleVersionRequest(
-          object versionRequestParams,
-          RequestContext<string> requestContext)
+        private static async Task HandleVersionRequest(object versionRequestParams, RequestContext<string> requestContext)
         {
             await requestContext.SendResult(serviceVersion.ToString());
         }

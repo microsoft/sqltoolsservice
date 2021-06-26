@@ -5,12 +5,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Composition;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
-//using Kusto.Language;
-//using Kusto.Language.Editor;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
@@ -25,8 +22,7 @@ using Range = Microsoft.Kusto.ServiceLayer.Workspace.Contracts.Range;
 
 namespace Microsoft.Kusto.ServiceLayer.Formatter
 {
-
-    [Export(typeof(IHostedService))]
+    
     public class TSqlFormatterService : HostedService<TSqlFormatterService>, IComposableService
     {
         private FormatterSettings settings;
@@ -37,8 +33,6 @@ namespace Microsoft.Kusto.ServiceLayer.Formatter
         {
             settings = new FormatterSettings();
         }
-
-
 
         public override void InitializeService(IProtocolEndpoint serviceHost)
         {

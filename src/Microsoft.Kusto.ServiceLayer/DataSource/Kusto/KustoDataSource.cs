@@ -1,19 +1,21 @@
 // <copyright file="KustoDataSource.cs" company="Microsoft">
 // Copyright (c) Microsoft. All Rights Reserved.
 // </copyright>
+
 using System;
-using System.Collections.Generic;
-using System.Threading;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using Newtonsoft.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Kusto.Cloud.Platform.Data;
 using Kusto.Data;
 using Kusto.Data.Data;
+using Microsoft.Kusto.ServiceLayer.Admin.Contracts;
+using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 using Microsoft.Kusto.ServiceLayer.DataSource.Intellisense;
 using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 using Microsoft.Kusto.ServiceLayer.DataSource.Models;
@@ -21,8 +23,9 @@ using Microsoft.Kusto.ServiceLayer.LanguageServices;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
+using Newtonsoft.Json;
 
-namespace Microsoft.Kusto.ServiceLayer.DataSource
+namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
 {
     /// <summary>
     /// Represents Kusto utilities.
@@ -30,7 +33,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
     public class KustoDataSource : DataSourceBase
     {
         private readonly IKustoClient _kustoClient;
-        private readonly IIntellisenseClient _intellisenseClient;
+        private readonly IntellisenseClientBase _intellisenseClient;
 
         /// <summary>
         /// List of databases.
@@ -57,7 +60,11 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// </summary>
         private ConcurrentDictionary<string, IEnumerable<FunctionMetadata>> _functionMetadata = new ConcurrentDictionary<string, IEnumerable<FunctionMetadata>>();
 
-        public override string DatabaseName => _kustoClient.DatabaseName;
+        public override string DatabaseName
+        {
+            get => _kustoClient.DatabaseName;
+            set => throw new NotImplementedException();
+        }
 
         public override string ClusterName => _kustoClient.ClusterName;
 
@@ -79,7 +86,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// <summary>
         /// Prevents a default instance of the <see cref="IDataSource"/> class from being created.
         /// </summary>
-        public KustoDataSource(IKustoClient kustoClient, IIntellisenseClient intellisenseClient)
+        public KustoDataSource(IKustoClient kustoClient, IntellisenseClientBase intellisenseClient)
         {
             _kustoClient = kustoClient;
             _intellisenseClient = intellisenseClient;
@@ -833,6 +840,44 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         public override CompletionItem[] GetAutoCompleteSuggestions(ScriptDocumentInfo scriptDocumentInfo, Position textPosition, bool throwOnError = false)
         {
             return _intellisenseClient.GetAutoCompleteSuggestions(scriptDocumentInfo, textPosition, throwOnError);
+        }
+
+        public override ListDatabasesResponse GetDatabases(string serverName, bool includeDetails)
+        {
+            DataSourceObjectMetadata objectMetadata = MetadataFactory.CreateClusterMetadata(serverName);
+
+            // Mainly used by "manage" dashboard
+            if (includeDetails)
+            {
+                IEnumerable<DataSourceObjectMetadata> databaseMetadataInfo = GetChildObjects(objectMetadata, true);
+                List<DatabaseInfo> metadata = MetadataFactory.ConvertToDatabaseInfo(databaseMetadataInfo);
+
+                return new ListDatabasesResponse
+                {
+                    Databases = metadata.ToArray()
+                };
+            }
+
+            IEnumerable<DataSourceObjectMetadata> databaseMetadata = GetChildObjects(objectMetadata);
+            if (databaseMetadata != null)
+            {
+                return new ListDatabasesResponse
+                {
+                    DatabaseNames = databaseMetadata
+                        .Select(objMeta => objMeta.PrettyName == objMeta.Name ? objMeta.PrettyName : $"{objMeta.PrettyName} ({objMeta.Name})")
+                        .ToArray()
+                };
+            }
+
+            return new ListDatabasesResponse();;
+        }
+        
+        public override DatabaseInfo GetDatabaseInfo(string serverName, string databaseName)
+        {
+            DataSourceObjectMetadata objectMetadata = MetadataFactory.CreateClusterMetadata(serverName);
+            var metadata = GetChildObjects(objectMetadata, true).Where(o => o.Name == databaseName).ToList();
+            List<DatabaseInfo> databaseInfo = MetadataFactory.ConvertToDatabaseInfo(metadata);
+            return databaseInfo.ElementAtOrDefault(0);
         }
 
         #endregion

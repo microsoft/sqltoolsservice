@@ -7,11 +7,12 @@ using System.Collections.Generic;
 using System.Linq;
 using Kusto.Language;
 using Kusto.Language.Editor;
+using Microsoft.Kusto.ServiceLayer.DataSource.Intellisense;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
 
-namespace Microsoft.Kusto.ServiceLayer.DataSource.Intellisense
+namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
 {
     /// <summary>
     /// Kusto specific class for intellisense helper functions.

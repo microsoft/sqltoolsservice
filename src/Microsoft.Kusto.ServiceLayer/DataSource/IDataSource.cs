@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Kusto.ServiceLayer.Admin.Contracts;
+using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 using Microsoft.Kusto.ServiceLayer.DataSource.Intellisense;
 using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
@@ -117,5 +119,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         DefinitionResult GetDefinition(string queryText, int index, int startLine, int startColumn, bool throwOnError = false);
         Hover GetHoverHelp(ScriptDocumentInfo scriptDocumentInfo, Position textPosition, bool throwOnError = false);
         CompletionItem[] GetAutoCompleteSuggestions(ScriptDocumentInfo scriptDocumentInfo, Position textPosition, bool throwOnError = false);
+        ListDatabasesResponse GetDatabases(string serverName, bool includeDetails);
+        DatabaseInfo GetDatabaseInfo(string serverName, string databaseName);
     }
 }

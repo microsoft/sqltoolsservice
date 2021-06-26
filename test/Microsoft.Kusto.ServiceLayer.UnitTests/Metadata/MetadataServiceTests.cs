@@ -1,8 +1,14 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
+using Microsoft.Kusto.ServiceLayer.DataSource;
+using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 using Microsoft.Kusto.ServiceLayer.Metadata;
 using Microsoft.Kusto.ServiceLayer.Metadata.Contracts;
 using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Moq;
 using NUnit.Framework;
 
@@ -11,25 +17,42 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.Metadata
     public class MetadataServiceTests
     {
         [Test]
-        public void HandleMetadataListRequest_Sets_MetadataListTask()
+        public async Task HandleMetadataListRequest_Sets_MetadataListTask()
         {
             var serviceHostMock = new Mock<IProtocolEndpoint>();
             var connectionServiceMock = new Mock<ConnectionService>();
             var connectionFactoryMock = new Mock<IDataSourceConnectionFactory>();
+            var requestContextMock = new Mock<RequestContext<MetadataQueryResult>>();
+            requestContextMock.Setup(x => x.SendResult(It.IsAny<MetadataQueryResult>())).Returns(Task.CompletedTask);
+            
+            var dataSourceMock = new Mock<IDataSource>();
+            dataSourceMock.Setup(x => x.GetChildObjects(It.IsAny<DataSourceObjectMetadata>(), It.IsAny<bool>()))
+                .Returns(new List<DataSourceObjectMetadata> {new DataSourceObjectMetadata {PrettyName = "TestName"}});
+            
+            var dataSourceFactoryMock = new Mock<IDataSourceFactory>();
+            dataSourceFactoryMock.Setup(x => x.Create(It.IsAny<ConnectionDetails>(), It.IsAny<string>()))
+                .Returns(dataSourceMock.Object);
+            
+            var reliableDataSource = new ReliableDataSourceConnection(new ConnectionDetails(), RetryPolicyFactory.NoRetryPolicy,
+                RetryPolicyFactory.NoRetryPolicy, dataSourceFactoryMock.Object, "");
 
-            var connectionInfo = new ConnectionInfo(connectionFactoryMock.Object, "", new ConnectionDetails());
+            var connectionDetails = new ConnectionDetails
+            {
+                ServerName = "ServerName",
+                DatabaseName = "DatabaseName"
+            };
+            var connectionInfo = new ConnectionInfo(connectionFactoryMock.Object, "", connectionDetails);
+            connectionInfo.AddConnection(ConnectionType.Default, reliableDataSource);
+            
             connectionServiceMock.Setup(x => x.TryFindConnection(It.IsAny<string>(), out connectionInfo));
             
             var metadataService = new MetadataService();
             metadataService.InitializeService(serviceHostMock.Object, connectionServiceMock.Object);
-            
-            Assert.IsNull(metadataService.MetadataListTask);
-            
-            var task = metadataService.HandleMetadataListRequest(new MetadataQueryParams(),
-                new RequestContext<MetadataQueryResult>());
-            task.Wait();
-            
-            Assert.IsNotNull(metadataService.MetadataListTask);
+
+            await metadataService.HandleMetadataListRequest(new MetadataQueryParams(), requestContextMock.Object);
+
+            requestContextMock.Verify(x => x.SendResult(It.Is<MetadataQueryResult>(result => result.Metadata.First().Name == "TestName")),
+                Times.Once());
         }
     }
 }

@@ -14,6 +14,8 @@ namespace Microsoft.Kusto.ServiceLayer
     /// </summary>
     internal class Program
     {
+        internal static string ServiceName;
+        
         /// <summary>
         /// Main entry point into the SQL Tools API Service Layer
         /// </summary>
@@ -28,6 +30,8 @@ namespace Microsoft.Kusto.ServiceLayer
                     return;
                 }
 
+                ServiceName = commandOptions.ServiceName;
+                
                 string logFilePath = commandOptions.LogFilePath;
                 if (string.IsNullOrWhiteSpace(logFilePath))
                 {

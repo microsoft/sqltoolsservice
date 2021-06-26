@@ -6,17 +6,14 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
-using Microsoft.Kusto.ServiceLayer.Admin.Contracts;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
-using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using System.Diagnostics;
 using Microsoft.Kusto.ServiceLayer.DataSource;
@@ -56,8 +53,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
         private ConcurrentDictionary<string, IConnectedBindingQueue> connectedQueues = new ConcurrentDictionary<string, IConnectedBindingQueue>();
 
-        private IDataSourceFactory _dataSourceFactory;
-
         /// <summary>
         /// Map from script URIs to ConnectionInfo objects
         /// </summary>
@@ -84,55 +79,9 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
         /// <summary>
         /// Service host object for sending/receiving requests/events.
-        /// Internal for testing purposes.
         /// </summary>
-        internal IProtocolEndpoint ServiceHost { get; set; }
+        private IProtocolEndpoint _serviceHost;
 
-        /// <summary>
-        /// Gets the connection queue
-        /// </summary>
-        internal IConnectedBindingQueue ConnectionQueue
-        {
-            get
-            {
-                return this.GetConnectedQueue("Default");
-            }
-        }
-
-
-        /// <summary>
-        /// Default constructor should be private since it's a singleton class, but we need a constructor
-        /// for use in unit test mocking.
-        /// </summary>
-        public ConnectionService()
-        {
-        }
-
-        /// <summary>
-        /// Returns a connection queue for given type
-        /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        public IConnectedBindingQueue GetConnectedQueue(string type)
-        {
-            IConnectedBindingQueue connectedBindingQueue;
-            if (connectedQueues.TryGetValue(type, out connectedBindingQueue))
-            {
-                return connectedBindingQueue;
-            }
-            return null;
-        }
-
-        /// <summary>
-        /// Returns all the connection queues
-        /// </summary>
-        public IEnumerable<IConnectedBindingQueue> ConnectedQueues
-        {
-            get
-            {
-                return this.connectedQueues.Values;
-            }
-        }
 
         /// <summary>
         /// Register a new connection queue if not already registered
@@ -182,9 +131,8 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <param name="connectionParams">The params to validate</param>
         /// <returns>A ConnectionCompleteParams object upon validation error, 
         /// null upon validation success</returns>
-        public ConnectionCompleteParams ValidateConnectParams(ConnectParams connectionParams)
+        private ConnectionCompleteParams ValidateConnectParams(ConnectParams connectionParams)
         {
-            string paramValidationErrorMessage;
             if (connectionParams == null)
             {
                 return new ConnectionCompleteParams
@@ -192,7 +140,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                     Messages = SR.ConnectionServiceConnectErrorNullParams
                 };
             }
-            if (!connectionParams.IsValid(out paramValidationErrorMessage))
+            if (!connectionParams.IsValid(out string paramValidationErrorMessage))
             {
                 return new ConnectionCompleteParams
                 {
@@ -208,7 +156,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <summary>
         /// Open a connection with the specified ConnectParams
         /// </summary>
-        public virtual async Task<ConnectionCompleteParams> Connect(ConnectParams connectionParams)
+        public async Task<ConnectionCompleteParams> Connect(ConnectParams connectionParams)
         {
             // Validate parameters
             ConnectionCompleteParams validationResults = ValidateConnectParams(connectionParams);
@@ -222,9 +170,8 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             connectionParams.Connection.ApplicationName = GetApplicationNameWithFeature(connectionParams.Connection.ApplicationName, connectionParams.Purpose);
             // If there is no ConnectionInfo in the map, create a new ConnectionInfo, 
             // but wait until later when we are connected to add it to the map.
-            ConnectionInfo connectionInfo;
             bool connectionChanged = false;
-            if (!OwnerToConnectionMap.TryGetValue(connectionParams.OwnerUri, out connectionInfo))
+            if (!OwnerToConnectionMap.TryGetValue(connectionParams.OwnerUri, out ConnectionInfo connectionInfo))
             {
                 connectionInfo = new ConnectionInfo(_dataSourceConnectionFactory, connectionParams.OwnerUri, connectionParams.Connection);
             }
@@ -278,7 +225,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                 Resource = "SQL"
             };
 
-            var response = Instance.ServiceHost.SendRequest(SecurityTokenRequest.Type, requestMessage, true).Result;
+            var response = _serviceHost.SendRequest(SecurityTokenRequest.Type, requestMessage, true).Result;
             connection.UpdateAuthToken(response.Token);
 
             return response.Token;
@@ -759,56 +706,31 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <summary>
         /// List all databases on the server specified
         /// </summary>
-        public ListDatabasesResponse ListDatabases(ListDatabasesParams listDatabasesParams)
+        private ListDatabasesResponse ListDatabases(ListDatabasesParams listDatabasesParams)
         {
             // Verify parameters
-            var owner = listDatabasesParams.OwnerUri;
-            if (string.IsNullOrEmpty(owner))
+            if (string.IsNullOrEmpty(listDatabasesParams.OwnerUri))
             {
                 throw new ArgumentException(SR.ConnectionServiceListDbErrorNullOwnerUri);
             }
 
             // Use the existing connection as a base for the search
-            ConnectionInfo info;
-            if (!TryFindConnection(owner, out info))
+            if (!TryFindConnection(listDatabasesParams.OwnerUri, out ConnectionInfo info))
             {
-                throw new Exception(SR.ConnectionServiceListDbErrorNotConnected(owner));
+                throw new Exception(SR.ConnectionServiceListDbErrorNotConnected(listDatabasesParams.OwnerUri));
             }
 
             info.TryGetConnection(ConnectionType.Default, out ReliableDataSourceConnection connection);
             IDataSource dataSource = connection.GetUnderlyingConnection();
-            
-            DataSourceObjectMetadata objectMetadata = MetadataFactory.CreateClusterMetadata(info.ConnectionDetails.ServerName);
 
-            ListDatabasesResponse response = new ListDatabasesResponse();
-
-            // Mainly used by "manage" dashboard
-            if (listDatabasesParams.IncludeDetails.HasTrue())
-            {
-                IEnumerable<DataSourceObjectMetadata> databaseMetadataInfo = dataSource.GetChildObjects(objectMetadata, true);
-                List<DatabaseInfo> metadata = MetadataFactory.ConvertToDatabaseInfo(databaseMetadataInfo);
-                response.Databases = metadata.ToArray();
-
-                return response;
-            }
-
-            IEnumerable<DataSourceObjectMetadata> databaseMetadata = dataSource.GetChildObjects(objectMetadata);
-            if (databaseMetadata != null)
-            {
-                response.DatabaseNames = databaseMetadata
-                    .Select(objMeta => objMeta.PrettyName == objMeta.Name ? objMeta.PrettyName : $"{objMeta.PrettyName} ({objMeta.Name})")
-                    .ToArray();
-            }
-
-            return response;
+            return dataSource.GetDatabases(info.ConnectionDetails.ServerName, listDatabasesParams.IncludeDetails.HasTrue());
         }
 
         public void InitializeService(IProtocolEndpoint serviceHost, IDataSourceConnectionFactory dataSourceConnectionFactory, 
-            IConnectedBindingQueue connectedBindingQueue, IDataSourceFactory dataSourceFactory)
+            IConnectedBindingQueue connectedBindingQueue)
         {
-            ServiceHost = serviceHost;
+            _serviceHost = serviceHost;
             _dataSourceConnectionFactory = dataSourceConnectionFactory;
-            _dataSourceFactory = dataSourceFactory;
             connectedQueues.AddOrUpdate("Default", connectedBindingQueue, (key, old) => connectedBindingQueue);
             LockedDatabaseManager.ConnectionService = this;
 
@@ -845,15 +767,13 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <param name="connectParams"></param>
         /// <param name="requestContext"></param>
         /// <returns></returns>
-        protected async Task HandleConnectRequest(
-            ConnectParams connectParams,
-            RequestContext<bool> requestContext)
+        private async Task HandleConnectRequest(ConnectParams connectParams, RequestContext<bool> requestContext)
         {
             Logger.Write(TraceEventType.Verbose, "HandleConnectRequest");
 
             try
             {
-                RunConnectRequestHandlerTask(connectParams);
+                await Task.Run(async () => await RunConnectRequestHandlerTask(connectParams));
                 await requestContext.SendResult(true);
             }
             catch
@@ -862,34 +782,22 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             }
         }
 
-        private void RunConnectRequestHandlerTask(ConnectParams connectParams)
+        private async Task RunConnectRequestHandlerTask(ConnectParams connectParams)
         {
-            // create a task to connect asynchronously so that other requests are not blocked in the meantime
-            Task.Run(async () =>
+            try
             {
-                try
+                // open connection based on request details
+                ConnectionCompleteParams result = await Connect(connectParams);
+                await _serviceHost.SendEvent(ConnectionCompleteNotification.Type, result);
+            }
+            catch (Exception ex)
+            {
+                var result = new ConnectionCompleteParams
                 {
-                    // result is null if the ConnectParams was successfully validated 
-                    ConnectionCompleteParams result = ValidateConnectParams(connectParams);
-                    if (result != null)
-                    {
-                        await ServiceHost.SendEvent(ConnectionCompleteNotification.Type, result);
-                        return;
-                    }
-
-                    // open connection based on request details
-                    result = await Connect(connectParams);
-                    await ServiceHost.SendEvent(ConnectionCompleteNotification.Type, result);
-                }
-                catch (Exception ex)
-                {
-                    ConnectionCompleteParams result = new ConnectionCompleteParams()
-                    {
-                        Messages = ex.ToString()
-                    };
-                    await ServiceHost.SendEvent(ConnectionCompleteNotification.Type, result);
-                }
-            }).ContinueWithOnFaulted(null);
+                    Messages = ex.ToString()
+                };
+                await _serviceHost.SendEvent(ConnectionCompleteNotification.Type, result);
+            }
         }
 
         /// <summary>
@@ -915,15 +823,13 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <summary>
         /// Handle disconnect requests
         /// </summary>
-        protected async Task HandleDisconnectRequest(
-            DisconnectParams disconnectParams,
-            RequestContext<bool> requestContext)
+        private async Task HandleDisconnectRequest(DisconnectParams disconnectParams, RequestContext<bool> requestContext)
         {
             Logger.Write(TraceEventType.Verbose, "HandleDisconnectRequest");
 
             try
             {
-                bool result = Instance.Disconnect(disconnectParams);
+                bool result = Disconnect(disconnectParams);
                 await requestContext.SendResult(result);
             }
             catch (Exception ex)
@@ -936,15 +842,13 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <summary>
         /// Handle requests to list databases on the current server
         /// </summary>
-        protected async Task HandleListDatabasesRequest(
-            ListDatabasesParams listDatabasesParams,
-            RequestContext<ListDatabasesResponse> requestContext)
+        private async Task HandleListDatabasesRequest(ListDatabasesParams listDatabasesParams, RequestContext<ListDatabasesResponse> requestContext)
         {
             Logger.Write(TraceEventType.Verbose, "ListDatabasesRequest");
 
             try
             {
-                ListDatabasesResponse result = ListDatabases(listDatabasesParams);
+                var result = await Task.Run(() => ListDatabases(listDatabasesParams));
                 await requestContext.SendResult(result);
             }
             catch (Exception ex)
@@ -1025,11 +929,10 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <summary>
         /// Handles a request to change the database for a connection
         /// </summary>
-        public async Task HandleChangeDatabaseRequest(
-            ChangeDatabaseParams changeDatabaseParams,
-            RequestContext<bool> requestContext)
+        private async Task HandleChangeDatabaseRequest(ChangeDatabaseParams changeDatabaseParams, RequestContext<bool> requestContext)
         {
-            await requestContext.SendResult(ChangeConnectionDatabaseContext(changeDatabaseParams.OwnerUri, changeDatabaseParams.NewDatabase, true));
+            bool result = await Task.Run(() => result = ChangeConnectionDatabaseContext(changeDatabaseParams.OwnerUri, changeDatabaseParams.NewDatabase, true));
+            await requestContext.SendResult(result);
         }
 
         /// <summary>
@@ -1037,60 +940,57 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// </summary>
         /// <param name="ownerUri">URI of the owner of the connection</param>
         /// <param name="newDatabaseName">Name of the database to change the connection to</param>
-        public bool ChangeConnectionDatabaseContext(string ownerUri, string newDatabaseName, bool force = false)
+        private bool ChangeConnectionDatabaseContext(string ownerUri, string newDatabaseName, bool force = false)
         {
-            ConnectionInfo info;
-            if (TryFindConnection(ownerUri, out info))
+            if (!TryFindConnection(ownerUri, out ConnectionInfo info))
             {
-                try
+                return false;
+            }
+            
+            try
+            {
+                info.ConnectionDetails.DatabaseName = newDatabaseName;
+
+                foreach (string key in info.AllConnectionTypes)
                 {
-                    info.ConnectionDetails.DatabaseName = newDatabaseName;
-
-                    foreach (string key in info.AllConnectionTypes)
+                    ReliableDataSourceConnection conn;
+                    info.TryGetConnection(key, out conn);
+                    if (conn != null && conn.Database != newDatabaseName)
                     {
-                        ReliableDataSourceConnection conn;
-                        info.TryGetConnection(key, out conn);
-                        if (conn != null && conn.Database != newDatabaseName)
+                        if (info.IsCloud && force)
                         {
-                            if (info.IsCloud && force)
-                            {
-                                conn.Close();
-                                conn.Dispose();
-                                info.RemoveConnection(key);
+                            conn.Close();
+                            conn.Dispose();
+                            info.RemoveConnection(key);
 
-                                // create a kusto connection instance
-                                ReliableDataSourceConnection connection = info.Factory.CreateDataSourceConnection(info.ConnectionDetails, ownerUri);
-                                connection.Open();
-                                info.AddConnection(key, connection);
-                            }
-                            else
-                            {
-                                conn.ChangeDatabase(newDatabaseName);
-                            }
+                            // create a kusto connection instance
+                            ReliableDataSourceConnection connection = info.Factory.CreateDataSourceConnection(info.ConnectionDetails, ownerUri);
+                            connection.Open();
+                            info.AddConnection(key, connection);
+                        }
+                        else
+                        {
+                            conn.ChangeDatabase(newDatabaseName);
                         }
                     }
+                }
 
-                    // Fire a connection changed event
-                    ConnectionChangedParams parameters = new ConnectionChangedParams();
-                    IConnectionSummary summary = info.ConnectionDetails;
-                    parameters.Connection = summary.Clone();
-                    parameters.OwnerUri = ownerUri;
-                    ServiceHost.SendEvent(ConnectionChangedNotification.Type, parameters);
-                    return true;
-                }
-                catch (Exception e)
-                {
-                    Logger.Write(
-                        TraceEventType.Error,
-                        string.Format(
-                            "Exception caught while trying to change database context to [{0}] for OwnerUri [{1}]. Exception:{2}",
-                            newDatabaseName,
-                            ownerUri,
-                            e.ToString())
-                    );
-                }
+                // Fire a connection changed event
+                ConnectionChangedParams parameters = new ConnectionChangedParams();
+                IConnectionSummary summary = info.ConnectionDetails;
+                parameters.Connection = summary.Clone();
+                parameters.OwnerUri = ownerUri;
+                _serviceHost.SendEvent(ConnectionChangedNotification.Type, parameters);
+                return true;
             }
-            return false;
+            catch (Exception e)
+            {
+                Logger.Write(
+                    TraceEventType.Error,
+                    $"Exception caught while trying to change database context to [{newDatabaseName}] for OwnerUri [{ownerUri}]. Exception:{e}"
+                );
+                return false;
+            }
         }
 
         /// <summary>
@@ -1129,12 +1029,12 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <param name="info"></param>
         private void HandleDisconnectTelemetry(ConnectionInfo connectionInfo)
         {
-            if (ServiceHost != null)
+            if (_serviceHost != null)
             {
                 try
                 {
                     // Send a telemetry notification for intellisense performance metrics
-                    ServiceHost.SendEvent(TelemetryNotification.Type, new TelemetryParams()
+                    _serviceHost.SendEvent(TelemetryNotification.Type, new TelemetryParams()
                     {
                         Params = new TelemetryProperties
                         {
