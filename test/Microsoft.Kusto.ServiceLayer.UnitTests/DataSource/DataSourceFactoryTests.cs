@@ -15,6 +15,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.DataSource
         [TestCase(typeof(ArgumentException), "ConnectionString", "", "dstsAuth")]
         public void Create_Throws_Exceptions_For_InvalidAzureAccountToken(Type exceptionType, string connectionString, string azureAccountToken, string authType)
         {
+            Program.ServiceName = "Kusto";
             var dataSourceFactory = new DataSourceFactory();
             var connectionDetails = new ConnectionDetails
             {
