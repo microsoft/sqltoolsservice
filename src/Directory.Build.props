@@ -19,9 +19,9 @@
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<CredentialsTargetFramework>netcoreapp3.1</CredentialsTargetFramework>
-		<ServiceLayerTargetFramework>netcoreapp3.1</ServiceLayerTargetFramework>
-		<ResourceProviderTargetFramework>netcoreapp3.1</ResourceProviderTargetFramework>
+		<CredentialsTargetFramework>net5.0</CredentialsTargetFramework>
+		<ServiceLayerTargetFramework>net5.0</ServiceLayerTargetFramework>
+		<ResourceProviderTargetFramework>net5.0</ResourceProviderTargetFramework>
 	</PropertyGroup>
 	<PropertyGroup>
 		<DebugType>portable</DebugType>

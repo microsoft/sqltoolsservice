@@ -4,6 +4,7 @@
     <AssemblyName>MicrosoftKustoServiceLayer</AssemblyName>
     <OutputType>Exe</OutputType>
     <EnableDefaultItems>false</EnableDefaultItems>
+    <ValidateExecutableReferencesMatchSelfContained>false</ValidateExecutableReferencesMatchSelfContained>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
     <EnableDefaultNoneItems>false</EnableDefaultNoneItems>
