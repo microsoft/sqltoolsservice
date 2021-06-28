@@ -47,6 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             serviceHost.SetRequestHandler(GenerateDeployPlanRequest.Type, this.HandleGenerateDeployPlanRequest);
             serviceHost.SetRequestHandler(GetOptionsFromProfileRequest.Type, this.HandleGetOptionsFromProfileRequest);
             serviceHost.SetRequestHandler(ValidateStreamingJobRequest.Type, this.HandleValidateStreamingJobRequest);
+            serviceHost.SetRequestHandler(ParseTSqlRequest.Type, this.HandleParseTsqlRequest);
             serviceHost.SetRequestHandler(GetDefaultPublishOptionsRequest.Type, this.HandleGetDefaultPublishOptionsRequest);
         }
 
@@ -267,6 +268,25 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             {
                 ValidateStreamingJobOperation operation = new ValidateStreamingJobOperation(parameters);
                 ValidateStreamingJobResult result = operation.ValidateQuery();
+
+                await requestContext.SendResult(result);
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e);
+            }
+        }
+
+        /// <summary>
+        /// Handles request to handle parse tsql request
+        /// </summary>
+        /// <returns></returns>
+        public async Task HandleParseTsqlRequest(ParseTSqlParams parameters, RequestContext<ParseTSqlResult> requestContext)
+        {
+            try
+            {
+                ParseTSQlOperation operation = new ParseTSQlOperation(parameters);
+                ParseTSqlResult result = operation.Parse();
 
                 await requestContext.SendResult(result);
             }
