@@ -140,13 +140,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                     Version = Version.Parse(serverInfo.ServerVersion),
                     Platform = hostInfo.Platform
                 };
-
-                var db = SqlAssessmentService.GetDatabaseLocator(server, connection.Database);
-                var connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
-                var results = await GetAssessmentItems(server, connectionString);
-                var result = new MigrationAssessmentResult();
-                result.Items.AddRange(results);
-                await requestContext.SendResult(result);
+                if (parameters.Databases != null) 
+                {
+                    
+                }
+                else 
+                {
+                    var db = SqlAssessmentService.GetDatabaseLocator(server, connection.Database);
+                    var connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
+                    var results = await GetAssessmentItems(server, connectionString);
+                    var result = new MigrationAssessmentResult();
+                    result.Items.AddRange(results);
+                    await requestContext.SendResult(result);
+                }
             }
             catch (Exception e)
             {
