@@ -20,7 +20,7 @@ using ASA = ASAScriptDom::Microsoft.SqlServer.TransactSql.ScriptDom;
 namespace Microsoft.SqlTools.ServiceLayer.DacFx
 {
     /// <summary>
-    /// Class to represent a validate streaming job operation
+    /// Class to represent
     /// </summary>
     class ParseTSQlOperation
     {

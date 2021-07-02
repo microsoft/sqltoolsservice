@@ -11,6 +11,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx
 {
@@ -48,6 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             serviceHost.SetRequestHandler(GetOptionsFromProfileRequest.Type, this.HandleGetOptionsFromProfileRequest);
             serviceHost.SetRequestHandler(ValidateStreamingJobRequest.Type, this.HandleValidateStreamingJobRequest);
             serviceHost.SetRequestHandler(ParseTSqlRequest.Type, this.HandleParseTsqlRequest);
+            serviceHost.SetRequestHandler(InsertSqlInputBindingRequest.Type, this.HandleInsertSqlInputBindingRequest);
             serviceHost.SetRequestHandler(GetDefaultPublishOptionsRequest.Type, this.HandleGetDefaultPublishOptionsRequest);
         }
 
@@ -287,6 +289,25 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             {
                 ParseTSQlOperation operation = new ParseTSQlOperation(parameters);
                 ParseTSqlResult result = operation.Parse();
+
+                await requestContext.SendResult(result);
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e);
+            }
+        }
+
+        /// <summary>
+        /// Handles request to insert sql input binding
+        /// </summary>
+        /// <returns></returns>
+        public async Task HandleInsertSqlInputBindingRequest(InsertSqlBindingParams parameters, RequestContext<ResultStatus> requestContext)
+        {
+            try
+            {
+                InsertSqlInputBindingOperation operation = new InsertSqlInputBindingOperation(parameters);
+                ResultStatus result = operation.AddInputBinding();
 
                 await requestContext.SendResult(result);
             }

@@ -25,6 +25,9 @@
 		<PackageReference Update="Microsoft.Azure.Kusto.Language" Version="9.0.4"/>
 		<PackageReference Update="Microsoft.SqlServer.Assessment"  Version="[1.0.305]" />
 		<PackageReference Update="Microsoft.SqlServer.Migration.Assessment"  Version="1.0.20210614.603" />
+		<PackageReference Update="Microsoft.CodeAnalysis.CSharp" Version="3.10.0" />
+		<PackageReference Update="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.10.0" />
+		<PackageReference Update="Microsoft.CodeAnalysis.Workspaces.Common" Version="3.10.0" />
 
 		<PackageReference Update="Moq" Version="4.8.2" />
 		<PackageReference Update="nunit" Version="3.12.0" />
