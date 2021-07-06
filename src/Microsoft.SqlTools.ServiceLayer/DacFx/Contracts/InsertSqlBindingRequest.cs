@@ -9,6 +9,13 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 {
+
+    public enum BindingType
+    {
+        input,
+        output
+    }
+
     /// <summary>
     /// Parameters for inserting a sql binding
     /// </summary>
@@ -17,7 +24,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         /// <summary>
         /// Gets or sets the filePath
         /// </summary>
-        public string filePath { get; set;}
+        public string filePath { get; set; }
+
+        public BindingType bindingType { get; set; }
 
         /// <summary>
         /// Gets or sets the function name
@@ -31,20 +40,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     }
 
     /// <summary>
-    /// Defines the Insert Sql Input Binding request
+    /// Defines the Insert Sql Binding request
     /// </summary>
-    class InsertSqlInputBindingRequest
+    class InsertSqlBindingRequest
     {
         public static readonly RequestType<InsertSqlBindingParams, ResultStatus> Type =
-            RequestType<InsertSqlBindingParams, ResultStatus>.Create("dacfx/sqlInputBinding");
+            RequestType<InsertSqlBindingParams, ResultStatus>.Create("dacfx/sqlBinding");
 
-    }
-    /// <summary>
-    /// Defines the DacFx parse tsql request type
-    /// </summary>
-    class InsertSqlOutputBindingRequest
-    {
-        public static readonly RequestType<InsertSqlBindingParams, ResultStatus> Type =
-            RequestType<InsertSqlBindingParams, ResultStatus>.Create("dacfx/sqlOutputBinding");
     }
 }
