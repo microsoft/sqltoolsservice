@@ -16,12 +16,11 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.CSharp.Formatting;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Text;
-using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.ServiceLayer.AzureFunctions.Contracts;
 using Microsoft.SqlTools.Utility;
 using Microsoft.CodeAnalysis.CSharp;
 
-namespace Microsoft.SqlTools.ServiceLayer.DacFx
+namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
 {
     /// <summary>
     /// Class to represent getting the Azure Functions in a file

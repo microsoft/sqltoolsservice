@@ -3,8 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-extern alias ASAScriptDom;
-
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -16,12 +14,12 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.CSharp.Formatting;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Text;
-using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
+using Microsoft.SqlTools.ServiceLayer.AzureFunctions.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using Microsoft.CodeAnalysis.CSharp;
 
-namespace Microsoft.SqlTools.ServiceLayer.DacFx
+namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
 {
     /// <summary>
     /// Class to represent inserting a sql binding into an Azure Function

@@ -7,7 +7,7 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
+namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions.Contracts
 {
 
     public enum BindingType
@@ -45,7 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     class InsertSqlBindingRequest
     {
         public static readonly RequestType<InsertSqlBindingParams, ResultStatus> Type =
-            RequestType<InsertSqlBindingParams, ResultStatus>.Create("dacfx/sqlBinding");
+            RequestType<InsertSqlBindingParams, ResultStatus>.Create("azureFunctions/sqlBinding");
 
     }
 }

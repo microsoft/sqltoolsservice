@@ -7,7 +7,7 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
+namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions.Contracts
 {
     /// <summary>
     /// Parameters for inserting a sql binding
@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     class GetAzureFunctionsRequest
     {
         public static readonly RequestType<GetAzureFunctionsParams, GetAzureFunctionsResult> Type =
-            RequestType<GetAzureFunctionsParams, GetAzureFunctionsResult>.Create("dacfx/getAzureFunctions");
+            RequestType<GetAzureFunctionsParams, GetAzureFunctionsResult>.Create("azureFunctions/getAzureFunctions");
 
     }
 }

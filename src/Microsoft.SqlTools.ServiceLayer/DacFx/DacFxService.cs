@@ -49,8 +49,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             serviceHost.SetRequestHandler(GetOptionsFromProfileRequest.Type, this.HandleGetOptionsFromProfileRequest);
             serviceHost.SetRequestHandler(ValidateStreamingJobRequest.Type, this.HandleValidateStreamingJobRequest);
             serviceHost.SetRequestHandler(ParseTSqlRequest.Type, this.HandleParseTsqlRequest);
-            serviceHost.SetRequestHandler(InsertSqlBindingRequest.Type, this.HandleInsertSqlBindingRequest);
-            serviceHost.SetRequestHandler(GetAzureFunctionsRequest.Type, this.HandleGetAzureFunctionsRequest);
             serviceHost.SetRequestHandler(GetDefaultPublishOptionsRequest.Type, this.HandleGetDefaultPublishOptionsRequest);
         }
 
@@ -290,44 +288,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             {
                 ParseTSQlOperation operation = new ParseTSQlOperation(parameters);
                 ParseTSqlResult result = operation.Parse();
-
-                await requestContext.SendResult(result);
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e);
-            }
-        }
-
-        /// <summary>
-        /// Handles request to insert sql binding into Azure Functions
-        /// </summary>
-        /// <returns></returns>
-        public async Task HandleInsertSqlBindingRequest(InsertSqlBindingParams parameters, RequestContext<ResultStatus> requestContext)
-        {
-            try
-            {
-                InsertSqlBindingOperation operation = new InsertSqlBindingOperation(parameters);
-                ResultStatus result = operation.AddBinding();
-
-                await requestContext.SendResult(result);
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e);
-            }
-        }
-
-        /// <summary>
-        /// Handles request to get azure functions in a file
-        /// </summary>
-        /// <returns></returns>
-        public async Task HandleGetAzureFunctionsRequest(GetAzureFunctionsParams parameters, RequestContext<GetAzureFunctionsResult> requestContext)
-        {
-            try
-            {
-                GetAzureFunctionsOperation operation = new GetAzureFunctionsOperation(parameters);
-                GetAzureFunctionsResult result = operation.GetAzureFunctions();
 
                 await requestContext.SendResult(result);
             }
