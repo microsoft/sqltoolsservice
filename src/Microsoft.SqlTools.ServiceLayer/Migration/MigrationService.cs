@@ -140,19 +140,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                     Version = Version.Parse(serverInfo.ServerVersion),
                     Platform = hostInfo.Platform
                 };
+                var db = SqlAssessmentService.GetDatabaseLocator(server, connection.Database);
+                var connectionStrings = new List<string>();
+                connectionStrings.Add(ConnectionService.BuildConnectionString(connInfo.ConnectionDetails));
                 if (parameters.Databases != null) 
                 {
-                    
+                    foreach (string database in parameters.Databases)
+                    {
+                        connInfo.ConnectionDetails.DatabaseName = database;
+                        connectionStrings.Add(ConnectionService.BuildConnectionString(connInfo.ConnectionDetails));
+                    }
                 }
-                else 
-                {
-                    var db = SqlAssessmentService.GetDatabaseLocator(server, connection.Database);
-                    var connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
-                    var results = await GetAssessmentItems(server, connectionString);
-                    var result = new MigrationAssessmentResult();
-                    result.Items.AddRange(results);
-                    await requestContext.SendResult(result);
-                }
+                string[] assessmentConnectionStrings = connectionStrings.ToArray();
+                var results = await GetAssessmentItems(server, assessmentConnectionStrings);
+                var result = new MigrationAssessmentResult();
+                result.Items.AddRange(results);
+                await requestContext.SendResult(result);
             }
             catch (Exception e)
             {
@@ -192,12 +195,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             }
         }
 
-        internal async Task<List<MigrationAssessmentInfo>> GetAssessmentItems(SqlObjectLocator target, string connectionString)
+        internal async Task<List<MigrationAssessmentInfo>> GetAssessmentItems(SqlObjectLocator target, string[] connectionStrings)
         {
             SqlAssessmentConfiguration.EnableLocalLogging = true;
             SqlAssessmentConfiguration.EnableReportCreation = true;
             SqlAssessmentConfiguration.AssessmentReportAndLogsRootFolderPath = Path.GetDirectoryName(Logger.LogFileFullPath);
-            DmaEngine engine = new DmaEngine(connectionString);
+            DmaEngine engine = new DmaEngine(connectionStrings);
             var assessmentResults = await engine.GetTargetAssessmentResultsList();
 
             var result = new List<MigrationAssessmentInfo>();
