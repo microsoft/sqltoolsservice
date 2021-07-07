@@ -142,7 +142,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 };
                 var db = SqlAssessmentService.GetDatabaseLocator(server, connection.Database);
                 var connectionStrings = new List<string>();
-                connectionStrings.Add(ConnectionService.BuildConnectionString(connInfo.ConnectionDetails));
                 if (parameters.Databases != null) 
                 {
                     foreach (string database in parameters.Databases)
