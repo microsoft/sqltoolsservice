@@ -66,5 +66,7 @@ END CATCH
 ";
         public const string GetHostInfo = @"SELECT [host_platform], [host_distribution], [host_release], [host_service_pack_level], [host_sku], [os_language_version] FROM sys.dm_os_host_info";
         public const string GetHostWindowsVersion = @"SELECT windows_release FROM sys.dm_os_windows_info";
+        public const string GetHostOsInfoBeforeVersion11 = @"SELECT cpu_count, physical_memory_in_bytes from sys.dm_os_sys_info";
+        public const string GetHostOsInfoSinceVersion11 = @"SELECT cpu_count, physical_memory_kb from sys.dm_os_sys_info"; 
     }
 }

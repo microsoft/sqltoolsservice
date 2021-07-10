@@ -649,12 +649,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             // of SQL Server do not have their metadata upgraded to include the xml_index_type column in the sys.xml_indexes view. Because
             // of this, we must detect the presence of the column to determine if we can query for Selective Xml Indexes
             public bool IsSelectiveXmlIndexMetadataPresent;
-
             public string OsVersion;
-
             public string MachineName;
             public string ServerName;
-
+            public int CpuCount;
+            public long PhysicalMemoryInKB;
             public Dictionary<string, object> Options { get; set; }
         }
 
@@ -674,6 +673,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             public string Distribution;
             public string Release;
             public string ServicePackLevel;
+        }
+
+          public class ServerOsInfo
+        {
+            public int CpuCount;
+            public long PhysicalMemoryInKb;
         }
 
         public static bool TryGetServerVersion(string connectionString, out ServerInfo serverInfo, string azureAccountToken)
@@ -753,6 +758,55 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             return hostInfo;
         }
 
+         /// <summary>
+        /// Gets the server host cpu count and memory from sys.dm_os_sys_info view
+        /// </summary>
+        /// <param name="connection">The connection</param>
+        public static ServerOsInfo GetServerOsInfo(IDbConnection connection)
+        {
+            var osInfo = new ServerOsInfo();
+            // SQL servers prior to 2012 provide memory in bytes and not kilobytes.
+            if (!Version.TryParse(ReadServerVersion(connection), out var hostVersion) || hostVersion.Major < 11)
+            {
+                try
+                {
+                    ExecuteReader(
+                        connection,
+                        SqlConnectionHelperScripts.GetHostOsInfoBeforeVersion11,
+                        reader =>
+                        {
+                            reader.Read();
+                            osInfo.CpuCount = Int32.Parse(reader[0].ToString(), CultureInfo.InvariantCulture);
+                            osInfo.PhysicalMemoryInKb = long.Parse(reader[1].ToString(), CultureInfo.InvariantCulture)/1024;
+                        });
+                }
+                catch
+                {
+                    // Ignore the error and return 0s 
+                }
+            }
+            else
+            {
+                try
+                {
+                    ExecuteReader(
+                        connection,
+                        SqlConnectionHelperScripts.GetHostOsInfoSinceVersion11,
+                        reader =>
+                        {
+                            reader.Read();
+                            osInfo.CpuCount = Int32.Parse(reader[0].ToString(), CultureInfo.InvariantCulture);
+                            osInfo.PhysicalMemoryInKb = long.Parse(reader[1].ToString(), CultureInfo.InvariantCulture);
+                        });
+                }
+                catch
+                {
+                    // Ignore the error and return 0s 
+                }
+            }
+            return osInfo;
+        }
+
         /// <summary>
         /// Returns the version of the server.  This routine will throw if an exception is encountered.
         /// </summary>
@@ -826,6 +880,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 //  major version <= 13 (SQL Server 2016) - Windows 6.5
                 //  otherwise - Windows Server 2019 Standard 10.0
                 serverInfo.OsVersion = hostInfo.Distribution != null ? string.Format("{0} {1}", hostInfo.Distribution, hostInfo.Release) : string.Format("{0} {1}", hostInfo.Platform, hostInfo.Release);
+
+                var osInfo = GetServerOsInfo(connection);
+
+                serverInfo.CpuCount = osInfo.CpuCount;
+                serverInfo.PhysicalMemoryInKB = osInfo.PhysicalMemoryInKb;
 
                 serverInfo.Options = new Dictionary<string, object>();
 
