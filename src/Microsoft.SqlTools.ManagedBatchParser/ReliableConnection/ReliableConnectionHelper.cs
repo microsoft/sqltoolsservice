@@ -675,7 +675,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             public string ServicePackLevel;
         }
 
-          public class ServerOsInfo
+          public class ServerSysInfo
         {
             public int CpuCount;
             public long PhysicalMemoryInKb;
@@ -762,9 +762,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         /// Gets the server host cpu count and memory from sys.dm_os_sys_info view
         /// </summary>
         /// <param name="connection">The connection</param>
-        public static ServerOsInfo GetServerOsInfo(IDbConnection connection)
+        public static ServerSysInfo GetServerSysInfo(IDbConnection connection)
         {
-            var osInfo = new ServerOsInfo();
+            var osInfo = new ServerSysInfo();
             // SQL servers prior to 2012 provide memory in bytes and not kilobytes.
             if (!Version.TryParse(ReadServerVersion(connection), out var hostVersion) || hostVersion.Major < 11)
             {
@@ -772,7 +772,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 {
                     ExecuteReader(
                         connection,
-                        SqlConnectionHelperScripts.GetHostOsInfoBeforeVersion11,
+                        SqlConnectionHelperScripts.GetHostSysInfoBeforeVersion11,
                         reader =>
                         {
                             reader.Read();
@@ -791,7 +791,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 {
                     ExecuteReader(
                         connection,
-                        SqlConnectionHelperScripts.GetHostOsInfoSinceVersion11,
+                        SqlConnectionHelperScripts.GetHostSysInfoSinceVersion11,
                         reader =>
                         {
                             reader.Read();
@@ -881,7 +881,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 //  otherwise - Windows Server 2019 Standard 10.0
                 serverInfo.OsVersion = hostInfo.Distribution != null ? string.Format("{0} {1}", hostInfo.Distribution, hostInfo.Release) : string.Format("{0} {1}", hostInfo.Platform, hostInfo.Release);
 
-                var osInfo = GetServerOsInfo(connection);
+                var osInfo = GetServerSysInfo(connection);
 
                 serverInfo.CpuCount = osInfo.CpuCount;
                 serverInfo.PhysicalMemoryInKB = osInfo.PhysicalMemoryInKb;
