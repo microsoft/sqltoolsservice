@@ -764,7 +764,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         /// <param name="connection">The connection</param>
         public static ServerSysInfo GetServerSysInfo(IDbConnection connection)
         {
-            var osInfo = new ServerSysInfo();
+            var sysInfo = new ServerSysInfo();
             // SQL servers prior to 2012 provide memory in bytes and not kilobytes.
             if (!Version.TryParse(ReadServerVersion(connection), out var hostVersion) || hostVersion.Major < 11)
             {
@@ -776,8 +776,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                         reader =>
                         {
                             reader.Read();
-                            osInfo.CpuCount = Int32.Parse(reader[0].ToString(), CultureInfo.InvariantCulture);
-                            osInfo.PhysicalMemoryInKb = long.Parse(reader[1].ToString(), CultureInfo.InvariantCulture)/1024;
+                            sysInfo.CpuCount = Int32.Parse(reader[0].ToString(), CultureInfo.InvariantCulture);
+                            sysInfo.PhysicalMemoryInKb = long.Parse(reader[1].ToString(), CultureInfo.InvariantCulture)/1024;
                         });
                 }
                 catch
@@ -795,8 +795,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                         reader =>
                         {
                             reader.Read();
-                            osInfo.CpuCount = Int32.Parse(reader[0].ToString(), CultureInfo.InvariantCulture);
-                            osInfo.PhysicalMemoryInKb = long.Parse(reader[1].ToString(), CultureInfo.InvariantCulture);
+                            sysInfo.CpuCount = Int32.Parse(reader[0].ToString(), CultureInfo.InvariantCulture);
+                            sysInfo.PhysicalMemoryInKb = long.Parse(reader[1].ToString(), CultureInfo.InvariantCulture);
                         });
                 }
                 catch
@@ -804,7 +804,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                     // Ignore the error and return 0s 
                 }
             }
-            return osInfo;
+            return sysInfo;
         }
 
         /// <summary>
