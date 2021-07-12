@@ -13,6 +13,7 @@ using System.Globalization;
 using System.Security;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management.Smo;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 {
@@ -675,7 +676,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             public string ServicePackLevel;
         }
 
-          public class ServerSysInfo
+        public class ServerSysInfo
         {
             public int CpuCount;
             public long PhysicalMemoryInKb;
@@ -758,51 +759,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             return hostInfo;
         }
 
-         /// <summary>
+        /// <summary>
         /// Gets the server host cpu count and memory from sys.dm_os_sys_info view
         /// </summary>
         /// <param name="connection">The connection</param>
         public static ServerSysInfo GetServerSysInfo(IDbConnection connection)
         {
             var sysInfo = new ServerSysInfo();
-            // SQL servers prior to 2012 provide memory in bytes and not kilobytes.
-            if (!Version.TryParse(ReadServerVersion(connection), out var hostVersion) || hostVersion.Major < 11)
+            try
             {
-                try
-                {
-                    ExecuteReader(
-                        connection,
-                        SqlConnectionHelperScripts.GetHostSysInfoBeforeVersion11,
-                        reader =>
-                        {
-                            reader.Read();
-                            sysInfo.CpuCount = Int32.Parse(reader[0].ToString(), CultureInfo.InvariantCulture);
-                            sysInfo.PhysicalMemoryInKb = long.Parse(reader[1].ToString(), CultureInfo.InvariantCulture)/1024;
-                        });
-                }
-                catch
-                {
-                    // Ignore the error and return 0s 
-                }
+                ReliableSqlConnection sqlConnection = connection as ReliableSqlConnection;
+                //this throws exception
+                var server = new Server(new ServerConnection(sqlConnection.GetUnderlyingConnection()));
+                server.SetDefaultInitFields(server.GetType(), new String[] { "Processor", "PhysicalMemory" });
+                sysInfo.CpuCount = server.Processors;
+                sysInfo.PhysicalMemoryInKb = server.PhysicalMemory;
             }
-            else
+            catch (Exception ex)
             {
-                try
-                {
-                    ExecuteReader(
-                        connection,
-                        SqlConnectionHelperScripts.GetHostSysInfoSinceVersion11,
-                        reader =>
-                        {
-                            reader.Read();
-                            sysInfo.CpuCount = Int32.Parse(reader[0].ToString(), CultureInfo.InvariantCulture);
-                            sysInfo.PhysicalMemoryInKb = long.Parse(reader[1].ToString(), CultureInfo.InvariantCulture);
-                        });
-                }
-                catch
-                {
-                    // Ignore the error and return 0s 
-                }
+                Logger.Write(TraceEventType.Error, ex.ToString());
             }
             return sysInfo;
         }
