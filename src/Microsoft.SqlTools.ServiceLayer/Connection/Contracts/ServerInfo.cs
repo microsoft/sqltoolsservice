@@ -75,7 +75,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// <summary>
         /// The physical memory of the host running the server in KBs.
         /// </summary>
-        public long PhysicalMemoryInKB;
+        public int PhysicalMemoryInKB;
 
         /// <summary>
         /// Server options

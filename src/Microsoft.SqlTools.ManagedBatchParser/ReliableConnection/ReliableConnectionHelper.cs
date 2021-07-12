@@ -654,7 +654,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             public string MachineName;
             public string ServerName;
             public int CpuCount;
-            public long PhysicalMemoryInKB;
+            public int PhysicalMemoryInKB;
             public Dictionary<string, object> Options { get; set; }
         }
 
@@ -679,7 +679,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         public class ServerSysInfo
         {
             public int CpuCount;
-            public long PhysicalMemoryInKb;
+            public int PhysicalMemoryInKb;
         }
 
         public static bool TryGetServerVersion(string connectionString, out ServerInfo serverInfo, string azureAccountToken)
@@ -768,9 +768,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             var sysInfo = new ServerSysInfo();
             try
             {
-                ReliableSqlConnection sqlConnection = connection as ReliableSqlConnection;
-                //this throws exception
-                var server = new Server(new ServerConnection(sqlConnection.GetUnderlyingConnection()));
+               SqlConnection conn = null;
+               ReliableSqlConnection reliableSqlConnection = connection as ReliableSqlConnection;
+               SqlConnection sqlConnection = connection as SqlConnection;
+                if (reliableSqlConnection != null)
+                {
+                    conn = reliableSqlConnection.GetUnderlyingConnection();
+                }
+                else if (sqlConnection != null)
+                {
+                    conn = sqlConnection;
+                }
+                var server = new Server(new ServerConnection(conn));
                 server.SetDefaultInitFields(server.GetType(), new String[] { "Processor", "PhysicalMemory" });
                 sysInfo.CpuCount = server.Processors;
                 sysInfo.PhysicalMemoryInKb = server.PhysicalMemory;
