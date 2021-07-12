@@ -865,10 +865,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 //  otherwise - Windows Server 2019 Standard 10.0
                 serverInfo.OsVersion = hostInfo.Distribution != null ? string.Format("{0} {1}", hostInfo.Distribution, hostInfo.Release) : string.Format("{0} {1}", hostInfo.Platform, hostInfo.Release);
 
-                var osInfo = GetServerSysInfo(connection);
+                var sysInfo = GetServerSysInfo(connection);
 
-                serverInfo.CpuCount = osInfo.CpuCount;
-                serverInfo.PhysicalMemoryInKB = osInfo.PhysicalMemoryInKb;
+                serverInfo.CpuCount = sysInfo.CpuCount;
+                serverInfo.PhysicalMemoryInKB = sysInfo.PhysicalMemoryInKb;
 
                 serverInfo.Options = new Dictionary<string, object>();
 
