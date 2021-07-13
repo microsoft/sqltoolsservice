@@ -472,7 +472,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     OsVersion = serverInfo.OsVersion,
                     MachineName = serverInfo.MachineName,
                     CpuCount = serverInfo.CpuCount,
-                    PhysicalMemoryInKB = serverInfo.PhysicalMemoryInKB,
+                    PhysicalMemoryInMB = serverInfo.PhysicalMemoryInMB,
                     Options = serverInfo.Options
                 };
                 connectionInfo.IsCloud = serverInfo.IsCloud;

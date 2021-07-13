@@ -654,7 +654,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             public string MachineName;
             public string ServerName;
             public int CpuCount;
-            public int PhysicalMemoryInKB;
+            public int PhysicalMemoryInMB;
             public Dictionary<string, object> Options { get; set; }
         }
 
@@ -679,7 +679,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         public class ServerSystemInfo
         {
             public int CpuCount;
-            public int PhysicalMemoryInKb;
+            public int PhysicalMemoryInMB;
         }
 
         public static bool TryGetServerVersion(string connectionString, out ServerInfo serverInfo, string azureAccountToken)
@@ -768,21 +768,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             var sysInfo = new ServerSystemInfo();
             try
             {
-                SqlConnection conn = null;
-                ReliableSqlConnection reliableSqlConnection = connection as ReliableSqlConnection;
-                SqlConnection sqlConnection = connection as SqlConnection;
-                if (reliableSqlConnection != null)
-                {
-                    conn = reliableSqlConnection.GetUnderlyingConnection();
-                }
-                else if (sqlConnection != null)
-                {
-                    conn = sqlConnection;
-                }
-                var server = new Server(new ServerConnection(conn));
+                SqlConnection sqlConnection = GetAsSqlConnection(connection);
+                var server = new Server(new ServerConnection(sqlConnection));
                 server.SetDefaultInitFields(server.GetType(), new String[] { nameof(server.Processors), nameof(server.PhysicalMemory) });
                 sysInfo.CpuCount = server.Processors;
-                sysInfo.PhysicalMemoryInKb = server.PhysicalMemory;
+                sysInfo.PhysicalMemoryInMB = server.PhysicalMemory;
             }
             catch (Exception ex)
             {
@@ -869,7 +859,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 var sysInfo = GetServerSystemInfo(connection);
 
                 serverInfo.CpuCount = sysInfo.CpuCount;
-                serverInfo.PhysicalMemoryInKB = sysInfo.PhysicalMemoryInKb;
+                serverInfo.PhysicalMemoryInMB = sysInfo.PhysicalMemoryInMB;
 
                 serverInfo.Options = new Dictionary<string, object>();
 
