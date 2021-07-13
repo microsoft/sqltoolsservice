@@ -73,7 +73,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         public int CpuCount;
 
         /// <summary>
-        /// The physical memory of the host running the server in KBs.
+        /// The physical memory of the host running the server in MBs.
         /// </summary>
         public int PhysicalMemoryInMB;
 
