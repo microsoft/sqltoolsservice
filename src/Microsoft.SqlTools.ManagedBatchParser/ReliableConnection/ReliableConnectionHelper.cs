@@ -676,7 +676,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             public string ServicePackLevel;
         }
 
-        public class ServerSysInfo
+        public class ServerSystemInfo
         {
             public int CpuCount;
             public int PhysicalMemoryInKb;
@@ -763,14 +763,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         /// Gets the server host cpu count and memory from sys.dm_os_sys_info view
         /// </summary>
         /// <param name="connection">The connection</param>
-        public static ServerSysInfo GetServerSysInfo(IDbConnection connection)
+        public static ServerSystemInfo GetServerSystemInfo(IDbConnection connection)
         {
-            var sysInfo = new ServerSysInfo();
+            var sysInfo = new ServerSystemInfo();
             try
             {
-               SqlConnection conn = null;
-               ReliableSqlConnection reliableSqlConnection = connection as ReliableSqlConnection;
-               SqlConnection sqlConnection = connection as SqlConnection;
+                SqlConnection conn = null;
+                ReliableSqlConnection reliableSqlConnection = connection as ReliableSqlConnection;
+                SqlConnection sqlConnection = connection as SqlConnection;
                 if (reliableSqlConnection != null)
                 {
                     conn = reliableSqlConnection.GetUnderlyingConnection();
@@ -780,13 +780,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                     conn = sqlConnection;
                 }
                 var server = new Server(new ServerConnection(conn));
-                server.SetDefaultInitFields(server.GetType(), new String[] { "Processor", "PhysicalMemory" });
+                server.SetDefaultInitFields(server.GetType(), new String[] { nameof(server.Processors), nameof(server.PhysicalMemory) });
                 sysInfo.CpuCount = server.Processors;
                 sysInfo.PhysicalMemoryInKb = server.PhysicalMemory;
             }
             catch (Exception ex)
             {
                 Logger.Write(TraceEventType.Error, ex.ToString());
+                throw ex;
             }
             return sysInfo;
         }
@@ -865,7 +866,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 //  otherwise - Windows Server 2019 Standard 10.0
                 serverInfo.OsVersion = hostInfo.Distribution != null ? string.Format("{0} {1}", hostInfo.Distribution, hostInfo.Release) : string.Format("{0} {1}", hostInfo.Platform, hostInfo.Release);
 
-                var sysInfo = GetServerSysInfo(connection);
+                var sysInfo = GetServerSystemInfo(connection);
 
                 serverInfo.CpuCount = sysInfo.CpuCount;
                 serverInfo.PhysicalMemoryInKB = sysInfo.PhysicalMemoryInKb;
