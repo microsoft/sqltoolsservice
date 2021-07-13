@@ -13,6 +13,7 @@ using System.Globalization;
 using System.Security;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management.Smo;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 {
@@ -649,12 +650,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             // of SQL Server do not have their metadata upgraded to include the xml_index_type column in the sys.xml_indexes view. Because
             // of this, we must detect the presence of the column to determine if we can query for Selective Xml Indexes
             public bool IsSelectiveXmlIndexMetadataPresent;
-
             public string OsVersion;
-
             public string MachineName;
             public string ServerName;
-
+            public int CpuCount;
+            public int PhysicalMemoryInMB;
             public Dictionary<string, object> Options { get; set; }
         }
 
@@ -674,6 +674,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             public string Distribution;
             public string Release;
             public string ServicePackLevel;
+        }
+
+        public class ServerSystemInfo
+        {
+            public int CpuCount;
+            public int PhysicalMemoryInMB;
         }
 
         public static bool TryGetServerVersion(string connectionString, out ServerInfo serverInfo, string azureAccountToken)
@@ -754,6 +760,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         }
 
         /// <summary>
+        /// Gets the server host cpu count and memory from sys.dm_os_sys_info view
+        /// </summary>
+        /// <param name="connection">The connection</param>
+        public static ServerSystemInfo GetServerSystemInfo(IDbConnection connection)
+        {
+            var sysInfo = new ServerSystemInfo();
+            try
+            {
+                SqlConnection sqlConnection = GetAsSqlConnection(connection);
+                var server = new Server(new ServerConnection(sqlConnection));
+                server.SetDefaultInitFields(server.GetType(), new String[] { nameof(server.Processors), nameof(server.PhysicalMemory) });
+                sysInfo.CpuCount = server.Processors;
+                sysInfo.PhysicalMemoryInMB = server.PhysicalMemory;
+            }
+            catch (Exception ex)
+            {
+                Logger.Write(TraceEventType.Error, ex.ToString());
+                throw ex;
+            }
+            return sysInfo;
+        }
+
+        /// <summary>
         /// Returns the version of the server.  This routine will throw if an exception is encountered.
         /// </summary>
         public static ServerInfo GetServerVersion(IDbConnection connection)
@@ -826,6 +855,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 //  major version <= 13 (SQL Server 2016) - Windows 6.5
                 //  otherwise - Windows Server 2019 Standard 10.0
                 serverInfo.OsVersion = hostInfo.Distribution != null ? string.Format("{0} {1}", hostInfo.Distribution, hostInfo.Release) : string.Format("{0} {1}", hostInfo.Platform, hostInfo.Release);
+
+                var sysInfo = GetServerSystemInfo(connection);
+
+                serverInfo.CpuCount = sysInfo.CpuCount;
+                serverInfo.PhysicalMemoryInMB = sysInfo.PhysicalMemoryInMB;
 
                 serverInfo.Options = new Dictionary<string, object>();
 
