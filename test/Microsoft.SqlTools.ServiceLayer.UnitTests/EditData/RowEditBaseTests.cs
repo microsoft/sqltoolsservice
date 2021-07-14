@@ -82,11 +82,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             RowEditTester rt = new RowEditTester(rs, etm);
             if (val == DBNull.Value)
             {
-                rt.ValidateWhereClauseNullKey(whereClause);
+                rt.ValidateWhereClauseNullKey(nullClause);
             }
             else
             {
-                rt.ValidateWhereClauseSingleKey(whereClause);
+                rt.ValidateWhereClauseSingleKey(nullClause);
             }
         }
 
