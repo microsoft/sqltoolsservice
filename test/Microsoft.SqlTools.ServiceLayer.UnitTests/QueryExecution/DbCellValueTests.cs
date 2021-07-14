@@ -5,13 +5,13 @@
 
 using System;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 {
     public class DbCellValueTests
     {
-        [Fact]
+        [Test]
         public void ConstructValid()
         {
             // If: I construct a new DbCellValue
@@ -23,12 +23,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             };
 
             // Then: It should have the values I specified in it
-            Assert.Equal("qqq", dbc.DisplayValue);
-            Assert.Equal(12, dbc.RawObject);
+            Assert.AreEqual("qqq", dbc.DisplayValue);
+            Assert.AreEqual(12, dbc.RawObject);
             Assert.True(dbc.IsNull);
         }
 
-        [Fact]
+        [Test]
         public void CopyToNullOther()
         {
             // If: I copy a DbCellValue to null
@@ -36,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             Assert.Throws<ArgumentNullException>(() => new DbCellValue().CopyTo(null));
         }
 
-        [Fact]
+        [Test]
         public void CopyToValid()
         {
             // If: I copy a DbCellValue to another DbCellValue
@@ -45,9 +45,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             source.CopyTo(dest);
 
             // Then: The source values should be in the dest
-            Assert.Equal(source.DisplayValue, dest.DisplayValue);
-            Assert.Equal(source.IsNull, dest.IsNull);
-            Assert.Equal(source.RawObject, dest.RawObject);
+            Assert.AreEqual(source.DisplayValue, dest.DisplayValue);
+            Assert.AreEqual(source.IsNull, dest.IsNull);
+            Assert.AreEqual(source.RawObject, dest.RawObject);
         }
     }
 }

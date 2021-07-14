@@ -20,7 +20,7 @@ using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 {
@@ -28,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
     {
         #region Construction Tests
 
-        [Fact]
+        [Test]
         public void SessionConstructionNullMetadataFactory()
         {
             // If: I create a session object with a null metadata factory
@@ -36,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Throws<ArgumentNullException>(() => new EditSession(null));
         }
 
-        [Fact]
+        [Test]
         public void SessionConstructionValid()
         {
             // If: I create a session object with a proper arguments
@@ -53,14 +53,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Null(s.CommitTask);
 
             // ... The next row ID should be the default long
-            Assert.Equal(default(long), s.NextRowId);
+            Assert.AreEqual(default(long), s.NextRowId);
         }
 
         #endregion
 
         #region Validate Tests
 
-        [Fact]
+        [Test]
         public void SessionValidateUnfinishedQuery()
         {
             // If: I create a session object with a query that hasn't finished execution
@@ -70,7 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Throws<InvalidOperationException>(() => EditSession.ValidateQueryForSession(q));
         }
 
-        [Fact]
+        [Test]
         public void SessionValidateIncorrectResultSet()
         {
             // Setup: Create a query that yields >1 result sets
@@ -94,7 +94,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Throws<InvalidOperationException>(() => EditSession.ValidateQueryForSession(query));
         }
 
-        [Fact]
+        [Test]
         public void SessionValidateValidResultSet()
         {
             // If: I validate a query for a session with a valid query
@@ -109,7 +109,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
         #region Create Row Tests
 
-        [Fact]
+        [Test]
         public void CreateRowNotInitialized()
         {
             // Setup:
@@ -122,7 +122,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Throws<InvalidOperationException>(() => s.CreateRow());
         }
 
-        [Fact]
+        [Test]
         public async Task CreateRowAddFailure()
         {
             // NOTE: This scenario should theoretically never occur, but is tested for completeness
@@ -143,13 +143,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Throws<InvalidOperationException>(() => s.CreateRow());
 
             // ... The mock edit should still exist
-            Assert.Equal(mockEdit, s.EditCache[rs.RowCount]);
+            Assert.AreEqual(mockEdit, s.EditCache[rs.RowCount]);
 
             // ... The next row ID should not have changes
-            Assert.Equal(rs.RowCount, s.NextRowId);
+            Assert.AreEqual(rs.RowCount, s.NextRowId);
         }
 
-        [Fact]
+        [Test]
         public async Task CreateRowSuccess()
         {
             // Setup: Create a session with a proper query and metadata
@@ -163,20 +163,20 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // Then:
             // ... The new ID should be equal to the row count
-            Assert.Equal(rs.RowCount, result.NewRowId);
+            Assert.AreEqual(rs.RowCount, result.NewRowId);
 
             // ... The next row ID should have been incremented
-            Assert.Equal(rs.RowCount + 1, s.NextRowId);
+            Assert.AreEqual(rs.RowCount + 1, s.NextRowId);
 
             // ... There should be a new row create object in the cache
-            Assert.Contains(result.NewRowId, s.EditCache.Keys);
-            Assert.IsType<RowCreate>(s.EditCache[result.NewRowId]);
+            Assert.That(s.EditCache.Keys, Has.Member(result.NewRowId));
+            Assert.That(s.EditCache[result.NewRowId], Is.InstanceOf<RowCreate>());
 
             // ... The default values should be returned (we will test this in depth below)
-            Assert.NotEmpty(result.DefaultValues);
+            Assert.That(result.DefaultValues, Is.Not.Empty);
         }
 
-        [Fact]
+        [Test]
         public async Task CreateRowDefaultTest()
         {
             // Setup:
@@ -229,18 +229,18 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.True(result.NewRowId > 0);
 
             // ... There should be 3 default values (3 columns)
-            Assert.NotEmpty(result.DefaultValues);
-            Assert.Equal(3, result.DefaultValues.Length);
+            Assert.That(result.DefaultValues, Is.Not.Empty);
+            Assert.AreEqual(3, result.DefaultValues.Length);
 
             // ... There should be specific values for each kind of default
             Assert.Null(result.DefaultValues[0]);
-            Assert.Equal("default", result.DefaultValues[1]);
+            Assert.AreEqual("default", result.DefaultValues[1]);
         }
 
         #endregion
 
-        [Theory]
-        [MemberData(nameof(RowIdOutOfRangeData))]
+        [Test]
+        [TestCaseSource(nameof(RowIdOutOfRangeData))]
         public async Task RowIdOutOfRange(long rowId, Action<EditSession, long> testAction)
         {
             // Setup: Create a session with a proper query and metadata
@@ -285,7 +285,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
         #region Initialize Tests
 
-        [Fact]
+        [Test]
         public void InitializeAlreadyInitialized()
         {
             // Setup:
@@ -298,7 +298,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Throws<InvalidOperationException>(() => s.Initialize(null, null, null, null, null));
         }
 
-        [Fact]
+        [Test]
         public void InitializeAlreadyInitializing()
         {
             // Setup:
@@ -311,8 +311,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Throws<InvalidOperationException>(() => s.Initialize(null, null, null, null, null));
         }
 
-        [Theory]
-        [MemberData(nameof(InitializeNullParamsData))]
+        [Test]
+        [TestCaseSource(nameof(InitializeNullParamsData))]
         public void InitializeNullParams(EditInitializeParams initParams, EditSession.Connector c,
             EditSession.QueryRunner qr, Func<Task> sh, Func<Exception, Task> fh)
         {
@@ -321,9 +321,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
             EditSession s = new EditSession(emf.Object);
 
-            // If: I initialize it with a missing parameter
-            // Then: It should throw an exception
-            Assert.ThrowsAny<ArgumentException>(() => s.Initialize(initParams, c, qr, sh, fh));
+            Assert.That(() => s.Initialize(initParams, c, qr, sh, fh), Throws.InstanceOf<ArgumentException>(), "I initialize it with a missing parameter. It should throw an exception");
         }
 
         public static IEnumerable<object[]> InitializeNullParamsData
@@ -376,7 +374,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             }
         }
 
-        [Fact]
+        [Test]
         public async Task InitializeMetadataFails()
         {
             // Setup:
@@ -407,7 +405,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             successHandler.Verify(f => f(), Times.Never);
         }
 
-        [Fact]
+        [Test]
         public async Task InitializeQueryFailException()
         {
             // Setup:
@@ -444,10 +442,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             successHandler.Verify(f => f(), Times.Never);
         }
 
-        [Theory]
-        [InlineData(null)]
-        [InlineData("It fail.")]
-        public async Task InitializeQueryFailReturnNull(string message)
+        [Test]
+        public async Task InitializeQueryFailReturnNull([Values(null, "It fail.")] string message)
         {
             // Setup:
             // ... Create a metadata factory that will return some generic column information
@@ -484,7 +480,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             successHandler.Verify(f => f(), Times.Never);
         }
 
-        [Fact]
+        [Test]
         public async Task InitializeSuccess()
         {
             // Setup:
@@ -521,16 +517,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // ... The session should have been initialized
             Assert.True(s.IsInitialized);
-            Assert.Equal(rs.RowCount, s.NextRowId);
+            Assert.AreEqual(rs.RowCount, s.NextRowId);
             Assert.NotNull(s.EditCache);
-            Assert.Empty(s.EditCache);
+            Assert.That(s.EditCache, Is.Empty);
         }
 
         #endregion
 
         #region Delete Row Tests
 
-        [Fact]
+        [Test]
         public void DeleteRowNotInitialized()
         {
             // Setup:
@@ -543,7 +539,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Throws<InvalidOperationException>(() => s.DeleteRow(0));
         }
 
-        [Fact]
+        [Test]
         public async Task DeleteRowAddFailure()
         {
             // Setup:
@@ -560,10 +556,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Throws<InvalidOperationException>(() => s.DeleteRow(0));
 
             // ... The mock edit should still exist
-            Assert.Equal(mockEdit, s.EditCache[0]);
+            Assert.AreEqual(mockEdit, s.EditCache[0]);
         }
 
-        [Fact]
+        [Test]
         public async Task DeleteRowSuccess()
         {
             // Setup: Create a session with a proper query and metadata
@@ -572,16 +568,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // If: I add a row to the session
             s.DeleteRow(0);
 
-            // Then: There should be a new row delete object in the cache
-            Assert.Contains(0, s.EditCache.Keys);
-            Assert.IsType<RowDelete>(s.EditCache[0]);
+            Assert.That(s.EditCache.Keys, Has.Member(0));
+            Assert.That(s.EditCache[0], Is.InstanceOf<RowDelete>(), "There should be a new row delete object in the cache");
         }
 
         #endregion
 
         #region Revert Row Tests
 
-        [Fact]
+        [Test]
         public void RevertRowNotInitialized()
         {
             // Setup:
@@ -594,7 +589,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Throws<InvalidOperationException>(() => s.RevertRow(0));
         }
 
-        [Fact]
+        [Test]
         public async Task RevertRowSuccess()
         {
             // Setup:
@@ -608,16 +603,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // If: I revert the row that has a pending update
             s.RevertRow(0);
 
-            // Then:
-            // ... The edit cache should not contain a pending edit for the row
-            Assert.DoesNotContain(0, s.EditCache.Keys);
+            Assert.That(s.EditCache.Keys, Has.No.Zero, "The edit cache should not contain a pending edit for the row");
         }
 
         #endregion
 
         #region Revert Cell Tests
 
-        [Fact]
+        [Test]
         public void RevertCellNotInitialized()
         {
             // Setup:
@@ -630,7 +623,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Throws<InvalidOperationException>(() => s.RevertCell(0, 0));
         }
 
-        [Fact]
+        [Test]
         public async Task RevertCellRowRevert()
         {
             // Setup:
@@ -651,14 +644,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             mockEdit.Verify(e => e.RevertCell(0), Times.Once);
 
             // ... The mock update should no longer be in the edit cache
-            Assert.Empty(s.EditCache);
+            Assert.That(s.EditCache, Is.Empty);
         }
 
         #endregion
 
         #region Update Cell Tests
 
-        [Fact]
+        [Test]
         public void UpdateCellNotInitialized()
         {
             // Setup:
@@ -671,7 +664,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Throws<InvalidOperationException>(() => s.UpdateCell(0, 0, ""));
         }
 
-        [Fact]
+        [Test]
         public async Task UpdateCellExisting()
         {
             // Setup:
@@ -690,10 +683,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Then: 
             // ... The mock update should still be in the cache
             // ... And it should have had set cell called on it
-            Assert.Contains(mockEdit.Object, s.EditCache.Values);
+            Assert.That(s.EditCache.Values, Has.Member(mockEdit.Object));
         }
 
-        [Fact]
+        [Test]
         public async Task UpdateCellNew()
         {
             // Setup:
@@ -704,12 +697,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             s.UpdateCell(0, 0, "");
 
             // Then:
-            // ... A new update row edit should have been added to the cache
-            Assert.Contains(0, s.EditCache.Keys);
-            Assert.IsType<RowUpdate>(s.EditCache[0]);
+            Assert.Multiple(() =>
+            {
+                Assert.That(s.EditCache.Keys, Has.Member(0));
+                Assert.That(s.EditCache[0], Is.InstanceOf<RowUpdate>(), "A new update row edit should have been added to the cache");
+            });
         }
 
-        [Fact]
+        [Test]
         public async Task UpdateCellRowRevert()
         {
             // Setup:
@@ -730,7 +725,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             mockEdit.Verify(e => e.SetCell(0, null), Times.Once);
 
             // ... The mock update should no longer be in the edit cache
-            Assert.Empty(s.EditCache);
+            Assert.That(s.EditCache, Is.Empty);
         }
 
 
@@ -739,7 +734,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
         #region SubSet Tests
 
-        [Fact]
+        [Test]
         public async Task SubsetNotInitialized()
         {
             // Setup:
@@ -749,10 +744,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // If: I ask to update a cell without initializing
             // Then: I should get an exception
-            await Assert.ThrowsAsync<InvalidOperationException>(() => s.GetRows(0, 100));
+            Assert.ThrowsAsync<InvalidOperationException>(() => s.GetRows(0, 100));
         }
 
-        [Fact]
+        [Test]
         public async Task GetRowsNoEdits()
         {
             // Setup: Create a session with a proper query and metadata
@@ -766,7 +761,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // Then:
             // ... I should get back 3 rows
-            Assert.Equal(3, rows.Length);
+            Assert.AreEqual(3, rows.Length);
 
             // ... Each row should...
             for (int i = 0; i < rows.Length; i++)
@@ -774,25 +769,25 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 EditRow er = rows[i];
 
                 // ... Have properly set IDs
-                Assert.Equal(i + 1, er.Id);
+                Assert.AreEqual(i + 1, er.Id);
 
                 // ... Have cells equal to the cells in the result set
                 DbCellValue[] cachedRow = rs.GetRow(i + 1).ToArray();
-                Assert.Equal(cachedRow.Length, er.Cells.Length);
+                Assert.AreEqual(cachedRow.Length, er.Cells.Length);
                 for (int j = 0; j < cachedRow.Length; j++)
                 {
-                    Assert.Equal(cachedRow[j].DisplayValue, er.Cells[j].DisplayValue);
-                    Assert.Equal(cachedRow[j].IsNull, er.Cells[j].IsNull);
+                    Assert.AreEqual(cachedRow[j].DisplayValue, er.Cells[j].DisplayValue);
+                    Assert.AreEqual(cachedRow[j].IsNull, er.Cells[j].IsNull);
                     Assert.False(er.Cells[j].IsDirty);
                 }
 
                 // ... Be clean, since we didn't apply any updates
-                Assert.Equal(EditRow.EditRowState.Clean, er.State);
+                Assert.AreEqual(EditRow.EditRowState.Clean, er.State);
                 Assert.False(er.IsDirty);
             }
         }
 
-        [Fact]
+        [Test]
         public async Task GetRowsPendingUpdate()
         {
             // Setup:
@@ -807,22 +802,22 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // Then:
             // ... I should get back 3 rows
-            Assert.Equal(3, rows.Length);
+            Assert.AreEqual(3, rows.Length);
 
             // ... The first row should reflect that there is an update pending
             //     (More in depth testing is done in the RowUpdate class tests)
             var updatedRow = rows[0];
-            Assert.Equal(EditRow.EditRowState.DirtyUpdate, updatedRow.State);
-            Assert.Equal("foo", updatedRow.Cells[0].DisplayValue);
+            Assert.AreEqual(EditRow.EditRowState.DirtyUpdate, updatedRow.State);
+            Assert.AreEqual("foo", updatedRow.Cells[0].DisplayValue);
 
             // ... The other rows should be clean
             for (int i = 1; i < rows.Length; i++)
             {
-                Assert.Equal(EditRow.EditRowState.Clean, rows[i].State);
+                Assert.AreEqual(EditRow.EditRowState.Clean, rows[i].State);
             }
         }
 
-        [Fact]
+        [Test]
         public async Task GetRowsPendingDeletion()
         {
             // Setup:
@@ -837,22 +832,22 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // Then:
             // ... I should get back 3 rows
-            Assert.Equal(3, rows.Length);
+            Assert.AreEqual(3, rows.Length);
 
             // ... The first row should reflect that there is an update pending
             //     (More in depth testing is done in the RowUpdate class tests)
             var updatedRow = rows[0];
-            Assert.Equal(EditRow.EditRowState.DirtyDelete, updatedRow.State);
-            Assert.NotEmpty(updatedRow.Cells[0].DisplayValue);
+            Assert.AreEqual(EditRow.EditRowState.DirtyDelete, updatedRow.State);
+            Assert.That(updatedRow.Cells[0].DisplayValue, Is.Not.Empty);
 
             // ... The other rows should be clean
             for (int i = 1; i < rows.Length; i++)
             {
-                Assert.Equal(EditRow.EditRowState.Clean, rows[i].State);
+                Assert.AreEqual(EditRow.EditRowState.Clean, rows[i].State);
             }
         }
 
-        [Fact]
+        [Test]
         public async Task GetRowsPendingInsertion()
         {
             // Setup:
@@ -867,20 +862,20 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // Then:
             // ... I should get back 6 rows
-            Assert.Equal(6, rows.Length);
+            Assert.AreEqual(6, rows.Length);
 
             // ... The last row should reflect that there's a new row
             var updatedRow = rows[5];
-            Assert.Equal(EditRow.EditRowState.DirtyInsert, updatedRow.State);
+            Assert.AreEqual(EditRow.EditRowState.DirtyInsert, updatedRow.State);
 
             // ... The other rows should be clean
             for (int i = 0; i < rows.Length - 1; i++)
             {
-                Assert.Equal(EditRow.EditRowState.Clean, rows[i].State);
+                Assert.AreEqual(EditRow.EditRowState.Clean, rows[i].State);
             }
         }
 
-        [Fact]
+        [Test]
         public async Task GetRowsAllNew()
         {
             // Setup:
@@ -897,17 +892,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // Then:
             // ... I should get back 3 rows back
-            Assert.Equal(3, rows.Length);
+            Assert.AreEqual(3, rows.Length);
 
-            // ... All the rows should be new
-            Assert.All(rows, r => Assert.Equal(EditRow.EditRowState.DirtyInsert, r.State));
+            Assert.That(rows.Select(r => r.State), Has.All.EqualTo(EditRow.EditRowState.DirtyInsert), "All the rows should be new");
         }
 
         #endregion
 
         #region Script Edits Tests
 
-        [Fact]
+        [Test]
         public void ScriptEditsNotInitialized()
         {
             // Setup:
@@ -920,11 +914,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Throws<InvalidOperationException>(() => s.ScriptEdits(string.Empty));
         }
 
-        [Theory]
-        [InlineData(null)]
-        [InlineData("")]
-        [InlineData(" \t\r\n")]
-        public async Task ScriptNullOrEmptyOutput(string outputPath)
+        [Test]
+        public async Task ScriptNullOrEmptyOutput([Values(null, "", " \t\r\n")] string outputPath)
         {
             // Setup: Create a session with a proper query and metadata
             EditSession s = await GetBasicSession();
@@ -934,7 +925,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Throws<ArgumentNullException>(() => s.ScriptEdits(outputPath));
         }
 
-        [Fact]
+        [Test]
         public async Task ScriptProvidedOutputPath()
         {
             // Setup:
@@ -954,10 +945,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
                 // Then: 
                 // ... The output path used should be the same as the one we provided
-                Assert.Equal(file.FilePath, outputPath);
+                Assert.AreEqual(file.FilePath, outputPath);
 
                 // ... The written file should have two lines, one for each edit
-                Assert.Equal(2, File.ReadAllLines(outputPath).Length);
+                Assert.AreEqual(2, File.ReadAllLines(outputPath).Length);
             }
         }
 
@@ -965,7 +956,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
         #region Commit Tests
 
-        [Fact]
+        [Test]
         public void CommitEditsNotInitialized()
         {
             // Setup:
@@ -978,7 +969,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Throws<InvalidOperationException>(() => s.CommitEdits(null, null, null));
         }
 
-        [Fact]
+        [Test]
         public async Task CommitNullConnection()
         {
             // Setup: Create a basic session
@@ -990,7 +981,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 () => s.CommitEdits(null, () => Task.CompletedTask, e => Task.CompletedTask));
         }
 
-        [Fact]
+        [Test]
         public async Task CommitNullSuccessHandler()
         {
             // Setup: 
@@ -1005,7 +996,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Throws<ArgumentNullException>(() => s.CommitEdits(conn, null, e => Task.CompletedTask));
         }
 
-        [Fact]
+        [Test]
         public async Task CommitNullFailureHandler()
         {
             // Setup: 
@@ -1020,7 +1011,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Throws<ArgumentNullException>(() => s.CommitEdits(conn, () => Task.CompletedTask, null));
         }
 
-        [Fact]
+        [Test]
         public async Task CommitInProgress()
         {
             // Setup: 
@@ -1038,7 +1029,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 () => s.CommitEdits(conn, () => Task.CompletedTask, e => Task.CompletedTask));
         }
 
-        [Fact]
+        [Test]
         public async Task CommitSuccess()
         {
             // Setup:
@@ -1079,10 +1070,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             edit.Verify(e => e.ApplyChanges(It.IsAny<DbDataReader>()), Times.Once);
 
             // ... The edit cache should be empty
-            Assert.Empty(s.EditCache);
+            Assert.That(s.EditCache, Is.Empty);
         }
 
-        [Fact]
+        [Test]
         public async Task CommitFailure()
         {
             // Setup:
@@ -1121,14 +1112,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             edit.Verify(e => e.GetCommand(conn), Times.Once);
 
             // ... The edit cache should not be empty
-            Assert.NotEmpty(s.EditCache);
+            Assert.That(s.EditCache, Is.Not.Empty);
         }
 
         #endregion
 
         #region Construct Initialize Query Tests
 
-        [Fact]
+        [Test]
         public void ConstructQueryWithoutLimit()
         {
             // Setup: Create a metadata provider for some basic columns
@@ -1148,16 +1139,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.True(match.Success);
 
             // ... There should be columns in it
-            Assert.Equal(data.DbColumns.Length, match.Groups[1].Value.Split(',').Length);
+            Assert.AreEqual(data.DbColumns.Length, match.Groups[1].Value.Split(',').Length);
 
             // ... The table name should be in it
-            Assert.Equal(data.TableMetadata.EscapedMultipartName, match.Groups[2].Value);
+            Assert.AreEqual(data.TableMetadata.EscapedMultipartName, match.Groups[2].Value);
 
-            // ... It should NOT have a TOP clause in it
-            Assert.DoesNotContain("TOP", query);
+            Assert.That(query, Does.Not.Contain("TOP"), "It should NOT have a TOP clause in it");
         }
 
-        [Fact]
+        [Test]
         public void ConstructQueryNegativeLimit()
         {
             // Setup: Create a metadata provider for some basic columns
@@ -1172,11 +1162,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Throws<ArgumentOutOfRangeException>(() => EditSession.ConstructInitializeQuery(data.TableMetadata, eif));
         }
 
-        [Theory]
-        [InlineData(0)]        // Yes, zero is valid
-        [InlineData(10)]
-        [InlineData(1000)]
-        public void ConstructQueryWithLimit(int limit)
+        [Test]
+        public void ConstructQueryWithLimit([Values(0,10,1000)]int limit)
         {
             // Setup: Create a metadata provider for some basic columns
             var data = new Common.TestDbColumnsWithTableMetadata(false, false, 0, 0);
@@ -1195,15 +1182,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.True(match.Success);
 
             // ... There should be columns in it
-            Assert.Equal(data.DbColumns.Length, match.Groups[2].Value.Split(',').Length);
+            Assert.AreEqual(data.DbColumns.Length, match.Groups[2].Value.Split(',').Length);
 
             // ... The table name should be in it
-            Assert.Equal(data.TableMetadata.EscapedMultipartName, match.Groups[3].Value);
+            Assert.AreEqual(data.TableMetadata.EscapedMultipartName, match.Groups[3].Value);
 
             // ... The top count should be equal to what we provided
             int limitFromQuery;
             Assert.True(int.TryParse(match.Groups[1].Value, out limitFromQuery));
-            Assert.Equal(limit, limitFromQuery);
+            Assert.AreEqual(limit, limitFromQuery);
         }
 
         #endregion

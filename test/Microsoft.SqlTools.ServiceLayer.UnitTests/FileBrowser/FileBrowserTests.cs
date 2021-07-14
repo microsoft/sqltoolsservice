@@ -6,7 +6,7 @@
 using System;
 using Microsoft.SqlTools.ServiceLayer.FileBrowser;
 using Microsoft.SqlTools.ServiceLayer.FileBrowser.Contracts;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.FileBrowser
 {
@@ -15,7 +15,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.FileBrowser
     /// </summary>
     public class FileBrowserTests
     {
-        [Fact]
+        [Test]
         public void CreateFileBrowserOperationTest()
         {
             FileBrowserOperation operation = new FileBrowserOperation(null, "", null);
@@ -25,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.FileBrowser
             Assert.True(operation.FileFilters.Length == 1);
         }
 
-        [Fact]
+        [Test]
         public void FilterFilesTest()
         {
             FileBrowserOperation operation = new FileBrowserOperation(null, "", null);
@@ -44,7 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.FileBrowser
             }
         }
 
-        [Fact]
+        [Test]
         public void ExpandNodeShouldThrowExceptionForInvalidPath()
         {
             FileBrowserOperation operation = new FileBrowserOperation(null, "", null);
@@ -64,7 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.FileBrowser
             Assert.Null(operation.FileTree.SelectedNode);
         }
 
-        [Fact]
+        [Test]
         public void CreateFileTreeTest()
         {
             FileTree tree = new FileTree();
@@ -72,7 +72,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.FileBrowser
             Assert.Null(tree.SelectedNode);
         }
 
-        [Fact]
+        [Test]
         public void AddFileTreeNodeChildTest()
         {
             FileTreeNode node1 = new FileTreeNode();

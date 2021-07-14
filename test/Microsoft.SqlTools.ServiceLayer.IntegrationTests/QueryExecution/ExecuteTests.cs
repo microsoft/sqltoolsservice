@@ -6,19 +6,20 @@
 using System;
 using System.Collections.Concurrent;
 using System.Data.Common;
+using System.Linq;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
 {
     public class ExecuteTests
     {
-        [Fact]
+        [Test]
         public void RollbackTransactionFailsWithoutBeginTransaction()
         {
             const string refactorText = "ROLLBACK TRANSACTION";
@@ -37,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
             Assert.True(query.Batches[0].HasError);
         }
 
-        [Fact]
+        [Test]
         public void TransactionsSucceedAcrossQueries()
         {
             const string beginText = "BEGIN TRANSACTION";
@@ -56,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
             Assert.False(rollbackQuery.Batches[0].HasError);
         }
 
-        [Fact]
+        [Test]
         public void TempTablesPersistAcrossQueries()
         {
             const string createTempText = "CREATE TABLE #someTempTable (id int)";
@@ -75,7 +76,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
             Assert.False(insertTempQuery.Batches[0].HasError);
         }
 
-        [Fact]
+        [Test]
         public void DatabaseChangesWhenCallingUseDatabase()
         {
             const string master = "master";
@@ -92,27 +93,15 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
 
             // If I use master, the current database should be master
             CreateAndExecuteQuery(string.Format(useQuery, master), connInfo, fileStreamFactory);
-            Assert.Equal(master, connInfo.ConnectionDetails.DatabaseName);
+            Assert.AreEqual(master, connInfo.ConnectionDetails.DatabaseName);
 
             // If I use tempdb, the current database should be tempdb
             CreateAndExecuteQuery(string.Format(useQuery, tempdb), connInfo, fileStreamFactory);
-            Assert.Equal(tempdb, connInfo.ConnectionDetails.DatabaseName);
+            Assert.AreEqual(tempdb, connInfo.ConnectionDetails.DatabaseName);
 
             // If I switch back to master, the current database should be master
             CreateAndExecuteQuery(string.Format(useQuery, master), connInfo, fileStreamFactory);
-            Assert.Equal(master, connInfo.ConnectionDetails.DatabaseName);
-        }
-
-        [Fact]
-        public void TestBatchExecutionTime() {
-            var result = LiveConnectionHelper.InitLiveConnectionInfo();
-            ConnectionInfo connInfo = result.ConnectionInfo;
-            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
-            Query query = CreateAndExecuteQuery("select * from sys.databases", connInfo, fileStreamFactory);
-            DateTime elapsedTime = Convert.ToDateTime(query.Batches[0].ExecutionElapsedTime);
-            Query mutipleQuery = CreateAndExecuteQuery("select * from sys.databases\r\nGO 15", connInfo, fileStreamFactory);
-            DateTime multipleElapsedTime =  Convert.ToDateTime(mutipleQuery.Batches[0].ExecutionElapsedTime);
-            Assert.True(multipleElapsedTime > elapsedTime);
+            Assert.AreEqual(master, connInfo.ConnectionDetails.DatabaseName);
         }
 
         public static Query CreateAndExecuteQuery(string queryText, ConnectionInfo connectionInfo, IFileStreamFactory fileStreamFactory, bool IsSqlCmd = false)

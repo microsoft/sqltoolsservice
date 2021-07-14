@@ -4,7 +4,7 @@
 //
 
 using System.Globalization;
-using Xunit;
+using NUnit.Framework;
 
 using ServiceLayerSr = Microsoft.SqlTools.ServiceLayer.SR;
 
@@ -15,7 +15,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         /// <summary>
         /// Add and remove and item in a LongList
         /// </summary>
-        [Fact]
+        [Test]
         public void SrPropertiesTest()
         {
             ServiceLayerSr.Culture = CultureInfo.CurrentCulture;

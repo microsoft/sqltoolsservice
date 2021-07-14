@@ -4,7 +4,7 @@
 //
 
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
 {
@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
     /// </summary>
     public class DisasterRecoveryFileValidatorUnitTests
     {
-        [Fact]
+        [Test]
         public void ValidatorShouldReturnTrueForNullArgument()
         {
             string message;
@@ -21,14 +21,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
             Assert.True(result);
         }
 
-        [Fact]
+        [Test]
         public void GetMachineNameForLocalServer()
         {
             string machineName = DisasterRecoveryFileValidator.GetMachineName(DisasterRecoveryFileValidator.LocalSqlServer);
             Assert.True(System.Environment.MachineName == machineName);
         }
 
-        [Fact]
+        [Test]
         public void GetMachineNameForNamedServer()
         {
             string testMachineName = "testmachine";

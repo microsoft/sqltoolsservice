@@ -5,35 +5,41 @@
 
 
 using Microsoft.SqlTools.ServiceLayer.Formatter;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
 {
     
     public class CommonTableExpressionFormatterTests : FormatterUnitTestsBase
     {
-        [Fact]
+        [SetUp]
+        public void Init()
+        {
+            InitFormatterUnitTestsBase();
+        }
+
+        [Test]
         public void CTE()
         {
             LoadAndFormatAndCompare("CTE", GetInputFile("CTE.sql"), 
                 GetBaselineFile("CTE.sql"), new FormatOptions(), true);
         }
 
-        [Fact]
+        [Test]
         public void CTE_OneColumn()
         {
             LoadAndFormatAndCompare("CTE_OneColumn", GetInputFile("CTE_OneColumn.sql"), 
                 GetBaselineFile("CTE_OneColumn.sql"), new FormatOptions(), true);
         }
 
-        [Fact]
+        [Test]
         public void CTE_MultipleExpressions()
         {
             LoadAndFormatAndCompare("CTE_MultipleExpressions", GetInputFile("CTE_MultipleExpressions.sql"), 
                 GetBaselineFile("CTE_MultipleExpressions.sql"), new FormatOptions(), true);
         }
 
-        [Fact]
+        [Test]
         public void CTE_CommasBeforeDefinition()
         {
             FormatOptions options = new FormatOptions();
@@ -44,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 GetBaselineFile("CTE_CommasBeforeDefinition.sql"), options, false);
         }
 
-        [Fact]
+        [Test]
         public void CTE_EachReferenceOnNewLine()
         {
             FormatOptions options = new FormatOptions();
@@ -54,7 +60,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 GetBaselineFile("CTE_EachReferenceOnNewLine.sql"), options, true);
         }
 
-        [Fact]
+        [Test]
         public void CTE_EachReferenceOnNewLine_CommasBeforeDefinition()
         {
             FormatOptions options = new FormatOptions();
@@ -66,7 +72,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 GetBaselineFile("CTE_EachReferenceOnNewLine_CommasBeforeDefinition.sql"), options, false);
         }
 
-        [Fact]
+        [Test]
         public void CTE_UseTabs()
         {
             FormatOptions options = new FormatOptions();
@@ -76,7 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 GetBaselineFile("CTE_UseTabs.sql"), options, true);
         }
 
-        [Fact]
+        [Test]
         public void CTE_20Spaces()
         {
             FormatOptions options = new FormatOptions();
@@ -86,7 +92,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 GetBaselineFile("CTE_20Spaces.sql"), options, true);
         }
 
-        [Fact]
+        [Test]
         public void CTE_UpperCaseKeywords()
         {
             FormatOptions options = new FormatOptions();
@@ -96,7 +102,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 GetBaselineFile("CTE_UpperCaseKeywords.sql"), options, true);
         }
 
-        [Fact]
+        [Test]
         public void CTE_LowerCaseKeywords()
         {
             FormatOptions options = new FormatOptions();

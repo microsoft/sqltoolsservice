@@ -12,7 +12,7 @@ using Microsoft.SqlTools.ResourceProvider.Core.Extensibility;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Azure;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Fakes;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
 {
@@ -40,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
             };
         }
 
-        [Fact]
+        [Test]
         public void GetServiceShouldReturnTheServiceThatHasGivenMetadataCorrectly()
         {
             //given
@@ -55,7 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
             Assert.True(service.GetType() == typeof(FakeSecureServerDiscoveryProvider));
         }
 
-        [Fact]
+        [Test]
         public void GetServiceShouldReturnNullGivenInvalidMetadata()
         {
             //given
@@ -69,7 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
             Assert.Null(service);
         }
 
-        [Fact]
+        [Test]
         public void GetServiceShouldReturnNullGivenUnSupportedMetadata()
         {
             //given
@@ -83,7 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
             Assert.Null(service);
         }
 
-        [Fact]
+        [Test]
         public void RequiresUserAccountShouldReturnFalseGivenNotSecuredService()
         {
             //given
@@ -97,7 +97,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
             Assert.NotNull(service);
         }
 
-        [Fact]
+        [Test]
         public void GetShouldReturnDefaultAzureServiceGivenDefaultCatalog()
         {
             // given
@@ -127,7 +127,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
         }
 
 
-        [Fact]
+        [Test]
         public void GetShouldReturnImplementedAzureServiceIfFoundInCatalog()
         {
             //given
@@ -140,7 +140,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
             Assert.True(serverDiscoveryProvider is FakeAzureServerDiscoveryProvider);
         }
 
-        [Fact]
+        [Test]
         public void GetGetServiceOfExportableShouldReturnNullGivenSameTypeAsExportable()
         {
             //given

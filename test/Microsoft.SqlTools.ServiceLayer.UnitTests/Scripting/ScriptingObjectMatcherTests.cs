@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.SqlTools.ServiceLayer.Scripting;
 using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
 {
@@ -66,7 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
             View_S1_View2,
         };
 
-        [Fact]
+        [Test]
         public void ScriptingMatchIncludeAll()
         {
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
@@ -78,10 +78,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
                 excludeTypes: null,
                 candidates: TestData);
 
-            Assert.Equal<int>(6, results.Count());
+            Assert.AreEqual(6, results.Count());
         }
 
-        [Fact]
+        [Test]
         public void ScriptingMatchIncludeNone()
         {
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
@@ -93,10 +93,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
                 excludeTypes: null,
                 candidates: TestData);
 
-            Assert.Equal<int>(0, results.Count());
+            Assert.AreEqual(0, results.Count());
         }
 
-        [Fact]
+        [Test]
         public void ScriptingMatchIncludeName()
         {
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
@@ -108,10 +108,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
                 excludeTypes: null,
                 candidates: TestData);
 
-            Assert.Equal<int>(2, results.Count());
+            Assert.AreEqual(2, results.Count());
         }
 
-        [Fact]
+        [Test]
         public void ScriptingMatchIncludeNameWildcard()
         {
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
@@ -123,7 +123,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
                 excludeTypes: null,
                 candidates: TestData);
 
-            Assert.Equal<int>(6, results.Count());
+            Assert.AreEqual(6, results.Count());
         }
 
         public void ScriptingMatchIncludeNameWildcardPostfix()
@@ -137,10 +137,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
                 excludeTypes: null,
                 candidates: TestData);
 
-            Assert.Equal<int>(4, results.Count());
+            Assert.AreEqual(4, results.Count());
         }
 
-        [Fact]
+        [Test]
         public void ScriptingMatchIncludeSchema()
         {
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
@@ -152,10 +152,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
                 excludeTypes: null,
                 candidates: TestData);
 
-            Assert.Equal<int>(2, results.Count());
+            Assert.AreEqual(2, results.Count());
         }
 
-        [Fact]
+        [Test]
         public void ScriptingMatchIncludeSchemaWildcard()
         {
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
@@ -167,10 +167,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
                 excludeTypes: null,
                 candidates: TestData);
 
-            Assert.Equal<int>(6, results.Count());
+            Assert.AreEqual(6, results.Count());
         }
 
-        [Fact]
+        [Test]
         public void ScriptingMatchIncludeSchemaWildcardPostfixCriteria()
         {
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
@@ -182,10 +182,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
                 excludeTypes: null,
                 candidates: TestData);
 
-            Assert.Equal<int>(6, results.Count());
+            Assert.AreEqual(6, results.Count());
         }
 
-        [Fact]
+        [Test]
         public void ScriptingMatchIncludeSchemaWildcardPostfix()
         {
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
@@ -197,10 +197,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
                 excludeTypes: "View",
                 candidates: TestData);
 
-            Assert.Equal<int>(4, results.Count());
+            Assert.AreEqual(4, results.Count());
         }
 
-        [Fact]
+        [Test]
         public void ScriptingMatchIncludeType()
         {
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
@@ -212,10 +212,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
                 excludeTypes: null,
                 candidates: TestData);
 
-            Assert.Equal<int>(4, results.Count());
+            Assert.AreEqual(4, results.Count());
         }
 
-        [Fact]
+        [Test]
         public void ScriptingMatchIncludeNameAndSchema()
         {
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
@@ -227,10 +227,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
                 excludeTypes: null,
                 candidates: TestData);
 
-            Assert.Equal<int>(1, results.Count());
+            Assert.AreEqual(1, results.Count());
         }
 
-        [Fact]
+        [Test]
         public void ScriptingMatchIncludeSchemaAndType()
         {
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
@@ -242,10 +242,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
                 excludeTypes: null,
                 candidates: TestData);
 
-            Assert.Equal<int>(2, results.Count());
+            Assert.AreEqual(2, results.Count());
         }
 
-        [Fact]
+        [Test]
         public void ScriptingMatchExcludeName()
         {
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
@@ -257,10 +257,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
                 excludeTypes: null,
                 candidates: TestData);
 
-            Assert.Equal<int>(4, results.Count());
+            Assert.AreEqual(4, results.Count());
         }
 
-        [Fact]
+        [Test]
         public void ScriptingMatchExcludeNameWildcard()
         {
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
@@ -272,7 +272,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
                 excludeTypes: null,
                 candidates: TestData);
 
-            Assert.Equal<int>(0, results.Count());
+            Assert.AreEqual(0, results.Count());
         }
 
         public void ScriptingMatchExcludeNameWildcardPostfix()
@@ -286,10 +286,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
                 excludeTypes: null,
                 candidates: TestData);
 
-            Assert.Equal<int>(4, results.Count());
+            Assert.AreEqual(4, results.Count());
         }
 
-        [Fact]
+        [Test]
         public void ScriptingMatchExcludeSchema()
         {
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
@@ -301,10 +301,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
                 excludeTypes: null,
                 candidates: TestData);
 
-            Assert.Equal<int>(4, results.Count());
+            Assert.AreEqual(4, results.Count());
         }
 
-        [Fact]
+        [Test]
         public void ScriptingMatchExcludeSchemaWildcard()
         {
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
@@ -316,10 +316,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
                 excludeTypes: null,
                 candidates: TestData);
 
-            Assert.Equal<int>(0, results.Count());
+            Assert.AreEqual(0, results.Count());
         }
 
-        [Fact]
+        [Test]
         public void ScriptingMatchExcludeSchemaWildcardPostfix()
         {
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
@@ -331,10 +331,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
                 excludeTypes: null,
                 candidates: TestData);
 
-            Assert.Equal<int>(0, results.Count());
+            Assert.AreEqual(0, results.Count());
         }
 
-        [Fact]
+        [Test]
         public void ScriptingMatchExcludeType()
         {
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
@@ -346,10 +346,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
                 excludeTypes: null,
                 candidates: TestData);
 
-            Assert.Equal<int>(2, results.Count());
+            Assert.AreEqual(2, results.Count());
         }
 
-        [Fact]
+        [Test]
         public void ScriptingMatchExcludeNameAndSchemaCriteria()
         {
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
@@ -361,10 +361,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
                 excludeTypes: null,
                 candidates: TestData);
 
-            Assert.Equal<int>(5, results.Count());
+            Assert.AreEqual(5, results.Count());
         }
 
-        [Fact]
+        [Test]
         public void ScriptingMatchExcludeNameAndSchema()
         {
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
@@ -376,10 +376,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
                 excludeTypes: null,
                 candidates: TestData);
 
-            Assert.Equal<int>(1, results.Count());
+            Assert.AreEqual(1, results.Count());
         }
 
-        [Fact]
+        [Test]
         public void ScriptingMatchExcludeSchemaAndTypeCriteria()
         {
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
@@ -391,10 +391,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
                 excludeTypes: null,
                 candidates: TestData);
 
-            Assert.Equal<int>(4, results.Count());
+            Assert.AreEqual(4, results.Count());
         }
 
-        [Fact]
+        [Test]
         public void ScriptingMatchExcludeSchemaAndType()
         {
             IEnumerable<ScriptingObject> results = ScriptingObjectMatcher.Match(
@@ -406,10 +406,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
                 excludeTypes: "View",
                 candidates: TestData);
 
-            Assert.Equal<int>(2, results.Count());
+            Assert.AreEqual(2, results.Count());
         }
 
-        [Fact]
+        [Test]
         public void ScriptingObjectEquality()
         {
             ScriptingObject scriptingObject1 = new ScriptingObject { Type = "Table", Schema = "test", Name = "test_table" };
@@ -445,12 +445,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
         };
         
 
-        [Fact]
+        [Test]
         public void TestQuoteObjectName()
         {
             for (int i = 0; i < TestObjects.Length; i++)
             {
-                Assert.Equal(Scripter.ScriptingUtils.QuoteObjectName(TestObjects[i]), ExpectedObjects[i]);
+                Assert.AreEqual(Scripter.ScriptingUtils.QuoteObjectName(TestObjects[i]), ExpectedObjects[i]);
             }
         }
     }

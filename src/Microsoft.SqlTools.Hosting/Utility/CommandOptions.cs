@@ -5,7 +5,6 @@
 
 using System;
 using System.Globalization;
-using System.IO;
 
 namespace Microsoft.SqlTools.Hosting.Utility
 {
@@ -22,6 +21,8 @@ namespace Microsoft.SqlTools.Hosting.Utility
         /// <summary>
         /// Construct and parse command line options from the arguments array
         /// </summary>
+        /// <param name="args">The args to parse</param>
+        /// <param name="serviceName">Name of the service to display</param>
         public CommandOptions(string[] args, string serviceName)
         {
             ServiceName = serviceName;
@@ -59,6 +60,9 @@ namespace Microsoft.SqlTools.Hosting.Utility
                             case "-help":
                                 ShouldExit = true;
                                 return;
+                            case "-service-name":
+                                ServiceName = args[++i];
+                                break;
                             default:
                                 ErrorMessage += string.Format("Unknown argument \"{0}\"" + Environment.NewLine, argName);
                                 break;
@@ -89,7 +93,7 @@ namespace Microsoft.SqlTools.Hosting.Utility
         /// <summary>
         /// Whether the program should exit immediately. Set to true when the usage is printed.
         /// </summary>
-        public bool ShouldExit { get; private set; }
+        public bool ShouldExit { get; protected set; }
 
         /// <summary>
         /// The locale our we should instantiate this service in 
@@ -146,7 +150,7 @@ namespace Microsoft.SqlTools.Hosting.Utility
         /// culture-specific messages
         /// </summary>
         /// <param name="locale"></param>
-        internal void LocaleSetter(string locale)
+        public void LocaleSetter(string locale)
         {
             // Creating cultureInfo from our given locale
             CultureInfo language = new CultureInfo(locale);

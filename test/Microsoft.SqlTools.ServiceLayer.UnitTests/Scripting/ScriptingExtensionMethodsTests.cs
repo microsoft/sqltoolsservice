@@ -14,7 +14,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
         /// <summary>
         /// SQL sysname supports single quotes in object names, so URN attributes need to be properly escaped
         /// </summary>
-        [Xunit.Fact]
+        [Test]
         public void ToUrnEscapesAttributes()
         {
             var scriptingObject = new ScriptingObject() { Name = "quoted'Name", Schema = "quoted'Schema", Type = "Table" };
@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
             Assert.That(urn.GetAttribute("Schema"), Is.EqualTo("quoted'Schema"), "GetAttribute('Schema')");
         }
 
-        [Xunit.Fact]
+        [Test]
         public void ToObjectStringUnescapesAttributes()
         {
             var urn = new Urn(@"Server[@Name = 'SERVER']/Database[@Name = 'quoted''db']/Table[@Name = 'quoted''Name' and @Schema = 'quoted''Schema']");

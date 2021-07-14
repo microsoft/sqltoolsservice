@@ -9,13 +9,13 @@ using System.Data.Common;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 {
     public class CellUpdateTests
     {
-        [Fact]
+        [Test]
         public void NullColumnTest()
         {
             // If: I attempt to create a CellUpdate with a null column
@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Throws<ArgumentNullException>(() => new CellUpdate(null, string.Empty));
         }
 
-        [Fact]
+        [Test]
         public void NullStringValueTest()
         {
             // If: I attempt to create a CellUpdate with a null string value
@@ -31,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Throws<ArgumentNullException>(() => new CellUpdate(GetWrapper<string>("ntext"), null));
         }
 
-        [Fact]
+        [Test]
         public void NullStringAllowedTest()
         {
             // If: I attempt to create a CellUpdate to set it to NULL
@@ -41,13 +41,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // Then: The value should be a DBNull and the string value should be the same as what
             //       was given
-            Assert.IsType<DBNull>(cu.Value);
-            Assert.Equal(DBNull.Value, cu.Value);
-            Assert.Equal(nullString, cu.ValueAsString);
-            Assert.Equal(col, cu.Column);
+            Assert.That(cu.Value, Is.InstanceOf<DBNull>());
+            Assert.AreEqual(DBNull.Value, cu.Value);
+            Assert.AreEqual(nullString, cu.ValueAsString);
+            Assert.AreEqual(col, cu.Column);
         }
         
-        [Fact]
+        [Test]
         public void NullStringNotAllowedTest()
         {
             // If: I attempt to create a cell update to set to null when its not allowed
@@ -55,7 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Throws<InvalidOperationException>(() => new CellUpdate(GetWrapper<string>("ntext", false), "NULL"));
         }
 
-        [Fact]
+        [Test]
         public void NullTextStringTest()
         {
             // If: I attempt to create a CellUpdate with the text 'NULL' (with mixed case)
@@ -63,16 +63,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             CellUpdate cu = new CellUpdate(col, "'NULL'");
 
             // Then: The value should be NULL
-            Assert.IsType<string>(cu.Value);
-            Assert.Equal("NULL", cu.Value);
-            Assert.Equal("'NULL'", cu.ValueAsString);
-            Assert.Equal(col, cu.Column);
+            Assert.That(cu.Value, Is.InstanceOf<string>());
+            Assert.AreEqual("NULL", cu.Value);
+            Assert.AreEqual("'NULL'", cu.ValueAsString);
+            Assert.AreEqual(col, cu.Column);
         }
 
-        [Theory]
-        [InlineData("This is way too long")]
-        [InlineData("TooLong")]
-        public void StringTooLongTest(string value)
+        [Test]
+        public void StringTooLongTest([Values("This is way too long", "TooLong")]string value)
         {
             // If: I attempt to create a CellUpdate to set it to a large string
             // Then: I should get an exception thrown
@@ -80,8 +78,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Throws<InvalidOperationException>(() => new CellUpdate(col, value));
         }
 
-        [Theory]
-        [MemberData(nameof(ByteArrayTestParams))]
+        [Test]
+        [TestCaseSource(nameof(ByteArrayTestParams))]
         public void ByteArrayTest(string strValue, byte[] expectedValue, string expectedString)
         {
             // If: I attempt to create a CellUpdate for a binary column
@@ -89,10 +87,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             CellUpdate cu = new CellUpdate(col, strValue);
 
             // Then: The value should be a binary and should match the expected data
-            Assert.IsType<byte[]>(cu.Value);
-            Assert.Equal(expectedValue, cu.Value);
-            Assert.Equal(expectedString, cu.ValueAsString);
-            Assert.Equal(col, cu.Column);
+            Assert.That(cu.Value, Is.InstanceOf<byte[]>());
+            Assert.AreEqual(expectedValue, cu.Value);
+            Assert.AreEqual(expectedString, cu.ValueAsString);
+            Assert.AreEqual(col, cu.Column);
         }
 
         public static IEnumerable<object[]> ByteArrayTestParams
@@ -134,7 +132,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             }
         }
 
-        [Fact]
+        [Test]
         public void ByteArrayInvalidFormatTest()
         {
             // If: I attempt to create a CellUpdate for a binary column
@@ -143,8 +141,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Throws<InvalidOperationException>(() => new CellUpdate(col, "this is totally invalid"));
         }
 
-        [Theory]
-        [MemberData(nameof(BoolTestParams))]
+        [Test]
+        [TestCaseSource(nameof(BoolTestParams))]
         public void BoolTest(string input, bool output, string outputString)
         {
             // If: I attempt to create a CellUpdate for a boolean column
@@ -152,13 +150,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             CellUpdate cu = new CellUpdate(col, input);
 
             // Then: The value should match what was expected
-            Assert.IsType<bool>(cu.Value);
-            Assert.Equal(output, cu.Value);
-            Assert.Equal(outputString, cu.ValueAsString);
-            Assert.Equal(col, cu.Column);
+            Assert.That(cu.Value, Is.InstanceOf<bool>());
+            Assert.AreEqual(output, cu.Value);
+            Assert.AreEqual(outputString, cu.ValueAsString);
+            Assert.AreEqual(col, cu.Column);
         }
 
-        public static IEnumerable<object[]> BoolTestParams
+        private static IEnumerable<object[]> BoolTestParams
         {
             get
             {
@@ -169,7 +167,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             }
         }
 
-        [Fact]
+        [Test]
         public void BoolInvalidFormatTest()
         {
             // If: I create a CellUpdate for a bool column and provide an invalid numeric value
@@ -178,10 +176,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Throws<InvalidOperationException>(() => new CellUpdate(col, "12345"));
         }
 
-        [Theory]
-        [InlineData("24:00:00")]
-        [InlineData("105:00:00")]
-        public void TimeSpanTooLargeTest(string value)
+        [Test]
+        public void TimeSpanTooLargeTest([Values("24:00:00", "105:00:00")] string value)
         {
             // If: I create a cell update for a timespan column and provide a value that is over 24hrs
             // Then: It should throw an exception
@@ -189,21 +185,33 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Throws<InvalidOperationException>(() => new CellUpdate(col, value));
         }
 
-        [Theory]
-        [MemberData(nameof(RoundTripTestParams))]
-        public void RoundTripTest(DbColumnWrapper col, object obj)
+        /// <summary>
+        /// Not using TestCaseSource because nUnit's test name generator
+        /// doesn't like DbColumnWrapper objects as a source, due 
+        /// to that class lacking a ToString override.
+        /// </summary>
+        /// <param name="col"></param>
+        /// <param name="obj"></param>
+        [Test]
+        public void RoundTripTest()
         {
-            // Setup: Figure out the test string
-            string testString = obj.ToString();
+            foreach (var inputs in RoundTripTestParams)
+            {
 
-            // If: I attempt to create a CellUpdate
-            CellUpdate cu = new CellUpdate(col, testString);
+                var col = (DbColumnWrapper)inputs[0];
+                var obj = inputs[1];
+                // Setup: Figure out the test string
+                string testString = obj.ToString();
 
-            // Then: The value and type should match what we put in
-            Assert.IsType(col.DataType, cu.Value);
-            Assert.Equal(obj, cu.Value);
-            Assert.Equal(testString, cu.ValueAsString);
-            Assert.Equal(col, cu.Column);
+                // If: I attempt to create a CellUpdate
+                CellUpdate cu = new CellUpdate(col, testString);
+
+                // Then: The value and type should match what we put in
+                Assert.That(cu.Value, Is.InstanceOf(col.DataType));
+                Assert.AreEqual(obj, cu.Value);
+                Assert.AreEqual(testString, cu.ValueAsString);
+                Assert.AreEqual(col, cu.Column);
+            }
         }
 
         public static IEnumerable<object[]> RoundTripTestParams
@@ -228,10 +236,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             }
         }
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void AsDbCellValue(bool isNull)
+        [Test]
+        public void AsDbCellValue([Values]bool isNull)
         {
             // Setup: Create a cell update
             var value = isNull ? "NULL" : "foo";
@@ -246,19 +252,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.NotNull(dbc);
 
             // ... The display value should be the same as the value we supplied
-            Assert.Equal(value, dbc.DisplayValue);
+            Assert.AreEqual(value, dbc.DisplayValue);
 
             // ... The null-ness of the value should be the same as what we supplied
-            Assert.Equal(isNull, dbc.IsNull);
+            Assert.AreEqual(isNull, dbc.IsNull);
 
             // ... We don't care *too* much about the raw value, but we'll check it anyhow
-            Assert.Equal(isNull ? (object)DBNull.Value : value, dbc.RawObject);
+            Assert.AreEqual(isNull ? (object)DBNull.Value : value, dbc.RawObject);
         }
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void AsEditCellValue(bool isNull)
+        [Test]
+        public void AsEditCellValue([Values]bool isNull)
         {
             // Setup: Create a cell update
             var value = isNull ? "NULL" : "foo";
@@ -273,13 +277,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.NotNull(ec);
 
             // ... The display value should be the same as the value we supplied
-            Assert.Equal(value, ec.DisplayValue);
+            Assert.AreEqual(value, ec.DisplayValue);
 
             // ... The null-ness of the value should be the same as what we supplied
-            Assert.Equal(isNull, ec.IsNull);
+            Assert.AreEqual(isNull, ec.IsNull);
 
             // ... We don't care *too* much about the raw value, but we'll check it anyhow
-            Assert.Equal(isNull ? (object)DBNull.Value : value, ec.RawObject);
+            Assert.AreEqual(isNull ? (object)DBNull.Value : value, ec.RawObject);
 
             // ... The edit cell should be dirty
             Assert.True(ec.IsDirty);

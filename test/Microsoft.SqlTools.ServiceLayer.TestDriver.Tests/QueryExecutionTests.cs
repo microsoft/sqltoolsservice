@@ -5,14 +5,14 @@
 
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 {
     public class QueryExecutionTests
     {
         /* Commenting out these tests until they are fixed (12/1/16)
-        [Fact]
+        [Test]
         public async Task TestQueryCancelReliability()
         {
             const string query = "SELECT * FROM sys.objects a CROSS JOIN sys.objects b CROSS JOIN sys.objects c";
@@ -38,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             }
         }
 
-        [Fact]
+        [Test]
         public async Task TestQueryDoesNotBlockOtherRequests()
         {
             const string query = "SELECT * FROM sys.objects a CROSS JOIN sys.objects b CROSS JOIN sys.objects c";
@@ -67,7 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             }
         }
 
-        [Fact]
+        [Test]
         public async Task TestParallelQueryExecution()
         {
             const int queryCount = 10;
@@ -102,7 +102,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             }
         }
 
-        [Fact]
+        [Test]
         public async Task TestSaveResultsDoesNotBlockOtherRequests()
         {
             const string query = "SELECT * FROM sys.objects";
@@ -146,7 +146,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             }
         }
 
-        [Fact]
+        [Test]
         public async Task TestQueryingSubsetDoesNotBlockOtherRequests()
         {
             const string query = "SELECT * FROM sys.objects";
@@ -183,7 +183,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             }
         }
 
-        [Fact]
+        [Test]
         public async Task TestCancelQueryWhileOtherOperationsAreInProgress()
         {
             const string query = "SELECT * FROM sys.objects a CROSS JOIN sys.objects b";
@@ -220,7 +220,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             }
         }
 
-        [Fact]
+        [Test]
         public async Task ExecuteBasicQueryTest()
         {
             const string query = "SELECT * FROM sys.all_columns c";
@@ -276,7 +276,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
             }
         }
 
-        [Fact]
+        [Test]
         public async Task TestQueryingAfterCompletionRequests()
         {
             const string query = "SELECT * FROM sys.objects";

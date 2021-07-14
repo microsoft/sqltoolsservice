@@ -16,13 +16,13 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 {
     public class BatchTests
     {
-        [Fact]
+        [Test]
         public void BatchCreationTest()
         {
             // If I create a new batch...
@@ -30,32 +30,32 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // Then: 
             // ... The text of the batch should be stored
-            Assert.NotEmpty(batch.BatchText);
+            Assert.That(batch.BatchText, Is.Not.Empty);
 
             // ... It should not have executed and no error
             Assert.False(batch.HasExecuted, "The query should not have executed.");
             Assert.False(batch.HasError);
 
             // ... The results should be empty
-            Assert.Empty(batch.ResultSets);
-            Assert.Empty(batch.ResultSummaries);
+            Assert.That(batch.ResultSets, Is.Empty);
+            Assert.That(batch.ResultSummaries, Is.Empty);
 
             // ... The start line of the batch should be 0
-            Assert.Equal(0, batch.Selection.StartLine);
+            Assert.AreEqual(0, batch.Selection.StartLine);
 
             // ... It's ordinal ID should be what I set it to
-            Assert.Equal(Common.Ordinal, batch.Id);
+            Assert.AreEqual(Common.Ordinal, batch.Id);
 
             // ... The summary should have the same info
-            Assert.Equal(Common.Ordinal, batch.Summary.Id);
+            Assert.AreEqual(Common.Ordinal, batch.Summary.Id);
             Assert.Null(batch.Summary.ResultSetSummaries);
-            Assert.Equal(0, batch.Summary.Selection.StartLine);
-            Assert.NotEqual(default(DateTime).ToString("o"), batch.Summary.ExecutionStart); // Should have been set at construction
+            Assert.AreEqual(0, batch.Summary.Selection.StartLine);
+            Assert.That(batch.Summary.ExecutionStart, Is.Not.EqualTo(default(DateTime).ToString("o"))); // Should have been set at construction
             Assert.Null(batch.Summary.ExecutionEnd);
             Assert.Null(batch.Summary.ExecutionElapsed);
         }
 
-        [Fact]
+        [Test]
         public async Task BatchExecuteNoResultSets()
         {
             // Setup: 
@@ -77,9 +77,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // Then:
             // ... Callbacks should have been called the appropriate number of times
-            Assert.Equal(1, batchStartCalls);
-            Assert.Equal(1, batchEndCalls);
-            Assert.Equal(0, resultSetCalls);
+            Assert.AreEqual(1, batchStartCalls);
+            Assert.AreEqual(1, batchEndCalls);
+            Assert.AreEqual(0, resultSetCalls);
 
             // ... The batch and the summary should be correctly assigned
             ValidateBatch(batch, 0, false);
@@ -87,7 +87,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             ValidateMessages(batch, 1, messages);
         }
 
-        [Fact]
+        [Test]
         public async Task BatchExecuteOneResultSet()
         {
             // Setup: 
@@ -113,9 +113,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // Then:
             // ... Callbacks should have been called the appropriate number of times
-            Assert.Equal(1, batchStartCalls);
-            Assert.Equal(1, batchEndCalls);
-            Assert.Equal(1, resultSetCalls);
+            Assert.AreEqual(1, batchStartCalls);
+            Assert.AreEqual(1, batchEndCalls);
+            Assert.AreEqual(1, resultSetCalls);
 
             // ... There should be exactly one result set
             ValidateBatch(batch, resultSets, false);
@@ -123,7 +123,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             ValidateMessages(batch, 1, messages);
         }
 
-        [Fact]
+        [Test]
         public async Task BatchExecuteTwoResultSets()
         {
             // Setup: 
@@ -149,9 +149,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // Then:
             // ... Callbacks should have been called the appropriate number of times
-            Assert.Equal(1, batchStartCalls);
-            Assert.Equal(1, batchEndCalls);
-            Assert.Equal(2, resultSetCalls);
+            Assert.AreEqual(1, batchStartCalls);
+            Assert.AreEqual(1, batchEndCalls);
+            Assert.AreEqual(2, resultSetCalls);
 
             // ... It should have executed without error
             ValidateBatch(batch, resultSets, false);
@@ -159,7 +159,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             ValidateMessages(batch, 1, messages);
         }
 
-        [Fact]
+        [Test]
         public async Task BatchExecuteMultiExecutions()
         {
             // Setup: 
@@ -185,9 +185,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // Then:
             // ... Callbacks should have been called the appropriate number of times
-            Assert.Equal(1, batchStartCalls);
-            Assert.Equal(1, batchEndCalls);
-            Assert.Equal(2, resultSetCalls);
+            Assert.AreEqual(1, batchStartCalls);
+            Assert.AreEqual(1, batchEndCalls);
+            Assert.AreEqual(2, resultSetCalls);
 
             // ... There should be exactly two result sets
             ValidateBatch(batch, 2, false);
@@ -196,7 +196,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             ValidateMessages(batch, 2, messages);
         }
 
-        [Fact]
+        [Test]
         public async Task BatchExecuteInvalidQuery()
         {
             // Setup: 
@@ -218,23 +218,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // Then:
             // ... Callbacks should have been called the appropriate number of times
-            Assert.Equal(1, batchStartCalls);
-            Assert.Equal(1, batchEndCalls);
+            Assert.AreEqual(1, batchStartCalls);
+            Assert.AreEqual(1, batchEndCalls);
 
             // ... It should have executed with error
             ValidateBatch(batch, 0, true);
             ValidateBatchSummary(batch);
 
-            // ... There should be one error message returned
-            Assert.Equal(1, messages.Count);
-            Assert.All(messages, m =>
-            {
-                Assert.True(m.IsError);
-                Assert.Equal(batch.Id, m.BatchId);
-            });
+            Assert.That(messages.Select(m => new { m.IsError, m.BatchId.Value }), Is.EqualTo(new[] { new { IsError = true, Value = batch.Id } }), "There should be one error message returned");
         }
 
-        [Fact]
+        [Test]
         public async Task BatchExecuteInvalidQueryMultiExecutions()
         {
             // Setup: 
@@ -256,23 +250,20 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // Then:
             // ... Callbacks should have been called the appropriate number of times
-            Assert.Equal(1, batchStartCalls);
-            Assert.Equal(1, batchEndCalls);
+            Assert.AreEqual(1, batchStartCalls);
+            Assert.AreEqual(1, batchEndCalls);
 
             // ... It should have executed with error
             ValidateBatch(batch, 0, true);
             ValidateBatchSummary(batch);
 
             // ... There should be two error messages returned and 4 info messages (loop start/end, plus 2 for ignoring the error)
-            Assert.Equal(6, messages.Count);
-            Assert.All(messages, m =>
-            {
-                Assert.Equal(batch.Id, m.BatchId);
-            });
-            Assert.Equal(2, messages.Where(m => m.IsError).Count());
+            Assert.AreEqual(6, messages.Count);
+            Assert.That(messages.Select(m => m.BatchId), Is.EquivalentTo(new[] { batch.Id, batch.Id, batch.Id, batch.Id, batch.Id, batch.Id }));
+            Assert.That(messages.Select(m => m.IsError), Has.Exactly(2).True);
         }
 
-        [Fact]
+        [Test]
         public async Task BatchExecuteExecuted()
         {
             // Setup: Build a data set to return
@@ -296,7 +287,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
                 b => { throw new Exception("Batch completion callback should not have been called"); },
                 m => { throw new Exception("Message callback should not have been called"); },
                 null);
-            await Assert.ThrowsAsync<InvalidOperationException>(
+            Assert.ThrowsAsync<InvalidOperationException>(
                 () => batch.Execute(GetConnection(ci), CancellationToken.None));
 
             // ... The data should still be available without error
@@ -304,10 +295,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             ValidateBatchSummary(batch);
         }
 
-        [Theory]
-        [InlineData("")]
-        [InlineData(null)]
-        public void BatchExecuteNoSql(string query)
+        [Test]
+        public void BatchExecuteNoSql([Values(null, "")]  string query)
         {
             // If:
             // ... I create a batch that has an empty query
@@ -316,7 +305,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             Assert.Throws<ArgumentException>(() => new Batch(query, Common.SubsectionDocument, Common.Ordinal, MemoryFileSystem.GetFileStreamFactory()));
         }
 
-        [Fact]
+        [Test]
         public void BatchNoBufferFactory()
         {
             // If:
@@ -326,7 +315,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             Assert.Throws<ArgumentNullException>(() => new Batch("stuff", Common.SubsectionDocument, Common.Ordinal, null));
         }
 
-        [Fact]
+        [Test]
         public void BatchInvalidOrdinal()
         {
             // If:
@@ -336,7 +325,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             Assert.Throws<ArgumentOutOfRangeException>(() => new Batch("stuff", Common.SubsectionDocument, -1, MemoryFileSystem.GetFileStreamFactory()));
         }        
 
-        [Fact]
+        [Test]
         public void StatementCompletedHandlerTest()
         {
             // If:
@@ -357,7 +346,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             Assert.True(messageCalls == 2);
         }
 
-        [Fact]
+        [Test]
         public async Task ServerMessageHandlerShowsErrorMessages()
         {
             // Set up the batch to track message calls
@@ -384,14 +373,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             await batch.HandleSqlErrorMessage(1, 15, 0, 1, string.Empty, errorMessage);
 
             // Then one error message call should be recorded
-            Assert.Equal(1, errorMessageCalls);
-            Assert.Equal(0, infoMessageCalls);
+            Assert.AreEqual(1, errorMessageCalls);
+            Assert.AreEqual(0, infoMessageCalls);
 
             // And the actual message should be a formatted version of the error message
             Assert.True(actualMessage.Length > errorMessage.Length);
         }
 
-        [Fact]
+        [Test]
         public async Task ServerMessageHandlerShowsInfoMessages()
         {
             // Set up the batch to track message calls
@@ -418,11 +407,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             await batch.HandleSqlErrorMessage(0, 0, 0, 1, string.Empty, infoMessage);
 
             // Then one info message call should be recorded
-            Assert.Equal(0, errorMessageCalls);
-            Assert.Equal(1, infoMessageCalls);
+            Assert.AreEqual(0, errorMessageCalls);
+            Assert.AreEqual(1, infoMessageCalls);
 
             // And the actual message should be the exact info message
-            Assert.Equal(infoMessage, actualMessage);
+            Assert.AreEqual(infoMessage, actualMessage);
         }
       
         private static DbConnection GetConnection(ConnectionInfo info)
@@ -441,15 +430,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             Assert.NotNull(batch.ResultSummaries);
 
             // Make sure the number of result sets matches
-            Assert.Equal(expectedResultSets, batch.ResultSets.Count);
+            Assert.AreEqual(expectedResultSets, batch.ResultSets.Count);
             for (int i = 0; i < expectedResultSets; i++)
             {
-                Assert.Equal(i, batch.ResultSets[i].Id);
+                Assert.AreEqual(i, batch.ResultSets[i].Id);
             }
-            Assert.Equal(expectedResultSets, batch.ResultSummaries.Length);
+            Assert.AreEqual(expectedResultSets, batch.ResultSummaries.Length);
 
             // Make sure that the error state is set properly
-            Assert.Equal(isError, batch.HasError);
+            Assert.AreEqual(isError, batch.HasError);
         }
 
         private static void ValidateBatchSummary(Batch batch)
@@ -457,10 +446,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             BatchSummary batchSummary = batch.Summary;
 
             Assert.NotNull(batchSummary);
-            Assert.Equal(batch.Id, batchSummary.Id);
-            Assert.Equal(batch.ResultSets.Count, batchSummary.ResultSetSummaries.Length);
-            Assert.Equal(batch.Selection, batchSummary.Selection);
-            Assert.Equal(batch.HasError, batchSummary.HasError);
+            Assert.AreEqual(batch.Id, batchSummary.Id);
+            Assert.AreEqual(batch.ResultSets.Count, batchSummary.ResultSetSummaries.Length);
+            Assert.AreEqual(batch.Selection, batchSummary.Selection);
+            Assert.AreEqual(batch.HasError, batchSummary.HasError);
 
             // Something other than default date is provided for start and end times
             Assert.True(DateTime.Parse(batchSummary.ExecutionStart) > default(DateTime));   
@@ -472,15 +461,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         private static void ValidateMessages(Batch batch, int expectedMessages, IList<ResultMessage> messages)
         {
             // There should be equal number of messages to result sets
-            Assert.Equal(expectedMessages, messages.Count);
+            Assert.AreEqual(expectedMessages, messages.Count);
 
             // No messages should be errors
             // All messages must have the batch ID
-            Assert.All(messages, m =>
-            {
-                Assert.False(m.IsError);
-                Assert.Equal(batch.Id, m.BatchId);
-            });
+            Assert.That(messages.Select(m => new { m.IsError, m.BatchId.Value }), Has.All.EqualTo(new { IsError = false, Value = batch.Id }));
         }
 
         private static void BatchCallbackHelper(Batch batch, Action<Batch> startCallback, Action<Batch> endCallback,

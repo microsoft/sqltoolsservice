@@ -5,7 +5,7 @@
 
 using System.IO;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 {
@@ -15,7 +15,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
     public class CommandOptionsTests
     {
 
-        [Fact]
+        [Test]
         public void UsageIsShownWhenHelpFlagProvided()
         {
             var args = new string[] {"--help"};
@@ -23,10 +23,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             Assert.NotNull(options);
 
             Assert.True(options.ShouldExit);
-            Assert.Equal(options.Locale, string.Empty);
+            Assert.AreEqual(options.Locale, string.Empty);
         }
 
-        [Fact]
+        [Test]
         public void UsageIsShownWhenBadArgumentsProvided()
         {
             var args = new string[] {"--unknown-argument", "/bad-argument"};
@@ -34,10 +34,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             Assert.NotNull(options);
 
             Assert.True(options.ShouldExit);
-            Assert.Equal(options.Locale, string.Empty);
+            Assert.AreEqual(options.Locale, string.Empty);
         }
 
-        [Fact]
+        [Test]
         public void DefaultValuesAreUsedWhenNoArgumentsAreProvided()
         {
             int? testNo = 1;
@@ -97,10 +97,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             Assert.True(options.Locale == locale, $"{MsgPrefix} options:{nameof(locale)} should be '{locale}'");
         }
 
-        [Theory]
-        [InlineData("en")]
-        [InlineData("es")]
-        public void LocaleSetWhenProvided(string locale)
+        [Test]
+        public void LocaleSetWhenProvided([Values("en", "es")] string locale)
         {
             var args = new string[] {"--locale", locale};
             ServiceLayerCommandOptions options = new ServiceLayerCommandOptions(args); ;
@@ -108,10 +106,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             // Asserting all options were properly set 
             Assert.NotNull(options);
             Assert.False(options.ShouldExit);
-            Assert.Equal(options.Locale, locale);
+            Assert.AreEqual(options.Locale, locale);
         }
 
-        [Fact]
+        [Test]
         public void ShouldExitNotSetWhenInvalidLocale()
         {
             string locale = "invalid";
@@ -123,7 +121,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             Assert.False(options.ShouldExit);
         }
 
-        [Fact]
+        [Test]
         public void LocaleNotSetWhenNotProvided()
         {
             var args = new string[] {};
@@ -132,11 +130,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             // Asserting all options were properly set 
             Assert.NotNull(options);
             Assert.False(options.ShouldExit);
-            Assert.Equal(options.Locale, string.Empty);
+            Assert.AreEqual(options.Locale, string.Empty);
         }
 
 
-        [Fact]
+        [Test]
         public void TracingLevelSet()
         {
             string expectedLevel = "Information";
@@ -146,10 +144,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             // Asserting all options were properly set 
             Assert.NotNull(options);
             Assert.False(options.ShouldExit);
-            Assert.Equal(options.TracingLevel, expectedLevel);
+            Assert.AreEqual(options.TracingLevel, expectedLevel);
         }
 
-        [Fact]
+        [Test]
         public void AutoFlushLogSet()
         {
             bool expectedAutoFlush = true;
@@ -159,10 +157,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             // Asserting all options were properly set 
             Assert.NotNull(options);
             Assert.False(options.ShouldExit);
-            Assert.Equal(options.AutoFlushLog, expectedAutoFlush);
+            Assert.AreEqual(options.AutoFlushLog, expectedAutoFlush);
         }
 
-        [Fact]
+        [Test]
         public void LogFilePathSet()
         {
             string expectedFilePath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
@@ -172,7 +170,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             // Asserting all options were properly set 
             Assert.NotNull(options);
             Assert.False(options.ShouldExit);
-            Assert.Equal(options.LogFilePath, expectedFilePath);
+            Assert.AreEqual(options.LogFilePath, expectedFilePath);
         }
     }
 }

@@ -12,7 +12,7 @@ using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Moq;
 using System;
 using System.Threading.Tasks;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Cms
 {
@@ -37,8 +37,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Cms
             return connectParams;
         }
 
-        [Fact]
-        private async void TestAddCMS()
+        [Test]
+        public async Task TestAddCMS()
         {
             string name = "TestAddCMS" + DateTime.Now.ToString();
             ConnectParams connectParams = CreateConnectParams();
@@ -63,8 +63,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Cms
             requestContext.VerifyAll();
         }
 
-        [Fact]
-        private async void TestAddRemoveRegisteredServer()
+        [Test]
+        public async Task TestAddRemoveRegisteredServer()
         {
             string name = "TestAddRemoveRegisteredServer" + DateTime.Now.ToString();
             ConnectParams connectParams = await CreateAndConnectWithConnectParams();
@@ -122,8 +122,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Cms
             requestContext3.VerifyAll();
         }
 
-        [Fact]
-        private async void TestAddRemoveServerGroup()
+        [Test]
+        public async Task TestAddRemoveServerGroup()
         {
             string name = "TestAddRemoveServerGroup" + DateTime.Now.ToString();
             ConnectParams connectParams = await CreateAndConnectWithConnectParams();
@@ -174,8 +174,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Cms
             requestContext3.VerifyAll();
         }
 
-        [Fact]
-        private async void TestAddRemoveNestedGroup()
+        [Test]
+        public async Task TestAddRemoveNestedGroup()
         {
             string name = "TestAddRemoveNestedGroup" + DateTime.Now.ToString();
             ConnectParams connectParams = await CreateAndConnectWithConnectParams();

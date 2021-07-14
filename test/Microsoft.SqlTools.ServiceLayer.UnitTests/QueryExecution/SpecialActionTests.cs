@@ -4,14 +4,14 @@
 //
 
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 {
     public class SpecialActionTests
     {
 
-        [Fact]
+        [Test]
         public void SpecialActionInstantiation()
         {
             // If:
@@ -20,11 +20,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
             // Then:
             // ... The special action should be set to none and only none
-            Assert.Equal(true, specialAction.None);
-            Assert.Equal(false, specialAction.ExpectYukonXMLShowPlan);
+            Assert.AreEqual(true, specialAction.None);
+            Assert.AreEqual(false, specialAction.ExpectYukonXMLShowPlan);
         }
 
-        [Fact]
+        [Test]
         public void SpecialActionNoneProperty()
         {
             // If:
@@ -35,11 +35,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
             // Then:
             // ... The special action should be set to none and only none
-            Assert.Equal(true, specialAction.None);
-            Assert.Equal(false, specialAction.ExpectYukonXMLShowPlan);
+            Assert.AreEqual(true, specialAction.None);
+            Assert.AreEqual(false, specialAction.ExpectYukonXMLShowPlan);
         }
 
-        [Fact]
+        [Test]
         public void SpecialActionExpectYukonXmlShowPlanReset()
         {
             // If:
@@ -50,11 +50,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
             // Then:
             // ... The special action should be set to none and only none
-            Assert.Equal(true, specialAction.None);
-            Assert.Equal(false, specialAction.ExpectYukonXMLShowPlan);
+            Assert.AreEqual(true, specialAction.None);
+            Assert.AreEqual(false, specialAction.ExpectYukonXMLShowPlan);
         }
 
-        [Fact]
+        [Test]
         public void SpecialActionCombiningProperties()
         {
             // If:
@@ -69,8 +69,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
             // Then:
             // ... The special action should be set to none and only none
-            Assert.Equal(false, specialAction.None);
-            Assert.Equal(true, specialAction.ExpectYukonXMLShowPlan);
+            Assert.AreEqual(false, specialAction.None);
+            Assert.AreEqual(true, specialAction.ExpectYukonXMLShowPlan);
         }
 
 

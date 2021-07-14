@@ -4,7 +4,7 @@
 
 using System;
 using Microsoft.SqlTools.ResourceProvider.DefaultImpl;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Azure
 {
@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Azure
     /// </summary>
     public class AzureSubscriptionContextTest
     {
-        [Fact]
+        [Test]
         public void SubscriptionNameShouldReturnNullGivenNullSubscription()
         {
             AzureSubscriptionContext subscriptionContext = new AzureSubscriptionContext(null);
@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Azure
             Assert.True(subscriptionContext.Subscription == null);
         }
 
-        [Fact]
+        [Test]
         public void SubscriptionNameShouldReturnCorrectValueGivenValidSubscription()
         {
             string name = Guid.NewGuid().ToString();

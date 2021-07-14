@@ -22,7 +22,7 @@ using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
 {
@@ -42,8 +42,8 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
         /// Get backup configuration info
         /// </summary>
         /// Test is failing in code coverage runs. Reenable when stable.
-        ///[Fact]
-        public async void GetBackupConfigInfoTest()
+        ///[Test]
+        public async Task GetBackupConfigInfoTest()
         {
             string databaseName = "testbackup_" + new Random().Next(10000000, 99999999);
             using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName))
@@ -72,7 +72,7 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
         /// <summary>
         /// Create simple backup test
         /// </summary>
-        [Fact]
+        [Test]
         public void CreateBackupTest()
         {
             DisasterRecoveryService service = new DisasterRecoveryService();
@@ -100,7 +100,7 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
             }
         }
 
-        [Fact]
+        [Test]
         public void ScriptBackupTest()
         {
             DisasterRecoveryService service = new DisasterRecoveryService();
@@ -137,7 +137,7 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
         /// <summary>
         /// Test creating backup with advanced options set.
         /// </summary>
-        [Fact]
+        [Test]
         public void CreateBackupWithAdvancedOptionsTest()
         {
             DisasterRecoveryService service = new DisasterRecoveryService();
@@ -190,7 +190,7 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
         /// <summary>
         /// Test creating backup with advanced options set.
         /// </summary>
-        [Fact]
+        [Test]
         public void ScriptBackupWithAdvancedOptionsTest()
         {
             DisasterRecoveryService service = new DisasterRecoveryService();
@@ -245,7 +245,7 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
         /// <summary>
         /// Test the correct script generation for different backup action types
         /// </summary>
-        [Fact]
+        [Test]
         public void ScriptBackupWithDifferentActionTypesTest()
         {
             string databaseName = "SqlToolsService_TestBackup_" + new Random().Next(10000000, 99999999);
@@ -255,30 +255,30 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
                 string script = GenerateScriptForBackupType(BackupType.Full, databaseName);
 
                 // Validate Full backup script 
-                Assert.Contains("BACKUP DATABASE", script, StringComparison.OrdinalIgnoreCase);
-                Assert.DoesNotContain("BACKUP LOG", script, StringComparison.OrdinalIgnoreCase);
-                Assert.DoesNotContain("DIFFERENTIAL", script, StringComparison.OrdinalIgnoreCase);
+                Assert.That(script, Does.Contain("BACKUP DATABASE").IgnoreCase);
+                Assert.That(script, Does.Not.Contain("BACKUP LOG").IgnoreCase);
+                Assert.That(script, Does.Not.Contain("DIFFERENTIAL").IgnoreCase);
 
                 // Create log backup script
                 script = GenerateScriptForBackupType(BackupType.TransactionLog, databaseName);
 
                 // Validate Log backup script 
-                Assert.Contains("BACKUP LOG", script, StringComparison.OrdinalIgnoreCase);
-                Assert.DoesNotContain("BACKUP DATABASE", script, StringComparison.OrdinalIgnoreCase);
-                Assert.DoesNotContain("DIFFERENTIAL", script, StringComparison.OrdinalIgnoreCase);
+                Assert.That(script, Does.Contain("BACKUP LOG").IgnoreCase);
+                Assert.That(script, Does.Not.Contain("BACKUP DATABASE").IgnoreCase);
+                Assert.That(script, Does.Not.Contain("DIFFERENTIAL").IgnoreCase);
 
                 // Create differential backup script
                 script = GenerateScriptForBackupType(BackupType.Differential, databaseName);
 
                 // Validate differential backup script 
-                Assert.Contains("BACKUP DATABASE", script, StringComparison.OrdinalIgnoreCase);
-                Assert.DoesNotContain("BACKUP LOG", script, StringComparison.OrdinalIgnoreCase);
-                Assert.Contains("WITH  DIFFERENTIAL", script, StringComparison.OrdinalIgnoreCase);
+                Assert.That(script, Does.Contain("BACKUP DATABASE").IgnoreCase);
+                Assert.That(script, Does.Not.Contain("BACKUP LOG").IgnoreCase);
+                Assert.That(script, Does.Contain("WITH  DIFFERENTIAL").IgnoreCase);
             }
         }
 
-        //[Fact]
-        public async void BackupFileBrowserTest()
+        //[Test]
+        public async Task BackupFileBrowserTest()
         {
             string databaseName = "testfilebrowser_" + new Random().Next(10000000, 99999999);
             SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, databaseName);

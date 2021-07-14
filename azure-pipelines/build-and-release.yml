@@ -1,0 +1,25 @@
+trigger: none
+pr: none
+
+stages:
+- stage: Build
+  jobs:
+  - job: Build
+    pool:
+        vmImage: 'windows-latest'
+        demands:
+        - Cmd
+        - npm
+    steps:
+    - template: build.yml
+
+- stage: Release
+  dependsOn:
+  - Build
+  condition: and(succeeded(), eq(variables['RELEASE'], 'true'))
+  pool:
+    vmImage: 'Ubuntu-18.04'
+  jobs:
+  - job: Release
+    steps:
+    - template: release.yml

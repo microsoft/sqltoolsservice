@@ -1,6 +1,6 @@
 [![Travis CI](https://travis-ci.org/Microsoft/sqltoolsservice.svg?branch=dev)](https://travis-ci.org/Microsoft/sqltoolsservice)
 [![AppVeyor](https://ci.appveyor.com/api/projects/status/github/Microsoft/sqltoolsservice?svg=true&retina=true&branch=dev)](https://ci.appveyor.com/project/kburtram/sqltoolsservice)
-[![Coverage Status](https://coveralls.io/repos/github/Microsoft/sqltoolsservice/badge.svg?branch=master)](https://coveralls.io/github/Microsoft/sqltoolsservice?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/Microsoft/sqltoolsservice/badge.svg?branch=main)](https://coveralls.io/github/Microsoft/sqltoolsservice?branch=main)
 
 # Microsoft SQL Tools Service 
 The SQL Tools Service is an application that provides core functionality for various SQL Server tools.  These features include the following:
@@ -129,6 +129,14 @@ on this check so that our project will always have good generated documentation.
 
 ### Follow the Pull Request Process
 
+- **Create a new branch from which to submit your Pull Request**
+
+  Commits directly to `main` are not allowed - instead you will create a new branch and then submit a PR to
+  merge changes from that branch into `main`.
+
+  See [About branches](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/about-branches)
+  for more information about branching and how to create a new branch.
+  
 - **Create your pull request**
 
   Use the [typical process](https://help.github.com/articles/using-pull-requests/) to send a pull request 

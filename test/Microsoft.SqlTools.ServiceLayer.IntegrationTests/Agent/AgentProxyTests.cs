@@ -14,7 +14,7 @@ using Microsoft.SqlTools.ServiceLayer.Security.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 using static Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility.LiveConnectionHelper;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         /// <summary>
         /// Verify default agent/proxies handlers
         /// </summary>
-        [Fact]
+        [Test]
         public async Task TestHandleAgentProxiesRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
@@ -45,7 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         /// <summary>
         /// TestHandleCreateAgentProxyRequest
         /// </summary>
-        [Fact]
+        [Test]
         public async Task TestHandleCreateAgentProxyRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
@@ -69,7 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         /// <summary>
         /// Verify the default "update agent alert" request handler with valid parameters
         /// </summary>
-        [Fact]
+        [Test]
         public async Task TestHandleUpdateAgentProxyRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
@@ -96,7 +96,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         /// <summary>
         /// TestHandleDeleteAgentProxyRequest
         /// </summary>
-        [Fact]
+        [Test]
         public async Task TestHandleDeleteAgentProxyRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())

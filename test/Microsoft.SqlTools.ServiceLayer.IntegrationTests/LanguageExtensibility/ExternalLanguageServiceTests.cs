@@ -17,15 +17,15 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageExtensibility
 {
     public class ExternalLanguageServiceTests : ServiceTestBase
     {
 
-        [Fact]
-        public async void VerifyExternalLanguageStatusRequest()
+        [Test]
+        public async Task VerifyExternalLanguageStatusRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
@@ -50,8 +50,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageExtensibility
             }
         }
 
-        [Fact]
-        public async void VerifyExternalLanguageDeleteRequest()
+        [Test]
+        public async Task VerifyExternalLanguageDeleteRequest()
         {
             ExternalLanguage language = new ExternalLanguage
             {
@@ -80,8 +80,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageExtensibility
                }));
         }
 
-        [Fact]
-        public async void VerifyExternalLanguageDeleteRequestFailures()
+        [Test]
+        public async Task VerifyExternalLanguageDeleteRequestFailures()
         {
             ExternalLanguage language = new ExternalLanguage
             {
@@ -106,8 +106,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageExtensibility
                });
         }
 
-        [Fact]
-        public async void VerifyExternalLanguageDeleteRequestConnectionFailures()
+        [Test]
+        public async Task VerifyExternalLanguageDeleteRequestConnectionFailures()
         {
             ExternalLanguage language = new ExternalLanguage
             {
@@ -131,8 +131,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageExtensibility
                });
         }
 
-        [Fact]
-        public async void VerifyExternalLanguageUpdateRequest()
+        [Test]
+        public async Task VerifyExternalLanguageUpdateRequest()
         {
             ExternalLanguage language = new ExternalLanguage
             {
@@ -161,8 +161,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageExtensibility
                }));
         }
 
-        [Fact]
-        public async void VerifyExternalLanguageUpdateRequestFailures()
+        [Test]
+        public async Task VerifyExternalLanguageUpdateRequestFailures()
         {
             ExternalLanguage language = new ExternalLanguage
             {
@@ -187,8 +187,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageExtensibility
                });
         }
 
-        [Fact]
-        public async void VerifyExternalLanguageUpdateRequestConnectionFailures()
+        [Test]
+        public async Task VerifyExternalLanguageUpdateRequestConnectionFailures()
         {
             ExternalLanguage language = new ExternalLanguage
             {
@@ -212,8 +212,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageExtensibility
                });
         }
 
-        [Fact]
-        public async void VerifyExternalLanguageListRequest()
+        [Test]
+        public async Task VerifyExternalLanguageListRequest()
         {
             ExternalLanguage language = new ExternalLanguage
             {
@@ -241,8 +241,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageExtensibility
                }));
         }
 
-        [Fact]
-        public async void VerifyExternalLanguagListRequestFailures()
+        [Test]
+        public async Task VerifyExternalLanguagListRequestFailures()
         {
             ExternalLanguage language = new ExternalLanguage
             {
@@ -266,8 +266,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageExtensibility
                });
         }
 
-        [Fact]
-        public async void VerifyExternalLanguagListRequestConnectionFailures()
+        [Test]
+        public async Task VerifyExternalLanguagListRequestConnectionFailures()
         {
             ExternalLanguage language = new ExternalLanguage
             {
@@ -323,8 +323,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageExtensibility
             }
         }
 
-        [Fact]
-        public async void VerifyExternalLanguageStatusRequestSendErrorGivenInvalidConnection()
+        [Test]
+        public async Task VerifyExternalLanguageStatusRequestSendErrorGivenInvalidConnection()
         {
             ExternalLanguageStatusResponseParams result = null;
             var requestContext = RequestContextMocks.Create<ExternalLanguageStatusResponseParams>(r => result = r).AddErrorHandling(null);

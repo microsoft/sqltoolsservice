@@ -3,7 +3,6 @@
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
-		<DebugType>portable</DebugType>
 	</PropertyGroup>
 	<ItemGroup>
 		<Folder Include="Localization\transXliff\" />
@@ -14,7 +13,7 @@
 		<PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" />
 	</ItemGroup>
 	<ItemGroup>
-		<EmbeddedResource Include="Localization\sr.resx" />
+		<EmbeddedResource Include="Localization\*.resx" />
 		<None Include="Localization\sr.strings" />
 	</ItemGroup>
 	<ItemGroup>

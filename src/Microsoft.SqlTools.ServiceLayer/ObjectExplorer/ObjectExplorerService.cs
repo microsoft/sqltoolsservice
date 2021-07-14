@@ -73,15 +73,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             {
                 this.bindingQueue = value;
             }
-        }        
-
-        /// <summary>
-        /// Internal for testing only
-        /// </summary>
-        internal ObjectExplorerService(ExtensionServiceProvider serviceProvider)
-            : this()
-        {
-            SetServiceProvider(serviceProvider);
         }
 
         private Dictionary<string, HashSet<ChildFactory>> ApplicableNodeChildFactories
@@ -243,7 +234,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
                 string uri = refreshParams.SessionId;
                 ObjectExplorerSession session = null;
-                if (!sessionMap.TryGetValue(uri, out session))
+                if (string.IsNullOrEmpty(uri) || !sessionMap.TryGetValue(uri, out session))
                 {
                     Logger.Write(TraceEventType.Verbose, $"Cannot expand object explorer node. Couldn't find session for uri. {uri} ");
                     await serviceHost.SendEvent(ExpandCompleteNotification.Type, new ExpandResponse

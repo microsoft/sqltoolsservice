@@ -11,23 +11,23 @@ using System.Text.RegularExpressions;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
 {
     public class SaveAsCsvFileStreamWriterTests
     {
-        [Theory]
-        [InlineData("Something\rElse")]
-        [InlineData("Something\nElse")]
-        [InlineData("Something\"Else")]
-        [InlineData("Something,Else")]
-        [InlineData("\tSomething")]
-        [InlineData("Something\t")]
-        [InlineData(" Something")]
-        [InlineData("Something ")]
-        [InlineData(" \t\r\n\",\r\n\"\r ")]
-        public void EncodeCsvFieldShouldWrap(string field)
+        [Test]
+        public void EncodeCsvFieldShouldWrap(
+            [Values("Something\rElse",
+        "Something\nElse",
+        "Something\"Else",
+        "Something,Else",
+        "\tSomething",
+        "Something\t",
+        " Something",
+        "Something ",
+        " \t\r\n\",\r\n\"\r ")] string field)
         {
             // If: I CSV encode a field that has forbidden characters in it
             string output = SaveAsCsvFileStreamWriter.EncodeCsvField(field, ',', '\"');
@@ -37,11 +37,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
                 && Regex.IsMatch(output, ".*\"$"));
         }
 
-        [Theory]
-        [InlineData("Something")]
-        [InlineData("Something valid.")]
-        [InlineData("Something\tvalid")]
-        public void EncodeCsvFieldShouldNotWrap(string field)
+        [Test]
+        public void EncodeCsvFieldShouldNotWrap(
+            [Values(
+            "Something",
+            "Something valid.",
+            "Something\tvalid"
+            )] string field)
         {
             // If: I CSV encode a field that does not have forbidden characters in it
             string output = SaveAsCsvFileStreamWriter.EncodeCsvField(field, ',', '\"');
@@ -50,27 +52,27 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             Assert.False(Regex.IsMatch(output, "^\".*\"$"));
         }
 
-        [Fact]
+        [Test]
         public void EncodeCsvFieldReplace()
         {
             // If: I CSV encode a field that has a double quote in it,
             string output = SaveAsCsvFileStreamWriter.EncodeCsvField("Some\"thing", ',', '\"');
 
             // Then: It should be replaced with double double quotes
-            Assert.Equal("\"Some\"\"thing\"", output);
+            Assert.AreEqual("\"Some\"\"thing\"", output);
         }
 
-        [Fact]
+        [Test]
         public void EncodeCsvFieldNull()
         {
             // If: I CSV encode a null
             string output = SaveAsCsvFileStreamWriter.EncodeCsvField(null, ',', '\"');
 
             // Then: there should be a string version of null returned
-            Assert.Equal("NULL", output);
+            Assert.AreEqual("NULL", output);
         }
 
-        [Fact]
+        [Test]
         public void WriteRowWithoutColumnSelectionOrHeader()
         {
             // Setup: 
@@ -100,12 +102,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             // Then: It should write one line with 2 items, comma delimited
             string outputString = Encoding.UTF8.GetString(output).TrimEnd('\0', '\r', '\n');
             string[] lines = outputString.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
-            Assert.Equal(1, lines.Length);
+            Assert.AreEqual(1, lines.Length);
             string[] values = lines[0].Split(',');
-            Assert.Equal(2, values.Length);
+            Assert.AreEqual(2, values.Length);
         }
 
-        [Fact]
+        [Test]
         public void WriteRowWithHeader()
         {
             // Setup:
@@ -139,20 +141,20 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             // ... It should have written two lines
             string outputString = Encoding.UTF8.GetString(output).TrimEnd('\0', '\r', '\n');
             string[] lines = outputString.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
-            Assert.Equal(2, lines.Length);
+            Assert.AreEqual(2, lines.Length);
 
             // ... It should have written a header line with two, comma separated names
             string[] headerValues = lines[0].Split(',');
-            Assert.Equal(2, headerValues.Length);
+            Assert.AreEqual(2, headerValues.Length);
             for (int i = 0; i < columns.Count; i++)
             {
-                Assert.Equal(columns[i].ColumnName, headerValues[i]);
+                Assert.AreEqual(columns[i].ColumnName, headerValues[i]);
             }
 
             // Note: No need to check values, it is done as part of the previous test
         }
 
-        [Fact]
+        [Test]
         public void WriteRowWithColumnSelection()
         {
             // Setup:
@@ -194,26 +196,26 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             // ... It should have written two lines
             string outputString = Encoding.UTF8.GetString(output).TrimEnd('\0', '\r', '\n');
             string[] lines = outputString.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
-            Assert.Equal(2, lines.Length);
+            Assert.AreEqual(2, lines.Length);
 
             // ... It should have written a header line with two, comma separated names
             string[] headerValues = lines[0].Split(',');
-            Assert.Equal(2, headerValues.Length);
+            Assert.AreEqual(2, headerValues.Length);
             for (int i = 1; i <= 2; i++)
             {
-                Assert.Equal(columns[i].ColumnName, headerValues[i - 1]);
+                Assert.AreEqual(columns[i].ColumnName, headerValues[i - 1]);
             }
 
             // ... The second line should have two, comma separated values
             string[] dataValues = lines[1].Split(',');
-            Assert.Equal(2, dataValues.Length);
+            Assert.AreEqual(2, dataValues.Length);
             for (int i = 1; i <= 2; i++)
             {
-                Assert.Equal(data[i].DisplayValue, dataValues[i - 1]);
+                Assert.AreEqual(data[i].DisplayValue, dataValues[i - 1]);
             }
         }
 
-        [Fact]
+        [Test]
         public void WriteRowWithCustomDelimiters()
         {
             // Setup:
@@ -248,20 +250,20 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             // ... It should have written two lines
             string outputString = Encoding.UTF8.GetString(output).TrimEnd('\0', '\r', '\n');
             string[] lines = outputString.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
-            Assert.Equal(2, lines.Length);
+            Assert.AreEqual(2, lines.Length);
 
             // ... It should have written a header line with two, pipe("|") separated names
             string[] headerValues = lines[0].Split('|');
-            Assert.Equal(2, headerValues.Length);
+            Assert.AreEqual(2, headerValues.Length);
             for (int i = 0; i < columns.Count; i++)
             {
-                Assert.Equal(columns[i].ColumnName, headerValues[i]);
+                Assert.AreEqual(columns[i].ColumnName, headerValues[i]);
             }
 
             // Note: No need to check values, it is done as part of the previous tests
         }
 
-        [Fact]
+        [Test]
         public void WriteRowsWithCustomLineSeperator()
         {
             // Setup:
@@ -301,7 +303,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             // ... It should have splitten the lines by system's default line seperator
             outputString = Encoding.UTF8.GetString(output).TrimEnd('\0', '\r', '\n');
             lines = outputString.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
-            Assert.Equal(2, lines.Length);
+            Assert.AreEqual(2, lines.Length);
 
             // If: I set \n (line feed) as seperator and write a row
             requestParams.LineSeperator = "\n";
@@ -316,7 +318,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             // ... It should have splitten the lines by \n
             outputString = Encoding.UTF8.GetString(output).TrimEnd('\0', '\r', '\n');
             lines = outputString.Split(new[] { '\n' }, StringSplitOptions.None);
-            Assert.Equal(2, lines.Length);
+            Assert.AreEqual(2, lines.Length);
 
             // If: I set \r\n (carriage return + line feed) as seperator and write a row
             requestParams.LineSeperator = "\r\n";
@@ -331,11 +333,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             // ... It should have splitten the lines by \r\n
             outputString = Encoding.UTF8.GetString(output).TrimEnd('\0', '\r', '\n');
             lines = outputString.Split(new[] { "\r\n" }, StringSplitOptions.None);
-            Assert.Equal(2, lines.Length);
+            Assert.AreEqual(2, lines.Length);
             
         }
 
-        [Fact]
+        [Test]
         public void WriteRowWithCustomTextIdentifier()
         {
             // Setup:
@@ -373,10 +375,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             // Then:
             // ... It should have splitten the columns by delimiter, embedded in text identifier when field contains delimiter or the text identifier
             string outputString = Encoding.UTF8.GetString(output).TrimEnd('\0', '\r', '\n');
-            Assert.Equal("\'item;1\';item,2;item\"3;\'item\'\'4\'", outputString);
+            Assert.AreEqual("\'item;1\';item,2;item\"3;\'item\'\'4\'", outputString);
         }
 
-        [Fact]
+        [Test]
         public void WriteRowWithCustomEncoding()
         {
             // Setup:
@@ -408,7 +410,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             // ... It should have written the umlaut using the encoding Windows-1252
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             string outputString = Encoding.GetEncoding("Windows-1252").GetString(output).TrimEnd('\0', '\r', '\n');
-            Assert.Equal("ü", outputString);
+            Assert.AreEqual("ü", outputString);
 
         }
 

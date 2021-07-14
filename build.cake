@@ -271,7 +271,7 @@ Task("TestCore")
     .Does(() =>
 {
     var testProjects = buildPlan.TestProjects
-                                .Where(pair => pair.Value.Any(framework => framework.Contains("netcoreapp")))
+                                .Where(pair => pair.Value.Any(framework => framework.Contains("net")))
                                 .Select(pair => pair.Key)
                                 .ToList();
 
@@ -299,7 +299,7 @@ Task("Test")
         foreach (var framework in pair.Value)
         {
             // Testing against core happens in TestCore
-            if (framework.Contains("netcoreapp"))
+            if (framework.Contains("net"))
             {
                 continue;
             }
@@ -584,7 +584,7 @@ Task("SRGen")
                 continue;
             }
 
-            var srgenPath = System.IO.Path.Combine(toolsFolder, "Microsoft.Data.Tools.StringResourceTool", "lib", "netcoreapp2.2", "srgen.dll");
+            var srgenPath = System.IO.Path.Combine(toolsFolder, "Microsoft.Data.Tools.StringResourceTool", "lib", "netcoreapp3.1", "srgen.dll");
             var outputResx = System.IO.Path.Combine(localizationDir, "sr.resx");
             var inputXliff = System.IO.Path.Combine(localizationDir, "transXliff");
             var outputXlf = System.IO.Path.Combine(localizationDir, "sr.xlf");

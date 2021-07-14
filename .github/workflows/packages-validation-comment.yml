@@ -1,0 +1,25 @@
+name: Packages.props validation message
+on:
+  pull_request:
+    paths:
+      - 'Packages.props'
+    branches:
+      - main
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: mshick/add-pr-comment@v1
+        with:
+          message: |
+            As part of updating the dependencies in Packages.props we require that any PRs opened also verify that
+            they've done the following checks.
+
+            **Please respond to this comment verifying that you've done the appropriate validation (or explain why it's not necessary) before merging in the PR**
+
+            - [ ] Built and tested the change locally to validate that the update doesn't cause any regressions and fixes the issues intended
+            - [ ] Tested changes on all major platforms (Windows/Mac/Linux)
+            - [ ] Check the source repo for any open issues with the release being updated to (if available)
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          repo-token-user-login: 'github-actions[bot]' # The user.login for temporary GitHub tokens

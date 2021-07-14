@@ -288,6 +288,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // Register the file open update handler
             WorkspaceServiceInstance.RegisterTextDocOpenCallback(HandleDidOpenTextDocumentNotification);
 
+            // Register the file open update handler
+            WorkspaceServiceInstance.RegisterTextDocCloseCallback(HandleDidCloseTextDocumentNotification);
+
             // Register a callback for when a connection is created
             ConnectionServiceInstance.RegisterOnConnectionTask(UpdateLanguageServiceOnConnection);
 
@@ -702,6 +705,34 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
+        /// Handle the file close notification
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <param name="scriptFile"></param>
+        /// <param name="eventContext"></param>
+        /// <returns></returns>
+        public async Task HandleDidCloseTextDocumentNotification(
+            string uri,
+            ScriptFile scriptFile,
+            EventContext eventContext)
+        {
+            try
+            {
+                // if not in the preview window and diagnostics are enabled then clear diagnostics
+                if (!IsPreviewWindow(scriptFile)
+                    && CurrentWorkspaceSettings.IsDiagnosticsEnabled)
+                {
+                    await DiagnosticsHelper.ClearScriptDiagnostics(uri, eventContext);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Write(TraceEventType.Error, "Unknown error " + ex.ToString());
+                // TODO: need mechanism return errors from event handlers
+            }
+        }
+
+        /// <summary>
         /// Handle the rebuild IntelliSense cache notification
         /// </summary>
         public async Task HandleRebuildIntelliSenseNotification(
@@ -712,8 +743,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 Logger.Write(TraceEventType.Verbose, "HandleRebuildIntelliSenseNotification");
 
+                // This URI doesn't come in escaped - so if it's a file path with reserved characters (such as %)
+                // then we'll fail to find it since GetFile expects the URI to be a fully-escaped URI as that's
+                // what the document events are sent in as.
+                var escapedOwnerUri = Uri.EscapeUriString(rebuildParams.OwnerUri);
                 // Skip closing this file if the file doesn't exist
-                var scriptFile = this.CurrentWorkspace.GetFile(rebuildParams.OwnerUri);
+                var scriptFile = this.CurrentWorkspace.GetFile(escapedOwnerUri);
                 if (scriptFile == null)
                 {
                     return;
@@ -1047,7 +1082,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             if (scriptInfo.IsConnected)
             {
-                var scriptFile = CurrentWorkspace.GetFile(info.OwnerUri);
+                // This URI doesn't come in escaped - so if it's a file path with reserved characters (such as %)
+                // then we'll fail to find it since GetFile expects the URI to be a fully-escaped URI as that's
+                // what the document events are sent in as.
+                var fileUri = Uri.EscapeUriString(info.OwnerUri);
+                var scriptFile = CurrentWorkspace.GetFile(fileUri);
                 if (scriptFile == null)
                 {
                     return;

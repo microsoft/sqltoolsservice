@@ -12,7 +12,7 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 {
@@ -20,10 +20,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
     {
         #region ResultSet Class Tests
 
-        [Theory]
-        [InlineData(0, 2)]
-        [InlineData(0, 20)]
-        [InlineData(1, 2)]
+        static private readonly object[] validSet =
+        {
+            new object[] {0, 2 },
+            new object[] {0, 20 },
+            new object[] {1, 2 },
+        };
+
+        [Test, TestCaseSource(nameof(validSet))]
         public void ResultSetValidTest(int startRow, int rowCount)
         {
             // Setup:
@@ -39,15 +43,18 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
             // Then:
             // ... I should get the requested number of rows back
-            Assert.Equal(Math.Min(rowCount, Common.StandardRows), subset.RowCount);
-            Assert.Equal(Math.Min(rowCount, Common.StandardRows), subset.Rows.Length);
+            Assert.AreEqual(Math.Min(rowCount, Common.StandardRows), subset.RowCount);
+            Assert.AreEqual(Math.Min(rowCount, Common.StandardRows), subset.Rows.Length);
         }
 
-        [Theory]
-        [InlineData(-1, 2)]  // Invalid start index, too low
-        [InlineData(10, 2)]  // Invalid start index, too high
-        [InlineData(0, -1)]  // Invalid row count, too low
-        [InlineData(0, 0)]   // Invalid row count, zero
+        static private readonly object[] invalidSet =
+        {
+            new object[] {-1, 2},  // Invalid start index, too low
+            new object[] {10, 2}, // Invalid start index, too high
+            new object[] {0, -1}, // Invalid row count, too low
+            new object[] {0, 0 },   // Invalid row count, zero
+        };
+        [Test, TestCaseSource(nameof(invalidSet))]
         public void ResultSetInvalidParmsTest(int rowStartIndex, int rowCount)
         {
             // If:
@@ -57,28 +64,26 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
             // Then:
             // ... It should throw an exception
-            Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => rs.GetSubset(rowStartIndex, rowCount)).Wait();
+            Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => rs.GetSubset(rowStartIndex, rowCount));
         }
 
-        [Fact]
-        public async Task ResultSetNotReadTest()
+        [Test]
+        public void ResultSetNotReadTest()
         {
             // If:
             // ... I have a resultset that hasn't been executed and I request a valid result set from it
             // Then:
             // ... It should throw an exception for having not been read
             ResultSet rs = new ResultSet(Common.Ordinal, Common.Ordinal, MemoryFileSystem.GetFileStreamFactory());
-            await Assert.ThrowsAsync<InvalidOperationException>(() => rs.GetSubset(0, 1));
+            Assert.ThrowsAsync<InvalidOperationException>(() => rs.GetSubset(0, 1));
         }
 
         #endregion
 
         #region Batch Class Tests
 
-        [Theory]
-        [InlineData(2)]
-        [InlineData(20)]
-        public void BatchSubsetValidTest(int rowCount)
+        [Test]
+        public void BatchSubsetValidTest([Values(2,20)] int rowCount)
         {
             // If I have an executed batch
             Batch b = Common.GetBasicExecutedBatch();
@@ -90,14 +95,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
             // Then:
             // I should get the requested number of rows
-            Assert.Equal(Math.Min(rowCount, Common.StandardRows), subset.RowCount);
-            Assert.Equal(Math.Min(rowCount, Common.StandardRows), subset.Rows.Length);
+            Assert.AreEqual(Math.Min(rowCount, Common.StandardRows), subset.RowCount);
+            Assert.AreEqual(Math.Min(rowCount, Common.StandardRows), subset.Rows.Length);
         }
 
-        [Theory]
-        [InlineData(-1)]  // Invalid result set, too low
-        [InlineData(2)]   // Invalid result set, too high
-        public void BatchSubsetInvalidParamsTest(int resultSetIndex)
+        [Test]
+        public void BatchSubsetInvalidParamsTest([Values(-1,2)] int resultSetIndex)
         {
             // If I have an executed batch
             Batch b = Common.GetBasicExecutedBatch();
@@ -105,17 +108,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             // ... And I ask for a subset with an invalid result set index
             // Then: 
             // ... It should throw an exception
-            Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => b.GetSubset(resultSetIndex, 0, 2)).Wait();
+            Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => b.GetSubset(resultSetIndex, 0, 2));
         }
 
         #endregion
 
         #region Query Class Tests
 
-        [Theory]
-        [InlineData(-1)]  // Invalid batch, too low
-        [InlineData(2)]   // Invalid batch, too high
-        public void QuerySubsetInvalidParamsTest(int batchIndex)
+        [Test]
+        public void QuerySubsetInvalidParamsTest([Values(-1,2)] int batchIndex)
         {
             // If I have an executed query
             Query q = Common.GetBasicExecutedQuery();
@@ -123,14 +124,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             // ... And I ask for a subset with an invalid result set index
             // Then: 
             // ... It should throw an exception
-            Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => q.GetSubset(batchIndex, 0, 0, 1)).Wait();
+            Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => q.GetSubset(batchIndex, 0, 0, 1));
         }
 
         #endregion
 
         #region Service Intergration Tests
 
-        [Fact]
+        [Test]
         public async Task SubsetServiceValidTest()
         {
             // If:
@@ -155,7 +156,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             subsetRequest.Validate();
         }
 
-        [Fact]
+        [Test]
         public async Task SubsetServiceMissingQueryTest()
         {
             // If:
@@ -170,7 +171,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             subsetRequest.Validate();
         }
 
-        [Fact]
+        [Test]
         public async Task SubsetServiceUnexecutedQueryTest()
         {
             // If:
@@ -193,7 +194,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             subsetRequest.Validate();
         }
 
-        [Fact]
+        [Test]
         public async Task SubsetServiceOutOfRangeSubsetTest()
         {
             // If:

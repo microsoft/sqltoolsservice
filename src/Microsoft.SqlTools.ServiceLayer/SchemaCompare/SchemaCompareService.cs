@@ -2,19 +2,19 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
-using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Hosting;
-using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Dac.Compare;
+using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Hosting;
+using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
+using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
-using System.Diagnostics;
-using System.Threading;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 {
@@ -278,8 +278,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         {
             try
             {
-                // this does not need to be an async operation since this only creates and resturn the default opbject
-                DeploymentOptions options = new DeploymentOptions();
+                // this does not need to be an async operation since this only creates and returns the default object
+                DeploymentOptions options = DeploymentOptions.GetDefaultSchemaCompareOptions();
 
                 await requestContext.SendResult(new SchemaCompareOptionsResult()
                 {

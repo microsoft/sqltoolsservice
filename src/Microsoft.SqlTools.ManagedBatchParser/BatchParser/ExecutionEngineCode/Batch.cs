@@ -683,23 +683,23 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             DbConnectionWrapper connectionWrapper = new DbConnectionWrapper(connection);
             connectionWrapper.InfoMessage += messageHandler;
 
-            IDbCommand command = connection.CreateCommand();
-            command.CommandText = script;
-            command.CommandTimeout = execTimeout;
+            IDbCommand localCommand = connection.CreateCommand();
+            localCommand.CommandText = script;
+            localCommand.CommandTimeout = execTimeout;
 
             DbCommandWrapper commandWrapper = null;
-            if (isScriptExecutionTracked && DbCommandWrapper.IsSupportedCommand(command))
+            if (isScriptExecutionTracked && DbCommandWrapper.IsSupportedCommand(localCommand))
             {
                 statementCompletedHandler = new StatementCompletedEventHandler(OnStatementExecutionFinished);
-                commandWrapper = new DbCommandWrapper(command);
+                commandWrapper = new DbCommandWrapper(localCommand);
                 commandWrapper.StatementCompleted += statementCompletedHandler;
             }
 
             lock (this)
             {
                 state = BatchState.Executing;
-                this.command = command;
-                command = null;
+                command = localCommand;
+                localCommand = null;
             }
 
             try

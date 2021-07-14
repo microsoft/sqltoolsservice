@@ -8,7 +8,7 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
 {
@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         /// <summary>
         /// Test case for fetch notebook jobs Request Handler
         /// </summary>
-        [Fact]
+        [Test]
         public async Task TestHandleAgentNotebooksRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
@@ -40,16 +40,16 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         /// <summary>
         /// Tests the create job helper function
         /// </summary>
-        [Fact]
-        internal async Task TestAgentNotebookCreateHelper()
+        [Test]
+        public async Task TestAgentNotebookCreateHelper()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
                 var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
                 AgentNotebookInfo notebook = AgentTestUtils.GetTestNotebookInfo("myTestNotebookJob" + Guid.NewGuid().ToString(), "master");
-                Assert.Equal(false, AgentTestUtils.VerifyNotebook(connectionResult, notebook));
+                Assert.AreEqual(false, AgentTestUtils.VerifyNotebook(connectionResult, notebook));
                 notebook = AgentTestUtils.SetupNotebookJob(connectionResult).Result;
-                Assert.Equal(true, AgentTestUtils.VerifyNotebook(connectionResult, notebook));
+                Assert.AreEqual(true, AgentTestUtils.VerifyNotebook(connectionResult, notebook));
                 await AgentTestUtils.CleanupNotebookJob(connectionResult, notebook);
             }
         }
@@ -57,8 +57,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         /// <summary>
         /// Tests the create job request handler with an invalid file path
         /// </summary>
-        [Fact]
-        internal async Task TestHandleCreateAgentNotebookRequestWithInvalidTemplatePath()
+        [Test]
+        public async Task TestHandleCreateAgentNotebookRequestWithInvalidTemplatePath()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
@@ -75,15 +75,15 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                 }, createNotebookContext.Object);
 
                 createNotebookContext.Verify(x => x.SendResult(It.Is<CreateAgentNotebookResult>(p => p.Success == false)));
-                Assert.Equal(false, AgentTestUtils.VerifyNotebook(connectionResult, notebook));
+                Assert.AreEqual(false, AgentTestUtils.VerifyNotebook(connectionResult, notebook));
             }
         }
 
         /// <summary>
         /// creating a job with duplicate name
         /// </summary>
-        [Fact]
-        internal async Task TestDuplicateJobCreation()
+        [Test]
+        public async Task TestDuplicateJobCreation()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
@@ -114,8 +114,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         /// <summary>
         /// Tests the create notebook job handler
         /// </summary>
-        [Fact]
-        internal async Task TestCreateAgentNotebookHandler()
+        [Test]
+        public async Task TestCreateAgentNotebookHandler()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
@@ -131,7 +131,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                     TemplateFilePath = AgentTestUtils.CreateTemplateNotebookFile()
                 }, createNotebookContext.Object);
                 createNotebookContext.Verify(x => x.SendResult(It.Is<CreateAgentNotebookResult>(p => p.Success == true)));
-                Assert.Equal(true, AgentTestUtils.VerifyNotebook(connectionResult, notebook));
+                Assert.AreEqual(true, AgentTestUtils.VerifyNotebook(connectionResult, notebook));
                 var createdNotebook = AgentTestUtils.GetNotebook(connectionResult, notebook.Name);
                 await AgentTestUtils.CleanupNotebookJob(connectionResult, createdNotebook);
             }
@@ -140,8 +140,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         /// <summary>
         /// Tests the delete notebook job handler
         /// </summary>
-        [Fact]
-        internal async Task TestDeleteAgentNotebookHandler()
+        [Test]
+        public async Task TestDeleteAgentNotebookHandler()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
@@ -150,7 +150,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                 //creating a notebook job 
                 AgentNotebookInfo notebook = AgentTestUtils.SetupNotebookJob(connectionResult).Result;
                 //verifying it's getting created
-                Assert.Equal(true, AgentTestUtils.VerifyNotebook(connectionResult, notebook));
+                Assert.AreEqual(true, AgentTestUtils.VerifyNotebook(connectionResult, notebook));
                 //deleting the notebook job
                 var deleteNotebookContext = new Mock<RequestContext<ResultStatus>>();
                 deleteNotebookContext.Setup(x => x.SendResult(It.IsAny<ResultStatus>())).Returns(Task.FromResult(new object()));
@@ -161,15 +161,15 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                 }, deleteNotebookContext.Object);
                 deleteNotebookContext.Verify(x => x.SendResult(It.Is<ResultStatus>(p => p.Success == true)));
                 //verifying if the job is deleted
-                Assert.Equal(false, AgentTestUtils.VerifyNotebook(connectionResult, notebook));
+                Assert.AreEqual(false, AgentTestUtils.VerifyNotebook(connectionResult, notebook));
             }
         }
 
         /// <summary>
         /// deleting a existing notebook job
         /// </summary>
-        [Fact]
-        internal async Task TestDeleteNonExistentJob()
+        [Test]
+        public async Task TestDeleteNonExistentJob()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
@@ -193,8 +193,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         /// <summary>
         /// updating a non existing notebook job
         /// </summary>
-        [Fact]
-        internal async Task TestUpdateNonExistentJob()
+        [Test]
+        public async Task TestUpdateNonExistentJob()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
@@ -219,8 +219,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
         /// <summary>
         /// update notebook handler with garbage path
         /// </summary>
-        [Fact]
-        internal async Task TestUpdateWithGarbagePath()
+        [Test]
+        public async Task TestUpdateWithGarbagePath()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
@@ -230,7 +230,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                 //seting up a temp notebook job
                 var notebook = AgentTestUtils.SetupNotebookJob(connectionResult).Result;
                 //verifying that the notebook is created
-                Assert.Equal(true, AgentTestUtils.VerifyNotebook(connectionResult, notebook));
+                Assert.AreEqual(true, AgentTestUtils.VerifyNotebook(connectionResult, notebook));
 
                 var updateNotebookContext = new Mock<RequestContext<UpdateAgentNotebookResult>>();
                 updateNotebookContext.Setup(x => x.SendResult(It.IsAny<UpdateAgentNotebookResult>())).Returns(Task.FromResult(new object()));
@@ -246,12 +246,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
 
                 //cleaning up the job
                 await AgentTestUtils.CleanupNotebookJob(connectionResult, notebook);
-                Assert.Equal(false, AgentTestUtils.VerifyNotebook(connectionResult, notebook));
+                Assert.AreEqual(false, AgentTestUtils.VerifyNotebook(connectionResult, notebook));
             }
         }
 
-        [Fact]
-        internal async Task TestDeletingUpdatedJob()
+        [Test]
+        public async Task TestDeletingUpdatedJob()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
@@ -261,13 +261,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                 //seting up a temp notebook job
                 var notebook = AgentTestUtils.SetupNotebookJob(connectionResult).Result;
                 //verifying that the notebook is created
-                Assert.Equal(true, AgentTestUtils.VerifyNotebook(connectionResult, notebook));
+                Assert.AreEqual(true, AgentTestUtils.VerifyNotebook(connectionResult, notebook));
 
                 var originalName = notebook.Name;
                 //Changing the notebookName 
                 notebook.Name = "myTestNotebookJob" + Guid.NewGuid().ToString();
 
-                Assert.Equal(false, AgentTestUtils.VerifyNotebook(connectionResult, notebook));
+                Assert.AreEqual(false, AgentTestUtils.VerifyNotebook(connectionResult, notebook));
 
                 await AgentNotebookHelper.UpdateNotebook(
                     service,
@@ -278,7 +278,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
                     ManagementUtils.asRunType(0)
                 );
 
-                Assert.Equal(true, AgentTestUtils.VerifyNotebook(connectionResult, notebook));
+                Assert.AreEqual(true, AgentTestUtils.VerifyNotebook(connectionResult, notebook));
 
                 //cleaning up the job
                 await AgentTestUtils.CleanupNotebookJob(connectionResult, notebook);

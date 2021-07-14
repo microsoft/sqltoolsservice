@@ -2,16 +2,15 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+using System;
+using System.Collections.Concurrent;
+using System.Threading.Tasks;
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
-using System;
-using System.Collections.Concurrent;
-using Microsoft.Data.SqlClient;
-using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx
 {
@@ -46,6 +45,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             serviceHost.SetRequestHandler(DeployRequest.Type, this.HandleDeployRequest);
             serviceHost.SetRequestHandler(GenerateDeployScriptRequest.Type, this.HandleGenerateDeployScriptRequest);
             serviceHost.SetRequestHandler(GenerateDeployPlanRequest.Type, this.HandleGenerateDeployPlanRequest);
+            serviceHost.SetRequestHandler(GetOptionsFromProfileRequest.Type, this.HandleGetOptionsFromProfileRequest);
+            serviceHost.SetRequestHandler(ValidateStreamingJobRequest.Type, this.HandleValidateStreamingJobRequest);
+            serviceHost.SetRequestHandler(GetDefaultPublishOptionsRequest.Type, this.HandleGetDefaultPublishOptionsRequest);
         }
 
         /// <summary>
@@ -220,6 +222,86 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             catch (Exception e)
             {
                 await requestContext.SendError(e);
+            }
+        }
+
+        /// <summary>
+        /// Handles request to get the options from a publish profile
+        /// </summary>
+        /// <returns></returns>
+        public async Task HandleGetOptionsFromProfileRequest(GetOptionsFromProfileParams parameters, RequestContext<DacFxOptionsResult> requestContext)
+        {
+            try
+            {
+                DeploymentOptions options = null;
+                if (parameters.ProfilePath != null)
+                {
+                    DacProfile profile = DacProfile.Load(parameters.ProfilePath);
+                    if (profile.DeployOptions != null)
+                    {
+                        options = DeploymentOptions.GetDefaultPublishOptions();
+                        await options.InitializeFromProfile(profile.DeployOptions, parameters.ProfilePath);
+                    }
+                }
+
+                await requestContext.SendResult(new DacFxOptionsResult()
+                {
+                    DeploymentOptions = options,
+                    Success = true,
+                    ErrorMessage = string.Empty,
+                });
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e);
+            }
+        }
+
+        /// <summary>
+        /// Handles request to validate an ASA streaming job
+        /// </summary>
+        /// <returns></returns>
+        public async Task HandleValidateStreamingJobRequest(ValidateStreamingJobParams parameters, RequestContext<ValidateStreamingJobResult> requestContext)
+        {
+            try
+            {
+                ValidateStreamingJobOperation operation = new ValidateStreamingJobOperation(parameters);
+                ValidateStreamingJobResult result = operation.ValidateQuery();
+
+                await requestContext.SendResult(result);
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e);
+            }
+        }
+
+        /// <summary>
+        /// Handles request to create default publish options for DacFx
+        /// </summary>
+        /// <returns></returns>
+        public async Task HandleGetDefaultPublishOptionsRequest(GetDefaultPublishOptionsParams parameters, RequestContext<DacFxOptionsResult> requestContext)
+        {
+            try
+            {
+                // this does not need to be an async operation since this only creates and returns the default object
+                DeploymentOptions options = DeploymentOptions.GetDefaultPublishOptions();
+
+                await requestContext.SendResult(new DacFxOptionsResult()
+                {
+                    DeploymentOptions = options,
+                    Success = true,
+                    ErrorMessage = null
+                });
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendResult(new DacFxOptionsResult()
+                {
+                    DeploymentOptions = null,
+                    Success = false,
+                    ErrorMessage = e.Message
+                });
             }
         }
 

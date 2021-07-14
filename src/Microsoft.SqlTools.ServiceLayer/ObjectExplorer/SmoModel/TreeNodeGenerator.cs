@@ -265,7 +265,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.ServerLevelServerRoles,
                 IsSystemObject = false,
-                ValidFor = ValidForFlag.AllOnPrem|ValidForFlag.SqlOnDemand,
+                ValidFor = ValidForFlag.AllOnPrem,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {

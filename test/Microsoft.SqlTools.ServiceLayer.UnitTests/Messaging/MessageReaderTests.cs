@@ -10,7 +10,7 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.Hosting.Protocol.Serializers;
 using Newtonsoft.Json;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
 {
@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
             this.messageSerializer = new V8MessageSerializer();
         }
 
-        [Fact]
+        [Test]
         public void ReadsMessage()
         {
             MemoryStream inputStream = new MemoryStream();
@@ -38,12 +38,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
             inputStream.Seek(0, SeekOrigin.Begin);
 
             Message messageResult = messageReader.ReadMessage().Result;
-            Assert.Equal("testEvent", messageResult.Method);
+            Assert.AreEqual("testEvent", messageResult.Method);
 
             inputStream.Dispose();
         }
 
-        [Fact]
+        [Test]
         public void ReadsManyBufferedMessages()
         {
             MemoryStream inputStream = new MemoryStream();
@@ -73,13 +73,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
             for (int i = 0; i < overflowMessageCount; i++)
             {
                 Message messageResult = messageReader.ReadMessage().Result;
-                Assert.Equal("testEvent", messageResult.Method);
+                Assert.AreEqual("testEvent", messageResult.Method);
             }
 
             inputStream.Dispose();
         }
 
-        [Fact]
+        [Test]
         public void ReadMalformedMissingHeaderTest()
         {
             using (MemoryStream inputStream = new MemoryStream())
@@ -93,13 +93,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
                 inputStream.Flush();
                 inputStream.Seek(0, SeekOrigin.Begin);
 
-                // Then:
-                // ... An exception should be thrown while reading
-                Assert.ThrowsAsync<ArgumentException>(() => messageReader.ReadMessage()).Wait();
+                Assert.ThrowsAsync<ArgumentException>(() => messageReader.ReadMessage(), "An exception should be thrown while reading");
             }
         }
 
-        [Fact]
+        [Test]
         public void ReadMalformedContentLengthNonIntegerTest()
         {
             using (MemoryStream inputStream = new MemoryStream())
@@ -113,13 +111,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
                 inputStream.Flush();
                 inputStream.Seek(0, SeekOrigin.Begin);
 
-                // Then:
-                // ... An exception should be thrown while reading
-                Assert.ThrowsAsync<MessageParseException>(() => messageReader.ReadMessage()).Wait();
+                Assert.ThrowsAsync<MessageParseException>(() => messageReader.ReadMessage(), "An exception should be thrown while reading") ;
             }
         }
 
-        [Fact]
+        [Test]
         public void ReadMissingContentLengthHeaderTest()
         {
             using (MemoryStream inputStream = new MemoryStream())
@@ -133,13 +129,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
                 inputStream.Flush();
                 inputStream.Seek(0, SeekOrigin.Begin);
 
-                // Then:
-                // ... An exception should be thrown while reading
-                Assert.ThrowsAsync<MessageParseException>(() => messageReader.ReadMessage()).Wait();
+                Assert.ThrowsAsync<MessageParseException>(() => messageReader.ReadMessage(), "An exception should be thrown while reading");
             }
         }
 
-        [Fact]
+        [Test]
         public void ReadMalformedContentLengthTooShortTest()
         {
             using (MemoryStream inputStream = new MemoryStream())
@@ -157,16 +151,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
                 inputStream.Flush();
                 inputStream.Seek(0, SeekOrigin.Begin);
 
-                // Then:
-                // ... The first read should fail with an exception while deserializing
-                Assert.ThrowsAsync<JsonReaderException>(() => messageReader.ReadMessage()).Wait();
+                Assert.ThrowsAsync<JsonReaderException>(() => messageReader.ReadMessage(), "The first read should fail with an exception while deserializing");
 
-                // ... The second read should fail with an exception while reading headers
-                Assert.ThrowsAsync<MessageParseException>(() => messageReader.ReadMessage()).Wait();
+                Assert.ThrowsAsync<MessageParseException>(() => messageReader.ReadMessage(), "The second read should fail with an exception while reading headers");
             }
         }
 
-        [Fact]
+        [Test]
         public void ReadMalformedThenValidTest()
         {
             // If:
@@ -183,18 +174,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
                 inputStream.Flush();
                 inputStream.Seek(0, SeekOrigin.Begin);
 
-                // Then:
-                // ... An exception should be thrown while reading the first one
-                Assert.ThrowsAsync<ArgumentException>(() => messageReader.ReadMessage()).Wait();
+                Assert.ThrowsAsync<ArgumentException>(() => messageReader.ReadMessage(), "An exception should be thrown while reading the first one");
 
                 // ... A test event should be successfully read from the second one
                 Message messageResult = messageReader.ReadMessage().Result;
                 Assert.NotNull(messageResult);
-                Assert.Equal("testEvent", messageResult.Method);
+                Assert.AreEqual("testEvent", messageResult.Method);
             }
         }
 
-        [Fact]
+        [Test]
         public void ReaderResizesBufferForLargeMessages()
         {
             MemoryStream inputStream = new MemoryStream();
@@ -215,12 +204,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
             inputStream.Seek(0, SeekOrigin.Begin);
 
             Message messageResult = messageReader.ReadMessage().Result;
-            Assert.Equal("testEvent", messageResult.Method);
+            Assert.AreEqual("testEvent", messageResult.Method);
 
             inputStream.Dispose();
         }
 
-        [Fact]
+        [Test]
         public void ReaderDoesNotModifyDateStrings()
         {
             MemoryStream inputStream = new MemoryStream();
@@ -240,7 +229,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
             inputStream.Seek(0, SeekOrigin.Begin);
 
             Message messageResult = messageReader.ReadMessage().Result;
-            Assert.Equal(dateString, messageResult.Contents.Value<string>("someString"));
+            Assert.AreEqual(dateString, messageResult.Contents.Value<string>("someString"));
 
             inputStream.Dispose();
         }

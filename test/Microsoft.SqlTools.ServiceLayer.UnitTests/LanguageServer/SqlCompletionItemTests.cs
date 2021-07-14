@@ -9,14 +9,14 @@ using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 {
     public class SqlCompletionItemTests
     {
 
-        [Fact]
+        [Test]
         public void InsertTextShouldIncludeBracketGivenNameWithSpace()
         {
             string declarationTitle = "name with space";
@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             Assert.True(completionItem.InsertText.StartsWith("[") && completionItem.InsertText.EndsWith("]"));
         }
 
-        [Fact]
+        [Test]
         public void ConstructorShouldThrowExceptionGivenEmptyDeclarionType()
         {
             string declarationTitle = "";
@@ -39,14 +39,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             Assert.Throws<ArgumentException>(() => new SqlCompletionItem(declarationTitle, declarationType, tokenText));
         }
 
-        [Fact]
+        [Test]
         public void ConstructorShouldThrowExceptionGivenNullDeclarion()
         {
             string tokenText = "";
             Assert.Throws<ArgumentException>(() => new SqlCompletionItem(null, tokenText));
         }
 
-        [Fact]
+        [Test]
         public void InsertTextShouldIncludeBracketGivenNameWithSpecialCharacter()
         {
             string declarationTitle = "name @";
@@ -56,12 +56,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             SqlCompletionItem item = new SqlCompletionItem(declarationTitle, declarationType, tokenText);
             CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
 
-            Assert.Equal(completionItem.InsertText, expected);
-            Assert.Equal(completionItem.Detail, declarationTitle);
-            Assert.Equal(completionItem.Label, declarationTitle);
+            Assert.AreEqual(completionItem.InsertText, expected);
+            Assert.AreEqual(completionItem.Detail, declarationTitle);
+            Assert.AreEqual(completionItem.Label, declarationTitle);
         }
 
-        [Fact]
+        [Test]
         public void LabelShouldIncludeBracketGivenTokenWithBracket()
         {
             string declarationTitle = "name";
@@ -71,12 +71,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             SqlCompletionItem item = new SqlCompletionItem(declarationTitle, declarationType, tokenText);
             CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
 
-            Assert.Equal(completionItem.Label, expected);
-            Assert.Equal(completionItem.InsertText, expected);
-            Assert.Equal(completionItem.Detail, expected);
+            Assert.AreEqual(completionItem.Label, expected);
+            Assert.AreEqual(completionItem.InsertText, expected);
+            Assert.AreEqual(completionItem.Detail, expected);
         }
 
-        [Fact]
+        [Test]
         public void LabelShouldIncludeBracketGivenTokenWithBrackets()
         {
             string declarationTitle = "name";
@@ -86,12 +86,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             SqlCompletionItem item = new SqlCompletionItem(declarationTitle, declarationType, tokenText);
             CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
 
-            Assert.Equal(completionItem.Label, expected);
-            Assert.Equal(completionItem.InsertText, expected);
-            Assert.Equal(completionItem.Detail, expected);
+            Assert.AreEqual(completionItem.Label, expected);
+            Assert.AreEqual(completionItem.InsertText, expected);
+            Assert.AreEqual(completionItem.Detail, expected);
         }
 
-        [Fact]
+        [Test]
         public void LabelShouldIncludeBracketGivenSqlObjectNameWithBracket()
         {
             string declarationTitle = @"Bracket\[";
@@ -101,12 +101,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             SqlCompletionItem item = new SqlCompletionItem(declarationTitle, declarationType, tokenText);
             CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
 
-            Assert.Equal(completionItem.Label, declarationTitle);
-            Assert.Equal(completionItem.InsertText, expected);
-            Assert.Equal(completionItem.Detail, declarationTitle);
+            Assert.AreEqual(completionItem.Label, declarationTitle);
+            Assert.AreEqual(completionItem.InsertText, expected);
+            Assert.AreEqual(completionItem.Detail, declarationTitle);
         }
 
-        [Fact]
+        [Test]
         public void LabelShouldIncludeBracketGivenSqlObjectNameWithBracketAndTokenWithBracket()
         {
             string declarationTitle = @"Bracket\[";
@@ -116,12 +116,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             SqlCompletionItem item = new SqlCompletionItem(declarationTitle, declarationType, tokenText);
             CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
 
-            Assert.Equal(completionItem.Label, expected);
-            Assert.Equal(completionItem.InsertText, expected);
-            Assert.Equal(completionItem.Detail, expected);
+            Assert.AreEqual(completionItem.Label, expected);
+            Assert.AreEqual(completionItem.InsertText, expected);
+            Assert.AreEqual(completionItem.Detail, expected);
         }
 
-        [Fact]
+        [Test]
         public void LabelShouldNotIncludeBracketGivenNameWithBrackets()
         {
             string declarationTitle = "[name]";
@@ -131,12 +131,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             SqlCompletionItem item = new SqlCompletionItem(declarationTitle, declarationType, tokenText);
             CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
 
-            Assert.Equal(completionItem.Label, expected);
-            Assert.Equal(completionItem.InsertText, expected);
-            Assert.Equal(completionItem.Detail, expected);
+            Assert.AreEqual(completionItem.Label, expected);
+            Assert.AreEqual(completionItem.InsertText, expected);
+            Assert.AreEqual(completionItem.Detail, expected);
         }
 
-        [Fact]
+        [Test]
         public void LabelShouldIncludeBracketGivenNameWithOneBracket()
         {
             string declarationTitle = "[name";
@@ -146,12 +146,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             SqlCompletionItem item = new SqlCompletionItem(declarationTitle, declarationType, tokenText);
             CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
 
-            Assert.Equal(completionItem.Label, expected);
-            Assert.Equal(completionItem.InsertText, expected);
-            Assert.Equal(completionItem.Detail, expected);
+            Assert.AreEqual(completionItem.Label, expected);
+            Assert.AreEqual(completionItem.InsertText, expected);
+            Assert.AreEqual(completionItem.Detail, expected);
         }
 
-        [Fact]
+        [Test]
         public void LabelShouldIncludeQuotedIdentifiersGivenTokenWithQuotedIdentifier()
         {
             string declarationTitle = "name";
@@ -161,12 +161,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             SqlCompletionItem item = new SqlCompletionItem(declarationTitle, declarationType, tokenText);
             CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
 
-            Assert.Equal(completionItem.Label, expected);
-            Assert.Equal(completionItem.InsertText, expected);
-            Assert.Equal(completionItem.Detail, expected);
+            Assert.AreEqual(completionItem.Label, expected);
+            Assert.AreEqual(completionItem.InsertText, expected);
+            Assert.AreEqual(completionItem.Detail, expected);
         }
 
-        [Fact]
+        [Test]
         public void LabelShouldIncludeQuotedIdentifiersGivenTokenWithQuotedIdentifiers()
         {
             string declarationTitle = "name";
@@ -176,12 +176,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             SqlCompletionItem item = new SqlCompletionItem(declarationTitle, declarationType, tokenText);
             CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
 
-            Assert.Equal(completionItem.Label, expected);
-            Assert.Equal(completionItem.InsertText, expected);
-            Assert.Equal(completionItem.Detail, expected);
+            Assert.AreEqual(completionItem.Label, expected);
+            Assert.AreEqual(completionItem.InsertText, expected);
+            Assert.AreEqual(completionItem.Detail, expected);
         }
 
-        [Fact]
+        [Test]
         public void InsertTextShouldNotIncludeBracketGivenReservedName()
         {
             foreach (string word in AutoCompleteHelper.DefaultCompletionText)
@@ -192,13 +192,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                 SqlCompletionItem item = new SqlCompletionItem(declarationTitle, declarationType, tokenText);
                 CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
 
-                Assert.Equal(completionItem.Label, word);
-                Assert.Equal(completionItem.InsertText, word);
-                Assert.Equal(completionItem.Detail, word);
+                Assert.AreEqual(completionItem.Label, word);
+                Assert.AreEqual(completionItem.InsertText, word);
+                Assert.AreEqual(completionItem.Detail, word);
             }
         }
 
-        [Fact]
+        [Test]
         public void LabelShouldNotIncludeBracketIfTokenIncludesQuotedIdentifiersGivenReservedName()
         {
             string declarationTitle = "User";
@@ -208,12 +208,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             SqlCompletionItem item = new SqlCompletionItem(declarationTitle, declarationType, tokenText);
             CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
 
-            Assert.Equal(completionItem.Label, expected);
-            Assert.Equal(completionItem.InsertText, expected);
-            Assert.Equal(completionItem.Detail, expected);
+            Assert.AreEqual(completionItem.Label, expected);
+            Assert.AreEqual(completionItem.InsertText, expected);
+            Assert.AreEqual(completionItem.Detail, expected);
         }
 
-        [Fact]
+        [Test]
         public void LabelShouldNotIncludeDoubleBracketIfTokenIncludesBracketsGivenReservedName()
         {
             string declarationTitle = "User";
@@ -223,12 +223,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             SqlCompletionItem item = new SqlCompletionItem(declarationTitle, declarationType, tokenText);
             CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
 
-            Assert.Equal(completionItem.Label, expected);
-            Assert.Equal(completionItem.InsertText, expected);
-            Assert.Equal(completionItem.Detail, expected);
+            Assert.AreEqual(completionItem.Label, expected);
+            Assert.AreEqual(completionItem.InsertText, expected);
+            Assert.AreEqual(completionItem.Detail, expected);
         }
 
-        [Fact]
+        [Test]
         public void TempTablesShouldNotBeEscaped()
         {
             string declarationTitle = "#TestTable";
@@ -238,16 +238,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             SqlCompletionItem item = new SqlCompletionItem(declarationTitle, declarationType, tokenText);
             CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
 
-            Assert.Equal(completionItem.Label, expected);
-            Assert.Equal(completionItem.InsertText, expected);
-            Assert.Equal(completionItem.Detail, expected);
+            Assert.AreEqual(completionItem.Label, expected);
+            Assert.AreEqual(completionItem.InsertText, expected);
+            Assert.AreEqual(completionItem.Detail, expected);
         }
 
-        [Theory]
-        [InlineData(DeclarationType.BuiltInFunction)]
-        [InlineData(DeclarationType.ScalarValuedFunction)]
-        [InlineData(DeclarationType.TableValuedFunction)]
-        public void FunctionsShouldHaveParenthesesAdded(DeclarationType declarationType)
+        [Test]
+        public void FunctionsShouldHaveParenthesesAdded([Values(DeclarationType.BuiltInFunction, DeclarationType.ScalarValuedFunction, DeclarationType.TableValuedFunction)] DeclarationType declarationType)
         {
             foreach (string word in AutoCompleteHelper.DefaultCompletionText)
             {
@@ -256,14 +253,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                 SqlCompletionItem item = new SqlCompletionItem(declarationTitle, declarationType, tokenText);
                 CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
 
-                Assert.Equal(declarationTitle, completionItem.Label);
-                Assert.Equal($"{declarationTitle}()", completionItem.InsertText);
-                Assert.Equal(declarationTitle, completionItem.Detail);
+                Assert.AreEqual(declarationTitle, completionItem.Label);
+                Assert.AreEqual($"{declarationTitle}()", completionItem.InsertText);
+                Assert.AreEqual(declarationTitle, completionItem.Detail);
             }
 
         }
 
-        [Fact]
+        [Test]
         public void GlobalVariableSystemFunctionsShouldNotHaveParenthesesAdded()
         {
             string declarationTitle = "@@CONNECTIONS";
@@ -271,20 +268,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             SqlCompletionItem item = new SqlCompletionItem(declarationTitle, DeclarationType.BuiltInFunction, tokenText);
             CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
 
-            Assert.Equal(declarationTitle, completionItem.Label);
-            Assert.Equal($"{declarationTitle}", completionItem.InsertText);
-            Assert.Equal(declarationTitle, completionItem.Detail);
+            Assert.AreEqual(declarationTitle, completionItem.Label);
+            Assert.AreEqual($"{declarationTitle}", completionItem.InsertText);
+            Assert.AreEqual(declarationTitle, completionItem.Detail);
 
         }
 
-        [Theory]
-        [InlineData(DeclarationType.Server)]
-        [InlineData(DeclarationType.Database)]
-        [InlineData(DeclarationType.Table)]
-        [InlineData(DeclarationType.Column)]
-        [InlineData(DeclarationType.View)]
-        [InlineData(DeclarationType.Schema)]
-        public void NamedIdentifiersShouldBeBracketQuoted(DeclarationType declarationType)
+        [Test]
+        public void NamedIdentifiersShouldBeBracketQuoted(
+            [Values(DeclarationType.Server, DeclarationType.Database, DeclarationType.Table, DeclarationType.Column, DeclarationType.View, DeclarationType.Schema)] DeclarationType declarationType)
         {
             string declarationTitle = declarationType.ToString();
             // All words - both reserved and not - should be bracket quoted for these types
@@ -294,13 +286,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                 SqlCompletionItem item = new SqlCompletionItem(declarationTitle, declarationType, tokenText);
                 CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
 
-                Assert.Equal(declarationTitle, completionItem.Label);
-                Assert.Equal($"[{declarationTitle}]", completionItem.InsertText);
-                Assert.Equal(declarationTitle, completionItem.Detail);
+                Assert.AreEqual(declarationTitle, completionItem.Label);
+                Assert.AreEqual($"[{declarationTitle}]", completionItem.InsertText);
+                Assert.AreEqual(declarationTitle, completionItem.Detail);
             }
         }
 
-        [Fact]
+        [Test]
         public void KindShouldBeModuleGivenSchemaDeclarationType()
         {
             CompletionItemKind expectedType = CompletionItemKind.Module;
@@ -308,7 +300,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             ValidateDeclarationType(declarationType, expectedType);
         }
 
-        [Fact]
+        [Test]
         public void KindShouldBeFieldGivenColumnDeclarationType()
         {
             CompletionItemKind expectedType = CompletionItemKind.Field;
@@ -316,7 +308,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             ValidateDeclarationType(declarationType, expectedType);
         }
 
-        [Fact]
+        [Test]
         public void KindShouldBeFileGivenTableDeclarationType()
         {
             CompletionItemKind expectedType = CompletionItemKind.File;
@@ -324,7 +316,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             ValidateDeclarationType(declarationType, expectedType);
         }
 
-        [Fact]
+        [Test]
         public void KindShouldBeFileGivenViewDeclarationType()
         {
             CompletionItemKind expectedType = CompletionItemKind.File;
@@ -332,7 +324,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             ValidateDeclarationType(declarationType, expectedType);
         }
 
-        [Fact]
+        [Test]
         public void KindShouldBeMethodGivenDatabaseDeclarationType()
         {
             CompletionItemKind expectedType = CompletionItemKind.Method;
@@ -340,7 +332,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             ValidateDeclarationType(declarationType, expectedType);
         }
 
-        [Fact]
+        [Test]
         public void KindShouldBeValueGivenScalarValuedFunctionDeclarationType()
         {
             CompletionItemKind expectedType = CompletionItemKind.Value;
@@ -348,7 +340,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             ValidateDeclarationType(declarationType, expectedType);
         }
 
-        [Fact]
+        [Test]
         public void KindShouldBeValueGivenTableValuedFunctionDeclarationType()
         {
             CompletionItemKind expectedType = CompletionItemKind.Value;
@@ -356,7 +348,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             ValidateDeclarationType(declarationType, expectedType);
         }
 
-        [Fact]
+        [Test]
         public void KindShouldBeUnitGivenUnknownDeclarationType()
         {
             CompletionItemKind expectedType = CompletionItemKind.Unit;
@@ -372,7 +364,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
 
 
-            Assert.Equal(completionItem.Kind, expectedType);
+            Assert.AreEqual(completionItem.Kind, expectedType);
         }
     }
 }

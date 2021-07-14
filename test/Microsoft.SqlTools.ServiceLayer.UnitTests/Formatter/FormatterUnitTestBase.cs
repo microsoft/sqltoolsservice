@@ -18,7 +18,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
 {
     public class FormatterUnitTestsBase
     {
-        public FormatterUnitTestsBase()
+        protected void InitFormatterUnitTestsBase()
         {
             HostMock = new Mock<IProtocolEndpoint>();
             WorkspaceServiceMock = new Mock<WorkspaceService<SqlToolsSettings>>();

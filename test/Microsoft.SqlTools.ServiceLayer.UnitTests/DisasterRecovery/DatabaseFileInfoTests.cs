@@ -8,19 +8,19 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
 {
     public class DatabaseFileInfoTests
     {
-        [Fact]
+        [Test]
         public void DatabaseFileInfoConstructorShouldThrowExceptionGivenNull()
         {
             Assert.Throws<ArgumentNullException>(() => new DatabaseFileInfo(null));
         }
 
-        [Fact]
+        [Test]
         public void DatabaseFileInfoShouldReturnNullGivenEmptyProperties()
         {
             LocalizedPropertyInfo[] properties = new LocalizedPropertyInfo[] { };
@@ -29,7 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
             Assert.True(string.IsNullOrEmpty(fileInfo.GetPropertyValueAsString(BackupSetInfo.BackupComponentPropertyName)));
         }
 
-        [Fact]
+        [Test]
         public void DatabaseFileInfoShouldReturnValuesGivenValidProperties()
         {
             LocalizedPropertyInfo[] properties = new LocalizedPropertyInfo[] {
@@ -46,8 +46,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
 
             };
             var fileInfo = new DatabaseFileInfo(properties);
-            Assert.Equal(fileInfo.Id, "id");
-            Assert.Equal(fileInfo.GetPropertyValueAsString("name"), "1");
+            Assert.AreEqual("id", fileInfo.Id);
+            Assert.AreEqual("1", fileInfo.GetPropertyValueAsString("name"));
         }
     }
 }

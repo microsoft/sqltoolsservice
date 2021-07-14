@@ -7,13 +7,14 @@
 using System.Threading;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Completion
 {
+    [TestFixture]
     public class AutoCompletionResultTest
     {
-        [Fact]
+        [Test]
         public void CompletionShouldRecordDuration()
         {
             AutoCompletionResult result = new AutoCompletionResult();

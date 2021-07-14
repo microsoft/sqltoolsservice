@@ -9,13 +9,13 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using System;
 using System.IO;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
 {
     public class SqlCmdExecutionTest
     {
-        [Fact]
+        [Test]
         public void TestConnectSqlCmdCommand()
         {
             var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
@@ -41,7 +41,7 @@ GO";
             Assert.True(query.Batches[0].HasError, "Query should have error");
         }
 
-        [Fact]
+        [Test]
         public void TestOnErrorSqlCmdCommand()
         {
             var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
@@ -73,7 +73,7 @@ GO";
             Assert.False(query.Batches[1].HasExecuted, "last batch should NOT be executed");
         }
 
-        [Fact]
+        [Test]
         public void TestIncludeSqlCmdCommand()
         {
             var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();

@@ -7,13 +7,13 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Utility;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
 {
     public class AsyncLockTests
     {
-        [Fact]
+        [Test]
         public async Task AsyncLockSynchronizesAccess()
         {
             AsyncLock asyncLock = new AsyncLock();
@@ -21,15 +21,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
             Task<IDisposable> lockOne = asyncLock.LockAsync();
             Task<IDisposable> lockTwo = asyncLock.LockAsync();
 
-            Assert.Equal(TaskStatus.RanToCompletion, lockOne.Status);
-            Assert.Equal(TaskStatus.WaitingForActivation, lockTwo.Status);
+            Assert.AreEqual(TaskStatus.RanToCompletion, lockOne.Status);
+            Assert.AreEqual(TaskStatus.WaitingForActivation, lockTwo.Status);
             lockOne.Result.Dispose();
 
             await lockTwo;
-            Assert.Equal(TaskStatus.RanToCompletion, lockTwo.Status);
+            Assert.AreEqual(TaskStatus.RanToCompletion, lockTwo.Status);
         }
 
-        [Fact]
+        [Test]
         public void AsyncLockCancelsWhenRequested()
         {
             CancellationTokenSource cts = new CancellationTokenSource();
@@ -42,8 +42,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
             cts.Cancel();
             lockOne.Result.Dispose();
 
-            Assert.Equal(TaskStatus.RanToCompletion, lockOne.Status);
-            Assert.Equal(TaskStatus.Canceled, lockTwo.Status);
+            Assert.AreEqual(TaskStatus.RanToCompletion, lockOne.Status);
+            Assert.AreEqual(TaskStatus.Canceled, lockTwo.Status);
         }
     }
 }

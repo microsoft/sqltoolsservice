@@ -5,29 +5,29 @@
 
 
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
-using Xunit;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
 {
     public class LocalizedPropertyInfoTests
     {
-        [Fact]
+        [Test]
         public void PropertyDisplayNameShouldReturnNameWhenNotSet()
         {
             LocalizedPropertyInfo propertyInfo = new LocalizedPropertyInfo();
             propertyInfo.PropertyName = "name";
 
-            Assert.Equal(propertyInfo.PropertyDisplayName, propertyInfo.PropertyName);
+            Assert.AreEqual(propertyInfo.PropertyDisplayName, propertyInfo.PropertyName);
         }
 
-        [Fact]
+        [Test]
         public void PropertyValudDisplayNameShouldReturnValudWhenNotSet()
         {
             LocalizedPropertyInfo propertyInfo = new LocalizedPropertyInfo();
             propertyInfo.PropertyName = "name";
             propertyInfo.PropertyValue = "value";
 
-            Assert.Equal(propertyInfo.PropertyValueDisplayName, propertyInfo.PropertyValue);
+            Assert.AreEqual(propertyInfo.PropertyValueDisplayName, propertyInfo.PropertyValue);
         }
     }
 }

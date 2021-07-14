@@ -1,0 +1,52 @@
+﻿Template 9 
+There were #uniqueInputs ##input_g_0 (s),  the top #top highest total ##output_0 were as follows:\n #placeHolder
+Template 16 
+For the #slices ##SlicePar_GG_1(s), the percentage of ##OutPar_N_C_1 on #time were \n #stHData\n this was compared with #Etime where #ESlices ##SlicePar_GG_1\n #EstHData  \n.
+Template 17 
+For the #slices ##SlicePar_GG_1(s), the  percentage of ##OutPar_N_C_1 for each group during the week of #time was \n #stHData\n, compared to the #Etime where #ESlices ##SlicePar_GG_1\n #EstHData  \n. 
+Template 21 
+The data pattern indicates that  #st have  #volumeType ##OutPar_N_C_1 \n.
+Template 22 
+The largest increase of ##OutPar_N_C_1 was on #time when it increased #increasesize% above the average value.
+Template 23
+The largest decrease in ##OutPar_N_C_1 was on  #time when it fell below #reducesize% of the average value.
+Template 24 
+The data trend indicates a consistent #trend over time. \n
+Template 1 
+For the #averageSlice ##slicer_0, the volume of each is: #placeHolder
+Template 2 
+The ##InPar_GG_1 that had largest of each ##SlicePar_GG_1 are (only top #n ##InPar_GG_1) \n
+Template 3 
+#input had #TPer% for ##SlicePar_GG_1 #Slice \n"
+Template 5 
+The ##InPar_GG_1 that had largest of each ##SlicePar_GG_1 are (only top #n ##InPar_GG_1) \n
+Template 6 
+The largest and smallest ##SlicePar_GG_1 for the top #n ##InPar_GG_1 were are as follows \n
+Template 7 
+#inp had #maxSlice the largest  ##SlicePar_GG_1 #maxPer% and #minSlice the smallest  ##SlicePar_GG_1 #minPer%  \n
+Template 8 
+#inp had a total of #OutPar_N_C_1 ##OutPar_N_C_1 that constitues #Per% \n \n
+Template 10 
+There were #uniqueInputs ##InPar_GG_1(s),  the  total ##OutPar_N_C_1 were as follows:\n #st
+Template 11 
+in the week #time the data contained #slices ##SlicePar_GG_1, the top #n ##SlicePar_GG_1 with highest ##OutPar_N_C_1 were as follows:\n #stHData this was compared with week #Etime with the following top #En of #Eslice ##SlicePar_GG_1\n #EstData\n 
+Template 12 
+in the week #time the data contained #slices ##SlicePar_GG_1, the top #n ##SlicePar_GG_1 with highest ##OutPar_N_C_1 were as follows:\n #stHData\n 
+Template 13 
+On day #time the data contained #slices ##SlicePar_GG_1, the top #n ##SlicePar_GG_1 with highest ##OutPar_N_C_1 were as follows:\n #stHData this was compared with day #Etime with the following top #n ##SlicePar_GG_1\n #EstHData\n 
+Template 14 
+in month #time the data contained #slices ##SlicePar_GG_1, the top #n ##SlicePar_GG_1 with highest ##OutPar_N_C_1 were as follows:\n #stData this was compared with month #Etime with the following top #n ##SlicePar_GG_1\n #EstData\n
+Template 15 
+in month #time the data contained #slices ##SlicePar_GG_1, the top #n ##SlicePar_GG_1 with highest ##OutPar_N_C_1 were as follows:\n #stHData\n
+Template 18 
+in the week #time the data contained #slices ##SlicePar_GG_1, the % of  ##OutPar_N_C_1 for each ##SlicePar_GG_1 were as follows:\n #stHData this was compared with week #Etime with the following #En of #Eslice ##SlicePar_GG_1\n #EstHData \n
+Template 19 
+in month #time the data contained #slices ##SlicePar_GG_1, the % of ##OutPar_N_C_1 for each ##SlicePar_GG_1 were as follows:\n #stData this was compared with month #Etime with the following #n ##SlicePar_GG_1\n #EstData\n
+Template 20 
+in month #time the data contained #slices ##SlicePar_GG_1, the % of  ##OutPar_N_C_1 for each ##SlicePar_GG_1 were as follows:\n #stData\n
+Template 21 
+Looking at the pattern of the data it appears that  #st has the #volumeType ##OutPar_N_C_1 \n
+Template 22 
+The largest increase in ##OutPar_N_C_1 were observed on #time  with an increase of #increasesize% of the avarage value of ##OutPar_N_C_1 \n
+Template 23
+The bottom #bottom total ##output_0 were as follows:\n #placeHolder

@@ -68,6 +68,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         public string MachineName { get; set; }
 
         /// <summary>
+        /// The CPU count of the host running the server.
+        /// </summary>
+        public int CpuCount;
+
+        /// <summary>
+        /// The physical memory of the host running the server in MBs.
+        /// </summary>
+        public int PhysicalMemoryInMB;
+
+        /// <summary>
         /// Server options
         /// </summary>
         public Dictionary<string, object> Options { get; set; }

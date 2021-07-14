@@ -4,6 +4,7 @@
 //
 using System.Collections.Generic;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 {
@@ -26,6 +27,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         /// Gets or sets SQLCMD variables for script generation
         /// </summary>
         public IDictionary<string, string> SqlCommandVariableValues { get; set; }
+
+        /// <summary>
+        /// Gets or sets the options for deployment
+        /// </summary>
+        public DeploymentOptions DeploymentOptions { get; set; }
     }
 
     /// <summary>
