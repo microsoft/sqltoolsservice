@@ -14,7 +14,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.UtilityTests
     {
         #region DecodeMultipartIdentifier Tests
 
-        public static IEnumerable<object> DecodeMultipartIdentifierTestData
+        public static IEnumerable<object[]> DecodeMultipartIdentifierTestData
         {
             get
             {

@@ -5,11 +5,7 @@
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
-using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.Utility;
-using System;
-using Microsoft.Data.SqlClient;
-using System.Diagnostics;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx
 {
@@ -30,6 +26,15 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         {
             DacPackage dacpac = DacPackage.Load(this.Parameters.PackageFilePath);
             DacDeployOptions options = this.GetDefaultDeployOptions();
+
+            if (this.Parameters.SqlCommandVariableValues != null)
+            {
+                foreach (string key in this.Parameters.SqlCommandVariableValues.Keys)
+                {
+                    options.SqlCommandVariableValues[key] = this.Parameters.SqlCommandVariableValues[key];
+                }
+            }
+
             this.DacServices.Deploy(dacpac, this.Parameters.DatabaseName, this.Parameters.UpgradeExisting, options, this.CancellationToken);
         }
     }

@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Xunit;
+using Range = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Range;
 
 namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 {

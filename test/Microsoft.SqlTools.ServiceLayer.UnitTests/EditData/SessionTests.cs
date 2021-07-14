@@ -251,7 +251,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Throws<ArgumentOutOfRangeException>(() => testAction(s, rowId));
         }
 
-        public static IEnumerable<object> RowIdOutOfRangeData
+        public static IEnumerable<object[]> RowIdOutOfRangeData
         {
             get
             {
@@ -326,7 +326,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.ThrowsAny<ArgumentException>(() => s.Initialize(initParams, c, qr, sh, fh));
         }
 
-        public static IEnumerable<object> InitializeNullParamsData
+        public static IEnumerable<object[]> InitializeNullParamsData
         {
             get
             {

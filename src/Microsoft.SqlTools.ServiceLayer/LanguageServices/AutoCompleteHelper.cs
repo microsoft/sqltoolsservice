@@ -17,6 +17,7 @@ using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Range = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Range;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -115,6 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "datepart",
             "datetime",
             "datetime2",
+            "date_bucket",
             "day",
             "days",
             "dbcc",

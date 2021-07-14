@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>$(TestProjectsTargetFramework)</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>

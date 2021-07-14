@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
@@ -117,7 +118,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     // Set connection details database name to ensure the connection string gets created correctly for DW(extract doesn't work if connection is to master)
                     connInfo.ConnectionDetails.DatabaseName = parameters.DatabaseName;
                     ExtractOperation operation = new ExtractOperation(parameters, connInfo);
-                    ExecuteOperation(operation, parameters, SR.ExtractDacpacTaskName, requestContext);
+                    string taskName = parameters.ExtractTarget == DacExtractTarget.DacPac ? SR.ExtractDacpacTaskName : SR.ProjectExtractTaskName;
+                    ExecuteOperation(operation, parameters, taskName, requestContext);
                 }
             }
             catch (Exception e)
@@ -227,7 +229,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             {
                 try
                 {
-                    TaskMetadata metadata = TaskMetadata.Create(parameters, taskName, operation, ConnectionServiceInstance);
+                    // show file location for export and extract operations 
+                    string targetLocation = (operation is ExportOperation || operation is ExtractOperation) ? parameters.PackageFilePath : null;
+                    TaskMetadata metadata = TaskMetadata.Create(parameters, taskName, operation, ConnectionServiceInstance, targetLocation);
 
                     // put appropriate database name since connection passed was to master
                     metadata.DatabaseName = parameters.DatabaseName;

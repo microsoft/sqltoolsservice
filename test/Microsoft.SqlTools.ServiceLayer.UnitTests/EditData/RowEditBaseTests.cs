@@ -93,7 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             }
         }
 
-        public static IEnumerable<object> GetWhereClauseIsNotNullData
+        public static IEnumerable<object[]> GetWhereClauseIsNotNullData
         {
             get
             {

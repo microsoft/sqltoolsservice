@@ -152,11 +152,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                 if (File.Exists(DefaultSettingFileName))
                 {
                     settingsFileName = DefaultSettingFileName;
-                    Console.WriteLine(DefaultSettingFileName + " SQL connection instances are not configured. Will try to get connections from VS code settings.json");
                 }
                 else
                 {
                     //If the SQL connection settings is not set use the VS code one
+                    Console.WriteLine(DefaultSettingFileName + " SQL connection instances are not configured. Will try to get connections from VS code settings.json");
                     settingsFileName = FileUtils.VsCodeSettingsFileName;
                 }
             }

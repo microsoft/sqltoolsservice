@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.SqlTools.ResourceProvider.Core.Contracts;
 
 namespace Microsoft.SqlTools.ResourceProvider.Core.Authentication
 {
@@ -12,6 +13,11 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Authentication
     /// </summary>
     public interface IAzureUserAccount : IEquatable<IAzureUserAccount>, IUserAccount
     {
+        Account UnderlyingAccount
+        {
+            get;
+            set;
+        }
         /// <summary>
         /// User Account Display Info
         /// </summary>

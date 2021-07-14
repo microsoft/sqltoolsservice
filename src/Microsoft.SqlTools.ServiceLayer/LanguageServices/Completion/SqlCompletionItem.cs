@@ -74,8 +74,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
                     case DeclarationType.BuiltInFunction:
                     case DeclarationType.ScalarValuedFunction:
                     case DeclarationType.TableValuedFunction:
-                        // Functions we add on the () at the end since they'll always have them
-                        InsertText = WithDelimitedIdentifier(FunctionPostfix, DeclarationTitle);
+                        // Add ()'s for all functions except global variable system functions (which all start with @@)
+                        if (!DeclarationTitle.StartsWith("@@"))
+                        {
+                            InsertText = WithDelimitedIdentifier(FunctionPostfix, DeclarationTitle);
+                        }
                         break;
                 }
             }

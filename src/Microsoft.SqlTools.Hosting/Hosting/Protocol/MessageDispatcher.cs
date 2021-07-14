@@ -246,7 +246,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 {
                     // Verbose logging
                     string logMessage =
-                        $"Received message with id[{newMessage.Id}], of type[{newMessage.MessageType}] and method[{newMessage.Method}] , and contents[{newMessage.Contents}]";
+                        $"Received message with id[{newMessage.Id}], of type[{newMessage.MessageType}] and method[{newMessage.Method}]";
                     Logger.Write(TraceEventType.Verbose, logMessage);
 
                     // Process the message

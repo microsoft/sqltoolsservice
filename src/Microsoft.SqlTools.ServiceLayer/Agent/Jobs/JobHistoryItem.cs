@@ -711,6 +711,11 @@ ORDER BY [InstanceID] ASC";
                 get { return m_serverName; }
             }
 
+            internal SeverityClass Severity
+            {
+                get { return m_severity; }
+            }
+
             #endregion
         }
         #endregion

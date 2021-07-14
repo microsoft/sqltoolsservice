@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/test/Microsoft.SqlTools.ServiceLayer.IntegrationTests/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj"
+                "${workspaceFolder}/sqltoolsservice.sln"
             ],
             "problemMatcher": "$msCompile"
         }

@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.IO;
 using System.Runtime.InteropServices;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.Common
@@ -53,17 +54,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             get
             {
                 string testServerFileName = "testServerNames.json";
+                return Path.Combine(TestServerNamesDefaultDirectory, testServerFileName);
+            }
+        }
+
+        public static string TestServerNamesDefaultDirectory
+        {
+            get
+            {
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    return Environment.GetEnvironmentVariable("APPDATA") + @"\\" + testServerFileName;
+                    return Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
                 }
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                 {
-                    return Environment.GetEnvironmentVariable("HOME") + @"/" + testServerFileName;
+                    return Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
                 }
                 else
                 {
-                    return Environment.GetEnvironmentVariable("HOME") + @"/" + testServerFileName;
+                    return Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
                 }
             }
         }

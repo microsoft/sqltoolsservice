@@ -22,6 +22,7 @@ using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlServer.Management.SqlParser.SqlCodeDom;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.AutoParameterizaition;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
@@ -790,6 +791,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             try
             {
                 bool oldEnableIntelliSense = oldSettings.SqlTools.IntelliSense.EnableIntellisense;
+                bool oldAlwaysEncryptedParameterizationEnabled = oldSettings.SqlTools.QueryExecutionSettings.IsAlwaysEncryptedParameterizationEnabled;
                 bool? oldEnableDiagnostics = oldSettings.SqlTools.IntelliSense.EnableErrorChecking;
 
                 // update the current settings to reflect any changes
@@ -797,13 +799,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                 // if script analysis settings have changed we need to clear the current diagnostic markers
                 if (oldEnableIntelliSense != newSettings.SqlTools.IntelliSense.EnableIntellisense
-                    || oldEnableDiagnostics != newSettings.SqlTools.IntelliSense.EnableErrorChecking)
+                    || oldEnableDiagnostics != newSettings.SqlTools.IntelliSense.EnableErrorChecking
+                    || oldAlwaysEncryptedParameterizationEnabled != newSettings.SqlTools.QueryExecutionSettings.IsAlwaysEncryptedParameterizationEnabled)
                 {
                     // if the user just turned off diagnostics then send an event to clear the error markers
                     if (!newSettings.IsDiagnosticsEnabled)
                     {
-                        ScriptFileMarker[] emptyAnalysisDiagnostics = new ScriptFileMarker[0];
-
                         foreach (var scriptFile in CurrentWorkspace.GetOpenedFiles())
                         {
                             await DiagnosticsHelper.ClearScriptDiagnostics(scriptFile.ClientUri, eventContext);
@@ -812,7 +813,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     // otherwise rerun diagnostic analysis on all opened SQL files
                     else
                     {
-                        await this.RunScriptDiagnostics(CurrentWorkspace.GetOpenedFiles(), eventContext);
+                        await RunScriptDiagnostics(CurrentWorkspace.GetOpenedFiles(), eventContext);
                     }
                 }
             }
@@ -1696,6 +1697,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         }
                     });
                 }
+            }
+
+            if (CurrentWorkspaceSettings.QueryExecutionSettings.IsAlwaysEncryptedParameterizationEnabled)
+            {
+                markers.AddRange(SqlParameterizer.CodeSense(scriptFile.Contents));
             }
 
             return markers.ToArray();

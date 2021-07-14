@@ -95,7 +95,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Equal(col, cu.Column);
         }
 
-        public static IEnumerable<object> ByteArrayTestParams
+        public static IEnumerable<object[]> ByteArrayTestParams
         {
             get
             {
@@ -158,7 +158,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Equal(col, cu.Column);
         }
 
-        public static IEnumerable<object> BoolTestParams
+        public static IEnumerable<object[]> BoolTestParams
         {
             get
             {
@@ -206,7 +206,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.Equal(col, cu.Column);
         }
 
-        public static IEnumerable<object> RoundTripTestParams
+        public static IEnumerable<object[]> RoundTripTestParams
         {
             get
             {

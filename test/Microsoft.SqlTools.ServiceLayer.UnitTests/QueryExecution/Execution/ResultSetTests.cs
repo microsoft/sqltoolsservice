@@ -166,7 +166,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             Assert.ThrowsAny<Exception>(() => testMethod(resultSet));
         }
 
-        public static IEnumerable<object> CallMethodWithoutReadingData
+        public static IEnumerable<object[]> CallMethodWithoutReadingData
         {
             get
             {
@@ -391,7 +391,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             Assert.ThrowsAny<Exception>(() => actionToPerform(resultSet));
         }
 
-        public static IEnumerable<object> RowInvalidParameterData
+        public static IEnumerable<object[]> RowInvalidParameterData
         {
             get
             {

@@ -16,17 +16,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
     public class TestDbException : DbException
     {
     }
-    
+
     public class TestDbDataReader : DbDataReader, IDbColumnSchemaGenerator
     {
         #region Test Specific Implementations
-        
+
         private IEnumerable<TestResultSet> Data { get; }
 
         private IEnumerator<TestResultSet> ResultSetEnumerator { get; }
 
         private IEnumerator<object[]> RowEnumerator { get; set; }
-        
+
         private bool ThrowOnRead { get; }
 
         public TestDbDataReader(IEnumerable<TestResultSet> data, bool throwOnRead)
@@ -140,7 +140,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         {
             if (ResultSetEnumerator.Current.Columns[ordinal].DataType == typeof(byte[]))
             {
-                byte[] data = (byte[]) this[ordinal];
+                byte[] data = (byte[])this[ordinal];
                 if (buffer == null)
                 {
                     return data.Length;
@@ -173,11 +173,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 
         public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length)
         {
-            char[] allChars = ((string) RowEnumerator.Current[ordinal]).ToCharArray();
+            char[] allChars = ((string)RowEnumerator.Current[ordinal]).ToCharArray();
             int outLength = allChars.Length;
             if (buffer != null)
             {
-                Array.Copy(allChars, (int) dataOffset, buffer, bufferOffset, outLength);
+                Array.Copy(allChars, (int)dataOffset, buffer, bufferOffset, outLength);
             }
             return outLength;
         }
@@ -219,7 +219,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 
         public override int GetInt32(int ordinal)
         {
-            throw new NotImplementedException();
+            string allChars = ((string) RowEnumerator.Current[ordinal]);
+            int x = 0;
+            if(allChars.Length != 1 || !Int32.TryParse(allChars.ToString(), out x) )
+            {
+                throw new InvalidCastException();
+            }
+            return x;
         }
 
         public override short GetInt16(int ordinal)
@@ -256,7 +262,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         {
             get
             {
-                throw new NotImplementedException();
+                var column = ResultSetEnumerator?.Current.Columns.FindIndex(c => c.ColumnName == name);
+                if (!column.HasValue)
+                {
+                    throw new ArgumentOutOfRangeException();
+                }
+                return RowEnumerator.Current[column.Value];
             }
         }
 

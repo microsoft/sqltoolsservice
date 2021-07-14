@@ -93,6 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
             if (settings != null)
             {
                 this.SqlTools.IntelliSense.Update(settings.SqlTools.IntelliSense);
+                this.SqlTools.QueryExecutionSettings.Update(settings.SqlTools.QueryExecutionSettings);
             }
         }
 

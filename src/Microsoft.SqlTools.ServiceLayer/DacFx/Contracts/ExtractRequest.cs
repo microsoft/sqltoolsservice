@@ -2,10 +2,11 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+using System;
+using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using System;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 {
@@ -23,6 +24,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         /// Gets or sets the version of the DAC application
         /// </summary>
         public string ApplicationVersion { get; set; }
+
+        /// <summary>
+        /// Gets or sets the target for extraction
+        /// </summary>
+        public DacExtractTarget ExtractTarget { get; set; }
     }
 
     /// <summary>

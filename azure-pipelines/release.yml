@@ -4,7 +4,6 @@ stages:
   - job: Release
     pool:
       vmImage: 'Ubuntu-16.04'
-    continueOnError: true
     steps:
     - task: AzureKeyVault@1
       displayName: 'Azure Key Vault: ado-secrets'
