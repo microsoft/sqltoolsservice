@@ -286,10 +286,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
                 // Then:
                 // ... There should only be one component
-                Assert.Equal(1, wc.ClauseComponents.Count);
+                Assert.AreEqual(1, wc.ClauseComponents.Count);
 
                 // ... Parameterization should be empty
-                Assert.Empty(wc.Parameters);
+                Assert.IsEmpty(wc.Parameters);
 
                 // ... The component should contain the name of the column and the value
                 Assert.True(wc.ClauseComponents[0].Contains(AssociatedObjectMetadata.Columns.First().EscapedName));
@@ -297,7 +297,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 Assert.True(r.IsMatch(wc.ClauseComponents[0]));
 
                 // ... The complete clause should contain a single WHERE
-                Assert.Equal($"WHERE {wc.ClauseComponents[0]}", wc.CommandText);
+                Assert.AreEqual($"WHERE {wc.ClauseComponents[0]}", wc.CommandText);
             }
 
             public void ValidateWhereClauseMultipleKeys()
