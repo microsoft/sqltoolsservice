@@ -140,22 +140,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                     Version = Version.Parse(serverInfo.ServerVersion),
                     Platform = hostInfo.Platform
                 };
-                var db = SqlAssessmentService.GetDatabaseLocator(server, connection.Database);
                 var connectionStrings = new List<string>();
                 if (parameters.Databases != null) 
                 {
                     foreach (string database in parameters.Databases)
-                    {
-                        connInfo.ConnectionDetails.DatabaseName = database;
-                        connectionStrings.Add(ConnectionService.BuildConnectionString(connInfo.ConnectionDetails));
-                    }
-                    string[] assessmentConnectionStrings = connectionStrings.ToArray();
-                    var results = await GetAssessmentItems(server, assessmentConnectionStrings);
-                    var result = new MigrationAssessmentResult();
-                    result.Items.AddRange(results);
-                    await requestContext.SendResult(result);
+                {
+                    connInfo.ConnectionDetails.DatabaseName = database;
+                    connectionStrings.Add(ConnectionService.BuildConnectionString(connInfo.ConnectionDetails));
                 }
-                
+                string[] assessmentConnectionStrings = connectionStrings.ToArray();
+                var results = await GetAssessmentItems(server, assessmentConnectionStrings);
+                var result = new MigrationAssessmentResult();
+                result.Items.AddRange(results);
+                await requestContext.SendResult(result);
+                }
             }
             catch (Exception e)
             {
