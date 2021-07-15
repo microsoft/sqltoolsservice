@@ -471,7 +471,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     AzureVersion = serverInfo.AzureVersion,
                     OsVersion = serverInfo.OsVersion,
                     MachineName = serverInfo.MachineName,
-                    Options = serverInfo.Options,
+                    CpuCount = serverInfo.CpuCount,
+                    PhysicalMemoryInMB = serverInfo.PhysicalMemoryInMB,
+                    Options = serverInfo.Options
                 };
                 connectionInfo.IsCloud = serverInfo.IsCloud;
                 connectionInfo.MajorVersion = serverInfo.ServerMajorVersion;
