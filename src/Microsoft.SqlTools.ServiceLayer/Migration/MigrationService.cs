@@ -144,10 +144,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 if (parameters.Databases != null) 
                 {
                     foreach (string database in parameters.Databases)
-                {
-                    connInfo.ConnectionDetails.DatabaseName = database;
-                    connectionStrings.Add(ConnectionService.BuildConnectionString(connInfo.ConnectionDetails));
-                }
+                    {
+                        connInfo.ConnectionDetails.DatabaseName = database;
+                        connectionStrings.Add(ConnectionService.BuildConnectionString(connInfo.ConnectionDetails));
+                    }
                 string[] assessmentConnectionStrings = connectionStrings.ToArray();
                 var results = await GetAssessmentItems(server, assessmentConnectionStrings);
                 var result = new MigrationAssessmentResult();
