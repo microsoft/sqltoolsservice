@@ -143,7 +143,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
 
                 var db = SqlAssessmentService.GetDatabaseLocator(server, connection.Database);
                 var connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
-                var results = await GetAssessmentItems(server, connectionString);
+
+                SqlAssessmentConfiguration.EnableLocalLogging = true;
+                SqlAssessmentConfiguration.EnableReportCreation = true;
+                SqlAssessmentConfiguration.AssessmentReportAndLogsRootFolderPath = Path.GetDirectoryName(Logger.LogFileFullPath);
+                DmaEngine engine = new DmaEngine(connectionString);
+
+                var results = await GetAssessmentItems(engine, server, connectionString);
                 var result = new MigrationAssessmentResult();
                 result.Items.AddRange(results);
                 await requestContext.SendResult(result);
@@ -186,13 +192,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             }
         }
 
-        internal async Task<List<MigrationAssessmentInfo>> GetAssessmentItems(SqlObjectLocator target, string connectionString)
+        internal async Task<List<MigrationAssessmentInfo>> GetAssessmentItems(DmaEngine engine, SqlObjectLocator target, string connectionString)
         {
-            SqlAssessmentConfiguration.EnableLocalLogging = true;
-            SqlAssessmentConfiguration.EnableReportCreation = true;
-            SqlAssessmentConfiguration.AssessmentReportAndLogsRootFolderPath = Path.GetDirectoryName(Logger.LogFileFullPath);
-            DmaEngine engine = new DmaEngine(connectionString);
+
+
+
             var assessmentResults = await engine.GetTargetAssessmentResultsList();
+
+            ISqlMigrationAssessmentModel assessmentResultBig = await engine.GetTargetAssessmentResultsList(System.Threading.CancellationToken.None);
+            IServerAssessmentInfo server = assessmentResultBig.Servers[0];
+            var result =
+
+
 
             var result = new List<MigrationAssessmentInfo>();
             foreach (var r in assessmentResults)
@@ -249,6 +260,92 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             return result;
         }
 
+        internal ServerProperties ParseServerAssessmentInfo(IServerAssessmentInfo server)
+        {
+            return new ServerProperties()
+            {
+                CpuCoreCount = server.Properties.ServerCoreCount,
+                PhysicalServerMemory = server.Properties.MaxServerMemoryInUse,
+                ServerHostPlatform = server.Properties.ServerHostPlatform,
+                ServerVersion = server.Properties.ServerVersion,
+                ServerEngineEdition = server.Properties.ServerEngineEdition,
+                ServerEdition = server.Properties.ServerEdition,
+                IsClustered = server.Properties.IsClustered,
+                NumberOfUserDatabases = server.Properties.NumberOfUserDatabases,
+                SqlAssessmentStatus = (int)server.Status,
+                AssessedDatabaseCount = server.Properties.NumberOfUserDatabases,
+                SQLManagedInstanceTargetReadinesses = server.TargetReadinesses[Microsoft.SqlServer.DataCollection.Common.Contracts.Advisor.TargetType.AzureSqlManagedInstance]
+                Items = ParseAssessmentResult(server.ServerAssessments),
+                Errors = ParseAssessmentError(server.Errors),
+                Databases = new List<DatabaseProperties>()
+            };
+        }
+
+        internal DatabaseProperties ParseDatabaseAssessmentInfo(IDatabaseAssessmentInfo databases)
+        {
+            return new DatabaseProperties()
+            {
+                CompatibilityLevel = databases.Properties.CompatibilityLevel.ToString(),
+                DatabaseSize = databases.Properties.SizeMB,
+                IsReplicationEnabled = databases.Properties.IsReplicationEnabled,
+                AssessmentTimeInMilliseconds = databases.Properties.TSqlScriptAnalysisTimeElapse.TotalMilliseconds,
+                Items = ParseAssessmentResult(databases.DatabaseAssessments),
+                Errors = ParseAssessmentError(databases.Errors),
+                SQLManagedInstanceTargetReadiness = databases.TargetReadinesses[Microsoft.SqlServer.DataCollection.Common.Contracts.Advisor.TargetType.AzureSqlManagedInstance]
+            };
+        }
+        internal List<ErrorModel> ParseAssessmentError(List<Microsoft.SqlServer.DataCollection.Common.Contracts.ErrorHandling.IErrorModel> errors)
+        {
+            return errors.Select(e =>
+            {
+                return new ErrorModel()
+                {
+                    ErrorId = e.ErrorID.ToString(),
+                    Message = e.Message,
+                    ErrorSummary = e.ErrorSummary,
+                    PossibleCauses = e.PossibleCauses,
+                    Guidance = e.Guidance,
+                };
+            }).ToList();
+        }
+        internal List<MigrationAssessmentInfo> ParseAssessmentResult(IList<ISqlMigrationAssessmentResult> assessmentResults)
+        {
+            return assessmentResults.Select(r =>
+            {
+                return new MigrationAssessmentInfo()
+                {
+                    CheckId = r.Check.Id,
+                    Description = r.Check.Description,
+                    DisplayName = r.Check.DisplayName,
+                    HelpLink = r.Check.HelpLink,
+                    Level = r.Check.Level.ToString(),
+                    TargetName = r.AppliesToMigrationTargetPlatform.ToString(),
+                    DatabaseName = r.DatabaseName,
+                    ServerName = r.ServerName,
+                    Tags = r.Check.Tags.ToArray(),
+                    RulesetName = Engine.Configuration.DefaultRuleset.Name,
+                    RulesetVersion = Engine.Configuration.DefaultRuleset.Version.ToString(),
+                    RuleId = r.FeatureId.ToString(),
+                    Message = r.Message,
+                    AppliesToMigrationTargetPlatform = r.AppliesToMigrationTargetPlatform.ToString(),
+                    IssueCategory = r.IssueCategory.ToString(),
+                    ImpactedObjects = ParseImpactedObjects(r.ImpactedObjects).ToArray()
+                };
+            }).ToList();
+        }
+        internal List<ImpactedObjectInfo> ParseImpactedObjects(IList<Microsoft.SqlServer.DataCollection.Common.Contracts.Advisor.Models.IImpactedObject> impactedObjects)
+        {
+            return impactedObjects.Select(i =>
+            {
+                return new ImpactedObjectInfo()
+                {
+                    Name = i.Name,
+                    ImpactDetail = i.ImpactDetail,
+                    ObjectType = i.ObjectType
+                };
+            }).ToList();
+        }
+
         /// <summary>
         /// Disposes the Migration Service
         /// </summary>
@@ -297,8 +394,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 {
                     await requestContext.SendResult(true);
                 }
-            } 
-            else 
+            }
+            else
             {
                 await requestContext.SendResult(true);
             }
@@ -331,8 +428,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
 
                 SafeAccessTokenHandle safeAccessTokenHandle;
                 bool returnValue = LogonUser(
-                    userName, 
-                    domainName, 
+                    userName,
+                    domainName,
                     parameters.Password,
                     LOGON32_LOGON_NEW_CREDENTIALS,
                     LOGON32_PROVIDER_WINNT50,
@@ -350,15 +447,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 // User action  
                 async () =>
                 {
-                    if(!Directory.Exists(parameters.Path)){
+                    if (!Directory.Exists(parameters.Path))
+                    {
                         await requestContext.SendError("Cannot connect to file share");
-                    } else {
+                    }
+                    else
+                    {
                         await requestContext.SendResult(true);
                     }
                 }
                 );
-            } 
-            else 
+            }
+            else
             {
                 await requestContext.SendResult(true);
             }

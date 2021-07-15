@@ -5,6 +5,7 @@
 
 using System.Collections.Generic;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using Microsoft.SqlServer.Migration.Assessment.Common.Contracts.Models;
 
 namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
 {
@@ -30,6 +31,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
         /// Gets or sets an status message for the operation.
         /// </summary>
         public string ErrorMessage { get; set; }
+
+        /// <summary>
+        /// Assessment Result
+        /// </summary>
+        public ServerProperties Result { get; set; }
     }
 
     /// <summary>
