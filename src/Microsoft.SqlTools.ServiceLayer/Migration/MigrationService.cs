@@ -148,11 +148,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                         connInfo.ConnectionDetails.DatabaseName = database;
                         connectionStrings.Add(ConnectionService.BuildConnectionString(connInfo.ConnectionDetails));
                     }
-                string[] assessmentConnectionStrings = connectionStrings.ToArray();
-                var results = await GetAssessmentItems(server, assessmentConnectionStrings);
-                var result = new MigrationAssessmentResult();
-                result.Items.AddRange(results);
-                await requestContext.SendResult(result);
+                    string[] assessmentConnectionStrings = connectionStrings.ToArray();
+                    var results = await GetAssessmentItems(server, assessmentConnectionStrings);
+                    var result = new MigrationAssessmentResult();
+                    result.Items.AddRange(results);
+                    await requestContext.SendResult(result);
                 }
             }
             catch (Exception e)
