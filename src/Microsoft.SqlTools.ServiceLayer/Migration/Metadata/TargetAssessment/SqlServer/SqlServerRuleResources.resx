@@ -225,4 +225,112 @@
   <data name="LOBDataTypesMoreInformationlink" xml:space="preserve">
     <value>https://go.microsoft.com/fwlink/?LinkId=798558</value>
   </data>
+  <data name="OrderByNonIntegerConstantTitle" xml:space="preserve">
+    <value>Constant expressions are not allowed in the ORDER BY clause in 90 or later compatibility modes</value>
+  </data>
+  <data name="OrderByNonIntegerConstantIssueCategory" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="OrderByNonIntegerConstantDescription" xml:space="preserve">
+    <value>Constant expressions are allowed (and ignored) in the ORDER BY clause when the database compatibility mode is set to 80 or earlier. However, these expressions in the ORDER BY clause will cause the statement to fail when the database compatibility mode is set to 90 or later.Here is an example of such problematic statements:SELECT * FROM Production.ProductORDER BY CASE WHEN  1=2 THEN 3 ELSE 2 END</value>
+  </data>
+  <data name="OrderByNonIntegerConstantRecommendation" xml:space="preserve">
+    <value>Before you change the database compatibility mode to 90 or later, modify statements that use constant expressions in the ORDER BY clause to use a column name or column alias, or a nonnegative integer representing the position of the name or alias in the select list.</value>
+  </data>
+  <data name="OrderByNonIntegerConstantMoreInformation" xml:space="preserve">
+    <value />
+  </data>
+  <data name="OrderByNonIntegerConstantMoreInformationlink" xml:space="preserve">
+    <value />
+  </data>
+  <data name="GeoDataTypeTitle" xml:space="preserve">
+    <value>Remove user-defined type (UDT)s named after the reserved GEOMETRY and GEOGRAPHY data types.</value>
+  </data>
+  <data name="GeoDataTypeIssueCategory" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="GeoDataTypeDescription" xml:space="preserve">
+    <value>Microsoft SQL Server introduced new data types GEOMETRY and GEOGRAPHY for storing &amp;quot;Spatial Data&amp;quot;. The terms used for spatial data types should not be used as names for either common language runtime (CLR) or alias UDTs.</value>
+  </data>
+  <data name="GeoDataTypeRecommendation" xml:space="preserve">
+    <value>Remove UDTs named after the reserved GEOMETRY and GEOGRAPHY data types.</value>
+  </data>
+  <data name="GeoDataTypeMoreInformation" xml:space="preserve">
+    <value>Remove UDTs named after the reserved GEOMETRY and GEOGRAPHY data types</value>
+  </data>
+  <data name="GeoDataTypeMoreInformationlink" xml:space="preserve">
+    <value>https://go.microsoft.com/fwlink/?LinkID=724415</value>
+  </data>
+  <data name="ForXmlAutoDerivedTableTitle" xml:space="preserve">
+    <value>FOR XML AUTO queries return derived table references in 90 or later compatibility modes</value>
+  </data>
+  <data name="ForXmlAutoDerivedTableIssueCategory" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="ForXmlAutoDerivedTableDescription" xml:space="preserve">
+    <value>When the database compatibility level is set to 90 or later, FOR XML queries that execute in AUTO mode return references to derived table aliases. When the compatibility level is set to 80, FOR XML AUTO queries return references to the base tables that define a derived table. For example, the following query, which includes a derived table, produces different results under compatibility levels 80, 90, or later:SELECT * FROM(SELECT a.id AS a, b.id AS bFROM Test a JOIN Test b ON a.id=b.id) AS DerivedTest FOR XML AUTO;Under compatibility level 80, the query returns the following results. The results reference the base table aliases a and b of the derived table instead of the derived table alias.&amp;lt;a a=&amp;quot;1&amp;quot;&amp;gt;&amp;lt;b b=&amp;quot;1&amp;quot;/&amp;gt;&amp;lt;/a&amp;gt;&amp;lt;a a=&amp;quot;2&amp;quot;&amp;gt;&amp;lt;b b=&amp;quot;2&amp;quot;/&amp;gt;&amp;lt;/a&amp;gt;Under compatibility level 90 or later, the query returns references to the derived table alias DerivedTest instead of to the derived table's base tables.&amp;lt;DerivedTest a=&amp;quot;1&amp;quot; b=&amp;quot;1&amp;quot;/&amp;gt;&amp;lt;DerivedTest a=&amp;quot;2&amp;quot; b=&amp;quot;2&amp;quot;/&amp;gt;</value>
+  </data>
+  <data name="ForXmlAutoDerivedTableRecommendation" xml:space="preserve">
+    <value>Modify your application as required to account for the changes in results of FOR XML AUTO queries that include derived tables and that run under compatibility level 90 or later.</value>
+  </data>
+  <data name="ForXmlAutoDerivedTableMoreInformation" xml:space="preserve">
+    <value />
+  </data>
+  <data name="ForXmlAutoDerivedTableMoreInformationlink" xml:space="preserve">
+    <value />
+  </data>
+  <data name="ForBrowseViewTitle" xml:space="preserve">
+    <value>FOR BROWSE is not allowed in views in 90 or later compatibility modes</value>
+  </data>
+  <data name="ForBrowseViewIssueCategory" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="ForBrowseViewDescription" xml:space="preserve">
+    <value>The FOR BROWSE clause is allowed (and ignored) in views when the database compatibility mode is set to 80. The FOR BROWSE clause is not allowed in views when the database compatibility mode is set to 90 or later.</value>
+  </data>
+  <data name="ForBrowseViewRecommendation" xml:space="preserve">
+    <value>Before you change the database compatibility mode to 90 or later, remove the FOR BROWSE clause from view definitions.</value>
+  </data>
+  <data name="ForBrowseViewMoreInformation" xml:space="preserve">
+    <value>See FOR BROWSE</value>
+  </data>
+  <data name="ForBrowseViewMoreInformationlink" xml:space="preserve">
+    <value>https://docs.microsoft.com/en-us/sql/t-sql/queries/select-for-clause-transact-sql?view=sql-server-ver15#for-browse</value>
+  </data>
+  <data name="CheckOptionTopViewTitle" xml:space="preserve">
+    <value>WITH CHECK OPTION is not supported in views that contain TOP in compatibility mode 90 and above</value>
+  </data>
+  <data name="CheckOptionTopViewIssueCategory" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="CheckOptionTopViewDescription" xml:space="preserve">
+    <value>Assessment detected a view that uses the WITH CHECK OPTION and a TOP clause in the SELECT statement of the view or in a referenced view. Views defined this way incorrectly allow data to be modified through the view and may produce inaccurate results when the database compatibility mode is set to 80 and earlier. Data cannot be inserted or updated through a view that uses WITH CHECK OPTION when the view or a referenced view uses the TOP clause and the database compatibility mode is set to 90 or later.</value>
+  </data>
+  <data name="CheckOptionTopViewRecommendation" xml:space="preserve">
+    <value>Modify views that use both WITH CHECK OPTION and TOP if data modification through the view is required.</value>
+  </data>
+  <data name="CheckOptionTopViewMoreInformation" xml:space="preserve">
+    <value />
+  </data>
+  <data name="CheckOptionTopViewMoreInformationlink" xml:space="preserve">
+    <value />
+  </data>
+  <data name="DBCCTitle" xml:space="preserve">
+    <value>Discontinued DBCC commands referenced in your T-SQL objects</value>
+  </data>
+  <data name="DBCCIssueCategory" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="DBCCDescription" xml:space="preserve">
+    <value>Many DBCC commands that were available in prior releases have been replaced with DMVs and DMFs, or no longer exist; therefore, using these commands may cause errors and unforeseen effects after upgrading your SQL Server.</value>
+  </data>
+  <data name="DBCCRecommendation" xml:space="preserve">
+    <value>Re-write the code, replace \DBCC DBREINDEX\" with \"ALTER INDEX\" with \"REBUILD\" option. Re-write the code  replace \"DBCC INDEXDEFRAG\" with \"ALTER INDEX\" with \"REORGANIZE\" option.Re-write the code  replace \"DBCC SHOWCONTIG\" with \"sys.dm_db_index_physical_stats\". Use of DBCC PINTABLE/DBCC UNPINTABLE is not required and has been removed to prevent additional problems. The syntax for this command still works but does not affect the server. Refer to SQL Server books online for equivalent DMVs and DMFs that you may want to use instead of deprecated and discontinued DBCC commands."</value>
+  </data>
+  <data name="DBCCMoreInformation" xml:space="preserve">
+    <value>Deprecated Database Engine Features in SQL Server</value>
+  </data>
+  <data name="DBCCMoreInformationlink" xml:space="preserve">
+    <value>https://go.microsoft.com/fwlink/?LinkID=698477</value>
+  </data>
 </root>
