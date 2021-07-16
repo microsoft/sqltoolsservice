@@ -20,21 +20,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
         /// Errors that happen while running the assessment
         /// </summary>
         public ErrorModel[] Errors { get; set; }
-
         /// <summary>
         /// Result of the assessment
         /// </summary>
         public ServerProperties Result { get; set; }
-        
         /// <summary>
         /// Start time of the assessment
         /// </summary>
-
         public string StartedOn { get; set; }
         /// <summary>
         /// End time of the assessment
         /// </summary>
-
         public string EndedOn { get; set; }
     }
 
