@@ -6,11 +6,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
     public class ServerProperties
     {
         /// <summary>
+        /// Name of the server
+        /// </summary>
+        public string Name { get; set; }
+        /// <summary>
         /// Cpu cores for the server host
         /// </summary>
         public long CpuCoreCount { get; set; }
         /// <summary>
-        /// Host physical memory size
+        /// Server host physical memory size
         /// </summary>
         public double PhysicalServerMemory { get; set; }
         /// <summary>
@@ -46,25 +50,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
         /// </summary>
         public long AssessedDatabaseCount{get; set;}
         /// <summary>
-        /// Count of databases ready for migration
+        /// Give database statistics for the server
         /// </summary>
-        public IServerTargetReadiness SQLManagedInstanceTargetReadinesses { get; set; }
+        public IServerTargetReadiness SQLManagedInstanceTargetReadiness { get; set; }
         /// <summary>
         /// Server assessment results
         /// </summary>
-        public List<MigrationAssessmentInfo> Items { get; set; }
+        public MigrationAssessmentInfo[] Items { get; set; }
         /// <summary>
         /// Server assessment errors
         /// </summary>
-        public List<ErrorModel> Errors { get; set; }
+        public ErrorModel[] Errors { get; set; }
         /// <summary>
         /// List of databases that are assessed
         /// </summary>
-        public List<DatabaseProperties> Databases { get; set; }
+        public DatabaseProperties[] Databases { get; set; }
     }
 
     public class DatabaseProperties
     {
+        /// <summary>
+        /// Name of the database
+        /// </summary>
+        public string Name { get; set; }
         /// <summary>
         /// Compatibility level of the database
         /// </summary>
@@ -74,7 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
         /// </summary>
         public double DatabaseSize { get; set; }
         /// <summary>
-        /// Flag that indicated if the database is replicated
+        /// Flag that indicates if the database is replicated
         /// </summary>
         public bool IsReplicationEnabled { get; set; }
         /// <summary>
@@ -82,22 +90,40 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
         /// </summary>
         public double AssessmentTimeInMilliseconds { get; set; }
         /// <summary>
-        /// Assessment result for database
+        /// Database Assessment Results
         /// </summary>
-        public List<MigrationAssessmentInfo> Items { get; set; }
+        public MigrationAssessmentInfo[] Items { get; set; }
         /// <summary>
         /// Database assessment errors
         /// </summary>
-        public List<ErrorModel> Errors {get; set;}
+        public ErrorModel[] Errors {get; set;}
+        /// <summary>
+        /// Flags that indicate if the database is ready for migration
+        /// </summary>
         public IDatabaseTargetReadiness SQLManagedInstanceTargetReadiness { get; set; }
     }
 
     public class ErrorModel
     {
+        /// <summary>
+        /// Id of the assessment error
+        /// </summary>
         public string ErrorId { get; set; }
+        /// <summary>
+        /// Error message
+        /// </summary>
         public string Message { get; set; }
+        /// <summary>
+        /// Summary of the Error
+        /// </summary>
         public string ErrorSummary { get; set; }
+        /// <summary>
+        /// Possible causes for the error
+        /// </summary>
         public string PossibleCauses { get; set; }
+        /// <summary>
+        /// Possible mitigation for the error
+        /// </summary>
         public string Guidance { get; set; }
     }
 }

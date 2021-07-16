@@ -17,25 +17,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
     public class MigrationAssessmentResult
     {
         /// <summary>
-        /// Gets the collection of assessment results.
+        /// Errors that happen while running the assessment
         /// </summary>
-        public List<MigrationAssessmentInfo> Items { get; } = new List<MigrationAssessmentInfo>();
+        public ErrorModel[] Errors { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating
-        /// if assessment operation was successful.
-        /// </summary>
-        public bool Success { get; set; }
-
-        /// <summary>
-        /// Gets or sets an status message for the operation.
-        /// </summary>
-        public string ErrorMessage { get; set; }
-
-        /// <summary>
-        /// Assessment Result
+        /// Result of the assessment
         /// </summary>
         public ServerProperties Result { get; set; }
+        
+        /// <summary>
+        /// Start time of the assessment
+        /// </summary>
+
+        public string StartedOn { get; set; }
+        /// <summary>
+        /// End time of the assessment
+        /// </summary>
+
+        public string EndedOn { get; set; }
     }
 
     /// <summary>
