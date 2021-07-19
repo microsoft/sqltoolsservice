@@ -5,27 +5,23 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.SqlServer.Management.Assessment;
+using Microsoft.SqlServer.DataCollection.Common;
 using Microsoft.SqlServer.Management.Assessment.Checks;
+using Microsoft.SqlServer.Management.Assessment;
 using Microsoft.SqlServer.Migration.Assessment.Common.Contracts.Models;
 using Microsoft.SqlServer.Migration.Assessment.Common.Engine;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
-using Microsoft.SqlTools.Utility;
+using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Migration.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlAssessment;
-using Microsoft.Win32.SafeHandles;
-using Microsoft.SqlServer.DataCollection.Common;
-using System.ComponentModel;
-using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
-using System.Security.Principal;
-using System.IO;
+using Microsoft.SqlTools.Utility;
+
 namespace Microsoft.SqlTools.ServiceLayer.Migration
 {
     /// <summary>
@@ -95,8 +91,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         {
             this.ServiceHost = serviceHost;
             this.ServiceHost.SetRequestHandler(MigrationAssessmentsRequest.Type, HandleMigrationAssessmentsRequest);
-            this.ServiceHost.SetRequestHandler(ValidateWindowsAccountRequest.Type, HandleValidateWindowsAccountRequest);
-            this.ServiceHost.SetRequestHandler(ValidateNetworkFileShareRequest.Type, HandleValidateNetworkFileShareRequest);
         }
 
         /// <summary>
@@ -149,10 +143,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                         connectionStrings.Add(ConnectionService.BuildConnectionString(connInfo.ConnectionDetails));
                     }
                     string[] assessmentConnectionStrings = connectionStrings.ToArray();
-                    var results = await GetAssessmentItems(server, assessmentConnectionStrings);
-                    var result = new MigrationAssessmentResult();
-                    result.Items.AddRange(results);
-                    await requestContext.SendResult(result);
+                    var results = await GetAssessmentItems(assessmentConnectionStrings);
+                    await requestContext.SendResult(results);
                 }
             }
             catch (Exception e)
@@ -193,67 +185,124 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             }
         }
 
-        internal async Task<List<MigrationAssessmentInfo>> GetAssessmentItems(SqlObjectLocator target, string[] connectionStrings)
+        internal async Task<MigrationAssessmentResult> GetAssessmentItems(string[] connectionStrings)
         {
             SqlAssessmentConfiguration.EnableLocalLogging = true;
             SqlAssessmentConfiguration.EnableReportCreation = true;
             SqlAssessmentConfiguration.AssessmentReportAndLogsRootFolderPath = Path.GetDirectoryName(Logger.LogFileFullPath);
             DmaEngine engine = new DmaEngine(connectionStrings);
             var assessmentResults = await engine.GetTargetAssessmentResultsList();
-
-            var result = new List<MigrationAssessmentInfo>();
-            foreach (var r in assessmentResults)
+            Dictionary<string, ISqlMigrationAssessmentResult> assessmentResultLookup = new Dictionary<string, ISqlMigrationAssessmentResult>();
+            foreach (ISqlMigrationAssessmentResult r in assessmentResults)
             {
-                var migrationResult = r as ISqlMigrationAssessmentResult;
-                if (migrationResult == null)
-                {
-                    continue;
-                }
+                assessmentResultLookup.Add(CreateAssessmentResultKey(r as ISqlMigrationAssessmentResult), r as ISqlMigrationAssessmentResult);
+            }
+            ISqlMigrationAssessmentModel contextualizedAssessmentResult = await engine.GetTargetAssessmentResultsList(System.Threading.CancellationToken.None);
+            return new MigrationAssessmentResult()
+            {
+                AssessmentResult = ParseServerAssessmentInfo(contextualizedAssessmentResult.Servers[0], assessmentResultLookup),
+                Errors = ParseAssessmentError(contextualizedAssessmentResult.Errors),
+                StartTime = contextualizedAssessmentResult.StartedOn.ToString(),
+                EndedTime = contextualizedAssessmentResult.EndedOn.ToString(),
+                RawAssessmentResult = contextualizedAssessmentResult
+            };
+        }
 
-                var targetName = !string.IsNullOrWhiteSpace(migrationResult.DatabaseName)
-                                     ? $"{target.ServerName}:{migrationResult.DatabaseName}"
-                                     : target.Name;
-                var ruleId = migrationResult.FeatureId.ToString();
+        internal ServerAssessmentProperties ParseServerAssessmentInfo(IServerAssessmentInfo server,  Dictionary<string, ISqlMigrationAssessmentResult> assessmentResultLookup)
+        {
+            return new ServerAssessmentProperties()
+            {
+                CpuCoreCount = server.Properties.ServerCoreCount,
+                PhysicalServerMemory = server.Properties.MaxServerMemoryInUse,
+                ServerHostPlatform = server.Properties.ServerHostPlatform,
+                ServerVersion = server.Properties.ServerVersion,
+                ServerEngineEdition = server.Properties.ServerEngineEdition,
+                ServerEdition = server.Properties.ServerEdition,
+                IsClustered = server.Properties.IsClustered,
+                NumberOfUserDatabases = server.Properties.NumberOfUserDatabases,
+                SqlAssessmentStatus = (int)server.Status,
+                AssessedDatabaseCount = server.Properties.NumberOfUserDatabases,
+                SQLManagedInstanceTargetReadiness = server.TargetReadinesses[Microsoft.SqlServer.DataCollection.Common.Contracts.Advisor.TargetType.AzureSqlManagedInstance],
+                Errors = ParseAssessmentError(server.Errors),
+                Items = ParseAssessmentResult(server.ServerAssessments, assessmentResultLookup),
+                Databases = ParseDatabaseAssessmentInfo(server.Databases, assessmentResultLookup),
+                Name = server.Properties.ServerName
+            };
+        }
 
-                var item = new MigrationAssessmentInfo()
+        internal DatabaseAssessmentProperties[] ParseDatabaseAssessmentInfo(IList<IDatabaseAssessmentInfo> databases, Dictionary<string, ISqlMigrationAssessmentResult> assessmentResultLookup)
+        {
+            return databases.Select(d =>
+            {
+                return new DatabaseAssessmentProperties()
                 {
-                    CheckId = r.Check.Id,
-                    Description = r.Check.Description,
-                    DisplayName = r.Check.DisplayName,
-                    HelpLink = r.Check.HelpLink,
-                    Level = r.Check.Level.ToString(),
-                    TargetName = targetName,
-                    DatabaseName = migrationResult.DatabaseName,
-                    ServerName = migrationResult.ServerName,
-                    Tags = r.Check.Tags.ToArray(),
-                    TargetType = target.Type,
+                    Name = d.Properties.Name,
+                    CompatibilityLevel = d.Properties.CompatibilityLevel.ToString(),
+                    DatabaseSize = d.Properties.SizeMB,
+                    IsReplicationEnabled = d.Properties.IsReplicationEnabled,
+                    AssessmentTimeInMilliseconds = d.Properties.TSqlScriptAnalysisTimeElapse.TotalMilliseconds,
+                    Errors = ParseAssessmentError(d.Errors),
+                    Items = ParseAssessmentResult(d.DatabaseAssessments, assessmentResultLookup),
+                    SQLManagedInstanceTargetReadiness = d.TargetReadinesses[Microsoft.SqlServer.DataCollection.Common.Contracts.Advisor.TargetType.AzureSqlManagedInstance]
+                };
+            }).ToArray();
+        }
+        internal ErrorModel[] ParseAssessmentError(IList<Microsoft.SqlServer.DataCollection.Common.Contracts.ErrorHandling.IErrorModel> errors)
+        {
+            return errors.Select(e =>
+            {
+                return new ErrorModel()
+                {
+                    ErrorId = e.ErrorID.ToString(),
+                    Message = e.Message,
+                    ErrorSummary = e.ErrorSummary,
+                    PossibleCauses = e.PossibleCauses,
+                    Guidance = e.Guidance,
+                };
+            }).ToArray();
+        }
+        internal MigrationAssessmentInfo[] ParseAssessmentResult(IList<ISqlMigrationAssessmentResult> assessmentResults, Dictionary<string, ISqlMigrationAssessmentResult> assessmentResultLookup)
+        {
+            return assessmentResults.Select(r =>
+            {
+                var check = assessmentResultLookup[CreateAssessmentResultKey(r)].Check;
+                return new MigrationAssessmentInfo()
+                {
+                    CheckId = check.Id,
+                    Description = check.Description,
+                    DisplayName = check.DisplayName,
+                    HelpLink = check.HelpLink,
+                    Level = check.Level.ToString(),
+                    TargetName = r.AppliesToMigrationTargetPlatform.ToString(),
+                    DatabaseName = r.DatabaseName,
+                    ServerName = r.ServerName,
+                    Tags = check.Tags.ToArray(),
                     RulesetName = Engine.Configuration.DefaultRuleset.Name,
                     RulesetVersion = Engine.Configuration.DefaultRuleset.Version.ToString(),
-                    RuleId = ruleId,
+                    RuleId = r.FeatureId.ToString(),
                     Message = r.Message,
-                    AppliesToMigrationTargetPlatform = migrationResult.AppliesToMigrationTargetPlatform.ToString(),
-                    IssueCategory = "Category_Unknown"
+                    AppliesToMigrationTargetPlatform = r.AppliesToMigrationTargetPlatform.ToString(),
+                    IssueCategory = r.IssueCategory.ToString(),
+                    ImpactedObjects = ParseImpactedObjects(r.ImpactedObjects)
                 };
-
-                if (migrationResult.ImpactedObjects != null)
+            }).ToArray();
+        }
+        internal ImpactedObjectInfo[] ParseImpactedObjects(IList<Microsoft.SqlServer.DataCollection.Common.Contracts.Advisor.Models.IImpactedObject> impactedObjects)
+        {
+            return impactedObjects.Select(i =>
+            {
+                return new ImpactedObjectInfo()
                 {
-                    ImpactedObjectInfo[] impactedObjects = new ImpactedObjectInfo[migrationResult.ImpactedObjects.Count];
-                    for (int i = 0; i < migrationResult.ImpactedObjects.Count; ++i)
-                    {
-                        var impactedObject = new ImpactedObjectInfo()
-                        {
-                            Name = migrationResult.ImpactedObjects[i].Name,
-                            ImpactDetail = migrationResult.ImpactedObjects[i].ImpactDetail,
-                            ObjectType = migrationResult.ImpactedObjects[i].ObjectType
-                        };
-                        impactedObjects[i] = impactedObject;
-                    }
-                    item.ImpactedObjects = impactedObjects;
-                }
+                    Name = i.Name,
+                    ImpactDetail = i.ImpactDetail,
+                    ObjectType = i.ObjectType
+                };
+            }).ToArray();
+        }
 
-                result.Add(item);
-            }
-            return result;
+        internal string CreateAssessmentResultKey(ISqlMigrationAssessmentResult assessment)
+        {
+            return assessment.ServerName+assessment.DatabaseName+assessment.FeatureId.ToString()+assessment.IssueCategory.ToString()+assessment.Message + assessment.TargetType.ToString() + assessment.AppliesToMigrationTargetPlatform.ToString();
         }
 
         /// <summary>
@@ -265,131 +314,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             {
                 disposed = true;
             }
-        }
-
-        [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-        public static extern bool LogonUser(String lpszUsername, String lpszDomain, String lpszPassword,
-       int dwLogonType, int dwLogonProvider, out SafeAccessTokenHandle phToken);
-
-        internal async Task HandleValidateWindowsAccountRequest(
-            ValidateWindowsAccountRequestParams parameters,
-            RequestContext<bool> requestContext)
-        {
-            if (!ValidateWindowsDomainUsername(parameters.Username))
-            {
-                await requestContext.SendError("Invalid user name format. Example: Domain\\username");
-                return;
-            }
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                int separator = parameters.Username.IndexOf("\\");
-                string domainName = parameters.Username.Substring(0, separator);
-                string userName = parameters.Username.Substring(separator + 1, parameters.Username.Length - separator - 1);
-
-                const int LOGON32_PROVIDER_DEFAULT = 0;
-                const int LOGON32_LOGON_INTERACTIVE = 2;
-
-                SafeAccessTokenHandle safeAccessTokenHandle;
-                bool returnValue = LogonUser(userName, domainName, parameters.Password,
-                    LOGON32_LOGON_INTERACTIVE, LOGON32_PROVIDER_DEFAULT,
-                    out safeAccessTokenHandle);
-
-                if (!returnValue)
-                {
-                    int ret = Marshal.GetLastWin32Error();
-                    string errorMessage = new Win32Exception(Marshal.GetLastWin32Error()).Message;
-                    await requestContext.SendError(errorMessage);
-                }
-                else
-                {
-                    await requestContext.SendResult(true);
-                }
-            } 
-            else 
-            {
-                await requestContext.SendResult(true);
-            }
-        }
-
-        internal async Task HandleValidateNetworkFileShareRequest(
-            ValidateNetworkFileShareRequestParams parameters,
-            RequestContext<bool> requestContext)
-        {
-            if (!ValidateWindowsDomainUsername(parameters.Username))
-            {
-                await requestContext.SendError("Invalid user name format. Example: Domain\\username");
-                return;
-            }
-
-            if (!ValidateUNCPath(parameters.Path))
-            {
-                await requestContext.SendError("Invalid network share path. Example: \\\\Servername.domainname.com\\Backupfolder");
-                return;
-            }
-
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                int separator = parameters.Username.IndexOf("\\");
-                string domainName = parameters.Username.Substring(0, separator);
-                string userName = parameters.Username.Substring(separator + 1, parameters.Username.Length - separator - 1);
-
-                const int LOGON32_PROVIDER_WINNT50 = 3;
-                const int LOGON32_LOGON_NEW_CREDENTIALS = 9;
-
-                SafeAccessTokenHandle safeAccessTokenHandle;
-                bool returnValue = LogonUser(
-                    userName, 
-                    domainName, 
-                    parameters.Password,
-                    LOGON32_LOGON_NEW_CREDENTIALS,
-                    LOGON32_PROVIDER_WINNT50,
-                    out safeAccessTokenHandle);
-
-                if (!returnValue)
-                {
-                    int ret = Marshal.GetLastWin32Error();
-                    string errorMessage = new Win32Exception(Marshal.GetLastWin32Error()).Message;
-                    await requestContext.SendError(errorMessage);
-                    return;
-                }
-                await WindowsIdentity.RunImpersonated(
-                safeAccessTokenHandle,
-                // User action  
-                async () =>
-                {
-                    if(!Directory.Exists(parameters.Path)){
-                        await requestContext.SendError("Cannot connect to file share");
-                    } else {
-                        await requestContext.SendResult(true);
-                    }
-                }
-                );
-            } 
-            else 
-            {
-                await requestContext.SendResult(true);
-            }
-        }
-
-        /// <summary>
-        /// Check if the username is in 'domain\username' format.
-        /// </summary>
-        /// <returns></returns>
-        internal bool ValidateWindowsDomainUsername(string username)
-        {
-            var domainUserRegex = new Regex(@"^(?<domain>[A-Za-z0-9\._-]*)\\(?<username>[A-Za-z0-9\._-]*)$");
-            return domainUserRegex.IsMatch(username);
-        }
-
-
-        /// <summary>
-        /// Checks if the file path is in UNC format '\\Servername.domainname.com\Backupfolder'
-        /// </summary>
-        /// <param name="path"></param>
-        /// <returns></returns>
-        internal bool ValidateUNCPath(string path)
-        {
-            return new Uri(path).IsUnc;
         }
     }
 }
