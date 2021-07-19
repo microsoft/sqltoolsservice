@@ -3,6 +3,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.SqlServer.DataCollection.Common;
 using Microsoft.SqlServer.Management.Assessment.Checks;
 using Microsoft.SqlServer.Management.Assessment;
@@ -16,11 +21,6 @@ using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Migration.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlAssessment;
 using Microsoft.SqlTools.Utility;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using System;
 
 namespace Microsoft.SqlTools.ServiceLayer.Migration
 {
@@ -194,7 +194,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             ISqlMigrationAssessmentModel contextualizedAssessmentResult = await engine.GetTargetAssessmentResultsList(System.Threading.CancellationToken.None);
             return new MigrationAssessmentResult()
             {
-                Result = ParseServerAssessmentInfo(contextualizedAssessmentResult.Servers[0], assessmentResultLookup),
+                AssessmentResult = ParseServerAssessmentInfo(contextualizedAssessmentResult.Servers[0], assessmentResultLookup),
                 Errors = ParseAssessmentError(contextualizedAssessmentResult.Errors),
                 StartTime = contextualizedAssessmentResult.StartedOn.ToString(),
                 EndedTime = contextualizedAssessmentResult.EndedOn.ToString(),

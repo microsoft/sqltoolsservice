@@ -3,9 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System.Collections.Generic;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Microsoft.SqlServer.Migration.Assessment.Common.Contracts.Models;
 
 namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
 {
@@ -23,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
         /// <summary>
         /// Result of the assessment
         /// </summary>
-        public ServerAssessmentProperties Result { get; set; }
+        public ServerAssessmentProperties AssessmentResult { get; set; }
         /// <summary>
         /// Start time of the assessment
         /// </summary>
