@@ -198,6 +198,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 Errors = ParseAssessmentError(contextualizedAssessmentResult.Errors),
                 StartTime = contextualizedAssessmentResult.StartedOn.ToString(),
                 EndedTime = contextualizedAssessmentResult.EndedOn.ToString(),
+                RawAssessmentResult = contextualizedAssessmentResult
             };
         }
 

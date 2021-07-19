@@ -4,6 +4,7 @@
 //
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using Microsoft.SqlServer.Migration.Assessment.Common.Contracts.Models;
 
 namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
 {
@@ -30,6 +31,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
         /// End time of the assessment
         /// </summary>
         public string EndedTime { get; set; }
+        /// <summary>
+        /// Contains the raw assessment response 
+        /// </summary>
+        public ISqlMigrationAssessmentModel RawAssessmentResult { get; set; }
     }
 
     /// <summary>
