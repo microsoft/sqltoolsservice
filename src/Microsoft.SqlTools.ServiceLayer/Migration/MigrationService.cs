@@ -3,29 +3,25 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.SqlServer.Management.Assessment;
+using Microsoft.SqlServer.DataCollection.Common;
 using Microsoft.SqlServer.Management.Assessment.Checks;
+using Microsoft.SqlServer.Management.Assessment;
 using Microsoft.SqlServer.Migration.Assessment.Common.Contracts.Models;
 using Microsoft.SqlServer.Migration.Assessment.Common.Engine;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
-using Microsoft.SqlTools.Utility;
+using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Migration.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlAssessment;
-using Microsoft.Win32.SafeHandles;
-using Microsoft.SqlServer.DataCollection.Common;
-using System.ComponentModel;
-using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
-using System.Security.Principal;
+using Microsoft.SqlTools.Utility;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using System;
+
 namespace Microsoft.SqlTools.ServiceLayer.Migration
 {
     /// <summary>
@@ -195,19 +191,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             {
                 assessmentResultLookup.Add(CreateAssessmentResultKey(r as ISqlMigrationAssessmentResult), r as ISqlMigrationAssessmentResult);
             }
-            ISqlMigrationAssessmentModel assessmentResultBig = await engine.GetTargetAssessmentResultsList(System.Threading.CancellationToken.None);
+            ISqlMigrationAssessmentModel contextualizedAssessmentResult = await engine.GetTargetAssessmentResultsList(System.Threading.CancellationToken.None);
             return new MigrationAssessmentResult()
             {
-                Result = ParseServerAssessmentInfo(assessmentResultBig.Servers[0], assessmentResultLookup),
-                Errors = ParseAssessmentError(assessmentResultBig.Errors).ToArray(),
-                StartedOn = assessmentResultBig.StartedOn.ToString(),
-                EndedOn = assessmentResultBig.EndedOn.ToString(),
+                Result = ParseServerAssessmentInfo(contextualizedAssessmentResult.Servers[0], assessmentResultLookup),
+                Errors = ParseAssessmentError(contextualizedAssessmentResult.Errors),
+                StartTime = contextualizedAssessmentResult.StartedOn.ToString(),
+                EndedTime = contextualizedAssessmentResult.EndedOn.ToString(),
             };
         }
 
-        internal ServerProperties ParseServerAssessmentInfo(IServerAssessmentInfo server,  Dictionary<string, ISqlMigrationAssessmentResult> assessmentResultLookup)
+        internal ServerAssessmentProperties ParseServerAssessmentInfo(IServerAssessmentInfo server,  Dictionary<string, ISqlMigrationAssessmentResult> assessmentResultLookup)
         {
-            return new ServerProperties()
+            return new ServerAssessmentProperties()
             {
                 CpuCoreCount = server.Properties.ServerCoreCount,
                 PhysicalServerMemory = server.Properties.MaxServerMemoryInUse,
@@ -220,31 +216,31 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 SqlAssessmentStatus = (int)server.Status,
                 AssessedDatabaseCount = server.Properties.NumberOfUserDatabases,
                 SQLManagedInstanceTargetReadiness = server.TargetReadinesses[Microsoft.SqlServer.DataCollection.Common.Contracts.Advisor.TargetType.AzureSqlManagedInstance],
-                Errors = ParseAssessmentError(server.Errors).ToArray(),
-                Items = ParseAssessmentResult(server.ServerAssessments, assessmentResultLookup).ToArray(),
-                Databases = ParseDatabaseAssessmentInfo(server.Databases, assessmentResultLookup).ToArray(),
+                Errors = ParseAssessmentError(server.Errors),
+                Items = ParseAssessmentResult(server.ServerAssessments, assessmentResultLookup),
+                Databases = ParseDatabaseAssessmentInfo(server.Databases, assessmentResultLookup),
                 Name = server.Properties.ServerName
             };
         }
 
-        internal List<DatabaseProperties> ParseDatabaseAssessmentInfo(IList<IDatabaseAssessmentInfo> databases, Dictionary<string, ISqlMigrationAssessmentResult> assessmentResultLookup)
+        internal DatabaseAssessmentProperties[] ParseDatabaseAssessmentInfo(IList<IDatabaseAssessmentInfo> databases, Dictionary<string, ISqlMigrationAssessmentResult> assessmentResultLookup)
         {
             return databases.Select(d =>
             {
-                return new DatabaseProperties()
+                return new DatabaseAssessmentProperties()
                 {
                     Name = d.Properties.Name,
                     CompatibilityLevel = d.Properties.CompatibilityLevel.ToString(),
                     DatabaseSize = d.Properties.SizeMB,
                     IsReplicationEnabled = d.Properties.IsReplicationEnabled,
                     AssessmentTimeInMilliseconds = d.Properties.TSqlScriptAnalysisTimeElapse.TotalMilliseconds,
-                    Errors = ParseAssessmentError(d.Errors).ToArray(),
-                    Items = ParseAssessmentResult(d.DatabaseAssessments, assessmentResultLookup).ToArray(),
+                    Errors = ParseAssessmentError(d.Errors),
+                    Items = ParseAssessmentResult(d.DatabaseAssessments, assessmentResultLookup),
                     SQLManagedInstanceTargetReadiness = d.TargetReadinesses[Microsoft.SqlServer.DataCollection.Common.Contracts.Advisor.TargetType.AzureSqlManagedInstance]
                 };
-            }).ToList();
+            }).ToArray();
         }
-        internal List<ErrorModel> ParseAssessmentError(IList<Microsoft.SqlServer.DataCollection.Common.Contracts.ErrorHandling.IErrorModel> errors)
+        internal ErrorModel[] ParseAssessmentError(IList<Microsoft.SqlServer.DataCollection.Common.Contracts.ErrorHandling.IErrorModel> errors)
         {
             return errors.Select(e =>
             {
@@ -256,9 +252,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                     PossibleCauses = e.PossibleCauses,
                     Guidance = e.Guidance,
                 };
-            }).ToList();
+            }).ToArray();
         }
-        internal List<MigrationAssessmentInfo> ParseAssessmentResult(IList<ISqlMigrationAssessmentResult> assessmentResults, Dictionary<string, ISqlMigrationAssessmentResult> assessmentResultLookup)
+        internal MigrationAssessmentInfo[] ParseAssessmentResult(IList<ISqlMigrationAssessmentResult> assessmentResults, Dictionary<string, ISqlMigrationAssessmentResult> assessmentResultLookup)
         {
             return assessmentResults.Select(r =>
             {
@@ -280,11 +276,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                     Message = r.Message,
                     AppliesToMigrationTargetPlatform = r.AppliesToMigrationTargetPlatform.ToString(),
                     IssueCategory = r.IssueCategory.ToString(),
-                    ImpactedObjects = ParseImpactedObjects(r.ImpactedObjects).ToArray()
+                    ImpactedObjects = ParseImpactedObjects(r.ImpactedObjects)
                 };
-            }).ToList();
+            }).ToArray();
         }
-        internal List<ImpactedObjectInfo> ParseImpactedObjects(IList<Microsoft.SqlServer.DataCollection.Common.Contracts.Advisor.Models.IImpactedObject> impactedObjects)
+        internal ImpactedObjectInfo[] ParseImpactedObjects(IList<Microsoft.SqlServer.DataCollection.Common.Contracts.Advisor.Models.IImpactedObject> impactedObjects)
         {
             return impactedObjects.Select(i =>
             {
@@ -294,7 +290,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                     ImpactDetail = i.ImpactDetail,
                     ObjectType = i.ObjectType
                 };
-            }).ToList();
+            }).ToArray();
         }
 
         internal string CreateAssessmentResultKey(ISqlMigrationAssessmentResult assessment)

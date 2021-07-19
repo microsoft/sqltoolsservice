@@ -23,15 +23,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
         /// <summary>
         /// Result of the assessment
         /// </summary>
-        public ServerProperties Result { get; set; }
+        public ServerAssessmentProperties Result { get; set; }
         /// <summary>
         /// Start time of the assessment
         /// </summary>
-        public string StartedOn { get; set; }
+        public string StartTime { get; set; }
         /// <summary>
         /// End time of the assessment
         /// </summary>
-        public string EndedOn { get; set; }
+        public string EndedTime { get; set; }
     }
 
     /// <summary>

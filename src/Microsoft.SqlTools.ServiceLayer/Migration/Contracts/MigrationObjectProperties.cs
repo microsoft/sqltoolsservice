@@ -1,9 +1,13 @@
-using System.Collections.Generic;
+//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
 using Microsoft.SqlServer.Migration.Assessment.Common.Contracts.TargetAssessment.Models;
 
 namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
 {
-    public class ServerProperties
+    public class ServerAssessmentProperties
     {
         /// <summary>
         /// Name of the server
@@ -50,7 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
         /// </summary>
         public long AssessedDatabaseCount{get; set;}
         /// <summary>
-        /// Give database statistics for the server
+        /// Give assessed server stats for SQL MI compatibility
         /// </summary>
         public IServerTargetReadiness SQLManagedInstanceTargetReadiness { get; set; }
         /// <summary>
@@ -64,10 +68,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
         /// <summary>
         /// List of databases that are assessed
         /// </summary>
-        public DatabaseProperties[] Databases { get; set; }
+        public DatabaseAssessmentProperties[] Databases { get; set; }
     }
 
-    public class DatabaseProperties
+    public class DatabaseAssessmentProperties
     {
         /// <summary>
         /// Name of the database
