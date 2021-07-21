@@ -36,8 +36,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
 
         public override void UpdateDatabase(string databaseName)
         {
-            var workspace = _monitorClient.LoadMetadata();
-            schemaState = LoadSchemaState(workspace);
+            var metadata = _monitorClient.LoadMetadata();
+            schemaState = LoadSchemaState(metadata);
         }
     }
 }

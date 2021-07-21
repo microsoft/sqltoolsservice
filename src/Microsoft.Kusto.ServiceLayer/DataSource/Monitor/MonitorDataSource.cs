@@ -25,7 +25,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
         private Dictionary<string, List<DataSourceObjectMetadata>> _nodes;
         
         public override string ClusterName => _monitorClient.WorkspaceId;
-        public override string DatabaseName { get; set; }
+        public override string DatabaseName { get; }
 
         public MonitorDataSource(MonitorClient monitorClient, IntellisenseClientBase intellisenseClient)
         {
@@ -40,7 +40,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
         private void SetupTableGroups(string workspaceId)
         {
             var workspace = _metadata.Workspaces.First(x => x.Id == workspaceId);
-            DatabaseName = $"{workspace.Name} ({workspace.Id})";
             var metadataTableGroups = _metadata.TableGroups.ToDictionary(x => x.Id);
             
             foreach (string workspaceTableGroup in workspace.TableGroups)
@@ -140,12 +139,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
 
         public override void UpdateDatabase(string databaseName)
         {
-            // LogAnalytics is treating the workspace name as the database name
-            var workspaceId = ParseWorkspaceId(databaseName);
-            _metadata = _monitorClient.LoadMetadata(true);
-            var workspace = _metadata.Workspaces.First(x => x.Id == workspaceId);
-            DatabaseName = $"{workspace.Name} ({workspace.Id})";
-            _intellisenseClient.UpdateDatabase(databaseName);
+            // Azure Monitor Logs doesn't use databases
         }
         
         private string ParseWorkspaceId(string workspace)
@@ -203,7 +197,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
             {
                 DatabaseNames = new[]
                 {
-                    DatabaseName
+                    ClusterName
                 }
             };
         }
@@ -215,7 +209,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
                 Options = new Dictionary<string, object>
                 {
                     {"id", ClusterName},
-                    {"name", DatabaseName}
+                    {"name", ClusterName}
                 }
             };
         }
