@@ -191,16 +191,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             SqlAssessmentConfiguration.EnableReportCreation = true;
             SqlAssessmentConfiguration.AssessmentReportAndLogsRootFolderPath = Path.GetDirectoryName(Logger.LogFileFullPath);
             DmaEngine engine = new DmaEngine(connectionStrings);
-            var assessmentResults = await engine.GetTargetAssessmentResultsList();
-            Dictionary<string, ISqlMigrationAssessmentResult> assessmentResultLookup = new Dictionary<string, ISqlMigrationAssessmentResult>();
-            foreach (ISqlMigrationAssessmentResult r in assessmentResults)
-            {
-                assessmentResultLookup.Add(CreateAssessmentResultKey(r as ISqlMigrationAssessmentResult), r as ISqlMigrationAssessmentResult);
-            }
             ISqlMigrationAssessmentModel contextualizedAssessmentResult = await engine.GetTargetAssessmentResultsList(System.Threading.CancellationToken.None);
             return new MigrationAssessmentResult()
             {
-                AssessmentResult = ParseServerAssessmentInfo(contextualizedAssessmentResult.Servers[0], assessmentResultLookup),
+                AssessmentResult = ParseServerAssessmentInfo(contextualizedAssessmentResult.Servers[0], engine),
                 Errors = ParseAssessmentError(contextualizedAssessmentResult.Errors),
                 StartTime = contextualizedAssessmentResult.StartedOn.ToString(),
                 EndedTime = contextualizedAssessmentResult.EndedOn.ToString(),
@@ -208,7 +202,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             };
         }
 
-        internal ServerAssessmentProperties ParseServerAssessmentInfo(IServerAssessmentInfo server,  Dictionary<string, ISqlMigrationAssessmentResult> assessmentResultLookup)
+        internal ServerAssessmentProperties ParseServerAssessmentInfo(IServerAssessmentInfo server, DmaEngine engine)
         {
             return new ServerAssessmentProperties()
             {
@@ -224,13 +218,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 AssessedDatabaseCount = server.Properties.NumberOfUserDatabases,
                 SQLManagedInstanceTargetReadiness = server.TargetReadinesses[Microsoft.SqlServer.DataCollection.Common.Contracts.Advisor.TargetType.AzureSqlManagedInstance],
                 Errors = ParseAssessmentError(server.Errors),
-                Items = ParseAssessmentResult(server.ServerAssessments, assessmentResultLookup),
-                Databases = ParseDatabaseAssessmentInfo(server.Databases, assessmentResultLookup),
+                Items = ParseAssessmentResult(server.ServerAssessments, engine),
+                Databases = ParseDatabaseAssessmentInfo(server.Databases, engine),
                 Name = server.Properties.ServerName
             };
         }
 
-        internal DatabaseAssessmentProperties[] ParseDatabaseAssessmentInfo(IList<IDatabaseAssessmentInfo> databases, Dictionary<string, ISqlMigrationAssessmentResult> assessmentResultLookup)
+        internal DatabaseAssessmentProperties[] ParseDatabaseAssessmentInfo(IList<IDatabaseAssessmentInfo> databases, DmaEngine engine)
         {
             return databases.Select(d =>
             {
@@ -242,7 +236,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                     IsReplicationEnabled = d.Properties.IsReplicationEnabled,
                     AssessmentTimeInMilliseconds = d.Properties.TSqlScriptAnalysisTimeElapse.TotalMilliseconds,
                     Errors = ParseAssessmentError(d.Errors),
-                    Items = ParseAssessmentResult(d.DatabaseAssessments, assessmentResultLookup),
+                    Items = ParseAssessmentResult(d.DatabaseAssessments, engine),
                     SQLManagedInstanceTargetReadiness = d.TargetReadinesses[Microsoft.SqlServer.DataCollection.Common.Contracts.Advisor.TargetType.AzureSqlManagedInstance]
                 };
             }).ToArray();
@@ -261,11 +255,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 };
             }).ToArray();
         }
-        internal MigrationAssessmentInfo[] ParseAssessmentResult(IList<ISqlMigrationAssessmentResult> assessmentResults, Dictionary<string, ISqlMigrationAssessmentResult> assessmentResultLookup)
+        internal MigrationAssessmentInfo[] ParseAssessmentResult(IList<ISqlMigrationAssessmentResult> assessmentResults, DmaEngine engine)
         {
             return assessmentResults.Select(r =>
             {
-                var check = assessmentResultLookup[CreateAssessmentResultKey(r)].Check;
+                var check = engine.GetRuleMetadata(r.FeatureId, r.AppliesToMigrationTargetPlatform);
                 return new MigrationAssessmentInfo()
                 {
                     CheckId = check.Id,
