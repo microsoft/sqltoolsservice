@@ -26,7 +26,6 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions.Contracts
     public class GetAzureFunctionsResult : ResultStatus
     {
         public string[] azureFunctions { get; set; }
-
     }
 
     /// <summary>
@@ -36,6 +35,5 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions.Contracts
     {
         public static readonly RequestType<GetAzureFunctionsParams, GetAzureFunctionsResult> Type =
             RequestType<GetAzureFunctionsParams, GetAzureFunctionsResult>.Create("azureFunctions/getAzureFunctions");
-
     }
 }

@@ -43,7 +43,6 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
         /// <summary>
         /// Handles request to insert sql binding into Azure Functions
         /// </summary>
-        /// <returns></returns>
         public async Task HandleInsertSqlBindingRequest(InsertSqlBindingParams parameters, RequestContext<ResultStatus> requestContext)
         {
             try
@@ -62,7 +61,6 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
         /// <summary>
         /// Handles request to get azure functions in a file
         /// </summary>
-        /// <returns></returns>
         public async Task HandleGetAzureFunctionsRequest(GetAzureFunctionsParams parameters, RequestContext<GetAzureFunctionsResult> requestContext)
         {
             try
@@ -91,25 +89,6 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
             set
             {
                 sqlTaskManagerInstance = value;
-            }
-        }
-
-        /// <summary>
-        /// Internal for testing purposes only
-        /// </summary>
-        internal static ConnectionService ConnectionServiceInstance
-        {
-            get
-            {
-                if (connectionService == null)
-                {
-                    connectionService = ConnectionService.Instance;
-                }
-                return connectionService;
-            }
-            set
-            {
-                connectionService = value;
             }
         }
     }

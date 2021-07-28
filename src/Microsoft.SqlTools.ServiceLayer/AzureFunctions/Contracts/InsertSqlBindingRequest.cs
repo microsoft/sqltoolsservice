@@ -26,6 +26,9 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions.Contracts
         /// </summary>
         public string filePath { get; set; }
 
+        /// <summary>
+        /// Gets or sets the binding type
+        /// </summary>
         public BindingType bindingType { get; set; }
 
         /// <summary>

@@ -5,15 +5,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.CSharp.Formatting;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.Text;
 using Microsoft.SqlTools.ServiceLayer.AzureFunctions.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
@@ -69,7 +65,6 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
                 }
 
                 MethodDeclarationSyntax azureFunction = azureFunctionMethods.First();
-
                 var newParam = this.Parameters.bindingType == BindingType.input ? this.GenerateInputBinding() : this.GenerateOutputBinding();
 
                 // Generate updated method with the new parameter
@@ -81,9 +76,8 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
 
                 // write updated tree to file
                 var workspace = new AdhocWorkspace();
-
                 var syntaxTree = CSharpSyntaxTree.ParseText(root.ToString());
-                var formattedNode = Microsoft.CodeAnalysis.Formatting.Formatter.Format(syntaxTree.GetRoot(), workspace);
+                var formattedNode = CodeAnalysis.Formatting.Formatter.Format(syntaxTree.GetRoot(), workspace);
                 StringBuilder sb = new StringBuilder(formattedNode.ToString());
                 string content = sb.ToString();
                 File.WriteAllText(Parameters.filePath, content);
@@ -103,12 +97,9 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
             }
         }
 
-        /// <summary>
-        /// </summary>
-        /// <returns></returns>
         public ParameterSyntax GenerateInputBinding()
         {
-            // Create arguments for the Sql Binding attribute
+            // Create arguments for the Sql Input Binding attribute
             var argumentList = SyntaxFactory.AttributeArgumentList();
             argumentList = argumentList.AddArguments(SyntaxFactory.AttributeArgument(SyntaxFactory.IdentifierName($"\"select * from {Parameters.objectName}\"")));
             argumentList = argumentList.AddArguments(SyntaxFactory.AttributeArgument(SyntaxFactory.AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, SyntaxFactory.IdentifierName("CommandType"), SyntaxFactory.IdentifierName("System.Data.CommandType.Text"))));
@@ -123,17 +114,14 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
             return newParam;
         }
 
-        /// <summary>
-        /// </summary>
-        /// <returns></returns>
         public ParameterSyntax GenerateOutputBinding()
         {
-            // Create arguments for the Sql Binding attribute
-            SyntaxList<AttributeListSyntax> attributesList = new SyntaxList<AttributeListSyntax>();
+            // Create arguments for the Sql Output Binding attribute
             var argumentList = SyntaxFactory.AttributeArgumentList();
             argumentList = argumentList.AddArguments(SyntaxFactory.AttributeArgument(SyntaxFactory.IdentifierName($"\"{Parameters.objectName}\"")));
             argumentList = argumentList.AddArguments(SyntaxFactory.AttributeArgument(SyntaxFactory.AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, SyntaxFactory.IdentifierName("ConnectionStringSetting"), SyntaxFactory.IdentifierName("\"SqlConnectionString\""))));
-
+            
+            SyntaxList<AttributeListSyntax> attributesList = new SyntaxList<AttributeListSyntax>();
             attributesList = attributesList.Add(SyntaxFactory.AttributeList(SyntaxFactory.SingletonSeparatedList<AttributeSyntax>(SyntaxFactory.Attribute(SyntaxFactory.IdentifierName("Sql")).WithArgumentList(argumentList))));
 
             var syntaxTokenList = new SyntaxTokenList();

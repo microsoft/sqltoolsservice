@@ -832,32 +832,6 @@ Streaming query statement contains a reference to missing output stream 'Missing
             dacfxRequestContext.VerifyAll();
         }
 
-        /// <summary>
-        /// Verify that streaming job
-        /// </summary>
-        /// <returns></returns>
-        [Test]
-        public async Task ValidateParseTSql()
-        {
-            var dacfxRequestContext = new Mock<RequestContext<ParseTSqlResult>>();
-            DacFxService service = new DacFxService();
-
-            ParseTSqlResult expectedResult;
-
-            var parseParams = new ParseTSqlParams
-            {
-                ObjectTsql = @"CREATE TABLE [dbo].[Table1]
-(
-  [Id] INT NOT NULL PRIMARY KEY
-)"
-            };
-
-            ParseTSQlOperation parsetsqloperation = new ParseTSQlOperation(parseParams);
-            var result = parsetsqloperation.Parse();
-            Assert.AreEqual(result.isTable, true);
-            Assert.AreEqual(result.objectName, "[dbo].[Table1]");
-        }
-
         private bool ValidateStreamingJobErrors(ValidateStreamingJobResult expected, ValidateStreamingJobResult actual)
         {
             return expected.Success == actual.Success
