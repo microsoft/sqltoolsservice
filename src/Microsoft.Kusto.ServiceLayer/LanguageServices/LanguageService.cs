@@ -782,10 +782,10 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         internal Hover GetHoverItem(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile)
         {
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(scriptFile.ClientUri);
-            ConnectionInfo connInfo;
-                    ConnectionServiceInstance.TryFindConnection(
-                        scriptFile.ClientUri,
-                        out connInfo);
+            if (!ConnectionServiceInstance.TryFindConnection(scriptFile.ClientUri, out var connInfo))
+            {
+                return null;
+            }
 
             if (scriptParseInfo != null && scriptParseInfo.ParseResult != null)     // populate parseresult or check why it is used.
             {

@@ -3,6 +3,7 @@
 		<TargetFramework>$(ServiceLayerTargetFramework)</TargetFramework>
 		<AssemblyName>MicrosoftSqlToolsServiceLayer</AssemblyName>
 		<OutputType>Exe</OutputType>
+		<ValidateExecutableReferencesMatchSelfContained>false</ValidateExecutableReferencesMatchSelfContained>
 		<EnableDefaultItems>false</EnableDefaultItems> 
 		<EnableDefaultCompileItems>false</EnableDefaultCompileItems>
 		<EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>

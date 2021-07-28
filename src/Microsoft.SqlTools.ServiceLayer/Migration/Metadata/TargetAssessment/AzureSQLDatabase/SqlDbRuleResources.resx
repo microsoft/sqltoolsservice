@@ -153,24 +153,6 @@
   <data name="XpCmdshellMoreInformationlink" xml:space="preserve">
     <value />
   </data>
-  <data name="CDCTitle" xml:space="preserve">
-    <value>Change Data Capture (CDC) is not supported in Azure SQL Database</value>
-  </data>
-  <data name="CDCIssueCategory" xml:space="preserve">
-    <value>Issue</value>
-  </data>
-  <data name="CDCDescription" xml:space="preserve">
-    <value>Change data capture is designed to capture insert, update, and delete activity applied to SQL Server tables, and to make the details of the changes available in an easily consumed relational format. Change Data Capture (CDC) is not supported in Azure SQL Database</value>
-  </data>
-  <data name="CDCRecommendation" xml:space="preserve">
-    <value>Change Data Capture (CDC) is not supported in Azure SQL Database. Evaluate if Change Tracking can be used instead.  Alternatively, migrate to Azure SQL Managed Instance or SQL Server on Azure Virtual Machine.</value>
-  </data>
-  <data name="CDCMoreInformation" xml:space="preserve">
-    <value>How to Enable SQL Azure Change Tracking</value>
-  </data>
-  <data name="CDCMoreInformationlink" xml:space="preserve">
-    <value>https://social.technet.microsoft.com/wiki/contents/articles/2976.azure-sql-how-to-enable-change-tracking.aspx</value>
-  </data>
   <data name="CrossDatabaseReferencesTitle" xml:space="preserve">
     <value>Cross-database queries are not supported in Azure SQL Database</value>
   </data>

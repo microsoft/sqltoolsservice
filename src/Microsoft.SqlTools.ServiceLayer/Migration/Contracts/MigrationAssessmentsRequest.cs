@@ -3,33 +3,39 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System.Collections.Generic;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using Microsoft.SqlServer.Migration.Assessment.Common.Contracts.Models;
 
 namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
 {
     public class MigrationAssessmentsParams 
     {
         public string OwnerUri { get; set; }
+        public string[] Databases { get; set; }
     }
 
     public class MigrationAssessmentResult
     {
         /// <summary>
-        /// Gets the collection of assessment results.
+        /// Errors that happen while running the assessment
         /// </summary>
-        public List<MigrationAssessmentInfo> Items { get; } = new List<MigrationAssessmentInfo>();
-
+        public ErrorModel[] Errors { get; set; }
         /// <summary>
-        /// Gets or sets a value indicating
-        /// if assessment operation was successful.
+        /// Result of the assessment
         /// </summary>
-        public bool Success { get; set; }
-
+        public ServerAssessmentProperties AssessmentResult { get; set; }
         /// <summary>
-        /// Gets or sets an status message for the operation.
+        /// Start time of the assessment
         /// </summary>
-        public string ErrorMessage { get; set; }
+        public string StartTime { get; set; }
+        /// <summary>
+        /// End time of the assessment
+        /// </summary>
+        public string EndedTime { get; set; }
+        /// <summary>
+        /// Contains the raw assessment response 
+        /// </summary>
+        public ISqlMigrationAssessmentModel RawAssessmentResult { get; set; }
     }
 
     /// <summary>

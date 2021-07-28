@@ -96,7 +96,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                 try
                 {
                     bindingContext.BindingLock.Reset();
-                    bindingContext.DataSource = _dataSourceFactory.Create(DataSourceType.Kusto, connInfo.ConnectionDetails, connInfo.OwnerUri);
+                    bindingContext.DataSource = _dataSourceFactory.Create(connInfo.ConnectionDetails, connInfo.OwnerUri);
                     bindingContext.BindingTimeout = DefaultBindingTimeout;
                     bindingContext.IsConnected = true;
                 }

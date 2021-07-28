@@ -1,6 +1,6 @@
 using System;
-using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.DataSource.Contracts;
+using Microsoft.Kusto.ServiceLayer.DataSource.Kusto;
 using NUnit.Framework;
 
 namespace Microsoft.Kusto.ServiceLayer.UnitTests.DataSource

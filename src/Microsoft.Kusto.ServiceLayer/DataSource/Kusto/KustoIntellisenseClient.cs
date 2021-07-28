@@ -4,34 +4,25 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Kusto.Language;
-using Kusto.Language.Editor;
 using Kusto.Language.Symbols;
 using Kusto.Language.Syntax;
-using Microsoft.Kusto.ServiceLayer.LanguageServices;
-using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
-using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
-using Diagnostic = Kusto.Language.Diagnostic;
+using Microsoft.Kusto.ServiceLayer.DataSource.Intellisense;
 
-namespace Microsoft.Kusto.ServiceLayer.DataSource.Intellisense
+namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
 {
-    public class KustoIntellisenseClient : IIntellisenseClient
+    public class KustoIntellisenseClient : IntellisenseClientBase
     {
         private readonly IKustoClient _kustoClient;
-
-        /// <summary>
-        /// SchemaState used for getting intellisense info.
-        /// </summary>
-        private GlobalState _schemaState;
 
         public KustoIntellisenseClient(IKustoClient kustoClient)
         {
             _kustoClient = kustoClient;
-            _schemaState = LoadSchemaState(kustoClient.DatabaseName, kustoClient.ClusterName);
+            schemaState = LoadSchemaState(kustoClient.DatabaseName, kustoClient.ClusterName);
         }
         
-        public void UpdateDatabase(string databaseName)
+        public override void UpdateDatabase(string databaseName)
         {
-            _schemaState = LoadSchemaState(databaseName, _kustoClient.ClusterName);
+            schemaState = LoadSchemaState(databaseName, _kustoClient.ClusterName);
         }
         
         private GlobalState LoadSchemaState(string databaseName, string clusterName)
@@ -236,136 +227,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Intellisense
                 : let.Name.ReferencedSymbol as FunctionSymbol;
 
             return function.Signatures[0].Parameters;
-        }
-
-        public ScriptFileMarker[] GetSemanticMarkers(ScriptParseInfo parseInfo, ScriptFile scriptFile, string queryText)
-        {
-            var kustoCodeService = new KustoCodeService(queryText, _schemaState);
-            var script = CodeScript.From(queryText, _schemaState);
-            var parseResult = new List<Diagnostic>();
-
-            foreach (var codeBlock in script.Blocks)
-            {
-                parseResult.AddRange(codeBlock.Service.GetDiagnostics());
-            }
-
-            parseInfo.ParseResult = parseResult;
-            
-            if (!parseResult.Any())
-            {
-                return Array.Empty<ScriptFileMarker>();
-            }
-            
-            // build a list of Kusto script file markers from the errors.
-            var markers = new List<ScriptFileMarker>();
-            
-            foreach (var error in parseResult)
-            {
-                script.TryGetLineAndOffset(error.Start, out var startLine, out var startOffset);
-                script.TryGetLineAndOffset(error.End, out var endLine, out var endOffset);
-
-                // vscode specific format for error markers.
-                markers.Add(new ScriptFileMarker
-                {
-                    Message = error.Message,
-                    Level = ScriptFileMarkerLevel.Error,
-                    ScriptRegion = new ScriptRegion
-                    {
-                        File = scriptFile.FilePath,
-                        StartLineNumber = startLine,
-                        StartColumnNumber = startOffset,
-                        StartOffset = 0,
-                        EndLineNumber = endLine,
-                        EndColumnNumber = endOffset,
-                        EndOffset = 0
-                    }
-                });
-            }
-
-            return markers.ToArray();
-        }
-        
-        public DefinitionResult GetDefinition(string queryText, int index, int startLine, int startColumn, bool throwOnError = false)
-        {
-            //TODOKusto: API wasnt working properly, need to check that part.
-            var abc = KustoCode.ParseAndAnalyze(queryText, _schemaState); 
-            var kustoCodeService = new KustoCodeService(abc);
-            //var kustoCodeService = new KustoCodeService(queryText, globals);
-            var relatedInfo = kustoCodeService.GetRelatedElements(index);
-
-            if (relatedInfo != null && relatedInfo.Elements.Count > 1)
-            {
-            }
-
-            return null;
-        }
-        
-        public Hover GetHoverHelp(ScriptDocumentInfo scriptDocumentInfo, Position textPosition, bool throwOnError = false)
-        {
-            var script = CodeScript.From(scriptDocumentInfo.Contents, _schemaState);
-            script.TryGetTextPosition(textPosition.Line + 1, textPosition.Character + 1, out int position);
-
-            var codeBlock = script.GetBlockAtPosition(position);
-            var quickInfo = codeBlock.Service.GetQuickInfo(position);
-
-            return AutoCompleteHelper.ConvertQuickInfoToHover(
-                quickInfo.Text,
-                "kusto",
-                scriptDocumentInfo.StartLine,
-                scriptDocumentInfo.StartColumn,
-                textPosition.Character);
-        }
-        
-        public LanguageServices.Contracts.CompletionItem[] GetAutoCompleteSuggestions(ScriptDocumentInfo scriptDocumentInfo, Position textPosition, bool throwOnError = false)
-        {
-            var script = CodeScript.From(scriptDocumentInfo.Contents, _schemaState);
-            script.TryGetTextPosition(textPosition.Line + 1, textPosition.Character + 1,
-                out int position); // Gets the actual offset based on line and local offset
-
-            var codeBlock = script.GetBlockAtPosition(position);
-            var completion = codeBlock.Service.GetCompletionItems(position);
-            scriptDocumentInfo.ScriptParseInfo.CurrentSuggestions =
-                completion.Items; // this is declaration item so removed for now, but keep the info when api gets updated
-
-            var completions = new List<LanguageServices.Contracts.CompletionItem>();
-            foreach (var autoCompleteItem in completion.Items)
-            {
-                var label = autoCompleteItem.DisplayText;
-                var insertText = autoCompleteItem.Kind == CompletionKind.Table || autoCompleteItem.Kind == CompletionKind.Database
-                    ? KustoQueryUtils.EscapeName(label)
-                    : label;
-                
-                var completionKind = CreateCompletionItemKind(autoCompleteItem.Kind);
-                completions.Add(AutoCompleteHelper.CreateCompletionItem(label, autoCompleteItem.Kind.ToString(),
-                    insertText, completionKind, scriptDocumentInfo.StartLine, scriptDocumentInfo.StartColumn,
-                    textPosition.Character));
-            }
-
-            return completions.ToArray();
-        }
-        
-        private CompletionItemKind CreateCompletionItemKind(CompletionKind kustoKind)
-        {
-            switch (kustoKind)
-            {
-                case CompletionKind.Syntax:
-                    return CompletionItemKind.Module;
-                case CompletionKind.Column:
-                    return CompletionItemKind.Field;
-                case CompletionKind.Variable:
-                    return CompletionItemKind.Variable;
-                case CompletionKind.Table:
-                    return CompletionItemKind.File;
-                case CompletionKind.Database:
-                    return CompletionItemKind.Method;
-                case CompletionKind.LocalFunction:
-                case CompletionKind.DatabaseFunction:
-                case CompletionKind.BuiltInFunction:
-                case CompletionKind.AggregateFunction:
-                    return CompletionItemKind.Function;
-                default:
-                    return CompletionItemKind.Keyword;
-            }
         }
     }
 }
