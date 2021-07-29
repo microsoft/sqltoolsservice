@@ -97,7 +97,7 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
             }
         }
 
-        public ParameterSyntax GenerateInputBinding()
+        private ParameterSyntax GenerateInputBinding()
         {
             // Create arguments for the Sql Input Binding attribute
             var argumentList = SyntaxFactory.AttributeArgumentList();
@@ -114,7 +114,7 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
             return newParam;
         }
 
-        public ParameterSyntax GenerateOutputBinding()
+        private ParameterSyntax GenerateOutputBinding()
         {
             // Create arguments for the Sql Output Binding attribute
             var argumentList = SyntaxFactory.AttributeArgumentList();
