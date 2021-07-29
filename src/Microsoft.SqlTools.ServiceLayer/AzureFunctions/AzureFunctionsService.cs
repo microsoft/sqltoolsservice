@@ -6,7 +6,6 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.AzureFunctions.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
@@ -18,7 +17,6 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
     /// </summary>
     class AzureFunctionsService
     {
-        private static ConnectionService connectionService = null;
         private SqlTaskManager sqlTaskManagerInstance = null;
         private static readonly Lazy<AzureFunctionsService> instance = new Lazy<AzureFunctionsService>(() => new AzureFunctionsService());
        
@@ -54,22 +52,6 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
             catch (Exception e)
             {
                 await requestContext.SendError(e);
-            }
-        }
-
-        private SqlTaskManager SqlTaskManagerInstance
-        {
-            get
-            {
-                if (sqlTaskManagerInstance == null)
-                {
-                    sqlTaskManagerInstance = SqlTaskManager.Instance;
-                }
-                return sqlTaskManagerInstance;
-            }
-            set
-            {
-                sqlTaskManagerInstance = value;
             }
         }
     }

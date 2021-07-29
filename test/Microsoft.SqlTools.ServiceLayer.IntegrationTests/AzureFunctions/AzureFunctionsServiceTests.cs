@@ -30,8 +30,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
                 bindingType = BindingType.input,
                 filePath = testFile,
                 functionName = "GetArtists_get",
-                objectName = "[dbo].[table1]"
-
+                objectName = "[dbo].[table1]",
+                connectionStringSetting = "SqlConnectionString"
             };
 
             InsertSqlBindingOperation operation = new InsertSqlBindingOperation(parameters);
@@ -51,7 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
         [Test]
         public async Task InsertSqlOutputBinding()
         {
-            // copy the original file because the input binding will be inserted into the file
+            // copy the original file because the output binding will be inserted into the file
             string originalFile = Path.Join(testAzureFunctionsFolder, "AzureFunctionsNoBindings.ts");
             string testFile = Path.Join(Path.GetTempPath(), string.Format("InsertSqlOutputBinding-{0}.ts", DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss")));
             File.Copy(originalFile, testFile, true);
@@ -61,7 +61,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
                 bindingType = BindingType.output,
                 filePath = testFile,
                 functionName = "NewArtist_post",
-                objectName = "[dbo].[table1]"
+                objectName = "[dbo].[table1]",
+                connectionStringSetting = "SqlConnectionString"
             };
 
             InsertSqlBindingOperation operation = new InsertSqlBindingOperation(parameters);
@@ -91,7 +92,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
                 bindingType = BindingType.input,
                 filePath = testFile,
                 functionName = "noExistingFunction",
-                objectName = "[dbo].[table1]"
+                objectName = "[dbo].[table1]",
+                connectionStringSetting = "SqlConnectionString"
             };
 
             InsertSqlBindingOperation operation = new InsertSqlBindingOperation(parameters);
@@ -118,7 +120,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
                 bindingType = BindingType.input,
                 filePath = testFile,
                 functionName = "GetArtists_get",
-                objectName = "[dbo].[table1]"
+                objectName = "[dbo].[table1]",
+                connectionStringSetting = "SqlConnectionString"
             };
 
             InsertSqlBindingOperation operation = new InsertSqlBindingOperation(parameters);

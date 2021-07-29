@@ -40,6 +40,11 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions.Contracts
         /// Gets or sets the object name
         /// </summary>
         public string objectName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the connection string setting
+        /// </summary>
+        public string connectionStringSetting { get; set; }
     }
 
     /// <summary>

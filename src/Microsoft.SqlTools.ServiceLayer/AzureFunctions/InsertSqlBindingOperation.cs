@@ -97,13 +97,17 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
             }
         }
 
+        /// <summary>
+        /// Generates a parameter for the sql input binding that looks like
+        /// [Sql("select * from [dbo].[table1]", CommandType = System.Data.CommandType.Text, ConnectionStringSetting = "SqlConnectionString")] IEnumerable<Object> result
+        /// </summary>
         private ParameterSyntax GenerateInputBinding()
         {
             // Create arguments for the Sql Input Binding attribute
             var argumentList = SyntaxFactory.AttributeArgumentList();
             argumentList = argumentList.AddArguments(SyntaxFactory.AttributeArgument(SyntaxFactory.IdentifierName($"\"select * from {Parameters.objectName}\"")));
             argumentList = argumentList.AddArguments(SyntaxFactory.AttributeArgument(SyntaxFactory.AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, SyntaxFactory.IdentifierName("CommandType"), SyntaxFactory.IdentifierName("System.Data.CommandType.Text"))));
-            argumentList = argumentList.AddArguments(SyntaxFactory.AttributeArgument(SyntaxFactory.AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, SyntaxFactory.IdentifierName("ConnectionStringSetting"), SyntaxFactory.IdentifierName("\"SqlConnectionString\""))));
+            argumentList = argumentList.AddArguments(SyntaxFactory.AttributeArgument(SyntaxFactory.AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, SyntaxFactory.IdentifierName("ConnectionStringSetting"), SyntaxFactory.IdentifierName($"\"{Parameters.connectionStringSetting}\""))));
 
             // Create Sql Binding attribute
             SyntaxList<AttributeListSyntax> attributesList = new SyntaxList<AttributeListSyntax>();
@@ -114,12 +118,16 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
             return newParam;
         }
 
+        /// <summary>
+        /// Generates a parameter for the sql output binding that looks like
+        /// [Sql("[dbo].[table1]", ConnectionStringSetting = "SqlConnectionString")] out Object output
+        /// </summary>
         private ParameterSyntax GenerateOutputBinding()
         {
             // Create arguments for the Sql Output Binding attribute
             var argumentList = SyntaxFactory.AttributeArgumentList();
             argumentList = argumentList.AddArguments(SyntaxFactory.AttributeArgument(SyntaxFactory.IdentifierName($"\"{Parameters.objectName}\"")));
-            argumentList = argumentList.AddArguments(SyntaxFactory.AttributeArgument(SyntaxFactory.AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, SyntaxFactory.IdentifierName("ConnectionStringSetting"), SyntaxFactory.IdentifierName("\"SqlConnectionString\""))));
+            argumentList = argumentList.AddArguments(SyntaxFactory.AttributeArgument(SyntaxFactory.AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, SyntaxFactory.IdentifierName("ConnectionStringSetting"), SyntaxFactory.IdentifierName($"\"{Parameters.connectionStringSetting}\""))));
             
             SyntaxList<AttributeListSyntax> attributesList = new SyntaxList<AttributeListSyntax>();
             attributesList = attributesList.Add(SyntaxFactory.AttributeList(SyntaxFactory.SingletonSeparatedList<AttributeSyntax>(SyntaxFactory.Attribute(SyntaxFactory.IdentifierName("Sql")).WithArgumentList(argumentList))));
