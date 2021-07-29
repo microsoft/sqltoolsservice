@@ -41,12 +41,4 @@
   <ItemGroup>
     <Folder Include="DacFx\Dacpacs\" />
   </ItemGroup>
-  <ItemGroup>
-    <None Update="AzureFunctions\AzureFunctionTestFiles\AzureFunctionsInputBinding.ts">
-      <SubType>Code</SubType>
-    </None>
-    <None Update="AzureFunctions\AzureFunctionTestFiles\AzureFunctionsOutputBinding.ts">
-      <SubType>Code</SubType>
-    </None>
-  </ItemGroup>
 </Project>
