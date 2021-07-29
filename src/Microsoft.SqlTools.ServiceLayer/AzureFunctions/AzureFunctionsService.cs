@@ -37,7 +37,6 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
         public void InitializeService(ServiceHost serviceHost)
         {
             serviceHost.SetRequestHandler(InsertSqlBindingRequest.Type, this.HandleInsertSqlBindingRequest);
-            serviceHost.SetRequestHandler(GetAzureFunctionsRequest.Type, this.HandleGetAzureFunctionsRequest);
         }
 
         /// <summary>
@@ -49,24 +48,6 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
             {
                 InsertSqlBindingOperation operation = new InsertSqlBindingOperation(parameters);
                 ResultStatus result = operation.AddBinding();
-
-                await requestContext.SendResult(result);
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e);
-            }
-        }
-
-        /// <summary>
-        /// Handles request to get azure functions in a file
-        /// </summary>
-        public async Task HandleGetAzureFunctionsRequest(GetAzureFunctionsParams parameters, RequestContext<GetAzureFunctionsResult> requestContext)
-        {
-            try
-            {
-                GetAzureFunctionsOperation operation = new GetAzureFunctionsOperation(parameters);
-                GetAzureFunctionsResult result = operation.GetAzureFunctions();
 
                 await requestContext.SendResult(result);
             }
