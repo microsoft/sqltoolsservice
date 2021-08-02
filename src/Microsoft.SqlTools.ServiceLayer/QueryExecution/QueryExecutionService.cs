@@ -170,6 +170,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             serviceHost.SetRequestHandler(SubsetRequest.Type, HandleResultSubsetRequest);
             serviceHost.SetRequestHandler(QueryDisposeRequest.Type, HandleDisposeRequest);
             serviceHost.SetRequestHandler(QueryCancelRequest.Type, HandleCancelRequest);
+            serviceHost.SetRequestHandler(QueryRenameRequest.Type, HandleRenameRequest);
             serviceHost.SetRequestHandler(SaveResultsAsCsvRequest.Type, HandleSaveResultsAsCsvRequest);
             serviceHost.SetRequestHandler(SaveResultsAsExcelRequest.Type, HandleSaveResultsAsExcelRequest);
             serviceHost.SetRequestHandler(SaveResultsAsJsonRequest.Type, HandleSaveResultsAsJsonRequest);
@@ -344,6 +345,30 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 });
 
                 ActiveSimpleExecuteRequests.TryAdd(randomUri, workTask);
+            }
+            catch (Exception ex)
+            {
+                await requestContext.SendError(ex.ToString());
+            }
+        }
+
+
+        /// <summary>
+        /// Handles a request to rename the activequery and return the result
+        /// </summary>
+        internal async Task HandleRenameRequest(QueryRenameParams renameParams,
+            RequestContext<QueryRenameResult> requestContext)
+        {
+            try
+            {
+                string OriginalOwnerUri = renameParams.OriginalOwnerUri;
+                string NewOwnerUri = renameParams.NewOwnerUri;
+                Query result;
+
+                ActiveQueries.TryRemove(OriginalOwnerUri, out result);
+                ActiveQueries.TryAdd(NewOwnerUri, result);
+
+                await requestContext.SendResult(new QueryRenameResult());
             }
             catch (Exception ex)
             {
