@@ -363,10 +363,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 string OriginalOwnerUri = renameParams.OriginalOwnerUri;
                 string NewOwnerUri = renameParams.NewOwnerUri;
-                Query result;
-
-                ActiveQueries.TryRemove(OriginalOwnerUri, out result);
-                ActiveQueries.TryAdd(NewOwnerUri, result);
+                 // Attempt to load the query
+                Query query;
+                if (!ActiveQueries.TryGetValue(OriginalOwnerUri, out query))
+                {
+                    await requestContext.SendError(SR.QueryServiceRequestsNoQuery);
+                    return;
+                }
+                else {
+                    ActiveQueries.TryRemove(OriginalOwnerUri, out query);
+                    ActiveQueries.TryAdd(NewOwnerUri, query);
+                }
 
                 await requestContext.SendResult(new QueryRenameResult());
             }

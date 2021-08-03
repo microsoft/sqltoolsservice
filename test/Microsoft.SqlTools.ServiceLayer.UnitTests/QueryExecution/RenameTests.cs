@@ -54,21 +54,25 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
         }
 
         [Test]
-        public async Task QueryDisposeMissingQuery()
+        public async Task QueryRenameMissingQuery()
         {
             // If:
-            // ... I attempt to dispose a query that doesn't exist
+            // ... I attempt to rename a query that doesn't exist
             var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
             var queryService = Common.GetPrimedExecutionService(null, false, false, false, workspaceService.Object);
-            var disposeParams = new QueryDisposeParams {OwnerUri = Constants.OwnerUri};
+            const string newOwnerUri = "newTestFile";
+            var renameParams = new QueryRenameParams {
+                OriginalOwnerUri = Constants.OwnerUri,
+                NewOwnerUri = newOwnerUri
+            };
 
-            var disposeRequest = new EventFlowValidator<QueryDisposeResult>()
+            var renameRequest = new EventFlowValidator<QueryRenameResult>()
                 .AddStandardErrorValidation()
                 .Complete();
-            await queryService.HandleDisposeRequest(disposeParams, disposeRequest.Object);
+            await queryService.HandleRenameRequest(renameParams, renameRequest.Object);
 
             // Then: I should have received an error
-            disposeRequest.Validate();
+            renameRequest.Validate();
         }
 
         [Test]
