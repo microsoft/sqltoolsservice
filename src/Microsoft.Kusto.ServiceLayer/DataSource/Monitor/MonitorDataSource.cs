@@ -94,7 +94,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
 
         public override async Task<IDataReader> ExecuteQueryAsync(string query, CancellationToken cancellationToken, string databaseName = null)
         {
-            var results =  await _monitorClient.QueryAsync(query, cancellationToken);
+            var results = await _monitorClient.QueryAsync(query, cancellationToken);
             return results.ToDataReader();
         }
 
