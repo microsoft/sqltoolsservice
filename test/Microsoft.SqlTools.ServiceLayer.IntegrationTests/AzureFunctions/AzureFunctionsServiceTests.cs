@@ -18,7 +18,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
         /// Verify input binding gets added
         /// </summary>
         [Test]
-        public async Task InsertSqlInputBinding()
+        public void InsertSqlInputBinding()
         {
             // copy the original file because the input binding will be inserted into the file
             string originalFile = Path.Join(testAzureFunctionsFolder, "AzureFunctionsNoBindings.ts");
@@ -49,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
         /// Verify output binding gets added
         /// </summary>
         [Test]
-        public async Task InsertSqlOutputBinding()
+        public void InsertSqlOutputBinding()
         {
             // copy the original file because the output binding will be inserted into the file
             string originalFile = Path.Join(testAzureFunctionsFolder, "AzureFunctionsNoBindings.ts");
@@ -80,7 +80,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
         /// Verify what happens when specified azure function isn't found
         /// </summary>
         [Test]
-        public async Task NoAzureFunctionForSqlBinding()
+        public void NoAzureFunctionForSqlBinding()
         {
             // copy the original file because the input binding will be inserted into the file
             string originalFile = Path.Join(testAzureFunctionsFolder, "AzureFunctionsNoBindings.ts");
@@ -101,14 +101,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
 
             Assert.False(result.Success);
             Assert.NotNull(result.ErrorMessage);
-            Assert.True(result.ErrorMessage.Equals($"Couldn't find Azure function with FunctionName noExistingFunction in {testFile}"));
+            Assert.True(result.ErrorMessage.Equals(SR.CouldntFindAzureFunction("noExistingFunction", testFile)));
         }
 
         /// <summary>
         /// Verify what happens when there's more than one Azure function with the specified name in the file
         /// </summary>
         [Test]
-        public async Task MoreThanOneAzureFunctionWithSpecifiedName()
+        public void MoreThanOneAzureFunctionWithSpecifiedName()
         {
             // copy the original file because the input binding will be inserted into the file
             string originalFile = Path.Join(testAzureFunctionsFolder, "AzureFunctionsMultipleSameFunction.ts");
@@ -129,7 +129,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
 
             Assert.False(result.Success);
             Assert.NotNull(result.ErrorMessage);
-            Assert.True(result.ErrorMessage.Equals($"More than one Azure function found with the FunctionName GetArtists_get in {testFile}"));
+            Assert.True(result.ErrorMessage.Equals(SR.MoreThanOneAzureFunctionWithName("GetArtists_get", testFile)));
         }
     }
 }

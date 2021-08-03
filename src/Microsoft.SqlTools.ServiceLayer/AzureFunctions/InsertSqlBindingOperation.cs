@@ -52,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
                     return new ResultStatus()
                     {
                         Success = false,
-                        ErrorMessage = $"Couldn't find Azure function with FunctionName {Parameters.functionName} in {Parameters.filePath}"
+                        ErrorMessage = SR.CouldntFindAzureFunction(Parameters.functionName, Parameters.filePath)
                     };
                 }
                 else if (azureFunctionMethods.Count() > 1)
@@ -60,7 +60,7 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
                     return new ResultStatus()
                     {
                         Success = false,
-                        ErrorMessage = $"More than one Azure function found with the FunctionName {Parameters.functionName} in {Parameters.filePath}"
+                        ErrorMessage = SR.MoreThanOneAzureFunctionWithName(Parameters.functionName, Parameters.filePath)
                     };
                 }
 

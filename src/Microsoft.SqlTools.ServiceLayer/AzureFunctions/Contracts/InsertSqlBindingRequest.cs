@@ -9,7 +9,9 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions.Contracts
 {
-
+    /// <summary>
+    /// Binding types for sql bindings for Azure Functions
+    /// </summary>
     public enum BindingType
     {
         input,
