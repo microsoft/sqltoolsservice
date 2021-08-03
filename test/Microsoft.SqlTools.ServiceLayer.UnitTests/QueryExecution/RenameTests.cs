@@ -32,8 +32,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             await queryService.ActiveQueries[Constants.OwnerUri].ExecutionTask;
             
             const string newOwnerUri = "newTestFile";
-            Query originalQuery;
-            queryService.ActiveQueries.TryGetValue(Constants.OwnerUri, out originalQuery);
+            Query query;
+            queryService.ActiveQueries.TryGetValue(Constants.OwnerUri, out query);
 
             // ... And then I rename the query
             var renameParams = new QueryRenameParams {
@@ -46,11 +46,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             await queryService.HandleRenameRequest(renameParams, renameRequest.Object);
 
             // Then:
-            // ... And the active queries should be empty
+            // ... And the active queries should have the new query.
             renameRequest.Validate();
-            Query newQuery;
-            Assert.That(queryService.ActiveQueries.TryGetValue(newOwnerUri, out newQuery), "Query with newOwnerUri not found.");
-            Assert.That(Equals(originalQuery, newQuery), "Original Query and New Query are different!");
+            Assert.That(queryService.ActiveQueries.TryGetValue(newOwnerUri, out query), "Query with newOwnerUri not found.");
+            Assert.That(Equals(query.editorConnection.OwnerUri, newOwnerUri), "OwnerUri was not changed!");
         }
 
         [Test]

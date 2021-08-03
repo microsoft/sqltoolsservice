@@ -372,6 +372,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 }
                 else {
                     ActiveQueries.TryRemove(OriginalOwnerUri, out query);
+                    query.changeConnectionOwnerURI(NewOwnerUri);
                     ActiveQueries.TryAdd(NewOwnerUri, query);
                 }
 

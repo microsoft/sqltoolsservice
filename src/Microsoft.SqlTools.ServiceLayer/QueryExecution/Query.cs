@@ -74,7 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// The connection info associated with the file editor owner URI, used to create a new
         /// connection upon execution of the query
         /// </summary>
-        private readonly ConnectionInfo editorConnection;
+        public ConnectionInfo editorConnection { get; }
 
         /// <summary>
         /// Whether or not the execute method has been called for this query
@@ -383,6 +383,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             Batches[saveParams.BatchIndex].SaveAs(saveParams, fileFactory, successHandler, failureHandler);
+        }
+
+        /// <summary>
+        /// Changes the editorConnection's ownerURI in case queryRename has happened.
+        /// </summary>
+        /// <param name="newOwnerUri">Name of the new ownerURI</param>
+        public void changeConnectionOwnerURI(String newOwnerUri)
+        {
+            this.editorConnection.OwnerUri = newOwnerUri;
         }
 
         #endregion

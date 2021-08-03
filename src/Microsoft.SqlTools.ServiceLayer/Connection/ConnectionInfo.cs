@@ -38,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// URI identifying the owner/user of the connection. Could be a file, service, resource, etc.
         /// </summary>
-        public string OwnerUri { get; private set; }
+        public string OwnerUri { get; set; }
 
         /// <summary>
         /// Factory used for creating the SQL connection associated with the connection info.
