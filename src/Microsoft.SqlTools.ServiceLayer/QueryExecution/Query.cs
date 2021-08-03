@@ -74,7 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// The connection info associated with the file editor owner URI, used to create a new
         /// connection upon execution of the query
         /// </summary>
-        private ConnectionInfo editorConnection;
+        private readonly ConnectionInfo editorConnection;
 
         /// <summary>
         /// Whether or not the execute method has been called for this query
