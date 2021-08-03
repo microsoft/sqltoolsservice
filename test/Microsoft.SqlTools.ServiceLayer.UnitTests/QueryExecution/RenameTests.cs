@@ -54,7 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
         }
 
         [Test]
-        public async Task QueryRenameMissingQuery()
+        public async Task RenameMissingQuery()
         {
             // If:
             // ... I attempt to rename a query that doesn't exist
@@ -73,33 +73,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
             // Then: I should have received an error
             renameRequest.Validate();
-        }
-
-        [Test]
-        public async Task ServiceDispose()
-        {
-            // Setup:
-            // ... We need a query service
-            var workspaceService = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
-            var queryService = Common.GetPrimedExecutionService(null, true, false, false, workspaceService);
-
-            // If:
-            // ... I execute some bogus query
-            var queryParams = new ExecuteDocumentSelectionParams { QuerySelection = Common.WholeDocument, OwnerUri = Constants.OwnerUri };
-            var requestContext = RequestContextMocks.Create<ExecuteRequestResult>(null);
-            await queryService.HandleExecuteRequest(queryParams, requestContext.Object);
-            await queryService.WorkTask;
-            await queryService.ActiveQueries[Constants.OwnerUri].ExecutionTask;
-
-            // ... And it sticks around as an active query
-            Assert.AreEqual(1, queryService.ActiveQueries.Count);
-
-            // ... The query execution service is disposed, like when the service is shutdown
-            queryService.Dispose();
-
-            // Then:
-            // ... There should no longer be an active query
-            Assert.That(queryService.ActiveQueries, Is.Empty);
         }
     }
 
