@@ -3,22 +3,15 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-extern alias ASAScriptDom;
-
 using System;
-using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.CSharp.Formatting;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.Text;
 using Microsoft.SqlTools.ServiceLayer.AzureFunctions.Contracts;
 using Microsoft.SqlTools.Utility;
 using Microsoft.CodeAnalysis.CSharp;
+using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
 {
@@ -40,7 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
         /// <summary>
         /// Gets the names of all the azure functions in a file
         /// </summary>
-        /// <returns></returns>
+        /// <returns>the result of trying to get the names of all the Azure functions in a file</returns>
         public GetAzureFunctionsResult GetAzureFunctions()
         {
             try
@@ -50,14 +43,14 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
                 SyntaxTree tree = CSharpSyntaxTree.ParseText(text);
                 CompilationUnitSyntax root = tree.GetCompilationUnitRoot();
 
-                // look for Azure Function in the file
-                var methodWithFunctions = from methodDeclaration in root.DescendantNodes().OfType<MethodDeclarationSyntax>()
+                // look for Azure Functions in the file
+                IEnumerable<AttributeArgumentSyntax> functionNameAttributes = from methodDeclaration in root.DescendantNodes().OfType<MethodDeclarationSyntax>()
                                           where methodDeclaration.AttributeLists.Count > 0
                                           where methodDeclaration.AttributeLists.Where(a => a.Attributes.Where(attr => attr.Name.ToString().Contains(functionAttributeText)).Count() == 1).Count() == 1
-                                          select methodDeclaration.AttributeLists.Select(a => a.Attributes.Where(attr => attr.Name.ToString().Contains(functionAttributeText)).First().ArgumentList.Arguments.First());
+                                          select methodDeclaration.AttributeLists.Select(a => a.Attributes.Where(attr => attr.Name.ToString().Contains(functionAttributeText)).First().ArgumentList.Arguments.First()).First();
 
                 // remove quotes from around the names
-                var aFNames = methodWithFunctions.Select(a => a.Select(ab => ab.ToString().Substring(1, ab.ToString().Length - 2)).First()).ToArray();
+                var aFNames = functionNameAttributes.Select(ab => ab.ToString().Substring(1, ab.ToString().Length - 2)).ToArray();
 
                 return new GetAzureFunctionsResult()
                 {

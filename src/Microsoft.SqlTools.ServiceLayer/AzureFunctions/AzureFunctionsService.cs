@@ -57,7 +57,6 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
         /// <summary>
         /// Handles request to get the names of the Azure functions in a file
         /// </summary>
-        /// <returns></returns>
         public async Task HandleGetAzureFunctionsRequest(GetAzureFunctionsParams parameters, RequestContext<GetAzureFunctionsResult> requestContext)
         {
             try
