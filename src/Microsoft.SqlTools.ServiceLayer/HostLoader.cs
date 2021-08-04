@@ -10,6 +10,7 @@ using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Agent;
+using Microsoft.SqlTools.ServiceLayer.AzureFunctions;
 using Microsoft.SqlTools.ServiceLayer.Cms;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.DacFx;
@@ -132,6 +133,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
             SchemaCompare.SchemaCompareService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(SchemaCompareService.Instance);
+
+            AzureFunctions.AzureFunctionsService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(AzureFunctionsService.Instance);
 
             ServerConfigService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(ServerConfigService.Instance);
