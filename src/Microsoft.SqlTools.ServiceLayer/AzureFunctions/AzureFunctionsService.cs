@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.AzureFunctions.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
-using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
@@ -17,7 +16,6 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
     /// </summary>
     class AzureFunctionsService
     {
-        private SqlTaskManager sqlTaskManagerInstance = null;
         private static readonly Lazy<AzureFunctionsService> instance = new Lazy<AzureFunctionsService>(() => new AzureFunctionsService());
        
         /// <summary>
@@ -34,17 +32,17 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
         /// <param name="serviceHost"></param>
         public void InitializeService(ServiceHost serviceHost)
         {
-            serviceHost.SetRequestHandler(InsertSqlBindingRequest.Type, this.HandleInsertSqlBindingRequest);
+            serviceHost.SetRequestHandler(AddSqlBindingRequest.Type, this.HandleAddSqlBindingRequest);
         }
 
         /// <summary>
-        /// Handles request to insert sql binding into Azure Functions
+        /// Handles request to add sql binding into Azure Functions
         /// </summary>
-        public async Task HandleInsertSqlBindingRequest(InsertSqlBindingParams parameters, RequestContext<ResultStatus> requestContext)
+        public async Task HandleAddSqlBindingRequest(AddSqlBindingParams parameters, RequestContext<ResultStatus> requestContext)
         {
             try
             {
-                InsertSqlBindingOperation operation = new InsertSqlBindingOperation(parameters);
+                AddSqlBindingOperation operation = new AddSqlBindingOperation(parameters);
                 ResultStatus result = operation.AddBinding();
 
                 await requestContext.SendResult(result);

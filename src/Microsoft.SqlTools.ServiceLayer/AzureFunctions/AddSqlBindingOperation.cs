@@ -20,13 +20,13 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
     /// <summary>
     /// Class to represent inserting a sql binding into an Azure Function
     /// </summary>
-    class InsertSqlBindingOperation
+    class AddSqlBindingOperation
     {
         const string functionAttributeText = "FunctionName";
 
-        public InsertSqlBindingParams Parameters { get; }
+        public AddSqlBindingParams Parameters { get; }
 
-        public InsertSqlBindingOperation(InsertSqlBindingParams parameters)
+        public AddSqlBindingOperation(AddSqlBindingParams parameters)
         {
             Validate.IsNotNull("parameters", parameters);
             this.Parameters = parameters;

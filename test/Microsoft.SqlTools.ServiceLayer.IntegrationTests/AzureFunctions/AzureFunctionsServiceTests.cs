@@ -18,14 +18,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
         /// Verify input binding gets added
         /// </summary>
         [Test]
-        public void InsertSqlInputBinding()
+        public void AddSqlInputBinding()
         {
             // copy the original file because the input binding will be inserted into the file
             string originalFile = Path.Join(testAzureFunctionsFolder, "AzureFunctionsNoBindings.ts");
             string testFile = Path.Join(Path.GetTempPath(), string.Format("InsertSqlInputBinding-{0}.ts", DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss")));
             File.Copy(originalFile, testFile, true);
 
-            InsertSqlBindingParams parameters = new InsertSqlBindingParams
+            AddSqlBindingParams parameters = new AddSqlBindingParams
             {
                 bindingType = BindingType.input,
                 filePath = testFile,
@@ -34,7 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
                 connectionStringSetting = "SqlConnectionString"
             };
 
-            InsertSqlBindingOperation operation = new InsertSqlBindingOperation(parameters);
+            AddSqlBindingOperation operation = new AddSqlBindingOperation(parameters);
             ResultStatus result = operation.AddBinding();
 
             Assert.True(result.Success);
@@ -49,14 +49,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
         /// Verify output binding gets added
         /// </summary>
         [Test]
-        public void InsertSqlOutputBinding()
+        public void AddSqlOutputBinding()
         {
             // copy the original file because the output binding will be inserted into the file
             string originalFile = Path.Join(testAzureFunctionsFolder, "AzureFunctionsNoBindings.ts");
             string testFile = Path.Join(Path.GetTempPath(), string.Format("InsertSqlOutputBinding-{0}.ts", DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss")));
             File.Copy(originalFile, testFile, true);
 
-            InsertSqlBindingParams parameters = new InsertSqlBindingParams
+            AddSqlBindingParams parameters = new AddSqlBindingParams
             {
                 bindingType = BindingType.output,
                 filePath = testFile,
@@ -65,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
                 connectionStringSetting = "SqlConnectionString"
             };
 
-            InsertSqlBindingOperation operation = new InsertSqlBindingOperation(parameters);
+            AddSqlBindingOperation operation = new AddSqlBindingOperation(parameters);
             ResultStatus result = operation.AddBinding();
 
             Assert.True(result.Success);
@@ -87,7 +87,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
             string testFile = Path.Join(Path.GetTempPath(), string.Format("NoAzureFunctionForSqlBinding-{0}.ts", DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss")));
             File.Copy(originalFile, testFile, true);
 
-            InsertSqlBindingParams parameters = new InsertSqlBindingParams
+            AddSqlBindingParams parameters = new AddSqlBindingParams
             {
                 bindingType = BindingType.input,
                 filePath = testFile,
@@ -96,7 +96,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
                 connectionStringSetting = "SqlConnectionString"
             };
 
-            InsertSqlBindingOperation operation = new InsertSqlBindingOperation(parameters);
+            AddSqlBindingOperation operation = new AddSqlBindingOperation(parameters);
             ResultStatus result = operation.AddBinding();
 
             Assert.False(result.Success);
@@ -115,7 +115,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
             string testFile = Path.Join(Path.GetTempPath(), string.Format("MoreThanOneAzureFunctionWithSpecifiedName-{0}.ts", DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss")));
             File.Copy(originalFile, testFile, true);
 
-            InsertSqlBindingParams parameters = new InsertSqlBindingParams
+            AddSqlBindingParams parameters = new AddSqlBindingParams
             {
                 bindingType = BindingType.input,
                 filePath = testFile,
@@ -124,7 +124,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
                 connectionStringSetting = "SqlConnectionString"
             };
 
-            InsertSqlBindingOperation operation = new InsertSqlBindingOperation(parameters);
+            AddSqlBindingOperation operation = new AddSqlBindingOperation(parameters);
             ResultStatus result = operation.AddBinding();
 
             Assert.False(result.Success);

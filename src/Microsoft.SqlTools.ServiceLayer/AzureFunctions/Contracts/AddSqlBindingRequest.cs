@@ -19,9 +19,9 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions.Contracts
     }
 
     /// <summary>
-    /// Parameters for inserting a sql binding
+    /// Parameters for adding a sql binding
     /// </summary>
-    public class InsertSqlBindingParams
+    public class AddSqlBindingParams
     {
         /// <summary>
         /// Gets or sets the filePath
@@ -50,12 +50,11 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions.Contracts
     }
 
     /// <summary>
-    /// Defines the Insert Sql Binding request
+    /// Defines the Add Sql Binding request
     /// </summary>
-    class InsertSqlBindingRequest
+    class AddSqlBindingRequest
     {
-        public static readonly RequestType<InsertSqlBindingParams, ResultStatus> Type =
-            RequestType<InsertSqlBindingParams, ResultStatus>.Create("azureFunctions/sqlBinding");
-
+        public static readonly RequestType<AddSqlBindingParams, ResultStatus> Type =
+            RequestType<AddSqlBindingParams, ResultStatus>.Create("azureFunctions/sqlBinding");
     }
 }
