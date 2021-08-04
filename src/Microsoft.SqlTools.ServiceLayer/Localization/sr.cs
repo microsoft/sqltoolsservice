@@ -3278,6 +3278,16 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.SqlAssessmentUnsuppoertedEdition, editionCode);
         }
 
+        public static string CouldntFindAzureFunction(string functionName, string fileName)
+        {
+            return Keys.GetString(Keys.CouldntFindAzureFunction, functionName, fileName);
+        }
+
+        public static string MoreThanOneAzureFunctionWithName(string functionName, string fileName)
+        {
+            return Keys.GetString(Keys.MoreThanOneAzureFunctionWithName, functionName, fileName);
+        }
+
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class Keys
         {
@@ -4553,6 +4563,12 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string SqlAssessmentUnsuppoertedEdition = "SqlAssessmentUnsuppoertedEdition";
+
+
+            public const string CouldntFindAzureFunction = "CouldntFindAzureFunction";
+
+
+            public const string MoreThanOneAzureFunctionWithName = "MoreThanOneAzureFunctionWithName";
 
 
             private Keys()
