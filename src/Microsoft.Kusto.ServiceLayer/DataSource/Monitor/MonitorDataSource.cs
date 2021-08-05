@@ -41,46 +41,36 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
         {
             var workspace = _metadata.Workspaces.First(x => x.Id == workspaceId);
             DatabaseName = $"{workspace.Name} ({workspace.Id})";
-            var metadataTableGroups = _metadata.TableGroups.ToDictionary(x => x.Id);
             
-            foreach (string workspaceTableGroup in workspace.TableGroups)
-            {
-                var tableGroup = metadataTableGroups[workspaceTableGroup];
+            var tableGroups = _metadata.TableGroups.Where(x => workspace.TableGroups.Contains(x.Id));
 
+            foreach (TableGroupsModel workspaceTableGroup in tableGroups)
+            {
+                var name = workspaceTableGroup.DisplayName ?? workspaceTableGroup.Name;
                 var tableGroupNodeInfo =
-                    MetadataFactory.CreateDataSourceObjectMetadata(DataSourceMetadataType.Folder, tableGroup.Name, $"{workspace.Id}.{tableGroup.Name}");
+                    MetadataFactory.CreateDataSourceObjectMetadata(DataSourceMetadataType.Folder, name, $"{workspace.Id}.{name}");
 
                 _nodes.SafeAdd($"{workspace.Id}", tableGroupNodeInfo);
                 
-                SetupTables(tableGroupNodeInfo);
+                SetupTables(tableGroupNodeInfo, workspaceTableGroup);
             }
         }
         
-        private void SetupTables(DataSourceObjectMetadata tableGroupNodeInfo)
+        private void SetupTables(DataSourceObjectMetadata tableGroupNodeInfo, TableGroupsModel workspaceTableGroup)
         {
-            var tables = GetNonEmptyTableNames();
-            var metadataTables = _metadata.Tables.ToDictionary(x => x.Name);
+            var tableGroupTables = _metadata.Tables.Where(x => workspaceTableGroup.Tables.Contains(x.Id));
             
-            foreach (string tableName in tables)
+            foreach (TablesModel metadataTable in tableGroupTables)
             {
-                var table = metadataTables[tableName];
-
-                var tableNodeInfo = MetadataFactory.CreateDataSourceObjectMetadata(DataSourceMetadataType.Table, table.Name,
-                    $"{tableGroupNodeInfo.Urn}.{table.Name}");
+                var tableNodeInfo = MetadataFactory.CreateDataSourceObjectMetadata(DataSourceMetadataType.Table, metadataTable.Name,
+                    $"{tableGroupNodeInfo.Urn}.{metadataTable.Name}");
 
                 _nodes.SafeAdd(tableGroupNodeInfo.Urn, tableNodeInfo);
 
-                SetupColumns(table, tableNodeInfo);
+                SetupColumns(metadataTable, tableNodeInfo);
             }
         }
-        
-        private IEnumerable<string> GetNonEmptyTableNames()
-        {
-            string query = "union * | summarize count() by Type";
-            var results = _monitorClient.Query(query);
-            return results.Tables[0].Rows.Select(x => x[0]).OrderBy(x => x);
-        }
-        
+
         private void SetupColumns(TablesModel table, DataSourceObjectMetadata tableNodeInfo)
         {
             foreach (var column in table.Columns)
