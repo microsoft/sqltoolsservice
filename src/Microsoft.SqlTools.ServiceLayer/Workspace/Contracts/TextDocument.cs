@@ -92,6 +92,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
             EventType<DidChangeTextDocumentParams>.Create("textDocument/didChange");
     }
 
+      public class DidSaveTextDocumentNotification
+    {
+        public static readonly
+            EventType<DidSaveTextDocumentParams> Type =
+            EventType<DidSaveTextDocumentParams>.Create("textDocument/didSave");
+    }
+
+    public class DidSaveTextDocumentParams
+    {
+        /// <summary>
+        /// Gets or sets the saved document.
+        /// </summary>
+        public TextDocumentIdentifier TextDocument { get; set; }
+
+         /// <summary>
+        /// Gets or sets the saved document.
+        /// </summary>
+        public bool includeText { get; set; }
+    }
+    
     public class DidCloseTextDocumentParams
     {
         /// <summary>

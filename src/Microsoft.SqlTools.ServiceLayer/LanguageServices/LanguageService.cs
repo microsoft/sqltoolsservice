@@ -291,6 +291,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // Register the file open update handler
             WorkspaceServiceInstance.RegisterTextDocCloseCallback(HandleDidCloseTextDocumentNotification);
 
+            // Register the file save update handler
+            WorkspaceServiceInstance.RegisterTextDocSaveCallback(HandleDidSaveTextDocumentNotification);
+
             // Register a callback for when a connection is created
             ConnectionServiceInstance.RegisterOnConnectionTask(UpdateLanguageServiceOnConnection);
 
@@ -729,6 +732,30 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 Logger.Write(TraceEventType.Error, "Unknown error " + ex.ToString());
                 // TODO: need mechanism return errors from event handlers
+            }
+        }
+
+        /// <summary>
+        /// Handle the file close notification
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <param name="scriptFile"></param>
+        /// <param name="eventContext"></param>
+        /// <returns></returns>
+        public Task HandleDidSaveTextDocumentNotification(
+            string uri,
+            ScriptFile scriptFile,
+            EventContext eventContext)
+        {
+            try
+            {
+                // TODO: need to do something here.
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Logger.Write(TraceEventType.Error, "Unknown error " + ex.ToString());
+                return null;
             }
         }
 

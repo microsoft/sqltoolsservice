@@ -181,6 +181,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // Register the file open update handler
             WorkspaceService<SqlToolsSettings>.Instance.RegisterTextDocCloseCallback(HandleDidCloseTextDocumentNotification);
+            WorkspaceService<SqlToolsSettings>.Instance.RegisterTextDocSaveCallback(HandleDidCloseTextDocumentNotification);
 
             // Register handler for shutdown event
             serviceHost.RegisterShutdownTask((shutdownParams, requestContext) =>
@@ -725,6 +726,34 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
             await Task.FromResult(true);
         }        
+
+         /// <summary>
+        /// Handle the file save notification
+        /// </summary>
+        /// <param name="scriptFile"></param>
+        /// <param name="eventContext"></param>
+        /// <returns></returns>
+        public async Task HandleDidSaveTextDocumentNotification(
+            string uri,
+            ScriptFile scriptFile,
+            EventContext eventContext)
+        {
+            try
+            {
+                // save any query execution settings when an editor is saved
+                if (this.ActiveQueryExecutionSettings.ContainsKey(uri))
+                {
+                    // TODO need to do something here.
+                    // QueryExecutionSettings settings;
+                    // this.ActiveQueryExecutionSettings.TryRemove(uri, out settings);
+                }                
+            }
+            catch (Exception ex)
+            {
+                Logger.Write(TraceEventType.Error, "Unknown error " + ex.ToString());
+            }
+            await Task.FromResult(true);
+        }
 
         #endregion
 

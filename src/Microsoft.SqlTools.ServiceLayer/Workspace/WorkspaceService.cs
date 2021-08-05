@@ -97,6 +97,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         /// <param name="eventContext">Context of the event raised for changed files</param>
         public delegate Task TextDocCloseCallback(string uri, ScriptFile closedFile, EventContext eventContext);
 
+         /// <summary>
+        /// Delegate for callbacks that occur when a text document is closed
+        /// </summary>
+        /// <param name="uri">Request uri</param>
+        /// <param name="savedFile">File that was closed</param>
+        /// <param name="eventContext">Context of the event raised for changed files</param>
+        public delegate Task TextDocSaveCallback(string uri, ScriptFile savedFile, EventContext eventContext);
+
         /// <summary>
         /// List of callbacks to call when the configuration of the workspace changes
         /// </summary>
@@ -116,7 +124,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         /// List of callbacks to call when a text document is closed
         /// </summary>
         private List<TextDocCloseCallback> TextDocCloseCallbacks { get; set; }
- 
+
+        /// <summary>
+        /// List of callbacks to call when a text document is saved
+        /// </summary>
+        private List<TextDocCloseCallback> TextDocSaveCallbacks { get; set; }
 
         #endregion
 
@@ -131,6 +143,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             serviceHost.SetEventHandler(DidChangeTextDocumentNotification.Type, HandleDidChangeTextDocumentNotification);
             serviceHost.SetEventHandler(DidOpenTextDocumentNotification.Type, HandleDidOpenTextDocumentNotification);
             serviceHost.SetEventHandler(DidCloseTextDocumentNotification.Type, HandleDidCloseTextDocumentNotification);
+            serviceHost.SetEventHandler(DidSaveTextDocumentNotification.Type, HandleDidSaveTextDocumentNotification);
             serviceHost.SetEventHandler(DidChangeConfigurationNotification<TConfig>.Type, HandleDidChangeConfigurationNotification);
             
             // Register an initialization handler that sets the workspace path
@@ -185,6 +198,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         public void RegisterTextDocCloseCallback(TextDocCloseCallback task)
         {
             TextDocCloseCallbacks.Add(task);
+        }
+
+         /// <summary>
+        /// Adds a new task to be called when a text document saves.
+        /// </summary>
+        /// <param name="task">Delegate to call when the document saves</param>
+        public void RegisterTextDocSaveCallback(TextDocCloseCallback task)
+        {
+            TextDocSaveCallbacks.Add(task);
         }
 
         /// <summary>
@@ -314,6 +336,40 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
                 return;
             }
         }
+
+         internal async Task HandleDidSaveTextDocumentNotification(
+           DidSaveTextDocumentParams saveParams,
+           EventContext eventContext)
+        {
+            try
+            {
+                Logger.Write(TraceEventType.Verbose, "HandleDidSaveTextDocumentNotification");
+
+                if (IsScmEvent(saveParams.TextDocument.Uri)) 
+                {
+                    return;
+                }
+
+                // Skip saving this file if the file doesn't exist
+                var savedFile = Workspace.GetFile(saveParams.TextDocument.Uri);
+                if (savedFile == null)
+                {
+                    return;
+                }
+
+                // Send out a notification to other services that have subscribed to this event
+                var textDocSavedTasks = TextDocSaveCallbacks.Select(t => t(saveParams.TextDocument.Uri, savedFile, eventContext));
+                await Task.WhenAll(textDocSavedTasks);
+            }
+            catch (Exception ex)
+            {
+                Logger.Write(TraceEventType.Error, "Unknown error " + ex.ToString());
+                // Swallow exceptions here to prevent us from crashing
+                // TODO: this probably means the ScriptFile model is in a bad state or out of sync with the actual file; we should recover here
+                return;
+            }
+        }
+
 
         /// <summary>
         /// Handles the configuration change event
