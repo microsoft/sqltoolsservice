@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<LCX SchemaVersion="6.0" Name="sr.resx" PsrId="211" FileType="1" SrcCul="en-US" TgtCul="pt-br" xmlns="http://schemas.microsoft.com/locstudio/2006/6/lcx">
+<LCX SchemaVersion="6.0" Name="sr.resx" PsrId="211" FileType="1" SrcCul="en-US" TgtCul="pt-BR" xmlns="http://schemas.microsoft.com/locstudio/2006/6/lcx">
   <Props>
     <Str Name="CustomName1" Val="Custom 1" />
     <Str Name="CustomName2" Val="Custom 2" />
@@ -455,6 +455,15 @@
           <Val><![CDATA[OwnerUri cannot be null or empty]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="Auto" AutoAppr="N/A" Confidence="100">
             <Val><![CDATA[O OwnerUri não pode ser nulo ou vazio]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";CouldntFindAzureFunction" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Couldn't find Azure function with FunctionName {0} in {1}]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Não foi possível encontrar a função do Azure com FunctionName {0} em {1}]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -1121,6 +1130,15 @@
           <Val><![CDATA[Missing Caption]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="Auto" AutoAppr="N/A" Confidence="100">
             <Val><![CDATA[Legenda ausente]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";MoreThanOneAzureFunctionWithName" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[More than one Azure function found with the FunctionName {0} in {1}]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Mais de uma função do Azure foi encontrada com FunctionName {0} em {1}]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
