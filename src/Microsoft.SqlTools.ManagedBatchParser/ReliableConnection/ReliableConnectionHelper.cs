@@ -763,7 +763,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         /// Gets the server host cpu count and memory from sys.dm_os_sys_info view
         /// </summary>
         /// <param name="connection">The connection</param>
-        public static ServerSystemInfo GetServerSystemInfo(IDbConnection connection)
+        public static ServerSystemInfo GetServerCpuAndMemoryInfo(IDbConnection connection)
         {
             var sysInfo = new ServerSystemInfo();
             try
@@ -857,7 +857,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 //  otherwise - Windows Server 2019 Standard 10.0
                 serverInfo.OsVersion = hostInfo.Distribution != null ? string.Format("{0} {1}", hostInfo.Distribution, hostInfo.Release) : string.Format("{0} {1}", hostInfo.Platform, hostInfo.Release);
 
-                var sysInfo = GetServerSystemInfo(connection);
+                var sysInfo = GetServerCpuAndMemoryInfo(connection);
 
                 serverInfo.CpuCount = sysInfo.CpuCount;
                 serverInfo.PhysicalMemoryInMB = sysInfo.PhysicalMemoryInMB;
