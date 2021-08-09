@@ -653,8 +653,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             public string OsVersion;
             public string MachineName;
             public string ServerName;
-            public int CpuCount;
-            public int PhysicalMemoryInMB;
+            public Nullable<int> CpuCount;
+            public Nullable<int> PhysicalMemoryInMB;
             public Dictionary<string, object> Options { get; set; }
         }
 
@@ -678,8 +678,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 
         public class ServerSystemInfo
         {
-            public int CpuCount;
-            public int PhysicalMemoryInMB;
+            public Nullable<int> CpuCount;
+            public Nullable<int> PhysicalMemoryInMB;
         }
 
         public static bool TryGetServerVersion(string connectionString, out ServerInfo serverInfo, string azureAccountToken)
