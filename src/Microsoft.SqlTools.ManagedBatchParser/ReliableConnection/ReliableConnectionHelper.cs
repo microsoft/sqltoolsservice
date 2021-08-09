@@ -776,8 +776,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             }
             catch (Exception ex)
             {
-                 // we don't want to fail when an error occurs while fetching these properties.
-                 // just logging them here and moving on with the workflow. 
+                // We don't want to fail the normal flow if any unexpected thing happens
+                // since these properties are not available for types of sql servers and users 
+                // and it is not essential to always include them
+                // just logging the errors here and moving on with the workflow. 
                 Logger.Write(TraceEventType.Error, ex.ToString());
             }
             return sysInfo;
