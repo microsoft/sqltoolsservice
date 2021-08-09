@@ -776,8 +776,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             }
             catch (Exception ex)
             {
+                 // we don't want to fail when an error occurs while fetching these properties.
+                 // just logging them and moving on with the workflow. 
                 Logger.Write(TraceEventType.Error, ex.ToString());
-                throw ex;
             }
             return sysInfo;
         }
