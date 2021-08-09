@@ -108,8 +108,31 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
 
             if (parentMetadata.MetadataType == DataSourceMetadataType.Cluster && includeSizeDetails)
             {
-                var child = _nodes[parentMetadata.Urn].FirstOrDefault();
-                return child == null ? Enumerable.Empty<DataSourceObjectMetadata>() : _nodes[child.Urn];
+                var tableGroups = _nodes[parentMetadata.Urn];
+
+                if (tableGroups == null)
+                {
+                    return Enumerable.Empty<DataSourceObjectMetadata>();
+                }
+
+                var results = new SortedList<string, DataSourceObjectMetadata>(StringComparer.OrdinalIgnoreCase);
+                foreach (var tableGroup in tableGroups)
+                {
+                    var tables = _nodes[tableGroup.Urn];
+                    foreach (var table in tables)
+                    {
+                        if (results.ContainsKey(table.PrettyName))
+                        {
+                            continue;
+                        }
+                        
+                        results.Add(table.PrettyName, table);
+
+                    }
+                }
+
+                return results.Values;
+
             }
             
             return _nodes[parentMetadata.Urn].OrderBy(x => x.PrettyName, StringComparer.OrdinalIgnoreCase);
