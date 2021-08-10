@@ -47,6 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             TextDocChangeCallbacks = new List<TextDocChangeCallback>();
             TextDocOpenCallbacks = new List<TextDocOpenCallback>();
             TextDocCloseCallbacks = new List<TextDocCloseCallback>();
+            TextDocSaveCallbacks = new List<TextDocSaveCallback>();
 
             CurrentSettings = new TConfig();
         }
@@ -128,7 +129,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         /// <summary>
         /// List of callbacks to call when a text document is saved
         /// </summary>
-        private List<TextDocCloseCallback> TextDocSaveCallbacks { get; set; }
+        private List<TextDocSaveCallback> TextDocSaveCallbacks { get; set; }
 
         #endregion
 
@@ -204,7 +205,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         /// Adds a new task to be called when a text document saves.
         /// </summary>
         /// <param name="task">Delegate to call when the document saves</param>
-        public void RegisterTextDocSaveCallback(TextDocCloseCallback task)
+        public void RegisterTextDocSaveCallback(TextDocSaveCallback task)
         {
             TextDocSaveCallbacks.Add(task);
         }
