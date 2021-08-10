@@ -777,7 +777,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             catch (Exception ex)
             {
                 Logger.Write(TraceEventType.Error, ex.ToString());
-                throw ex;
+                // Don't throw since not all servers have these fields set
             }
             return sysInfo;
         }
