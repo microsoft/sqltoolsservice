@@ -22,7 +22,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
         private readonly MonitorClient _monitorClient;
         private readonly IntellisenseClientBase _intellisenseClient;
         private WorkspaceResponse _metadata;
-        private Dictionary<string, List<DataSourceObjectMetadata>> _nodes;
+        private Dictionary<string, SortedDictionary<string, DataSourceObjectMetadata>> _nodes;
+        private const string DatabaseKeyPrefix = "OnlyTables";
         
         public override string ClusterName => _monitorClient.WorkspaceId;
         public override string DatabaseName { get; set; }
@@ -31,7 +32,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
         {
             _monitorClient = monitorClient;
             _intellisenseClient = intellisenseClient;
-            _nodes = new Dictionary<string, List<DataSourceObjectMetadata>>();
+            _nodes = new Dictionary<string, SortedDictionary<string, DataSourceObjectMetadata>>(StringComparer.OrdinalIgnoreCase);
             _metadata = _monitorClient.LoadMetadata();
             DataSourceType = DataSourceType.LogAnalytics;
             SetupTableGroups(monitorClient.WorkspaceId);
@@ -52,11 +53,11 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
 
                 _nodes.SafeAdd($"{workspace.Id}", tableGroupNodeInfo);
                 
-                SetupTables(tableGroupNodeInfo, workspaceTableGroup);
+                SetupTables(tableGroupNodeInfo, workspaceTableGroup, workspace.Id);
             }
         }
         
-        private void SetupTables(DataSourceObjectMetadata tableGroupNodeInfo, TableGroupsModel workspaceTableGroup)
+        private void SetupTables(DataSourceObjectMetadata tableGroupNodeInfo, TableGroupsModel workspaceTableGroup, string workspaceId)
         {
             var tableGroupTables = _metadata.Tables.Where(x => workspaceTableGroup.Tables.Contains(x.Id));
             
@@ -66,6 +67,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
                     $"{tableGroupNodeInfo.Urn}.{metadataTable.Name}");
 
                 _nodes.SafeAdd(tableGroupNodeInfo.Urn, tableNodeInfo);
+                _nodes.SafeAdd($"{DatabaseKeyPrefix}.{workspaceId}", tableNodeInfo);
 
                 SetupColumns(metadataTable, tableNodeInfo);
             }
@@ -108,17 +110,17 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
 
             if (parentMetadata.MetadataType == DataSourceMetadataType.Cluster && includeSizeDetails)
             {
-                var child = _nodes[parentMetadata.Urn].FirstOrDefault();
-                return child == null ? Enumerable.Empty<DataSourceObjectMetadata>() : _nodes[child.Urn];
+                string newKey = $"{DatabaseKeyPrefix}.{parentMetadata.Urn}";
+                return _nodes[newKey].Values;
             }
             
-            return _nodes[parentMetadata.Urn].OrderBy(x => x.PrettyName, StringComparer.OrdinalIgnoreCase);
+            return _nodes[parentMetadata.Urn].Values;
         }
 
         public override void Refresh(bool includeDatabase)
         {
             // reset the data source
-            _nodes = new Dictionary<string, List<DataSourceObjectMetadata>>();
+            _nodes = new Dictionary<string, SortedDictionary<string, DataSourceObjectMetadata>>(StringComparer.OrdinalIgnoreCase);
             _metadata = _monitorClient.LoadMetadata();
             SetupTableGroups(_monitorClient.WorkspaceId);
         }
