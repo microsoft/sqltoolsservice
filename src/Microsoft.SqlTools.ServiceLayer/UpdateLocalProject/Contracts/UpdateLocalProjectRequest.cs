@@ -14,11 +14,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UpdateLocalProject.Contracts
     public class UpdateLocalProjectParams
     {
         /// <summary>
-        /// Gets or sets the scripts to be updated
-        /// </summary>
-        public string[] TargetScripts { get; set; }
-
-        /// <summary>
         /// Gets or sets the file structure of the local project
         /// </summary>
         public string FolderStructure { get; set; }

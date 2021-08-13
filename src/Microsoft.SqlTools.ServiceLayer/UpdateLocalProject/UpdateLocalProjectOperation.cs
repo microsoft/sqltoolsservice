@@ -25,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UpdateLocalProject
             Validate.IsNotNull("parameters", parameters);
 
             Updater = new LocalProjectUpdater(connString ?? ConnectionService.BuildConnectionString(connInfo.ConnectionDetails),
-                                              parameters.ProjectPath, parameters.TargetScripts, parameters.Version, parameters.FolderStructure);
+                                              parameters.ProjectPath, parameters.Version, parameters.FolderStructure);
         }
 
         public UpdateLocalProjectResult UpdateLocalProject()
@@ -56,11 +56,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UpdateLocalProject
                     ErrorMessage = e.Message
                 };
             }
-        }
-
-        public void UpdateTargetScripts(string[] targetScripts)
-        {
-            Updater.UpdateTargetScripts(targetScripts);
         }
     }
 }

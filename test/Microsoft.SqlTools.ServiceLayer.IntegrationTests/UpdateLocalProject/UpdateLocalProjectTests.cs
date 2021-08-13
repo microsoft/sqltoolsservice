@@ -118,7 +118,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.UpdateLocalProject
             // verify results
             VerifyResult(result, GenerateResult(new string[] { "" }, new string[] { "" }, new string[] { "" }));
 
-            operation.UpdateTargetScripts(GetTargetScripts(parameters.ProjectPath));
             result = operation.UpdateLocalProject();
             VerifyResult(result, GenerateEmptyResult());
 
@@ -165,7 +164,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.UpdateLocalProject
             }
 
             // extract test database content to test project
-            ExtractParams eParams = new ExtractParams
+            ExtractParams eParams = new()
             {
                 DatabaseName = testDb.DatabaseName,
                 PackageFilePath = packageFilePath,
@@ -178,54 +177,17 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.UpdateLocalProject
             ExtractOperation operation = new(eParams, LiveConnectionHelper.InitLiveConnectionInfo().ConnectionInfo);
             dacfxService.PerformOperation(operation, TaskExecutionMode.Execute);
 
-            // get .sql files in test project
-            string[] targetScripts = GetTargetScripts(testProjectPath);
-
             // run end queries in test database
             RunQueries(testDb, endQueries);
 
             // get parameters to output
             parameters = new UpdateLocalProjectParams
             {
-                TargetScripts = targetScripts,
                 FolderStructure = folderStructure,
                 ProjectPath = testProjectPath,
                 OwnerUri = null,
                 Version = "SqlServer2016"
             };
-        }
-
-        /// <summary>
-        /// Gets a list of all the .sql scripts in a local project
-        /// </summary>
-        private static string[] GetTargetScripts(string testProjectPath)
-        {
-            List<string> targetScriptsList = new();
-            List<string> directories = new() { testProjectPath };
-
-            // iterate through subdirectories
-            while (directories.Count != 0)
-            {
-                // only care about .sql files
-                foreach (string f in Directory.GetFiles(directories[0]))
-                {
-                    if (f.EndsWith(".sql"))
-                    {
-                        targetScriptsList.Add(f);
-                    }
-                }
-
-                // queue up subdirectories
-                foreach (string d in Directory.GetDirectories(directories[0]))
-                {
-                    directories.Add(d);
-                }
-
-                // pop current directory
-                directories.RemoveAt(0);
-            }
-
-            return targetScriptsList.ToArray();
         }
 
         /// <summary>
