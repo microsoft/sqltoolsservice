@@ -186,7 +186,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.UpdateLocalProject
                 FolderStructure = folderStructure,
                 ProjectPath = testProjectPath,
                 OwnerUri = null,
-                Version = "SqlServer2016"
             };
         }
 

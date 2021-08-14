@@ -27,11 +27,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UpdateLocalProject.Contracts
         /// Gets or sets the owner uri of the database
         /// </summary>
         public string OwnerUri { get; set; }
-
-        /// <summary>
-        /// Gets or sets the SQL version of the database
-        /// </summary>
-        public string Version { get; set; }
     }
 
     public class UpdateLocalProjectResult : ResultStatus
