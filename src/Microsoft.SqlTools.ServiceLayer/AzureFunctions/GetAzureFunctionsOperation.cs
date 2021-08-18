@@ -43,24 +43,21 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
                 SyntaxTree tree = CSharpSyntaxTree.ParseText(text);
                 CompilationUnitSyntax root = tree.GetCompilationUnitRoot();
 
-                // look for Azure Functions in the file
-                IEnumerable<AttributeArgumentSyntax> functionNameAttributes = from methodDeclaration in root.DescendantNodes().OfType<MethodDeclarationSyntax>()
-                                          where methodDeclaration.AttributeLists.Count > 0
-                                          where methodDeclaration.AttributeLists.Where(a => a.Attributes.Where(attr => attr.Name.ToString().Contains(functionAttributeText)).Count() == 1).Count() == 1
-                                          select methodDeclaration.AttributeLists.Select(a => a.Attributes.Where(attr => attr.Name.ToString().Contains(functionAttributeText)).First().ArgumentList.Arguments.First()).First();
+                // Look for Azure Functions in the file
+                // Get all method declarations
+                IEnumerable<MethodDeclarationSyntax> methodDeclarations = root.DescendantNodes().OfType<MethodDeclarationSyntax>();
 
-                var aFNames = functionNameAttributes.Select(ab =>
-                {
-                    // remove quotes from around the names
-                    if (ab.ToString().StartsWith("\"") && ab.ToString().EndsWith("\""))
-                    {
-                        return ab.ToString().Substring(1, ab.ToString().Length - 2);
-                    }
-                    else
-                    {
-                        return ab.ToString();
-                    }
-                }).ToArray();
+                // get all the method declarations with the FunctionName attribute
+                IEnumerable<MethodDeclarationSyntax> methodsWithFunctionAttributes = methodDeclarations.Where(md => md.AttributeLists.Count > 0).Where(md => md.AttributeLists.Where(a => a.Attributes.Where(attr => attr.Name.ToString().Contains(functionAttributeText)).Count() == 1).Count() == 1);
+
+                // Get FunctionName attributes
+                IEnumerable<AttributeSyntax> functionNameAttributes = methodsWithFunctionAttributes.Select(md => md.AttributeLists.Select(a => a.Attributes.Where(attr => attr.Name.ToString().Contains(functionAttributeText)).First()).First());
+
+                // Get the function names in the FunctionName attributes
+                IEnumerable<AttributeArgumentSyntax> nameArgs = functionNameAttributes.Select(a => a.ArgumentList.Arguments.First());
+
+                // Remove quotes from around the names
+                string[] aFNames = nameArgs.Select(ab => ab.ToString().Trim('\"')).ToArray();
 
                 return new GetAzureFunctionsResult()
                 {

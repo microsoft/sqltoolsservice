@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
         {
             // copy the original file because the input binding will be inserted into the file
             string originalFile = Path.Join(testAzureFunctionsFolder, "AzureFunctionsNoBindings.cs");
-            string testFile = Path.Join(Path.GetTempPath(), string.Format("InsertSqlInputBinding-{0}.cs", DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss")));
+            string testFile = Path.Join(Path.GetTempPath(), $"InsertSqlInputBinding-{DateTime.Now.ToString("yyyy - dd - MM--HH - mm - ss")}.cs");
             File.Copy(originalFile, testFile, true);
 
             AddSqlBindingParams parameters = new AddSqlBindingParams
@@ -53,7 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
         {
             // copy the original file because the output binding will be inserted into the file
             string originalFile = Path.Join(testAzureFunctionsFolder, "AzureFunctionsNoBindings.cs");
-            string testFile = Path.Join(Path.GetTempPath(), string.Format("InsertSqlOutputBinding-{0}.cs", DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss")));
+            string testFile = Path.Join(Path.GetTempPath(), $"InsertSqlOutputBinding-{DateTime.Now.ToString("yyyy - dd - MM--HH - mm - ss")}.cs");
             File.Copy(originalFile, testFile, true);
 
             AddSqlBindingParams parameters = new AddSqlBindingParams
@@ -84,7 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
         {
             // copy the original file because the input binding will be inserted into the file
             string originalFile = Path.Join(testAzureFunctionsFolder, "AzureFunctionsNoBindings.cs");
-            string testFile = Path.Join(Path.GetTempPath(), string.Format("NoAzureFunctionForSqlBinding-{0}.cs", DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss")));
+            string testFile = Path.Join(Path.GetTempPath(), $"NoAzureFunctionForSqlBinding-{DateTime.Now.ToString("yyyy - dd - MM--HH - mm - ss")}.cs");
             File.Copy(originalFile, testFile, true);
 
             AddSqlBindingParams parameters = new AddSqlBindingParams
@@ -112,7 +112,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
         {
             // copy the original file because the input binding will be inserted into the file
             string originalFile = Path.Join(testAzureFunctionsFolder, "AzureFunctionsMultipleSameFunction.cs");
-            string testFile = Path.Join(Path.GetTempPath(), string.Format("MoreThanOneAzureFunctionWithSpecifiedName-{0}.cs", DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss")));
+            string testFile = Path.Join(Path.GetTempPath(), $"MoreThanOneAzureFunctionWithSpecifiedName-{DateTime.Now.ToString("yyyy - dd - MM--HH - mm - ss")}.cs");
             File.Copy(originalFile, testFile, true);
 
             AddSqlBindingParams parameters = new AddSqlBindingParams
@@ -150,7 +150,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
 
             Assert.True(result.Success);
             Assert.Null(result.ErrorMessage);
-            Assert.AreEqual(result.azureFunctions.Length, 2);
+            Assert.AreEqual(2, result.azureFunctions.Length);
             Assert.AreEqual(result.azureFunctions[0], "GetArtists_get");
             Assert.AreEqual(result.azureFunctions[1], "NewArtist_post");
         }
@@ -162,7 +162,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
         public void GetAzureFunctionsWhenNoFunctions()
         {
             // make blank file
-            string testFile = Path.Join(Path.GetTempPath(), string.Format("NoAzureFunctions-{0}.cs", DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss")));
+            string testFile = Path.Join(Path.GetTempPath(), $"NoAzureFunctions-{DateTime.Now.ToString("yyyy - dd - MM--HH - mm - ss")}.cs");
             FileStream fstream = File.Create(testFile);
             fstream.Close();
 
@@ -176,7 +176,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
 
             Assert.True(result.Success);
             Assert.Null(result.ErrorMessage);
-            Assert.AreEqual(result.azureFunctions.Length, 0);
+            Assert.AreEqual(0, result.azureFunctions.Length);
         }
     }
 }
