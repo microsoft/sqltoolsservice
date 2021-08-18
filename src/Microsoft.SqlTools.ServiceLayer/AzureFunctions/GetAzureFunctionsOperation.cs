@@ -6,12 +6,13 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Collections.Generic;
+using System.Diagnostics;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.SqlTools.ServiceLayer.AzureFunctions.Contracts;
 using Microsoft.SqlTools.Utility;
 using Microsoft.CodeAnalysis.CSharp;
-using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
 {
@@ -65,13 +66,10 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
                     azureFunctions = aFNames
                 };
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                return new GetAzureFunctionsResult()
-                {
-                    Success = false,
-                    ErrorMessage = e.ToString()
-                };
+                Logger.Write(TraceEventType.Information, $"Failed to get Azure functions. Error: {ex.Message}");
+                throw ex;
             }
         }
     }
