@@ -49,8 +49,18 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
                                           where methodDeclaration.AttributeLists.Where(a => a.Attributes.Where(attr => attr.Name.ToString().Contains(functionAttributeText)).Count() == 1).Count() == 1
                                           select methodDeclaration.AttributeLists.Select(a => a.Attributes.Where(attr => attr.Name.ToString().Contains(functionAttributeText)).First().ArgumentList.Arguments.First()).First();
 
-                // remove quotes from around the names
-                var aFNames = functionNameAttributes.Select(ab => ab.ToString().Substring(1, ab.ToString().Length - 2)).ToArray();
+                var aFNames = functionNameAttributes.Select(ab =>
+                {
+                    // remove quotes from around the names
+                    if (ab.ToString().StartsWith("\"") && ab.ToString().EndsWith("\""))
+                    {
+                        return ab.ToString().Substring(1, ab.ToString().Length - 2);
+                    }
+                    else
+                    {
+                        return ab.ToString();
+                    }
+                }).ToArray();
 
                 return new GetAzureFunctionsResult()
                 {
