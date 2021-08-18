@@ -653,8 +653,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             public string OsVersion;
             public string MachineName;
             public string ServerName;
-            public int CpuCount;
-            public int PhysicalMemoryInMB;
+            public Nullable<int> CpuCount;
+            public Nullable<int> PhysicalMemoryInMB;
             public Dictionary<string, object> Options { get; set; }
         }
 
@@ -678,8 +678,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 
         public class ServerSystemInfo
         {
-            public int CpuCount;
-            public int PhysicalMemoryInMB;
+            public Nullable<int> CpuCount;
+            public Nullable<int> PhysicalMemoryInMB;
         }
 
         public static bool TryGetServerVersion(string connectionString, out ServerInfo serverInfo, string azureAccountToken)
@@ -763,7 +763,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         /// Gets the server host cpu count and memory from sys.dm_os_sys_info view
         /// </summary>
         /// <param name="connection">The connection</param>
-        public static ServerSystemInfo GetServerSystemInfo(IDbConnection connection)
+        public static ServerSystemInfo GetServerCpuAndMemoryInfo(IDbConnection connection)
         {
             var sysInfo = new ServerSystemInfo();
             try
@@ -776,8 +776,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             }
             catch (Exception ex)
             {
+                // We don't want to fail the normal flow if any unexpected thing happens
+                // since these properties are not available for types of sql servers and users 
+                // and it is not essential to always include them
+                // just logging the errors here and moving on with the workflow. 
                 Logger.Write(TraceEventType.Error, ex.ToString());
-                throw ex;
             }
             return sysInfo;
         }
@@ -856,7 +859,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 //  otherwise - Windows Server 2019 Standard 10.0
                 serverInfo.OsVersion = hostInfo.Distribution != null ? string.Format("{0} {1}", hostInfo.Distribution, hostInfo.Release) : string.Format("{0} {1}", hostInfo.Platform, hostInfo.Release);
 
-                var sysInfo = GetServerSystemInfo(connection);
+                var sysInfo = GetServerCpuAndMemoryInfo(connection);
 
                 serverInfo.CpuCount = sysInfo.CpuCount;
                 serverInfo.PhysicalMemoryInMB = sysInfo.PhysicalMemoryInMB;
