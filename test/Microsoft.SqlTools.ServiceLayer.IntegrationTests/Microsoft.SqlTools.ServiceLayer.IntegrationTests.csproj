@@ -39,6 +39,12 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Remove="AzureFunctions\AzureFunctionTestFiles\AzureFunctionsInputBinding.cs" />
+    <Compile Remove="AzureFunctions\AzureFunctionTestFiles\AzureFunctionsMultipleSameFunction.cs" />
+    <Compile Remove="AzureFunctions\AzureFunctionTestFiles\AzureFunctionsNoBindings.cs" />
+    <Compile Remove="AzureFunctions\AzureFunctionTestFiles\AzureFunctionsOutputBinding.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <Folder Include="DacFx\Dacpacs\" />
   </ItemGroup>
 </Project>
