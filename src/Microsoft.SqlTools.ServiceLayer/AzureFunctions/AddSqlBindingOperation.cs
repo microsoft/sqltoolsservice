@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Diagnostics;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -87,13 +88,10 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
                     Success = true
                 };
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                return new ResultStatus()
-                {
-                    Success = false,
-                    ErrorMessage = e.ToString()
-                };
+                Logger.Write(TraceEventType.Information, $"Failed to add sql binding. Error: {ex.Message}");
+                throw ex;
             }
         }
 
