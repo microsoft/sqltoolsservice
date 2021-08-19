@@ -97,6 +97,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// Encoding of the CSV file
         /// </summary>
         public string Encoding { get; set; }
+
+        /// <summary>
+        /// Maximum number of characters to store 
+        /// </summary>
+        public int MaxCharsToStore { get; set; }
     }
 
     /// <summary>

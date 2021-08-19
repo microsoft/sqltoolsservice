@@ -150,6 +150,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
             get { return this.GetOptionValue<bool>(SerializationOptionsHelper.Formatted); }
             set { this.SetOptionValue<bool>(SerializationOptionsHelper.Formatted, value); }
         }
+
+        internal int MaxCharsToStore
+        {
+            get { return this.GetOptionValue<int>(SerializationOptionsHelper.MaxCharsToStore); }
+            set { this.SetOptionValue<int>(SerializationOptionsHelper.Formatted, value); }
+        }
     }
 
     public class SerializeDataResult
@@ -176,5 +182,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         internal const string TextIdentifier = "textIdentifier";
         internal const string Encoding = "encoding";
         internal const string Formatted = "formatted";
+        internal const string MaxCharsToStore = "maxchars";
     }
 }
