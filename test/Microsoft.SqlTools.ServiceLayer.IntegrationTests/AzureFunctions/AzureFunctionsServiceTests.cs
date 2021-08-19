@@ -21,8 +21,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
         public void AddSqlInputBinding()
         {
             // copy the original file because the input binding will be inserted into the file
-            string originalFile = Path.Join(testAzureFunctionsFolder, "AzureFunctionsNoBindings.ts");
-            string testFile = Path.Join(Path.GetTempPath(), string.Format("InsertSqlInputBinding-{0}.ts", DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss")));
+            string originalFile = Path.Join(testAzureFunctionsFolder, "AzureFunctionsNoBindings.cs");
+            string testFile = Path.Join(Path.GetTempPath(), $"InsertSqlInputBinding-{DateTime.Now.ToString("yyyy - dd - MM--HH - mm - ss")}.cs");
             File.Copy(originalFile, testFile, true);
 
             AddSqlBindingParams parameters = new AddSqlBindingParams
@@ -40,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
             Assert.True(result.Success);
             Assert.IsNull(result.ErrorMessage);
 
-            string expectedFileText = File.ReadAllText(Path.Join(testAzureFunctionsFolder, "AzureFunctionsInputBinding.ts"));
+            string expectedFileText = File.ReadAllText(Path.Join(testAzureFunctionsFolder, "AzureFunctionsInputBinding.cs"));
             string actualFileText = File.ReadAllText(testFile);
             Assert.AreEqual(expectedFileText, actualFileText);
         }
@@ -52,8 +52,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
         public void AddSqlOutputBinding()
         {
             // copy the original file because the output binding will be inserted into the file
-            string originalFile = Path.Join(testAzureFunctionsFolder, "AzureFunctionsNoBindings.ts");
-            string testFile = Path.Join(Path.GetTempPath(), string.Format("InsertSqlOutputBinding-{0}.ts", DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss")));
+            string originalFile = Path.Join(testAzureFunctionsFolder, "AzureFunctionsNoBindings.cs");
+            string testFile = Path.Join(Path.GetTempPath(), $"InsertSqlOutputBinding-{DateTime.Now.ToString("yyyy - dd - MM--HH - mm - ss")}.cs");
             File.Copy(originalFile, testFile, true);
 
             AddSqlBindingParams parameters = new AddSqlBindingParams
@@ -71,7 +71,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
             Assert.True(result.Success);
             Assert.IsNull(result.ErrorMessage);
 
-            string expectedFileText = File.ReadAllText(Path.Join(testAzureFunctionsFolder, "AzureFunctionsOutputBinding.ts"));
+            string expectedFileText = File.ReadAllText(Path.Join(testAzureFunctionsFolder, "AzureFunctionsOutputBinding.cs"));
             string actualFileText = File.ReadAllText(testFile);
             Assert.AreEqual(expectedFileText, actualFileText);
         }
@@ -83,8 +83,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
         public void NoAzureFunctionForSqlBinding()
         {
             // copy the original file because the input binding will be inserted into the file
-            string originalFile = Path.Join(testAzureFunctionsFolder, "AzureFunctionsNoBindings.ts");
-            string testFile = Path.Join(Path.GetTempPath(), string.Format("NoAzureFunctionForSqlBinding-{0}.ts", DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss")));
+            string originalFile = Path.Join(testAzureFunctionsFolder, "AzureFunctionsNoBindings.cs");
+            string testFile = Path.Join(Path.GetTempPath(), $"NoAzureFunctionForSqlBinding-{DateTime.Now.ToString("yyyy - dd - MM--HH - mm - ss")}.cs");
             File.Copy(originalFile, testFile, true);
 
             AddSqlBindingParams parameters = new AddSqlBindingParams
@@ -111,8 +111,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
         public void MoreThanOneAzureFunctionWithSpecifiedName()
         {
             // copy the original file because the input binding will be inserted into the file
-            string originalFile = Path.Join(testAzureFunctionsFolder, "AzureFunctionsMultipleSameFunction.ts");
-            string testFile = Path.Join(Path.GetTempPath(), string.Format("MoreThanOneAzureFunctionWithSpecifiedName-{0}.ts", DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss")));
+            string originalFile = Path.Join(testAzureFunctionsFolder, "AzureFunctionsMultipleSameFunction.cs");
+            string testFile = Path.Join(Path.GetTempPath(), $"MoreThanOneAzureFunctionWithSpecifiedName-{DateTime.Now.ToString("yyyy - dd - MM--HH - mm - ss")}.cs");
             File.Copy(originalFile, testFile, true);
 
             AddSqlBindingParams parameters = new AddSqlBindingParams
@@ -130,6 +130,53 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
             Assert.False(result.Success);
             Assert.NotNull(result.ErrorMessage);
             Assert.True(result.ErrorMessage.Equals(SR.MoreThanOneAzureFunctionWithName("GetArtists_get", testFile)));
+        }
+
+        /// <summary>
+        /// Verify getting the names of Azure functions in a file
+        /// </summary>
+        [Test]
+        public void GetAzureFunctions()
+        {
+            string testFile = Path.Join(testAzureFunctionsFolder, "AzureFunctionsNoBindings.cs");
+
+            GetAzureFunctionsParams parameters = new GetAzureFunctionsParams
+            {
+                filePath = testFile
+            };
+
+            GetAzureFunctionsOperation operation = new GetAzureFunctionsOperation(parameters);
+            GetAzureFunctionsResult result = operation.GetAzureFunctions();
+
+            Assert.True(result.Success);
+            Assert.Null(result.ErrorMessage);
+            Assert.AreEqual(2, result.azureFunctions.Length);
+            Assert.AreEqual(result.azureFunctions[0], "GetArtists_get");
+            Assert.AreEqual(result.azureFunctions[1], "NewArtist_post");
+        }
+
+        /// <summary>
+        /// Verify there are no errors when a file doesn't have any Azure functions
+        /// </summary>
+        [Test]
+        public void GetAzureFunctionsWhenNoFunctions()
+        {
+            // make blank file
+            string testFile = Path.Join(Path.GetTempPath(), $"NoAzureFunctions-{DateTime.Now.ToString("yyyy - dd - MM--HH - mm - ss")}.cs");
+            FileStream fstream = File.Create(testFile);
+            fstream.Close();
+
+            GetAzureFunctionsParams parameters = new GetAzureFunctionsParams
+            {
+                filePath = testFile
+            };
+
+            GetAzureFunctionsOperation operation = new GetAzureFunctionsOperation(parameters);
+            GetAzureFunctionsResult result = operation.GetAzureFunctions();
+
+            Assert.True(result.Success);
+            Assert.Null(result.ErrorMessage);
+            Assert.AreEqual(0, result.azureFunctions.Length);
         }
     }
 }
