@@ -376,6 +376,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 else
                 {
                     ActiveQueries.TryRemove(OriginalOwnerUri, out query);
+                    // Delete the map from ConnectionService uri connection map, reconnect with new uri later.
                     ConnectionService.Disconnect(new DisconnectParams()
                     {
                         OwnerUri = OriginalOwnerUri,
