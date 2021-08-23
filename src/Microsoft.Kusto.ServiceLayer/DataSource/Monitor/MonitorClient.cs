@@ -56,7 +56,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
             if (_metadata?.Tables is null && _metadata?.Workspaces is null && _metadata?.TableGroups is null)
             {
                 var errorMessage = JsonSerializer.Deserialize<ErrorResponse>(results, options);
-                throw new Exception($"Invalid Workspace ID: {errorMessage?.Error?.Message}");
+                throw new Exception($"Unable to connect: {errorMessage?.Error?.Message}");
             }
             
             return _metadata;
