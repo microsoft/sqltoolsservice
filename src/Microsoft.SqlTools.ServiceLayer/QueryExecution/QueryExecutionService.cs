@@ -136,7 +136,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// Internal storage of active query settings
         /// </summary>
         private readonly Lazy<ConcurrentDictionary<string, QueryExecutionSettings>> queryExecutionSettings =
-            new Lazy<ConcurrentDictionary<string, QueryExecutionSettings>>(() => new ConcurrentDictionary<string, QueryExecutionSettings>());            
+            new Lazy<ConcurrentDictionary<string, QueryExecutionSettings>>(() => new ConcurrentDictionary<string, QueryExecutionSettings>());
 
         /// <summary>
         /// Settings that will be used to execute queries. Internal for unit testing
@@ -221,12 +221,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 WorkTask = Task.Run(async () =>
                 {
                     await InterServiceExecuteQuery(
-                        executeParams, 
-                        null, 
-                        requestContext, 
-                        queryCreateSuccessAction, 
-                        queryCreateFailureAction, 
-                        null, 
+                        executeParams,
+                        null,
+                        requestContext,
+                        queryCreateSuccessAction,
+                        queryCreateFailureAction,
+                        null,
                         null,
                         isQueryEditor(executeParams.OwnerUri));
                 });
@@ -268,7 +268,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     Type = ConnectionType.Default
                 };
 
-                Task workTask = Task.Run(async () => {
+                Task workTask = Task.Run(async () =>
+                {
                     await ConnectionService.Connect(connectParams);
 
                     ConnectionInfo newConn;
@@ -329,7 +330,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             // remove the active query since we are done with it
                             ActiveQueries.TryRemove(randomUri, out removedQuery);
                             ActiveSimpleExecuteRequests.TryRemove(randomUri, out removedTask);
-                            ConnectionService.Disconnect(new DisconnectParams(){
+                            ConnectionService.Disconnect(new DisconnectParams()
+                            {
                                 OwnerUri = randomUri,
                                 Type = null
                             });
@@ -364,15 +366,22 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 string OriginalOwnerUri = renameParams.OriginalOwnerUri;
                 string NewOwnerUri = renameParams.NewOwnerUri;
-                 // Attempt to load the query
+                // Attempt to load the query
                 Query query;
                 if (!ActiveQueries.TryGetValue(OriginalOwnerUri, out query))
                 {
                     await requestContext.SendError(SR.QueryServiceRequestsNoQuery);
                     return;
                 }
-                else {
-                    //need to figure out how to clone the query itself. (Need to preserve the old results)
+                else
+                {
+                    ActiveQueries.TryRemove(OriginalOwnerUri, out query);
+                    ConnectionService.Disconnect(new DisconnectParams()
+                    {
+                        OwnerUri = OriginalOwnerUri,
+                        Type = null
+                    });
+                    //ConnectionService.removeMapForRename(OriginalOwnerUri);
                     query.changeConnectionOwnerURI(NewOwnerUri);
                     ActiveQueries.TryAdd(NewOwnerUri, query);
                 }
@@ -408,7 +417,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
-        
+
         /// <summary>
         /// Handles a request to set query execution options
         /// </summary>
@@ -417,7 +426,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {
             try
             {
-                string uri = queryExecutionOptionsParams.OwnerUri; 
+                string uri = queryExecutionOptionsParams.OwnerUri;
                 if (ActiveQueryExecutionSettings.ContainsKey(uri))
                 {
                     QueryExecutionSettings settings;
@@ -432,7 +441,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 // This was unexpected, so send back as error
                 await requestContext.SendError(e.Message);
-            }        
+            }
         }
 
         /// <summary>
@@ -718,16 +727,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     QueryExecutionSettings settings;
                     this.ActiveQueryExecutionSettings.TryRemove(uri, out settings);
-                }                
+                }
             }
             catch (Exception ex)
             {
                 Logger.Write(TraceEventType.Error, "Unknown error " + ex.ToString());
             }
             await Task.FromResult(true);
-        }        
+        }
 
-         /// <summary>
+        /// <summary>
         /// Handle the file save notification
         /// </summary>
         /// <param name="scriptFile"></param>
@@ -746,7 +755,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // TODO need to do something here.
                     // QueryExecutionSettings settings;
                     // this.ActiveQueryExecutionSettings.TryRemove(uri, out settings);
-                }                
+                }
             }
             catch (Exception ex)
             {
@@ -760,16 +769,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         #region Private Helpers
 
         private Query CreateQuery(
-            ExecuteRequestParamsBase executeParams, 
-            ConnectionInfo connInfo, 
+            ExecuteRequestParamsBase executeParams,
+            ConnectionInfo connInfo,
             bool applyExecutionSettings)
         {
             // Attempt to get the connection for the editor
             ConnectionInfo connectionInfo;
-            if (connInfo != null) 
+            if (connInfo != null)
             {
                 connectionInfo = connInfo;
-            } 
+            }
             else if (!ConnectionService.TryFindConnection(executeParams.OwnerUri, out connectionInfo))
             {
                 throw new ArgumentOutOfRangeException(nameof(executeParams.OwnerUri), SR.QueryServiceQueryInvalidOwnerUri);
@@ -786,11 +795,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 oldQuery.Dispose();
                 ActiveQueries.TryRemove(executeParams.OwnerUri, out oldQuery);
             }
-            
+
             // check if there are active query execution settings for the editor, otherwise, use the global settings
-            QueryExecutionSettings settings;            
+            QueryExecutionSettings settings;
             if (this.ActiveQueryExecutionSettings.TryGetValue(executeParams.OwnerUri, out settings))
-            {                
+            {
                 // special-case handling for query plan options to maintain compat with query execution API parameters
                 // the logic is that if either the query execute API parameters or the active query setttings 
                 // request a plan then enable the query option
@@ -806,17 +815,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 settings.ExecutionPlanOptions = executionPlanOptions;
             }
             else
-            {     
+            {
                 settings = Settings.QueryExecutionSettings;
                 settings.ExecutionPlanOptions = executeParams.ExecutionPlanOptions;
             }
 
             // If we can't add the query now, it's assumed the query is in progress
             Query newQuery = new Query(
-                GetSqlText(executeParams), 
-                connectionInfo, 
-                settings, 
-                BufferFileFactory, 
+                GetSqlText(executeParams),
+                connectionInfo,
+                settings,
+                BufferFileFactory,
                 executeParams.GetFullColumnSchema,
                 applyExecutionSettings);
 
