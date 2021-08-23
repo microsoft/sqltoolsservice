@@ -839,20 +839,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             return true;
         }
 
-        public bool removeMapForRename(string ownerUri)
-        {
-            ConnectionInfo info;
-            if (OwnerToConnectionMap.TryGetValue(ownerUri, out info))
-            {
-                OwnerToConnectionMap.Remove(ownerUri);
-            }
-            else
-            {
-                return false;
-            }
-            return true;
-        }
-
         /// <summary>
         /// Cancel connections associated with the given ownerUri.
         /// If connectionType is not null, cancel the connection with the given connectionType
