@@ -52,6 +52,13 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
             };
 
             _metadata = JsonSerializer.Deserialize<WorkspaceResponse>(results, options);
+
+            if (_metadata?.Tables is null && _metadata?.Workspaces is null && _metadata?.TableGroups is null)
+            {
+                var errorMessage = JsonSerializer.Deserialize<ErrorResponse>(results, options);
+                throw new Exception($"Invalid Workspace ID: {errorMessage?.Error?.Message}");
+            }
+            
             return _metadata;
         }
 
