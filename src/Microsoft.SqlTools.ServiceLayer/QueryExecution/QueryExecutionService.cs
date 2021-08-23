@@ -381,7 +381,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         OwnerUri = OriginalOwnerUri,
                         Type = null
                     });
-                    //ConnectionService.removeMapForRename(OriginalOwnerUri);
                     query.changeConnectionOwnerURI(NewOwnerUri);
                     ActiveQueries.TryAdd(NewOwnerUri, query);
                 }
