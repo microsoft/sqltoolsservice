@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.SqlScriptPublish;
@@ -100,15 +101,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             Validate.IsNotNullOrWhitespaceString("scriptingObject.Type", scriptingObject.Type);
 
             // Leaving the server name blank will automatically match whatever the server SMO is running against.
-            string urn = string.Format(
-                "Server[@Name='{0}']/Database[@Name='{1}']/{2}[@Name='{3}' {4}]",
-                server.ToUpper(),
-                Urn.EscapeString(database),
-                scriptingObject.Type,
-                Urn.EscapeString(scriptingObject.Name),
-                scriptingObject.Schema != null ? string.Format("and @Schema = '{0}'", Urn.EscapeString(scriptingObject.Schema)) : string.Empty);
+            StringBuilder urnBuilder = new StringBuilder();
+            urnBuilder.AppendFormat("Server[@Name='{0}']/", server.ToUpper());
+            urnBuilder.AppendFormat("Database[@Name='{0}']/", Urn.EscapeString(database));
 
-            return new Urn(urn);
+            if (!string.IsNullOrWhiteSpace(scriptingObject.Table))
+            {
+                urnBuilder.AppendFormat("Table[@Name='{0}']/", Urn.EscapeString(scriptingObject.Table));
+            }
+
+            urnBuilder.AppendFormat("{0}[@Name='{1}'", scriptingObject.Type, Urn.EscapeString(scriptingObject.Name));
+
+            if (!string.IsNullOrWhiteSpace(scriptingObject.Schema))
+            {
+                urnBuilder.AppendFormat("and @Schema = '{0}'", Urn.EscapeString(scriptingObject.Schema));
+            }
+
+            urnBuilder.Append("]");
+
+            return new Urn(urnBuilder.ToString());
         }
 
         /// <summary>
