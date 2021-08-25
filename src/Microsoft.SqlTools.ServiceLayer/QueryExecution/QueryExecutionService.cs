@@ -170,7 +170,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             serviceHost.SetRequestHandler(SubsetRequest.Type, HandleResultSubsetRequest);
             serviceHost.SetRequestHandler(QueryDisposeRequest.Type, HandleDisposeRequest);
             serviceHost.SetRequestHandler(QueryCancelRequest.Type, HandleCancelRequest);
-            serviceHost.SetEventHandler(QueryRenameNotification.Type, HandleRenameNotification);
+            serviceHost.SetEventHandler(QueryChangeConnectionUriNotification.Type, HandleChangeConnectionUriNotification);
             serviceHost.SetRequestHandler(SaveResultsAsCsvRequest.Type, HandleSaveResultsAsCsvRequest);
             serviceHost.SetRequestHandler(SaveResultsAsExcelRequest.Type, HandleSaveResultsAsExcelRequest);
             serviceHost.SetRequestHandler(SaveResultsAsJsonRequest.Type, HandleSaveResultsAsJsonRequest);
@@ -354,15 +354,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
 
         /// <summary>
-        /// Handles a request to rename the activequery and return the result
+        /// Handles a request to change the uri associated with an active query and connection info.
         /// </summary>
-        internal Task HandleRenameNotification(QueryRenameParams renameParams,
+        internal Task HandleChangeConnectionUriNotification(QueryChangeConnectionUriParams changeUriParams,
             EventContext eventContext)
         {
             try {
-                Logger.Write(TraceEventType.Verbose, "HandleRenameNotification");
-                string OriginalOwnerUri = renameParams.OriginalOwnerUri;
-                string NewOwnerUri = renameParams.NewOwnerUri;
+                Logger.Write(TraceEventType.Verbose, "HandleChangeConnectionUriNotification");
+                string OriginalOwnerUri = changeUriParams.OriginalOwnerUri;
+                string NewOwnerUri = changeUriParams.NewOwnerUri;
                 // Attempt to load the query
                 Query query;
                 if(!ActiveQueries.TryRemove(OriginalOwnerUri, out query)){

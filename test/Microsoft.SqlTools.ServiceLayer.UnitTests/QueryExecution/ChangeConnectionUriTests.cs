@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
     public class RenameTests
     {
         [Test]
-        public async Task RenameExecutedQuery()
+        public async Task ChangeUriForExecutedQuery()
         {
             // If:
             // ... I request a query (doesn't matter what kind)
@@ -36,14 +36,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             Query query;
             queryService.ActiveQueries.TryGetValue(Constants.OwnerUri, out query);
 
-            // ... And then I rename the query
-            var renameParams = new QueryRenameParams {
+            // ... And then I change the uri for the query
+            var changeUriParams = new QueryChangeConnectionUriParams {
                 OriginalOwnerUri = Constants.OwnerUri,
                 NewOwnerUri = newOwnerUri
             };
         
             
-            await queryService.HandleRenameNotification(renameParams, new TestEventContext());
+            await queryService.HandleChangeConnectionUriNotification(changeUriParams, new TestEventContext());
 
             // Then:
             // ... And the active queries should have the new query.
@@ -52,19 +52,19 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
         }
 
         [Test]
-        public void RenameMissingQuery()
+        public void ChangeUriForMissingQuery()
         {
             // If:
-            // ... I attempt to rename a query that doesn't exist
+            // ... I attempt to change the uri a query that doesn't exist
             var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
             var queryService = Common.GetPrimedExecutionService(null, false, false, false, workspaceService.Object);
             const string newOwnerUri = "newTestFile";
-            var renameParams = new QueryRenameParams {
+            var changeUriParams = new QueryChangeConnectionUriParams {
                 OriginalOwnerUri = Constants.OwnerUri,
                 NewOwnerUri = newOwnerUri
             };
 
-            Assert.ThrowsAsync<Exception>(async () => await queryService.HandleRenameNotification(renameParams, new TestEventContext()));
+            Assert.ThrowsAsync<Exception>(async () => await queryService.HandleChangeConnectionUriNotification(changeUriParams, new TestEventContext()));
 
             Query query;
             Assert.False(queryService.ActiveQueries.TryGetValue(Constants.OwnerUri, out query), "Query was removed from Active Queries");
