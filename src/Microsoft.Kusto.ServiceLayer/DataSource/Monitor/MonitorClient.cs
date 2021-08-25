@@ -1,6 +1,7 @@
 using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -52,6 +53,17 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
             };
 
             _metadata = JsonSerializer.Deserialize<WorkspaceResponse>(results, options);
+
+            if (_metadata?.Tables is null && _metadata?.Workspaces is null && _metadata?.TableGroups is null)
+            {
+                var errorMessage = JsonSerializer.Deserialize<ErrorResponse>(results, options);
+                var builder = new StringBuilder();
+                builder.AppendLine(
+                    "The Log Analytics Workspace can not be reached. Please validate the Workspace ID, the correct tenant is selected, and that you have access to the workspace. ");
+                builder.AppendLine($"Error Message: {errorMessage?.Error?.Message}");
+                throw new Exception(builder.ToString());
+            }
+            
             return _metadata;
         }
 
