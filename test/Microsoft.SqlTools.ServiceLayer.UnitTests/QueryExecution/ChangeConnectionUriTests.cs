@@ -17,7 +17,7 @@ using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 {
-    public class RenameTests
+    public class ChangeConnectionUriTests
     {
         [Test]
         public async Task ChangeUriForExecutedQuery()
