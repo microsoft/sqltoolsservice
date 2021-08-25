@@ -116,7 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         /// List of callbacks to call when a text document is closed
         /// </summary>
         private List<TextDocCloseCallback> TextDocCloseCallbacks { get; set; }
-
+ 
 
         #endregion
 
