@@ -172,6 +172,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 DbConnection connection;
                 ConnectionTypeToConnectionMap.TryRemove(type, out connection);
             }
-        }        
+        } 
     }
 }

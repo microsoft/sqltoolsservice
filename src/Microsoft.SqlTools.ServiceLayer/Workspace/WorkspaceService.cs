@@ -117,6 +117,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         /// </summary>
         private List<TextDocCloseCallback> TextDocCloseCallbacks { get; set; }
 
+
         #endregion
 
         #region Public Methods
