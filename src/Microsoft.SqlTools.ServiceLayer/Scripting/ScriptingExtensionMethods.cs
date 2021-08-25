@@ -105,9 +105,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             urnBuilder.AppendFormat("Server[@Name='{0}']/", server.ToUpper());
             urnBuilder.AppendFormat("Database[@Name='{0}']/", Urn.EscapeString(database));
 
-            if (!string.IsNullOrWhiteSpace(scriptingObject.Table))
+            if (!string.IsNullOrWhiteSpace(scriptingObject.ParentName))
             {
-                urnBuilder.AppendFormat("Table[@Name='{0}']/", Urn.EscapeString(scriptingObject.Table));
+                urnBuilder.AppendFormat("Table[@Name='{0}']/", Urn.EscapeString(scriptingObject.ParentName));
             }
 
             urnBuilder.AppendFormat("{0}[@Name='{1}'", scriptingObject.Type, Urn.EscapeString(scriptingObject.Name));
