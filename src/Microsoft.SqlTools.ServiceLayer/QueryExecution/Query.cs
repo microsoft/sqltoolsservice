@@ -391,7 +391,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="newOwnerUri">Name of the new OwnerURI</param>
         public void changeConnectionOwnerURI(String newOwnerUri)
         {
-            this.editorConnection.changeOwnerUri(newOwnerUri);
+            this.editorConnection.OwnerUri = newOwnerUri;
         }
 
         /// <summary>
