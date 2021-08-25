@@ -376,8 +376,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 else
                 {
                     ActiveQueries.TryRemove(OriginalOwnerUri, out query);
-                    ConnectionService.replaceUri(OriginalOwnerUri, NewOwnerUri);
-                    query.connectionOwnerURI = NewOwnerUri;
+                    ConnectionService.ReplaceUri(OriginalOwnerUri, NewOwnerUri);
+                    query.ConnectionOwnerURI = NewOwnerUri;
                     ActiveQueries.TryAdd(NewOwnerUri, query);
                 }
 
@@ -722,34 +722,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     QueryExecutionSettings settings;
                     this.ActiveQueryExecutionSettings.TryRemove(uri, out settings);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Write(TraceEventType.Error, "Unknown error " + ex.ToString());
-            }
-            await Task.FromResult(true);
-        }
-
-        /// <summary>
-        /// Handle the file save notification
-        /// </summary>
-        /// <param name="scriptFile"></param>
-        /// <param name="eventContext"></param>
-        /// <returns></returns>
-        public async Task HandleDidSaveTextDocumentNotification(
-            string uri,
-            ScriptFile scriptFile,
-            EventContext eventContext)
-        {
-            try
-            {
-                // save any query execution settings when an editor is saved
-                if (this.ActiveQueryExecutionSettings.ContainsKey(uri))
-                {
-                    // TODO need to do something here.
-                    // QueryExecutionSettings settings;
-                    // this.ActiveQueryExecutionSettings.TryRemove(uri, out settings);
                 }
             }
             catch (Exception ex)

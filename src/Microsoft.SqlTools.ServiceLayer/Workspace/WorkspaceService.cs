@@ -144,7 +144,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             serviceHost.SetEventHandler(DidChangeTextDocumentNotification.Type, HandleDidChangeTextDocumentNotification);
             serviceHost.SetEventHandler(DidOpenTextDocumentNotification.Type, HandleDidOpenTextDocumentNotification);
             serviceHost.SetEventHandler(DidCloseTextDocumentNotification.Type, HandleDidCloseTextDocumentNotification);
-            serviceHost.SetEventHandler(DidSaveTextDocumentNotification.Type, HandleDidSaveTextDocumentNotification);
             serviceHost.SetEventHandler(DidChangeConfigurationNotification<TConfig>.Type, HandleDidChangeConfigurationNotification);
             
             // Register an initialization handler that sets the workspace path
@@ -337,40 +336,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
                 return;
             }
         }
-
-         internal async Task HandleDidSaveTextDocumentNotification(
-           DidSaveTextDocumentParams saveParams,
-           EventContext eventContext)
-        {
-            try
-            {
-                Logger.Write(TraceEventType.Verbose, "HandleDidSaveTextDocumentNotification");
-
-                if (IsScmEvent(saveParams.TextDocument.Uri)) 
-                {
-                    return;
-                }
-
-                // Skip saving this file if the file doesn't exist
-                var savedFile = Workspace.GetFile(saveParams.TextDocument.Uri);
-                if (savedFile == null)
-                {
-                    return;
-                }
-
-                // Send out a notification to other services that have subscribed to this event
-                var textDocSavedTasks = TextDocSaveCallbacks.Select(t => t(saveParams.TextDocument.Uri, savedFile, eventContext));
-                await Task.WhenAll(textDocSavedTasks);
-            }
-            catch (Exception ex)
-            {
-                Logger.Write(TraceEventType.Error, "Unknown error " + ex.ToString());
-                // Swallow exceptions here to prevent us from crashing
-                // TODO: this probably means the ScriptFile model is in a bad state or out of sync with the actual file; we should recover here
-                return;
-            }
-        }
-
 
         /// <summary>
         /// Handles the configuration change event
