@@ -47,7 +47,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             TextDocChangeCallbacks = new List<TextDocChangeCallback>();
             TextDocOpenCallbacks = new List<TextDocOpenCallback>();
             TextDocCloseCallbacks = new List<TextDocCloseCallback>();
-            TextDocSaveCallbacks = new List<TextDocSaveCallback>();
 
             CurrentSettings = new TConfig();
         }
@@ -98,14 +97,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         /// <param name="eventContext">Context of the event raised for changed files</param>
         public delegate Task TextDocCloseCallback(string uri, ScriptFile closedFile, EventContext eventContext);
 
-         /// <summary>
-        /// Delegate for callbacks that occur when a text document is closed
-        /// </summary>
-        /// <param name="uri">Request uri</param>
-        /// <param name="savedFile">File that was closed</param>
-        /// <param name="eventContext">Context of the event raised for changed files</param>
-        public delegate Task TextDocSaveCallback(string uri, ScriptFile savedFile, EventContext eventContext);
-
         /// <summary>
         /// List of callbacks to call when the configuration of the workspace changes
         /// </summary>
@@ -125,11 +116,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         /// List of callbacks to call when a text document is closed
         /// </summary>
         private List<TextDocCloseCallback> TextDocCloseCallbacks { get; set; }
-
-        /// <summary>
-        /// List of callbacks to call when a text document is saved
-        /// </summary>
-        private List<TextDocSaveCallback> TextDocSaveCallbacks { get; set; }
 
         #endregion
 
@@ -198,15 +184,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         public void RegisterTextDocCloseCallback(TextDocCloseCallback task)
         {
             TextDocCloseCallbacks.Add(task);
-        }
-
-         /// <summary>
-        /// Adds a new task to be called when a text document saves.
-        /// </summary>
-        /// <param name="task">Delegate to call when the document saves</param>
-        public void RegisterTextDocSaveCallback(TextDocSaveCallback task)
-        {
-            TextDocSaveCallbacks.Add(task);
         }
 
         /// <summary>

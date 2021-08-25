@@ -181,7 +181,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // Register the file open update handler
             WorkspaceService<SqlToolsSettings>.Instance.RegisterTextDocCloseCallback(HandleDidCloseTextDocumentNotification);
-            WorkspaceService<SqlToolsSettings>.Instance.RegisterTextDocSaveCallback(HandleDidCloseTextDocumentNotification);
 
             // Register handler for shutdown event
             serviceHost.RegisterShutdownTask((shutdownParams, requestContext) =>
