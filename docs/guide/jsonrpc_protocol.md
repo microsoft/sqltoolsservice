@@ -892,23 +892,14 @@ Cancel the query in progress for the owner uri.
 ```
 ### <a name="query_rename"></a>`query/rename`
 
-Rename the query by changing the uri associated with it.
+Change the uri associated with a query.
 
-#### Request
+#### Notification
 ```csharp
     public class QueryRenameParams
     {
         public string NewOwnerUri { get; set; }
         public string OriginalOwnerUri { get; set; 
-    }
-```
-#### Response
-
-This response has no message but only the JSON-RPC version and the request-id.
-
-```csharp
-    public class QueryRenameResult
-    {
     }
 ```
 

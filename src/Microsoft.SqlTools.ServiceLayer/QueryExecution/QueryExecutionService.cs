@@ -170,7 +170,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             serviceHost.SetRequestHandler(SubsetRequest.Type, HandleResultSubsetRequest);
             serviceHost.SetRequestHandler(QueryDisposeRequest.Type, HandleDisposeRequest);
             serviceHost.SetRequestHandler(QueryCancelRequest.Type, HandleCancelRequest);
-            serviceHost.SetRequestHandler(QueryRenameRequest.Type, HandleRenameRequest);
+            serviceHost.SetEventHandler(QueryRenameNotification.Type, HandleRenameNotification);
             serviceHost.SetRequestHandler(SaveResultsAsCsvRequest.Type, HandleSaveResultsAsCsvRequest);
             serviceHost.SetRequestHandler(SaveResultsAsExcelRequest.Type, HandleSaveResultsAsExcelRequest);
             serviceHost.SetRequestHandler(SaveResultsAsJsonRequest.Type, HandleSaveResultsAsJsonRequest);
@@ -356,33 +356,27 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Handles a request to rename the activequery and return the result
         /// </summary>
-        internal async Task HandleRenameRequest(QueryRenameParams renameParams,
-            RequestContext<QueryRenameResult> requestContext)
+        internal Task HandleRenameNotification(QueryRenameParams renameParams,
+            EventContext eventContext)
         {
-            try
-            {
+            try {
+                Logger.Write(TraceEventType.Verbose, "HandleRenameNotification");
                 string OriginalOwnerUri = renameParams.OriginalOwnerUri;
                 string NewOwnerUri = renameParams.NewOwnerUri;
                 // Attempt to load the query
                 Query query;
-                if (!ActiveQueries.TryGetValue(OriginalOwnerUri, out query))
-                {
-                    await requestContext.SendError(SR.QueryServiceRequestsNoQuery);
-                    return;
+                if(!ActiveQueries.TryRemove(OriginalOwnerUri, out query)){
+                    throw new Exception("Uri: " + OriginalOwnerUri + " is not associated with an active query.");
                 }
-                else
-                {
-                    ActiveQueries.TryRemove(OriginalOwnerUri, out query);
-                    ConnectionService.ReplaceUri(OriginalOwnerUri, NewOwnerUri);
-                    query.ConnectionOwnerURI = NewOwnerUri;
-                    ActiveQueries.TryAdd(NewOwnerUri, query);
-                }
-
-                await requestContext.SendResult(new QueryRenameResult());
+                ConnectionService.ReplaceUri(OriginalOwnerUri, NewOwnerUri);
+                query.ConnectionOwnerURI = NewOwnerUri;
+                ActiveQueries.TryAdd(NewOwnerUri, query);
+                return Task.FromResult(true);
             }
-            catch (Exception ex)
+             catch (Exception ex)
             {
-                await requestContext.SendError(ex.ToString());
+                Logger.Write(TraceEventType.Error, "Error encountered " + ex.ToString());
+                return Task.FromException(ex);
             }
         }
 

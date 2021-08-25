@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
@@ -40,20 +41,18 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
                 OriginalOwnerUri = Constants.OwnerUri,
                 NewOwnerUri = newOwnerUri
             };
-            var renameRequest = new EventFlowValidator<QueryRenameResult>()
-                .AddStandardQueryRenameValidator()
-                .Complete();
-            await queryService.HandleRenameRequest(renameParams, renameRequest.Object);
+        
+            
+            await queryService.HandleRenameNotification(renameParams, new TestEventContext());
 
             // Then:
             // ... And the active queries should have the new query.
-            renameRequest.Validate();
             Assert.That(queryService.ActiveQueries.TryGetValue(newOwnerUri, out query), "Query with newOwnerUri not found.");
             Assert.That(Equals(query.ConnectionOwnerURI, newOwnerUri), "OwnerUri was not changed!");
         }
 
         [Test]
-        public async Task RenameMissingQuery()
+        public void RenameMissingQuery()
         {
             // If:
             // ... I attempt to rename a query that doesn't exist
@@ -65,25 +64,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
                 NewOwnerUri = newOwnerUri
             };
 
-            var renameRequest = new EventFlowValidator<QueryRenameResult>()
-                .AddStandardErrorValidation()
-                .Complete();
-            await queryService.HandleRenameRequest(renameParams, renameRequest.Object);
+            Assert.ThrowsAsync<Exception>(async () => await queryService.HandleRenameNotification(renameParams, new TestEventContext()));
 
-            // Then: I should have received an error
-            renameRequest.Validate();
-        }
-    }
-
-    public static class QueryRenameEventFlowValidatorExtensions
-    {
-        public static EventFlowValidator<QueryRenameResult> AddStandardQueryRenameValidator(
-            this EventFlowValidator<QueryRenameResult> evf)
-        {
-            // We just need to make sure that the result is not null
-            evf.AddResultValidation(Assert.NotNull);
-
-            return evf;
+            Query query;
+            Assert.False(queryService.ActiveQueries.TryGetValue(Constants.OwnerUri, out query), "Query was removed from Active Queries");
         }
     }
 }

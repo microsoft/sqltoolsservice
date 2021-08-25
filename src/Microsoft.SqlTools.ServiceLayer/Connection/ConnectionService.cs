@@ -767,10 +767,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         }
 
         /// <summary>
-        /// Reassign the uri associated with a connection info with a new uri (for query rename).
+        /// Reassign the uri associated with a connection info with a new uri.
         /// </summary>
-        public bool ReplaceUri(string originalOwnerUri, string newOwnerUri){
-           // Lookup the ConnectionInfo owned by the URI
+        public bool ReplaceUri(string originalOwnerUri, string newOwnerUri)
+        {
+            // Lookup the ConnectionInfo owned by the URI
             ConnectionInfo info;
             if (!OwnerToConnectionMap.TryGetValue(originalOwnerUri, out info))
             {

@@ -15,18 +15,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public string NewOwnerUri { get; set; }
         public string OriginalOwnerUri { get; set; }
     }
-
-    /// <summary>
-    /// Parameters to return as the result of a query dispose request
-    /// </summary>
-    public class QueryRenameResult
-    {
-    }
-
-    public class QueryRenameRequest
+    public class QueryRenameNotification
     {
         public static readonly 
-            RequestType<QueryRenameParams, QueryRenameResult> Type =
-            RequestType<QueryRenameParams, QueryRenameResult>.Create("query/rename");
+            EventType<QueryRenameParams> Type =
+            EventType<QueryRenameParams>.Create("query/rename");
     }
 }
