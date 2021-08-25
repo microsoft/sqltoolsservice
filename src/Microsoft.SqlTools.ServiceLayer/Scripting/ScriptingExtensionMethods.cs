@@ -107,14 +107,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
             if (!string.IsNullOrWhiteSpace(scriptingObject.ParentName))
             {
-                urnBuilder.AppendFormat("Table[@Name='{0}']/", Urn.EscapeString(scriptingObject.ParentName));
+                urnBuilder.AppendFormat("Table[@Name='{0}'", Urn.EscapeString(scriptingObject.ParentName));
+                if (!string.IsNullOrWhiteSpace(scriptingObject.Schema))
+                {
+                    urnBuilder.AppendFormat(" and @Schema = '{0}'", Urn.EscapeString(scriptingObject.Schema));
+                }
+                urnBuilder.Append("]/");
             }
 
             urnBuilder.AppendFormat("{0}[@Name='{1}'", scriptingObject.Type, Urn.EscapeString(scriptingObject.Name));
 
-            if (!string.IsNullOrWhiteSpace(scriptingObject.Schema))
+            // add schema to object only if there is no parent object specified
+            if (!string.IsNullOrWhiteSpace(scriptingObject.Schema) && !string.IsNullOrWhiteSpace(scriptingObject.ParentName))
             {
-                urnBuilder.AppendFormat("and @Schema = '{0}'", Urn.EscapeString(scriptingObject.Schema));
+                urnBuilder.AppendFormat(" and @Schema = '{0}'", Urn.EscapeString(scriptingObject.Schema));
             }
 
             urnBuilder.Append("]");
