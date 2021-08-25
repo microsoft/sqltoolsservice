@@ -50,7 +50,7 @@ This document provides the protocol specification for all the service's JSON-RPC
 * :leftwards_arrow_with_hook: [query/subset](#query_subset)
 * :leftwards_arrow_with_hook: [query/dispose](#query_dispose)
 * :leftwards_arrow_with_hook: [query/cancel](#query_cancel)
-* :leftwards_arrow_with_hook: [query/rename](#query_rename)
+* :rightwards_arrow_with_hook: [query/rename](#query_rename)
 * :leftwards_arrow_with_hook: [query/saveCsv](#query_saveCsv)
 * :leftwards_arrow_with_hook: [query/saveExcel](#query_saveExcel)
 * :leftwards_arrow_with_hook: [query/saveJson](#query_saveJson)
