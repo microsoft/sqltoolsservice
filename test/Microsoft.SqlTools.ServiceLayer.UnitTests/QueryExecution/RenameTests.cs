@@ -49,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             // ... And the active queries should have the new query.
             renameRequest.Validate();
             Assert.That(queryService.ActiveQueries.TryGetValue(newOwnerUri, out query), "Query with newOwnerUri not found.");
-            Assert.That(Equals(query.getConnectionOwnerURI(), newOwnerUri), "OwnerUri was not changed!");
+            Assert.That(Equals(query.connectionOwnerURI, newOwnerUri), "OwnerUri was not changed!");
         }
 
         [Test]

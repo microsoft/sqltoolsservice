@@ -389,19 +389,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// Changes the editorConnection's OwnerURI in case queryRename has happened.
         /// </summary>
         /// <param name="newOwnerUri">Name of the new OwnerURI</param>
-        public void changeConnectionOwnerURI(String newOwnerUri)
-        {
-            this.editorConnection.OwnerUri = newOwnerUri;
+        public String connectionOwnerURI { 
+            get
+            {
+                return this.editorConnection.OwnerUri;
+            }
+            set
+            {
+                this.editorConnection.OwnerUri = value;
+            }
         }
-
-        /// <summary>
-        /// Retrieves the editorConnection's OwnerURI.
-        /// </summary>
-        public String getConnectionOwnerURI()
-        {
-            return this.editorConnection.OwnerUri;
-        }
-
+        
         #endregion
 
         #region Private Helpers
