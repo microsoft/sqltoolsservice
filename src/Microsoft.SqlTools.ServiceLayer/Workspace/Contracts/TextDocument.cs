@@ -292,3 +292,4 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
         public FileChangeType Type { get; set; }
     }
 }
+
