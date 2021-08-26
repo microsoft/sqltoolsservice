@@ -360,7 +360,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             EventContext eventContext)
         {
             try {
-                Logger.Write(TraceEventType.Verbose, "HandleChangeConnectionUriNotification");
                 string OriginalOwnerUri = changeUriParams.OriginalOwnerUri;
                 string NewOwnerUri = changeUriParams.NewOwnerUri;
                 // Attempt to load the query
