@@ -10,15 +10,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     /// <summary>
     /// Parameters for the query cancellation request
     /// </summary>
-    public class QueryChangeUriParams
+    public class QueryChangeConnectionUriParams
     {
         public string NewOwnerUri { get; set; }
         public string OriginalOwnerUri { get; set; }
     }
-    public class QueryChangeUriNotification
+    public class QueryChangeConnectionUriNotification
     {
         public static readonly 
-            EventType<QueryChangeUriParams> Type =
-            EventType<QueryChangeUriParams>.Create("query/ChangeUri");
+            EventType<QueryChangeConnectionUriParams> Type =
+            EventType<QueryChangeConnectionUriParams>.Create("query/changeConnectionUri");
     }
 }

@@ -50,7 +50,7 @@ This document provides the protocol specification for all the service's JSON-RPC
 * :leftwards_arrow_with_hook: [query/subset](#query_subset)
 * :leftwards_arrow_with_hook: [query/dispose](#query_dispose)
 * :leftwards_arrow_with_hook: [query/cancel](#query_cancel)
-* :rightwards_arrow_with_hook: [query/changeuri](#query_changeuri)
+* :rightwards_arrow_with_hook: [query/changeConnectionUri](#query_changeConnectionUri)
 * :leftwards_arrow_with_hook: [query/saveCsv](#query_saveCsv)
 * :leftwards_arrow_with_hook: [query/saveExcel](#query_saveExcel)
 * :leftwards_arrow_with_hook: [query/saveJson](#query_saveJson)
@@ -890,13 +890,13 @@ Cancel the query in progress for the owner uri.
         public string Messages { get; set; }
     }
 ```
-### <a name="query_changeuri"></a>`query/changeuri`
+### <a name="query_changeConnectionUri"></a>`query/changeConnectionUri`
 
 Change the uri associated with a query.
 
 #### Notification
 ```csharp
-    public class QueryChangeUriParams
+    public class QueryChangeConnectionUriParams
     {
         public string NewOwnerUri { get; set; }
         public string OriginalOwnerUri { get; set; 
