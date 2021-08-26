@@ -118,7 +118,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             urnBuilder.AppendFormat("{0}[@Name='{1}'", scriptingObject.Type, Urn.EscapeString(scriptingObject.Name));
 
             // add schema to object only if there is no parent object specified
-            if (!string.IsNullOrWhiteSpace(scriptingObject.Schema) && !string.IsNullOrWhiteSpace(scriptingObject.ParentName))
+            // the parent object field is only set for objects that don't have schema themselves
+            // so if parent is not null then the schema filter will already be set that part of the urn above
+            if (!string.IsNullOrWhiteSpace(scriptingObject.Schema) && string.IsNullOrWhiteSpace(scriptingObject.ParentName))
             {
                 urnBuilder.AppendFormat(" and @Schema = '{0}'", Urn.EscapeString(scriptingObject.Schema));
             }
