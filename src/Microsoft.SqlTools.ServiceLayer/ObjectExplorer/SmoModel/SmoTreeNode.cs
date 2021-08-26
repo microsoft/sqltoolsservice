@@ -89,6 +89,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     ObjectMetadata.Schema = parent.Schema;
                     ObjectMetadata.ParentName = parent.Name;
+                    ObjectMetadata.ParentTypeName = parent.Urn.Type;
                 }
             }
         }

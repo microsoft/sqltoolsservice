@@ -105,9 +105,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             urnBuilder.AppendFormat("Server[@Name='{0}']/", server.ToUpper());
             urnBuilder.AppendFormat("Database[@Name='{0}']/", Urn.EscapeString(database));
 
-            if (!string.IsNullOrWhiteSpace(scriptingObject.ParentName))
+            bool hasParentObject = !string.IsNullOrWhiteSpace(scriptingObject.ParentName) 
+                && !string.IsNullOrWhiteSpace(scriptingObject.ParentTypeName);
+            if (hasParentObject)
             {
-                urnBuilder.AppendFormat("Table[@Name='{0}'", Urn.EscapeString(scriptingObject.ParentName));
+                urnBuilder.AppendFormat("{0}[@Name='{1}'", scriptingObject.ParentTypeName, Urn.EscapeString(scriptingObject.ParentName));
                 if (!string.IsNullOrWhiteSpace(scriptingObject.Schema))
                 {
                     urnBuilder.AppendFormat(" and @Schema = '{0}'", Urn.EscapeString(scriptingObject.Schema));
@@ -120,7 +122,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             // add schema to object only if there is no parent object specified
             // the parent object field is only set for objects that don't have schema themselves
             // so if parent is not null then the schema filter will already be set that part of the urn above
-            if (!string.IsNullOrWhiteSpace(scriptingObject.Schema) && string.IsNullOrWhiteSpace(scriptingObject.ParentName))
+            if (!string.IsNullOrWhiteSpace(scriptingObject.Schema) && !hasParentObject)
             {
                 urnBuilder.AppendFormat(" and @Schema = '{0}'", Urn.EscapeString(scriptingObject.Schema));
             }
