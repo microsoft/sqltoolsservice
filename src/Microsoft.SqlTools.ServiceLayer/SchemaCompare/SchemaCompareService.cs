@@ -51,7 +51,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             serviceHost.SetRequestHandler(SchemaCompareRequest.Type, this.HandleSchemaCompareRequest);
             serviceHost.SetRequestHandler(SchemaCompareCancellationRequest.Type, this.HandleSchemaCompareCancelRequest);
             serviceHost.SetRequestHandler(SchemaCompareGenerateScriptRequest.Type, this.HandleSchemaCompareGenerateScriptRequest);
-            serviceHost.SetRequestHandler(SchemaComparePublishChangesRequest.Type, this.HandleSchemaComparePublishChangesRequest);
+            serviceHost.SetRequestHandler(SchemaComparePublishDatabaseChangesRequest.Type, this.HandleSchemaComparePublishDatabaseChangesRequest);
+            serviceHost.SetRequestHandler(SchemaComparePublishProjectChangesRequest.Type, this.HandleSchemaComparePublishProjectChangesRequest);
             serviceHost.SetRequestHandler(SchemaCompareIncludeExcludeNodeRequest.Type, this.HandleSchemaCompareIncludeExcludeNodeRequest);
             serviceHost.SetRequestHandler(SchemaCompareGetDefaultOptionsRequest.Type, this.HandleSchemaCompareGetDefaultOptionsRequest);
             serviceHost.SetRequestHandler(SchemaCompareOpenScmpRequest.Type, this.HandleSchemaCompareOpenScmpRequest);
@@ -195,16 +196,16 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         }
 
         /// <summary>
-        /// Handles request for schema compare publish changes script
+        /// Handles request for schema compare publish database changes script
         /// </summary>
         /// <returns></returns>
-        public async Task HandleSchemaComparePublishChangesRequest(SchemaComparePublishChangesParams parameters, RequestContext<ResultStatus> requestContext)
+        public async Task HandleSchemaComparePublishDatabaseChangesRequest(SchemaComparePublishDatabaseChangesParams parameters, RequestContext<ResultStatus> requestContext)
         {
-            SchemaComparePublishChangesOperation operation = null;
+            SchemaComparePublishDatabaseChangesOperation operation = null;
             try
             {
                 SchemaComparisonResult compareResult = schemaCompareResults.Value[parameters.OperationId];
-                operation = new SchemaComparePublishChangesOperation(parameters, compareResult);
+                operation = new SchemaComparePublishDatabaseChangesOperation(parameters, compareResult);
                 SqlTask sqlTask = null;
                 TaskMetadata metadata = new TaskMetadata();
                 metadata.TaskOperation = operation;
@@ -222,7 +223,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             }
             catch (Exception e)
             {
-                Logger.Write(TraceEventType.Error, "Failed to publish schema compare changes. Error: " + e);
+                Logger.Write(TraceEventType.Error, "Failed to publish schema compare database changes. Error: " + e);
                 await requestContext.SendResult(new ResultStatus()
                 {
                     Success = false,
@@ -230,6 +231,66 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 });
             }
         }
+
+        /// <summary>
+        /// Handles request for schema compare publish database changes script
+        /// </summary>
+        /// <returns></returns>
+        public async Task HandleSchemaComparePublishProjectChangesRequest(SchemaComparePublishProjectChangesParams parameters, RequestContext<SchemaComparePublishProjectResult> requestContext)
+        {
+            SchemaComparePublishProjectChangesOperation operation = null;
+            try
+            {
+                SchemaComparisonResult compareResult = schemaCompareResults.Value[parameters.OperationId];
+                operation = new SchemaComparePublishProjectChangesOperation(parameters, compareResult);
+
+                SqlTask sqlTask = null;
+                TaskMetadata metadata = new TaskMetadata();
+                metadata.TaskOperation = operation;
+                metadata.ProjectPath = parameters.TargetProjectPath;
+                metadata.FolderStructure = parameters.TargetFolderStructure;
+                metadata.Name = SR.PublishChangesTaskName;
+
+                sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
+
+                await requestContext.SendResult(new SchemaComparePublishProjectResult()
+                {
+                    ChangedFiles = operation.PublishResult.ChangedFiles,
+                    AddedFiles = operation.PublishResult.AddedFiles,
+                    DeletedFiles = operation.PublishResult.DeletedFiles,
+                    Success = true,
+                    ErrorMessage = operation.ErrorMessage
+                });
+            }
+            catch (Exception e)
+            {
+                Logger.Write(TraceEventType.Error, "Failed to publish schema compare database changes. Error: " + e);
+                await requestContext.SendResult(new SchemaComparePublishProjectResult()
+                {
+                    ChangedFiles = Array.Empty<string>(),
+                    AddedFiles = Array.Empty<string>(),
+                    DeletedFiles = Array.Empty<string>(),
+                    Success = false,
+                    ErrorMessage = operation == null ? e.Message : operation.ErrorMessage,
+                });
+            }
+        }
+
+        //public async Task HandleSchemaComparePublishProjectChangesRequest(SchemaComparePublishProjectChangesParams parameters, RequestContext<SchemaComparePublishProjectResult> requestContext)
+        //{
+        //    try
+        //    {
+        //        SchemaComparisonResult compareResult = schemaCompareResults.Value[parameters.OperationId];
+        //        SchemaComparePublishProjectChangesOperation operation = new(parameters, compareResult);
+
+        //        SchemaComparePublishProjectResult result = operation.PublishChangesToProject();
+        //        await requestContext.SendResult(result);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        await requestContext.SendError(e);
+        //    }
+        //}
 
         /// <summary>
         /// Handles request for exclude incude node in Schema compare result

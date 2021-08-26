@@ -15,7 +15,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UpdateLocalProject
 {
     class UpdateLocalProjectService
     {
+        private static readonly Lazy<UpdateLocalProjectService> instance = new(() => new UpdateLocalProjectService());
         private static ConnectionService _connectionService = null;
+
+        /// <summary>
+        /// Gets the singleton instance object
+        /// </summary>
+        public static UpdateLocalProjectService Instance
+        {
+            get { return instance.Value; }
+        }
 
         /// <summary>
         /// Connection service instance

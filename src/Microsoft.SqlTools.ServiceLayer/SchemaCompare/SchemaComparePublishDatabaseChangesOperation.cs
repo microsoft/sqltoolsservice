@@ -2,22 +2,22 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+
 using Microsoft.SqlServer.Dac.Compare;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.Utility;
 using System;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Threading;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 {
     /// <summary>
-    /// Class to represent an in-progress schema compare publish changes operation
+    /// Class to represent an in-progress schema compare publish database changes operation
     /// </summary>
-    class SchemaComparePublishChangesOperation : ITaskOperation
+    class SchemaComparePublishDatabaseChangesOperation : ITaskOperation
     {
         private CancellationTokenSource cancellation = new CancellationTokenSource();
 
@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         /// </summary>
         public string OperationId { get; private set; }
 
-        public SchemaComparePublishChangesParams Parameters { get; }
+        public SchemaComparePublishDatabaseChangesParams Parameters { get; }
 
         protected CancellationToken CancellationToken { get { return this.cancellation.Token; } }
 
@@ -36,9 +36,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
         public SchemaComparisonResult ComparisonResult { get; set; }
 
-        public SchemaComparePublishResult PublishResult { get; set; }
+        public SchemaComparePublishDatabaseResult PublishResult { get; set; }
 
-        public SchemaComparePublishChangesOperation(SchemaComparePublishChangesParams parameters, SchemaComparisonResult comparisonResult)
+        public SchemaComparePublishDatabaseChangesOperation(SchemaComparePublishDatabaseChangesParams parameters, SchemaComparisonResult comparisonResult)
         {
             Validate.IsNotNull("parameters", parameters);
             this.Parameters = parameters;
@@ -55,7 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
             try
             {
-                this.PublishResult = this.ComparisonResult.PublishChangesToTarget(this.CancellationToken);
+                this.PublishResult = this.ComparisonResult.PublishChangesToDatabase(this.CancellationToken);
                 if (!this.PublishResult.Success)
                 {
                     // Sending only errors and warnings - because overall message might be too big for task view
@@ -66,7 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             catch (Exception e)
             {
                 ErrorMessage = e.Message;
-                Logger.Write(TraceEventType.Error, string.Format("Schema compare publish changes operation {0} failed with exception {1}", this.OperationId, e.Message));
+                Logger.Write(TraceEventType.Error, string.Format("Schema compare publish database changes operation {0} failed with exception {1}", this.OperationId, e.Message));
                 throw;
             }
         }

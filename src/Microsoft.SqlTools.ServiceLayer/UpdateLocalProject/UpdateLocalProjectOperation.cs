@@ -24,8 +24,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UpdateLocalProject
         {
             Validate.IsNotNull("parameters", parameters);
 
+            connInfo.ConnectionDetails.DatabaseName = parameters.DatabaseName;
+            connInfo.ConnectionDetails.ApplicationName = null;
+            connInfo.ConnectionDetails.Pooling = null;
+
             Updater = new LocalProjectUpdater(connString ?? ConnectionService.BuildConnectionString(connInfo.ConnectionDetails),
-                                              parameters.ProjectPath, parameters.FolderStructure);
+                                              parameters.ProjectPath, parameters.FolderStructure, parameters.Dsp);
         }
 
         public UpdateLocalProjectResult UpdateLocalProject()

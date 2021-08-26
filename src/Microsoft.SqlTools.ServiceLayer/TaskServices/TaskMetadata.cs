@@ -42,6 +42,16 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         public string DatabaseName { get; set; }
 
         /// <summary>
+        /// Project path this task is created for
+        /// </summary>
+        public string ProjectPath { get; set; }
+
+        /// <summary>
+        /// Project folder structure this task is created for
+        /// </summary>
+        public string FolderStructure { get; set; }
+
+        /// <summary>
         /// Target location of this task
         /// </summary>
         public string TargetLocation { get; set; }

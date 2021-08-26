@@ -19,6 +19,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UpdateLocalProject.Contracts
         public string FolderStructure { get; set; }
 
         /// <summary>
+        /// Gets or sets the database of the local project
+        /// </summary>
+        public string DatabaseName { get; set; }
+
+        /// <summary>
         /// Gets or sets the path of the local project
         /// </summary>
         public string ProjectPath { get; set; }
@@ -27,6 +32,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UpdateLocalProject.Contracts
         /// Gets or sets the owner uri of the database
         /// </summary>
         public string OwnerUri { get; set; }
+
+        /// <summary>
+        /// Gets or sets the DSP version of the database
+        /// </summary>
+        public string Dsp { get; set; }
     }
 
     public class UpdateLocalProjectResult : ResultStatus

@@ -6,7 +6,6 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 
 using NUnit.Framework;
 
@@ -37,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.UpdateLocalProject
                 "create table TestTable (testStr varchar, testInt tinyint);"
             };
             string[] endQueries = Array.Empty<string>();
-            string folderStructure = "file";
+            string folderStructure = "File";
             
             SetUpTest(startQueries, endQueries, testDb, folderStructure, out UpdateLocalProjectParams parameters);
 
@@ -68,7 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.UpdateLocalProject
             {
                 "exec sp_rename 'dbo.ChangedTable.testStr', 'chTestStr', 'COLUMN';"
             };
-            string folderStructure = "flat";
+            string folderStructure = "Flat";
 
             SetUpTest(startQueries, endQueries, testDb, folderStructure, out UpdateLocalProjectParams parameters);
 
@@ -107,7 +106,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.UpdateLocalProject
                 "alter table dbo.ChangedTable drop column testInt;",
                 "alter table dbo.ChangedTable add testDate DATE NULL;"
             };
-            string folderStructure = "flat";
+            string folderStructure = "Flat";
 
             SetUpTest(startQueries, endQueries, testDb, folderStructure, out UpdateLocalProjectParams parameters);
 
@@ -148,17 +147,17 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.UpdateLocalProject
 
             switch (folderStructure)
             {
-                case "file":
+                case "File":
                     extractTarget = DacExtractTarget.File;
                     packageFilePath = Path.Combine(testProjectPath, string.Format("{0}.sql", testDb.DatabaseName));
                     break;
-                case "objectType":
+                case "Object Type":
                     extractTarget = DacExtractTarget.ObjectType;
                     break;
-                case "schema":
+                case "Schema":
                     extractTarget = DacExtractTarget.Schema;
                     break;
-                case "schema/objectType":
+                case "Schema/Object Type":
                     extractTarget = DacExtractTarget.SchemaObjectType;
                     break;
             }
@@ -186,6 +185,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.UpdateLocalProject
                 FolderStructure = folderStructure,
                 ProjectPath = testProjectPath,
                 OwnerUri = null,
+                Dsp = ""
             };
         }
 

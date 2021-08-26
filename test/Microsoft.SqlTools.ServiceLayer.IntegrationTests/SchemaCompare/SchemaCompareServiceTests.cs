@@ -342,13 +342,13 @@ WITH VALUES
                 Assert.True(enumerator.Current.SourceObject.Name.ToString().Equals("[dbo].[table2]"));
 
                 // update target
-                var publishChangesParams = new SchemaComparePublishChangesParams
+                var publishChangesParams = new SchemaComparePublishDatabaseChangesParams
                 {
                     TargetDatabaseName = targetDb.DatabaseName,
                     OperationId = schemaCompareOperation.OperationId,
                 };
 
-                SchemaComparePublishChangesOperation publishChangesOperation = new SchemaComparePublishChangesOperation(publishChangesParams, schemaCompareOperation.ComparisonResult);
+                SchemaComparePublishDatabaseChangesOperation publishChangesOperation = new SchemaComparePublishDatabaseChangesOperation(publishChangesParams, schemaCompareOperation.ComparisonResult);
                 publishChangesOperation.Execute(TaskExecutionMode.Execute);
                 Assert.True(publishChangesOperation.PublishResult.Success);
                 Assert.That(publishChangesOperation.PublishResult.Errors, Is.Empty);
@@ -411,13 +411,13 @@ WITH VALUES
                 Assert.True(enumerator.Current.SourceObject.Name.ToString().Equals("[dbo].[table2]"));
 
                 // update target
-                var publishChangesParams = new SchemaComparePublishChangesParams
+                var publishChangesParams = new SchemaComparePublishDatabaseChangesParams
                 {
                     TargetDatabaseName = targetDb.DatabaseName,
                     OperationId = schemaCompareOperation.OperationId,
                 };
 
-                SchemaComparePublishChangesOperation publishChangesOperation = new SchemaComparePublishChangesOperation(publishChangesParams, schemaCompareOperation.ComparisonResult);
+                SchemaComparePublishDatabaseChangesOperation publishChangesOperation = new SchemaComparePublishDatabaseChangesOperation(publishChangesParams, schemaCompareOperation.ComparisonResult);
                 publishChangesOperation.Execute(TaskExecutionMode.Execute);
                 Assert.True(publishChangesOperation.PublishResult.Success);
                 Assert.That(publishChangesOperation.PublishResult.Errors, Is.Empty);
@@ -639,15 +639,15 @@ WITH VALUES
 
 
                 SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(targetDb.ConnectionString);
-                var publishParams = new SchemaComparePublishChangesParams
+                var publishParams = new SchemaComparePublishDatabaseChangesParams
                 {
                     OperationId = operationId,
                     TargetDatabaseName = targetDb.DatabaseName,
                     TargetServerName = builder.DataSource,
                 };
 
-                await SchemaCompareService.Instance.HandleSchemaComparePublishChangesRequest(publishParams, publishRequestContext.Object);
-                ValidateTask(SR.PublishChangesTaskName);
+                await SchemaCompareService.Instance.HandleSchemaComparePublishDatabaseChangesRequest(publishParams, publishRequestContext.Object);
+                ValidateTask(SR.PublishDatabaseChangesTaskName);
 
                 // Include/Exclude service call
                 var excludeRequestContext = new Mock<RequestContext<ResultStatus>>();
