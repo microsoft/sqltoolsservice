@@ -30,6 +30,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata.Contracts
         public string Schema { get; set; }
 
         public string Name { get; set; }
+
+        public string ParentName { get; set; }
+
+        public string ParentTypeName { get; set; }
         
         public string Urn { get; set; }
     }
