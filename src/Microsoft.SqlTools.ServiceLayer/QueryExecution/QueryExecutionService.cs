@@ -170,7 +170,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             serviceHost.SetRequestHandler(SubsetRequest.Type, HandleResultSubsetRequest);
             serviceHost.SetRequestHandler(QueryDisposeRequest.Type, HandleDisposeRequest);
             serviceHost.SetRequestHandler(QueryCancelRequest.Type, HandleCancelRequest);
-            serviceHost.SetEventHandler(QueryChangeConnectionUriNotification.Type, HandleChangeConnectionUriNotification);
             serviceHost.SetRequestHandler(SaveResultsAsCsvRequest.Type, HandleSaveResultsAsCsvRequest);
             serviceHost.SetRequestHandler(SaveResultsAsExcelRequest.Type, HandleSaveResultsAsExcelRequest);
             serviceHost.SetRequestHandler(SaveResultsAsJsonRequest.Type, HandleSaveResultsAsJsonRequest);
@@ -178,6 +177,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             serviceHost.SetRequestHandler(QueryExecutionPlanRequest.Type, HandleExecutionPlanRequest);
             serviceHost.SetRequestHandler(SimpleExecuteRequest.Type, HandleSimpleExecuteRequest);
             serviceHost.SetRequestHandler(QueryExecutionOptionsRequest.Type, HandleQueryExecutionOptionsRequest);
+            serviceHost.SetEventHandler(QueryChangeUriNotification.Type, HandleChangeUriNotification);
 
             // Register the file open update handler
             WorkspaceService<SqlToolsSettings>.Instance.RegisterTextDocCloseCallback(HandleDidCloseTextDocumentNotification);
@@ -356,11 +356,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Handles a request to change the uri associated with an active query and connection info.
         /// </summary>
-        internal Task HandleChangeConnectionUriNotification(QueryChangeConnectionUriParams changeUriParams,
+        internal Task HandleChangeUriNotification(QueryChangeUriParams changeUriParams,
             EventContext eventContext)
         {
             try {
-                Logger.Write(TraceEventType.Verbose, "HandleChangeConnectionUriNotification");
+                Logger.Write(TraceEventType.Verbose, "HandleChangeUriNotification");
                 string OriginalOwnerUri = changeUriParams.OriginalOwnerUri;
                 string NewOwnerUri = changeUriParams.NewOwnerUri;
                 // Attempt to load the query
