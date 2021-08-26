@@ -647,7 +647,7 @@ WITH VALUES
                 };
 
                 await SchemaCompareService.Instance.HandleSchemaComparePublishDatabaseChangesRequest(publishParams, publishRequestContext.Object);
-                ValidateTask(SR.PublishDatabaseChangesTaskName);
+                ValidateTask(SR.PublishChangesTaskName);
 
                 // Include/Exclude service call
                 var excludeRequestContext = new Mock<RequestContext<ResultStatus>>();

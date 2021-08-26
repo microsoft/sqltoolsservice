@@ -253,6 +253,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
                 sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
 
+                // very ugly... needs fixing
+                while (operation.PublishResult == null) { };
+
                 await requestContext.SendResult(new SchemaComparePublishProjectResult()
                 {
                     ChangedFiles = operation.PublishResult.ChangedFiles,
@@ -275,22 +278,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 });
             }
         }
-
-        //public async Task HandleSchemaComparePublishProjectChangesRequest(SchemaComparePublishProjectChangesParams parameters, RequestContext<SchemaComparePublishProjectResult> requestContext)
-        //{
-        //    try
-        //    {
-        //        SchemaComparisonResult compareResult = schemaCompareResults.Value[parameters.OperationId];
-        //        SchemaComparePublishProjectChangesOperation operation = new(parameters, compareResult);
-
-        //        SchemaComparePublishProjectResult result = operation.PublishChangesToProject();
-        //        await requestContext.SendResult(result);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        await requestContext.SendError(e);
-        //    }
-        //}
 
         /// <summary>
         /// Handles request for exclude incude node in Schema compare result
