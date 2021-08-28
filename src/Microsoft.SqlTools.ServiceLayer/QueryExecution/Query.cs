@@ -385,6 +385,20 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             Batches[saveParams.BatchIndex].SaveAs(saveParams, fileFactory, successHandler, failureHandler);
         }
 
+        /// <summary>
+        /// Changes the OwnerURI for the editor connection.
+        /// </summary>
+        public String ConnectionOwnerURI { 
+            get
+            {
+                return this.editorConnection.OwnerUri;
+            }
+            set
+            {
+                this.editorConnection.OwnerUri = value;
+            }
+        }
+
         #endregion
 
         #region Private Helpers

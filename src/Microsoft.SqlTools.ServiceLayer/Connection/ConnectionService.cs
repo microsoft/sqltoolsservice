@@ -767,6 +767,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         }
 
         /// <summary>
+        /// Reassign the uri associated with a connection info with a new uri.
+        /// </summary>
+        public bool ReplaceUri(string originalOwnerUri, string newOwnerUri)
+        {
+            // Lookup the ConnectionInfo owned by the URI
+            ConnectionInfo info;
+            if (!OwnerToConnectionMap.TryGetValue(originalOwnerUri, out info))
+            {
+                return false;
+            }
+            OwnerToConnectionMap.Remove(originalOwnerUri);
+            OwnerToConnectionMap.Add(newOwnerUri, info);
+            return true;
+        }
+
+        /// <summary>
         /// Close a connection with the specified connection details.
         /// </summary>
         public virtual bool Disconnect(DisconnectParams disconnectParams)
