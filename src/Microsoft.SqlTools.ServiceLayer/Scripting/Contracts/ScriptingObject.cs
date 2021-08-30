@@ -4,7 +4,6 @@
 //
 
 using System;
-using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
 {
@@ -52,13 +51,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         /// </summary>
         public string Name { get; set; }
 
+        /// <summary>
+        /// Gets or sets the parent object name
+        /// </summary>
+        public string ParentName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the parent object type name, such as Table, View, etc.
+        /// </summary>
+        public string ParentTypeName { get; set; }
+
         public override string ToString()
         {
-            string objectName = string.IsNullOrEmpty(this.Schema)
-                ? this.Name
-                : this.Schema + "." + this.Name;
-
-            return objectName;
+            string objectName = string.Empty;
+            if (!string.IsNullOrEmpty(this.Schema))
+            {
+                objectName += this.Schema + ".";
+            }
+            if (!string.IsNullOrEmpty(this.ParentName))
+            {
+                objectName += this.ParentName + ".";
+            }
+            return objectName + this.Name;
         }
 
         public override int GetHashCode()
@@ -66,6 +80,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
             return
                 StringComparer.OrdinalIgnoreCase.GetHashCode(this.Type ?? string.Empty) ^
                 StringComparer.OrdinalIgnoreCase.GetHashCode(this.Schema ?? string.Empty) ^
+                StringComparer.OrdinalIgnoreCase.GetHashCode(this.ParentName ?? string.Empty) ^
+                StringComparer.OrdinalIgnoreCase.GetHashCode(this.ParentTypeName ?? string.Empty) ^
                 StringComparer.OrdinalIgnoreCase.GetHashCode(this.Name ?? string.Empty);
         }
 
@@ -87,6 +103,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
             return
                 string.Equals(this.Type, other.Type, StringComparison.OrdinalIgnoreCase) &&
                 string.Equals(this.Schema, other.Schema, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(this.ParentName, other.ParentName, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(this.ParentTypeName, other.ParentTypeName, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(this.ParentTypeName, other.ParentTypeName, StringComparison.OrdinalIgnoreCase) &&
                 string.Equals(this.Name, other.Name, StringComparison.OrdinalIgnoreCase);
         }
     }
