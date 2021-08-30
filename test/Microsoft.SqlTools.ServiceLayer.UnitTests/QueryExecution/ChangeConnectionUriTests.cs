@@ -17,7 +17,7 @@ using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 {
-    public class ChangeConnectionUriTests
+    public class ConnectionUriChangedTests
     {
         [Test]
         public async Task ChangeUriForExecutedQuery()
@@ -37,13 +37,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             queryService.ActiveQueries.TryGetValue(Constants.OwnerUri, out query);
 
             // ... And then I change the uri for the query
-            var changeUriParams = new QueryChangeConnectionUriParams {
+            var changeUriParams = new ConnectionUriChangedParams {
                 OriginalOwnerUri = Constants.OwnerUri,
                 NewOwnerUri = newOwnerUri
             };
         
             
-            await queryService.HandleChangeConnectionUriNotification(changeUriParams, new TestEventContext());
+            await queryService.HandleConnectionUriChangedNotification(changeUriParams, new TestEventContext());
 
             // Then:
             // ... And the active queries should have the new query.
@@ -59,12 +59,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             var workspaceService = new Mock<WorkspaceService<SqlToolsSettings>>();
             var queryService = Common.GetPrimedExecutionService(null, false, false, false, workspaceService.Object);
             const string newOwnerUri = "newTestFile";
-            var changeUriParams = new QueryChangeConnectionUriParams {
+            var changeUriParams = new ConnectionUriChangedParams {
                 OriginalOwnerUri = Constants.OwnerUri,
                 NewOwnerUri = newOwnerUri
             };
 
-            Assert.ThrowsAsync<Exception>(async () => await queryService.HandleChangeConnectionUriNotification(changeUriParams, new TestEventContext()));
+            Assert.ThrowsAsync<Exception>(async () => await queryService.HandleConnectionUriChangedNotification(changeUriParams, new TestEventContext()));
 
             Query query;
             Assert.False(queryService.ActiveQueries.TryGetValue(Constants.OwnerUri, out query), "Query was removed from Active Queries");

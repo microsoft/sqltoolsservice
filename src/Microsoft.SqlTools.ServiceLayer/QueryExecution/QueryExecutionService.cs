@@ -170,7 +170,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             serviceHost.SetRequestHandler(SubsetRequest.Type, HandleResultSubsetRequest);
             serviceHost.SetRequestHandler(QueryDisposeRequest.Type, HandleDisposeRequest);
             serviceHost.SetRequestHandler(QueryCancelRequest.Type, HandleCancelRequest);
-            serviceHost.SetEventHandler(QueryChangeConnectionUriNotification.Type, HandleChangeConnectionUriNotification);
+            serviceHost.SetEventHandler(ConnectionUriChangedNotification.Type, HandleConnectionUriChangedNotification);
             serviceHost.SetRequestHandler(SaveResultsAsCsvRequest.Type, HandleSaveResultsAsCsvRequest);
             serviceHost.SetRequestHandler(SaveResultsAsExcelRequest.Type, HandleSaveResultsAsExcelRequest);
             serviceHost.SetRequestHandler(SaveResultsAsJsonRequest.Type, HandleSaveResultsAsJsonRequest);
@@ -356,7 +356,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Handles a request to change the uri associated with an active query and connection info.
         /// </summary>
-        internal Task HandleChangeConnectionUriNotification(QueryChangeConnectionUriParams changeUriParams,
+        internal Task HandleConnectionUriChangedNotification(ConnectionUriChangedParams changeUriParams,
             EventContext eventContext)
         {
             try {

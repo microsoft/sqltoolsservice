@@ -8,17 +8,17 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
 {
     /// <summary>
-    /// Parameters for the query cancellation request
+    /// Parameters for the connection uri changed notification.
     /// </summary>
-    public class QueryChangeConnectionUriParams
+    public class ConnectionUriChangedParams
     {
         public string NewOwnerUri { get; set; }
         public string OriginalOwnerUri { get; set; }
     }
-    public class QueryChangeConnectionUriNotification
+    public class ConnectionUriChangedNotification
     {
         public static readonly 
-            EventType<QueryChangeConnectionUriParams> Type =
-            EventType<QueryChangeConnectionUriParams>.Create("query/changeConnectionUri");
+            EventType<ConnectionUriChangedParams> Type =
+            EventType<ConnectionUriChangedParams>.Create("query/connectionUriChanged");
     }
 }
