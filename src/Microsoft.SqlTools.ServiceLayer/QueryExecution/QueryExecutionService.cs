@@ -170,6 +170,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             serviceHost.SetRequestHandler(SubsetRequest.Type, HandleResultSubsetRequest);
             serviceHost.SetRequestHandler(QueryDisposeRequest.Type, HandleDisposeRequest);
             serviceHost.SetRequestHandler(QueryCancelRequest.Type, HandleCancelRequest);
+            serviceHost.SetEventHandler(ConnectionUriChangedNotification.Type, HandleConnectionUriChangedNotification);
             serviceHost.SetRequestHandler(SaveResultsAsCsvRequest.Type, HandleSaveResultsAsCsvRequest);
             serviceHost.SetRequestHandler(SaveResultsAsExcelRequest.Type, HandleSaveResultsAsExcelRequest);
             serviceHost.SetRequestHandler(SaveResultsAsJsonRequest.Type, HandleSaveResultsAsJsonRequest);
@@ -348,6 +349,33 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             catch (Exception ex)
             {
                 await requestContext.SendError(ex.ToString());
+            }
+        }
+
+
+        /// <summary>
+        /// Handles a request to change the uri associated with an active query and connection info.
+        /// </summary>
+        internal Task HandleConnectionUriChangedNotification(ConnectionUriChangedParams changeUriParams,
+            EventContext eventContext)
+        {
+            try {
+                string OriginalOwnerUri = changeUriParams.OriginalOwnerUri;
+                string NewOwnerUri = changeUriParams.NewOwnerUri;
+                // Attempt to load the query
+                Query query;
+                if(!ActiveQueries.TryRemove(OriginalOwnerUri, out query)){
+                    throw new Exception("Uri: " + OriginalOwnerUri + " is not associated with an active query.");
+                }
+                ConnectionService.ReplaceUri(OriginalOwnerUri, NewOwnerUri);
+                query.ConnectionOwnerURI = NewOwnerUri;
+                ActiveQueries.TryAdd(NewOwnerUri, query);
+                return Task.FromResult(true);
+            }
+             catch (Exception ex)
+            {
+                Logger.Write(TraceEventType.Error, "Error encountered " + ex.ToString());
+                return Task.FromException(ex);
             }
         }
 
