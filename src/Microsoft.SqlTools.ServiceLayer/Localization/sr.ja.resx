@@ -1329,4 +1329,10 @@
   <data name="SqlCmdUnsupportedToken" xml:space="preserve">
     <value>サポートされていないトークン {0} が見つかりました</value>
   </data>
+  <data name="CouldntFindAzureFunction" xml:space="preserve">
+    <value>FunctionName {0} の Azure 関数が {1} に見つかりませんでした</value>
+  </data>
+  <data name="MoreThanOneAzureFunctionWithName" xml:space="preserve">
+    <value>FunctionName {0} の Azure 関数が {1} に複数見つかりました</value>
+  </data>
 </root>
