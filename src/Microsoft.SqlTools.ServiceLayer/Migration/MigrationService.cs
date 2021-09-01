@@ -120,20 +120,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 await ConnectionService.Connect(connectParams);
 
                 var connection = await ConnectionService.Instance.GetOrOpenConnection(randomUri, ConnectionType.Default);
-                var serverInfo = ReliableConnectionHelper.GetServerVersion(connection);
-                var hostInfo = ReliableConnectionHelper.GetServerHostInfo(connection);
-
-                var server = new SqlObjectLocator
-                {
-                    Connection = connection,
-                    EngineEdition = SqlAssessmentService.GetEngineEdition(serverInfo.EngineEditionId),
-                    Name = serverInfo.ServerName,
-                    ServerName = serverInfo.ServerName,
-                    Type = SqlObjectType.Server,
-                    Urn = serverInfo.ServerName,
-                    Version = Version.Parse(serverInfo.ServerVersion),
-                    Platform = hostInfo.Platform
-                };
                 var connectionStrings = new List<string>();
                 if (parameters.Databases != null) 
                 {
@@ -192,9 +178,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             SqlAssessmentConfiguration.AssessmentReportAndLogsRootFolderPath = Path.GetDirectoryName(Logger.LogFileFullPath);
             DmaEngine engine = new DmaEngine(connectionStrings);
             ISqlMigrationAssessmentModel contextualizedAssessmentResult = await engine.GetTargetAssessmentResultsList(System.Threading.CancellationToken.None);
+            var server = (contextualizedAssessmentResult.Servers.Count > 0)? ParseServerAssessmentInfo(contextualizedAssessmentResult.Servers[0], engine): null;
             return new MigrationAssessmentResult()
             {
-                AssessmentResult = ParseServerAssessmentInfo(contextualizedAssessmentResult.Servers[0], engine),
+                AssessmentResult = server,
                 Errors = ParseAssessmentError(contextualizedAssessmentResult.Errors),
                 StartTime = contextualizedAssessmentResult.StartedOn.ToString(),
                 EndedTime = contextualizedAssessmentResult.EndedOn.ToString(),

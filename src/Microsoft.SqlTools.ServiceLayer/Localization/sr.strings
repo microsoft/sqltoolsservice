@@ -849,3 +849,8 @@ SqlAssessmentGenerateScriptTaskName = Generate SQL Assessment script
 SqlAssessmentQueryInvalidOwnerUri = Not connected to a server
 SqlAssessmentConnectingError = Cannot connect to the server
 SqlAssessmentUnsuppoertedEdition(int editionCode) = Unsupported engine edition {0}
+
+############################################################################
+# Azure Functions
+CouldntFindAzureFunction(string functionName, string fileName) = Couldn't find Azure function with FunctionName '{0}' in {1}
+MoreThanOneAzureFunctionWithName(string functionName, string fileName) = More than one Azure function found with the FunctionName '{0}' in {1}

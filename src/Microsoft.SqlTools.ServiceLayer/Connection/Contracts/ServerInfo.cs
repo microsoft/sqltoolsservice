@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
@@ -70,12 +71,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// <summary>
         /// The CPU count of the host running the server.
         /// </summary>
-        public int CpuCount;
+        public Nullable<int> CpuCount;
 
         /// <summary>
         /// The physical memory of the host running the server in MBs.
         /// </summary>
-        public int PhysicalMemoryInMB;
+        public Nullable<int> PhysicalMemoryInMB;
 
         /// <summary>
         /// Server options

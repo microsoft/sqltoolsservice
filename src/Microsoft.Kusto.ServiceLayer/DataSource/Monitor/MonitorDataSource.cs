@@ -22,7 +22,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
         private readonly MonitorClient _monitorClient;
         private readonly IntellisenseClientBase _intellisenseClient;
         private WorkspaceResponse _metadata;
-        private Dictionary<string, List<DataSourceObjectMetadata>> _nodes;
+        private Dictionary<string, SortedDictionary<string, DataSourceObjectMetadata>> _nodes;
+        private const string DatabaseKeyPrefix = "OnlyTables";
         
         public override string ClusterName => _monitorClient.WorkspaceId;
         public override string DatabaseName { get; set; }
@@ -31,7 +32,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
         {
             _monitorClient = monitorClient;
             _intellisenseClient = intellisenseClient;
-            _nodes = new Dictionary<string, List<DataSourceObjectMetadata>>();
+            _nodes = new Dictionary<string, SortedDictionary<string, DataSourceObjectMetadata>>(StringComparer.OrdinalIgnoreCase);
             _metadata = _monitorClient.LoadMetadata();
             DataSourceType = DataSourceType.LogAnalytics;
             SetupTableGroups(monitorClient.WorkspaceId);
@@ -41,46 +42,37 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
         {
             var workspace = _metadata.Workspaces.First(x => x.Id == workspaceId);
             DatabaseName = $"{workspace.Name} ({workspace.Id})";
-            var metadataTableGroups = _metadata.TableGroups.ToDictionary(x => x.Id);
             
-            foreach (string workspaceTableGroup in workspace.TableGroups)
-            {
-                var tableGroup = metadataTableGroups[workspaceTableGroup];
+            var tableGroups = _metadata.TableGroups.Where(x => workspace.TableGroups.Contains(x.Id));
 
+            foreach (TableGroupsModel workspaceTableGroup in tableGroups)
+            {
+                var name = workspaceTableGroup.DisplayName ?? workspaceTableGroup.Name;
                 var tableGroupNodeInfo =
-                    MetadataFactory.CreateDataSourceObjectMetadata(DataSourceMetadataType.Folder, tableGroup.Name, $"{workspace.Id}.{tableGroup.Name}");
+                    MetadataFactory.CreateDataSourceObjectMetadata(DataSourceMetadataType.Folder, name, $"{workspace.Id}.{name}");
 
                 _nodes.SafeAdd($"{workspace.Id}", tableGroupNodeInfo);
                 
-                SetupTables(tableGroupNodeInfo);
+                SetupTables(tableGroupNodeInfo, workspaceTableGroup, workspace.Id);
             }
         }
         
-        private void SetupTables(DataSourceObjectMetadata tableGroupNodeInfo)
+        private void SetupTables(DataSourceObjectMetadata tableGroupNodeInfo, TableGroupsModel workspaceTableGroup, string workspaceId)
         {
-            var tables = GetNonEmptyTableNames();
-            var metadataTables = _metadata.Tables.ToDictionary(x => x.Name);
+            var tableGroupTables = _metadata.Tables.Where(x => workspaceTableGroup.Tables.Contains(x.Id));
             
-            foreach (string tableName in tables)
+            foreach (TablesModel metadataTable in tableGroupTables)
             {
-                var table = metadataTables[tableName];
-
-                var tableNodeInfo = MetadataFactory.CreateDataSourceObjectMetadata(DataSourceMetadataType.Table, table.Name,
-                    $"{tableGroupNodeInfo.Urn}.{table.Name}");
+                var tableNodeInfo = MetadataFactory.CreateDataSourceObjectMetadata(DataSourceMetadataType.Table, metadataTable.Name,
+                    $"{tableGroupNodeInfo.Urn}.{metadataTable.Name}");
 
                 _nodes.SafeAdd(tableGroupNodeInfo.Urn, tableNodeInfo);
+                _nodes.SafeAdd($"{DatabaseKeyPrefix}.{workspaceId}", tableNodeInfo);
 
-                SetupColumns(table, tableNodeInfo);
+                SetupColumns(metadataTable, tableNodeInfo);
             }
         }
-        
-        private IEnumerable<string> GetNonEmptyTableNames()
-        {
-            string query = "union * | summarize count() by Type";
-            var results = _monitorClient.Query(query);
-            return results.Tables[0].Rows.Select(x => x[0]).OrderBy(x => x);
-        }
-        
+
         private void SetupColumns(TablesModel table, DataSourceObjectMetadata tableNodeInfo)
         {
             foreach (var column in table.Columns)
@@ -94,7 +86,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
 
         public override async Task<IDataReader> ExecuteQueryAsync(string query, CancellationToken cancellationToken, string databaseName = null)
         {
-            var results =  await _monitorClient.QueryAsync(query, cancellationToken);
+            var results = await _monitorClient.QueryAsync(query, cancellationToken);
             return results.ToDataReader();
         }
 
@@ -118,17 +110,17 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
 
             if (parentMetadata.MetadataType == DataSourceMetadataType.Cluster && includeSizeDetails)
             {
-                var child = _nodes[parentMetadata.Urn].FirstOrDefault();
-                return child == null ? Enumerable.Empty<DataSourceObjectMetadata>() : _nodes[child.Urn];
+                string newKey = $"{DatabaseKeyPrefix}.{parentMetadata.Urn}";
+                return _nodes[newKey].Values;
             }
             
-            return _nodes[parentMetadata.Urn].OrderBy(x => x.PrettyName, StringComparer.OrdinalIgnoreCase);
+            return _nodes[parentMetadata.Urn].Values;
         }
 
         public override void Refresh(bool includeDatabase)
         {
             // reset the data source
-            _nodes = new Dictionary<string, List<DataSourceObjectMetadata>>();
+            _nodes = new Dictionary<string, SortedDictionary<string, DataSourceObjectMetadata>>(StringComparer.OrdinalIgnoreCase);
             _metadata = _monitorClient.LoadMetadata();
             SetupTableGroups(_monitorClient.WorkspaceId);
         }

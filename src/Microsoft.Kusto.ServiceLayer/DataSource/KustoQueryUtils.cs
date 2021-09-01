@@ -91,16 +91,22 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 dictionary[key] = new Dictionary<string, T> {{metadata.Name, metadata}};
             }
         }
-        
-        public static void SafeAdd(this Dictionary<string, List<DataSourceObjectMetadata>> dictionary, string key, DataSourceObjectMetadata node)
+
+        public static void SafeAdd<T>(this Dictionary<string, SortedDictionary<string, DataSourceObjectMetadata>> dictionary, string key,
+            T node) where T : DataSourceObjectMetadata
         {
             if (dictionary.ContainsKey(key))
             {
-                dictionary[key].Add(node);
+                if (dictionary[key].ContainsKey(node.PrettyName))
+                {
+                    return;
+                }
+
+                dictionary[key].Add(node.PrettyName, node);
             }
             else
             {
-                dictionary[key] = new List<DataSourceObjectMetadata> {node};
+                dictionary[key] = new SortedDictionary<string, DataSourceObjectMetadata> {{node.PrettyName, node}};
             }
         }
         

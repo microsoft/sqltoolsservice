@@ -300,7 +300,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 Delimiter = this.requestParams.Delimiter,
                 LineSeperator = this.requestParams.LineSeparator,
                 TextIdentifier = this.requestParams.TextIdentifier,
-                Encoding = this.requestParams.Encoding
+                Encoding = this.requestParams.Encoding,
+                MaxCharsToStore = this.requestParams.MaxCharsToStore
             };
         }
         private SaveResultsAsXmlRequestParams CreateXmlRequestParams()

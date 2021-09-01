@@ -2161,6 +2161,16 @@
         <target state="new">No External Streaming Job creation TSQL found (EXEC sp_create_streaming_job statement).</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="CouldntFindAzureFunction">
+        <source>Couldn't find Azure function with FunctionName {0} in {1}</source>
+        <target state="new">Couldn't find Azure function with FunctionName {0} in {1}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="MoreThanOneAzureFunctionWithName">
+        <source>More than one Azure function found with the FunctionName {0} in {1}</source>
+        <target state="new">More than one Azure function found with the FunctionName {0} in {1}</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
