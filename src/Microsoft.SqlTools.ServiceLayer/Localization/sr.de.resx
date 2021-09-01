@@ -1329,4 +1329,10 @@
   <data name="SqlCmdUnsupportedToken" xml:space="preserve">
     <value>Es wurde ein nicht unterstütztes Token "{0}" gefunden.</value>
   </data>
+  <data name="CouldntFindAzureFunction" xml:space="preserve">
+    <value>Die Azure-Funktion mit FunctionName "{0}" wurde in "{1}" nicht gefunden.</value>
+  </data>
+  <data name="MoreThanOneAzureFunctionWithName" xml:space="preserve">
+    <value>In "{1}" wurden mehrere Azure-Funktionen mit FunctionName "{0}" gefunden.</value>
+  </data>
 </root>
