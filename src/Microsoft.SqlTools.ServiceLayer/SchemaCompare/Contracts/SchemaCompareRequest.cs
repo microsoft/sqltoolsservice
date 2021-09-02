@@ -47,7 +47,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
         /// </summary>
         public string Dsp { get; set; }
 
-
         /// <summary>
         /// Gets or sets package filepath
         /// </summary>
