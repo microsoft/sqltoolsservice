@@ -116,7 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             {
                 case SchemaCompareEndpointType.Project:
                     {
-                        return new SchemaCompareProjectEndpoint(endpointInfo.ProjectFilePath, endpointInfo.TargetScripts, endpointInfo.Dsp);
+                        return new SchemaCompareProjectEndpoint(endpointInfo.ProjectFilePath, endpointInfo.TargetScripts, endpointInfo.DataSchemaProvider);
                     }
                 case SchemaCompareEndpointType.Dacpac:
                     {

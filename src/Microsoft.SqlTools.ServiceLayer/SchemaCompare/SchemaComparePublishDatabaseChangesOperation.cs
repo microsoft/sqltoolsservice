@@ -17,46 +17,29 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
     /// <summary>
     /// Class to represent an in-progress schema compare publish database changes operation
     /// </summary>
-    class SchemaComparePublishDatabaseChangesOperation : ITaskOperation
+    class SchemaComparePublishDatabaseChangesOperation : SchemaComparePublishChangesOperation
     {
-        private CancellationTokenSource cancellation = new CancellationTokenSource();
-
-        /// <summary>
-        /// Gets the unique id associated with this instance.
-        /// </summary>
-        public string OperationId { get; private set; }
-
         public SchemaComparePublishDatabaseChangesParams Parameters { get; }
-
-        protected CancellationToken CancellationToken { get { return this.cancellation.Token; } }
-
-        public string ErrorMessage { get; set; }
-
-        public SqlTask SqlTask { get; set; }
-
-        public SchemaComparisonResult ComparisonResult { get; set; }
 
         public SchemaComparePublishDatabaseResult PublishResult { get; set; }
 
-        public SchemaComparePublishDatabaseChangesOperation(SchemaComparePublishDatabaseChangesParams parameters, SchemaComparisonResult comparisonResult)
+        public SchemaComparePublishDatabaseChangesOperation(SchemaComparePublishDatabaseChangesParams parameters, SchemaComparisonResult comparisonResult) : base(comparisonResult)
         {
             Validate.IsNotNull("parameters", parameters);
-            this.Parameters = parameters;
-            Validate.IsNotNull("comparisonResult", comparisonResult);
-            this.ComparisonResult = comparisonResult;
+            Parameters = parameters;
         }
 
-        public void Execute(TaskExecutionMode mode)
+        public override void Execute(TaskExecutionMode mode)
         {
-            if (this.CancellationToken.IsCancellationRequested)
+            if (CancellationToken.IsCancellationRequested)
             {
-                throw new OperationCanceledException(this.CancellationToken);
+                throw new OperationCanceledException(CancellationToken);
             }
 
             try
             {
-                this.PublishResult = this.ComparisonResult.PublishChangesToDatabase(this.CancellationToken);
-                if (!this.PublishResult.Success)
+                PublishResult = ComparisonResult.PublishChangesToDatabase(CancellationToken);
+                if (!PublishResult.Success)
                 {
                     // Sending only errors and warnings - because overall message might be too big for task view
                     ErrorMessage = string.Join(Environment.NewLine, this.PublishResult.Errors.Where(x => x.MessageType == SqlServer.Dac.DacMessageType.Error || x.MessageType == SqlServer.Dac.DacMessageType.Warning));
@@ -69,12 +52,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 Logger.Write(TraceEventType.Error, string.Format("Schema compare publish database changes operation {0} failed with exception {1}", this.OperationId, e.Message));
                 throw;
             }
-        }
-
-        // The schema compare public api doesn't currently take a cancellation token so the operation can't be cancelled
-        public void Cancel()
-        {
-            this.cancellation.Cancel();
         }
     }
 }

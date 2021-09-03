@@ -244,14 +244,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 SchemaComparisonResult compareResult = schemaCompareResults.Value[parameters.OperationId];
                 operation = new SchemaComparePublishProjectChangesOperation(parameters, compareResult);
 
-                SqlTask sqlTask = null;
-                TaskMetadata metadata = new TaskMetadata();
-                metadata.TaskOperation = operation;
-                metadata.ProjectPath = parameters.TargetProjectPath;
-                metadata.FolderStructure = parameters.TargetFolderStructure;
-                metadata.Name = SR.PublishChangesTaskName;
+                TaskMetadata metadata = new()
+                {
+                    TaskOperation = operation,
+                    TargetLocation = parameters.TargetProjectPath,
+                    Name = SR.PublishChangesTaskName
+                };
 
-                sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
+                SqlTask sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
 
                 // very ugly... needs fixing
                 while (operation.PublishResult == null) { };

@@ -45,7 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
         /// <summary>
         /// Gets or sets the project data schema provider
         /// </summary>
-        public string Dsp { get; set; }
+        public string DataSchemaProvider { get; set; }
 
         /// <summary>
         /// Gets or sets package filepath
