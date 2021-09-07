@@ -251,10 +251,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                     Name = SR.PublishChangesTaskName
                 };
 
-                SqlTask sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
-
-                // very ugly... needs fixing
-                while (operation.PublishResult == null) { };
+                SqlTask sqlTask = SqlTaskManagerInstance.CreateTask<SqlTask>(metadata);
+                await sqlTask.RunAsync();
 
                 await requestContext.SendResult(new SchemaComparePublishProjectResult()
                 {
@@ -274,7 +272,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                     AddedFiles = Array.Empty<string>(),
                     DeletedFiles = Array.Empty<string>(),
                     Success = false,
-                    ErrorMessage = operation == null ? e.Message : operation.ErrorMessage,
+                    ErrorMessage = operation?.ErrorMessage ?? e.Message
                 });
             }
         }

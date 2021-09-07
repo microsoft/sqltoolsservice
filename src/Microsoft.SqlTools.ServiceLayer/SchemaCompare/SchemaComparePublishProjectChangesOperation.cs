@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
         public SchemaComparePublishProjectChangesOperation(SchemaComparePublishProjectChangesParams parameters, SchemaComparisonResult comparisonResult) : base(comparisonResult)
         {
-            Validate.IsNotNull("parameters", parameters);
+            Validate.IsNotNull(nameof(parameters), parameters);
             Parameters = parameters;
         }
 

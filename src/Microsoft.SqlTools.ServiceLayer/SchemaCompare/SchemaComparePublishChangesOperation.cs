@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
         public SchemaComparePublishChangesOperation(SchemaComparisonResult comparisonResult)
         {
-            Validate.IsNotNull("comparisonResult", comparisonResult);
+            Validate.IsNotNull(nameof(comparisonResult), comparisonResult);
             ComparisonResult = comparisonResult;
         }
         
