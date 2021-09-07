@@ -174,10 +174,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         internal async Task<MigrationAssessmentResult> GetAssessmentItems(string[] connectionStrings)
         {
             SqlAssessmentConfiguration.EnableLocalLogging = true;
-            SqlAssessmentConfiguration.EnableReportCreation = true;
             SqlAssessmentConfiguration.AssessmentReportAndLogsRootFolderPath = Path.GetDirectoryName(Logger.LogFileFullPath);
             DmaEngine engine = new DmaEngine(connectionStrings);
-            ISqlMigrationAssessmentModel contextualizedAssessmentResult = await engine.GetTargetAssessmentResultsList(System.Threading.CancellationToken.None);
+            ISqlMigrationAssessmentModel contextualizedAssessmentResult = await engine.GetTargetAssessmentResultsListWithCheck(System.Threading.CancellationToken.None);
+            engine.SaveAssessmentResultsToJson(contextualizedAssessmentResult, false);
             var server = (contextualizedAssessmentResult.Servers.Count > 0)? ParseServerAssessmentInfo(contextualizedAssessmentResult.Servers[0], engine): null;
             return new MigrationAssessmentResult()
             {
@@ -246,25 +246,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         {
             return assessmentResults.Select(r =>
             {
-                var check = engine.GetRuleMetadata(r.FeatureId, r.AppliesToMigrationTargetPlatform);
                 return new MigrationAssessmentInfo()
                 {
-                    CheckId = check.Id,
-                    Description = check.Description,
-                    DisplayName = check.DisplayName,
-                    HelpLink = check.HelpLink,
-                    Level = check.Level.ToString(),
+                    CheckId = r.Check.Id,
+                    Description = r.Check.Description,
+                    DisplayName = r.Check.DisplayName,
+                    HelpLink = r.Check.HelpLink,
+                    Level = r.Check.Level.ToString(),
                     TargetName = r.AppliesToMigrationTargetPlatform.ToString(),
                     DatabaseName = r.DatabaseName,
                     ServerName = r.ServerName,
-                    Tags = check.Tags.ToArray(),
+                    Tags = r.Check.Tags.ToArray(),
                     RulesetName = Engine.Configuration.DefaultRuleset.Name,
                     RulesetVersion = Engine.Configuration.DefaultRuleset.Version.ToString(),
                     RuleId = r.FeatureId.ToString(),
                     Message = r.Message,
                     AppliesToMigrationTargetPlatform = r.AppliesToMigrationTargetPlatform.ToString(),
                     IssueCategory = r.IssueCategory.ToString(),
-                    ImpactedObjects = ParseImpactedObjects(r.ImpactedObjects)
+                    ImpactedObjects = ParseImpactedObjects(r.ImpactedObjects),
+                    IsBlockerForMIMigration = r.DatabaseRestoreFails
                 };
             }).ToArray();
         }
