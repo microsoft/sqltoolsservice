@@ -253,7 +253,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                     DisplayName = r.Check.DisplayName,
                     HelpLink = r.Check.HelpLink,
                     Level = r.Check.Level.ToString(),
-                    TargetName = r.AppliesToMigrationTargetPlatform.ToString(),
+                    TargetType = r.TargetType.ToString(),
                     DatabaseName = r.DatabaseName,
                     ServerName = r.ServerName,
                     Tags = r.Check.Tags.ToArray(),
@@ -264,7 +264,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                     AppliesToMigrationTargetPlatform = r.AppliesToMigrationTargetPlatform.ToString(),
                     IssueCategory = r.IssueCategory.ToString(),
                     ImpactedObjects = ParseImpactedObjects(r.ImpactedObjects),
-                    IsBlockerForMIMigration = r.DatabaseRestoreFails
+                    DatabaseRestoreFails = r.DatabaseRestoreFails
                 };
             }).ToArray();
         }

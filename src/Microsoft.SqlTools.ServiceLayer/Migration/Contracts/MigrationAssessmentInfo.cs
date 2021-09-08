@@ -28,15 +28,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
         public string RuleId { get; set; }
 
         /// <summary>
-        /// Gets or sets assessed target's type.
-        /// Supported values: 1 - server, 2 - database.
-        /// </summary>
-        public SqlObjectType TargetType { get; set; }
-
-        /// <summary>
         /// Gets or sets the assessed object's name. 
         /// </summary>
-        public string TargetName { get; set; }
+        public string TargetType { get; set; }
 
         /// <summary>
         /// Gets or sets the database name.
@@ -89,9 +83,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
         public string IssueCategory { get; set; }
 
         public ImpactedObjectInfo[] ImpactedObjects { get; set; }
+        
         /// <summary>
-        /// This flag is set if the assessment result is a blocker for migration to SQL Managed Instance 
+        /// This flag is set if the assessment result is a blocker for migration to Target Platform.
         /// </summary>
-        public bool IsBlockerForMIMigration { get; set; }
+        public bool DatabaseRestoreFails { get; set; }
     }
 }
