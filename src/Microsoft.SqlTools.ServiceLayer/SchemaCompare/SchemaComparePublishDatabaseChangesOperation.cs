@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
     {
         public SchemaComparePublishDatabaseChangesParams Parameters { get; }
 
-        public SchemaComparePublishDatabaseResult PublishResult { get; set; }
+        public SchemaComparePublishResult PublishResult { get; set; }
 
         public SchemaComparePublishDatabaseChangesOperation(SchemaComparePublishDatabaseChangesParams parameters, SchemaComparisonResult comparisonResult) : base(comparisonResult)
         {

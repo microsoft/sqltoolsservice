@@ -14,20 +14,29 @@ using NUnit.Framework;
 using System;
 using System.IO;
 using static Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility.LiveConnectionHelper;
+using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
 {
     internal static class SchemaCompareTestUtils
     {
-        internal static void VerifyAndCleanup(string filePath)
+        internal static void VerifyAndCleanup(string path)
         {
             // Verify it was created
-            Assert.True(File.Exists(filePath), $"File {filePath} was expected to exist but did not"); 
+            Assert.True(File.Exists(path) || Directory.Exists(path), $"File or directory {path} was expected to exist but did not");
 
-            // Remove the file
-            if (File.Exists(filePath))
+            FileAttributes attr = File.GetAttributes(path);
+
+            // If path is a directory, delete it and all subdirs/subfiles
+            if ((attr & FileAttributes.Directory) == FileAttributes.Directory)
             {
-                File.Delete(filePath);
+                new DirectoryInfo(path).Delete(true);
+            }
+
+            // If path is a file, delete it
+            else
+            {
+                File.Delete(path);
             }
         }
 
@@ -50,6 +59,34 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
             service.PerformOperation(operation, TaskExecutionMode.Execute);
 
             return extractParams.PackageFilePath;
+        }
+
+        internal static string CreateProject(SqlTestDb testdb, string projectName)
+        {
+            var result = GetLiveAutoCompleteTestObjects();
+            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SchemaCompareTest", projectName);
+            Directory.CreateDirectory(folderPath);
+            File.Create(Path.Combine(folderPath, projectName + ".sqlproj"));
+
+            var extractParams = new ExtractParams
+            {
+                DatabaseName = testdb.DatabaseName,
+                ExtractTarget = DacExtractTarget.Flat,
+                PackageFilePath = folderPath,
+                ApplicationName = "test",
+                ApplicationVersion = "1.0.0.0"
+            };
+
+            DacFxService service = new();
+            ExtractOperation operation = new(extractParams, result.ConnectionInfo);
+            service.PerformOperation(operation, TaskExecutionMode.Execute);
+
+            return folderPath;
+        }
+
+        internal static string[] GetProjectScripts(string projectPath)
+        {
+            return Directory.GetFiles(projectPath, "*.sql", SearchOption.AllDirectories);
         }
 
         internal static string CreateScmpPath()
