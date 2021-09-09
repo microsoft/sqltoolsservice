@@ -66,7 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
             var result = GetLiveAutoCompleteTestObjects();
             string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SchemaCompareTest", projectName);
             Directory.CreateDirectory(folderPath);
-            File.Create(Path.Combine(folderPath, projectName + ".sqlproj"));
+            File.Create(Path.Combine(folderPath, projectName + ".sqlproj")).Close();
 
             var extractParams = new ExtractParams
             {
