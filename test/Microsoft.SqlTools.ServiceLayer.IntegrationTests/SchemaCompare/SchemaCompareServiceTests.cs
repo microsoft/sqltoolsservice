@@ -1782,11 +1782,30 @@ WITH VALUES
                 Assert.That(schemaCompareOpenScmpOperation.Result.ExcludedSourceElements, Is.Not.Empty);
                 Assert.AreEqual(1, schemaCompareOpenScmpOperation.Result.ExcludedSourceElements.Count());
                 Assert.That(schemaCompareOpenScmpOperation.Result.ExcludedTargetElements, Is.Empty);
-                Assert.AreEqual(targetDb.DatabaseName, schemaCompareOpenScmpOperation.Result.OriginalTargetName);
+
+                if (targetEndpointType == SchemaCompareEndpointType.Project)
+                {
+                    Assert.AreEqual(Path.GetFileName((targetEndpoint as SchemaCompareProjectEndpoint).ProjectFilePath), schemaCompareOpenScmpOperation.Result.OriginalTargetName);
+                }
+                else
+                {
+                    Assert.AreEqual(targetDb.DatabaseName, schemaCompareOpenScmpOperation.Result.OriginalTargetName);
+                }
+                
                 ValidateResultEndpointInfo(sourceEndpoint, schemaCompareOpenScmpOperation.Result.SourceEndpointInfo, sourceDb.ConnectionString);
                 ValidateResultEndpointInfo(targetEndpoint, schemaCompareOpenScmpOperation.Result.TargetEndpointInfo, targetDb.ConnectionString);
 
                 SchemaCompareTestUtils.VerifyAndCleanup(filePath);
+
+                if (sourceEndpointType == SchemaCompareEndpointType.Project)
+                {
+                    SchemaCompareTestUtils.VerifyAndCleanup(Directory.GetParent((sourceEndpoint as SchemaCompareProjectEndpoint).ProjectFilePath).FullName);
+                }
+
+                if (targetEndpointType == SchemaCompareEndpointType.Project)
+                {
+                    SchemaCompareTestUtils.VerifyAndCleanup(Directory.GetParent((targetEndpoint as SchemaCompareProjectEndpoint).ProjectFilePath).FullName);
+                }
             }
             finally
             {
