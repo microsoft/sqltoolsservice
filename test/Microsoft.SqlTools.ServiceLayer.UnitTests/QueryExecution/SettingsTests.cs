@@ -22,8 +22,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
             // Then: The default values should be as expected
             Assert.AreEqual("GO", sqlToolsSettings.QueryExecutionSettings.BatchSeparator);
-            Assert.AreEqual(ushort.MaxValue, sqlToolsSettings.QueryExecutionSettings.MaxCharsToStore);
-            Assert.AreEqual(2097152, sqlToolsSettings.QueryExecutionSettings.MaxXmlCharsToStore); // 2MB
+            Assert.AreEqual(2097152, sqlToolsSettings.QueryExecutionSettings.MaxCharsToStore);
+            Assert.AreEqual(2*1024*1024, sqlToolsSettings.QueryExecutionSettings.MaxXmlCharsToStore);
             Assert.False(sqlToolsSettings.QueryExecutionSettings.ExecutionPlanOptions.IncludeActualExecutionPlanXml);
             Assert.False(sqlToolsSettings.QueryExecutionSettings.ExecutionPlanOptions.IncludeEstimatedExecutionPlanXml);
             Assert.True(sqlToolsSettings.QueryExecutionSettings.DisplayBitAsNumber);
