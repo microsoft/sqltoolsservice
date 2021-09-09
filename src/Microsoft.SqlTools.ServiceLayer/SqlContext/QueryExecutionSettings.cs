@@ -17,6 +17,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
     {
         #region Constants
 
+        #region WellKnownNumbers
+        internal const int int64K = 65535;
+        internal const int int1MB = 1048576;
+        internal const int int2MB = 2097152;
+        internal const int int5MB = 5242880;
+        internal const int int2GB = 2147483647;
+        #endregion
+
         /// <summary>
         /// Default value for batch separator (de facto standard as per SSMS)
         /// </summary>
@@ -25,13 +33,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// <summary>
         /// Default number of chars to store for long text fields (de facto standard as per SSMS)
         /// </summary>
-        private const int DefaultMaxCharsToStore = 65535; // 64 KB - QE default
+        private const int DefaultMaxCharsToStore = int2MB; // #392: Raised from 64K to 2MB as found in SSMS
 
         /// <summary>
         /// Default number of chars to store of XML values (de facto standard as per SSMS)
         /// xml is a special case so number of chars to store is usually greater than for other long types 
         /// </summary>
-        private const int DefaultMaxXmlCharsToStore = 2097152; // 2 MB - QE default
+        private const int DefaultMaxXmlCharsToStore = int2MB; // 2 MB - QE default
 
         /// <summary>
         /// Default selection of returning an actual XML showplan with all batches
@@ -56,7 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// <summary>
         /// default text size
         /// </summary>
-        private const int DefaultTextSize = 2147483647;
+        private const int DefaultTextSize = int2GB; // 2GB
 
         /// <summary>
         /// default execution timeout
