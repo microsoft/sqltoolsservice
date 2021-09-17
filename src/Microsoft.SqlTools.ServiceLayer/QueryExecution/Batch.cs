@@ -350,7 +350,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 try
                 {
-                    await SyncExecuteOnce(conn, cancellationToken);
+                    await ExecuteOnce(conn, cancellationToken);
                 }
                 catch (DbException dbe)
                 {
@@ -386,102 +386,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         }
 
         private async Task ExecuteOnce(DbConnection conn, CancellationToken cancellationToken)
-        {
-            // Make sure we haven't cancelled yet
-            cancellationToken.ThrowIfCancellationRequested();
-
-            // Create a command that we'll use for executing the query
-            using (DbCommand dbCommand = CreateCommand(conn))
-            {
-                // Make sure that we cancel the command if the cancellation token is cancelled
-                cancellationToken.Register(() => dbCommand?.Cancel());
-
-                // Setup the command for executing the batch
-                dbCommand.CommandText = BatchText;
-                dbCommand.CommandType = CommandType.Text;
-                dbCommand.CommandTimeout = 0;
-
-                if (WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.QueryExecutionSettings.IsAlwaysEncryptedParameterizationEnabled)
-                {
-                    dbCommand.Parameterize();
-                }
-
-                List<DbColumn[]> columnSchemas = null;
-                if (getFullColumnSchema)
-                {
-                    // Executing the same query twice with different command behavior causes the second
-                    // execution to return no rows if there's a trailing comment with no newline after,
-                    // so add a newline to the end of the query. See https://github.com/Microsoft/sqlopsstudio/issues/1424
-                    dbCommand.CommandText += Environment.NewLine;
-
-                    ConnectionService.EnsureConnectionIsOpen(conn);
-
-                    // Fetch schema info separately, since CommandBehavior.KeyInfo will include primary
-                    // key columns in the result set, even if they weren't part of the select statement.
-                    // Extra key columns get added to the end, so just correlate via Column Ordinal.
-                    columnSchemas = new List<DbColumn[]>();
-                    using (DbDataReader reader = await dbCommand.ExecuteReaderAsync(CommandBehavior.KeyInfo | CommandBehavior.SchemaOnly, cancellationToken))
-                    {
-                        if (reader != null && reader.CanGetColumnSchema())
-                        {
-                            do
-                            {
-                                columnSchemas.Add(reader.GetColumnSchema().ToArray());
-                            } while (await reader.NextResultAsync(cancellationToken));
-                        }
-                    }
-                }
-
-                ConnectionService.EnsureConnectionIsOpen(conn);
-
-                // Execute the command to get back a reader
-                using (DbDataReader reader = await dbCommand.ExecuteReaderAsync(cancellationToken))
-                {
-                    do
-                    {
-                        // Verify that the cancellation token hasn't been canceled
-                        cancellationToken.ThrowIfCancellationRequested();
-
-                        // Skip this result set if there aren't any rows (i.e. UPDATE/DELETE/etc queries)
-                        if (!reader.HasRows && reader.FieldCount == 0)
-                        {
-                            continue;
-                        }
-
-                        // This resultset has results (i.e. SELECT/etc queries)
-                        ResultSet resultSet = new ResultSet(resultSets.Count, Id, outputFileFactory);
-                        resultSet.ResultAvailable += ResultSetAvailable;
-                        resultSet.ResultUpdated += ResultSetUpdated;
-                        resultSet.ResultCompletion += ResultSetCompletion;
-
-                        // Add the result set to the results of the query
-                        lock (resultSets)
-                        {
-                            resultSets.Add(resultSet);
-                        }
-
-                        // Read until we hit the end of the result set
-                        await resultSet.ReadResultToEnd(reader, cancellationToken);
-
-                    } while (await reader.NextResultAsync(cancellationToken));
-
-                    // If there were no messages, for whatever reason (NO COUNT set, messages 
-                    // were emitted, records returned), output a "successful" message
-                    if (!messagesSent)
-                    {
-                        await SendMessage(SR.QueryServiceCompletedSuccessfully, false);
-                    }
-                }
-
-                if (columnSchemas != null)
-                {
-                    ExtendResultMetadata(columnSchemas, resultSets);
-                }
-            }
-        }
-
-        
-        private async Task SyncExecuteOnce(DbConnection conn, CancellationToken cancellationToken)
         {
             // Make sure we haven't cancelled yet
             cancellationToken.ThrowIfCancellationRequested();
@@ -575,7 +479,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 }
             }
         }
-        
 
         private void ExtendResultMetadata(List<DbColumn[]> columnSchemas, List<ResultSet> results)
         {
