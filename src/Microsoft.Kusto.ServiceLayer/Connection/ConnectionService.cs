@@ -213,9 +213,13 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             return completeParams;
         }
 
-        internal string RefreshAuthToken(string ownerUri)
+        internal bool TryRefreshAuthToken(string ownerUri, out string token)
         {
-            TryFindConnection(ownerUri, out ConnectionInfo connection);
+            token = string.Empty;
+            if (!TryFindConnection(ownerUri, out ConnectionInfo connection))
+            {
+                return false;
+            }
 
             var requestMessage = new RequestSecurityTokenParams
             {
@@ -227,8 +231,8 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
             var response = _serviceHost.SendRequest(SecurityTokenRequest.Type, requestMessage, true).Result;
             connection.UpdateAuthToken(response.Token);
-
-            return response.Token;
+            token = response.Token;
+            return true;
         }
 
         private void TryCloseConnectionTemporaryConnection(ConnectParams connectionParams, ConnectionInfo connectionInfo)
