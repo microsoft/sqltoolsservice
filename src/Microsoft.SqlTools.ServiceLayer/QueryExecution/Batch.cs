@@ -350,7 +350,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 try
                 {
-                    await ExecuteOnce(conn, cancellationToken);
+                    await SyncExecuteOnce(conn, cancellationToken);
                 }
                 catch (DbException dbe)
                 {
