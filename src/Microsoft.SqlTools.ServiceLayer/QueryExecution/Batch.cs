@@ -337,6 +337,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
         }
+        
         private async Task DoExecute(DbConnection conn, CancellationToken cancellationToken, OnErrorAction onErrorAction = OnErrorAction.Ignore)
         {
             bool canContinue = true;
