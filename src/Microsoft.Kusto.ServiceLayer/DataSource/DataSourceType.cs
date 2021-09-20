@@ -23,6 +23,6 @@
         /// <summary>
         /// An Operations Management Suite (OMS) Log Analytics workspace.
         /// </summary>
-        LogAnalytics
+        AzureMonitorLogs
     }
 }

@@ -19,9 +19,9 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
     public class DataSourceFactory : IDataSourceFactory
     {
         private const string KustoProviderName = "KUSTO";
-        private const string LogAnalyticsProviderName = "LOGANALYTICS";
+        private const string AzureMonitorLogsProviderName = "AZUREMONITORLOGS";
         private const string KustoProviderDescription = "Microsoft Azure Data Explorer";
-        private const string LogAnalyticsProviderDescription = "Microsoft Azure Monitor Explorer";
+        private const string AzureMonitorLogsProviderDescription = "Microsoft Azure Monitor Explorer";
         
         public IDataSource Create(ConnectionDetails connectionDetails, string ownerUri)
         {
@@ -35,7 +35,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                     var intellisenseClient = new KustoIntellisenseClient(kustoClient);
                     return new KustoDataSource(kustoClient, intellisenseClient);
                 }
-                case DataSourceType.LogAnalytics:
+                case DataSourceType.AzureMonitorLogs:
                 {
                     var httpClient = new MonitorClient(connectionDetails.ServerName, connectionDetails.AccountToken);
                     var intellisenseClient = new MonitorIntellisenseClient(httpClient);
@@ -50,7 +50,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
         private DataSourceType GetDataSourceType()
         {
-            return Program.ServiceName.Contains("Kusto") ? DataSourceType.Kusto : DataSourceType.LogAnalytics;
+            return Program.ServiceName.Contains("Kusto") ? DataSourceType.Kusto : DataSourceType.AzureMonitorLogs;
         }
 
         private DataSourceConnectionDetails MapKustoConnectionDetails(ConnectionDetails connectionDetails)
@@ -150,12 +150,12 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
         public static string GetProviderName()
         {
-            return Program.ServiceName.Contains("Kusto") ? KustoProviderName : LogAnalyticsProviderName;
+            return Program.ServiceName.Contains("Kusto") ? KustoProviderName : AzureMonitorLogsProviderName;
         }
 
         public static string GetProviderDescription()
         {
-            return Program.ServiceName.Contains("Kusto") ? KustoProviderDescription : LogAnalyticsProviderDescription;
+            return Program.ServiceName.Contains("Kusto") ? KustoProviderDescription : AzureMonitorLogsProviderDescription;
         }
     }
 }

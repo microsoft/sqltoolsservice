@@ -69,7 +69,7 @@ namespace Microsoft.Kusto.ServiceLayer.Metadata
             
             var clusterMetadata = MetadataFactory.CreateClusterMetadata(connInfo.ConnectionDetails.ServerName);
             var databaseMetadata = MetadataFactory.CreateDatabaseMetadata(clusterMetadata, connInfo.ConnectionDetails.DatabaseName);
-            var parentMetadata = dataSource.DataSourceType == DataSourceType.LogAnalytics ? clusterMetadata : databaseMetadata; 
+            var parentMetadata = dataSource.DataSourceType == DataSourceType.AzureMonitorLogs ? clusterMetadata : databaseMetadata; 
             
             var databaseChildMetadataInfo = dataSource.GetChildObjects(parentMetadata, true);
             return MetadataFactory.ConvertToObjectMetadata(databaseChildMetadataInfo);

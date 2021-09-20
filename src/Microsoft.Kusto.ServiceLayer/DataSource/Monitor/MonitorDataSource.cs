@@ -34,7 +34,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
             _intellisenseClient = intellisenseClient;
             _nodes = new Dictionary<string, SortedDictionary<string, DataSourceObjectMetadata>>(StringComparer.OrdinalIgnoreCase);
             _metadata = _monitorClient.LoadMetadata();
-            DataSourceType = DataSourceType.LogAnalytics;
+            DataSourceType = DataSourceType.AzureMonitorLogs;
             SetupTableGroups(monitorClient.WorkspaceId);
         }
         
@@ -132,7 +132,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
 
         public override void UpdateDatabase(string databaseName)
         {
-            // LogAnalytics is treating the workspace name as the database name
+            // AzureMonitorLogs is treating the workspace name as the database name
             var workspaceId = ParseWorkspaceId(databaseName);
             _metadata = _monitorClient.LoadMetadata(true);
             var workspace = _metadata.Workspaces.First(x => x.Id == workspaceId);
