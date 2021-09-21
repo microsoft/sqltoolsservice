@@ -59,7 +59,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
             // custom log tables are listed in tables
             if (workspace.Tables.Any())
             {
-                var name = "_Custom Logs";
+                var name = "Custom Logs";
                 var customLogsNodeInfo =
                     MetadataFactory.CreateDataSourceObjectMetadata(DataSourceMetadataType.Folder, name, $"{workspace.Id}.{name}");
 
