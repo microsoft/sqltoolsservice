@@ -11,7 +11,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
 {
     internal class ObjectExplorerSession
     {
-        internal ObjectExplorerSession(string uri, TreeNode root)
+        private ObjectExplorerSession(string uri, TreeNode root)
         {
             Validate.IsNotNullOrEmptyString("uri", uri);
             Validate.IsNotNull("root", root);
@@ -26,20 +26,23 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
 
         public string ErrorMessage { get; set; }
 
-        public static ObjectExplorerSession CreateSession(ConnectionCompleteParams response, IMultiServiceProvider serviceProvider,
-            IDataSource dataSource, bool isDefaultOrSystemDatabase)
+        public static ObjectExplorerSession CreateSession(ConnectionCompleteParams completeParams, IMultiServiceProvider serviceProvider,
+            IDataSource dataSource)
         {
-            DataSourceObjectMetadata objectMetadata = MetadataFactory.CreateClusterMetadata(dataSource.ClusterName);
-            var rootNode = new ServerNode(response, serviceProvider, dataSource, objectMetadata);
-
-            var session = new ObjectExplorerSession(response.OwnerUri, rootNode);
-            if (!isDefaultOrSystemDatabase)
+            TreeNode rootNode;
+            if (dataSource.DataSourceType == DataSourceType.LogAnalytics)
             {
-                DataSourceObjectMetadata databaseMetadata =
-                    MetadataFactory.CreateDatabaseMetadata(objectMetadata, response.ConnectionSummary.DatabaseName);
+                var databaseMetadata = MetadataFactory.CreateDatabaseMetadata(dataSource.ClusterName);
+                rootNode = new DatabaseNode(completeParams, serviceProvider, dataSource, databaseMetadata);
+            }
+            else
+            {
+                DataSourceObjectMetadata clusterMetadata = MetadataFactory.CreateClusterMetadata(dataSource.ClusterName);
+                rootNode = new ServerNode(completeParams, serviceProvider, dataSource, clusterMetadata);
             }
 
-            return session;
+
+            return new ObjectExplorerSession(completeParams.OwnerUri, rootNode);
         }
     }
 }

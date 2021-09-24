@@ -421,7 +421,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
                 ObjectExplorerSession session = null;
                 connectionDetails.PersistSecurityInfo = true;
                 ConnectParams connectParams = new ConnectParams() { OwnerUri = uri, Connection = connectionDetails, Type = Connection.ConnectionType.ObjectExplorer };
-                bool isDefaultOrSystemDatabase = DatabaseUtils.IsSystemDatabaseConnection(connectionDetails.DatabaseName) || string.IsNullOrWhiteSpace(connectionDetails.DatabaseDisplayName);
 
                 ConnectionInfo connectionInfo;
                 ConnectionCompleteParams connectionResult = await Connect(connectParams, uri);
@@ -443,7 +442,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
                            waitForLockTimeout: timeout,
                            bindOperation: (bindingContext, cancelToken) =>
                            {
-                               session = ObjectExplorerSession.CreateSession(connectionResult, _serviceProvider, bindingContext.DataSource, isDefaultOrSystemDatabase);
+                               session = ObjectExplorerSession.CreateSession(connectionResult, _serviceProvider, bindingContext.DataSource);
                                session.ConnectionInfo = connectionInfo;
 
                                _sessionMap.AddOrUpdate(uri, session, (key, oldSession) => session);

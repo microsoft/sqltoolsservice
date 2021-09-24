@@ -22,6 +22,20 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Metadata
                 Urn = $"{clusterName}"
             };
         }
+        
+        public static DataSourceObjectMetadata CreateDatabaseMetadata(string databaseName)
+        {
+            ValidationUtils.IsArgumentNotNullOrWhiteSpace(databaseName, nameof(databaseName));
+
+            return new DataSourceObjectMetadata
+            {
+                MetadataType = DataSourceMetadataType.Database,
+                MetadataTypeName = DataSourceMetadataType.Database.ToString(),
+                Name = databaseName,
+                PrettyName = databaseName,
+                Urn = $"{databaseName}"
+            };
+        }
 
         public static DataSourceObjectMetadata CreateDatabaseMetadata(DataSourceObjectMetadata clusterMetadata,
             string databaseName)
