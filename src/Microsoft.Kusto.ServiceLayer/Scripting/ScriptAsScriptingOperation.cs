@@ -11,7 +11,6 @@ using Microsoft.SqlTools.Utility;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.SqlScriptPublish;
-using Microsoft.SqlServer.Management.Sdk.Sfc;
 using System.Diagnostics;
 
 namespace Microsoft.Kusto.ServiceLayer.Scripting
@@ -43,7 +42,6 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                 this.CancellationToken.ThrowIfCancellationRequested();
                 string resultScript = string.Empty;
                 
-                UrnCollection urns = CreateUrns(_dataSource);
                 ScriptingOptions options = new ScriptingOptions();
                 SetScriptBehavior(options);
                 ScriptAsOptions scriptAsOptions = new ScriptAsOptions(this.Parameters.ScriptOptions);
@@ -59,7 +57,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                 switch (this.Parameters.Operation)
                 {
                     case ScriptingOperationType.Select:
-                        resultScript = GenerateScriptSelect(_dataSource, urns);
+                        resultScript = GenerateScriptSelect(Parameters.ScriptingObjects);
                         break;
                     
                     case ScriptingOperationType.Alter:
@@ -114,15 +112,14 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
             }
         }
 
-        private string GenerateScriptSelect(IDataSource dataSource, UrnCollection urns)
+        private string GenerateScriptSelect(List<ScriptingObject> scriptingObjects)
         {
-            ScriptingObject scriptingObject = this.Parameters.ScriptingObjects[0];
-            Urn objectUrn = urns[0];
+            ScriptingObject scriptingObject = scriptingObjects[0];
 
             // select from table
             if (string.Equals(scriptingObject.Type, "Table", StringComparison.CurrentCultureIgnoreCase))
             {
-                return _scripter.SelectFromTableOrView(dataSource, objectUrn);
+                return _scripter.SelectFromTableOrView(scriptingObject);
             }
 
             return string.Empty;
@@ -149,27 +146,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
 
             return string.Empty;
         }
-
-
-        private UrnCollection CreateUrns(IDataSource dataSource)
-        {
-            IEnumerable<ScriptingObject> selectedObjects = new List<ScriptingObject>(this.Parameters.ScriptingObjects);
-
-            _serverName = dataSource.ClusterName;
-            _databaseName = Parameters.DatabaseName;
-            UrnCollection urnCollection = new UrnCollection();
-            foreach (var scriptingObject in selectedObjects)
-            {
-                if(string.IsNullOrEmpty(scriptingObject.Schema))
-                {
-                    // TODO: get the default schema
-                    scriptingObject.Schema = "dbo";
-                }
-                urnCollection.Add(scriptingObject.ToUrn(_serverName, _databaseName));
-            }
-            return urnCollection;
-        }
-
+        
         private void SetScriptBehavior(ScriptingOptions options)
         {
             // TODO: have to add Scripting behavior to Smo ScriptingOptions class 

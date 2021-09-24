@@ -25,8 +25,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         
         public IDataSource Create(ConnectionDetails connectionDetails, string ownerUri)
         {
-            var dataSourceType = GetDataSourceType();
-            switch (dataSourceType)
+            switch (Program.ServiceName)
             {
                 case DataSourceType.Kusto:
                 {
@@ -43,14 +42,9 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 }
                 default:
                     
-                    throw new ArgumentException($@"Unsupported data source type ""{dataSourceType}""",
-                        nameof(dataSourceType));
+                    throw new ArgumentException($@"Unsupported data source type ""{Program.ServiceName}""",
+                        nameof(Program.ServiceName));
             }
-        }
-
-        private DataSourceType GetDataSourceType()
-        {
-            return Program.ServiceName.Contains("Kusto") ? DataSourceType.Kusto : DataSourceType.LogAnalytics;
         }
 
         private DataSourceConnectionDetails MapKustoConnectionDetails(ConnectionDetails connectionDetails)
@@ -150,12 +144,12 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
         public static string GetProviderName()
         {
-            return Program.ServiceName.Contains("Kusto") ? KustoProviderName : LogAnalyticsProviderName;
+            return Program.ServiceName == DataSourceType.Kusto ? KustoProviderName : LogAnalyticsProviderName;
         }
 
         public static string GetProviderDescription()
         {
-            return Program.ServiceName.Contains("Kusto") ? KustoProviderDescription : LogAnalyticsProviderDescription;
+            return Program.ServiceName == DataSourceType.Kusto ? KustoProviderDescription : LogAnalyticsProviderDescription;
         }
     }
 }

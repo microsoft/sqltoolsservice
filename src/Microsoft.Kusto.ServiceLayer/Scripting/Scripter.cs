@@ -6,7 +6,6 @@
 using System.Composition;
 using Microsoft.Kusto.ServiceLayer.Scripting.Contracts;
 using Microsoft.Kusto.ServiceLayer.DataSource;
-using Microsoft.SqlServer.Management.Sdk.Sfc;
 using System.Text;
 
 namespace Microsoft.Kusto.ServiceLayer.Scripting
@@ -14,13 +13,13 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
     [Export(typeof(IScripter))]
     public class Scripter : IScripter
     {
-        public string SelectFromTableOrView(IDataSource dataSource, Urn urn)
+        public string SelectFromTableOrView(ScriptingObject scriptingObject)
         {
             StringBuilder selectQuery = new StringBuilder();
 
             // TODOKusto: Can we combine this with snippets. All queries generated here could also be snippets.
             // TODOKusto: Extract into the Kusto folder.
-            selectQuery.Append($"{KustoQueryUtils.EscapeName(urn.GetAttribute("Name"))}");
+            selectQuery.Append($"{KustoQueryUtils.EscapeName(scriptingObject.Name)}");
             selectQuery.Append($"{KustoQueryUtils.StatementSeparator}");
             selectQuery.Append("take 10");
 

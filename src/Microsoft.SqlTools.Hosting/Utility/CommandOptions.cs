@@ -103,7 +103,7 @@ namespace Microsoft.SqlTools.Hosting.Utility
         /// <summary>
         /// Name of service that is receiving command options
         /// </summary>
-        public string ServiceName { get; private set; }
+        public string ServiceName { get; }
 
         /// <summary>
         /// Get the usage string describing command-line arguments for the program

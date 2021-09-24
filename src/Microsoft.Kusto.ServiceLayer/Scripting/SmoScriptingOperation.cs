@@ -79,7 +79,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
 
         protected void ValidateScriptDatabaseParams()
         {
-            if (string.IsNullOrWhiteSpace(Parameters.DatabaseName))
+            if (string.IsNullOrWhiteSpace(Parameters.DatabaseName) && Program.ServiceName != DataSourceType.LogAnalytics)
             {
                 throw new ArgumentException(SR.ScriptingParams_ConnectionString_Property_Invalid);
             }

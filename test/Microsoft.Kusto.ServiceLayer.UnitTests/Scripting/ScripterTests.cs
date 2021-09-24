@@ -12,12 +12,17 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.Scripting
         [Test]
         public void SelectFromTableOrView_Returns_SelectQuery()
         {
-            var mockDataSource = new Mock<IDataSource>();
-            var urn = new Urn(@"Server[@Name = 'SERVER']/Database[@Name = 'quoted''db']/Table[@Name = 'quoted''Name' and @Schema = 'quoted''Schema']");
-            var scripter = new Scripter();
-            var result = scripter.SelectFromTableOrView(mockDataSource.Object, urn);
+            var scriptingObject = new ScriptingObject
+            {
+                Name = "My Table",
+                Schema = "dbo",
+                Type = "Table"
+            };
             
-            Assert.AreEqual("[@\"quoted'Name\"]\n | take 10", result);
+            var scripter = new Scripter();
+            var result = scripter.SelectFromTableOrView(scriptingObject);
+            
+            Assert.AreEqual("[@\"My Table\"]\n | take 10", result);
         }
 
         [Test]

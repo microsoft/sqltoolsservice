@@ -111,7 +111,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// <inheritdoc/>
         public abstract string ClusterName { get; }
 
-        public abstract string DatabaseName { get; set; }
+        public abstract string DatabaseName { get; }
 
         #endregion
     }

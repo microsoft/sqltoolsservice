@@ -6,6 +6,7 @@ using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using System.Diagnostics;
+using Microsoft.Kusto.ServiceLayer.DataSource;
 
 namespace Microsoft.Kusto.ServiceLayer
 {
@@ -14,7 +15,7 @@ namespace Microsoft.Kusto.ServiceLayer
     /// </summary>
     internal class Program
     {
-        internal static string ServiceName;
+        internal static DataSourceType ServiceName;
         
         /// <summary>
         /// Main entry point into the SQL Tools API Service Layer
@@ -30,7 +31,7 @@ namespace Microsoft.Kusto.ServiceLayer
                     return;
                 }
 
-                ServiceName = commandOptions.ServiceName;
+                ServiceName = GetDataSourceType(commandOptions.ServiceName);
                 
                 string logFilePath = commandOptions.LogFilePath;
                 if (string.IsNullOrWhiteSpace(logFilePath))
@@ -59,6 +60,11 @@ namespace Microsoft.Kusto.ServiceLayer
             {
                 Logger.Close();
             }
+        }
+
+        private static DataSourceType GetDataSourceType(string serviceName)
+        {
+            return serviceName.Contains("kusto", StringComparison.OrdinalIgnoreCase) ? DataSourceType.Kusto : DataSourceType.LogAnalytics;
         }
     }
 }

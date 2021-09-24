@@ -6,7 +6,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
 {
     public interface IScripter
     {
-        string SelectFromTableOrView(IDataSource dataSource, Urn urn);
+        string SelectFromTableOrView(ScriptingObject scriptingObject);
         string AlterFunction(IDataSource dataSource, ScriptingObject scriptingObject);
         string ExecuteFunction(IDataSource dataSource, ScriptingObject scriptingObject);
     }

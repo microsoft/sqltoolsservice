@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Kusto.ServiceLayer.Admin.Contracts;
@@ -24,9 +23,12 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
         private WorkspaceResponse _metadata;
         private Dictionary<string, SortedDictionary<string, DataSourceObjectMetadata>> _nodes;
         private const string DatabaseKeyPrefix = "OnlyTables";
+        private string _workspaceName;
         
         public override string ClusterName => _monitorClient.WorkspaceId;
-        public override string DatabaseName { get; set; }
+        public override string DatabaseName { get; }
+        
+        
 
         public MonitorDataSource(MonitorClient monitorClient, IntellisenseClientBase intellisenseClient)
         {
@@ -41,7 +43,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
         private void SetupTableGroups(string workspaceId)
         {
             var workspace = _metadata.Workspaces.First(x => x.Id == workspaceId);
-            DatabaseName = $"{workspace.Name} ({workspace.Id})";
+            _workspaceName = workspace.Name;
             
             var tableGroups = _metadata.TableGroups.Where(x => workspace.TableGroups.Contains(x.Id));
 
@@ -143,21 +145,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
 
         public override void UpdateDatabase(string databaseName)
         {
-            // LogAnalytics is treating the workspace name as the database name
-            var workspaceId = ParseWorkspaceId(databaseName);
-            _metadata = _monitorClient.LoadMetadata(true);
-            var workspace = _metadata.Workspaces.First(x => x.Id == workspaceId);
-            DatabaseName = $"{workspace.Name} ({workspace.Id})";
-            _intellisenseClient.UpdateDatabase(databaseName);
-        }
-        
-        private string ParseWorkspaceId(string workspace)
-        {
-            var regex = new Regex(@"(?<=\().+?(?=\))");
             
-            return regex.IsMatch(workspace)
-                ? regex.Match(workspace).Value
-                : workspace;
         }
 
         public override Task<bool> Exists()
@@ -206,7 +194,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
             {
                 DatabaseNames = new[]
                 {
-                    DatabaseName
+                    ClusterName
                 }
             };
         }
@@ -218,7 +206,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
                 Options = new Dictionary<string, object>
                 {
                     {"id", ClusterName},
-                    {"name", DatabaseName}
+                    {"name", _workspaceName}
                 }
             };
         }
