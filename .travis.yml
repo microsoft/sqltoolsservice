@@ -7,7 +7,7 @@ os:
 #  - osx
 
 mono: none
-dotnet: 5.0
+dotnet: 6.0
 
 # safelist
 branches:
@@ -25,7 +25,7 @@ env:
 before_install:
   - if [ $TRAVIS_OS_NAME == "linux" ]; then
       sudo apt-get update;
-      sudo apt-get install dotnet-sdk-5.0;
+      sudo apt-get install dotnet-sdk-6.0;
     else
       brew update;
     fi

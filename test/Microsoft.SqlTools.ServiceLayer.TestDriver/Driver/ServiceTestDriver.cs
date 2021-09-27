@@ -52,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Driver
                 
                 // Include a fallback value to for running tests within visual studio
                 serviceHostExecutable =
-                    @"..\..\..\..\..\src\Microsoft.SqlTools.ServiceLayer\bin\Debug\net5.0\win7-x64\MicrosoftSqlToolsServiceLayer.exe";
+                    @"..\..\..\..\..\src\Microsoft.SqlTools.ServiceLayer\bin\Debug\net6.0\win7-x64\MicrosoftSqlToolsServiceLayer.exe";
                 if (!File.Exists(serviceHostExecutable))
                 {
                     serviceHostExecutable = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "MicrosoftSqlToolsServiceLayer.exe");

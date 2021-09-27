@@ -320,8 +320,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... Create a session that hasn't been initialized
             Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
             EditSession s = new EditSession(emf.Object);
-
-            Assert.That(() => s.Initialize(initParams, c, qr, sh, fh), Throws.InstanceOf<ArgumentException>(), "I initialize it with a missing parameter. It should throw an exception");
+            Assert.Throws<ArgumentException>(() => s.Initialize(initParams, c, qr, sh, fh));
         }
 
         public static IEnumerable<object[]> InitializeNullParamsData

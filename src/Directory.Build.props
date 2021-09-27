@@ -19,9 +19,9 @@
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<CredentialsTargetFramework>net5.0</CredentialsTargetFramework>
-		<ServiceLayerTargetFramework>net5.0</ServiceLayerTargetFramework>
-		<ResourceProviderTargetFramework>net5.0</ResourceProviderTargetFramework>
+		<CredentialsTargetFramework>net6.0</CredentialsTargetFramework>
+		<ServiceLayerTargetFramework>net6.0</ServiceLayerTargetFramework>
+		<ResourceProviderTargetFramework>net6.0</ResourceProviderTargetFramework>
 	</PropertyGroup>
 	<PropertyGroup>
 		<DebugType>portable</DebugType>

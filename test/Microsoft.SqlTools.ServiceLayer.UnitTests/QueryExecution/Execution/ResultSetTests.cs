@@ -160,7 +160,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // Setup: Create a new result set with valid db data reader
             var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
             ResultSet resultSet = new ResultSet(Common.Ordinal, Common.Ordinal, fileStreamFactory);
-            Assert.That(() => testMethod(resultSet), Throws.InstanceOf<Exception>(), "I have a result set that has not been read. I attempt to call a method on it. It should throw an exception");
+            Assert.Throws<Exception>(() => testMethod(resultSet));
         }
 
         public static IEnumerable<object[]> CallMethodWithoutReadingData
@@ -377,7 +377,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             ResultSet resultSet = new ResultSet(Common.Ordinal, Common.Ordinal, fileStreamFactory);
             await resultSet.ReadResultToEnd(mockReader, CancellationToken.None);
 
-            Assert.That(() => actionToPerform(resultSet), Throws.InstanceOf<Exception>(), "Attempting to read an invalid row should fail");
+            Assert.Throws<Exception>(() => actionToPerform(resultSet));
         }
 
         public static IEnumerable<object[]> RowInvalidParameterData
