@@ -91,7 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                         await requestContext.SendResult(new SchemaCompareResult()
                         {
                             OperationId = operation.OperationId,
-                            Success = true,
+                            Success = operation.ComparisonResult.IsValid,
                             ErrorMessage = operation.ErrorMessage,
                             AreEqual = operation.ComparisonResult.IsEqual,
                             Differences = operation.Differences
