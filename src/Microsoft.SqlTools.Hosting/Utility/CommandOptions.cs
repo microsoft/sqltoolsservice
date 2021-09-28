@@ -44,7 +44,7 @@ namespace Microsoft.SqlTools.Hosting.Utility
                         {
                             case "-autoflush-log":
                                 AutoFlushLog = true;
-                                break; 
+                                break;
                             case "-tracing-level":
                                 TracingLevel = args[++i];
                                 break;
@@ -150,11 +150,20 @@ namespace Microsoft.SqlTools.Hosting.Utility
         /// culture-specific messages
         /// </summary>
         /// <param name="locale"></param>
-        public void LocaleSetter(string locale)
+        public void LocaleSetter(string locale, Boolean useUserSettings = false)
         {
             // Creating cultureInfo from our given locale
             CultureInfo language = new CultureInfo(locale);
             Locale = locale;
+            if (useUserSettings)
+            {
+                // Allow the system set Number Format and Date Format to be preserved when changing the locale.
+                NumberFormatInfo NumberFormat = CultureInfo.CurrentCulture.NumberFormat;
+                DateTimeFormatInfo DateTimeFormat = CultureInfo.CurrentCulture.DateTimeFormat;
+
+                language.NumberFormat = NumberFormat;
+                language.DateTimeFormat = DateTimeFormat;
+            }
 
             // Setting our language globally 
             CultureInfo.CurrentCulture = language;
