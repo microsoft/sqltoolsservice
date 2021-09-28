@@ -24,13 +24,13 @@ using Range = Microsoft.Kusto.ServiceLayer.Workspace.Contracts.Range;
 namespace Microsoft.Kusto.ServiceLayer.Formatter
 {
     
-    public class TSqlFormatterService : HostedService<TSqlFormatterService>, IComposableService
+    public class FormatterService : HostedService<FormatterService>, IComposableService
     {
         private FormatterSettings settings;
         /// <summary>
         /// The default constructor is required for MEF-based composable services
         /// </summary>
-        public TSqlFormatterService()
+        public FormatterService()
         {
             settings = new FormatterSettings();
         }
