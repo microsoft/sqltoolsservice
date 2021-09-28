@@ -6,8 +6,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Threading.Tasks;
+using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
@@ -18,6 +18,7 @@ using Microsoft.Kusto.ServiceLayer.SqlContext;
 using Microsoft.Kusto.ServiceLayer.Workspace;
 using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.Utility;
+using FormattingOptions = Microsoft.Kusto.ServiceLayer.Formatter.Contracts.FormattingOptions;
 using Range = Microsoft.Kusto.ServiceLayer.Workspace.Contracts.Range;
 
 namespace Microsoft.Kusto.ServiceLayer.Formatter
@@ -164,8 +165,7 @@ namespace Microsoft.Kusto.ServiceLayer.Formatter
 
             FormatOptions options = GetOptions(docFormatParams);
             List<TextEdit> edits = new List<TextEdit>();
-            edit.NewText = Format(text, options, false);
-            // TODO do not add if no formatting needed?
+            edit.NewText = DataSourceFactory.Format(text, options);
             edits.Add(edit);
             return edits.ToArray();
         }
@@ -239,62 +239,6 @@ namespace Microsoft.Kusto.ServiceLayer.Formatter
                 await requestContext.SendError(ex.ToString());
             }
         }
-
-
-
-        public string Format(TextReader input)
-        {
-            string originalSql = input.ReadToEnd();
-            return Format(originalSql, new FormatOptions());
-        }
-
-        public string Format(string input, FormatOptions options)
-        {
-            return Format(input, options, true);
-        }
-
-        public string Format(string input, FormatOptions options, bool verifyOutput)
-        {
-            string result = null;
-            //TODOKusto: Implement formatting for Kusto generically here.
-            //var kustoCodeService = new KustoCodeService(input, GlobalState.Default);
-            //var formattedText = kustoCodeService.GetFormattedText();
-            //DoFormat(input, options, verifyOutput, visitor =>
-            //{
-                //result = formattedText.Text;
-            //});
-
-            return result;
-        }
-
-        /*public void Format(string input, FormatOptions options, bool verifyOutput, Replacement.OnReplace replace)
-        {
-            DoFormat(input, options, verifyOutput, visitor =>
-            {
-                foreach (Replacement r in visitor.Context.Replacements)
-                {
-                    r.Apply(replace);
-                }
-            });
-        }
-
-        private void DoFormat(string input, FormatOptions options, bool verifyOutput, Action<FormatterVisitor> postFormatAction)
-        {
-            Validate.IsNotNull(nameof(input), input);
-            Validate.IsNotNull(nameof(options), options);
-
-            ParseResult result = Parser.Parse(input);
-            FormatContext context = new FormatContext(result.Script, options);
-
-            FormatterVisitor visitor = new FormatterVisitor(context, ServiceProvider);
-            result.Script.Accept(visitor);
-            if (verifyOutput)
-            {
-                visitor.VerifyFormat();
-            }
-
-            postFormatAction?.Invoke(visitor);
-        }*/
     }
 
     internal static class RangeExtensions
