@@ -19,7 +19,7 @@ namespace Microsoft.Kusto.ServiceLayer.Utility
         {
             try
             {
-                LocaleSetter(locale, true);
+                LocaleSetter(locale);
 
                 // Setting our internal SR culture to our global culture
                 SR.Culture = CultureInfo.CurrentCulture;
