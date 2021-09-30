@@ -72,14 +72,14 @@ steps:
   inputs:
     command: test
     projects: test/Microsoft.SqlTools.ServiceLayer.UnitTests
-    arguments: '--logger "trx;LogFileName=xunit.trx"'
+    arguments: '--logger "trx;LogFileName=SqlTools.ServiceLayer.UnitTests.trx" --collect "Code coverage"'
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test test/Microsoft.Kusto.ServiceLayer.UnitTests'
   inputs:
     command: test
     projects: test/Microsoft.Kusto.ServiceLayer.UnitTests
-    arguments: '--logger "trx;LogFileName=nunit.trx" --collect "Code coverage"'
+    arguments: '--logger "trx;LogFileName=Kusto.ServiceLayer.UnitTests.trx" --collect "Code coverage"'
 
 - task: Npm@1
   displayName: 'npm install -g gulp-cli'
