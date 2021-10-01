@@ -72,7 +72,7 @@ steps:
   inputs:
     command: test
     projects: test/Microsoft.SqlTools.ServiceLayer.UnitTests
-    arguments: '--logger "trx;LogFileName=SqlTools.ServiceLayer.UnitTests.trx" --collect "Code coverage"'
+    arguments: '--configuration $(buildConfiguration) --collect "Code coverage"'
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test test/Microsoft.Kusto.ServiceLayer.UnitTests'
@@ -211,9 +211,3 @@ steps:
     packagesToPush: '$(Build.SourcesDirectory)/artifacts/nugetPackages/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
     publishVstsFeed: '2191dd5f-4aec-491b-ac50-568bbc331c8a'
     allowPackageConflicts: true
-
-- task: PublishTestResults@2
-  displayName: 'Publish Test Results **/SqlTools.ServiceLayer.UnitTests.trx'
-  inputs:
-    testResultsFormat: VSTest
-    testResultsFiles: '**/SqlTools.ServiceLayer.UnitTests.trx'
