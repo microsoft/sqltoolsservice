@@ -68,10 +68,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
             catch (DatabaseFullAccessException databaseFullAccessException)
             {
                 Logger.Write(TraceEventType.Warning, $"Failed to gain access to database. server|database:{ServerName}|{DatabaseName}");
-                throw databaseFullAccessException;
-            }
-            catch
-            {
                 throw;
             }
             finally

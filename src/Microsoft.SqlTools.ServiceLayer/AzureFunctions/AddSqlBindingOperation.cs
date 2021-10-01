@@ -91,7 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
             catch (Exception ex)
             {
                 Logger.Write(TraceEventType.Information, $"Failed to add sql binding. Error: {ex.Message}");
-                throw ex;
+                throw;
             }
         }
 

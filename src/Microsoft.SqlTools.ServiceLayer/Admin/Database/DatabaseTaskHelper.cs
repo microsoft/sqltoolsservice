@@ -9,11 +9,8 @@ using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.Utility;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Xml;
 
 namespace Microsoft.SqlTools.ServiceLayer.Admin
@@ -168,8 +165,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
         private static string GetBackupDate(DateTime backupDate)
         {
-            if (backupDate == null
-                || backupDate < minBackupDate)
+            if (backupDate < minBackupDate)
             {
                 return SR.NeverBackedUp;
             }
