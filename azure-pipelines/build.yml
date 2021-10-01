@@ -213,7 +213,13 @@ steps:
     allowPackageConflicts: true
 
 - task: PublishTestResults@2
-  displayName: 'Publish Test Results **/xunit.trx'
+  displayName: 'Publish Test Results **/SqlTools.ServiceLayer.UnitTests.trx'
   inputs:
     testResultsFormat: VSTest
-    testResultsFiles: '**/xunit.trx'
+    testResultsFiles: '**/SqlTools.ServiceLayer.UnitTests.trx'
+
+- task: PublishTestResults@2
+  displayName: 'Publish Test Results **/Kusto.ServiceLayer.UnitTests.trx'
+  inputs:
+    testResultsFormat: VSTest
+    testResultsFiles: '**/Kusto.ServiceLayer.UnitTests.trx'
