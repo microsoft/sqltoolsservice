@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.OperationalInsights" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
     <PackageReference Include="Microsoft.SqlServer.DACFx" />
     <PackageReference Include="System.Text.Encoding.CodePages" />
     <PackageReference Include="Microsoft.Azure.Kusto.Data" />

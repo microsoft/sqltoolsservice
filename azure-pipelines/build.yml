@@ -79,7 +79,7 @@ steps:
   inputs:
     command: test
     projects: test/Microsoft.Kusto.ServiceLayer.UnitTests
-    arguments: '--logger "trx;LogFileName=Kusto.ServiceLayer.UnitTests.trx" --collect "Code coverage"'
+    arguments: '--configuration $(buildConfiguration) --collect "Code coverage"'
 
 - task: Npm@1
   displayName: 'npm install -g gulp-cli'
@@ -217,9 +217,3 @@ steps:
   inputs:
     testResultsFormat: VSTest
     testResultsFiles: '**/SqlTools.ServiceLayer.UnitTests.trx'
-
-- task: PublishTestResults@2
-  displayName: 'Publish Test Results **/Kusto.ServiceLayer.UnitTests.trx'
-  inputs:
-    testResultsFormat: VSTest
-    testResultsFiles: '**/Kusto.ServiceLayer.UnitTests.trx'
