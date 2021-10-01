@@ -72,6 +72,7 @@ steps:
   inputs:
     command: test
     projects: test/Microsoft.SqlTools.ServiceLayer.UnitTests
+    testRunTitle: SqlTools.ServiceLayer.UnitTests
     arguments: '--configuration $(buildConfiguration) --collect "Code coverage"'
 
 - task: DotNetCoreCLI@2
@@ -79,6 +80,7 @@ steps:
   inputs:
     command: test
     projects: test/Microsoft.Kusto.ServiceLayer.UnitTests
+    testRunTitle: Kusto.ServiceLayer.UnitTests
     arguments: '--configuration $(buildConfiguration) --collect "Code coverage"'
 
 - task: Npm@1
