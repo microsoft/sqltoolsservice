@@ -52,6 +52,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// The type of connection that this notification is for
         /// </summary>
         public string Type { get; set; } = ConnectionType.Default;
+
+        /// <summary>
+        /// Gets or sets a boolean value indicates whether the current server version is supported by the service.
+        /// </summary>
+        public bool IsSupportedVersion { get; set; }
+
+        /// <summary>
+        /// Gets or sets the additional warning message about the unsupported server version.
+        /// </summary>
+        public string UnsupportedVersionMessage { get; set; }
     }
 
     /// <summary>
