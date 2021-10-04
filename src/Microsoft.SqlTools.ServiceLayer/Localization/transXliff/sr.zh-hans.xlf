@@ -2421,6 +2421,18 @@
         <note>
         </note>
       </trans-unit>
+      <trans-unit id="CouldntFindAzureFunction">
+        <source>Couldn't find Azure function with FunctionName {0} in {1}</source>
+        <target state="translated">无法找到 FunctionName 为 {0} 的 Azure 函数(在 {1} 中)</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="MoreThanOneAzureFunctionWithName">
+        <source>Couldn't find Azure function with FunctionName {0} in {1}</source>
+        <target state="translated">已找到多个 FunctionName 为 {0} 的 Azure 函数(在 {1} 中)</target>
+        <note>
+        </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

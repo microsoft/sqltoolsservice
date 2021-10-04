@@ -1855,12 +1855,12 @@
  Parameters: 0 - editionCode (int) </comment>
   </data>
   <data name="CouldntFindAzureFunction" xml:space="preserve">
-    <value>Couldn&apos;t find Azure function with FunctionName {0} in {1}</value>
+    <value>Couldn&apos;t find Azure function with FunctionName &apos;{0}&apos; in {1}</value>
     <comment>.
  Parameters: 0 - functionName (string), 1 - fileName (string) </comment>
   </data>
   <data name="MoreThanOneAzureFunctionWithName" xml:space="preserve">
-    <value>More than one Azure function found with the FunctionName {0} in {1}</value>
+    <value>More than one Azure function found with the FunctionName &apos;{0}&apos; in {1}</value>
     <comment>.
  Parameters: 0 - functionName (string), 1 - fileName (string) </comment>
   </data>
