@@ -5,21 +5,15 @@
 
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Globalization;
 using System.IO;
-using System.Reflection;
 using System.Security;
 using System.Xml;
-using System.Xml.Linq;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Diagnostics;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Connection;
-using Assembly = System.Reflection.Assembly;
 
 namespace Microsoft.SqlTools.ServiceLayer.Management
 {
@@ -773,22 +767,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             if (site != null)
             {
                 // see if service provider supports INodeInformation interface from the object explorer
-                try
+                // NOTE: we're trying to forcefully set connection information on the data container.
+                // If this code doesn't execute, then dc.Init call below will result in CDataContainer
+                // initializing its ConnectionInfo member with a new object contructed off the parameters
+                // in the XML doc [server name, user name etc]
+                IManagedConnection managedConnection = site.GetService(typeof(IManagedConnection)) as IManagedConnection;
+                if (managedConnection != null)
                 {
-                    // NOTE: we're trying to forcefully set connection information on the data container.
-                    // If this code doesn't execute, then dc.Init call below will result in CDataContainer
-                    // initializing its ConnectionInfo member with a new object contructed off the parameters
-                    // in the XML doc [server name, user name etc]
-                    IManagedConnection managedConnection = site.GetService(typeof(IManagedConnection)) as IManagedConnection;
-                    if (managedConnection != null)
-                    {
-                        this.SetManagedConnection(managedConnection);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    // keep the exception flowing
-                    throw ex;
+                    this.SetManagedConnection(managedConnection);
                 }
             }
 
