@@ -2421,6 +2421,18 @@
         <note>
         </note>
       </trans-unit>
+      <trans-unit id="CouldntFindAzureFunction">
+        <source>Couldn't find Azure function with FunctionName {0} in {1}</source>
+        <target state="translated">Impossible de trouver la fonction Azure avec FunctionName {0} dans {1}</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="MoreThanOneAzureFunctionWithName">
+        <source>Couldn't find Azure function with FunctionName {0} in {1}</source>
+        <target state="translated">Plusieurs fonctions Azure trouvées avec FunctionName {0} dans {1}</target>
+        <note>
+        </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
