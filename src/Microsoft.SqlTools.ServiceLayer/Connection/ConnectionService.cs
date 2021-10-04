@@ -480,6 +480,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 connectionInfo.IsSqlDb = serverInfo.EngineEditionId == (int)DatabaseEngineEdition.SqlDatabase;
                 connectionInfo.IsSqlDW = (serverInfo.EngineEditionId == (int)DatabaseEngineEdition.SqlDataWarehouse);
                 connectionInfo.EngineEdition = (DatabaseEngineEdition)serverInfo.EngineEditionId;
+                // Azure Data Studio supports SQL Server 2014 and later releases.
+                response.IsSupportedVersion = serverInfo.IsCloud || serverInfo.ServerMajorVersion >= 12;
             }
             catch (Exception ex)
             {
