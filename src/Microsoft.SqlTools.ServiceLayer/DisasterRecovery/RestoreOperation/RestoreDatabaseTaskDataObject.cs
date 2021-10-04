@@ -12,7 +12,6 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using System.Diagnostics;
@@ -318,7 +317,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             catch(Exception ex)
             {
                 Logger.Write(TraceEventType.Information, $"Failed to execute restore task. error: {ex.Message}");
-                throw ex;
+                throw;
             }
             finally
             {

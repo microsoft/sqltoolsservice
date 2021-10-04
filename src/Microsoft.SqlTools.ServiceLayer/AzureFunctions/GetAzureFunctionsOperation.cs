@@ -69,7 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
             catch (Exception ex)
             {
                 Logger.Write(TraceEventType.Information, $"Failed to get Azure functions. Error: {ex.Message}");
-                throw ex;
+                throw;
             }
         }
     }

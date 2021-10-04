@@ -11,8 +11,6 @@ using System.Resources;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
-using Microsoft.SqlServer.Management.Diagnostics;
-using System.Globalization;
 using Microsoft.Data.SqlClient;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -362,7 +360,7 @@ WHERE do.database_id = @DbID
                     }
                     else
                     {
-                        throw ex;
+                        throw;
                     }
                 }
 
@@ -574,7 +572,7 @@ WHERE do.database_id = @DbID
                     }
                     else
                     {
-                        throw ex;
+                        throw;
                     }
                 }
 
