@@ -25,7 +25,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
     /// <summary>
     /// Main class for the Connection Management services
     /// </summary>
-    public class ConnectionService
+    public class ConnectionService : IConnectionService
     {
         private const string PasswordPlaceholder = "******";
 

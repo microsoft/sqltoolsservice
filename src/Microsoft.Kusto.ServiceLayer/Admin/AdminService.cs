@@ -4,15 +4,11 @@
 //
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.Kusto.ServiceLayer.Admin.Contracts;
 using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.DataSource;
-using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
-using Microsoft.Kusto.ServiceLayer.Utility;
 
 namespace Microsoft.Kusto.ServiceLayer.Admin
 {
@@ -23,7 +19,7 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
     {
         private static readonly Lazy<AdminService> _instance = new Lazy<AdminService>(() => new AdminService());
 
-        private static ConnectionService _connectionService;
+        private static IConnectionService _connectionService;
 
         /// <summary>
         /// Gets the singleton instance object
@@ -33,7 +29,7 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
         /// <summary>
         /// Initializes the service instance
         /// </summary>
-        public void InitializeService(ServiceHost serviceHost, ConnectionService connectionService)
+        public void InitializeService(IProtocolEndpoint serviceHost, IConnectionService connectionService)
         {
             serviceHost.SetRequestHandler(GetDatabaseInfoRequest.Type, HandleGetDatabaseInfoRequest);
             _connectionService = connectionService;
@@ -42,7 +38,7 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
         /// <summary>
         /// Handle get database info request
         /// </summary>
-        private async Task HandleGetDatabaseInfoRequest(GetDatabaseInfoParams databaseParams, RequestContext<GetDatabaseInfoResponse> requestContext)
+        public async Task HandleGetDatabaseInfoRequest(GetDatabaseInfoParams databaseParams, RequestContext<GetDatabaseInfoResponse> requestContext)
         {
             try
             {
@@ -61,7 +57,7 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
             }
             catch (Exception ex)
             {
-                await requestContext.SendError(ex.ToString());
+                await requestContext.SendError(ex);
             }
         }
 
@@ -70,7 +66,7 @@ namespace Microsoft.Kusto.ServiceLayer.Admin
         /// </summary>
         /// <param name="connInfo"></param>
         /// <returns></returns>
-        public DatabaseInfo GetDatabaseInfo(ConnectionInfo connInfo)
+        private DatabaseInfo GetDatabaseInfo(ConnectionInfo connInfo)
         {
             if (string.IsNullOrEmpty(connInfo.ConnectionDetails.DatabaseName))
             {
