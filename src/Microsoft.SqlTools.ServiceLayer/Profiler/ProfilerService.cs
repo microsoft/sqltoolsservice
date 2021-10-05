@@ -18,6 +18,7 @@ using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.XEvent;
 using Microsoft.SqlServer.Management.XEventDbScoped;
+using Microsoft.SqlServer.XEvent.XELite;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -147,25 +148,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     }
                     else
                     {
-                        IXEventSession xeSession = null;
 
-                        // first check whether the session with the given name already exists.
-                        // if so skip the creation part. An exception will be thrown if no session with given name can be found,
-                        // and it can be ignored.
-                        try
-                        {
-                            xeSession = this.XEventSessionFactory.GetXEventSession(parameters.SessionName, connInfo);
-                        }
-                        catch { }
+                         var cancellationTokenSource = new CancellationTokenSource();
+                        XELiveEventStreamer xeStream = null;
+                        
+                        var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
+                        SqlStoreConnection connection = new SqlStoreConnection(sqlConnection);
+                        var statement = parameters.Template.CreateStatement.Replace("{sessionName}", parameters.SessionName);
+                        connection.ServerConnection.ExecuteNonQuery(statement);
 
-                        if (xeSession == null)
-                        {
-                            // create a new XEvent session and Profiler session
-                            xeSession = this.XEventSessionFactory.CreateXEventSession(parameters.Template.CreateStatement, parameters.SessionName, connInfo);
-                        }
-
+                        xeStream = new XELiveEventStreamer(parameters.OwnerUri, parameters.SessionName);
                         // start monitoring the profiler session
-                        monitor.StartMonitoringSession(parameters.OwnerUri, xeSession);
+                        monitor.StartMonitoringSession(parameters.OwnerUri, xeStream);
 
                         var result = new CreateXEventSessionResult();
                         await requestContext.SendResult(result);
@@ -496,5 +490,47 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 disposed = true;
             }
         }
+
+    static void OutputXELStream(string connectionString, string sessionName)
+{
+    var cancellationTokenSource = new CancellationTokenSource();
+
+    var xeStream = new XELiveEventStreamer(connectionString, sessionName);
+
+    Console.WriteLine("Press any key to stop listening...");
+    Task waitTask = Task.Run(() =>
+        {
+            Console.ReadKey();
+            cancellationTokenSource.Cancel();
+        });
+
+    Task readTask = xeStream.ReadEventStream(() =>
+        {
+            Console.WriteLine("Connected to session");
+            return Task.CompletedTask;
+        },
+        xevent =>
+        {
+            xevent.
+            Console.WriteLine(xevent);
+            Console.WriteLine("");
+            return Task.CompletedTask;
+        },
+        cancellationTokenSource.Token);
+
+
+    try
+    {
+        Task.WaitAny(waitTask, readTask);
+    }
+    catch (TaskCanceledException)
+    {
+    }
+
+    if (readTask.IsFaulted)
+    {
+        Console.Error.WriteLine("Failed with: {0}", readTask.Exception);
+    }
+}
     }
 }
