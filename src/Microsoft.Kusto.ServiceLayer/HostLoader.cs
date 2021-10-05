@@ -11,7 +11,6 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.Kusto.ServiceLayer.Admin;
 using Microsoft.Kusto.ServiceLayer.Metadata;
 using Microsoft.Kusto.ServiceLayer.Connection;
-using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
 using Microsoft.Kusto.ServiceLayer.QueryExecution;
 using Microsoft.Kusto.ServiceLayer.Scripting;
@@ -66,6 +65,8 @@ namespace Microsoft.Kusto.ServiceLayer
             ExtensionServiceProvider serviceProvider = ExtensionServiceProvider.CreateDefaultServiceProvider(inclusionList);
             serviceProvider.RegisterSingleService(sqlToolsContext);
             serviceProvider.RegisterSingleService(serviceHost);
+            var connectionManager = new ConnectionManager();
+            serviceProvider.RegisterSingleService(connectionManager);
             
             var scripter = serviceProvider.GetService<IScripter>();
             var dataSourceConnectionFactory = serviceProvider.GetService<IDataSourceConnectionFactory>();
@@ -77,25 +78,25 @@ namespace Microsoft.Kusto.ServiceLayer
             WorkspaceService<SqlToolsSettings>.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(WorkspaceService<SqlToolsSettings>.Instance);
 
-            LanguageService.Instance.InitializeService(serviceHost, connectedBindingQueue);
+            LanguageService.Instance.InitializeService(serviceHost, connectedBindingQueue, connectionManager);
             serviceProvider.RegisterSingleService(LanguageService.Instance);
 
-            ConnectionService.Instance.InitializeService(serviceHost, dataSourceConnectionFactory, connectedBindingQueue);
+            ConnectionService.Instance.InitializeService(serviceHost, dataSourceConnectionFactory, connectedBindingQueue, connectionManager);
             serviceProvider.RegisterSingleService(ConnectionService.Instance);
 
             CredentialService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(CredentialService.Instance);
 
-            QueryExecutionService.Instance.InitializeService(serviceHost);
+            QueryExecutionService.Instance.InitializeService(serviceHost, connectionManager);
             serviceProvider.RegisterSingleService(QueryExecutionService.Instance);
 
-            ScriptingService.Instance.InitializeService(serviceHost, scripter, ConnectionService.Instance);
+            ScriptingService.Instance.InitializeService(serviceHost, scripter, ConnectionService.Instance, connectionManager);
             serviceProvider.RegisterSingleService(ScriptingService.Instance);
 
-            AdminService.Instance.InitializeService(serviceHost, ConnectionService.Instance);
+            AdminService.Instance.InitializeService(serviceHost, connectionManager);
             serviceProvider.RegisterSingleService(AdminService.Instance);
 
-            MetadataService.Instance.InitializeService(serviceHost, ConnectionService.Instance);
+            MetadataService.Instance.InitializeService(serviceHost, connectionManager);
             serviceProvider.RegisterSingleService(MetadataService.Instance);
             
             InitializeHostedServices(serviceProvider, serviceHost);
