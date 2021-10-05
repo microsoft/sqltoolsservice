@@ -854,3 +854,4 @@ SqlAssessmentUnsuppoertedEdition(int editionCode) = Unsupported engine edition {
 # Azure Functions
 CouldntFindAzureFunction(string functionName, string fileName) = Couldn't find Azure function with FunctionName '{0}' in {1}
 MoreThanOneAzureFunctionWithName(string functionName, string fileName) = More than one Azure function found with the FunctionName '{0}' in {1}
+SqlBindingsNet5NotSupported = Adding SQL bindings is not supported for .NET 5
