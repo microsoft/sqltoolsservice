@@ -2422,14 +2422,14 @@
         </note>
       </trans-unit>
       <trans-unit id="CouldntFindAzureFunction">
-        <source>Couldn't find Azure function with FunctionName {0} in {1}</source>
-        <target state="translated">在 {1} 中找不到具有 FunctionName {0} 的 Azure 函數</target>
+        <source>Couldn't find Azure function with FunctionName '{0}' in {1}</source>
+        <target state="translated">在 {1} 中找不到具有 FunctionName '{0}' 的 Azure 函數</target>
         <note>
         </note>
       </trans-unit>
       <trans-unit id="MoreThanOneAzureFunctionWithName">
-        <source>Couldn't find Azure function with FunctionName {0} in {1}</source>
-        <target state="translated">在 {1} 中找到多個具有 FunctionName {0} 的 Azure 函數</target>
+        <source>More than one Azure function found with the FunctionName '{0}' in {1}</source>
+        <target state="translated">在 {1} 中找到多個具有 FunctionName '{0}' 的 Azure 函數</target>
         <note>
         </note>
       </trans-unit>
