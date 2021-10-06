@@ -461,10 +461,13 @@
       </Item>
       <Item ItemId=";CouldntFindAzureFunction" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Couldn't find Azure function with FunctionName {0} in {1}]]></Val>
+          <Val><![CDATA[Couldn't find Azure function with FunctionName '{0}' in {1}]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Die Azure-Funktion mit FunctionName "{0}" wurde in "{1}" nicht gefunden.]]></Val>
+            <Val><![CDATA[Die Azure-Funktion mit dem FunctionName "{0}" wurde in {1} nicht gefunden.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Couldn't find Azure function with FunctionName {0} in {1}]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1136,10 +1139,13 @@
       </Item>
       <Item ItemId=";MoreThanOneAzureFunctionWithName" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[More than one Azure function found with the FunctionName {0} in {1}]]></Val>
+          <Val><![CDATA[More than one Azure function found with the FunctionName '{0}' in {1}]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[In "{1}" wurden mehrere Azure-Funktionen mit FunctionName "{0}" gefunden.]]></Val>
+            <Val><![CDATA[Es wurden mehrere Azure-Funktionen mit dem FunctionName "{0}" in {1} gefunden.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[More than one Azure function found with the FunctionName {0} in {1}]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
