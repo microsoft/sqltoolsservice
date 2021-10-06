@@ -21,9 +21,6 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
     /// </summary>
     class GetAzureFunctionsOperation
     {
-        const string functionAttributeText = "FunctionName";
-        const string net5FunctionAttributeText = "Function";
-
         public GetAzureFunctionsParams Parameters { get; }
 
         public GetAzureFunctionsOperation(GetAzureFunctionsParams parameters)
@@ -45,21 +42,11 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
                 SyntaxTree tree = CSharpSyntaxTree.ParseText(text);
                 CompilationUnitSyntax root = tree.GetCompilationUnitRoot();
 
-                // Look for Azure Functions in the file
-                // Get all method declarations
-                IEnumerable<MethodDeclarationSyntax> methodDeclarations = root.DescendantNodes().OfType<MethodDeclarationSyntax>();
-
-                // .NET 5 is not currently supported for sql bindings, so an error should be returned if this file has .NET 5 style Azure Functions
-                if (this.HasNet5StyleAzureFunctions(methodDeclarations))
-                {
-                    throw new Exception(SR.SqlBindingsNet5NotSupported);
-                }
-
                 // get all the method declarations with the FunctionName attribute
-                IEnumerable<MethodDeclarationSyntax> methodsWithFunctionAttributes = methodDeclarations.Where(md => md.AttributeLists.Count > 0).Where(md => md.AttributeLists.Where(a => a.Attributes.Where(attr => attr.Name.ToString().Contains(functionAttributeText)).Count() == 1).Count() == 1);
+                IEnumerable<MethodDeclarationSyntax> methodsWithFunctionAttributes = AzureFunctionsUtils.GetMethodsWithFunctionAttributes(root);
 
                 // Get FunctionName attributes
-                IEnumerable<AttributeSyntax> functionNameAttributes = methodsWithFunctionAttributes.Select(md => md.AttributeLists.Select(a => a.Attributes.Where(attr => attr.Name.ToString().Contains(functionAttributeText)).First()).First());
+                IEnumerable<AttributeSyntax> functionNameAttributes = methodsWithFunctionAttributes.Select(md => md.AttributeLists.Select(a => a.Attributes.Where(attr => attr.Name.ToString().Equals(AzureFunctionsUtils.functionAttributeText)).First()).First());
 
                 // Get the function names in the FunctionName attributes
                 IEnumerable<AttributeArgumentSyntax> nameArgs = functionNameAttributes.Select(a => a.ArgumentList.Arguments.First());
@@ -78,17 +65,6 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
                 Logger.Write(TraceEventType.Information, $"Failed to get Azure functions. Error: {ex.Message}");
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Checks if any of the method declarations have .NET 5 style Azure Function attributes
-        /// .NET 5 AFs use the Function attribute, while .NET 3.1 AFs use FunctionName attritube
-        /// </summary>
-        bool HasNet5StyleAzureFunctions(IEnumerable<MethodDeclarationSyntax> methodDeclarations)
-        {
-            // get all the method declarations with the Function attribute
-            IEnumerable<MethodDeclarationSyntax> methodsWithFunctionAttributes = methodDeclarations.Where(md => md.AttributeLists.Count > 0).Where(md => md.AttributeLists.Where(a => a.Attributes.Where(attr => attr.Name.ToString().Equals(net5FunctionAttributeText)).Count() == 1).Count() == 1);
-            return methodsWithFunctionAttributes.Any();
         }
     }
 }
