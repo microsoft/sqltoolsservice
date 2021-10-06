@@ -65,9 +65,8 @@ namespace Microsoft.Kusto.ServiceLayer
             ExtensionServiceProvider serviceProvider = ExtensionServiceProvider.CreateDefaultServiceProvider(inclusionList);
             serviceProvider.RegisterSingleService(sqlToolsContext);
             serviceProvider.RegisterSingleService(serviceHost);
-            var connectionManager = new ConnectionManager();
-            serviceProvider.RegisterSingleService(connectionManager);
-            
+            var connectionManager = serviceProvider.GetService<IConnectionManager>();
+
             var scripter = serviceProvider.GetService<IScripter>();
             var dataSourceConnectionFactory = serviceProvider.GetService<IDataSourceConnectionFactory>();
             var connectedBindingQueue = serviceProvider.GetService<IConnectedBindingQueue>();
