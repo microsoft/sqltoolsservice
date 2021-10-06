@@ -2422,14 +2422,14 @@
         </note>
       </trans-unit>
       <trans-unit id="CouldntFindAzureFunction">
-        <source>Couldn't find Azure function with FunctionName {0} in {1}</source>
-        <target state="translated">{1}에서 FunctionName {0}인 Azure 함수를 찾을 수 없음</target>
+        <source>Couldn't find Azure function with FunctionName '{0}' in {1}</source>
+        <target state="translated">{1}에서 FunctionName ‘{0}’인 Azure 함수를 찾을 수 없음</target>
         <note>
         </note>
       </trans-unit>
       <trans-unit id="MoreThanOneAzureFunctionWithName">
-        <source>Couldn't find Azure function with FunctionName {0} in {1}</source>
-        <target state="translated">{1}에서 FunctionName {0}인 Azure 함수를 두 개 이상 찾음</target>
+        <source>More than one Azure function found with the FunctionName '{0}' in {1}</source>
+        <target state="translated">{1}에서 FunctionName ‘{0}’인 Azure 함수를 두 개 이상 찾음</target>
         <note>
         </note>
       </trans-unit>

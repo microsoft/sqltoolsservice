@@ -1330,9 +1330,9 @@
     <value>Обнаружен неподдерживаемый токен {0}.</value>
   </data>
   <data name="CouldntFindAzureFunction" xml:space="preserve">
-    <value>Не удалось найти функцию Azure с атрибутом FunctionName {0} в {1}</value>
+    <value>Не удалось найти функцию Azure с FunctionName "{0}" в файле {1}.</value>
   </data>
   <data name="MoreThanOneAzureFunctionWithName" xml:space="preserve">
-    <value>Обнаружено более одной функции Azure с FunctionName {0} в {1}</value>
+    <value>В файле {1} обнаружено более одной функции Azure с FunctionName "{0}".</value>
   </data>
 </root>

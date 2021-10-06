@@ -1330,9 +1330,9 @@
     <value>Jeton non pris en charge détecté ({0})</value>
   </data>
   <data name="CouldntFindAzureFunction" xml:space="preserve">
-    <value>Impossible de trouver la fonction Azure avec FunctionName {0} dans {1}</value>
+    <value>Impossible de trouver la fonction Azure avec FunctionName « {0} » dans {1}</value>
   </data>
   <data name="MoreThanOneAzureFunctionWithName" xml:space="preserve">
-    <value>Plusieurs fonctions Azure trouvées avec FunctionName {0} dans {1}</value>
+    <value>Plusieurs fonctions Azure trouvées avec FunctionName « {0} » dans {1}</value>
   </data>
 </root>
