@@ -2422,14 +2422,14 @@
         </note>
       </trans-unit>
       <trans-unit id="CouldntFindAzureFunction">
-        <source>Couldn't find Azure function with FunctionName {0} in {1}</source>
-        <target state="translated">Не удалось найти функцию Azure с атрибутом FunctionName {0} в {1}</target>
+        <source>Couldn't find Azure function with FunctionName '{0}' in {1}</source>
+        <target state="translated">Не удалось найти функцию Azure с FunctionName "{0}" в файле {1}.</target>
         <note>
         </note>
       </trans-unit>
       <trans-unit id="MoreThanOneAzureFunctionWithName">
-        <source>Couldn't find Azure function with FunctionName {0} in {1}</source>
-        <target state="translated">Обнаружено более одной функции Azure с FunctionName {0} в {1}</target>
+        <source>More than one Azure function found with the FunctionName '{0}' in {1}</source>
+        <target state="translated">В файле {1} обнаружено более одной функции Azure с FunctionName "{0}".</target>
         <note>
         </note>
       </trans-unit>

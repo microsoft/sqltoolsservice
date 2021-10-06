@@ -1330,9 +1330,9 @@
     <value>遇到不支持的令牌 {0}</value>
   </data>
   <data name="CouldntFindAzureFunction" xml:space="preserve">
-    <value>无法找到 FunctionName 为 {0} 的 Azure 函数(在 {1} 中)</value>
+    <value>无法找到 FunctionName 为 '{0}' 的 Azure 函数(在 {1} 中)</value>
   </data>
   <data name="MoreThanOneAzureFunctionWithName" xml:space="preserve">
-    <value>已找到多个 FunctionName 为 {0} 的 Azure 函数(在 {1} 中)</value>
+    <value>已找到多个 FunctionName 为 '{0}' 的 Azure 函数(在 {1} 中)</value>
   </data>
 </root>

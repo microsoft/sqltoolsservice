@@ -1330,9 +1330,9 @@
     <value>發現不支援的權杖 {0}</value>
   </data>
   <data name="CouldntFindAzureFunction" xml:space="preserve">
-    <value>在 {1} 中找不到具有 FunctionName {0} 的 Azure 函數</value>
+    <value>在 {1} 中找不到具有 FunctionName '{0}' 的 Azure 函數</value>
   </data>
   <data name="MoreThanOneAzureFunctionWithName" xml:space="preserve">
-    <value>在 {1} 中找到多個具有 FunctionName {0} 的 Azure 函數</value>
+    <value>在 {1} 中找到多個具有 FunctionName '{0}' 的 Azure 函數</value>
   </data>
 </root>

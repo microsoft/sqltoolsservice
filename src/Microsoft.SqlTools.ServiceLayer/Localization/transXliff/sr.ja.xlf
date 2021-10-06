@@ -2422,14 +2422,14 @@
         </note>
       </trans-unit>
       <trans-unit id="CouldntFindAzureFunction">
-        <source>Couldn't find Azure function with FunctionName {0} in {1}</source>
-        <target state="translated">FunctionName {0} の Azure 関数が {1} に見つかりませんでした</target>
+        <source>Couldn't find Azure function with FunctionName '{0}' in {1}</source>
+        <target state="translated">FunctionName '{0}' の Azure 関数が {1} に見つかりませんでした</target>
         <note>
         </note>
       </trans-unit>
       <trans-unit id="MoreThanOneAzureFunctionWithName">
-        <source>Couldn't find Azure function with FunctionName {0} in {1}</source>
-        <target state="translated">FunctionName {0} の Azure 関数が {1} に複数見つかりました</target>
+        <source>More than one Azure function found with the FunctionName '{0}' in {1}</source>
+        <target state="translated">FunctionName '{0}' の Azure 関数が {1} に複数見つかりました</target>
         <note>
         </note>
       </trans-unit>
