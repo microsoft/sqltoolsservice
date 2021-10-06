@@ -11,7 +11,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
 {
     internal class ObjectExplorerSession
     {
-        internal ObjectExplorerSession(string uri, TreeNode root)
+        private ObjectExplorerSession(string uri, TreeNode root)
         {
             Validate.IsNotNullOrEmptyString("uri", uri);
             Validate.IsNotNull("root", root);
@@ -19,27 +19,20 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
             Root = root;
         }
 
-        public string Uri { get; private set; }
-        public TreeNode Root { get; private set; }
+        public string Uri { get; }
+        public TreeNode Root { get; }
 
         public ConnectionInfo ConnectionInfo { get; set; }
 
         public string ErrorMessage { get; set; }
-
+        
         public static ObjectExplorerSession CreateSession(ConnectionCompleteParams response, IMultiServiceProvider serviceProvider,
-            IDataSource dataSource, bool isDefaultOrSystemDatabase)
+            IDataSource dataSource)
         {
             DataSourceObjectMetadata objectMetadata = MetadataFactory.CreateClusterMetadata(dataSource.ClusterName);
             var rootNode = new ServerNode(response, serviceProvider, dataSource, objectMetadata);
 
-            var session = new ObjectExplorerSession(response.OwnerUri, rootNode);
-            if (!isDefaultOrSystemDatabase)
-            {
-                DataSourceObjectMetadata databaseMetadata =
-                    MetadataFactory.CreateDatabaseMetadata(objectMetadata, response.ConnectionSummary.DatabaseName);
-            }
-
-            return session;
+            return new ObjectExplorerSession(response.OwnerUri, rootNode);
         }
     }
 }

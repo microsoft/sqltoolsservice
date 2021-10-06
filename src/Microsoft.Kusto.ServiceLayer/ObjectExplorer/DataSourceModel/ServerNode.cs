@@ -80,7 +80,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
                 CultureInfo.InvariantCulture,
                 "{0} ({1} {2})",
                 connectionSummary.ServerName,
-                "SQL Server",
+                "Kusto Cluster",
                 serverInfo.ServerVersion);
             }
             else
@@ -89,7 +89,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
                 CultureInfo.InvariantCulture,
                 "{0} ({1} {2} - {3})",
                 connectionSummary.ServerName,
-                "SQL Server",
+                "Kusto Cluster",
                 serverInfo.ServerVersion,
                 userName);
             }

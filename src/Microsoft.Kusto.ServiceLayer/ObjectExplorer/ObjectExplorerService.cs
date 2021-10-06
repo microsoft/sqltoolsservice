@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -36,7 +35,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
         private readonly IConnectedBindingQueue _connectedBindingQueue;
 
         // Instance of the connection service, used to get the connection info for a given owner URI
-        private ConnectionService _connectionService;
+        private IConnectionService _connectionService;
         private IProtocolEndpoint _serviceHost;
         private readonly ConcurrentDictionary<string, ObjectExplorerSession> _sessionMap;
         private IMultiServiceProvider _serviceProvider;
@@ -60,17 +59,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
         }
 
         /// <summary>
-        /// Returns the session ids
-        /// </summary>
-        internal IReadOnlyCollection<string> SessionIds
-        {
-            get
-            {
-                return new ReadOnlyCollection<string>(_sessionMap.Keys.ToList());
-            }
-        }
-
-        /// <summary>
         /// As an <see cref="IComposableService"/>, this will be set whenever the service is initialized
         /// via an <see cref="IMultiServiceProvider"/>
         /// </summary>
@@ -79,7 +67,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
         {
             Validate.IsNotNull(nameof(provider), provider);
             _serviceProvider = provider;
-            _connectionService = provider.GetService<ConnectionService>();
+            _connectionService = provider.GetService<IConnectionService>();
             _connectionManager = provider.GetService<IConnectionManager>();
             
             try
@@ -133,37 +121,28 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
         }
 
 
-        internal async Task HandleCreateSessionRequest(ConnectionDetails connectionDetails, RequestContext<CreateSessionResponse> context)
+        public async Task HandleCreateSessionRequest(ConnectionDetails connectionDetails, RequestContext<CreateSessionResponse> context)
         {
             try
             {
-                Logger.Write(TraceEventType.Verbose, "HandleCreateSessionRequest");
-                Func<Task<CreateSessionResponse>> doCreateSession = async () =>
-                {
-                    Validate.IsNotNull(nameof(connectionDetails), connectionDetails);
-                    Validate.IsNotNull(nameof(context), context);
-                    return await Task.Factory.StartNew(() =>
-                    {
-                        string uri = GenerateUri(connectionDetails);
+                Logger.Write(TraceEventType.Verbose, nameof(HandleCreateSessionRequest));
 
-                        return new CreateSessionResponse { SessionId = uri };
-                    });
-                };
-
-                CreateSessionResponse response = await HandleRequestAsync(doCreateSession, context, "HandleCreateSessionRequest");
-                if (response != null)
-                {
-                    RunCreateSessionTask(connectionDetails, response.SessionId);
-                }
+                Validate.IsNotNull(nameof(connectionDetails), connectionDetails);
+                Validate.IsNotNull(nameof(context), context);
+                
+                string uri = GenerateUri(connectionDetails);
+                var sessionResponse = new CreateSessionResponse { SessionId = uri };
+                await context.SendResult(sessionResponse);
+                
+                RunCreateSessionTask(connectionDetails, sessionResponse.SessionId);
             }
             catch (Exception ex)
             {
-                await context.SendError(ex.ToString());
+                await context.SendError(ex);
             }
-
         }
 
-        internal async Task HandleExpandRequest(ExpandParams expandParams, RequestContext<bool> context)
+        public async Task HandleExpandRequest(ExpandParams expandParams, RequestContext<bool> context)
         {
             Logger.Write(TraceEventType.Verbose, "HandleExpandRequest");
 
@@ -194,7 +173,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
             await HandleRequestAsync(expandNode, context, "HandleExpandRequest");
         }
 
-        internal async Task HandleRefreshRequest(RefreshParams refreshParams, RequestContext<bool> context)
+        public async Task HandleRefreshRequest(RefreshParams refreshParams, RequestContext<bool> context)
         {
             try
             {
@@ -222,11 +201,11 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
             }
             catch (Exception ex)
             {
-                await context.SendError(ex.ToString());
+                await context.SendError(ex);
             }
         }
 
-        internal async Task HandleCloseSessionRequest(CloseSessionParams closeSessionParams, RequestContext<CloseSessionResponse> context)
+        public async Task HandleCloseSessionRequest(CloseSessionParams closeSessionParams, RequestContext<CloseSessionResponse> context)
         {
 
             Logger.Write(TraceEventType.Verbose, "HandleCloseSessionRequest");
@@ -259,7 +238,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
             await HandleRequestAsync(closeSession, context, "HandleCloseSessionRequest");
         }
 
-        internal async Task HandleFindNodesRequest(FindNodesParams findNodesParams, RequestContext<FindNodesResponse> context)
+        public async Task HandleFindNodesRequest(FindNodesParams findNodesParams, RequestContext<FindNodesResponse> context)
         {
             var foundNodes = FindNodes(findNodesParams.SessionId, findNodesParams.Type, findNodesParams.Schema, findNodesParams.Name, findNodesParams.Database, findNodesParams.ParentObjectNames);
             if (foundNodes == null)
@@ -269,7 +248,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
             await context.SendResult(new FindNodesResponse { Nodes = foundNodes.Select(node => node.ToNodeInfo()).ToList() });
         }
 
-        internal void CloseSession(string uri)
+        private void CloseSession(string uri)
         {
             ObjectExplorerSession session;
             if (_sessionMap.TryGetValue(uri, out session))
@@ -292,30 +271,28 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
         private void RunCreateSessionTask(ConnectionDetails connectionDetails, string uri)
         {
             Logger.Write(TraceEventType.Information, "Creating OE session");
-            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-            if (connectionDetails != null && !string.IsNullOrEmpty(uri))
+
+            var cancellationTokenSource = new CancellationTokenSource();
+            Task task = CreateSessionAsync(connectionDetails, uri, cancellationTokenSource.Token);
+            Task.Run(async () =>
             {
-                Task task = CreateSessionAsync(connectionDetails, uri, cancellationTokenSource.Token);
-                Task.Run(async () =>
+                ObjectExplorerTaskResult result = await RunTaskWithTimeout(task,
+                    _settings?.CreateSessionTimeout ?? ObjectExplorerSettings.DefaultCreateSessionTimeout);
+
+                if (result != null && !result.IsCompleted)
                 {
-                    ObjectExplorerTaskResult result = await RunTaskWithTimeout(task,
-                        _settings?.CreateSessionTimeout ?? ObjectExplorerSettings.DefaultCreateSessionTimeout);
-
-                    if (result != null && !result.IsCompleted)
+                    cancellationTokenSource.Cancel();
+                    SessionCreatedParameters response = new SessionCreatedParameters
                     {
-                        cancellationTokenSource.Cancel();
-                        SessionCreatedParameters response = new SessionCreatedParameters
-                        {
-                            Success = false,
-                            SessionId = uri,
-                            ErrorMessage = result.Exception != null ? result.Exception.Message : $"Failed to create session for session id {uri}"
+                        Success = false,
+                        SessionId = uri,
+                        ErrorMessage = result.Exception != null ? result.Exception.Message : $"Failed to create session for session id {uri}"
 
-                        };
-                        await _serviceHost.SendEvent(CreateSessionCompleteNotification.Type, response);
-                    }
-                    return result;
-                }).ContinueWithOnFaulted(null);
-            }
+                    };
+                    await _serviceHost.SendEvent(CreateSessionCompleteNotification.Type, response);
+                }
+                return result;
+            }, cancellationTokenSource.Token).ContinueWithOnFaulted(null);
         }
 
         private async Task<SessionCreatedParameters> CreateSessionAsync(ConnectionDetails connectionDetails, string uri, CancellationToken cancellationToken)
@@ -345,7 +322,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
 
         }
 
-        internal async Task<ExpandResponse> ExpandNode(ObjectExplorerSession session, string nodePath, bool forceRefresh = false)
+        private async Task<ExpandResponse> ExpandNode(ObjectExplorerSession session, string nodePath, bool forceRefresh = false)
         {
             return await Task.Factory.StartNew(() =>
             {
@@ -378,8 +355,6 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
                     int timeout = (int)TimeSpan.FromSeconds(_settings?.ExpandTimeout ?? ObjectExplorerSettings.DefaultExpandTimeout).TotalMilliseconds;
                     QueueItem queueItem = _connectedBindingQueue.QueueBindingOperation(
                            key: _connectedBindingQueue.AddConnectionContext(session.ConnectionInfo, false, connectionName, false),
-                           bindingTimeout: timeout,
-                           waitForLockTimeout: timeout,
                            bindOperation: (bindingContext, cancelToken) =>
                            {
                                if (forceRefresh)
@@ -394,7 +369,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
                                response.ErrorMessage = node.ErrorMessage;
 
                                return response;
-                           });
+                           }, bindingTimeout: timeout, waitForLockTimeout: timeout);
 
                     queueItem.ItemProcessed.WaitOne();
                     if (queueItem.GetResultAsT<ExpandResponse>() != null)
@@ -417,50 +392,39 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
         /// Establishes a new session and stores its information
         /// </summary>
         /// <returns><see cref="ObjectExplorerSession"/> object if successful, null if unsuccessful</returns>
-        internal async Task<ObjectExplorerSession> DoCreateSession(ConnectionDetails connectionDetails, string uri)
+        private async Task<ObjectExplorerSession> DoCreateSession(ConnectionDetails connectionDetails, string uri)
         {
             try
             {
-                ObjectExplorerSession session = null;
                 connectionDetails.PersistSecurityInfo = true;
-                ConnectParams connectParams = new ConnectParams() { OwnerUri = uri, Connection = connectionDetails, Type = Connection.ConnectionType.ObjectExplorer };
-                bool isDefaultOrSystemDatabase = DatabaseUtils.IsSystemDatabaseConnection(connectionDetails.DatabaseName) || string.IsNullOrWhiteSpace(connectionDetails.DatabaseDisplayName);
-
+                ConnectParams connectParams = new ConnectParams
+                {
+                    OwnerUri = uri, 
+                    Connection = connectionDetails, 
+                    Type = ConnectionType.ObjectExplorer
+                };
+                
                 ConnectionInfo connectionInfo;
-                ConnectionCompleteParams connectionResult = await Connect(connectParams, uri);
                 if (!_connectionManager.TryGetValue(uri, out connectionInfo))
                 {
                     return null;
                 }
 
+                ConnectionCompleteParams connectionResult = await Connect(connectParams, uri);
                 if (connectionResult == null)
                 {
                     // Connection failed and notification is already sent
                     return null;
                 }
 
-                int timeout = (int)TimeSpan.FromSeconds(_settings?.CreateSessionTimeout ?? ObjectExplorerSettings.DefaultCreateSessionTimeout).TotalMilliseconds;
-                QueueItem queueItem = _connectedBindingQueue.QueueBindingOperation(
-                           key: _connectedBindingQueue.AddConnectionContext(connectionInfo, false, connectionName),
-                           bindingTimeout: timeout,
-                           waitForLockTimeout: timeout,
-                           bindOperation: (bindingContext, cancelToken) =>
-                           {
-                               session = ObjectExplorerSession.CreateSession(connectionResult, _serviceProvider, bindingContext.DataSource, isDefaultOrSystemDatabase);
-                               session.ConnectionInfo = connectionInfo;
+                connectionInfo.TryGetConnection(ConnectionType.ObjectExplorer, out ReliableDataSourceConnection connection);
+                var session = ObjectExplorerSession.CreateSession(connectionResult, _serviceProvider, connection.GetUnderlyingConnection());
+                session.ConnectionInfo = connectionInfo;
 
-                               _sessionMap.AddOrUpdate(uri, session, (key, oldSession) => session);
-                               return session;
-                           });
-
-                queueItem.ItemProcessed.WaitOne();
-                if (queueItem.GetResultAsT<ObjectExplorerSession>() != null)
-                {
-                    session = queueItem.GetResultAsT<ObjectExplorerSession>();
-                }
+                _sessionMap.AddOrUpdate(uri, session, (key, oldSession) => session);
                 return session;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 await SendSessionFailedNotification(uri, ex.Message);
                 return null;
@@ -505,7 +469,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
             await _serviceHost.SendEvent(CreateSessionCompleteNotification.Type, result);
         }
 
-        internal async Task SendSessionDisconnectedNotification(string uri, bool success, string errorMessage)
+        private async Task SendSessionDisconnectedNotification(string uri, bool success, string errorMessage)
         {
             Logger.Write(TraceEventType.Information, $"OE session disconnected: {errorMessage}");
             SessionDisconnectedParameters result = new SessionDisconnectedParameters()
@@ -580,7 +544,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
         /// <param name="details"></param>
         /// <returns>string representing a URI</returns>
         /// <remarks>Internal for testing purposes only</remarks>
-        internal static string GenerateUri(ConnectionDetails details)
+        private static string GenerateUri(ConnectionDetails details)
         {
             return ConnectedBindingQueue.GetConnectionContextKey(details);
         }
@@ -595,7 +559,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
         /// <param name="databaseName">The name of the database containing the requested object, or null if not applicable</param>
         /// <param name="parentNames">The name of any other parent objects in the object explorer tree, from highest in the tree to lowest</param>
         /// <returns>A list of nodes matching the given information, or an empty list if no nodes match</returns>
-        public List<TreeNode> FindNodes(string sessionId, string typeName, string schema, string name, string databaseName, List<string> parentNames = null)
+        private List<TreeNode> FindNodes(string sessionId, string typeName, string schema, string name, string databaseName, List<string> parentNames = null)
         {
             var nodes = new List<TreeNode>();
             var oeSession = _sessionMap.GetValueOrDefault(sessionId);
