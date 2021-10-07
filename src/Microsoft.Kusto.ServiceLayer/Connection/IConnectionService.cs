@@ -14,8 +14,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <param name="connectedQueue"></param>
         void RegisterConnectedQueue(string type, IConnectedBindingQueue connectedQueue);
 
-        bool TryFindConnection(string ownerUri, out ConnectionInfo connectionInfo);
-
         /// <summary>
         /// Open a connection with the specified ConnectParams
         /// </summary>
@@ -50,7 +48,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         bool Disconnect(DisconnectParams disconnectParams);
 
         void InitializeService(IProtocolEndpoint serviceHost, IDataSourceConnectionFactory dataSourceConnectionFactory, 
-            IConnectedBindingQueue connectedBindingQueue);
+            IConnectedBindingQueue connectedBindingQueue, IConnectionManager connectionManager);
 
         /// <summary> 
         /// Add a new method to be called when the onconnection request is submitted 

@@ -47,6 +47,8 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
         /// </summary>
         private ObjectExplorerSettings _settings;
 
+        private IConnectionManager _connectionManager;
+
         /// <summary>
         /// Singleton constructor
         /// </summary>
@@ -78,6 +80,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
             Validate.IsNotNull(nameof(provider), provider);
             _serviceProvider = provider;
             _connectionService = provider.GetService<ConnectionService>();
+            _connectionManager = provider.GetService<IConnectionManager>();
             
             try
             {
@@ -425,7 +428,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
 
                 ConnectionInfo connectionInfo;
                 ConnectionCompleteParams connectionResult = await Connect(connectParams, uri);
-                if (!_connectionService.TryFindConnection(uri, out connectionInfo))
+                if (!_connectionManager.TryGetValue(uri, out connectionInfo))
                 {
                     return null;
                 }

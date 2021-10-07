@@ -23,9 +23,9 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.Admin
             var mockServiceHost = new Mock<IProtocolEndpoint>();
             var mockDataSourceFactory = new Mock<IDataSourceConnectionFactory>();
             var connectionInfo = new ConnectionInfo(mockDataSourceFactory.Object, null, new ConnectionDetails { DatabaseName = databaseName });
-            var mockConnectionService = new Mock<IConnectionService>();
-            mockConnectionService
-                .Setup(x => x.TryFindConnection(It.IsAny<string>(), out connectionInfo))
+            var mockConnectionManager = new Mock<IConnectionManager>();
+            mockConnectionManager
+                .Setup(x => x.TryGetValue(It.IsAny<string>(), out connectionInfo))
                 .Returns(true);
             
             var mockRequestContext = new Mock<RequestContext<GetDatabaseInfoResponse>>();
@@ -35,7 +35,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.Admin
                 .Returns(Task.CompletedTask);
             
             var adminService = new AdminService();
-            adminService.InitializeService(mockServiceHost.Object, mockConnectionService.Object);
+            adminService.InitializeService(mockServiceHost.Object, mockConnectionManager.Object);
             await adminService.HandleGetDatabaseInfoRequest(new GetDatabaseInfoParams(), mockRequestContext.Object);
 
             Assert.AreEqual(null, actualResponse.DatabaseInfo);
@@ -73,9 +73,9 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.Admin
                 RetryPolicyFactory.NoRetryPolicy, mockDataSourceFactory.Object, "");
             connectionInfo.AddConnection(ConnectionType.Default, connection);
             
-            var mockConnectionService = new Mock<IConnectionService>();
-            mockConnectionService
-                .Setup(x => x.TryFindConnection(It.IsAny<string>(), out connectionInfo))
+            var mockConnectionManager = new Mock<IConnectionManager>();
+            mockConnectionManager
+                .Setup(x => x.TryGetValue(It.IsAny<string>(), out connectionInfo))
                 .Returns(true);
             
             var mockRequestContext = new Mock<RequestContext<GetDatabaseInfoResponse>>();
@@ -86,7 +86,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.Admin
             
             var mockServiceHost = new Mock<IProtocolEndpoint>();
             var adminService = new AdminService();
-            adminService.InitializeService(mockServiceHost.Object, mockConnectionService.Object);
+            adminService.InitializeService(mockServiceHost.Object, mockConnectionManager.Object);
             await adminService.HandleGetDatabaseInfoRequest(new GetDatabaseInfoParams(), mockRequestContext.Object);
 
             Assert.AreEqual("FakeDatabaseName", actualResponse.DatabaseInfo.Options.First().Key);
@@ -97,7 +97,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.Admin
         public async Task HandleGetDatabaseInfoRequest_NoConnection_Returns_Null()
         {
             var mockServiceHost = new Mock<IProtocolEndpoint>();
-            var mockConnectionService = new Mock<IConnectionService>();
+            var mockConnectionManager = new Mock<IConnectionManager>();
             var mockRequestContext = new Mock<RequestContext<GetDatabaseInfoResponse>>();
             var actualResponse = new GetDatabaseInfoResponse();
             mockRequestContext.Setup(x => x.SendResult(It.IsAny<GetDatabaseInfoResponse>()))
@@ -105,7 +105,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.Admin
                 .Returns(Task.CompletedTask);
 
             var adminService = new AdminService();
-            adminService.InitializeService(mockServiceHost.Object, mockConnectionService.Object);
+            adminService.InitializeService(mockServiceHost.Object, mockConnectionManager.Object);
             await adminService.HandleGetDatabaseInfoRequest(new GetDatabaseInfoParams(), mockRequestContext.Object);
 
             Assert.AreEqual(null, actualResponse.DatabaseInfo);
@@ -115,12 +115,12 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.Admin
         public async Task HandleDatabaseInfoRequest_ThrowsException_Returns_Error()
         {
             var mockServiceHost = new Mock<IProtocolEndpoint>();
-            var mockConnectionService = new Mock<IConnectionService>();
+            var mockConnectionManager = new Mock<IConnectionManager>();
             ConnectionInfo connectionInfo;
             var expectedException = new Exception("Fake Error Message");
             var actualException = new Exception();
-            mockConnectionService
-                .Setup(x => x.TryFindConnection(It.IsAny<string>(), out connectionInfo))
+            mockConnectionManager
+                .Setup(x => x.TryGetValue(It.IsAny<string>(), out connectionInfo))
                 .Throws(expectedException);
 
             var mockRequestContext = new Mock<RequestContext<GetDatabaseInfoResponse>>();
@@ -131,7 +131,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.Admin
                 .Returns(Task.CompletedTask);
 
             var adminService = new AdminService();
-            adminService.InitializeService(mockServiceHost.Object, mockConnectionService.Object);
+            adminService.InitializeService(mockServiceHost.Object, mockConnectionManager.Object);
             await adminService.HandleGetDatabaseInfoRequest(new GetDatabaseInfoParams(), mockRequestContext.Object);
 
             Assert.AreEqual(expectedException.GetType(), actualException.GetType());

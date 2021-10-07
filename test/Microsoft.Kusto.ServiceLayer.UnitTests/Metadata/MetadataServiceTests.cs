@@ -20,7 +20,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.Metadata
         public async Task HandleMetadataListRequest_Sets_MetadataListTask()
         {
             var serviceHostMock = new Mock<IProtocolEndpoint>();
-            var connectionServiceMock = new Mock<ConnectionService>();
+            var connectionManagerMock = new Mock<IConnectionManager>();
             var connectionFactoryMock = new Mock<IDataSourceConnectionFactory>();
             var requestContextMock = new Mock<RequestContext<MetadataQueryResult>>();
             requestContextMock.Setup(x => x.SendResult(It.IsAny<MetadataQueryResult>())).Returns(Task.CompletedTask);
@@ -44,10 +44,10 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.Metadata
             var connectionInfo = new ConnectionInfo(connectionFactoryMock.Object, "", connectionDetails);
             connectionInfo.AddConnection(ConnectionType.Default, reliableDataSource);
             
-            connectionServiceMock.Setup(x => x.TryFindConnection(It.IsAny<string>(), out connectionInfo));
+            connectionManagerMock.Setup(x => x.TryGetValue(It.IsAny<string>(), out connectionInfo));
             
             var metadataService = new MetadataService();
-            metadataService.InitializeService(serviceHostMock.Object, connectionServiceMock.Object);
+            metadataService.InitializeService(serviceHostMock.Object, connectionManagerMock.Object);
 
             await metadataService.HandleMetadataListRequest(new MetadataQueryParams(), requestContextMock.Object);
 
