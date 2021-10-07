@@ -20,8 +20,7 @@ using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.Kusto.ServiceLayer.QueryExecution
 {
-
-    [Export(typeof(IHostedService))]
+    
     public class SerializationService : HostedService<SerializationService>, IComposableService
     {
         private ConcurrentDictionary<string, DataSerializer> inProgressSerializations;
