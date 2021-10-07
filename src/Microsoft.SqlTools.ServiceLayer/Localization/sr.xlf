@@ -2173,6 +2173,11 @@
         <note>.
  Parameters: 0 - functionName (string), 1 - fileName (string) </note>
       </trans-unit>
+      <trans-unit id="SqlBindingsNet5NotSupported">
+        <source>Adding SQL bindings is not supported for .NET 5</source>
+        <target state="new">Adding SQL bindings is not supported for .NET 5</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
