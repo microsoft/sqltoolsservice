@@ -43,6 +43,7 @@
     <Compile Remove="AzureFunctions\AzureFunctionTestFiles\AzureFunctionsMultipleSameFunction.cs" />
     <Compile Remove="AzureFunctions\AzureFunctionTestFiles\AzureFunctionsNoBindings.cs" />
     <Compile Remove="AzureFunctions\AzureFunctionTestFiles\AzureFunctionsOutputBinding.cs" />
+    <Compile Remove="AzureFunctions\AzureFunctionTestFiles\AzureFunctionsNet5.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="DacFx\Dacpacs\" />

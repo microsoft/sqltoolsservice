@@ -1864,4 +1864,8 @@
     <comment>.
  Parameters: 0 - functionName (string), 1 - fileName (string) </comment>
   </data>
+  <data name="SqlBindingsNet5NotSupported" xml:space="preserve">
+    <value>Adding SQL bindings is not supported for .NET 5</value>
+    <comment></comment>
+  </data>
 </root>
