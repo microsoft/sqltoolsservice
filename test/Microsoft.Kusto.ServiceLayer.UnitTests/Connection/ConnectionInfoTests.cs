@@ -14,8 +14,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.Connection
         [TestCase(null)]
         public void AddConnection_Throws_Exception_For_Invalid_ConnectionType(string connectionType)
         {
-            var datasourceFactoryMock = new Mock<IDataSourceConnectionFactory>();
-            var connectionInfo = new ConnectionInfo(datasourceFactoryMock.Object, "", new ConnectionDetails());
+            var connectionInfo = new ConnectionInfo("", new ConnectionDetails());
             Assert.Throws<ArgumentException>(() => connectionInfo.AddConnection(connectionType, null));
         }
 
@@ -23,16 +22,14 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.Connection
         [TestCase(null)]
         public void GetConnection_Throws_Exception_For_Invalid_ConnectionType(string connectionType)
         {
-            var datasourceFactoryMock = new Mock<IDataSourceConnectionFactory>();
-            var connectionInfo = new ConnectionInfo(datasourceFactoryMock.Object, "", new ConnectionDetails());
-            Assert.Throws<ArgumentException>(() => connectionInfo.TryGetConnection(connectionType, out var connection));
+            var connectionInfo = new ConnectionInfo( "", new ConnectionDetails());
+            Assert.Throws<ArgumentException>(() => connectionInfo.TryGetConnection(connectionType, out _));
         }
 
         [Test]
         public void AddConnection_And_GetConnection_AddAndGet()
         {
-            var connectionFactoryMock = new Mock<IDataSourceConnectionFactory>();
-            var connectionInfo = new ConnectionInfo(connectionFactoryMock.Object, "", new ConnectionDetails());
+            var connectionInfo = new ConnectionInfo("", new ConnectionDetails());
 
             var dataSourceFactoryMock = new Mock<IDataSourceFactory>();
             var reliableDataSource = new ReliableDataSourceConnection(new ConnectionDetails(), RetryPolicyFactory.NoRetryPolicy,
@@ -47,16 +44,14 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.Connection
         [TestCase(null)]
         public void RemoveConnection_Throws_Exception_For_Invalid_ConnectionType(string connectionType)
         {
-            var datasourceFactoryMock = new Mock<IDataSourceConnectionFactory>();
-            var connectionInfo = new ConnectionInfo(datasourceFactoryMock.Object, "", new ConnectionDetails());
+            var connectionInfo = new ConnectionInfo("", new ConnectionDetails());
             Assert.Throws<ArgumentException>(() => connectionInfo.RemoveConnection(connectionType));
         }
 
         [Test]
         public void RemoveConnection_Removes_Connection()
         {
-            var connectionFactoryMock = new Mock<IDataSourceConnectionFactory>();
-            var connectionInfo = new ConnectionInfo(connectionFactoryMock.Object, "", new ConnectionDetails());
+            var connectionInfo = new ConnectionInfo("", new ConnectionDetails());
 
             var dataSourceFactoryMock = new Mock<IDataSourceFactory>();
             var reliableDataSource = new ReliableDataSourceConnection(new ConnectionDetails(), RetryPolicyFactory.NoRetryPolicy,
@@ -72,8 +67,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.Connection
         [Test]
         public void RemoveAllConnections_RemovesAllConnections()
         {
-            var connectionFactoryMock = new Mock<IDataSourceConnectionFactory>();
-            var connectionInfo = new ConnectionInfo(connectionFactoryMock.Object, "", new ConnectionDetails());
+            var connectionInfo = new ConnectionInfo("", new ConnectionDetails());
 
             var dataSourceFactoryMock = new Mock<IDataSourceFactory>();
             var reliableDataSource = new ReliableDataSourceConnection(new ConnectionDetails(), RetryPolicyFactory.NoRetryPolicy,

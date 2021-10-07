@@ -167,7 +167,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             bool connectionChanged = false;
             if (!_connectionManager.TryGetValue(connectionParams.OwnerUri, out ConnectionInfo connectionInfo))
             {
-                connectionInfo = new ConnectionInfo(_dataSourceConnectionFactory, connectionParams.OwnerUri, connectionParams.Connection);
+                connectionInfo = new ConnectionInfo(connectionParams.OwnerUri, connectionParams.Connection);
             }
             else if (IsConnectionChanged(connectionParams, connectionInfo))
             {
@@ -180,7 +180,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
             if (connectionChanged)
             {
-                connectionInfo = new ConnectionInfo(_dataSourceConnectionFactory, connectionParams.OwnerUri, connectionParams.Connection);
+                connectionInfo = new ConnectionInfo(connectionParams.OwnerUri, connectionParams.Connection);
             }
 
             // Try to open a connection with the given ConnectParams
@@ -393,7 +393,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                 connectionInfo.ConnectionDetails.Pooling = false;
 
                 // create a data source connection instance
-                connection = connectionInfo.Factory.CreateDataSourceConnection(connectionInfo.ConnectionDetails, connectionInfo.OwnerUri);
+                connection = _dataSourceConnectionFactory.CreateDataSourceConnection(connectionInfo.ConnectionDetails, connectionInfo.OwnerUri);
                 connectionInfo.AddConnection(connectionParams.Type, connection);
 
                 // Add a cancellation token source so that the connection OpenAsync() can be cancelled
@@ -963,7 +963,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                             info.RemoveConnection(key);
 
                             // create a kusto connection instance
-                            ReliableDataSourceConnection connection = info.Factory.CreateDataSourceConnection(info.ConnectionDetails, ownerUri);
+                            ReliableDataSourceConnection connection = _dataSourceConnectionFactory.CreateDataSourceConnection(info.ConnectionDetails, ownerUri);
                             connection.Open();
                             info.AddConnection(key, connection);
                         }

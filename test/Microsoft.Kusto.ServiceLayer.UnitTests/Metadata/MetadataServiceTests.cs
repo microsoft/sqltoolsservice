@@ -21,7 +21,6 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.Metadata
         {
             var serviceHostMock = new Mock<IProtocolEndpoint>();
             var connectionManagerMock = new Mock<IConnectionManager>();
-            var connectionFactoryMock = new Mock<IDataSourceConnectionFactory>();
             var requestContextMock = new Mock<RequestContext<MetadataQueryResult>>();
             requestContextMock.Setup(x => x.SendResult(It.IsAny<MetadataQueryResult>())).Returns(Task.CompletedTask);
             
@@ -41,7 +40,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.Metadata
                 ServerName = "ServerName",
                 DatabaseName = "DatabaseName"
             };
-            var connectionInfo = new ConnectionInfo(connectionFactoryMock.Object, "", connectionDetails);
+            var connectionInfo = new ConnectionInfo("", connectionDetails);
             connectionInfo.AddConnection(ConnectionType.Default, reliableDataSource);
             
             connectionManagerMock.Setup(x => x.TryGetValue(It.IsAny<string>(), out connectionInfo));

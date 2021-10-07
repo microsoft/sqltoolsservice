@@ -77,8 +77,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.LanguageServices
         public void AddConnectionContext_Returns_ConnectionKey()
         {
             var connectionDetails = new ConnectionDetails();
-            var connectionFactory = new Mock<IDataSourceConnectionFactory>();
-            var connectionInfo = new ConnectionInfo(connectionFactory.Object, "ownerUri", connectionDetails);
+            var connectionInfo = new ConnectionInfo("ownerUri", connectionDetails);
             
             var dataSourceFactory = new Mock<IDataSourceFactory>();
             var connectedBindingQueue = new ConnectedBindingQueue(dataSourceFactory.Object);
@@ -94,8 +93,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.LanguageServices
             {
                 AccountToken = "AzureAccountToken" 
             };
-            var connectionFactory = new Mock<IDataSourceConnectionFactory>();
-            var connectionInfo = new ConnectionInfo(connectionFactory.Object, "ownerUri", connectionDetails);
+            var connectionInfo = new ConnectionInfo("ownerUri", connectionDetails);
 
             var dataSourceFactory = new Mock<IDataSourceFactory>();
             var dataSourceMock = new Mock<IDataSource>();
@@ -118,8 +116,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.LanguageServices
         public void RemoveBindingContext_Removes_Context()
         {
             var connectionDetails = new ConnectionDetails();
-            var connectionFactory = new Mock<IDataSourceConnectionFactory>();
-            var connectionInfo = new ConnectionInfo(connectionFactory.Object, "ownerUri", connectionDetails);
+            var connectionInfo = new ConnectionInfo("ownerUri", connectionDetails);
             
             var dataSourceFactory = new Mock<IDataSourceFactory>();
             var connectedBindingQueue = new ConnectedBindingQueue(dataSourceFactory.Object);

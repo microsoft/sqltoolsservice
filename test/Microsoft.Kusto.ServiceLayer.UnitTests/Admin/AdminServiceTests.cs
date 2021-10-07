@@ -21,8 +21,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.Admin
         public async Task HandleGetDatabaseInfoRequest_NoDatabase_Returns_Null(string databaseName)
         {
             var mockServiceHost = new Mock<IProtocolEndpoint>();
-            var mockDataSourceFactory = new Mock<IDataSourceConnectionFactory>();
-            var connectionInfo = new ConnectionInfo(mockDataSourceFactory.Object, null, new ConnectionDetails { DatabaseName = databaseName });
+            var connectionInfo = new ConnectionInfo(null, new ConnectionDetails { DatabaseName = databaseName });
             var mockConnectionManager = new Mock<IConnectionManager>();
             mockConnectionManager
                 .Setup(x => x.TryGetValue(It.IsAny<string>(), out connectionInfo))
@@ -66,9 +65,8 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.Admin
             {
                 DatabaseName = "FakeDatabaseName"
             };
-            
-            var mockConnectionFactory = new Mock<IDataSourceConnectionFactory>();
-            var connectionInfo = new ConnectionInfo(mockConnectionFactory.Object, null, expectedConnectionDetails);
+
+            var connectionInfo = new ConnectionInfo(null, expectedConnectionDetails);
             var connection = new ReliableDataSourceConnection(expectedConnectionDetails, RetryPolicyFactory.NoRetryPolicy,
                 RetryPolicyFactory.NoRetryPolicy, mockDataSourceFactory.Object, "");
             connectionInfo.AddConnection(ConnectionType.Default, connection);

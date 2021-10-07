@@ -19,9 +19,8 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <summary>
         /// Constructor
         /// </summary>
-        public ConnectionInfo(IDataSourceConnectionFactory factory, string ownerUri, ConnectionDetails details)
+        public ConnectionInfo(string ownerUri, ConnectionDetails details)
         {
-            Factory = factory;
             OwnerUri = ownerUri;
             ConnectionDetails = details;
             ConnectionId = Guid.NewGuid();
@@ -32,22 +31,17 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <summary>
         /// Unique Id, helpful to identify a connection info object
         /// </summary>
-        public Guid ConnectionId { get; private set; }
+        public Guid ConnectionId { get; }
 
         /// <summary>
         /// URI identifying the owner/user of the connection. Could be a file, service, resource, etc.
         /// </summary>
-        public string OwnerUri { get; private set; }
-
-        /// <summary>
-        /// Factory used for creating the SQL connection associated with the connection info.
-        /// </summary>
-        public IDataSourceConnectionFactory Factory { get; private set; }
+        public string OwnerUri { get; }
 
         /// <summary>
         /// Properties used for creating/opening the SQL connection.
         /// </summary>
-        public ConnectionDetails ConnectionDetails { get; private set; }
+        public ConnectionDetails ConnectionDetails { get; }
 
         /// <summary>
         /// A map containing all connections to the database that are associated with 
