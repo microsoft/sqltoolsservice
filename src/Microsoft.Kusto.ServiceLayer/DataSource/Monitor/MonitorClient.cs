@@ -14,7 +14,7 @@ using Microsoft.Rest;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
 {
-    public class MonitorClient
+    public class MonitorClient : IMonitorClient
     {
         private readonly OperationalInsightsDataClient _queryClient;
         private readonly HttpClient _httpClient;

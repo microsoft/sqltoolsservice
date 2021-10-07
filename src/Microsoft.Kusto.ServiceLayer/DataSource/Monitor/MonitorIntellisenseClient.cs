@@ -7,7 +7,7 @@ using Microsoft.Kusto.ServiceLayer.DataSource.Monitor.Responses;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
 {
-    public class MonitorIntellisenseClient : IntellisenseClientBase
+    public class MonitorIntellisenseClient : IntellisenseClient
     {
         private readonly MonitorClient _monitorClient;
 

@@ -10,7 +10,7 @@ using Microsoft.Kusto.ServiceLayer.DataSource.Intellisense;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
 {
-    public class KustoIntellisenseClient : IntellisenseClientBase
+    public class KustoIntellisenseClient : IntellisenseClient
     {
         private readonly IKustoClient _kustoClient;
 

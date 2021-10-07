@@ -18,8 +18,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
 {
     public class MonitorDataSource : DataSourceBase
     {
-        private readonly MonitorClient _monitorClient;
-        private readonly IntellisenseClientBase _intellisenseClient;
+        private readonly IMonitorClient _monitorClient;
+        private readonly IIntellisenseClient _intellisenseClient;
         private WorkspaceResponse _metadata;
         private Dictionary<string, SortedDictionary<string, DataSourceObjectMetadata>> _nodes;
         private const string DatabaseKeyPrefix = "OnlyTables";
@@ -28,9 +28,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
         public override string ClusterName => _monitorClient.WorkspaceId;
         public override string DatabaseName { get; }
         
-        
-
-        public MonitorDataSource(MonitorClient monitorClient, IntellisenseClientBase intellisenseClient)
+        public MonitorDataSource(IMonitorClient monitorClient, IIntellisenseClient intellisenseClient)
         {
             _monitorClient = monitorClient;
             _intellisenseClient = intellisenseClient;

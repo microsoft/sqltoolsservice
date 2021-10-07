@@ -11,7 +11,7 @@ using Diagnostic = Kusto.Language.Diagnostic;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource.Intellisense
 {
-    public abstract class IntellisenseClientBase
+    public abstract class IntellisenseClient : IIntellisenseClient
     {
         protected GlobalState schemaState;
 

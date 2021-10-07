@@ -33,7 +33,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
     public class KustoDataSource : DataSourceBase
     {
         private readonly IKustoClient _kustoClient;
-        private readonly IntellisenseClientBase _intellisenseClient;
+        private readonly IIntellisenseClient _intellisenseClient;
 
         /// <summary>
         /// List of databases.
@@ -82,7 +82,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
         /// <summary>
         /// Prevents a default instance of the <see cref="IDataSource"/> class from being created.
         /// </summary>
-        public KustoDataSource(IKustoClient kustoClient, IntellisenseClientBase intellisenseClient)
+        public KustoDataSource(IKustoClient kustoClient, IIntellisenseClient intellisenseClient)
         {
             _kustoClient = kustoClient;
             _intellisenseClient = intellisenseClient;
