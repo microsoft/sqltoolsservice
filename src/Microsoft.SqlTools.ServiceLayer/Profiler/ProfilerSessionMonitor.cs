@@ -123,55 +123,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
 
             return true;
         }
-
-        public bool StartMonitoringStream(string viewerId, XELiveEventStreamer stream)
-        {
-            lock (this.sessionsLock)
-            {
-                // start the monitoring thread
-                if (this.processorThread == null)
-                {
-                    this.processorThread = Task.Factory.StartNew(ProcessSessions);
-                }
-
-                // create new profiling session if needed
-                if (!this.monitoredSessions.ContainsKey(stream.))
-                {
-                    var profilerSession = new ProfilerSession();
-                    profilerSession.XEventSession = session;
-
-                    this.monitoredSessions.Add(session.Id, profilerSession);
-                }
-
-                // create a new viewer, or configure existing viewer
-                Viewer viewer;
-                if (!this.allViewers.TryGetValue(viewerId, out viewer))
-                {
-                    viewer = new Viewer(viewerId, true, session.Id);
-                    allViewers.Add(viewerId, viewer);
-                }
-                else
-                {
-                    viewer.active = true;
-                    viewer.xeSessionId = session.Id;
-                }
-
-                // add viewer to XEvent session viewers
-                List<string> viewers;
-                if (this.sessionViewers.TryGetValue(session.Id, out viewers))
-                {
-                    viewers.Add(viewerId);
-                }
-                else
-                {
-                    viewers = new List<string>{ viewerId };
-                    sessionViewers.Add(session.Id, viewers);
-                }
-            }
-
-            return true;
-        }
-
+        
         /// <summary>
         /// Stop monitoring the session watched by viewerId
         /// </summary>

@@ -117,8 +117,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             this.ServiceHost.SetRequestHandler(PauseProfilingRequest.Type, HandlePauseProfilingRequest);
             this.ServiceHost.SetRequestHandler(GetXEventSessionsRequest.Type, HandleGetXEventSessionsRequest);
             this.ServiceHost.SetRequestHandler(DisconnectSessionRequest.Type, HandleDisconnectSessionRequest);
+            this.ServiceHost.SetRequestHandler(XELStreamRequest.Type, )
 
             this.SessionMonitor.AddSessionListener(this);
+        }
+
+        private List<ProfilerEvent> streamSessionEvents = null;
+
+        internal async Task HandleXEvent(IXEvent xEvent)
+        {
+            ProfilerEvent profileEvent = new ProfilerEvent(xEvent.Name, xEvent.Timestamp.ToString());
+            foreach (var kvp in xEvent.Fields) 
+            {
+                profileEvent.Values.Add(kvp.Key, kvp.Value.ToString());
+            }
+            streamSessionEvents.Add(profileEvent);
         }
 
         /// <summary>
@@ -148,18 +161,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     }
                     else
                     {
+                        IXEventSession xeSession = null;
 
-                         var cancellationTokenSource = new CancellationTokenSource();
-                        XELiveEventStreamer xeStream = null;
-                        
-                        var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
-                        SqlStoreConnection connection = new SqlStoreConnection(sqlConnection);
-                        var statement = parameters.Template.CreateStatement.Replace("{sessionName}", parameters.SessionName);
-                        connection.ServerConnection.ExecuteNonQuery(statement);
+                        // first check whether the session with the given name already exists.
+                        // if so skip the creation part. An exception will be thrown if no session with given name can be found,
+                        // and it can be ignored.
+                        try
+                        {
+                            xeSession = this.XEventSessionFactory.GetXEventSession(parameters.SessionName, connInfo);
+                        }
+                        catch { }
 
-                        xeStream = new XELiveEventStreamer(parameters.OwnerUri, parameters.SessionName);
+                        if (xeSession == null)
+                        {
+                            // create a new XEvent session and Profiler session
+                            xeSession = this.XEventSessionFactory.CreateXEventSession(parameters.Template.CreateStatement, parameters.SessionName, connInfo);
+                        }
+
                         // start monitoring the profiler session
-                        monitor.StartMonitoringSession(parameters.OwnerUri, xeStream);
+                        monitor.StartMonitoringSession(parameters.OwnerUri, xeSession);
 
                         var result = new CreateXEventSessionResult();
                         await requestContext.SendResult(result);
@@ -491,46 +511,46 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
         }
 
-    static void OutputXELStream(string connectionString, string sessionName)
-{
-    var cancellationTokenSource = new CancellationTokenSource();
-
-    var xeStream = new XELiveEventStreamer(connectionString, sessionName);
-
-    Console.WriteLine("Press any key to stop listening...");
-    Task waitTask = Task.Run(() =>
+        static void OutputXELStream(string connectionString, string sessionName)
         {
-            Console.ReadKey();
-            cancellationTokenSource.Cancel();
-        });
+            var cancellationTokenSource = new CancellationTokenSource();
 
-    Task readTask = xeStream.ReadEventStream(() =>
-        {
-            Console.WriteLine("Connected to session");
-            return Task.CompletedTask;
-        },
-        xevent =>
-        {
-            xevent.
-            Console.WriteLine(xevent);
-            Console.WriteLine("");
-            return Task.CompletedTask;
-        },
-        cancellationTokenSource.Token);
+            var xeStream = new XELiveEventStreamer(connectionString, sessionName);
+
+            Console.WriteLine("Press any key to stop listening...");
+            Task waitTask = Task.Run(() =>
+                {
+                    Console.ReadKey();
+                    cancellationTokenSource.Cancel();
+                });
+
+            Task readTask = xeStream.ReadEventStream(() =>
+                {
+                    Console.WriteLine("Connected to session");
+                    return Task.CompletedTask;
+                },
+                xevent =>
+                {
+                    xevent.
+                    Console.WriteLine(xevent);
+                    Console.WriteLine("");
+                    return Task.CompletedTask;
+                },
+                cancellationTokenSource.Token);
 
 
-    try
-    {
-        Task.WaitAny(waitTask, readTask);
-    }
-    catch (TaskCanceledException)
-    {
-    }
+            try
+            {
+                Task.WaitAny(waitTask, readTask);
+            }
+            catch (TaskCanceledException)
+            {
+            }
 
-    if (readTask.IsFaulted)
-    {
-        Console.Error.WriteLine("Failed with: {0}", readTask.Exception);
-    }
-}
+            if (readTask.IsFaulted)
+            {
+                Console.Error.WriteLine("Failed with: {0}", readTask.Exception);
+            }
+        }
     }
 }
