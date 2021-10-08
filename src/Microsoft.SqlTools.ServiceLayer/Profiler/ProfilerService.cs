@@ -200,6 +200,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                         //Create XELiveEventStream here.
                         var eventStreamer = new XELiveEventStreamer(parameters.OwnerUri, parameters.SessionName);
                         await eventStreamer.ReadEventStream(HandleXEvent, threadCancellationToken.Token);
+                        if (streamInfoList[parameters.OwnerUri] != null) {
+                            var newStreamInfo = new StreamInfo(eventStreamer, threadCancellationToken.Token);
+                            streamInfoList.Add(parameters.OwnerUri, newStreamInfo);
+                        } 
 
                         // pass the profiler events on to the client
                         await this.ServiceHost.SendEvent(
