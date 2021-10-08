@@ -117,21 +117,111 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             this.ServiceHost.SetRequestHandler(PauseProfilingRequest.Type, HandlePauseProfilingRequest);
             this.ServiceHost.SetRequestHandler(GetXEventSessionsRequest.Type, HandleGetXEventSessionsRequest);
             this.ServiceHost.SetRequestHandler(DisconnectSessionRequest.Type, HandleDisconnectSessionRequest);
-            this.ServiceHost.SetRequestHandler(XELStreamRequest.Type, )
+            this.ServiceHost.SetRequestHandler(XELStreamRequest.Type, HandleXELStreamRequest);
 
             this.SessionMonitor.AddSessionListener(this);
         }
+
+        private class StreamInfo
+        {
+            private XELiveEventStreamer stream = null;
+            private CancellationToken token;
+
+            public StreamInfo(XELiveEventStreamer newStream, CancellationToken newToken)
+            {
+                this.stream = newStream;
+                this.token = newToken;
+            }
+
+            public XELiveEventStreamer GetStream
+            {
+                get
+                {
+                    return this.stream;
+                }
+            }
+
+            public CancellationToken GetToken
+            {
+                get
+                {
+                    return this.token;
+                }
+            }
+        }
+        private Dictionary<string, StreamInfo> streamInfoList = null;
 
         private List<ProfilerEvent> streamSessionEvents = null;
 
         internal async Task HandleXEvent(IXEvent xEvent)
         {
             ProfilerEvent profileEvent = new ProfilerEvent(xEvent.Name, xEvent.Timestamp.ToString());
-            foreach (var kvp in xEvent.Fields) 
+            foreach (var kvp in xEvent.Fields)
             {
                 profileEvent.Values.Add(kvp.Key, kvp.Value.ToString());
             }
             streamSessionEvents.Add(profileEvent);
+        }
+
+        /// <summary>
+        /// Handle request to start a profiling session
+        /// </summary>
+        internal async Task HandleXELStreamRequest(XELStreamParams parameters, RequestContext<XELStreamResult> requestContext)
+        {
+            await Task.Run(async () =>
+            {
+                try
+                {
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(
+                        parameters.OwnerUri,
+                        out connInfo);
+                    if (connInfo == null)
+                    {
+                        throw new Exception(SR.ProfilerConnectionNotFound);
+                    }
+                    else if (parameters.SessionName == null)
+                    {
+                        throw new ArgumentNullException("SessionName");
+                    }
+                    else if (parameters.Template == null)
+                    {
+                        throw new ArgumentNullException("Template");
+                    }
+                    else
+                    {
+                        streamSessionEvents = new List<ProfilerEvent>();
+                        CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
+                        // Start the Query Statement before creating stream.
+                        var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
+                        SqlStoreConnection connection = new SqlStoreConnection(sqlConnection);
+                        var statement = parameters.Template.CreateStatement.Replace("{sessionName}", parameters.SessionName);
+                        connection.ServerConnection.ExecuteNonQuery(statement);
+                        //Create XELiveEventStream here.
+                        var eventStreamer = new XELiveEventStreamer(parameters.OwnerUri, parameters.SessionName);
+                        await eventStreamer.ReadEventStream(HandleXEvent, threadCancellationToken.Token);
+
+                        // pass the profiler events on to the client
+                        await this.ServiceHost.SendEvent(
+                            ProfilerEventsAvailableNotification.Type,
+                            new ProfilerEventsAvailableParams()
+                            {
+                                OwnerUri = parameters.OwnerUri,
+                                Events = streamSessionEvents,
+                                EventsLost = false
+                            });
+
+                        streamSessionEvents = null;
+
+                        var result = new XELStreamResult();
+                        await requestContext.SendResult(result);
+                    }
+                }
+                catch (Exception e)
+                {
+                    await requestContext.SendError(new Exception(SR.CreateSessionFailed(e.Message)));
+                }
+            });
         }
 
         /// <summary>
@@ -508,48 +598,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             if (!disposed)
             {
                 disposed = true;
-            }
-        }
-
-        static void OutputXELStream(string connectionString, string sessionName)
-        {
-            var cancellationTokenSource = new CancellationTokenSource();
-
-            var xeStream = new XELiveEventStreamer(connectionString, sessionName);
-
-            Console.WriteLine("Press any key to stop listening...");
-            Task waitTask = Task.Run(() =>
-                {
-                    Console.ReadKey();
-                    cancellationTokenSource.Cancel();
-                });
-
-            Task readTask = xeStream.ReadEventStream(() =>
-                {
-                    Console.WriteLine("Connected to session");
-                    return Task.CompletedTask;
-                },
-                xevent =>
-                {
-                    xevent.
-                    Console.WriteLine(xevent);
-                    Console.WriteLine("");
-                    return Task.CompletedTask;
-                },
-                cancellationTokenSource.Token);
-
-
-            try
-            {
-                Task.WaitAny(waitTask, readTask);
-            }
-            catch (TaskCanceledException)
-            {
-            }
-
-            if (readTask.IsFaulted)
-            {
-                Console.Error.WriteLine("Failed with: {0}", readTask.Exception);
             }
         }
     }
