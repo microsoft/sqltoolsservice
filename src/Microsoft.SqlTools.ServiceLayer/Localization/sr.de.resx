@@ -1335,4 +1335,7 @@
   <data name="MoreThanOneAzureFunctionWithName" xml:space="preserve">
     <value>Es wurden mehrere Azure-Funktionen mit dem FunctionName "{0}" in {1} gefunden.</value>
   </data>
+  <data name="SqlBindingsNet5NotSupported" xml:space="preserve">
+    <value>Das Hinzufügen von SQL-Bindungen wird für .NET 5 nicht unterstützt</value>
+  </data>
 </root>
