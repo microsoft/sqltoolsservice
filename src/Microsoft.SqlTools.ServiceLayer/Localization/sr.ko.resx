@@ -1335,4 +1335,7 @@
   <data name="MoreThanOneAzureFunctionWithName" xml:space="preserve">
     <value>{1}에서 FunctionName ‘{0}’인 Azure 함수를 두 개 이상 찾음</value>
   </data>
+  <data name="SqlBindingsNet5NotSupported" xml:space="preserve">
+    <value>.NET 5에서는 SQL 바인딩 추가가 지원되지 않습니다.</value>
+  </data>
 </root>

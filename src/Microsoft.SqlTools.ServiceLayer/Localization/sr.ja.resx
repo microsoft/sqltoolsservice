@@ -1335,4 +1335,7 @@
   <data name="MoreThanOneAzureFunctionWithName" xml:space="preserve">
     <value>FunctionName '{0}' の Azure 関数が {1} に複数見つかりました</value>
   </data>
+  <data name="SqlBindingsNet5NotSupported" xml:space="preserve">
+    <value>.NET 5 では SQL バインドの追加はサポートされていません</value>
+  </data>
 </root>
