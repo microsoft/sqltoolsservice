@@ -111,13 +111,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         public void InitializeService(ServiceHost serviceHost)
         {
             this.ServiceHost = serviceHost;
-            this.ServiceHost.SetRequestHandler(CreateXEventSessionRequest.Type, HandleCreateXEventSessionRequest);
+            //this.ServiceHost.SetRequestHandler(CreateXEventSessionRequest.Type, HandleCreateXEventSessionRequest);
+            this.ServiceHost.SetRequestHandler(CreateXEventSessionRequest.Type, HandleXELStreamRequest);
             this.ServiceHost.SetRequestHandler(StartProfilingRequest.Type, HandleStartProfilingRequest);
             this.ServiceHost.SetRequestHandler(StopProfilingRequest.Type, HandleStopProfilingRequest);
             this.ServiceHost.SetRequestHandler(PauseProfilingRequest.Type, HandlePauseProfilingRequest);
             this.ServiceHost.SetRequestHandler(GetXEventSessionsRequest.Type, HandleGetXEventSessionsRequest);
             this.ServiceHost.SetRequestHandler(DisconnectSessionRequest.Type, HandleDisconnectSessionRequest);
-            this.ServiceHost.SetRequestHandler(XELStreamRequest.Type, HandleXELStreamRequest);
+            //this.ServiceHost.SetRequestHandler(XELStreamRequest.Type, HandleXELStreamRequest);
 
             this.SessionMonitor.AddSessionListener(this);
         }
@@ -166,7 +167,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// <summary>
         /// Handle request to start a profiling session
         /// </summary>
-        internal async Task HandleXELStreamRequest(XELStreamParams parameters, RequestContext<XELStreamResult> requestContext)
+        //internal async Task HandleXELStreamRequest(XELStreamParams parameters, RequestContext<XELStreamResult> requestContext)
+        internal async Task HandleXELStreamRequest(CreateXEventSessionParams parameters, RequestContext<CreateXEventSessionResult> requestContext)
         {
             await Task.Run(async () =>
             {
@@ -217,7 +219,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
 
                         streamSessionEvents = null;
 
-                        var result = new XELStreamResult();
+                        //var result = new XELStreamResult();
+                        var result = new CreateXEventSessionResult();
                         await requestContext.SendResult(result);
                     }
                 }
