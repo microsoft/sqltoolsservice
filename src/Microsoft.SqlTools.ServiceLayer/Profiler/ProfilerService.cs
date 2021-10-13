@@ -206,7 +206,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                         streamSessionEvents = null;
 
                         //var result = new XELStreamResult();
-                        var result = new StartProfilingRequest();
+                        var result = new StartProfilingResult();
                         await requestContext.SendResult(result);
                     }
                 }
