@@ -184,9 +184,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                         // Start the Query Statement before creating stream.
                         var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
                         SqlStoreConnection connection = new SqlStoreConnection(sqlConnection);
-                        BaseXEStore store = CreateXEventStore(connInfo, connection);
-                        //Create XELiveEventStream here.
-                        var eventStreamer = new XELiveEventStreamer(parameters.OwnerUri, parameters.SessionName);
+                        //Create XELiveEventStream here, using ConnectionInfo Strings.
+                        var connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
+                        connectionString = connectionString + "";
+                        var eventStreamer = new XELiveEventStreamer(connectionString, parameters.SessionName);
                         await eventStreamer.ReadEventStream(HandleXEvent, threadCancellationToken.Token);
                         if (streamInfoList[parameters.OwnerUri] != null) {
                             var newStreamInfo = new StreamInfo(eventStreamer, threadCancellationToken.Token);
