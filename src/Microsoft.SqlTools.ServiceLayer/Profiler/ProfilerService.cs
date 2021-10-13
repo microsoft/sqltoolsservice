@@ -111,9 +111,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         public void InitializeService(ServiceHost serviceHost)
         {
             this.ServiceHost = serviceHost;
-            //this.ServiceHost.SetRequestHandler(CreateXEventSessionRequest.Type, HandleCreateXEventSessionRequest);
-            this.ServiceHost.SetRequestHandler(CreateXEventSessionRequest.Type, HandleXELStreamRequest);
-            this.ServiceHost.SetRequestHandler(StartProfilingRequest.Type, HandleStartProfilingRequest);
+            this.ServiceHost.SetRequestHandler(CreateXEventSessionRequest.Type, HandleCreateXEventSessionRequest);
+            //this.ServiceHost.SetRequestHandler(StartProfilingRequest.Type, HandleStartProfilingRequest);
+            this.ServiceHost.SetRequestHandler(StartProfilingRequest.Type, HandleXELStreamRequest);
             this.ServiceHost.SetRequestHandler(StopProfilingRequest.Type, HandleStopProfilingRequest);
             this.ServiceHost.SetRequestHandler(PauseProfilingRequest.Type, HandlePauseProfilingRequest);
             this.ServiceHost.SetRequestHandler(GetXEventSessionsRequest.Type, HandleGetXEventSessionsRequest);
@@ -167,8 +167,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// <summary>
         /// Handle request to start a profiling session
         /// </summary>
-        //internal async Task HandleXELStreamRequest(XELStreamParams parameters, RequestContext<XELStreamResult> requestContext)
-        internal async Task HandleXELStreamRequest(CreateXEventSessionParams parameters, RequestContext<CreateXEventSessionResult> requestContext)
+        internal async Task HandleXELStreamRequest(StartProfilingParams parameters, RequestContext<StartProfilingResult> requestContext)
         {
             await Task.Run(async () =>
             {
@@ -178,27 +177,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     ConnectionServiceInstance.TryFindConnection(
                         parameters.OwnerUri,
                         out connInfo);
-                    if (connInfo == null)
-                    {
-                        throw new Exception(SR.ProfilerConnectionNotFound);
-                    }
-                    else if (parameters.SessionName == null)
-                    {
-                        throw new ArgumentNullException("SessionName");
-                    }
-                    else if (parameters.Template == null)
-                    {
-                        throw new ArgumentNullException("Template");
-                    }
-                    else
+                    if (connInfo != null)
                     {
                         streamSessionEvents = new List<ProfilerEvent>();
                         CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
                         // Start the Query Statement before creating stream.
                         var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
                         SqlStoreConnection connection = new SqlStoreConnection(sqlConnection);
-                        var statement = parameters.Template.CreateStatement.Replace("{sessionName}", parameters.SessionName);
-                        connection.ServerConnection.ExecuteNonQuery(statement);
+                        BaseXEStore store = CreateXEventStore(connInfo, connection);
                         //Create XELiveEventStream here.
                         var eventStreamer = new XELiveEventStreamer(parameters.OwnerUri, parameters.SessionName);
                         await eventStreamer.ReadEventStream(HandleXEvent, threadCancellationToken.Token);
@@ -220,7 +206,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                         streamSessionEvents = null;
 
                         //var result = new XELStreamResult();
-                        var result = new CreateXEventSessionResult();
+                        var result = new StartProfilingRequest();
                         await requestContext.SendResult(result);
                     }
                 }
