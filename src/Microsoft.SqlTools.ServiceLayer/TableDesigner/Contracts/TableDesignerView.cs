@@ -5,6 +5,10 @@
 
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 {
+    /// <summary>
+    /// Table designer's view definition, there are predefined common properties.
+    /// Specify the additional properties in this class.
+    /// </summary>
     public class TableDesignerView
     {
         public DesignerDataPropertyInfo[] AdditionalTableProperties { get; set; }

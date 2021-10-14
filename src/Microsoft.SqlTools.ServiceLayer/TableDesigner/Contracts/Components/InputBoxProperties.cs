@@ -5,6 +5,9 @@
 
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 {
+    /// <summary>
+    /// Inputbox properties
+    /// </summary>
     public class InputBoxProperties : ComponentPropertiesBase
     {
         public string Value { get; set; }

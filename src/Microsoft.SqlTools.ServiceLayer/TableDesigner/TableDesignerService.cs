@@ -41,7 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         }
 
         /// <summary>
-        /// Initializes the Profiler Service instance
+        /// Initializes the table designer service instance
         /// </summary>
         public void InitializeService(ServiceHost serviceHost)
         {
@@ -112,7 +112,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         }
 
         /// <summary>
-        /// Disposes the Profiler Service
+        /// Disposes the table designer Service
         /// </summary>
         public void Dispose()
         {

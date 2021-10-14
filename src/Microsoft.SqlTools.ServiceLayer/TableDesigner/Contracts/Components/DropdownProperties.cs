@@ -5,6 +5,9 @@
 
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 {
+    /// <summary>
+    /// Dropdown properties
+    /// </summary>
     public class DropdownProperties : ComponentPropertiesBase
     {
         public string Value { get; set; }

@@ -20,6 +20,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         Update,
     }
 
+    /// <summary>
+    /// The information about a change made inside the table designer.
+    /// </summary>
     public class TableDesignerChangeInfo
     {
         public DesignerEditType Type { get; set; }

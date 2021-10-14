@@ -5,6 +5,9 @@
 
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 {
+    /// <summary>
+    /// The information of the table being designed.
+    /// </summary>
     public class TableInfo
     {
         public string Server { get; set; }

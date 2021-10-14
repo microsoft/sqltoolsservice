@@ -5,6 +5,9 @@
 
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 {
+    /// <summary>
+    /// The information requested by the table designer UI.
+    /// </summary>
     public class TableDesignerInfo
     {
         public TableDesignerView View { get; set; }

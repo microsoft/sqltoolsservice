@@ -7,9 +7,11 @@ using System;
 
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 {
+    /// <summary>
+    /// Base class for component properties
+    /// </summary>
     public abstract class ComponentPropertiesBase
     {
-
         public ComponentPropertiesBase()
         {
             this.Enabled = true;

@@ -6,16 +6,26 @@
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 {
     /// <summary>
-    /// Represents a component in the table designer
+    /// Represents a component/property in the table designer
     /// </summary>
     public class DesignerDataPropertyInfo
     {
+        /// <summary>
+        /// The name of the property
+        /// </summary>
         public string PropertyName { get; set; }
 
         public string ComponentType { get; set; }
 
+        /// <summary>
+        /// The name of the group the property will be placed in whe displayed in
+        /// </summary>
         public string Group { get; set; }
 
+
+        /// <summary>
+        /// The properties of component
+        /// </summary>
         public ComponentPropertiesBase ComponentProperties { get; set; }
     }
 }

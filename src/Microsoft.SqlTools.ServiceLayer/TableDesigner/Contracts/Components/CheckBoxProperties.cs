@@ -5,8 +5,11 @@
 
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 {
+    /// <summary>
+    /// Checkbox properties
+    /// </summary>
     public class CheckBoxProperties : ComponentPropertiesBase
     {
         public bool Checked { get; set; }
-}
+    }
 }

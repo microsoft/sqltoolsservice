@@ -5,6 +5,9 @@
 
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 {
+    /// <summary>
+    /// The data model for a table object
+    /// </summary>
     public class TableDataModel
     {
         public InputBoxProperties Name { get; set; }
