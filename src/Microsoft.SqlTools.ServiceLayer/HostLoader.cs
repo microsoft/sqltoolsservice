@@ -34,6 +34,7 @@ using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.NotebookConvert;
 using Microsoft.SqlTools.ServiceLayer.ModelManagement;
+using Microsoft.SqlTools.ServiceLayer.TableDesigner;
 
 namespace Microsoft.SqlTools.ServiceLayer
 {
@@ -152,11 +153,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             NotebookConvertService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(NotebookConvertService.Instance);
 
-			InsightsGeneratorService.Instance.InitializeService(serviceHost);
+            InsightsGeneratorService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(InsightsGeneratorService.Instance);
-			
+
             MigrationService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(MigrationService.Instance);
+
+            TableDesignerService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(TableDesignerService.Instance);
 
             InitializeHostedServices(serviceProvider, serviceHost);
             serviceHost.ServiceProvider = serviceProvider;
