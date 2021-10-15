@@ -181,20 +181,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     {
                         streamSessionEvents = new List<ProfilerEvent>();
                         CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
-                        // Start the Query Statement before creating stream.
-                        var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
-                        SqlStoreConnection connection = new SqlStoreConnection(sqlConnection);
-                        //Create XELiveEventStream here, using ConnectionInfo Strings.
+                         // create a new XEvent session and Profiler session
+                        var xeSession = this.XEventSessionFactory.GetXEventSession(parameters.SessionName, connInfo);
+                        //Create XELiveEvsentStream here, using ConnectionInfo Strings.
                         var connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
-                        connectionString = connectionString + "";
+                        //need to start session otherwise XLiveEventStreamer won't work.
                         var eventStreamer = new XELiveEventStreamer(connectionString, parameters.SessionName);
-                        await eventStreamer.ReadEventStream(HandleXEvent, threadCancellationToken.Token);
-                        if (streamInfoList[parameters.OwnerUri] != null) {
-                            var newStreamInfo = new StreamInfo(eventStreamer, threadCancellationToken.Token);
-                            streamInfoList.Add(parameters.OwnerUri, newStreamInfo);
-                        } 
+                        var readTask = eventStreamer.ReadEventStream(HandleXEvent, threadCancellationToken.Token); 
+                        //Wait for 1 minute on the readTask before cancelling.
+                        if(await Task.WhenAny(readTask, Task.Delay(60000)) == readTask){
+
+                        }
+                        else {
+                            threadCancellationToken.Cancel();
+                        }
+                        // if (streamInfoList[parameters.OwnerUri] != null) {
+                        //     var newStreamInfo = new StreamInfo(eventStreamer, threadCancellationToken.Token);
+                        //     streamInfoList.Add(parameters.OwnerUri, newStreamInfo);
+                        // } 
 
                         // pass the profiler events on to the client
+
+                        // Comment - streamSessionEvents is empty even after 1 minute has passed.
                         await this.ServiceHost.SendEvent(
                             ProfilerEventsAvailableNotification.Type,
                             new ProfilerEventsAvailableParams()
