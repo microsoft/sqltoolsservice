@@ -6,10 +6,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
+using Microsoft.SqlServer.Management.SqlParser.Metadata;
+using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
+using Microsoft.SqlServer.Management.SqlParser.SqlCodeDom;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
@@ -737,26 +741,26 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         public static CompletionItem[] ExpandSqlStarExpression(ScriptDocumentInfo scriptDocumentInfo)
         {
             //Fetching the star expression node in sql script.
-            Microsoft.SqlServer.Management.SqlParser.SqlCodeDom.SqlSelectStarExpression selectStarExpression = AutoCompleteHelper.isSelectStarStatement(scriptDocumentInfo.ScriptParseInfo.ParseResult.Script, scriptDocumentInfo);
+            SqlSelectStarExpression selectStarExpression = AutoCompleteHelper.IsSelectStarStatement(scriptDocumentInfo.ScriptParseInfo.ParseResult.Script, scriptDocumentInfo);
             if (selectStarExpression == null)
             {
                 return null;
             }
 
             // Getting SQL object identifier for star expressions like a.* 
-            Microsoft.SqlServer.Management.SqlParser.SqlCodeDom.SqlObjectIdentifier starObjectIdentifier = null;
-            if (selectStarExpression.Children.Count() != 0)
+           SqlObjectIdentifier starObjectIdentifier = null;
+            if (selectStarExpression.Children.Any())
             {
-                starObjectIdentifier = (Microsoft.SqlServer.Management.SqlParser.SqlCodeDom.SqlObjectIdentifier)selectStarExpression.Children.ElementAt(0);
+                starObjectIdentifier = (SqlObjectIdentifier)selectStarExpression.Children.ElementAt(0);
             }
             /*
                 Getting bounded tables associated with the star query. This information will help us form column names with their parent tables when multiple tables are present in the query.
                 Currently, SqlParser does not publicly expose bounded table. Therefore, using reflection to get bounded tables. 
             */
             // 
-            Object bindingContext = typeof(Microsoft.SqlServer.Management.SqlParser.SqlCodeDom.SqlCodeObject).GetProperty("BindingContext", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(selectStarExpression);
-            Microsoft.SqlServer.Management.SqlParser.MetadataProvider.TabularCollection boundedTablesCollection = (Microsoft.SqlServer.Management.SqlParser.MetadataProvider.TabularCollection)bindingContext.GetType().GetProperty("LocalTableExpressions").GetValue(bindingContext);
-            var boundedTableList = new List<Microsoft.SqlServer.Management.SqlParser.Metadata.ITabular>();
+            Object bindingContext = typeof(SqlCodeObject).GetProperty("BindingContext", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).GetValue(selectStarExpression);
+            TabularCollection boundedTablesCollection = (TabularCollection)bindingContext.GetType().GetProperty("LocalTableExpressions").GetValue(bindingContext);
+            var boundedTableList = new List<ITabular>();
             var boundedTableEnumerator = boundedTablesCollection.GetEnumerator();
             while (boundedTableEnumerator.MoveNext())
             {
@@ -797,63 +801,63 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
             }
 
-            if(columnNames == null || columnNames.Count == 0)
+            if (columnNames == null || columnNames.Count == 0)
             {
                 return null;
             }
-            
-            var insertText = String.Join(",\r\n", columnNames.ToArray()); // Adding a new line after every column name
-            var completionItems = new CompletionItem[1];
 
-            completionItems[0] = new CompletionItem
-            {
-                InsertText = insertText,
-                Label = insertText,
-                Detail = insertText,
-                Kind = CompletionItemKind.Text,
-                /*
-                Vscode/ADS only shows completion items that match the text present in the editor. However, in case of star expansion that is never going to happen as columns names are different than '*'. 
-                Therefore adding an explicit filterText that contains the original star expression to trick vscode/ADS into showing this suggestion item. 
-                */
-                FilterText = selectStarExpression.Sql,
-                Preselect = true,
-                TextEdit = new TextEdit {
-                    NewText = insertText,
-                    Range = new Range {
-                        Start = new Position{
-                            Line = scriptDocumentInfo.StartLine,
-                            Character = selectStarExpression.StartLocation.ColumnNumber - 1
-                        },
-                        End = new Position {
-                            Line = scriptDocumentInfo.StartLine,
-                            Character = selectStarExpression.EndLocation.ColumnNumber - 1
+            var insertText = String.Join(",\r\n", columnNames.ToArray()); // Adding a new line after every column name
+            var completionItems = new CompletionItem[] {
+                new CompletionItem
+                {
+                    InsertText = insertText,
+                    Label = insertText,
+                    Detail = insertText,
+                    Kind = CompletionItemKind.Text,
+                    /*
+                    Vscode/ADS only shows completion items that match the text present in the editor. However, in case of star expansion that is never going to happen as columns names are different than '*'. 
+                    Therefore adding an explicit filterText that contains the original star expression to trick vscode/ADS into showing this suggestion item. 
+                    */
+                    FilterText = selectStarExpression.Sql,
+                    Preselect = true,
+                    TextEdit = new TextEdit {
+                        NewText = insertText,
+                        Range = new Range {
+                            Start = new Position{
+                                Line = scriptDocumentInfo.StartLine,
+                                Character = selectStarExpression.StartLocation.ColumnNumber - 1
+                            },
+                            End = new Position {
+                                Line = scriptDocumentInfo.StartLine,
+                                Character = selectStarExpression.EndLocation.ColumnNumber - 1
+                            }
                         }
                     }
                 }
             };
             return completionItems;
         }
-
-        internal static Microsoft.SqlServer.Management.SqlParser.SqlCodeDom.SqlSelectStarExpression isSelectStarStatement(Microsoft.SqlServer.Management.SqlParser.SqlCodeDom.SqlCodeObject currentNode, ScriptDocumentInfo scriptDocumentInfo)
+        
+        internal static SqlSelectStarExpression IsSelectStarStatement(SqlCodeObject currentNode, ScriptDocumentInfo scriptDocumentInfo)
         {
             // Checking if the current node is a sql select star expression.
-            if (currentNode as Microsoft.SqlServer.Management.SqlParser.SqlCodeDom.SqlSelectStarExpression != null)
+            if (currentNode as SqlSelectStarExpression != null)
             {
-                return currentNode as Microsoft.SqlServer.Management.SqlParser.SqlCodeDom.SqlSelectStarExpression;
+                return currentNode as SqlSelectStarExpression;
             }
 
             // Visiting children to get the the sql select star expression.
-            foreach (Microsoft.SqlServer.Management.SqlParser.SqlCodeDom.SqlCodeObject child in currentNode.Children)
+            foreach (SqlCodeObject child in currentNode.Children)
             {
                 // Visiting only those children where the cursor is present. 
                 int childStartLineNumber = child.StartLocation.LineNumber - 1;
                 int childEndLineNumber = child.EndLocation.LineNumber - 1;
-                Microsoft.SqlServer.Management.SqlParser.SqlCodeDom.SqlSelectStarExpression childStarExpression = isSelectStarStatement(child, scriptDocumentInfo);
+                SqlSelectStarExpression childStarExpression = IsSelectStarStatement(child, scriptDocumentInfo);
                 if ((childStartLineNumber < scriptDocumentInfo.StartLine ||
-                     childStartLineNumber == scriptDocumentInfo.StartLine && child.StartLocation.ColumnNumber <= scriptDocumentInfo.StartColumn) &&
-                     (childEndLineNumber > scriptDocumentInfo.StartLine ||
-                     childEndLineNumber == scriptDocumentInfo.StartLine && child.EndLocation.ColumnNumber >= scriptDocumentInfo.EndColumn) &&
-                     childStarExpression != null)
+                    childStartLineNumber == scriptDocumentInfo.StartLine && child.StartLocation.ColumnNumber <= scriptDocumentInfo.StartColumn) &&
+                    (childEndLineNumber > scriptDocumentInfo.StartLine ||
+                    childEndLineNumber == scriptDocumentInfo.StartLine && child.EndLocation.ColumnNumber >= scriptDocumentInfo.EndColumn) &&
+                    childStarExpression != null)
                 {
                     return childStarExpression;
                 }
