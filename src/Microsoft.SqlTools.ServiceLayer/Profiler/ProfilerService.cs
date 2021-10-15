@@ -187,18 +187,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                         var connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails, true);
                         //need to start session otherwise XLiveEventStreamer won't work.
                         var eventStreamer = new XELiveEventStreamer(connectionString, parameters.SessionName);
-                        var readTask = eventStreamer.ReadEventStream(
-                        () =>
-                        {
-                            Console.WriteLine("Connected to session");
-                            return Task.CompletedTask;
-                        },
-                        xEvent =>
-                        {
-                            Console.WriteLine(xEvent.Name);
-                            Console.WriteLine("");
-                            return Task.CompletedTask;
-                        }, threadCancellationToken.Token);
+                        var readTask = eventStreamer.ReadEventStream(HandleXEvent, threadCancellationToken.Token);
                         // if (streamInfoList[parameters.OwnerUri] != null) {
                         //     var newStreamInfo = new StreamInfo(eventStreamer, threadCancellationToken.Token);
                         //     streamInfoList.Add(parameters.OwnerUri, newStreamInfo);
