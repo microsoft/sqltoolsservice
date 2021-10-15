@@ -1657,7 +1657,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             resultCompletionItems = result.CompletionItems;
 
             // Expanding star expressions in query
-            CompletionItem[] starExpansionSuggestion = AutoCompleteHelper.SqlStarExpansion(scriptDocumentInfo);
+            CompletionItem[] starExpansionSuggestion = AutoCompleteHelper.ExpandSqlStarExpression(scriptDocumentInfo);
             if(starExpansionSuggestion != null)
             {
                 return starExpansionSuggestion;

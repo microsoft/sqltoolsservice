@@ -734,7 +734,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         /// <param name="scriptDocumentInfo">Document info containing the current cursor position</param>
         /// <returns>Completion item array containing the expanded star suggestion</returns>
-        public static CompletionItem[] SqlStarExpansion(ScriptDocumentInfo scriptDocumentInfo)
+        public static CompletionItem[] ExpandSqlStarExpression(ScriptDocumentInfo scriptDocumentInfo)
         {
             //Fetching the star expression node in sql script.
             Microsoft.SqlServer.Management.SqlParser.SqlCodeDom.SqlSelectStarExpression selectStarExpression = AutoCompleteHelper.isSelectStarStatement(scriptDocumentInfo.ScriptParseInfo.ParseResult.Script, scriptDocumentInfo);
