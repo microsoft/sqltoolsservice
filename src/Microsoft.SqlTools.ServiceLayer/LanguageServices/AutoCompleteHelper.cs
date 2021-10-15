@@ -729,6 +729,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             return help;
         }
 
+        /// <summary>
+        /// Give suggestions for sql star expansion. 
+        /// </summary>
+        /// <param name="scriptDocumentInfo">Document info containing the current cursor position</param>
+        /// <returns>Completion item array containing the expanded star suggestion</returns>
         public static CompletionItem[] SqlStarExpansion(ScriptDocumentInfo scriptDocumentInfo)
         {
             //Fetching the star expression node in sql script.
@@ -759,7 +764,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
 
             IList<string> columnNames = new List<string>();
-            bool includeTableName = boundedTableList.Count > 1;
+
+            /*
+             We include table names in 2 conditions.
+             1. When there are multiple tables to avoid column ambiguity
+             2. When there is single table with an alias
+            */
+            bool includeTableName = boundedTableList.Count > 1 || (boundedTableList.Count == 1 && boundedTableList[0] != boundedTableList[0].Unaliased);
 
             // Handing case for object identifiers where the column names will contain the identifier for eg: a.* becomes a.column_name
             if (starObjectIdentifier != null)
@@ -786,45 +797,46 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
             }
 
-            if (columnNames != null)
-            {  
-                var insertText = String.Join(",\r\n", columnNames.ToArray()); // Adding a new line after every column name
-                var completionItems = new CompletionItem[1];
+            if(columnNames == null || columnNames.Count == 0)
+            {
+                return null;
+            }
+            
+            var insertText = String.Join(",\r\n", columnNames.ToArray()); // Adding a new line after every column name
+            var completionItems = new CompletionItem[1];
 
-                completionItems[0] = new CompletionItem
-                {
-                    InsertText = insertText,
-                    Label = insertText,
-                    Detail = insertText,
-                    Kind = CompletionItemKind.Text,
-                    /*
-                    Vscode only shows completion items that match the text present in the editor. However, in case of star expansion that is never going to happen as columns names are different than '*'. 
-                    Therefore adding an explicit filterText that contains the original star expression to trick vscode into showing this suggestion item. 
-                    */
-                    FilterText = selectStarExpression.Sql,
-                    Preselect = true,
-                    TextEdit = new TextEdit {
-                        NewText = insertText,
-                        Range = new Range {
-                            Start = new Position{
-                                Line = scriptDocumentInfo.StartLine,
-                                Character = selectStarExpression.StartLocation.ColumnNumber - 1
-                            },
-                            End = new Position {
-                                Line = scriptDocumentInfo.StartLine,
-                                Character = selectStarExpression.EndLocation.ColumnNumber - 1
-                            }
+            completionItems[0] = new CompletionItem
+            {
+                InsertText = insertText,
+                Label = insertText,
+                Detail = insertText,
+                Kind = CompletionItemKind.Text,
+                /*
+                Vscode/ADS only shows completion items that match the text present in the editor. However, in case of star expansion that is never going to happen as columns names are different than '*'. 
+                Therefore adding an explicit filterText that contains the original star expression to trick vscode/ADS into showing this suggestion item. 
+                */
+                FilterText = selectStarExpression.Sql,
+                Preselect = true,
+                TextEdit = new TextEdit {
+                    NewText = insertText,
+                    Range = new Range {
+                        Start = new Position{
+                            Line = scriptDocumentInfo.StartLine,
+                            Character = selectStarExpression.StartLocation.ColumnNumber - 1
+                        },
+                        End = new Position {
+                            Line = scriptDocumentInfo.StartLine,
+                            Character = selectStarExpression.EndLocation.ColumnNumber - 1
                         }
                     }
-                };
-                return completionItems;
-            }
-            return null;
+                }
+            };
+            return completionItems;
         }
 
         internal static Microsoft.SqlServer.Management.SqlParser.SqlCodeDom.SqlSelectStarExpression isSelectStarStatement(Microsoft.SqlServer.Management.SqlParser.SqlCodeDom.SqlCodeObject currentNode, ScriptDocumentInfo scriptDocumentInfo)
         {
-            // Checking if the current node is sql select start expression.
+            // Checking if the current node is a sql select star expression.
             if (currentNode as Microsoft.SqlServer.Management.SqlParser.SqlCodeDom.SqlSelectStarExpression != null)
             {
                 return currentNode as Microsoft.SqlServer.Management.SqlParser.SqlCodeDom.SqlSelectStarExpression;
