@@ -781,7 +781,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 string objectIdentifierName = starObjectIdentifier.ObjectName.ToString();
                 var relatedTable = boundedTableList.Single(t => t.Name == objectIdentifierName);
-                columnNames = relatedTable.Columns.Select(c => objectIdentifierName + '.' + c.Name).ToList();
+                columnNames = relatedTable.Columns.Select(c => String.Format("[{0}].[{1}]", objectIdentifierName, c.Name)).ToList();
             }
             else
             {
@@ -791,11 +791,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         if (includeTableName)
                         {
-                            columnNames.Add(table.Name + '.' + column.Name); // Including table names in case of multiple tables to avoid column ambiguity errors. 
+                            columnNames.Add(String.Format("[{0}].[{1}]", table.Name, column.Name)); // Including table names in case of multiple tables to avoid column ambiguity errors. 
                         }
                         else
                         {
-                            columnNames.Add(column.Name);
+                            columnNames.Add(String.Format("[{0}]",column.Name));
                         }
                     }
                 }
@@ -837,7 +837,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             };
             return completionItems;
         }
-        
+
         internal static SqlSelectStarExpression IsSelectStarStatement(SqlCodeObject currentNode, ScriptDocumentInfo scriptDocumentInfo)
         {
             // Checking if the current node is a sql select star expression.
