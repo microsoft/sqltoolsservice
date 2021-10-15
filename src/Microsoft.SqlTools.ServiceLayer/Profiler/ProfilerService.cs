@@ -184,7 +184,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                         // create a new XEvent session and Profiler session
                         var xeSession = this.XEventSessionFactory.GetXEventSession(parameters.SessionName, connInfo);
                         //Create XELiveEvsentStream here, using ConnectionInfo Strings.
-                        var connectionString = "Data Source=ALEX_DESKTOP\\SQLEXPRESS;Initial Catalog=master;Integrated Security=True;Persist Security Info=False;User ID=;Password=;Pooling=False;Connect Timeout=30;Application Name=azdata-GeneralConnection;";
+                        var connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails, true);
                         //need to start session otherwise XLiveEventStreamer won't work.
                         var eventStreamer = new XELiveEventStreamer(connectionString, parameters.SessionName);
                         var readTask = eventStreamer.ReadEventStream(

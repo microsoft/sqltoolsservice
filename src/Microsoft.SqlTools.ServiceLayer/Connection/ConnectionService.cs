@@ -1102,16 +1102,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// Build a connection string from a connection details instance
         /// </summary>
         /// <param name="connectionDetails"></param>
-        public static string BuildConnectionString(ConnectionDetails connectionDetails)
+        public static string BuildConnectionString(ConnectionDetails connectionDetails, Boolean isXELite = false)
         {
-            return CreateConnectionStringBuilder(connectionDetails).ToString();
+            return CreateConnectionStringBuilder(connectionDetails, isXELite).ToString();
         }
 
         /// <summary>
         /// Build a connection string builder a connection details instance
         /// </summary>
         /// <param name="connectionDetails"></param>
-        public static SqlConnectionStringBuilder CreateConnectionStringBuilder(ConnectionDetails connectionDetails)
+        public static SqlConnectionStringBuilder CreateConnectionStringBuilder(ConnectionDetails connectionDetails, Boolean isXELite = false)
         {
             SqlConnectionStringBuilder connectionBuilder;
 
@@ -1219,11 +1219,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 connectionBuilder.ConnectTimeout = connectionDetails.ConnectTimeout.Value;
             }
-            if (connectionDetails.ConnectRetryCount.HasValue)
+            if (connectionDetails.ConnectRetryCount.HasValue && !isXELite)
             {
                 connectionBuilder.ConnectRetryCount = connectionDetails.ConnectRetryCount.Value;
             }
-            if (connectionDetails.ConnectRetryInterval.HasValue)
+            if (connectionDetails.ConnectRetryInterval.HasValue && !isXELite)
             {
                 connectionBuilder.ConnectRetryInterval = connectionDetails.ConnectRetryInterval.Value;
             }
@@ -1283,7 +1283,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 connectionBuilder.FailoverPartner = connectionDetails.FailoverPartner;
             }
-            if (connectionDetails.MultiSubnetFailover.HasValue)
+            if (connectionDetails.MultiSubnetFailover.HasValue && !isXELite)
             {
                 connectionBuilder.MultiSubnetFailover = connectionDetails.MultiSubnetFailover.Value;
             }
