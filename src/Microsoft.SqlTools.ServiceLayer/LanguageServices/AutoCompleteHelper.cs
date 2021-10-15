@@ -806,7 +806,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 return null;
             }
 
-            var insertText = String.Join(",\r\n", columnNames.ToArray()); // Adding a new line after every column name
+            var insertText = String.Join(String.Format(",{0}", Environment.NewLine), columnNames.ToArray()); // Adding a new line after every column name
             var completionItems = new CompletionItem[] {
                 new CompletionItem
                 {
