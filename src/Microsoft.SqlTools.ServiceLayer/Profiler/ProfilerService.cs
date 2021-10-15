@@ -181,20 +181,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     {
                         streamSessionEvents = new List<ProfilerEvent>();
                         CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
-                         // create a new XEvent session and Profiler session
+                        // create a new XEvent session and Profiler session
                         var xeSession = this.XEventSessionFactory.GetXEventSession(parameters.SessionName, connInfo);
                         //Create XELiveEvsentStream here, using ConnectionInfo Strings.
-                        var connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
+                        var connectionString = "Data Source=ALEX_DESKTOP\\SQLEXPRESS;Initial Catalog=master;Integrated Security=True;Persist Security Info=False;User ID=;Password=;Pooling=False;Connect Timeout=30;Application Name=azdata-GeneralConnection;";
                         //need to start session otherwise XLiveEventStreamer won't work.
                         var eventStreamer = new XELiveEventStreamer(connectionString, parameters.SessionName);
-                        var readTask = eventStreamer.ReadEventStream(HandleXEvent, threadCancellationToken.Token); 
-                        //Wait for 1 minute on the readTask before cancelling.
-                        if(await Task.WhenAny(readTask, Task.Delay(60000)) == readTask){
-
-                        }
-                        else {
-                            threadCancellationToken.Cancel();
-                        }
+                        var readTask = eventStreamer.ReadEventStream(
+                        () =>
+                        {
+                            Console.WriteLine("Connected to session");
+                            return Task.CompletedTask;
+                        },
+                        xEvent =>
+                        {
+                            Console.WriteLine(xEvent.Name);
+                            Console.WriteLine("");
+                            return Task.CompletedTask;
+                        }, threadCancellationToken.Token);
                         // if (streamInfoList[parameters.OwnerUri] != null) {
                         //     var newStreamInfo = new StreamInfo(eventStreamer, threadCancellationToken.Token);
                         //     streamInfoList.Add(parameters.OwnerUri, newStreamInfo);
@@ -203,16 +207,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                         // pass the profiler events on to the client
 
                         // Comment - streamSessionEvents is empty even after 1 minute has passed.
-                        await this.ServiceHost.SendEvent(
-                            ProfilerEventsAvailableNotification.Type,
-                            new ProfilerEventsAvailableParams()
-                            {
-                                OwnerUri = parameters.OwnerUri,
-                                Events = streamSessionEvents,
-                                EventsLost = false
-                            });
+                        // await this.ServiceHost.SendEvent(
+                        //     ProfilerEventsAvailableNotification.Type,
+                        //     new ProfilerEventsAvailableParams()
+                        //     {
+                        //         OwnerUri = parameters.OwnerUri,
+                        //         Events = streamSessionEvents,
+                        //         EventsLost = false
+                        //     });
 
-                        streamSessionEvents = null;
+                        // streamSessionEvents = null;
 
                         //var result = new XELStreamResult();
                         var result = new StartProfilingResult();
