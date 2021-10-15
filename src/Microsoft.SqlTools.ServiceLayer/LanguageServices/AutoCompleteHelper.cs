@@ -728,5 +728,125 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             return help;
         }
+
+        public static CompletionItem[] SqlStarExpansion(ScriptDocumentInfo scriptDocumentInfo)
+        {
+            //Fetching the star expression node in sql script.
+            Microsoft.SqlServer.Management.SqlParser.SqlCodeDom.SqlSelectStarExpression selectStarExpression = AutoCompleteHelper.isSelectStarStatement(scriptDocumentInfo.ScriptParseInfo.ParseResult.Script, scriptDocumentInfo);
+            if (selectStarExpression == null)
+            {
+                return null;
+            }
+
+            // Getting SQL object identifier for star expressions like a.* 
+            Microsoft.SqlServer.Management.SqlParser.SqlCodeDom.SqlObjectIdentifier starObjectIdentifier = null;
+            if (selectStarExpression.Children.Count() != 0)
+            {
+                starObjectIdentifier = (Microsoft.SqlServer.Management.SqlParser.SqlCodeDom.SqlObjectIdentifier)selectStarExpression.Children.ElementAt(0);
+            }
+            /*
+                Getting bounded tables associated with the star query. This information will help us form column names with their parent tables when multiple tables are present in the query.
+                Currently, SqlParser does not publicly expose bounded table. Therefore, using reflection to get bounded tables. 
+            */
+            // 
+            Object bindingContext = typeof(Microsoft.SqlServer.Management.SqlParser.SqlCodeDom.SqlCodeObject).GetProperty("BindingContext", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(selectStarExpression);
+            Microsoft.SqlServer.Management.SqlParser.MetadataProvider.TabularCollection boundedTablesCollection = (Microsoft.SqlServer.Management.SqlParser.MetadataProvider.TabularCollection)bindingContext.GetType().GetProperty("LocalTableExpressions").GetValue(bindingContext);
+            var boundedTableList = new List<Microsoft.SqlServer.Management.SqlParser.Metadata.ITabular>();
+            var boundedTableEnumerator = boundedTablesCollection.GetEnumerator();
+            while (boundedTableEnumerator.MoveNext())
+            {
+                boundedTableList.Add(boundedTableEnumerator.Current);
+            }
+
+            IList<string> columnNames = new List<string>();
+            bool includeTableName = boundedTableList.Count > 1;
+
+            // Handing case for object identifiers where the column names will contain the identifier for eg: a.* becomes a.column_name
+            if (starObjectIdentifier != null)
+            {
+                string objectIdentifierName = starObjectIdentifier.ObjectName.ToString();
+                var relatedTable = boundedTableList.Single(t => t.Name == objectIdentifierName);
+                columnNames = relatedTable.Columns.Select(c => objectIdentifierName + '.' + c.Name).ToList();
+            }
+            else
+            {
+                foreach (var table in boundedTableList)
+                {
+                    foreach (var column in table.Columns)
+                    {
+                        if (includeTableName)
+                        {
+                            columnNames.Add(table.Name + '.' + column.Name); // Including table names in case of multiple tables to avoid column ambiguity errors. 
+                        }
+                        else
+                        {
+                            columnNames.Add(column.Name);
+                        }
+                    }
+                }
+            }
+
+            if (columnNames != null)
+            {  
+                var insertText = String.Join(",\r\n", columnNames.ToArray()); // Adding a new line after every column name
+                var completionItems = new CompletionItem[1];
+
+                completionItems[0] = new CompletionItem
+                {
+                    InsertText = insertText,
+                    Label = insertText,
+                    Detail = insertText,
+                    Kind = CompletionItemKind.Text,
+                    /*
+                    Vscode only shows completion items that match the text present in the editor. However, in case of star expansion that is never going to happen as columns names are different than '*'. 
+                    Therefore adding an explicit filterText that contains the original star expression to trick vscode into showing this suggestion item. 
+                    */
+                    FilterText = selectStarExpression.Sql,
+                    Preselect = true,
+                    TextEdit = new TextEdit {
+                        NewText = insertText,
+                        Range = new Range {
+                            Start = new Position{
+                                Line = scriptDocumentInfo.StartLine,
+                                Character = selectStarExpression.StartLocation.ColumnNumber - 1
+                            },
+                            End = new Position {
+                                Line = scriptDocumentInfo.StartLine,
+                                Character = selectStarExpression.EndLocation.ColumnNumber - 1
+                            }
+                        }
+                    }
+                };
+                return completionItems;
+            }
+            return null;
+        }
+
+        internal static Microsoft.SqlServer.Management.SqlParser.SqlCodeDom.SqlSelectStarExpression isSelectStarStatement(Microsoft.SqlServer.Management.SqlParser.SqlCodeDom.SqlCodeObject currentNode, ScriptDocumentInfo scriptDocumentInfo)
+        {
+            // Checking if the current node is sql select start expression.
+            if (currentNode as Microsoft.SqlServer.Management.SqlParser.SqlCodeDom.SqlSelectStarExpression != null)
+            {
+                return currentNode as Microsoft.SqlServer.Management.SqlParser.SqlCodeDom.SqlSelectStarExpression;
+            }
+
+            // Visiting children to get the the sql select star expression.
+            foreach (Microsoft.SqlServer.Management.SqlParser.SqlCodeDom.SqlCodeObject child in currentNode.Children)
+            {
+                // Visiting only those children where the cursor is present. 
+                int childStartLineNumber = child.StartLocation.LineNumber - 1;
+                int childEndLineNumber = child.EndLocation.LineNumber - 1;
+                Microsoft.SqlServer.Management.SqlParser.SqlCodeDom.SqlSelectStarExpression childStarExpression = isSelectStarStatement(child, scriptDocumentInfo);
+                if ((childStartLineNumber < scriptDocumentInfo.StartLine ||
+                     childStartLineNumber == scriptDocumentInfo.StartLine && child.StartLocation.ColumnNumber <= scriptDocumentInfo.StartColumn) &&
+                     (childEndLineNumber > scriptDocumentInfo.StartLine ||
+                     childEndLineNumber == scriptDocumentInfo.StartLine && child.EndLocation.ColumnNumber >= scriptDocumentInfo.EndColumn) &&
+                     childStarExpression != null)
+                {
+                    return childStarExpression;
+                }
+            }
+            return null;
+        }
     }
 }

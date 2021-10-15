@@ -1656,6 +1656,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             this.currentCompletionParseInfo = scriptParseInfo;
             resultCompletionItems = result.CompletionItems;
 
+            // Expanding star expressions in query
+            CompletionItem[] starExpansionSuggestion = AutoCompleteHelper.SqlStarExpansion(scriptDocumentInfo);
+            if(starExpansionSuggestion != null)
+            {
+                return starExpansionSuggestion;
+            }
+
             // if there are no completions then provide the default list
             if (resultCompletionItems == null)
             {
