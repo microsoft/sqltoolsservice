@@ -3,17 +3,18 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System.Collections.Generic;
-
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 {
     /// <summary>
-    /// Dropdown properties
+    /// The base class for data model object.
     /// </summary>
-    public class DropdownProperties : ComponentPropertiesBase
+    public abstract class ObjectDataModelBase
     {
-        public string Value { get; set; }
+        public ObjectDataModelBase()
+        {
+            this.Name = new InputBoxProperties();
+        }
 
-        public List<string> Values { get; set; }
+        public InputBoxProperties Name { get; set; }
     }
 }

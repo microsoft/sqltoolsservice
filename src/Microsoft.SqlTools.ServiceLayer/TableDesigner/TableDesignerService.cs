@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
@@ -64,8 +65,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                                {
                                    Data = tableModel,
                                    View = view,
-                                   ColumnTypes = new string[] { },
-                                   Schemas = new string[] { }
+                                   ColumnTypes = this.GetSupportedColumnTypes(tableInfo),
+                                   Schemas = this.GetSchemas(tableInfo)
                                });
                            }
                            catch (Exception e)
@@ -82,6 +83,16 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                            try
                            {
                                // TODO
+                               switch (requestParams.TableChangeInfo.Type)
+                               {
+                                   case DesignerEditType.Add:
+                                       this.HandleAddItemRequest(requestParams);
+                                       break;
+                                   case DesignerEditType.Remove:
+                                       break;
+                                   default:
+                                       break;
+                               }
                                await requestContext.SendResult(new ProcessTableDesignerEditResponse()
                                {
                                    Data = requestParams.Data,
@@ -109,6 +120,37 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                                await requestContext.SendError(e);
                            }
                        });
+        }
+
+        private void HandleAddItemRequest(ProcessTableDesignerEditRequestParams requestParams)
+        {
+            var property = requestParams.TableChangeInfo.Property;
+            if (property.GetType() == typeof(string))
+            {
+                string propertyName = property as string;
+                switch (propertyName)
+                {
+                    case TablePropertyNames.Columns:
+                        requestParams.Data.Columns.AddNew();
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        private List<string> GetSupportedColumnTypes(TableInfo tableInfo)
+        {
+            //TODO:
+            var columnTypes = new List<string>();
+            return columnTypes;
+        }
+
+        private List<string> GetSchemas(TableInfo tableInfo)
+        {
+            //TODO:
+            var schemas = new List<string>();
+            return schemas;
         }
 
         /// <summary>

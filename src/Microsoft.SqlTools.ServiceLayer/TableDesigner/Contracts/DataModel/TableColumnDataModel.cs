@@ -3,14 +3,23 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using Newtonsoft.Json;
+
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 {
     /// <summary>
     /// The data model of a table column object
     /// </summary>
-    public class TableColumn
+    public class TableColumnDataModel : ObjectDataModelBase
     {
-        public InputBoxProperties Name { get; set; }
+        public TableColumnDataModel()
+        {
+            this.Type = new DropdownProperties();
+            this.Length = new InputBoxProperties();
+            this.AllowNulls = new CheckBoxProperties();
+            this.DefaultValue = new InputBoxProperties();
+            this.IsPrimaryKey = new CheckBoxProperties();
+        }
 
         public DropdownProperties Type { get; set; }
 
