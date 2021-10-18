@@ -17,13 +17,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TableDesigner
         {
             string testJsonStringType = "{\"type\": 1, \"property\": \"columns\"}";
             TableDesignerChangeInfo changeInfo = JsonConvert.DeserializeObject<TableDesignerChangeInfo>(testJsonStringType);
-            Assert.IsNotNull(changeInfo);
-            Assert.IsNotNull(changeInfo.Property);
+            Assert.IsNotNull(changeInfo, "string property: the changeInfo shouldn't be null.");
+            Assert.IsNotNull(changeInfo.Property, "string property: the property shouldn't be null.");
             Assert.IsTrue(changeInfo.Property.GetType() == typeof(string));
             string testJsonObjectType = "{\"type\": 1, \"property\": {\"parentProperty\": \"columns\",\"index\": 0,\"property\": \"length\"}}";
             changeInfo = JsonConvert.DeserializeObject<TableDesignerChangeInfo>(testJsonObjectType);
-            Assert.IsNotNull(changeInfo);
-            Assert.IsNotNull(changeInfo.Property);
+            Assert.IsNotNull(changeInfo, "object property: the changeInfo shouldn't be null.");
+            Assert.IsNotNull(changeInfo.Property, "object property: the property shouldn't be null.");
             Assert.IsTrue(changeInfo.Property.GetType() == typeof(TableDesignerPropertyIdentifier));
         }
     }

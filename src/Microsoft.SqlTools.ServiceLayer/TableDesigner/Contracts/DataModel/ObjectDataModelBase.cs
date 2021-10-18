@@ -10,11 +10,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
     /// </summary>
     public abstract class ObjectDataModelBase
     {
-        public ObjectDataModelBase()
-        {
-            this.Name = new InputBoxProperties();
-        }
-
-        public InputBoxProperties Name { get; set; }
+        public InputBoxProperties Name { get; set; } = new InputBoxProperties();
     }
 }

@@ -12,23 +12,14 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
     /// </summary>
     public class TableColumnDataModel : ObjectDataModelBase
     {
-        public TableColumnDataModel()
-        {
-            this.Type = new DropdownProperties();
-            this.Length = new InputBoxProperties();
-            this.AllowNulls = new CheckBoxProperties();
-            this.DefaultValue = new InputBoxProperties();
-            this.IsPrimaryKey = new CheckBoxProperties();
-        }
+        public DropdownProperties Type { get; set; } = new DropdownProperties();
 
-        public DropdownProperties Type { get; set; }
+        public InputBoxProperties Length { get; set; } = new InputBoxProperties();
 
-        public InputBoxProperties Length { get; set; }
+        public CheckBoxProperties AllowNulls { get; set; } = new CheckBoxProperties();
 
-        public CheckBoxProperties AllowNulls { get; set; }
+        public InputBoxProperties DefaultValue { get; set; } = new InputBoxProperties();
 
-        public InputBoxProperties DefaultValue { get; set; }
-
-        public CheckBoxProperties IsPrimaryKey { get; set; }
+        public CheckBoxProperties IsPrimaryKey { get; set; } = new CheckBoxProperties();
     }
 }

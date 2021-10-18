@@ -58,7 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                        {
                            try
                            {
-                               // TODO
+                               // TODO: populate the data and view information
                                TableDataModel tableModel = new TableDataModel();
                                TableDesignerView view = new TableDesignerView();
                                await requestContext.SendResult(new TableDesignerInfo()
@@ -82,15 +82,16 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                        {
                            try
                            {
-                               // TODO
                                switch (requestParams.TableChangeInfo.Type)
                                {
                                    case DesignerEditType.Add:
                                        this.HandleAddItemRequest(requestParams);
                                        break;
                                    case DesignerEditType.Remove:
+                                       // TODO: Handle 'Remove' request
                                        break;
                                    default:
+                                       // TODO: Handle 'Update' request
                                        break;
                                }
                                await requestContext.SendResult(new ProcessTableDesignerEditResponse()
@@ -112,7 +113,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                        {
                            try
                            {
-                               // TODO
+                               // TODO: Handle the save changes request.
                                await requestContext.SendResult(new SaveTableChangesResponse());
                            }
                            catch (Exception e)
@@ -125,6 +126,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         private void HandleAddItemRequest(ProcessTableDesignerEditRequestParams requestParams)
         {
             var property = requestParams.TableChangeInfo.Property;
+            // Handle the add item request on top level table properties, e.g. Columns, Indexes.
             if (property.GetType() == typeof(string))
             {
                 string propertyName = property as string;
@@ -136,19 +138,21 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     default:
                         break;
                 }
+            } else {
+                // TODO: Handle the add item request on second level properties, e.g. Adding a column to an index
             }
         }
 
         private List<string> GetSupportedColumnTypes(TableInfo tableInfo)
         {
-            //TODO:
+            //TODO: get the supported column types.
             var columnTypes = new List<string>();
             return columnTypes;
         }
 
         private List<string> GetSchemas(TableInfo tableInfo)
         {
-            //TODO:
+            //TODO: get the schemas.
             var schemas = new List<string>();
             return schemas;
         }

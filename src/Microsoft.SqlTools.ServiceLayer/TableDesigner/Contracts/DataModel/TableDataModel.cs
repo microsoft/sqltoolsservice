@@ -12,20 +12,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
     /// </summary>
     public class TableDataModel : ObjectDataModelBase
     {
-        public TableDataModel()
-        {
-            this.Columns = new TableColumnCollection();
-            this.Schema = new DropdownProperties();
-            this.Description = new InputBoxProperties();
-            this.Script = new InputBoxProperties();
-        }
-        public DropdownProperties Schema { get; set; }
+        public DropdownProperties Schema { get; set; } = new DropdownProperties();
 
-        public InputBoxProperties Description { get; set; }
+        public InputBoxProperties Description { get; set; } = new InputBoxProperties();
 
-        public TableColumnCollection Columns { get; set; }
+        public TableColumnCollection Columns { get; set; } = new TableColumnCollection();
 
-        public InputBoxProperties Script { get; set; }
+        public InputBoxProperties Script { get; set; } = new InputBoxProperties();
     }
 
     public class TableColumnCollection : TableProperties<TableColumnDataModel>

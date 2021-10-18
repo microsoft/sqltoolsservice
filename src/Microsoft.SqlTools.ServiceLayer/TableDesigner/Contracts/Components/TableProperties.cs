@@ -14,11 +14,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
     /// </summary>
     public abstract class TableProperties<T> : ComponentPropertiesBase where T:ObjectDataModelBase
     {
-        public TableProperties()
-        {
-            this.Data = new List<T>();
-        }
-
         /// <summary>
         /// The column names to be displayed
         /// </summary>
@@ -32,12 +27,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         /// <summary>
         /// All properties of the object.
         /// </summary>
-        public List<DesignerDataPropertyInfo> ItemProperties { get; set; }
+        public List<DesignerDataPropertyInfo> ItemProperties { get; set; } = new List<DesignerDataPropertyInfo>();
 
         /// <summary>
         /// The object list.
         /// </summary>
-        public List<T> Data { get; set; }
+        public List<T> Data { get; set; } = new List<T>();
 
         /// <summary>
         /// Add a new object into the Data property
