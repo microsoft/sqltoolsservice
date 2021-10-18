@@ -123,6 +123,64 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
 
             return true;
         }
+
+        internal async Task HandleXEvent(IXEvent xEvent)
+        {
+            ProfilerEvent profileEvent = new ProfilerEvent(xEvent.Name, xEvent.Timestamp.ToString());
+            foreach (var kvp in xEvent.Fields)
+            {
+                profileEvent.Values.Add(kvp.Key, kvp.Value.ToString());
+            }
+        }
+        public bool StartMonitoringStream(string viewerId, IXEventSession session)
+        {
+            lock (this.sessionsLock)
+            {
+                // start the monitoring thread
+                if (this.processorThread == null)
+                {
+                    CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
+                    var eventStreamer = new XELiveEventStreamer("", viewerId);
+                    this.processorThread = eventStreamer.ReadEventStream(HandleXEvent, threadCancellationToken.Token);
+                }
+
+                // create new profiling session if needed
+                if (!this.monitoredSessions.ContainsKey(session.Id))
+                {
+                    var profilerSession = new ProfilerSession();
+                    profilerSession.XEventSession = session;
+
+                    this.monitoredSessions.Add(session.Id, profilerSession);
+                }
+
+                // create a new viewer, or configure existing viewer
+                Viewer viewer;
+                if (!this.allViewers.TryGetValue(viewerId, out viewer))
+                {
+                    viewer = new Viewer(viewerId, true, session.Id);
+                    allViewers.Add(viewerId, viewer);
+                }
+                else
+                {
+                    viewer.active = true;
+                    viewer.xeSessionId = session.Id;
+                }
+
+                // add viewer to XEvent session viewers
+                List<string> viewers;
+                if (this.sessionViewers.TryGetValue(session.Id, out viewers))
+                {
+                    viewers.Add(viewerId);
+                }
+                else
+                {
+                    viewers = new List<string>{ viewerId };
+                    sessionViewers.Add(session.Id, viewers);
+                }
+            }
+
+            return true;
+        }
         
         /// <summary>
         /// Stop monitoring the session watched by viewerId
@@ -251,6 +309,79 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 });
             }
         }
+
+         /// <summary>
+        /// Process a session for new XEvents if it meets the polling criteria
+        /// </summary>
+        private void ProcessStream(ProfilerSession session)
+        {
+            if (session.TryEnterPolling())
+            {
+                Task.Factory.StartNew(() =>
+                {
+                    var events = PollSession(session);
+                    bool eventsLost = session.EventsLost;
+                    if (events.Count > 0 || eventsLost)
+                    {
+                        // notify all viewers for the polled session
+                        List<string> viewerIds = this.sessionViewers[session.XEventSession.Id];
+                        foreach (string viewerId in viewerIds)
+                        {
+                            if (allViewers[viewerId].active)
+                            {
+                                SendEventsToListeners(viewerId, events, eventsLost);
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+         private List<ProfilerEvent> PollStream(ProfilerSession session)
+        {
+            var events = new List<ProfilerEvent>();
+            try
+            {
+                if (session == null || session.XEventSession == null)
+                {
+                    return events;
+                }
+
+                //Do something with stream.
+                var targetXml = session.XEventSession.GetTargetXml();
+
+                XmlDocument xmlDoc = new XmlDocument();
+                xmlDoc.LoadXml(targetXml);
+
+                var nodes = xmlDoc.DocumentElement.GetElementsByTagName("event");
+                foreach (XmlNode node in nodes)
+                {
+                    var profilerEvent = ParseProfilerEvent(node);
+                    if (profilerEvent != null)
+                    {
+                        events.Add(profilerEvent);
+                    }
+                }
+            }
+            catch (XEventException)
+            {
+                SendStoppedSessionInfoToListeners(session.XEventSession.Id);
+                ProfilerSession tempSession;
+                RemoveSession(session.XEventSession.Id, out tempSession);
+            }
+            catch (Exception ex)
+            {
+                Logger.Write(TraceEventType.Warning, "Failed to poll session. error: " + ex.Message);
+            }
+            finally
+            {
+                session.IsPolling = false;
+            }
+
+            session.FilterOldEvents(events);
+            return session.FilterProfilerEvents(events);
+        }
+
 
         private List<ProfilerEvent> PollSession(ProfilerSession session)
         {
