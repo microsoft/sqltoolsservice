@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 
         public bool IsNewTable { get; set; }
 
-        public string ConnectionUri { get; set; }
+        public string ConnectionString { get; set; }
 
         public string Id { get; set; }
     }
