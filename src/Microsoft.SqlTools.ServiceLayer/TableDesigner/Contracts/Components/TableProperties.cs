@@ -12,7 +12,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
     /// <summary>
     /// Table component properties
     /// </summary>
-    public abstract class TableProperties<T> : ComponentPropertiesBase where T:ObjectDataModelBase
+    public abstract class TableComponentProperties<T> : ComponentPropertiesBase where T : ObjectViewModelBase
     {
         /// <summary>
         /// The column names to be displayed
@@ -57,11 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
             {
                 newName = string.Format("{0}{1}", this.NewObjectNamePrefix, i);
                 i++;
-            } while (this.Data != null
-            && this.Data.AsEnumerable().FirstOrDefault(obj =>
-            {
-                return obj?.Name != null && string.Equals(obj.Name.Value, newName, StringComparison.InvariantCultureIgnoreCase);
-            }) != null);
+            } while (this.Data?.AsEnumerable().FirstOrDefault(obj => string.Equals(obj.Name?.Value, newName, StringComparison.InvariantCultureIgnoreCase)) != null);
             return newName;
         }
     }

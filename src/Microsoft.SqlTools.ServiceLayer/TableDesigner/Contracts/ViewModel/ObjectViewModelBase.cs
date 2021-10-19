@@ -6,9 +6,9 @@
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 {
     /// <summary>
-    /// The base class for data model object.
+    /// The base class for view model object.
     /// </summary>
-    public abstract class ObjectDataModelBase
+    public abstract class ObjectViewModelBase
     {
         public InputBoxProperties Name { get; set; } = new InputBoxProperties();
     }

@@ -12,17 +12,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
     /// </summary>
     public abstract class ComponentPropertiesBase
     {
-        public ComponentPropertiesBase()
-        {
-            this.Enabled = true;
-        }
-
         public string Title { get; set; }
 
         public string AriaLabel { get; set; }
 
         public Nullable<int> Width { get; set; }
 
-        public bool Enabled { get; set; }
+        public bool Enabled { get; set; } = true;
     }
 }

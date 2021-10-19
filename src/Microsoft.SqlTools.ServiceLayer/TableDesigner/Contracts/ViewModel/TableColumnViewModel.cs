@@ -8,9 +8,9 @@ using Newtonsoft.Json;
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 {
     /// <summary>
-    /// The data model of a table column object
+    /// The view model of a table column object
     /// </summary>
-    public class TableColumnDataModel : ObjectDataModelBase
+    public class TableColumnViewModel : ObjectViewModelBase
     {
         public DropdownProperties Type { get; set; } = new DropdownProperties();
 

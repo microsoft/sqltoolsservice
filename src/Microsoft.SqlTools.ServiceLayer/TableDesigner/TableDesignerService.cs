@@ -59,11 +59,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                            try
                            {
                                // TODO: populate the data and view information
-                               TableDataModel tableModel = new TableDataModel();
+                               TableViewModel tableModel = new TableViewModel();
                                TableDesignerView view = new TableDesignerView();
                                await requestContext.SendResult(new TableDesignerInfo()
                                {
-                                   Data = tableModel,
+                                   ViewModel = tableModel,
                                    View = view,
                                    ColumnTypes = this.GetSupportedColumnTypes(tableInfo),
                                    Schemas = this.GetSchemas(tableInfo)
@@ -96,7 +96,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                                }
                                await requestContext.SendResult(new ProcessTableDesignerEditResponse()
                                {
-                                   Data = requestParams.Data,
+                                   ViewModel = requestParams.ViewModel,
                                    IsValid = true
                                });
                            }
@@ -133,7 +133,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 switch (propertyName)
                 {
                     case TablePropertyNames.Columns:
-                        requestParams.Data.Columns.AddNew();
+                        requestParams.ViewModel.Columns.AddNew();
                         break;
                     default:
                         break;

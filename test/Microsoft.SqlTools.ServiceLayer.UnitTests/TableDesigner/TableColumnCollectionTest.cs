@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TableDesigner
             collection.AddNew();
             Assert.AreEqual(1, collection.Data.Count, "The item count should be 1");
             Assert.AreEqual("column1", collection.Data[0].Name.Value);
-            collection.Data.Add(new TableColumnDataModel() { Name = new InputBoxProperties() { Value = "column3" } });
+            collection.Data.Add(new TableColumnViewModel() { Name = new InputBoxProperties() { Value = "column3" } });
             Assert.AreEqual(2, collection.Data.Count, "The item count should be 2");
             collection.AddNew();
             Assert.AreEqual(3, collection.Data.Count, "The item count should be 3");
