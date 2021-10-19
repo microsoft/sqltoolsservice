@@ -50,6 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             this.ServiceHost.SetRequestHandler(GetTableDesignerInfoRequest.Type, HandleGetTableDesignerInfoRequest);
             this.ServiceHost.SetRequestHandler(ProcessTableDesignerEditRequest.Type, HandleProcessTableDesignerEditRequest);
             this.ServiceHost.SetRequestHandler(SaveTableChangesRequest.Type, HandleSaveTableChangesRequest);
+            this.ServiceHost.SetRequestHandler(DisposeTableDesignerRequest.Type, HandleDisposeTableDesignerRequest);
         }
 
         private async Task HandleGetTableDesignerInfoRequest(TableInfo tableInfo, RequestContext<TableDesignerInfo> requestContext)
@@ -123,6 +124,23 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                        });
         }
 
+
+        private async Task HandleDisposeTableDesignerRequest(TableInfo tableInfo, RequestContext<DisposeTableDesignerResponse> requestContext)
+        {
+            await Task.Run(async () =>
+                       {
+                           try
+                           {
+                               // TODO: Handle the dispose table designer request.
+                               await requestContext.SendResult(new DisposeTableDesignerResponse());
+                           }
+                           catch (Exception e)
+                           {
+                               await requestContext.SendError(e);
+                           }
+                       });
+        }
+
         private void HandleAddItemRequest(ProcessTableDesignerEditRequestParams requestParams)
         {
             var property = requestParams.TableChangeInfo.Property;
@@ -138,7 +156,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     default:
                         break;
                 }
-            } else {
+            }
+            else
+            {
                 // TODO: Handle the add item request on second level properties, e.g. Adding a column to an index
             }
         }
