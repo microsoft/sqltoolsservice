@@ -12,7 +12,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
     {
         public TableInfo TableInfo { get; set; }
 
-        public TableDataModel Data { get; set; }
+        public TableViewModel ViewModel { get; set; }
     }
 
     public class SaveTableChangesResponse
