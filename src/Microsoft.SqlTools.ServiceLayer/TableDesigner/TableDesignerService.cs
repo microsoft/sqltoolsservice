@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts;
 
@@ -71,7 +72,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                                    ViewModel = viewModel,
                                    View = view,
                                    ColumnTypes = this.GetSupportedColumnTypes(tableInfo),
-                                   Schemas = this.GetSchemas(tableInfo)
+                                   Schemas = schemas
                                });
                            }
                            catch (Exception e)
@@ -178,16 +179,14 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         {
             var tableViewModel = new TableViewModel();
             // Schema
-            string schema;
             if (tableInfo.IsNewTable)
             {
-                schema = schemas.Contains("dbo") ? "dbo" : schemas[0];
+                tableViewModel.Schema.Value = schemas.Contains("dbo") ? "dbo" : schemas[0];
             }
             else
             {
-                schema = tableInfo.Schema;
+                tableViewModel.Schema.Value = tableInfo.Schema;
             }
-            tableViewModel.Schema.Value = schema;
 
             // Table Name
             if (!tableInfo.IsNewTable)
@@ -209,22 +208,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         private List<string> GetSchemas(TableInfo tableInfo)
         {
             var schemas = new List<string>();
-            using (var connection = new SqlConnection(tableInfo.ConnectionString))
+            ReliableConnectionHelper.ExecuteReader(tableInfo.ConnectionString, GetSchemasQuery, (reader) =>
             {
-                connection.Open();
-                using (var command = connection.CreateCommand())
+                while (reader.Read())
                 {
-                    command.CommandType = System.Data.CommandType.Text;
-                    command.CommandText = GetSchemasQuery;
-                    using (var reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            schemas.Add(reader[0].ToString());
-                        }
-                    }
+                    schemas.Add(reader[0].ToString());
                 }
-            }
+            });
             return schemas;
         }
 
