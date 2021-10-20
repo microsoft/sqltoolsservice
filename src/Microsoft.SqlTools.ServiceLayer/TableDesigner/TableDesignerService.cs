@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts;
@@ -17,6 +18,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
     /// </summary>
     public sealed class TableDesignerService : IDisposable
     {
+        // The query is copied from SSMS table designer, sys and INFORMATION_SCHEMA can not be selected.
+        const string GetSchemasQuery = "select name from sys.schemas where principal_id <> 3 and principal_id <> 4 order by name";
+
         private bool disposed = false;
         private static readonly Lazy<TableDesignerService> instance = new Lazy<TableDesignerService>(() => new TableDesignerService());
 
@@ -59,12 +63,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                        {
                            try
                            {
-                               // TODO: populate the data and view information
-                               TableViewModel tableModel = new TableViewModel();
-                               TableDesignerView view = new TableDesignerView();
+                               var schemas = this.GetSchemas(tableInfo);
+                               var viewModel = this.GetTableViewModel(tableInfo, schemas);
+                               var view = this.GetDesignerViewInfo(tableInfo);
                                await requestContext.SendResult(new TableDesignerInfo()
                                {
-                                   ViewModel = tableModel,
+                                   ViewModel = viewModel,
                                    View = view,
                                    ColumnTypes = this.GetSupportedColumnTypes(tableInfo),
                                    Schemas = this.GetSchemas(tableInfo)
@@ -170,10 +174,57 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             return columnTypes;
         }
 
+        private TableViewModel GetTableViewModel(TableInfo tableInfo, List<string> schemas)
+        {
+            var tableViewModel = new TableViewModel();
+            // Schema
+            string schema;
+            if (tableInfo.IsNewTable)
+            {
+                schema = schemas.Contains("dbo") ? "dbo" : schemas[0];
+            }
+            else
+            {
+                schema = tableInfo.Schema;
+            }
+            tableViewModel.Schema.Value = schema;
+
+            // Table Name
+            if (!tableInfo.IsNewTable)
+            {
+                tableViewModel.Name.Value = tableInfo.Name;
+            }
+
+            // TODO: set other properties of the table
+            return tableViewModel;
+        }
+
+        private TableDesignerView GetDesignerViewInfo(TableInfo tableInfo)
+        {
+            // TODO: set the view information
+            var view = new TableDesignerView();
+            return view;
+        }
+
         private List<string> GetSchemas(TableInfo tableInfo)
         {
-            //TODO: get the schemas.
             var schemas = new List<string>();
+            using (var connection = new SqlConnection(tableInfo.ConnectionString))
+            {
+                connection.Open();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandType = System.Data.CommandType.Text;
+                    command.CommandText = GetSchemasQuery;
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            schemas.Add(reader[0].ToString());
+                        }
+                    }
+                }
+            }
             return schemas;
         }
 
