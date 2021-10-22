@@ -140,8 +140,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 if (this.processorThread == null)
                 {
                     CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
-                    var eventStreamer = new XELiveEventStreamer("", viewerId);
-                    this.processorThread = eventStreamer.ReadEventStream(HandleXEvent, threadCancellationToken.Token);
                 }
 
                 // create new profiling session if needed
@@ -317,6 +315,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         {
             if (session.TryEnterPolling())
             {
+                CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
+                var eventStreamer = new XELiveEventStreamer("", "");
+                eventStreamer.ReadEventStream(HandleXEvent, threadCancellationToken.Token);
                 Task.Factory.StartNew(() =>
                 {
                     var events = PollSession(session);
@@ -336,52 +337,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 });
             }
         }
-
-         private List<ProfilerEvent> PollStream(ProfilerSession session)
-        {
-            var events = new List<ProfilerEvent>();
-            try
-            {
-                if (session == null || session.XEventSession == null)
-                {
-                    return events;
-                }
-
-                //Do something with stream.
-                var targetXml = session.XEventSession.GetTargetXml();
-
-                XmlDocument xmlDoc = new XmlDocument();
-                xmlDoc.LoadXml(targetXml);
-
-                var nodes = xmlDoc.DocumentElement.GetElementsByTagName("event");
-                foreach (XmlNode node in nodes)
-                {
-                    var profilerEvent = ParseProfilerEvent(node);
-                    if (profilerEvent != null)
-                    {
-                        events.Add(profilerEvent);
-                    }
-                }
-            }
-            catch (XEventException)
-            {
-                SendStoppedSessionInfoToListeners(session.XEventSession.Id);
-                ProfilerSession tempSession;
-                RemoveSession(session.XEventSession.Id, out tempSession);
-            }
-            catch (Exception ex)
-            {
-                Logger.Write(TraceEventType.Warning, "Failed to poll session. error: " + ex.Message);
-            }
-            finally
-            {
-                session.IsPolling = false;
-            }
-
-            session.FilterOldEvents(events);
-            return session.FilterProfilerEvents(events);
-        }
-
 
         private List<ProfilerEvent> PollSession(ProfilerSession session)
         {
