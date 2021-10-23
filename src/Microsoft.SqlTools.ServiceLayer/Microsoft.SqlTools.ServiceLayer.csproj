@@ -29,6 +29,7 @@
 		<PackageReference Include="System.Text.Encoding.CodePages" />
 		<PackageReference Include="Microsoft.SqlServer.Assessment" />
 		<PackageReference Include="Microsoft.SqlServer.Migration.Assessment" />
+		<PackageReference Include="Microsoft.SqlServer.Management.SqlParser"/>
 		<PackageReference Include="System.Text.Encoding.CodePages" />
 		<PackageReference Include="Microsoft.SqlServer.TransactSql.ScriptDom.NRT">
 			<Aliases>ASAScriptDom</Aliases>
@@ -42,6 +43,7 @@
 		<ProjectReference Include="../Microsoft.SqlTools.Credentials/Microsoft.SqlTools.Credentials.csproj" />
 		<ProjectReference Include="../Microsoft.SqlTools.ManagedBatchParser/Microsoft.SqlTools.ManagedBatchParser.csproj" />
 		<ProjectReference Include="../Microsoft.InsightsGenerator/Microsoft.InsightsGenerator.csproj" />
+		<ProjectReference Include="../../../SqlParser/src/Microsoft/SqlServer/Management/SqlParser/Microsoft.SqlServer.Management.SqlParser.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<Content Include="$(PkgMicrosoft_SqlServer_DacFx)\lib\netstandard2.0\Microsoft.Data.Tools.Schema.SqlTasks.targets">

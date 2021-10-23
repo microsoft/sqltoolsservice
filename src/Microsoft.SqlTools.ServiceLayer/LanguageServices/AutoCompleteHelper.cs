@@ -753,19 +753,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 starObjectIdentifier = (SqlObjectIdentifier)selectStarExpression.Children.ElementAt(0);
             }
-            /*
-                Getting bounded tables associated with the star query. This information will help us form column names with their parent tables when multiple tables are present in the query.
-                Currently, SqlParser does not publicly expose bounded table. Therefore, using reflection to get bounded tables. 
-            */
-            // 
-            Object bindingContext = typeof(SqlCodeObject).GetProperty("BindingContext", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).GetValue(selectStarExpression);
-            TabularCollection boundedTablesCollection = (TabularCollection)bindingContext.GetType().GetProperty("LocalTableExpressions").GetValue(bindingContext);
-            var boundedTableList = new List<ITabular>();
-            var boundedTableEnumerator = boundedTablesCollection.GetEnumerator();
-            while (boundedTableEnumerator.MoveNext())
-            {
-                boundedTableList.Add(boundedTableEnumerator.Current);
-            }
+            
+            List<ITabular> boundedTableList = selectStarExpression.BoundTables.ToList();
 
             IList<string> columnNames = new List<string>();
 
@@ -780,7 +769,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             if (starObjectIdentifier != null)
             {
                 string objectIdentifierName = starObjectIdentifier.ObjectName.ToString();
-                var relatedTable = boundedTableList.Single(t => t.Name == objectIdentifierName);
+                ITabular relatedTable = boundedTableList.Single(t => t.Name == objectIdentifierName);
                 columnNames = relatedTable.Columns.Select(c => String.Format("[{0}].[{1}]", objectIdentifierName, c.Name)).ToList();
             }
             else
