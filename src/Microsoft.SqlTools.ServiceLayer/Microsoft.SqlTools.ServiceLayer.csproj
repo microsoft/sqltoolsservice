@@ -43,7 +43,6 @@
 		<ProjectReference Include="../Microsoft.SqlTools.Credentials/Microsoft.SqlTools.Credentials.csproj" />
 		<ProjectReference Include="../Microsoft.SqlTools.ManagedBatchParser/Microsoft.SqlTools.ManagedBatchParser.csproj" />
 		<ProjectReference Include="../Microsoft.InsightsGenerator/Microsoft.InsightsGenerator.csproj" />
-		<ProjectReference Include="../../../SqlParser/src/Microsoft/SqlServer/Management/SqlParser/Microsoft.SqlServer.Management.SqlParser.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<Content Include="$(PkgMicrosoft_SqlServer_DacFx)\lib\netstandard2.0\Microsoft.Data.Tools.Schema.SqlTasks.targets">
