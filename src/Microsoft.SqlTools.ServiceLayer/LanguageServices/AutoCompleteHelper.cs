@@ -747,12 +747,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
 
             // Getting SQL object identifier for star expressions like a.* 
-           SqlObjectIdentifier starObjectIdentifier = null;
+            SqlObjectIdentifier starObjectIdentifier = null;
             if (selectStarExpression.Children.Any())
             {
                 starObjectIdentifier = (SqlObjectIdentifier)selectStarExpression.Children.ElementAt(0);
             }
-            
+
             List<ITabular> boundedTableList = selectStarExpression.BoundTables.ToList();
 
             IList<string> columnNames = new List<string>();
@@ -783,7 +783,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         }
                         else
                         {
-                            columnNames.Add(String.Format("[{0}]",column.Name));
+                            columnNames.Add(String.Format("[{0}]", column.Name));
                         }
                     }
                 }
