@@ -740,7 +740,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         public static CompletionItem[] ExpandSqlStarExpression(ScriptDocumentInfo scriptDocumentInfo)
         {
             //Fetching the star expression node in sql script.
-            SqlSelectStarExpression selectStarExpression = AutoCompleteHelper.IsSelectStarStatement(scriptDocumentInfo.ScriptParseInfo.ParseResult.Script, scriptDocumentInfo);
+            SqlSelectStarExpression selectStarExpression = AutoCompleteHelper.TryGetSelectStarStatement(scriptDocumentInfo.ScriptParseInfo.ParseResult.Script, scriptDocumentInfo);
             if (selectStarExpression == null)
             {
                 return null;
@@ -826,7 +826,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             return completionItems;
         }
 
-        internal static SqlSelectStarExpression IsSelectStarStatement(SqlCodeObject currentNode, ScriptDocumentInfo scriptDocumentInfo)
+        internal static SqlSelectStarExpression TryGetSelectStarStatement(SqlCodeObject currentNode, ScriptDocumentInfo scriptDocumentInfo)
         {
             // Checking if the current node is a sql select star expression.
             if (currentNode as SqlSelectStarExpression != null)
@@ -840,7 +840,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 // Visiting only those children where the cursor is present. 
                 int childStartLineNumber = child.StartLocation.LineNumber - 1;
                 int childEndLineNumber = child.EndLocation.LineNumber - 1;
-                SqlSelectStarExpression childStarExpression = IsSelectStarStatement(child, scriptDocumentInfo);
+                SqlSelectStarExpression childStarExpression = TryGetSelectStarStatement(child, scriptDocumentInfo);
                 if ((childStartLineNumber < scriptDocumentInfo.StartLine ||
                     childStartLineNumber == scriptDocumentInfo.StartLine && child.StartLocation.ColumnNumber <= scriptDocumentInfo.StartColumn) &&
                     (childEndLineNumber > scriptDocumentInfo.StartLine ||
