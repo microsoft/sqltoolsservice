@@ -15,6 +15,7 @@ using System.Xml;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.XEvent;
 using Microsoft.SqlServer.XEvent.XELite;
+using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
 using Microsoft.SqlTools.Utility;
@@ -116,7 +117,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 }
                 else
                 {
-                    viewers = new List<string>{ viewerId };
+                    viewers = new List<string> { viewerId };
                     sessionViewers.Add(session.Id, viewers);
                 }
             }
@@ -124,14 +125,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             return true;
         }
 
-        internal async Task HandleXEvent(IXEvent xEvent)
-        {
-            ProfilerEvent profileEvent = new ProfilerEvent(xEvent.Name, xEvent.Timestamp.ToString());
-            foreach (var kvp in xEvent.Fields)
-            {
-                profileEvent.Values.Add(kvp.Key, kvp.Value.ToString());
-            }
-        }
         public bool StartMonitoringStream(string viewerId, IXEventSession session)
         {
             lock (this.sessionsLock)
@@ -172,14 +165,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 }
                 else
                 {
-                    viewers = new List<string>{ viewerId };
+                    viewers = new List<string> { viewerId };
                     sessionViewers.Add(session.Id, viewers);
                 }
             }
 
             return true;
         }
-        
+
         /// <summary>
         /// Stop monitoring the session watched by viewerId
         /// </summary>
@@ -308,7 +301,31 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
         }
 
-         /// <summary>
+        internal async Task HandleXEvent(IXEvent xEvent, ProfilerSession session)
+        {
+            ProfilerEvent profileEvent = new ProfilerEvent(xEvent.Name, xEvent.Timestamp.ToString());
+            var eventList = new List<ProfilerEvent>();
+            foreach (var kvp in xEvent.Fields)
+            {
+                profileEvent.Values.Add(kvp.Key, kvp.Value.ToString());
+            }
+            eventList.Add(profileEvent);
+            if (eventList.Count > 0)
+            {
+                // notify all viewers for the polled session
+                List<string> viewerIds = this.sessionViewers[session.XEventSession.Id];
+                var eventsLost = false;
+                foreach (string viewerId in viewerIds)
+                {
+                    if (allViewers[viewerId].active)
+                    {
+                        SendEventsToListeners(viewerId, eventList, eventsLost);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Process a session for new XEvents if it meets the polling criteria
         /// </summary>
         private void ProcessStream(ProfilerSession session)
@@ -316,25 +333,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             if (session.TryEnterPolling())
             {
                 CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
-                var eventStreamer = new XELiveEventStreamer("", "");
+                var connectionString = ConnectionService.BuildConnectionString(session.ConnectionInfo.ConnectionDetails, true);
+                var eventStreamer = new XELiveEventStreamer(connectionString, session.XEventSession.ToString());
                 eventStreamer.ReadEventStream(HandleXEvent, threadCancellationToken.Token);
-                Task.Factory.StartNew(() =>
-                {
-                    var events = PollSession(session);
-                    bool eventsLost = session.EventsLost;
-                    if (events.Count > 0 || eventsLost)
-                    {
-                        // notify all viewers for the polled session
-                        List<string> viewerIds = this.sessionViewers[session.XEventSession.Id];
-                        foreach (string viewerId in viewerIds)
-                        {
-                            if (allViewers[viewerId].active)
-                            {
-                                SendEventsToListeners(viewerId, events, eventsLost);
-                            }
-                        }
-                    }
-                });
             }
         }
 
@@ -391,7 +392,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             {
                 foreach (var listener in this.listeners)
                 {
-                    foreach(string viewerId in sessionViewers[sessionId])
+                    foreach (string viewerId in sessionViewers[sessionId])
                     {
                         listener.SessionStopped(viewerId, sessionId);
                     }
