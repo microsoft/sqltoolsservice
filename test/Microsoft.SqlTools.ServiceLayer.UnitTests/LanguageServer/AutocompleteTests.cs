@@ -229,36 +229,36 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 
             //complete select query with the cursor at * should return a sqlselectstarexpression object.
             var testFile = CreateSqlStarTestFile("select * from sys.all_objects", 0, 8);
-            Assert.NotNull(TryGetSelectStarStatementMethodInfo.Invoke(obj: null, parameters: new object[] { testFile.ScriptParseInfo.ParseResult.Script, testFile }));
+            Assert.NotNull(TryGetSelectStarStatementMethodInfo.Invoke(obj: null, parameters: new object[] { testFile.ScriptParseInfo.ParseResult.Script, testFile }), "SelectStarExpression is not returned on complete select query with star");
 
             //complete select query with the cursor not at * should return null.
             testFile = CreateSqlStarTestFile("select * from sys.all_objects", 0, 0);
-            Assert.Null(TryGetSelectStarStatementMethodInfo.Invoke(obj: null, parameters: new object[] { testFile.ScriptParseInfo.ParseResult.Script, testFile }));
+            Assert.Null(TryGetSelectStarStatementMethodInfo.Invoke(obj: null, parameters: new object[] { testFile.ScriptParseInfo.ParseResult.Script, testFile }), "null is not returned when the cursor is not at star expression");
 
             //incomplete select query with the cursor at * should sqlselectstarexpression
             testFile = CreateSqlStarTestFile("select * ", 0, 8);
-            Assert.NotNull(TryGetSelectStarStatementMethodInfo.Invoke(obj: null, parameters: new object[] { testFile.ScriptParseInfo.ParseResult.Script, testFile }));
+            Assert.NotNull(TryGetSelectStarStatementMethodInfo.Invoke(obj: null, parameters: new object[] { testFile.ScriptParseInfo.ParseResult.Script, testFile }), "SelectStarExpression is returned on an incomplete select query with star");
 
             //method should return sqlselectstarexpression on *s with object identifiers.
             testFile = CreateSqlStarTestFile("select a.* from sys.all_objects as a", 0, 10);
-            Assert.NotNull(TryGetSelectStarStatementMethodInfo.Invoke(obj: null, parameters: new object[] { testFile.ScriptParseInfo.ParseResult.Script, testFile }));
+            Assert.NotNull(TryGetSelectStarStatementMethodInfo.Invoke(obj: null, parameters: new object[] { testFile.ScriptParseInfo.ParseResult.Script, testFile }), "SelectStarExpression returned on star expression with object identifier");
 
             //file with no text should return null
             testFile = CreateSqlStarTestFile("", 0, 0);
-            Assert.Null(TryGetSelectStarStatementMethodInfo.Invoke(obj: null, parameters: new object[] { testFile.ScriptParseInfo.ParseResult.Script, testFile }));
+            Assert.Null(TryGetSelectStarStatementMethodInfo.Invoke(obj: null, parameters: new object[] { testFile.ScriptParseInfo.ParseResult.Script, testFile }), "null is not returned on file with empty sql text");
 
             //null file should return null
-            Assert.Null(TryGetSelectStarStatementMethodInfo.Invoke(obj: null, parameters: new object[] { null, null }));
+            Assert.Null(TryGetSelectStarStatementMethodInfo.Invoke(obj: null, parameters: new object[] { null, null }), "null is not returned on null file");
 
             //file with out of bounds cursor position should return null
             testFile = CreateSqlStarTestFile("select * from sys.all_objects", 0, 100);
-            Assert.Null(TryGetSelectStarStatementMethodInfo.Invoke(obj: null, parameters: new object[] { testFile.ScriptParseInfo.ParseResult.Script, testFile }));
+            Assert.Null(TryGetSelectStarStatementMethodInfo.Invoke(obj: null, parameters: new object[] { testFile.ScriptParseInfo.ParseResult.Script, testFile }), "null is not returned when the cursor is out of bounds.");
 
             //in case of multiple star expressions the method returns the right star expression.
             testFile = CreateSqlStarTestFile("select a.*, * from sys.all_objects as a CROSS JOIN sys.databases", 0, 10);
-            Assert.AreEqual("a.*", (TryGetSelectStarStatementMethodInfo.Invoke(obj: null, parameters: new object[] { testFile.ScriptParseInfo.ParseResult.Script, testFile }) as SqlSelectStarExpression).Sql);
+            Assert.AreEqual("a.*", (TryGetSelectStarStatementMethodInfo.Invoke(obj: null, parameters: new object[] { testFile.ScriptParseInfo.ParseResult.Script, testFile }) as SqlSelectStarExpression).Sql, "right SelectStarExpression is not returned");
             testFile = CreateSqlStarTestFile("select a.*, * from sys.all_objects as a CROSS JOIN sys.databases", 0, 13);
-            Assert.AreEqual("*", (TryGetSelectStarStatementMethodInfo.Invoke(obj: null, parameters: new object[] { testFile.ScriptParseInfo.ParseResult.Script, testFile }) as SqlSelectStarExpression).Sql);
+            Assert.AreEqual("*", (TryGetSelectStarStatementMethodInfo.Invoke(obj: null, parameters: new object[] { testFile.ScriptParseInfo.ParseResult.Script, testFile }) as SqlSelectStarExpression).Sql, "right SelectStarExpression is not returned");
         }
     }
 }
