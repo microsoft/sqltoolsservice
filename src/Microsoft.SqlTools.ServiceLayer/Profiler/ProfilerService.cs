@@ -189,7 +189,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                         // var eventStreamer = new XELiveEventStreamer(connectionString, parameters.SessionName);
                         // var readTask = eventStreamer.ReadEventStream(xEvents => HandleXEvent(xEvents, parameters.OwnerUri), threadCancellationToken.Token);
 
-                        monitor.StartMonitoringStream(parameters.OwnerUri, xeSession);
+                        monitor.StartMonitoringSession(parameters.OwnerUri, xeSession);
                         var result = new StartProfilingResult();
                         await requestContext.SendResult(result);
                     }
