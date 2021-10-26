@@ -220,6 +220,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             return new ScriptDocumentInfo(textDocumentPosition, scriptFile, scriptParseInfo);
         }
 
+
+        /// <summary>
+        /// Tests the TryGetSelectStarStatement method used in query wildcard expansion
+        /// </summary>
         [Test]
         public void TryGetSqlSelectStarStatmentTest()
         {
