@@ -17,6 +17,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
@@ -769,7 +770,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 string objectIdentifierName = starObjectIdentifier.ObjectName.ToString();
                 ITabular relatedTable = boundedTableList.Single(t => t.Name == objectIdentifierName);
-                columnNames = relatedTable.Columns.Select(c => String.Format("[{0}].[{1}]", objectIdentifierName, c.Name)).ToList();
+                columnNames = relatedTable.Columns.Select(c => String.Format("{0}.{1}", Utils.MakeSqlBracket(objectIdentifierName), Utils.MakeSqlBracket(c.Name))).ToList();
             }
             else
             {
@@ -779,11 +780,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         if (includeTableName)
                         {
-                            columnNames.Add(String.Format("[{0}].[{1}]", table.Name, column.Name)); // Including table names in case of multiple tables to avoid column ambiguity errors. 
+                            columnNames.Add(String.Format("{0}.{1}", Utils.MakeSqlBracket(table.Name), Utils.MakeSqlBracket(column.Name))); // Including table names in case of multiple tables to avoid column ambiguity errors. 
                         }
                         else
                         {
-                            columnNames.Add(String.Format("[{0}]", column.Name));
+                            columnNames.Add(String.Format("{0}", Utils.MakeSqlBracket(column.Name)));
                         }
                     }
                 }
