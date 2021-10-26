@@ -829,6 +829,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         internal static SqlSelectStarExpression TryGetSelectStarStatement(SqlCodeObject currentNode, ScriptDocumentInfo scriptDocumentInfo)
         {
+            if(currentNode == null || scriptDocumentInfo == null)
+            {
+                return null;
+            }
+            
             // Checking if the current node is a sql select star expression.
             if (currentNode as SqlSelectStarExpression != null)
             {

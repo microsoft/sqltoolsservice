@@ -4,9 +4,12 @@
 //
 
 using System.Threading.Tasks;
+using System.Reflection;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
+using Microsoft.SqlServer.Management.SqlParser.SqlCodeDom;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Moq;
@@ -185,6 +188,77 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 
             // verify that send result was called with a completion array
             requestContext.Verify(m => m.SendResult(It.IsAny<CompletionItem[]>()), Times.Once());
+        }
+
+        public ScriptDocumentInfo CreateSqlStarTestFile(string sqlText, int startLine, int startColumn)
+        {
+            var uri = "file://nofile.sql";
+
+            var textDocumentPosition = new TextDocumentPosition()
+            {
+                TextDocument = new TextDocumentIdentifier()
+                {
+                    Uri = uri
+                },
+                Position = new Position()
+                {
+                    Line = startLine,
+                    Character = startColumn
+                }
+            };
+
+            var scriptFile = new ScriptFile()
+            {
+                ClientUri = uri,
+                Contents = sqlText
+            };
+
+        
+            ParseResult parseResult = langService.ParseAndBind(scriptFile, null);
+            ScriptParseInfo scriptParseInfo = langService.GetScriptParseInfo(scriptFile.ClientUri, true);
+
+            return new ScriptDocumentInfo(textDocumentPosition, scriptFile, scriptParseInfo);
+        }
+
+        [Test]
+        public void TryGetSqlSelectStarStatmentTest()
+        {
+            InitializeTestObjects();
+            //using reflection to get the private static method from AutoCompleteHelper class.
+            MethodInfo TryGetSelectStarStatementMethodInfo = typeof(AutoCompleteHelper).GetMethod("TryGetSelectStarStatement", BindingFlags.Static | BindingFlags.NonPublic);
+
+            //complete select query with the cursor at * should return a sqlselectstarexpression object.
+            var testFile = CreateSqlStarTestFile("select * from sys.all_objects", 0, 8);
+            Assert.NotNull(TryGetSelectStarStatementMethodInfo.Invoke(obj: null, parameters: new object[] { testFile.ScriptParseInfo.ParseResult.Script, testFile }));
+
+            //complete select query with the cursor not at * should return null.
+            testFile = CreateSqlStarTestFile("select * from sys.all_objects", 0, 0);
+            Assert.Null(TryGetSelectStarStatementMethodInfo.Invoke(obj: null, parameters: new object[] { testFile.ScriptParseInfo.ParseResult.Script, testFile }));
+
+            //incomplete select query with the cursor at * should sqlselectstarexpression
+            testFile = CreateSqlStarTestFile("select * ", 0, 8);
+            Assert.NotNull(TryGetSelectStarStatementMethodInfo.Invoke(obj: null, parameters: new object[] { testFile.ScriptParseInfo.ParseResult.Script, testFile }));
+
+            //method should return sqlselectstarexpression on *s with object identifiers.
+            testFile = CreateSqlStarTestFile("select a.* from sys.all_objects as a", 0, 10);
+            Assert.NotNull(TryGetSelectStarStatementMethodInfo.Invoke(obj: null, parameters: new object[] { testFile.ScriptParseInfo.ParseResult.Script, testFile }));
+
+            //file with no text should return null
+            testFile = CreateSqlStarTestFile("", 0, 0);
+            Assert.Null(TryGetSelectStarStatementMethodInfo.Invoke(obj: null, parameters: new object[] { testFile.ScriptParseInfo.ParseResult.Script, testFile }));
+
+            //null file should return null
+            Assert.Null(TryGetSelectStarStatementMethodInfo.Invoke(obj: null, parameters: new object[] { null, null }));
+
+            //file with out of bounds cursor position should return null
+            testFile = CreateSqlStarTestFile("select * from sys.all_objects", 0, 100);
+            Assert.Null(TryGetSelectStarStatementMethodInfo.Invoke(obj: null, parameters: new object[] { testFile.ScriptParseInfo.ParseResult.Script, testFile }));
+
+            //in case of multiple star expressions the method returns the right star expression.
+            testFile = CreateSqlStarTestFile("select a.*, * from sys.all_objects as a CROSS JOIN sys.databases", 0, 10);
+            Assert.AreEqual("a.*", (TryGetSelectStarStatementMethodInfo.Invoke(obj: null, parameters: new object[] { testFile.ScriptParseInfo.ParseResult.Script, testFile }) as SqlSelectStarExpression).Sql);
+            testFile = CreateSqlStarTestFile("select a.*, * from sys.all_objects as a CROSS JOIN sys.databases", 0, 13);
+            Assert.AreEqual("*", (TryGetSelectStarStatementMethodInfo.Invoke(obj: null, parameters: new object[] { testFile.ScriptParseInfo.ParseResult.Script, testFile }) as SqlSelectStarExpression).Sql);
         }
     }
 }
