@@ -132,7 +132,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 // start the monitoring thread
                 if (this.processorThread == null)
                 {
-                    CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
+                    this.processorThread = Task.Factory.StartNew(ProcessStreams);
                 }
 
                 // create new profiling session if needed
@@ -298,6 +298,32 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                         }
                     }
                 });
+            }
+        }
+
+         /// <summary>
+        /// The core queue processing method
+        /// </summary>
+        /// <param name="state"></param>
+        private void ProcessStreams()
+        {
+            while (true)
+            {
+                lock (this.pollingLock)
+                {
+                    lock (this.sessionsLock)
+                    {
+                        foreach (var session in this.monitoredSessions.Values)
+                        {
+                            List<string> viewers = this.sessionViewers[session.XEventSession.Id];
+                            if (viewers.Any(v => allViewers[v].active))
+                            {
+                                ProcessStream(session);
+                            }
+                        }
+                    }
+                    Monitor.Wait(this.pollingLock, PollingLoopDelay);
+                }
             }
         }
 
