@@ -183,30 +183,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                         CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
                         // create a new XEvent session and Profiler session
                         var xeSession = this.XEventSessionFactory.GetXEventSession(parameters.SessionName, connInfo);
-                        //Create XELiveEvsentStream here, using ConnectionInfo Strings.
-                        var connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails, true);
-                        //need to start session otherwise XLiveEventStreamer won't work.
-                        var eventStreamer = new XELiveEventStreamer(connectionString, parameters.SessionName);
-                        var readTask = eventStreamer.ReadEventStream(xEvents => HandleXEvent(xEvents, parameters.OwnerUri), threadCancellationToken.Token);
-                        // if (streamInfoList[parameters.OwnerUri] != null) {
-                        //     var newStreamInfo = new StreamInfo(eventStreamer, threadCancellationToken.Token);
-                        //     streamInfoList.Add(parameters.OwnerUri, newStreamInfo);
-                        // } 
+                        // //Create XELiveEvsentStream here, using ConnectionInfo Strings.
+                        // var connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails, true);
+                        // //need to start session otherwise XLiveEventStreamer won't work.
+                        // var eventStreamer = new XELiveEventStreamer(connectionString, parameters.SessionName);
+                        // var readTask = eventStreamer.ReadEventStream(xEvents => HandleXEvent(xEvents, parameters.OwnerUri), threadCancellationToken.Token);
 
-                        // pass the profiler events on to the client
-
-                        // await this.ServiceHost.SendEvent(
-                        //     ProfilerEventsAvailableNotification.Type,
-                        //     new ProfilerEventsAvailableParams()
-                        //     {
-                        //         OwnerUri = parameters.OwnerUri,
-                        //         Events = streamSessionEvents,
-                        //         EventsLost = false
-                        //     });
-
-                        // streamSessionEvents = null;
-
-                        //var result = new XELStreamResult();
+                        monitor.StartMonitoringStream(parameters.OwnerUri, xeSession);
                         var result = new StartProfilingResult();
                         await requestContext.SendResult(result);
                     }
