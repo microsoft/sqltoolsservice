@@ -218,11 +218,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 CancellationTokenSource targetToken;
                 if(monitoredCancellationTokenSources.Remove(sessionId,out targetToken)){
                     targetToken.Cancel();
-                    this.monitoredSessions.TryGetValue(sessionId, out session);
-                    session.isStreaming = false;
                 }
                 if (this.monitoredSessions.Remove(sessionId, out session))
                 {
+                    // Remove streaming status from session
+                    session.isStreaming = false;
+
                     //remove all viewers for this session
                     List<string> viewerIds;
                     if (sessionViewers.Remove(sessionId, out viewerIds))
