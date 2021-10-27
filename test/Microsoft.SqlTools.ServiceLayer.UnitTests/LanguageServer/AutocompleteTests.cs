@@ -226,11 +226,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         [TestCase("select * ", 0, 8, "SelectStarExpression is returned on an incomplete select query with star")]
         //method should return sqlselectstarexpression on *s with object identifiers.
         [TestCase("select a.* from sys.all_objects as a", 0, 10, "SelectStarExpression returned on star expression with object identifier")]
-        public void TryGetSqlSelectStarStatementNotNullTests(string sqlQuery, int cursorLine, int cursorColumn, string ErrorValidationMessage)
+        public void TryGetSqlSelectStarStatementNotNullTests(string sqlQuery, int cursorLine, int cursorColumn, string errorValidationMessage)
         {
             InitializeTestObjects();
             var testFile = CreateSqlStarTestFile(sqlQuery, cursorLine, cursorColumn);
-            Assert.NotNull(AutoCompleteHelper.TryGetSelectStarStatement(testFile.ScriptParseInfo.ParseResult.Script, testFile), ErrorValidationMessage);
+            Assert.NotNull(AutoCompleteHelper.TryGetSelectStarStatement(testFile.ScriptParseInfo.ParseResult.Script, testFile), errorValidationMessage);
         }
 
 
