@@ -338,11 +338,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 profileEvent.Values.Add(kvp.Key, kvp.Value.ToString());
             }
             eventList.Add(profileEvent);
-            if (eventList.Count > 0)
+            var eventsLost = session.EventsLost;
+            session.FilterOldEvents(eventList);
+            eventList = session.FilterProfilerEvents(eventList);
+            
+            if (eventList.Count > 0 || eventsLost)
             {
-                // notify all viewers for the polled session
+                // notify all viewers of the event.
                 List<string> viewerIds = this.sessionViewers[session.XEventSession.Id];
-                var eventsLost = false;
+                
                 foreach (string viewerId in viewerIds)
                 {
                     if (allViewers[viewerId].active)
@@ -358,11 +362,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// </summary>
         private void ProcessStream(int id, ProfilerSession session)
         {
-            CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
-            var connectionString = ConnectionService.BuildConnectionString(session.ConnectionInfo.ConnectionDetails, true);
-            var eventStreamer = new XELiveEventStreamer(connectionString, (session.XEventSession as XEventSession).Session?.Name);
-            eventStreamer.ReadEventStream(xEvent => HandleXEvent(xEvent, session), threadCancellationToken.Token);
-            this.monitoredCancellationTokens.Add(id, threadCancellationToken.Token);
+            try {
+                CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
+                var connectionString = ConnectionService.BuildConnectionString(session.ConnectionInfo.ConnectionDetails, true);
+                var eventStreamer = new XELiveEventStreamer(connectionString, (session.XEventSession as XEventSession).Session?.Name);
+                eventStreamer.ReadEventStream(xEvent => HandleXEvent(xEvent, session), threadCancellationToken.Token);
+                this.monitoredCancellationTokens.Add(id, threadCancellationToken.Token);
+            }
+            catch (XEventException)
+            {
+                SendStoppedSessionInfoToListeners(session.XEventSession.Id);
+                ProfilerSession tempSession;
+                RemoveSession(session.XEventSession.Id, out tempSession);
+            }
         }
 
         private List<ProfilerEvent> PollSession(ProfilerSession session)
