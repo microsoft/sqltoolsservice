@@ -415,7 +415,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         [TestCase("select *, a.* from wildcard_test_table1 as a CROSS JOIN wildcard_test_table2", 0, 13, "CREATE TABLE wildcard_test_table1(table1col1 int); CREATE TABLE wildcard_test_table2(table2col1 int)", "[a].[table1col1]")]
         //select star query with nested from statement
         [TestCase("select * from (select col2 from wildcard_test_table1) as alias", 0, 8, "CREATE TABLE wildcard_test_table1(col1 int, col2 int)", "[col2]")]
-        public async Task ExpandSqlStarExpressionsTest(string sqlStarQuery, int cursorLine, int cursorColumn, string createTableQuerys, string expectedStarExpansionInsertText)
+        public async Task ExpandSqlStarExpressionsTest(string sqlStarQuery, int cursorLine, int cursorColumn, string createTableQueries, string expectedStarExpansionInsertText)
         {
             var testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, null, null, "WildCardExpansionTest");
             try
@@ -442,9 +442,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                     };
 
                 // Now create tables that should show up in the completion list
-                testDb.RunQuery(createTableQuerys);
+                testDb.RunQuery(createTableQueries);
 
-                // And refresh the cache
+                                // And refresh the cache
                 await langService.HandleRebuildIntelliSenseNotification(
                     new RebuildIntelliSenseParams() { OwnerUri = connectionInfoResult.ScriptFile.ClientUri },
                     new TestEventContext());

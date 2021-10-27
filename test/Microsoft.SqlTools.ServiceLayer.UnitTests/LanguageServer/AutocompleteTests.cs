@@ -226,10 +226,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         [TestCase("select * ", 0, 8, "SelectStarExpression is returned on an incomplete select query with star")]
         //method should return sqlselectstarexpression on *s with object identifiers.
         [TestCase("select a.* from sys.all_objects as a", 0, 10, "SelectStarExpression returned on star expression with object identifier")]
-        public void TryGetSqlSelectStarStatmentNotNullTests(string sqlQuery, int cusrorLine, int cursorColumn, string ErrorValidationMessage)
+        public void TryGetSqlSelectStarStatementNotNullTests(string sqlQuery, int cursorLine, int cursorColumn, string ErrorValidationMessage)
         {
             InitializeTestObjects();
-            var testFile = CreateSqlStarTestFile(sqlQuery, cusrorLine, cursorColumn);
+            var testFile = CreateSqlStarTestFile(sqlQuery, cursorLine, cursorColumn);
             Assert.NotNull(AutoCompleteHelper.TryGetSelectStarStatement(testFile.ScriptParseInfo.ParseResult.Script, testFile), ErrorValidationMessage);
         }
 
@@ -241,25 +241,26 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         [TestCase("", 0, 0, "null is not returned on file with empty sql text")]
         //file with out of bounds cursor position should return null
         [TestCase("select * from sys.all_objects", 0, 100, "null is not returned when the cursor is out of bounds.")]
-        public void TryGetSqlSelectStarStatmentNullTests(string sqlQuery, int cusrorLine, int cursorColumn, string errorValidationMessage)
+        public void TryGetSqlSelectStarStatementNullTests(string sqlQuery, int cursorLine, int cursorColumn, string errorValidationMessage)
         {
             InitializeTestObjects();
-            var testFile = CreateSqlStarTestFile(sqlQuery, cusrorLine, cursorColumn);
+            var testFile = CreateSqlStarTestFile(sqlQuery, cursorLine, cursorColumn);
             Assert.Null(AutoCompleteHelper.TryGetSelectStarStatement(testFile.ScriptParseInfo.ParseResult.Script, testFile), errorValidationMessage);
         }
 
         [Test]
-        public void TryGetSqlSelectStarStatmentNullFileTest(string sqlQuery, int cusrorLine, int cursorColumn, string errorValidationMessage)
+        public void TryGetSqlSelectStarStatementNullFileTest()
         {
              Assert.Null(AutoCompleteHelper.TryGetSelectStarStatement(null, null), "null is not returned on null file");
         }
 
         [Test]
-        [TestCase("select a.*, * from sys.all_objects as a CROSS JOIN sys.databases", 0, 10, "a.*", "correct SelectStarExpression is not returned")]
-        [TestCase("select a.*, * from sys.all_objects as a CROSS JOIN sys.databases", 0, 13, "*", "correct SelectStarExpression is not returned")]
-        public void TryGetSqlSelectStarStatmentMulitpleStarExpressionsTest(string sqlQuery, int cusrorLine, int cursorColumn, string expectedStarExpressionSqlText, string errorValidationMessage)
+        [TestCase("select a.*, * from sys.all_objects as a CROSS JOIN sys.databases", 0, 10, "a.*")]
+        [TestCase("select a.*, * from sys.all_objects as a CROSS JOIN sys.databases", 0, 13, "*")]
+        public void TryGetSqlSelectStarStatmentMulitpleStarExpressionsTest(string sqlQuery, int cursorLine, int cursorColumn, string expectedStarExpressionSqlText)
         {
-            var testFile = CreateSqlStarTestFile(sqlQuery, cusrorLine, cursorColumn);
+            InitializeTestObjects();
+            var testFile = CreateSqlStarTestFile(sqlQuery, cursorLine, cursorColumn);
             var starExpressionTest = AutoCompleteHelper.TryGetSelectStarStatement(testFile.ScriptParseInfo.ParseResult.Script, testFile).Sql;
             Assert.AreEqual(expectedStarExpressionSqlText, expectedStarExpressionSqlText, string.Format("correct SelectStarExpression is not returned."));
         }
