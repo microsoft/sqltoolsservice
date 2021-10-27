@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
 using System.Linq;
 using System.Xml;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.XEvent;
 
@@ -27,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// <summary>
         /// Starts monitoring a profiler session
         /// </summary>
-        bool StartMonitoringStream(string viewerId, IXEventSession session);
+        bool StartMonitoringStream(string viewerId, IXEventSession session, ConnectionInfo connInfo);
 
         /// <summary>
         /// Stops monitoring a profiler session
