@@ -20,6 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         private static readonly TimeSpan DefaultPollingDelay = TimeSpan.FromSeconds(1);
         private object pollingLock = new object();
         private bool isPolling = false;
+        public bool isStreaming = false;
         private DateTime lastPollTime = DateTime.Now.Subtract(DefaultPollingDelay);
         private TimeSpan pollingDelay = DefaultPollingDelay;
         private ProfilerEvent lastSeenEvent = null;

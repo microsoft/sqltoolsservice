@@ -316,10 +316,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     {
                         foreach (var session in this.monitoredSessions.Values)
                         {
-                            List<string> viewers = this.sessionViewers[session.XEventSession.Id];
-                            if (viewers.Any(v => allViewers[v].active))
+                            if(!session.isStreaming)
                             {
                                 ProcessStream(session);
+                                session.isStreaming = true;
                             }
                         }
                     }
@@ -357,13 +357,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// </summary>
         private void ProcessStream(ProfilerSession session)
         {
-            if (session.TryEnterPolling())
-            {
-                CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
-                var connectionString = ConnectionService.BuildConnectionString(session.ConnectionInfo.ConnectionDetails, true);
-                var eventStreamer = new XELiveEventStreamer(connectionString, session.XEventSession.ToString());
-                eventStreamer.ReadEventStream(xEvent => HandleXEvent(xEvent, session), threadCancellationToken.Token);
-            }
+            CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
+            var connectionString = ConnectionService.BuildConnectionString(session.ConnectionInfo.ConnectionDetails, true);
+            var eventStreamer = new XELiveEventStreamer(connectionString, session.XEventSession.ToString());
+            eventStreamer.ReadEventStream(xEvent => HandleXEvent(xEvent, session), threadCancellationToken.Token);
         }
 
         private List<ProfilerEvent> PollSession(ProfilerSession session)
