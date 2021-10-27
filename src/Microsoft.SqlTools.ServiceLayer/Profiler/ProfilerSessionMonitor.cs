@@ -339,9 +339,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
             eventList.Add(profileEvent);
             var eventsLost = session.EventsLost;
-            session.FilterOldEvents(eventList);
             eventList = session.FilterProfilerEvents(eventList);
-            
+
             if (eventList.Count > 0 || eventsLost)
             {
                 // notify all viewers of the event.
