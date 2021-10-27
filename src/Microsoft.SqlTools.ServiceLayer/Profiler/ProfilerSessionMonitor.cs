@@ -260,20 +260,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         {
             while (true)
             {
-                lock (this.pollingLock)
+                lock (this.sessionsLock)
                 {
-                    lock (this.sessionsLock)
+                    foreach (var session in this.monitoredSessions.Values)
                     {
-                        foreach (var session in this.monitoredSessions.Values)
+                        List<string> viewers = this.sessionViewers[session.XEventSession.Id];
+                        if (viewers.Any(v => allViewers[v].active))
                         {
-                            List<string> viewers = this.sessionViewers[session.XEventSession.Id];
-                            if (viewers.Any(v => allViewers[v].active))
-                            {
-                                ProcessSession(session);
-                            }
+                            ProcessSession(session);
                         }
                     }
-                    Monitor.Wait(this.pollingLock, PollingLoopDelay);
                 }
             }
         }
