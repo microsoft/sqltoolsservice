@@ -364,7 +364,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         {
             CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
             var connectionString = ConnectionService.BuildConnectionString(session.ConnectionInfo.ConnectionDetails, true);
-            var eventStreamer = new XELiveEventStreamer(connectionString, session.XEventSession.ToString());
+            var eventStreamer = new XELiveEventStreamer(connectionString, (session.XEventSession as XEventSession).Session?.Name);
             eventStreamer.ReadEventStream(xEvent => HandleXEvent(xEvent, session), threadCancellationToken.Token);
             this.monitoredCancellationTokens.Add(id, threadCancellationToken.Token);
         }
