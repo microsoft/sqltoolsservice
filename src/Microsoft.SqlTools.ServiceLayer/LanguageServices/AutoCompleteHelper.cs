@@ -780,11 +780,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         if (includeTableName)
                         {
-                            columnNames.Add(String.Format("{0}.{1}", Utils.MakeSqlBracket(table.Name), Utils.MakeSqlBracket(column.Name))); // Including table names in case of multiple tables to avoid column ambiguity errors. 
+                            columnNames.Add($"{Utils.MakeSqlBracket(table.Name)}.{Utils.MakeSqlBracket(column.Name)}"); // Including table names in case of multiple tables to avoid column ambiguity errors. 
                         }
                         else
                         {
-                            columnNames.Add(String.Format("{0}", Utils.MakeSqlBracket(column.Name)));
+                            columnNames.Add(Utils.MakeSqlBracket(column.Name));
                         }
                     }
                 }
@@ -827,7 +827,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             return completionItems;
         }
 
-        internal static SqlSelectStarExpression TryGetSelectStarStatement(SqlCodeObject currentNode, ScriptDocumentInfo scriptDocumentInfo)
+        public static SqlSelectStarExpression TryGetSelectStarStatement(SqlCodeObject currentNode, ScriptDocumentInfo scriptDocumentInfo)
         {
             if(currentNode == null || scriptDocumentInfo == null)
             {
@@ -835,7 +835,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
             
             // Checking if the current node is a sql select star expression.
-            if (currentNode as SqlSelectStarExpression != null)
+            if (currentNode is SqlSelectStarExpression)
             {
                 return currentNode as SqlSelectStarExpression;
             }

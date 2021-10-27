@@ -401,5 +401,64 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             Assert.True(notif.Diagnostics.Length == errors, $"Notification errors {notif.Diagnostics.Length} are not as expected {errors}");
             return true;
         }
+
+        [Test]
+        //simple select star with single column in the table
+        [TestCase("select * from wildcard_test_table", 0, 8, "CREATE TABLE wildcard_test_table(col1 int)", "[col1]")]
+        //simple select star with multiple columns in the table
+        [TestCase("select * from wildcard_test_table", 0, 8, "CREATE TABLE wildcard_test_table(col1 int, col2 int, \"col3\" int)", "[col1],\r\n[col2],\r\n[col3]")]
+        //select star query with special characters in the table
+        [TestCase("select * from wildcard_test_table", 0, 8, "CREATE TABLE wildcard_test_table(\"col[$$$#]\" int)", "[col[$$$#]]]")]
+        //select star query for multiple tables
+        [TestCase("select * from wildcard_test_table1 CROSS JOIN wildcard_test_table2", 0, 8, "CREATE TABLE wildcard_test_table1(table1col1 int); CREATE TABLE wildcard_test_table2(table2col1 int)", "[wildcard_test_table1].[table1col1],\r\n[wildcard_test_table2].[table2col1]")]
+        //select star query with object identifier in associated with * eg: a.*
+        [TestCase("select *, a.* from wildcard_test_table1 as a CROSS JOIN wildcard_test_table2", 0, 13, "CREATE TABLE wildcard_test_table1(table1col1 int); CREATE TABLE wildcard_test_table2(table2col1 int)", "[a].[table1col1]")]
+        //select star query with nested from statement
+        [TestCase("select * from (select col2 from wildcard_test_table1) as alias", 0, 8, "CREATE TABLE wildcard_test_table1(col1 int, col2 int)", "[col2]")]
+        public async Task ExpandSqlStarExpressionsTest(string sqlStarQuery, int cursorLine, int cursorColumn, string createTableQuerys, string expectedStarExpansionInsertText)
+        {
+            var testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, null, null, "WildCardExpansionTest");
+            try
+            {
+                var connectionInfoResult = LiveConnectionHelper.InitLiveConnectionInfo(testDb.DatabaseName);
+
+                var langService = LanguageService.Instance;
+                await langService.UpdateLanguageServiceOnConnection(connectionInfoResult.ConnectionInfo);
+                connectionInfoResult.ScriptFile.SetFileContents(sqlStarQuery);
+
+                var textDocumentPosition =
+                    connectionInfoResult.TextDocumentPosition ??
+                    new TextDocumentPosition()
+                    {
+                        TextDocument = new TextDocumentIdentifier
+                        {
+                            Uri = connectionInfoResult.ScriptFile.ClientUri
+                        },
+                        Position = new Position
+                        {
+                            Line = cursorLine,
+                            Character = cursorColumn //Position of the star expression
+                        }
+                    };
+
+                // Now create tables that should show up in the completion list
+                testDb.RunQuery(createTableQuerys);
+
+                // And refresh the cache
+                await langService.HandleRebuildIntelliSenseNotification(
+                    new RebuildIntelliSenseParams() { OwnerUri = connectionInfoResult.ScriptFile.ClientUri },
+                    new TestEventContext());
+
+                // Now we should expect to see the star expansion show up in the completion list
+                var starExpansionCompletionItem = await langService.GetCompletionItems(
+                    textDocumentPosition, connectionInfoResult.ScriptFile, connectionInfoResult.ConnectionInfo);
+
+                Assert.AreEqual(expectedStarExpansionInsertText, starExpansionCompletionItem[0].InsertText, "Star expansion not found");
+            }
+            finally
+            {
+                testDb.Cleanup();
+            }   
+        }
     }
 }
