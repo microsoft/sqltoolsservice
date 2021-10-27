@@ -59,7 +59,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         private Dictionary<int, ProfilerSession> monitoredSessions = new Dictionary<int, ProfilerSession>();
 
         // XEvent Session Id's matched to their Profiler Sessions
-        private Dictionary<int, CancellationToken> monitoredCancellationTokens = new Dictionary<int, CancellationToken>();
+        private Dictionary<int, CancellationTokenSource> monitoredCancellationTokenSources = new Dictionary<int, CancellationTokenSource>();
 
         // ViewerId -> Viewer objects
         private Dictionary<string, Viewer> allViewers = new Dictionary<string, Viewer>();
@@ -216,6 +216,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             {
                 if (this.monitoredSessions.Remove(sessionId, out session))
                 {
+                    //cancel running XEventStream.
+                    CancellationTokenSource targetToken;
+                    if(monitoredCancellationTokenSources.Remove(sessionId,out targetToken)){
+                        targetToken.Cancel();
+                        session.isStreaming = false;
+                    }
                     //remove all viewers for this session
                     List<string> viewerIds;
                     if (sessionViewers.Remove(sessionId, out viewerIds))
@@ -366,7 +372,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 var connectionString = ConnectionService.BuildConnectionString(session.ConnectionInfo.ConnectionDetails, true);
                 var eventStreamer = new XELiveEventStreamer(connectionString, (session.XEventSession as XEventSession).Session?.Name);
                 eventStreamer.ReadEventStream(xEvent => HandleXEvent(xEvent, session), threadCancellationToken.Token);
-                this.monitoredCancellationTokens.Add(id, threadCancellationToken.Token);
+                this.monitoredCancellationTokenSources.Add(id, threadCancellationToken);
             }
             catch (XEventException)
             {
