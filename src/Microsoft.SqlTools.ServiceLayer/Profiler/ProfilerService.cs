@@ -188,7 +188,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                         // //need to start session otherwise XLiveEventStreamer won't work.
                         // var eventStreamer = new XELiveEventStreamer(connectionString, parameters.SessionName);
                         // var readTask = eventStreamer.ReadEventStream(xEvents => HandleXEvent(xEvents, parameters.OwnerUri), threadCancellationToken.Token);
-                        monitor.StartMonitoringStream(parameters.OwnerUri, xeSession);
+                        monitor.StartMonitoringStream(parameters.OwnerUri, xeSession, connInfo);
                         var result = new StartProfilingResult();
                         await requestContext.SendResult(result);
                     }
