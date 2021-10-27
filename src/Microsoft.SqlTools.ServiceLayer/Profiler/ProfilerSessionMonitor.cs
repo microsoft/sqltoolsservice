@@ -58,6 +58,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         // XEvent Session Id's matched to their Profiler Sessions
         private Dictionary<int, ProfilerSession> monitoredSessions = new Dictionary<int, ProfilerSession>();
 
+        // XEvent Session Id's matched to their Profiler Sessions
+        private Dictionary<int, CancellationToken> monitoredCancellationTokens = new Dictionary<int, CancellationToken>();
+
         // ViewerId -> Viewer objects
         private Dictionary<string, Viewer> allViewers = new Dictionary<string, Viewer>();
 
@@ -314,11 +317,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 {
                     lock (this.sessionsLock)
                     {
-                        foreach (var session in this.monitoredSessions.Values)
+                        foreach (var id in this.monitoredSessions.Keys)
                         {
+                            ProfilerSession session;
+                            this.monitoredSessions.TryGetValue(id, out session);
                             if(!session.isStreaming)
                             {
-                                ProcessStream(session);
+                                ProcessStream(id, session);
                                 session.isStreaming = true;
                             }
                         }
@@ -355,12 +360,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// <summary>
         /// Process a session for new XEvents if it meets the polling criteria
         /// </summary>
-        private void ProcessStream(ProfilerSession session)
+        private void ProcessStream(int id, ProfilerSession session)
         {
             CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
             var connectionString = ConnectionService.BuildConnectionString(session.ConnectionInfo.ConnectionDetails, true);
             var eventStreamer = new XELiveEventStreamer(connectionString, session.XEventSession.ToString());
             eventStreamer.ReadEventStream(xEvent => HandleXEvent(xEvent, session), threadCancellationToken.Token);
+            this.monitoredCancellationTokens.Add(id, threadCancellationToken.Token);
         }
 
         private List<ProfilerEvent> PollSession(ProfilerSession session)
