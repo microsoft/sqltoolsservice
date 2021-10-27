@@ -214,14 +214,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         {
             lock (this.sessionsLock)
             {
+                //cancel running XEventStream.
+                CancellationTokenSource targetToken;
+                if(monitoredCancellationTokenSources.Remove(sessionId,out targetToken)){
+                    targetToken.Cancel();
+                }
                 if (this.monitoredSessions.Remove(sessionId, out session))
                 {
-                    //cancel running XEventStream.
-                    CancellationTokenSource targetToken;
-                    if(monitoredCancellationTokenSources.Remove(sessionId,out targetToken)){
-                        targetToken.Cancel();
-                        session.isStreaming = false;
-                    }
                     //remove all viewers for this session
                     List<string> viewerIds;
                     if (sessionViewers.Remove(sessionId, out viewerIds))
