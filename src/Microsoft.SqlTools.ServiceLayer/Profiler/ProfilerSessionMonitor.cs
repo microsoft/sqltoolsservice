@@ -218,6 +218,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 CancellationTokenSource targetToken;
                 if(monitoredCancellationTokenSources.Remove(sessionId,out targetToken)){
                     targetToken.Cancel();
+                    this.monitoredSessions.TryGetValue(sessionId, out session);
+                    session.isStreaming = false;
                 }
                 if (this.monitoredSessions.Remove(sessionId, out session))
                 {
