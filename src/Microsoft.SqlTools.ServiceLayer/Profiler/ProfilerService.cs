@@ -184,11 +184,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                         // create a new XEvent session and Profiler session
                         var xeSession = this.XEventSessionFactory.GetXEventSession(parameters.SessionName, connInfo);
                         // //Create XELiveEvsentStream here, using ConnectionInfo Strings.
-                        // var connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails, true);
+                        var connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails, true);
                         // //need to start session otherwise XLiveEventStreamer won't work.
                         // var eventStreamer = new XELiveEventStreamer(connectionString, parameters.SessionName);
                         // var readTask = eventStreamer.ReadEventStream(xEvents => HandleXEvent(xEvents, parameters.OwnerUri), threadCancellationToken.Token);
-
                         monitor.StartMonitoringStream(parameters.OwnerUri, xeSession);
                         var result = new StartProfilingResult();
                         await requestContext.SendResult(result);

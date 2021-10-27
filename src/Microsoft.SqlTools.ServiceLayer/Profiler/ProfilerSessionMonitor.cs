@@ -125,7 +125,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             return true;
         }
 
-        public bool StartMonitoringStream(string viewerId, IXEventSession session)
+        public bool StartMonitoringStream(string viewerId, IXEventSession session, ConnectionInfo connInfo)
         {
             lock (this.sessionsLock)
             {
@@ -139,6 +139,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 if (!this.monitoredSessions.ContainsKey(session.Id))
                 {
                     var profilerSession = new ProfilerSession();
+                    profilerSession.ConnectionInfo = connInfo;
                     profilerSession.XEventSession = session;
 
                     this.monitoredSessions.Add(session.Id, profilerSession);
