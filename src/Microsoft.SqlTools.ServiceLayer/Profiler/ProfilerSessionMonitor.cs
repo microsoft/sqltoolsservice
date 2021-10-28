@@ -66,6 +66,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
 
         private List<IProfilerSessionListener> listeners = new List<IProfilerSessionListener>();
 
+        private List<ProfilerEvent> eventList = new List<ProfilerEvent>();
+
         /// <summary>
         /// Registers a session event Listener to receive a callback when events arrive
         /// </summary>
@@ -340,17 +342,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         internal async Task HandleXEvent(IXEvent xEvent, ProfilerSession session)
         {
             ProfilerEvent profileEvent = new ProfilerEvent(xEvent.Name, xEvent.Timestamp.ToString());
-            var eventList = new List<ProfilerEvent>();
             foreach (var kvp in xEvent.Fields)
             {
                 profileEvent.Values.Add(kvp.Key, kvp.Value.ToString());
             }
             eventList.Add(profileEvent);
             var eventsLost = session.EventsLost;
-            eventList = session.FilterProfilerEvents(eventList);
 
-            if (eventList.Count > 0 || eventsLost)
+            if (eventList.Count == 10 || eventsLost)
             {
+                session.FilterOldEvents(eventList);
+                eventList = session.FilterProfilerEvents(eventList);
                 // notify all viewers of the event.
                 List<string> viewerIds = this.sessionViewers[session.XEventSession.Id];
                 
@@ -359,6 +361,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     if (allViewers[viewerId].active)
                     {
                         SendEventsToListeners(viewerId, eventList, eventsLost);
+                        eventList.Clear();
                     }
                 }
             }
