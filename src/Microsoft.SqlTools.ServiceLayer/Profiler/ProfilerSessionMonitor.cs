@@ -66,8 +66,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
 
         private List<IProfilerSessionListener> listeners = new List<IProfilerSessionListener>();
 
-        private List<ProfilerEvent> eventList = new List<ProfilerEvent>();
-
         /// <summary>
         /// Registers a session event Listener to receive a callback when events arrive
         /// </summary>
@@ -346,12 +344,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             {
                 profileEvent.Values.Add(kvp.Key, kvp.Value.ToString());
             }
+            var eventList = new List<ProfilerEvent>();
             eventList.Add(profileEvent);
             var eventsLost = session.EventsLost;
 
             if (eventList.Count > 0 || eventsLost)
             {
-                //session.FilterOldEvents(eventList);
+                session.FilterOldEvents(eventList);
                 eventList = session.FilterProfilerEvents(eventList);
                 // notify all viewers of the event.
                 List<string> viewerIds = this.sessionViewers[session.XEventSession.Id];
@@ -361,7 +360,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     if (allViewers[viewerId].active)
                     {
                         SendEventsToListeners(viewerId, eventList, eventsLost);
-                        eventList.Clear();
                     }
                 }
             }
@@ -376,7 +374,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
                 var connectionString = ConnectionService.BuildConnectionString(session.ConnectionInfo.ConnectionDetails, true);
                 var eventStreamer = new XELiveEventStreamer(connectionString, (session.XEventSession as XEventSession).Session?.Name);
-                Task stream = eventStreamer.ReadEventStream(xEvent => HandleXEvent(xEvent, session), threadCancellationToken.Token);
+                eventStreamer.ReadEventStream(xEvent => HandleXEvent(xEvent, session), threadCancellationToken.Token);
                 this.monitoredCancellationTokenSources.Add(id, threadCancellationToken);
             }
             catch (XEventException)
