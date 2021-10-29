@@ -350,7 +350,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
 
             if (eventList.Count > 0 || eventsLost)
             {
-                session.FilterOldEvents(eventList);
                 eventList = session.FilterProfilerEvents(eventList);
                 // notify all viewers of the event.
                 List<string> viewerIds = this.sessionViewers[session.XEventSession.Id];
