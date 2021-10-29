@@ -349,7 +349,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             eventList.Add(profileEvent);
             var eventsLost = session.EventsLost;
 
-            if (eventList.Count == 10 || eventsLost)
+            if (eventList.Count == 1000 || eventsLost)
             {
                 session.FilterOldEvents(eventList);
                 eventList = session.FilterProfilerEvents(eventList);
@@ -376,7 +376,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
                 var connectionString = ConnectionService.BuildConnectionString(session.ConnectionInfo.ConnectionDetails, true);
                 var eventStreamer = new XELiveEventStreamer(connectionString, (session.XEventSession as XEventSession).Session?.Name);
-                eventStreamer.ReadEventStream(xEvent => HandleXEvent(xEvent, session), threadCancellationToken.Token);
+                Task stream = eventStreamer.ReadEventStream(xEvent => HandleXEvent(xEvent, session), threadCancellationToken.Token);
+                TimeSpan ts = TimeSpan.FromSeconds(120);
+                if(!stream.Wait(ts)){
+                    Console.WriteLine("The timeout interval elapsed.");
+                }
                 this.monitoredCancellationTokenSources.Add(id, threadCancellationToken);
             }
             catch (XEventException)
