@@ -349,7 +349,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             eventList.Add(profileEvent);
             var eventsLost = session.EventsLost;
 
-            if (eventList.Count == 1000 || eventsLost)
+            if (eventList.Count > 0 || eventsLost)
             {
                 session.FilterOldEvents(eventList);
                 eventList = session.FilterProfilerEvents(eventList);
