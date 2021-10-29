@@ -377,10 +377,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 var connectionString = ConnectionService.BuildConnectionString(session.ConnectionInfo.ConnectionDetails, true);
                 var eventStreamer = new XELiveEventStreamer(connectionString, (session.XEventSession as XEventSession).Session?.Name);
                 Task stream = eventStreamer.ReadEventStream(xEvent => HandleXEvent(xEvent, session), threadCancellationToken.Token);
-                TimeSpan ts = TimeSpan.FromSeconds(120);
-                if(!stream.Wait(ts)){
-                    Console.WriteLine("The timeout interval elapsed.");
-                }
                 this.monitoredCancellationTokenSources.Add(id, threadCancellationToken);
             }
             catch (XEventException)
