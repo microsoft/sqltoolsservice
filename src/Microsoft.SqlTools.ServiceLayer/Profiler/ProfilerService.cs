@@ -112,8 +112,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         {
             this.ServiceHost = serviceHost;
             this.ServiceHost.SetRequestHandler(CreateXEventSessionRequest.Type, HandleCreateXEventSessionRequest);
-            //this.ServiceHost.SetRequestHandler(StartProfilingRequest.Type, HandleStartProfilingRequest);
-            this.ServiceHost.SetRequestHandler(StartProfilingRequest.Type, HandleXELStreamRequest);
+            this.ServiceHost.SetRequestHandler(StartProfilingRequest.Type, HandleStartProfilingRequest);
             this.ServiceHost.SetRequestHandler(StopProfilingRequest.Type, HandleStopProfilingRequest);
             this.ServiceHost.SetRequestHandler(PauseProfilingRequest.Type, HandlePauseProfilingRequest);
             this.ServiceHost.SetRequestHandler(GetXEventSessionsRequest.Type, HandleGetXEventSessionsRequest);
@@ -168,37 +167,37 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// <summary>
         /// Handle request to start a profiling session
         /// </summary>
-        internal async Task HandleXELStreamRequest(StartProfilingParams parameters, RequestContext<StartProfilingResult> requestContext)
-        {
-            await Task.Run(async () =>
-            {
-                try
-                {
-                    ConnectionInfo connInfo;
-                    ConnectionServiceInstance.TryFindConnection(
-                        parameters.OwnerUri,
-                        out connInfo);
-                    if (connInfo != null)
-                    {
-                        CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
-                        // create a new XEvent session and Profiler session
-                        var xeSession = this.XEventSessionFactory.GetXEventSession(parameters.SessionName, connInfo);
-                        // //Create XELiveEvsentStream here, using ConnectionInfo Strings.
-                        var connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails, true);
-                        // //need to start session otherwise XLiveEventStreamer won't work.
-                        // var eventStreamer = new XELiveEventStreamer(connectionString, parameters.SessionName);
-                        // var readTask = eventStreamer.ReadEventStream(xEvents => HandleXEvent(xEvents, parameters.OwnerUri), threadCancellationToken.Token);
-                        monitor.StartMonitoringStream(parameters.OwnerUri, xeSession, connInfo);
-                        var result = new StartProfilingResult();
-                        await requestContext.SendResult(result);
-                    }
-                }
-                catch (Exception e)
-                {
-                    await requestContext.SendError(new Exception(SR.CreateSessionFailed(e.Message)));
-                }
-            });
-        }
+        // internal async Task HandleStartProfilingRequest(StartProfilingParams parameters, RequestContext<StartProfilingResult> requestContext)
+        // {
+        //     await Task.Run(async () =>
+        //     {
+        //         try
+        //         {
+        //             ConnectionInfo connInfo;
+        //             ConnectionServiceInstance.TryFindConnection(
+        //                 parameters.OwnerUri,
+        //                 out connInfo);
+        //             if (connInfo != null)
+        //             {
+        //                 CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
+        //                 // create a new XEvent session and Profiler session
+        //                 var xeSession = this.XEventSessionFactory.GetXEventSession(parameters.SessionName, connInfo);
+        //                 // //Create XELiveEvsentStream here, using ConnectionInfo Strings.
+        //                 var connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails, true);
+        //                 // //need to start session otherwise XLiveEventStreamer won't work.
+        //                 // var eventStreamer = new XELiveEventStreamer(connectionString, parameters.SessionName);
+        //                 // var readTask = eventStreamer.ReadEventStream(xEvents => HandleXEvent(xEvents, parameters.OwnerUri), threadCancellationToken.Token);
+        //                 monitor.StartMonitoringStream(parameters.OwnerUri, xeSession, connInfo);
+        //                 var result = new StartProfilingResult();
+        //                 await requestContext.SendResult(result);
+        //             }
+        //         }
+        //         catch (Exception e)
+        //         {
+        //             await requestContext.SendError(new Exception(SR.CreateSessionFailed(e.Message)));
+        //         }
+        //     });
+        // }
 
         /// <summary>
         /// Handle request to start a profiling session
