@@ -3053,6 +3053,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string SqlBindingsNet5NotSupported
+        {
+            get
+            {
+                return Keys.GetString(Keys.SqlBindingsNet5NotSupported);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -4569,6 +4577,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string MoreThanOneAzureFunctionWithName = "MoreThanOneAzureFunctionWithName";
+
+
+            public const string SqlBindingsNet5NotSupported = "SqlBindingsNet5NotSupported";
 
 
             private Keys()

@@ -421,14 +421,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // key columns in the result set, even if they weren't part of the select statement.
                     // Extra key columns get added to the end, so just correlate via Column Ordinal.
                     columnSchemas = new List<DbColumn[]>();
-                    using (DbDataReader reader = await dbCommand.ExecuteReaderAsync(CommandBehavior.KeyInfo | CommandBehavior.SchemaOnly, cancellationToken))
+                    using (DbDataReader reader = dbCommand.ExecuteReader(CommandBehavior.KeyInfo | CommandBehavior.SchemaOnly))
                     {
                         if (reader != null && reader.CanGetColumnSchema())
                         {
                             do
                             {
                                 columnSchemas.Add(reader.GetColumnSchema().ToArray());
-                            } while (await reader.NextResultAsync(cancellationToken));
+                            } while (reader.NextResult());
                         }
                     }
                 }
@@ -436,7 +436,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 ConnectionService.EnsureConnectionIsOpen(conn);
 
                 // Execute the command to get back a reader
-                using (DbDataReader reader = await dbCommand.ExecuteReaderAsync(cancellationToken))
+                using (DbDataReader reader = dbCommand.ExecuteReader())
                 {
                     do
                     {
@@ -464,7 +464,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         // Read until we hit the end of the result set
                         await resultSet.ReadResultToEnd(reader, cancellationToken);
 
-                    } while (await reader.NextResultAsync(cancellationToken));
+                    } while (reader.NextResult());
 
                     // If there were no messages, for whatever reason (NO COUNT set, messages 
                     // were emitted, records returned), output a "successful" message

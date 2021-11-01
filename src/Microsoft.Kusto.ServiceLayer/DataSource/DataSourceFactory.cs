@@ -2,16 +2,19 @@
 using System.Collections.Generic;
 using System.Composition;
 using Kusto.Data;
+using Kusto.Language;
+using Kusto.Language.Editor;
 using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 using Microsoft.Kusto.ServiceLayer.DataSource.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.Kusto.ServiceLayer.DataSource.Intellisense;
 using Microsoft.Kusto.ServiceLayer.DataSource.Kusto;
 using Microsoft.Kusto.ServiceLayer.DataSource.Monitor;
+using Microsoft.Kusto.ServiceLayer.Formatter;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
-using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
+using CompletionItem = Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts.CompletionItem;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource
 {
@@ -156,6 +159,14 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         public static string GetProviderDescription()
         {
             return Program.ServiceName.Contains("Kusto") ? KustoProviderDescription : LogAnalyticsProviderDescription;
+        }
+
+        public static string Format(string input, FormatOptions options)
+        {
+            var code = KustoCode.ParseAndAnalyze(input);
+            var kustoCodeService = new KustoCodeService(code);
+            var formattedText = kustoCodeService.GetFormattedText();
+            return formattedText.Text;
         }
     }
 }

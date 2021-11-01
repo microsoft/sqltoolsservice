@@ -141,6 +141,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         }
 
         private CancellationTokenSource existingRequestCancellation;
+        private IConnectionManager _connectionManager;
 
         /// <summary>
         /// Gets or sets the current workspace service instance
@@ -205,9 +206,10 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// <param name="context"></param>
         /// <param name="dataSourceFactory"></param>
         /// <param name="connectedBindingQueue"></param>
-        public void InitializeService(ServiceHost serviceHost, IConnectedBindingQueue connectedBindingQueue)
+        public void InitializeService(ServiceHost serviceHost, IConnectedBindingQueue connectedBindingQueue, IConnectionManager connectionManager)
         {
             _bindingQueue = connectedBindingQueue;
+            _connectionManager = connectionManager;
             // Register the requests that this service will handle
 
             //serviceHost.SetRequestHandler(SignatureHelpRequest.Type, HandleSignatureHelpRequest);     // Kusto api doesnt support this as of now. Implement it wherever applicable. Hover help is closest to signature help
@@ -315,9 +317,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                     }
 
                     ConnectionInfo connInfo;
-                    ConnectionServiceInstance.TryFindConnection(
-                        scriptFile.ClientUri,
-                        out connInfo);
+                    _connectionManager.TryGetValue(scriptFile.ClientUri, out connInfo);
 
                     var completionItems = GetCompletionItems(
                         textDocumentPosition, scriptFile, connInfo);
@@ -378,7 +378,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                     DefinitionResult definitionResult = null;
                     if (scriptFile != null)
                     {
-                        isConnected = ConnectionServiceInstance.TryFindConnection(scriptFile.ClientUri, out connInfo);
+                        isConnected = _connectionManager.TryGetValue(scriptFile.ClientUri, out connInfo);
                         definitionResult = GetDefinition(textDocumentPosition, scriptFile, connInfo);
                     }
 
@@ -549,9 +549,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                 }
 
                 ConnectionInfo connInfo;
-                ConnectionServiceInstance.TryFindConnection(
-                    scriptFile.ClientUri,
-                    out connInfo);
+                _connectionManager.TryGetValue(scriptFile.ClientUri, out connInfo);
 
                 // check that there is an active connection for the current editor
                 if (connInfo != null)
@@ -782,7 +780,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         internal Hover GetHoverItem(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile)
         {
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(scriptFile.ClientUri);
-            if (!ConnectionServiceInstance.TryFindConnection(scriptFile.ClientUri, out var connInfo))
+            if (!_connectionManager.TryGetValue(scriptFile.ClientUri, out var connInfo))
             {
                 return null;
             }
@@ -993,9 +991,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 
                 ScriptFileMarker[] semanticMarkers = null;
                 ConnectionInfo connInfo;
-                ConnectionServiceInstance.TryFindConnection(
-                    scriptFile.ClientUri,
-                    out connInfo);
+                _connectionManager.TryGetValue(scriptFile.ClientUri, out connInfo);
 
                 if (connInfo != null)
                 {

@@ -52,35 +52,46 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
                     MetadataFactory.CreateDataSourceObjectMetadata(DataSourceMetadataType.Folder, name, $"{workspace.Id}.{name}");
 
                 _nodes.SafeAdd($"{workspace.Id}", tableGroupNodeInfo);
-                
-                SetupTables(tableGroupNodeInfo, workspaceTableGroup, workspace.Id);
+
+                SetupTables(tableGroupNodeInfo.Urn, workspaceTableGroup.Tables, workspace.Id);
+            }
+
+            // custom log tables are listed in tables
+            if (workspace.Tables.Any())
+            {
+                var name = "Custom Logs";
+                var customLogsNodeInfo =
+                    MetadataFactory.CreateDataSourceObjectMetadata(DataSourceMetadataType.Folder, name, $"{workspace.Id}.{name}");
+
+                _nodes.SafeAdd($"{workspace.Id}", customLogsNodeInfo);
+                SetupTables(customLogsNodeInfo.Urn, workspace.Tables, workspace.Id);
             }
         }
         
-        private void SetupTables(DataSourceObjectMetadata tableGroupNodeInfo, TableGroupsModel workspaceTableGroup, string workspaceId)
+        private void SetupTables(string urn, string[] tables, string workspaceId)
         {
-            var tableGroupTables = _metadata.Tables.Where(x => workspaceTableGroup.Tables.Contains(x.Id));
+            var tableGroupTables = _metadata.Tables.Where(x => tables.Contains(x.Id));
             
             foreach (TablesModel metadataTable in tableGroupTables)
             {
                 var tableNodeInfo = MetadataFactory.CreateDataSourceObjectMetadata(DataSourceMetadataType.Table, metadataTable.Name,
-                    $"{tableGroupNodeInfo.Urn}.{metadataTable.Name}");
+                    $"{urn}.{metadataTable.Name}");
 
-                _nodes.SafeAdd(tableGroupNodeInfo.Urn, tableNodeInfo);
+                _nodes.SafeAdd(urn, tableNodeInfo);
                 _nodes.SafeAdd($"{DatabaseKeyPrefix}.{workspaceId}", tableNodeInfo);
 
-                SetupColumns(metadataTable, tableNodeInfo);
+                SetupColumns(metadataTable, tableNodeInfo.Urn);
             }
         }
 
-        private void SetupColumns(TablesModel table, DataSourceObjectMetadata tableNodeInfo)
+        private void SetupColumns(TablesModel table, string urn)
         {
             foreach (var column in table.Columns)
             {
                 var columnNodeInfo = MetadataFactory.CreateDataSourceObjectMetadata(DataSourceMetadataType.Column, column.Name,
-                    $"{tableNodeInfo.Urn}.{column.Name}");
+                    $"{urn}.{column.Name}");
 
-                _nodes.SafeAdd(tableNodeInfo.Urn, columnNodeInfo);
+                _nodes.SafeAdd(urn, columnNodeInfo);
             }
         }
 

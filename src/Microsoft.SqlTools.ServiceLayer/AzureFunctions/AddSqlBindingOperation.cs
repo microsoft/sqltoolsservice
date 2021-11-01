@@ -23,8 +23,6 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
     /// </summary>
     class AddSqlBindingOperation
     {
-        const string functionAttributeText = "FunctionName";
-
         public AddSqlBindingParams Parameters { get; }
 
         public AddSqlBindingOperation(AddSqlBindingParams parameters)
@@ -43,12 +41,10 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
                 CompilationUnitSyntax root = tree.GetCompilationUnitRoot();
 
                 // look for Azure Function to update
-                IEnumerable<MethodDeclarationSyntax> azureFunctionMethods = from methodDeclaration in root.DescendantNodes().OfType<MethodDeclarationSyntax>()
-                                                                            where methodDeclaration.AttributeLists.Count > 0
-                                                                            where methodDeclaration.AttributeLists.Where(a => a.Attributes.Where(attr => attr.Name.ToString().Contains(functionAttributeText) && attr.ArgumentList.Arguments.First().ToString().Equals($"\"{Parameters.functionName}\"")).Count() == 1).Count() == 1
-                                                                            select methodDeclaration;
+                IEnumerable<MethodDeclarationSyntax> azureFunctionMethods = AzureFunctionsUtils.GetMethodsWithFunctionAttributes(root);
+                IEnumerable<MethodDeclarationSyntax> matchingMethods = azureFunctionMethods.Where(md => md.AttributeLists.Where(a => a.Attributes.Where(attr => attr.ArgumentList.Arguments.First().ToString().Equals($"\"{Parameters.functionName}\"")).Any()).Any());
 
-                if (azureFunctionMethods.Count() == 0)
+                if (matchingMethods.Count() == 0)
                 {
                     return new ResultStatus()
                     {
@@ -56,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
                         ErrorMessage = SR.CouldntFindAzureFunction(Parameters.functionName, Parameters.filePath)
                     };
                 }
-                else if (azureFunctionMethods.Count() > 1)
+                else if (matchingMethods.Count() > 1)
                 {
                     return new ResultStatus()
                     {
@@ -65,7 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
                     };
                 }
 
-                MethodDeclarationSyntax azureFunction = azureFunctionMethods.First();
+                MethodDeclarationSyntax azureFunction = matchingMethods.First();
                 var newParam = this.Parameters.bindingType == BindingType.input ? this.GenerateInputBinding() : this.GenerateOutputBinding();
 
                 // Generate updated method with the new parameter
@@ -91,7 +87,7 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
             catch (Exception ex)
             {
                 Logger.Write(TraceEventType.Information, $"Failed to add sql binding. Error: {ex.Message}");
-                throw ex;
+                throw;
             }
         }
 

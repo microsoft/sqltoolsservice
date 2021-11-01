@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
@@ -40,11 +39,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 string error = string.Format(CultureInfo.InvariantCulture, "Failed expanding oe children. parent:{0} error:{1} inner:{2} stacktrace:{3}", 
                     parent != null ? parent.GetNodePath() : "", ex.Message, ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);
                 Logger.Write(TraceEventType.Error, error);
-                throw ex;
+                throw;
             }
-            finally
-            {
-            }
+
             return allChildren;
         }
 
@@ -145,7 +142,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     string error = string.Format(CultureInfo.InvariantCulture, "Failed getting smo objects. parent:{0} querier: {1} error:{2} inner:{3} stacktrace:{4}",
                     parent != null ? parent.GetNodePath() : "", querier.GetType(), ex.Message, ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);
                     Logger.Write(TraceEventType.Error, error);
-                    throw ex;
+                    throw;
                 }
             }
         }

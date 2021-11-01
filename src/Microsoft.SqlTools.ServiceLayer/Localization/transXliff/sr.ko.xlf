@@ -2421,6 +2421,24 @@
         <note>
         </note>
       </trans-unit>
+      <trans-unit id="CouldntFindAzureFunction">
+        <source>Couldn't find Azure function with FunctionName '{0}' in {1}</source>
+        <target state="translated">{1}에서 FunctionName ‘{0}’인 Azure 함수를 찾을 수 없음</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="MoreThanOneAzureFunctionWithName">
+        <source>More than one Azure function found with the FunctionName '{0}' in {1}</source>
+        <target state="translated">{1}에서 FunctionName ‘{0}’인 Azure 함수를 두 개 이상 찾음</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="SqlBindingsNet5NotSupported">
+        <source>Adding SQL bindings is not supported for .NET 5</source>
+        <target state="translated">.NET 5에서는 SQL 바인딩 추가가 지원되지 않습니다.</target>
+        <note>
+        </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -54,9 +54,13 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
             DatabaseName = databaseName?.ToString() ?? "";
         }
 
-        private void RefreshAuthToken()
+        private bool TryRefreshAuthToken()
         {
-            string accountToken = ConnectionService.Instance.RefreshAuthToken(_ownerUri);
+            if (!ConnectionService.Instance.TryRefreshAuthToken(_ownerUri, out string accountToken))
+            {
+                return false;
+            }
+            
             _kustoQueryProvider.Dispose();
             _kustoAdminProvider.Dispose();
             
@@ -69,6 +73,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
             };
             
             Initialize(connectionDetails);
+            return true;
         }
 
         private KustoConnectionStringBuilder GetKustoConnectionStringBuilder(DataSourceConnectionDetails connectionDetails)
@@ -163,7 +168,10 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
                       exception.InnerException is KustoRequestException innerException
                       && innerException.FailureCode == 401) // Unauthorized
             {
-                RefreshAuthToken();
+                if (!TryRefreshAuthToken())
+                {
+                    throw;
+                }
                 retryCount--;
                 return ExecuteQuery(query, cancellationToken, databaseName, retryCount);
             }
@@ -184,7 +192,10 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
             }
             catch (KustoRequestException exception) when (retryCount > 0 && exception.FailureCode == 401) // Unauthorized
             {
-                RefreshAuthToken();
+                if (!TryRefreshAuthToken())
+                {
+                    throw;
+                }
                 retryCount--;
                 await ExecuteControlCommandAsync(command, throwOnError, retryCount);
             }
@@ -232,7 +243,10 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
             }
             catch (KustoRequestException exception) when (retryCount > 0 && exception.FailureCode == 401) // Unauthorized
             {
-                RefreshAuthToken();
+                if (!TryRefreshAuthToken())
+                {
+                    throw;
+                }
                 retryCount--;
                 ExecuteControlCommand(command, retryCount);
             }

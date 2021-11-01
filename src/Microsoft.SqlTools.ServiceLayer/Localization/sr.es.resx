@@ -1330,9 +1330,12 @@
     <value>Se ha encontrado un token no admitido {0}</value>
   </data>
   <data name="CouldntFindAzureFunction" xml:space="preserve">
-    <value>No se pudo encontrar la función de Azure con FunctionName {0} en {1}</value>
+    <value>No se pudo encontrar la función de Azure con FunctionName “{0}” en {1}</value>
   </data>
   <data name="MoreThanOneAzureFunctionWithName" xml:space="preserve">
-    <value>Se ha encontrado más de una función de Azure con el FunctionName {0} en {1}</value>
+    <value>Se ha encontrado más de una función de Azure con el FunctionName “{0}” en {1}</value>
+  </data>
+  <data name="SqlBindingsNet5NotSupported" xml:space="preserve">
+    <value>No se admite la adición de enlaces SQL para .NET 5</value>
   </data>
 </root>

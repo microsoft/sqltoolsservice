@@ -72,14 +72,16 @@ steps:
   inputs:
     command: test
     projects: test/Microsoft.SqlTools.ServiceLayer.UnitTests
-    arguments: '--logger "trx;LogFileName=xunit.trx"'
+    testRunTitle: SqlTools.ServiceLayer.UnitTests
+    arguments: '--configuration $(buildConfiguration) --collect "Code coverage"'
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test test/Microsoft.Kusto.ServiceLayer.UnitTests'
   inputs:
     command: test
     projects: test/Microsoft.Kusto.ServiceLayer.UnitTests
-    arguments: '--logger "trx;LogFileName=xunit.trx"'
+    testRunTitle: Kusto.ServiceLayer.UnitTests
+    arguments: '--configuration $(buildConfiguration) --collect "Code coverage"'
 
 - task: Npm@1
   displayName: 'npm install -g gulp-cli'
@@ -177,26 +179,26 @@ steps:
     includeRootFolder: false
     archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win-x64-net5.0.zip'
 
-- task: ArchiveFiles@1
-  displayName: 'Archive windows 32 bit build'
-  inputs:
-    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win7-x86/net5.0'
-    includeRootFolder: false
-    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win-x86-net5.0.zip'
+# - task: ArchiveFiles@1
+#   displayName: 'Archive windows 32 bit build'
+#   inputs:
+#     rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win7-x86/net5.0'
+#     includeRootFolder: false
+#     archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win-x86-net5.0.zip'
 
-- task: ArchiveFiles@1
-  displayName: 'Archive windows10 arm 32 bit build'
-  inputs:
-    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win10-arm/net5.0'
-    includeRootFolder: false
-    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win10-arm-net5.0.zip'
+# - task: ArchiveFiles@1
+#   displayName: 'Archive windows10 arm 32 bit build'
+#   inputs:
+#     rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win10-arm/net5.0'
+#     includeRootFolder: false
+#     archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win10-arm-net5.0.zip'
 
-- task: ArchiveFiles@1
-  displayName: 'Archive windows10 arm 64 bit build'
-  inputs:
-    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win10-arm64/net5.0'
-    includeRootFolder: false
-    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win10-arm64-net5.0.zip'
+# - task: ArchiveFiles@1
+#   displayName: 'Archive windows10 arm 64 bit build'
+#   inputs:
+#     rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win10-arm64/net5.0'
+#     includeRootFolder: false
+#     archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win10-arm64-net5.0.zip'
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact: drop'
@@ -211,9 +213,3 @@ steps:
     packagesToPush: '$(Build.SourcesDirectory)/artifacts/nugetPackages/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
     publishVstsFeed: '2191dd5f-4aec-491b-ac50-568bbc331c8a'
     allowPackageConflicts: true
-
-- task: PublishTestResults@2
-  displayName: 'Publish Test Results **/xunit.trx'
-  inputs:
-    testResultsFormat: VSTest
-    testResultsFiles: '**/xunit.trx'

@@ -461,10 +461,13 @@
       </Item>
       <Item ItemId=";CouldntFindAzureFunction" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Couldn't find Azure function with FunctionName {0} in {1}]]></Val>
+          <Val><![CDATA[Couldn't find Azure function with FunctionName '{0}' in {1}]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Не удалось найти функцию Azure с атрибутом FunctionName {0} в {1}]]></Val>
+            <Val><![CDATA[Не удалось найти функцию Azure с FunctionName "{0}" в файле {1}.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Couldn't find Azure function with FunctionName {0} in {1}]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1136,10 +1139,13 @@
       </Item>
       <Item ItemId=";MoreThanOneAzureFunctionWithName" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[More than one Azure function found with the FunctionName {0} in {1}]]></Val>
+          <Val><![CDATA[More than one Azure function found with the FunctionName '{0}' in {1}]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Обнаружено более одной функции Azure с FunctionName {0} в {1}]]></Val>
+            <Val><![CDATA[В файле {1} обнаружено более одной функции Azure с FunctionName "{0}".]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[More than one Azure function found with the FunctionName {0} in {1}]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3587,6 +3593,15 @@
           <Val><![CDATA[Unsupported engine edition {0}]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="Auto" AutoAppr="N/A" Confidence="100">
             <Val><![CDATA[Неподдерживаемый выпуск подсистемы {0}]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";SqlBindingsNet5NotSupported" ItemType="0;.resx" PsrId="211" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Adding SQL bindings is not supported for .NET 5]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Добавление привязок SQL не поддерживается для .NET 5]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

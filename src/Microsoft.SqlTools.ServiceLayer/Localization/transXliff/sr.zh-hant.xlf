@@ -2421,6 +2421,24 @@
         <note>
         </note>
       </trans-unit>
+      <trans-unit id="CouldntFindAzureFunction">
+        <source>Couldn't find Azure function with FunctionName '{0}' in {1}</source>
+        <target state="translated">在 {1} 中找不到具有 FunctionName '{0}' 的 Azure 函數</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="MoreThanOneAzureFunctionWithName">
+        <source>More than one Azure function found with the FunctionName '{0}' in {1}</source>
+        <target state="translated">在 {1} 中找到多個具有 FunctionName '{0}' 的 Azure 函數</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="SqlBindingsNet5NotSupported">
+        <source>Adding SQL bindings is not supported for .NET 5</source>
+        <target state="translated">.NET 5 不支援新增 SQL 繫結</target>
+        <note>
+        </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

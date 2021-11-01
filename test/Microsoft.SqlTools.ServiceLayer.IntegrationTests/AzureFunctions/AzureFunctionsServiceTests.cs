@@ -165,7 +165,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
             string testFile = Path.Join(Path.GetTempPath(), $"NoAzureFunctions-{DateTime.Now.ToString("yyyy - dd - MM--HH - mm - ss")}.cs");
             FileStream fstream = File.Create(testFile);
             fstream.Close();
-
             GetAzureFunctionsParams parameters = new GetAzureFunctionsParams
             {
                 filePath = testFile
@@ -177,6 +176,25 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
             Assert.True(result.Success);
             Assert.Null(result.ErrorMessage);
             Assert.AreEqual(0, result.azureFunctions.Length);
+        }
+
+        /// <summary>
+        /// Verify there are no errors when a file doesn't have any Azure functions
+        /// </summary>
+        [Test]
+        public void GetAzureFunctionsNet5()
+        {
+            string testFile = Path.Join(testAzureFunctionsFolder, "AzureFunctionsNet5.cs");
+
+            GetAzureFunctionsParams parameters = new GetAzureFunctionsParams
+            {
+                filePath = testFile
+            };
+
+            GetAzureFunctionsOperation operation = new GetAzureFunctionsOperation(parameters);
+
+            Exception ex = Assert.Throws<Exception>(() => { operation.GetAzureFunctions(); });
+            Assert.AreEqual(SR.SqlBindingsNet5NotSupported, ex.Message);
         }
     }
 }

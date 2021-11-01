@@ -25,7 +25,9 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
 
         public static ScriptingService Instance => LazyInstance.Value;
 
-        private static ConnectionService _connectionService;
+        private IConnectionService _connectionService;
+
+        private IConnectionManager _connectionManager;
 
         private readonly Lazy<ConcurrentDictionary<string, ScriptingOperation>> operations =
             new Lazy<ConcurrentDictionary<string, ScriptingOperation>>(() => new ConcurrentDictionary<string, ScriptingOperation>());
@@ -45,10 +47,11 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         /// <param name="serviceHost"></param>
         /// <param name="scripter"></param>
         /// <param name="connectionService"></param>
-        public void InitializeService(ServiceHost serviceHost, IScripter scripter, ConnectionService connectionService)
+        public void InitializeService(ServiceHost serviceHost, IScripter scripter, IConnectionService connectionService, IConnectionManager connectionManager)
         {
             _scripter = scripter;
             _connectionService = connectionService;
+            _connectionManager = connectionManager;
             
             serviceHost.SetRequestHandler(ScriptingRequest.Type, this.HandleScriptExecuteRequest);
             serviceHost.SetRequestHandler(ScriptingCancelRequest.Type, this.HandleScriptCancelRequest);
@@ -95,7 +98,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                 if (parameters.DatabaseName == null)
                 {
                     ConnectionInfo connInfo;
-                    _connectionService.TryFindConnection(parameters.OwnerUri, out connInfo);
+                    _connectionManager.TryGetValue(parameters.OwnerUri, out connInfo);
                     if (connInfo != null)
                     {
                         parameters.DatabaseName = connInfo.ConnectionDetails.DatabaseName;
