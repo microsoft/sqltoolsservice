@@ -412,6 +412,31 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 }
             }
         }
+        /// <summary>
+        /// Creates a IDbCommand and calls ExecuteReader using the provided connection string.
+        /// </summary>
+        /// <param name="connectionString">The connection string.</param>
+        /// <param name="commandText">The command text to execute</param>
+        /// <param name="readResult">A delegate used to read from the reader</param>
+        /// <param name="initializeCommand">Optional delegate to initialize the IDbCommand object</param>
+        /// <param name="catchException">Optional exception handling.  Pass back 'true' to handle the 
+        /// exception, 'false' to throw. If Null is passed in then all exceptions are thrown.</param>
+        public static void ExecuteReader(
+            string connectionString,
+            string commandText,
+            Action<IDataReader> readResult,
+            Action<IDbCommand> initializeCommand = null,
+            Predicate<Exception> catchException = null)
+        {
+            Validate.IsNotNull(nameof(connectionString), connectionString);
+            Validate.IsNotNullOrEmptyString(nameof(commandText), commandText);
+            Validate.IsNotNull(nameof(readResult), readResult);
+            using (var sqlConnection = new SqlConnection(connectionString))
+            {
+                sqlConnection.Open();
+                ExecuteReader(sqlConnection, commandText, readResult, initializeCommand, catchException);
+            }
+        }
 
         /// <summary>
         /// optional 'initializeCommand' routine.  This initializes the IDbCommand

@@ -2422,14 +2422,20 @@
         </note>
       </trans-unit>
       <trans-unit id="CouldntFindAzureFunction">
-        <source>Couldn't find Azure function with FunctionName {0} in {1}</source>
-        <target state="translated">Die Azure-Funktion mit FunctionName "{0}" wurde in "{1}" nicht gefunden.</target>
+        <source>Couldn't find Azure function with FunctionName '{0}' in {1}</source>
+        <target state="translated">Die Azure-Funktion mit dem FunctionName "{0}" wurde in {1} nicht gefunden.</target>
         <note>
         </note>
       </trans-unit>
       <trans-unit id="MoreThanOneAzureFunctionWithName">
-        <source>Couldn't find Azure function with FunctionName {0} in {1}</source>
-        <target state="translated">In "{1}" wurden mehrere Azure-Funktionen mit FunctionName "{0}" gefunden.</target>
+        <source>More than one Azure function found with the FunctionName '{0}' in {1}</source>
+        <target state="translated">Es wurden mehrere Azure-Funktionen mit dem FunctionName "{0}" in {1} gefunden.</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="SqlBindingsNet5NotSupported">
+        <source>Adding SQL bindings is not supported for .NET 5</source>
+        <target state="translated">Das Hinzufügen von SQL-Bindungen wird für .NET 5 nicht unterstützt</target>
         <note>
         </note>
       </trans-unit>

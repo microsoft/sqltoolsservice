@@ -65,13 +65,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
                 hasAccessToDb = GainAccessToDatabase();
                 base.Execute(mode);
             }
-            catch (DatabaseFullAccessException databaseFullAccessException)
+            catch (DatabaseFullAccessException)
             {
                 Logger.Write(TraceEventType.Warning, $"Failed to gain access to database. server|database:{ServerName}|{DatabaseName}");
-                throw databaseFullAccessException;
-            }
-            catch
-            {
                 throw;
             }
             finally

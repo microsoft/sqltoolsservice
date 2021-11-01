@@ -126,8 +126,14 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                     TParams typedParams = default(TParams);
                     if (requestMessage.Contents != null)
                     {
-                        // TODO: Catch parse errors!
-                        typedParams = requestMessage.Contents.ToObject<TParams>();
+                        try
+                        {
+                            typedParams = requestMessage.Contents.ToObject<TParams>();
+                        }
+                        catch (Exception ex)
+                        {
+                            return requestContext.SendError(ex.Message);
+                        }
                     }
 
                     return requestHandler(typedParams, requestContext);
@@ -256,7 +262,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         }
 
         protected async Task DispatchMessage(
-            Message messageToDispatch, 
+            Message messageToDispatch,
             MessageWriter messageWriter)
         {
             Task handlerToAwait = null;

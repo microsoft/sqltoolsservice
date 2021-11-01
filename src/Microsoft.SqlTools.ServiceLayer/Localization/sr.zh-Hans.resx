@@ -1330,9 +1330,12 @@
     <value>遇到不支持的令牌 {0}</value>
   </data>
   <data name="CouldntFindAzureFunction" xml:space="preserve">
-    <value>无法找到 FunctionName 为 {0} 的 Azure 函数(在 {1} 中)</value>
+    <value>无法在 {1} 中找到 FunctionName 为 "{0}" 的 Azure 函数</value>
   </data>
   <data name="MoreThanOneAzureFunctionWithName" xml:space="preserve">
-    <value>已找到多个 FunctionName 为 {0} 的 Azure 函数(在 {1} 中)</value>
+    <value>已在 {1} 中找到多个 FunctionName 为 "{0}" 的 Azure 函数</value>
+  </data>
+  <data name="SqlBindingsNet5NotSupported" xml:space="preserve">
+    <value>.NET 5 不支持添加 SQL 绑定</value>
   </data>
 </root>

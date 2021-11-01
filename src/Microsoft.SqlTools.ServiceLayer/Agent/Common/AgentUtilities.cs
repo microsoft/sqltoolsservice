@@ -6,10 +6,6 @@
 using System;
 using System.Data;
 using System.Collections.Generic;
-using System.Text;
-using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Sdk.Sfc;
-using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Agent;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
 
@@ -52,9 +48,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 Category = job.Category,
                 CategoryId = job.CategoryID,
                 CategoryType = job.CategoryType,
-                LastRun = job.LastRun != null ? job.LastRun.ToString() : string.Empty,
-                NextRun = job.NextRun != null ? job.NextRun.ToString() : string.Empty,
-                JobId = job.JobID != null ? job.JobID.ToString() : null,
+                LastRun = job.LastRun.ToString(),
+                NextRun = job.NextRun.ToString(),
+                JobId = job.JobID.ToString(),
                 OperatorToEmail = job.OperatorToEmail,
                 OperatorToPage = job.OperatorToPage,
                 StartStepId = job.StartStepID,
@@ -82,9 +78,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 Category = job.Category,
                 CategoryId = job.CategoryID,
                 CategoryType = job.CategoryType,
-                LastRun = job.LastRun != null ? job.LastRun.ToString() : string.Empty,
-                NextRun = job.NextRun != null ? job.NextRun.ToString() : string.Empty,
-                JobId = job.JobID != null ? job.JobID.ToString() : null,
+                LastRun = job.LastRun.ToString(),
+                NextRun = job.NextRun.ToString(),
+                JobId = job.JobID.ToString(),
                 OperatorToEmail = job.OperatorToEmail,
                 OperatorToPage = job.OperatorToPage,
                 StartStepId = job.StartStepID,
