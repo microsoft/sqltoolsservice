@@ -77,57 +77,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
         }
 
-        /// <summary>
-        /// Start monitoring the provided session
-        /// </summary>
-        public bool StartMonitoringSession(string viewerId, IXEventSession session)
-        {
-            lock (this.sessionsLock)
-            {
-                // start the monitoring thread
-                if (this.processorThread == null)
-                {
-                    this.processorThread = Task.Factory.StartNew(ProcessSessions);
-                }
-
-                // create new profiling session if needed
-                if (!this.monitoredSessions.ContainsKey(session.Id))
-                {
-                    var profilerSession = new ProfilerSession();
-                    profilerSession.XEventSession = session;
-
-                    this.monitoredSessions.Add(session.Id, profilerSession);
-                }
-
-                // create a new viewer, or configure existing viewer
-                Viewer viewer;
-                if (!this.allViewers.TryGetValue(viewerId, out viewer))
-                {
-                    viewer = new Viewer(viewerId, true, session.Id);
-                    allViewers.Add(viewerId, viewer);
-                }
-                else
-                {
-                    viewer.active = true;
-                    viewer.xeSessionId = session.Id;
-                }
-
-                // add viewer to XEvent session viewers
-                List<string> viewers;
-                if (this.sessionViewers.TryGetValue(session.Id, out viewers))
-                {
-                    viewers.Add(viewerId);
-                }
-                else
-                {
-                    viewers = new List<string> { viewerId };
-                    sessionViewers.Add(session.Id, viewers);
-                }
-            }
-
-            return true;
-        }
-
         public bool StartMonitoringStream(string viewerId, IXEventSession session, ConnectionInfo connInfo)
         {
             lock (this.sessionsLock)
@@ -247,68 +196,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 }
             }
         }
-
-        public void PollSession(int sessionId)
-        {
-            lock (this.sessionsLock)
-            {
-                this.monitoredSessions[sessionId].pollImmediatly = true;
-            }
-            lock (this.pollingLock)
-            {
-                Monitor.Pulse(pollingLock);
-            }
-        }
-
-        /// <summary>
-        /// The core queue processing method
-        /// </summary>
-        /// <param name="state"></param>
-        private void ProcessSessions()
-        {
-            while (true)
-            {
-                lock (this.sessionsLock)
-                {
-                    foreach (var session in this.monitoredSessions.Values)
-                    {
-                        List<string> viewers = this.sessionViewers[session.XEventSession.Id];
-                        if (viewers.Any(v => allViewers[v].active))
-                        {
-                            ProcessSession(session);
-                        }
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Process a session for new XEvents if it meets the polling criteria
-        /// </summary>
-        private void ProcessSession(ProfilerSession session)
-        {
-            if (session.TryEnterPolling())
-            {
-                Task.Factory.StartNew(() =>
-                {
-                    var events = PollSession(session);
-                    bool eventsLost = session.EventsLost;
-                    if (events.Count > 0 || eventsLost)
-                    {
-                        // notify all viewers for the polled session
-                        List<string> viewerIds = this.sessionViewers[session.XEventSession.Id];
-                        foreach (string viewerId in viewerIds)
-                        {
-                            if (allViewers[viewerId].active)
-                            {
-                                SendEventsToListeners(viewerId, events, eventsLost);
-                            }
-                        }
-                    }
-                });
-            }
-        }
-
+        
          /// <summary>
         /// The core queue processing method
         /// </summary>
@@ -384,50 +272,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
         }
 
-        private List<ProfilerEvent> PollSession(ProfilerSession session)
-        {
-            var events = new List<ProfilerEvent>();
-            try
-            {
-                if (session == null || session.XEventSession == null)
-                {
-                    return events;
-                }
-
-                var targetXml = session.XEventSession.GetTargetXml();
-
-                XmlDocument xmlDoc = new XmlDocument();
-                xmlDoc.LoadXml(targetXml);
-
-                var nodes = xmlDoc.DocumentElement.GetElementsByTagName("event");
-                foreach (XmlNode node in nodes)
-                {
-                    var profilerEvent = ParseProfilerEvent(node);
-                    if (profilerEvent != null)
-                    {
-                        events.Add(profilerEvent);
-                    }
-                }
-            }
-            catch (XEventException)
-            {
-                SendStoppedSessionInfoToListeners(session.XEventSession.Id);
-                ProfilerSession tempSession;
-                RemoveSession(session.XEventSession.Id, out tempSession);
-            }
-            catch (Exception ex)
-            {
-                Logger.Write(TraceEventType.Warning, "Failed to poll session. error: " + ex.Message);
-            }
-            finally
-            {
-                session.IsPolling = false;
-            }
-
-            session.FilterOldEvents(events);
-            return session.FilterProfilerEvents(events);
-        }
-
         /// <summary>
         /// Notify listeners about closed sessions
         /// </summary>
@@ -457,32 +301,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     listener.EventsAvailable(sessionId, events, eventsLost);
                 }
             }
-        }
-
-        /// <summary>
-        /// Parse a single event node from XEvent XML
-        /// </summary>
-        private ProfilerEvent ParseProfilerEvent(XmlNode node)
-        {
-            var name = node.Attributes["name"];
-            var timestamp = node.Attributes["timestamp"];
-
-            var profilerEvent = new ProfilerEvent(name.InnerText, timestamp.InnerText);
-
-            foreach (XmlNode childNode in node.ChildNodes)
-            {
-                var childName = childNode.Attributes["name"];
-                XmlNode typeNode = childNode.SelectSingleNode("type");
-                var typeName = typeNode.Attributes["name"];
-                XmlNode valueNode = childNode.SelectSingleNode("value");
-
-                if (!profilerEvent.Values.ContainsKey(childName.InnerText))
-                {
-                    profilerEvent.Values.Add(childName.InnerText, valueNode.InnerText);
-                }
-            }
-
-            return profilerEvent;
         }
     }
 }
