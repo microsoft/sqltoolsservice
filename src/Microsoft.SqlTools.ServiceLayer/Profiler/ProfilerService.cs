@@ -167,37 +167,37 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// <summary>
         /// Handle request to start a profiling session
         /// </summary>
-        // internal async Task HandleStartProfilingRequest(StartProfilingParams parameters, RequestContext<StartProfilingResult> requestContext)
-        // {
-        //     await Task.Run(async () =>
-        //     {
-        //         try
-        //         {
-        //             ConnectionInfo connInfo;
-        //             ConnectionServiceInstance.TryFindConnection(
-        //                 parameters.OwnerUri,
-        //                 out connInfo);
-        //             if (connInfo != null)
-        //             {
-        //                 CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
-        //                 // create a new XEvent session and Profiler session
-        //                 var xeSession = this.XEventSessionFactory.GetXEventSession(parameters.SessionName, connInfo);
-        //                 // //Create XELiveEvsentStream here, using ConnectionInfo Strings.
-        //                 var connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails, true);
-        //                 // //need to start session otherwise XLiveEventStreamer won't work.
-        //                 // var eventStreamer = new XELiveEventStreamer(connectionString, parameters.SessionName);
-        //                 // var readTask = eventStreamer.ReadEventStream(xEvents => HandleXEvent(xEvents, parameters.OwnerUri), threadCancellationToken.Token);
-        //                 monitor.StartMonitoringStream(parameters.OwnerUri, xeSession, connInfo);
-        //                 var result = new StartProfilingResult();
-        //                 await requestContext.SendResult(result);
-        //             }
-        //         }
-        //         catch (Exception e)
-        //         {
-        //             await requestContext.SendError(new Exception(SR.CreateSessionFailed(e.Message)));
-        //         }
-        //     });
-        // }
+        internal async Task HandleStartProfilingRequest(StartProfilingParams parameters, RequestContext<StartProfilingResult> requestContext)
+        {
+            await Task.Run(async () =>
+            {
+                try
+                {
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(
+                        parameters.OwnerUri,
+                        out connInfo);
+                    if (connInfo != null)
+                    {
+                        CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
+                        // create a new XEvent session and Profiler session
+                        var xeSession = this.XEventSessionFactory.GetXEventSession(parameters.SessionName, connInfo);
+                        // //Create XELiveEvsentStream here, using ConnectionInfo Strings.
+                        var connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails, true);
+                        // //need to start session otherwise XLiveEventStreamer won't work.
+                        // var eventStreamer = new XELiveEventStreamer(connectionString, parameters.SessionName);
+                        // var readTask = eventStreamer.ReadEventStream(xEvents => HandleXEvent(xEvents, parameters.OwnerUri), threadCancellationToken.Token);
+                        monitor.StartMonitoringStream(parameters.OwnerUri, xeSession, connInfo);
+                        var result = new StartProfilingResult();
+                        await requestContext.SendResult(result);
+                    }
+                }
+                catch (Exception e)
+                {
+                    await requestContext.SendError(new Exception(SR.CreateSessionFailed(e.Message)));
+                }
+            });
+        }
 
         /// <summary>
         /// Handle request to start a profiling session
@@ -255,41 +255,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 catch (Exception e)
                 {
                     await requestContext.SendError(new Exception(SR.CreateSessionFailed(e.Message)));
-                }
-            });
-        }
-
-        /// <summary>
-        /// Handle request to start a profiling session
-        /// </summary>
-        internal async Task HandleStartProfilingRequest(StartProfilingParams parameters, RequestContext<StartProfilingResult> requestContext)
-        {
-            await Task.Run(async () =>
-            {
-                try
-                {
-                    ConnectionInfo connInfo;
-                    ConnectionServiceInstance.TryFindConnection(
-                        parameters.OwnerUri,
-                        out connInfo);
-                    if (connInfo != null)
-                    {
-                        // create a new XEvent session and Profiler session
-                        var xeSession = this.XEventSessionFactory.GetXEventSession(parameters.SessionName, connInfo);
-                        // start monitoring the profiler session
-                        monitor.StartMonitoringSession(parameters.OwnerUri, xeSession);
-
-                        var result = new StartProfilingResult();
-                        await requestContext.SendResult(result);
-                    }
-                    else
-                    {
-                        throw new Exception(SR.ProfilerConnectionNotFound);
-                    }
-                }
-                catch (Exception e)
-                {
-                    await requestContext.SendError(new Exception(SR.StartSessionFailed(e.Message)));
                 }
             });
         }
