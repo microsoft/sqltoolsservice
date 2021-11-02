@@ -243,8 +243,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                             xeSession = this.XEventSessionFactory.CreateXEventSession(parameters.Template.CreateStatement, parameters.SessionName, connInfo);
                         }
 
+                        var connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails, true);
                         // start monitoring the profiler session
-                        monitor.StartMonitoringSession(parameters.OwnerUri, xeSession);
+                        //monitor.StartMonitoringSession(parameters.OwnerUri, xeSession);
+                        monitor.StartMonitoringStream(parameters.OwnerUri, xeSession, connInfo);
 
                         var result = new CreateXEventSessionResult();
                         await requestContext.SendResult(result);
