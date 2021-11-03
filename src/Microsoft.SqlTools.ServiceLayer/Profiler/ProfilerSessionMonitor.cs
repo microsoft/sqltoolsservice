@@ -317,22 +317,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         {
             while (true)
             {
-                lock (this.pollingLock)
+                lock (this.sessionsLock)
                 {
-                    lock (this.sessionsLock)
+                    foreach (var id in this.monitoredSessions.Keys)
                     {
-                        foreach (var id in this.monitoredSessions.Keys)
+                        ProfilerSession session;
+                        this.monitoredSessions.TryGetValue(id, out session);
+                        if(!session.isStreaming)
                         {
-                            ProfilerSession session;
-                            this.monitoredSessions.TryGetValue(id, out session);
-                            if(!session.isStreaming)
-                            {
-                                ProcessStream(id, session);
-                                session.isStreaming = true;
-                            }
+                            ProcessStream(id, session);
+                            session.isStreaming = true;
                         }
                     }
-                    Monitor.Wait(this.pollingLock, PollingLoopDelay);
                 }
             }
         }
