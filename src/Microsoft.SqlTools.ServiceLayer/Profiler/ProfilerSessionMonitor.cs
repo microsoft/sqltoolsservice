@@ -344,6 +344,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             {
                 profileEvent.Values.Add(kvp.Key, kvp.Value.ToString());
             }
+            foreach (var kvp in xEvent.Actions)
+            {
+                profileEvent.Values.Add(kvp.Key, kvp.Value.ToString());
+            }
             var eventList = new List<ProfilerEvent>();
             eventList.Add(profileEvent);
             var eventsLost = session.EventsLost;
