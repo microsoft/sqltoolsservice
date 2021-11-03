@@ -15,6 +15,14 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         /// </summary>
         public string PropertyName { get; set; }
 
+        /// <summary>
+        /// The description of the property
+        /// </summary>
+        public string Description { get; set; }
+
+        /// <summary>
+        /// The component type of the property
+        /// </summary>
         public string ComponentType { get; set; }
 
         /// <summary>
