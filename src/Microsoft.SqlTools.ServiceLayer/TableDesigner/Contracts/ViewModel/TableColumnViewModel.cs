@@ -16,6 +16,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 
         public InputBoxProperties Length { get; set; } = new InputBoxProperties();
 
+        public InputBoxProperties Scale { get; set; } = new InputBoxProperties();
+
+        public InputBoxProperties Precision { get; set; } = new InputBoxProperties();
+
         public CheckBoxProperties AllowNulls { get; set; } = new CheckBoxProperties();
 
         public InputBoxProperties DefaultValue { get; set; } = new InputBoxProperties();
