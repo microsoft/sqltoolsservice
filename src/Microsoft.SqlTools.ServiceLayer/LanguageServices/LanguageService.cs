@@ -43,7 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     /// Main class for Language Service functionality including anything that requires knowledge of
     /// the language to perform, such as definitions, intellisense, etc.
     /// </summary>
-    public class LanguageService: IDisposable
+    public class LanguageService : IDisposable
     {
         #region Singleton Instance Implementation
 
@@ -193,7 +193,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 if (workspaceServiceInstance == null)
                 {
-                    workspaceServiceInstance =  WorkspaceService<SqlToolsSettings>.Instance;
+                    workspaceServiceInstance = WorkspaceService<SqlToolsSettings>.Instance;
                 }
                 return workspaceServiceInstance;
             }
@@ -407,7 +407,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     if (result != null && result.Errors.Count() == 0)
                     {
                         syntaxResult.Parseable = true;
-                    } else
+                    }
+                    else
                     {
                         syntaxResult.Parseable = false;
                         string[] errorMessages = new string[result.Errors.Count()];
@@ -558,7 +559,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             };
         }
 
-// turn off this code until needed (10/28/2016)
+        // turn off this code until needed (10/28/2016)
 #if false
         private async Task HandleReferencesRequest(
             ReferencesParams referencesParams,
@@ -796,19 +797,19 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         }
 
                         // Send a notification to signal that autocomplete is ready
-                        ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() {OwnerUri = connInfo.OwnerUri});
+                        ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = connInfo.OwnerUri });
                     });
                 }
                 else
                 {
                     // Send a notification to signal that autocomplete is ready
-                    await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() {OwnerUri = rebuildParams.OwnerUri});
+                    await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = rebuildParams.OwnerUri });
                 }
             }
             catch (Exception ex)
             {
                 Logger.Write(TraceEventType.Error, "Unknown error " + ex.ToString());
-                await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() {OwnerUri = rebuildParams.OwnerUri});
+                await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = rebuildParams.OwnerUri });
             }
         }
 
@@ -873,14 +874,16 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 Validate.IsNotNull(nameof(changeParams), changeParams);
                 Validate.IsNotNull(nameof(changeParams), changeParams.Uri);
                 bool shouldBlock = false;
-                if (SQL_LANG.Equals(changeParams.Language, StringComparison.OrdinalIgnoreCase)) {
+                if (SQL_LANG.Equals(changeParams.Language, StringComparison.OrdinalIgnoreCase))
+                {
                     shouldBlock = !ServiceHost.ProviderName.Equals(changeParams.Flavor, StringComparison.OrdinalIgnoreCase);
                 }
                 if (SQL_CMD_LANG.Equals(changeParams.Language, StringComparison.OrdinalIgnoreCase))
                 {
                     shouldBlock = true; // the provider will continue to be mssql
                 }
-                if (shouldBlock) {
+                if (shouldBlock)
+                {
                     this.nonMssqlUriMap.AddOrUpdate(changeParams.Uri, true, (k, oldValue) => true);
                     if (CurrentWorkspace.ContainsFile(changeParams.Uri))
                     {
@@ -893,8 +896,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     this.nonMssqlUriMap.TryRemove(changeParams.Uri, out value);
                     // should rebuild intellisense when re-considering as sql 
                     RebuildIntelliSenseParams param = new RebuildIntelliSenseParams { OwnerUri = changeParams.Uri };
-                    await HandleRebuildIntelliSenseNotification(param, eventContext);              
-                }                
+                    await HandleRebuildIntelliSenseNotification(param, eventContext);
+                }
             }
             catch (Exception ex)
             {
@@ -939,27 +942,27 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     if (connInfo == null || !parseInfo.IsConnected)
                     {
-                            // parse on separate thread so stack size can be increased
-                            var parseThread = new Thread(() =>
+                        // parse on separate thread so stack size can be increased
+                        var parseThread = new Thread(() =>
+                        {
+                            try
                             {
-                                try
-                                {
                                     // parse current SQL file contents to retrieve a list of errors
                                     ParseResult parseResult = Parser.IncrementalParse(
-                                        scriptFile.Contents,
-                                        parseInfo.ParseResult,
-                                        this.DefaultParseOptions);
+                                    scriptFile.Contents,
+                                    parseInfo.ParseResult,
+                                    this.DefaultParseOptions);
 
-                                    parseInfo.ParseResult = parseResult;
-                                }
-                                catch (Exception e)
-                                {
+                                parseInfo.ParseResult = parseResult;
+                            }
+                            catch (Exception e)
+                            {
                                     // Log the exception but don't rethrow it to prevent parsing errors from crashing SQL Tools Service
                                     Logger.Write(TraceEventType.Error, string.Format("An unexpected error occured while parsing: {0}", e.ToString()));
-                                }
-                            }, ConnectedBindingQueue.QueueThreadStackSize);
-                            parseThread.Start();
-                            parseThread.Join();
+                            }
+                        }, ConnectedBindingQueue.QueueThreadStackSize);
+                        parseThread.Start();
+                        parseThread.Join();
                     }
                     else
                     {
@@ -1003,7 +1006,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 return null;
                             });
 
-                            queueItem.ItemProcessed.WaitOne();
+                        queueItem.ItemProcessed.WaitOne();
                     }
                 }
                 catch (Exception ex)
@@ -1019,7 +1022,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
             else
             {
-               Logger.Write(TraceEventType.Warning, "Binding metadata lock timeout in ParseAndBind");
+                Logger.Write(TraceEventType.Warning, "Binding metadata lock timeout in ParseAndBind");
             }
 
             return parseInfo.ParseResult;
@@ -1062,7 +1065,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 PrepopulateCommonMetadata(info, scriptInfo, this.BindingQueue);
 
                 // Send a notification to signal that autocomplete is ready
-                ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() {OwnerUri = info.OwnerUri});
+                ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = info.OwnerUri });
             });
         }
 
@@ -1249,7 +1252,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     }
                     finally
                     {
-                       Monitor.Exit(scriptParseInfo.BuildingMetadataLock);
+                        Monitor.Exit(scriptParseInfo.BuildingMetadataLock);
                     }
                 }
             }
@@ -1655,6 +1658,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // cache the current script parse info object to resolve completions later
             this.currentCompletionParseInfo = scriptParseInfo;
             resultCompletionItems = result.CompletionItems;
+
+            // Expanding star expressions in query
+            CompletionItem[] starExpansionSuggestion = AutoCompleteHelper.ExpandSqlStarExpression(scriptDocumentInfo);
+            if (starExpansionSuggestion != null)
+            {
+                return starExpansionSuggestion;
+            }
 
             // if there are no completions then provide the default list
             if (resultCompletionItems == null)

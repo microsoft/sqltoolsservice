@@ -6,7 +6,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts;
 
@@ -17,6 +19,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
     /// </summary>
     public sealed class TableDesignerService : IDisposable
     {
+        // The query is copied from SSMS table designer, sys and INFORMATION_SCHEMA can not be selected.
+        const string GetSchemasQuery = "select name from sys.schemas where principal_id <> 3 and principal_id <> 4 order by name";
+
         private bool disposed = false;
         private static readonly Lazy<TableDesignerService> instance = new Lazy<TableDesignerService>(() => new TableDesignerService());
 
@@ -50,6 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             this.ServiceHost.SetRequestHandler(GetTableDesignerInfoRequest.Type, HandleGetTableDesignerInfoRequest);
             this.ServiceHost.SetRequestHandler(ProcessTableDesignerEditRequest.Type, HandleProcessTableDesignerEditRequest);
             this.ServiceHost.SetRequestHandler(SaveTableChangesRequest.Type, HandleSaveTableChangesRequest);
+            this.ServiceHost.SetRequestHandler(DisposeTableDesignerRequest.Type, HandleDisposeTableDesignerRequest);
         }
 
         private async Task HandleGetTableDesignerInfoRequest(TableInfo tableInfo, RequestContext<TableDesignerInfo> requestContext)
@@ -58,15 +64,15 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                        {
                            try
                            {
-                               // TODO: populate the data and view information
-                               TableViewModel tableModel = new TableViewModel();
-                               TableDesignerView view = new TableDesignerView();
+                               var schemas = this.GetSchemas(tableInfo);
+                               var viewModel = this.GetTableViewModel(tableInfo, schemas);
+                               var view = this.GetDesignerViewInfo(tableInfo);
                                await requestContext.SendResult(new TableDesignerInfo()
                                {
-                                   ViewModel = tableModel,
+                                   ViewModel = viewModel,
                                    View = view,
                                    ColumnTypes = this.GetSupportedColumnTypes(tableInfo),
-                                   Schemas = this.GetSchemas(tableInfo)
+                                   Schemas = schemas
                                });
                            }
                            catch (Exception e)
@@ -123,6 +129,23 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                        });
         }
 
+
+        private async Task HandleDisposeTableDesignerRequest(TableInfo tableInfo, RequestContext<DisposeTableDesignerResponse> requestContext)
+        {
+            await Task.Run(async () =>
+                       {
+                           try
+                           {
+                               // TODO: Handle the dispose table designer request.
+                               await requestContext.SendResult(new DisposeTableDesignerResponse());
+                           }
+                           catch (Exception e)
+                           {
+                               await requestContext.SendError(e);
+                           }
+                       });
+        }
+
         private void HandleAddItemRequest(ProcessTableDesignerEditRequestParams requestParams)
         {
             var property = requestParams.TableChangeInfo.Property;
@@ -138,7 +161,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     default:
                         break;
                 }
-            } else {
+            }
+            else
+            {
                 // TODO: Handle the add item request on second level properties, e.g. Adding a column to an index
             }
         }
@@ -150,10 +175,46 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             return columnTypes;
         }
 
+        private TableViewModel GetTableViewModel(TableInfo tableInfo, List<string> schemas)
+        {
+            var tableViewModel = new TableViewModel();
+            // Schema
+            if (tableInfo.IsNewTable)
+            {
+                tableViewModel.Schema.Value = schemas.Contains("dbo") ? "dbo" : schemas[0];
+            }
+            else
+            {
+                tableViewModel.Schema.Value = tableInfo.Schema;
+            }
+
+            // Table Name
+            if (!tableInfo.IsNewTable)
+            {
+                tableViewModel.Name.Value = tableInfo.Name;
+            }
+
+            // TODO: set other properties of the table
+            return tableViewModel;
+        }
+
+        private TableDesignerView GetDesignerViewInfo(TableInfo tableInfo)
+        {
+            // TODO: set the view information
+            var view = new TableDesignerView();
+            return view;
+        }
+
         private List<string> GetSchemas(TableInfo tableInfo)
         {
-            //TODO: get the schemas.
             var schemas = new List<string>();
+            ReliableConnectionHelper.ExecuteReader(tableInfo.ConnectionString, GetSchemasQuery, (reader) =>
+            {
+                while (reader.Read())
+                {
+                    schemas.Add(reader[0].ToString());
+                }
+            });
             return schemas;
         }
 

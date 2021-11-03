@@ -74,6 +74,16 @@ The build script itself is `build.cake`, written in Cake's C#-like DSL using the
 
 If you're having issues installing all of the Nuget packages from the `build.(cmd|ps1|sh)` it may be because TLS 1.2 is disabled on your machine. See https://stackoverflow.com/questions/20445638/nuget-fails-the-underlying-connection-was-closed-an-unexpected-error-occurred for more details and ways to fix it.
 
+This solution also works for failures with the following messages:
+
+```
+WARNING: Unable to find version '12.0.3' of package 'Newtonsoft.Json'.
+WARNING: Unable to find version '0.37.0' of package 'Cake'.
+WARNING: Unable to find version '3.1.0' of package 'Microsoft.Data.Tools.StringResourceTool'.
+WARNING: Unable to find version '2.4.1' of package 'xunit.runner.console'.
+WARNING: Unable to find version '1.0.0' of package 'Mono.TextTransform'.
+```
+
 
 ## Cake Configuration files
 
