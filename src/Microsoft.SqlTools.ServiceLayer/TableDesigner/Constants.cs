@@ -27,5 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         public const string Length = "length";
         public const string AllowNulls = "allowNulls";
         public const string IsPrimaryKey = "isPrimaryKey";
+        public const string Precision = "precision";
+        public const string Scale = "scale";
     }
 }
