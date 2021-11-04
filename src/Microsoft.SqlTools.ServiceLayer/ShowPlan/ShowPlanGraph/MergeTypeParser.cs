@@ -82,12 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
     /// 2) It allows to convert this to string the same way we convert other custom types
     /// See static Convert(MergeColumns) method in ObjectWrapperTypeConverter.cs
     /// </summary>
-#if DEBUG || EXPOSE_MANAGED_INTERNALS
-    public
-#else
-    internal
-#endif
-    sealed class MergeColumns
+    public sealed class MergeColumns
     {
         public MergeColumns(MergeType mergeType)
         {

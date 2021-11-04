@@ -12,12 +12,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
     /// <summary>
     /// Class that creates concrete INodeBuilder instances.
     /// </summary>
-#if DEBUG || EXPOSE_MANAGED_INTERNALS
-    public
-#else
-    internal
-#endif
-    static class NodeBuilderFactory
+    public static class NodeBuilderFactory
 	{
         /// <summary>
         /// Instantiates a concrete node builder based on dataSource type
