@@ -117,7 +117,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             this.ServiceHost.SetRequestHandler(PauseProfilingRequest.Type, HandlePauseProfilingRequest);
             this.ServiceHost.SetRequestHandler(GetXEventSessionsRequest.Type, HandleGetXEventSessionsRequest);
             this.ServiceHost.SetRequestHandler(DisconnectSessionRequest.Type, HandleDisconnectSessionRequest);
-            //this.ServiceHost.SetRequestHandler(XELStreamRequest.Type, HandleXELStreamRequest);
 
             this.SessionMonitor.AddSessionListener(this);
         }
@@ -149,7 +148,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 }
             }
         }
-        
+
         /// <summary>
         /// Handle request to start a profiling session
         /// </summary>
