@@ -77,57 +77,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
         }
 
-        /// <summary>
-        /// Start monitoring the provided session
-        /// </summary>
-        public bool StartMonitoringSession(string viewerId, IXEventSession session)
-        {
-            lock (this.sessionsLock)
-            {
-                // start the monitoring thread
-                if (this.processorThread == null)
-                {
-                    this.processorThread = Task.Factory.StartNew(ProcessSessions);
-                }
-
-                // create new profiling session if needed
-                if (!this.monitoredSessions.ContainsKey(session.Id))
-                {
-                    var profilerSession = new ProfilerSession();
-                    profilerSession.XEventSession = session;
-
-                    this.monitoredSessions.Add(session.Id, profilerSession);
-                }
-
-                // create a new viewer, or configure existing viewer
-                Viewer viewer;
-                if (!this.allViewers.TryGetValue(viewerId, out viewer))
-                {
-                    viewer = new Viewer(viewerId, true, session.Id);
-                    allViewers.Add(viewerId, viewer);
-                }
-                else
-                {
-                    viewer.active = true;
-                    viewer.xeSessionId = session.Id;
-                }
-
-                // add viewer to XEvent session viewers
-                List<string> viewers;
-                if (this.sessionViewers.TryGetValue(session.Id, out viewers))
-                {
-                    viewers.Add(viewerId);
-                }
-                else
-                {
-                    viewers = new List<string> { viewerId };
-                    sessionViewers.Add(session.Id, viewers);
-                }
-            }
-
-            return true;
-        }
-
         public bool StartMonitoringStream(string viewerId, IXEventSession session, ConnectionInfo connInfo)
         {
             lock (this.sessionsLock)
@@ -246,67 +195,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     session = null;
                     return false;
                 }
-            }
-        }
-
-        public void PollSession(int sessionId)
-        {
-            lock (this.sessionsLock)
-            {
-                this.monitoredSessions[sessionId].pollImmediatly = true;
-            }
-            lock (this.pollingLock)
-            {
-                Monitor.Pulse(pollingLock);
-            }
-        }
-
-        /// <summary>
-        /// The core queue processing method
-        /// </summary>
-        /// <param name="state"></param>
-        private void ProcessSessions()
-        {
-            while (true)
-            {
-                lock (this.sessionsLock)
-                {
-                    foreach (var session in this.monitoredSessions.Values)
-                    {
-                        List<string> viewers = this.sessionViewers[session.XEventSession.Id];
-                        if (viewers.Any(v => allViewers[v].active))
-                        {
-                            ProcessSession(session);
-                        }
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Process a session for new XEvents if it meets the polling criteria
-        /// </summary>
-        private void ProcessSession(ProfilerSession session)
-        {
-            if (session.TryEnterPolling())
-            {
-                Task.Factory.StartNew(() =>
-                {
-                    var events = PollSession(session);
-                    bool eventsLost = session.EventsLost;
-                    if (events.Count > 0 || eventsLost)
-                    {
-                        // notify all viewers for the polled session
-                        List<string> viewerIds = this.sessionViewers[session.XEventSession.Id];
-                        foreach (string viewerId in viewerIds)
-                        {
-                            if (allViewers[viewerId].active)
-                            {
-                                SendEventsToListeners(viewerId, events, eventsLost);
-                            }
-                        }
-                    }
-                });
             }
         }
 
