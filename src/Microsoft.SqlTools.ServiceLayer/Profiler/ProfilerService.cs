@@ -149,21 +149,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 }
             }
         }
-        private Dictionary<string, StreamInfo> streamInfoList = null;
-
-        internal async Task HandleXEvent(IXEvent xEvent, string sessionId)
-        {
-            List<ProfilerEvent>streamSessionEvents = new List<ProfilerEvent>();
-            ProfilerEvent profileEvent = new ProfilerEvent(xEvent.Name, xEvent.Timestamp.ToString());
-            foreach (var kvp in xEvent.Fields)
-            {
-                profileEvent.Values.Add(kvp.Key, kvp.Value.ToString());
-            }
-            streamSessionEvents.Add(profileEvent);
-
-           EventsAvailable(sessionId, streamSessionEvents, false);
-        }
-
+        
         /// <summary>
         /// Handle request to start a profiling session
         /// </summary>
@@ -185,8 +171,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                         // //Create XELiveEvsentStream here, using ConnectionInfo Strings.
                         var connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails, true);
                         // //need to start session otherwise XLiveEventStreamer won't work.
-                        // var eventStreamer = new XELiveEventStreamer(connectionString, parameters.SessionName);
-                        // var readTask = eventStreamer.ReadEventStream(xEvents => HandleXEvent(xEvents, parameters.OwnerUri), threadCancellationToken.Token);
                         monitor.StartMonitoringStream(parameters.OwnerUri, xeSession, connInfo);
                         var result = new StartProfilingResult();
                         await requestContext.SendResult(result);
