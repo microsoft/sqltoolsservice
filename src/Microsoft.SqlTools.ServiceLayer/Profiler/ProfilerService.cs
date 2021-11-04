@@ -121,34 +121,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             this.SessionMonitor.AddSessionListener(this);
         }
 
-        private class StreamInfo
-        {
-            private XELiveEventStreamer stream = null;
-            private CancellationToken token;
-
-            public StreamInfo(XELiveEventStreamer newStream, CancellationToken newToken)
-            {
-                this.stream = newStream;
-                this.token = newToken;
-            }
-
-            public XELiveEventStreamer GetStream
-            {
-                get
-                {
-                    return this.stream;
-                }
-            }
-
-            public CancellationToken GetToken
-            {
-                get
-                {
-                    return this.token;
-                }
-            }
-        }
-
         /// <summary>
         /// Handle request to start a profiling session
         /// </summary>
