@@ -8,7 +8,7 @@ using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using Microsoft.SqlTools.ServiceLayer.ShowPlan;
+using Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph;
 
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ShowPlan
