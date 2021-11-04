@@ -216,7 +216,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             {
                 //cancel running XEventStream.
                 CancellationTokenSource targetToken;
-                if(monitoredCancellationTokenSources.Remove(sessionId,out targetToken)){
+                if (monitoredCancellationTokenSources.Remove(sessionId, out targetToken))
+                {
                     targetToken.Cancel();
                 }
                 if (this.monitoredSessions.Remove(sessionId, out session))
@@ -309,7 +310,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
         }
 
-         /// <summary>
+        /// <summary>
         /// The core queue processing method
         /// </summary>
         /// <param name="state"></param>
@@ -323,7 +324,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     {
                         ProfilerSession session;
                         this.monitoredSessions.TryGetValue(id, out session);
-                        if(!session.isStreaming)
+                        if (!session.isStreaming)
                         {
                             ProcessStream(id, session);
                             session.isStreaming = true;
@@ -354,7 +355,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 eventList = session.FilterProfilerEvents(eventList);
                 // notify all viewers of the event.
                 List<string> viewerIds = this.sessionViewers[session.XEventSession.Id];
-                
+
                 foreach (string viewerId in viewerIds)
                 {
                     if (allViewers[viewerId].active)
@@ -370,7 +371,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// </summary>
         private void ProcessStream(int id, ProfilerSession session)
         {
-            try {
+            try
+            {
                 CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
                 var connectionString = ConnectionService.BuildConnectionString(session.ConnectionInfo.ConnectionDetails, true);
                 var eventStreamer = new XELiveEventStreamer(connectionString, (session.XEventSession as XEventSession).Session?.Name);
