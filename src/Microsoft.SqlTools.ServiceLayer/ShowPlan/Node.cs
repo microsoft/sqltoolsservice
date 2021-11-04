@@ -21,16 +21,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
         FINISH
     }
 
-    /// <remarks>
-    /// This class should be internal, but it is used by Profiler.exe, which is written in managed C++, which
-    /// doesn't support the concept of friend assemblies.  Instead, we'll demand that users of this class
-    /// be signed with the SQL Server private key.
-    /// </remarks>
-#if !DEBUG && !EXPOSE_MANAGED_INTERNALS
-	[System.Security.Permissions.StrongNameIdentityPermissionAttribute(
-		System.Security.Permissions.SecurityAction.LinkDemand, 
-		PublicKey=Microsoft.SqlServer.Management.SqlMgmt.CodeSigning.PublicKeyConstants.PublicKey)]
-#endif
     public class Node
     {
         #region Constructor
