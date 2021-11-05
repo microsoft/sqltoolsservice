@@ -12,18 +12,40 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
 {
+    /// <summary>
+    /// Types of schema compare endpoints
+    /// </summary>
     public enum SchemaCompareEndpointType
     {
         Database,
+        Project,
         Dacpac
     }
 
+    /// <summary>
+    /// Info needed from endpoints for schema comparison
+    /// </summary>
     public class SchemaCompareEndpointInfo
     {
         /// <summary>
         /// Gets or sets the type of the endpoint
         /// </summary>
         public SchemaCompareEndpointType EndpointType { get; set; }
+
+        /// <summary>
+        /// Gets or sets the project file path
+        /// </summary>
+        public string ProjectFilePath { get; set; }
+
+        /// <summary>
+        /// Gets or sets the scripts included in project
+        /// </summary>
+        public string[] TargetScripts { get; set; }
+
+        /// <summary>
+        /// Gets or sets the project data schema provider
+        /// </summary>
+        public string DataSchemaProvider { get; set; } 
 
         /// <summary>
         /// Gets or sets package filepath
