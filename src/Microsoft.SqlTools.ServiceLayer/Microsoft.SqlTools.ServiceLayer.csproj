@@ -46,7 +46,7 @@
 		<ProjectReference Include="../Microsoft.InsightsGenerator/Microsoft.InsightsGenerator.csproj" />
 	</ItemGroup>
 	<ItemGroup>
-		<Content Include="$(PkgMicrosoft_SqlServer_DacFx)\lib\netstandard2.0\Microsoft.Data.Tools.Schema.SqlTasks.targets">
+		<Content Include="$(PkgMicrosoft_SqlServer_DacFx)\lib\netstandard2.1\Microsoft.Data.Tools.Schema.SqlTasks.targets">
 			<CopyToPublishDirectory>Always</CopyToPublishDirectory>
 		</Content>
 		<Content Include="..\..\Notice.txt">

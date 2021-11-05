@@ -19,6 +19,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using System.Diagnostics;
+using static Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility.LiveConnectionHelper;
+using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
 {
@@ -122,7 +124,7 @@ WITH VALUES
         }
 
         /// <summary>
-        /// Verify the schema compare request comparing a two databases
+        /// Verify the schema compare request comparing two databases
         /// </summary>
         [Test]
         public async Task SchemaCompareDatabaseToDatabase()
@@ -161,6 +163,55 @@ WITH VALUES
         }
 
         /// <summary>
+        /// Verify the schema compare request comparing two projects
+        /// </summary>
+        [Test]
+        public async Task SchemaCompareProjectToProject()
+        {
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
+            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareTarget");
+
+            try
+            {
+                string sourceProjectPath = SchemaCompareTestUtils.CreateProject(sourceDb, "SourceProject");
+                string targetProjectPath = SchemaCompareTestUtils.CreateProject(targetDb, "TargetProject");
+
+                string[] sourceScripts = SchemaCompareTestUtils.GetProjectScripts(sourceProjectPath);
+                string[] targetScripts = SchemaCompareTestUtils.GetProjectScripts(targetProjectPath);
+
+                SchemaCompareEndpointInfo sourceInfo = new();
+                sourceInfo.EndpointType = SchemaCompareEndpointType.Project;
+                sourceInfo.ProjectFilePath = Path.Combine(sourceProjectPath, "SourceProject.sqlproj");
+                sourceInfo.TargetScripts = sourceScripts;
+                sourceInfo.DataSchemaProvider = "150";
+
+                SchemaCompareEndpointInfo targetInfo = new();
+                targetInfo.EndpointType = SchemaCompareEndpointType.Project;
+                targetInfo.ProjectFilePath = Path.Combine(targetProjectPath, "TargetProject.sqlproj");
+                targetInfo.TargetScripts = targetScripts;
+                targetInfo.DataSchemaProvider = "150";
+
+                var schemaCompareParams = new SchemaCompareParams
+                {
+                    SourceEndpointInfo = sourceInfo,
+                    TargetEndpointInfo = targetInfo
+                };
+
+                SchemaCompareOperation schemaCompareOperation = new(schemaCompareParams, null, null);
+                ValidateSchemaCompareWithExcludeIncludeResults(schemaCompareOperation);
+
+                // cleanup
+                SchemaCompareTestUtils.VerifyAndCleanup(sourceProjectPath);
+                SchemaCompareTestUtils.VerifyAndCleanup(targetProjectPath);
+            }
+            finally
+            {
+                sourceDb.Cleanup();
+                targetDb.Cleanup();
+            }
+        }
+
+        /// <summary>
         /// Verify the schema compare request comparing a database to a dacpac
         /// </summary>
         [Test]
@@ -193,6 +244,97 @@ WITH VALUES
 
                 // cleanup
                 SchemaCompareTestUtils.VerifyAndCleanup(targetDacpacFilePath);
+            }
+            finally
+            {
+                sourceDb.Cleanup();
+                targetDb.Cleanup();
+            }
+        }
+
+        /// <summary>
+        /// Verify the schema compare request comparing a database and a project
+        /// </summary>
+        [Test]
+        public async Task SchemaCompareDatabaseToProject()
+        {
+            TestConnectionResult result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
+
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
+            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareTarget");
+
+            try
+            {
+                string targetProjectPath = SchemaCompareTestUtils.CreateProject(targetDb, "TargetProject");
+                string[] targetScripts = SchemaCompareTestUtils.GetProjectScripts(targetProjectPath);
+
+                SchemaCompareEndpointInfo sourceInfo = new();
+                sourceInfo.EndpointType = SchemaCompareEndpointType.Database;
+                sourceInfo.DatabaseName = sourceDb.DatabaseName;
+
+                SchemaCompareEndpointInfo targetInfo = new();
+                targetInfo.EndpointType = SchemaCompareEndpointType.Project;
+                targetInfo.ProjectFilePath = Path.Combine(targetProjectPath, "TargetProject.sqlproj");
+                targetInfo.TargetScripts = targetScripts;
+                targetInfo.DataSchemaProvider = "150";
+
+                var schemaCompareParams = new SchemaCompareParams
+                {
+                    SourceEndpointInfo = sourceInfo,
+                    TargetEndpointInfo = targetInfo
+                };
+
+                SchemaCompareOperation schemaCompareOperation = new(schemaCompareParams, result.ConnectionInfo, null);
+                ValidateSchemaCompareWithExcludeIncludeResults(schemaCompareOperation);
+
+                // cleanup
+                SchemaCompareTestUtils.VerifyAndCleanup(targetProjectPath);
+            }
+            finally
+            {
+                sourceDb.Cleanup();
+                targetDb.Cleanup();
+            }
+        }
+
+        /// <summary>
+        /// Verify the schema compare request comparing a dacpac and a project
+        /// </summary>
+        [Test]
+        public async Task SchemaCompareDacpacToProject()
+        {
+            // create dacpacs from databases
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
+            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareTarget");
+            try
+            {
+                string sourceDacpacFilePath = SchemaCompareTestUtils.CreateDacpac(sourceDb);
+
+                SchemaCompareEndpointInfo sourceInfo = new();
+                sourceInfo.EndpointType = SchemaCompareEndpointType.Dacpac;
+                sourceInfo.PackageFilePath = sourceDacpacFilePath;
+
+                string targetProjectPath = SchemaCompareTestUtils.CreateProject(targetDb, "TargetProject");
+                string[] targetScripts = SchemaCompareTestUtils.GetProjectScripts(targetProjectPath);
+                
+                SchemaCompareEndpointInfo targetInfo = new();
+                targetInfo.EndpointType = SchemaCompareEndpointType.Project;
+                targetInfo.ProjectFilePath = Path.Combine(targetProjectPath, "TargetProject.sqlproj");
+                targetInfo.TargetScripts = targetScripts;
+                targetInfo.DataSchemaProvider = "150";
+
+                var schemaCompareParams = new SchemaCompareParams
+                {
+                    SourceEndpointInfo = sourceInfo,
+                    TargetEndpointInfo = targetInfo
+                };
+
+                SchemaCompareOperation schemaCompareOperation = new(schemaCompareParams, null, null);
+                ValidateSchemaCompareWithExcludeIncludeResults(schemaCompareOperation);
+
+                // cleanup
+                SchemaCompareTestUtils.VerifyAndCleanup(sourceDacpacFilePath);
+                SchemaCompareTestUtils.VerifyAndCleanup(targetProjectPath);
             }
             finally
             {
@@ -300,6 +442,59 @@ WITH VALUES
         }
 
         /// <summary>
+        /// Verify the schema compare generate script request comparing a project to a database
+        /// </summary>
+        [Test]
+        public async Task SchemaCompareGenerateScriptProjectToDatabase()
+        {
+            TestConnectionResult result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
+
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
+            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareTarget");
+
+            try
+            {
+                string sourceProjectPath = SchemaCompareTestUtils.CreateProject(sourceDb, "SourceProject");
+                string[] sourceScripts = SchemaCompareTestUtils.GetProjectScripts(sourceProjectPath);
+
+                SchemaCompareEndpointInfo sourceInfo = new();
+                sourceInfo.EndpointType = SchemaCompareEndpointType.Project;
+                sourceInfo.ProjectFilePath = Path.Combine(sourceProjectPath, "SourceProject.sqlproj");
+                sourceInfo.TargetScripts = sourceScripts;
+                sourceInfo.DataSchemaProvider = "150";
+
+                SchemaCompareEndpointInfo targetInfo = new();
+                targetInfo.EndpointType = SchemaCompareEndpointType.Database;
+                targetInfo.DatabaseName = targetDb.DatabaseName;
+
+                var schemaCompareParams = new SchemaCompareParams
+                {
+                    SourceEndpointInfo = sourceInfo,
+                    TargetEndpointInfo = targetInfo
+                };
+
+                SchemaCompareOperation schemaCompareOperation = new(schemaCompareParams, result.ConnectionInfo, result.ConnectionInfo);
+
+                // generate script
+                var generateScriptParams = new SchemaCompareGenerateScriptParams
+                {
+                    TargetDatabaseName = targetDb.DatabaseName,
+                    OperationId = schemaCompareOperation.OperationId,
+                };
+
+                ValidateSchemaCompareScriptGenerationWithExcludeIncludeResults(schemaCompareOperation, generateScriptParams);
+
+                // cleanup
+                SchemaCompareTestUtils.VerifyAndCleanup(sourceProjectPath);
+            }
+            finally
+            {
+                sourceDb.Cleanup();
+                targetDb.Cleanup();
+            }
+        }
+
+        /// <summary>
         /// Verify the schema compare publish changes request comparing a dacpac to a database
         /// </summary>
         [Test]
@@ -342,13 +537,13 @@ WITH VALUES
                 Assert.True(enumerator.Current.SourceObject.Name.ToString().Equals("[dbo].[table2]"));
 
                 // update target
-                var publishChangesParams = new SchemaComparePublishChangesParams
+                var publishChangesParams = new SchemaComparePublishDatabaseChangesParams
                 {
                     TargetDatabaseName = targetDb.DatabaseName,
                     OperationId = schemaCompareOperation.OperationId,
                 };
 
-                SchemaComparePublishChangesOperation publishChangesOperation = new SchemaComparePublishChangesOperation(publishChangesParams, schemaCompareOperation.ComparisonResult);
+                SchemaComparePublishDatabaseChangesOperation publishChangesOperation = new SchemaComparePublishDatabaseChangesOperation(publishChangesParams, schemaCompareOperation.ComparisonResult);
                 publishChangesOperation.Execute(TaskExecutionMode.Execute);
                 Assert.True(publishChangesOperation.PublishResult.Success);
                 Assert.That(publishChangesOperation.PublishResult.Errors, Is.Empty);
@@ -362,6 +557,80 @@ WITH VALUES
 
                 // cleanup
                 SchemaCompareTestUtils.VerifyAndCleanup(sourceDacpacFilePath);
+            }
+            finally
+            {
+                sourceDb.Cleanup();
+                targetDb.Cleanup();
+            }
+        }
+
+        /// <summary>
+        /// Verify the schema compare publish changes request comparing a project to a database
+        /// </summary>
+        [Test]
+        public async Task SchemaComparePublishChangesProjectToDatabase()
+        {
+            TestConnectionResult result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
+
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
+            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "SchemaCompareTarget");
+
+            try
+            {
+                string sourceProjectPath = SchemaCompareTestUtils.CreateProject(sourceDb, "SourceProject");
+                string[] sourceScripts = SchemaCompareTestUtils.GetProjectScripts(sourceProjectPath);
+
+                SchemaCompareEndpointInfo sourceInfo = new();
+                sourceInfo.EndpointType = SchemaCompareEndpointType.Project;
+                sourceInfo.ProjectFilePath = Path.Combine(sourceProjectPath, "SourceProject.sqlproj");
+                sourceInfo.TargetScripts = sourceScripts;
+                sourceInfo.DataSchemaProvider = "150";
+
+                SchemaCompareEndpointInfo targetInfo = new();
+                targetInfo.EndpointType = SchemaCompareEndpointType.Database;
+                targetInfo.DatabaseName = targetDb.DatabaseName;
+
+                SchemaCompareParams schemaCompareParams = new()
+                {
+                    SourceEndpointInfo = sourceInfo,
+                    TargetEndpointInfo = targetInfo
+                };
+
+                SchemaCompareOperation schemaCompareOperation = new(schemaCompareParams, result.ConnectionInfo, result.ConnectionInfo);
+                schemaCompareOperation.Execute(TaskExecutionMode.Execute);
+
+                Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
+                Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
+                Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
+
+                IEnumerator<SchemaDifference> enumerator = schemaCompareOperation.ComparisonResult.Differences.GetEnumerator();
+                enumerator.MoveNext();
+                Assert.True(enumerator.Current.SourceObject.Name.ToString().Equals("[dbo].[table1]"));
+                enumerator.MoveNext();
+                Assert.True(enumerator.Current.SourceObject.Name.ToString().Equals("[dbo].[table2]"));
+
+                // update target
+                SchemaComparePublishDatabaseChangesParams publishChangesParams = new()
+                {
+                    TargetDatabaseName = targetDb.DatabaseName,
+                    OperationId = schemaCompareOperation.OperationId,
+                };
+
+                SchemaComparePublishDatabaseChangesOperation publishChangesOperation = new(publishChangesParams, schemaCompareOperation.ComparisonResult);
+                publishChangesOperation.Execute(TaskExecutionMode.Execute);
+                Assert.True(publishChangesOperation.PublishResult.Success);
+                Assert.That(publishChangesOperation.PublishResult.Errors, Is.Empty);
+
+                // Verify that there are no differences after the publish by running the comparison again
+                schemaCompareOperation.Execute(TaskExecutionMode.Execute);
+
+                Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
+                Assert.True(schemaCompareOperation.ComparisonResult.IsEqual);
+                Assert.That(schemaCompareOperation.ComparisonResult.Differences, Is.Empty);
+
+                // cleanup
+                SchemaCompareTestUtils.VerifyAndCleanup(sourceProjectPath);
             }
             finally
             {
@@ -411,13 +680,13 @@ WITH VALUES
                 Assert.True(enumerator.Current.SourceObject.Name.ToString().Equals("[dbo].[table2]"));
 
                 // update target
-                var publishChangesParams = new SchemaComparePublishChangesParams
+                var publishChangesParams = new SchemaComparePublishDatabaseChangesParams
                 {
                     TargetDatabaseName = targetDb.DatabaseName,
                     OperationId = schemaCompareOperation.OperationId,
                 };
 
-                SchemaComparePublishChangesOperation publishChangesOperation = new SchemaComparePublishChangesOperation(publishChangesParams, schemaCompareOperation.ComparisonResult);
+                SchemaComparePublishDatabaseChangesOperation publishChangesOperation = new SchemaComparePublishDatabaseChangesOperation(publishChangesParams, schemaCompareOperation.ComparisonResult);
                 publishChangesOperation.Execute(TaskExecutionMode.Execute);
                 Assert.True(publishChangesOperation.PublishResult.Success);
                 Assert.That(publishChangesOperation.PublishResult.Errors, Is.Empty);
@@ -429,6 +698,260 @@ WITH VALUES
                 Assert.True(schemaCompareOperation.ComparisonResult.IsEqual);
                 Assert.That(schemaCompareOperation.ComparisonResult.Differences, Is.Empty);
                 Assert.IsNull(schemaCompareOperation.ErrorMessage);
+            }
+            finally
+            {
+                sourceDb.Cleanup();
+                targetDb.Cleanup();
+            }
+        }
+
+        /// <summary>
+        /// Verify the schema compare publish changes request comparing a dacpac to a project
+        /// </summary>
+        [Test]
+        public async Task SchemaComparePublishChangesDacpacToProject()
+        {
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
+            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "SchemaCompareTarget");
+
+            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SchemaCompareTest");
+            Directory.CreateDirectory(folderPath);
+
+            try
+            {
+                string sourceDacpacFilePath = SchemaCompareTestUtils.CreateDacpac(sourceDb);
+
+                SchemaCompareEndpointInfo sourceInfo = new();
+
+                sourceInfo.EndpointType = SchemaCompareEndpointType.Dacpac;
+                sourceInfo.PackageFilePath = sourceDacpacFilePath;
+
+                string targetProjectPath = SchemaCompareTestUtils.CreateProject(targetDb, "TargetProject");
+                string[] targetScripts = SchemaCompareTestUtils.GetProjectScripts(targetProjectPath);
+
+                SchemaCompareEndpointInfo targetInfo = new();
+                targetInfo.EndpointType = SchemaCompareEndpointType.Project;
+                targetInfo.ProjectFilePath = Path.Combine(targetProjectPath, "TargetProject.sqlproj");
+                targetInfo.TargetScripts = targetScripts;
+                targetInfo.DataSchemaProvider = "150";
+
+                SchemaCompareParams schemaCompareParams = new()
+                {
+                    SourceEndpointInfo = sourceInfo,
+                    TargetEndpointInfo = targetInfo
+                };
+
+                SchemaCompareOperation schemaCompareOperation = new(schemaCompareParams, null, null);
+                schemaCompareOperation.Execute(TaskExecutionMode.Execute);
+                (schemaCompareOperation.ComparisonResult.Differences as List<SchemaDifference>).RemoveAll(d => !d.Included);
+
+                Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
+                Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
+                Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
+
+                IEnumerator<SchemaDifference> enumerator = schemaCompareOperation.ComparisonResult.Differences.GetEnumerator();
+                enumerator.MoveNext();
+                Assert.True(enumerator.Current.SourceObject.Name.ToString().Equals("[dbo].[table1]"));
+                enumerator.MoveNext();
+                Assert.True(enumerator.Current.SourceObject.Name.ToString().Equals("[dbo].[table2]"));
+
+                // update target
+                SchemaComparePublishProjectChangesParams publishChangesParams = new()
+                {
+                    OperationId = schemaCompareOperation.OperationId,
+                    TargetProjectPath = targetProjectPath,
+                    TargetFolderStructure = SqlServer.Dac.DacExtractTarget.Flat,
+                };
+
+                SchemaComparePublishProjectChangesOperation publishChangesOperation = new(publishChangesParams, schemaCompareOperation.ComparisonResult);
+                publishChangesOperation.Execute(TaskExecutionMode.Execute);
+                Assert.True(publishChangesOperation.PublishResult.Success);
+                Assert.AreEqual(publishChangesOperation.PublishResult.ErrorMessage, "");
+                Assert.AreEqual(publishChangesOperation.PublishResult.ChangedFiles.Length, 0);
+                Assert.AreEqual(publishChangesOperation.PublishResult.AddedFiles.Length, 2);
+                Assert.AreEqual(publishChangesOperation.PublishResult.DeletedFiles.Length, 0);
+
+                targetInfo.TargetScripts = SchemaCompareTestUtils.GetProjectScripts(targetProjectPath);
+
+                // Verify that there are no differences after the publish by running the comparison again
+                schemaCompareOperation.Execute(TaskExecutionMode.Execute);
+                (schemaCompareOperation.ComparisonResult.Differences as List<SchemaDifference>).RemoveAll(d => !d.Included);
+
+                Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
+                Assert.True(schemaCompareOperation.ComparisonResult.IsEqual);
+                Assert.That(schemaCompareOperation.ComparisonResult.Differences, Is.Empty);
+
+                // cleanup
+                SchemaCompareTestUtils.VerifyAndCleanup(sourceDacpacFilePath);
+                SchemaCompareTestUtils.VerifyAndCleanup(targetProjectPath);
+            }
+            finally
+            {
+                sourceDb.Cleanup();
+                targetDb.Cleanup();
+            }
+        }
+
+        /// <summary>
+        /// Verify the schema compare publish changes request comparing a database to a project
+        /// </summary>
+        [Test]
+        public async Task SchemaComparePublishChangesDatabaseToProject()
+        {
+            TestConnectionResult result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
+
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
+            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "SchemaCompareTarget");
+
+            try
+            {
+                SchemaCompareEndpointInfo sourceInfo = new();
+                sourceInfo.EndpointType = SchemaCompareEndpointType.Database;
+                sourceInfo.DatabaseName = sourceDb.DatabaseName;
+
+                string targetProjectPath = SchemaCompareTestUtils.CreateProject(targetDb, "TargetProject");
+                string[] targetScripts = SchemaCompareTestUtils.GetProjectScripts(targetProjectPath);
+
+                SchemaCompareEndpointInfo targetInfo = new();
+                targetInfo.EndpointType = SchemaCompareEndpointType.Project;
+                targetInfo.ProjectFilePath = Path.Combine(targetProjectPath, "TargetProject.sqlproj");
+                targetInfo.TargetScripts = targetScripts;
+                targetInfo.DataSchemaProvider = "150";
+
+                SchemaCompareParams schemaCompareParams = new()
+                {
+                    SourceEndpointInfo = sourceInfo,
+                    TargetEndpointInfo = targetInfo
+                };
+
+                SchemaCompareOperation schemaCompareOperation = new(schemaCompareParams, result.ConnectionInfo, result.ConnectionInfo);
+                schemaCompareOperation.Execute(TaskExecutionMode.Execute);
+                (schemaCompareOperation.ComparisonResult.Differences as List<SchemaDifference>).RemoveAll(d => !d.Included);
+
+                Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
+                Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
+                Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
+
+                IEnumerator<SchemaDifference> enumerator = schemaCompareOperation.ComparisonResult.Differences.GetEnumerator();
+                enumerator.MoveNext();
+                Assert.True(enumerator.Current.SourceObject.Name.ToString().Equals("[dbo].[table1]"));
+                enumerator.MoveNext();
+                Assert.True(enumerator.Current.SourceObject.Name.ToString().Equals("[dbo].[table2]"));
+
+                // update target
+                SchemaComparePublishProjectChangesParams publishChangesParams = new()
+                {
+                    OperationId = schemaCompareOperation.OperationId,
+                    TargetProjectPath = targetProjectPath,
+                    TargetFolderStructure = SqlServer.Dac.DacExtractTarget.Flat,
+                };
+
+                SchemaComparePublishProjectChangesOperation publishChangesOperation = new(publishChangesParams, schemaCompareOperation.ComparisonResult);
+                publishChangesOperation.Execute(TaskExecutionMode.Execute);
+                Assert.True(publishChangesOperation.PublishResult.Success);
+                Assert.AreEqual(publishChangesOperation.PublishResult.ErrorMessage, "");
+                Assert.AreEqual(publishChangesOperation.PublishResult.ChangedFiles.Length, 0);
+                Assert.AreEqual(publishChangesOperation.PublishResult.AddedFiles.Length, 2);
+                Assert.AreEqual(publishChangesOperation.PublishResult.DeletedFiles.Length, 0);
+
+                targetInfo.TargetScripts = SchemaCompareTestUtils.GetProjectScripts(targetProjectPath);
+
+                // Verify that there are no differences after the publish by running the comparison again
+                schemaCompareOperation.Execute(TaskExecutionMode.Execute);
+                (schemaCompareOperation.ComparisonResult.Differences as List<SchemaDifference>).RemoveAll(d => !d.Included);
+
+                Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
+                Assert.True(schemaCompareOperation.ComparisonResult.IsEqual);
+                Assert.That(schemaCompareOperation.ComparisonResult.Differences, Is.Empty);
+
+                // cleanup
+                SchemaCompareTestUtils.VerifyAndCleanup(targetProjectPath);
+            }
+            finally
+            {
+                sourceDb.Cleanup();
+                targetDb.Cleanup();
+            }
+        }
+
+        /// <summary>
+        /// Verify the schema compare publish changes request comparing a project to a project
+        /// </summary>
+        [Test]
+        public async Task SchemaComparePublishChangesProjectToProject()
+        {
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
+            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, null, "SchemaCompareTarget");
+
+            try
+            {
+                string sourceProjectPath = SchemaCompareTestUtils.CreateProject(sourceDb, "SourceProject");
+                string[] sourceScripts = SchemaCompareTestUtils.GetProjectScripts(sourceProjectPath);
+                string targetProjectPath = SchemaCompareTestUtils.CreateProject(targetDb, "TargetProject");
+                string[] targetScripts = SchemaCompareTestUtils.GetProjectScripts(targetProjectPath);
+
+                SchemaCompareEndpointInfo sourceInfo = new();
+                sourceInfo.EndpointType = SchemaCompareEndpointType.Project;
+                sourceInfo.ProjectFilePath = Path.Combine(sourceProjectPath, "SourceProject.sqlproj");
+                sourceInfo.TargetScripts = sourceScripts;
+                sourceInfo.DataSchemaProvider = "150";
+
+                SchemaCompareEndpointInfo targetInfo = new();
+                targetInfo.EndpointType = SchemaCompareEndpointType.Project;
+                targetInfo.ProjectFilePath = Path.Combine(targetProjectPath, "TargetProject.sqlproj");
+                targetInfo.TargetScripts = targetScripts;
+                targetInfo.DataSchemaProvider = "150";
+
+                SchemaCompareParams schemaCompareParams = new()
+                {
+                    SourceEndpointInfo = sourceInfo,
+                    TargetEndpointInfo = targetInfo
+                };
+
+                SchemaCompareOperation schemaCompareOperation = new(schemaCompareParams, null, null);
+                schemaCompareOperation.Execute(TaskExecutionMode.Execute);
+                (schemaCompareOperation.ComparisonResult.Differences as List<SchemaDifference>).RemoveAll(d => !d.Included);
+
+                Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
+                Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
+                Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
+
+                IEnumerator<SchemaDifference> enumerator = schemaCompareOperation.ComparisonResult.Differences.GetEnumerator();
+                enumerator.MoveNext();
+                Assert.True(enumerator.Current.SourceObject.Name.ToString().Equals("[dbo].[table1]"));
+                enumerator.MoveNext();
+                Assert.True(enumerator.Current.SourceObject.Name.ToString().Equals("[dbo].[table2]"));
+
+                // update target
+                SchemaComparePublishProjectChangesParams publishChangesParams = new()
+                {
+                    OperationId = schemaCompareOperation.OperationId,
+                    TargetProjectPath = targetProjectPath,
+                    TargetFolderStructure = SqlServer.Dac.DacExtractTarget.Flat,
+                };
+
+                SchemaComparePublishProjectChangesOperation publishChangesOperation = new(publishChangesParams, schemaCompareOperation.ComparisonResult);
+                publishChangesOperation.Execute(TaskExecutionMode.Execute);
+                Assert.True(publishChangesOperation.PublishResult.Success);
+                Assert.AreEqual(publishChangesOperation.PublishResult.ErrorMessage, "");
+                Assert.AreEqual(publishChangesOperation.PublishResult.ChangedFiles.Length, 0);
+                Assert.AreEqual(publishChangesOperation.PublishResult.AddedFiles.Length, 2);
+                Assert.AreEqual(publishChangesOperation.PublishResult.DeletedFiles.Length, 0);
+
+                targetInfo.TargetScripts = SchemaCompareTestUtils.GetProjectScripts(targetProjectPath);
+
+                // Verify that there are no differences after the publish by running the comparison again
+                schemaCompareOperation.Execute(TaskExecutionMode.Execute);
+                (schemaCompareOperation.ComparisonResult.Differences as List<SchemaDifference>).RemoveAll(d => !d.Included);
+
+                Assert.True(schemaCompareOperation.ComparisonResult.IsValid);
+                Assert.True(schemaCompareOperation.ComparisonResult.IsEqual);
+                Assert.That(schemaCompareOperation.ComparisonResult.Differences, Is.Empty);
+
+                // cleanup
+                SchemaCompareTestUtils.VerifyAndCleanup(sourceProjectPath);
+                SchemaCompareTestUtils.VerifyAndCleanup(targetProjectPath);
             }
             finally
             {
@@ -458,7 +981,7 @@ WITH VALUES
                 targetInfo.EndpointType = SchemaCompareEndpointType.Database;
                 targetInfo.DatabaseName = targetDb.DatabaseName;
 
-                CreateAndValidateScmpFile(sourceInfo, targetInfo, true, true);
+                CreateAndValidateScmpFile(sourceInfo, targetInfo, SchemaCompareEndpointType.Database, SchemaCompareEndpointType.Database);
             }
             finally
             {
@@ -490,7 +1013,46 @@ WITH VALUES
                 targetInfo.EndpointType = SchemaCompareEndpointType.Dacpac;
                 targetInfo.PackageFilePath = targetDacpac;
 
-                CreateAndValidateScmpFile(sourceInfo, targetInfo, false, false);
+                CreateAndValidateScmpFile(sourceInfo, targetInfo, SchemaCompareEndpointType.Dacpac, SchemaCompareEndpointType.Dacpac);
+            }
+            finally
+            {
+                sourceDb.Cleanup();
+                targetDb.Cleanup();
+            }
+        }
+
+        /// <summary>
+        /// Verify the schema compare Scmp File Save for project endpoints
+        /// </summary>
+        [Test]
+        public async Task SchemaCompareSaveScmpFileForProjects()
+        {
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
+            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareTarget");
+
+            try
+            {
+                string filePath = SchemaCompareTestUtils.CreateScmpPath();
+
+                string sourceProjectPath = SchemaCompareTestUtils.CreateProject(sourceDb, "SourceProject");
+                string[] sourceScripts = SchemaCompareTestUtils.GetProjectScripts(sourceProjectPath);
+                string targetProjectPath = SchemaCompareTestUtils.CreateProject(targetDb, "TargetProject");
+                string[] targetScripts = SchemaCompareTestUtils.GetProjectScripts(targetProjectPath);
+
+                SchemaCompareEndpointInfo sourceInfo = new();
+                sourceInfo.EndpointType = SchemaCompareEndpointType.Project;
+                sourceInfo.ProjectFilePath = Path.Combine(sourceProjectPath, "SourceProject.sqlproj");
+                sourceInfo.TargetScripts = sourceScripts;
+                sourceInfo.DataSchemaProvider = "150";
+
+                SchemaCompareEndpointInfo targetInfo = new();
+                targetInfo.EndpointType = SchemaCompareEndpointType.Project;
+                targetInfo.ProjectFilePath = Path.Combine(targetProjectPath, "TargetProject.sqlproj");
+                targetInfo.TargetScripts = targetScripts;
+                targetInfo.DataSchemaProvider = "150";
+
+                CreateAndValidateScmpFile(sourceInfo, targetInfo, SchemaCompareEndpointType.Project, SchemaCompareEndpointType.Project);
             }
             finally
             {
@@ -521,7 +1083,78 @@ WITH VALUES
                 targetInfo.EndpointType = SchemaCompareEndpointType.Database;
                 targetInfo.DatabaseName = targetDb.DatabaseName;
 
-                CreateAndValidateScmpFile(sourceInfo, targetInfo, false, true);
+                CreateAndValidateScmpFile(sourceInfo, targetInfo, SchemaCompareEndpointType.Dacpac, SchemaCompareEndpointType.Database);
+            }
+            finally
+            {
+                sourceDb.Cleanup();
+                targetDb.Cleanup();
+            }
+        }
+
+        /// <summary>
+        /// Verify the schema compare Scmp File Save for project and db endpoints combination
+        /// </summary>
+        [Test]
+        public async Task SchemaCompareSaveScmpFileForProjectToDB()
+        {
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
+            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareTarget");
+
+            try
+            {
+                string filePath = SchemaCompareTestUtils.CreateScmpPath();
+
+                string sourceProjectPath = SchemaCompareTestUtils.CreateProject(sourceDb, "SourceProject");
+                string[] sourceScripts = SchemaCompareTestUtils.GetProjectScripts(sourceProjectPath);
+
+                SchemaCompareEndpointInfo sourceInfo = new();
+                sourceInfo.EndpointType = SchemaCompareEndpointType.Project;
+                sourceInfo.ProjectFilePath = Path.Combine(sourceProjectPath, "SourceProject.sqlproj");
+                sourceInfo.TargetScripts = sourceScripts;
+                sourceInfo.DataSchemaProvider = "150";
+
+                SchemaCompareEndpointInfo targetInfo = new();
+                targetInfo.EndpointType = SchemaCompareEndpointType.Database;
+                targetInfo.DatabaseName = targetDb.DatabaseName;
+
+                CreateAndValidateScmpFile(sourceInfo, targetInfo, SchemaCompareEndpointType.Project, SchemaCompareEndpointType.Database);
+            }
+            finally
+            {
+                sourceDb.Cleanup();
+                targetDb.Cleanup();
+            }
+        }
+
+        /// <summary>
+        /// Verify the schema compare Scmp File Save for dacpac and project endpoints combination
+        /// </summary>
+        [Test]
+        public async Task SchemaCompareSaveScmpFileForDacpacToProject()
+        {
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
+            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareTarget");
+
+            try
+            {
+                string filePath = SchemaCompareTestUtils.CreateScmpPath();
+
+                string sourceDacpac = SchemaCompareTestUtils.CreateDacpac(sourceDb);
+                string targetProjectPath = SchemaCompareTestUtils.CreateProject(targetDb, "TargetProject");
+                string[] targetScripts = SchemaCompareTestUtils.GetProjectScripts(targetProjectPath);
+
+                SchemaCompareEndpointInfo sourceInfo = new();
+                sourceInfo.EndpointType = SchemaCompareEndpointType.Dacpac;
+                sourceInfo.PackageFilePath = sourceDacpac;
+
+                SchemaCompareEndpointInfo targetInfo = new();
+                targetInfo.EndpointType = SchemaCompareEndpointType.Project;
+                targetInfo.ProjectFilePath = Path.Combine(targetProjectPath, "TargetProject.sqlproj");
+                targetInfo.TargetScripts = targetScripts;
+                targetInfo.DataSchemaProvider = "150";
+
+                CreateAndValidateScmpFile(sourceInfo, targetInfo, SchemaCompareEndpointType.Dacpac, SchemaCompareEndpointType.Project);
             }
             finally
             {
@@ -549,12 +1182,39 @@ WITH VALUES
         }
 
         /// <summary>
+        /// Verify opening an scmp comparing a project and database
+        /// </summary>
+        [Test]
+        public async Task SchemaCompareOpenScmpProjectToDatabaseRequest()
+        {
+            await CreateAndOpenScmp(SchemaCompareEndpointType.Project, SchemaCompareEndpointType.Database);
+        }
+
+        /// <summary>
         /// Verify opening an scmp comparing two dacpacs
         /// </summary>
         [Test]
         public async Task SchemaCompareOpenScmpDacpacToDacpacRequest()
         {
             await CreateAndOpenScmp(SchemaCompareEndpointType.Dacpac, SchemaCompareEndpointType.Dacpac);
+        }
+
+        /// <summary>
+        /// Verify opening an scmp comparing a project and dacpac
+        /// </summary>
+        [Test]
+        public async Task SchemaCompareOpenScmpProjectToDacpacRequest()
+        {
+            await CreateAndOpenScmp(SchemaCompareEndpointType.Project, SchemaCompareEndpointType.Dacpac);
+        }
+
+        /// <summary>
+        /// Verify opening an scmp comparing two projects
+        /// </summary>
+        [Test]
+        public async Task SchemaCompareOpenScmpProjectToProjectRequest()
+        {
+            await CreateAndOpenScmp(SchemaCompareEndpointType.Project, SchemaCompareEndpointType.Project);
         }
 
         /// <summary>
@@ -639,14 +1299,14 @@ WITH VALUES
 
 
                 SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(targetDb.ConnectionString);
-                var publishParams = new SchemaComparePublishChangesParams
+                var publishParams = new SchemaComparePublishDatabaseChangesParams
                 {
                     OperationId = operationId,
                     TargetDatabaseName = targetDb.DatabaseName,
                     TargetServerName = builder.DataSource,
                 };
 
-                await SchemaCompareService.Instance.HandleSchemaComparePublishChangesRequest(publishParams, publishRequestContext.Object);
+                await SchemaCompareService.Instance.HandleSchemaComparePublishDatabaseChangesRequest(publishParams, publishRequestContext.Object);
                 ValidateTask(SR.PublishChangesTaskName);
 
                 // Include/Exclude service call
@@ -1086,7 +1746,7 @@ WITH VALUES
             try
             {
                 SchemaCompareEndpoint sourceEndpoint = CreateSchemaCompareEndpoint(sourceDb, sourceEndpointType);
-                SchemaCompareEndpoint targetEndpoint = CreateSchemaCompareEndpoint(targetDb, targetEndpointType);
+                SchemaCompareEndpoint targetEndpoint = CreateSchemaCompareEndpoint(targetDb, targetEndpointType, targetEndpointType == SchemaCompareEndpointType.Project);
 
                 // create a comparison and exclude the first difference
                 SchemaComparison compare = new SchemaComparison(sourceEndpoint, targetEndpoint);
@@ -1122,11 +1782,30 @@ WITH VALUES
                 Assert.That(schemaCompareOpenScmpOperation.Result.ExcludedSourceElements, Is.Not.Empty);
                 Assert.AreEqual(1, schemaCompareOpenScmpOperation.Result.ExcludedSourceElements.Count());
                 Assert.That(schemaCompareOpenScmpOperation.Result.ExcludedTargetElements, Is.Empty);
-                Assert.AreEqual(targetDb.DatabaseName, schemaCompareOpenScmpOperation.Result.OriginalTargetName);
+
+                if (targetEndpointType == SchemaCompareEndpointType.Project)
+                {
+                    Assert.AreEqual(Path.GetFileName((targetEndpoint as SchemaCompareProjectEndpoint).ProjectFilePath), schemaCompareOpenScmpOperation.Result.OriginalTargetName);
+                }
+                else
+                {
+                    Assert.AreEqual(targetDb.DatabaseName, schemaCompareOpenScmpOperation.Result.OriginalTargetName);
+                }
+                
                 ValidateResultEndpointInfo(sourceEndpoint, schemaCompareOpenScmpOperation.Result.SourceEndpointInfo, sourceDb.ConnectionString);
                 ValidateResultEndpointInfo(targetEndpoint, schemaCompareOpenScmpOperation.Result.TargetEndpointInfo, targetDb.ConnectionString);
 
                 SchemaCompareTestUtils.VerifyAndCleanup(filePath);
+
+                if (sourceEndpointType == SchemaCompareEndpointType.Project)
+                {
+                    SchemaCompareTestUtils.VerifyAndCleanup(Directory.GetParent((sourceEndpoint as SchemaCompareProjectEndpoint).ProjectFilePath).FullName);
+                }
+
+                if (targetEndpointType == SchemaCompareEndpointType.Project)
+                {
+                    SchemaCompareTestUtils.VerifyAndCleanup(Directory.GetParent((targetEndpoint as SchemaCompareProjectEndpoint).ProjectFilePath).FullName);
+                }
             }
             finally
             {
@@ -1135,14 +1814,20 @@ WITH VALUES
             }
         }
 
-        private SchemaCompareEndpoint CreateSchemaCompareEndpoint(SqlTestDb db, SchemaCompareEndpointType endpointType)
+        private SchemaCompareEndpoint CreateSchemaCompareEndpoint(SqlTestDb db, SchemaCompareEndpointType endpointType, bool isProjectTarget = false)
         {
             if (endpointType == SchemaCompareEndpointType.Dacpac)
             {
                 string dacpacFilePath = SchemaCompareTestUtils.CreateDacpac(db);
                 return new SchemaCompareDacpacEndpoint(dacpacFilePath);
             }
-            else
+            else if (endpointType == SchemaCompareEndpointType.Project)
+            {
+                string projectPath = SchemaCompareTestUtils.CreateProject(db, isProjectTarget ? "TargetProject" : "SourceProject");
+                string[] scripts = SchemaCompareTestUtils.GetProjectScripts(projectPath);
+                return new SchemaCompareProjectEndpoint(Path.Combine(projectPath, isProjectTarget ? "TargetProject.sqlproj" : "SourceProject.sqlproj"), scripts, "150");
+            }
+            else 
             {
                 return new SchemaCompareDatabaseEndpoint(db.ConnectionString);
             }
@@ -1154,6 +1839,11 @@ WITH VALUES
             {
                 SchemaCompareDacpacEndpoint dacpacEndpoint = originalEndpoint as SchemaCompareDacpacEndpoint;
                 Assert.AreEqual(dacpacEndpoint.FilePath, resultEndpoint.PackageFilePath);
+            }
+            else if (resultEndpoint.EndpointType == SchemaCompareEndpointType.Project)
+            {
+                SchemaCompareProjectEndpoint projectEndpoint = originalEndpoint as SchemaCompareProjectEndpoint;
+                Assert.AreEqual(projectEndpoint.ProjectFilePath, resultEndpoint.ProjectFilePath);
             }
             else
             {
@@ -1193,7 +1883,7 @@ WITH VALUES
             Assert.AreEqual(dacFxType, diffObjectTypeType);
         }
 
-        private void CreateAndValidateScmpFile(SchemaCompareEndpointInfo sourceInfo, SchemaCompareEndpointInfo targetInfo, bool isSourceDb, bool isTargetDb)
+        private void CreateAndValidateScmpFile(SchemaCompareEndpointInfo sourceInfo, SchemaCompareEndpointInfo targetInfo, SchemaCompareEndpointType sourceType, SchemaCompareEndpointType targetType)
         {
             string filePath = SchemaCompareTestUtils.CreateScmpPath();
             var result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
@@ -1236,28 +1926,40 @@ WITH VALUES
             // Validate with DacFx SchemaComparison object
             SchemaComparison sc = new SchemaComparison(filePath);
 
-            if (isSourceDb)
+            if (sourceType == SchemaCompareEndpointType.Database)
             {
                 Assert.True(sc.Source is SchemaCompareDatabaseEndpoint, "Source should be SchemaCompareDatabaseEndpoint");
                 Assert.True((sc.Source as SchemaCompareDatabaseEndpoint).DatabaseName == sourceInfo.DatabaseName, $"Source Database {(sc.Source as SchemaCompareDatabaseEndpoint).DatabaseName} name does not match the params passed {sourceInfo.DatabaseName}");
-            }
-            else
+            } 
+            else if (sourceType == SchemaCompareEndpointType.Dacpac)
             {
                 Assert.True(sc.Source is SchemaCompareDacpacEndpoint, "Source should be SchemaCompareDacpacEndpoint");
                 Assert.True((sc.Source as SchemaCompareDacpacEndpoint).FilePath == sourceInfo.PackageFilePath, $"Source dacpac {(sc.Source as SchemaCompareDacpacEndpoint).FilePath} name does not match the params passed {sourceInfo.PackageFilePath}");
                 SchemaCompareTestUtils.VerifyAndCleanup(sourceInfo.PackageFilePath);
             }
-
-            if (isTargetDb)
+            else if (sourceType == SchemaCompareEndpointType.Project)
             {
-                Assert.True(sc.Target is SchemaCompareDatabaseEndpoint, "Source should be SchemaCompareDatabaseEndpoint");
-                Assert.True((sc.Target as SchemaCompareDatabaseEndpoint).DatabaseName == targetInfo.DatabaseName, $"Source Database {(sc.Target as SchemaCompareDatabaseEndpoint).DatabaseName} name does not match the params passed {targetInfo.DatabaseName}");
+                Assert.True(sc.Source is SchemaCompareProjectEndpoint, "Source should be SchemaCompareProjectEndpoint");
+                Assert.True((sc.Source as SchemaCompareProjectEndpoint).ProjectFilePath == sourceInfo.ProjectFilePath, $"Source project {(sc.Source as SchemaCompareProjectEndpoint).ProjectFilePath} name does not match the params passed {sourceInfo.ProjectFilePath}");
+                SchemaCompareTestUtils.VerifyAndCleanup(Directory.GetParent(sourceInfo.ProjectFilePath).FullName);
             }
-            else
+
+            if (targetType == SchemaCompareEndpointType.Database)
             {
-                Assert.True(sc.Target is SchemaCompareDacpacEndpoint, "Source should be SchemaCompareDacpacEndpoint");
-                Assert.True((sc.Target as SchemaCompareDacpacEndpoint).FilePath == targetInfo.PackageFilePath, $"Source dacpac {(sc.Target as SchemaCompareDacpacEndpoint).FilePath} name does not match the params passed {targetInfo.PackageFilePath}");
+                Assert.True(sc.Target is SchemaCompareDatabaseEndpoint, "Target should be SchemaCompareDatabaseEndpoint");
+                Assert.True((sc.Target as SchemaCompareDatabaseEndpoint).DatabaseName == targetInfo.DatabaseName, $"Target Database {(sc.Target as SchemaCompareDatabaseEndpoint).DatabaseName} name does not match the params passed {targetInfo.DatabaseName}");
+            }
+            else if (targetType == SchemaCompareEndpointType.Dacpac)
+            {
+                Assert.True(sc.Target is SchemaCompareDacpacEndpoint, "Target should be SchemaCompareDacpacEndpoint");
+                Assert.True((sc.Target as SchemaCompareDacpacEndpoint).FilePath == targetInfo.PackageFilePath, $"Target dacpac {(sc.Target as SchemaCompareDacpacEndpoint).FilePath} name does not match the params passed {targetInfo.PackageFilePath}");
                 SchemaCompareTestUtils.VerifyAndCleanup(targetInfo.PackageFilePath);
+            }
+            else if (targetType == SchemaCompareEndpointType.Project)
+            {
+                Assert.True(sc.Target is SchemaCompareProjectEndpoint, "Target should be SchemaCompareProjectEndpoint");
+                Assert.True((sc.Target as SchemaCompareProjectEndpoint).ProjectFilePath == targetInfo.ProjectFilePath, $"Target project {(sc.Target as SchemaCompareProjectEndpoint).ProjectFilePath} name does not match the params passed {targetInfo.ProjectFilePath}");
+                SchemaCompareTestUtils.VerifyAndCleanup(Directory.GetParent(targetInfo.ProjectFilePath).FullName);
             }
 
             Assert.True(!sc.ExcludedTargetObjects.Any(), "Target Excluded Objects are expected to be Empty");
