@@ -1,4 +1,8 @@
-﻿using System.Threading;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+using System.Threading;
 using Microsoft.SqlServer.Dac.Compare;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.Utility;
@@ -27,7 +31,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         
         public abstract void Execute(TaskExecutionMode mode);
 
-        // The schema compare public api doesn't currently take a cancellation token so the operation can't be cancelled
         public void Cancel()
         {
             cancellation.Cancel();

@@ -22,18 +22,16 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
     {
         internal static void VerifyAndCleanup(string path)
         {
-            // Verify it was created
+            // verify it was created...
             Assert.True(File.Exists(path) || Directory.Exists(path), $"File or directory {path} was expected to exist but did not");
 
             FileAttributes attr = File.GetAttributes(path);
 
-            // If path is a directory, delete it and all subdirs/subfiles
+            // ...then clean it up
             if ((attr & FileAttributes.Directory) == FileAttributes.Directory)
             {
-                new DirectoryInfo(path).Delete(true);
+                new DirectoryInfo(path).Delete(recursive: true);
             }
-
-            // If path is a file, delete it
             else
             {
                 File.Delete(path);
@@ -43,7 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
         internal static string CreateDacpac(SqlTestDb testdb)
         {
             var result = GetLiveAutoCompleteTestObjects();
-            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SchemaCompareTest");
+            string folderPath = Path.Combine(Path.GetTempPath(), "SchemaCompareTest");
             Directory.CreateDirectory(folderPath);
 
             var extractParams = new ExtractParams

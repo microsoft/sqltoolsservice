@@ -11,6 +11,7 @@ using Microsoft.SqlServer.Dac.Compare;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.Utility;
+using Microsoft.SqlServer.Dac;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 {
@@ -31,19 +32,17 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
         public override void Execute(TaskExecutionMode mode)
         {
-            if (CancellationToken.IsCancellationRequested)
-            {
-                throw new OperationCanceledException(CancellationToken);
-            }
+            CancellationToken.ThrowIfCancellationRequested();
 
             try
             {
                 PublishResult = ComparisonResult.PublishChangesToDatabase(CancellationToken);
+
                 if (!PublishResult.Success)
                 {
                     // Sending only errors and warnings - because overall message might be too big for task view
-                    ErrorMessage = string.Join(Environment.NewLine, this.PublishResult.Errors.Where(x => x.MessageType == SqlServer.Dac.DacMessageType.Error || x.MessageType == SqlServer.Dac.DacMessageType.Warning));
-                    throw new Exception(ErrorMessage);
+                    ErrorMessage = String.Join(Environment.NewLine, this.PublishResult.Errors.Where(x => x.MessageType == SqlServer.Dac.DacMessageType.Error || x.MessageType == SqlServer.Dac.DacMessageType.Warning));
+                    throw new DacServicesException(ErrorMessage);
                 }
             }
             catch (Exception e)

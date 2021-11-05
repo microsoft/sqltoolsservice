@@ -6,6 +6,7 @@
 using System;
 using System.Diagnostics;
 using System.Threading;
+using Microsoft.SqlServer.Dac;
 using Microsoft.SqlServer.Dac.Compare;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
@@ -41,9 +42,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 
                 if (!PublishResult.Success)
                 {
-                    // Sending only errors and warnings - because overall message might be too big for task view
                     ErrorMessage = PublishResult.ErrorMessage;
-                    throw new Exception(ErrorMessage);
+                    throw new DacServicesException(ErrorMessage);
                 }
             }
             catch (Exception e)
