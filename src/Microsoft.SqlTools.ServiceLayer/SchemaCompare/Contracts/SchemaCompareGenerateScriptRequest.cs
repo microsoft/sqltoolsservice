@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
     /// <summary>
     /// Parameters for a schema compare generate script request.
     /// </summary>
-    public class SchemaCompareGenerateScriptParams : SchemaComparePublishDatabaseChangesParams
+    public class SchemaCompareGenerateScriptParams : SchemaComparePublishChangesParams
     {
     }
 
