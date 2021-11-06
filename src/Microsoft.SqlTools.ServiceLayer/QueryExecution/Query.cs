@@ -218,6 +218,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// Event that will be called when additional rows in the result set are available (rowCount available has increased)
         /// </summary>
         public event ResultSet.ResultSetAsyncEventHandler ResultSetUpdated;
+
+        /// <summary>
+        /// Event that will be called when query results must be sent as text.
+        /// </summary>
+        public event ResultSet.SendResultsAsTextAsyncEventHandler SendResultsAsText;
         #endregion
 
         #region Properties
@@ -459,6 +464,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     b.ResultSetCompletion += ResultSetCompleted;
                     b.ResultSetAvailable += ResultSetAvailable;
                     b.ResultSetUpdated += ResultSetUpdated;
+                    b.SendResultsAsText += SendResultsAsText;
 
                     await ExecuteBatch(b);
                 }

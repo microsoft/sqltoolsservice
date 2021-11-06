@@ -876,6 +876,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             };
             query.BatchMessageSent += batchMessageCallback;
 
+            ResultSet.SendResultsAsTextAsyncEventHandler sendResultsAsTextCallback = async m =>
+            {
+                MessageParams eventParams = new MessageParams
+                {
+                    Message = m,
+                    OwnerUri = ownerUri
+                };
+
+                Logger.Write(TraceEventType.Information, $"Message generated on Query: '{ownerUri}' : '{m}'");
+                await eventSender.SendEvent(MessageEvent.Type, eventParams);
+            };
+            query.SendResultsAsText += sendResultsAsTextCallback;
+
             // Setup the ResultSet available callback
             ResultSet.ResultSetAsyncEventHandler resultAvailableCallback = async r =>
             {

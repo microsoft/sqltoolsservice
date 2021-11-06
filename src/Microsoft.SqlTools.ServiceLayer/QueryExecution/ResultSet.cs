@@ -1,4 +1,4 @@
-﻿// 
+// 
 // 
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
@@ -136,6 +136,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="parameters">Request parameters for identifying the request</param>
         /// <param name="message">Message to send back describing why the request failed</param>
         public delegate Task SaveAsFailureAsyncEventHandler(SaveResultsRequestParams parameters, string message);
+
+        /// <summary>
+        /// Asynchronous handler for when a resultset should be sent as text
+        /// </summary>
+        /// <param name="message">Message to send back containing the result set.</param>
+        public delegate Task SendResultsAsTextAsyncEventHandler(ResultMessage message);
+
+        /// <summary>
+        /// Event that will be called when the result set has completed execution
+        /// </summary>
+        public event SendResultsAsTextAsyncEventHandler SendResultsAsText;
 
         /// <summary>
         /// Asynchronous handler for when a resultset is available/updated/completed

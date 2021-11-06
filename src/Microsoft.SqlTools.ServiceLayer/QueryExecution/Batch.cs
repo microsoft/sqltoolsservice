@@ -151,6 +151,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public event ResultSet.ResultSetAsyncEventHandler ResultSetUpdated;
 
         /// <summary>
+        /// Event that will be called when query results must be sent as text. It will not be called from the Batch but from the ResultSet instance. 
+        /// </summary>
+        public event ResultSet.SendResultsAsTextAsyncEventHandler SendResultsAsText;
+
+        /// <summary>
         /// Event that will be called when additional rows in the result set are available (rowCount available has increased). It will not be
         /// called from the Batch but from the ResultSet instance.
         /// </summary>
@@ -454,6 +459,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         resultSet.ResultAvailable += ResultSetAvailable;
                         resultSet.ResultUpdated += ResultSetUpdated;
                         resultSet.ResultCompletion += ResultSetCompletion;
+                        resultSet.SendResultsAsText += SendResultsAsText;
 
                         // Add the result set to the results of the query
                         lock (resultSets)
