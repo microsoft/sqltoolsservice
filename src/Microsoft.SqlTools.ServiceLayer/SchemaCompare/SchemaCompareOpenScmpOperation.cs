@@ -100,16 +100,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         {
             SchemaCompareEndpointInfo endpointInfo = new SchemaCompareEndpointInfo();
 
-            // if the endpoint is a dacpac or a project we don't need to parse the xml
-            if (endpoint is SchemaCompareDacpacEndpoint dacpacEndpoint)
+            // if the endpoint is a dacpac we don't need to parse the xml
+            SchemaCompareDacpacEndpoint dacpacEndpoint = endpoint as SchemaCompareDacpacEndpoint;
+            if (dacpacEndpoint != null)
             {
                 endpointInfo.EndpointType = SchemaCompareEndpointType.Dacpac;
                 endpointInfo.PackageFilePath = dacpacEndpoint.FilePath;
-            }
-            else if (endpoint is SchemaCompareProjectEndpoint projectEndpoint)
-            {
-                endpointInfo.EndpointType = SchemaCompareEndpointType.Project;
-                endpointInfo.ProjectFilePath = projectEndpoint.ProjectFilePath;
             }
             else
             {
@@ -135,7 +131,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 }
                 catch (Exception e)
                 {
-                    ErrorMessage = string.Format(SR.OpenScmpConnectionBasedModelParsingError, ((SchemaCompareDatabaseEndpoint)endpoint).DatabaseName, e.Message);
+                    ErrorMessage = string.Format(SR.OpenScmpConnectionBasedModelParsingError, ((SchemaCompareDatabaseEndpoint)endpoint).DatabaseName,e.Message);
                     Logger.Write(TraceEventType.Error, string.Format("Schema compare open scmp operation failed during xml parsing with exception {0}", e.Message));
                     throw;
                 }
