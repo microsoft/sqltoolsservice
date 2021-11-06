@@ -2178,6 +2178,3407 @@
         <target state="new">Adding SQL bindings is not supported for .NET 5</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="Statement">
+        <source>Statement</source>
+        <target state="new">Statement</target>
+        <note> Statement</note>
+      </trans-unit>
+      <trans-unit id="StatementDesc">
+        <source>In most cases, contains the text of the Transact-SQL statement.  For rows of type PLAN_ROW, contains a description of the operation.</source>
+        <target state="new">In most cases, contains the text of the Transact-SQL statement.  For rows of type PLAN_ROW, contains a description of the operation.</target>
+        <note> Statement description</note>
+      </trans-unit>
+      <trans-unit id="PhysicalOperation">
+        <source>Physical Operation</source>
+        <target state="new">Physical Operation</target>
+        <note> Physical Operation</note>
+      </trans-unit>
+      <trans-unit id="PhysicalOperationDesc">
+        <source>Physical implementation algorithm for the node. For rows of type PLAN_ROWS only.</source>
+        <target state="new">Physical implementation algorithm for the node. For rows of type PLAN_ROWS only.</target>
+        <note> Physical Operation description</note>
+      </trans-unit>
+      <trans-unit id="LogicalOperation">
+        <source>Logical Operation</source>
+        <target state="new">Logical Operation</target>
+        <note> Logical Operation</note>
+      </trans-unit>
+      <trans-unit id="LogicalOperationDesc">
+        <source>Relational algebraic operator this node represents. For rows of type PLAN_ROWS only.</source>
+        <target state="new">Relational algebraic operator this node represents. For rows of type PLAN_ROWS only.</target>
+        <note> Logical Operation description</note>
+      </trans-unit>
+      <trans-unit id="OperationDescriptionShort">
+        <source>Description</source>
+        <target state="new">Description</target>
+        <note> Operation description. Short</note>
+      </trans-unit>
+      <trans-unit id="OperationDescription">
+        <source>Operation description.</source>
+        <target state="new">Operation description.</target>
+        <note> Operation description</note>
+      </trans-unit>
+      <trans-unit id="OperationArgumentShort">
+        <source>Argument</source>
+        <target state="new">Argument</target>
+        <note> Operation Argument. Short</note>
+      </trans-unit>
+      <trans-unit id="OperationArgumentDescription">
+        <source>Provides supplemental information about the operation being performed. The contents of this column depend on the physical operator.</source>
+        <target state="new">Provides supplemental information about the operation being performed. The contents of this column depend on the physical operator.</target>
+        <note> Operation Argument description</note>
+      </trans-unit>
+      <trans-unit id="ObjectShort">
+        <source>Object</source>
+        <target state="new">Object</target>
+        <note> Object field</note>
+      </trans-unit>
+      <trans-unit id="ObjectDescription">
+        <source>Object.</source>
+        <target state="new">Object.</target>
+        <note> Object field description</note>
+      </trans-unit>
+      <trans-unit id="IndexKind">
+        <source>Index Kind</source>
+        <target state="new">Index Kind</target>
+        <note> IndexKind field</note>
+      </trans-unit>
+      <trans-unit id="IndexKindDescription">
+        <source>Type of index for the referenced object.</source>
+        <target state="new">Type of index for the referenced object.</target>
+        <note> IndexKind field description</note>
+      </trans-unit>
+      <trans-unit id="DefinedValues">
+        <source>Defined Values</source>
+        <target state="new">Defined Values</target>
+        <note> Defined Values</note>
+      </trans-unit>
+      <trans-unit id="DefinedValuesDescription">
+        <source>Contains a comma-separated list of values introduced by this operator, which may be computed expressions present in the current query, or internal values introduced by the query processor in order to process this query.  For rows of type PLAN_ROWS only.</source>
+        <target state="new">Contains a comma-separated list of values introduced by this operator, which may be computed expressions present in the current query, or internal values introduced by the query processor in order to process this query.  For rows of type PLAN_ROWS only.</target>
+        <note> Defined Values description</note>
+      </trans-unit>
+      <trans-unit id="OutputList">
+        <source>Output List</source>
+        <target state="new">Output List</target>
+        <note> Output List</note>
+      </trans-unit>
+      <trans-unit id="OutputListDescription">
+        <source>Contains a comma-separated list of columns being projected by the current operation.</source>
+        <target state="new">Contains a comma-separated list of columns being projected by the current operation.</target>
+        <note> Output List</note>
+      </trans-unit>
+      <trans-unit id="Warnings">
+        <source>Warnings</source>
+        <target state="new">Warnings</target>
+        <note> Warnings</note>
+      </trans-unit>
+      <trans-unit id="WarningsDescription">
+        <source>Contains a comma-separated list of warning messages relating to the current operation. Warning messages may include the string 'NO STATS:()' with a list of columns.</source>
+        <target state="new">Contains a comma-separated list of warning messages relating to the current operation. Warning messages may include the string 'NO STATS:()' with a list of columns.</target>
+        <note> Warnings description</note>
+      </trans-unit>
+      <trans-unit id="Parallel">
+        <source>Parallel</source>
+        <target state="new">Parallel</target>
+        <note> Parallel</note>
+      </trans-unit>
+      <trans-unit id="ParallelDescription">
+        <source>Whether the operator is running in parallel.</source>
+        <target state="new">Whether the operator is running in parallel.</target>
+        <note> Parallel description</note>
+      </trans-unit>
+      <trans-unit id="EstimatedNumberOfRowsPerExecution">
+        <source>Estimated Number of Rows Per Execution</source>
+        <target state="new">Estimated Number of Rows Per Execution</target>
+        <note> Estimated Number of Rows Per Execution</note>
+      </trans-unit>
+      <trans-unit id="EstimatedNumberOfRowsPerExecutionDescription">
+        <source>Estimated number of rows per execution output by this operator. This is for PLAN_ROWS only.</source>
+        <target state="new">Estimated number of rows per execution output by this operator. This is for PLAN_ROWS only.</target>
+        <note> Estimated Number of Rows Per Execution description</note>
+      </trans-unit>
+      <trans-unit id="EstimatedNumberOfRowsForAllExecutions">
+        <source>Estimated Number of Rows for All Executions</source>
+        <target state="new">Estimated Number of Rows for All Executions</target>
+        <note> Estimated Number of Rows for All Executions</note>
+      </trans-unit>
+      <trans-unit id="EstimatedNumberOfRowsForAllExecutionsDescription">
+        <source>Estimated number of rows for all executions output by this operator. This is for PLAN_ROWS only.</source>
+        <target state="new">Estimated number of rows for all executions output by this operator. This is for PLAN_ROWS only.</target>
+        <note> Estimated Number of Rows for All Executions description</note>
+      </trans-unit>
+      <trans-unit id="EstimatedRowsRead">
+        <source>Estimated Number of Rows to be Read</source>
+        <target state="new">Estimated Number of Rows to be Read</target>
+        <note> Estimated Rows Read</note>
+      </trans-unit>
+      <trans-unit id="EstimatedRowsReadDescription">
+        <source>Number of rows estimated to be read by this operator. This value may differ from "Estimated Number of Rows for All Executions" if the operator has a predicate.</source>
+        <target state="new">Number of rows estimated to be read by this operator. This value may differ from "Estimated Number of Rows for All Executions" if the operator has a predicate.</target>
+        <note> Estimated Rows Read description</note>
+      </trans-unit>
+      <trans-unit id="IsGraphDBTransitiveClosure">
+        <source>Is GraphDB Transitive Closure</source>
+        <target state="new">Is GraphDB Transitive Closure</target>
+        <note> GraphDB Transitive Closure</note>
+      </trans-unit>
+      <trans-unit id="IsGraphDBTransitiveClosureDescription">
+        <source>Whether the sequence represents a GraphDB transitive closure.</source>
+        <target state="new">Whether the sequence represents a GraphDB transitive closure.</target>
+        <note> GraphDB Transitive Closure Description</note>
+      </trans-unit>
+      <trans-unit id="IsInterleavedExecuted">
+        <source>IsInterleavedExecuted</source>
+        <target state="new">IsInterleavedExecuted</target>
+        <note> Interleaved Executed</note>
+      </trans-unit>
+      <trans-unit id="IsInterleavedExecutedDescription">
+        <source>Whether the operator is interleaved executed.</source>
+        <target state="new">Whether the operator is interleaved executed.</target>
+        <note> Interleaved Executed Description</note>
+      </trans-unit>
+      <trans-unit id="IsAdaptive">
+        <source>Is Adaptive</source>
+        <target state="new">Is Adaptive</target>
+        <note> Is Adaptive</note>
+      </trans-unit>
+      <trans-unit id="IsAdaptiveDescription">
+        <source>Whether the operator is adaptive.</source>
+        <target state="new">Whether the operator is adaptive.</target>
+        <note> Is Adaptive description</note>
+      </trans-unit>
+      <trans-unit id="AdaptiveThresholdRows">
+        <source>Adaptive Threshold Rows</source>
+        <target state="new">Adaptive Threshold Rows</target>
+        <note> Adaptive Threshold Rows</note>
+      </trans-unit>
+      <trans-unit id="AdaptiveThresholdRowsDescription">
+        <source>If this is an adaptive operator, the cardinality at which it adapts.</source>
+        <target state="new">If this is an adaptive operator, the cardinality at which it adapts.</target>
+        <note> Adaptive Threshold Rows description</note>
+      </trans-unit>
+      <trans-unit id="EstimatedJoinType">
+        <source>Estimated Join Type</source>
+        <target state="new">Estimated Join Type</target>
+        <note> Estimated Join Type</note>
+      </trans-unit>
+      <trans-unit id="EstimatedJoinTypeDescription">
+        <source>The join type (nested loops or hash join) estimated by the query optimizer before adapting.</source>
+        <target state="new">The join type (nested loops or hash join) estimated by the query optimizer before adapting.</target>
+        <note> Estimated Join Type description</note>
+      </trans-unit>
+      <trans-unit id="ActualJoinType">
+        <source>Actual Join Type</source>
+        <target state="new">Actual Join Type</target>
+        <note> Actual Join Type</note>
+      </trans-unit>
+      <trans-unit id="ActualJoinTypeDescription">
+        <source>The actual join picked (nested loops or hash join) as part of adaptive join execution.</source>
+        <target state="new">The actual join picked (nested loops or hash join) as part of adaptive join execution.</target>
+        <note> Actual Join Type Description</note>
+      </trans-unit>
+      <trans-unit id="EstimatedRowSize">
+        <source>Estimated Row Size</source>
+        <target state="new">Estimated Row Size</target>
+        <note> Estimated Row Size</note>
+      </trans-unit>
+      <trans-unit id="EstimatedRowSizeDescription">
+        <source>Estimated average row size of the row being passed through this operator.</source>
+        <target state="new">Estimated average row size of the row being passed through this operator.</target>
+        <note> Estimated Row Size description</note>
+      </trans-unit>
+      <trans-unit id="EstimatedIoCost">
+        <source>Estimated I/O Cost</source>
+        <target state="new">Estimated I/O Cost</target>
+        <note> Estimated IO Cost</note>
+      </trans-unit>
+      <trans-unit id="EstimatedIoCostDescription">
+        <source>Estimated I/O cost for this operator. For rows of type PLAN_ROWS only.</source>
+        <target state="new">Estimated I/O cost for this operator. For rows of type PLAN_ROWS only.</target>
+        <note> Estimated IO Cost description</note>
+      </trans-unit>
+      <trans-unit id="EstimatedCpuCost">
+        <source>Estimated CPU Cost</source>
+        <target state="new">Estimated CPU Cost</target>
+        <note> Estimated CPU Cost</note>
+      </trans-unit>
+      <trans-unit id="EstimatedCpuCostDescription">
+        <source>Estimated CPU cost for this operator. For rows of type PLAN_ROWS only.</source>
+        <target state="new">Estimated CPU cost for this operator. For rows of type PLAN_ROWS only.</target>
+        <note> Estimated CPU Cost description</note>
+      </trans-unit>
+      <trans-unit id="EstimatedNumberOfExecutions">
+        <source>Estimated Number of Executions</source>
+        <target state="new">Estimated Number of Executions</target>
+        <note> Estimated Number of Executions</note>
+      </trans-unit>
+      <trans-unit id="EstimatedNumberOfExecutionsDescription">
+        <source>Estimated number of times this operator will be executed while running the current query.</source>
+        <target state="new">Estimated number of times this operator will be executed while running the current query.</target>
+        <note> Estimated Number of Executions description</note>
+      </trans-unit>
+      <trans-unit id="EstimatedOperatorCost">
+        <source>Estimated Operator Cost</source>
+        <target state="new">Estimated Operator Cost</target>
+        <note> Show plan node property name</note>
+      </trans-unit>
+      <trans-unit id="EstimatedOperatorCostDescription">
+        <source>Estimated cost of this operator.</source>
+        <target state="new">Estimated cost of this operator.</target>
+        <note> Estimated Costs description</note>
+      </trans-unit>
+      <trans-unit id="EstimatedSubtreeCost">
+        <source>Estimated Subtree Cost</source>
+        <target state="new">Estimated Subtree Cost</target>
+        <note> Estimated Subtree Cost</note>
+      </trans-unit>
+      <trans-unit id="EstimatedSubtreeCostDescription">
+        <source>Estimated cumulative cost of this operation and all child operations.</source>
+        <target state="new">Estimated cumulative cost of this operation and all child operations.</target>
+        <note> Estimated Subtree Cost description</note>
+      </trans-unit>
+      <trans-unit id="NumberOfRows">
+        <source>Actual Number of Rows for All Executions</source>
+        <target state="new">Actual Number of Rows for All Executions</target>
+        <note> Number of Rows</note>
+      </trans-unit>
+      <trans-unit id="NumberOfRowsDescription">
+        <source>Actual number of rows for All Executions output by this operator. For rows of type PLAN_ROWS only.</source>
+        <target state="new">Actual number of rows for All Executions output by this operator. For rows of type PLAN_ROWS only.</target>
+        <note> Number of Rows description</note>
+      </trans-unit>
+      <trans-unit id="ActualRowsRead">
+        <source>Number of Rows Read</source>
+        <target state="new">Number of Rows Read</target>
+        <note> Number of Rows Read by a Rowset (Table or Index)</note>
+      </trans-unit>
+      <trans-unit id="ActualRowsReadDescription">
+        <source>Number of rows read from a table or an index prior to applying a predicate filter. For rows of type PLAN_ROWS only.</source>
+        <target state="new">Number of rows read from a table or an index prior to applying a predicate filter. For rows of type PLAN_ROWS only.</target>
+        <note> Number of Rows Read by a Rowset (Table or Index) Description</note>
+      </trans-unit>
+      <trans-unit id="NumberOfBatches">
+        <source>Actual Number of Batches</source>
+        <target state="new">Actual Number of Batches</target>
+        <note> Number of Batches</note>
+      </trans-unit>
+      <trans-unit id="NumberOfBatchesDescription">
+        <source>Actual number of Batches output by this operator.</source>
+        <target state="new">Actual number of Batches output by this operator.</target>
+        <note> Number of Batches description</note>
+      </trans-unit>
+      <trans-unit id="NumberOfExecutions">
+        <source>Number of Executions</source>
+        <target state="new">Number of Executions</target>
+        <note> Number of Executions</note>
+      </trans-unit>
+      <trans-unit id="NumberOfExecutionsDescription">
+        <source>Number of times this operator will be executed while running the current query.</source>
+        <target state="new">Number of times this operator will be executed while running the current query.</target>
+        <note> Number of Executions description</note>
+      </trans-unit>
+      <trans-unit id="EstimatedDataSize">
+        <source>Estimated Data Size</source>
+        <target state="new">Estimated Data Size</target>
+        <note> Estimated Data Size</note>
+      </trans-unit>
+      <trans-unit id="EstimatedDataSizeDescription">
+        <source>Estimated data size of the data being passed through this operator.</source>
+        <target state="new">Estimated data size of the data being passed through this operator.</target>
+        <note> Estimated Data Size description</note>
+      </trans-unit>
+      <trans-unit id="ParameterList">
+        <source>Parameter List</source>
+        <target state="new">Parameter List</target>
+        <note> Show plan's simple root node property</note>
+      </trans-unit>
+      <trans-unit id="ParameterListDescription">
+        <source>Parameter list.</source>
+        <target state="new">Parameter list.</target>
+        <note> Show plan's simple root node property description</note>
+      </trans-unit>
+      <trans-unit id="MemoryFractions">
+        <source>Memory Fractions</source>
+        <target state="new">Memory Fractions</target>
+        <note> Show plan's simple root node property</note>
+      </trans-unit>
+      <trans-unit id="MemoryFractionsDescription">
+        <source>Memory fractions.</source>
+        <target state="new">Memory fractions.</target>
+        <note> Show plan's simple root node property description</note>
+      </trans-unit>
+      <trans-unit id="MemoryFractionsInput">
+        <source>Memory Fractions Input</source>
+        <target state="new">Memory Fractions Input</target>
+        <note> Show plan's simple root node property</note>
+      </trans-unit>
+      <trans-unit id="MemoryFractionsInputDescription">
+        <source>Memory fractions input.</source>
+        <target state="new">Memory fractions input.</target>
+        <note> Show plan's simple root node property description</note>
+      </trans-unit>
+      <trans-unit id="MemoryFractionsOutput">
+        <source>Memory Fractions Output</source>
+        <target state="new">Memory Fractions Output</target>
+        <note> Show plan's simple root node property</note>
+      </trans-unit>
+      <trans-unit id="MemoryFractionsOutputDescription">
+        <source>Memory fractions output.</source>
+        <target state="new">Memory fractions output.</target>
+        <note> Show plan's simple root node property description</note>
+      </trans-unit>
+      <trans-unit id="UdxName">
+        <source>Name</source>
+        <target state="new">Name</target>
+        <note> Show plan's UDX node property</note>
+      </trans-unit>
+      <trans-unit id="UdxNameDescription">
+        <source>Name.</source>
+        <target state="new">Name.</target>
+        <note> Show plan's UDX node property description</note>
+      </trans-unit>
+      <trans-unit id="Values">
+        <source>Values</source>
+        <target state="new">Values</target>
+        <note> Show plan's ConstantScan node property</note>
+      </trans-unit>
+      <trans-unit id="ValuesDescription">
+        <source>Values.</source>
+        <target state="new">Values.</target>
+        <note> Show plan's ConstantScan node property description</note>
+      </trans-unit>
+      <trans-unit id="CachedPlanSize">
+        <source>Cached plan size</source>
+        <target state="new">Cached plan size</target>
+        <note> CachedPlanSize property</note>
+      </trans-unit>
+      <trans-unit id="CachedPlanSizeDescription">
+        <source>Cached plan size.</source>
+        <target state="new">Cached plan size.</target>
+        <note> Description for CachedPlanSize property</note>
+      </trans-unit>
+      <trans-unit id="UsePlan">
+        <source>Use plan</source>
+        <target state="new">Use plan</target>
+        <note> UsePlan property</note>
+      </trans-unit>
+      <trans-unit id="ContainsInlineScalarTsqlUdfs">
+        <source>Contains Inline Scalar Tsql Udfs</source>
+        <target state="new">Contains Inline Scalar Tsql Udfs</target>
+        <note> InlineScalarTsqlUdf property</note>
+      </trans-unit>
+      <trans-unit id="DegreeOfParallelism">
+        <source>Degree of Parallelism</source>
+        <target state="new">Degree of Parallelism</target>
+        <note> DegreeOfParallelism property</note>
+      </trans-unit>
+      <trans-unit id="DegreeOfParallelismDescription">
+        <source>Degree of parallelism.</source>
+        <target state="new">Degree of parallelism.</target>
+        <note> Description for DegreeOfParallelism property</note>
+      </trans-unit>
+      <trans-unit id="EffectiveDegreeOfParallelism">
+        <source>Effective Degree of Parallelism</source>
+        <target state="new">Effective Degree of Parallelism</target>
+        <note> EffectiveDegreeOfParallelism property</note>
+      </trans-unit>
+      <trans-unit id="EffectiveDegreeOfParallelismDescription">
+        <source>Max degree of parallelism during columnstore index build.</source>
+        <target state="new">Max degree of parallelism during columnstore index build.</target>
+        <note> Description for EffectiveDegreeOfParallelism property</note>
+      </trans-unit>
+      <trans-unit id="MemoryGrant">
+        <source>Memory Grant</source>
+        <target state="new">Memory Grant</target>
+        <note> Root node for show plan property</note>
+      </trans-unit>
+      <trans-unit id="MemoryGrantDescription">
+        <source>Memory grant.</source>
+        <target state="new">Memory grant.</target>
+        <note> Description for MemoryGrant property</note>
+      </trans-unit>
+      <trans-unit id="RemoteDestination">
+        <source>Remote Destination</source>
+        <target state="new">Remote Destination</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="RemoteDestinationDescription">
+        <source>Remote object.</source>
+        <target state="new">Remote object.</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="RemoteObject">
+        <source>Remote Object</source>
+        <target state="new">Remote Object</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="RemoteObjectDescription">
+        <source>Remote object.</source>
+        <target state="new">Remote object.</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="RemoteSource">
+        <source>Remote Source</source>
+        <target state="new">Remote Source</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="RemoteSourceDescription">
+        <source>Remote source.</source>
+        <target state="new">Remote source.</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="UsedUdxColumns">
+        <source>Used UDX Columns</source>
+        <target state="new">Used UDX Columns</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="UsedUdxColumnsDescription">
+        <source>Used UDX columns.</source>
+        <target state="new">Used UDX columns.</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="InnerSideJoinColumns">
+        <source>Inner Side Join columns</source>
+        <target state="new">Inner Side Join columns</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="InnerSideJoinColumnsDescription">
+        <source>Inner side join columns.</source>
+        <target state="new">Inner side join columns.</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="OuterSideJoinColumns">
+        <source>Outer Side Join columns</source>
+        <target state="new">Outer Side Join columns</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="OuterSideJoinColumnsDescription">
+        <source>Outer side join columns.</source>
+        <target state="new">Outer side join columns.</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="WhereJoinColumns">
+        <source>Where (join columns)</source>
+        <target state="new">Where (join columns)</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="Residual">
+        <source>Residual</source>
+        <target state="new">Residual</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="ResidualDescription">
+        <source>Residual.</source>
+        <target state="new">Residual.</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="PassThru">
+        <source>Pass Through</source>
+        <target state="new">Pass Through</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="PassThruDescription">
+        <source>Pass throuh.</source>
+        <target state="new">Pass throuh.</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="ManyToMany">
+        <source>Many to Many</source>
+        <target state="new">Many to Many</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="ManyToManyDescription">
+        <source>Many to many.</source>
+        <target state="new">Many to many.</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="PartitionColumns">
+        <source>Partition Columns</source>
+        <target state="new">Partition Columns</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="PartitionColumnsDescription">
+        <source>Partition columns.</source>
+        <target state="new">Partition columns.</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="Ascending">
+        <source>Ascending</source>
+        <target state="new">Ascending</target>
+        <note> Column sort type</note>
+      </trans-unit>
+      <trans-unit id="Descending">
+        <source>Descending</source>
+        <target state="new">Descending</target>
+        <note> Column sort type</note>
+      </trans-unit>
+      <trans-unit id="HashKeys">
+        <source>Hash Keys</source>
+        <target state="new">Hash Keys</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="HashKeysDescription">
+        <source>Hash keys.</source>
+        <target state="new">Hash keys.</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="ProbeColumn">
+        <source>Probe Column</source>
+        <target state="new">Probe Column</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="ProbeColumnDescription">
+        <source>Probe column.</source>
+        <target state="new">Probe column.</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="PartitioningType">
+        <source>Partitioning Type</source>
+        <target state="new">Partitioning Type</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="PartitioningTypeDescription">
+        <source>Partitioning type.</source>
+        <target state="new">Partitioning type.</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="GroupBy">
+        <source>Group By</source>
+        <target state="new">Group By</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="GroupByDescription">
+        <source>Group by.</source>
+        <target state="new">Group by.</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="GroupingSets">
+        <source>Grouping Sets</source>
+        <target state="new">Grouping Sets</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="GroupingSetsDescription">
+        <source>The group sets list. Each Value is a reverse bit map for the grouping columns in Group By property.</source>
+        <target state="new">The group sets list. Each Value is a reverse bit map for the grouping columns in Group By property.</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="SegmentColumn">
+        <source>Segment Column</source>
+        <target state="new">Segment Column</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="SegmentColumnDescription">
+        <source>Segment column.</source>
+        <target state="new">Segment column.</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="RankColumns">
+        <source>Rank Columns</source>
+        <target state="new">Rank Columns</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="RankColumnsDescription">
+        <source>Rank columns.</source>
+        <target state="new">Rank columns.</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="Predicate">
+        <source>Predicate</source>
+        <target state="new">Predicate</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="PredicateDescription">
+        <source>Predicate.</source>
+        <target state="new">Predicate.</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="OuterReferences">
+        <source>Outer References</source>
+        <target state="new">Outer References</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="OuterReferencesDescription">
+        <source>Outer references.</source>
+        <target state="new">Outer references.</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="ScalarOperator">
+        <source>Scalar Operator</source>
+        <target state="new">Scalar Operator</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="ActionColumn">
+        <source>Action Column</source>
+        <target state="new">Action Column</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="ActionColumnDescription">
+        <source>Action column.</source>
+        <target state="new">Action column.</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="OriginalActionColumn">
+        <source>Original Action Column</source>
+        <target state="new">Original Action Column</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="OriginalActionColumnDescription">
+        <source>Original Action column.</source>
+        <target state="new">Original Action column.</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="Rows">
+        <source>Top Rows</source>
+        <target state="new">Top Rows</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="RowsDescription">
+        <source>Top Rows.</source>
+        <target state="new">Top Rows.</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="SeekPredicate">
+        <source>Seek Predicate</source>
+        <target state="new">Seek Predicate</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="SeekPredicateDescription">
+        <source>Seek predicate.</source>
+        <target state="new">Seek predicate.</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="Partitioned">
+        <source>Partitioned</source>
+        <target state="new">Partitioned</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="PartitionedDescription">
+        <source>Whether the operation is on a partitioned table or index.</source>
+        <target state="new">Whether the operation is on a partitioned table or index.</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="SeekKeys">
+        <source>Seek Keys</source>
+        <target state="new">Seek Keys</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="SeekKeysDescription">
+        <source>Keys used by a seek operation.</source>
+        <target state="new">Keys used by a seek operation.</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="PartitionsAccessed">
+        <source>Actual Partitions Accessed</source>
+        <target state="new">Actual Partitions Accessed</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="PartitionCount">
+        <source>Actual Partition Count</source>
+        <target state="new">Actual Partition Count</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="TieColumns">
+        <source>Tie Columns</source>
+        <target state="new">Tie Columns</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="TieColumnsDescription">
+        <source>Tie columns.</source>
+        <target state="new">Tie columns.</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="IsPercent">
+        <source>Is Percent</source>
+        <target state="new">Is Percent</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="IsPercentDescription">
+        <source>Is percent.</source>
+        <target state="new">Is percent.</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="WithTies">
+        <source>With Ties</source>
+        <target state="new">With Ties</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="WithTiesDescription">
+        <source>With ties.</source>
+        <target state="new">With ties.</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="PartitionId">
+        <source>Partition ID</source>
+        <target state="new">Partition ID</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="PartitionIdDescription">
+        <source>Partition ID.</source>
+        <target state="new">Partition ID.</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="Ordered">
+        <source>Ordered</source>
+        <target state="new">Ordered</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="OrderedDescription">
+        <source>Ordered.</source>
+        <target state="new">Ordered.</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="ScanDirection">
+        <source>Scan Direction</source>
+        <target state="new">Scan Direction</target>
+        <note> ScanDirection property</note>
+      </trans-unit>
+      <trans-unit id="ScanDirectionDescription">
+        <source>Direction of the scan operation as either forward or backward.</source>
+        <target state="new">Direction of the scan operation as either forward or backward.</target>
+        <note>ScanDirection property description</note>
+      </trans-unit>
+      <trans-unit id="ForcedIndex">
+        <source>Forced Index</source>
+        <target state="new">Forced Index</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="ForcedIndexDescription">
+        <source>Forced index.</source>
+        <target state="new">Forced index.</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="SetPredicate">
+        <source>Predicate</source>
+        <target state="new">Predicate</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="SetPredicateDescription">
+        <source>Predicate</source>
+        <target state="new">Predicate</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="TopExpression">
+        <source>Top Expression</source>
+        <target state="new">Top Expression</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="TopExpressionDescription">
+        <source>Top expression.</source>
+        <target state="new">Top expression.</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="HashKeysBuild">
+        <source>Hash Keys Build</source>
+        <target state="new">Hash Keys Build</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="HashKeysBuildDescription">
+        <source>Hash keys build.</source>
+        <target state="new">Hash keys build.</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="HashKeysProbe">
+        <source>Hash Keys Probe</source>
+        <target state="new">Hash Keys Probe</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="HashKeysProbeDescription">
+        <source>Hash keys probe.</source>
+        <target state="new">Hash keys probe.</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="BuildResidual">
+        <source>Build Residual</source>
+        <target state="new">Build Residual</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="BuildResidualDescription">
+        <source>Build residual.</source>
+        <target state="new">Build residual.</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="ProbeResidual">
+        <source>Probe Residual</source>
+        <target state="new">Probe Residual</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="ProbeResidualDescription">
+        <source>Probe residual.</source>
+        <target state="new">Probe residual.</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="SeekPredicates">
+        <source>Seek Predicates</source>
+        <target state="new">Seek Predicates</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="SeekPredicatesDescription">
+        <source>Seek predicates.</source>
+        <target state="new">Seek predicates.</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="SetOptions">
+        <source>Set Options</source>
+        <target state="new">Set Options</target>
+        <note> Set options property in show plan</note>
+      </trans-unit>
+      <trans-unit id="SetOptionsDescription">
+        <source>Set options.</source>
+        <target state="new">Set options.</target>
+        <note> Set options property in show plan description</note>
+      </trans-unit>
+      <trans-unit id="OptimizationLevel">
+        <source>Optimization Level</source>
+        <target state="new">Optimization Level</target>
+        <note> Optimization Level property in show plan</note>
+      </trans-unit>
+      <trans-unit id="OptimizationLevelDescription">
+        <source>Optimization level.</source>
+        <target state="new">Optimization level.</target>
+        <note> Optimization Level property in show plan description</note>
+      </trans-unit>
+      <trans-unit id="StatementOptmEarlyAbortReason">
+        <source>Reason For Early Termination Of Statement Optimization</source>
+        <target state="new">Reason For Early Termination Of Statement Optimization</target>
+        <note> StatementOptmEarlyAbortReason property</note>
+      </trans-unit>
+      <trans-unit id="TimeOut">
+        <source>Time Out</source>
+        <target state="new">Time Out</target>
+        <note> StatementOptmEarlyAbortReason property value</note>
+      </trans-unit>
+      <trans-unit id="MemoryLimitExceeded">
+        <source>Memory Limit Exceeded</source>
+        <target state="new">Memory Limit Exceeded</target>
+        <note> StatementOptmEarlyAbortReason property value</note>
+      </trans-unit>
+      <trans-unit id="GoodEnoughPlanFound">
+        <source>Good Enough Plan Found</source>
+        <target state="new">Good Enough Plan Found</target>
+        <note> StatementOptmEarlyAbortReason property value</note>
+      </trans-unit>
+      <trans-unit id="EstimatedRebinds">
+        <source>Estimated Rebinds</source>
+        <target state="new">Estimated Rebinds</target>
+        <note> Estimated Rebinds</note>
+      </trans-unit>
+      <trans-unit id="EstimatedRebindsDescription">
+        <source>Estimated rebinds.</source>
+        <target state="new">Estimated rebinds.</target>
+        <note> Estimated Rebinds Description</note>
+      </trans-unit>
+      <trans-unit id="EstimatedRewinds">
+        <source>Estimated Rewinds</source>
+        <target state="new">Estimated Rewinds</target>
+        <note> Estimated Rewinds</note>
+      </trans-unit>
+      <trans-unit id="EstimatedRewindsDescription">
+        <source>Estimated rewinds.</source>
+        <target state="new">Estimated rewinds.</target>
+        <note> Estimated Rewinds Description</note>
+      </trans-unit>
+      <trans-unit id="ActualLocallyAggregatedRows">
+        <source>Actual Number of Locally Aggregated Rows</source>
+        <target state="new">Actual Number of Locally Aggregated Rows</target>
+        <note> Actual Locally Aggregated Rows</note>
+      </trans-unit>
+      <trans-unit id="ActualLocallyAggregatedRowsDescription">
+        <source>Actual number of locally aggregated rows</source>
+        <target state="new">Actual number of locally aggregated rows</target>
+        <note> Actual Locally Aggregated Rows Description</note>
+      </trans-unit>
+      <trans-unit id="ActualRebinds">
+        <source>Actual Rebinds</source>
+        <target state="new">Actual Rebinds</target>
+        <note> Actual Rebinds</note>
+      </trans-unit>
+      <trans-unit id="ActualRebindsDescription">
+        <source>Actual Rebinds.</source>
+        <target state="new">Actual Rebinds.</target>
+        <note> Actual Rebinds Description</note>
+      </trans-unit>
+      <trans-unit id="ActualRewinds">
+        <source>Actual Rewinds</source>
+        <target state="new">Actual Rewinds</target>
+        <note> Actual Rewinds</note>
+      </trans-unit>
+      <trans-unit id="ActualRewindsDescription">
+        <source>Actual Rewinds.</source>
+        <target state="new">Actual Rewinds.</target>
+        <note> Actual Rewinds Description</note>
+      </trans-unit>
+      <trans-unit id="ActualIOStatistics">
+        <source>Actual I/O Statistics</source>
+        <target state="new">Actual I/O Statistics</target>
+        <note> Actual I/O Statistics</note>
+      </trans-unit>
+      <trans-unit id="ActualIOStatisticsDescription">
+        <source>Actual I/O Statistics</source>
+        <target state="new">Actual I/O Statistics</target>
+        <note> Actual I/O Statistics Description</note>
+      </trans-unit>
+      <trans-unit id="ActualTimeStatistics">
+        <source>Actual Time Statistics</source>
+        <target state="new">Actual Time Statistics</target>
+        <note> Actual Time Statistics</note>
+      </trans-unit>
+      <trans-unit id="ActualTimeStatisticsDescription">
+        <source>Actual Time Statistics</source>
+        <target state="new">Actual Time Statistics</target>
+        <note> Actual Time Statistics Description</note>
+      </trans-unit>
+      <trans-unit id="ActualElapsedms">
+        <source>Actual Elapsed Time (ms)</source>
+        <target state="new">Actual Elapsed Time (ms)</target>
+        <note> Actual Elapsed Milliseconds</note>
+      </trans-unit>
+      <trans-unit id="ActualElapsedmsDescription">
+        <source>Actual elapsed time in milliseconds</source>
+        <target state="new">Actual elapsed time in milliseconds</target>
+        <note> Actual Elapsed Milliseconds Description</note>
+      </trans-unit>
+      <trans-unit id="ActualCPUms">
+        <source>Actual Elapsed CPU Time (ms)</source>
+        <target state="new">Actual Elapsed CPU Time (ms)</target>
+        <note> Actual CPU Time Milliseconds</note>
+      </trans-unit>
+      <trans-unit id="ActualCPUmsDescription">
+        <source>Actual elapsed CPU time in milliseconds</source>
+        <target state="new">Actual elapsed CPU time in milliseconds</target>
+        <note> Actual CPU Time Milliseconds Description</note>
+      </trans-unit>
+      <trans-unit id="ActualScans">
+        <source>Actual Scans</source>
+        <target state="new">Actual Scans</target>
+        <note> Actual Scans</note>
+      </trans-unit>
+      <trans-unit id="ActualScansDescription">
+        <source>Actual Scans</source>
+        <target state="new">Actual Scans</target>
+        <note> Actual Scans Description</note>
+      </trans-unit>
+      <trans-unit id="ActualLogicalReads">
+        <source>Actual Logical Reads</source>
+        <target state="new">Actual Logical Reads</target>
+        <note> Actual Logical Reads</note>
+      </trans-unit>
+      <trans-unit id="ActualLogicalReadsDescription">
+        <source>Actual Logical Reads</source>
+        <target state="new">Actual Logical Reads</target>
+        <note> Actual Logical Reads Description</note>
+      </trans-unit>
+      <trans-unit id="ActualPhysicalReads">
+        <source>Actual Physical Reads</source>
+        <target state="new">Actual Physical Reads</target>
+        <note> Actual Physical Reads</note>
+      </trans-unit>
+      <trans-unit id="ActualPhysicalReadsDescription">
+        <source>Actual Physical Reads</source>
+        <target state="new">Actual Physical Reads</target>
+        <note> Actual Physical Reads Description</note>
+      </trans-unit>
+      <trans-unit id="ActualPageServerReads">
+        <source>Actual Page Server Reads</source>
+        <target state="new">Actual Page Server Reads</target>
+        <note> Actual Page Server Reads</note>
+      </trans-unit>
+      <trans-unit id="ActualPageServerReadsDescription">
+        <source>Actual Page Server Reads</source>
+        <target state="new">Actual Page Server Reads</target>
+        <note> Actual Page Server Reads Description</note>
+      </trans-unit>
+      <trans-unit id="ActualReadAheads">
+        <source>Actual Read Aheads</source>
+        <target state="new">Actual Read Aheads</target>
+        <note> Actual Read Aheads</note>
+      </trans-unit>
+      <trans-unit id="ActualReadAheadsDescription">
+        <source>Actual Read Aheads</source>
+        <target state="new">Actual Read Aheads</target>
+        <note> Actual Read Aheads Description</note>
+      </trans-unit>
+      <trans-unit id="ActualPageServerReadAheads">
+        <source>Actual Page Server Read Aheads</source>
+        <target state="new">Actual Page Server Read Aheads</target>
+        <note> Actual Page Server Read Aheads</note>
+      </trans-unit>
+      <trans-unit id="ActualPageServerReadAheadsDescription">
+        <source>Actual Page Server Read Aheads</source>
+        <target state="new">Actual Page Server Read Aheads</target>
+        <note> Actual Page Server Read Aheads Description</note>
+      </trans-unit>
+      <trans-unit id="ActualLobLogicalReads">
+        <source>Actual Lob Logical Reads</source>
+        <target state="new">Actual Lob Logical Reads</target>
+        <note> Actual Lob Logical Reads</note>
+      </trans-unit>
+      <trans-unit id="ActualLobLogicalReadsDescription">
+        <source>Actual Lob Logical Reads</source>
+        <target state="new">Actual Lob Logical Reads</target>
+        <note> Actual Lob Logical Reads Description</note>
+      </trans-unit>
+      <trans-unit id="ActualLobPhysicalReads">
+        <source>Actual Lob Physical Reads</source>
+        <target state="new">Actual Lob Physical Reads</target>
+        <note> Actual Lob Physical Reads</note>
+      </trans-unit>
+      <trans-unit id="ActualLobPhysicalReadsDescription">
+        <source>Actual Lob Physical Reads</source>
+        <target state="new">Actual Lob Physical Reads</target>
+        <note> Actual Lob Physical Reads Description</note>
+      </trans-unit>
+      <trans-unit id="ActualLobPageServerReads">
+        <source>Actual Lob Page Server Reads</source>
+        <target state="new">Actual Lob Page Server Reads</target>
+        <note> Actual Lob Page Server Reads</note>
+      </trans-unit>
+      <trans-unit id="ActualLobPageServerReadsDescription">
+        <source>Actual Lob Page Server Reads</source>
+        <target state="new">Actual Lob Page Server Reads</target>
+        <note> Actual Lob Page Server Reads Description</note>
+      </trans-unit>
+      <trans-unit id="ActualLobReadAheads">
+        <source>Actual Lob Read Aheads</source>
+        <target state="new">Actual Lob Read Aheads</target>
+        <note> Actual Lob Read Aheads</note>
+      </trans-unit>
+      <trans-unit id="ActualLobReadAheadsDescription">
+        <source>Actual Lob Read Aheads</source>
+        <target state="new">Actual Lob Read Aheads</target>
+        <note> Actual Lob Read Aheads Description</note>
+      </trans-unit>
+      <trans-unit id="ActualLobPageServerReadAheads">
+        <source>Actual Lob Page Server Read Aheads</source>
+        <target state="new">Actual Lob Page Server Read Aheads</target>
+        <note> Actual Lob Page Server Read Aheads</note>
+      </trans-unit>
+      <trans-unit id="ActualLobPageServerReadAheadsDescription">
+        <source>Actual Lob Page Server Read Aheads</source>
+        <target state="new">Actual Lob Page Server Read Aheads</target>
+        <note> Actual Lob Page Server Read Aheads Description</note>
+      </trans-unit>
+      <trans-unit id="ActualMemoryGrantStats">
+        <source>Memory Usage</source>
+        <target state="new">Memory Usage</target>
+        <note> ActualMemoryGrantStats</note>
+      </trans-unit>
+      <trans-unit id="HpcRowCount">
+        <source>Hpc Row Count</source>
+        <target state="new">Hpc Row Count</target>
+        <note> Hpc Row Count</note>
+      </trans-unit>
+      <trans-unit id="HpcRowCountDescription">
+        <source>Number of rows processed by Hpc devices.</source>
+        <target state="new">Number of rows processed by Hpc devices.</target>
+        <note> Hpc Row Count Description</note>
+      </trans-unit>
+      <trans-unit id="HpcKernelElapsedUs">
+        <source>Hpc Kernel Elapsed Time in Us</source>
+        <target state="new">Hpc Kernel Elapsed Time in Us</target>
+        <note> Hpc Kernel Elapsed Us</note>
+      </trans-unit>
+      <trans-unit id="HpcKernelElapsedUsDescription">
+        <source>Elapsed time (in micro seconds) of Hpc device kernel execution.</source>
+        <target state="new">Elapsed time (in micro seconds) of Hpc device kernel execution.</target>
+        <note> Hpc Kernel Elapsed Us Description</note>
+      </trans-unit>
+      <trans-unit id="HpcHostToDeviceBytes">
+        <source>Hpc Host To Device Bytes</source>
+        <target state="new">Hpc Host To Device Bytes</target>
+        <note> Hpc Host To Device Bytes</note>
+      </trans-unit>
+      <trans-unit id="HpcHostToDeviceBytesDescription">
+        <source>Data transferred from host to Hpc device in bytes.</source>
+        <target state="new">Data transferred from host to Hpc device in bytes.</target>
+        <note> Hpc Host To Device Bytes Description</note>
+      </trans-unit>
+      <trans-unit id="HpcDeviceToHostBytes">
+        <source>Hpc Device To Host Bytes</source>
+        <target state="new">Hpc Device To Host Bytes</target>
+        <note> Hpc Device To Host Bytes</note>
+      </trans-unit>
+      <trans-unit id="HpcDeviceToHostBytesDescription">
+        <source>Data transferred from Hpc device to host in bytes.</source>
+        <target state="new">Data transferred from Hpc device to host in bytes.</target>
+        <note> Hpc Device To Host Bytes Description</note>
+      </trans-unit>
+      <trans-unit id="InputMemoryGrant">
+        <source>Input Memory</source>
+        <target state="new">Input Memory</target>
+        <note> InputMemoryGrant</note>
+      </trans-unit>
+      <trans-unit id="OutputMemoryGrant">
+        <source>Output Memory</source>
+        <target state="new">Output Memory</target>
+        <note> OutputMemoryGrant</note>
+      </trans-unit>
+      <trans-unit id="UsedMemoryGrant">
+        <source>Used Memory</source>
+        <target state="new">Used Memory</target>
+        <note> UsedMemoryGrant</note>
+      </trans-unit>
+      <trans-unit id="Distinct">
+        <source>Distinct</source>
+        <target state="new">Distinct</target>
+        <note> Distinct</note>
+      </trans-unit>
+      <trans-unit id="DistinctDescription">
+        <source>Distinct.</source>
+        <target state="new">Distinct.</target>
+        <note> Distinct description</note>
+      </trans-unit>
+      <trans-unit id="OrderBy">
+        <source>Order By</source>
+        <target state="new">Order By</target>
+        <note> OrderBy</note>
+      </trans-unit>
+      <trans-unit id="OrderByDescription">
+        <source>Order by.</source>
+        <target state="new">Order by.</target>
+        <note> OrderBy description</note>
+      </trans-unit>
+      <trans-unit id="SpillOccurredDisplayString">
+        <source>Operator used tempdb to spill data during execution</source>
+        <target state="new">Operator used tempdb to spill data during execution</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnsWithNoStatistics">
+        <source>Columns With No Statistics</source>
+        <target state="new">Columns With No Statistics</target>
+        <note> ColumnsWithNoStatistics property</note>
+      </trans-unit>
+      <trans-unit id="ColumnsWithNoStatisticsDescription">
+        <source>Columns with no statistics warning.</source>
+        <target state="new">Columns with no statistics warning.</target>
+        <note> ColumnsWithNoStatistics property description</note>
+      </trans-unit>
+      <trans-unit id="NoJoinPredicate">
+        <source>No Join Predicate</source>
+        <target state="new">No Join Predicate</target>
+        <note> NoJoinPredicate property</note>
+      </trans-unit>
+      <trans-unit id="NoJoinPredicateDescription">
+        <source>No Join predicate warning.</source>
+        <target state="new">No Join predicate warning.</target>
+        <note> NoJoinPredicate property description</note>
+      </trans-unit>
+      <trans-unit id="SpillToTempDbOld">
+        <source>Operator used tempdb to spill data during execution with spill level {0}</source>
+        <target state="new">Operator used tempdb to spill data during execution with spill level {0}</target>
+        <note> SpillToTempDbOld property</note>
+      </trans-unit>
+      <trans-unit id="SpillToTempDb">
+        <source>Operator used tempdb to spill data during execution with spill level {0} and {1} spilled thread(s)</source>
+        <target state="new">Operator used tempdb to spill data during execution with spill level {0} and {1} spilled thread(s)</target>
+        <note> SpillToTempDb property</note>
+      </trans-unit>
+      <trans-unit id="SpillToTempDbDescription">
+        <source>Spill to tempdb warning.</source>
+        <target state="new">Spill to tempdb warning.</target>
+        <note> SpillToTempDb property description</note>
+      </trans-unit>
+      <trans-unit id="SortSpillDetails">
+        <source>Sort wrote {0} pages to and read {1} pages from tempdb with granted memory {2}KB and used memory {3}KB</source>
+        <target state="new">Sort wrote {0} pages to and read {1} pages from tempdb with granted memory {2}KB and used memory {3}KB</target>
+        <note> SortSpillDetails property</note>
+      </trans-unit>
+      <trans-unit id="SortSpillDetailsDescription">
+        <source>Details of sort spill</source>
+        <target state="new">Details of sort spill</target>
+        <note> SortSpillDetails property description</note>
+      </trans-unit>
+      <trans-unit id="HashSpillDetails">
+        <source>Hash wrote {0} pages to and read {1} pages from tempdb with granted memory {2}KB and used memory {3}KB</source>
+        <target state="new">Hash wrote {0} pages to and read {1} pages from tempdb with granted memory {2}KB and used memory {3}KB</target>
+        <note> HashSpillDetails property</note>
+      </trans-unit>
+      <trans-unit id="HashSpillDetailsDescription">
+        <source>Details of hash spill</source>
+        <target state="new">Details of hash spill</target>
+        <note> HahSpillDetails property description</note>
+      </trans-unit>
+      <trans-unit id="FullUpdateForOnlineIndexBuild">
+        <source>A partial update was converted to a full update because of an online index build</source>
+        <target state="new">A partial update was converted to a full update because of an online index build</target>
+        <note> FullUpdateForOnlineIndexBuild property</note>
+      </trans-unit>
+      <trans-unit id="FullUpdateForOnlineIndexBuildDescription">
+        <source>Full update for online index build warning</source>
+        <target state="new">Full update for online index build warning</target>
+        <note> FullUpdateForOnlineIndexBuild property description</note>
+      </trans-unit>
+      <trans-unit id="Wait">
+        <source>The query had to wait {0} seconds for {1} during execution</source>
+        <target state="new">The query had to wait {0} seconds for {1} during execution</target>
+        <note> Wait property</note>
+      </trans-unit>
+      <trans-unit id="WaitDescription">
+        <source>Query wait warning.</source>
+        <target state="new">Query wait warning.</target>
+        <note> Wait property description</note>
+      </trans-unit>
+      <trans-unit id="PlanAffectingConvert">
+        <source>Type conversion in expression ({0}) may affect "{1}" in query plan choice</source>
+        <target state="new">Type conversion in expression ({0}) may affect "{1}" in query plan choice</target>
+        <note> PlanAffectingConvert property</note>
+      </trans-unit>
+      <trans-unit id="PlanAffectingConvertDescription">
+        <source>Plan-affecting type conversion warning.</source>
+        <target state="new">Plan-affecting type conversion warning.</target>
+        <note> PlanAffectingConvert property description</note>
+      </trans-unit>
+      <trans-unit id="MemoryGrantWarning">
+        <source>The query memory grant detected "{0}", which may impact the reliability. Grant size: Initial {1} KB, Final {2} KB, Used {3} KB.</source>
+        <target state="new">The query memory grant detected "{0}", which may impact the reliability. Grant size: Initial {1} KB, Final {2} KB, Used {3} KB.</target>
+        <note> MemoryGrantWarning property</note>
+      </trans-unit>
+      <trans-unit id="MemoryGrantWarningDescription">
+        <source>Details on memory grant warning</source>
+        <target state="new">Details on memory grant warning</target>
+        <note>MemoryGrantWarning property description</note>
+      </trans-unit>
+      <trans-unit id="StartupExpression">
+        <source>Startup Expression</source>
+        <target state="new">Startup Expression</target>
+        <note> StartupExpression property</note>
+      </trans-unit>
+      <trans-unit id="StartupExpressionDescription">
+        <source>Whether a filter startup expression is used.</source>
+        <target state="new">Whether a filter startup expression is used.</target>
+        <note> StartupExpression property description</note>
+      </trans-unit>
+      <trans-unit id="StartupExpressionPredicate">
+        <source>Startup Expression Predicate</source>
+        <target state="new">Startup Expression Predicate</target>
+        <note> StartupExpressionPredicate property</note>
+      </trans-unit>
+      <trans-unit id="Query">
+        <source>Query</source>
+        <target state="new">Query</target>
+        <note> Query property</note>
+      </trans-unit>
+      <trans-unit id="Stack">
+        <source>With Stack</source>
+        <target state="new">With Stack</target>
+        <note> Stack property</note>
+      </trans-unit>
+      <trans-unit id="RowCount">
+        <source>Is Row Count</source>
+        <target state="new">Is Row Count</target>
+        <note> RowCount property</note>
+      </trans-unit>
+      <trans-unit id="Optimized">
+        <source>Optimized</source>
+        <target state="new">Optimized</target>
+        <note> Optimized property</note>
+      </trans-unit>
+      <trans-unit id="WithPrefetch">
+        <source>With Prefetch</source>
+        <target state="new">With Prefetch</target>
+        <note> WithPrefetch property</note>
+      </trans-unit>
+      <trans-unit id="Prefix">
+        <source>Prefix</source>
+        <target state="new">Prefix</target>
+        <note> Prefix property</note>
+      </trans-unit>
+      <trans-unit id="StartRange">
+        <source>Start</source>
+        <target state="new">Start</target>
+        <note> StartRange property</note>
+      </trans-unit>
+      <trans-unit id="StartRangeDescription">
+        <source>Start of the range.</source>
+        <target state="new">Start of the range.</target>
+        <note> StartRange property description</note>
+      </trans-unit>
+      <trans-unit id="EndRange">
+        <source>End</source>
+        <target state="new">End</target>
+        <note> EndRange property</note>
+      </trans-unit>
+      <trans-unit id="EndRangeDescription">
+        <source>End of the range.</source>
+        <target state="new">End of the range.</target>
+        <note> EndRange property description</note>
+      </trans-unit>
+      <trans-unit id="RangeColumns">
+        <source>Range Columns</source>
+        <target state="new">Range Columns</target>
+        <note> RangeColumns property</note>
+      </trans-unit>
+      <trans-unit id="RangeExpressions">
+        <source>Range Expressions</source>
+        <target state="new">Range Expressions</target>
+        <note> RangeExpressions property</note>
+      </trans-unit>
+      <trans-unit id="ScanType">
+        <source>Scan Type</source>
+        <target state="new">Scan Type</target>
+        <note> ScanType property</note>
+      </trans-unit>
+      <trans-unit id="ColumnReference">
+        <source>Column Reference</source>
+        <target state="new">Column Reference</target>
+        <note> ColumnReference property</note>
+      </trans-unit>
+      <trans-unit id="ObjectServer">
+        <source>Server</source>
+        <target state="new">Server</target>
+        <note> Server property</note>
+      </trans-unit>
+      <trans-unit id="ObjectServerDescription">
+        <source>Server name for the referenced object.</source>
+        <target state="new">Server name for the referenced object.</target>
+        <note> Server property description</note>
+      </trans-unit>
+      <trans-unit id="ObjectDatabase">
+        <source>Database</source>
+        <target state="new">Database</target>
+        <note> Database property</note>
+      </trans-unit>
+      <trans-unit id="ObjectDatabaseDescription">
+        <source>Database name for the referenced object.</source>
+        <target state="new">Database name for the referenced object.</target>
+        <note> Database property description</note>
+      </trans-unit>
+      <trans-unit id="ObjectIndex">
+        <source>Index</source>
+        <target state="new">Index</target>
+        <note> Index property</note>
+      </trans-unit>
+      <trans-unit id="ObjectIndexDescription">
+        <source>Index name for the referenced object.</source>
+        <target state="new">Index name for the referenced object.</target>
+        <note> Index property description</note>
+      </trans-unit>
+      <trans-unit id="ObjectSchema">
+        <source>Schema</source>
+        <target state="new">Schema</target>
+        <note> Schema property</note>
+      </trans-unit>
+      <trans-unit id="ObjectSchemaDescription">
+        <source>Schema name for the referenced object.</source>
+        <target state="new">Schema name for the referenced object.</target>
+        <note> Schema property description</note>
+      </trans-unit>
+      <trans-unit id="ObjectTable">
+        <source>Table</source>
+        <target state="new">Table</target>
+        <note> Table property</note>
+      </trans-unit>
+      <trans-unit id="ObjectTableDescription">
+        <source>Table name for the referenced object.</source>
+        <target state="new">Table name for the referenced object.</target>
+        <note> Table property description </note>
+      </trans-unit>
+      <trans-unit id="ObjectAlias">
+        <source>Alias</source>
+        <target state="new">Alias</target>
+        <note> Alias property</note>
+      </trans-unit>
+      <trans-unit id="ObjectAliasDescription">
+        <source>Alias used for the referenced object.</source>
+        <target state="new">Alias used for the referenced object.</target>
+        <note> Alias property description</note>
+      </trans-unit>
+      <trans-unit id="ObjectColumn">
+        <source>Column</source>
+        <target state="new">Column</target>
+        <note> Column property</note>
+      </trans-unit>
+      <trans-unit id="ObjectColumnDescription">
+        <source>Column name for the referenced object.</source>
+        <target state="new">Column name for the referenced object.</target>
+        <note> Column property description</note>
+      </trans-unit>
+      <trans-unit id="ObjectComputedColumn">
+        <source>Computed Column</source>
+        <target state="new">Computed Column</target>
+        <note> ComputedColumn property</note>
+      </trans-unit>
+      <trans-unit id="ObjectComputedColumnDescription">
+        <source>Whether this is a computed column.</source>
+        <target state="new">Whether this is a computed column.</target>
+        <note> ComputedColumn property description</note>
+      </trans-unit>
+      <trans-unit id="ParameterDataType">
+        <source>Parameter Data Type</source>
+        <target state="new">Parameter Data Type</target>
+        <note> ParameterDataType property</note>
+      </trans-unit>
+      <trans-unit id="ParameterCompiledValue">
+        <source>Parameter Compiled Value</source>
+        <target state="new">Parameter Compiled Value</target>
+        <note> ParameterCompiledValue property</note>
+      </trans-unit>
+      <trans-unit id="ParameterRuntimeValue">
+        <source>Parameter Runtime Value</source>
+        <target state="new">Parameter Runtime Value</target>
+        <note> ParameterRuntimeValue property</note>
+      </trans-unit>
+      <trans-unit id="CursorPlan">
+        <source>Cursor Plan</source>
+        <target state="new">Cursor Plan</target>
+        <note> CursorPlan property</note>
+      </trans-unit>
+      <trans-unit id="CursorOperation">
+        <source>Cursor Operation</source>
+        <target state="new">Cursor Operation</target>
+        <note> CursorOperation property</note>
+      </trans-unit>
+      <trans-unit id="CursorName">
+        <source>Cursor Name</source>
+        <target state="new">Cursor Name</target>
+        <note> CursorName property</note>
+      </trans-unit>
+      <trans-unit id="CursorActualType">
+        <source>Cursor Actual Type</source>
+        <target state="new">Cursor Actual Type</target>
+        <note> CursorActualType property</note>
+      </trans-unit>
+      <trans-unit id="CursorRequestedType">
+        <source>Cursor Requested Type</source>
+        <target state="new">Cursor Requested Type</target>
+        <note> CursorRequestedType property</note>
+      </trans-unit>
+      <trans-unit id="CursorConcurrency">
+        <source>Cursor Concurrency</source>
+        <target state="new">Cursor Concurrency</target>
+        <note> CursorConcurrency property</note>
+      </trans-unit>
+      <trans-unit id="ForwardOnly">
+        <source>Forward Only</source>
+        <target state="new">Forward Only</target>
+        <note> ForwardOnly property</note>
+      </trans-unit>
+      <trans-unit id="QueryPlan">
+        <source>Query Plan</source>
+        <target state="new">Query Plan</target>
+        <note> QueryPlan property</note>
+      </trans-unit>
+      <trans-unit id="OperationType">
+        <source>Operation Type</source>
+        <target state="new">Operation Type</target>
+        <note> OperationType property</note>
+      </trans-unit>
+      <trans-unit id="NodeId">
+        <source>Node ID</source>
+        <target state="new">Node ID</target>
+        <note> Node ID property</note>
+      </trans-unit>
+      <trans-unit id="PrimaryNodeId">
+        <source>Primary Node ID</source>
+        <target state="new">Primary Node ID</target>
+        <note> Primary Node ID property</note>
+      </trans-unit>
+      <trans-unit id="InternalInfo">
+        <source>Internal Debugging Information</source>
+        <target state="new">Internal Debugging Information</target>
+        <note> Internal Info property</note>
+      </trans-unit>
+      <trans-unit id="ForeignKeyReferencesCount">
+        <source>Foreign Key References Count</source>
+        <target state="new">Foreign Key References Count</target>
+        <note> Foreign Key References Count property</note>
+      </trans-unit>
+      <trans-unit id="NoMatchingIndexCount">
+        <source>No Matching Indexes Count</source>
+        <target state="new">No Matching Indexes Count</target>
+        <note> No Matching Index Count property</note>
+      </trans-unit>
+      <trans-unit id="PartialMatchingIndexCount">
+        <source>Partial Matching Indexes Count</source>
+        <target state="new">Partial Matching Indexes Count</target>
+        <note> Partial Matching Index Count property</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpCollapse">
+        <source>Collapse</source>
+        <target state="new">Collapse</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpConcatenation">
+        <source>Concatenation</source>
+        <target state="new">Concatenation</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpConstantScan">
+        <source>Constant Scan</source>
+        <target state="new">Constant Scan</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpGatherStreams">
+        <source>Gather Streams</source>
+        <target state="new">Gather Streams</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpRepartitionStreams">
+        <source>Repartition Streams</source>
+        <target state="new">Repartition Streams</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpDistributeStreams">
+        <source>Distribute Streams</source>
+        <target state="new">Distribute Streams</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpFilter">
+        <source>Filter</source>
+        <target state="new">Filter</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpAssert">
+        <source>Assert</source>
+        <target state="new">Assert</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpLogRowScan">
+        <source>Log Row Scan</source>
+        <target state="new">Log Row Scan</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpPrint">
+        <source>Print</source>
+        <target state="new">Print</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpComputeScalar">
+        <source>Compute Scalar</source>
+        <target state="new">Compute Scalar</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpMergeInterval">
+        <source>Merge Interval</source>
+        <target state="new">Merge Interval</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpRank">
+        <source>Rank</source>
+        <target state="new">Rank</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpSegment">
+        <source>Segment</source>
+        <target state="new">Segment</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpSequence">
+        <source>Sequence</source>
+        <target state="new">Sequence</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpSplit">
+        <source>Split</source>
+        <target state="new">Split</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpAggregate">
+        <source>Aggregate</source>
+        <target state="new">Aggregate</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpTableScan">
+        <source>Table Scan</source>
+        <target state="new">Table Scan</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpClusteredIndexScan">
+        <source>Clustered Index Scan</source>
+        <target state="new">Clustered Index Scan</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpClusteredIndexSeek">
+        <source>Clustered Index Seek</source>
+        <target state="new">Clustered Index Seek</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpDeletedScan">
+        <source>Deleted Scan</source>
+        <target state="new">Deleted Scan</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpInsertedScan">
+        <source>Inserted Scan</source>
+        <target state="new">Inserted Scan</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpParameterTableScan">
+        <source>Parameter Table Scan</source>
+        <target state="new">Parameter Table Scan</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpPut">
+        <source>Put</source>
+        <target state="new">Put</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpIndexScan">
+        <source>Index Scan</source>
+        <target state="new">Index Scan</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpIndexSeek">
+        <source>Index Seek</source>
+        <target state="new">Index Seek</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpRemoteScan">
+        <source>Remote Scan</source>
+        <target state="new">Remote Scan</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpRemoteIndexScan">
+        <source>Remote Index Scan</source>
+        <target state="new">Remote Index Scan</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpRemoteIndexSeek">
+        <source>Remote Index Seek</source>
+        <target state="new">Remote Index Seek</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpRemoteQuery">
+        <source>Remote Query</source>
+        <target state="new">Remote Query</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpRemoteInsert">
+        <source>Remote Insert</source>
+        <target state="new">Remote Insert</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpRemoteUpdate">
+        <source>Remote Update</source>
+        <target state="new">Remote Update</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpRemoteDelete">
+        <source>Remote Delete</source>
+        <target state="new">Remote Delete</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpClusteredUpdate">
+        <source>Clustered Update</source>
+        <target state="new">Clustered Update</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpDistinctSort">
+        <source>Distinct Sort</source>
+        <target state="new">Distinct Sort</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpSort">
+        <source>Sort</source>
+        <target state="new">Sort</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpTopNSort">
+        <source>Top N Sort</source>
+        <target state="new">Top N Sort</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpEagerSpool">
+        <source>Eager Spool</source>
+        <target state="new">Eager Spool</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpLazySpool">
+        <source>Lazy Spool</source>
+        <target state="new">Lazy Spool</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpUpdate">
+        <source>Update</source>
+        <target state="new">Update</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpInsert">
+        <source>Insert</source>
+        <target state="new">Insert</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpDelete">
+        <source>Delete</source>
+        <target state="new">Delete</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpMerge">
+        <source>Merge</source>
+        <target state="new">Merge</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpTop">
+        <source>Top</source>
+        <target state="new">Top</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpDistinct">
+        <source>Distinct</source>
+        <target state="new">Distinct</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpFlowDistinct">
+        <source>Flow Distinct</source>
+        <target state="new">Flow Distinct</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpPartialAggregate">
+        <source>Partial Aggregate</source>
+        <target state="new">Partial Aggregate</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpInnerApply">
+        <source>Inner Apply</source>
+        <target state="new">Inner Apply</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpInnerJoin">
+        <source>Inner Join</source>
+        <target state="new">Inner Join</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpLeftAntiSemiApply">
+        <source>Left Anti Semi Apply</source>
+        <target state="new">Left Anti Semi Apply</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpLeftSemiApply">
+        <source>Left Semi Apply</source>
+        <target state="new">Left Semi Apply</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpLeftOuterApply">
+        <source>Left Outer Apply</source>
+        <target state="new">Left Outer Apply</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpLeftOuterJoin">
+        <source>Left Outer Join</source>
+        <target state="new">Left Outer Join</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpRightOuterJoin">
+        <source>Right Outer Join</source>
+        <target state="new">Right Outer Join</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpFullOuterJoin">
+        <source>Full Outer Join</source>
+        <target state="new">Full Outer Join</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpLeftSemiJoin">
+        <source>Left Semi Join</source>
+        <target state="new">Left Semi Join</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpLeftAntiSemiJoin">
+        <source>Left Anti Semi Join</source>
+        <target state="new">Left Anti Semi Join</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpRightSemiJoin">
+        <source>Right Semi Join</source>
+        <target state="new">Right Semi Join</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpRightAntiSemiJoin">
+        <source>Right Anti Semi Join</source>
+        <target state="new">Right Anti Semi Join</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpIntersect">
+        <source>Intersect</source>
+        <target state="new">Intersect</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpIntersectAll">
+        <source>Intersect All</source>
+        <target state="new">Intersect All</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpUnion">
+        <source>Union</source>
+        <target state="new">Union</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpLeftDiff">
+        <source>Left Diff</source>
+        <target state="new">Left Diff</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpLeftDiffAll">
+        <source>Left Diff All</source>
+        <target state="new">Left Diff All</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpRightDiff">
+        <source>Right Diff</source>
+        <target state="new">Right Diff</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpRightDiffAll">
+        <source>Right Diff All</source>
+        <target state="new">Right Diff All</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpAntiDiff">
+        <source>Anti Diff</source>
+        <target state="new">Anti Diff</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpCrossJoin">
+        <source>Cross Join</source>
+        <target state="new">Cross Join</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpBitmapCreate">
+        <source>Bitmap Create</source>
+        <target state="new">Bitmap Create</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpUDX">
+        <source>UDX</source>
+        <target state="new">UDX</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpWindow">
+        <source>Window Spool</source>
+        <target state="new">Window Spool</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpSwitch">
+        <source>Switch</source>
+        <target state="new">Switch</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpMergeStats">
+        <source>Merge Stats</source>
+        <target state="new">Merge Stats</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpLocalStats">
+        <source>Local Stats</source>
+        <target state="new">Local Stats</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpTableValuedFunction">
+        <source>Table Valued Function</source>
+        <target state="new">Table Valued Function</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpBatchHashTableBuild">
+        <source>Batch Hash Table Build</source>
+        <target state="new">Batch Hash Table Build</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpForeignKeyReferencesCheck">
+        <source>Foreign Key References Check</source>
+        <target state="new">Foreign Key References Check</target>
+        <note> Logical operator</note>
+      </trans-unit>
+      <trans-unit id="LogicalOpRIDLookup">
+        <source>RID Lookup</source>
+        <target state="new">RID Lookup</target>
+        <note> RIDLookup operator</note>
+      </trans-unit>
+      <trans-unit id="StoredProc">
+        <source>Stored Procedure</source>
+        <target state="new">Stored Procedure</target>
+        <note> StoredProc node</note>
+      </trans-unit>
+      <trans-unit id="Udf">
+        <source>UDF</source>
+        <target state="new">UDF</target>
+        <note> UDF node</note>
+      </trans-unit>
+      <trans-unit id="ProcName">
+        <source>Procedure Name</source>
+        <target state="new">Procedure Name</target>
+        <note> ProcName property</note>
+      </trans-unit>
+      <trans-unit id="Storage">
+        <source>Storage</source>
+        <target state="new">Storage</target>
+        <note> Storage property</note>
+      </trans-unit>
+      <trans-unit id="StorageDesc">
+        <source>Storage</source>
+        <target state="new">Storage</target>
+        <note> Storage property</note>
+      </trans-unit>
+      <trans-unit id="ActualExecMode">
+        <source>Actual Execution Mode</source>
+        <target state="new">Actual Execution Mode</target>
+        <note> ActualExectionMode property</note>
+      </trans-unit>
+      <trans-unit id="ActualExecModeDesc">
+        <source>Actual Execution Mode</source>
+        <target state="new">Actual Execution Mode</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EstimatedExecMode">
+        <source>Estimated Execution Mode</source>
+        <target state="new">Estimated Execution Mode</target>
+        <note> EstimatedExecutionMode property</note>
+      </trans-unit>
+      <trans-unit id="EstimatedExecModeDesc">
+        <source>Estimated Execution Mode</source>
+        <target state="new">Estimated Execution Mode</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="CostFormat">
+        <source>Cost: {0} %</source>
+        <target state="new">Cost: {0} %</target>
+        <note>"Cost: {0} percent" String to format.
+ Parameters: 0 - x (int) </note>
+      </trans-unit>
+      <trans-unit id="RemoteDataAccess">
+        <source>Remote Data Access</source>
+        <target state="new">Remote Data Access</target>
+        <note> Remote Data Access</note>
+      </trans-unit>
+      <trans-unit id="RemoteDataAccessDescription">
+        <source>Whether the operator uses remote procedure call (RPC) to access remote data.</source>
+        <target state="new">Whether the operator uses remote procedure call (RPC) to access remote data.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="CloneAccessScope">
+        <source>Clone Access Scope</source>
+        <target state="new">Clone Access Scope</target>
+        <note> Clone Access Scope</note>
+      </trans-unit>
+      <trans-unit id="CloneAccessScopeDescription">
+        <source>Clones that the operator may access.</source>
+        <target state="new">Clones that the operator may access.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PrimaryClones">
+        <source>Primary Clones</source>
+        <target state="new">Primary Clones</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SecondaryClones">
+        <source>Secondary Clones</source>
+        <target state="new">Secondary Clones</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BothClones">
+        <source>All Clones</source>
+        <target state="new">All Clones</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EitherClones">
+        <source>Primary Or Secondary Clones</source>
+        <target state="new">Primary Or Secondary Clones</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ExactMatchClones">
+        <source>Single Clone Match</source>
+        <target state="new">Single Clone Match</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Remoting">
+        <source>Remoting</source>
+        <target state="new">Remoting</target>
+        <note> Remoting for remote exchange operator</note>
+      </trans-unit>
+      <trans-unit id="RemotingDescription">
+        <source>Whether the operator can run remotely.</source>
+        <target state="new">Whether the operator can run remotely.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Activation">
+        <source>Activation</source>
+        <target state="new">Activation</target>
+        <note> Activation</note>
+      </trans-unit>
+      <trans-unit id="BrickRouting">
+        <source>Brick Routing</source>
+        <target state="new">Brick Routing</target>
+        <note> Brick Routing</note>
+      </trans-unit>
+      <trans-unit id="FragmentIdColumn">
+        <source>Fragment Id Column</source>
+        <target state="new">Fragment Id Column</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EditQueryText">
+        <source>Edit Query Text from Showplan XML (possibly truncated)</source>
+        <target state="new">Edit Query Text from Showplan XML (possibly truncated)</target>
+        <note> Showplan edit query text button</note>
+      </trans-unit>
+      <trans-unit id="UnknownShowPlanSource">
+        <source>Execution plan source type can not be recognized.</source>
+        <target state="new">Execution plan source type can not be recognized.</target>
+        <note> error message when the ShowPlan source cannot be recognized</note>
+      </trans-unit>
+      <trans-unit id="SavePlanFilter">
+        <source>Sql Plan files (*.SqlPlan)|*.SqlPlan|All files (*.*)|*.*</source>
+        <target state="new">Sql Plan files (*.SqlPlan)|*.SqlPlan|All files (*.*)|*.*</target>
+        <note> Save plan dialog filter string</note>
+      </trans-unit>
+      <trans-unit id="NoXmlPlanData">
+        <source>Plan data is not available in XML format. Only plans from SQL Server Yukon can be saved.</source>
+        <target state="new">Plan data is not available in XML format. Only plans from SQL Server Yukon can be saved.</target>
+        <note> Message box if user tries to save in XML show plan from Shiloh or Sphinx</note>
+      </trans-unit>
+      <trans-unit id="PerThreadCounterDescription">
+        <source>Per-thread counter information.</source>
+        <target state="new">Per-thread counter information.</target>
+        <note> Description of a per thread counter</note>
+      </trans-unit>
+      <trans-unit id="RuntimeCounterThread">
+        <source>Thread {0}</source>
+        <target state="new">Thread {0}</target>
+        <note> Runtime counter property name.
+ Parameters: 0 - index (int) </note>
+      </trans-unit>
+      <trans-unit id="RuntimeCounterThreadOnInstance">
+        <source>Thread {0} on Instance {1}</source>
+        <target state="new">Thread {0} on Instance {1}</target>
+        <note> Runtime counter property name. Thread on Instance..
+ Parameters: 0 - thread (int), 1 - instance (int) </note>
+      </trans-unit>
+      <trans-unit id="RuntimeCounterThreadAll">
+        <source>All threads</source>
+        <target state="new">All threads</target>
+        <note> Runtime counter property name</note>
+      </trans-unit>
+      <trans-unit id="ConnectionPropertiesLabel">
+        <source>View connection properties</source>
+        <target state="new">View connection properties</target>
+        <note> label for Connection Properties hyperlink</note>
+      </trans-unit>
+      <trans-unit id="UnknownAssignType">
+        <source>Unknown assign type.</source>
+        <target state="new">Unknown assign type.</target>
+        <note> Error when displaying show plan properties</note>
+      </trans-unit>
+      <trans-unit id="MessageBoxCaption">
+        <source>SQL Server</source>
+        <target state="new">SQL Server</target>
+        <note> exception message box caption</note>
+      </trans-unit>
+      <trans-unit id="ZoomLevelShouldBeBetween">
+        <source>Zoom level must be an integer value between {0} and {1}.</source>
+        <target state="new">Zoom level must be an integer value between {0} and {1}.</target>
+        <note> Message shown when user enters wrong zoom level.
+ Parameters: 0 - minimum (int), 1 - maximum (int) </note>
+      </trans-unit>
+      <trans-unit id="UnknownNodeType">
+        <source>Unknown node type.</source>
+        <target state="new">Unknown node type.</target>
+        <note> Exception thrown when node type is unknown</note>
+      </trans-unit>
+      <trans-unit id="UnknownCursorPlanOperation">
+        <source>Unknown cursor plan operation '{0}'.</source>
+        <target state="new">Unknown cursor plan operation '{0}'.</target>
+        <note> Exception thrown by show plan when it gets unknown type of cursor plan operation.
+ Parameters: 0 - name (string) </note>
+      </trans-unit>
+      <trans-unit id="UnknownStatementType">
+        <source>Statement type is not recognized.</source>
+        <target state="new">Statement type is not recognized.</target>
+        <note> Exception thrown by show plan when it gets unknown statement type</note>
+      </trans-unit>
+      <trans-unit id="RollupInfo">
+        <source>Rollup Information</source>
+        <target state="new">Rollup Information</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="RollupInfoDescription">
+        <source>Rollup information.</source>
+        <target state="new">Rollup information.</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="HighestLevel">
+        <source>Highest Level</source>
+        <target state="new">Highest Level</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="HighestLevelDescription">
+        <source>The highest level of grouping attributes computed in this rollup.</source>
+        <target state="new">The highest level of grouping attributes computed in this rollup.</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="RollupLevel">
+        <source>Rollup Levels</source>
+        <target state="new">Rollup Levels</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="RollupLevelDescription">
+        <source>All levels of grouping attributes computed in this rollup.</source>
+        <target state="new">All levels of grouping attributes computed in this rollup.</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="Level">
+        <source>Level</source>
+        <target state="new">Level</target>
+        <note> Show plan node property</note>
+      </trans-unit>
+      <trans-unit id="LevelDescription">
+        <source>A level of grouping attributes computed in this rollup.</source>
+        <target state="new">A level of grouping attributes computed in this rollup.</target>
+        <note> Show plan node property description</note>
+      </trans-unit>
+      <trans-unit id="RemoteQuery">
+        <source>Remote Query</source>
+        <target state="new">Remote Query</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="RemoteQueryDescription">
+        <source>Send a SQL query to another than the current SQL Server.</source>
+        <target state="new">Send a SQL query to another than the current SQL Server.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="ComputeScalar">
+        <source>Compute Scalar</source>
+        <target state="new">Compute Scalar</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="MergeInterval">
+        <source>Merge Interval</source>
+        <target state="new">Merge Interval</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="Print">
+        <source>Print</source>
+        <target state="new">Print</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="Segment">
+        <source>Segment</source>
+        <target state="new">Segment</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="Split">
+        <source>Split</source>
+        <target state="new">Split</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="BatchHashTableBuild">
+        <source>Batch Hash Table Build</source>
+        <target state="new">Batch Hash Table Build</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="Bitmap">
+        <source>Bitmap</source>
+        <target state="new">Bitmap</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="Collapse">
+        <source>Collapse</source>
+        <target state="new">Collapse</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="TableSpool">
+        <source>Table Spool</source>
+        <target state="new">Table Spool</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="RepartitionStreams">
+        <source>Repartition Streams</source>
+        <target state="new">Repartition Streams</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="Assert">
+        <source>Assert</source>
+        <target state="new">Assert</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="Sort">
+        <source>Sort</source>
+        <target state="new">Sort</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="Top">
+        <source>Top</source>
+        <target state="new">Top</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="SequenceProject">
+        <source>Sequence Project</source>
+        <target state="new">Sequence Project</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="Spool">
+        <source>Spool</source>
+        <target state="new">Spool</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="Window">
+        <source>Window Spool</source>
+        <target state="new">Window Spool</target>
+        <note> Show plan's Window node property</note>
+      </trans-unit>
+      <trans-unit id="Parallelism">
+        <source>Parallelism</source>
+        <target state="new">Parallelism</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="RowCountSpool">
+        <source>Row Count Spool</source>
+        <target state="new">Row Count Spool</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="Unknown">
+        <source>Unknown</source>
+        <target state="new">Unknown</target>
+        <note> Unkown (reused string, unkown operator, or unkown reason, or unknown ...)</note>
+      </trans-unit>
+      <trans-unit id="UnknownDescription">
+        <source>Unknown operator.</source>
+        <target state="new">Unknown operator.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="Result">
+        <source>Result</source>
+        <target state="new">Result</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="ResultDescription">
+        <source>Result.</source>
+        <target state="new">Result.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="CollapseDescription">
+        <source>Groups an insert and delete on the same value into an update within wide update plans.</source>
+        <target state="new">Groups an insert and delete on the same value into an update within wide update plans.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="Concatenation">
+        <source>Concatenation</source>
+        <target state="new">Concatenation</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="ConcatenationDescription">
+        <source>Append multiple input tables to form the output table.</source>
+        <target state="new">Append multiple input tables to form the output table.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="ConstantScan">
+        <source>Constant Scan</source>
+        <target state="new">Constant Scan</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="ConstantScanDescription">
+        <source>Scan an internal table of constants.</source>
+        <target state="new">Scan an internal table of constants.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="ParallelismDescription">
+        <source>An operation involving parallelism.</source>
+        <target state="new">An operation involving parallelism.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="Put">
+        <source>Put</source>
+        <target state="new">Put</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="PutDescription">
+        <source>Export the rows from a local or external table to an external table.</source>
+        <target state="new">Export the rows from a local or external table to an external table.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="DistributeStreams">
+        <source>Distribute Streams</source>
+        <target state="new">Distribute Streams</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="DistributeStreamsDescription">
+        <source>Distribute streams.</source>
+        <target state="new">Distribute streams.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="GatherStreams">
+        <source>Gather Streams</source>
+        <target state="new">Gather Streams</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="GatherStreamsDescription">
+        <source>Gather streams.</source>
+        <target state="new">Gather streams.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="RepartitionStreamsDescription">
+        <source>Repartition streams.</source>
+        <target state="new">Repartition streams.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="EagerSpool">
+        <source>Eager Spool</source>
+        <target state="new">Eager Spool</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="EagerSpoolDescription">
+        <source>Eager Spool.</source>
+        <target state="new">Eager Spool.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="LazySpool">
+        <source>Lazy Spool</source>
+        <target state="new">Lazy Spool</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="LazySpoolDescription">
+        <source>Lazy Spool.</source>
+        <target state="new">Lazy Spool.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="Filter">
+        <source>Filter</source>
+        <target state="new">Filter</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="FilterDescription">
+        <source>Restricting the set of rows based on a predicate.</source>
+        <target state="new">Restricting the set of rows based on a predicate.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="AssertDescription">
+        <source>Used to verify that a specified condition exists.</source>
+        <target state="new">Used to verify that a specified condition exists.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="HashMatch">
+        <source>Hash Match</source>
+        <target state="new">Hash Match</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="HashMatchDescription">
+        <source>Use each row from the top input to build a hash table, and each row from the bottom input to probe into the hash table, outputting all matching rows.</source>
+        <target state="new">Use each row from the top input to build a hash table, and each row from the bottom input to probe into the hash table, outputting all matching rows.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="HashMatchTeam">
+        <source>Hash Match Team</source>
+        <target state="new">Hash Match Team</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="HashMatchTeamDescription">
+        <source>A contributor among multiple cooperating hashing operations.</source>
+        <target state="new">A contributor among multiple cooperating hashing operations.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="HashMatchRoot">
+        <source>Hash Match Root</source>
+        <target state="new">Hash Match Root</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="HashMatchRootDescription">
+        <source>The root member of a team of connected hash operators sharing a common hash function and partitioning strategy.</source>
+        <target state="new">The root member of a team of connected hash operators sharing a common hash function and partitioning strategy.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="BookmarkLookup">
+        <source>Bookmark Lookup</source>
+        <target state="new">Bookmark Lookup</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="BookmarkLookupDescription">
+        <source>Use a Bookmark (RID or clustering key) to look up the corresponding row in the table or clustered index.</source>
+        <target state="new">Use a Bookmark (RID or clustering key) to look up the corresponding row in the table or clustered index.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="LogRowScan">
+        <source>Log Row Scan</source>
+        <target state="new">Log Row Scan</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="LogRowScanDescription">
+        <source>Scan the rows in the log.</source>
+        <target state="new">Scan the rows in the log.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="MergeJoin">
+        <source>Merge Join</source>
+        <target state="new">Merge Join</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="MergeJoinDescription">
+        <source>Match rows from two suitably sorted input tables exploiting their sort order.</source>
+        <target state="new">Match rows from two suitably sorted input tables exploiting their sort order.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="NestedLoops">
+        <source>Nested Loops</source>
+        <target state="new">Nested Loops</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="NestedLoopsDescription">
+        <source>For each row in the top (outer) input, scan the bottom (inner) input, and output matching rows.</source>
+        <target state="new">For each row in the top (outer) input, scan the bottom (inner) input, and output matching rows.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="PrintDescription">
+        <source>Print.</source>
+        <target state="new">Print.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="ComputeScalarDescription">
+        <source>Compute new values from existing values in a row.</source>
+        <target state="new">Compute new values from existing values in a row.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="MergeIntervalDescription">
+        <source>Merge interval.</source>
+        <target state="new">Merge interval.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="Rank">
+        <source>Rank</source>
+        <target state="new">Rank</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="RankDescription">
+        <source>Creates a computed column with the rank of the values in an existing column in the table.</source>
+        <target state="new">Creates a computed column with the rank of the values in an existing column in the table.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="RowCountSpoolDescription">
+        <source>Stores the data from the input into a temporary table in order to optimize rewinds.</source>
+        <target state="new">Stores the data from the input into a temporary table in order to optimize rewinds.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="SegmentDescription">
+        <source>Segment.</source>
+        <target state="new">Segment.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="Sequence">
+        <source>Sequence</source>
+        <target state="new">Sequence</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="SequenceDescription">
+        <source>Process each input, in sequence from top to bottom.</source>
+        <target state="new">Process each input, in sequence from top to bottom.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="SequenceProjectDescription">
+        <source>Adds columns to perform computations over an ordered set.</source>
+        <target state="new">Adds columns to perform computations over an ordered set.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="SplitDescription">
+        <source>Split.</source>
+        <target state="new">Split.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="StreamAggregate">
+        <source>Stream Aggregate</source>
+        <target state="new">Stream Aggregate</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="StreamAggregateDescription">
+        <source>Compute summary values for groups of rows in a suitably sorted stream.</source>
+        <target state="new">Compute summary values for groups of rows in a suitably sorted stream.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="TableScan">
+        <source>Table Scan</source>
+        <target state="new">Table Scan</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="TableScanDescription">
+        <source>Scan rows from a table.</source>
+        <target state="new">Scan rows from a table.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="ClusteredIndexScan">
+        <source>Clustered Index Scan</source>
+        <target state="new">Clustered Index Scan</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="ClusteredIndexScanDescription">
+        <source>Scanning a clustered index, entirely or only a range.</source>
+        <target state="new">Scanning a clustered index, entirely or only a range.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="ClusteredIndexSeek">
+        <source>Clustered Index Seek</source>
+        <target state="new">Clustered Index Seek</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="ClusteredIndexSeekDescription">
+        <source>Scanning a particular range of rows from a clustered index.</source>
+        <target state="new">Scanning a particular range of rows from a clustered index.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="DeletedScan">
+        <source>Deleted Scan</source>
+        <target state="new">Deleted Scan</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="DeletedScanDescription">
+        <source>Scanning the pseudo-table 'deleted' within a trigger.</source>
+        <target state="new">Scanning the pseudo-table 'deleted' within a trigger.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="InsertedScan">
+        <source>Inserted Scan</source>
+        <target state="new">Inserted Scan</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="InsertedScanDescription">
+        <source>Scan the pseudo-table 'inserted' within a trigger.</source>
+        <target state="new">Scan the pseudo-table 'inserted' within a trigger.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="ParameterTableScan">
+        <source>Parameter Table Scan</source>
+        <target state="new">Parameter Table Scan</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="ParameterTableScanDescription">
+        <source>Scan an internal table of parameter values.</source>
+        <target state="new">Scan an internal table of parameter values.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="IndexScan">
+        <source>Index Scan</source>
+        <target state="new">Index Scan</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="IndexScanDescription">
+        <source>Scan a nonclustered index, entirely or only a range.</source>
+        <target state="new">Scan a nonclustered index, entirely or only a range.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="IndexSeek">
+        <source>Index Seek</source>
+        <target state="new">Index Seek</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="IndexSeekDescription">
+        <source>Scan a particular range of rows from a nonclustered index.</source>
+        <target state="new">Scan a particular range of rows from a nonclustered index.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="ColumnstoreIndexScan">
+        <source>Columnstore Index Scan</source>
+        <target state="new">Columnstore Index Scan</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="ColumnstoreIndexScanDescription">
+        <source>Scan a columnstore index, entirely or only a range.</source>
+        <target state="new">Scan a columnstore index, entirely or only a range.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="ColumnstoreIndexUpdate">
+        <source>Columnstore Index Update</source>
+        <target state="new">Columnstore Index Update</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="ColumnstoreIndexUpdateDescription">
+        <source>Update rows in a columnstore index.</source>
+        <target state="new">Update rows in a columnstore index.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="ColumnstoreIndexInsert">
+        <source>Columnstore Index Insert</source>
+        <target state="new">Columnstore Index Insert</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="ColumnstoreIndexInsertDescription">
+        <source>Insert rows in a columnstore index.</source>
+        <target state="new">Insert rows in a columnstore index.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="ColumnstoreIndexMerge">
+        <source>Columnstore Index Merge</source>
+        <target state="new">Columnstore Index Merge</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="ColumnstoreIndexMergeDescription">
+        <source>Merge rows in a columnstore index.</source>
+        <target state="new">Merge rows in a columnstore index.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="ColumnstoreIndexDelete">
+        <source>Columnstore Index Delete</source>
+        <target state="new">Columnstore Index Delete</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="ColumnstoreIndexDeleteDescription">
+        <source>Delete rows from a columnstore index.</source>
+        <target state="new">Delete rows from a columnstore index.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="RemoteScan">
+        <source>Remote Scan</source>
+        <target state="new">Remote Scan</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="RemoteScanDescription">
+        <source>Scan rows in a table stored in a database or file other than the current database server.</source>
+        <target state="new">Scan rows in a table stored in a database or file other than the current database server.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="RemoteIndexScan">
+        <source>Remote Index Scan</source>
+        <target state="new">Remote Index Scan</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="RemoteIndexScanDescription">
+        <source>Scan an index stored in a database or file other than the current database server.</source>
+        <target state="new">Scan an index stored in a database or file other than the current database server.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="RemoteIndexSeek">
+        <source>Remote Index Seek</source>
+        <target state="new">Remote Index Seek</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="RemoteIndexSeekDescription">
+        <source>Scan a particular range of rows from a clustered index that is stored in a database or file other than the current database server.</source>
+        <target state="new">Scan a particular range of rows from a clustered index that is stored in a database or file other than the current database server.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="RemoteInsert">
+        <source>Remote Insert</source>
+        <target state="new">Remote Insert</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="RemoteInsertDescription">
+        <source>Insert rows into a table stored in a database or file other than the current database server.</source>
+        <target state="new">Insert rows into a table stored in a database or file other than the current database server.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="RemoteUpdate">
+        <source>Remote Update</source>
+        <target state="new">Remote Update</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="RemoteUpdateDescription">
+        <source>Update rows in a table stored in a database or file other than the current database server.</source>
+        <target state="new">Update rows in a table stored in a database or file other than the current database server.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="RemoteDelete">
+        <source>Remote Delete</source>
+        <target state="new">Remote Delete</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="RemoteDeleteDescription">
+        <source>Delete rows in a table stored in a database or file other than the current database server.</source>
+        <target state="new">Delete rows in a table stored in a database or file other than the current database server.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="ClusteredUpdate">
+        <source>Clustered Update</source>
+        <target state="new">Clustered Update</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="ClusteredUpdateDescription">
+        <source>Clustered Update.</source>
+        <target state="new">Clustered Update.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="SortDescription">
+        <source>Sort the input.</source>
+        <target state="new">Sort the input.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="TableSpoolDescription">
+        <source>Stores the data from the input into a temporary table in order to optimize rewinds.</source>
+        <target state="new">Stores the data from the input into a temporary table in order to optimize rewinds.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="IndexSpool">
+        <source>Index Spool</source>
+        <target state="new">Index Spool</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="IndexSpoolDescription">
+        <source>Reformats the data from the input into a temporary index, which is then used for seeking with the supplied seek predicate.</source>
+        <target state="new">Reformats the data from the input into a temporary index, which is then used for seeking with the supplied seek predicate.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="TableUpdate">
+        <source>Table Update</source>
+        <target state="new">Table Update</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="TableUpdateDescription">
+        <source>Update input rows in the table specified in the Argument field.</source>
+        <target state="new">Update input rows in the table specified in the Argument field.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="TableInsert">
+        <source>Table Insert</source>
+        <target state="new">Table Insert</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="TableInsertDescription">
+        <source>Insert input rows into the table specified in Argument field.</source>
+        <target state="new">Insert input rows into the table specified in Argument field.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="TableDelete">
+        <source>Table Delete</source>
+        <target state="new">Table Delete</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="TableDeleteDescription">
+        <source>Delete input rows from the table specified in Argument field.</source>
+        <target state="new">Delete input rows from the table specified in Argument field.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="TableMerge">
+        <source>Table Merge</source>
+        <target state="new">Table Merge</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="TableMergeDescription">
+        <source>Merge input rows in the table specified in Argument field.</source>
+        <target state="new">Merge input rows in the table specified in Argument field.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="IndexUpdate">
+        <source>Index Update</source>
+        <target state="new">Index Update</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="IndexUpdateDescription">
+        <source>Update rows in an index.</source>
+        <target state="new">Update rows in an index.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="IndexInsert">
+        <source>Index Insert</source>
+        <target state="new">Index Insert</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="IndexInsertDescription">
+        <source>Insert rows into an index.</source>
+        <target state="new">Insert rows into an index.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="IndexDelete">
+        <source>Index Delete</source>
+        <target state="new">Index Delete</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="IndexDeleteDescription">
+        <source>Delete rows from index.</source>
+        <target state="new">Delete rows from index.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="ClusteredIndexUpdate">
+        <source>Clustered Index Update</source>
+        <target state="new">Clustered Index Update</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="ClusteredIndexUpdateDescription">
+        <source>Update rows in a clustered index.</source>
+        <target state="new">Update rows in a clustered index.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="ClusteredIndexInsert">
+        <source>Clustered Index Insert</source>
+        <target state="new">Clustered Index Insert</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="ClusteredIndexInsertDescription">
+        <source>Insert rows in a clustered index.</source>
+        <target state="new">Insert rows in a clustered index.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="ClusteredIndexMerge">
+        <source>Clustered Index Merge</source>
+        <target state="new">Clustered Index Merge</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="ClusteredIndexMergeDescription">
+        <source>Merge rows in a clustered index.</source>
+        <target state="new">Merge rows in a clustered index.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="ClusteredIndexDelete">
+        <source>Clustered Index Delete</source>
+        <target state="new">Clustered Index Delete</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="ClusteredIndexDeleteDescription">
+        <source>Delete rows from a clustered index.</source>
+        <target state="new">Delete rows from a clustered index.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="TopDescription">
+        <source>Select the first few rows based on a sort order.</source>
+        <target state="new">Select the first few rows based on a sort order.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="BitmapDescription">
+        <source>Bitmap.</source>
+        <target state="new">Bitmap.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="UDX">
+        <source>UDX</source>
+        <target state="new">UDX</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="UDXDescription">
+        <source>UDX.</source>
+        <target state="new">UDX.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="WindowDescription">
+        <source>Expands each row into the set of rows that represent the window associated with it.</source>
+        <target state="new">Expands each row into the set of rows that represent the window associated with it.</target>
+        <note> Show plan's Window node property description</note>
+      </trans-unit>
+      <trans-unit id="WindowAggregate">
+        <source>Window Aggregate</source>
+        <target state="new">Window Aggregate</target>
+        <note> Show plan's Window Aggregate node property</note>
+      </trans-unit>
+      <trans-unit id="WindowAggregateDescription">
+        <source>Computes values of functions across the windows defined by the OVER clause. Input rowset is suitably sorted stream.</source>
+        <target state="new">Computes values of functions across the windows defined by the OVER clause. Input rowset is suitably sorted stream.</target>
+        <note> Show plan's Window Aggregate node property description</note>
+      </trans-unit>
+      <trans-unit id="BatchHashTableBuildDescription">
+        <source>Batch Hash Table Build.</source>
+        <target state="new">Batch Hash Table Build.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="Switch">
+        <source>Switch</source>
+        <target state="new">Switch</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="SwitchDescription">
+        <source>Switch.</source>
+        <target state="new">Switch.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="TFP">
+        <source>Predict</source>
+        <target state="new">Predict</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="TFPDescription">
+        <source>Applies a trained machine learning model to input data	</source>
+        <target state="new">Applies a trained machine learning model to input data	</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="TableValueFunction">
+        <source>Table Valued Function</source>
+        <target state="new">Table Valued Function</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="TableValueFunctionDescription">
+        <source>Table valued function.</source>
+        <target state="new">Table valued function.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="Aggregate">
+        <source>Aggregate</source>
+        <target state="new">Aggregate</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="AggregateDescription">
+        <source>Calculates an expression containing SUM, COUNT, MIN, MAX, or AVG.</source>
+        <target state="new">Calculates an expression containing SUM, COUNT, MIN, MAX, or AVG.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="ArithmeticExpression">
+        <source>Arithmetic Expression</source>
+        <target state="new">Arithmetic Expression</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="ArithmeticExpressionDescription">
+        <source>Computes a new value from existing values in a row.</source>
+        <target state="new">Computes a new value from existing values in a row.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="Delete">
+        <source>Delete</source>
+        <target state="new">Delete</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="DeleteDescription">
+        <source>Removes the specified rows from the specified table.</source>
+        <target state="new">Removes the specified rows from the specified table.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="Insert">
+        <source>Insert</source>
+        <target state="new">Insert</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="InsertDescription">
+        <source>Adds a row to table.</source>
+        <target state="new">Adds a row to table.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="Locate">
+        <source>Locate</source>
+        <target state="new">Locate</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="LocateDescription">
+        <source>Fetching a full row from a heap or a clustered index.</source>
+        <target state="new">Fetching a full row from a heap or a clustered index.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="SpoolDescription">
+        <source>Saving temporarily an intermediate query result.</source>
+        <target state="new">Saving temporarily an intermediate query result.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="SQL">
+        <source>SQL</source>
+        <target state="new">SQL</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="SQLDescription">
+        <source>SQL.</source>
+        <target state="new">SQL.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="Update">
+        <source>Update</source>
+        <target state="new">Update</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="UpdateDescription">
+        <source>Modify the values in the specified table.</source>
+        <target state="new">Modify the values in the specified table.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="Assign">
+        <source>Assign</source>
+        <target state="new">Assign</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="AssignDescription">
+        <source>Validate referential integrity constraints.</source>
+        <target state="new">Validate referential integrity constraints.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="Convert">
+        <source>Convert</source>
+        <target state="new">Convert</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="ConvertDescription">
+        <source>Implicit or explicit conversion of one scalar datatype to another.</source>
+        <target state="new">Implicit or explicit conversion of one scalar datatype to another.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="Declare">
+        <source>Declare</source>
+        <target state="new">Declare</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="DeclareDescription">
+        <source>Allocates a local variable.</source>
+        <target state="new">Allocates a local variable.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="If">
+        <source>If</source>
+        <target state="new">If</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="IfDescription">
+        <source>Conditional processing based on an expression.</source>
+        <target state="new">Conditional processing based on an expression.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="Intrinsic">
+        <source>Intrinsic</source>
+        <target state="new">Intrinsic</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="IntrinsicDescription">
+        <source>Invokes an internal Transact-SQL function.</source>
+        <target state="new">Invokes an internal Transact-SQL function.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="SetFunction">
+        <source>Set Function</source>
+        <target state="new">Set Function</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="SetFunctionDescription">
+        <source>Set Function.</source>
+        <target state="new">Set Function.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="Dynamic">
+        <source>Dynamic</source>
+        <target state="new">Dynamic</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="DynamicDescription">
+        <source>Cursor that can see all changes made by others.</source>
+        <target state="new">Cursor that can see all changes made by others.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="FetchQuery">
+        <source>Fetch Query</source>
+        <target state="new">Fetch Query</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="FetchQueryDescription">
+        <source>The query used to retrieve rows when a fetch is issued against a cursor.</source>
+        <target state="new">The query used to retrieve rows when a fetch is issued against a cursor.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="FastForward">
+        <source>Fast Forward</source>
+        <target state="new">Fast Forward</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="FastForwardDescription">
+        <source>Fast Forward.</source>
+        <target state="new">Fast Forward.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="Keyset">
+        <source>Keyset</source>
+        <target state="new">Keyset</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="KeysetDescription">
+        <source>Cursor that can see updates made by others, but not inserts.</source>
+        <target state="new">Cursor that can see updates made by others, but not inserts.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="PopulationQuery">
+        <source>Population Query</source>
+        <target state="new">Population Query</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="PopulationQueryDescription">
+        <source>The query used to populate a cursor's work table when the cursor is opened.</source>
+        <target state="new">The query used to populate a cursor's work table when the cursor is opened.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="RefreshQuery">
+        <source>Refresh Query</source>
+        <target state="new">Refresh Query</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="RefreshQueryDescription">
+        <source>Fetches current data for rows in fetch buffer.</source>
+        <target state="new">Fetches current data for rows in fetch buffer.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="Snapshot">
+        <source>Snapshot</source>
+        <target state="new">Snapshot</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="SnapshotDescription">
+        <source>A cursor that does not see changes made by others.</source>
+        <target state="new">A cursor that does not see changes made by others.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="RIDLookup">
+        <source>RID Lookup</source>
+        <target state="new">RID Lookup</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="RIDLookupDescription">
+        <source>RID Lookup</source>
+        <target state="new">RID Lookup</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="KeyLookup">
+        <source>Key Lookup</source>
+        <target state="new">Key Lookup</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="KeyLookupDescription">
+        <source>Uses a supplied clustering key to lookup on a table that has a clustered index.</source>
+        <target state="new">Uses a supplied clustering key to lookup on a table that has a clustered index.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="LogicalKeyLookup">
+        <source>Key Lookup</source>
+        <target state="new">Key Lookup</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="AdaptiveJoin">
+        <source>Adaptive Join</source>
+        <target state="new">Adaptive Join</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="AdaptiveJoinDescription">
+        <source>Chooses dynamically between hash join and nested loops.</source>
+        <target state="new">Chooses dynamically between hash join and nested loops.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="ForeignKeyReferencesCheck">
+        <source>Foreign Key References Check</source>
+        <target state="new">Foreign Key References Check</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="ForeignKeyReferencesCheckDescription">
+        <source>Checks referential integrity of the delete operation.</source>
+        <target state="new">Checks referential integrity of the delete operation.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="Apply">
+        <source>Apply</source>
+        <target state="new">Apply</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="ApplyDescription">
+        <source>Apply opration.</source>
+        <target state="new">Apply opration.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="Broadcast">
+        <source>Broadcast</source>
+        <target state="new">Broadcast</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="BroadcastDescription">
+        <source>Broadcast data movement.</source>
+        <target state="new">Broadcast data movement.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="ComputeToControlNode">
+        <source>Compute To Control Node</source>
+        <target state="new">Compute To Control Node</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="ComputeToControlNodeDescription">
+        <source>Data flow from compute nodes to control node.</source>
+        <target state="new">Data flow from compute nodes to control node.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="ConstTableGet">
+        <source>Constant Table Get</source>
+        <target state="new">Constant Table Get</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="ConstTableGetDescription">
+        <source>Get tuples from contant table.</source>
+        <target state="new">Get tuples from contant table.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="ControlToComputeNodes">
+        <source>Control To Compute Nodes</source>
+        <target state="new">Control To Compute Nodes</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="ControlToComputeNodesDescription">
+        <source>Data flow from control node to compute nodes.</source>
+        <target state="new">Data flow from control node to compute nodes.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="ExternalBroadcast">
+        <source>External Broadcast</source>
+        <target state="new">External Broadcast</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="ExternalBroadcastDescription">
+        <source>Broadcast data movement for external table.</source>
+        <target state="new">Broadcast data movement for external table.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="ExternalExport">
+        <source>External Export</source>
+        <target state="new">External Export</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="ExternalExportDescription">
+        <source>Export data movement for external table.</source>
+        <target state="new">Export data movement for external table.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="ExternalLocalStreaming">
+        <source>External Local Streaming</source>
+        <target state="new">External Local Streaming</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="ExternalLocalStreamingDescription">
+        <source>Streaming data movement between external table and local table.</source>
+        <target state="new">Streaming data movement between external table and local table.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="ExternalRoundRobin">
+        <source>External RoundRobin</source>
+        <target state="new">External RoundRobin</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="ExternalRoundRobinDescription">
+        <source>RoundRobin data movement for external table.</source>
+        <target state="new">RoundRobin data movement for external table.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="ExternalShuffle">
+        <source>External Shuffle</source>
+        <target state="new">External Shuffle</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="ExternalShuffleDescription">
+        <source>Shuffle data movement for external table.</source>
+        <target state="new">Shuffle data movement for external table.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="Get">
+        <source>Get</source>
+        <target state="new">Get</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="GetDescription">
+        <source>Get tuples from table.</source>
+        <target state="new">Get tuples from table.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="GbApply">
+        <source>Group by and Apply</source>
+        <target state="new">Group by and Apply</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="GbApplyDescription">
+        <source>Group by and Apply.</source>
+        <target state="new">Group by and Apply.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="GbAgg">
+        <source>Group by Aggregates</source>
+        <target state="new">Group by Aggregates</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="GbAggDescription">
+        <source>Group by aggregates.</source>
+        <target state="new">Group by aggregates.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="Join">
+        <source>Join</source>
+        <target state="new">Join</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="JoinDescription">
+        <source>Join tables.</source>
+        <target state="new">Join tables.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="LocalCube">
+        <source>Rollup Aggregate</source>
+        <target state="new">Rollup Aggregate</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="LocalCubeDescription">
+        <source>This represents a ROLLUP operator or a CUBE operator.</source>
+        <target state="new">This represents a ROLLUP operator or a CUBE operator.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="Project">
+        <source>Project</source>
+        <target state="new">Project</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="ProjectDescription">
+        <source>Project columns.</source>
+        <target state="new">Project columns.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="Shuffle">
+        <source>Shuffle</source>
+        <target state="new">Shuffle</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="ShuffleDescription">
+        <source>Shuffle data movement.</source>
+        <target state="new">Shuffle data movement.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="SingleSourceRoundRobin">
+        <source>Single Source RoundRobin</source>
+        <target state="new">Single Source RoundRobin</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="SingleSourceRoundRobinDescription">
+        <source>Single Source RoundRobin data movement.</source>
+        <target state="new">Single Source RoundRobin data movement.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="SingleSourceShuffle">
+        <source>Single Source Shuffle</source>
+        <target state="new">Single Source Shuffle</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="SingleSourceShuffleDescription">
+        <source>Single Source Shuffle data movement.</source>
+        <target state="new">Single Source Shuffle data movement.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="Trim">
+        <source>Trim</source>
+        <target state="new">Trim</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="TrimDescription">
+        <source>Trim data.</source>
+        <target state="new">Trim data.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="Union">
+        <source>Union</source>
+        <target state="new">Union</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="UnionDescription">
+        <source>Union tables.</source>
+        <target state="new">Union tables.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="UnionAll">
+        <source>Union All</source>
+        <target state="new">Union All</target>
+        <note> Operator name</note>
+      </trans-unit>
+      <trans-unit id="UnionAllDescription">
+        <source>Union All tables.</source>
+        <target state="new">Union All tables.</target>
+        <note> Operator description</note>
+      </trans-unit>
+      <trans-unit id="NameValuePair">
+        <source>{0}: {1}</source>
+        <target state="new">{0}: {1}</target>
+        <note>Format for name / value pair -  {0} is property name, {1} is property value.
+ Parameters: 0 - name (string), 1 - value (string) </note>
+      </trans-unit>
+      <trans-unit id="SizeInBytesFormat">
+        <source>{0} B</source>
+        <target state="new">{0} B</target>
+        <note>Size in Bytes format</note>
+      </trans-unit>
+      <trans-unit id="SizeInKiloBytesFormat">
+        <source>{0} KB</source>
+        <target state="new">{0} KB</target>
+        <note>Size in KiloBytes format</note>
+      </trans-unit>
+      <trans-unit id="SizeInMegaBytesFormat">
+        <source>{0} MB</source>
+        <target state="new">{0} MB</target>
+        <note>Size in Bytes format</note>
+      </trans-unit>
+      <trans-unit id="SizeInGigaBytesFormat">
+        <source>{0} GB</source>
+        <target state="new">{0} GB</target>
+        <note>Size in GigaBytes format</note>
+      </trans-unit>
+      <trans-unit id="SizeInTeraBytesFormat">
+        <source>{0} TB</source>
+        <target state="new">{0} TB</target>
+        <note>Size in TeraBytes format</note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
