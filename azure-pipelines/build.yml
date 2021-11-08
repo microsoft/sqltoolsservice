@@ -168,7 +168,7 @@ steps:
         $subFolderItems = Get-ChildItem $i.FullName -recurse -force | Where-Object {$_.PSIsContainer -eq $false} | Measure-Object -property Length -sum | Select-Object Sum
         $i.FullName + " -- " + "{0:N2}" -f ($subFolderItems.sum / 1GB) + " GB"
     }
-    displayName: Print disk size
+  displayName: Print disk size
 
 - task: ArchiveFiles@1
   displayName: 'Archive osx build'
