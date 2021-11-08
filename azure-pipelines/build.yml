@@ -157,10 +157,10 @@ steps:
   condition: and(succeeded(), eq(variables['signed'], true))
 
 - powershell: |
-    $startDirectory = '$(Agent.WorkFolder)'
+    $startDirectory = '$(Agent.BuildDirectory)'
  
     #gets a list of folders under the $startDirectory directory
-    $directoryItems = Get-ChildItem $startDirectory | Where-Object {$_.PSIsContainer -eq $true} | Sort-Object
+    $directoryItems = Get-ChildItem $startDirectory -recurse | Where-Object {$_.PSIsContainer -eq $true} | Sort-Object -Property FullName
  
     #loops throught he list, calculating the size of each directory
     foreach ($i in $directoryItems)
