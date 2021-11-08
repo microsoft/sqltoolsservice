@@ -156,20 +156,6 @@ steps:
     MaxConcurrency: 5
   condition: and(succeeded(), eq(variables['signed'], true))
 
-- powershell: |
-    $startDirectory = '$(Agent.BuildDirectory)'
- 
-    #gets a list of folders under the $startDirectory directory
-    $directoryItems = Get-ChildItem $startDirectory -recurse | Where-Object {$_.PSIsContainer -eq $true} | Sort-Object -Property FullName
- 
-    #loops throught he list, calculating the size of each directory
-    foreach ($i in $directoryItems)
-    {
-        $subFolderItems = Get-ChildItem $i.FullName -recurse -force | Where-Object {$_.PSIsContainer -eq $false} | Measure-Object -property Length -sum | Select-Object Sum
-        $i.FullName + " -- " + "{0:N2}" -f ($subFolderItems.sum / 1GB) + " GB"
-    }
-  displayName: Print disk size
-
 - task: ArchiveFiles@1
   displayName: 'Archive osx build'
   inputs:
