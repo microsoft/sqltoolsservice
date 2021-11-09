@@ -3,4 +3,9 @@
     <HighEntropyVA>true</HighEntropyVA>
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
   </PropertyGroup>
+  <PropertyGroup>
+    <CredentialsTargetFramework>net5.0</CredentialsTargetFramework>
+    <ServiceLayerTargetFramework>net5.0</ServiceLayerTargetFramework>
+    <ResourceProviderTargetFramework>net5.0</ResourceProviderTargetFramework>
+  </PropertyGroup>
 </Project>
