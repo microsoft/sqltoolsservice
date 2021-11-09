@@ -2487,6 +2487,66 @@
         <note>
         </note>
       </trans-unit>
+      <trans-unit id="ActualIOStatistics">
+        <source>Actual I/O Statistics</source>
+        <target state="translated">Statistik zur tatsächlichen E/A</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ActualIOStatisticsDescription">
+        <source>Actual I/O Statistics</source>
+        <target state="translated">Statistik zur tatsächlichen E/A</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ActualJoinType">
+        <source>Actual Join Type</source>
+        <target state="translated">Tatsächlicher Jointyp</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ActualJoinTypeDescription">
+        <source>The actual join picked (nested loops or hash join) as part of adaptive join execution.</source>
+        <target state="translated">Der Join (Join geschachtelter Schleifen oder Hashjoin), der tatsächlich im Rahmen der adaptiven Joinausführung gewählt wurde.</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ActualLobLogicalReads">
+        <source>Actual Lob Logical Reads</source>
+        <target state="translated">Tatsächliche logische LOB-Lesevorgänge</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ActualLobLogicalReadsDescription">
+        <source>Actual Lob Logical Reads</source>
+        <target state="translated">Tatsächliche logische LOB-Lesevorgänge</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ActualLobPageServerReadAheads">
+        <source>Actual Lob Page Server Read Aheads</source>
+        <target state="translated">Tatsächliche Read-Ahead-Vorgänge für LOB-Seitenserver</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ActualLobPageServerReadAheadsDescription">
+        <source>Actual Lob Page Server Read Aheads</source>
+        <target state="translated">Tatsächliche Read-Ahead-Vorgänge für LOB-Seitenserver</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ActualLobPhysicalReads">
+        <source>Actual Lob Physical Reads</source>
+        <target state="translated">Tatsächliche physische LOB-Lesevorgänge</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ActualLobPhysicalReadsDescription">
+        <source>Actual Lob Physical Reads</source>
+        <target state="translated">Tatsächliche physische LOB-Lesevorgänge</target>
+        <note>
+        </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
