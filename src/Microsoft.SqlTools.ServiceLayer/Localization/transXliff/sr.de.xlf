@@ -2439,6 +2439,54 @@
         <note>
         </note>
       </trans-unit>
+      <trans-unit id="ActionColumn">
+        <source>Action Column</source>
+        <target state="translated">Aktionsspalte</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ActionColumnDescription">
+        <source>Action column.</source>
+        <target state="translated">Aktionsspalte.</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="Activation">
+        <source>Activation</source>
+        <target state="translated">Aktivierung</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ActualCPUms">
+        <source>Actual Elapsed CPU Time (ms)</source>
+        <target state="translated">Tatsächlich verstrichene CPU-Zeit (ms)</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ActualCPUmsDescription">
+        <source>Actual elapsed CPU time in milliseconds</source>
+        <target state="translated">Die tatsächlich verstrichene CPU-Zeit in Millisekunden</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ActualElapsedms">
+        <source>Actual Elapsed Time (ms)</source>
+        <target state="translated">Tatsächlich verstrichene Zeit (ms)</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ActualElapsedmsDescription">
+        <source>Actual elapsed time in milliseconds</source>
+        <target state="translated">Die tatsächlich verstrichene Zeit in Millisekunden</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ActualExecMode">
+        <source>Actual Execution Mode</source>
+        <target state="translated">Tatsächlicher Ausführungsmodus</target>
+        <note>
+        </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
