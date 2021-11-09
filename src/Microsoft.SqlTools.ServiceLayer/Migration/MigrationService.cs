@@ -21,6 +21,15 @@ using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Migration.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlAssessment;
 using Microsoft.SqlTools.Utility;
+using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts;
+using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts.Models.Sku;
+using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts.Models;
+using Microsoft.SqlServer.Migration.SkuRecommendation.Aggregation;
+using Microsoft.SqlServer.Migration.SkuRecommendation.Models.Sql;
+using Microsoft.SqlServer.Migration.SkuRecommendation.Billing;
+using Microsoft.SqlServer.Migration.SkuRecommendation;
+using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts.Constants;
+using System.Globalization;
 
 namespace Microsoft.SqlTools.ServiceLayer.Migration
 {
@@ -91,6 +100,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         {
             this.ServiceHost = serviceHost;
             this.ServiceHost.SetRequestHandler(MigrationAssessmentsRequest.Type, HandleMigrationAssessmentsRequest);
+            this.ServiceHost.SetRequestHandler(GetSkuRecommendationsRequest.Type, HandleGetSkuRecommendationsRequest);
         }
 
         /// <summary>
@@ -142,7 +152,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 ConnectionService.Disconnect(new DisconnectParams { OwnerUri = randomUri, Type = null });
             }
         }
-
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        internal async Task HandleGetSkuRecommendationsRequest(
+            GetSkuRecommendationsParams parameters,
+            RequestContext<GetSkuRecommendationsResult> requestContext)
+        {
+            var results = await GetSkuRecommendationResults(parameters);
+            await requestContext.SendResult(results);
+        }
 
         internal class AssessmentRequest : IAssessmentRequest
         {
@@ -188,6 +208,101 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 RawAssessmentResult = contextualizedAssessmentResult
             };
         }
+
+        internal async Task<GetSkuRecommendationsResult> GetSkuRecommendationResults(GetSkuRecommendationsParams parameters) 
+        {
+            SqlAssessmentConfiguration.EnableLocalLogging = true;
+            SqlAssessmentConfiguration.AssessmentReportAndLogsRootFolderPath = Path.GetDirectoryName(Logger.LogFileFullPath);
+
+            // call into NuGet
+
+            CsvRequirementsAggregator aggregator = new CsvRequirementsAggregator(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Microsoft", "SqlAssessment"));
+            SqlInstanceRequirements req = aggregator.ComputeSqlInstanceRequirements(null,
+                parameters.TargetSqlInstance,
+                parameters.TargetPercentile,
+                DateTime.ParseExact(parameters.StartTime, RecommendationConstants.TimestampDateTimeFormat, CultureInfo.InvariantCulture),
+                DateTime.ParseExact(parameters.EndTime, RecommendationConstants.TimestampDateTimeFormat, CultureInfo.InvariantCulture),
+                parameters.PerfQueryIntervalInSec);
+
+            AzurePreferences prefs = new AzurePreferences()
+            {
+                EligibleSkuCategories = GetEligibleSkuCategories(parameters),
+                ScalingFactor = parameters.ScalingFactor / 100.0
+            };
+
+            List<SkuRecommendationResult> recommendationResults = new List<SkuRecommendationResult>();
+            SkuRecommendationServiceProvider recProvider = new SkuRecommendationServiceProvider(new AzureSqlSkuBillingServiceProvider());
+            recommendationResults = recProvider.GetSkuRecommendation(prefs, req);
+
+            return new GetSkuRecommendationsResult
+            {
+                RecommendationResults = recommendationResults
+            };
+        }
+
+        // expose in NuGet
+        public static List<AzureSqlSkuCategory> GetEligibleSkuCategories(GetSkuRecommendationsParams parameters)
+        {
+            List<AzureSqlSkuCategory> eligibleSkuCategories = new List<AzureSqlSkuCategory>();
+
+            if (parameters.TargetPlatform == "AzureSqlDatabase" || parameters.TargetPlatform == "Any")
+            {
+                // Gen5 BC/GP DB
+                eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
+                                                AzureSqlTargetPlatform.AzureSqlDatabase,
+                                                AzureSqlPurchasingModel.vCore,
+                                                AzureSqlPaaSServiceTier.BusinessCritical,
+                                                ComputeTier.Provisioned,
+                                                AzureSqlPaaSHardwareType.Gen5));
+
+                eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
+                                                AzureSqlTargetPlatform.AzureSqlDatabase,
+                                                AzureSqlPurchasingModel.vCore,
+                                                AzureSqlPaaSServiceTier.GeneralPurpose,
+                                                ComputeTier.Provisioned,
+                                                AzureSqlPaaSHardwareType.Gen5));
+            }
+
+            if (parameters.TargetPlatform == "AzureSqlManagedInstance" || parameters.TargetPlatform == "Any")
+            {
+                // Gen5 BC/GP MI
+                eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
+                                            AzureSqlTargetPlatform.AzureSqlManagedInstance,
+                                            AzureSqlPurchasingModel.vCore,
+                                            AzureSqlPaaSServiceTier.BusinessCritical,
+                                            ComputeTier.Provisioned,
+                                            AzureSqlPaaSHardwareType.Gen5));
+
+                eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
+                                                AzureSqlTargetPlatform.AzureSqlManagedInstance,
+                                                AzureSqlPurchasingModel.vCore,
+                                                AzureSqlPaaSServiceTier.GeneralPurpose,
+                                                ComputeTier.Provisioned,
+                                                AzureSqlPaaSHardwareType.Gen5));
+            }
+
+            if (parameters.TargetPlatform == "AzureSqlVirtualMachine" || parameters.TargetPlatform == "Any")
+            {
+                if (parameters.ElasticStrategy && parameters.TargetPlatform == "AzureSqlVirtualMachine")
+                {
+                    throw new ArgumentException("Elastic strategy does not currently support Azure SQL Virtual Machine as a target.");
+                }
+
+                // Provisioned SQL IaaS
+                eligibleSkuCategories.Add(new AzureSqlSkuIaaSCategory(
+                                                AzureSqlTargetPlatform.AzureSqlVirtualMachine,
+                                                ComputeTier.Provisioned,
+                                                VirtualMachineFamilyType.GeneralPurpose));
+
+                eligibleSkuCategories.Add(new AzureSqlSkuIaaSCategory(
+                                                AzureSqlTargetPlatform.AzureSqlVirtualMachine,
+                                                ComputeTier.Provisioned,
+                                                VirtualMachineFamilyType.MemoryOptimized));
+            }
+
+            return eligibleSkuCategories;
+        }
+
 
         internal ServerAssessmentProperties ParseServerAssessmentInfo(IServerAssessmentInfo server, DmaEngine engine)
         {
