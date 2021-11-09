@@ -1,9 +1,0 @@
-﻿<Project Sdk="Microsoft.Build.NoTargets">
-  <PropertyGroup>
-    <PackageDescription>SQL Tools Service runtime components for linux-64</PackageDescription>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <None Include="../../artifacts/publish/Microsoft.SqlTools.ServiceLayer/linux-64/**" Pack="true" PackagePath="runtimes/linux-x64/native" />
-  </ItemGroup>
-</Project>

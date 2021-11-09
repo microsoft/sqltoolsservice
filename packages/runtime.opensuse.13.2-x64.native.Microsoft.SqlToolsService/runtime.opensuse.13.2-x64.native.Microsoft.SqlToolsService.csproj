@@ -4,6 +4,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="../../artifacts/publish/Microsoft.SqlTools.ServiceLayer-opensuse.13.2-x64-net5.0/**" Pack="true" PackagePath="runtimes/opensuse.13.2-x64/native" />
+    <None Include="../../artifacts/publish/Microsoft.SqlTools.ServiceLayer-opensuse.13.2-x64-net5.0/$(TargetFramework)/**" Pack="true" PackagePath="runtimes/opensuse.13.2-x64/native" />
   </ItemGroup>
 </Project>
