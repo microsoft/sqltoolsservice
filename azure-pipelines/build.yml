@@ -151,6 +151,13 @@ steps:
     MaxConcurrency: 5
   condition: and(succeeded(), eq(variables['signed'], true))
 
+- task: BatchScript@1
+  displayName: 'Package published projects'
+  inputs:
+    filename: build.cmd
+    arguments: '-target=dotnetpackpublished -mono'
+  continueOnError: true
+
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
   displayName: 'ESRP Code Signing - Nuget Package'
   inputs:

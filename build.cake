@@ -251,10 +251,11 @@ Task("DotnetPack")
 });
 
 /// <summary>
-///  Packages projects specified in PackagePublishedProjects, these projects require that publishing be done first.
+///  Packages projects specified in PackagePublishedProjects, these projects require that publishing be done first. Note that we
+///  don't do the publishing here because we need the binaries to be signed before being packaged up and that is done by the pipeline
+///  currently.
 /// </summary>
 Task("DotnetPackPublished")
-    .IsDependentOn("AllPublish")
     .Does(() =>
 {
     foreach (var project in buildPlan.PackagePublishedProjects)
@@ -519,7 +520,6 @@ Task("All")
     .IsDependentOn("TestAll")
     .IsDependentOn("DotnetPack")
     .IsDependentOn("AllPublish")
-    .IsDependentOn("DotnetPackPublished")
     //.IsDependentOn("TestPublished")
     .Does(() =>
 {
