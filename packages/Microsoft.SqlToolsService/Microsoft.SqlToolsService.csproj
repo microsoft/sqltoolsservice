@@ -1,29 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-    <!--- Do not glob C# source files and other project items -->
-    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-    <EnableDefaultNoneItems>false</EnableDefaultNoneItems>
-    <IsPackable>true</IsPackable>
-    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <!-- We don't need to generate a DLL, but we still want to include the build targets so we get the project references added as dependencies in the package -->
+    <NoBuild>true</NoBuild>
   </PropertyGroup>
 
   <PropertyGroup>
     <PackageDescription>.NET client for SQL Tools Service</PackageDescription>
-    <PackageReleaseNotes></PackageReleaseNotes>
-    <PackageVersion Condition="'$(SqlToolsVersion)' != ''">$(SqlToolsVersion)</PackageVersion>
-    <PackageLicenseExpression></PackageLicenseExpression>
-    <PackageLicenseFile>license/license.txt</PackageLicenseFile>
-    <PackageIcon>images/sqlserver.png</PackageIcon>
-    <PackageIconFullPath></PackageIconFullPath>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Include="Class1.cs" />
-    <None Include="../license/license.txt" Pack="true" PackagePath="license/" />
-    <None Include="../images/sqlserver.png" Pack="true" PackagePath="images/" />
-    <None Include="../lib/_._" Pack="true" PackagePath="lib/net5.0/" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="../runtime.centos.7-x64.native.Microsoft.SqlToolsService/runtime.centos.7-x64.native.Microsoft.SqlToolsService.csproj" PrivateAssets="All" />
@@ -43,6 +26,7 @@
 
   <ItemGroup>
     <PackageReference Include="runtime.linux-64-x64.native.Microsoft.SqlToolsService" Version="$(PackageVersion)" />
+    <PackageReference Include="runtime.debian.8-x64.native.Microsoft.SqlToolsService" Version="$(PackageVersion)" />
     <PackageReference Include="runtime.opensuse.13.2-x64.native.Microsoft.SqlToolsService" Version="$(PackageVersion)" />
     <PackageReference Include="runtime.osx.10.11-x64.native.Microsoft.SqlToolsService" Version="$(PackageVersion)" />
     <PackageReference Include="runtime.rhel.7.2-x64.native.Microsoft.SqlToolsService" Version="$(PackageVersion)" />
