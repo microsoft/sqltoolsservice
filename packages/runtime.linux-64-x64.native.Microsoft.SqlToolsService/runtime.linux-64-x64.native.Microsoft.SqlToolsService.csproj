@@ -1,28 +1,9 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-	<TargetFramework>net5.0</TargetFramework>
-	<!--- Do not glob C# source files and other project items -->
-    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-    <EnableDefaultNoneItems>false</EnableDefaultNoneItems>
-    <IsPackable>true</IsPackable>
-    <IncludeBuildOutput>false</IncludeBuildOutput>
-  </PropertyGroup>
-
+﻿<Project Sdk="Microsoft.Build.NoTargets">
   <PropertyGroup>
     <PackageDescription>SQL Tools Service runtime components for linux-64</PackageDescription>
-    <PackageReleaseNotes></PackageReleaseNotes>
-    <PackageVersion Condition="'$(SqlToolsVersion)' != ''">$(SqlToolsVersion)</PackageVersion>
-    <PackageLicenseExpression></PackageLicenseExpression>
-    <PackageLicenseFile>license/license.txt</PackageLicenseFile>
-    <PackageIcon>images\sqlserver.png</PackageIcon>
-    <PackageIconFullPath></PackageIconFullPath>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Class1.cs" />
-    <None Include="../license/license.txt" Pack="true" PackagePath="license/" />
-    <None Include="../images/sqlserver.png" Pack="true" PackagePath="images/" />
     <None Include="../../artifacts/publish/Microsoft.SqlTools.ServiceLayer/linux-64/**" Pack="true" PackagePath="runtimes/linux-x64/native" />
-    <None Include="../lib/_._" Pack="true" PackagePath="lib/net5.0/" />
   </ItemGroup>
 </Project>
