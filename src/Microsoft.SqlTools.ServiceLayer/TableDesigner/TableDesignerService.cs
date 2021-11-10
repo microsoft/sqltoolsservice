@@ -57,13 +57,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             this.ServiceHost.SetRequestHandler(SaveTableChangesRequest.Type, HandleSaveTableChangesRequest);
             this.ServiceHost.SetRequestHandler(DisposeTableDesignerRequest.Type, HandleDisposeTableDesignerRequest);
         }
-        private Task HandleRequest<T>(RequestContext<T> requestContext, Action action)
+        private Task HandleRequest<T>(RequestContext<T> requestContext, Func<Task> action)
         {
             Task.Run(async () =>
             {
                 try
                 {
-                    action();
+                    await action();
                 }
                 catch (Exception e)
                 {
