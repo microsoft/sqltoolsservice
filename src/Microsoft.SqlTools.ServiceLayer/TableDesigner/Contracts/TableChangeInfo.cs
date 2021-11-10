@@ -28,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
     {
         public DesignerEditType Type { get; set; }
 
-        public string Path { get; set; }
+        public object[] Path { get; set; }
 
         public object Value { get; set; }
     }

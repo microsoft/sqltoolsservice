@@ -96,6 +96,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         {
             return this.HandleRequest<ProcessTableDesignerEditResponse>(requestContext, async () =>
             {
+                DesignerPathUtils.Validate(requestParams.TableChangeInfo.Path, requestParams.TableChangeInfo.Type);
                 switch (requestParams.TableChangeInfo.Type)
                 {
                     case DesignerEditType.Add:
@@ -137,11 +138,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
         private void HandleAddItemRequest(ProcessTableDesignerEditRequestParams requestParams)
         {
-            var pathSegments = DesignerPathUtils.Parse(requestParams.TableChangeInfo.Path, DesignerEditType.Add);
+            var path = requestParams.TableChangeInfo.Path;
             // Handle the add item request on top level table properties, e.g. Columns, Indexes.
-            if (pathSegments.Count == 1)
+            if (path.Length == 1)
             {
-                switch (pathSegments[0])
+                var propertyName = path[0] as string;
+                switch (propertyName)
                 {
                     case TablePropertyNames.Columns:
                         requestParams.ViewModel.Columns.AddNew();
@@ -158,14 +160,15 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
         private void HandleRemoveItemRequest(ProcessTableDesignerEditRequestParams requestParams)
         {
-            var pathSegments = DesignerPathUtils.Parse(requestParams.TableChangeInfo.Path, DesignerEditType.Remove);
+            var path = requestParams.TableChangeInfo.Path;
             // Handle the add item request on top level table properties, e.g. Columns, Indexes.
-            if (pathSegments.Count == 2)
+            if (path.Length == 2)
             {
-                switch (pathSegments[0])
+                var propertyName = path[0] as string;
+                switch (propertyName)
                 {
                     case TablePropertyNames.Columns:
-                        requestParams.ViewModel.Columns.Data.RemoveAt((int)pathSegments[1]);
+                        requestParams.ViewModel.Columns.Data.RemoveAt(Convert.ToInt32(path[1]));
                         break;
                     default:
                         break;

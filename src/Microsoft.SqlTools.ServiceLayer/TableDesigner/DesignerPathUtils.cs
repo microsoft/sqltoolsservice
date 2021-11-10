@@ -13,28 +13,26 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
     public static class DesignerPathUtils
     {
         ///<summary>
-        /// Parse the path in the table designer change information.
-        /// Below are the 3 scenarios and their expected path format.
-        /// Note: 'index-{x}' in the description below represents the index of the object in the list.
+        /// validate the path in the table designer change information.
+        /// Below are the 3 scenarios and their expected path.
+        /// Note: 'index-{x}' in the description below are numbers represent the index of the object in the list.
 		/// 1. 'Add' scenario
-		///     a. 'propertyName1'. Example: add a column to the columns property: 'columns'.
-		///     b. 'propertyName1/index-1/propertyName2'. Example: add a column mapping to the first foreign key: 'foreignKeys/0/mappings'.
+		///     a. ['propertyName1']. Example: add a column to the columns property: ['columns'].
+		///     b. ['propertyName1',index-1,'propertyName2']. Example: add a column mapping to the first foreign key: ['foreignKeys',0,'mappings'].
 		/// 2. 'Update' scenario
-		///     a. 'propertyName1'. Example: update the name of the table: 'name'.
-		///     b. 'propertyName1/index-1/propertyName2'. Example: update the name of a column: 'columns/0/name'.
-		///     c. 'propertyName1/index-1/propertyName2/index-2/propertyName3'. Example: update the source column of an entry in a foreign key's column mapping table: 'foreignKeys/0/mappings/0/source'.
+		///     a. ['propertyName1']. Example: update the name of the table: ['name'].
+		///     b. ['propertyName1',index-1,'propertyName2']. Example: update the name of a column: ['columns',0,'name'].
+		///     c. ['propertyName1',index-1,'propertyName2',index-2,'propertyName3']. Example: update the source column of an entry in a foreign key's column mapping table: ['foreignKeys',0,'mappings',0,'source'].
 		/// 3. 'Remove' scenario
-        ///     a. 'propertyName1/index-1'. Example: remove a column from the columns property: 'columns/0'.
-		///     b. 'propertyName1/index-1/propertyName2/index-2': Example: remove a column mapping from a foreign key's column mapping table: 'foreignKeys/0/mappings/0'.
+        ///     a. ['propertyName1',index-1]. Example: remove a column from the columns property: ['columns',0'].
+		///     b. ['propertyName1',index-1,'propertyName2',index-2]. Example: remove a column mapping from a foreign key's column mapping table: ['foreignKeys',0,'mappings',0].
         ///<summary>
-        public static ArrayList Parse(string path, DesignerEditType editType)
+        public static void Validate(object[] path, DesignerEditType editType)
         {
-            if (string.IsNullOrEmpty(path))
+            if (path == null || path.Length == 0)
             {
                 throw new ArgumentException(SR.TableEditPathNotProvidedException);
             }
-
-            var parts = Split(path);
 
             // Length validation
             int[] validLengthList;
@@ -51,43 +49,31 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 validLengthList = new int[] { 2, 4 };
             }
 
-            bool isValid = validLengthList.ToList<int>().Contains(parts.Length);
-            ArrayList list = new ArrayList();
+            bool isValid = validLengthList.ToList<int>().Contains(path.Length);
             if (isValid)
             {
-                for (int i = 0; i < parts.Length; i++)
+                for (int i = 0; i < path.Length; i++)
                 {
                     // On odd number positions, the value must be a number.
                     if (i % 2 != 0)
                     {
-                        int idx;
-                        if (Int32.TryParse(parts[i], out idx))
-                        {
-                            list.Add(idx);
-                        }
-                        else
-                        {
-                            isValid = false;
-                            break;
-                        }
+                        isValid = path[i] is long; //JSON deserialization will parse integers as long.
                     }
                     else
                     {
-                        list.Add(parts[i]);
+                        isValid = path[i] is string;
+                    }
+                    if (!isValid)
+                    {
+                        break;
                     }
                 }
             }
 
             if (!isValid)
             {
-                throw new ArgumentException(SR.InvalidTableEditPathException(path, editType.ToString()));
+                throw new ArgumentException(SR.InvalidTableEditPathException(string.Join(',', path), editType.ToString()));
             }
-            return list;
-        }
-
-        private static string[] Split(string path)
-        {
-            return path.Split('/', StringSplitOptions.RemoveEmptyEntries);
         }
     }
 }
