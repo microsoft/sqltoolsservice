@@ -12,29 +12,23 @@
     <ProjectReference Include="../runtime.centos.7-x64.native.Microsoft.SqlToolsService/runtime.centos.7-x64.native.Microsoft.SqlToolsService.csproj" PrivateAssets="All" />
     <ProjectReference Include="../runtime.debian.8-x64.native.Microsoft.SqlToolsService/runtime.debian.8-x64.native.Microsoft.SqlToolsService.csproj" PrivateAssets="All" />
     <ProjectReference Include="../runtime.fedora.23-x64.native.Microsoft.SqlToolsService/runtime.fedora.23-x64.native.Microsoft.SqlToolsService.csproj" PrivateAssets="All" />
-    <ProjectReference Include="../runtime.linux-64-x64.native.Microsoft.SqlToolsService/runtime.linux-64-x64.native.Microsoft.SqlToolsService.csproj" PrivateAssets="All" />
+    <ProjectReference Include="../runtime.linux-x64.native.Microsoft.SqlToolsService/runtime.linux-x64.native.Microsoft.SqlToolsService.csproj" PrivateAssets="All" />
     <ProjectReference Include="../runtime.opensuse.13.2-x64.native.Microsoft.SqlToolsService/runtime.opensuse.13.2-x64.native.Microsoft.SqlToolsService.csproj" PrivateAssets="All" />
-    <ProjectReference Include="../runtime.osx.10.11-x64.native.Microsoft.SqlToolsService/runtime.osx.10.11-x64.native.Microsoft.SqlToolsService.csproj" PrivateAssets="All" />
+    <ProjectReference Include="../runtime.osx-x64.native.Microsoft.SqlToolsService/runtime.osx-x64.native.Microsoft.SqlToolsService.csproj" PrivateAssets="All" />
     <ProjectReference Include="../runtime.rhel.7.2-x64.native.Microsoft.SqlToolsService/runtime.rhel.7.2-x64.native.Microsoft.SqlToolsService.csproj" PrivateAssets="All" />
     <ProjectReference Include="../runtime.ubuntu.14.04-x64.native.Microsoft.SqlToolsService/runtime.ubuntu.14.04-x64.native.Microsoft.SqlToolsService.csproj" PrivateAssets="All" />
     <ProjectReference Include="../runtime.ubuntu.16.04-x64.native.Microsoft.SqlToolsService/runtime.ubuntu.16.04-x64.native.Microsoft.SqlToolsService.csproj" PrivateAssets="All" />
-    <ProjectReference Include="../runtime.win10-arm.native.Microsoft.SqlToolsService/runtime.win10-arm.native.Microsoft.SqlToolsService.csproj" PrivateAssets="All" />
-    <ProjectReference Include="../runtime.win10-arm64.native.Microsoft.SqlToolsService/runtime.win10-arm64.native.Microsoft.SqlToolsService.csproj" PrivateAssets="All" />
     <ProjectReference Include="../runtime.win7-x64.native.Microsoft.SqlToolsService/runtime.win7-x64.native.Microsoft.SqlToolsService.csproj" PrivateAssets="All" />
-    <ProjectReference Include="../runtime.win7-x86.native.Microsoft.SqlToolsService/runtime.win7-x86.native.Microsoft.SqlToolsService.csproj" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="runtime.linux-64-x64.native.Microsoft.SqlToolsService" Version="$(PackageVersion)" />
-    <PackageReference Include="runtime.debian.8-x64.native.Microsoft.SqlToolsService" Version="$(PackageVersion)" />
-    <PackageReference Include="runtime.opensuse.13.2-x64.native.Microsoft.SqlToolsService" Version="$(PackageVersion)" />
-    <PackageReference Include="runtime.osx.10.11-x64.native.Microsoft.SqlToolsService" Version="$(PackageVersion)" />
-    <PackageReference Include="runtime.rhel.7.2-x64.native.Microsoft.SqlToolsService" Version="$(PackageVersion)" />
-    <PackageReference Include="runtime.ubuntu.14.04-x64.native.Microsoft.SqlToolsService" Version="$(PackageVersion)" />
-    <PackageReference Include="runtime.ubuntu.16.04-x64.native.Microsoft.SqlToolsService" Version="$(PackageVersion)" />
-    <PackageReference Include="runtime.win10-arm.native.Microsoft.SqlToolsService" Version="$(PackageVersion)" />
-    <PackageReference Include="runtime.win10-arm64.native.Microsoft.SqlToolsService" Version="$(PackageVersion)" />
-    <PackageReference Include="runtime.win7-x64.native.Microsoft.SqlToolsService" Version="$(PackageVersion)" />
-    <PackageReference Include="runtime.win7-x86.native.Microsoft.SqlToolsService" Version="$(PackageVersion)" />
+    <PackageReference Include="runtime.linux-x64.native.Microsoft.SqlToolsService" VersionOverride="$(PackageVersion)" />
+    <PackageReference Include="runtime.debian.8-x64.native.Microsoft.SqlToolsService" VersionOverride="$(PackageVersion)" />
+    <PackageReference Include="runtime.opensuse.13.2-x64.native.Microsoft.SqlToolsService" VersionOverride="$(PackageVersion)" />
+    <PackageReference Include="runtime.osx-x64.native.Microsoft.SqlToolsService" VersionOverride="$(PackageVersion)" />
+    <PackageReference Include="runtime.rhel.7.2-x64.native.Microsoft.SqlToolsService" VersionOverride="$(PackageVersion)" />
+    <PackageReference Include="runtime.ubuntu.14.04-x64.native.Microsoft.SqlToolsService" VersionOverride="$(PackageVersion)" />
+    <PackageReference Include="runtime.ubuntu.16.04-x64.native.Microsoft.SqlToolsService" VersionOverride="$(PackageVersion)" />
+    <PackageReference Include="runtime.win7-x64.native.Microsoft.SqlToolsService" VersionOverride="$(PackageVersion)" />
   </ItemGroup>
 </Project>

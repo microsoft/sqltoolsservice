@@ -126,6 +126,41 @@ steps:
     MaxConcurrency: 5
   condition: and(succeeded(), eq(variables['signed'], true))
 
+- task: BatchScript@1
+  displayName: 'Package published projects'
+  inputs:
+    filename: build.cmd
+    arguments: '-target=dotnetpackpublished -mono'
+  continueOnError: true
+
+- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+  displayName: 'ESRP Code Signing - Nuget Package'
+  inputs:
+    ConnectedServiceName: 'Code Signing'
+    FolderPath: '$(Build.SourcesDirectory)/artifacts/nugetPackages'
+    Pattern: '*.nupkg'
+    signConfigType: 'inlineSignParams'
+    inlineOperation: |
+      [
+          {
+              "keyCode": "CP-401405",
+              "operationSetCode": "NuGetSign",
+              "parameters": [ ],
+              "toolName": "sign",
+              "toolVersion": "1.0"
+          },
+          {
+              "keyCode": "CP-401405",
+              "operationSetCode": "NuGetVerify",
+              "parameters": [ ],
+              "toolName": "sign",
+              "toolVersion": "1.0"
+          }
+      ]
+    SessionTimeout: '60'
+    MaxConcurrency: '50'
+    MaxRetryAttempts: '5'
+
 - task: ArchiveFiles@1
   displayName: 'Archive osx build'
   inputs:
@@ -171,9 +206,21 @@ steps:
 #     archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win10-arm64-net5.0.zip'
 
 - task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifact: drop'
+  displayName: 'Publish Artifact: build archives'
   inputs:
     PathtoPublish: '$(Build.SourcesDirectory)/artifacts/package'
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact: nuget packages'
+  inputs:
+    PathtoPublish: '$(Build.SourcesDirectory)/artifacts/nugetPackages'
+    ArtifactName: 'packages'
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact: logs'
+  inputs:
+    PathtoPublish: '$(Build.SourcesDirectory)/artifacts/logs'
+    ArtifactName: 'logs'
 
 - task: NuGetCommand@2
   displayName: 'NuGet push'

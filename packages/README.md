@@ -1,0 +1,3 @@
+This directory contains projects that only handle packaging up the published artifacts for SQL Tools Service.
+
+There is one root project - `Microsoft.SqlToolsService`, and then a sub-project for each runtime that we currently support. The root project has a package dependency on each of the sub projects so that consumers only need to take a reference to the root project to be able to get all the necessary files for each platform.

@@ -40,7 +40,6 @@ msbuild.wrn
 # code coverage artifacts
 coverage.xml
 node_modules
-packages
 reports
 opencovertests.xml
 outputCobertura.xml
@@ -173,7 +172,6 @@ publish/
 *.nuget.props
 *.nuget.targets
 src/**/*.nupkg
-**/packages/*
 
 # Windows Azure Build Output
 csx/
