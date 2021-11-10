@@ -15,6 +15,10 @@ public class RunOptions
     /// </summary>
     public IList<string> StandardOutputListing { get; set; }
     /// <summary>
+    ///  Container logging the Error content.
+    /// </summary>
+    public IList<string> StandardErrorListing { get; set; }
+    /// <summary>
     ///  Desired maximum time-out for the process
     /// </summary>
     public int TimeOut { get; set; }
@@ -117,7 +121,8 @@ ExitStatus Run(string exec, string args, RunOptions runOptions)
             {
                 WorkingDirectory = workingDirectory,
                 UseShellExecute = false,
-                RedirectStandardOutput = runOptions.StandardOutputListing != null
+                RedirectStandardOutput = runOptions.StandardOutputListing != null,
+                RedirectStandardError = runOptions.StandardErrorListing != null,
             });
     if (runOptions.StandardOutputListing != null)
     {
@@ -129,6 +134,17 @@ ExitStatus Run(string exec, string args, RunOptions runOptions)
             }
         };
         process.BeginOutputReadLine();
+    }
+    if (runOptions.StandardErrorListing != null)
+    {
+        process.ErrorDataReceived += (s, e) =>
+        {
+            if (e.Data != null)
+            {
+                runOptions.StandardErrorListing.Add(e.Data);
+            }
+        };
+        process.BeginErrorReadLine();
     }
     if (runOptions.TimeOut == 0)
     {
@@ -201,4 +217,24 @@ public void KillProcessTree(Process process)
     {
         process.Kill();
     }
+}
+
+public void DotnetPack(string outputFolder, string projectFolder, string project) {
+    var runLog = new List<string>();
+    var errorLog = new List<string>();
+    var logPath = System.IO.Path.Combine(logFolder, $"{project}-pack.log");
+    Information($"Packaging {projectFolder}");
+    try {
+        Run(dotnetcli, $"pack --configuration {configuration} --output {outputFolder} \"{projectFolder}\"",
+            new RunOptions
+            {
+                StandardOutputListing = runLog,
+                StandardErrorListing = errorLog
+            })
+        .ExceptionOnError($"Packaging {project} failed. See {logPath} for details.");
+    } catch(Exception) {
+        System.IO.File.WriteAllLines(logPath, runLog.ToArray());
+        throw;
+    }
+    System.IO.File.WriteAllLines(logPath, runLog.ToArray());
 }

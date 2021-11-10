@@ -4,6 +4,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="../../artifacts/publish/Microsoft.SqlTools.ServiceLayer/rhel.7.2-x64/**" Pack="true" PackagePath="runtimes/rhel.7.2-x64/native" />
+    <None Include="../../artifacts/publish/Microsoft.SqlTools.ServiceLayer/rhel.7.2-x64/$(TargetFramework)/**" Pack="true" PackagePath="runtimes/rhel.7.2-x64/native" />
   </ItemGroup>
 </Project>
