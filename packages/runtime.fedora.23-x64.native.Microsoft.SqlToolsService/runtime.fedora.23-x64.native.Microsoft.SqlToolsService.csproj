@@ -4,6 +4,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="../../artifacts/publish/Microsoft.SqlTools.ServiceLayer/fedora.23-x64/**" Pack="true" PackagePath="runtimes/fedora.23-x64/native" />
+    <None Include="../../artifacts/publish/Microsoft.SqlTools.ServiceLayer/fedora.23-x64/$(TargetFramework)/**" Pack="true" PackagePath="runtimes/fedora.23-x64/native" />
   </ItemGroup>
 </Project>

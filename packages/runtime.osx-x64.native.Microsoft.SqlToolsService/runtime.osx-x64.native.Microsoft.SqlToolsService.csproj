@@ -4,6 +4,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="../../artifacts/publish/Microsoft.SqlTools.ServiceLayer/osx-x64/**" Pack="true" PackagePath="runtimes/osx-x64/native" />
+    <None Include="../../artifacts/publish/Microsoft.SqlTools.ServiceLayer/osx-x64/$(TargetFramework)/**" Pack="true" PackagePath="runtimes/osx-x64/native" />
   </ItemGroup>
 </Project>
