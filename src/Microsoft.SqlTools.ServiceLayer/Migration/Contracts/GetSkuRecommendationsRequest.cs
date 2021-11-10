@@ -45,7 +45,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
         /// <summary>
         /// List of SKU recommendation results returned by recommendation engine in NuGet
         /// </summary>
-        public List<SkuRecommendationResult> RecommendationResults { get; set; }
+        public List<SkuRecommendationResult> SqlDbRecommendationResults { get; set; }
+        public List<SkuRecommendationResult> SqlMiRecommendationResults { get; set; }
+
+        public List<SkuRecommendationResult> SqlVmRecommendationResults { get; set; }
     }
 
     public class GetSkuRecommendationsRequest

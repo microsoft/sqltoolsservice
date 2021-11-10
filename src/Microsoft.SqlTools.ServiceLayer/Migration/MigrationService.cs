@@ -214,7 +214,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             SqlAssessmentConfiguration.EnableLocalLogging = true;
             SqlAssessmentConfiguration.AssessmentReportAndLogsRootFolderPath = Path.GetDirectoryName(Logger.LogFileFullPath);
 
-            // call into NuGet
+            var targetPlatforms = new List<string> { "AzureSqlDatabase", "AzureSqlManagedInstance", "AzureSqlVirtualMachine" };
+
+            foreach (var targetPlatform in targetPlatforms)
+            {
+
+            }
 
             CsvRequirementsAggregator aggregator = new CsvRequirementsAggregator(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Microsoft", "SqlAssessment"));
             SqlInstanceRequirements req = aggregator.ComputeSqlInstanceRequirements(null,
@@ -224,28 +229,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 DateTime.ParseExact(parameters.EndTime, RecommendationConstants.TimestampDateTimeFormat, CultureInfo.InvariantCulture),
                 parameters.PerfQueryIntervalInSec);
 
-            AzurePreferences prefs = new AzurePreferences()
-            {
-                EligibleSkuCategories = GetEligibleSkuCategories(parameters),
-                ScalingFactor = parameters.ScalingFactor / 100.0
-            };
-
-            List<SkuRecommendationResult> recommendationResults = new List<SkuRecommendationResult>();
             SkuRecommendationServiceProvider recProvider = new SkuRecommendationServiceProvider(new AzureSqlSkuBillingServiceProvider());
-            recommendationResults = recProvider.GetSkuRecommendation(prefs, req);
 
             return new GetSkuRecommendationsResult
             {
-                RecommendationResults = recommendationResults
+                SqlDbRecommendationResults = recProvider.GetSkuRecommendation(new AzurePreferences() { EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlDatabase"), ScalingFactor = parameters.ScalingFactor / 100.0 }, req),
+                SqlMiRecommendationResults = recProvider.GetSkuRecommendation(new AzurePreferences() { EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlManagedInstance"), ScalingFactor = parameters.ScalingFactor / 100.0 }, req),
+                SqlVmRecommendationResults = recProvider.GetSkuRecommendation(new AzurePreferences() { EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlVirtualMachine"), ScalingFactor = parameters.ScalingFactor / 100.0 }, req),
             };
         }
 
         // expose in NuGet
-        public static List<AzureSqlSkuCategory> GetEligibleSkuCategories(GetSkuRecommendationsParams parameters)
+        public static List<AzureSqlSkuCategory> GetEligibleSkuCategories(string targetPlatform)
         {
             List<AzureSqlSkuCategory> eligibleSkuCategories = new List<AzureSqlSkuCategory>();
 
-            if (parameters.TargetPlatform == "AzureSqlDatabase" || parameters.TargetPlatform == "Any")
+            if (targetPlatform == "AzureSqlDatabase" || targetPlatform == "Any")
             {
                 // Gen5 BC/GP DB
                 eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
@@ -263,7 +262,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                                                 AzureSqlPaaSHardwareType.Gen5));
             }
 
-            if (parameters.TargetPlatform == "AzureSqlManagedInstance" || parameters.TargetPlatform == "Any")
+            if (targetPlatform == "AzureSqlManagedInstance" || targetPlatform == "Any")
             {
                 // Gen5 BC/GP MI
                 eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
@@ -281,12 +280,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                                                 AzureSqlPaaSHardwareType.Gen5));
             }
 
-            if (parameters.TargetPlatform == "AzureSqlVirtualMachine" || parameters.TargetPlatform == "Any")
+            if (targetPlatform == "AzureSqlVirtualMachine" || targetPlatform == "Any")
             {
-                if (parameters.ElasticStrategy && parameters.TargetPlatform == "AzureSqlVirtualMachine")
-                {
-                    throw new ArgumentException("Elastic strategy does not currently support Azure SQL Virtual Machine as a target.");
-                }
+                // if (parameters.ElasticStrategy && parameters.TargetPlatform == "AzureSqlVirtualMachine")
+                // {
+                //     throw new ArgumentException("Elastic strategy does not currently support Azure SQL Virtual Machine as a target.");
+                // }
 
                 // Provisioned SQL IaaS
                 eligibleSkuCategories.Add(new AzureSqlSkuIaaSCategory(
