@@ -56,7 +56,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         public virtual Task SendError(Exception e)
         {
             // Overload to use the parameterized error handler
-            return SendError(string.Format("{0}{1}{2}", e.Message, Environment.NewLine, e.StackTrace), e.HResult);
+            return SendError(e.Message, e.HResult);
         }
     }
 }
