@@ -1,9 +1,0 @@
-﻿<Project Sdk="Microsoft.Build.NoTargets">
-  <PropertyGroup>
-    <PackageDescription>SQL Tools Service runtime components for win10-arm</PackageDescription>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <None Include="../../artifacts/publish/Microsoft.SqlTools.ServiceLayer/win10-arm/$(TargetFramework)/**" Pack="true" PackagePath="runtimes/win10-arm/native" />
-  </ItemGroup>
-</Project>
