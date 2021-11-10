@@ -14,6 +14,9 @@ public class RunOptions
     ///  Container logging the StandardOutput content.
     /// </summary>
     public IList<string> StandardOutputListing { get; set; }
+    /// <summary>
+    ///  Container logging the Error content.
+    /// </summary>
     public IList<string> StandardErrorListing { get; set; }
     /// <summary>
     ///  Desired maximum time-out for the process
