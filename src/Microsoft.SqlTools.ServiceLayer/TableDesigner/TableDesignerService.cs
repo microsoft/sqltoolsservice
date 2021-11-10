@@ -57,106 +57,113 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             this.ServiceHost.SetRequestHandler(SaveTableChangesRequest.Type, HandleSaveTableChangesRequest);
             this.ServiceHost.SetRequestHandler(DisposeTableDesignerRequest.Type, HandleDisposeTableDesignerRequest);
         }
-
-        private async Task HandleGetTableDesignerInfoRequest(TableInfo tableInfo, RequestContext<TableDesignerInfo> requestContext)
+        private Task HandleRequest<T>(RequestContext<T> requestContext, Action action)
         {
-            await Task.Run(async () =>
-                       {
-                           try
-                           {
-                               var schemas = this.GetSchemas(tableInfo);
-                               var viewModel = this.GetTableViewModel(tableInfo, schemas);
-                               var view = this.GetDesignerViewInfo(tableInfo);
-                               await requestContext.SendResult(new TableDesignerInfo()
-                               {
-                                   ViewModel = viewModel,
-                                   View = view,
-                                   ColumnTypes = this.GetSupportedColumnTypes(tableInfo),
-                                   Schemas = schemas
-                               });
-                           }
-                           catch (Exception e)
-                           {
-                               await requestContext.SendError(e);
-                           }
-                       });
+            Task.Run(async () =>
+            {
+                try
+                {
+                    action();
+                }
+                catch (Exception e)
+                {
+                    await requestContext.SendError(e);
+                }
+            });
+            return Task.CompletedTask;
         }
 
-        private async Task HandleProcessTableDesignerEditRequest(ProcessTableDesignerEditRequestParams requestParams, RequestContext<ProcessTableDesignerEditResponse> requestContext)
+        private Task HandleGetTableDesignerInfoRequest(TableInfo tableInfo, RequestContext<TableDesignerInfo> requestContext)
         {
-            await Task.Run(async () =>
-                       {
-                           try
-                           {
-                               switch (requestParams.TableChangeInfo.Type)
-                               {
-                                   case DesignerEditType.Add:
-                                       this.HandleAddItemRequest(requestParams);
-                                       break;
-                                   case DesignerEditType.Remove:
-                                       // TODO: Handle 'Remove' request
-                                       break;
-                                   default:
-                                       // TODO: Handle 'Update' request
-                                       break;
-                               }
-                               await requestContext.SendResult(new ProcessTableDesignerEditResponse()
-                               {
-                                   ViewModel = requestParams.ViewModel,
-                                   IsValid = true
-                               });
-                           }
-                           catch (Exception e)
-                           {
-                               await requestContext.SendError(e);
-                           }
-                       });
+            return this.HandleRequest<TableDesignerInfo>(requestContext, async () =>
+            {
+                var schemas = this.GetSchemas(tableInfo);
+                var viewModel = this.GetTableViewModel(tableInfo, schemas);
+                var view = this.GetDesignerViewInfo(tableInfo);
+                await requestContext.SendResult(new TableDesignerInfo()
+                {
+                    ViewModel = viewModel,
+                    View = view,
+                    ColumnTypes = this.GetSupportedColumnTypes(tableInfo),
+                    Schemas = schemas
+                });
+            });
         }
 
-        private async Task HandleSaveTableChangesRequest(SaveTableChangesRequestParams requestParams, RequestContext<SaveTableChangesResponse> requestContext)
+        private Task HandleProcessTableDesignerEditRequest(ProcessTableDesignerEditRequestParams requestParams, RequestContext<ProcessTableDesignerEditResponse> requestContext)
         {
-            await Task.Run(async () =>
-                       {
-                           try
-                           {
-                               // TODO: Handle the save changes request.
-                               await requestContext.SendResult(new SaveTableChangesResponse());
-                           }
-                           catch (Exception e)
-                           {
-                               await requestContext.SendError(e);
-                           }
-                       });
+            return this.HandleRequest<ProcessTableDesignerEditResponse>(requestContext, async () =>
+            {
+                switch (requestParams.TableChangeInfo.Type)
+                {
+                    case DesignerEditType.Add:
+                        this.HandleAddItemRequest(requestParams);
+                        break;
+                    case DesignerEditType.Remove:
+                        this.HandleRemoveItemRequest(requestParams);
+                        break;
+                    default:
+                        // TODO: Handle 'Update' request
+                        break;
+                }
+                await requestContext.SendResult(new ProcessTableDesignerEditResponse()
+                {
+                    ViewModel = requestParams.ViewModel,
+                    IsValid = true
+                });
+            });
+        }
+
+        private Task HandleSaveTableChangesRequest(SaveTableChangesRequestParams requestParams, RequestContext<SaveTableChangesResponse> requestContext)
+        {
+            return this.HandleRequest<SaveTableChangesResponse>(requestContext, async () =>
+            {
+                // TODO: Handle the save changes request.
+                await requestContext.SendResult(new SaveTableChangesResponse());
+            });
         }
 
 
-        private async Task HandleDisposeTableDesignerRequest(TableInfo tableInfo, RequestContext<DisposeTableDesignerResponse> requestContext)
+        private Task HandleDisposeTableDesignerRequest(TableInfo tableInfo, RequestContext<DisposeTableDesignerResponse> requestContext)
         {
-            await Task.Run(async () =>
-                       {
-                           try
-                           {
-                               // TODO: Handle the dispose table designer request.
-                               await requestContext.SendResult(new DisposeTableDesignerResponse());
-                           }
-                           catch (Exception e)
-                           {
-                               await requestContext.SendError(e);
-                           }
-                       });
+            return this.HandleRequest<DisposeTableDesignerResponse>(requestContext, async () =>
+            {
+                // TODO: Handle the save changes request.
+                await requestContext.SendResult(new DisposeTableDesignerResponse());
+            });
         }
 
         private void HandleAddItemRequest(ProcessTableDesignerEditRequestParams requestParams)
         {
-            var property = requestParams.TableChangeInfo.Property;
+            var pathSegments = DesignerPathUtils.Parse(requestParams.TableChangeInfo.Path, DesignerEditType.Add);
             // Handle the add item request on top level table properties, e.g. Columns, Indexes.
-            if (property.GetType() == typeof(string))
+            if (pathSegments.Count == 1)
             {
-                string propertyName = property as string;
-                switch (propertyName)
+                switch (pathSegments[0])
                 {
                     case TablePropertyNames.Columns:
                         requestParams.ViewModel.Columns.AddNew();
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else
+            {
+                // TODO: Handle the add item request on second level properties, e.g. Adding a column to an index
+            }
+        }
+
+        private void HandleRemoveItemRequest(ProcessTableDesignerEditRequestParams requestParams)
+        {
+            var pathSegments = DesignerPathUtils.Parse(requestParams.TableChangeInfo.Path, DesignerEditType.Remove);
+            // Handle the add item request on top level table properties, e.g. Columns, Indexes.
+            if (pathSegments.Count == 2)
+            {
+                switch (pathSegments[0])
+                {
+                    case TablePropertyNames.Columns:
+                        requestParams.ViewModel.Columns.Data.RemoveAt((int)pathSegments[1]);
                         break;
                     default:
                         break;
@@ -200,8 +207,42 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
         private TableDesignerView GetDesignerViewInfo(TableInfo tableInfo)
         {
-            // TODO: set the view information
             var view = new TableDesignerView();
+            view.AdditionalTableColumnProperties.Add(new DesignerDataPropertyInfo()
+            {
+                PropertyName = TableColumnPropertyNames.IsIdentity,
+                Description = SR.TableColumnIsIdentityPropertyDescription,
+                Group = SR.TableColumnIdentityGroupName,
+                ComponentType = DesignerComponentType.Checkbox,
+                ComponentProperties = new CheckBoxProperties()
+                {
+                    Title = SR.TableColumnIsIdentityPropertyTitle
+                }
+            });
+            view.AdditionalTableColumnProperties.Add(new DesignerDataPropertyInfo()
+            {
+                PropertyName = TableColumnPropertyNames.IdentitySeed,
+                Description = SR.TableColumnIdentitySeedPropertyDescription,
+                Group = SR.TableColumnIdentityGroupName,
+                ComponentType = DesignerComponentType.Input,
+                ComponentProperties = new InputBoxProperties()
+                {
+                    Title = SR.TableColumnIdentitySeedPropertyTitle
+                }
+            });
+            view.AdditionalTableColumnProperties.Add(new DesignerDataPropertyInfo()
+            {
+                PropertyName = TableColumnPropertyNames.IdentityIncrement,
+                Description = SR.TableColumnIdentityIncrementPropertyDescription,
+                Group = SR.TableColumnIdentityGroupName,
+                ComponentType = DesignerComponentType.Input,
+                ComponentProperties = new InputBoxProperties()
+                {
+                    Title = SR.TableColumnIdentityIncrementPropertyTitle
+                }
+            });
+            view.CanAddColumns = true;
+            view.CanRemoveColumns = true;
             return view;
         }
 

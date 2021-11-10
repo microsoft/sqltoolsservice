@@ -28,41 +28,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
     {
         public DesignerEditType Type { get; set; }
 
-        [JsonConverter(typeof(TableDesignerPropertyConverter))]
-        public object Property { get; set; }
+        public string Path { get; set; }
 
         public object Value { get; set; }
-    }
-
-    /// <summary>
-    /// The property "Property" of <c>TableDesignerChangeInfo</c> could be string or <c>TableDesignerPropertyIdentifier</c>, use this custom converter to set the property value.
-    /// </summary>
-    public class TableDesignerPropertyConverter : JsonConverter
-    {
-        public override bool CanConvert(Type objectType)
-        {
-            return true;
-        }
-
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-        {
-            object property;
-            if (reader.TokenType == JsonToken.StartObject)
-            {
-                TableDesignerPropertyIdentifier obj = serializer.Deserialize(reader, typeof(TableDesignerPropertyIdentifier)) as TableDesignerPropertyIdentifier;
-                property = obj;
-            }
-            else
-            {
-                property = reader.Value;
-            }
-            return property;
-        }
-
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-        {
-            // We don't need to serialize this class.
-            throw new NotImplementedException();
-        }
     }
 }
