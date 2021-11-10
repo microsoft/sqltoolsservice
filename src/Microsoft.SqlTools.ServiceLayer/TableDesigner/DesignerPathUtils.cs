@@ -14,6 +14,18 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
     {
         ///<summary>
         /// Parse the path in the table designer change information.
+        /// Below are the 3 scenarios and their expected path format.
+        /// Note: 'index-{x}' in the description below represents the index of the object in the list.
+		/// 1. 'Add' scenario
+		///     a. 'propertyName1'. Example: add a column to the columns property: 'columns'.
+		///     b. 'propertyName1/index-1/propertyName2'. Example: add a column mapping to the first foreign key: 'foreignKeys/0/mappings'.
+		/// 2. 'Update' scenario
+		///     a. 'propertyName1'. Example: update the name of the table: 'name'.
+		///     b. 'propertyName1/index-1/propertyName2'. Example: update the name of a column: 'columns/0/name'.
+		///     c. 'propertyName1/index-1/propertyName2/index-2/propertyName3'. Example: update the source column of an entry in a foreign key's column mapping table: 'foreignKeys/0/mappings/0/source'.
+		/// 3. 'Remove' scenario
+        ///     a. 'propertyName1/index-1'. Example: remove a column from the columns property: 'columns/0'.
+		///     b. 'propertyName1/index-1/propertyName2/index-2': Example: remove a column mapping from a foreign key's column mapping table: 'foreignKeys/0/mappings/0'.
         ///<summary>
         public static ArrayList Parse(string path, DesignerEditType editType)
         {

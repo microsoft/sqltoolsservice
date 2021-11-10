@@ -59,6 +59,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         }
         private Task HandleRequest<T>(RequestContext<T> requestContext, Func<Task> action)
         {
+            // The request handling will take some time to return, we need to use a separate task to run the request handler so that it won't block the main thread.
+            // For any specific table designer instance, ADS UI can make sure there are at most one request being processed at any given time, so we don't have to worry about race conditions.
             Task.Run(async () =>
             {
                 try
