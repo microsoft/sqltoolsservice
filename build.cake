@@ -220,14 +220,17 @@ Task("BuildTest")
         {
             var project = pair.Key;
             var projectFolder = System.IO.Path.Combine(testFolder, project);
-            var runLog = new List<string>();
-            Run(dotnetcli, $"build --framework {framework} --configuration {testConfiguration} \"{projectFolder}\"",
+            var logPath = System.IO.Path.Combine(logFolder, $"{project}-{framework}-build.log");
+            using (var logWriter = new StreamWriter(logPath)) {
+                Run(dotnetcli, $"build --framework {framework} --configuration {testConfiguration} \"{projectFolder}\"",
                     new RunOptions
                     {
-                        StandardOutputListing = runLog
+                        StandardOutputWriter = logWriter,
+                        StandardErrorWriter = logWriter
                     })
                 .ExceptionOnError($"Building test {project} failed for {framework}.");
-            System.IO.File.WriteAllLines(System.IO.Path.Combine(logFolder, $"{project}-{framework}-build.log"), runLog.ToArray());
+            }
+
         }
     }
 });
