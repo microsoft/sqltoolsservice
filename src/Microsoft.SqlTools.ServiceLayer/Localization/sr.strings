@@ -2213,3 +2213,17 @@ SizeInMegaBytesFormat = {0} MB
 SizeInGigaBytesFormat = {0} GB
 ;Size in TeraBytes format
 SizeInTeraBytesFormat = {0} TB
+
+############################################################################
+# Table Designer
+
+TableNotInitializedException(string tableId) = Initialization is not properly done for table with id '{0}'
+TableEditPathNotProvidedException = The path in the table change information cannot be empty
+InvalidTableEditPathException(string path, string editType) = The path '{0}' in the table change information is not valid for edit type: '{1}'
+TableColumnIdentityGroupName = Identity Specification
+TableColumnIsIdentityPropertyTitle = Is Identity
+TableColumnIsIdentityPropertyDescription = Specifies whether the column is the identity column for the table.
+TableColumnIdentityIncrementPropertyTitle = Identity Increment
+TableColumnIdentityIncrementPropertyDescription = Displays the value added to the maximum existing row identity value when generating the next identity value.
+TableColumnIdentitySeedPropertyTitle = Identity Seed
+TableColumnIdentitySeedPropertyDescription = Displays the initial row value for an identity column.

@@ -3,6 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System.Runtime.Serialization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 {
     /// <summary>
@@ -23,17 +27,35 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         /// <summary>
         /// The component type of the property
         /// </summary>
-        public string ComponentType { get; set; }
+        public DesignerComponentType ComponentType { get; set; }
 
         /// <summary>
         /// The name of the group the property will be placed in whe displayed in
         /// </summary>
         public string Group { get; set; }
 
+        /// <summary>
+        /// The name of the group the property will be placed in whe displayed in
+        /// </summary>
+        public bool ShowInPropertiesView { get; set; }
+
 
         /// <summary>
         /// The properties of component
         /// </summary>
         public ComponentPropertiesBase ComponentProperties { get; set; }
+    }
+
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum DesignerComponentType
+    {
+        [EnumMember(Value = "checkbox")]
+        Checkbox,
+        [EnumMember(Value = "dropdown")]
+        Dropdown,
+        [EnumMember(Value = "input")]
+        Input,
+        [EnumMember(Value = "table")]
+        Table
     }
 }

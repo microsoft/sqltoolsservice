@@ -57,106 +57,118 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             this.ServiceHost.SetRequestHandler(SaveTableChangesRequest.Type, HandleSaveTableChangesRequest);
             this.ServiceHost.SetRequestHandler(DisposeTableDesignerRequest.Type, HandleDisposeTableDesignerRequest);
         }
-
-        private async Task HandleGetTableDesignerInfoRequest(TableInfo tableInfo, RequestContext<TableDesignerInfo> requestContext)
+        private Task HandleRequest<T>(RequestContext<T> requestContext, Func<Task> action)
         {
-            await Task.Run(async () =>
-                       {
-                           try
-                           {
-                               var schemas = this.GetSchemas(tableInfo);
-                               var viewModel = this.GetTableViewModel(tableInfo, schemas);
-                               var view = this.GetDesignerViewInfo(tableInfo);
-                               await requestContext.SendResult(new TableDesignerInfo()
-                               {
-                                   ViewModel = viewModel,
-                                   View = view,
-                                   ColumnTypes = this.GetSupportedColumnTypes(tableInfo),
-                                   Schemas = schemas
-                               });
-                           }
-                           catch (Exception e)
-                           {
-                               await requestContext.SendError(e);
-                           }
-                       });
+            // The request handling will take some time to return, we need to use a separate task to run the request handler so that it won't block the main thread.
+            // For any specific table designer instance, ADS UI can make sure there are at most one request being processed at any given time, so we don't have to worry about race conditions.
+            Task.Run(async () =>
+            {
+                try
+                {
+                    await action();
+                }
+                catch (Exception e)
+                {
+                    await requestContext.SendError(e);
+                }
+            });
+            return Task.CompletedTask;
         }
 
-        private async Task HandleProcessTableDesignerEditRequest(ProcessTableDesignerEditRequestParams requestParams, RequestContext<ProcessTableDesignerEditResponse> requestContext)
+        private Task HandleGetTableDesignerInfoRequest(TableInfo tableInfo, RequestContext<TableDesignerInfo> requestContext)
         {
-            await Task.Run(async () =>
-                       {
-                           try
-                           {
-                               switch (requestParams.TableChangeInfo.Type)
-                               {
-                                   case DesignerEditType.Add:
-                                       this.HandleAddItemRequest(requestParams);
-                                       break;
-                                   case DesignerEditType.Remove:
-                                       // TODO: Handle 'Remove' request
-                                       break;
-                                   default:
-                                       // TODO: Handle 'Update' request
-                                       break;
-                               }
-                               await requestContext.SendResult(new ProcessTableDesignerEditResponse()
-                               {
-                                   ViewModel = requestParams.ViewModel,
-                                   IsValid = true
-                               });
-                           }
-                           catch (Exception e)
-                           {
-                               await requestContext.SendError(e);
-                           }
-                       });
+            return this.HandleRequest<TableDesignerInfo>(requestContext, async () =>
+            {
+                var schemas = this.GetSchemas(tableInfo);
+                var viewModel = this.GetTableViewModel(tableInfo, schemas);
+                var view = this.GetDesignerViewInfo(tableInfo);
+                await requestContext.SendResult(new TableDesignerInfo()
+                {
+                    ViewModel = viewModel,
+                    View = view,
+                    ColumnTypes = this.GetSupportedColumnTypes(tableInfo),
+                    Schemas = schemas
+                });
+            });
         }
 
-        private async Task HandleSaveTableChangesRequest(SaveTableChangesRequestParams requestParams, RequestContext<SaveTableChangesResponse> requestContext)
+        private Task HandleProcessTableDesignerEditRequest(ProcessTableDesignerEditRequestParams requestParams, RequestContext<ProcessTableDesignerEditResponse> requestContext)
         {
-            await Task.Run(async () =>
-                       {
-                           try
-                           {
-                               // TODO: Handle the save changes request.
-                               await requestContext.SendResult(new SaveTableChangesResponse());
-                           }
-                           catch (Exception e)
-                           {
-                               await requestContext.SendError(e);
-                           }
-                       });
+            return this.HandleRequest<ProcessTableDesignerEditResponse>(requestContext, async () =>
+            {
+                DesignerPathUtils.Validate(requestParams.TableChangeInfo.Path, requestParams.TableChangeInfo.Type);
+                switch (requestParams.TableChangeInfo.Type)
+                {
+                    case DesignerEditType.Add:
+                        this.HandleAddItemRequest(requestParams);
+                        break;
+                    case DesignerEditType.Remove:
+                        this.HandleRemoveItemRequest(requestParams);
+                        break;
+                    default:
+                        // TODO: Handle 'Update' request
+                        break;
+                }
+                await requestContext.SendResult(new ProcessTableDesignerEditResponse()
+                {
+                    ViewModel = requestParams.ViewModel,
+                    IsValid = true
+                });
+            });
+        }
+
+        private Task HandleSaveTableChangesRequest(SaveTableChangesRequestParams requestParams, RequestContext<SaveTableChangesResponse> requestContext)
+        {
+            return this.HandleRequest<SaveTableChangesResponse>(requestContext, async () =>
+            {
+                // TODO: Handle the save changes request.
+                await requestContext.SendResult(new SaveTableChangesResponse());
+            });
         }
 
 
-        private async Task HandleDisposeTableDesignerRequest(TableInfo tableInfo, RequestContext<DisposeTableDesignerResponse> requestContext)
+        private Task HandleDisposeTableDesignerRequest(TableInfo tableInfo, RequestContext<DisposeTableDesignerResponse> requestContext)
         {
-            await Task.Run(async () =>
-                       {
-                           try
-                           {
-                               // TODO: Handle the dispose table designer request.
-                               await requestContext.SendResult(new DisposeTableDesignerResponse());
-                           }
-                           catch (Exception e)
-                           {
-                               await requestContext.SendError(e);
-                           }
-                       });
+            return this.HandleRequest<DisposeTableDesignerResponse>(requestContext, async () =>
+            {
+                // TODO: Handle the save changes request.
+                await requestContext.SendResult(new DisposeTableDesignerResponse());
+            });
         }
 
         private void HandleAddItemRequest(ProcessTableDesignerEditRequestParams requestParams)
         {
-            var property = requestParams.TableChangeInfo.Property;
+            var path = requestParams.TableChangeInfo.Path;
             // Handle the add item request on top level table properties, e.g. Columns, Indexes.
-            if (property.GetType() == typeof(string))
+            if (path.Length == 1)
             {
-                string propertyName = property as string;
+                var propertyName = path[0] as string;
                 switch (propertyName)
                 {
                     case TablePropertyNames.Columns:
                         requestParams.ViewModel.Columns.AddNew();
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else
+            {
+                // TODO: Handle the add item request on second level properties, e.g. Adding a column to an index
+            }
+        }
+
+        private void HandleRemoveItemRequest(ProcessTableDesignerEditRequestParams requestParams)
+        {
+            var path = requestParams.TableChangeInfo.Path;
+            // Handle the add item request on top level table properties, e.g. Columns, Indexes.
+            if (path.Length == 2)
+            {
+                var propertyName = path[0] as string;
+                switch (propertyName)
+                {
+                    case TablePropertyNames.Columns:
+                        requestParams.ViewModel.Columns.Data.RemoveAt(Convert.ToInt32(path[1]));
                         break;
                     default:
                         break;
@@ -200,8 +212,42 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
         private TableDesignerView GetDesignerViewInfo(TableInfo tableInfo)
         {
-            // TODO: set the view information
             var view = new TableDesignerView();
+            view.AdditionalTableColumnProperties.Add(new DesignerDataPropertyInfo()
+            {
+                PropertyName = TableColumnPropertyNames.IsIdentity,
+                Description = SR.TableColumnIsIdentityPropertyDescription,
+                Group = SR.TableColumnIdentityGroupName,
+                ComponentType = DesignerComponentType.Checkbox,
+                ComponentProperties = new CheckBoxProperties()
+                {
+                    Title = SR.TableColumnIsIdentityPropertyTitle
+                }
+            });
+            view.AdditionalTableColumnProperties.Add(new DesignerDataPropertyInfo()
+            {
+                PropertyName = TableColumnPropertyNames.IdentitySeed,
+                Description = SR.TableColumnIdentitySeedPropertyDescription,
+                Group = SR.TableColumnIdentityGroupName,
+                ComponentType = DesignerComponentType.Input,
+                ComponentProperties = new InputBoxProperties()
+                {
+                    Title = SR.TableColumnIdentitySeedPropertyTitle
+                }
+            });
+            view.AdditionalTableColumnProperties.Add(new DesignerDataPropertyInfo()
+            {
+                PropertyName = TableColumnPropertyNames.IdentityIncrement,
+                Description = SR.TableColumnIdentityIncrementPropertyDescription,
+                Group = SR.TableColumnIdentityGroupName,
+                ComponentType = DesignerComponentType.Input,
+                ComponentProperties = new InputBoxProperties()
+                {
+                    Title = SR.TableColumnIdentityIncrementPropertyTitle
+                }
+            });
+            view.CanAddColumns = true;
+            view.CanRemoveColumns = true;
             return view;
         }
 
