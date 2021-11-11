@@ -5579,6 +5579,58 @@
         <target state="new">{0} TB</target>
         <note>Size in TeraBytes format</note>
       </trans-unit>
+      <trans-unit id="TableNotInitializedException">
+        <source>Initialization is not properly done for table with id '{0}'</source>
+        <target state="new">Initialization is not properly done for table with id '{0}'</target>
+        <note>.
+ Parameters: 0 - tableId (string) </note>
+      </trans-unit>
+      <trans-unit id="TableColumnIdentityGroupName">
+        <source>Identity Specification</source>
+        <target state="new">Identity Specification</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnIsIdentityPropertyTitle">
+        <source>Is Identity</source>
+        <target state="new">Is Identity</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnIsIdentityPropertyDescription">
+        <source>Specifies whether the column is the identity column for the table.</source>
+        <target state="new">Specifies whether the column is the identity column for the table.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnIdentityIncrementPropertyTitle">
+        <source>Identity Increment</source>
+        <target state="new">Identity Increment</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnIdentityIncrementPropertyDescription">
+        <source>Displays the value added to the maximum existing row identity value when generating the next identity value.</source>
+        <target state="new">Displays the value added to the maximum existing row identity value when generating the next identity value.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnIdentitySeedPropertyTitle">
+        <source>Identity Seed</source>
+        <target state="new">Identity Seed</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnIdentitySeedPropertyDescription">
+        <source>Displays the initial row value for an identity column.</source>
+        <target state="new">Displays the initial row value for an identity column.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableEditPathNotProvidedException">
+        <source>The path in the table change information cannot be empty</source>
+        <target state="new">The path in the table change information cannot be empty</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="InvalidTableEditPathException">
+        <source>The path '{0}' in the table change information is not valid for edit type: '{1}'</source>
+        <target state="new">The path '{0}' in the table change information is not valid for edit type: '{1}'</target>
+        <note>.
+ Parameters: 0 - path (string), 1 - editType (string) </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -1,0 +1,9 @@
+﻿<Project Sdk="Microsoft.Build.NoTargets">
+  <PropertyGroup>
+    <PackageDescription>SQL Tools Service runtime components for ubuntu.16.04-x64</PackageDescription>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../../artifacts/publish/Microsoft.SqlTools.ServiceLayer/ubuntu.16.04/$(TargetFramework)/**" Pack="true" PackagePath="runtimes/ubuntu.16.04-x64/native" />
+  </ItemGroup>
+</Project>
