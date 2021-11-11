@@ -77,6 +77,37 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
         }
 
         /// <summary>
+        /// Verify output binding gets added for an async method
+        /// </summary>
+        [Test]
+        public void AddSqlOutputBindingAsync()
+        {
+            // copy the original file because the output binding will be inserted into the file
+            string originalFile = Path.Join(testAzureFunctionsFolder, "AzureFunctionsNoBindings.cs");
+            string testFile = Path.Join(Path.GetTempPath(), $"InsertSqlOutputBindingAsync-{DateTime.Now.ToString("yyyy - dd - MM--HH - mm - ss")}.cs");
+            File.Copy(originalFile, testFile, true);
+
+            AddSqlBindingParams parameters = new AddSqlBindingParams
+            {
+                bindingType = BindingType.output,
+                filePath = testFile,
+                functionName = "NewArtists_post",
+                objectName = "[dbo].[table1]",
+                connectionStringSetting = "SqlConnectionString"
+            };
+
+            AddSqlBindingOperation operation = new AddSqlBindingOperation(parameters);
+            ResultStatus result = operation.AddBinding();
+
+            Assert.True(result.Success);
+            Assert.IsNull(result.ErrorMessage);
+
+            string expectedFileText = File.ReadAllText(Path.Join(testAzureFunctionsFolder, "AzureFunctionsOutputBindingAsync.cs"));
+            string actualFileText = File.ReadAllText(testFile);
+            Assert.AreEqual(expectedFileText, actualFileText);
+        }
+
+        /// <summary>
         /// Verify what happens when specified azure function isn't found
         /// </summary>
         [Test]
@@ -150,9 +181,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
 
             Assert.True(result.Success);
             Assert.Null(result.ErrorMessage);
-            Assert.AreEqual(2, result.azureFunctions.Length);
+            Assert.AreEqual(3, result.azureFunctions.Length);
             Assert.AreEqual(result.azureFunctions[0], "GetArtists_get");
             Assert.AreEqual(result.azureFunctions[1], "NewArtist_post");
+            Assert.AreEqual(result.azureFunctions[2], "NewArtists_post");
         }
 
         /// <summary>
