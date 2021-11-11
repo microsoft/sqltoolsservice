@@ -25,5 +25,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         public InputBoxProperties DefaultValue { get; set; } = new InputBoxProperties();
 
         public CheckBoxProperties IsPrimaryKey { get; set; } = new CheckBoxProperties();
+
+        public CheckBoxProperties IsIdentity { get; set; } = new CheckBoxProperties();
+
+        public InputBoxProperties IdentitySeed { get; set; } = new InputBoxProperties();
+
+        public InputBoxProperties IdentityIncrement { get; set; } = new InputBoxProperties();
     }
 }
