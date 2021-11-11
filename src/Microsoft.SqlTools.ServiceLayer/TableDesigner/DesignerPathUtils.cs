@@ -57,7 +57,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     // On odd number positions, the value must be a number.
                     if (i % 2 != 0)
                     {
-                        isValid = path[i] is long; //JSON deserialization will parse integers as long.
+                        int val;
+                        isValid = Int32.TryParse(path[i]?.ToString(), out val);
                     }
                     else
                     {
