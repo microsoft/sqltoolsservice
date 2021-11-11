@@ -8445,6 +8445,70 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string TableEditPathNotProvidedException
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableEditPathNotProvidedException);
+            }
+        }
+
+        public static string TableColumnIdentityGroupName
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableColumnIdentityGroupName);
+            }
+        }
+
+        public static string TableColumnIsIdentityPropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableColumnIsIdentityPropertyTitle);
+            }
+        }
+
+        public static string TableColumnIsIdentityPropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableColumnIsIdentityPropertyDescription);
+            }
+        }
+
+        public static string TableColumnIdentityIncrementPropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableColumnIdentityIncrementPropertyTitle);
+            }
+        }
+
+        public static string TableColumnIdentityIncrementPropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableColumnIdentityIncrementPropertyDescription);
+            }
+        }
+
+        public static string TableColumnIdentitySeedPropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableColumnIdentitySeedPropertyTitle);
+            }
+        }
+
+        public static string TableColumnIdentitySeedPropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableColumnIdentitySeedPropertyDescription);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -8708,6 +8772,16 @@ namespace Microsoft.SqlTools.ServiceLayer
         public static string NameValuePair(string name, string value)
         {
             return Keys.GetString(Keys.NameValuePair, name, value);
+        }
+
+        public static string TableNotInitializedException(string tableId)
+        {
+            return Keys.GetString(Keys.TableNotInitializedException, tableId);
+        }
+
+        public static string InvalidTableEditPathException(string path, string editType)
+        {
+            return Keys.GetString(Keys.InvalidTableEditPathException, path, editType);
         }
 
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -12031,6 +12105,36 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string SizeInTeraBytesFormat = "SizeInTeraBytesFormat";
+
+
+            public const string TableNotInitializedException = "TableNotInitializedException";
+
+
+            public const string TableEditPathNotProvidedException = "TableEditPathNotProvidedException";
+
+
+            public const string InvalidTableEditPathException = "InvalidTableEditPathException";
+
+
+            public const string TableColumnIdentityGroupName = "TableColumnIdentityGroupName";
+
+
+            public const string TableColumnIsIdentityPropertyTitle = "TableColumnIsIdentityPropertyTitle";
+
+
+            public const string TableColumnIsIdentityPropertyDescription = "TableColumnIsIdentityPropertyDescription";
+
+
+            public const string TableColumnIdentityIncrementPropertyTitle = "TableColumnIdentityIncrementPropertyTitle";
+
+
+            public const string TableColumnIdentityIncrementPropertyDescription = "TableColumnIdentityIncrementPropertyDescription";
+
+
+            public const string TableColumnIdentitySeedPropertyTitle = "TableColumnIdentitySeedPropertyTitle";
+
+
+            public const string TableColumnIdentitySeedPropertyDescription = "TableColumnIdentitySeedPropertyDescription";
 
 
             private Keys()
