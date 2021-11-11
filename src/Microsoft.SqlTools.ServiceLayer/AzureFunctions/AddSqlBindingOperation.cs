@@ -116,7 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
         /// Generates a parameter for the sql output binding that looks like
         /// [Sql("[dbo].[table1]", ConnectionStringSetting = "SqlConnectionString")] out Object output
         /// if the Azure Function method is not async and 
-        /// [Sql("[dbo].[table1]", ConnectionStringSetting = "SqlConnectionString")] IAsyncCollector<Object> outputs
+        /// [Sql("[dbo].[table1]", ConnectionStringSetting = "SqlConnectionString")] IAsyncCollector<Object> output
         /// if the Azure Function method is async.
         /// <param name="azureFunction"> Azure Function method. </param>
         /// </summary>
@@ -145,7 +145,6 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
                 syntaxTokenList = syntaxTokenList.Add(SyntaxFactory.Token(SyntaxKind.OutKeyword));
                 typeSyntax = SyntaxFactory.ParseTypeName(typeof(Object).Name);
             }
-
 
             ParameterSyntax newParam = SyntaxFactory.Parameter(attributesList, syntaxTokenList, typeSyntax, SyntaxFactory.Identifier("output"), null);
             return newParam;
