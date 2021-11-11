@@ -23,6 +23,8 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
     /// </summary>
     class AddSqlBindingOperation
     {
+        public const string GenericClass = "System.Collections.Generic";
+
         public AddSqlBindingParams Parameters { get; }
 
         public AddSqlBindingOperation(AddSqlBindingParams parameters)
@@ -70,6 +72,17 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
 
                 // Replace the node in the tree
                 root = root.ReplaceNode(azureFunction, updatedMethod);
+
+                if (this.Parameters.bindingType == BindingType.input)
+                {
+                    // Check if file has System.Collections.Generic reference, insert it if not
+                    IEnumerable<UsingDirectiveSyntax> usingDirectives = root.DescendantNodes().OfType<UsingDirectiveSyntax>();
+                    var genericUsingDirective = usingDirectives.Where(usingDirective => usingDirective.Name.ToString() == GenericClass);
+                    if (genericUsingDirective.Count() == 0)
+                    {
+                        root = root.AddUsings(SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(GenericClass)).NormalizeWhitespace().WithTrailingTrivia(SyntaxFactory.ElasticCarriageReturnLineFeed));
+                    }
+                }
 
                 // write updated tree to file
                 var workspace = new AdhocWorkspace();
