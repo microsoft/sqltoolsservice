@@ -100,7 +100,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         {
             SchemaCompareEndpointInfo endpointInfo = new SchemaCompareEndpointInfo();
 
-            // if the endpoint is a dacpac or a project we don't need to parse the xml
+            // if the endpoint is a dacpac or a project, we don't need to parse the xml
             if (endpoint is SchemaCompareDacpacEndpoint dacpacEndpoint)
             {
                 endpointInfo.EndpointType = SchemaCompareEndpointType.Dacpac;

@@ -20,6 +20,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
         Database = 0,
         Dacpac = 1,
         Project = 2
+        // must be kept in-sync with SchemaCompareEndpointType in Azure Data Studio
+        // located at \extensions\mssql\src\mssql.d.ts
     }
 
     /// <summary>
@@ -45,7 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
         /// <summary>
         /// Gets or sets the project data schema provider
         /// </summary>
-        public string DataSchemaProvider { get; set; } 
+        public string DataSchemaProvider { get; set; }
 
         /// <summary>
         /// Gets or sets package filepath

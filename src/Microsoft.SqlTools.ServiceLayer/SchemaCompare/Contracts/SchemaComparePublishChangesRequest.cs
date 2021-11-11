@@ -1,4 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
@@ -16,14 +17,17 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
         /// Operation id of the schema compare operation
         /// </summary>
         public string OperationId { get; set; }
+
         /// <summary>
         /// Name of target server
         /// </summary>
         public string TargetServerName { get; set; }
+
         /// <summary>
         /// Name of target database
         /// </summary>
         public string TargetDatabaseName { get; set; }
+
         /// <summary>
         /// Execution mode for the operation. Default is execution
         /// </summary>
