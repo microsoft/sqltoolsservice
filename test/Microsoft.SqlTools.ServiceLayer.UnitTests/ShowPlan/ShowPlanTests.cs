@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ShowPlan
             Stream scriptStream = assembly.GetManifestResourceStream(assembly.GetName().Name + ".ShowPlan.TestExecutionPlan.xml");
             StreamReader reader = new StreamReader(scriptStream);
             string text = reader.ReadToEnd();
-            var showPlanGraphs = ShowPlanService.CreateShowPlanGraph(text);
+            var showPlanGraphs = ShowPlanGraphUtils.CreateShowPlanGraph(text);
             Assert.NotNull(showPlanGraphs, "graph should not be null");
             Assert.NotNull(showPlanGraphs.Root, "graph should have a root");
         }

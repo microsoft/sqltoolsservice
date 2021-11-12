@@ -898,7 +898,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 if(r.Summary.Complete && r.Summary.SpecialAction.ExpectYukonXMLShowPlan == true)
                 {
                     var xmlString = r.GetRow(0)[0].DisplayValue;
-                    graph = ShowPlanService.CreateShowPlanGraph(xmlString);
+                    graph = ShowPlanGraphUtils.CreateShowPlanGraph(xmlString);
                 }
                 ResultSetUpdatedEventParams eventParams = new ResultSetUpdatedEventParams
                 {
