@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ShowPlan
     public class ShowPlanXMLTests
     {
         [Test]
-        public async Task ParseXMLFileReturnsValidShowPlanGraph()
+        public void ParseXMLFileReturnsValidShowPlanGraph()
         {
             Assembly assembly = Assembly.GetAssembly(typeof(ShowPlanXMLTests));
             Stream scriptStream = assembly.GetManifestResourceStream(assembly.GetName().Name + ".ShowPlan.TestExecutionPlan.xml");
