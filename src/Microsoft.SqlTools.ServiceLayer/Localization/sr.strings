@@ -2213,16 +2213,6 @@ SizeInMegaBytesFormat = {0} MB
 SizeInGigaBytesFormat = {0} GB
 ;Size in TeraBytes format
 SizeInTeraBytesFormat = {0} TB
-; display string for the operator cost property - 0.###### - is the float number format specifier
-OperatorDisplayCost(double cost, int percentage) = {0:0.#######} ({1}%)
-;This node name will be visible in Active Accesibility
-NodeDisplayPropertiesName2(string title, long nodeId) = {0}[{1}]
-;This node name will be visible in Active Accesibility
-NodeDisplayPropertiesName1(long nodeId) = [{0}]
-;Parenthesis - the parameter is the string inside parenthesis
-Parenthesis(text) = ({0})
-#Would like to display actual rows and estimated rows in two lines: <number_actual_rows> of\n <number_estimated_rows> (xx%)
-ActualOfEstimated(string actual, string estimated, decimal percent) = {0} of\n{1} ({2}%)
 
 ############################################################################
 # Table Designer

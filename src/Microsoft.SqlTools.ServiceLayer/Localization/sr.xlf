@@ -5630,37 +5630,6 @@
         <target state="new">The path '{0}' in the table change information is not valid for edit type: '{1}'</target>
         <note>.
  Parameters: 0 - path (string), 1 - editType (string) </note>
-      <trans-unit id="OperatorDisplayCost">
-        <source>{0:0.#######} ({1}%)</source>
-        <target state="new">{0:0.#######} ({1}%)</target>
-        <note> display string for the operator cost property - 0.###### - is the float number format specifier.
- Parameters: 0 - cost (double), 1 - percentage (int) </note>
-      </trans-unit>
-      <trans-unit id="NodeDisplayPropertiesName2">
-        <source>{0}[{1}]</source>
-        <target state="new">{0}[{1}]</target>
-        <note>This node name will be visible in Active Accesibility.
- Parameters: 0 - title (string), 1 - nodeId (long) </note>
-      </trans-unit>
-      <trans-unit id="NodeDisplayPropertiesName1">
-        <source>[{0}]</source>
-        <target state="new">[{0}]</target>
-        <note>This node name will be visible in Active Accesibility.
- Parameters: 0 - nodeId (long) </note>
-      </trans-unit>
-      <trans-unit id="Parenthesis">
-        <source>({0})</source>
-        <target state="new">({0})</target>
-        <note>Parenthesis - the parameter is the string inside parenthesis.
- Parameters: 0 - text (string) </note>
-      </trans-unit>
-      <trans-unit id="ActualOfEstimated">
-        <source>{0} of
-{1} ({2}%)</source>
-        <target state="new">{0} of
-{1} ({2}%)</target>
-        <note>.
- Parameters: 0 - actual (string), 1 - estimated (string), 2 - percent (decimal) </note>
       </trans-unit>
     </body>
   </file>
