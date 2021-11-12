@@ -207,13 +207,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             {
                 SchemaComparisonResult compareResult = schemaCompareResults.Value[parameters.OperationId];
                 operation = new SchemaComparePublishDatabaseChangesOperation(parameters, compareResult);
-                SqlTask sqlTask = null;
                 TaskMetadata metadata = new TaskMetadata();
                 metadata.TaskOperation = operation;
                 metadata.ServerName = parameters.TargetServerName;
                 metadata.DatabaseName = parameters.TargetDatabaseName;
                 metadata.Name = SR.PublishChangesTaskName;
-                sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
+                SqlTask sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
                 await requestContext.SendResult(new ResultStatus()
                 {
                     Success = true,
@@ -243,11 +242,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 SchemaComparisonResult compareResult = schemaCompareResults.Value[parameters.OperationId];
                 operation = new SchemaComparePublishDatabaseChangesOperation(parameters, compareResult);
                 SqlTask sqlTask = null;
-                TaskMetadata metadata = new TaskMetadata();
-                metadata.TaskOperation = operation;
-                metadata.ServerName = parameters.TargetServerName;
-                metadata.DatabaseName = parameters.TargetDatabaseName;
-                metadata.Name = SR.PublishChangesTaskName;
+                TaskMetadata metadata = new TaskMetadata
+                {
+                    TaskOperation = operation,
+                    ServerName = parameters.TargetServerName,
+                    DatabaseName = parameters.TargetDatabaseName,
+                    Name = SR.PublishChangesTaskName
+                };
 
                 sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
 

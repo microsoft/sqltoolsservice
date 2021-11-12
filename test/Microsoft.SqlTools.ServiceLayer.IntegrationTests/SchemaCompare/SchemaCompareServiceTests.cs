@@ -179,17 +179,8 @@ WITH VALUES
                 string[] sourceScripts = SchemaCompareTestUtils.GetProjectScripts(sourceProjectPath);
                 string[] targetScripts = SchemaCompareTestUtils.GetProjectScripts(targetProjectPath);
 
-                SchemaCompareEndpointInfo sourceInfo = new();
-                sourceInfo.EndpointType = SchemaCompareEndpointType.Project;
-                sourceInfo.ProjectFilePath = Path.Combine(sourceProjectPath, "SourceProject.sqlproj");
-                sourceInfo.TargetScripts = sourceScripts;
-                sourceInfo.DataSchemaProvider = "150";
-
-                SchemaCompareEndpointInfo targetInfo = new();
-                targetInfo.EndpointType = SchemaCompareEndpointType.Project;
-                targetInfo.ProjectFilePath = Path.Combine(targetProjectPath, "TargetProject.sqlproj");
-                targetInfo.TargetScripts = targetScripts;
-                targetInfo.DataSchemaProvider = "150";
+                SchemaCompareEndpointInfo sourceInfo = CreateTestEndpoint(SchemaCompareEndpointType.Project, Path.Combine(sourceProjectPath, "SourceProject.sqlproj"), sourceScripts);
+                SchemaCompareEndpointInfo targetInfo = CreateTestEndpoint(SchemaCompareEndpointType.Project, Path.Combine(targetProjectPath, "TargetProject.sqlproj"), targetScripts);
 
                 var schemaCompareParams = new SchemaCompareParams
                 {
@@ -268,15 +259,8 @@ WITH VALUES
                 string targetProjectPath = SchemaCompareTestUtils.CreateProject(targetDb, "TargetProject");
                 string[] targetScripts = SchemaCompareTestUtils.GetProjectScripts(targetProjectPath);
 
-                SchemaCompareEndpointInfo sourceInfo = new();
-                sourceInfo.EndpointType = SchemaCompareEndpointType.Database;
-                sourceInfo.DatabaseName = sourceDb.DatabaseName;
-
-                SchemaCompareEndpointInfo targetInfo = new();
-                targetInfo.EndpointType = SchemaCompareEndpointType.Project;
-                targetInfo.ProjectFilePath = Path.Combine(targetProjectPath, "TargetProject.sqlproj");
-                targetInfo.TargetScripts = targetScripts;
-                targetInfo.DataSchemaProvider = "150";
+                SchemaCompareEndpointInfo sourceInfo = CreateTestEndpoint(SchemaCompareEndpointType.Database, sourceDb.DatabaseName);
+                SchemaCompareEndpointInfo targetInfo = CreateTestEndpoint(SchemaCompareEndpointType.Project, Path.Combine(targetProjectPath, "TargetProject.sqlproj"), targetScripts);
 
                 var schemaCompareParams = new SchemaCompareParams
                 {
@@ -310,18 +294,11 @@ WITH VALUES
             {
                 string sourceDacpacFilePath = SchemaCompareTestUtils.CreateDacpac(sourceDb);
 
-                SchemaCompareEndpointInfo sourceInfo = new();
-                sourceInfo.EndpointType = SchemaCompareEndpointType.Dacpac;
-                sourceInfo.PackageFilePath = sourceDacpacFilePath;
-
                 string targetProjectPath = SchemaCompareTestUtils.CreateProject(targetDb, "TargetProject");
                 string[] targetScripts = SchemaCompareTestUtils.GetProjectScripts(targetProjectPath);
-                
-                SchemaCompareEndpointInfo targetInfo = new();
-                targetInfo.EndpointType = SchemaCompareEndpointType.Project;
-                targetInfo.ProjectFilePath = Path.Combine(targetProjectPath, "TargetProject.sqlproj");
-                targetInfo.TargetScripts = targetScripts;
-                targetInfo.DataSchemaProvider = "150";
+
+                SchemaCompareEndpointInfo sourceInfo = CreateTestEndpoint(SchemaCompareEndpointType.Dacpac, sourceDacpacFilePath);
+                SchemaCompareEndpointInfo targetInfo = CreateTestEndpoint(SchemaCompareEndpointType.Project, Path.Combine(targetProjectPath, "TargetProject.sqlproj"), targetScripts);
 
                 var schemaCompareParams = new SchemaCompareParams
                 {
@@ -581,15 +558,8 @@ WITH VALUES
                 string sourceProjectPath = SchemaCompareTestUtils.CreateProject(sourceDb, "SourceProject");
                 string[] sourceScripts = SchemaCompareTestUtils.GetProjectScripts(sourceProjectPath);
 
-                SchemaCompareEndpointInfo sourceInfo = new();
-                sourceInfo.EndpointType = SchemaCompareEndpointType.Project;
-                sourceInfo.ProjectFilePath = Path.Combine(sourceProjectPath, "SourceProject.sqlproj");
-                sourceInfo.TargetScripts = sourceScripts;
-                sourceInfo.DataSchemaProvider = "150";
-
-                SchemaCompareEndpointInfo targetInfo = new();
-                targetInfo.EndpointType = SchemaCompareEndpointType.Database;
-                targetInfo.DatabaseName = targetDb.DatabaseName;
+                SchemaCompareEndpointInfo sourceInfo = CreateTestEndpoint(SchemaCompareEndpointType.Project, Path.Combine(sourceProjectPath, "SourceProject.sqlproj"), sourceScripts);
+                SchemaCompareEndpointInfo targetInfo = CreateTestEndpoint(SchemaCompareEndpointType.Database, targetDb.DatabaseName);
 
                 SchemaCompareParams schemaCompareParams = new()
                 {
@@ -722,19 +692,11 @@ WITH VALUES
             {
                 string sourceDacpacFilePath = SchemaCompareTestUtils.CreateDacpac(sourceDb);
 
-                SchemaCompareEndpointInfo sourceInfo = new();
-
-                sourceInfo.EndpointType = SchemaCompareEndpointType.Dacpac;
-                sourceInfo.PackageFilePath = sourceDacpacFilePath;
-
                 string targetProjectPath = SchemaCompareTestUtils.CreateProject(targetDb, "TargetProject");
                 string[] targetScripts = SchemaCompareTestUtils.GetProjectScripts(targetProjectPath);
 
-                SchemaCompareEndpointInfo targetInfo = new();
-                targetInfo.EndpointType = SchemaCompareEndpointType.Project;
-                targetInfo.ProjectFilePath = Path.Combine(targetProjectPath, "TargetProject.sqlproj");
-                targetInfo.TargetScripts = targetScripts;
-                targetInfo.DataSchemaProvider = "150";
+                SchemaCompareEndpointInfo sourceInfo = CreateTestEndpoint(SchemaCompareEndpointType.Dacpac, sourceDacpacFilePath);
+                SchemaCompareEndpointInfo targetInfo = CreateTestEndpoint(SchemaCompareEndpointType.Project, Path.Combine(targetProjectPath, "TargetProject.sqlproj"), targetScripts);
 
                 SchemaCompareParams schemaCompareParams = new()
                 {
@@ -806,18 +768,12 @@ WITH VALUES
 
             try
             {
-                SchemaCompareEndpointInfo sourceInfo = new();
-                sourceInfo.EndpointType = SchemaCompareEndpointType.Database;
-                sourceInfo.DatabaseName = sourceDb.DatabaseName;
 
                 string targetProjectPath = SchemaCompareTestUtils.CreateProject(targetDb, "TargetProject");
                 string[] targetScripts = SchemaCompareTestUtils.GetProjectScripts(targetProjectPath);
 
-                SchemaCompareEndpointInfo targetInfo = new();
-                targetInfo.EndpointType = SchemaCompareEndpointType.Project;
-                targetInfo.ProjectFilePath = Path.Combine(targetProjectPath, "TargetProject.sqlproj");
-                targetInfo.TargetScripts = targetScripts;
-                targetInfo.DataSchemaProvider = "150";
+                SchemaCompareEndpointInfo sourceInfo = CreateTestEndpoint(SchemaCompareEndpointType.Database, sourceDb.DatabaseName);
+                SchemaCompareEndpointInfo targetInfo = CreateTestEndpoint(SchemaCompareEndpointType.Project, Path.Combine(targetProjectPath, "TargetProject.sqlproj"), targetScripts);
 
                 SchemaCompareParams schemaCompareParams = new()
                 {
@@ -850,7 +806,7 @@ WITH VALUES
                 SchemaComparePublishProjectChangesOperation publishChangesOperation = new(publishChangesParams, schemaCompareOperation.ComparisonResult);
                 publishChangesOperation.Execute(TaskExecutionMode.Execute);
                 Assert.True(publishChangesOperation.PublishResult.Success);
-                Assert.AreEqual(publishChangesOperation.PublishResult.ErrorMessage, "");
+                Assert.AreEqual(publishChangesOperation.PublishResult.ErrorMessage, String.Empty);
                 Assert.AreEqual(publishChangesOperation.PublishResult.ChangedFiles.Length, 0);
                 Assert.AreEqual(publishChangesOperation.PublishResult.AddedFiles.Length, 2);
                 Assert.AreEqual(publishChangesOperation.PublishResult.DeletedFiles.Length, 0);
@@ -891,17 +847,8 @@ WITH VALUES
                 string targetProjectPath = SchemaCompareTestUtils.CreateProject(targetDb, "TargetProject");
                 string[] targetScripts = SchemaCompareTestUtils.GetProjectScripts(targetProjectPath);
 
-                SchemaCompareEndpointInfo sourceInfo = new();
-                sourceInfo.EndpointType = SchemaCompareEndpointType.Project;
-                sourceInfo.ProjectFilePath = Path.Combine(sourceProjectPath, "SourceProject.sqlproj");
-                sourceInfo.TargetScripts = sourceScripts;
-                sourceInfo.DataSchemaProvider = "150";
-
-                SchemaCompareEndpointInfo targetInfo = new();
-                targetInfo.EndpointType = SchemaCompareEndpointType.Project;
-                targetInfo.ProjectFilePath = Path.Combine(targetProjectPath, "TargetProject.sqlproj");
-                targetInfo.TargetScripts = targetScripts;
-                targetInfo.DataSchemaProvider = "150";
+                SchemaCompareEndpointInfo sourceInfo = CreateTestEndpoint(SchemaCompareEndpointType.Project, Path.Combine(sourceProjectPath, "SourceProject.sqlproj"), sourceScripts);
+                SchemaCompareEndpointInfo targetInfo = CreateTestEndpoint(SchemaCompareEndpointType.Project, Path.Combine(targetProjectPath, "TargetProject.sqlproj"), targetScripts);
 
                 SchemaCompareParams schemaCompareParams = new()
                 {
@@ -1040,17 +987,8 @@ WITH VALUES
                 string targetProjectPath = SchemaCompareTestUtils.CreateProject(targetDb, "TargetProject");
                 string[] targetScripts = SchemaCompareTestUtils.GetProjectScripts(targetProjectPath);
 
-                SchemaCompareEndpointInfo sourceInfo = new();
-                sourceInfo.EndpointType = SchemaCompareEndpointType.Project;
-                sourceInfo.ProjectFilePath = Path.Combine(sourceProjectPath, "SourceProject.sqlproj");
-                sourceInfo.TargetScripts = sourceScripts;
-                sourceInfo.DataSchemaProvider = "150";
-
-                SchemaCompareEndpointInfo targetInfo = new();
-                targetInfo.EndpointType = SchemaCompareEndpointType.Project;
-                targetInfo.ProjectFilePath = Path.Combine(targetProjectPath, "TargetProject.sqlproj");
-                targetInfo.TargetScripts = targetScripts;
-                targetInfo.DataSchemaProvider = "150";
+                SchemaCompareEndpointInfo sourceInfo = CreateTestEndpoint(SchemaCompareEndpointType.Project, Path.Combine(sourceProjectPath, "SourceProject.sqlproj"), sourceScripts);
+                SchemaCompareEndpointInfo targetInfo = CreateTestEndpoint(SchemaCompareEndpointType.Project, Path.Combine(targetProjectPath, "TargetProject.sqlproj"), targetScripts);
 
                 CreateAndValidateScmpFile(sourceInfo, targetInfo, SchemaCompareEndpointType.Project, SchemaCompareEndpointType.Project);
             }
@@ -1108,15 +1046,8 @@ WITH VALUES
                 string sourceProjectPath = SchemaCompareTestUtils.CreateProject(sourceDb, "SourceProject");
                 string[] sourceScripts = SchemaCompareTestUtils.GetProjectScripts(sourceProjectPath);
 
-                SchemaCompareEndpointInfo sourceInfo = new();
-                sourceInfo.EndpointType = SchemaCompareEndpointType.Project;
-                sourceInfo.ProjectFilePath = Path.Combine(sourceProjectPath, "SourceProject.sqlproj");
-                sourceInfo.TargetScripts = sourceScripts;
-                sourceInfo.DataSchemaProvider = "150";
-
-                SchemaCompareEndpointInfo targetInfo = new();
-                targetInfo.EndpointType = SchemaCompareEndpointType.Database;
-                targetInfo.DatabaseName = targetDb.DatabaseName;
+                SchemaCompareEndpointInfo sourceInfo = CreateTestEndpoint(SchemaCompareEndpointType.Project, Path.Combine(sourceProjectPath, "SourceProject.sqlproj"), sourceScripts);
+                SchemaCompareEndpointInfo targetInfo = CreateTestEndpoint(SchemaCompareEndpointType.Database, targetDb.DatabaseName);
 
                 CreateAndValidateScmpFile(sourceInfo, targetInfo, SchemaCompareEndpointType.Project, SchemaCompareEndpointType.Database);
             }
@@ -1144,15 +1075,8 @@ WITH VALUES
                 string targetProjectPath = SchemaCompareTestUtils.CreateProject(targetDb, "TargetProject");
                 string[] targetScripts = SchemaCompareTestUtils.GetProjectScripts(targetProjectPath);
 
-                SchemaCompareEndpointInfo sourceInfo = new();
-                sourceInfo.EndpointType = SchemaCompareEndpointType.Dacpac;
-                sourceInfo.PackageFilePath = sourceDacpac;
-
-                SchemaCompareEndpointInfo targetInfo = new();
-                targetInfo.EndpointType = SchemaCompareEndpointType.Project;
-                targetInfo.ProjectFilePath = Path.Combine(targetProjectPath, "TargetProject.sqlproj");
-                targetInfo.TargetScripts = targetScripts;
-                targetInfo.DataSchemaProvider = "150";
+                SchemaCompareEndpointInfo sourceInfo = CreateTestEndpoint(SchemaCompareEndpointType.Dacpac, sourceDacpac);
+                SchemaCompareEndpointInfo targetInfo = CreateTestEndpoint(SchemaCompareEndpointType.Project, Path.Combine(targetProjectPath, "TargetProject.sqlproj"), targetScripts);
 
                 CreateAndValidateScmpFile(sourceInfo, targetInfo, SchemaCompareEndpointType.Dacpac, SchemaCompareEndpointType.Project);
             }
@@ -1455,7 +1379,7 @@ WITH VALUES
                 Assert.True(cek.SourceObject != null, "CEK obect is null");
                 Assert.True(cek.SourceObject.Name.ToString() == "[CEK_Auto1]", string.Format("CEK object name incorrect. Expected {0}, Actual {1}", "CEK_Auto1", cek.SourceObject.Name.ToString()));
                 Assert.True(CreateKey.Contains(cek.SourceObject.GetScript().Trim()), string.Format("Expected script : {0}, Actual Script {1}", cek.SourceObject.GetScript(), CreateKey));
-                
+
                 // validate CMK script
                 var cmk = schemaCompareOperation.ComparisonResult.Differences.First(x => x.Name == "SqlColumnMasterKey");
                 Assert.NotNull(cmk);
@@ -1532,7 +1456,7 @@ WITH VALUES
                 Assert.False(t2ExcludeOperation.Success, "Excluding Table t2 should fail because view v1 depends on it");
                 Assert.True(t2ExcludeOperation.ComparisonResult.Differences.Where(x => x.SourceObject != null && x.SourceObject.Name.Parts[1] == "t2").First().Included, "Difference Table t2 should still be included because the exclude request failed");
                 Assert.True(t2ExcludeOperation.BlockingDependencies.Count == 1, "There should be one dependency");
-                Assert.True(t2ExcludeOperation.BlockingDependencies[0].SourceValue[1] == "v1",  "Dependency should be View v1");
+                Assert.True(t2ExcludeOperation.BlockingDependencies[0].SourceValue[1] == "v1", "Dependency should be View v1");
 
                 // exclude view v1, then t2 should also get excluded by this
                 DiffEntry v1Diff = SchemaCompareUtils.CreateDiffEntry(schemaCompareOperation.ComparisonResult.Differences.Where(x => x.SourceObject != null && x.SourceObject.Name.Parts[1] == "v1").First(), null);
@@ -1791,7 +1715,7 @@ WITH VALUES
                 {
                     Assert.AreEqual(targetDb.DatabaseName, schemaCompareOpenScmpOperation.Result.OriginalTargetName);
                 }
-                
+
                 ValidateResultEndpointInfo(sourceEndpoint, schemaCompareOpenScmpOperation.Result.SourceEndpointInfo, sourceDb.ConnectionString);
                 ValidateResultEndpointInfo(targetEndpoint, schemaCompareOpenScmpOperation.Result.TargetEndpointInfo, targetDb.ConnectionString);
 
@@ -1827,7 +1751,7 @@ WITH VALUES
                 string[] scripts = SchemaCompareTestUtils.GetProjectScripts(projectPath);
                 return new SchemaCompareProjectEndpoint(Path.Combine(projectPath, isProjectTarget ? "TargetProject.sqlproj" : "SourceProject.sqlproj"), scripts, "150");
             }
-            else 
+            else
             {
                 return new SchemaCompareDatabaseEndpoint(db.ConnectionString);
             }
@@ -1849,7 +1773,7 @@ WITH VALUES
             {
                 SchemaCompareDatabaseEndpoint databaseEndpoint = originalEndpoint as SchemaCompareDatabaseEndpoint;
                 Assert.AreEqual(databaseEndpoint.DatabaseName, resultEndpoint.DatabaseName);
-                Assert.That(connectionString, Does.Contain(resultEndpoint.ConnectionDetails.ConnectionString), "connectionString has password but resultEndpoint doesn't"); 
+                Assert.That(connectionString, Does.Contain(resultEndpoint.ConnectionDetails.ConnectionString), "connectionString has password but resultEndpoint doesn't");
             }
         }
 
@@ -1930,7 +1854,7 @@ WITH VALUES
             {
                 Assert.True(sc.Source is SchemaCompareDatabaseEndpoint, "Source should be SchemaCompareDatabaseEndpoint");
                 Assert.True((sc.Source as SchemaCompareDatabaseEndpoint).DatabaseName == sourceInfo.DatabaseName, $"Source Database {(sc.Source as SchemaCompareDatabaseEndpoint).DatabaseName} name does not match the params passed {sourceInfo.DatabaseName}");
-            } 
+            }
             else if (sourceType == SchemaCompareEndpointType.Dacpac)
             {
                 Assert.True(sc.Source is SchemaCompareDacpacEndpoint, "Source should be SchemaCompareDacpacEndpoint");
@@ -2024,6 +1948,33 @@ WITH VALUES
             Assert.False(TaskService.Instance.TaskManager.Tasks.Any(), $"No tasks were expected to exist but had {TaskService.Instance.TaskManager.Tasks.Count} [{string.Join(",", TaskService.Instance.TaskManager.Tasks.Select(t => t.TaskId))}]");
             Console.WriteLine($"ValidateTask{expectedTaskName} completed at retry = {retry}");
             TaskService.Instance.TaskManager.Reset();
+        }
+
+        private SchemaCompareEndpointInfo CreateTestEndpoint(SchemaCompareEndpointType type, string comparisonObjectPath, string[] targetScripts = null)
+        {
+            SchemaCompareEndpointInfo result = new SchemaCompareEndpointInfo
+            {
+                EndpointType = type
+            };
+
+            switch (type)
+            {
+                case SchemaCompareEndpointType.Dacpac:
+                    result.PackageFilePath = comparisonObjectPath;
+                    break;
+                case SchemaCompareEndpointType.Database:
+                    result.DatabaseName = comparisonObjectPath;
+                    break;
+                case SchemaCompareEndpointType.Project:
+                    result.ProjectFilePath = comparisonObjectPath;
+                    result.TargetScripts = targetScripts;
+                    result.DataSchemaProvider = "150";
+                    break;
+                default:
+                    throw new ArgumentException($"Unexpected endpoint type: {type}");
+            }
+
+            return result;
         }
     }
 }
