@@ -70,7 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             pollingTimer.Interval = 10000;
             pollingTimer.Start();
             bool timeout = false;
-            pollingTimer.Elapsed += new System.Timers.ElapsedEventHandler((s_, e_) => {timeout = true;});
+            pollingTimer.Elapsed += new System.Timers.ElapsedEventHandler((s_, e_) => { timeout = true; });
             while (sessionId == null && !timeout)
             {
                 Thread.Sleep(250);
@@ -186,7 +186,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             pollingTimer.Interval = 10000;
             pollingTimer.Start();
             bool timeout = false;
-            pollingTimer.Elapsed += new System.Timers.ElapsedEventHandler((s_, e_) => {timeout = true;});
+            pollingTimer.Elapsed += new System.Timers.ElapsedEventHandler((s_, e_) => { timeout = true; });
             while (!recievedEvents && !timeout)
             {
                 Thread.Sleep(250);
@@ -261,7 +261,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             pollingTimer.Interval = 10000;
             pollingTimer.Start();
             bool timeout = false;
-            pollingTimer.Elapsed += new System.Timers.ElapsedEventHandler((s_, e_) => {timeout = true;});
+            pollingTimer.Elapsed += new System.Timers.ElapsedEventHandler((s_, e_) => { timeout = true; });
             while (sessionStopped == false && !timeout)
             {
                 Thread.Sleep(250);
