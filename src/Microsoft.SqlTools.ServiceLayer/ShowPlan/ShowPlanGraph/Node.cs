@@ -6,6 +6,8 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.Globalization;
 
 namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
 {
@@ -29,12 +31,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
         {
             this.ID = id;
             this.properties = new PropertyDescriptorCollection(new PropertyDescriptor[0]);
-            this.children = new LinkedList<Node>();
-            this.childrenEdges = new LinkedList<Edge>();
+            this.children = new List<Node>();
+            this.childrenEdges = new List<Edge>();
             this.LogicalOpUnlocName = null;
             this.PhysicalOpUnlocName = null;
             this.root = context.Graph.Root;
-            if(this.root == null)
+            if (this.root == null)
             {
                 this.root = this;
             }
@@ -54,6 +56,186 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
         {
             get; set;
         }
+
+        /// <summary>
+        /// Gets Node display name
+        /// </summary>
+        public virtual string DisplayName
+        {
+            get
+            {
+                if (this.Operation == Operation.Unknown)
+                {
+                    return String.Empty;
+                }
+
+                // The display name can consist of two lines
+                // The first line is the Physical name and the physical kind in parenthesis
+                // The second line should contains either Object value or LogicalOp name.
+                // The second line should not show the same content as the first line.
+
+                string firstLine = this["PhysicalOp"] as string;
+                if (firstLine == null)
+                {
+                    if (this.Operation == null)
+                    {
+                        return String.Empty;
+                    }
+
+                    firstLine = this.Operation.DisplayName;
+                }
+
+                // Check if the PhysicalOp is specialized to a specific kind
+                string firstLineAppend = this["PhysicalOperationKind"] as string;
+                if (firstLineAppend != null)
+                {
+                    firstLine = String.Format(CultureInfo.CurrentCulture, "{0} {1}", firstLine, SR.Parenthesis(firstLineAppend));
+                }
+
+
+                string secondLine;
+
+                object objectValue = this["Object"];
+                if (objectValue != null)
+                {
+                    secondLine = GetObjectNameForDisplay(objectValue);
+                }
+                else
+                {
+                    secondLine = this["LogicalOp"] as string;
+                    if (secondLine != null)
+                    {
+                        if (secondLine != firstLine)
+                        {
+                            // Enclose logical name in parenthesis.
+                            secondLine = SR.Parenthesis(secondLine);
+                        }
+                        else
+                        {
+                            // Don't show the second line if its value is the same as on the first line.
+                            secondLine = null;
+                        }
+                    }
+                }
+
+                return secondLine == null || secondLine.Length == 0
+                    ? firstLine
+                    : String.Format(CultureInfo.CurrentCulture, "{0}\n{1}", firstLine, secondLine);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets node name (visible through AA)
+        /// </summary>
+        public string Name2
+        {
+            get
+            {
+                // Make AA names compatible with the previos implementation
+                string name = this.DisplayName.Replace("\n", "/");
+                name = name.Replace("(", "");
+                name = name.Replace(")", "");
+                if (name.Length == 0)
+                {
+                    return SR.NodeDisplayPropertiesName1(this.ID);
+                }
+                else
+                {
+                    return SR.NodeDisplayPropertiesName2(name, this.ID);
+                }
+            }
+
+            set
+            {
+                ;
+            }
+        }
+
+        /// <summary>
+        /// Gets Node description
+        /// </summary>
+        [DisplayOrder(2), DisplayNameDescription(SR.Keys.OperationDescriptionShort, SR.Keys.OperationDescription)]
+        public string Description
+        {
+            get { return this.Operation.Description; }
+        }
+
+        /// <summary>
+        /// Gets the value that indicates Node parallelism.
+        /// </summary>
+        public bool IsParallel
+        {
+            get
+            {
+                object value = this["Parallel"];
+                return value != null ? (bool)value : false;
+            }
+        }
+
+        /// <summary>
+        /// Gets the value that indicates whether the Node has warnings.
+        /// </summary>
+        [Browsable(false)]
+        public bool HasWarnings
+        {
+            get
+            {
+                return this["Warnings"] != null;
+            }
+        }
+
+
+        /// <summary>
+        /// Gets the value that indicates whether the Node has critical warnings.
+        /// </summary>
+        private bool HasCriticalWarnings
+        {
+            get
+            {
+                if (this["Warnings"] != null)
+                {
+                    ExpandableObjectWrapper wrapper = this["Warnings"] as ExpandableObjectWrapper;
+                    if (wrapper["NoJoinPredicate"] != null)
+                    {
+                        return (bool)wrapper["NoJoinPredicate"];
+                    }
+                }
+
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Check if this showplan_xml has PDW cost.
+        /// </summary>
+        private bool HasPDWCost
+        {
+            get
+            {
+                return this["PDWAccumulativeCost"] != null;
+            }
+        }
+
+        /// <summary>
+        /// Gets the cost associated with the Node.
+        /// </summary>
+        [ShowInToolTip, DisplayOrder(8), DisplayNameDescription(SR.Keys.EstimatedOperatorCost, SR.Keys.EstimatedOperatorCostDescription)]
+        public string DisplayCost
+        {
+            get
+            {
+                double cost = this.RelativeCost * 100;
+                if (this.HasPDWCost && cost <= 0)
+                {
+                    return string.Empty;
+                }
+                return SR.OperatorDisplayCost(this.Cost, (int)Math.Round(cost));
+            }
+        }
+
+
+
+
 
         /// <summary>
         /// Gets the cost associated with the current Node.
@@ -95,6 +277,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
         /// <summary>
         /// Gets the cost associated with the Node subtree.
         /// </summary>
+        [ShowInToolTip, DisplayOrder(9), DisplayNameDescription(SR.Keys.EstimatedSubtreeCost, SR.Keys.EstimatedSubtreeCostDescription)]
         public double SubtreeCost
         {
             get
@@ -115,6 +298,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
                 this.subtreeCost = value;
             }
         }
+
+        /// <summary>
+        /// Max Children X Position.
+        /// </summary>
+        public int MaxChildrenXPosition;
+
 
         /// <summary>
         /// Gets the operation information (localized name, description, image, etc)
@@ -174,10 +363,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
         /// <summary>
         /// Gets collection of node children.
         /// </summary>
-        public LinkedList<Node> Children
+        public List<Node> Children
         {
             get { return this.children; }
         }
+
+        /// <summary>
+        /// Gets collection of node children.
+        /// </summary>
+        public List<Edge> Edges
+        {
+            get { return this.childrenEdges; }
+        }
+
 
         /// <summary>
         /// Gets current node parent.
@@ -320,6 +518,26 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
             return true;
         }
 
+        public long? ElapsedTimeInMs
+        {
+            get
+            {
+                long? time = null;
+                var actualStatsWrapper = this["ActualTimeStatistics"] as ExpandableObjectWrapper;
+                if (actualStatsWrapper != null)
+                {
+                    var counters = actualStatsWrapper["ActualElapsedms"] as RunTimeCounters;
+                    if (counters != null)
+                    {
+                        var elapsedTime = counters.MaxCounter;
+                        long ticks = (long)elapsedTime * TimeSpan.TicksPerMillisecond;
+                        time = new DateTime(ticks).Millisecond;
+                    }
+                }
+                return time;
+            }
+        }
+
         /// <summary>
         /// ENU name for Logical Operator
         /// </summary>
@@ -333,6 +551,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
         #endregion
 
         #region Implementation details
+
+        /// <summary>
+        /// Gets short object name for display.
+        /// Since database and schema is not important and displaying table first is much useful,
+        /// we are displaying object name in [Table].[Index] [Alias] format.
+        /// </summary>
+        /// <param name="objectProperty">Object property in the property bag</param>
+        private string GetObjectNameForDisplay(object objectProperty)
+        {
+            string objectNameForDisplay = string.Empty;
+
+            Debug.Assert(objectProperty != null);
+            if (objectProperty != null)
+            {
+                objectNameForDisplay = objectProperty.ToString();
+
+                ExpandableObjectWrapper objectWrapper = objectProperty as ExpandableObjectWrapper;
+                Debug.Assert(objectWrapper != null);
+                if (objectWrapper != null)
+                {
+                    objectNameForDisplay = ObjectWrapperTypeConverter.MergeString(".", objectWrapper["Table"], objectWrapper["Index"]);
+                    objectNameForDisplay = ObjectWrapperTypeConverter.MergeString(" ", objectNameForDisplay, objectWrapper["Alias"]);
+                }
+            }
+
+            return objectNameForDisplay;
+        }
 
         /// <summary>
         /// used to compare multiple string type PropertyValue in Object properties,
@@ -358,6 +603,130 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
             return true;
         }
 
+        /// <summary>
+        /// Gets lines of text displayed under the icon.
+        /// </summary>
+        /// <returns>Array of strings.</returns>
+        public string[] GetDisplayLinesOfText()
+        {
+            string newDisplayNameLines = this.DisplayName;
+
+            // cost
+            double cost = this.RelativeCost * 100;
+
+            if (!this.HasPDWCost || cost > 0)
+            {
+                string costText = SR.CostFormat((int)Math.Round(cost));
+                newDisplayNameLines += '\n' + costText;
+            }
+
+
+            // elapsed time in miliseconds
+            string elapsedTime = GetElapsedTimeDisplayString();
+            if (!String.IsNullOrEmpty(elapsedTime))
+            {
+                newDisplayNameLines += '\n' + elapsedTime;
+            }
+
+            // actual/estimated rows
+            string rowStatistics = GetRowStatisticsDisplayString();
+            if (!String.IsNullOrEmpty(rowStatistics))
+            {
+                newDisplayNameLines += '\n' + rowStatistics;
+            }
+
+            return newDisplayNameLines.Split('\n');
+        }
+
+        /// <summary>
+        /// Provide a string for the actual elapsed time if it is available
+        /// </summary>
+        /// <returns>formatted string of execution time</returns>
+        public string GetElapsedTimeDisplayString()
+        {
+            string formattedTime = null;
+
+            var actualStatsWrapper = this["ActualTimeStatistics"] as ExpandableObjectWrapper;
+            if (actualStatsWrapper != null)
+            {
+                var counters = actualStatsWrapper["ActualElapsedms"] as RunTimeCounters;
+                if (counters != null)
+                {
+                    var elapsedTime = counters.MaxCounter;
+                    long ticks = (long)elapsedTime * TimeSpan.TicksPerMillisecond;
+                    var time = new DateTime(ticks);
+                    if (ticks < 1000L * TimeSpan.TicksPerMillisecond * 60) // 60 seconds
+                    {
+                        formattedTime = time.ToString("s.fff") + "s";
+                    }
+                    else
+                    {
+                        // calculate the hours
+                        long hours = ticks / (1000L * TimeSpan.TicksPerMillisecond * 60 * 60); //1 hour
+                        formattedTime = hours.ToString() + time.ToString(":mm:ss");
+                    }
+                }
+            }
+
+            return formattedTime;
+        }
+
+        /// <summary>
+        /// Provide a string for the actual rows vs estimated rows if they are both available in the actual execution plan
+        /// </summary>
+        /// <returns>formatted string of actual rows vs estimated rows; or null if estimateRows or actualRows is null</returns>
+        private string GetRowStatisticsDisplayString()
+        {
+            var actualRowsCounters = this[NodeBuilderConstants.ActualRows] as RunTimeCounters;
+            ulong? actualRows = actualRowsCounters != null ? actualRowsCounters.TotalCounters : (ulong?)null;
+            var estimateRows = this[NodeBuilderConstants.EstimateRows] as double?;
+            var estimateExecutions = this[NodeBuilderConstants.EstimateExecutions] as double?;
+
+            if (estimateRows != null)
+            {
+                if (estimateExecutions != null)
+                {
+                    estimateRows = estimateRows * estimateExecutions;
+                }
+                // we display estimate rows as integer so need round function
+                estimateRows = Math.Round(estimateRows.Value);
+            }
+
+            return GetRowStatisticsDisplayString(actualRows, estimateRows);
+        }
+
+        /// <summary>
+        /// Inner function to provide a string for the actual rows vs estimated rows if they are both available in the actual execution plan
+        /// </summary>
+        /// <param name="actualRows">actual rows</param>
+        /// <param name="estimateRows">estimated rows</param>
+        /// <returns>formatted string of actual rows vs estimated rows; or null if any of the arguments is null</returns>
+        private string GetRowStatisticsDisplayString(ulong? actualRows, double? estimateRows)
+        {
+            if (!actualRows.HasValue || !estimateRows.HasValue)
+            {
+                return null;
+            }
+
+            // estimateRows should always to be positive, I just change it to 1 just in case since we need to calculate the percentage
+            estimateRows = estimateRows > 0 ? estimateRows : 1;
+
+            // get the difference in percentage
+            var actualString = actualRows.Value.ToString();
+            var estimateString = estimateRows.Value.ToString();
+            int percent = 100;
+            if (estimateRows > 0)
+            {
+                percent = (int)(100 * ((double)actualRows / estimateRows));
+            }
+
+            actualString = actualString.PadLeft(estimateString.Length);
+            estimateString = estimateString.PadLeft(actualString.Length);
+
+            return SR.ActualOfEstimated(actualString, estimateString, percent);
+        }
+
+
         #endregion
 
         #region Private variables
@@ -367,13 +736,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
         private double subtreeCost;
         private Operation operation;
         private PropertyDescriptorCollection properties;
-        private LinkedList<Node> children;
+        private List<Node> children;
         private readonly string objectProperty = NodeBuilderConstants.Object;
         private readonly string predicateProperty = NodeBuilderConstants.LogicalOp;
         private Node parent;
         private Graph graph;
         private Edge parentEdge;
-        private LinkedList<Edge> childrenEdges;
+        private List<Edge> childrenEdges;
         private string nodeType;
 
         private Node root;
@@ -388,9 +757,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
         public void AddChild(Node child)
         {
             Edge edge = new Edge(this, child);
-            this.childrenEdges.AddLast(edge);
+            this.childrenEdges.Add(edge);
             child.parentEdge = edge;
-            this.children.AddLast(child);
+            this.children.Add(child);
             child.parent = this;
         }
 
