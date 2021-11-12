@@ -3513,6 +3513,12 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";InvalidTableEditPathException" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The path '{0}' in the table change information is not valid for edit type: '{1}']]></Val>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";InvalidWeeklySchedule" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Select at least one day to be part of this weekly schedule.]]></Val>
@@ -9303,6 +9309,69 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";TableColumnIdentityGroupName" ItemType="0;.resx" PsrId="211" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Identity Specification]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[識別規格]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";TableColumnIdentityIncrementPropertyDescription" ItemType="0;.resx" PsrId="211" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Displays the value added to the maximum existing row identity value when generating the next identity value.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[顯示在產生下一個識別值時要加入到最大現有資料列識別值的值。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";TableColumnIdentityIncrementPropertyTitle" ItemType="0;.resx" PsrId="211" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Identity Increment]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[識別值增量]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";TableColumnIdentitySeedPropertyDescription" ItemType="0;.resx" PsrId="211" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Displays the initial row value for an identity column.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[顯示識別資料行的起始資料列值。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";TableColumnIdentitySeedPropertyTitle" ItemType="0;.resx" PsrId="211" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Identity Seed]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[識別值種子]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";TableColumnIsIdentityPropertyDescription" ItemType="0;.resx" PsrId="211" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Specifies whether the column is the identity column for the table.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[指定資料行是否為資料表的識別資料行。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";TableColumnIsIdentityPropertyTitle" ItemType="0;.resx" PsrId="211" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Is Identity]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[為識別]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";TableDelete" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Table Delete]]></Val>
@@ -9318,6 +9387,12 @@
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[刪除 [引數]5D; 欄位中指定之資料表的輸入資料列。]]></Val>
           </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";TableEditPathNotProvidedException" ItemType="0;.resx" PsrId="211" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The path in the table change information cannot be empty]]></Val>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -9354,6 +9429,12 @@
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[合併 [引數]5D; 欄位中所指定資料表的輸入資料行。]]></Val>
           </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";TableNotInitializedException" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Initialization is not properly done for table with id '{0}']]></Val>
         </Str>
         <Disp Icon="Str" />
       </Item>

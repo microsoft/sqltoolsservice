@@ -3513,6 +3513,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";InvalidTableEditPathException" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The path '{0}' in the table change information is not valid for edit type: '{1}']]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Der Pfad "{0}" in den Tabellenänderungsinformationen ist für den Bearbeitungstyp "{1}" ungültig.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";InvalidWeeklySchedule" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Select at least one day to be part of this weekly schedule.]]></Val>
@@ -9303,6 +9312,69 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";TableColumnIdentityGroupName" ItemType="0;.resx" PsrId="211" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Identity Specification]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Identitätsspezifikation]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";TableColumnIdentityIncrementPropertyDescription" ItemType="0;.resx" PsrId="211" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Displays the value added to the maximum existing row identity value when generating the next identity value.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Zeigt den Wert an, der beim Generieren des nächsten Identitätswerts dem Maximalwert des vorhandenen Zeilenidentitätswerts hinzugefügt wird.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";TableColumnIdentityIncrementPropertyTitle" ItemType="0;.resx" PsrId="211" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Identity Increment]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Identitätsinkrement]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";TableColumnIdentitySeedPropertyDescription" ItemType="0;.resx" PsrId="211" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Displays the initial row value for an identity column.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Zeigt den anfänglichen Zeilenwert für eine Identitätsspalte an.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";TableColumnIdentitySeedPropertyTitle" ItemType="0;.resx" PsrId="211" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Identity Seed]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Identitätsseeding]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";TableColumnIsIdentityPropertyDescription" ItemType="0;.resx" PsrId="211" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Specifies whether the column is the identity column for the table.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Gibt an, ob die Spalte die Identitätsspalte für die Tabelle ist.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";TableColumnIsIdentityPropertyTitle" ItemType="0;.resx" PsrId="211" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Is Identity]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Ist Identity]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";TableDelete" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Table Delete]]></Val>
@@ -9317,6 +9389,15 @@
           <Val><![CDATA[Delete input rows from the table specified in Argument field.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Löscht Eingabezeilen aus der im Feld "Argument" angegebenen Tabelle.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";TableEditPathNotProvidedException" ItemType="0;.resx" PsrId="211" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The path in the table change information cannot be empty]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Der Pfad in den Tabellenänderungsinformationen darf nicht leer sein.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9353,6 +9434,15 @@
           <Val><![CDATA[Merge input rows in the table specified in Argument field.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Führt Eingabezeilen in der im Feld "Argument" angegebenen Tabelle zusammen.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";TableNotInitializedException" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Initialization is not properly done for table with id '{0}']]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Die Initialisierung für die Tabelle mit der ID "{0}" wurde nicht ordnungsgemäß ausgeführt.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
