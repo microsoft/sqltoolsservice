@@ -35,6 +35,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
 			set { this.propertyValue = value; }
 		}
 
+        public string DisplayValue
+        {
+            get => this.Converter.ConvertToString(null, null, this.Value); 
+        }
+
         public int DisplayOrder
         {
             get

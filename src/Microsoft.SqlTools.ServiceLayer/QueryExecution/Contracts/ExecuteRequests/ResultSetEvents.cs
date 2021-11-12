@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.ServiceLayer.ShowPlan;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests
 {
@@ -35,6 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteReques
     /// </summary>
     public class ResultSetUpdatedEventParams : ResultSetEventParams
     {
+        public ExecutionPlanGraph ShowPlanGraph { get; set; }
     }
 
     public class ResultSetCompleteEvent 
