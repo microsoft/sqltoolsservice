@@ -2,16 +2,18 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+
+using Microsoft.SqlServer.Dac;
+using Microsoft.SqlServer.Dac.Compare;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
 {
     /// <summary>
-    /// Parameters for a schema compare publish changes request.
+    /// Parameters for a schema compare publish project changes request.
     /// </summary>
-    public class SchemaComparePublishChangesParams
+    public class SchemaComparePublishProjectChangesParams
     {
         /// <summary>
         /// Operation id of the schema compare operation
@@ -19,14 +21,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
         public string OperationId { get; set; }
 
         /// <summary>
-        /// Name of target server
+        /// Path of project folder
         /// </summary>
-        public string TargetServerName { get; set; }
+        public string TargetProjectPath { get; set; }
 
         /// <summary>
-        /// Name of target database
+        /// folder structure of target folder
         /// </summary>
-        public string TargetDatabaseName { get; set; }
+        public DacExtractTarget TargetFolderStructure { get; set; }
 
         /// <summary>
         /// Execution mode for the operation. Default is execution
@@ -35,11 +37,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
     }
 
     /// <summary>
-    /// Defines the Schema Compare publish changes request type
+    /// Defines the Schema Compare publish project changes request type
     /// </summary>
-    class SchemaComparePublishChangesRequest
+    class SchemaComparePublishProjectChangesRequest
     {
-        public static readonly RequestType<SchemaComparePublishDatabaseChangesParams, ResultStatus> Type =
-            RequestType<SchemaComparePublishDatabaseChangesParams, ResultStatus>.Create("schemaCompare/publish");
+        public static readonly RequestType<SchemaComparePublishProjectChangesParams, SchemaComparePublishProjectResult> Type =
+            RequestType<SchemaComparePublishProjectChangesParams, SchemaComparePublishProjectResult>.Create("schemaCompare/publishProject");
     }
 }
