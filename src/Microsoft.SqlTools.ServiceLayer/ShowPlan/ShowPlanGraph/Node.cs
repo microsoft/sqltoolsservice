@@ -125,33 +125,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
         }
 
         /// <summary>
-        /// Gets or sets node name (visible through AA)
-        /// </summary>
-        public string Name2
-        {
-            get
-            {
-                // Make AA names compatible with the previos implementation
-                string name = this.DisplayName.Replace("\n", "/");
-                name = name.Replace("(", "");
-                name = name.Replace(")", "");
-                if (name.Length == 0)
-                {
-                    return SR.NodeDisplayPropertiesName1(this.ID);
-                }
-                else
-                {
-                    return SR.NodeDisplayPropertiesName2(name, this.ID);
-                }
-            }
-
-            set
-            {
-                ;
-            }
-        }
-
-        /// <summary>
         /// Gets Node description
         /// </summary>
         [DisplayOrder(2), DisplayNameDescription(SR.Keys.OperationDescriptionShort, SR.Keys.OperationDescription)]
