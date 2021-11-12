@@ -6,11 +6,12 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts;
+using Table = Microsoft.Data.Tools.Sql.DesignServices.TableDesigner.TableDesignerViewModel;
 
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 {
@@ -19,9 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
     /// </summary>
     public sealed class TableDesignerService : IDisposable
     {
-        // The query is copied from SSMS table designer, sys and INFORMATION_SCHEMA can not be selected.
-        const string GetSchemasQuery = "select name from sys.schemas where principal_id <> 3 and principal_id <> 4 order by name";
-
+        private Dictionary<string, Table> idTableMap = new Dictionary<string, Table>();
         private bool disposed = false;
         private static readonly Lazy<TableDesignerService> instance = new Lazy<TableDesignerService>(() => new TableDesignerService());
 
@@ -79,15 +78,19 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         {
             return this.HandleRequest<TableDesignerInfo>(requestContext, async () =>
             {
-                var schemas = this.GetSchemas(tableInfo);
-                var viewModel = this.GetTableViewModel(tableInfo, schemas);
+                var connectinStringbuilder = new SqlConnectionStringBuilder(tableInfo.ConnectionString);
+                connectinStringbuilder.InitialCatalog = tableInfo.Database;
+                var connectionString = connectinStringbuilder.ToString();
+                var table = new Table(connectionString, tableInfo.Schema, tableInfo.Name, tableInfo.IsNewTable);
+                this.idTableMap.Add(tableInfo.Id, table);
+                var viewModel = this.GetTableViewModel(tableInfo);
                 var view = this.GetDesignerViewInfo(tableInfo);
                 await requestContext.SendResult(new TableDesignerInfo()
                 {
                     ViewModel = viewModel,
                     View = view,
-                    ColumnTypes = this.GetSupportedColumnTypes(tableInfo),
-                    Schemas = schemas
+                    ColumnTypes = table.DataTypes.ToList(),
+                    Schemas = table.Schemas.ToList()
                 });
             });
         }
@@ -111,7 +114,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 }
                 await requestContext.SendResult(new ProcessTableDesignerEditResponse()
                 {
-                    ViewModel = requestParams.ViewModel,
+                    ViewModel = this.GetTableViewModel(requestParams.TableInfo),
                     IsValid = true
                 });
             });
@@ -131,13 +134,14 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         {
             return this.HandleRequest<DisposeTableDesignerResponse>(requestContext, async () =>
             {
-                // TODO: Handle the save changes request.
+                this.idTableMap.Remove(tableInfo.Id);
                 await requestContext.SendResult(new DisposeTableDesignerResponse());
             });
         }
 
         private void HandleAddItemRequest(ProcessTableDesignerEditRequestParams requestParams)
         {
+            var table = this.GetTable(requestParams.TableInfo);
             var path = requestParams.TableChangeInfo.Path;
             // Handle the add item request on top level table properties, e.g. Columns, Indexes.
             if (path.Length == 1)
@@ -146,7 +150,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 switch (propertyName)
                 {
                     case TablePropertyNames.Columns:
-                        requestParams.ViewModel.Columns.AddNew();
+                        table.Columns.AddNew();
                         break;
                     default:
                         break;
@@ -160,6 +164,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
         private void HandleRemoveItemRequest(ProcessTableDesignerEditRequestParams requestParams)
         {
+            var table = this.GetTable(requestParams.TableInfo);
             var path = requestParams.TableChangeInfo.Path;
             // Handle the add item request on top level table properties, e.g. Columns, Indexes.
             if (path.Length == 2)
@@ -168,7 +173,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 switch (propertyName)
                 {
                     case TablePropertyNames.Columns:
-                        requestParams.ViewModel.Columns.Data.RemoveAt(Convert.ToInt32(path[1]));
+                        table.Columns.Items.RemoveAt(Convert.ToInt32(path[1]));
                         break;
                     default:
                         break;
@@ -180,32 +185,44 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             }
         }
 
-        private List<string> GetSupportedColumnTypes(TableInfo tableInfo)
+        private TableViewModel GetTableViewModel(TableInfo tableInfo)
         {
-            //TODO: get the supported column types.
-            var columnTypes = new List<string>();
-            return columnTypes;
-        }
-
-        private TableViewModel GetTableViewModel(TableInfo tableInfo, List<string> schemas)
-        {
+            var table = this.GetTable(tableInfo);
             var tableViewModel = new TableViewModel();
-            // Schema
-            if (tableInfo.IsNewTable)
+            tableViewModel.Name.Value = table.Name;
+            tableViewModel.Schema.Value = table.Schema;
+            tableViewModel.Description.Value = table.Description;
+
+            foreach (var column in table.Columns.Items)
             {
-                tableViewModel.Schema.Value = schemas.Contains("dbo") ? "dbo" : schemas[0];
-            }
-            else
-            {
-                tableViewModel.Schema.Value = tableInfo.Schema;
+                var columnViewModel = new TableColumnViewModel();
+                columnViewModel.Name.Value = column.Name;
+                columnViewModel.Name.Enabled = column.CanEditName;
+                columnViewModel.Length.Value = column.Length;
+                columnViewModel.Length.Enabled = column.CanEditLength;
+                columnViewModel.Scale.Value = column.Scale?.ToString();
+                columnViewModel.Scale.Enabled = column.CanEditScale;
+                columnViewModel.Precision.Value = column.Precision?.ToString();
+                columnViewModel.Precision.Enabled = column.CanEditPrecision;
+                columnViewModel.AllowNulls.Checked = column.IsNullable;
+                columnViewModel.AllowNulls.Enabled = column.CanEditIsNullable;
+                columnViewModel.DefaultValue.Value = column.DefaultValue;
+                columnViewModel.DefaultValue.Enabled = column.CanEditDefaultValue;
+                columnViewModel.IsPrimaryKey.Checked = column.IsPrimaryKey;
+                columnViewModel.IsPrimaryKey.Enabled = column.CanEditIsPrimaryKey;
+                columnViewModel.Type.Value = column.DataType;
+                columnViewModel.Type.Enabled = column.CanEditDataType;
+                columnViewModel.IsIdentity.Enabled = column.CanEditIsIdentity;
+                columnViewModel.IsIdentity.Checked = column.IsIdentity;
+                columnViewModel.IdentitySeed.Enabled = column.CanEditIdentityValues;
+                columnViewModel.IdentitySeed.Value = column.IdentitySeed?.ToString();
+                columnViewModel.IdentityIncrement.Enabled = column.CanEditIdentityValues;
+                columnViewModel.IdentityIncrement.Value = column.IdentityIncrement?.ToString();
+                tableViewModel.Columns.Data.Add(columnViewModel);
             }
 
-            // Table Name
-            if (!tableInfo.IsNewTable)
-            {
-                tableViewModel.Name.Value = tableInfo.Name;
-            }
-
+            tableViewModel.Script.Enabled = false;
+            tableViewModel.Script.Value = table.Script;
             // TODO: set other properties of the table
             return tableViewModel;
         }
@@ -251,17 +268,17 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             return view;
         }
 
-        private List<string> GetSchemas(TableInfo tableInfo)
+        private Table GetTable(TableInfo tableInfo)
         {
-            var schemas = new List<string>();
-            ReliableConnectionHelper.ExecuteReader(tableInfo.ConnectionString, GetSchemasQuery, (reader) =>
+            Table table;
+            if (this.idTableMap.TryGetValue(tableInfo.Id, out table))
             {
-                while (reader.Read())
-                {
-                    schemas.Add(reader[0].ToString());
-                }
-            });
-            return schemas;
+                return table;
+            }
+            else
+            {
+                throw new KeyNotFoundException(SR.TableNotInitializedException(tableInfo.Id));
+            }
         }
 
         /// <summary>
