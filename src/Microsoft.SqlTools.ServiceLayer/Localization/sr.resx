@@ -4616,4 +4616,46 @@
     <comment>.
  Parameters: 0 - actual (string), 1 - estimated (string), 2 - percent (decimal) </comment>
   </data>
+  <data name="TableNotInitializedException" xml:space="preserve">
+    <value>Initialization is not properly done for table with id &apos;{0}&apos;</value>
+    <comment>.
+ Parameters: 0 - tableId (string) </comment>
+  </data>
+  <data name="TableEditPathNotProvidedException" xml:space="preserve">
+    <value>The path in the table change information cannot be empty</value>
+    <comment></comment>
+  </data>
+  <data name="InvalidTableEditPathException" xml:space="preserve">
+    <value>The path &apos;{0}&apos; in the table change information is not valid for edit type: &apos;{1}&apos;</value>
+    <comment>.
+ Parameters: 0 - path (string), 1 - editType (string) </comment>
+  </data>
+  <data name="TableColumnIdentityGroupName" xml:space="preserve">
+    <value>Identity Specification</value>
+    <comment></comment>
+  </data>
+  <data name="TableColumnIsIdentityPropertyTitle" xml:space="preserve">
+    <value>Is Identity</value>
+    <comment></comment>
+  </data>
+  <data name="TableColumnIsIdentityPropertyDescription" xml:space="preserve">
+    <value>Specifies whether the column is the identity column for the table.</value>
+    <comment></comment>
+  </data>
+  <data name="TableColumnIdentityIncrementPropertyTitle" xml:space="preserve">
+    <value>Identity Increment</value>
+    <comment></comment>
+  </data>
+  <data name="TableColumnIdentityIncrementPropertyDescription" xml:space="preserve">
+    <value>Displays the value added to the maximum existing row identity value when generating the next identity value.</value>
+    <comment></comment>
+  </data>
+  <data name="TableColumnIdentitySeedPropertyTitle" xml:space="preserve">
+    <value>Identity Seed</value>
+    <comment></comment>
+  </data>
+  <data name="TableColumnIdentitySeedPropertyDescription" xml:space="preserve">
+    <value>Displays the initial row value for an identity column.</value>
+    <comment></comment>
+  </data>
 </root>

@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System.Collections.Generic;
+
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 {
     /// <summary>
@@ -11,8 +13,14 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
     /// </summary>
     public class TableDesignerView
     {
-        public DesignerDataPropertyInfo[] AdditionalTableProperties { get; set; }
+        public List<DesignerDataPropertyInfo> AdditionalTableProperties { get; set; } = new List<DesignerDataPropertyInfo>();
 
-        public DesignerDataPropertyInfo[] AdditionalTableColumnProperties { get; set; }
+        public List<DesignerDataPropertyInfo> AdditionalTableColumnProperties { get; set; } = new List<DesignerDataPropertyInfo>();
+
+        public List<string> ColumnsTableProperties { get; set; } = new List<string>();
+
+        public bool CanAddColumns { get; set; }
+
+        public bool CanRemoveColumns { get; set; }
     }
 }

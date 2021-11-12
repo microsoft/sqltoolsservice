@@ -3,12 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
-using System.Threading.Tasks;
-using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Hosting;
-using Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts;
-
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 {
     public static class TablePropertyNames
@@ -27,5 +21,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         public const string Length = "length";
         public const string AllowNulls = "allowNulls";
         public const string IsPrimaryKey = "isPrimaryKey";
+        public const string Precision = "precision";
+        public const string Scale = "scale";
+        public const string IsIdentity = "isIdentity";
+        public const string IdentityIncrement = "identityIncrement";
+        public const string IdentitySeed = "identitySeed";
     }
 }

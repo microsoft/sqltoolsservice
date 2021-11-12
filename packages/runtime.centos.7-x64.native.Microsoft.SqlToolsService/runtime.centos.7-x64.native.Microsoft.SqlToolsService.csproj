@@ -1,0 +1,9 @@
+﻿<Project Sdk="Microsoft.Build.NoTargets">
+  <PropertyGroup>
+    <PackageDescription>SQL Tools Service runtime components for centos.7-x64</PackageDescription>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../../artifacts/publish/Microsoft.SqlTools.ServiceLayer/centos.7-x64/$(TargetFramework)/**" Pack="true" PackagePath="runtimes/centos.7-x64/native" />
+  </ItemGroup>
+</Project>

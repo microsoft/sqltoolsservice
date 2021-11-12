@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 
 /// <summary>
 ///  Class encompassing the optional settings for running processes.
@@ -11,9 +12,13 @@ public class RunOptions
     /// </summary>
     public string WorkingDirectory { get; set; }
     /// <summary>
-    ///  Container logging the StandardOutput content.
+    ///  Stream to log std out messages to
     /// </summary>
-    public IList<string> StandardOutputListing { get; set; }
+    public StreamWriter StandardOutputWriter { get; set; }
+    /// <summary>
+    ///  Stream to log std err messages to
+    /// </summary>
+    public StreamWriter StandardErrorWriter { get; set; }
     /// <summary>
     ///  Desired maximum time-out for the process
     /// </summary>
@@ -117,18 +122,30 @@ ExitStatus Run(string exec, string args, RunOptions runOptions)
             {
                 WorkingDirectory = workingDirectory,
                 UseShellExecute = false,
-                RedirectStandardOutput = runOptions.StandardOutputListing != null
+                RedirectStandardOutput = runOptions.StandardOutputWriter != null,
+                RedirectStandardError = runOptions.StandardErrorWriter != null,
             });
-    if (runOptions.StandardOutputListing != null)
+    if (runOptions.StandardOutputWriter != null)
     {
         process.OutputDataReceived += (s, e) =>
         {
             if (e.Data != null)
             {
-                runOptions.StandardOutputListing.Add(e.Data);
+                runOptions.StandardOutputWriter.WriteLine(e.Data);
             }
         };
         process.BeginOutputReadLine();
+    }
+    if (runOptions.StandardErrorWriter != null)
+    {
+        process.ErrorDataReceived += (s, e) =>
+        {
+            if (e.Data != null)
+            {
+                runOptions.StandardErrorWriter.WriteLine(e.Data);
+            }
+        };
+        process.BeginErrorReadLine();
     }
     if (runOptions.TimeOut == 0)
     {
@@ -201,4 +218,19 @@ public void KillProcessTree(Process process)
     {
         process.Kill();
     }
+}
+
+public void DotnetPack(string outputFolder, string projectFolder, string project) {
+    var logPath = System.IO.Path.Combine(logFolder, $"{project}-pack.log");
+    using (var logWriter = new StreamWriter(logPath)) {
+        Information($"Packaging {projectFolder}");
+        Run(dotnetcli, $"pack --configuration {configuration} --output {outputFolder} \"{projectFolder}\"",
+            new RunOptions
+            {
+                StandardOutputWriter = logWriter,
+                StandardErrorWriter = logWriter
+            })
+        .ExceptionOnError($"Packaging {project} failed. See {logPath} for details.");
+    }
+
 }

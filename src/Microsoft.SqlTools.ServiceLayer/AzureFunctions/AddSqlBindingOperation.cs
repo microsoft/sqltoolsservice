@@ -23,6 +23,8 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
     /// </summary>
     class AddSqlBindingOperation
     {
+        public const string GenericClass = "System.Collections.Generic";
+
         public AddSqlBindingParams Parameters { get; }
 
         public AddSqlBindingOperation(AddSqlBindingParams parameters)
@@ -62,7 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
                 }
 
                 MethodDeclarationSyntax azureFunction = matchingMethods.First();
-                var newParam = this.Parameters.bindingType == BindingType.input ? this.GenerateInputBinding() : this.GenerateOutputBinding();
+                var newParam = this.Parameters.bindingType == BindingType.input ? this.GenerateInputBinding() : this.GenerateOutputBinding(azureFunction);
 
                 // Generate updated method with the new parameter
                 // normalizewhitespace gets rid of any newline whitespace in the leading trivia, so we add that back
@@ -70,6 +72,17 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
 
                 // Replace the node in the tree
                 root = root.ReplaceNode(azureFunction, updatedMethod);
+
+                if (this.Parameters.bindingType == BindingType.input)
+                {
+                    // Check if file has System.Collections.Generic reference, insert it if not
+                    IEnumerable<UsingDirectiveSyntax> usingDirectives = root.DescendantNodes().OfType<UsingDirectiveSyntax>();
+                    var genericUsingDirective = usingDirectives.Where(usingDirective => usingDirective.Name.ToString() == GenericClass);
+                    if (genericUsingDirective.Count() == 0)
+                    {
+                        root = root.AddUsings(SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(GenericClass)).NormalizeWhitespace().WithTrailingTrivia(SyntaxFactory.ElasticCarriageReturnLineFeed));
+                    }
+                }
 
                 // write updated tree to file
                 var workspace = new AdhocWorkspace();
@@ -115,8 +128,12 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
         /// <summary>
         /// Generates a parameter for the sql output binding that looks like
         /// [Sql("[dbo].[table1]", ConnectionStringSetting = "SqlConnectionString")] out Object output
+        /// if the Azure Function method is not async and 
+        /// [Sql("[dbo].[table1]", ConnectionStringSetting = "SqlConnectionString")] IAsyncCollector<Object> output
+        /// if the Azure Function method is async.
+        /// <param name="azureFunction"> Azure Function method. </param>
         /// </summary>
-        private ParameterSyntax GenerateOutputBinding()
+        private ParameterSyntax GenerateOutputBinding(MethodDeclarationSyntax azureFunction)
         {
             // Create arguments for the Sql Output Binding attribute
             var argumentList = SyntaxFactory.AttributeArgumentList();
@@ -127,9 +144,22 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
             attributesList = attributesList.Add(SyntaxFactory.AttributeList(SyntaxFactory.SingletonSeparatedList<AttributeSyntax>(SyntaxFactory.Attribute(SyntaxFactory.IdentifierName("Sql")).WithArgumentList(argumentList))));
 
             var syntaxTokenList = new SyntaxTokenList();
-            syntaxTokenList = syntaxTokenList.Add(SyntaxFactory.Token(SyntaxKind.OutKeyword));
+            TypeSyntax typeSyntax;
 
-            ParameterSyntax newParam = SyntaxFactory.Parameter(attributesList, syntaxTokenList, SyntaxFactory.ParseTypeName(typeof(Object).Name), SyntaxFactory.Identifier("output"), null);
+            // Check if Azure Function method is async
+            IEnumerable<SyntaxToken> asyncModifier = azureFunction.Modifiers.Where(m => m.ToString() == "async");
+            bool asyncMethod = asyncModifier.Count() > 0;
+            if (asyncMethod)
+            {
+                typeSyntax = SyntaxFactory.ParseTypeName("IAsyncCollector<Object>");
+
+            } else 
+            {
+                syntaxTokenList = syntaxTokenList.Add(SyntaxFactory.Token(SyntaxKind.OutKeyword));
+                typeSyntax = SyntaxFactory.ParseTypeName(typeof(Object).Name);
+            }
+
+            ParameterSyntax newParam = SyntaxFactory.Parameter(attributesList, syntaxTokenList, typeSyntax, SyntaxFactory.Identifier("output"), null);
             return newParam;
         }
     }
