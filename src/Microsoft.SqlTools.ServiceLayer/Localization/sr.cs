@@ -8710,6 +8710,31 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.NameValuePair, name, value);
         }
 
+        public static string OperatorDisplayCost(double cost, int percentage)
+        {
+            return Keys.GetString(Keys.OperatorDisplayCost, cost, percentage);
+        }
+
+        public static string NodeDisplayPropertiesName2(string title, long nodeId)
+        {
+            return Keys.GetString(Keys.NodeDisplayPropertiesName2, title, nodeId);
+        }
+
+        public static string NodeDisplayPropertiesName1(long nodeId)
+        {
+            return Keys.GetString(Keys.NodeDisplayPropertiesName1, nodeId);
+        }
+
+        public static string Parenthesis(string text)
+        {
+            return Keys.GetString(Keys.Parenthesis, text);
+        }
+
+        public static string ActualOfEstimated(string actual, string estimated, decimal percent)
+        {
+            return Keys.GetString(Keys.ActualOfEstimated, actual, estimated, percent);
+        }
+
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class Keys
         {
@@ -12031,6 +12056,21 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string SizeInTeraBytesFormat = "SizeInTeraBytesFormat";
+
+
+            public const string OperatorDisplayCost = "OperatorDisplayCost";
+
+
+            public const string NodeDisplayPropertiesName2 = "NodeDisplayPropertiesName2";
+
+
+            public const string NodeDisplayPropertiesName1 = "NodeDisplayPropertiesName1";
+
+
+            public const string Parenthesis = "Parenthesis";
+
+
+            public const string ActualOfEstimated = "ActualOfEstimated";
 
 
             private Keys()

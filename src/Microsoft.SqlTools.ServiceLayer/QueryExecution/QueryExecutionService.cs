@@ -14,6 +14,7 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.ShowPlan;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
@@ -893,13 +894,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Setup the ResultSet updated callback
             ResultSet.ResultSetAsyncEventHandler resultUpdatedCallback = async r =>
             {
+                ExecutionPlanGraph graph = null;
+                if(r.Summary.Complete && r.Summary.SpecialAction.ExpectYukonXMLShowPlan == true)
+                {
+                    var xmlString = r.GetRow(0)[0].DisplayValue;
+                    graph = ShowPlanService.CreateShowPlanGraph(xmlString);
+                }
                 ResultSetUpdatedEventParams eventParams = new ResultSetUpdatedEventParams
                 {
                     ResultSetSummary = r.Summary,
-                    OwnerUri = ownerUri
+                    OwnerUri = ownerUri,
+                    ShowPlanGraph = graph
                 };
-
-                Logger.Write(TraceEventType.Information, $"Result:'{r.Summary} on Query:'{ownerUri}' is updated with additional rows");
                 await eventSender.SendEvent(ResultSetUpdatedEvent.Type, eventParams);
             };
             query.ResultSetUpdated += resultUpdatedCallback;

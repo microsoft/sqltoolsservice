@@ -4590,4 +4590,30 @@
     <value>{0} TB</value>
     <comment>Size in TeraBytes format</comment>
   </data>
+  <data name="OperatorDisplayCost" xml:space="preserve">
+    <value>{0:0.#######} ({1}%)</value>
+    <comment> display string for the operator cost property - 0.###### - is the float number format specifier.
+ Parameters: 0 - cost (double), 1 - percentage (int) </comment>
+  </data>
+  <data name="NodeDisplayPropertiesName2" xml:space="preserve">
+    <value>{0}[{1}]</value>
+    <comment>This node name will be visible in Active Accesibility.
+ Parameters: 0 - title (string), 1 - nodeId (long) </comment>
+  </data>
+  <data name="NodeDisplayPropertiesName1" xml:space="preserve">
+    <value>[{0}]</value>
+    <comment>This node name will be visible in Active Accesibility.
+ Parameters: 0 - nodeId (long) </comment>
+  </data>
+  <data name="Parenthesis" xml:space="preserve">
+    <value>({0})</value>
+    <comment>Parenthesis - the parameter is the string inside parenthesis.
+ Parameters: 0 - text (string) </comment>
+  </data>
+  <data name="ActualOfEstimated" xml:space="preserve">
+    <value>{0} of
+{1} ({2}%)</value>
+    <comment>.
+ Parameters: 0 - actual (string), 1 - estimated (string), 2 - percent (decimal) </comment>
+  </data>
 </root>
