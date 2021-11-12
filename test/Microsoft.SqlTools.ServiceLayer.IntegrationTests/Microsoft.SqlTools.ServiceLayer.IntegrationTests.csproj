@@ -44,6 +44,7 @@
     <Compile Remove="AzureFunctions\AzureFunctionTestFiles\AzureFunctionsNoBindings.cs" />
     <Compile Remove="AzureFunctions\AzureFunctionTestFiles\AzureFunctionsOutputBinding.cs" />
     <Compile Remove="AzureFunctions\AzureFunctionTestFiles\AzureFunctionsNet5.cs" />
+    <Compile Remove="AzureFunctions\AzureFunctionTestFiles\AzureFunctionsOutputBindingAsync.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="DacFx\Dacpacs\" />

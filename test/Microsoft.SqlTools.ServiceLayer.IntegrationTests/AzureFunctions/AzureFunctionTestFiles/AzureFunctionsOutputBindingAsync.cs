@@ -32,7 +32,7 @@ namespace Company.Namespace
         /// <param name="req"> Raw HTTP Request. </param>
         /// <param name="cancellationToken"> The cancellation token provided on Function shutdown. </param>
         [FunctionName("GetArtists_get")]
-        public IActionResult GetArtists([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "artists")] HttpRequest req, [Sql("select * from [dbo].[table1]", CommandType = System.Data.CommandType.Text, ConnectionStringSetting = "SqlConnectionString")] IEnumerable<Object> result)
+        public IActionResult GetArtists([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "artists")] HttpRequest req)
         {
             _logger.LogInformation("HTTP trigger function processed a request.");
             // TODO: Handle Documented Responses.
@@ -62,7 +62,7 @@ namespace Company.Namespace
         /// <param name="cancellationToken"> The cancellation token provided on Function shutdown. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         [FunctionName("NewArtists_post")]
-        public async IActionResult NewArtists([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "artists")] Artist body, HttpRequest req)
+        public async IActionResult NewArtists([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "artists")] Artist body, HttpRequest req, [Sql("[dbo].[table1]", ConnectionStringSetting = "SqlConnectionString")] IAsyncCollector<Object> output)
         {
             _logger.LogInformation("HTTP trigger function processed a request.");
             // TODO: Handle Documented Responses.
