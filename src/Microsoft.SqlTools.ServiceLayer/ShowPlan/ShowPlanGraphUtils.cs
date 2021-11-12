@@ -1,10 +1,12 @@
-using System;
+//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph;
-using Microsoft.SqlTools.ServiceLayer.Hosting;
 
 namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
 {
