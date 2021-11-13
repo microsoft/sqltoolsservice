@@ -2547,6 +2547,270 @@
         <note>
         </note>
       </trans-unit>
+      <trans-unit id="ActualLobReadAheads">
+        <source>Actual Lob Read Aheads</source>
+        <target state="translated">Tatsächliche Read-Ahead-LOB-Lesevorgänge</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ActualLobReadAheadsDescription">
+        <source>Actual Lob Read Aheads</source>
+        <target state="translated">Tatsächliche Read-Ahead-LOB-Lesevorgänge</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ActualLocallyAggregatedRows">
+        <source>Actual Number of Locally Aggregated Rows</source>
+        <target state="translated">Tatsächliche Anzahl von lokal aggregierten Zeilen</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ActualLocallyAggregatedRowsDescription">
+        <source>Actual number of locally aggregated rows</source>
+        <target state="translated">Tatsächliche Anzahl von lokal aggregierten Zeilen</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ActualLogicalReads">
+        <source>Actual Logical Reads</source>
+        <target state="translated">Tatsächliche logische Lesevorgänge</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ActualLogicalReadsDescription">
+        <source>Actual Logical Reads</source>
+        <target state="translated">Tatsächliche logische Lesevorgänge</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ActualMemoryGrantStats">
+        <source>Memory Usage</source>
+        <target state="translated">Speicherauslastung</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ActualPageServerReadAheads">
+        <source>Actual Page Server Read Aheads</source>
+        <target state="translated">Tatsächliche Read-Ahead-Vorgänge für Seitenserver</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ActualPageServerReadAheadsDescription">
+        <source>Actual Page Server Read Aheads</source>
+        <target state="translated">Tatsächliche Read-Ahead-Vorgänge für Seitenserver</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ActualPageServerReads">
+        <source>Actual Page Server Reads</source>
+        <target state="translated">Tatsächliche Lesevorgänge für Seitenserver</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ActualPageServerReadsDescription">
+        <source>Actual Page Server Reads</source>
+        <target state="translated">Tatsächliche Lesevorgänge für Seitenserver</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ActualPhysicalReads">
+        <source>Actual Physical Reads</source>
+        <target state="translated">Tatsächliche physische Lesevorgänge</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ActualPhysicalReadsDescription">
+        <source>Actual Physical Reads</source>
+        <target state="translated">Tatsächliche physische Lesevorgänge</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ActualReadAheads">
+        <source>Actual Read Aheads</source>
+        <target state="translated">Tatsächliche Vorauslesevorgänge</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ActualReadAheadsDescription">
+        <source>Actual Read Aheads</source>
+        <target state="translated">Tatsächliche Vorauslesevorgänge</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ActualRebinds">
+        <source>Actual Rebinds</source>
+        <target state="translated">Tatsächliche erneute Bindungen</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ActualRebindsDescription">
+        <source>Actual Rebinds</source>
+        <target state="translated">Tatsächliche erneute Bindungen</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ActualRewinds">
+        <source>Actual Rewinds</source>
+        <target state="translated">Tatsächliche Zurückspulvorgänge</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ActualRewindsDescription">
+        <source>Actual Rewinds.</source>
+        <target state="translated">Tatsächliche Zurückspulvorgänge.</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ActualRowsRead">
+        <source>Number of Rows Read</source>
+        <target state="translated">Anzahl von gelesenen Zeilen</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ActualRowsReadDescription">
+        <source>Number of rows read from a table or an index prior to applying a predicate filter. For rows of type PLAN_ROWS only.</source>
+        <target state="translated">Anzahl der Zeilen, die vor Anwendung eines Prädikatfilters aus einer Tabelle oder einem Index gelesen wurden. Nur für Zeilen vom Typ PLAN_ROWS.</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ActualScans">
+        <source>Actual Scans</source>
+        <target state="translated">Tatsächliche Überprüfungen</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ActualScansDescription">
+        <source>Actual Scans</source>
+        <target state="translated">Tatsächliche Überprüfungen</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ActualTimeStatistics">
+        <source>Actual Time Statistics</source>
+        <target state="translated">Aktuelle Zeitstatistik</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ActualTimeStatisticsDescription">
+        <source>Actual Time Statistics</source>
+        <target state="translated">Aktuelle Zeitstatistik</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="AdaptiveJoin">
+        <source>Adaptive Join</source>
+        <target state="translated">Adaptiver Join</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="AdaptiveJoinDescription">
+        <source>Chooses dynamically between hash join and nested loops.</source>
+        <target state="translated">Wählt dynamisch zwischen Hashjoin und Join geschachtelter Schleifen.</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="AdaptiveThresholdRows">
+        <source>Adaptive Threshold Rows</source>
+        <target state="translated">Zeilen mit adaptivem Schwellenwert</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="AdaptiveThresholdRowsDescription">
+        <source>If this is an adaptive operator, the cardinality at which it adapts.</source>
+        <target state="translated">Wenn es sich um einen adaptiven Operator handelt, ist dies die Kardinalität, bei der er angepasst wird.</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="Aggregate">
+        <source>Aggregate</source>
+        <target state="translated">Aggregat</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="AggregateDescription">
+        <source>Calculates an expression containing SUM, COUNT, MIN, MAX, or AVG.</source>
+        <target state="translated">Berechnet einen Ausdruck, der SUM, COUNT, MIN, MAX oder AVG enthält.</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="Apply">
+        <source>Apply</source>
+        <target state="translated">Anwenden</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ApplyDescription">
+        <source>Apply opration.</source>
+        <target state="translated">Vorgang anwenden.</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ArithmeticExpression">
+        <source>Arithmetic Expression</source>
+        <target state="translated">Arithmetischer Ausdruck</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="ArithmeticExpressionDescription">
+        <source>Computes a new value from existing values in a row.</source>
+        <target state="translated">Berechnet einen neuen Wert anhand der vorhandenen Werte in einer Zeile.</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="Ascending">
+        <source>Ascending</source>
+        <target state="translated">Aufsteigend</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="Assert">
+        <source>Assert</source>
+        <target state="translated">Bestätigen</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="AssertDescription">
+        <source>Used to verify that a specified condition exists.</source>
+        <target state="translated">Hiermit wird überprüft, ob eine bestimmte Bedingung vorhanden ist.</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="Assign">
+        <source>Assign</source>
+        <target state="translated">Zuweisen</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="AssignDescription">
+        <source>Validate referential integrity constraints.</source>
+        <target state="translated">Überprüft die Einschränkungen der referenziellen Integrität.</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="AssignDescription">
+        <source>Validate referential integrity constraints.</source>
+        <target state="translated">Überprüft die Einschränkungen der referenziellen Integrität.</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="BatchHashTableBuild">
+        <source>Batch Hash Table Build</source>
+        <target state="translated">Build der Batchhashtabelle</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="BatchHashTableBuildDescription">
+        <source>Batch Hash Table Build.</source>
+        <target state="translated">Build der Batchhashtabelle.</target>
+        <note>
+        </note>
+      </trans-unit>
+      <trans-unit id="BinaryLiteralPrefixMissingError">
+        <source>Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType), as prefix 0x is expected for a binary literals.  Literal value: {2} </source>
+        <target state="translated">"{0}" kann nicht in ein Microsoft.Data.SqlClient.SqlParameter-Objekt konvertiert werden. Das angegebene Literal kann nicht in {1}(Microsoft.Data.SqlDbType) konvertiert werden, weil für binäre Literale das Präfix 0x erwartet wird. Literalwert: {2} </target>
+        <note>
+        </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
