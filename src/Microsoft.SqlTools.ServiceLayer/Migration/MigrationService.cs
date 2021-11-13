@@ -194,7 +194,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         internal async Task<MigrationAssessmentResult> GetAssessmentItems(string[] connectionStrings)
         {
             SqlAssessmentConfiguration.EnableLocalLogging = true;
-            SqlAssessmentConfiguration.AssessmentReportAndLogsRootFolderPath = Path.GetDirectoryName(Logger.LogFileFullPath);
+            SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath = Path.GetDirectoryName(Logger.LogFileFullPath);
             DmaEngine engine = new DmaEngine(connectionStrings);
             ISqlMigrationAssessmentModel contextualizedAssessmentResult = await engine.GetTargetAssessmentResultsListWithCheck(System.Threading.CancellationToken.None);
             engine.SaveAssessmentResultsToJson(contextualizedAssessmentResult, false);
@@ -212,14 +212,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         internal async Task<GetSkuRecommendationsResult> GetSkuRecommendationResults(GetSkuRecommendationsParams parameters) 
         {
             SqlAssessmentConfiguration.EnableLocalLogging = true;
-            SqlAssessmentConfiguration.AssessmentReportAndLogsRootFolderPath = Path.GetDirectoryName(Logger.LogFileFullPath);
-
-            var targetPlatforms = new List<string> { "AzureSqlDatabase", "AzureSqlManagedInstance", "AzureSqlVirtualMachine" };
-
-            foreach (var targetPlatform in targetPlatforms)
-            {
-
-            }
+            SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath = Path.GetDirectoryName(Logger.LogFileFullPath);
 
             CsvRequirementsAggregator aggregator = new CsvRequirementsAggregator(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Microsoft", "SqlAssessment"));
             SqlInstanceRequirements req = aggregator.ComputeSqlInstanceRequirements(null,
@@ -227,7 +220,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 parameters.TargetPercentile,
                 DateTime.ParseExact(parameters.StartTime, RecommendationConstants.TimestampDateTimeFormat, CultureInfo.InvariantCulture),
                 DateTime.ParseExact(parameters.EndTime, RecommendationConstants.TimestampDateTimeFormat, CultureInfo.InvariantCulture),
-                parameters.PerfQueryIntervalInSec);
+                parameters.PerfQueryIntervalInSec,
+                new HashSet<string>(parameters.DatabaseAllowList));
 
             SkuRecommendationServiceProvider recProvider = new SkuRecommendationServiceProvider(new AzureSqlSkuBillingServiceProvider());
 

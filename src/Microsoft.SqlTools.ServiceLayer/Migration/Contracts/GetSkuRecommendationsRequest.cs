@@ -35,9 +35,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
         public string EndTime { get; set; }
         public bool ElasticStrategy { get; set; }
 
-        public List<string> DatabasesAllowList { get; set; }
-
-        public List<string> DatabaseDenyList { get; set; }
+        public List<string> DatabaseAllowList { get; set; }
+        // public List<string> DatabaseDenyList { get; set; }
     }
 
     public class GetSkuRecommendationsResult
