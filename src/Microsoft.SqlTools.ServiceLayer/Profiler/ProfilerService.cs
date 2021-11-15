@@ -139,8 +139,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                         CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
                         // create a new XEvent session and Profiler session
                         var xeSession = this.XEventSessionFactory.GetXEventSession(parameters.SessionName, connInfo);
-                        // //Create XELiveEvsentStream here, using ConnectionInfo Strings.
-                        var connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails, true);
                         // //need to start session otherwise XLiveEventStreamer won't work.
                         monitor.StartMonitoringStream(parameters.OwnerUri, xeSession, connInfo);
                         var result = new StartProfilingResult();
