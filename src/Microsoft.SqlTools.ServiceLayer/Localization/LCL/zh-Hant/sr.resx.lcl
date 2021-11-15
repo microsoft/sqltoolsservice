@@ -3516,6 +3516,9 @@
       <Item ItemId=";InvalidTableEditPathException" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[The path '{0}' in the table change information is not valid for edit type: '{1}']]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[資料表變更資訊中的路徑 '{0}' 對以下編輯類型無效: '{1}']]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -9313,7 +9316,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Identity Specification]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[識別規格]]></Val>
+            <Val><![CDATA[識別值規格]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9367,7 +9370,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Is Identity]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[為識別]]></Val>
+            <Val><![CDATA[為識別值]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9393,6 +9396,9 @@
       <Item ItemId=";TableEditPathNotProvidedException" ItemType="0;.resx" PsrId="211" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[The path in the table change information cannot be empty]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[資料表變更資訊中的路徑不可為空白]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -9435,6 +9441,9 @@
       <Item ItemId=";TableNotInitializedException" ItemType="0;.resx" PsrId="211" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Initialization is not properly done for table with id '{0}']]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[識別碼為 '{0}' 的資料表未正確初始化]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
