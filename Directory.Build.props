@@ -4,7 +4,7 @@
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
   </PropertyGroup>
   <PropertyGroup>
-	<TargetFramework>netstandard2.1</TargetFramework>
+    <ManagedBatchParserTargetFramework>netstandard2.1</ManagedBatchParserTargetFramework>
     <CredentialsTargetFramework>net5.0</CredentialsTargetFramework>
     <ServiceLayerTargetFramework>net5.0</ServiceLayerTargetFramework>
     <ResourceProviderTargetFramework>net5.0</ResourceProviderTargetFramework>
