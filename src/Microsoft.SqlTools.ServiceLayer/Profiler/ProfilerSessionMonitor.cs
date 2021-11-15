@@ -165,10 +165,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 {
                     targetToken.Cancel();
                 }
-                if (this.monitoredSessions.Remove(sessionId, out session))
+                if (this.monitoredSessions.Remove(sessionId, out session) && session.isStreamActive())
                 {
                     // Remove streaming status from session
-                    session.isStreaming = false;
+                    session.toggleStreamLock();
 
                     //remove all viewers for this session
                     List<string> viewerIds;
@@ -208,10 +208,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     {
                         ProfilerSession session;
                         this.monitoredSessions.TryGetValue(id, out session);
-                        if (!session.isStreaming)
+                        if (!session.isStreamActive())
                         {
                             ProcessStream(id, session);
-                            session.isStreaming = true;
+                            session.toggleStreamLock();
                         }
                     }
                 }
@@ -309,10 +309,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             catch (Exception ex)
             {
                 Logger.Write(TraceEventType.Warning, "Failed to poll session. error: " + ex.Message);
-            }
-            finally
-            {
-                session.IsPolling = false;
             }
 
             session.FilterOldEvents(events);

@@ -136,10 +136,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                         out connInfo);
                     if (connInfo != null)
                     {
-                        CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
                         // create a new XEvent session and Profiler session
                         var xeSession = this.XEventSessionFactory.GetXEventSession(parameters.SessionName, connInfo);
-                        // //need to start session otherwise XLiveEventStreamer won't work.
                         monitor.StartMonitoringSession(parameters.OwnerUri, xeSession, connInfo);
                         var result = new StartProfilingResult();
                         await requestContext.SendResult(result);
@@ -195,10 +193,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                             // create a new XEvent session and Profiler session
                             xeSession = this.XEventSessionFactory.CreateXEventSession(parameters.Template.CreateStatement, parameters.SessionName, connInfo);
                         }
-
-                        var connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails, true);
+ 
                         // start monitoring the profiler session
-                        //monitor.StartMonitoringSession(parameters.OwnerUri, xeSession);
                         monitor.StartMonitoringSession(parameters.OwnerUri, xeSession, connInfo);
 
                         var result = new CreateXEventSessionResult();

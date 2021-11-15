@@ -19,8 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
     {
         private static readonly TimeSpan DefaultPollingDelay = TimeSpan.FromSeconds(1);
         private object pollingLock = new object();
-        private bool isPolling = false;
-        public bool isStreaming = false;
+        private bool isStreaming = false;
         private DateTime lastPollTime = DateTime.Now.Subtract(DefaultPollingDelay);
         private TimeSpan pollingDelay = DefaultPollingDelay;
         private ProfilerEvent lastSeenEvent = null;
@@ -41,57 +40,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         public IXEventSession XEventSession { get; set; }
 
         /// <summary>
-        /// Try to set the session into polling mode if criteria is meet
-        /// </summary>
-        /// <returns>True if session set to polling mode, False otherwise</returns>
-        public bool TryEnterPolling()
-        {
-            lock (this.pollingLock)
-            {
-                if (pollImmediatly || (!this.isPolling && DateTime.Now.Subtract(this.lastPollTime) >= pollingDelay))
-                {
-                    this.isPolling = true;
-                    this.lastPollTime = DateTime.Now;
-                    this.pollImmediatly = false;
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Is the session currently being polled
-        /// </summary>
-        public bool IsPolling
-        {
-            get
-            {
-                return this.isPolling;
-            }
-            set
-            {
-                lock (this.pollingLock)
-                {
-                    this.isPolling = value;
-                }
-            }
-        }
-
-        /// <summary>
-        /// The delay between session polls
-        /// </summary>
-        public TimeSpan PollingDelay
-        {
-            get
-            {
-                return pollingDelay;
-            }
-        }
-
-        /// <summary>
         /// Could events have been lost in the last poll
         /// </summary>
         public bool EventsLost
@@ -100,6 +48,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             {
                 return this.eventsLost;
             }
+        }
+
+        /// <summary>
+        /// Functions for marking and retrieving the status of the ProfilerSession having an active XELite stream running. 
+        /// </summary>
+        public void toggleStreamLock(){
+            if(!this.isStreaming) {
+                this.isStreaming = true;
+            }
+            else {
+                this.isStreaming = false;
+            }
+        }
+
+        public bool isStreamActive(){
+            return this.isStreaming;
         }
 
         /// <summary>
