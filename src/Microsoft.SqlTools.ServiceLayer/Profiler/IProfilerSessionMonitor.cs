@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// <summary>
         /// Starts monitoring a profiler session
         /// </summary>
-        bool StartMonitoringStream(string viewerId, IXEventSession session, ConnectionInfo connInfo);
+        bool StartMonitoringSession(string viewerId, IXEventSession session, ConnectionInfo connInfo);
 
         /// <summary>
         /// Stops monitoring a profiler session

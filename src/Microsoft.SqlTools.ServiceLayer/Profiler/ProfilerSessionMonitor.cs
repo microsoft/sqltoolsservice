@@ -73,7 +73,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
         }
 
-        public bool StartMonitoringStream(string viewerId, IXEventSession session, ConnectionInfo connInfo)
+        public bool StartMonitoringSession(string viewerId, IXEventSession session, ConnectionInfo connInfo)
         {
             lock (this.sessionsLock)
             {
