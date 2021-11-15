@@ -89,7 +89,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
                 string firstLineAppend = this["PhysicalOperationKind"] as string;
                 if (firstLineAppend != null)
                 {
-                    firstLine = String.Format(CultureInfo.CurrentCulture, "{0} {1}", firstLine, SR.Parenthesis(firstLineAppend));
+                    firstLine = String.Format(CultureInfo.CurrentCulture, "{0} {1}", firstLine, Constants.Parenthesis(firstLineAppend));
                 }
 
 
@@ -108,7 +108,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
                         if (secondLine != firstLine)
                         {
                             // Enclose logical name in parenthesis.
-                            secondLine = SR.Parenthesis(secondLine);
+                            secondLine = Constants.Parenthesis(secondLine);
                         }
                         else
                         {
