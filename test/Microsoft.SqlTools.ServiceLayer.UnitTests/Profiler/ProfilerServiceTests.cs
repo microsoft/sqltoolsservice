@@ -125,7 +125,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             var requestParams = new StopProfilingParams();
             requestParams.OwnerUri = testUri;
 
-            profilerService.SessionMonitor.StartMonitoringSession(testUri, mockSession.Object, connectionInfo);
+            profilerService.SessionMonitor.StartMonitoringSession(testUri, mockSession.Object);
 
             await profilerService.HandleStopProfilingRequest(requestParams, requestContext.Object);
 
@@ -179,7 +179,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             requestParams.OwnerUri = testUri;
 
             // begin monitoring session
-            profilerService.SessionMonitor.StartMonitoringSession(testUri, new TestXEventSession1(), connectionInfo);
+            profilerService.SessionMonitor.StartMonitoringSession(testUri, new TestXEventSession1());
 
             // wait for polling to finish, or for timeout
             System.Timers.Timer pollingTimer = new System.Timers.Timer();
@@ -254,7 +254,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             profilerService.ConnectionServiceInstance.OwnerToConnectionMap.Add(testUri, connectionInfo);
 
             // start monitoring test session
-            profilerService.SessionMonitor.StartMonitoringSession(testUri, mockSession.Object, connectionInfo);
+            profilerService.SessionMonitor.StartMonitoringSession(testUri, mockSession.Object);
 
             // wait for polling to finish, or for timeout
             System.Timers.Timer pollingTimer = new System.Timers.Timer();
