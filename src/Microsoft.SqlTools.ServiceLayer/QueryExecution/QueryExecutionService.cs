@@ -898,30 +898,20 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Setup the ResultSet updated callback
             ResultSet.ResultSetAsyncEventHandler resultUpdatedCallback = async r =>
             {
-                ExecutionPlanGraph graph = null;
-                if (r.Summary.Complete && r.Summary.SpecialAction.ExpectYukonXMLShowPlan && r.RowCount == 1 && r.GetRow(0)[0] != null)
-                {
-                    var xmlString = r.GetRow(0)[0].DisplayValue;
-                    try
-                    {
-                        graph = ShowPlanGraphUtils.CreateShowPlanGraph(xmlString);
-                    }
-                    catch (Exception ex)
-                    {
-                        // In case of error we are sending an empty execution plan graph with the error message.
-                        Logger.Write(TraceEventType.Error, String.Format("Failed to generate show plan graph{0}{1}", Environment.NewLine, ex.Message));
-                        graph = new ExecutionPlanGraph(){
-                            error = ex.Message
-                        };
-                    }
-                }
                 ResultSetUpdatedEventParams eventParams = new ResultSetUpdatedEventParams
                 {
                     ResultSetSummary = r.Summary,
-                    OwnerUri = ownerUri,
-                    ShowPlanGraph = graph
+                    OwnerUri = ownerUri
                 };
                 await eventSender.SendEvent(ResultSetUpdatedEvent.Type, eventParams);
+
+                //Generating and sending an execution plan graph if it is requested.
+                if (r.Summary.Complete && r.Summary.SpecialAction.ExpectYukonXMLShowPlan && r.RowCount == 1 && r.GetRow(0)[0] != null)
+                {
+                    var xmlString = r.GetRow(0)[0].DisplayValue;
+                    await SendExecutionGraph(ownerUri, eventSender, xmlString);
+
+                }
             };
             query.ResultSetUpdated += resultUpdatedCallback;
 
@@ -941,6 +931,32 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // Launch this as an asynchronous task
             query.Execute();
+        }
+
+        private static async Task SendExecutionGraph(string ownerUri, IEventSender eventSender, string xmlString)
+        {
+            ExecutionPlanGraphEventParams result;
+            try
+            {
+
+                result = new ExecutionPlanGraphEventParams
+                {
+                    OwnerUri = ownerUri,
+                    ExecutionPlan = ShowPlanGraphUtils.CreateShowPlanGraph(xmlString)
+                };
+
+            }
+            catch (Exception ex)
+            {
+                // In case of error we are sending an empty execution plan graph with the error message.
+                Logger.Write(TraceEventType.Error, String.Format("Failed to generate show plan graph{0}{1}", Environment.NewLine, ex.Message));
+                result = new ExecutionPlanGraphEventParams()
+                {
+                    OwnerUri = ownerUri,
+                    ErrorMessage = ex.Message
+                };
+            }
+            await eventSender.SendEvent(ExecutionPlanGraphEvent.Type, result);
         }
 
         private async Task SaveResultsHelper(SaveResultsRequestParams saveParams,
