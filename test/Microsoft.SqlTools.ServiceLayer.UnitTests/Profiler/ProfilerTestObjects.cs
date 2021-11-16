@@ -206,6 +206,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
 
         public int Id { get { return 51; } }
 
+        public ConnectionInfo ConnInfo { get; set; }
+
         public void Start(){}
 
         public void Stop(){}
@@ -290,6 +292,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             "</RingBufferTarget>";
 
         public int Id { get { return 1; } }
+
+        public ConnectionInfo ConnInfo { get; set; }
 
         public void Start(){}
 
@@ -381,6 +385,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             "</RingBufferTarget>";
 
         public int Id { get { return 2; } }
+
+        public ConnectionInfo ConnInfo { get; set; }
 
         public void Start(){}
 
