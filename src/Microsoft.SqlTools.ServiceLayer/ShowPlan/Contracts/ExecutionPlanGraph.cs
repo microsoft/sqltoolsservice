@@ -10,11 +10,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
         /// <summary>
         /// Root of the execution plan tree
         /// </summary>
-        public ExecutionPlanNode Root {get; set;}
+        public ExecutionPlanNode Root { get; set; }
         /// <summary>
         /// Underlying query for the execution plan graph
         /// </summary>
-        public string Query {get; set;}
+        public string Query { get; set; }
+        /// <summary>
+        ///  Execution plan graph error
+        /// </summary>
+        public string error { get; set; }
     }
 
     public class ExecutionPlanNode
@@ -56,7 +60,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
         /// </summary>
         public string[] Subtext { get; set; }
         public List<ExecutionPlanNode> Children { get; set; }
-        public List<ExecutionPlanEdges> Edges { get; set; } 
+        public List<ExecutionPlanEdges> Edges { get; set; }
     }
 
     public class ExecutionPlanGraphElementProperties
