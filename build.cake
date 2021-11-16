@@ -110,7 +110,7 @@ Task("PopulateRuntimes")
     buildPlan.Rids = new string[]
             {
                 "default", // To allow testing the published artifact
-                "win7-x64",
+                "win-x64",
                 "ubuntu.14.04-x64",
                 "ubuntu.16.04-x64",
                 "centos.7-x64",
