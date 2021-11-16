@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <PackageDescription>.NET client for SQL Tools Service</PackageDescription>
+    <PackageDescription>Root package for .NET client SQL Tools Service application. This package is intended to be used by internal applications only and should not be referenced directly.</PackageDescription>
   </PropertyGroup>
 
   <ItemGroup>
