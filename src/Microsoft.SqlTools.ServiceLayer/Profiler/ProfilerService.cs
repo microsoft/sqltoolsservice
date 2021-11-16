@@ -193,7 +193,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                             // create a new XEvent session and Profiler session
                             xeSession = this.XEventSessionFactory.CreateXEventSession(parameters.Template.CreateStatement, parameters.SessionName, connInfo);
                         }
- 
+
                         // start monitoring the profiler session
                         monitor.StartMonitoringSession(parameters.OwnerUri, xeSession);
 

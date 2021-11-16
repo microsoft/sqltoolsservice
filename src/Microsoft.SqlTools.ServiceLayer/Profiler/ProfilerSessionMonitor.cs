@@ -4,21 +4,13 @@
 //
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using Microsoft.Data.SqlClient;
-using System.Diagnostics;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml;
-using Microsoft.SqlServer.Management.Sdk.Sfc;
-using Microsoft.SqlServer.Management.XEvent;
 using Microsoft.SqlServer.XEvent.XELite;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
-using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Profiler
 {
@@ -285,46 +277,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             this.monitoredCancellationTokenSources.Add(id, threadCancellationToken);
         }
 
-        private List<ProfilerEvent> PollSession(ProfilerSession session)
-        {
-            var events = new List<ProfilerEvent>();
-            try
-            {
-                if (session == null || session.XEventSession == null)
-                {
-                    return events;
-                }
-
-                var targetXml = session.XEventSession.GetTargetXml();
-
-                XmlDocument xmlDoc = new XmlDocument();
-                xmlDoc.LoadXml(targetXml);
-
-                var nodes = xmlDoc.DocumentElement.GetElementsByTagName("event");
-                foreach (XmlNode node in nodes)
-                {
-                    var profilerEvent = ParseProfilerEvent(node);
-                    if (profilerEvent != null)
-                    {
-                        events.Add(profilerEvent);
-                    }
-                }
-            }
-            catch (XEventException)
-            {
-                SendStoppedSessionInfoToListeners(session.XEventSession.Id);
-                ProfilerSession tempSession;
-                RemoveSession(session.XEventSession.Id, out tempSession);
-            }
-            catch (Exception ex)
-            {
-                Logger.Write(TraceEventType.Warning, "Failed to poll session. error: " + ex.Message);
-            }
-
-            session.FilterOldEvents(events);
-            return session.FilterProfilerEvents(events);
-        }
-
         /// <summary>
         /// Notify listeners about closed sessions
         /// </summary>
@@ -354,32 +306,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     listener.EventsAvailable(sessionId, events, eventsLost);
                 }
             }
-        }
-
-        /// <summary>
-        /// Parse a single event node from XEvent XML
-        /// </summary>
-        private ProfilerEvent ParseProfilerEvent(XmlNode node)
-        {
-            var name = node.Attributes["name"];
-            var timestamp = node.Attributes["timestamp"];
-
-            var profilerEvent = new ProfilerEvent(name.InnerText, timestamp.InnerText);
-
-            foreach (XmlNode childNode in node.ChildNodes)
-            {
-                var childName = childNode.Attributes["name"];
-                XmlNode typeNode = childNode.SelectSingleNode("type");
-                var typeName = typeNode.Attributes["name"];
-                XmlNode valueNode = childNode.SelectSingleNode("value");
-
-                if (!profilerEvent.Values.ContainsKey(childName.InnerText))
-                {
-                    profilerEvent.Values.Add(childName.InnerText, valueNode.InnerText);
-                }
-            }
-
-            return profilerEvent;
         }
     }
 }
