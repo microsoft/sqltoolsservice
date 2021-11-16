@@ -54,7 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         // XEvent Session Id's matched to their Profiler Sessions
         private Dictionary<int, ProfilerSession> monitoredSessions = new Dictionary<int, ProfilerSession>();
 
-        // XEvent Session Id's matched to their Profiler Sessions
+        // XEvent Session Id's matched to their stream cancellation tokens 
         private Dictionary<int, CancellationTokenSource> monitoredCancellationTokenSources = new Dictionary<int, CancellationTokenSource>();
 
         // ViewerId -> Viewer objects
@@ -73,7 +73,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
         }
 
-        public bool StartMonitoringSession(string viewerId, IXEventSession session, ConnectionInfo connInfo)
+        public bool StartMonitoringSession(string viewerId, IXEventSession session)
         {
             lock (this.sessionsLock)
             {
@@ -87,7 +87,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 if (!this.monitoredSessions.ContainsKey(session.Id))
                 {
                     var profilerSession = new ProfilerSession();
-                    profilerSession.ConnectionInfo = connInfo;
                     profilerSession.XEventSession = session;
 
                     this.monitoredSessions.Add(session.Id, profilerSession);
@@ -250,13 +249,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
         }
 
+         /// <summary>
+        /// Nulls out properties in ConnectionDetails that aren't compatible with XElite.
+        /// </summary>
+        private ConnectionDetails CreateXEliteConnectionDetails(ConnectionDetails connDetails){
+            connDetails.ConnectRetryCount = null;
+            connDetails.ConnectRetryInterval = null;
+            connDetails.MultiSubnetFailover = null;
+            return connDetails;
+        }
+
         /// <summary>
         /// Creates a stream for new XEvents if the session hasn't streamed yet.
         /// </summary>
         private void ProcessStream(int id, ProfilerSession session)
         {
             CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
-            var connectionString = ConnectionService.BuildConnectionString(session.ConnectionInfo.ConnectionDetails, true);
+            ConnectionDetails trimmedDetails = CreateXEliteConnectionDetails((session.XEventSession as XEventSession).ConnInfo.ConnectionDetails);
+            var connectionString = ConnectionService.BuildConnectionString(trimmedDetails);
             var eventStreamer = new XELiveEventStreamer(connectionString, (session.XEventSession as XEventSession).Session?.Name);
             var task = eventStreamer.ReadEventStream(xEvent => HandleXEvent(xEvent, session), threadCancellationToken.Token);
 

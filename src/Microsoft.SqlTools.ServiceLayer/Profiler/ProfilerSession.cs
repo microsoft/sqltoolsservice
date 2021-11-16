@@ -17,17 +17,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
     /// </summary>
     public class ProfilerSession
     {
-        private static readonly TimeSpan DefaultPollingDelay = TimeSpan.FromSeconds(1);
-        private object pollingLock = new object();
         private bool isStreaming = false;
-        private DateTime lastPollTime = DateTime.Now.Subtract(DefaultPollingDelay);
-        private TimeSpan pollingDelay = DefaultPollingDelay;
         private ProfilerEvent lastSeenEvent = null;
 
         private bool eventsLost = false;
         int lastSeenId = -1;
-
-        public bool pollImmediatly = false;
 
         /// <summary>
         /// Connection to use for the session

@@ -138,7 +138,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     {
                         // create a new XEvent session and Profiler session
                         var xeSession = this.XEventSessionFactory.GetXEventSession(parameters.SessionName, connInfo);
-                        monitor.StartMonitoringSession(parameters.OwnerUri, xeSession, connInfo);
+                        monitor.StartMonitoringSession(parameters.OwnerUri, xeSession);
                         var result = new StartProfilingResult();
                         await requestContext.SendResult(result);
                     }
@@ -195,7 +195,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                         }
  
                         // start monitoring the profiler session
-                        monitor.StartMonitoringSession(parameters.OwnerUri, xeSession, connInfo);
+                        monitor.StartMonitoringSession(parameters.OwnerUri, xeSession);
 
                         var result = new CreateXEventSessionResult();
                         await requestContext.SendResult(result);
@@ -394,6 +394,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             // create xevent session wrapper
             return new XEventSession()
             {
+                ConnInfo = connInfo,
                 Session = session
             };
         }

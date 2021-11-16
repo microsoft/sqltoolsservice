@@ -1104,16 +1104,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// Build a connection string from a connection details instance
         /// </summary>
         /// <param name="connectionDetails"></param>
-        public static string BuildConnectionString(ConnectionDetails connectionDetails, bool removeNonXELiteOptions = false)
+        public static string BuildConnectionString(ConnectionDetails connectionDetails)
         {
-            return CreateConnectionStringBuilder(connectionDetails, removeNonXELiteOptions).ToString();
+            return CreateConnectionStringBuilder(connectionDetails).ToString();
         }
 
         /// <summary>
         /// Build a connection string builder a connection details instance
         /// </summary>
         /// <param name="connectionDetails"></param>
-        public static SqlConnectionStringBuilder CreateConnectionStringBuilder(ConnectionDetails connectionDetails, bool removeNonXELiteOptions = false)
+        public static SqlConnectionStringBuilder CreateConnectionStringBuilder(ConnectionDetails connectionDetails)
         {
             SqlConnectionStringBuilder connectionBuilder;
 
@@ -1221,11 +1221,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 connectionBuilder.ConnectTimeout = connectionDetails.ConnectTimeout.Value;
             }
-            if (connectionDetails.ConnectRetryCount.HasValue && !removeNonXELiteOptions)
+            if (connectionDetails.ConnectRetryCount.HasValue)
             {
                 connectionBuilder.ConnectRetryCount = connectionDetails.ConnectRetryCount.Value;
             }
-            if (connectionDetails.ConnectRetryInterval.HasValue && !removeNonXELiteOptions)
+            if (connectionDetails.ConnectRetryInterval.HasValue)
             {
                 connectionBuilder.ConnectRetryInterval = connectionDetails.ConnectRetryInterval.Value;
             }
@@ -1285,7 +1285,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 connectionBuilder.FailoverPartner = connectionDetails.FailoverPartner;
             }
-            if (connectionDetails.MultiSubnetFailover.HasValue && !removeNonXELiteOptions)
+            if (connectionDetails.MultiSubnetFailover.HasValue)
             {
                 connectionBuilder.MultiSubnetFailover = connectionDetails.MultiSubnetFailover.Value;
             }

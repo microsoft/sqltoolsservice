@@ -17,6 +17,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
     {
         public Session Session { get; set; }
 
+        public ConnectionInfo ConnInfo { get; set; }
+
         public int Id
         {
             get { return Session.ID; }
