@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.Build.NoTargets">
   <PropertyGroup>
-    <PackageDescription>SQL Tools Service runtime components for ubuntu.14.04</PackageDescription>
+    <PackageDescription>SQL Tools Service application for the ubuntu.14.04 runtime. This package is intended to be used by internal applications only and should not be referenced directly.</PackageDescription>
   </PropertyGroup>
 
   <ItemGroup>
