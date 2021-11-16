@@ -24,5 +24,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteReques
         /// Flag to get full column schema via additional queries.
         /// </summary>
         public bool GetFullColumnSchema { get; set; }
+
+        /// <summary>
+        /// Display mode for query results
+        /// </summary>
+        public string QueryResultsDisplayMode { get; set; }
     }
 }

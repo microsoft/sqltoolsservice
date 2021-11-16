@@ -1,4 +1,4 @@
-// 
+﻿// 
 // 
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -404,7 +405,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // Invoke the SendCurrentResults() asynchronously that will send the results available notification
                     //   and also trigger the timer to send periodic updates.
                     //
-                    availableTask = SendCurrentResults();
+                    //availableTask = SendCurrentResults();
+                    availableTask = SendCurrentResultsAsText();
 
                     while (await dataReader.ReadAsync(cancellationToken))
                     {
@@ -428,7 +430,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 // Make a final call to SendCurrentResults() and await its completion. If the previously scheduled task already took care of latest status send then this should be a no-op
                 //
-                await SendCurrentResults();
+                //await SendCurrentResults();
+                await SendCurrentResultsAsText(); // TODO lewissanchez: Get a flag indicating that results should be sent back as text.
 
 
                 // and finally:
@@ -636,7 +639,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {
             // Make the call to send current results and synchronously wait for it to finish
             //
-            SendCurrentResults().Wait();
+            //SendCurrentResults().Wait();
+            SendCurrentResultsAsText().Wait();
         }
 
         private async Task SendCurrentResults()
@@ -704,6 +708,50 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
             finally
             { 
+                // Release the sendResultsSemphore so the next invocation gets unblocked
+                //
+                sendResultsSemphore.Release();
+            }
+        }
+
+        private async Task SendCurrentResultsAsText()
+        {
+            try
+            {
+                // Wait to acquire the sendResultsSemphore before proceeding, as we want only one instance of this method executing at any given time.
+                //
+                sendResultsSemphore.Wait();
+
+                ResultSet currentResultSetSnapshot = (ResultSet) MemberwiseClone();
+
+                if (currentResultSetSnapshot.Summary.Complete)
+                {
+                    var message = new QueryResultsFormatter(currentResultSetSnapshot).Format();
+                    var resultMessage = new ResultMessage
+                    {
+                        Message = message,
+                        IsError = false
+                    };
+                    await (SendResultsAsText?.Invoke(resultMessage) ?? Task.CompletedTask);
+                }
+
+                // Setup timer for the next callback
+                //
+                if (currentResultSetSnapshot.hasCompletedRead)
+                {
+                    // If we have already completed reading then we are done and we do not need to send any more updates. Switch off timer.
+                    //
+                    resultsTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                }
+                else
+                {
+                    // If we have not yet completed reading then set the timer so this method gets called again after ResultTimerInterval milliseconds
+                    //
+                    resultsTimer.Change(ResultTimerInterval, Timeout.Infinite);
+                }
+            }
+            finally
+            {
                 // Release the sendResultsSemphore so the next invocation gets unblocked
                 //
                 sendResultsSemphore.Release();
@@ -815,5 +863,78 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         }
 
         #endregion
+    }
+}
+
+public class QueryResultsFormatter
+{
+    private StringBuilder _builder;
+    private List<int> _columnWidths;
+    private DbColumnWrapper[] _columns;
+    private Microsoft.SqlTools.ServiceLayer.QueryExecution.ResultSet _resultSet;
+
+    public QueryResultsFormatter(Microsoft.SqlTools.ServiceLayer.QueryExecution.ResultSet resultSet)
+    {
+        _builder = new StringBuilder();
+        _columnWidths = new List<int>();
+        _columns = resultSet.Summary.ColumnInfo;
+        _resultSet = resultSet;
+    }
+
+    public string Format()
+    {
+        CalculateColumnWidths();
+        BuildTableHeader();
+        FormatData();
+
+        return _builder.ToString();
+    }
+
+    private void CalculateColumnWidths()
+    {
+        foreach (var column in _columns)
+        {
+            var colWidth = column.ColumnSize.HasValue ? column.ColumnSize.Value : 0;
+            if (!string.IsNullOrWhiteSpace(column.ColumnName) && column.ColumnName.Length > colWidth)
+            {
+                colWidth = column.ColumnName.Length;
+            }
+
+            _columnWidths.Add(colWidth);
+        }
+    }
+
+    private void BuildTableHeader()
+    {
+        for (int i = 0; i < _columns.Length; ++i)
+        {
+            var columnName = !String.IsNullOrWhiteSpace(_columns[i].ColumnName) ? _columns[i].ColumnName : string.Empty;
+            _builder.Append(columnName);
+
+            if (i < _columns.Length - 1)
+            {
+                var paddingSize = _columnWidths[i] - _columns[i].ColumnName.Length + 1;
+                var padding = new string(' ', paddingSize);
+                _builder.Append(padding);
+            }
+        }
+        _builder.Append('\n');
+
+        for (int i = 0; i < _columnWidths.Count; ++i)
+        {
+            var columnHeadingUnderline = new string('-', _columnWidths[i]);
+            _builder.Append(columnHeadingUnderline);
+
+            if (i < _columnWidths.Count)
+            {
+                _builder.Append(' ');
+            }
+        }
+        _builder.Append('\n');
+    }
+
+    private void FormatData()
+    {
+        //_resultSet.GetSubset
     }
 }
