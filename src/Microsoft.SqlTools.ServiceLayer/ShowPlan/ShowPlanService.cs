@@ -5,14 +5,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
+using System.ComponentModel;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.SqlServer.DataCollection.Common;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
-using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 
 namespace Microsoft.SqlTools.ServiceLayer.ShowPlan

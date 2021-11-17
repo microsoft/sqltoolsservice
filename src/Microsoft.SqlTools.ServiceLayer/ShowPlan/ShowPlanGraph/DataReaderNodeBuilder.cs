@@ -90,7 +90,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
 
                 if (parentNode != null)
                 {
-                    parentNode.Children.AddLast(node);
+                    parentNode.Children.Add(node);
                 }
 
                 // Add node to the hashtable
