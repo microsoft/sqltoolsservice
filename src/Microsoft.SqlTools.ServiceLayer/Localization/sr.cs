@@ -8774,6 +8774,16 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.NameValuePair, name, value);
         }
 
+        public static string OperatorDisplayCost(double cost, int percentage)
+        {
+            return Keys.GetString(Keys.OperatorDisplayCost, cost, percentage);
+        }
+
+        public static string ActualOfEstimated(string actual, string estimated, decimal percent)
+        {
+            return Keys.GetString(Keys.ActualOfEstimated, actual, estimated, percent);
+        }
+
         public static string TableNotInitializedException(string tableId)
         {
             return Keys.GetString(Keys.TableNotInitializedException, tableId);
@@ -12105,6 +12115,12 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string SizeInTeraBytesFormat = "SizeInTeraBytesFormat";
+
+
+            public const string OperatorDisplayCost = "OperatorDisplayCost";
+
+
+            public const string ActualOfEstimated = "ActualOfEstimated";
 
 
             public const string TableNotInitializedException = "TableNotInitializedException";
