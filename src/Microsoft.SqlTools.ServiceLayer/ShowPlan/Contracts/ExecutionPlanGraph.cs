@@ -1,3 +1,8 @@
+//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
 using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
@@ -15,10 +20,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
         /// Underlying query for the execution plan graph
         /// </summary>
         public string Query { get; set; }
-        /// <summary>
-        ///  Execution plan graph error
-        /// </summary>
-        public string error { get; set; }
     }
 
     public class ExecutionPlanNode

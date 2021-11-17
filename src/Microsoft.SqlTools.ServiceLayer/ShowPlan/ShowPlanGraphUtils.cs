@@ -12,14 +12,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
 {
     public class ShowPlanGraphUtils
     {
-        public static ExecutionPlanGraph CreateShowPlanGraph(string xml)
+        public static List<ExecutionPlanGraph> CreateShowPlanGraph(string xml)
         {
-            ShowPlanGraph.ShowPlanGraph graph = ShowPlanGraph.ShowPlanGraph.ParseShowPlanXML(xml, ShowPlanGraph.ShowPlanType.Unknown)[0];
-            return new ExecutionPlanGraph
+            ShowPlanGraph.ShowPlanGraph[] graphs = ShowPlanGraph.ShowPlanGraph.ParseShowPlanXML(xml, ShowPlanGraph.ShowPlanType.Unknown);
+            return graphs.Select(g => new ExecutionPlanGraph
             {
-                Root = ConvertShowPlanTreeToExecutionPlanTree(graph.Root),
-                Query = graph.Statement
-            };
+                Root = ConvertShowPlanTreeToExecutionPlanTree(g.Root),
+                Query = g.Statement
+            }).ToList();
         }
 
         private static ExecutionPlanNode ConvertShowPlanTreeToExecutionPlanTree(Node currentNode)

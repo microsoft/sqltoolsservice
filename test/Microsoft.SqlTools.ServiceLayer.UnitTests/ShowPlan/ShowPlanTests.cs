@@ -21,8 +21,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ShowPlan
             StreamReader reader = new StreamReader(scriptStream);
             string text = reader.ReadToEnd();
             var showPlanGraphs = ShowPlanGraphUtils.CreateShowPlanGraph(text);
-            Assert.NotNull(showPlanGraphs, "graph should not be null");
-            Assert.NotNull(showPlanGraphs.Root, "graph should have a root");
+            Assert.AreEqual(1, showPlanGraphs.Count, "exactly one show plan graph should be returned");
+            Assert.NotNull(showPlanGraphs[0], "graph should not be null");
+            Assert.NotNull(showPlanGraphs[0].Root, "graph should have a root");
         }
     }
 }
