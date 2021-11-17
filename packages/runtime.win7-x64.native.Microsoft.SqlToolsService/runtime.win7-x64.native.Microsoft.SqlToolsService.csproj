@@ -1,9 +1,0 @@
-﻿<Project Sdk="Microsoft.Build.NoTargets">
-  <PropertyGroup>
-    <PackageDescription>SQL Tools Service runtime components for win7-x64</PackageDescription>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <None Include="../../artifacts/publish/Microsoft.SqlTools.ServiceLayer/win7-x64/$(TargetFramework)/**" Pack="true" PackagePath="runtimes/win7-x64/native" />
-  </ItemGroup>
-</Project>

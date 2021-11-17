@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.Build.NoTargets">
   <PropertyGroup>
-    <PackageDescription>SQL Tools Service runtime components for rhel.7.2-x64</PackageDescription>
+    <PackageDescription>SQL Tools Service application for the rhel.7.2-x64 runtime. This package is intended to be used by internal applications only and should not be referenced directly.</PackageDescription>
   </PropertyGroup>
 
   <ItemGroup>

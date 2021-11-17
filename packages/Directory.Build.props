@@ -15,11 +15,17 @@
     it's only the release pipeline that generates the tag to use for the Github release. This
     is a workaround to get releases out until the pipelines can be refactored to pass in
     the correct version -->
-    <PackageVersion>3.0.0-release.152</PackageVersion>
+    <PackageVersion>3.0.0-release.157</PackageVersion>
     <PackageLicenseExpression></PackageLicenseExpression>
     <PackageLicenseFile>license/license.txt</PackageLicenseFile>
     <PackageIcon>images\sqlserver.png</PackageIcon>
     <PackageIconFullPath></PackageIconFullPath>
+    <Authors>Microsoft</Authors>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
+    <PackageProjectUrl>https://github.com/Microsoft/sqltoolsservice</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Microsoft/sqltoolsservice</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
   <ItemGroup>
     <None Include="../license/license.txt" Pack="true" PackagePath="license/" />

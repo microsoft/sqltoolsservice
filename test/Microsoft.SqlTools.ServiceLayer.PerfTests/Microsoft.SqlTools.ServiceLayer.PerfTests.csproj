@@ -8,7 +8,7 @@
 		<GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
 		<EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
 		<EnableDefaultNoneItems>false</EnableDefaultNoneItems>
-		<RuntimeIdentifiers>win7-x64</RuntimeIdentifiers>
+		<RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
 		<StartupObject>Microsoft.SqlTools.ServiceLayer.PerfTests.Program</StartupObject>
 		<PreserveCompilationContext>true</PreserveCompilationContext>
 		<TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>

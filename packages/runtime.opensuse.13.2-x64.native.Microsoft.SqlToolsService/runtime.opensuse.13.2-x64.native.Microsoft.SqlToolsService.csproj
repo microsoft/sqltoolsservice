@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.Build.NoTargets">
   <PropertyGroup>
-    <PackageDescription>SQL Tools Service runtime components for opensuse.13.2-x64</PackageDescription>
+    <PackageDescription>SQL Tools Service application for the opensuse.13.2-x64 runtime. This package is intended to be used by internal applications only and should not be referenced directly.</PackageDescription>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="../../artifacts/publish/Microsoft.SqlTools.ServiceLayer-opensuse.13.2-x64-net5.0/$(TargetFramework)/**" Pack="true" PackagePath="runtimes/opensuse.13.2-x64/native" />
+    <None Include="../../artifacts/publish/Microsoft.SqlTools.ServiceLayer/opensuse.13.2-x64/$(TargetFramework)/**" Pack="true" PackagePath="runtimes/opensuse.13.2-x64/native" />
   </ItemGroup>
 </Project>

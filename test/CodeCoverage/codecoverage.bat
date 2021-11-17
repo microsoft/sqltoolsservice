@@ -1,7 +1,7 @@
 SET WORKINGDIR=%~dp0
 SET REPOROOT=%WORKINGDIR%..\..
 SET NET5DIR=net5.0
-SET SQLTOOLSSERVICE_EXE=%REPOROOT%\src\Microsoft.SqlTools.ServiceLayer\bin\Integration\%NET5DIR%\win7-x64\MicrosoftSqlToolsServiceLayer.exe
+SET SQLTOOLSSERVICE_EXE=%REPOROOT%\src\Microsoft.SqlTools.ServiceLayer\bin\Integration\%NET5DIR%\win-x64\MicrosoftSqlToolsServiceLayer.exe
 
 
 REM clean-up results from previous run
@@ -36,29 +36,29 @@ dotnet build %REPOROOT%\src\Microsoft.SqlTools.Credentials\Microsoft.SqlTools.Cr
 dotnet restore %REPOROOT%\src\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj
 dotnet build %REPOROOT%\src\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj %DOTNETCONFIG%
 dotnet restore %REPOROOT%\src\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.csproj
-dotnet build %REPOROOT%\src\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.csproj %DOTNETCONFIG% -r win7-x64
+dotnet build %REPOROOT%\src\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.csproj %DOTNETCONFIG% -r win-x64
 dotnet restore %REPOROOT%\src\Microsoft.SqlTools.ServiceLayer\Microsoft.SqlTools.ServiceLayer.csproj
-dotnet build %REPOROOT%\src\Microsoft.SqlTools.ServiceLayer\Microsoft.SqlTools.ServiceLayer.csproj %DOTNETCONFIG% -r win7-x64
+dotnet build %REPOROOT%\src\Microsoft.SqlTools.ServiceLayer\Microsoft.SqlTools.ServiceLayer.csproj %DOTNETCONFIG% -r win-x64
 dotnet restore %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider\Microsoft.SqlTools.ResourceProvider.csproj
-dotnet build %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider\Microsoft.SqlTools.ResourceProvider.csproj %DOTNETCONFIG% -r win7-x64
+dotnet build %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider\Microsoft.SqlTools.ResourceProvider.csproj %DOTNETCONFIG% -r win-x64
 dotnet restore %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider.Core\Microsoft.SqlTools.ResourceProvider.Core.csproj
-dotnet build %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider.Core\Microsoft.SqlTools.ResourceProvider.Core.csproj %DOTNETCONFIG% -r win7-x64
+dotnet build %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider.Core\Microsoft.SqlTools.ResourceProvider.Core.csproj %DOTNETCONFIG% -r win-x64
 dotnet restore %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider.DefaultImpl\Microsoft.SqlTools.ResourceProvider.DefaultImpl.csproj
-dotnet build %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider.DefaultImpl\Microsoft.SqlTools.ResourceProvider.DefaultImpl.csproj %DOTNETCONFIG% -r win7-x64
+dotnet build %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider.DefaultImpl\Microsoft.SqlTools.ResourceProvider.DefaultImpl.csproj %DOTNETCONFIG% -r win-x64
 
 REM run the tests through OpenCover and generate a report
 dotnet restore %REPOROOT%\test\Microsoft.SqlTools.ServiceLayer.TestDriver\Microsoft.SqlTools.ServiceLayer.TestDriver.csproj
 dotnet build %REPOROOT%\test\Microsoft.SqlTools.ServiceLayer.TestDriver\Microsoft.SqlTools.ServiceLayer.TestDriver.csproj %DOTNETCONFIG% -r win7-x64
 dotnet restore %REPOROOT%\test\Microsoft.SqlTools.ServiceLayer.Test.Common\Microsoft.SqlTools.ServiceLayer.Test.Common.csproj
-dotnet build %REPOROOT%\test\Microsoft.SqlTools.ServiceLayer.Test.Common\Microsoft.SqlTools.ServiceLayer.Test.Common.csproj %DOTNETCONFIG% 
+dotnet build %REPOROOT%\test\Microsoft.SqlTools.ServiceLayer.Test.Common\Microsoft.SqlTools.ServiceLayer.Test.Common.csproj %DOTNETCONFIG%
 dotnet restore %REPOROOT%\test\Microsoft.SqlTools.ServiceLayer.UnitTests\Microsoft.SqlTools.ServiceLayer.UnitTests.csproj
 dotnet build %REPOROOT%\test\Microsoft.SqlTools.ServiceLayer.UnitTests\Microsoft.SqlTools.ServiceLayer.UnitTests.csproj %DOTNETCONFIG%
 dotnet restore %REPOROOT%\test\Microsoft.SqlTools.ServiceLayer.IntegrationTests\Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj
-dotnet build %REPOROOT%\test\Microsoft.SqlTools.ServiceLayer.IntegrationTests\Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj %DOTNETCONFIG% 
+dotnet build %REPOROOT%\test\Microsoft.SqlTools.ServiceLayer.IntegrationTests\Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj %DOTNETCONFIG%
 dotnet restore %REPOROOT%\test\Microsoft.SqlTools.ServiceLayer.TestDriver.Tests\Microsoft.SqlTools.ServiceLayer.TestDriver.Tests.csproj
-dotnet build %REPOROOT%\test\Microsoft.SqlTools.ServiceLayer.TestDriver.Tests\Microsoft.SqlTools.ServiceLayer.TestDriver.Tests.csproj %DOTNETCONFIG% 
+dotnet build %REPOROOT%\test\Microsoft.SqlTools.ServiceLayer.TestDriver.Tests\Microsoft.SqlTools.ServiceLayer.TestDriver.Tests.csproj %DOTNETCONFIG%
 dotnet restore %REPOROOT%\test\Microsoft.SqlTools.ManagedBatchParser.IntegrationTests\Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.csproj
-dotnet build %REPOROOT%\test\Microsoft.SqlTools.ManagedBatchParser.IntegrationTests\Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.csproj %DOTNETCONFIG% 
+dotnet build %REPOROOT%\test\Microsoft.SqlTools.ManagedBatchParser.IntegrationTests\Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.csproj %DOTNETCONFIG%
 
 SET TEST_SERVER=localhost
 SET SERVICECODECOVERAGE=True
@@ -83,18 +83,18 @@ REM Generate the report
 
 REM restore original project.json
 COPY /Y %REPOROOT%\src\Microsoft.SqlTools.Credentials\Microsoft.SqlTools.Credentials.csproj.BAK %REPOROOT%\src\Microsoft.SqlTools.Credentials\Microsoft.SqlTools.Credentials.csproj
-DEL %REPOROOT%\src\Microsoft.SqlTools.Credentials\Microsoft.SqlTools.Credentials.csproj.BAK 
+DEL %REPOROOT%\src\Microsoft.SqlTools.Credentials\Microsoft.SqlTools.Credentials.csproj.BAK
 COPY /Y %REPOROOT%\src\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj.BAK %REPOROOT%\src\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj
-DEL %REPOROOT%\src\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj.BAK 
+DEL %REPOROOT%\src\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj.BAK
 COPY /Y %REPOROOT%\src\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.csproj.BAK %REPOROOT%\src\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.csproj
-DEL %REPOROOT%\src\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.csproj.BAK 
+DEL %REPOROOT%\src\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.csproj.BAK
 COPY /Y %REPOROOT%\src\Microsoft.SqlTools.ServiceLayer\Microsoft.SqlTools.ServiceLayer.csproj.BAK %REPOROOT%\src\Microsoft.SqlTools.ServiceLayer\Microsoft.SqlTools.ServiceLayer.csproj
-DEL %REPOROOT%\src\Microsoft.SqlTools.ServiceLayer\Microsoft.SqlTools.ServiceLayer.csproj.BAK 
+DEL %REPOROOT%\src\Microsoft.SqlTools.ServiceLayer\Microsoft.SqlTools.ServiceLayer.csproj.BAK
 COPY /Y %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider\Microsoft.SqlTools.ResourceProvider.csproj.BAK %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider\Microsoft.SqlTools.ResourceProvider.csproj
-DEL %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider\Microsoft.SqlTools.ResourceProvider.csproj.BAK 
+DEL %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider\Microsoft.SqlTools.ResourceProvider.csproj.BAK
 COPY /Y %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider.Core\Microsoft.SqlTools.ResourceProvider.Core.csproj.BAK %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider.Core\Microsoft.SqlTools.ResourceProvider.Core.csproj
-DEL %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider.Core\Microsoft.SqlTools.ResourceProvider.Core.csproj.BAK 
+DEL %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider.Core\Microsoft.SqlTools.ResourceProvider.Core.csproj.BAK
 COPY /Y %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider.DefaultImpl\Microsoft.SqlTools.ResourceProvider.DefaultImpl.csproj.BAK %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider.DefaultImpl\Microsoft.SqlTools.ResourceProvider.DefaultImpl.csproj
-DEL %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider.DefaultImpl\Microsoft.SqlTools.ResourceProvider.DefaultImpl.csproj.BAK 
+DEL %REPOROOT%\src\Microsoft.SqlTools.ResourceProvider.DefaultImpl\Microsoft.SqlTools.ResourceProvider.DefaultImpl.csproj.BAK
 
 EXIT
