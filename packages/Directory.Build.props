@@ -20,6 +20,12 @@
     <PackageLicenseFile>license/license.txt</PackageLicenseFile>
     <PackageIcon>images\sqlserver.png</PackageIcon>
     <PackageIconFullPath></PackageIconFullPath>
+    <Authors>Microsoft</Authors>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
+    <PackageProjectUrl>https://github.com/Microsoft/sqltoolsservice</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Microsoft/sqltoolsservice</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
   <ItemGroup>
     <None Include="../license/license.txt" Pack="true" PackagePath="license/" />
