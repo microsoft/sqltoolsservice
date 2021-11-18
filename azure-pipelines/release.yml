@@ -21,12 +21,12 @@ steps:
   inputs:
     SourceFolder: '$(Agent.TempDirectory)/drop'
     TargetFolder: '$(Build.SourcesDirectory)/artifacts/package'
-# - task: PowerShell@2
-#   displayName: 'Run Automated Release Script'
-#   inputs:
-#     filePath: '$(System.DefaultWorkingDirectory)/CrossPlatBuildScripts/AutomatedReleases/sqltoolsserviceRelease.ps1'
-#     arguments: '-workspace $(Build.SourcesDirectory) -minTag v3.0.0.0 -target main -tagFormat release -isPrerelease $false -artifactsBuildId $(Build.BuildId)'
-#     workingDirectory: '$(Build.SourcesDirectory)'
-#   env:
-#     GITHUB_DISTRO_MIXIN_PASSWORD: $(github-distro-mixin-password)
-#     ADO_CROSSPLATBUILDSCRIPTS_PASSWORD: $(ado-crossplatbuildscripts-password)
+- task: PowerShell@2
+  displayName: 'Run Automated Release Script'
+  inputs:
+    filePath: '$(System.DefaultWorkingDirectory)/CrossPlatBuildScripts/AutomatedReleases/sqltoolsserviceRelease.ps1'
+    arguments: '-workspace $(Build.SourcesDirectory) -minTag v3.0.0.0 -target main -tagFormat release -isPrerelease $false -artifactsBuildId $(Build.BuildId)'
+    workingDirectory: '$(Build.SourcesDirectory)'
+  env:
+    GITHUB_DISTRO_MIXIN_PASSWORD: $(github-distro-mixin-password)
+    ADO_CROSSPLATBUILDSCRIPTS_PASSWORD: $(ado-crossplatbuildscripts-password)
