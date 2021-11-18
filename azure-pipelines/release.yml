@@ -20,8 +20,8 @@ steps:
   displayName: 'Run Automated Release Script'
   inputs:
     filePath: '$(System.DefaultWorkingDirectory)/CrossPlatBuildScripts/AutomatedReleases/sqltoolsserviceRelease.ps1'
-    arguments: '-workspace $(System.DefaultWorkingDirectory)/sqltoolsservice -minTag v3.0.0.0 -target main -tagFormat release -isPrerelease $false -artifactsBuildId $(Build.BuildId)'
-    workingDirectory: '$(System.DefaultWorkingDirectory)/sqltoolsservice'
+    arguments: '-workspace $(Build.SourcesDirectory) -minTag v3.0.0.0 -target main -tagFormat release -isPrerelease $false -artifactsBuildId $(Build.BuildId)'
+    workingDirectory: '$(Build.SourcesDirectory)'
   env:
     GITHUB_DISTRO_MIXIN_PASSWORD: $(github-distro-mixin-password)
     ADO_CROSSPLATBUILDSCRIPTS_PASSWORD: $(ado-crossplatbuildscripts-password)
