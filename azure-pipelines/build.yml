@@ -124,7 +124,6 @@ steps:
      ]
     SessionTimeout: 600
     MaxConcurrency: 5
-  condition: and(succeeded(), eq(variables['signed'], true))
 
 - task: BatchScript@1
   displayName: 'Package published projects'
