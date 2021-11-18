@@ -9,14 +9,6 @@ steps:
     git clone https://$(ado-crossplatbuildscripts-password)@dev.azure.com/mssqltools/_git/CrossPlatBuildScripts
   displayName: Clone CrossPlatBuildScripts
 - task: DownloadBuildArtifacts@0
-  displayName: 'Download build source artifacts'
-  inputs:
-    buildType: 'current'
-    downloadType: 'single'
-    artifactName: 'source'
-    itemPattern: '**/source.tar.gz'
-    downloadPath: '$(Agent.TempDirectory)'
-- task: DownloadBuildArtifacts@0
   displayName: 'Download build drop artifacts'
   inputs:
     buildType: 'current'
@@ -24,22 +16,17 @@ steps:
     artifactName: 'drop'
     itemPattern: '**/*'
     downloadPath: '$(Agent.TempDirectory)'
-- task: ExtractFiles@1
-  displayName: 'Extract source from build'
-  inputs:
-    archiveFilePatterns: '$(Agent.TempDirectory)/source/source.tar.gz'
-    destinationFolder: '$(System.DefaultWorkingDirectory)/sqltoolsservice'
 - task: CopyFiles@2
-  displayName: 'Copy Source Files to: $(System.DefaultWorkingDirectory)/sqltoolsservice/artifacts/package'
+  displayName: 'Copy build drop artifacts to: $(Build.SourcesDirectory)/artifacts/package/artifacts/package'
   inputs:
     SourceFolder: '$(Agent.TempDirectory)/drop'
-    TargetFolder: '$(System.DefaultWorkingDirectory)/sqltoolsservice/artifacts/package'
+    TargetFolder: '$(Build.SourcesDirectory)/artifacts/package'
 - task: PowerShell@2
   displayName: 'Run Automated Release Script'
   inputs:
     filePath: '$(System.DefaultWorkingDirectory)/CrossPlatBuildScripts/AutomatedReleases/sqltoolsserviceRelease.ps1'
-    arguments: '-workspace $(System.DefaultWorkingDirectory)/sqltoolsservice -minTag v3.0.0.0 -target main -tagFormat release -isPrerelease $false -artifactsBuildId $(Build.BuildId)'
-    workingDirectory: '$(System.DefaultWorkingDirectory)/sqltoolsservice'
+    arguments: '-workspace $(Build.SourcesDirectory) -minTag v3.0.0.0 -target main -tagFormat release -isPrerelease $false -artifactsBuildId $(Build.BuildId)'
+    workingDirectory: '$(Build.SourcesDirectory)'
   env:
     GITHUB_DISTRO_MIXIN_PASSWORD: $(github-distro-mixin-password)
     ADO_CROSSPLATBUILDSCRIPTS_PASSWORD: $(ado-crossplatbuildscripts-password)
