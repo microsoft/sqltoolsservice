@@ -11,7 +11,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         public const string Schema = "schema";
         public const string Description = "description";
         public const string Columns = "columns";
-        public const string ForeignKeys = "";
+        public const string ForeignKeys = "foreignKeys";
     }
 
     public static class TableColumnPropertyNames
