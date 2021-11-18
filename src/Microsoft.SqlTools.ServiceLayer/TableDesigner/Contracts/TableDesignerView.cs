@@ -14,13 +14,17 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
     public class TableDesignerView
     {
         public List<DesignerDataPropertyInfo> AdditionalTableProperties { get; set; } = new List<DesignerDataPropertyInfo>();
+        public BuiltinTableOptions ColumnTableOptions { get; set; } = new BuiltinTableOptions();
+        public BuiltinTableOptions ForeignKeyTableOptions { get; set; } = new BuiltinTableOptions();
+        public BuiltinTableOptions CheckConstraintTableOptions { get; set; } = new BuiltinTableOptions();
+    }
 
-        public List<DesignerDataPropertyInfo> AdditionalTableColumnProperties { get; set; } = new List<DesignerDataPropertyInfo>();
-
-        public List<string> ColumnsTableProperties { get; set; } = new List<string>();
-
-        public bool CanAddColumns { get; set; }
-
-        public bool CanRemoveColumns { get; set; }
+    public class BuiltinTableOptions
+    {
+        public bool ShowTable { get; set; } = true;
+        public List<string> PropertiesToDisplay { get; set; } = new List<string>();
+        public bool canAddRows { get; set; } = true;
+        public bool canRemoveRows { get; set; } = true;
+        public List<DesignerDataPropertyInfo> AdditionalProperties { get; set; } = new List<DesignerDataPropertyInfo>();
     }
 }

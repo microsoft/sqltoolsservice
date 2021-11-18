@@ -11,7 +11,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts;
-using Table = Microsoft.Data.Tools.Sql.DesignServices.TableDesigner.TableDesignerViewModel;
+using Dac = Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
 
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 {
@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
     /// </summary>
     public sealed class TableDesignerService : IDisposable
     {
-        private Dictionary<string, Table> idTableMap = new Dictionary<string, Table>();
+        private Dictionary<string, Dac.TableDesignerViewModel> idTableMap = new Dictionary<string, Dac.TableDesignerViewModel>();
         private bool disposed = false;
         private static readonly Lazy<TableDesignerService> instance = new Lazy<TableDesignerService>(() => new TableDesignerService());
 
@@ -81,7 +81,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 var connectinStringbuilder = new SqlConnectionStringBuilder(tableInfo.ConnectionString);
                 connectinStringbuilder.InitialCatalog = tableInfo.Database;
                 var connectionString = connectinStringbuilder.ToString();
-                var table = new Table(connectionString, tableInfo.Schema, tableInfo.Name, tableInfo.IsNewTable);
+                var table = new Dac.TableDesignerViewModel(connectionString, tableInfo.Schema, tableInfo.Name, tableInfo.IsNewTable);
                 this.idTableMap.Add(tableInfo.Id, table);
                 var viewModel = this.GetTableViewModel(tableInfo);
                 var view = this.GetDesignerViewInfo(tableInfo);
@@ -230,7 +230,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         private TableDesignerView GetDesignerViewInfo(TableInfo tableInfo)
         {
             var view = new TableDesignerView();
-            view.AdditionalTableColumnProperties.Add(new DesignerDataPropertyInfo()
+            view.ColumnTableOptions.AdditionalProperties.AddRange(new DesignerDataPropertyInfo[] {
+                new DesignerDataPropertyInfo()
             {
                 PropertyName = TableColumnPropertyNames.IsIdentity,
                 Description = SR.TableColumnIsIdentityPropertyDescription,
@@ -240,8 +241,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 {
                     Title = SR.TableColumnIsIdentityPropertyTitle
                 }
-            });
-            view.AdditionalTableColumnProperties.Add(new DesignerDataPropertyInfo()
+            }, new DesignerDataPropertyInfo()
             {
                 PropertyName = TableColumnPropertyNames.IdentitySeed,
                 Description = SR.TableColumnIdentitySeedPropertyDescription,
@@ -251,8 +251,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 {
                     Title = SR.TableColumnIdentitySeedPropertyTitle
                 }
-            });
-            view.AdditionalTableColumnProperties.Add(new DesignerDataPropertyInfo()
+            },new DesignerDataPropertyInfo()
             {
                 PropertyName = TableColumnPropertyNames.IdentityIncrement,
                 Description = SR.TableColumnIdentityIncrementPropertyDescription,
@@ -262,15 +261,52 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 {
                     Title = SR.TableColumnIdentityIncrementPropertyTitle
                 }
-            });
-            view.CanAddColumns = true;
-            view.CanRemoveColumns = true;
+            }});
+            view.ColumnTableOptions.canAddRows = true;
+            view.ColumnTableOptions.canRemoveRows = true;
+
+            view.ForeignKeyTableOptions.AdditionalProperties.AddRange(new DesignerDataPropertyInfo[] {
+            new DesignerDataPropertyInfo()
+            {
+                PropertyName = ForeignKeyPropertyNames.Enabled,
+                Description = SR.ForeignKeyIsEnabledDescription,
+                ComponentType = DesignerComponentType.Checkbox,
+                ComponentProperties = new CheckBoxProperties()
+                {
+                    Title = SR.TableDesignerIsEnabledPropertyTitle
+                }
+            },
+            new DesignerDataPropertyInfo()
+            {
+                PropertyName = ForeignKeyPropertyNames.IsNotForReplication,
+                Description = SR.ForeignKeyIsNotForReplicationDescription,
+                ComponentType = DesignerComponentType.Checkbox,
+                ComponentProperties = new CheckBoxProperties()
+                {
+                    Title = SR.ForeignKeyIsNotForReplicationTitle
+                }
+            }});
+            view.ForeignKeyTableOptions.canAddRows = true;
+            view.ForeignKeyTableOptions.canRemoveRows = true;
+            view.CheckConstraintTableOptions.AdditionalProperties.Add(
+                new DesignerDataPropertyInfo()
+                {
+                    PropertyName = CheckConstraintPropertyNames.Enabled,
+                    Description = SR.CheckConstraintIsEnabledDescription,
+                    ComponentType = DesignerComponentType.Checkbox,
+                    ComponentProperties = new CheckBoxProperties()
+                    {
+                        Title = SR.TableDesignerIsEnabledPropertyTitle
+                    }
+                });
+            view.CheckConstraintTableOptions.canAddRows = true;
+            view.CheckConstraintTableOptions.canRemoveRows = true;
             return view;
         }
 
-        private Table GetTable(TableInfo tableInfo)
+        private Dac.TableDesignerViewModel GetTable(TableInfo tableInfo)
         {
-            Table table;
+            Dac.TableDesignerViewModel table;
             if (this.idTableMap.TryGetValue(tableInfo.Id, out table))
             {
                 return table;
