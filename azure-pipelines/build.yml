@@ -124,7 +124,6 @@ steps:
      ]
     SessionTimeout: 600
     MaxConcurrency: 5
-  condition: and(succeeded(), eq(variables['signed'], true))
 
 - task: BatchScript@1
   displayName: 'Package published projects'
@@ -160,7 +159,6 @@ steps:
     SessionTimeout: '60'
     MaxConcurrency: '50'
     MaxRetryAttempts: '5'
-  condition: and(succeeded(), eq(variables['signed'], true))
 
 - task: ArchiveFiles@1
   displayName: 'Archive osx build'
