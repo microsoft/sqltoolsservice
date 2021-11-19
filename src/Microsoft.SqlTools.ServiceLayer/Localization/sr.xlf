@@ -5645,6 +5645,11 @@
         <note>.
  Parameters: 0 - actual (string), 1 - estimated (string), 2 - percent (decimal) </note>
       </trans-unit>
+      <trans-unit id="ConnInfoIsNull">
+        <source>Connection Info is null</source>
+        <target state="new">Connection Info is null</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

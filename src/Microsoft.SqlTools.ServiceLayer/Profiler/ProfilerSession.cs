@@ -48,12 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// Functions for marking and retrieving the status of the ProfilerSession having an active XELite stream running. 
         /// </summary>
         public void toggleStreamLock(){
-            if(!this.isStreaming) {
-                this.isStreaming = true;
-            }
-            else {
-                this.isStreaming = false;
-            }
+            this.isStreaming = !this.isStreaming;
         }
 
         public bool isStreamActive(){

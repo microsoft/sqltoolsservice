@@ -2565,6 +2565,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string ConnInfoIsNull
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnInfoIsNull);
+            }
+        }
+
         public static string ProfilerConnectionNotFound
         {
             get
@@ -9841,6 +9849,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string InvalidPathError = "InvalidPathError";
+
+
+            public const string ConnInfoIsNull = "ConnInfoIsNull";
 
 
             public const string ProfilerConnectionNotFound = "ProfilerConnectionNotFound";

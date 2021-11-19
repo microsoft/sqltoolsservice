@@ -751,6 +751,7 @@ InvalidPathError = Cannot access the specified path on the server: {0}
 
 ############################################################################
 # Profiler
+ConnInfoIsNull = Connection Info is null
 ProfilerConnectionNotFound = Connection not found
 AzureSystemDbProfilingError = Cannot profile Azure system databases
 CreateSessionFailed(String error) = Failed to create session: {0}

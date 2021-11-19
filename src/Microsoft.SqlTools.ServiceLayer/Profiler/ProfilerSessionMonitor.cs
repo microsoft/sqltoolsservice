@@ -150,7 +150,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         {
             lock (this.sessionsLock)
             {
-                //cancel running XEventStream.
+                //cancel running XEventStream for session.
                 CancellationTokenSource targetToken;
                 if (monitoredCancellationTokenSources.Remove(sessionId, out targetToken))
                 {
@@ -158,7 +158,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 }
                 if (this.monitoredSessions.Remove(sessionId, out session) && session.isStreamActive())
                 {
-                    // Remove streaming status from session
+                    // Toggle isStreaming status of removed session to not streaming.
                     session.toggleStreamLock();
 
                     //remove all viewers for this session
@@ -186,9 +186,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         }
 
         /// <summary>
-        /// The core queue processing method
+        /// The core queue processing method, cycles through monitored sessions and creates a stream for them if not already.
         /// </summary>
-        /// <param name="state"></param>
         private void ProcessStreams()
         {
             while (true)
@@ -209,6 +208,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
         }
 
+        /// <summary>
+        /// Helper function used to process the XEvent feed from a session's stream.
+        /// </summary>
         internal async Task HandleXEvent(IXEvent xEvent, ProfilerSession session)
         {
             ProfilerEvent profileEvent = new ProfilerEvent(xEvent.Name, xEvent.Timestamp.ToString());
@@ -244,7 +246,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
          /// <summary>
         /// Nulls out properties in ConnectionDetails that aren't compatible with XElite.
         /// </summary>
-        private ConnectionDetails CreateXEliteConnectionDetails(ConnectionDetails connDetails){
+        private static ConnectionDetails CreateXEliteConnectionDetails(ConnectionDetails connDetails){
             connDetails.ConnectRetryCount = null;
             connDetails.ConnectRetryInterval = null;
             connDetails.MultiSubnetFailover = null;
@@ -252,7 +254,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         }
 
         /// <summary>
-        /// Creates a stream for new XEvents if the session hasn't streamed yet.
+        /// Function that creates a brand new stream from a session, this is called from ProcessStreams when a session doesn't have a stream running currently.
         /// </summary>
         private void ProcessStream(int id, ProfilerSession session)
         {
@@ -260,6 +262,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             ConnectionDetails trimmedDetails = CreateXEliteConnectionDetails((session.XEventSession as XEventSession).ConnInfo.ConnectionDetails);
             var connectionString = ConnectionService.BuildConnectionString(trimmedDetails);
             var eventStreamer = new XELiveEventStreamer(connectionString, (session.XEventSession as XEventSession).Session?.Name);
+            //Start streaming task here, will run until cancellation or error with the feed.
             var task = eventStreamer.ReadEventStream(xEvent => HandleXEvent(xEvent, session), threadCancellationToken.Token);
 
             task.ContinueWith(t =>
