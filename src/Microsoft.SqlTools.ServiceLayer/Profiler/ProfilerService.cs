@@ -142,7 +142,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                         var result = new StartProfilingResult();
                         await requestContext.SendResult(result);
                     }
-                    else {
+                    else 
+                    {
                         throw new Exception(SR.ConnInfoIsNull);
                     }
                 }
