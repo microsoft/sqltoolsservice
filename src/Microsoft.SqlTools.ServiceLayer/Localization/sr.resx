@@ -4647,4 +4647,45 @@
     <value>Displays the initial row value for an identity column.</value>
     <comment></comment>
   </data>
+  <data name="TableDesignerIsEnabledPropertyTitle" xml:space="preserve">
+    <value>Is Enabled</value>
+    <comment></comment>
+  </data>
+  <data name="ForeignKeyIsEnabledDescription" xml:space="preserve">
+    <value>Specifies whether the foreign key is Enabled</value>
+    <comment></comment>
+  </data>
+  <data name="ForeignKeyIsNotForReplicationTitle" xml:space="preserve">
+    <value>Not For Replication</value>
+    <comment></comment>
+  </data>
+  <data name="ForeignKeyIsNotForReplicationDescription" xml:space="preserve">
+    <value>Enables or disables an IDENTITY constraint for data inserted by a replication process.</value>
+    <comment></comment>
+  </data>
+  <data name="SqlForeignKeyAction_NoAction" xml:space="preserve">
+    <value>No Action</value>
+    <comment></comment>
+  </data>
+  <data name="SqlForeignKeyAction_Cascade" xml:space="preserve">
+    <value>Cascade</value>
+    <comment></comment>
+  </data>
+  <data name="SqlForeignKeyAction_SetNull" xml:space="preserve">
+    <value>Set Null</value>
+    <comment></comment>
+  </data>
+  <data name="SqlForeignKeyAction_SetDefault" xml:space="preserve">
+    <value>Set Default</value>
+    <comment></comment>
+  </data>
+  <data name="UnKnownSqlForeignKeyAction" xml:space="preserve">
+    <value>&apos;{0}&apos; is not a supported SqlForeignKeyAction.</value>
+    <comment>.
+ Parameters: 0 - name (string) </comment>
+  </data>
+  <data name="CheckConstraintIsEnabledDescription" xml:space="preserve">
+    <value>Specifies whether the check constraint is Enabled</value>
+    <comment></comment>
+  </data>
 </root>

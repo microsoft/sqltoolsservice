@@ -8517,6 +8517,78 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string TableDesignerIsEnabledPropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerIsEnabledPropertyTitle);
+            }
+        }
+
+        public static string ForeignKeyIsEnabledDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ForeignKeyIsEnabledDescription);
+            }
+        }
+
+        public static string ForeignKeyIsNotForReplicationTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.ForeignKeyIsNotForReplicationTitle);
+            }
+        }
+
+        public static string ForeignKeyIsNotForReplicationDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ForeignKeyIsNotForReplicationDescription);
+            }
+        }
+
+        public static string SqlForeignKeyAction_NoAction
+        {
+            get
+            {
+                return Keys.GetString(Keys.SqlForeignKeyAction_NoAction);
+            }
+        }
+
+        public static string SqlForeignKeyAction_Cascade
+        {
+            get
+            {
+                return Keys.GetString(Keys.SqlForeignKeyAction_Cascade);
+            }
+        }
+
+        public static string SqlForeignKeyAction_SetNull
+        {
+            get
+            {
+                return Keys.GetString(Keys.SqlForeignKeyAction_SetNull);
+            }
+        }
+
+        public static string SqlForeignKeyAction_SetDefault
+        {
+            get
+            {
+                return Keys.GetString(Keys.SqlForeignKeyAction_SetDefault);
+            }
+        }
+
+        public static string CheckConstraintIsEnabledDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.CheckConstraintIsEnabledDescription);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -8800,6 +8872,11 @@ namespace Microsoft.SqlTools.ServiceLayer
         public static string InvalidTableEditPathException(string path, string editType)
         {
             return Keys.GetString(Keys.InvalidTableEditPathException, path, editType);
+        }
+
+        public static string UnKnownSqlForeignKeyAction(string name)
+        {
+            return Keys.GetString(Keys.UnKnownSqlForeignKeyAction, name);
         }
 
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -12162,6 +12239,36 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string TableColumnIdentitySeedPropertyDescription = "TableColumnIdentitySeedPropertyDescription";
+
+
+            public const string TableDesignerIsEnabledPropertyTitle = "TableDesignerIsEnabledPropertyTitle";
+
+
+            public const string ForeignKeyIsEnabledDescription = "ForeignKeyIsEnabledDescription";
+
+
+            public const string ForeignKeyIsNotForReplicationTitle = "ForeignKeyIsNotForReplicationTitle";
+
+
+            public const string ForeignKeyIsNotForReplicationDescription = "ForeignKeyIsNotForReplicationDescription";
+
+
+            public const string SqlForeignKeyAction_NoAction = "SqlForeignKeyAction_NoAction";
+
+
+            public const string SqlForeignKeyAction_Cascade = "SqlForeignKeyAction_Cascade";
+
+
+            public const string SqlForeignKeyAction_SetNull = "SqlForeignKeyAction_SetNull";
+
+
+            public const string SqlForeignKeyAction_SetDefault = "SqlForeignKeyAction_SetDefault";
+
+
+            public const string UnKnownSqlForeignKeyAction = "UnKnownSqlForeignKeyAction";
+
+
+            public const string CheckConstraintIsEnabledDescription = "CheckConstraintIsEnabledDescription";
 
 
             private Keys()

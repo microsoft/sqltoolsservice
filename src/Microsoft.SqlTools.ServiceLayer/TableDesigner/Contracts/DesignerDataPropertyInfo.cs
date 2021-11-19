@@ -37,7 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         /// <summary>
         /// The name of the group the property will be placed in whe displayed in
         /// </summary>
-        public bool ShowInPropertiesView { get; set; }
+        public bool ShowInPropertiesView { get; set; } = true;
 
 
         /// <summary>

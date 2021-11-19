@@ -5645,6 +5645,57 @@
         <note>.
  Parameters: 0 - actual (string), 1 - estimated (string), 2 - percent (decimal) </note>
       </trans-unit>
+      <trans-unit id="TableDesignerIsEnabledPropertyTitle">
+        <source>Is Enabled</source>
+        <target state="new">Is Enabled</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ForeignKeyIsEnabledDescription">
+        <source>Specifies whether the foreign key is Enabled</source>
+        <target state="new">Specifies whether the foreign key is Enabled</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ForeignKeyIsNotForReplicationTitle">
+        <source>Not For Replication</source>
+        <target state="new">Not For Replication</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ForeignKeyIsNotForReplicationDescription">
+        <source>Enables or disables an IDENTITY constraint for data inserted by a replication process.</source>
+        <target state="new">Enables or disables an IDENTITY constraint for data inserted by a replication process.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SqlForeignKeyAction_NoAction">
+        <source>No Action</source>
+        <target state="new">No Action</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SqlForeignKeyAction_Cascade">
+        <source>Cascade</source>
+        <target state="new">Cascade</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SqlForeignKeyAction_SetNull">
+        <source>Set Null</source>
+        <target state="new">Set Null</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SqlForeignKeyAction_SetDefault">
+        <source>Set Default</source>
+        <target state="new">Set Default</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="UnKnownSqlForeignKeyAction">
+        <source>'{0}' is not a supported SqlForeignKeyAction.</source>
+        <target state="new">'{0}' is not a supported SqlForeignKeyAction.</target>
+        <note>.
+ Parameters: 0 - name (string) </note>
+      </trans-unit>
+      <trans-unit id="CheckConstraintIsEnabledDescription">
+        <source>Specifies whether the check constraint is Enabled</source>
+        <target state="new">Specifies whether the check constraint is Enabled</target>
+        <note></note>
+      </trans-unit>
       <trans-unit id="ConnInfoIsNull">
         <source>Connection Info is null</source>
         <target state="new">Connection Info is null</target>

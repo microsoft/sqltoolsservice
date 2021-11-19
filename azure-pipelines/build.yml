@@ -1,18 +1,4 @@
 steps:
-- task: ArchiveFiles@1
-  displayName: 'Archive source '
-  inputs:
-    rootFolder: '$(Build.SourcesDirectory)'
-    includeRootFolder: false
-    archiveType: tar
-    archiveFile: '$(Build.ArtifactStagingDirectory)/source.tar.gz'
-
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifact: source'
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)/source.tar.gz'
-    ArtifactName: source
-
 - task: UseDotNet@2
   displayName: 'Use defined .NET Core sdk'
   inputs:
@@ -124,7 +110,6 @@ steps:
      ]
     SessionTimeout: 600
     MaxConcurrency: 5
-  condition: and(succeeded(), eq(variables['signed'], true))
 
 - task: BatchScript@1
   displayName: 'Package published projects'
