@@ -221,6 +221,41 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 tableViewModel.Columns.Data.Add(columnViewModel);
             }
 
+            foreach (var foreignKey in table.ForeignKeys.Items)
+            {
+                var foreignKeyViewModel = new ForeignKeyViewModel();
+                foreignKeyViewModel.Name.Value = foreignKey.Name;
+                foreignKeyViewModel.Enabled.Checked = foreignKey.Enabled;
+                foreignKeyViewModel.OnDeleteAction.Value = SqlForeignKeyActionUtil.GetName(foreignKey.OnDeleteAction);
+                foreignKeyViewModel.OnDeleteAction.Values = SqlForeignKeyActionUtil.ActionNames;
+                foreignKeyViewModel.OnUpdateAction.Value = SqlForeignKeyActionUtil.GetName(foreignKey.OnUpdateAction);
+                foreignKeyViewModel.OnUpdateAction.Values = SqlForeignKeyActionUtil.ActionNames;
+                foreignKeyViewModel.PrimaryKeyTable.Value = foreignKey.PrimaryKeyTable;
+                foreignKeyViewModel.PrimaryKeyTable.Values = table.AllTables.ToList();
+                foreignKeyViewModel.IsNotForReplication.Checked = foreignKey.IsNotForReplication;
+                for (int i = 0; i < foreignKey.ForeignKeyColumns.Count; i++)
+                {
+                    var foreignKeyColumn = foreignKey.ForeignKeyColumns[i];
+                    var primaryKeyColumn = foreignKey.PrimaryKeyColumns[i];
+                    var mapping = new ForeignKeyColumnMapping();
+                    mapping.ForeignKeyColumn.Value = foreignKeyColumn;
+                    mapping.ForeignKeyColumn.Values = table.Columns.Items.Select(c => c.Name).ToList();
+                    mapping.PrimaryKeyColumn.Value = primaryKeyColumn;
+                    mapping.PrimaryKeyColumn.Values = table.GetColumnsForTable(foreignKey.PrimaryKeyTable).ToList();
+                    foreignKeyViewModel.Columns.Data.Add(mapping);
+                }
+                tableViewModel.ForeignKeys.Data.Add(foreignKeyViewModel);
+            }
+
+            foreach (var checkConstraint in table.CheckConstraints.Items)
+            {
+                var constraint = new CheckConstraintViewModel();
+                constraint.Name.Value = checkConstraint.Name;
+                constraint.Expression.Value = checkConstraint.Expression;
+                constraint.Enabled.Checked = checkConstraint.Enabled;
+                tableViewModel.CheckConstraints.Data.Add(constraint);
+            }
+
             tableViewModel.Script.Enabled = false;
             tableViewModel.Script.Value = table.Script;
             // TODO: set other properties of the table
