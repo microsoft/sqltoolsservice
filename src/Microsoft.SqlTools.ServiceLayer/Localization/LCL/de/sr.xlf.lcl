@@ -365,7 +365,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Actual Rewinds]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Tatsächliche Zurückspulvorgänge]]></Val>
+            <Val><![CDATA[Tatsächliche Rückspulvorgänge]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -374,7 +374,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Actual Rewinds.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Tatsächliche Zurückspulvorgänge.]]></Val>
+            <Val><![CDATA[Tatsächliche Rückspulvorgänge.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -994,6 +994,9 @@
       <Item ItemId=";CheckConstraintIsEnabledDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Specifies whether the check constraint is Enabled]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Gibt an, ob die CHECK-Einschränkung aktiviert ist.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1271,7 +1274,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Columnstore Index Update]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Columnstore-Index aktualisieren]]></Val>
+            <Val><![CDATA[Columnstore-Index-Update]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -1487,7 +1490,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Constant Table Get]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Abruf aus Konstantentabelle]]></Val>
+            <Val><![CDATA[Konstant Tabelle abrufen]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -1505,7 +1508,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Constant Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Konstantenscan]]></Val>
+            <Val><![CDATA[Fortlaufender Scan]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -1568,7 +1571,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Cost: {0} %]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Kosten: {0} %]]></Val>
+            <Val><![CDATA[Kosten: {0} %]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2657,7 +2660,7 @@
         <Str Cat="Text">
           <Val><![CDATA[External RoundRobin]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Extern: RoundRobin]]></Val>
+            <Val><![CDATA[Externer RoundRobin]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2800,6 +2803,9 @@
       <Item ItemId=";ForeignKeyIsEnabledDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Specifies whether the foreign key is Enabled]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Gibt an, ob der Fremdschlüssel Aktiviert ist]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3932,7 +3938,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Constant Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Konstantenscan]]></Val>
+            <Val><![CDATA[Fortlaufender Scan]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4157,7 +4163,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Left Diff All]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Linke Diff– alle]]></Val>
+            <Val><![CDATA[Linke Differenz alle]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4184,7 +4190,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Left Semi Apply]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Linke Hälfte anwenden]]></Val>
+            <Val><![CDATA[Links halb anwenden]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4391,7 +4397,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Right Diff All]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Rechte Diff – alle]]></Val>
+            <Val><![CDATA[Rechte Diff alle]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4409,7 +4415,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Right Semi Join]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Right Semi Join]]></Val>
+            <Val><![CDATA[Rechts halbe Verknüpfung]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4553,7 +4559,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Many to Many]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[M zu N]]></Val>
+            <Val><![CDATA[Viele bis viele]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4562,7 +4568,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Many to many.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[M zu N.]]></Val>
+            <Val><![CDATA[Viele bis viele.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -5633,7 +5639,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Population Query]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Datasetabfrage]]></Val>
+            <Val><![CDATA[Populationsabfrage]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9548,7 +9554,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Table Spool]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Table Spool]]></Val>
+            <Val><![CDATA[Tabellenspool]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9781,6 +9787,9 @@
       <Item ItemId=";UnKnownSqlForeignKeyAction" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA['{0}' is not a supported SqlForeignKeyAction.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA['{0}' ist keine unterstützte SqlForeignKeyAction.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -10040,7 +10049,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Where (join columns)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[WO (Spalten verknüpfen)]]></Val>
+            <Val><![CDATA[Wo (Spalten verknüpfen)]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

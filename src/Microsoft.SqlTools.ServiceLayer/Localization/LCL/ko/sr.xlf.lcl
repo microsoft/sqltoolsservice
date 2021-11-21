@@ -994,6 +994,9 @@
       <Item ItemId=";CheckConstraintIsEnabledDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Specifies whether the check constraint is Enabled]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[CHECK 제약 조건을 사용할지 여부를 지정합니다.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1019,7 +1022,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Clustered Index Delete]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Clustered Index Delete]]></Val>
+            <Val><![CDATA[클러스터형 인덱스 삭제]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -1253,7 +1256,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Columnstore Index Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Columnstore 인덱스 스캔]]></Val>
+            <Val><![CDATA[Columnstore 인덱스 검사]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -1325,7 +1328,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Concatenation]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Concatenation]]></Val>
+            <Val><![CDATA[연결]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -1505,7 +1508,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Constant Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Constant Scan]]></Val>
+            <Val><![CDATA[상수 검사]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -1604,7 +1607,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Cursor Actual Type]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[실제 커서 유형]]></Val>
+            <Val><![CDATA[커서 실제 유형]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -1676,7 +1679,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Declare]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Declare]]></Val>
+            <Val><![CDATA[선언]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -1748,7 +1751,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Deleted Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Deleted Scan]]></Val>
+            <Val><![CDATA[삭제된 검사]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -1802,7 +1805,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Distribute Streams]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Distribute Streams]]></Val>
+            <Val><![CDATA[스트림 분산]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -1865,7 +1868,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Eager Spool]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Eager Spool]]></Val>
+            <Val><![CDATA[즉시 스풀]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -1874,7 +1877,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Eager Spool.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Eager Spool입니다.]]></Val>
+            <Val><![CDATA[즉시 스풀입니다.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2720,7 +2723,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Fast Forward]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Fast Forward]]></Val>
+            <Val><![CDATA[빨리 감기]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2738,7 +2741,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Fetch Query]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Fetch Query]]></Val>
+            <Val><![CDATA[쿼리 가져오기]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2800,6 +2803,9 @@
       <Item ItemId=";ForeignKeyIsEnabledDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Specifies whether the foreign key is Enabled]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[외래 키를 사용할지 여부를 지정합니다.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2852,7 +2858,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Forward Only]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[정방향]]></Val>
+            <Val><![CDATA[정방향만]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2897,7 +2903,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Gather Streams]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Gather Streams]]></Val>
+            <Val><![CDATA[스트림 수집]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2987,7 +2993,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Group By]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[그룹화 방법]]></Val>
+            <Val><![CDATA[그룹화 기준]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3077,7 +3083,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Hash Match]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Hash Match]]></Val>
+            <Val><![CDATA[해시 일치]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3095,7 +3101,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Hash Match Root]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Hash Match Root]]></Val>
+            <Val><![CDATA[해시 일치 루트]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3113,7 +3119,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Hash Match Team]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Hash Match Team]]></Val>
+            <Val><![CDATA[해시 일치 팀]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3275,7 +3281,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Index Delete]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Index Delete]]></Val>
+            <Val><![CDATA[인덱스 삭제]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3293,7 +3299,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Index Insert]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Index Insert]]></Val>
+            <Val><![CDATA[인덱스 삽입]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3329,7 +3335,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Index Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Index Scan]]></Val>
+            <Val><![CDATA[인덱스 검사]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3347,7 +3353,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Index Seek]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Index Seek]]></Val>
+            <Val><![CDATA[인덱스 검색]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3365,7 +3371,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Index Spool]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Index Spool]]></Val>
+            <Val><![CDATA[인덱스 스풀]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3383,7 +3389,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Index Update]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Index Update]]></Val>
+            <Val><![CDATA[인덱스 업데이트]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3455,7 +3461,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Inserted Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Inserted Scan]]></Val>
+            <Val><![CDATA[삽입된 검사]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3482,7 +3488,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Intrinsic]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Intrinsic]]></Val>
+            <Val><![CDATA[내장]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3689,7 +3695,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Key Lookup]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Key Lookup]]></Val>
+            <Val><![CDATA[키 조회]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3725,7 +3731,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Lazy Spool]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Lazy Spool]]></Val>
+            <Val><![CDATA[지연 스풀]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3734,7 +3740,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Lazy Spool.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Lazy Spool입니다.]]></Val>
+            <Val><![CDATA[지연 스풀입니다.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3806,7 +3812,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Log Row Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Log Row Scan]]></Val>
+            <Val><![CDATA[로그 행 검사]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3824,7 +3830,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Key Lookup]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Key Lookup]]></Val>
+            <Val><![CDATA[키 조회]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3842,7 +3848,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Anti Diff]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Anti Diff]]></Val>
+            <Val><![CDATA[차이 방지]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3869,7 +3875,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Bitmap Create]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Bitmap Create]]></Val>
+            <Val><![CDATA[비트맵 만들기]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3923,7 +3929,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Concatenation]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Concatenation]]></Val>
+            <Val><![CDATA[연결]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3932,7 +3938,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Constant Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Constant Scan]]></Val>
+            <Val><![CDATA[상수 검사]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3959,7 +3965,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Deleted Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Deleted Scan]]></Val>
+            <Val><![CDATA[삭제된 검사]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3968,7 +3974,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Distinct]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Distinct]]></Val>
+            <Val><![CDATA[고유]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3977,7 +3983,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Distinct Sort]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Distinct Sort]]></Val>
+            <Val><![CDATA[고유 정렬]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3986,7 +3992,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Distribute Streams]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Distribute Streams]]></Val>
+            <Val><![CDATA[스트림 분산]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3995,7 +4001,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Eager Spool]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Eager Spool]]></Val>
+            <Val><![CDATA[즉시 스풀]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4013,7 +4019,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Flow Distinct]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Flow Distinct]]></Val>
+            <Val><![CDATA[흐름 고유]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4031,7 +4037,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Full Outer Join]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Full Outer Join]]></Val>
+            <Val><![CDATA[완전 외부 조인]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4040,7 +4046,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Gather Streams]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Gather Streams]]></Val>
+            <Val><![CDATA[스트림 수집]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4049,7 +4055,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Index Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Index Scan]]></Val>
+            <Val><![CDATA[인덱스 검사]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4058,7 +4064,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Index Seek]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Index Seek]]></Val>
+            <Val><![CDATA[인덱스 검색]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4094,7 +4100,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Inserted Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Inserted Scan]]></Val>
+            <Val><![CDATA[삽입된 검사]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4112,7 +4118,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Intersect All]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Intersect All]]></Val>
+            <Val><![CDATA[모두 교차]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4121,7 +4127,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Lazy Spool]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Lazy Spool]]></Val>
+            <Val><![CDATA[지연 스풀]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4148,7 +4154,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Left Diff]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Left Diff]]></Val>
+            <Val><![CDATA[왼쪽 차이]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4157,7 +4163,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Left Diff All]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Left Diff All]]></Val>
+            <Val><![CDATA[모두 왼쪽 차이]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4175,7 +4181,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Left Outer Join]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Left Outer Join]]></Val>
+            <Val><![CDATA[왼쪽 우선 외부 조인]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4184,7 +4190,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Left Semi Apply]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[왼쪽 우선 세미 적용]]></Val>
+            <Val><![CDATA[왼쪽 세미 적용]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4193,7 +4199,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Left Semi Join]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Left Semi Join]]></Val>
+            <Val><![CDATA[왼쪽 세미 조인]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4211,7 +4217,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Log Row Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Log Row Scan]]></Val>
+            <Val><![CDATA[로그 행 검사]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4229,7 +4235,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Merge Interval]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Merge Interval]]></Val>
+            <Val><![CDATA[병합 간격]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4256,7 +4262,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Partial Aggregate]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Partial Aggregate]]></Val>
+            <Val><![CDATA[부분 집계]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4301,7 +4307,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remote Delete]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Remote Delete]]></Val>
+            <Val><![CDATA[원격 삭제]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4310,7 +4316,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remote Index Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[원격 인덱스 스캔]]></Val>
+            <Val><![CDATA[원격 인덱스 검사]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4328,7 +4334,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remote Insert]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Remote Insert]]></Val>
+            <Val><![CDATA[원격 삽입]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4337,7 +4343,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remote Query]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Remote Query]]></Val>
+            <Val><![CDATA[원격 쿼리]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4346,7 +4352,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remote Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Remote Scan]]></Val>
+            <Val><![CDATA[원격 검사]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4355,7 +4361,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remote Update]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Remote Update]]></Val>
+            <Val><![CDATA[원격 업데이트]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4382,7 +4388,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Right Diff]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Right Diff]]></Val>
+            <Val><![CDATA[오른쪽 차이]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4391,7 +4397,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Right Diff All]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Right Diff All]]></Val>
+            <Val><![CDATA[모두 오른쪽 차이]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4400,7 +4406,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Right Outer Join]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Right Outer Join]]></Val>
+            <Val><![CDATA[오른쪽 우선 외부 조인]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4409,7 +4415,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Right Semi Join]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Right Semi Join]]></Val>
+            <Val><![CDATA[오른쪽 세미 조인]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4463,7 +4469,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Table Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[테이블 스캔]]></Val>
+            <Val><![CDATA[테이블 검색]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4490,7 +4496,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Top N Sort]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Top N Sort]]></Val>
+            <Val><![CDATA[상위 N 정렬]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4526,7 +4532,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Window Spool]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Window Spool]]></Val>
+            <Val><![CDATA[창 스풀]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4670,7 +4676,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Merge Interval]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Merge Interval]]></Val>
+            <Val><![CDATA[병합 간격]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4688,7 +4694,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Merge Join]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Merge Join]]></Val>
+            <Val><![CDATA[조인 병합]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -5453,7 +5459,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Partitioned]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[분할]]></Val>
+            <Val><![CDATA[분할됨]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -5633,7 +5639,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Population Query]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Population Query]]></Val>
+            <Val><![CDATA[모집단 쿼리]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6272,7 +6278,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remote Delete]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Remote Delete]]></Val>
+            <Val><![CDATA[원격 삭제]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6308,7 +6314,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remote Index Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[원격 인덱스 스캔]]></Val>
+            <Val><![CDATA[원격 인덱스 검사]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6344,7 +6350,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remote Insert]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Remote Insert]]></Val>
+            <Val><![CDATA[원격 삽입]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6380,7 +6386,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remote Query]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Remote Query]]></Val>
+            <Val><![CDATA[원격 쿼리]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6398,7 +6404,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remote Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Remote Scan]]></Val>
+            <Val><![CDATA[원격 검사]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6434,7 +6440,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remote Update]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Remote Update]]></Val>
+            <Val><![CDATA[원격 업데이트]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6740,7 +6746,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Row Count Spool]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Row Count Spool]]></Val>
+            <Val><![CDATA[행 개수 스풀]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6857,7 +6863,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Scan Type]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[검색 유형]]></Val>
+            <Val><![CDATA[검사 유형]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -8657,7 +8663,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Sequence Project]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Sequence Project]]></Val>
+            <Val><![CDATA[시퀀스 프로젝트]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -8729,7 +8735,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Set Function]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Set Function]]></Val>
+            <Val><![CDATA[집계 함수]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -8990,7 +8996,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Split.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[분할을 수행합니다.]]></Val>
+            <Val><![CDATA[분할합니다.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -8999,7 +9005,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Spool]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Spool]]></Val>
+            <Val><![CDATA[스풀]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9143,7 +9149,7 @@
         <Str Cat="Text">
           <Val><![CDATA[With Stack]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[스택 사용]]></Val>
+            <Val><![CDATA[스택 포함]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9260,7 +9266,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Storage]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[스토리지]]></Val>
+            <Val><![CDATA[저장소]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9269,7 +9275,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Storage]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[스토리지]]></Val>
+            <Val><![CDATA[저장소]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9296,7 +9302,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Stream Aggregate]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Stream Aggregate]]></Val>
+            <Val><![CDATA[스트림 집계]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9449,7 +9455,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Table Delete]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Table Delete]]></Val>
+            <Val><![CDATA[테이블 삭제]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9467,7 +9473,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Is Enabled]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[사용 중]]></Val>
+            <Val><![CDATA[사용됨]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9485,7 +9491,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Table Insert]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Table Insert]]></Val>
+            <Val><![CDATA[테이블 삽입]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9503,7 +9509,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Table Merge]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Table Merge]]></Val>
+            <Val><![CDATA[테이블 병합]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9530,7 +9536,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Table Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[테이블 스캔]]></Val>
+            <Val><![CDATA[테이블 검색]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9548,7 +9554,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Table Spool]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Table Spool]]></Val>
+            <Val><![CDATA[테이블 스풀]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9566,7 +9572,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Table Update]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Table Update]]></Val>
+            <Val><![CDATA[테이블 업데이트]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9647,7 +9653,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Tie Columns]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[동률 열]]></Val>
+            <Val><![CDATA[열 연결]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9781,6 +9787,9 @@
       <Item ItemId=";UnKnownSqlForeignKeyAction" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA['{0}' is not a supported SqlForeignKeyAction.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA['{0}'은(는) 지원되는 SqlForeignKeyAction이 아닙니다.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -9797,7 +9806,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Union]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[공용 구조체]]></Val>
+            <Val><![CDATA[합집합]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9806,7 +9815,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Union All]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Union All]]></Val>
+            <Val><![CDATA[모두 합집합]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9824,7 +9833,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Union tables.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[통합 테이블입니다.]]></Val>
+            <Val><![CDATA[합집합 테이블입니다.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -10049,7 +10058,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Window Spool]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Window Spool]]></Val>
+            <Val><![CDATA[창 스풀]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

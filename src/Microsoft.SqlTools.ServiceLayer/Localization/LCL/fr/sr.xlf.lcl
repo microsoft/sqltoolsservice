@@ -994,6 +994,9 @@
       <Item ItemId=";CheckConstraintIsEnabledDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Specifies whether the check constraint is Enabled]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Spécifie si la contrainte de vérification est activée]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1136,7 +1139,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Clustered Update]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Mise à jour ordonnée en clusters]]></Val>
+            <Val><![CDATA[Mise à jour en cluster]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2333,7 +2336,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Estimated CPU Cost]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Coût UC estimé]]></Val>
+            <Val><![CDATA[Coût CPU estimé]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2351,7 +2354,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Estimated Data Size]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Estimation de la taille des données]]></Val>
+            <Val><![CDATA[Taille estimée des données]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2567,7 +2570,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Estimated Subtree Cost]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Coût des sous-arborescences estimé]]></Val>
+            <Val><![CDATA[Coût estimé du sous-arbre]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2720,7 +2723,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Fast Forward]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Avance rapide]]></Val>
+            <Val><![CDATA[Prévision d'ensemble]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2729,7 +2732,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Fast Forward.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Avance rapide.]]></Val>
+            <Val><![CDATA[Prévision d'ensemble.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2800,6 +2803,9 @@
       <Item ItemId=";ForeignKeyIsEnabledDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Specifies whether the foreign key is Enabled]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Spécifie si la clé étrangère est activée]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2852,7 +2858,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Forward Only]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Avant uniquement]]></Val>
+            <Val><![CDATA[Transférer uniquement]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2897,7 +2903,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Gather Streams]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Regroupe les flux]]></Val>
+            <Val><![CDATA[Regrouper les flux]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2906,7 +2912,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Gather streams.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Regroupe les flux.]]></Val>
+            <Val><![CDATA[Regrouper les flux.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3005,7 +3011,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Grouping Sets]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Jeux de regroupements]]></Val>
+            <Val><![CDATA[Regroupement des jeux]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3095,7 +3101,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Hash Match Root]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Racine de correspondance de hachage]]></Val>
+            <Val><![CDATA[Hash Match Root]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3896,7 +3902,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Clustered Update]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Mise à jour ordonnée en clusters]]></Val>
+            <Val><![CDATA[Mise à jour en cluster]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4040,7 +4046,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Gather Streams]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Regroupe les flux]]></Val>
+            <Val><![CDATA[Regrouper les flux]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4310,7 +4316,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remote Index Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Analyse d'index distant]]></Val>
+            <Val><![CDATA[Analyse d'index à distance]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4319,7 +4325,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remote Index Seek]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Recherche d'index distant]]></Val>
+            <Val><![CDATA[Recherche d'index à distance]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4346,7 +4352,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remote Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Analyse d'objet distant]]></Val>
+            <Val><![CDATA[Analyse à distance]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -5741,7 +5747,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Probe residual.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Résiduel de sondage.]]></Val>
+            <Val><![CDATA[Sonde résiduelle.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -8873,7 +8879,7 @@
         <Str Cat="Text">
           <Val><![CDATA[{0} MB]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[{0} Mo]]></Val>
+            <Val><![CDATA[{0} MO]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -8882,7 +8888,7 @@
         <Str Cat="Text">
           <Val><![CDATA[{0} TB]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[{0}To]]></Val>
+            <Val><![CDATA[{0} TO]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9781,6 +9787,9 @@
       <Item ItemId=";UnKnownSqlForeignKeyAction" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA['{0}' is not a supported SqlForeignKeyAction.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA['{0}' n’est pas une action SqlForeignKeyAction prise en charge.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -10085,7 +10094,7 @@
         <Str Cat="Text">
           <Val><![CDATA[With Prefetch]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Avec prérécupération]]></Val>
+            <Val><![CDATA[Avec Prefetch]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
