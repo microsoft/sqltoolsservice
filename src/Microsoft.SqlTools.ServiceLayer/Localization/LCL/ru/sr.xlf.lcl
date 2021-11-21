@@ -3785,7 +3785,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Locate]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Найти]]></Val>
+            <Val><![CDATA[Поиск]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3965,7 +3965,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Deleted Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Сканирование удаленных]]></Val>
+            <Val><![CDATA[Удаленное сканирование]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4001,7 +4001,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Eager Spool]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Безотложная очередь]]></Val>
+            <Val><![CDATA[Eager Spool]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4289,7 +4289,7 @@
         <Str Cat="Text">
           <Val><![CDATA[RID Lookup]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Уточняющий запрос RID]]></Val>
+            <Val><![CDATA[Поиск RID]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9968,7 +9968,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Used UDX Columns]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Использованные столбцы UDX]]></Val>
+            <Val><![CDATA[Используемые столбцы UDX]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9977,7 +9977,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Used UDX columns.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Использованные столбцы UDX.]]></Val>
+            <Val><![CDATA[Используемые столбцы UDX.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -10022,7 +10022,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Query wait warning.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Предупреждение об ожидании в запросе.]]></Val>
+            <Val><![CDATA[Предупреждение об ожидании запроса.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

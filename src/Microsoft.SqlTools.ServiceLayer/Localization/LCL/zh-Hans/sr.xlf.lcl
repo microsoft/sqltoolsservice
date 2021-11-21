@@ -994,6 +994,9 @@
       <Item ItemId=";CheckConstraintIsEnabledDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Specifies whether the check constraint is Enabled]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[指定是否已启用检查约束]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1019,7 +1022,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Clustered Index Delete]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Clustered Index Delete]]></Val>
+            <Val><![CDATA[聚集索引删除]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -1037,7 +1040,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Clustered Index Insert]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Clustered Index Insert]]></Val>
+            <Val><![CDATA[聚集索引插入]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -1055,7 +1058,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Clustered Index Merge]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Clustered Index Merge]]></Val>
+            <Val><![CDATA[群集索引合并]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -1073,7 +1076,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Clustered Index Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Clustered Index Scan]]></Val>
+            <Val><![CDATA[聚集索引扫描]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -1091,7 +1094,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Clustered Index Seek]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[聚集索引查找]]></Val>
+            <Val><![CDATA[群集索引查找]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -1109,7 +1112,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Clustered Index Update]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Clustered Index Update]]></Val>
+            <Val><![CDATA[聚集索引更新]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -1136,7 +1139,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Clustered Update]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Clustered Update]]></Val>
+            <Val><![CDATA[群集更新]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -1325,7 +1328,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Concatenation]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Concatenation]]></Val>
+            <Val><![CDATA[串联]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -1487,7 +1490,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Constant Table Get]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[固定表格获取]]></Val>
+            <Val><![CDATA[常量表获取]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -1505,7 +1508,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Constant Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Constant Scan]]></Val>
+            <Val><![CDATA[常量扫描]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -1568,7 +1571,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Cost: {0} %]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[开销: {0} %]]></Val>
+            <Val><![CDATA[成本: {0} %]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -1604,7 +1607,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Cursor Actual Type]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[游标的实际类型]]></Val>
+            <Val><![CDATA[游标实际类型]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -1649,7 +1652,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Cursor Requested Type]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[游标的请求类型]]></Val>
+            <Val><![CDATA[游标请求的类型]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -1676,7 +1679,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Declare]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Declare]]></Val>
+            <Val><![CDATA[声明]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -1694,7 +1697,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Defined Values]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Defined Values]]></Val>
+            <Val><![CDATA[定义的值]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -1712,7 +1715,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Degree of Parallelism]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Degree of Parallelism]]></Val>
+            <Val><![CDATA[并行度]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -1748,7 +1751,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Deleted Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Deleted Scan]]></Val>
+            <Val><![CDATA[删除的扫描]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -1784,7 +1787,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Distinct]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Distinct]]></Val>
+            <Val><![CDATA[非重复]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -1802,7 +1805,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Distribute Streams]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Distribute Streams]]></Val>
+            <Val><![CDATA[分发流]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -1865,7 +1868,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Eager Spool]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Eager Spool]]></Val>
+            <Val><![CDATA[提前后台处理]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -1874,7 +1877,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Eager Spool.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Eager Spool。]]></Val>
+            <Val><![CDATA[提前后台处理。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2333,7 +2336,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Estimated CPU Cost]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[估计 CPU 开销]]></Val>
+            <Val><![CDATA[估计的 CPU 成本]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2351,7 +2354,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Estimated Data Size]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Estimated Data Size]]></Val>
+            <Val><![CDATA[估计的数据大小]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2387,7 +2390,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Estimated I/O Cost]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[估计 I/O 开销]]></Val>
+            <Val><![CDATA[估计的 I/O 成本]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2477,7 +2480,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Estimated Operator Cost]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[估计运算符开销]]></Val>
+            <Val><![CDATA[估计的运算符成本]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2513,7 +2516,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Estimated Rewinds]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[估计的重绕次数]]></Val>
+            <Val><![CDATA[估计的倒回次数]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2522,7 +2525,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Estimated rewinds.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[估计的重绕次数。]]></Val>
+            <Val><![CDATA[估计的倒回次数。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2531,7 +2534,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Estimated Row Size]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[估计行大小]]></Val>
+            <Val><![CDATA[估计的行大小]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2567,7 +2570,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Estimated Subtree Cost]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[估计子树大小]]></Val>
+            <Val><![CDATA[估计子树成本]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2720,7 +2723,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Fast Forward]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Fast Forward]]></Val>
+            <Val><![CDATA[快进]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2738,7 +2741,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Fetch Query]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Fetch Query]]></Val>
+            <Val><![CDATA[提取查询]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2783,7 +2786,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Forced Index]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Forced Index]]></Val>
+            <Val><![CDATA[强制索引]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2800,6 +2803,9 @@
       <Item ItemId=";ForeignKeyIsEnabledDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Specifies whether the foreign key is Enabled]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[指定是否启用外键]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2852,7 +2858,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Forward Only]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[只进]]></Val>
+            <Val><![CDATA[仅快进]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2897,7 +2903,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Gather Streams]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Gather Streams]]></Val>
+            <Val><![CDATA[收集流]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2987,7 +2993,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Group By]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Group By]]></Val>
+            <Val><![CDATA[分组依据]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3023,7 +3029,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Hash Keys]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Hash Keys]]></Val>
+            <Val><![CDATA[哈希键]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3032,7 +3038,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Hash Keys Build]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Hash Keys Build]]></Val>
+            <Val><![CDATA[哈希键生成]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3077,7 +3083,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Hash Match]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Hash Match]]></Val>
+            <Val><![CDATA[哈希匹配]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3095,7 +3101,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Hash Match Root]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Hash Match Root]]></Val>
+            <Val><![CDATA[哈希匹配根]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3113,7 +3119,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Hash Match Team]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Hash Match Team]]></Val>
+            <Val><![CDATA[哈希匹配团队]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3149,7 +3155,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Highest Level]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Highest Level]]></Val>
+            <Val><![CDATA[最高级别]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3275,7 +3281,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Index Delete]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Index Delete]]></Val>
+            <Val><![CDATA[索引删除]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3293,7 +3299,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Index Insert]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Index Insert]]></Val>
+            <Val><![CDATA[索引插入]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3311,7 +3317,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Index Kind]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Index Kind]]></Val>
+            <Val><![CDATA[索引种类]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3329,7 +3335,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Index Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Index Scan]]></Val>
+            <Val><![CDATA[索引扫描]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3347,7 +3353,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Index Seek]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Index Seek]]></Val>
+            <Val><![CDATA[索引查找]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3365,7 +3371,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Index Spool]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Index Spool]]></Val>
+            <Val><![CDATA[索引后台处理]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3383,7 +3389,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Index Update]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Index Update]]></Val>
+            <Val><![CDATA[索引更新]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3455,7 +3461,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Inserted Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Inserted Scan]]></Val>
+            <Val><![CDATA[插入的扫描]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3482,7 +3488,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Intrinsic]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Intrinsic]]></Val>
+            <Val><![CDATA[内部]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3563,7 +3569,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Is Adaptive]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[自适应]]></Val>
+            <Val><![CDATA[是自适应的]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3617,7 +3623,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Is Percent]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Is Percent]]></Val>
+            <Val><![CDATA[是百分比]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3689,7 +3695,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Key Lookup]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[键查找]]></Val>
+            <Val><![CDATA[密钥查找]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3707,7 +3713,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Keyset]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Keyset]]></Val>
+            <Val><![CDATA[密钥集]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3725,7 +3731,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Lazy Spool]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Lazy Spool]]></Val>
+            <Val><![CDATA[延迟后台处理]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3734,7 +3740,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Lazy Spool.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Lazy Spool。]]></Val>
+            <Val><![CDATA[延迟后台处理。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3779,7 +3785,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Locate]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[查找]]></Val>
+            <Val><![CDATA[定位]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3806,7 +3812,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Log Row Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Log Row Scan]]></Val>
+            <Val><![CDATA[日志行扫描]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3824,7 +3830,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Key Lookup]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[键查找]]></Val>
+            <Val><![CDATA[密钥查找]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3842,7 +3848,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Anti Diff]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Anti Diff]]></Val>
+            <Val><![CDATA[反差异]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3851,7 +3857,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Assert]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[声明]]></Val>
+            <Val><![CDATA[断言]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3869,7 +3875,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Bitmap Create]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Bitmap Create]]></Val>
+            <Val><![CDATA[位图创建]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3878,7 +3884,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Clustered Index Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Clustered Index Scan]]></Val>
+            <Val><![CDATA[聚集索引扫描]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3887,7 +3893,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Clustered Index Seek]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[聚集索引查找]]></Val>
+            <Val><![CDATA[群集索引查找]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3896,7 +3902,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Clustered Update]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Clustered Update]]></Val>
+            <Val><![CDATA[群集更新]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3923,7 +3929,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Concatenation]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Concatenation]]></Val>
+            <Val><![CDATA[串联]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3932,7 +3938,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Constant Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Constant Scan]]></Val>
+            <Val><![CDATA[常量扫描]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3941,7 +3947,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Cross Join]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Cross Join]]></Val>
+            <Val><![CDATA[交叉联接]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3959,7 +3965,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Deleted Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Deleted Scan]]></Val>
+            <Val><![CDATA[删除的扫描]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3968,7 +3974,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Distinct]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Distinct]]></Val>
+            <Val><![CDATA[非重复]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3977,7 +3983,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Distinct Sort]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Distinct Sort]]></Val>
+            <Val><![CDATA[非重复排序]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3986,7 +3992,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Distribute Streams]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Distribute Streams]]></Val>
+            <Val><![CDATA[分发流]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3995,7 +4001,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Eager Spool]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Eager Spool]]></Val>
+            <Val><![CDATA[提前后台处理]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4013,7 +4019,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Flow Distinct]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Flow Distinct]]></Val>
+            <Val><![CDATA[流程非重复]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4031,7 +4037,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Full Outer Join]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Full Outer Join]]></Val>
+            <Val><![CDATA[完全外部联接]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4040,7 +4046,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Gather Streams]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Gather Streams]]></Val>
+            <Val><![CDATA[收集流]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4049,7 +4055,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Index Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Index Scan]]></Val>
+            <Val><![CDATA[索引扫描]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4058,7 +4064,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Index Seek]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Index Seek]]></Val>
+            <Val><![CDATA[索引查找]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4067,7 +4073,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Inner Apply]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Inner Apply]]></Val>
+            <Val><![CDATA[内部应用]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4076,7 +4082,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Inner Join]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Inner Join]]></Val>
+            <Val><![CDATA[内部联接]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4094,7 +4100,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Inserted Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Inserted Scan]]></Val>
+            <Val><![CDATA[插入的扫描]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4112,7 +4118,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Intersect All]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Intersect All]]></Val>
+            <Val><![CDATA[全部相交]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4121,7 +4127,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Lazy Spool]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Lazy Spool]]></Val>
+            <Val><![CDATA[延迟后台处理]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4148,7 +4154,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Left Diff]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Left Diff]]></Val>
+            <Val><![CDATA[左侧差异]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4157,7 +4163,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Left Diff All]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Left Diff All]]></Val>
+            <Val><![CDATA[左侧差异全部]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4166,7 +4172,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Left Outer Apply]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Left Outer Apply]]></Val>
+            <Val><![CDATA[左外部应用]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4175,7 +4181,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Left Outer Join]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Left Outer Join]]></Val>
+            <Val><![CDATA[左外部联接]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4184,7 +4190,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Left Semi Apply]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Left Semi Apply]]></Val>
+            <Val><![CDATA[左半应用]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4193,7 +4199,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Left Semi Join]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Left Semi Join]]></Val>
+            <Val><![CDATA[左半连接]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4202,7 +4208,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Local Stats]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Local Stats]]></Val>
+            <Val><![CDATA[本地统计信息]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4211,7 +4217,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Log Row Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Log Row Scan]]></Val>
+            <Val><![CDATA[日志行扫描]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4229,7 +4235,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Merge Interval]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Merge Interval]]></Val>
+            <Val><![CDATA[合并间隔。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4238,7 +4244,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Merge Stats]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Merge Stats]]></Val>
+            <Val><![CDATA[合并统计信息]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4247,7 +4253,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Parameter Table Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Parameter Table Scan]]></Val>
+            <Val><![CDATA[参数表扫描]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4256,7 +4262,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Partial Aggregate]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Partial Aggregate]]></Val>
+            <Val><![CDATA[部分聚合]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4283,7 +4289,7 @@
         <Str Cat="Text">
           <Val><![CDATA[RID Lookup]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[RID Lookup]]></Val>
+            <Val><![CDATA[RID 查找]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4301,7 +4307,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remote Delete]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Remote Delete]]></Val>
+            <Val><![CDATA[远程删除]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4310,7 +4316,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remote Index Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Remote Index Scan]]></Val>
+            <Val><![CDATA[远程索引扫描]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4319,7 +4325,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remote Index Seek]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Remote Index Seek]]></Val>
+            <Val><![CDATA[远程索引查找]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4328,7 +4334,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remote Insert]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Remote Insert]]></Val>
+            <Val><![CDATA[远程插入]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4337,7 +4343,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remote Query]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Remote Query]]></Val>
+            <Val><![CDATA[远程查询]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4346,7 +4352,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remote Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Remote Scan]]></Val>
+            <Val><![CDATA[远程扫描]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4355,7 +4361,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remote Update]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Remote Update]]></Val>
+            <Val><![CDATA[远程更新]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4364,7 +4370,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Repartition Streams]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Repartition Streams]]></Val>
+            <Val><![CDATA[重新分区流]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4382,7 +4388,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Right Diff]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Right Diff]]></Val>
+            <Val><![CDATA[右侧差异]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4391,7 +4397,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Right Diff All]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Right Diff All]]></Val>
+            <Val><![CDATA[右差异全部]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4400,7 +4406,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Right Outer Join]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Right Outer Join]]></Val>
+            <Val><![CDATA[右侧外部联接]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4409,7 +4415,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Right Semi Join]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Right Semi Join]]></Val>
+            <Val><![CDATA[右半联接]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4418,7 +4424,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Segment]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Segment]]></Val>
+            <Val><![CDATA[区段]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4463,7 +4469,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Table Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Table Scan]]></Val>
+            <Val><![CDATA[表扫描]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -5408,7 +5414,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Partition Columns]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Partition Columns]]></Val>
+            <Val><![CDATA[分区列]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -5435,7 +5441,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Partition ID]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Partition ID]]></Val>
+            <Val><![CDATA[分区 ID]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -5453,7 +5459,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Partitioned]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Partitioned]]></Val>
+            <Val><![CDATA[已分区]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -5471,7 +5477,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Partitioning Type]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Partitioning Type]]></Val>
+            <Val><![CDATA[分区类型]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -5498,7 +5504,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Pass Through]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[传递]]></Val>
+            <Val><![CDATA[直通]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -5507,7 +5513,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Pass throuh.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[传递。]]></Val>
+            <Val><![CDATA[直通。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -5588,7 +5594,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Per-thread counter information.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[每个线程计数器信息。]]></Val>
+            <Val><![CDATA[每线程计数器信息。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -5633,7 +5639,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Population Query]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Population Query]]></Val>
+            <Val><![CDATA[总体查询]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -5651,7 +5657,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Predicate]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Predicate]]></Val>
+            <Val><![CDATA[谓词]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6164,7 +6170,7 @@
         <Str Cat="Text">
           <Val><![CDATA[RID Lookup]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[RID Lookup]]></Val>
+            <Val><![CDATA[RID 查找]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6173,7 +6179,7 @@
         <Str Cat="Text">
           <Val><![CDATA[RID Lookup]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[RID Lookup]]></Val>
+            <Val><![CDATA[RID 查找]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6209,7 +6215,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Rank Columns]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Rank Columns]]></Val>
+            <Val><![CDATA[设置列级别]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6254,7 +6260,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remote Data Access]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Remote Data Access]]></Val>
+            <Val><![CDATA[远程数据访问]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6272,7 +6278,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remote Delete]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Remote Delete]]></Val>
+            <Val><![CDATA[远程删除]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6308,7 +6314,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remote Index Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Remote Index Scan]]></Val>
+            <Val><![CDATA[远程索引扫描]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6326,7 +6332,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remote Index Seek]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Remote Index Seek]]></Val>
+            <Val><![CDATA[远程索引查找]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6344,7 +6350,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remote Insert]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Remote Insert]]></Val>
+            <Val><![CDATA[远程插入]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6362,7 +6368,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remote Object]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Remote Object]]></Val>
+            <Val><![CDATA[远程对象]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6380,7 +6386,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remote Query]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Remote Query]]></Val>
+            <Val><![CDATA[远程查询]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6398,7 +6404,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remote Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Remote Scan]]></Val>
+            <Val><![CDATA[远程扫描]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6416,7 +6422,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remote Source]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Remote Source]]></Val>
+            <Val><![CDATA[远程源]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6434,7 +6440,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remote Update]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Remote Update]]></Val>
+            <Val><![CDATA[远程更新]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6452,7 +6458,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remoting]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Remoting]]></Val>
+            <Val><![CDATA[远程处理]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6470,7 +6476,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Repartition Streams]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Repartition Streams]]></Val>
+            <Val><![CDATA[重新分区流]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6479,7 +6485,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Repartition streams.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[对流重新分区。]]></Val>
+            <Val><![CDATA[重新分区流。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6488,7 +6494,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Residual]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Residual]]></Val>
+            <Val><![CDATA[残留]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6740,7 +6746,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Row Count Spool]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Row Count Spool]]></Val>
+            <Val><![CDATA[行计数后台处理]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6758,7 +6764,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Top Rows]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Top Rows]]></Val>
+            <Val><![CDATA[排在前面的行]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6839,7 +6845,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Scan Direction]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Scan Direction]]></Val>
+            <Val><![CDATA[扫描方向]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -8999,7 +9005,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Spool]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Spool]]></Val>
+            <Val><![CDATA[后台处理]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9197,7 +9203,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Startup Expression]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Startup Expression]]></Val>
+            <Val><![CDATA[启动表达式]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9278,7 +9284,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Stored Procedure]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[存储过程]]></Val>
+            <Val><![CDATA[存储的过程]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9296,7 +9302,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Stream Aggregate]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Stream Aggregate]]></Val>
+            <Val><![CDATA[Stream 聚合]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9449,7 +9455,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Table Delete]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Table Delete]]></Val>
+            <Val><![CDATA[表删除]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9485,7 +9491,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Table Insert]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Table Insert]]></Val>
+            <Val><![CDATA[表插入]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9503,7 +9509,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Table Merge]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Table Merge]]></Val>
+            <Val><![CDATA[表合并]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9530,7 +9536,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Table Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Table Scan]]></Val>
+            <Val><![CDATA[表扫描]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9548,7 +9554,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Table Spool]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Table Spool]]></Val>
+            <Val><![CDATA[表后台处理]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9566,7 +9572,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Table Update]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Table Update]]></Val>
+            <Val><![CDATA[表更新]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9647,7 +9653,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Tie Columns]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Tie Columns]]></Val>
+            <Val><![CDATA[绑定列]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9656,7 +9662,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Tie columns.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[等同列。]]></Val>
+            <Val><![CDATA[绑定列。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9665,7 +9671,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Time Out]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[超时值]]></Val>
+            <Val><![CDATA[超时]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9674,7 +9680,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Top]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[上]]></Val>
+            <Val><![CDATA[排名靠前]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9692,7 +9698,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Top Expression]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Top Expression]]></Val>
+            <Val><![CDATA[排名靠前的表达式。、]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9728,7 +9734,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Trim data.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[微调数据。]]></Val>
+            <Val><![CDATA[剪裁数据。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9781,6 +9787,9 @@
       <Item ItemId=";UnKnownSqlForeignKeyAction" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA['{0}' is not a supported SqlForeignKeyAction.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[“{0}”不是受支持的 SqlForeignKeyAction。]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -9806,7 +9815,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Union All]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Union All]]></Val>
+            <Val><![CDATA[全部联合]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9959,7 +9968,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Used UDX Columns]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Used UDX Columns]]></Val>
+            <Val><![CDATA[已用的 UDX 列]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -10040,7 +10049,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Where (join columns)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Where (联接列)]]></Val>
+            <Val><![CDATA[位置(联接列)]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -10049,7 +10058,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Window Spool]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Window Spool]]></Val>
+            <Val><![CDATA[窗口后台处理]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -10085,7 +10094,7 @@
         <Str Cat="Text">
           <Val><![CDATA[With Prefetch]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[采用预提取]]></Val>
+            <Val><![CDATA[使用预提取]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -10094,7 +10103,7 @@
         <Str Cat="Text">
           <Val><![CDATA[With Ties]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[With Ties]]></Val>
+            <Val><![CDATA[带绑定]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -10103,7 +10112,7 @@
         <Str Cat="Text">
           <Val><![CDATA[With ties.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[等同值。]]></Val>
+            <Val><![CDATA[具有联系。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

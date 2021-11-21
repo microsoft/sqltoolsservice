@@ -994,6 +994,9 @@
       <Item ItemId=";CheckConstraintIsEnabledDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Specifies whether the check constraint is Enabled]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Especifica se a restrição de verificação está habilitada]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1865,7 +1868,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Eager Spool]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Spool Adiantado]]></Val>
+            <Val><![CDATA[Spool adiantado]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -1874,7 +1877,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Eager Spool.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Spool Adiantado.]]></Val>
+            <Val><![CDATA[Spool adiantado.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2800,6 +2803,9 @@
       <Item ItemId=";ForeignKeyIsEnabledDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Specifies whether the foreign key is Enabled]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Especifica se a chave estrangeira está habilitada]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2816,7 +2822,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Not For Replication]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Não Para Replicação]]></Val>
+            <Val><![CDATA[Não para replicação]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3293,7 +3299,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Index Insert]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Inserção de Índice]]></Val>
+            <Val><![CDATA[Inserção de índice]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6290,7 +6296,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remote Destination]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Destino remoto]]></Val>
+            <Val><![CDATA[Destino Remoto]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6308,7 +6314,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remote Index Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Verificação de índice remoto]]></Val>
+            <Val><![CDATA[Verificação de índice Remoto]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6326,7 +6332,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remote Index Seek]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Busca de índice remoto]]></Val>
+            <Val><![CDATA[Busca de índice Remoto]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6344,7 +6350,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remote Insert]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Inserção remota]]></Val>
+            <Val><![CDATA[Inserção Remota]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6362,7 +6368,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remote Object]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Objeto remoto]]></Val>
+            <Val><![CDATA[Objeto Remoto]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6380,7 +6386,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remote Query]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Consulta remota]]></Val>
+            <Val><![CDATA[Consulta Remota]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6398,7 +6404,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remote Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Verificação remota]]></Val>
+            <Val><![CDATA[Verificação Remota]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6416,7 +6422,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remote Source]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Origem remota]]></Val>
+            <Val><![CDATA[Origem Remota]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6434,7 +6440,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remote Update]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Atualização remota]]></Val>
+            <Val><![CDATA[Atualização Remota]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6452,7 +6458,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Remoting]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Comunicação remota]]></Val>
+            <Val><![CDATA[Comunicação Remota]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6470,7 +6476,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Repartition Streams]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Reparticionar fluxos]]></Val>
+            <Val><![CDATA[Fluxos de Repartição]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6479,7 +6485,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Repartition streams.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Reparticionar fluxos.]]></Val>
+            <Val><![CDATA[Fluxos de repartição.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6695,7 +6701,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Rollup Information]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Informações de rollup]]></Val>
+            <Val><![CDATA[Informações de Rollup]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6713,7 +6719,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Rollup Levels]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Níveis de rollup]]></Val>
+            <Val><![CDATA[Níveis de Rollup]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6731,7 +6737,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Is Row Count]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[É contagem de linhas]]></Val>
+            <Val><![CDATA[É contagem de Linhas]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6740,7 +6746,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Row Count Spool]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Spool de contagem de linhas]]></Val>
+            <Val><![CDATA[Spool de Contagem de Linhas]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6758,7 +6764,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Top Rows]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Linhas superiores]]></Val>
+            <Val><![CDATA[Linhas Superiores]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6767,7 +6773,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Top Rows.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Linhas superiores.]]></Val>
+            <Val><![CDATA[Linhas Superiores.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6830,7 +6836,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Scalar Operator]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Operador escalar]]></Val>
+            <Val><![CDATA[Operador Escalar]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6839,7 +6845,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Scan Direction]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Direção da verificação]]></Val>
+            <Val><![CDATA[Direção da Verificação]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6857,7 +6863,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Scan Type]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Tipo de verificação]]></Val>
+            <Val><![CDATA[Tipo de Verificação]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -8549,7 +8555,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Seek Keys]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Chaves de busca]]></Val>
+            <Val><![CDATA[Chaves de Busca]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -8567,7 +8573,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Seek Predicate]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Predicado de busca]]></Val>
+            <Val><![CDATA[Predicado de Busca]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -8585,7 +8591,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Seek Predicates]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Predicados de busca]]></Val>
+            <Val><![CDATA[Predicados de Busca]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -8612,7 +8618,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Segment Column]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Coluna de segmento]]></Val>
+            <Val><![CDATA[Coluna de Segmento]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -8657,7 +8663,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Sequence Project]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Projeto de sequência]]></Val>
+            <Val><![CDATA[Projeto de Sequência]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -8729,7 +8735,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Set Function]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Definir função]]></Val>
+            <Val><![CDATA[Definir Função]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -8738,7 +8744,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Set Function.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Definir função.]]></Val>
+            <Val><![CDATA[Defina Função.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -8747,7 +8753,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Set Options]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Definir opções]]></Val>
+            <Val><![CDATA[Definir Opções]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -8756,7 +8762,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Set options.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Definir opções.]]></Val>
+            <Val><![CDATA[Defina opções.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -8810,7 +8816,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Single Source RoundRobin]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[RoundRobin de fonte única]]></Val>
+            <Val><![CDATA[RoundRobin de Origem Única]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -8828,7 +8834,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Single Source Shuffle]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Ordem aleatória de fonte única]]></Val>
+            <Val><![CDATA[Ordem Aleatória de Origem Única]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -8918,7 +8924,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Sort the input.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Classificar a entrada.]]></Val>
+            <Val><![CDATA[Classifique a entrada.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -8990,7 +8996,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Split.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Dividir.]]></Val>
+            <Val><![CDATA[Divida.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9143,7 +9149,7 @@
         <Str Cat="Text">
           <Val><![CDATA[With Stack]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Com pilha]]></Val>
+            <Val><![CDATA[Com Pilha]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9161,7 +9167,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Start]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Início]]></Val>
+            <Val><![CDATA[Iniciar]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9197,7 +9203,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Startup Expression]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Expressão de inicialização]]></Val>
+            <Val><![CDATA[Expressão de Inicialização]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9215,7 +9221,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Startup Expression Predicate]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Predicado da expressão de inicialização]]></Val>
+            <Val><![CDATA[Predicado de Expressão de Inicialização]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9278,7 +9284,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Stored Procedure]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Procedimento armazenado]]></Val>
+            <Val><![CDATA[Procedimento Armazenado]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9296,7 +9302,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Stream Aggregate]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Agregação de fluxo]]></Val>
+            <Val><![CDATA[Agregação de Fluxo]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9341,7 +9347,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Switch.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Alternar.]]></Val>
+            <Val><![CDATA[Alterne.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9449,7 +9455,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Table Delete]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Exclusão de tabela]]></Val>
+            <Val><![CDATA[Exclusão de Tabela]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9485,7 +9491,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Table Insert]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Inserção de tabela]]></Val>
+            <Val><![CDATA[Inserção de Tabela]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9503,7 +9509,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Table Merge]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Mesclagem de tabela]]></Val>
+            <Val><![CDATA[Mesclagem de Tabela]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9530,7 +9536,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Table Scan]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Verificação de tabela]]></Val>
+            <Val><![CDATA[Verificação de Tabela]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9548,7 +9554,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Table Spool]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Spool de tabela]]></Val>
+            <Val><![CDATA[Spool de Tabela]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9566,7 +9572,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Table Update]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Atualização de tabela]]></Val>
+            <Val><![CDATA[Atualização de Tabela]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9584,7 +9590,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Table Valued Function]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Função com valor de tabela]]></Val>
+            <Val><![CDATA[Função com Valor de Tabela]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9647,7 +9653,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Tie Columns]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Ligar colunas]]></Val>
+            <Val><![CDATA[Ligar Colunas]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9656,7 +9662,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Tie columns.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Vincular colunas.]]></Val>
+            <Val><![CDATA[Vincule colunas.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9665,7 +9671,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Time Out]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Atingir tempo limite]]></Val>
+            <Val><![CDATA[Tempo Limite]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9692,7 +9698,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Top Expression]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Expressão superior]]></Val>
+            <Val><![CDATA[Expressão Superior]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9728,7 +9734,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Trim data.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Cortar dados.]]></Val>
+            <Val><![CDATA[Corte dados.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9781,6 +9787,9 @@
       <Item ItemId=";UnKnownSqlForeignKeyAction" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA['{0}' is not a supported SqlForeignKeyAction.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA['{0}' não é um SqlForeignKeyAction com suporte.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -9806,7 +9815,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Union All]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Unir tudo]]></Val>
+            <Val><![CDATA[União de Todos]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9815,7 +9824,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Union All tables.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Todas as tabelas de união.]]></Val>
+            <Val><![CDATA[Todas as Tabelas de União.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9950,7 +9959,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Used Memory]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Memória usada]]></Val>
+            <Val><![CDATA[Memória Usada]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9959,7 +9968,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Used UDX Columns]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Colunas UDX usadas]]></Val>
+            <Val><![CDATA[Colunas UDX Usadas]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -10040,7 +10049,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Where (join columns)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Onde (colunas de junção)]]></Val>
+            <Val><![CDATA[Onde (unir colunas)]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -10049,7 +10058,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Window Spool]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Spool de janela]]></Val>
+            <Val><![CDATA[Spool de Janela]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -10058,7 +10067,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Window Aggregate]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Windows agregado]]></Val>
+            <Val><![CDATA[Windows Agregado]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -10094,7 +10103,7 @@
         <Str Cat="Text">
           <Val><![CDATA[With Ties]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Com ligações]]></Val>
+            <Val><![CDATA[Com Ligações]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
