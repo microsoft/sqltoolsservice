@@ -375,6 +375,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         }
 
         /// <summary>
+        /// Nulls out properties in ConnectionDetails that aren't compatible with XElite.
+        /// </summary>
+        private static ConnectionDetails CreateXEliteConnectionDetails(ConnectionDetails connDetails){
+            connDetails.ConnectRetryCount = null;
+            connDetails.ConnectRetryInterval = null;
+            connDetails.MultiSubnetFailover = null;
+            return connDetails;
+        }
+
+        /// <summary>
         /// Gets an XEvent session with the given name per the IXEventSessionFactory contract
         /// Also starts the session if it isn't currently running
         /// </summary>
@@ -383,6 +393,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
             SqlStoreConnection connection = new SqlStoreConnection(sqlConnection);
             BaseXEStore store = CreateXEventStore(connInfo, connection);
+            ConnectionDetails newConnectionDetails = CreateXEliteConnectionDetails(connInfo.ConnectionDetails);
             Session session = store.Sessions[sessionName];
 
             // start the session if it isn't already running
@@ -399,7 +410,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             // create xevent session wrapper
             return new XEventSession()
             {
-                ConnInfo = connInfo,
+                ConnDetails = newConnectionDetails,
                 Session = session
             };
         }

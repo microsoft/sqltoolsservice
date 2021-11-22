@@ -2,7 +2,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
-using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Profiler
 {
@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// </summary>
         int Id { get; }
 
-        ConnectionInfo ConnInfo { get; set; }
+        ConnectionDetails ConnDetails { get; set; }
 
         /// <summary>
         /// Starts XEvent session

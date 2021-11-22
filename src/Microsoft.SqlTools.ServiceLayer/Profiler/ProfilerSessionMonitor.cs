@@ -159,7 +159,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 if (this.monitoredSessions.Remove(sessionId, out session) && session.isStreamActive())
                 {
                     // Toggle isStreaming status of removed session to not streaming.
-                    session.toggleStreamLock();
+                    session.disableStreamLock();
 
                     //remove all viewers for this session
                     List<string> viewerIds;
@@ -201,7 +201,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                         if (!session.isStreamActive())
                         {
                             StartStream(id, session);
-                            session.toggleStreamLock();
+                            session.enableStreamLock();
                         }
                     }
                 }
@@ -243,24 +243,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
         }
 
-         /// <summary>
-        /// Nulls out properties in ConnectionDetails that aren't compatible with XElite.
-        /// </summary>
-        private static ConnectionDetails CreateXEliteConnectionDetails(ConnectionDetails connDetails){
-            connDetails.ConnectRetryCount = null;
-            connDetails.ConnectRetryInterval = null;
-            connDetails.MultiSubnetFailover = null;
-            return connDetails;
-        }
-
         /// <summary>
         /// Function that creates a brand new stream from a session, this is called from ProcessSessions when a session doesn't have a stream running currently.
         /// </summary>
         private void StartStream(int id, ProfilerSession session)
         {
             CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
-            ConnectionDetails trimmedDetails = CreateXEliteConnectionDetails((session.XEventSession as XEventSession).ConnInfo.ConnectionDetails);
-            var connectionString = ConnectionService.BuildConnectionString(trimmedDetails);
+            var connectionString = ConnectionService.BuildConnectionString((session.XEventSession as XEventSession).ConnDetails);
             var eventStreamer = new XELiveEventStreamer(connectionString, (session.XEventSession as XEventSession).Session?.Name);
             //Start streaming task here, will run until cancellation or error with the feed.
             var task = eventStreamer.ReadEventStream(xEvent => HandleXEvent(xEvent, session), threadCancellationToken.Token);

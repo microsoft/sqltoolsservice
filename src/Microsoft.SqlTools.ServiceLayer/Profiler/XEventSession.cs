@@ -5,8 +5,7 @@
 
 using System.Linq;
 using Microsoft.SqlServer.Management.XEvent;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Profiler
 {
@@ -17,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
     {
         public Session Session { get; set; }
 
-        public ConnectionInfo ConnInfo { get; set; }
+        public ConnectionDetails ConnDetails { get; set; }
 
         public int Id
         {
