@@ -108,7 +108,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
                 });
 
             // capture if session was stopped
-            var mockSession = new Mock<XEventSession>();
+            var mockSession = new Mock<IXEventSession>();
             mockSession.Setup(p => p.Stop()).Callback(() =>
                 {
                     stopped = true;

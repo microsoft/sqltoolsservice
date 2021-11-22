@@ -248,9 +248,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         private void StartStream(int id, ProfilerSession session)
         {
             CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
-            var sessionCasted = (XEventSession) session.XEventSession;
-            var connectionString = ConnectionService.BuildConnectionString(sessionCasted.ConnDetails);
-            var eventStreamer = new XELiveEventStreamer(connectionString, sessionCasted.Session?.Name);
+            var connectionString = ConnectionService.BuildConnectionString(session.XEventSession.ConnDetails);
+            var eventStreamer = new XELiveEventStreamer(connectionString, session.XEventSession.Session.Name);
             //Start streaming task here, will run until cancellation or error with the feed.
             var task = eventStreamer.ReadEventStream(xEvent => HandleXEvent(xEvent, session), threadCancellationToken.Token);
 

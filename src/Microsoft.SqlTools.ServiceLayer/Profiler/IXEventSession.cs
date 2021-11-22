@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlServer.Management.XEvent;
 
 namespace Microsoft.SqlTools.ServiceLayer.Profiler
 {
@@ -16,7 +17,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// </summary>
         int Id { get; }
 
+        /// <summary>
+        /// Connection details associated with the session id.
+        /// </summary>
         ConnectionDetails ConnDetails { get; set; }
+
+        /// <summary>
+        /// Session associated with the session id.
+        /// </summary>
+        Session Session { get; set; }
 
         /// <summary>
         /// Starts XEvent session
