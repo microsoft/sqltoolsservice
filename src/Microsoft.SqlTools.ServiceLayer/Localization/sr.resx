@@ -1572,11 +1572,6 @@
     <comment>.
  Parameters: 0 - sessionName (String) </comment>
   </data>
-  <data name="ConnInfoIsNull" xml:space="preserve">
-    <value>Unable to find connection info for URI {0}</value>
-    <comment>.
- Parameters: 0 - uri (String) </comment>
-  </data>
   <data name="CategoryLocal" xml:space="preserve">
     <value>[Uncategorized (Local)]</value>
     <comment>job categories</comment>

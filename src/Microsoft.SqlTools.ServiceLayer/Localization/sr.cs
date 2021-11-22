@@ -8756,11 +8756,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.SessionAlreadyExists, sessionName);
         }
 
-        public static string ConnInfoIsNull(String uri)
-        {
-            return Keys.GetString(Keys.ConnInfoIsNull, uri);
-        }
-
         public static string UnknownSizeUnit(string unit)
         {
             return Keys.GetString(Keys.UnknownSizeUnit, unit);
@@ -9947,9 +9942,6 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string SessionAlreadyExists = "SessionAlreadyExists";
-
-
-            public const string ConnInfoIsNull = "ConnInfoIsNull";
 
 
             public const string CategoryLocal = "CategoryLocal";

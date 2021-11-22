@@ -144,12 +144,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     }
                     else 
                     {
-                        throw new Exception(SR.ConnInfoIsNull(parameters.OwnerUri));
+                        throw new Exception(SR.ProfilerConnectionNotFound);
                     }
                 }
                 catch (Exception e)
                 {
-                    await requestContext.SendError(e);
                     await requestContext.SendError(new Exception(SR.CreateSessionFailed(e.Message)));
                 }
             });

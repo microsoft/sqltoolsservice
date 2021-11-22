@@ -108,7 +108,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
                 });
 
             // capture if session was stopped
-            var mockSession = new Mock<IXEventSession>();
+            var mockSession = new Mock<XEventSession>();
             mockSession.Setup(p => p.Stop()).Callback(() =>
                 {
                     stopped = true;
@@ -119,6 +119,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             profilerService.SessionMonitor.AddSessionListener(sessionListener);
             profilerService.ConnectionServiceInstance = TestObjects.GetTestConnectionService();
             ConnectionInfo connectionInfo = TestObjects.GetTestConnectionInfo();
+            mockSession.SetupProperty(p => p.ConnDetails, connectionInfo.ConnectionDetails);
             profilerService.ConnectionServiceInstance.OwnerToConnectionMap.Add(testUri, connectionInfo);
             profilerService.XEventSessionFactory = new TestXEventSessionFactory();
 

@@ -201,7 +201,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                         if (!session.isStreamActive())
                         {
                             StartStream(id, session);
-                            session.enableStreamLock();
                         }
                     }
                 }
@@ -249,8 +248,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         private void StartStream(int id, ProfilerSession session)
         {
             CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
-            var connectionString = ConnectionService.BuildConnectionString((session.XEventSession as XEventSession).ConnDetails);
-            var eventStreamer = new XELiveEventStreamer(connectionString, (session.XEventSession as XEventSession).Session?.Name);
+            var sessionCasted = (XEventSession) session.XEventSession;
+            var connectionString = ConnectionService.BuildConnectionString(sessionCasted.ConnDetails);
+            var eventStreamer = new XELiveEventStreamer(connectionString, sessionCasted.Session?.Name);
             //Start streaming task here, will run until cancellation or error with the feed.
             var task = eventStreamer.ReadEventStream(xEvent => HandleXEvent(xEvent, session), threadCancellationToken.Token);
 
@@ -267,6 +267,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }, TaskContinuationOptions.OnlyOnFaulted);
 
             this.monitoredCancellationTokenSources.Add(id, threadCancellationToken);
+            session.enableStreamLock();
         }
 
         /// <summary>

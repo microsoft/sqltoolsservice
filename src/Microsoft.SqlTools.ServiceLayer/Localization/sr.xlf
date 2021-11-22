@@ -5696,11 +5696,6 @@
         <target state="new">Specifies whether the check constraint is Enabled</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="ConnInfoIsNull">
-        <source>Unable to find connection info for URI {0}</source>
-        <target state="new">Unable to find connection info for URI {0}</target>
-        <note></note>
-      </trans-unit>
     </body>
   </file>
 </xliff>
