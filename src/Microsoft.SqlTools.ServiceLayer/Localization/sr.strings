@@ -759,7 +759,7 @@ PauseSessionFailed(String error) = Failed to pause session: {0}
 StopSessionFailed(String error) = Failed to stop session: {0}
 SessionNotFound = Cannot find requested XEvent session
 SessionAlreadyExists(String sessionName) = An XEvent session named {0} already exists
-ConnInfoIsNull = Unable to find connection info for URI {0}
+ConnInfoIsNull(String uri) = Unable to find connection info for URI {0}
 
 
 ;job categories

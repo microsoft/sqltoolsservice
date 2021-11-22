@@ -1535,10 +1535,6 @@
     <value>Cannot access the specified path on the server: {0}</value>
     <comment></comment>
   </data>
-  <data name="ConnInfoIsNull" xml:space="preserve">
-    <value>Connection Info is null</value>
-    <comment></comment>
-  </data>
   <data name="ProfilerConnectionNotFound" xml:space="preserve">
     <value>Connection not found</value>
     <comment></comment>
@@ -1575,6 +1571,11 @@
     <value>An XEvent session named {0} already exists</value>
     <comment>.
  Parameters: 0 - sessionName (String) </comment>
+  </data>
+  <data name="ConnInfoIsNull" xml:space="preserve">
+    <value>Unable to find connection info for URI {0}</value>
+    <comment>.
+ Parameters: 0 - uri (String) </comment>
   </data>
   <data name="CategoryLocal" xml:space="preserve">
     <value>[Uncategorized (Local)]</value>

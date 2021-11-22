@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.XEvent;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Profiler;
 using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
@@ -206,7 +207,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
 
         public int Id { get { return 51; } }
 
-        public ConnectionInfo ConnInfo { get; set; }
+        public ConnectionDetails ConnDetails { get; set; }
 
         public void Start(){}
 
@@ -293,7 +294,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
 
         public int Id { get { return 1; } }
 
-        public ConnectionInfo ConnInfo { get; set; }
+        public ConnectionDetails ConnDetails { get; set; }
 
         public void Start(){}
 
@@ -386,7 +387,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
 
         public int Id { get { return 2; } }
 
-        public ConnectionInfo ConnInfo { get; set; }
+        public ConnectionDetails ConnDetails { get; set; }
 
         public void Start(){}
 

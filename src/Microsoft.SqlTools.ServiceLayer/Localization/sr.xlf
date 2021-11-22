@@ -5697,8 +5697,8 @@
         <note></note>
       </trans-unit>
       <trans-unit id="ConnInfoIsNull">
-        <source>Connection Info is null</source>
-        <target state="new">Connection Info is null</target>
+        <source>Unable to find connection info for URI {0}</source>
+        <target state="new">Unable to find connection info for URI {0}</target>
         <note></note>
       </trans-unit>
     </body>

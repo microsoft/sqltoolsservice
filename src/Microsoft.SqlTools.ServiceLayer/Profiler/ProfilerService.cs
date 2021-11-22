@@ -144,7 +144,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     }
                     else 
                     {
-                        throw new Exception(SR.ConnInfoIsNull);
+                        throw new Exception(SR.ConnInfoIsNull(parameters.OwnerUri));
                     }
                 }
                 catch (Exception e)
