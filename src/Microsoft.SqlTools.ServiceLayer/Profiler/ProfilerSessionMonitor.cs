@@ -259,14 +259,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 CancellationTokenSource targetToken;
                 if (monitoredCancellationTokenSources.TryGetValue(id, out targetToken))
                 {
-                    SendStoppedSessionInfoToListeners(session.XEventSession.Id);
-                    ProfilerSession tempSession;
-                    RemoveSession(session.XEventSession.Id, out tempSession);
+                    stopSessionError(session.XEventSession.Id);
                 }
             }, TaskContinuationOptions.OnlyOnFaulted);
 
             this.monitoredCancellationTokenSources.Add(id, threadCancellationToken);
             session.enableStreamLock();
+        }
+
+        /// <summary>
+        /// Helper function for firing error and stopping session in case the session is stopped on the server. This is public for tests.  
+        /// </summary>
+        public void stopSessionError(int Id){
+            SendStoppedSessionInfoToListeners(Id);
+            ProfilerSession tempSession;
+            RemoveSession(Id, out tempSession);
         }
 
         /// <summary>

@@ -229,7 +229,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         /// <summary>
         /// Test notifications for stopped sessions
         /// </summary>
-        //[Test]
+        [Test]
         // TODO: Fix test to work with XElite.
         public async Task TestStoppedSessionNotification()
         {
@@ -254,21 +254,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             profilerService.ConnectionServiceInstance = TestObjects.GetTestConnectionService();
             ConnectionInfo connectionInfo = TestObjects.GetTestConnectionInfo();
             profilerService.ConnectionServiceInstance.OwnerToConnectionMap.Add(testUri, connectionInfo);
+            mockSession.SetupProperty(p => p.ConnDetails, connectionInfo.ConnectionDetails);
+            mockSession.SetupProperty(p => p.Session, new Session(null, "profiler_uri"));
 
             // start monitoring test session
             profilerService.SessionMonitor.StartMonitoringSession(testUri, mockSession.Object);
 
-            // wait for polling to finish, or for timeout
-            System.Timers.Timer pollingTimer = new System.Timers.Timer();
-            pollingTimer.Interval = 10000;
-            pollingTimer.Start();
-            bool timeout = false;
-            pollingTimer.Elapsed += new System.Timers.ElapsedEventHandler((s_, e_) => { timeout = true; });
-            while (sessionStopped == false && !timeout)
-            {
-                Thread.Sleep(250);
-            }
-            pollingTimer.Stop();
+            // stop session with fake stop error.
+            profilerService.SessionMonitor.stopSessionError(0);
 
             // check that a stopped session notification was sent
             Assert.True(sessionStopped);
