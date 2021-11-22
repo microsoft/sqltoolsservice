@@ -91,7 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         /// </summary>
         /// <returns></returns>
         // TODO: Fix test to work with XElite.
-        //[Test]
+        [Test]
         public async Task TestStopProfilingRequest()
         {
             bool success = false;
@@ -119,9 +119,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             profilerService.SessionMonitor.AddSessionListener(sessionListener);
             profilerService.ConnectionServiceInstance = TestObjects.GetTestConnectionService();
             ConnectionInfo connectionInfo = TestObjects.GetTestConnectionInfo();
-            mockSession.SetupProperty(p => p.ConnDetails, connectionInfo.ConnectionDetails);
             profilerService.ConnectionServiceInstance.OwnerToConnectionMap.Add(testUri, connectionInfo);
             profilerService.XEventSessionFactory = new TestXEventSessionFactory();
+            mockSession.SetupProperty(p => p.ConnDetails, connectionInfo.ConnectionDetails);
+            mockSession.SetupProperty(p => p.Session, new Session(null, "test_session"));
 
             var requestParams = new StopProfilingParams();
             requestParams.OwnerUri = testUri;
