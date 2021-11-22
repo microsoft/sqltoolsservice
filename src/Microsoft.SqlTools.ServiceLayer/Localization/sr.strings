@@ -751,7 +751,6 @@ InvalidPathError = Cannot access the specified path on the server: {0}
 
 ############################################################################
 # Profiler
-ConnInfoIsNull = Connection Info is null
 ProfilerConnectionNotFound = Connection not found
 AzureSystemDbProfilingError = Cannot profile Azure system databases
 CreateSessionFailed(String error) = Failed to create session: {0}
@@ -760,6 +759,7 @@ PauseSessionFailed(String error) = Failed to pause session: {0}
 StopSessionFailed(String error) = Failed to stop session: {0}
 SessionNotFound = Cannot find requested XEvent session
 SessionAlreadyExists(String sessionName) = An XEvent session named {0} already exists
+ConnInfoIsNull = Unable to find connection info for URI {0}
 
 
 ;job categories

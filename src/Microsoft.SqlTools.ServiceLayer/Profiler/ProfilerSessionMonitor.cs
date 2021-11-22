@@ -72,7 +72,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 // start the monitoring thread
                 if (this.processorThread == null)
                 {
-                    this.processorThread = Task.Factory.StartNew(ProcessStreams);
+                    this.processorThread = Task.Factory.StartNew(ProcessSessions);
                 }
 
                 // create new profiling session if needed
@@ -188,7 +188,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// <summary>
         /// The core queue processing method, cycles through monitored sessions and creates a stream for them if not already.
         /// </summary>
-        private void ProcessStreams()
+        private void ProcessSessions()
         {
             while (true)
             {
@@ -200,7 +200,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                         this.monitoredSessions.TryGetValue(id, out session);
                         if (!session.isStreamActive())
                         {
-                            ProcessStream(id, session);
+                            StartStream(id, session);
                             session.toggleStreamLock();
                         }
                     }
@@ -254,9 +254,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         }
 
         /// <summary>
-        /// Function that creates a brand new stream from a session, this is called from ProcessStreams when a session doesn't have a stream running currently.
+        /// Function that creates a brand new stream from a session, this is called from ProcessSessions when a session doesn't have a stream running currently.
         /// </summary>
-        private void ProcessStream(int id, ProfilerSession session)
+        private void StartStream(int id, ProfilerSession session)
         {
             CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
             ConnectionDetails trimmedDetails = CreateXEliteConnectionDetails((session.XEventSession as XEventSession).ConnInfo.ConnectionDetails);
