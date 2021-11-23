@@ -205,7 +205,7 @@
     <value>요청한 쿼리가 존재하지 않습니다.</value>
   </data>
   <data name="QueryServiceQueryInvalidOwnerUri" xml:space="preserve">
-    <value>이 편집기가 데이터베이스에 연결되지 않았습니다.</value>
+    <value>잘못된 OwnerUri로 인해 데이터베이스에 연결할 수 없음</value>
   </data>
   <data name="QueryServiceQueryInProgress" xml:space="preserve">
     <value>쿼리가 현재 편집기 세션에서 이미 진행 중입니다. 이 쿼리를 취소하거나 완료될 때까지 대기하세요.</value>
@@ -1329,13 +1329,2174 @@
   <data name="SqlCmdUnsupportedToken" xml:space="preserve">
     <value>지원되지 않는 {0} 토큰이 발생했습니다.</value>
   </data>
+  <data name="SqlAssessmentGenerateScriptTaskName" xml:space="preserve">
+    <value>SQL 평가 스크립트 생성</value>
+  </data>
+  <data name="SqlAssessmentQueryInvalidOwnerUri" xml:space="preserve">
+    <value>서버에 연결되지 않음</value>
+  </data>
+  <data name="SqlAssessmentConnectingError" xml:space="preserve">
+    <value>서버에 연결할 수 없음</value>
+  </data>
+  <data name="SqlAssessmentUnsuppoertedEdition" xml:space="preserve">
+    <value>지원되지 않는 엔진 버전 {0}</value>
+  </data>
+  <data name="ParameterizationDetails" xml:space="preserve">
+    <value>{0}이(가) 다음 속성의 Microsoft.Data.SqlClient.SqlParameter 개체로 변환됩니다. SqlDbType = {1}, 크기 = {2}, 정밀도 = {3}, 배율 = {4}, SqlValue = {5}</value>
+  </data>
+  <data name="ErrorMessageHeader" xml:space="preserve">
+    <value>줄 {0}</value>
+  </data>
+  <data name="ErrorMessage" xml:space="preserve">
+    <value>{0}을(를) Microsoft.Data.SqlClient.SqlParameter 개체로 변환할 수 없습니다. 지정한 리터럴은 {1}(Microsoft.Data.SqlDbType)(으)로 변환할 수 없습니다. 리터럴 값: {2} </value>
+  </data>
+  <data name="DateTimeErrorMessage" xml:space="preserve">
+    <value>{0}을(를) Microsoft.Data.SqlClient.SqlParameter 개체로 변환할 수 없습니다. 지정한 리터럴은 지원되지 않는 날짜/시간 형식이 사용되었기 때문에 {1}(Microsoft.Data.SqlDbType)(으)로 변환할 수 없습니다. 지원되는 날짜/시간 형식 중 하나를 사용하세요. 리터럴 값: {2}</value>
+  </data>
+  <data name="BinaryLiteralPrefixMissingError" xml:space="preserve">
+    <value>{0}을(를) Microsoft.Data.SqlClient.SqlParameter 개체로 변환할 수 없습니다. 이진 리터럴에는 접두사 0x가 필요하므로 지정한 리터럴은 {1}(Microsoft.Data.SqlDbType)(으)로 변환할 수 없습니다. 리터럴 값: {2} </value>
+  </data>
+  <data name="ParsingErrorHeader" xml:space="preserve">
+    <value>줄 {0}, 열 {1}</value>
+  </data>
+  <data name="ScriptTooLarge" xml:space="preserve">
+    <value>현재 스크립트는 Always Encrypted의 매개 변수화에 대해 너무 큽니다. 쿼리 옵션([쿼리] &gt; [쿼리 옵션] &gt; [실행] &gt; [고급])에서 Always Encrypted의 매개 변수화를 사용하지 않도록 설정하세요. 최대 허용 길이: {0}자, 현재 스크립트 길이: {1}자</value>
+  </data>
+  <data name="ProjectExtractTaskName" xml:space="preserve">
+    <value>프로젝트 파일 추출</value>
+  </data>
+  <data name="ValidateStreamingJobTaskName" xml:space="preserve">
+    <value>스트리밍 작업 유효성 검사</value>
+  </data>
+  <data name="StreamNotFoundInModel" xml:space="preserve">
+    <value>스트리밍 쿼리 문에 누락된 {0} 스트림 '{1}'에 대한 참조가 포함되어 있습니다.  데이터베이스 모델에 추가해야 합니다.</value>
+  </data>
+  <data name="Input" xml:space="preserve">
+    <value>입력</value>
+  </data>
+  <data name="Output" xml:space="preserve">
+    <value>출력</value>
+  </data>
+  <data name="StreamingJobValidationFailed" xml:space="preserve">
+    <value>외부 스트리밍 작업 '{0}'에 대한 유효성을 검사하지 못함:</value>
+  </data>
+  <data name="FragmentShouldHaveOnlyOneBatch" xml:space="preserve">
+    <value>TSQL 조각에는 배치가 정확하게 하나 포함되어야 합니다.</value>
+  </data>
+  <data name="NoCreateStreamingJobStatementFound" xml:space="preserve">
+    <value>외부 스트리밍 작업 만들기 TSQL을 찾을 수 없습니다(EXEC sp_create_streaming_job 문).</value>
+  </data>
   <data name="CouldntFindAzureFunction" xml:space="preserve">
-    <value>{1}에서 FunctionName ‘{0}’인 Azure 함수를 찾을 수 없음</value>
+    <value>{0}에서 FunctionName ‘{1}’인 Azure 함수를 찾을 수 없음</value>
   </data>
   <data name="MoreThanOneAzureFunctionWithName" xml:space="preserve">
-    <value>{1}에서 FunctionName ‘{0}’인 Azure 함수를 두 개 이상 찾음</value>
+    <value>{0}에서 FunctionName ‘{1}’인 Azure 함수를 두 개 이상 찾음</value>
   </data>
   <data name="SqlBindingsNet5NotSupported" xml:space="preserve">
     <value>.NET 5에서는 SQL 바인딩 추가가 지원되지 않습니다.</value>
+  </data>
+  <data name="Statement" xml:space="preserve">
+    <value>문</value>
+  </data>
+  <data name="StatementDesc" xml:space="preserve">
+    <value>대부분의 경우 Transact-SQL 문의 텍스트를 포함합니다. PLAN_ROW 유형의 행인 경우에는 연산에 대한 설명을 포함합니다.</value>
+  </data>
+  <data name="PhysicalOperation" xml:space="preserve">
+    <value>물리적 연산</value>
+  </data>
+  <data name="PhysicalOperationDesc" xml:space="preserve">
+    <value>노드의 물리적 구현 알고리즘입니다. PLAN_ROWS 유형의 행에만 적용됩니다.</value>
+  </data>
+  <data name="LogicalOperation" xml:space="preserve">
+    <value>논리적 연산</value>
+  </data>
+  <data name="LogicalOperationDesc" xml:space="preserve">
+    <value>이 노드가 나타내는 관계형 대수 연산자입니다. PLAN_ROWS 유형의 행에만 적용됩니다.</value>
+  </data>
+  <data name="OperationDescriptionShort" xml:space="preserve">
+    <value>설명</value>
+  </data>
+  <data name="OperationDescription" xml:space="preserve">
+    <value>연산 설명입니다.</value>
+  </data>
+  <data name="OperationArgumentShort" xml:space="preserve">
+    <value>인수</value>
+  </data>
+  <data name="OperationArgumentDescription" xml:space="preserve">
+    <value>수행할 연산에 대한 보충 정보를 제공합니다. 이 열의 내용은 물리적 연산자에 따라 달라집니다.</value>
+  </data>
+  <data name="ObjectShort" xml:space="preserve">
+    <value>개체</value>
+  </data>
+  <data name="ObjectDescription" xml:space="preserve">
+    <value>개체입니다.</value>
+  </data>
+  <data name="IndexKind" xml:space="preserve">
+    <value>인덱스 종류</value>
+  </data>
+  <data name="IndexKindDescription" xml:space="preserve">
+    <value>참조된 개체에 대한 인덱스 유형입니다.</value>
+  </data>
+  <data name="DefinedValues" xml:space="preserve">
+    <value>정의된 값</value>
+  </data>
+  <data name="DefinedValuesDescription" xml:space="preserve">
+    <value>이 연산자에 의해 정의된 값(현재 쿼리에 있는 계산 식이 될 수 있음) 또는 이 쿼리를 처리하기 위해 쿼리 프로세서에서 정의된 내부 값 목록(쉼표로 구분)을 포함합니다. PLAN_ROWS 유형의 행에만 적용됩니다.</value>
+  </data>
+  <data name="OutputList" xml:space="preserve">
+    <value>출력 목록</value>
+  </data>
+  <data name="OutputListDescription" xml:space="preserve">
+    <value>현재 연산에서 예상되는 열 목록(쉼표로 구분)을 포함합니다.</value>
+  </data>
+  <data name="Warnings" xml:space="preserve">
+    <value>경고</value>
+  </data>
+  <data name="WarningsDescription" xml:space="preserve">
+    <value>현재 연산과 관련된 경고 메시지 목록(쉼표로 구분)을 포함합니다. 경고 메시지에는 열 목록과 함께 'NO STATS:()' 문자열이 포함될 수 있습니다.</value>
+  </data>
+  <data name="Parallel" xml:space="preserve">
+    <value>병렬</value>
+  </data>
+  <data name="ParallelDescription" xml:space="preserve">
+    <value>연산자의 병렬 실행 여부를 나타냅니다.</value>
+  </data>
+  <data name="EstimatedNumberOfRowsPerExecution" xml:space="preserve">
+    <value>실행당 예상 행 수</value>
+  </data>
+  <data name="EstimatedNumberOfRowsPerExecutionDescription" xml:space="preserve">
+    <value>이 연산자의 실행 출력당 예상 행 수입니다(PLAN_ROWS만 해당).</value>
+  </data>
+  <data name="EstimatedNumberOfRowsForAllExecutions" xml:space="preserve">
+    <value>모든 실행에 대한 예상 행 수</value>
+  </data>
+  <data name="EstimatedNumberOfRowsForAllExecutionsDescription" xml:space="preserve">
+    <value>이 연산자의 모든 실행 출력에 대한 예상 행 수입니다(PLAN_ROWS만 해당).</value>
+  </data>
+  <data name="EstimatedRowsRead" xml:space="preserve">
+    <value>읽을 것으로 예상되는 행 수</value>
+  </data>
+  <data name="EstimatedRowsReadDescription" xml:space="preserve">
+    <value>이 연산자가 읽을 것으로 예상되는 행 수입니다. 연산자에 조건자가 있는 경우에는 이 값이 "모든 실행에 대한 예상 행 수"와 다를 수 있습니다.</value>
+  </data>
+  <data name="IsGraphDBTransitiveClosure" xml:space="preserve">
+    <value>GraphDB 전이적 종결임</value>
+  </data>
+  <data name="IsGraphDBTransitiveClosureDescription" xml:space="preserve">
+    <value>시퀀스가 GraphDB 전이적 종결을 나타내는지 여부입니다.</value>
+  </data>
+  <data name="IsInterleavedExecuted" xml:space="preserve">
+    <value>IsInterleavedExecuted</value>
+  </data>
+  <data name="IsInterleavedExecutedDescription" xml:space="preserve">
+    <value>연산자가 인터리브된 실행에 사용되는지 여부입니다.</value>
+  </data>
+  <data name="IsAdaptive" xml:space="preserve">
+    <value>적응형임</value>
+  </data>
+  <data name="IsAdaptiveDescription" xml:space="preserve">
+    <value>연산자가 적응형인지 여부입니다.</value>
+  </data>
+  <data name="AdaptiveThresholdRows" xml:space="preserve">
+    <value>적응형 임계값 행 수</value>
+  </data>
+  <data name="AdaptiveThresholdRowsDescription" xml:space="preserve">
+    <value>적응형 연산자인 경우 이를 통해 조정되는 카디널리티입니다.</value>
+  </data>
+  <data name="EstimatedJoinType" xml:space="preserve">
+    <value>예상 조인 유형</value>
+  </data>
+  <data name="EstimatedJoinTypeDescription" xml:space="preserve">
+    <value>쿼리 최적화 프로그램에서 조정 전에 예상하는 조인 유형(중첩된 루프 또는 해시 조인)입니다.</value>
+  </data>
+  <data name="ActualJoinType" xml:space="preserve">
+    <value>실제 조인 유형</value>
+  </data>
+  <data name="ActualJoinTypeDescription" xml:space="preserve">
+    <value>적응형 조인 실행의 일부로 선택한 실제 조인(중첩된 루프 또는 해시 조인)입니다.</value>
+  </data>
+  <data name="EstimatedRowSize" xml:space="preserve">
+    <value>예상 행 크기</value>
+  </data>
+  <data name="EstimatedRowSizeDescription" xml:space="preserve">
+    <value>이 연산자를 통해 전달되는 행의 예상 평균 행 크기입니다.</value>
+  </data>
+  <data name="EstimatedIoCost" xml:space="preserve">
+    <value>예상 I/O 비용</value>
+  </data>
+  <data name="EstimatedIoCostDescription" xml:space="preserve">
+    <value>이 연산자의 예상 I/O 비용입니다. PLAN_ROWS 유형의 행에만 적용됩니다.</value>
+  </data>
+  <data name="EstimatedCpuCost" xml:space="preserve">
+    <value>예상 CPU 비용</value>
+  </data>
+  <data name="EstimatedCpuCostDescription" xml:space="preserve">
+    <value>이 연산자의 예상 CPU 비용입니다. PLAN_ROWS 유형의 행에만 적용됩니다.</value>
+  </data>
+  <data name="EstimatedNumberOfExecutions" xml:space="preserve">
+    <value>예상 실행 횟수</value>
+  </data>
+  <data name="EstimatedNumberOfExecutionsDescription" xml:space="preserve">
+    <value>현재 쿼리를 실행하는 동안 이 연산자가 실행될 예상 횟수입니다.</value>
+  </data>
+  <data name="EstimatedOperatorCost" xml:space="preserve">
+    <value>예상 연산자 비용</value>
+  </data>
+  <data name="EstimatedOperatorCostDescription" xml:space="preserve">
+    <value>이 연산자의 예상 비용입니다.</value>
+  </data>
+  <data name="EstimatedSubtreeCost" xml:space="preserve">
+    <value>예상 하위 트리 비용</value>
+  </data>
+  <data name="EstimatedSubtreeCostDescription" xml:space="preserve">
+    <value>이 연산과 모든 자식 연산의 예상 누적 비용입니다.</value>
+  </data>
+  <data name="NumberOfRows" xml:space="preserve">
+    <value>모든 실행에 대한 실제 행 수</value>
+  </data>
+  <data name="NumberOfRowsDescription" xml:space="preserve">
+    <value>이 연산자의 모든 실행 출력에 대한 실제 행 수입니다(PLAN_ROWS 형식의 행만 해당).</value>
+  </data>
+  <data name="ActualRowsRead" xml:space="preserve">
+    <value>읽은 행 수</value>
+  </data>
+  <data name="ActualRowsReadDescription" xml:space="preserve">
+    <value>조건자 필터를 적용하기 이전의 테이블 또는 인덱스에서 읽은 행 수입니다. PLAN_ROWS 유형의 행만 해당됩니다.</value>
+  </data>
+  <data name="NumberOfBatches" xml:space="preserve">
+    <value>실제 일괄 처리 수</value>
+  </data>
+  <data name="NumberOfBatchesDescription" xml:space="preserve">
+    <value>이 연산자에서 출력하는 실제 일괄 처리 수입니다.</value>
+  </data>
+  <data name="NumberOfExecutions" xml:space="preserve">
+    <value>실행 횟수</value>
+  </data>
+  <data name="NumberOfExecutionsDescription" xml:space="preserve">
+    <value>현재 쿼리를 실행하는 동안 이 연산자가 실행될 횟수입니다.</value>
+  </data>
+  <data name="EstimatedDataSize" xml:space="preserve">
+    <value>예상 데이터 크기</value>
+  </data>
+  <data name="EstimatedDataSizeDescription" xml:space="preserve">
+    <value>이 연산자를 통해 전달되는 데이터의 예상 데이터 크기입니다.</value>
+  </data>
+  <data name="ParameterList" xml:space="preserve">
+    <value>매개 변수 목록</value>
+  </data>
+  <data name="ParameterListDescription" xml:space="preserve">
+    <value>매개 변수 목록입니다.</value>
+  </data>
+  <data name="MemoryFractions" xml:space="preserve">
+    <value>메모리 조각</value>
+  </data>
+  <data name="MemoryFractionsDescription" xml:space="preserve">
+    <value>메모리 조각입니다.</value>
+  </data>
+  <data name="MemoryFractionsInput" xml:space="preserve">
+    <value>메모리 조각 입력</value>
+  </data>
+  <data name="MemoryFractionsInputDescription" xml:space="preserve">
+    <value>메모리 조각 입력입니다.</value>
+  </data>
+  <data name="MemoryFractionsOutput" xml:space="preserve">
+    <value>메모리 조각 출력</value>
+  </data>
+  <data name="MemoryFractionsOutputDescription" xml:space="preserve">
+    <value>메모리 조각 출력입니다.</value>
+  </data>
+  <data name="UdxName" xml:space="preserve">
+    <value>이름</value>
+  </data>
+  <data name="UdxNameDescription" xml:space="preserve">
+    <value>이름.</value>
+  </data>
+  <data name="Values" xml:space="preserve">
+    <value>값</value>
+  </data>
+  <data name="ValuesDescription" xml:space="preserve">
+    <value>값입니다.</value>
+  </data>
+  <data name="CachedPlanSize" xml:space="preserve">
+    <value>캐시된 계획 크기</value>
+  </data>
+  <data name="CachedPlanSizeDescription" xml:space="preserve">
+    <value>캐시된 계획 크기입니다.</value>
+  </data>
+  <data name="UsePlan" xml:space="preserve">
+    <value>사용 계획</value>
+  </data>
+  <data name="ContainsInlineScalarTsqlUdfs" xml:space="preserve">
+    <value>인라인 스칼라 Tsql Udf 포함</value>
+  </data>
+  <data name="DegreeOfParallelism" xml:space="preserve">
+    <value>병렬 처리 수준</value>
+  </data>
+  <data name="DegreeOfParallelismDescription" xml:space="preserve">
+    <value>병렬 처리 수준입니다.</value>
+  </data>
+  <data name="EffectiveDegreeOfParallelism" xml:space="preserve">
+    <value>효율적인 병렬 처리 수준</value>
+  </data>
+  <data name="EffectiveDegreeOfParallelismDescription" xml:space="preserve">
+    <value>Columnstore 인덱스 작성 중 최대 병렬 처리 수준입니다.</value>
+  </data>
+  <data name="MemoryGrant" xml:space="preserve">
+    <value>메모리 부여</value>
+  </data>
+  <data name="MemoryGrantDescription" xml:space="preserve">
+    <value>메모리를 부여합니다.</value>
+  </data>
+  <data name="RemoteDestination" xml:space="preserve">
+    <value>대상 제거</value>
+  </data>
+  <data name="RemoteDestinationDescription" xml:space="preserve">
+    <value>원격 개체입니다.</value>
+  </data>
+  <data name="RemoteObject" xml:space="preserve">
+    <value>원격 개체</value>
+  </data>
+  <data name="RemoteObjectDescription" xml:space="preserve">
+    <value>원격 개체입니다.</value>
+  </data>
+  <data name="RemoteSource" xml:space="preserve">
+    <value>원격 원본</value>
+  </data>
+  <data name="RemoteSourceDescription" xml:space="preserve">
+    <value>원격 원본입니다.</value>
+  </data>
+  <data name="UsedUdxColumns" xml:space="preserve">
+    <value>사용된 UDX 열</value>
+  </data>
+  <data name="UsedUdxColumnsDescription" xml:space="preserve">
+    <value>사용된 UDX 열입니다.</value>
+  </data>
+  <data name="InnerSideJoinColumns" xml:space="preserve">
+    <value>내부 측면 조인 열</value>
+  </data>
+  <data name="InnerSideJoinColumnsDescription" xml:space="preserve">
+    <value>내부 측면 조인 열입니다.</value>
+  </data>
+  <data name="OuterSideJoinColumns" xml:space="preserve">
+    <value>외부 측면 조인 열</value>
+  </data>
+  <data name="OuterSideJoinColumnsDescription" xml:space="preserve">
+    <value>외부 측면 조인 열입니다.</value>
+  </data>
+  <data name="WhereJoinColumns" xml:space="preserve">
+    <value>Where(조인 열)</value>
+  </data>
+  <data name="Residual" xml:space="preserve">
+    <value>나머지</value>
+  </data>
+  <data name="ResidualDescription" xml:space="preserve">
+    <value>나머지입니다.</value>
+  </data>
+  <data name="PassThru" xml:space="preserve">
+    <value>통과</value>
+  </data>
+  <data name="PassThruDescription" xml:space="preserve">
+    <value>통과입니다.</value>
+  </data>
+  <data name="ManyToMany" xml:space="preserve">
+    <value>다 대 다</value>
+  </data>
+  <data name="ManyToManyDescription" xml:space="preserve">
+    <value>다 대 다 관계입니다.</value>
+  </data>
+  <data name="PartitionColumns" xml:space="preserve">
+    <value>파티션 열</value>
+  </data>
+  <data name="PartitionColumnsDescription" xml:space="preserve">
+    <value>파티션 열입니다.</value>
+  </data>
+  <data name="Ascending" xml:space="preserve">
+    <value>오름차순</value>
+  </data>
+  <data name="Descending" xml:space="preserve">
+    <value>내림차순</value>
+  </data>
+  <data name="HashKeys" xml:space="preserve">
+    <value>해시 키</value>
+  </data>
+  <data name="HashKeysDescription" xml:space="preserve">
+    <value>해시 키입니다.</value>
+  </data>
+  <data name="ProbeColumn" xml:space="preserve">
+    <value>열 검색</value>
+  </data>
+  <data name="ProbeColumnDescription" xml:space="preserve">
+    <value>열을 검색합니다.</value>
+  </data>
+  <data name="PartitioningType" xml:space="preserve">
+    <value>분할 유형</value>
+  </data>
+  <data name="PartitioningTypeDescription" xml:space="preserve">
+    <value>분할 유형입니다.</value>
+  </data>
+  <data name="GroupBy" xml:space="preserve">
+    <value>그룹화 기준</value>
+  </data>
+  <data name="GroupByDescription" xml:space="preserve">
+    <value>그룹화 방법입니다.</value>
+  </data>
+  <data name="GroupingSets" xml:space="preserve">
+    <value>그룹화 세트</value>
+  </data>
+  <data name="GroupingSetsDescription" xml:space="preserve">
+    <value>그룹 세트 목록입니다. 각각의 값은 Group By 속성의 그룹화 열에 대한 역방향 비트맵입니다.</value>
+  </data>
+  <data name="SegmentColumn" xml:space="preserve">
+    <value>세그먼트 열</value>
+  </data>
+  <data name="SegmentColumnDescription" xml:space="preserve">
+    <value>세그먼트 열입니다.</value>
+  </data>
+  <data name="RankColumns" xml:space="preserve">
+    <value>순위 열</value>
+  </data>
+  <data name="RankColumnsDescription" xml:space="preserve">
+    <value>순위 열입니다.</value>
+  </data>
+  <data name="Predicate" xml:space="preserve">
+    <value>조건자</value>
+  </data>
+  <data name="PredicateDescription" xml:space="preserve">
+    <value>조건자입니다.</value>
+  </data>
+  <data name="OuterReferences" xml:space="preserve">
+    <value>외부 참조</value>
+  </data>
+  <data name="OuterReferencesDescription" xml:space="preserve">
+    <value>외부 참조입니다.</value>
+  </data>
+  <data name="ScalarOperator" xml:space="preserve">
+    <value>스칼라 연산자</value>
+  </data>
+  <data name="ActionColumn" xml:space="preserve">
+    <value>동작 열</value>
+  </data>
+  <data name="ActionColumnDescription" xml:space="preserve">
+    <value>동작 열입니다.</value>
+  </data>
+  <data name="OriginalActionColumn" xml:space="preserve">
+    <value>원래 동작 열</value>
+  </data>
+  <data name="OriginalActionColumnDescription" xml:space="preserve">
+    <value>원래 동작 열입니다.</value>
+  </data>
+  <data name="Rows" xml:space="preserve">
+    <value>상위 행</value>
+  </data>
+  <data name="RowsDescription" xml:space="preserve">
+    <value>상위 행입니다.</value>
+  </data>
+  <data name="SeekPredicate" xml:space="preserve">
+    <value>Seek 조건자</value>
+  </data>
+  <data name="SeekPredicateDescription" xml:space="preserve">
+    <value>Seek 조건자입니다.</value>
+  </data>
+  <data name="Partitioned" xml:space="preserve">
+    <value>분할됨</value>
+  </data>
+  <data name="PartitionedDescription" xml:space="preserve">
+    <value>작업이 분할된 테이블 또는 인덱스에 있는지 여부를 나타냅니다.</value>
+  </data>
+  <data name="SeekKeys" xml:space="preserve">
+    <value>검색 키</value>
+  </data>
+  <data name="SeekKeysDescription" xml:space="preserve">
+    <value>검색 작업에 사용되는 키입니다.</value>
+  </data>
+  <data name="PartitionsAccessed" xml:space="preserve">
+    <value>실제 액세스한 파티션 범위</value>
+  </data>
+  <data name="PartitionCount" xml:space="preserve">
+    <value>실제 파티션 수</value>
+  </data>
+  <data name="TieColumns" xml:space="preserve">
+    <value>열 연결</value>
+  </data>
+  <data name="TieColumnsDescription" xml:space="preserve">
+    <value>동률 열입니다.</value>
+  </data>
+  <data name="IsPercent" xml:space="preserve">
+    <value>비율 여부</value>
+  </data>
+  <data name="IsPercentDescription" xml:space="preserve">
+    <value>비율인지 여부를 나타냅니다.</value>
+  </data>
+  <data name="WithTies" xml:space="preserve">
+    <value>동률</value>
+  </data>
+  <data name="WithTiesDescription" xml:space="preserve">
+    <value>동률입니다.</value>
+  </data>
+  <data name="PartitionId" xml:space="preserve">
+    <value>파티션 ID</value>
+  </data>
+  <data name="PartitionIdDescription" xml:space="preserve">
+    <value>파티션 ID입니다.</value>
+  </data>
+  <data name="Ordered" xml:space="preserve">
+    <value>주문됨</value>
+  </data>
+  <data name="OrderedDescription" xml:space="preserve">
+    <value>정렬된 상태입니다.</value>
+  </data>
+  <data name="ScanDirection" xml:space="preserve">
+    <value>검색 방향</value>
+  </data>
+  <data name="ScanDirectionDescription" xml:space="preserve">
+    <value>전진 또는 후진 등 검색 작업의 방향입니다.</value>
+  </data>
+  <data name="ForcedIndex" xml:space="preserve">
+    <value>강제 인덱스</value>
+  </data>
+  <data name="ForcedIndexDescription" xml:space="preserve">
+    <value>강제 인덱스입니다.</value>
+  </data>
+  <data name="SetPredicate" xml:space="preserve">
+    <value>조건자</value>
+  </data>
+  <data name="SetPredicateDescription" xml:space="preserve">
+    <value>조건자</value>
+  </data>
+  <data name="TopExpression" xml:space="preserve">
+    <value>상위 식</value>
+  </data>
+  <data name="TopExpressionDescription" xml:space="preserve">
+    <value>상위 식입니다.</value>
+  </data>
+  <data name="HashKeysBuild" xml:space="preserve">
+    <value>해시 키 작성</value>
+  </data>
+  <data name="HashKeysBuildDescription" xml:space="preserve">
+    <value>해시 키를 작성합니다.</value>
+  </data>
+  <data name="HashKeysProbe" xml:space="preserve">
+    <value>해시 키 프로브</value>
+  </data>
+  <data name="HashKeysProbeDescription" xml:space="preserve">
+    <value>해시 키 프로브입니다.</value>
+  </data>
+  <data name="BuildResidual" xml:space="preserve">
+    <value>작성 후 남은 항목</value>
+  </data>
+  <data name="BuildResidualDescription" xml:space="preserve">
+    <value>작성 후 남은 항목입니다.</value>
+  </data>
+  <data name="ProbeResidual" xml:space="preserve">
+    <value>나머지 검색</value>
+  </data>
+  <data name="ProbeResidualDescription" xml:space="preserve">
+    <value>나머지를 검색합니다.</value>
+  </data>
+  <data name="SeekPredicates" xml:space="preserve">
+    <value>Seek 조건자</value>
+  </data>
+  <data name="SeekPredicatesDescription" xml:space="preserve">
+    <value>Seek 조건자입니다.</value>
+  </data>
+  <data name="SetOptions" xml:space="preserve">
+    <value>집합 옵션</value>
+  </data>
+  <data name="SetOptionsDescription" xml:space="preserve">
+    <value>집합 옵션입니다.</value>
+  </data>
+  <data name="OptimizationLevel" xml:space="preserve">
+    <value>최적화 수준</value>
+  </data>
+  <data name="OptimizationLevelDescription" xml:space="preserve">
+    <value>최적화 수준입니다.</value>
+  </data>
+  <data name="StatementOptmEarlyAbortReason" xml:space="preserve">
+    <value>문 최적화의 조기 종료 이유</value>
+  </data>
+  <data name="TimeOut" xml:space="preserve">
+    <value>제한 시간</value>
+  </data>
+  <data name="MemoryLimitExceeded" xml:space="preserve">
+    <value>메모리 제한 초과</value>
+  </data>
+  <data name="GoodEnoughPlanFound" xml:space="preserve">
+    <value>적합한 계획 발견</value>
+  </data>
+  <data name="EstimatedRebinds" xml:space="preserve">
+    <value>예상 다시 바인딩 횟수</value>
+  </data>
+  <data name="EstimatedRebindsDescription" xml:space="preserve">
+    <value>예상 다시 바인딩 횟수입니다.</value>
+  </data>
+  <data name="EstimatedRewinds" xml:space="preserve">
+    <value>예상 되감기 횟수</value>
+  </data>
+  <data name="EstimatedRewindsDescription" xml:space="preserve">
+    <value>예상 되감기 횟수입니다.</value>
+  </data>
+  <data name="ActualLocallyAggregatedRows" xml:space="preserve">
+    <value>로컬에서 실제로 집계된 행 수</value>
+  </data>
+  <data name="ActualLocallyAggregatedRowsDescription" xml:space="preserve">
+    <value>로컬에서 실제로 집계된 행 수</value>
+  </data>
+  <data name="ActualRebinds" xml:space="preserve">
+    <value>실제 다시 바인딩 횟수</value>
+  </data>
+  <data name="ActualRebindsDescription" xml:space="preserve">
+    <value>실제 다시 바인딩 횟수입니다.</value>
+  </data>
+  <data name="ActualRewinds" xml:space="preserve">
+    <value>실제 되감기 횟수</value>
+  </data>
+  <data name="ActualRewindsDescription" xml:space="preserve">
+    <value>실제 되감기 횟수입니다.</value>
+  </data>
+  <data name="ActualIOStatistics" xml:space="preserve">
+    <value>실제 I/O 통계</value>
+  </data>
+  <data name="ActualIOStatisticsDescription" xml:space="preserve">
+    <value>실제 I/O 통계</value>
+  </data>
+  <data name="ActualTimeStatistics" xml:space="preserve">
+    <value>실제 시간 통계</value>
+  </data>
+  <data name="ActualTimeStatisticsDescription" xml:space="preserve">
+    <value>실제 시간 통계</value>
+  </data>
+  <data name="ActualElapsedms" xml:space="preserve">
+    <value>실제 경과된 시간(ms)</value>
+  </data>
+  <data name="ActualElapsedmsDescription" xml:space="preserve">
+    <value>실제 경과된 시간(밀리초)</value>
+  </data>
+  <data name="ActualCPUms" xml:space="preserve">
+    <value>실제 경과된 CPU 시간(ms)</value>
+  </data>
+  <data name="ActualCPUmsDescription" xml:space="preserve">
+    <value>실제 경과된 CPU 시간(밀리초)</value>
+  </data>
+  <data name="ActualScans" xml:space="preserve">
+    <value>실제 스캔</value>
+  </data>
+  <data name="ActualScansDescription" xml:space="preserve">
+    <value>실제 스캔</value>
+  </data>
+  <data name="ActualLogicalReads" xml:space="preserve">
+    <value>실제 논리적 읽기</value>
+  </data>
+  <data name="ActualLogicalReadsDescription" xml:space="preserve">
+    <value>실제 논리적 읽기</value>
+  </data>
+  <data name="ActualPhysicalReads" xml:space="preserve">
+    <value>실제 물리적 읽기</value>
+  </data>
+  <data name="ActualPhysicalReadsDescription" xml:space="preserve">
+    <value>실제 물리적 읽기</value>
+  </data>
+  <data name="ActualPageServerReads" xml:space="preserve">
+    <value>실제 페이지 서버 읽기</value>
+  </data>
+  <data name="ActualPageServerReadsDescription" xml:space="preserve">
+    <value>실제 페이지 서버 읽기</value>
+  </data>
+  <data name="ActualReadAheads" xml:space="preserve">
+    <value>실제 미리 읽기</value>
+  </data>
+  <data name="ActualReadAheadsDescription" xml:space="preserve">
+    <value>실제 미리 읽기</value>
+  </data>
+  <data name="ActualPageServerReadAheads" xml:space="preserve">
+    <value>실제 페이지 서버 읽기 미리 읽기</value>
+  </data>
+  <data name="ActualPageServerReadAheadsDescription" xml:space="preserve">
+    <value>실제 페이지 서버 읽기 미리 읽기</value>
+  </data>
+  <data name="ActualLobLogicalReads" xml:space="preserve">
+    <value>실제 LOB 논리적 읽기</value>
+  </data>
+  <data name="ActualLobLogicalReadsDescription" xml:space="preserve">
+    <value>실제 LOB 논리적 읽기</value>
+  </data>
+  <data name="ActualLobPhysicalReads" xml:space="preserve">
+    <value>실제 LOB 물리적 읽기</value>
+  </data>
+  <data name="ActualLobPhysicalReadsDescription" xml:space="preserve">
+    <value>실제 LOB 물리적 읽기</value>
+  </data>
+  <data name="ActualLobPageServerReads" xml:space="preserve">
+    <value>실제 Lob 페이지 서버 읽기</value>
+  </data>
+  <data name="ActualLobPageServerReadsDescription" xml:space="preserve">
+    <value>실제 Lob 페이지 서버 읽기</value>
+  </data>
+  <data name="ActualLobReadAheads" xml:space="preserve">
+    <value>실제 LOB 미리 읽기</value>
+  </data>
+  <data name="ActualLobReadAheadsDescription" xml:space="preserve">
+    <value>실제 LOB 미리 읽기</value>
+  </data>
+  <data name="ActualLobPageServerReadAheads" xml:space="preserve">
+    <value>실제 Lob 페이지 서버 읽기 미리 읽기</value>
+  </data>
+  <data name="ActualLobPageServerReadAheadsDescription" xml:space="preserve">
+    <value>실제 Lob 페이지 서버 읽기 미리 읽기</value>
+  </data>
+  <data name="ActualMemoryGrantStats" xml:space="preserve">
+    <value>메모리 사용량</value>
+  </data>
+  <data name="HpcRowCount" xml:space="preserve">
+    <value>HPC 행 개수</value>
+  </data>
+  <data name="HpcRowCountDescription" xml:space="preserve">
+    <value>HPC 디바이스에서 처리된 행의 수입니다.</value>
+  </data>
+  <data name="HpcKernelElapsedUs" xml:space="preserve">
+    <value>HPC 커널의 경과된 시간(단위: us)</value>
+  </data>
+  <data name="HpcKernelElapsedUsDescription" xml:space="preserve">
+    <value>HPC 디바이스 커널 실행의 경과된 시간입니다(단위: 마이크로초).</value>
+  </data>
+  <data name="HpcHostToDeviceBytes" xml:space="preserve">
+    <value>HPC 호스트에서 디바이스로 전송되는 바이트</value>
+  </data>
+  <data name="HpcHostToDeviceBytesDescription" xml:space="preserve">
+    <value>호스트에서 HPC 디바이스로 전송된 데이터입니다(단위: 바이트).</value>
+  </data>
+  <data name="HpcDeviceToHostBytes" xml:space="preserve">
+    <value>HPC 디바이스에서 호스트로 전송되는 바이트</value>
+  </data>
+  <data name="HpcDeviceToHostBytesDescription" xml:space="preserve">
+    <value>HPC 디바이스에서 호스트로 전송된 데이터입니다(단위: 바이트).</value>
+  </data>
+  <data name="InputMemoryGrant" xml:space="preserve">
+    <value>입력 메모리</value>
+  </data>
+  <data name="OutputMemoryGrant" xml:space="preserve">
+    <value>출력 메모리</value>
+  </data>
+  <data name="UsedMemoryGrant" xml:space="preserve">
+    <value>사용된 메모리</value>
+  </data>
+  <data name="Distinct" xml:space="preserve">
+    <value>Distinct</value>
+  </data>
+  <data name="DistinctDescription" xml:space="preserve">
+    <value>고유 값입니다.</value>
+  </data>
+  <data name="OrderBy" xml:space="preserve">
+    <value>정렬 기준</value>
+  </data>
+  <data name="OrderByDescription" xml:space="preserve">
+    <value>정렬 기준입니다.</value>
+  </data>
+  <data name="SpillOccurredDisplayString" xml:space="preserve">
+    <value>실행하는 동안 데이터를 스필하기 위해 연산자에서 tempdb 사용</value>
+  </data>
+  <data name="ColumnsWithNoStatistics" xml:space="preserve">
+    <value>열에 통계가 없음</value>
+  </data>
+  <data name="ColumnsWithNoStatisticsDescription" xml:space="preserve">
+    <value>열에 통계가 없습니다.</value>
+  </data>
+  <data name="NoJoinPredicate" xml:space="preserve">
+    <value>조인 조건자 없음</value>
+  </data>
+  <data name="NoJoinPredicateDescription" xml:space="preserve">
+    <value>조인 조건자가 없습니다.</value>
+  </data>
+  <data name="SpillToTempDbOld" xml:space="preserve">
+    <value>스필 수준 {0}(으)로 실행하는 동안 데이터를 스필하기 위해 연산자에서 tempdb 사용</value>
+  </data>
+  <data name="SpillToTempDb" xml:space="preserve">
+    <value>스필 수준 {0} 또는 {1}개의 스필된 스레드로 실행하는 동안 데이터를 스필하기 위해 연산자에서 tempdb 사용</value>
+  </data>
+  <data name="SpillToTempDbDescription" xml:space="preserve">
+    <value>tempdb에 대한 스필 경고입니다.</value>
+  </data>
+  <data name="SortSpillDetails" xml:space="preserve">
+    <value>정렬이 tempdb에서 {0}개 페이지를 쓰고 {1}개 페이지를 읽음(부여된 메모리: {2}KB, 사용한 메모리: {3}KB)</value>
+  </data>
+  <data name="SortSpillDetailsDescription" xml:space="preserve">
+    <value>정렬 스필 세부 정보</value>
+  </data>
+  <data name="HashSpillDetails" xml:space="preserve">
+    <value>해시가 tempdb에서 {0}개 페이지를 쓰고 {1}개 페이지를 읽음(부여된 메모리: {2}KB, 사용한 메모리: {3}KB)</value>
+  </data>
+  <data name="HashSpillDetailsDescription" xml:space="preserve">
+    <value>해시 스필 세부 정보</value>
+  </data>
+  <data name="FullUpdateForOnlineIndexBuild" xml:space="preserve">
+    <value>온라인 인덱스 빌드 때문에 부분 업데이트가 전체 업데이트로 변환되었습니다.</value>
+  </data>
+  <data name="FullUpdateForOnlineIndexBuildDescription" xml:space="preserve">
+    <value>온라인 인덱스 빌드를 위한 전체 업데이트 경고</value>
+  </data>
+  <data name="Wait" xml:space="preserve">
+    <value>쿼리가 {1}을(를) 실행하는 동안 {0}초 정도 기다려야 했습니다.</value>
+  </data>
+  <data name="WaitDescription" xml:space="preserve">
+    <value>쿼리 대기 경고입니다.</value>
+  </data>
+  <data name="PlanAffectingConvert" xml:space="preserve">
+    <value>식의 형식을 변환({0})하면 쿼리 계획 선택 시에 {1}에 영향을 줄 수 있습니다.</value>
+  </data>
+  <data name="PlanAffectingConvertDescription" xml:space="preserve">
+    <value>계획에 영향을 미치는 형식 변환 경고입니다.</value>
+  </data>
+  <data name="MemoryGrantWarning" xml:space="preserve">
+    <value>쿼리 메모리 부여에서 안정성에 영향을 줄 수 있는 "{0}"이(가) 검색되었습니다. 부여 크기: 최초 {1}KB, 최종 {2}KB, 사용 중 {3}KB.</value>
+  </data>
+  <data name="MemoryGrantWarningDescription" xml:space="preserve">
+    <value>메모리 부여 경고에 대한 세부 정보</value>
+  </data>
+  <data name="StartupExpression" xml:space="preserve">
+    <value>시작 식</value>
+  </data>
+  <data name="StartupExpressionDescription" xml:space="preserve">
+    <value>필터 시작 식의 사용 여부를 나타냅니다.</value>
+  </data>
+  <data name="StartupExpressionPredicate" xml:space="preserve">
+    <value>시작 식 조건자</value>
+  </data>
+  <data name="Query" xml:space="preserve">
+    <value>쿼리</value>
+  </data>
+  <data name="Stack" xml:space="preserve">
+    <value>스택 포함</value>
+  </data>
+  <data name="RowCount" xml:space="preserve">
+    <value>행 개수</value>
+  </data>
+  <data name="Optimized" xml:space="preserve">
+    <value>최적화</value>
+  </data>
+  <data name="WithPrefetch" xml:space="preserve">
+    <value>사전 인출 사용</value>
+  </data>
+  <data name="Prefix" xml:space="preserve">
+    <value>접두사</value>
+  </data>
+  <data name="StartRange" xml:space="preserve">
+    <value>시작</value>
+  </data>
+  <data name="StartRangeDescription" xml:space="preserve">
+    <value>시작 범위입니다.</value>
+  </data>
+  <data name="EndRange" xml:space="preserve">
+    <value>종료</value>
+  </data>
+  <data name="EndRangeDescription" xml:space="preserve">
+    <value>끝 범위입니다.</value>
+  </data>
+  <data name="RangeColumns" xml:space="preserve">
+    <value>범위 열</value>
+  </data>
+  <data name="RangeExpressions" xml:space="preserve">
+    <value>범위 식</value>
+  </data>
+  <data name="ScanType" xml:space="preserve">
+    <value>검사 유형</value>
+  </data>
+  <data name="ColumnReference" xml:space="preserve">
+    <value>열 참조</value>
+  </data>
+  <data name="ObjectServer" xml:space="preserve">
+    <value>서버</value>
+  </data>
+  <data name="ObjectServerDescription" xml:space="preserve">
+    <value>참조된 개체에 대한 서버 이름입니다.</value>
+  </data>
+  <data name="ObjectDatabase" xml:space="preserve">
+    <value>데이터베이스</value>
+  </data>
+  <data name="ObjectDatabaseDescription" xml:space="preserve">
+    <value>참조된 개체에 대한 데이터베이스 이름입니다.</value>
+  </data>
+  <data name="ObjectIndex" xml:space="preserve">
+    <value>인덱스</value>
+  </data>
+  <data name="ObjectIndexDescription" xml:space="preserve">
+    <value>참조된 개체에 대한 인덱스 이름입니다.</value>
+  </data>
+  <data name="ObjectSchema" xml:space="preserve">
+    <value>스키마</value>
+  </data>
+  <data name="ObjectSchemaDescription" xml:space="preserve">
+    <value>참조된 개체에 대한 스키마 이름입니다.</value>
+  </data>
+  <data name="ObjectTable" xml:space="preserve">
+    <value>테이블</value>
+  </data>
+  <data name="ObjectTableDescription" xml:space="preserve">
+    <value>참조된 개체에 대한 테이블 이름입니다.</value>
+  </data>
+  <data name="ObjectAlias" xml:space="preserve">
+    <value>별칭</value>
+  </data>
+  <data name="ObjectAliasDescription" xml:space="preserve">
+    <value>참조된 개체에 사용된 별칭입니다.</value>
+  </data>
+  <data name="ObjectColumn" xml:space="preserve">
+    <value>열</value>
+  </data>
+  <data name="ObjectColumnDescription" xml:space="preserve">
+    <value>참조된 개체에 대한 열 이름입니다.</value>
+  </data>
+  <data name="ObjectComputedColumn" xml:space="preserve">
+    <value>계산 열</value>
+  </data>
+  <data name="ObjectComputedColumnDescription" xml:space="preserve">
+    <value>계산 열인지 여부를 나타냅니다.</value>
+  </data>
+  <data name="ParameterDataType" xml:space="preserve">
+    <value>매개 변수 데이터 형식</value>
+  </data>
+  <data name="ParameterCompiledValue" xml:space="preserve">
+    <value>매개 변수 컴파일 값</value>
+  </data>
+  <data name="ParameterRuntimeValue" xml:space="preserve">
+    <value>매개 변수 런타임 값</value>
+  </data>
+  <data name="CursorPlan" xml:space="preserve">
+    <value>커서 계획</value>
+  </data>
+  <data name="CursorOperation" xml:space="preserve">
+    <value>커서 작업</value>
+  </data>
+  <data name="CursorName" xml:space="preserve">
+    <value>커서 이름</value>
+  </data>
+  <data name="CursorActualType" xml:space="preserve">
+    <value>커서 실제 유형</value>
+  </data>
+  <data name="CursorRequestedType" xml:space="preserve">
+    <value>커서 요청 유형</value>
+  </data>
+  <data name="CursorConcurrency" xml:space="preserve">
+    <value>커서 동시성</value>
+  </data>
+  <data name="ForwardOnly" xml:space="preserve">
+    <value>정방향만</value>
+  </data>
+  <data name="QueryPlan" xml:space="preserve">
+    <value>쿼리 계획</value>
+  </data>
+  <data name="OperationType" xml:space="preserve">
+    <value>작업 유형</value>
+  </data>
+  <data name="NodeId" xml:space="preserve">
+    <value>노드 ID</value>
+  </data>
+  <data name="PrimaryNodeId" xml:space="preserve">
+    <value>주 노드 ID</value>
+  </data>
+  <data name="InternalInfo" xml:space="preserve">
+    <value>내부 디버깅 정보</value>
+  </data>
+  <data name="ForeignKeyReferencesCount" xml:space="preserve">
+    <value>외래 키 참조 개수</value>
+  </data>
+  <data name="NoMatchingIndexCount" xml:space="preserve">
+    <value>일치하는 인덱스 개수 없음</value>
+  </data>
+  <data name="PartialMatchingIndexCount" xml:space="preserve">
+    <value>부분적으로 일치하는 인덱스 개수</value>
+  </data>
+  <data name="LogicalOpCollapse" xml:space="preserve">
+    <value>축소</value>
+  </data>
+  <data name="LogicalOpConcatenation" xml:space="preserve">
+    <value>연결</value>
+  </data>
+  <data name="LogicalOpConstantScan" xml:space="preserve">
+    <value>상수 검사</value>
+  </data>
+  <data name="LogicalOpGatherStreams" xml:space="preserve">
+    <value>스트림 수집</value>
+  </data>
+  <data name="LogicalOpRepartitionStreams" xml:space="preserve">
+    <value>스트림 다시 분할</value>
+  </data>
+  <data name="LogicalOpDistributeStreams" xml:space="preserve">
+    <value>스트림 분산</value>
+  </data>
+  <data name="LogicalOpFilter" xml:space="preserve">
+    <value>필터</value>
+  </data>
+  <data name="LogicalOpAssert" xml:space="preserve">
+    <value>어설션</value>
+  </data>
+  <data name="LogicalOpLogRowScan" xml:space="preserve">
+    <value>로그 행 검사</value>
+  </data>
+  <data name="LogicalOpPrint" xml:space="preserve">
+    <value>인쇄</value>
+  </data>
+  <data name="LogicalOpComputeScalar" xml:space="preserve">
+    <value>스칼라 컴퓨팅</value>
+  </data>
+  <data name="LogicalOpMergeInterval" xml:space="preserve">
+    <value>병합 간격</value>
+  </data>
+  <data name="LogicalOpRank" xml:space="preserve">
+    <value>순위</value>
+  </data>
+  <data name="LogicalOpSegment" xml:space="preserve">
+    <value>세그먼트</value>
+  </data>
+  <data name="LogicalOpSequence" xml:space="preserve">
+    <value>시퀀스</value>
+  </data>
+  <data name="LogicalOpSplit" xml:space="preserve">
+    <value>분할됨</value>
+  </data>
+  <data name="LogicalOpAggregate" xml:space="preserve">
+    <value>집계</value>
+  </data>
+  <data name="LogicalOpTableScan" xml:space="preserve">
+    <value>테이블 검색</value>
+  </data>
+  <data name="LogicalOpClusteredIndexScan" xml:space="preserve">
+    <value>클러스터형 인덱스 검사</value>
+  </data>
+  <data name="LogicalOpClusteredIndexSeek" xml:space="preserve">
+    <value>클러스터형 인덱스 검색</value>
+  </data>
+  <data name="LogicalOpDeletedScan" xml:space="preserve">
+    <value>삭제된 검사</value>
+  </data>
+  <data name="LogicalOpInsertedScan" xml:space="preserve">
+    <value>삽입된 검사</value>
+  </data>
+  <data name="LogicalOpParameterTableScan" xml:space="preserve">
+    <value>매개 변수 테이블 검사</value>
+  </data>
+  <data name="LogicalOpPut" xml:space="preserve">
+    <value>넣기</value>
+  </data>
+  <data name="LogicalOpIndexScan" xml:space="preserve">
+    <value>인덱스 검사</value>
+  </data>
+  <data name="LogicalOpIndexSeek" xml:space="preserve">
+    <value>인덱스 검색</value>
+  </data>
+  <data name="LogicalOpRemoteScan" xml:space="preserve">
+    <value>원격 검사</value>
+  </data>
+  <data name="LogicalOpRemoteIndexScan" xml:space="preserve">
+    <value>원격 인덱스 검사</value>
+  </data>
+  <data name="LogicalOpRemoteIndexSeek" xml:space="preserve">
+    <value>원격 인덱스 검색</value>
+  </data>
+  <data name="LogicalOpRemoteQuery" xml:space="preserve">
+    <value>원격 쿼리</value>
+  </data>
+  <data name="LogicalOpRemoteInsert" xml:space="preserve">
+    <value>원격 삽입</value>
+  </data>
+  <data name="LogicalOpRemoteUpdate" xml:space="preserve">
+    <value>원격 업데이트</value>
+  </data>
+  <data name="LogicalOpRemoteDelete" xml:space="preserve">
+    <value>원격 삭제</value>
+  </data>
+  <data name="LogicalOpClusteredUpdate" xml:space="preserve">
+    <value>클러스터형 업데이트</value>
+  </data>
+  <data name="LogicalOpDistinctSort" xml:space="preserve">
+    <value>고유 정렬</value>
+  </data>
+  <data name="LogicalOpSort" xml:space="preserve">
+    <value>정렬</value>
+  </data>
+  <data name="LogicalOpTopNSort" xml:space="preserve">
+    <value>상위 N 정렬</value>
+  </data>
+  <data name="LogicalOpEagerSpool" xml:space="preserve">
+    <value>즉시 스풀</value>
+  </data>
+  <data name="LogicalOpLazySpool" xml:space="preserve">
+    <value>지연 스풀</value>
+  </data>
+  <data name="LogicalOpUpdate" xml:space="preserve">
+    <value>업데이트</value>
+  </data>
+  <data name="LogicalOpInsert" xml:space="preserve">
+    <value>삽입</value>
+  </data>
+  <data name="LogicalOpDelete" xml:space="preserve">
+    <value>삭제</value>
+  </data>
+  <data name="LogicalOpMerge" xml:space="preserve">
+    <value>병합</value>
+  </data>
+  <data name="LogicalOpTop" xml:space="preserve">
+    <value>위쪽</value>
+  </data>
+  <data name="LogicalOpDistinct" xml:space="preserve">
+    <value>고유</value>
+  </data>
+  <data name="LogicalOpFlowDistinct" xml:space="preserve">
+    <value>흐름 고유</value>
+  </data>
+  <data name="LogicalOpPartialAggregate" xml:space="preserve">
+    <value>부분 집계</value>
+  </data>
+  <data name="LogicalOpInnerApply" xml:space="preserve">
+    <value>내부 적용</value>
+  </data>
+  <data name="LogicalOpInnerJoin" xml:space="preserve">
+    <value>내부 조인</value>
+  </data>
+  <data name="LogicalOpLeftAntiSemiApply" xml:space="preserve">
+    <value>왼쪽 우선 안티 세미 적용</value>
+  </data>
+  <data name="LogicalOpLeftSemiApply" xml:space="preserve">
+    <value>왼쪽 세미 적용</value>
+  </data>
+  <data name="LogicalOpLeftOuterApply" xml:space="preserve">
+    <value>왼쪽 우선 외부 적용</value>
+  </data>
+  <data name="LogicalOpLeftOuterJoin" xml:space="preserve">
+    <value>왼쪽 우선 외부 조인</value>
+  </data>
+  <data name="LogicalOpRightOuterJoin" xml:space="preserve">
+    <value>오른쪽 우선 외부 조인</value>
+  </data>
+  <data name="LogicalOpFullOuterJoin" xml:space="preserve">
+    <value>완전 외부 조인</value>
+  </data>
+  <data name="LogicalOpLeftSemiJoin" xml:space="preserve">
+    <value>왼쪽 세미 조인</value>
+  </data>
+  <data name="LogicalOpLeftAntiSemiJoin" xml:space="preserve">
+    <value>Left Anti Semi Join</value>
+  </data>
+  <data name="LogicalOpRightSemiJoin" xml:space="preserve">
+    <value>오른쪽 세미 조인</value>
+  </data>
+  <data name="LogicalOpRightAntiSemiJoin" xml:space="preserve">
+    <value>Right Anti Semi Join</value>
+  </data>
+  <data name="LogicalOpIntersect" xml:space="preserve">
+    <value>교차</value>
+  </data>
+  <data name="LogicalOpIntersectAll" xml:space="preserve">
+    <value>모두 교차</value>
+  </data>
+  <data name="LogicalOpUnion" xml:space="preserve">
+    <value>공용 구조체</value>
+  </data>
+  <data name="LogicalOpLeftDiff" xml:space="preserve">
+    <value>왼쪽 차이</value>
+  </data>
+  <data name="LogicalOpLeftDiffAll" xml:space="preserve">
+    <value>모두 왼쪽 차이</value>
+  </data>
+  <data name="LogicalOpRightDiff" xml:space="preserve">
+    <value>오른쪽 차이</value>
+  </data>
+  <data name="LogicalOpRightDiffAll" xml:space="preserve">
+    <value>모두 오른쪽 차이</value>
+  </data>
+  <data name="LogicalOpAntiDiff" xml:space="preserve">
+    <value>차이 방지</value>
+  </data>
+  <data name="LogicalOpCrossJoin" xml:space="preserve">
+    <value>크로스 조인</value>
+  </data>
+  <data name="LogicalOpBitmapCreate" xml:space="preserve">
+    <value>비트맵 만들기</value>
+  </data>
+  <data name="LogicalOpUDX" xml:space="preserve">
+    <value>UDX</value>
+  </data>
+  <data name="LogicalOpWindow" xml:space="preserve">
+    <value>창 스풀</value>
+  </data>
+  <data name="LogicalOpSwitch" xml:space="preserve">
+    <value>전환</value>
+  </data>
+  <data name="LogicalOpMergeStats" xml:space="preserve">
+    <value>통계 병합</value>
+  </data>
+  <data name="LogicalOpLocalStats" xml:space="preserve">
+    <value>로컬 통계</value>
+  </data>
+  <data name="LogicalOpTableValuedFunction" xml:space="preserve">
+    <value>테이블 반환 함수</value>
+  </data>
+  <data name="LogicalOpBatchHashTableBuild" xml:space="preserve">
+    <value>일괄 처리 해시 테이블 작성</value>
+  </data>
+  <data name="LogicalOpForeignKeyReferencesCheck" xml:space="preserve">
+    <value>외래 키 참조 확인</value>
+  </data>
+  <data name="LogicalOpRIDLookup" xml:space="preserve">
+    <value>RID 조회</value>
+  </data>
+  <data name="StoredProc" xml:space="preserve">
+    <value>저장 프로시저</value>
+  </data>
+  <data name="Udf" xml:space="preserve">
+    <value>UDF</value>
+  </data>
+  <data name="ProcName" xml:space="preserve">
+    <value>프로시저 이름</value>
+  </data>
+  <data name="Storage" xml:space="preserve">
+    <value>저장소</value>
+  </data>
+  <data name="StorageDesc" xml:space="preserve">
+    <value>저장소</value>
+  </data>
+  <data name="ActualExecMode" xml:space="preserve">
+    <value>실제 실행 모드</value>
+  </data>
+  <data name="ActualExecModeDesc" xml:space="preserve">
+    <value>실제 실행 모드</value>
+  </data>
+  <data name="EstimatedExecMode" xml:space="preserve">
+    <value>예상 실행 모드</value>
+  </data>
+  <data name="EstimatedExecModeDesc" xml:space="preserve">
+    <value>예상 실행 모드</value>
+  </data>
+  <data name="CostFormat" xml:space="preserve">
+    <value>비용: {0}%</value>
+  </data>
+  <data name="RemoteDataAccess" xml:space="preserve">
+    <value>원격 데이터 액세스</value>
+  </data>
+  <data name="RemoteDataAccessDescription" xml:space="preserve">
+    <value>운영자가 RPC(원격 프로시저 호출)를 사용하여 원격 데이터에 액세스하는지 여부를 나타냅니다.</value>
+  </data>
+  <data name="CloneAccessScope" xml:space="preserve">
+    <value>복제본 액세스 범위</value>
+  </data>
+  <data name="CloneAccessScopeDescription" xml:space="preserve">
+    <value>운영자가 액세스할 수 있는 복제본입니다.</value>
+  </data>
+  <data name="PrimaryClones" xml:space="preserve">
+    <value>주 복제본</value>
+  </data>
+  <data name="SecondaryClones" xml:space="preserve">
+    <value>보조 복제본</value>
+  </data>
+  <data name="BothClones" xml:space="preserve">
+    <value>모든 복제본</value>
+  </data>
+  <data name="EitherClones" xml:space="preserve">
+    <value>주 복제본 또는 보조 복제본</value>
+  </data>
+  <data name="ExactMatchClones" xml:space="preserve">
+    <value>단일 복제본 일치</value>
+  </data>
+  <data name="Remoting" xml:space="preserve">
+    <value>원격</value>
+  </data>
+  <data name="RemotingDescription" xml:space="preserve">
+    <value>운영자가 원격으로 실행 가능한지 여부를 나타냅니다.</value>
+  </data>
+  <data name="Activation" xml:space="preserve">
+    <value>활성화</value>
+  </data>
+  <data name="BrickRouting" xml:space="preserve">
+    <value>브릭 라우팅</value>
+  </data>
+  <data name="FragmentIdColumn" xml:space="preserve">
+    <value>조각 Id 열</value>
+  </data>
+  <data name="EditQueryText" xml:space="preserve">
+    <value>실행 계획 XML(잘릴 수 있음)에서 쿼리 텍스트 편집</value>
+  </data>
+  <data name="UnknownShowPlanSource" xml:space="preserve">
+    <value>실행 계획 원본 유형을 인식할 수 없습니다.</value>
+  </data>
+  <data name="SavePlanFilter" xml:space="preserve">
+    <value>SQL 계획 파일 (*.SqlPlan)|*.SqlPlan|모든 파일 (*.*)|*.*</value>
+  </data>
+  <data name="NoXmlPlanData" xml:space="preserve">
+    <value>XML 형식에서는 계획 데이터를 사용할 수 없습니다. SQL Server 2005의 계획만 저장할 수 있습니다.</value>
+  </data>
+  <data name="PerThreadCounterDescription" xml:space="preserve">
+    <value>스레드 단위 카운터 정보입니다.</value>
+  </data>
+  <data name="RuntimeCounterThread" xml:space="preserve">
+    <value>스레드 {0}</value>
+  </data>
+  <data name="RuntimeCounterThreadOnInstance" xml:space="preserve">
+    <value>인스턴스 {1}의 스레드 {0}</value>
+  </data>
+  <data name="RuntimeCounterThreadAll" xml:space="preserve">
+    <value>모든 스레드</value>
+  </data>
+  <data name="ConnectionPropertiesLabel" xml:space="preserve">
+    <value>연결 속성 보기</value>
+  </data>
+  <data name="UnknownAssignType" xml:space="preserve">
+    <value>알 수 없는 할당 유형입니다.</value>
+  </data>
+  <data name="MessageBoxCaption" xml:space="preserve">
+    <value>SQL Server</value>
+  </data>
+  <data name="ZoomLevelShouldBeBetween" xml:space="preserve">
+    <value>확대/축소 수준은 {0}에서 {1} 사이의 정수여야 합니다.</value>
+  </data>
+  <data name="UnknownNodeType" xml:space="preserve">
+    <value>알 수 없는 노드 유형입니다.</value>
+  </data>
+  <data name="UnknownCursorPlanOperation" xml:space="preserve">
+    <value>알 수 없는 커서 계획 작업 '{0}'입니다.</value>
+  </data>
+  <data name="UnknownStatementType" xml:space="preserve">
+    <value>문 유형을 인식할 수 없습니다.</value>
+  </data>
+  <data name="RollupInfo" xml:space="preserve">
+    <value>롤업 정보</value>
+  </data>
+  <data name="RollupInfoDescription" xml:space="preserve">
+    <value>롤업 정보입니다.</value>
+  </data>
+  <data name="HighestLevel" xml:space="preserve">
+    <value>가장 높은 수준</value>
+  </data>
+  <data name="HighestLevelDescription" xml:space="preserve">
+    <value>이 롤업에서 계산되는 그룹화 특성의 가장 높은 수준입니다.</value>
+  </data>
+  <data name="RollupLevel" xml:space="preserve">
+    <value>롤업 수준</value>
+  </data>
+  <data name="RollupLevelDescription" xml:space="preserve">
+    <value>이 롤업에서 계산되는 그룹화 특성의 모든 수준입니다.</value>
+  </data>
+  <data name="Level" xml:space="preserve">
+    <value>수준</value>
+  </data>
+  <data name="LevelDescription" xml:space="preserve">
+    <value>이 롤업에서 계산되는 그룹화 특성의 수준입니다.</value>
+  </data>
+  <data name="RemoteQuery" xml:space="preserve">
+    <value>원격 쿼리</value>
+  </data>
+  <data name="RemoteQueryDescription" xml:space="preserve">
+    <value>현재 SQL Server가 아닌 다른 서버로 SQL 쿼리를 보냅니다.</value>
+  </data>
+  <data name="ComputeScalar" xml:space="preserve">
+    <value>스칼라 컴퓨팅</value>
+  </data>
+  <data name="MergeInterval" xml:space="preserve">
+    <value>병합 간격</value>
+  </data>
+  <data name="Print" xml:space="preserve">
+    <value>인쇄</value>
+  </data>
+  <data name="Segment" xml:space="preserve">
+    <value>세그먼트</value>
+  </data>
+  <data name="Split" xml:space="preserve">
+    <value>분할됨</value>
+  </data>
+  <data name="BatchHashTableBuild" xml:space="preserve">
+    <value>일괄 처리 해시 테이블 작성</value>
+  </data>
+  <data name="Bitmap" xml:space="preserve">
+    <value>Bitmap</value>
+  </data>
+  <data name="Collapse" xml:space="preserve">
+    <value>축소</value>
+  </data>
+  <data name="TableSpool" xml:space="preserve">
+    <value>테이블 스풀</value>
+  </data>
+  <data name="RepartitionStreams" xml:space="preserve">
+    <value>스트림 다시 분할</value>
+  </data>
+  <data name="Assert" xml:space="preserve">
+    <value>어설션</value>
+  </data>
+  <data name="Sort" xml:space="preserve">
+    <value>정렬</value>
+  </data>
+  <data name="Top" xml:space="preserve">
+    <value>위쪽</value>
+  </data>
+  <data name="SequenceProject" xml:space="preserve">
+    <value>시퀀스 프로젝트</value>
+  </data>
+  <data name="Spool" xml:space="preserve">
+    <value>스풀</value>
+  </data>
+  <data name="Window" xml:space="preserve">
+    <value>창 스풀</value>
+  </data>
+  <data name="Parallelism" xml:space="preserve">
+    <value>병렬 처리</value>
+  </data>
+  <data name="RowCountSpool" xml:space="preserve">
+    <value>행 개수 스풀</value>
+  </data>
+  <data name="Unknown" xml:space="preserve">
+    <value>알 수 없음</value>
+  </data>
+  <data name="UnknownDescription" xml:space="preserve">
+    <value>알 수 없는 연산자입니다.</value>
+  </data>
+  <data name="Result" xml:space="preserve">
+    <value>결과</value>
+  </data>
+  <data name="ResultDescription" xml:space="preserve">
+    <value>결과입니다.</value>
+  </data>
+  <data name="CollapseDescription" xml:space="preserve">
+    <value>같은 값의 삽입 및 삭제를 광범위한 업데이트 계획 내의 업데이트로 그룹화합니다.</value>
+  </data>
+  <data name="Concatenation" xml:space="preserve">
+    <value>연결</value>
+  </data>
+  <data name="ConcatenationDescription" xml:space="preserve">
+    <value>여러 입력 테이블을 추가하여 출력 테이블을 구성합니다.</value>
+  </data>
+  <data name="ConstantScan" xml:space="preserve">
+    <value>상수 검사</value>
+  </data>
+  <data name="ConstantScanDescription" xml:space="preserve">
+    <value>내부 상수 테이블을 검색합니다.</value>
+  </data>
+  <data name="ParallelismDescription" xml:space="preserve">
+    <value>병렬 처리와 관련된 연산입니다.</value>
+  </data>
+  <data name="Put" xml:space="preserve">
+    <value>넣기</value>
+  </data>
+  <data name="PutDescription" xml:space="preserve">
+    <value>로컬 테이블 또는 외부 테이블의 행을 외부 테이블로 내보냅니다.</value>
+  </data>
+  <data name="DistributeStreams" xml:space="preserve">
+    <value>스트림 분산</value>
+  </data>
+  <data name="DistributeStreamsDescription" xml:space="preserve">
+    <value>스트림을 배포합니다.</value>
+  </data>
+  <data name="GatherStreams" xml:space="preserve">
+    <value>스트림 수집</value>
+  </data>
+  <data name="GatherStreamsDescription" xml:space="preserve">
+    <value>스트림을 수집합니다.</value>
+  </data>
+  <data name="RepartitionStreamsDescription" xml:space="preserve">
+    <value>스트림을 다시 분할합니다.</value>
+  </data>
+  <data name="EagerSpool" xml:space="preserve">
+    <value>즉시 스풀</value>
+  </data>
+  <data name="EagerSpoolDescription" xml:space="preserve">
+    <value>즉시 스풀입니다.</value>
+  </data>
+  <data name="LazySpool" xml:space="preserve">
+    <value>지연 스풀</value>
+  </data>
+  <data name="LazySpoolDescription" xml:space="preserve">
+    <value>지연 스풀입니다.</value>
+  </data>
+  <data name="Filter" xml:space="preserve">
+    <value>필터</value>
+  </data>
+  <data name="FilterDescription" xml:space="preserve">
+    <value>조건자를 기준으로 행 집합을 제한합니다.</value>
+  </data>
+  <data name="AssertDescription" xml:space="preserve">
+    <value>지정한 조건이 있는지 확인하는 데 사용됩니다.</value>
+  </data>
+  <data name="HashMatch" xml:space="preserve">
+    <value>해시 일치</value>
+  </data>
+  <data name="HashMatchDescription" xml:space="preserve">
+    <value>최상위 입력의 각 행으로 해시 테이블을 작성하고 최하위 입력의 각 행으로 해시 테이블을 검색하여 일치하는 모든 행을 출력합니다.</value>
+  </data>
+  <data name="HashMatchTeam" xml:space="preserve">
+    <value>해시 일치 팀</value>
+  </data>
+  <data name="HashMatchTeamDescription" xml:space="preserve">
+    <value>여러 협동 해시 연산의 기여자입니다.</value>
+  </data>
+  <data name="HashMatchRoot" xml:space="preserve">
+    <value>해시 일치 루트</value>
+  </data>
+  <data name="HashMatchRootDescription" xml:space="preserve">
+    <value>연결된 해시 연산자 팀의 루트 멤버이며 공통 해시 함수와 분할 전략을 공유합니다.</value>
+  </data>
+  <data name="BookmarkLookup" xml:space="preserve">
+    <value>책갈피 조회</value>
+  </data>
+  <data name="BookmarkLookupDescription" xml:space="preserve">
+    <value>책갈피(RID 또는 클러스터링 키)를 사용하여 테이블 또는 클러스터형 인덱스의 해당 행을 조회합니다.</value>
+  </data>
+  <data name="LogRowScan" xml:space="preserve">
+    <value>로그 행 검사</value>
+  </data>
+  <data name="LogRowScanDescription" xml:space="preserve">
+    <value>로그에 있는 행을 검색합니다.</value>
+  </data>
+  <data name="MergeJoin" xml:space="preserve">
+    <value>조인 병합</value>
+  </data>
+  <data name="MergeJoinDescription" xml:space="preserve">
+    <value>적절하게 정렬된 두 입력 테이블에서 정렬 순서를 이용하여 행을 대응시킵니다.</value>
+  </data>
+  <data name="NestedLoops" xml:space="preserve">
+    <value>중첩 루프</value>
+  </data>
+  <data name="NestedLoopsDescription" xml:space="preserve">
+    <value>최상위(외부) 입력의 각 행에 대해 최하위(내부) 입력을 검색하고 일치하는 행을 출력합니다.</value>
+  </data>
+  <data name="PrintDescription" xml:space="preserve">
+    <value>항목을 인쇄합니다.</value>
+  </data>
+  <data name="ComputeScalarDescription" xml:space="preserve">
+    <value>한 행의 기존 값에서 새 값을 컴퓨팅합니다.</value>
+  </data>
+  <data name="MergeIntervalDescription" xml:space="preserve">
+    <value>병합 간격입니다.</value>
+  </data>
+  <data name="Rank" xml:space="preserve">
+    <value>순위</value>
+  </data>
+  <data name="RankDescription" xml:space="preserve">
+    <value>테이블에 있는 기존 열의 값 순위를 사용하여 계산 열을 만듭니다.</value>
+  </data>
+  <data name="RowCountSpoolDescription" xml:space="preserve">
+    <value>되감기를 최적화하기 위해 입력의 데이터를 임시 테이블에 저장합니다.</value>
+  </data>
+  <data name="SegmentDescription" xml:space="preserve">
+    <value>세그먼트입니다.</value>
+  </data>
+  <data name="Sequence" xml:space="preserve">
+    <value>시퀀스</value>
+  </data>
+  <data name="SequenceDescription" xml:space="preserve">
+    <value>각 입력을 위에서 아래 방향으로 처리합니다.</value>
+  </data>
+  <data name="SequenceProjectDescription" xml:space="preserve">
+    <value>정렬된 집합에 대해 계산을 수행하기 위해 열을 추가합니다.</value>
+  </data>
+  <data name="SplitDescription" xml:space="preserve">
+    <value>분할합니다.</value>
+  </data>
+  <data name="StreamAggregate" xml:space="preserve">
+    <value>스트림 집계</value>
+  </data>
+  <data name="StreamAggregateDescription" xml:space="preserve">
+    <value>적절하게 정렬된 스트림에서 행 그룹에 대한 요약 값을 계산합니다.</value>
+  </data>
+  <data name="TableScan" xml:space="preserve">
+    <value>테이블 검색</value>
+  </data>
+  <data name="TableScanDescription" xml:space="preserve">
+    <value>테이블에서 행을 검색합니다.</value>
+  </data>
+  <data name="ClusteredIndexScan" xml:space="preserve">
+    <value>클러스터형 인덱스 검사</value>
+  </data>
+  <data name="ClusteredIndexScanDescription" xml:space="preserve">
+    <value>클러스터형 인덱스에서 전체 또는 특정 범위를 검색합니다.</value>
+  </data>
+  <data name="ClusteredIndexSeek" xml:space="preserve">
+    <value>클러스터형 인덱스 검색</value>
+  </data>
+  <data name="ClusteredIndexSeekDescription" xml:space="preserve">
+    <value>클러스터형 인덱스에서 특정 범위의 행을 검색합니다.</value>
+  </data>
+  <data name="DeletedScan" xml:space="preserve">
+    <value>삭제된 검사</value>
+  </data>
+  <data name="DeletedScanDescription" xml:space="preserve">
+    <value>트리거 내에서 '삭제된 항목' 의사 테이블을 검색합니다.</value>
+  </data>
+  <data name="InsertedScan" xml:space="preserve">
+    <value>삽입된 검사</value>
+  </data>
+  <data name="InsertedScanDescription" xml:space="preserve">
+    <value>트리거 내에서 '삽입된 항목' 의사 테이블을 검색합니다.</value>
+  </data>
+  <data name="ParameterTableScan" xml:space="preserve">
+    <value>매개 변수 테이블 검사</value>
+  </data>
+  <data name="ParameterTableScanDescription" xml:space="preserve">
+    <value>내부 매개 변수 값 테이블을 검색합니다.</value>
+  </data>
+  <data name="IndexScan" xml:space="preserve">
+    <value>인덱스 검사</value>
+  </data>
+  <data name="IndexScanDescription" xml:space="preserve">
+    <value>비클러스터형 인덱스에서 전체 또는 한 범위만 검색합니다.</value>
+  </data>
+  <data name="IndexSeek" xml:space="preserve">
+    <value>인덱스 검색</value>
+  </data>
+  <data name="IndexSeekDescription" xml:space="preserve">
+    <value>비클러스터형 인덱스에서 특정 범위의 행을 검색합니다.</value>
+  </data>
+  <data name="ColumnstoreIndexScan" xml:space="preserve">
+    <value>Columnstore 인덱스 검사</value>
+  </data>
+  <data name="ColumnstoreIndexScanDescription" xml:space="preserve">
+    <value>columnstore 인덱스에서 전체 또는 특정 범위를 검색합니다.</value>
+  </data>
+  <data name="ColumnstoreIndexUpdate" xml:space="preserve">
+    <value>Columnstore 인덱스 업데이트</value>
+  </data>
+  <data name="ColumnstoreIndexUpdateDescription" xml:space="preserve">
+    <value>columnstore 인덱스에서 행을 업데이트합니다.</value>
+  </data>
+  <data name="ColumnstoreIndexInsert" xml:space="preserve">
+    <value>Columnstore 인덱스 삽입</value>
+  </data>
+  <data name="ColumnstoreIndexInsertDescription" xml:space="preserve">
+    <value>columnstore 인덱스에서 행을 삽입합니다.</value>
+  </data>
+  <data name="ColumnstoreIndexMerge" xml:space="preserve">
+    <value>Columnstore 인덱스 병합</value>
+  </data>
+  <data name="ColumnstoreIndexMergeDescription" xml:space="preserve">
+    <value>columnstore 인덱스에서 행을 병합합니다.</value>
+  </data>
+  <data name="ColumnstoreIndexDelete" xml:space="preserve">
+    <value>columnstore 인덱스 삭제</value>
+  </data>
+  <data name="ColumnstoreIndexDeleteDescription" xml:space="preserve">
+    <value>columnstore 인덱스에서 행을 삭제합니다.</value>
+  </data>
+  <data name="RemoteScan" xml:space="preserve">
+    <value>원격 검사</value>
+  </data>
+  <data name="RemoteScanDescription" xml:space="preserve">
+    <value>현재 데이터베이스 서버가 아닌 다른 데이터베이스나 파일에 저장된 테이블의 행을 검색합니다.</value>
+  </data>
+  <data name="RemoteIndexScan" xml:space="preserve">
+    <value>원격 인덱스 검사</value>
+  </data>
+  <data name="RemoteIndexScanDescription" xml:space="preserve">
+    <value>현재 데이터베이스 서버가 아닌 다른 데이터베이스나 파일에 저장된 인덱스를 검색합니다.</value>
+  </data>
+  <data name="RemoteIndexSeek" xml:space="preserve">
+    <value>원격 인덱스 검색</value>
+  </data>
+  <data name="RemoteIndexSeekDescription" xml:space="preserve">
+    <value>현재 데이터베이스 서버가 아닌 다른 데이터베이스나 파일에 저장된 클러스터형 인덱스에서 특정 행 범위를 검색합니다.</value>
+  </data>
+  <data name="RemoteInsert" xml:space="preserve">
+    <value>원격 삽입</value>
+  </data>
+  <data name="RemoteInsertDescription" xml:space="preserve">
+    <value>현재 데이터베이스 서버가 아닌 다른 데이터베이스나 파일에 저장된 테이블에 행을 삽입합니다.</value>
+  </data>
+  <data name="RemoteUpdate" xml:space="preserve">
+    <value>원격 업데이트</value>
+  </data>
+  <data name="RemoteUpdateDescription" xml:space="preserve">
+    <value>현재 데이터베이스 서버가 아닌 다른 데이터베이스나 파일에 저장된 테이블의 행을 업데이트합니다.</value>
+  </data>
+  <data name="RemoteDelete" xml:space="preserve">
+    <value>원격 삭제</value>
+  </data>
+  <data name="RemoteDeleteDescription" xml:space="preserve">
+    <value>현재 데이터베이스 서버가 아닌 다른 데이터베이스나 파일에 저장된 테이블의 행을 삭제합니다.</value>
+  </data>
+  <data name="ClusteredUpdate" xml:space="preserve">
+    <value>클러스터형 업데이트</value>
+  </data>
+  <data name="ClusteredUpdateDescription" xml:space="preserve">
+    <value>클러스터형 업데이트입니다.</value>
+  </data>
+  <data name="SortDescription" xml:space="preserve">
+    <value>입력을 정렬합니다.</value>
+  </data>
+  <data name="TableSpoolDescription" xml:space="preserve">
+    <value>되감기를 최적화하기 위해 입력의 데이터를 임시 테이블에 저장합니다.</value>
+  </data>
+  <data name="IndexSpool" xml:space="preserve">
+    <value>인덱스 스풀</value>
+  </data>
+  <data name="IndexSpoolDescription" xml:space="preserve">
+    <value>입력의 데이터를 임시 인덱스로 다시 설정합니다. 이 임시 인덱스는 제공된 seek 조건자로 찾을 때 사용됩니다.</value>
+  </data>
+  <data name="TableUpdate" xml:space="preserve">
+    <value>테이블 업데이트</value>
+  </data>
+  <data name="TableUpdateDescription" xml:space="preserve">
+    <value>인수 필드에서 지정한 테이블에 있는 입력 행을 업데이트합니다.</value>
+  </data>
+  <data name="TableInsert" xml:space="preserve">
+    <value>테이블 삽입</value>
+  </data>
+  <data name="TableInsertDescription" xml:space="preserve">
+    <value>인수 필드에서 지정한 테이블에 입력 행을 삽입합니다.</value>
+  </data>
+  <data name="TableDelete" xml:space="preserve">
+    <value>테이블 삭제</value>
+  </data>
+  <data name="TableDeleteDescription" xml:space="preserve">
+    <value>인수 필드에서 지정한 테이블에서 입력 행을 삭제합니다.</value>
+  </data>
+  <data name="TableMerge" xml:space="preserve">
+    <value>테이블 병합</value>
+  </data>
+  <data name="TableMergeDescription" xml:space="preserve">
+    <value>인수 필드에서 지정한 테이블에서 입력 행을 병합합니다.</value>
+  </data>
+  <data name="IndexUpdate" xml:space="preserve">
+    <value>인덱스 업데이트</value>
+  </data>
+  <data name="IndexUpdateDescription" xml:space="preserve">
+    <value>인덱스에서 행을 업데이트합니다.</value>
+  </data>
+  <data name="IndexInsert" xml:space="preserve">
+    <value>인덱스 삽입</value>
+  </data>
+  <data name="IndexInsertDescription" xml:space="preserve">
+    <value>인덱스로 행을 삽입합니다.</value>
+  </data>
+  <data name="IndexDelete" xml:space="preserve">
+    <value>인덱스 삭제</value>
+  </data>
+  <data name="IndexDeleteDescription" xml:space="preserve">
+    <value>인덱스에서 행을 삭제합니다.</value>
+  </data>
+  <data name="ClusteredIndexUpdate" xml:space="preserve">
+    <value>클러스터형 인덱스 업데이트</value>
+  </data>
+  <data name="ClusteredIndexUpdateDescription" xml:space="preserve">
+    <value>클러스터형 인덱스의 행을 업데이트합니다.</value>
+  </data>
+  <data name="ClusteredIndexInsert" xml:space="preserve">
+    <value>클러스터형 인덱스 삽입</value>
+  </data>
+  <data name="ClusteredIndexInsertDescription" xml:space="preserve">
+    <value>클러스터형 인덱스에 행을 삽입합니다.</value>
+  </data>
+  <data name="ClusteredIndexMerge" xml:space="preserve">
+    <value>클러스터형 인덱스 병합</value>
+  </data>
+  <data name="ClusteredIndexMergeDescription" xml:space="preserve">
+    <value>클러스터형 인덱스의 행을 병합합니다.</value>
+  </data>
+  <data name="ClusteredIndexDelete" xml:space="preserve">
+    <value>클러스터형 인덱스 삭제</value>
+  </data>
+  <data name="ClusteredIndexDeleteDescription" xml:space="preserve">
+    <value>클러스터형 인덱스에서 행을 삭제합니다.</value>
+  </data>
+  <data name="TopDescription" xml:space="preserve">
+    <value>정렬 순서를 기준으로 처음 몇 행을 선택합니다.</value>
+  </data>
+  <data name="BitmapDescription" xml:space="preserve">
+    <value>비트맵입니다.</value>
+  </data>
+  <data name="UDX" xml:space="preserve">
+    <value>UDX</value>
+  </data>
+  <data name="UDXDescription" xml:space="preserve">
+    <value>UDX입니다.</value>
+  </data>
+  <data name="WindowDescription" xml:space="preserve">
+    <value>연결된 창을 나타내는 행 집합으로 각 행을 확장합니다.</value>
+  </data>
+  <data name="WindowAggregate" xml:space="preserve">
+    <value>창 집계</value>
+  </data>
+  <data name="WindowAggregateDescription" xml:space="preserve">
+    <value>OVER 절로 정의된 창 전체에서 함수 값을 계산합니다. 입력 행 집합은 적절하게 정렬된 스트림입니다.</value>
+  </data>
+  <data name="BatchHashTableBuildDescription" xml:space="preserve">
+    <value>일괄 처리 해시 테이블 작성</value>
+  </data>
+  <data name="Switch" xml:space="preserve">
+    <value>전환</value>
+  </data>
+  <data name="SwitchDescription" xml:space="preserve">
+    <value>전환을 수행합니다.</value>
+  </data>
+  <data name="TFP" xml:space="preserve">
+    <value>예측</value>
+  </data>
+  <data name="TFPDescription" xml:space="preserve">
+    <value>입력 데이터에 학습된 기계 학습 모델을 적용합니다.	</value>
+  </data>
+  <data name="TableValueFunction" xml:space="preserve">
+    <value>테이블 반환 함수</value>
+  </data>
+  <data name="TableValueFunctionDescription" xml:space="preserve">
+    <value>테이블 반환 함수입니다.</value>
+  </data>
+  <data name="Aggregate" xml:space="preserve">
+    <value>집계</value>
+  </data>
+  <data name="AggregateDescription" xml:space="preserve">
+    <value>SUM, COUNT, MIN, MAX 또는 AVG를 포함하는 식을 계산합니다.</value>
+  </data>
+  <data name="ArithmeticExpression" xml:space="preserve">
+    <value>산술 식</value>
+  </data>
+  <data name="ArithmeticExpressionDescription" xml:space="preserve">
+    <value>한 행의 기존 값에서 새 값을 계산합니다.</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>삭제</value>
+  </data>
+  <data name="DeleteDescription" xml:space="preserve">
+    <value>지정한 테이블에서 지정한 행을 제거합니다.</value>
+  </data>
+  <data name="Insert" xml:space="preserve">
+    <value>삽입</value>
+  </data>
+  <data name="InsertDescription" xml:space="preserve">
+    <value>테이블에 행을 추가합니다.</value>
+  </data>
+  <data name="Locate" xml:space="preserve">
+    <value>찾기</value>
+  </data>
+  <data name="LocateDescription" xml:space="preserve">
+    <value>힙 또는 클러스터형 인덱스에서 전체 행을 인출합니다.</value>
+  </data>
+  <data name="SpoolDescription" xml:space="preserve">
+    <value>중간 쿼리 결과를 임시 저장합니다.</value>
+  </data>
+  <data name="SQL" xml:space="preserve">
+    <value>SQL</value>
+  </data>
+  <data name="SQLDescription" xml:space="preserve">
+    <value>SQL입니다.</value>
+  </data>
+  <data name="Update" xml:space="preserve">
+    <value>업데이트</value>
+  </data>
+  <data name="UpdateDescription" xml:space="preserve">
+    <value>지정한 테이블에서 값을 수정합니다.</value>
+  </data>
+  <data name="Assign" xml:space="preserve">
+    <value>할당</value>
+  </data>
+  <data name="AssignDescription" xml:space="preserve">
+    <value>참조 무결성 제약 조건의 유효성을 검사합니다.</value>
+  </data>
+  <data name="Convert" xml:space="preserve">
+    <value>변환</value>
+  </data>
+  <data name="ConvertDescription" xml:space="preserve">
+    <value>스칼라 데이터 형식을 다른 데이터 형식으로 암시적 또는 명시적으로 변환합니다.</value>
+  </data>
+  <data name="Declare" xml:space="preserve">
+    <value>선언</value>
+  </data>
+  <data name="DeclareDescription" xml:space="preserve">
+    <value>지역 변수를 할당합니다.</value>
+  </data>
+  <data name="If" xml:space="preserve">
+    <value>If</value>
+  </data>
+  <data name="IfDescription" xml:space="preserve">
+    <value>식을 기준으로 조건에 따라 처리합니다.</value>
+  </data>
+  <data name="Intrinsic" xml:space="preserve">
+    <value>내장</value>
+  </data>
+  <data name="IntrinsicDescription" xml:space="preserve">
+    <value>내부 Transact-SQL 함수를 호출합니다.</value>
+  </data>
+  <data name="SetFunction" xml:space="preserve">
+    <value>집계 함수</value>
+  </data>
+  <data name="SetFunctionDescription" xml:space="preserve">
+    <value>집합 함수입니다.</value>
+  </data>
+  <data name="Dynamic" xml:space="preserve">
+    <value>동적</value>
+  </data>
+  <data name="DynamicDescription" xml:space="preserve">
+    <value>다른 사용자의 변경 내용을 모두 볼 수 있는 커서입니다.</value>
+  </data>
+  <data name="FetchQuery" xml:space="preserve">
+    <value>쿼리 가져오기</value>
+  </data>
+  <data name="FetchQueryDescription" xml:space="preserve">
+    <value>커서에 대해 인출이 실행될 때 행 검색에 사용되는 쿼리입니다.</value>
+  </data>
+  <data name="FastForward" xml:space="preserve">
+    <value>빨리 감기</value>
+  </data>
+  <data name="FastForwardDescription" xml:space="preserve">
+    <value>빨리 감기를 수행합니다.</value>
+  </data>
+  <data name="Keyset" xml:space="preserve">
+    <value>Keyset</value>
+  </data>
+  <data name="KeysetDescription" xml:space="preserve">
+    <value>다른 사용자의 업데이트 내용은 볼 수 있지만 삽입 내용은 볼 수 없는 커서입니다.</value>
+  </data>
+  <data name="PopulationQuery" xml:space="preserve">
+    <value>모집단 쿼리</value>
+  </data>
+  <data name="PopulationQueryDescription" xml:space="preserve">
+    <value>커서가 열려 있을 때 커서의 작업 테이블을 채우는 데 사용되는 쿼리입니다.</value>
+  </data>
+  <data name="RefreshQuery" xml:space="preserve">
+    <value>쿼리 새로 고침</value>
+  </data>
+  <data name="RefreshQueryDescription" xml:space="preserve">
+    <value>인출 버퍼의 행에 대한 현재 데이터를 인출합니다.</value>
+  </data>
+  <data name="Snapshot" xml:space="preserve">
+    <value>스냅숏</value>
+  </data>
+  <data name="SnapshotDescription" xml:space="preserve">
+    <value>다른 사용자가 변경한 내용이 보이지 않는 커서입니다.</value>
+  </data>
+  <data name="RIDLookup" xml:space="preserve">
+    <value>RID 조회</value>
+  </data>
+  <data name="RIDLookupDescription" xml:space="preserve">
+    <value>RID 조회</value>
+  </data>
+  <data name="KeyLookup" xml:space="preserve">
+    <value>키 조회</value>
+  </data>
+  <data name="KeyLookupDescription" xml:space="preserve">
+    <value>제공된 클러스터링 키를 사용하여 클러스터형 인덱스가 있는 테이블을 조회합니다.</value>
+  </data>
+  <data name="LogicalKeyLookup" xml:space="preserve">
+    <value>키 조회</value>
+  </data>
+  <data name="AdaptiveJoin" xml:space="preserve">
+    <value>적응형 조인</value>
+  </data>
+  <data name="AdaptiveJoinDescription" xml:space="preserve">
+    <value>해시 조인과 중첩된 루프 간을 동적으로 선택합니다.</value>
+  </data>
+  <data name="ForeignKeyReferencesCheck" xml:space="preserve">
+    <value>외래 키 참조 확인</value>
+  </data>
+  <data name="ForeignKeyReferencesCheckDescription" xml:space="preserve">
+    <value>삭제 작업의 참조 무결성을 확인합니다.</value>
+  </data>
+  <data name="Apply" xml:space="preserve">
+    <value>적용</value>
+  </data>
+  <data name="ApplyDescription" xml:space="preserve">
+    <value>적용 작업입니다.</value>
+  </data>
+  <data name="Broadcast" xml:space="preserve">
+    <value>브로드캐스트</value>
+  </data>
+  <data name="BroadcastDescription" xml:space="preserve">
+    <value>브로드캐스트 데이터 이동입니다.</value>
+  </data>
+  <data name="ComputeToControlNode" xml:space="preserve">
+    <value>컴퓨팅-제어 노드</value>
+  </data>
+  <data name="ComputeToControlNodeDescription" xml:space="preserve">
+    <value>컴퓨팅 노드부터 제어 노드까지의 데이터 흐름입니다.</value>
+  </data>
+  <data name="ConstTableGet" xml:space="preserve">
+    <value>상수 테이블 가져오기</value>
+  </data>
+  <data name="ConstTableGetDescription" xml:space="preserve">
+    <value>상수 테이블에서 튜플을 가져옵니다.</value>
+  </data>
+  <data name="ControlToComputeNodes" xml:space="preserve">
+    <value>제어-컴퓨팅 노드</value>
+  </data>
+  <data name="ControlToComputeNodesDescription" xml:space="preserve">
+    <value>제어 노드부터 컴퓨팅 노드까지의 데이터 흐름입니다.</value>
+  </data>
+  <data name="ExternalBroadcast" xml:space="preserve">
+    <value>외부 브로드캐스트</value>
+  </data>
+  <data name="ExternalBroadcastDescription" xml:space="preserve">
+    <value>외부 테이블에 대한 브로드캐스트 데이터 이동입니다.</value>
+  </data>
+  <data name="ExternalExport" xml:space="preserve">
+    <value>외부 내보내기</value>
+  </data>
+  <data name="ExternalExportDescription" xml:space="preserve">
+    <value>외부 테이블에 대한 내보내기 데이터 이동입니다.</value>
+  </data>
+  <data name="ExternalLocalStreaming" xml:space="preserve">
+    <value>외부 로컬 스트리밍</value>
+  </data>
+  <data name="ExternalLocalStreamingDescription" xml:space="preserve">
+    <value>외부 테이블과 로컬 테이블 사이의 스트리밍 데이터 이동입니다.</value>
+  </data>
+  <data name="ExternalRoundRobin" xml:space="preserve">
+    <value>외부 라운드 로빈</value>
+  </data>
+  <data name="ExternalRoundRobinDescription" xml:space="preserve">
+    <value>외부 테이블에 대한 라운드 로빈 데이터 이동입니다.</value>
+  </data>
+  <data name="ExternalShuffle" xml:space="preserve">
+    <value>외부 무작위 재생</value>
+  </data>
+  <data name="ExternalShuffleDescription" xml:space="preserve">
+    <value>외부 테이블에 대한 무작위 재생 데이터 이동입니다.</value>
+  </data>
+  <data name="Get" xml:space="preserve">
+    <value>가져오기</value>
+  </data>
+  <data name="GetDescription" xml:space="preserve">
+    <value>테이블에서 튜플을 가져옵니다.</value>
+  </data>
+  <data name="GbApply" xml:space="preserve">
+    <value>그룹화 및 적용</value>
+  </data>
+  <data name="GbApplyDescription" xml:space="preserve">
+    <value>그룹화하고 적용합니다.</value>
+  </data>
+  <data name="GbAgg" xml:space="preserve">
+    <value>집계별로 그룹화</value>
+  </data>
+  <data name="GbAggDescription" xml:space="preserve">
+    <value>집계별로 그룹화합니다.</value>
+  </data>
+  <data name="Join" xml:space="preserve">
+    <value>가입</value>
+  </data>
+  <data name="JoinDescription" xml:space="preserve">
+    <value>테이블을 조인합니다.</value>
+  </data>
+  <data name="LocalCube" xml:space="preserve">
+    <value>롤업 집계</value>
+  </data>
+  <data name="LocalCubeDescription" xml:space="preserve">
+    <value>ROLLUP 연산자 또는 CUBE 연산자를 나타냅니다.</value>
+  </data>
+  <data name="Project" xml:space="preserve">
+    <value>프로젝트</value>
+  </data>
+  <data name="ProjectDescription" xml:space="preserve">
+    <value>프로젝트 열입니다.</value>
+  </data>
+  <data name="Shuffle" xml:space="preserve">
+    <value>무작위 재생</value>
+  </data>
+  <data name="ShuffleDescription" xml:space="preserve">
+    <value>무작위 재생 데이터 이동입니다.</value>
+  </data>
+  <data name="SingleSourceRoundRobin" xml:space="preserve">
+    <value>단일 원본 라운드 로빈</value>
+  </data>
+  <data name="SingleSourceRoundRobinDescription" xml:space="preserve">
+    <value>단일 원본 라운드 로빈 데이터 이동입니다.</value>
+  </data>
+  <data name="SingleSourceShuffle" xml:space="preserve">
+    <value>단일 원본 무작위 재생</value>
+  </data>
+  <data name="SingleSourceShuffleDescription" xml:space="preserve">
+    <value>단일 원본 무작위 재생 데이터 이동입니다.</value>
+  </data>
+  <data name="Trim" xml:space="preserve">
+    <value>자르기</value>
+  </data>
+  <data name="TrimDescription" xml:space="preserve">
+    <value>데이터를 자릅니다.</value>
+  </data>
+  <data name="Union" xml:space="preserve">
+    <value>합집합</value>
+  </data>
+  <data name="UnionDescription" xml:space="preserve">
+    <value>합집합 테이블입니다.</value>
+  </data>
+  <data name="UnionAll" xml:space="preserve">
+    <value>모두 합집합</value>
+  </data>
+  <data name="UnionAllDescription" xml:space="preserve">
+    <value>모두 통합 테이블입니다.</value>
+  </data>
+  <data name="NameValuePair" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="SizeInBytesFormat" xml:space="preserve">
+    <value>{0}바이트</value>
+  </data>
+  <data name="SizeInKiloBytesFormat" xml:space="preserve">
+    <value>{0}KB</value>
+  </data>
+  <data name="SizeInMegaBytesFormat" xml:space="preserve">
+    <value>{0}MB</value>
+  </data>
+  <data name="SizeInGigaBytesFormat" xml:space="preserve">
+    <value>{0}GB</value>
+  </data>
+  <data name="SizeInTeraBytesFormat" xml:space="preserve">
+    <value>{0}TB</value>
+  </data>
+  <data name="TableNotInitializedException" xml:space="preserve">
+    <value>ID가 '{0}'인 테이블에 대해 초기화가 제대로 수행되지 않았습니다.</value>
+  </data>
+  <data name="TableColumnIdentityGroupName" xml:space="preserve">
+    <value>ID 사양</value>
+  </data>
+  <data name="TableColumnIsIdentityPropertyTitle" xml:space="preserve">
+    <value>ID</value>
+  </data>
+  <data name="TableColumnIsIdentityPropertyDescription" xml:space="preserve">
+    <value>열이 테이블의 ID 열인지 여부를 지정합니다.</value>
+  </data>
+  <data name="TableColumnIdentityIncrementPropertyTitle" xml:space="preserve">
+    <value>ID 증분</value>
+  </data>
+  <data name="TableColumnIdentityIncrementPropertyDescription" xml:space="preserve">
+    <value>다음 ID 값을 생성할 때 최대 기존 행 ID 값에 추가되는 값을 표시합니다.</value>
+  </data>
+  <data name="TableColumnIdentitySeedPropertyTitle" xml:space="preserve">
+    <value>ID 시드</value>
+  </data>
+  <data name="TableColumnIdentitySeedPropertyDescription" xml:space="preserve">
+    <value>ID 열의 초기 행 값을 표시합니다.</value>
+  </data>
+  <data name="TableEditPathNotProvidedException" xml:space="preserve">
+    <value>테이블 변경 정보의 경로는 비워 둘 수 없습니다.</value>
+  </data>
+  <data name="InvalidTableEditPathException" xml:space="preserve">
+    <value>테이블 변경 정보의 '{0}' 경로가 편집 형식에 적합하지 않습니다. '{1}'</value>
+  </data>
+  <data name="OperatorDisplayCost" xml:space="preserve">
+    <value>{0:0.#######}({1}%)</value>
+  </data>
+  <data name="ActualOfEstimated" xml:space="preserve">
+    <value>{0}/
+{1}({2}%)</value>
+  </data>
+  <data name="TableDesignerIsEnabledPropertyTitle" xml:space="preserve">
+    <value>사용됨</value>
+  </data>
+  <data name="ForeignKeyIsEnabledDescription" xml:space="preserve">
+    <value>외래 키를 사용할지 여부를 지정합니다.</value>
+  </data>
+  <data name="ForeignKeyIsNotForReplicationTitle" xml:space="preserve">
+    <value>복제용 아님</value>
+  </data>
+  <data name="ForeignKeyIsNotForReplicationDescription" xml:space="preserve">
+    <value>복제 프로세스에 의해 삽입된 데이터에 대해 IDENTITY 제약 조건을 설정하거나 해제합니다.</value>
+  </data>
+  <data name="SqlForeignKeyAction_NoAction" xml:space="preserve">
+    <value>조치 없음</value>
+  </data>
+  <data name="SqlForeignKeyAction_Cascade" xml:space="preserve">
+    <value>계단식 배열</value>
+  </data>
+  <data name="SqlForeignKeyAction_SetNull" xml:space="preserve">
+    <value>Null 설정</value>
+  </data>
+  <data name="SqlForeignKeyAction_SetDefault" xml:space="preserve">
+    <value>기본값 설정</value>
+  </data>
+  <data name="UnKnownSqlForeignKeyAction" xml:space="preserve">
+    <value>'{0}'은(는) 지원되는 SqlForeignKeyAction이 아닙니다.</value>
+  </data>
+  <data name="CheckConstraintIsEnabledDescription" xml:space="preserve">
+    <value>CHECK 제약 조건을 사용할지 여부를 지정합니다.</value>
   </data>
 </root>
