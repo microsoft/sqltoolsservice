@@ -2018,6 +2018,12 @@
         <note>.
  Parameters: 0 - filePath (string) </note>
       </trans-unit>
+      <trans-unit id="CreateSessionFailed">
+        <source>Failed to create session: {0}</source>
+        <target state="new">Failed to create session: {0}</target>
+        <note>.
+ Parameters: 0 - error (String) </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

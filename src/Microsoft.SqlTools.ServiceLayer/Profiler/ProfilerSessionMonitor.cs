@@ -154,7 +154,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 {
                     targetToken.Cancel();
                 }
-                if (this.monitoredSessions.Remove(sessionId, out session) && session.isStreamActive())
+                if (this.monitoredSessions.Remove(sessionId, out session) && session.isStreaming)
                 {
                     // Toggle isStreaming status of removed session to not streaming.
                     session.isStreaming = false;
@@ -196,7 +196,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     {
                         ProfilerSession session;
                         this.monitoredSessions.TryGetValue(id, out session);
-                        if (!session.isStreamActive())
+                        if (!session.isStreaming)
                         {
                             StartStream(id, session);
                         }
@@ -254,11 +254,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
 
                 task.ContinueWith(t =>
                 {
-                    //If cancellation token is missing, that means stream was stopped normally, do not fire error in this case.
+                    //If cancellation token is missing, that means stream was stopped by the client, do not notify in this case.
                     CancellationTokenSource targetToken;
                     if (monitoredCancellationTokenSources.TryGetValue(id, out targetToken))
                     {
-                        stopSessionError(session.XEventSession.Id);
+                        StopSession(session.XEventSession.Id);
                     }
                 }, TaskContinuationOptions.OnlyOnFaulted);
 
@@ -273,9 +273,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         }
 
         /// <summary>
-        /// Helper function for firing error and stopping session in case the session is stopped on the server. This is public for tests.  
+        /// Helper function for notifying listeners and stopping session in case the session is stopped on the server. This is public for tests.  
         /// </summary>
-        public void stopSessionError(int Id){
+        public void StopSession(int Id){
             SendStoppedSessionInfoToListeners(Id);
             ProfilerSession tempSession;
             RemoveSession(Id, out tempSession);

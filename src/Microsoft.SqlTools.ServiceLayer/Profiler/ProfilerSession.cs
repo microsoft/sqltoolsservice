@@ -44,10 +44,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
         }
 
-        public bool isStreamActive(){
-            return this.isStreaming;
-        }
-
         /// <summary>
         /// Determine if an event was caused by the XEvent polling queries
         /// </summary>
