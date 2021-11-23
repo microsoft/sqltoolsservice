@@ -205,7 +205,7 @@
     <value>请求的查询不存在</value>
   </data>
   <data name="QueryServiceQueryInvalidOwnerUri" xml:space="preserve">
-    <value>此编辑器未连接到数据库</value>
+    <value>无法连接到数据库，因为 OwnerUri 无效</value>
   </data>
   <data name="QueryServiceQueryInProgress" xml:space="preserve">
     <value>当前编辑器的会话中有正在进行的查询，请取消该查询或者等待查询执行完毕。</value>
@@ -1078,7 +1078,7 @@
     <value>标量列缺失小数位数</value>
   </data>
   <data name="StoredProcedureScriptParameterComment" xml:space="preserve">
-    <value>-- 待办事项: 在此处设置参数值</value>
+    <value>-- TODO: Set parameter values here.</value>
   </data>
   <data name="ScriptingGeneralError" xml:space="preserve">
     <value>编写对象脚本时出错。</value>
@@ -1329,6 +1329,63 @@
   <data name="SqlCmdUnsupportedToken" xml:space="preserve">
     <value>遇到不支持的令牌 {0}</value>
   </data>
+  <data name="SqlAssessmentGenerateScriptTaskName" xml:space="preserve">
+    <value>生成 SQL 评估脚本</value>
+  </data>
+  <data name="SqlAssessmentQueryInvalidOwnerUri" xml:space="preserve">
+    <value>未连接到服务器</value>
+  </data>
+  <data name="SqlAssessmentConnectingError" xml:space="preserve">
+    <value>无法连接到服务器</value>
+  </data>
+  <data name="SqlAssessmentUnsuppoertedEdition" xml:space="preserve">
+    <value>引擎版本 {0} 不受支持</value>
+  </data>
+  <data name="ParameterizationDetails" xml:space="preserve">
+    <value>{0} 将转换为具有以下属性的 Microsoft.Data.SqlClient.SqlParameter 对象: SqlDbType = {1}，Size = {2}，Precision = {3}，Scale = {4}，SqlValue = {5}</value>
+  </data>
+  <data name="ErrorMessageHeader" xml:space="preserve">
+    <value>第 {0} 行</value>
+  </data>
+  <data name="ErrorMessage" xml:space="preserve">
+    <value>无法将 {0} 转换为 Microsoft.Data.SqlClient.SqlParameter 对象。指定的文本无法转换为 {1}(Microsoft.Data.SqlDbType)。文本值: {2}</value>
+  </data>
+  <data name="DateTimeErrorMessage" xml:space="preserve">
+    <value>无法将 {0} 转换为 Microsoft.Data.SqlClient.SqlParameter 对象。指定的文本无法转换为 {1}(Microsoft.Data.SqlDbType)，因为它使用了不受支持的日期/时间格式。请使用受支持的日期/时间格式之一。文本值: {2} </value>
+  </data>
+  <data name="BinaryLiteralPrefixMissingError" xml:space="preserve">
+    <value>无法将 {0} 转换为 Microsoft.Data.SqlClient.SqlParameter 对象。指定的文本无法转换为 {1}(Microsoft.Data.SqlDbType)，因为前缀 0x 应该用于二进制文本。文本值: {2} </value>
+  </data>
+  <data name="ParsingErrorHeader" xml:space="preserve">
+    <value>行 {0}，列 {1}</value>
+  </data>
+  <data name="ScriptTooLarge" xml:space="preserve">
+    <value>当前脚本对 Always Encrypted 参数化来说太大了。请在“查询选项”(“查询”&gt;“查询选项”&gt;“执行”&gt;“高级”)中禁用 Always Encrypted 参数化。允许的最大长度为 {0} 个字符，当前的脚本长度为 {1} 个字符</value>
+  </data>
+  <data name="ProjectExtractTaskName" xml:space="preserve">
+    <value>提取项目文件</value>
+  </data>
+  <data name="ValidateStreamingJobTaskName" xml:space="preserve">
+    <value>验证流式处理作业</value>
+  </data>
+  <data name="StreamNotFoundInModel" xml:space="preserve">
+    <value>流式处理查询语句包含对缺少的 {0} 流“{1}”的引用。必须将它添加到数据库模型中。</value>
+  </data>
+  <data name="Input" xml:space="preserve">
+    <value>输入</value>
+  </data>
+  <data name="Output" xml:space="preserve">
+    <value>输出</value>
+  </data>
+  <data name="StreamingJobValidationFailed" xml:space="preserve">
+    <value>外部流式处理作业“{0}”的验证失败:</value>
+  </data>
+  <data name="FragmentShouldHaveOnlyOneBatch" xml:space="preserve">
+    <value>TSQL 片段应只包含一个批处理。</value>
+  </data>
+  <data name="NoCreateStreamingJobStatementFound" xml:space="preserve">
+    <value>找不到外部流式处理作业创建 TSQL (EXEC sp_create_streaming_job 语句)。</value>
+  </data>
   <data name="CouldntFindAzureFunction" xml:space="preserve">
     <value>无法在 {1} 中找到 FunctionName 为 "{0}" 的 Azure 函数</value>
   </data>
@@ -1337,5 +1394,2109 @@
   </data>
   <data name="SqlBindingsNet5NotSupported" xml:space="preserve">
     <value>.NET 5 不支持添加 SQL 绑定</value>
+  </data>
+  <data name="Statement" xml:space="preserve">
+    <value>语句</value>
+  </data>
+  <data name="StatementDesc" xml:space="preserve">
+    <value>在大多数情况下包含 Transact-SQL 语句的文本。对于 PLAN_ROW 类型的行，则包含操作说明。</value>
+  </data>
+  <data name="PhysicalOperation" xml:space="preserve">
+    <value>物理运算</value>
+  </data>
+  <data name="PhysicalOperationDesc" xml:space="preserve">
+    <value>此节点的物理实现算法。仅适用于 PLAN_ROWS 类型的行。</value>
+  </data>
+  <data name="LogicalOperation" xml:space="preserve">
+    <value>逻辑操作</value>
+  </data>
+  <data name="LogicalOperationDesc" xml:space="preserve">
+    <value>此节点代表的关系代数运算符。仅适用于 PLAN_ROWS 类型的行。</value>
+  </data>
+  <data name="OperationDescriptionShort" xml:space="preserve">
+    <value>描述</value>
+  </data>
+  <data name="OperationDescription" xml:space="preserve">
+    <value>操作说明。</value>
+  </data>
+  <data name="OperationArgumentShort" xml:space="preserve">
+    <value>参数</value>
+  </data>
+  <data name="OperationArgumentDescription" xml:space="preserve">
+    <value>提供有关正在执行的操作的补充信息。此列的内容取决于物理运算符。</value>
+  </data>
+  <data name="ObjectShort" xml:space="preserve">
+    <value>对象</value>
+  </data>
+  <data name="ObjectDescription" xml:space="preserve">
+    <value>对象。</value>
+  </data>
+  <data name="IndexKind" xml:space="preserve">
+    <value>索引种类</value>
+  </data>
+  <data name="IndexKindDescription" xml:space="preserve">
+    <value>被引用对象的索引的类型。</value>
+  </data>
+  <data name="DefinedValues" xml:space="preserve">
+    <value>定义的值</value>
+  </data>
+  <data name="DefinedValuesDescription" xml:space="preserve">
+    <value>包含以逗号分隔的值列表，这些值是此运算符(它可能是当前查询中存在的经过计算的表达式)引入的，也可能是查询处理器为处理此查询而引入的内部值。仅适用于 PLAN_ROWS 类型的行。</value>
+  </data>
+  <data name="OutputList" xml:space="preserve">
+    <value>输出列表</value>
+  </data>
+  <data name="OutputListDescription" xml:space="preserve">
+    <value>包含当前操作正在提取的列的列表，此列表以逗号分隔。</value>
+  </data>
+  <data name="Warnings" xml:space="preserve">
+    <value>警告</value>
+  </data>
+  <data name="WarningsDescription" xml:space="preserve">
+    <value>包含一个以逗号分隔的列表，其中列出与当前操作相关的警告消息。警告消息中可能包含字符串 "NO STATS:()" 和列列表。</value>
+  </data>
+  <data name="Parallel" xml:space="preserve">
+    <value>并行</value>
+  </data>
+  <data name="ParallelDescription" xml:space="preserve">
+    <value>运算符是否以并行方式运行。</value>
+  </data>
+  <data name="EstimatedNumberOfRowsPerExecution" xml:space="preserve">
+    <value>每个执行的估计行数</value>
+  </data>
+  <data name="EstimatedNumberOfRowsPerExecutionDescription" xml:space="preserve">
+    <value>此运算符输出的每个执行的估计行数。这只针对 PLAN_ROWS。</value>
+  </data>
+  <data name="EstimatedNumberOfRowsForAllExecutions" xml:space="preserve">
+    <value>所有执行的估计行数</value>
+  </data>
+  <data name="EstimatedNumberOfRowsForAllExecutionsDescription" xml:space="preserve">
+    <value>此运算符输出的所有执行的估计行数。这只针对 PLAN_ROWS。</value>
+  </data>
+  <data name="EstimatedRowsRead" xml:space="preserve">
+    <value>要读取的预计行数</value>
+  </data>
+  <data name="EstimatedRowsReadDescription" xml:space="preserve">
+    <value>此运算符要读取的估计行数。如果运算符具有谓词，此值可能与“所有执行的估计行数”不同。</value>
+  </data>
+  <data name="IsGraphDBTransitiveClosure" xml:space="preserve">
+    <value>是 GraphDB 可传递闭包</value>
+  </data>
+  <data name="IsGraphDBTransitiveClosureDescription" xml:space="preserve">
+    <value>序列是否表示 GraphDB 可传递闭包。</value>
+  </data>
+  <data name="IsInterleavedExecuted" xml:space="preserve">
+    <value>IsInterleavedExecuted</value>
+  </data>
+  <data name="IsInterleavedExecutedDescription" xml:space="preserve">
+    <value>运算符是否交错执行。</value>
+  </data>
+  <data name="IsAdaptive" xml:space="preserve">
+    <value>是自适应的</value>
+  </data>
+  <data name="IsAdaptiveDescription" xml:space="preserve">
+    <value>运算符是否自适应。</value>
+  </data>
+  <data name="AdaptiveThresholdRows" xml:space="preserve">
+    <value>自适应阈值行</value>
+  </data>
+  <data name="AdaptiveThresholdRowsDescription" xml:space="preserve">
+    <value>这是否是基数所采用的自适应运算符。</value>
+  </data>
+  <data name="EstimatedJoinType" xml:space="preserve">
+    <value>估计的联接类型</value>
+  </data>
+  <data name="EstimatedJoinTypeDescription" xml:space="preserve">
+    <value>适应前由查询优化器估计的联接类型(嵌套循环或哈希联接)。</value>
+  </data>
+  <data name="ActualJoinType" xml:space="preserve">
+    <value>实际联接类型</value>
+  </data>
+  <data name="ActualJoinTypeDescription" xml:space="preserve">
+    <value>选取的实际联接(嵌套循环或哈希联接)作为自适应联接执行的一部分.</value>
+  </data>
+  <data name="EstimatedRowSize" xml:space="preserve">
+    <value>估计的行大小</value>
+  </data>
+  <data name="EstimatedRowSizeDescription" xml:space="preserve">
+    <value>正通过此运算符传递的行的估计平均大小。</value>
+  </data>
+  <data name="EstimatedIoCost" xml:space="preserve">
+    <value>估计的 I/O 成本</value>
+  </data>
+  <data name="EstimatedIoCostDescription" xml:space="preserve">
+    <value>此运算符的 I/O 估计开销。仅适用于 PLAN_ROWS 类型的行。</value>
+  </data>
+  <data name="EstimatedCpuCost" xml:space="preserve">
+    <value>估计的 CPU 成本</value>
+  </data>
+  <data name="EstimatedCpuCostDescription" xml:space="preserve">
+    <value>此运算符的 CPU 估计开销。仅适用于 PLAN_ROWS 类型的行。</value>
+  </data>
+  <data name="EstimatedNumberOfExecutions" xml:space="preserve">
+    <value>估计执行次数</value>
+  </data>
+  <data name="EstimatedNumberOfExecutionsDescription" xml:space="preserve">
+    <value>估计在运行当前查询的过程中要执行此运算符的次数。</value>
+  </data>
+  <data name="EstimatedOperatorCost" xml:space="preserve">
+    <value>估计的运算符成本</value>
+  </data>
+  <data name="EstimatedOperatorCostDescription" xml:space="preserve">
+    <value>此运算符的估计开销。</value>
+  </data>
+  <data name="EstimatedSubtreeCost" xml:space="preserve">
+    <value>估计子树成本</value>
+  </data>
+  <data name="EstimatedSubtreeCostDescription" xml:space="preserve">
+    <value>此操作及所有子操作的估计累积开销。</value>
+  </data>
+  <data name="NumberOfRows" xml:space="preserve">
+    <value>所有执行的实际行数</value>
+  </data>
+  <data name="NumberOfRowsDescription" xml:space="preserve">
+    <value>此运算符输出的所有执行的实际行数。只针对 PLAN_ROWS 类型的行。</value>
+  </data>
+  <data name="ActualRowsRead" xml:space="preserve">
+    <value>读取的行数</value>
+  </data>
+  <data name="ActualRowsReadDescription" xml:space="preserve">
+    <value>在引用谓词筛选器之前，从表或索引读取的行数。仅适用于类型 PLAN_ROWS 的行。</value>
+  </data>
+  <data name="NumberOfBatches" xml:space="preserve">
+    <value>Actual Number of Batches</value>
+  </data>
+  <data name="NumberOfBatchesDescription" xml:space="preserve">
+    <value>通过此运算符输出的实际批处理数。</value>
+  </data>
+  <data name="NumberOfExecutions" xml:space="preserve">
+    <value>Number of Executions</value>
+  </data>
+  <data name="NumberOfExecutionsDescription" xml:space="preserve">
+    <value>在运行当前查询的过程中要执行此运算符的次数。</value>
+  </data>
+  <data name="EstimatedDataSize" xml:space="preserve">
+    <value>估计的数据大小</value>
+  </data>
+  <data name="EstimatedDataSizeDescription" xml:space="preserve">
+    <value>正通过此运算符传递的数据的估计大小。</value>
+  </data>
+  <data name="ParameterList" xml:space="preserve">
+    <value>Parameter List</value>
+  </data>
+  <data name="ParameterListDescription" xml:space="preserve">
+    <value>参数列表。</value>
+  </data>
+  <data name="MemoryFractions" xml:space="preserve">
+    <value>Memory Fractions</value>
+  </data>
+  <data name="MemoryFractionsDescription" xml:space="preserve">
+    <value>内存片段。</value>
+  </data>
+  <data name="MemoryFractionsInput" xml:space="preserve">
+    <value>Memory Fractions Input</value>
+  </data>
+  <data name="MemoryFractionsInputDescription" xml:space="preserve">
+    <value>内存片段输入。</value>
+  </data>
+  <data name="MemoryFractionsOutput" xml:space="preserve">
+    <value>Memory Fractions Output</value>
+  </data>
+  <data name="MemoryFractionsOutputDescription" xml:space="preserve">
+    <value>内存片段输出。</value>
+  </data>
+  <data name="UdxName" xml:space="preserve">
+    <value>名称</value>
+  </data>
+  <data name="UdxNameDescription" xml:space="preserve">
+    <value>名称。</value>
+  </data>
+  <data name="Values" xml:space="preserve">
+    <value>值</value>
+  </data>
+  <data name="ValuesDescription" xml:space="preserve">
+    <value>值。</value>
+  </data>
+  <data name="CachedPlanSize" xml:space="preserve">
+    <value>Cached plan size</value>
+  </data>
+  <data name="CachedPlanSizeDescription" xml:space="preserve">
+    <value>缓存的计划大小。</value>
+  </data>
+  <data name="UsePlan" xml:space="preserve">
+    <value>使用计划</value>
+  </data>
+  <data name="ContainsInlineScalarTsqlUdfs" xml:space="preserve">
+    <value>包含内联标量 Tsql Udf</value>
+  </data>
+  <data name="DegreeOfParallelism" xml:space="preserve">
+    <value>并行度</value>
+  </data>
+  <data name="DegreeOfParallelismDescription" xml:space="preserve">
+    <value>并行度。</value>
+  </data>
+  <data name="EffectiveDegreeOfParallelism" xml:space="preserve">
+    <value>有效并行度</value>
+  </data>
+  <data name="EffectiveDegreeOfParallelismDescription" xml:space="preserve">
+    <value>生成列存储索引过程中的最大并行度。</value>
+  </data>
+  <data name="MemoryGrant" xml:space="preserve">
+    <value>Memory Grant</value>
+  </data>
+  <data name="MemoryGrantDescription" xml:space="preserve">
+    <value>内存授予。</value>
+  </data>
+  <data name="RemoteDestination" xml:space="preserve">
+    <value>远程目标</value>
+  </data>
+  <data name="RemoteDestinationDescription" xml:space="preserve">
+    <value>远程对象。</value>
+  </data>
+  <data name="RemoteObject" xml:space="preserve">
+    <value>远程对象</value>
+  </data>
+  <data name="RemoteObjectDescription" xml:space="preserve">
+    <value>远程对象。</value>
+  </data>
+  <data name="RemoteSource" xml:space="preserve">
+    <value>远程源</value>
+  </data>
+  <data name="RemoteSourceDescription" xml:space="preserve">
+    <value>远程源。</value>
+  </data>
+  <data name="UsedUdxColumns" xml:space="preserve">
+    <value>已用的 UDX 列</value>
+  </data>
+  <data name="UsedUdxColumnsDescription" xml:space="preserve">
+    <value>已用的 UDX 列。</value>
+  </data>
+  <data name="InnerSideJoinColumns" xml:space="preserve">
+    <value>Inner Side Join columns</value>
+  </data>
+  <data name="InnerSideJoinColumnsDescription" xml:space="preserve">
+    <value>内侧联接列。</value>
+  </data>
+  <data name="OuterSideJoinColumns" xml:space="preserve">
+    <value>Outer Side Join columns</value>
+  </data>
+  <data name="OuterSideJoinColumnsDescription" xml:space="preserve">
+    <value>外侧联接列。</value>
+  </data>
+  <data name="WhereJoinColumns" xml:space="preserve">
+    <value>位置(联接列)</value>
+  </data>
+  <data name="Residual" xml:space="preserve">
+    <value>残留</value>
+  </data>
+  <data name="ResidualDescription" xml:space="preserve">
+    <value>残留。</value>
+  </data>
+  <data name="PassThru" xml:space="preserve">
+    <value>直通</value>
+  </data>
+  <data name="PassThruDescription" xml:space="preserve">
+    <value>直通。</value>
+  </data>
+  <data name="ManyToMany" xml:space="preserve">
+    <value>Many to Many</value>
+  </data>
+  <data name="ManyToManyDescription" xml:space="preserve">
+    <value>多对多。</value>
+  </data>
+  <data name="PartitionColumns" xml:space="preserve">
+    <value>分区列</value>
+  </data>
+  <data name="PartitionColumnsDescription" xml:space="preserve">
+    <value>分区列。</value>
+  </data>
+  <data name="Ascending" xml:space="preserve">
+    <value>升序</value>
+  </data>
+  <data name="Descending" xml:space="preserve">
+    <value>降序</value>
+  </data>
+  <data name="HashKeys" xml:space="preserve">
+    <value>哈希键</value>
+  </data>
+  <data name="HashKeysDescription" xml:space="preserve">
+    <value>哈希键。</value>
+  </data>
+  <data name="ProbeColumn" xml:space="preserve">
+    <value>探测列</value>
+  </data>
+  <data name="ProbeColumnDescription" xml:space="preserve">
+    <value>探测列。</value>
+  </data>
+  <data name="PartitioningType" xml:space="preserve">
+    <value>分区类型</value>
+  </data>
+  <data name="PartitioningTypeDescription" xml:space="preserve">
+    <value>分区类型。</value>
+  </data>
+  <data name="GroupBy" xml:space="preserve">
+    <value>分组依据</value>
+  </data>
+  <data name="GroupByDescription" xml:space="preserve">
+    <value>分组依据。</value>
+  </data>
+  <data name="GroupingSets" xml:space="preserve">
+    <value>分组集</value>
+  </data>
+  <data name="GroupingSetsDescription" xml:space="preserve">
+    <value>组集列表。每个值都是 Group By 属性中分组列的反向位图。</value>
+  </data>
+  <data name="SegmentColumn" xml:space="preserve">
+    <value>Segment Column</value>
+  </data>
+  <data name="SegmentColumnDescription" xml:space="preserve">
+    <value>段列。</value>
+  </data>
+  <data name="RankColumns" xml:space="preserve">
+    <value>设置列级别</value>
+  </data>
+  <data name="RankColumnsDescription" xml:space="preserve">
+    <value>排名列。</value>
+  </data>
+  <data name="Predicate" xml:space="preserve">
+    <value>谓词</value>
+  </data>
+  <data name="PredicateDescription" xml:space="preserve">
+    <value>谓词。</value>
+  </data>
+  <data name="OuterReferences" xml:space="preserve">
+    <value>Outer References</value>
+  </data>
+  <data name="OuterReferencesDescription" xml:space="preserve">
+    <value>外部引用。</value>
+  </data>
+  <data name="ScalarOperator" xml:space="preserve">
+    <value>标量运算符</value>
+  </data>
+  <data name="ActionColumn" xml:space="preserve">
+    <value>Action Column</value>
+  </data>
+  <data name="ActionColumnDescription" xml:space="preserve">
+    <value>操作列。</value>
+  </data>
+  <data name="OriginalActionColumn" xml:space="preserve">
+    <value>Original Action Column</value>
+  </data>
+  <data name="OriginalActionColumnDescription" xml:space="preserve">
+    <value>原始操作列。</value>
+  </data>
+  <data name="Rows" xml:space="preserve">
+    <value>排在前面的行</value>
+  </data>
+  <data name="RowsDescription" xml:space="preserve">
+    <value>排在前面的行。</value>
+  </data>
+  <data name="SeekPredicate" xml:space="preserve">
+    <value>Seek Predicate</value>
+  </data>
+  <data name="SeekPredicateDescription" xml:space="preserve">
+    <value>Seek 谓词。</value>
+  </data>
+  <data name="Partitioned" xml:space="preserve">
+    <value>已分区</value>
+  </data>
+  <data name="PartitionedDescription" xml:space="preserve">
+    <value>是否对已分区的表或索引执行操作。</value>
+  </data>
+  <data name="SeekKeys" xml:space="preserve">
+    <value>Seek Keys</value>
+  </data>
+  <data name="SeekKeysDescription" xml:space="preserve">
+    <value>查找操作所用的键。</value>
+  </data>
+  <data name="PartitionsAccessed" xml:space="preserve">
+    <value>已访问的实际分区</value>
+  </data>
+  <data name="PartitionCount" xml:space="preserve">
+    <value>实际分区计数</value>
+  </data>
+  <data name="TieColumns" xml:space="preserve">
+    <value>绑定列</value>
+  </data>
+  <data name="TieColumnsDescription" xml:space="preserve">
+    <value>绑定列。</value>
+  </data>
+  <data name="IsPercent" xml:space="preserve">
+    <value>是百分比</value>
+  </data>
+  <data name="IsPercentDescription" xml:space="preserve">
+    <value>是百分比。</value>
+  </data>
+  <data name="WithTies" xml:space="preserve">
+    <value>带绑定</value>
+  </data>
+  <data name="WithTiesDescription" xml:space="preserve">
+    <value>具有联系。</value>
+  </data>
+  <data name="PartitionId" xml:space="preserve">
+    <value>分区 ID</value>
+  </data>
+  <data name="PartitionIdDescription" xml:space="preserve">
+    <value>分区 ID。</value>
+  </data>
+  <data name="Ordered" xml:space="preserve">
+    <value>已订购</value>
+  </data>
+  <data name="OrderedDescription" xml:space="preserve">
+    <value>已排序。</value>
+  </data>
+  <data name="ScanDirection" xml:space="preserve">
+    <value>扫描方向</value>
+  </data>
+  <data name="ScanDirectionDescription" xml:space="preserve">
+    <value>扫描操作的方向(向前或向后)。</value>
+  </data>
+  <data name="ForcedIndex" xml:space="preserve">
+    <value>强制索引</value>
+  </data>
+  <data name="ForcedIndexDescription" xml:space="preserve">
+    <value>强制索引。</value>
+  </data>
+  <data name="SetPredicate" xml:space="preserve">
+    <value>Predicate</value>
+  </data>
+  <data name="SetPredicateDescription" xml:space="preserve">
+    <value>Predicate</value>
+  </data>
+  <data name="TopExpression" xml:space="preserve">
+    <value>排名靠前的表达式。、</value>
+  </data>
+  <data name="TopExpressionDescription" xml:space="preserve">
+    <value>排名靠前的表达式。</value>
+  </data>
+  <data name="HashKeysBuild" xml:space="preserve">
+    <value>哈希键生成</value>
+  </data>
+  <data name="HashKeysBuildDescription" xml:space="preserve">
+    <value>哈希键生成。</value>
+  </data>
+  <data name="HashKeysProbe" xml:space="preserve">
+    <value>哈希键探测</value>
+  </data>
+  <data name="HashKeysProbeDescription" xml:space="preserve">
+    <value>哈希键探测。</value>
+  </data>
+  <data name="BuildResidual" xml:space="preserve">
+    <value>Build Residual</value>
+  </data>
+  <data name="BuildResidualDescription" xml:space="preserve">
+    <value>生成残留。</value>
+  </data>
+  <data name="ProbeResidual" xml:space="preserve">
+    <value>探测残留</value>
+  </data>
+  <data name="ProbeResidualDescription" xml:space="preserve">
+    <value>探测残留。</value>
+  </data>
+  <data name="SeekPredicates" xml:space="preserve">
+    <value>Seek Predicates</value>
+  </data>
+  <data name="SeekPredicatesDescription" xml:space="preserve">
+    <value>Seek 谓词。</value>
+  </data>
+  <data name="SetOptions" xml:space="preserve">
+    <value>Set Options</value>
+  </data>
+  <data name="SetOptionsDescription" xml:space="preserve">
+    <value>Set 选项。</value>
+  </data>
+  <data name="OptimizationLevel" xml:space="preserve">
+    <value>Optimization Level</value>
+  </data>
+  <data name="OptimizationLevelDescription" xml:space="preserve">
+    <value>优化级别。</value>
+  </data>
+  <data name="StatementOptmEarlyAbortReason" xml:space="preserve">
+    <value>语句优化提前终止的原因</value>
+  </data>
+  <data name="TimeOut" xml:space="preserve">
+    <value>超时</value>
+  </data>
+  <data name="MemoryLimitExceeded" xml:space="preserve">
+    <value>超过了内存限制</value>
+  </data>
+  <data name="GoodEnoughPlanFound" xml:space="preserve">
+    <value>找到足够好的计划</value>
+  </data>
+  <data name="EstimatedRebinds" xml:space="preserve">
+    <value>估计的重新绑定次数</value>
+  </data>
+  <data name="EstimatedRebindsDescription" xml:space="preserve">
+    <value>估计的重新绑定次数。</value>
+  </data>
+  <data name="EstimatedRewinds" xml:space="preserve">
+    <value>估计的倒回次数</value>
+  </data>
+  <data name="EstimatedRewindsDescription" xml:space="preserve">
+    <value>估计的倒回次数。</value>
+  </data>
+  <data name="ActualLocallyAggregatedRows" xml:space="preserve">
+    <value>本地聚合的实际行数</value>
+  </data>
+  <data name="ActualLocallyAggregatedRowsDescription" xml:space="preserve">
+    <value>本地聚合的实际行数</value>
+  </data>
+  <data name="ActualRebinds" xml:space="preserve">
+    <value>Actual Rebinds</value>
+  </data>
+  <data name="ActualRebindsDescription" xml:space="preserve">
+    <value>实际重新绑定次数。</value>
+  </data>
+  <data name="ActualRewinds" xml:space="preserve">
+    <value>Actual Rewinds</value>
+  </data>
+  <data name="ActualRewindsDescription" xml:space="preserve">
+    <value>实际重绕次数。</value>
+  </data>
+  <data name="ActualIOStatistics" xml:space="preserve">
+    <value>实际 I/O 统计信息</value>
+  </data>
+  <data name="ActualIOStatisticsDescription" xml:space="preserve">
+    <value>实际 I/O 统计信息</value>
+  </data>
+  <data name="ActualTimeStatistics" xml:space="preserve">
+    <value>实际时间统计信息</value>
+  </data>
+  <data name="ActualTimeStatisticsDescription" xml:space="preserve">
+    <value>实际时间统计信息</value>
+  </data>
+  <data name="ActualElapsedms" xml:space="preserve">
+    <value>实际占用的时间(毫秒)</value>
+  </data>
+  <data name="ActualElapsedmsDescription" xml:space="preserve">
+    <value>实际占用的时间(以毫秒为单位)</value>
+  </data>
+  <data name="ActualCPUms" xml:space="preserve">
+    <value>实际占用的 CPU 时间(毫秒)</value>
+  </data>
+  <data name="ActualCPUmsDescription" xml:space="preserve">
+    <value>实际占用的 CPU 时间(以毫秒为单位)</value>
+  </data>
+  <data name="ActualScans" xml:space="preserve">
+    <value>实际扫描次数</value>
+  </data>
+  <data name="ActualScansDescription" xml:space="preserve">
+    <value>实际扫描次数</value>
+  </data>
+  <data name="ActualLogicalReads" xml:space="preserve">
+    <value>实际逻辑读取次数</value>
+  </data>
+  <data name="ActualLogicalReadsDescription" xml:space="preserve">
+    <value>实际逻辑读取次数</value>
+  </data>
+  <data name="ActualPhysicalReads" xml:space="preserve">
+    <value>实际物理读取次数</value>
+  </data>
+  <data name="ActualPhysicalReadsDescription" xml:space="preserve">
+    <value>实际物理读取次数</value>
+  </data>
+  <data name="ActualPageServerReads" xml:space="preserve">
+    <value>实际页服务器读取数</value>
+  </data>
+  <data name="ActualPageServerReadsDescription" xml:space="preserve">
+    <value>实际页服务器读取数</value>
+  </data>
+  <data name="ActualReadAheads" xml:space="preserve">
+    <value>实际 Read Aheads</value>
+  </data>
+  <data name="ActualReadAheadsDescription" xml:space="preserve">
+    <value>实际 Read Aheads</value>
+  </data>
+  <data name="ActualPageServerReadAheads" xml:space="preserve">
+    <value>实际页服务器预读取数</value>
+  </data>
+  <data name="ActualPageServerReadAheadsDescription" xml:space="preserve">
+    <value>实际页服务器预读取数</value>
+  </data>
+  <data name="ActualLobLogicalReads" xml:space="preserve">
+    <value>实际 Lob 逻辑读取次数</value>
+  </data>
+  <data name="ActualLobLogicalReadsDescription" xml:space="preserve">
+    <value>实际 Lob 逻辑读取次数</value>
+  </data>
+  <data name="ActualLobPhysicalReads" xml:space="preserve">
+    <value>实际 Lob 物理读取次数</value>
+  </data>
+  <data name="ActualLobPhysicalReadsDescription" xml:space="preserve">
+    <value>实际 Lob 物理读取次数</value>
+  </data>
+  <data name="ActualLobPageServerReads" xml:space="preserve">
+    <value>实际 Lob 页服务器读取数</value>
+  </data>
+  <data name="ActualLobPageServerReadsDescription" xml:space="preserve">
+    <value>实际 Lob 页服务器读取数</value>
+  </data>
+  <data name="ActualLobReadAheads" xml:space="preserve">
+    <value>实际 Lob Read Aheads</value>
+  </data>
+  <data name="ActualLobReadAheadsDescription" xml:space="preserve">
+    <value>实际 Lob Read Aheads</value>
+  </data>
+  <data name="ActualLobPageServerReadAheads" xml:space="preserve">
+    <value>实际 Lob 页服务器预读取数</value>
+  </data>
+  <data name="ActualLobPageServerReadAheadsDescription" xml:space="preserve">
+    <value>实际 Lob 页服务器预读取数</value>
+  </data>
+  <data name="ActualMemoryGrantStats" xml:space="preserve">
+    <value>内存使用量</value>
+  </data>
+  <data name="HpcRowCount" xml:space="preserve">
+    <value>HPC 行计数</value>
+  </data>
+  <data name="HpcRowCountDescription" xml:space="preserve">
+    <value>HPC 设备处理的行数。</value>
+  </data>
+  <data name="HpcKernelElapsedUs" xml:space="preserve">
+    <value>HPC 内核运行时间(以微秒为单位)</value>
+  </data>
+  <data name="HpcKernelElapsedUsDescription" xml:space="preserve">
+    <value>HPC 设备的内核运行时间(以微秒为单位)。</value>
+  </data>
+  <data name="HpcHostToDeviceBytes" xml:space="preserve">
+    <value>HPC 主机到设备字节数</value>
+  </data>
+  <data name="HpcHostToDeviceBytesDescription" xml:space="preserve">
+    <value>从主机传输到 HPC 设备的数据(以字节为单位)。</value>
+  </data>
+  <data name="HpcDeviceToHostBytes" xml:space="preserve">
+    <value>HPC 设备到主机字节数</value>
+  </data>
+  <data name="HpcDeviceToHostBytesDescription" xml:space="preserve">
+    <value>从 HPC 设备传输到主机的数据(以字节为单位)。</value>
+  </data>
+  <data name="InputMemoryGrant" xml:space="preserve">
+    <value>输入内存</value>
+  </data>
+  <data name="OutputMemoryGrant" xml:space="preserve">
+    <value>输出内存</value>
+  </data>
+  <data name="UsedMemoryGrant" xml:space="preserve">
+    <value>已使用的内存</value>
+  </data>
+  <data name="Distinct" xml:space="preserve">
+    <value>非重复</value>
+  </data>
+  <data name="DistinctDescription" xml:space="preserve">
+    <value>不重复。</value>
+  </data>
+  <data name="OrderBy" xml:space="preserve">
+    <value>Order By</value>
+  </data>
+  <data name="OrderByDescription" xml:space="preserve">
+    <value>排序依据。</value>
+  </data>
+  <data name="SpillOccurredDisplayString" xml:space="preserve">
+    <value>运算符在执行期间使用 tempdb 溢写数据</value>
+  </data>
+  <data name="ColumnsWithNoStatistics" xml:space="preserve">
+    <value>Columns With No Statistics</value>
+  </data>
+  <data name="ColumnsWithNoStatisticsDescription" xml:space="preserve">
+    <value>“没有统计信息的列”警告。</value>
+  </data>
+  <data name="NoJoinPredicate" xml:space="preserve">
+    <value>没有联接谓词</value>
+  </data>
+  <data name="NoJoinPredicateDescription" xml:space="preserve">
+    <value>“无联接谓词”警告。</value>
+  </data>
+  <data name="SpillToTempDbOld" xml:space="preserve">
+    <value>运算符在执行期间使用 tempdb 溢写数据，溢写级别为 {0}</value>
+  </data>
+  <data name="SpillToTempDb" xml:space="preserve">
+    <value>运算符在执行期间使用 tempdb 溢写数据，溢写级别为 {0}，并包含 {1} 个溢写的线程</value>
+  </data>
+  <data name="SpillToTempDbDescription" xml:space="preserve">
+    <value>溢写到 tempdb 警告。</value>
+  </data>
+  <data name="SortSpillDetails" xml:space="preserve">
+    <value>对写入到 tempdb 的 {0} 个页面以及从 tempdb 读取的 {1} 个页面进行排序，其中授予的内存为 {2}KB，使用的内存为 {3}KB</value>
+  </data>
+  <data name="SortSpillDetailsDescription" xml:space="preserve">
+    <value>排序溢写详细信息</value>
+  </data>
+  <data name="HashSpillDetails" xml:space="preserve">
+    <value>对写入到 tempdb 的 {0} 个页面以及从 tempdb 读取的 {1} 个页面进行哈希处理，其中授予的内存为 {2}KB，使用的内存为 {3}KB</value>
+  </data>
+  <data name="HashSpillDetailsDescription" xml:space="preserve">
+    <value>哈希溢写详细信息</value>
+  </data>
+  <data name="FullUpdateForOnlineIndexBuild" xml:space="preserve">
+    <value>由于联机索引生成，部分更新已转换为完全更新</value>
+  </data>
+  <data name="FullUpdateForOnlineIndexBuildDescription" xml:space="preserve">
+    <value>针对联机索引生成的完全更新的警告</value>
+  </data>
+  <data name="Wait" xml:space="preserve">
+    <value>在执行期间，查询必须等待 {1} {0} 秒</value>
+  </data>
+  <data name="WaitDescription" xml:space="preserve">
+    <value>查询等待警告。</value>
+  </data>
+  <data name="PlanAffectingConvert" xml:space="preserve">
+    <value>表达式({0})中的类型转换可能会影响查询计划选择中的“{1}”</value>
+  </data>
+  <data name="PlanAffectingConvertDescription" xml:space="preserve">
+    <value>影响计划的类型转换警告。</value>
+  </data>
+  <data name="MemoryGrantWarning" xml:space="preserve">
+    <value>查询内存授予检测到“{0}”，这可能会影响可靠性。授予大小: 初始大小 {1} KB，最终大小 {2} KB，已使用 {3} KB。</value>
+  </data>
+  <data name="MemoryGrantWarningDescription" xml:space="preserve">
+    <value>内存授予警告详细信息</value>
+  </data>
+  <data name="StartupExpression" xml:space="preserve">
+    <value>启动表达式</value>
+  </data>
+  <data name="StartupExpressionDescription" xml:space="preserve">
+    <value>是否使用筛选器启动表达式。</value>
+  </data>
+  <data name="StartupExpressionPredicate" xml:space="preserve">
+    <value>启动表达式谓词</value>
+  </data>
+  <data name="Query" xml:space="preserve">
+    <value>查询</value>
+  </data>
+  <data name="Stack" xml:space="preserve">
+    <value>使用堆栈</value>
+  </data>
+  <data name="RowCount" xml:space="preserve">
+    <value>是行计数</value>
+  </data>
+  <data name="Optimized" xml:space="preserve">
+    <value>已优化</value>
+  </data>
+  <data name="WithPrefetch" xml:space="preserve">
+    <value>使用预提取</value>
+  </data>
+  <data name="Prefix" xml:space="preserve">
+    <value>前缀</value>
+  </data>
+  <data name="StartRange" xml:space="preserve">
+    <value>开始</value>
+  </data>
+  <data name="StartRangeDescription" xml:space="preserve">
+    <value>范围起始。</value>
+  </data>
+  <data name="EndRange" xml:space="preserve">
+    <value>结束</value>
+  </data>
+  <data name="EndRangeDescription" xml:space="preserve">
+    <value>范围结尾。</value>
+  </data>
+  <data name="RangeColumns" xml:space="preserve">
+    <value>范围列</value>
+  </data>
+  <data name="RangeExpressions" xml:space="preserve">
+    <value>范围表达式</value>
+  </data>
+  <data name="ScanType" xml:space="preserve">
+    <value>扫描类型</value>
+  </data>
+  <data name="ColumnReference" xml:space="preserve">
+    <value>列引用</value>
+  </data>
+  <data name="ObjectServer" xml:space="preserve">
+    <value>服务器</value>
+  </data>
+  <data name="ObjectServerDescription" xml:space="preserve">
+    <value>被引用对象的服务器名称。</value>
+  </data>
+  <data name="ObjectDatabase" xml:space="preserve">
+    <value>数据库</value>
+  </data>
+  <data name="ObjectDatabaseDescription" xml:space="preserve">
+    <value>被引用对象的数据库名称。</value>
+  </data>
+  <data name="ObjectIndex" xml:space="preserve">
+    <value>索引</value>
+  </data>
+  <data name="ObjectIndexDescription" xml:space="preserve">
+    <value>被引用对象的索引名称。</value>
+  </data>
+  <data name="ObjectSchema" xml:space="preserve">
+    <value>架构</value>
+  </data>
+  <data name="ObjectSchemaDescription" xml:space="preserve">
+    <value>被引用对象的架构名称。</value>
+  </data>
+  <data name="ObjectTable" xml:space="preserve">
+    <value>表</value>
+  </data>
+  <data name="ObjectTableDescription" xml:space="preserve">
+    <value>被引用对象的表名。</value>
+  </data>
+  <data name="ObjectAlias" xml:space="preserve">
+    <value>别名</value>
+  </data>
+  <data name="ObjectAliasDescription" xml:space="preserve">
+    <value>用于被引用对象的别名。</value>
+  </data>
+  <data name="ObjectColumn" xml:space="preserve">
+    <value>列</value>
+  </data>
+  <data name="ObjectColumnDescription" xml:space="preserve">
+    <value>被引用对象的列名。</value>
+  </data>
+  <data name="ObjectComputedColumn" xml:space="preserve">
+    <value>Computed Column</value>
+  </data>
+  <data name="ObjectComputedColumnDescription" xml:space="preserve">
+    <value>这是否是一个计算列。</value>
+  </data>
+  <data name="ParameterDataType" xml:space="preserve">
+    <value>参数数据类型</value>
+  </data>
+  <data name="ParameterCompiledValue" xml:space="preserve">
+    <value>参数编译值</value>
+  </data>
+  <data name="ParameterRuntimeValue" xml:space="preserve">
+    <value>参数运行时值</value>
+  </data>
+  <data name="CursorPlan" xml:space="preserve">
+    <value>游标计划</value>
+  </data>
+  <data name="CursorOperation" xml:space="preserve">
+    <value>游标操作</value>
+  </data>
+  <data name="CursorName" xml:space="preserve">
+    <value>游标名称</value>
+  </data>
+  <data name="CursorActualType" xml:space="preserve">
+    <value>游标实际类型</value>
+  </data>
+  <data name="CursorRequestedType" xml:space="preserve">
+    <value>游标请求的类型</value>
+  </data>
+  <data name="CursorConcurrency" xml:space="preserve">
+    <value>游标并发</value>
+  </data>
+  <data name="ForwardOnly" xml:space="preserve">
+    <value>仅快进</value>
+  </data>
+  <data name="QueryPlan" xml:space="preserve">
+    <value>查询计划</value>
+  </data>
+  <data name="OperationType" xml:space="preserve">
+    <value>操作类型</value>
+  </data>
+  <data name="NodeId" xml:space="preserve">
+    <value>节点 ID</value>
+  </data>
+  <data name="PrimaryNodeId" xml:space="preserve">
+    <value>主节点 ID</value>
+  </data>
+  <data name="InternalInfo" xml:space="preserve">
+    <value>内部调试信息</value>
+  </data>
+  <data name="ForeignKeyReferencesCount" xml:space="preserve">
+    <value>外键引用计数</value>
+  </data>
+  <data name="NoMatchingIndexCount" xml:space="preserve">
+    <value>无匹配的索引计数</value>
+  </data>
+  <data name="PartialMatchingIndexCount" xml:space="preserve">
+    <value>部分匹配的索引计数</value>
+  </data>
+  <data name="LogicalOpCollapse" xml:space="preserve">
+    <value>折叠</value>
+  </data>
+  <data name="LogicalOpConcatenation" xml:space="preserve">
+    <value>串联</value>
+  </data>
+  <data name="LogicalOpConstantScan" xml:space="preserve">
+    <value>常量扫描</value>
+  </data>
+  <data name="LogicalOpGatherStreams" xml:space="preserve">
+    <value>收集流</value>
+  </data>
+  <data name="LogicalOpRepartitionStreams" xml:space="preserve">
+    <value>重新分区流</value>
+  </data>
+  <data name="LogicalOpDistributeStreams" xml:space="preserve">
+    <value>分发流</value>
+  </data>
+  <data name="LogicalOpFilter" xml:space="preserve">
+    <value>筛选</value>
+  </data>
+  <data name="LogicalOpAssert" xml:space="preserve">
+    <value>断言</value>
+  </data>
+  <data name="LogicalOpLogRowScan" xml:space="preserve">
+    <value>日志行扫描</value>
+  </data>
+  <data name="LogicalOpPrint" xml:space="preserve">
+    <value>打印</value>
+  </data>
+  <data name="LogicalOpComputeScalar" xml:space="preserve">
+    <value>计算标量</value>
+  </data>
+  <data name="LogicalOpMergeInterval" xml:space="preserve">
+    <value>合并间隔。</value>
+  </data>
+  <data name="LogicalOpRank" xml:space="preserve">
+    <value>设置级别</value>
+  </data>
+  <data name="LogicalOpSegment" xml:space="preserve">
+    <value>区段</value>
+  </data>
+  <data name="LogicalOpSequence" xml:space="preserve">
+    <value>顺序</value>
+  </data>
+  <data name="LogicalOpSplit" xml:space="preserve">
+    <value>拆分</value>
+  </data>
+  <data name="LogicalOpAggregate" xml:space="preserve">
+    <value>聚合</value>
+  </data>
+  <data name="LogicalOpTableScan" xml:space="preserve">
+    <value>表扫描</value>
+  </data>
+  <data name="LogicalOpClusteredIndexScan" xml:space="preserve">
+    <value>聚集索引扫描</value>
+  </data>
+  <data name="LogicalOpClusteredIndexSeek" xml:space="preserve">
+    <value>群集索引查找</value>
+  </data>
+  <data name="LogicalOpDeletedScan" xml:space="preserve">
+    <value>删除的扫描</value>
+  </data>
+  <data name="LogicalOpInsertedScan" xml:space="preserve">
+    <value>插入的扫描</value>
+  </data>
+  <data name="LogicalOpParameterTableScan" xml:space="preserve">
+    <value>参数表扫描</value>
+  </data>
+  <data name="LogicalOpPut" xml:space="preserve">
+    <value>放置</value>
+  </data>
+  <data name="LogicalOpIndexScan" xml:space="preserve">
+    <value>索引扫描</value>
+  </data>
+  <data name="LogicalOpIndexSeek" xml:space="preserve">
+    <value>索引查找</value>
+  </data>
+  <data name="LogicalOpRemoteScan" xml:space="preserve">
+    <value>远程扫描</value>
+  </data>
+  <data name="LogicalOpRemoteIndexScan" xml:space="preserve">
+    <value>远程索引扫描</value>
+  </data>
+  <data name="LogicalOpRemoteIndexSeek" xml:space="preserve">
+    <value>远程索引查找</value>
+  </data>
+  <data name="LogicalOpRemoteQuery" xml:space="preserve">
+    <value>远程查询</value>
+  </data>
+  <data name="LogicalOpRemoteInsert" xml:space="preserve">
+    <value>远程插入</value>
+  </data>
+  <data name="LogicalOpRemoteUpdate" xml:space="preserve">
+    <value>远程更新</value>
+  </data>
+  <data name="LogicalOpRemoteDelete" xml:space="preserve">
+    <value>远程删除</value>
+  </data>
+  <data name="LogicalOpClusteredUpdate" xml:space="preserve">
+    <value>群集更新</value>
+  </data>
+  <data name="LogicalOpDistinctSort" xml:space="preserve">
+    <value>非重复排序</value>
+  </data>
+  <data name="LogicalOpSort" xml:space="preserve">
+    <value>排序</value>
+  </data>
+  <data name="LogicalOpTopNSort" xml:space="preserve">
+    <value>Top N Sort</value>
+  </data>
+  <data name="LogicalOpEagerSpool" xml:space="preserve">
+    <value>提前后台处理</value>
+  </data>
+  <data name="LogicalOpLazySpool" xml:space="preserve">
+    <value>延迟后台处理</value>
+  </data>
+  <data name="LogicalOpUpdate" xml:space="preserve">
+    <value>更新</value>
+  </data>
+  <data name="LogicalOpInsert" xml:space="preserve">
+    <value>插入</value>
+  </data>
+  <data name="LogicalOpDelete" xml:space="preserve">
+    <value>删除</value>
+  </data>
+  <data name="LogicalOpMerge" xml:space="preserve">
+    <value>合并</value>
+  </data>
+  <data name="LogicalOpTop" xml:space="preserve">
+    <value>上</value>
+  </data>
+  <data name="LogicalOpDistinct" xml:space="preserve">
+    <value>非重复</value>
+  </data>
+  <data name="LogicalOpFlowDistinct" xml:space="preserve">
+    <value>流程非重复</value>
+  </data>
+  <data name="LogicalOpPartialAggregate" xml:space="preserve">
+    <value>部分聚合</value>
+  </data>
+  <data name="LogicalOpInnerApply" xml:space="preserve">
+    <value>内部应用</value>
+  </data>
+  <data name="LogicalOpInnerJoin" xml:space="preserve">
+    <value>内部联接</value>
+  </data>
+  <data name="LogicalOpLeftAntiSemiApply" xml:space="preserve">
+    <value>Left Anti Semi Apply</value>
+  </data>
+  <data name="LogicalOpLeftSemiApply" xml:space="preserve">
+    <value>左半应用</value>
+  </data>
+  <data name="LogicalOpLeftOuterApply" xml:space="preserve">
+    <value>左外部应用</value>
+  </data>
+  <data name="LogicalOpLeftOuterJoin" xml:space="preserve">
+    <value>左外部联接</value>
+  </data>
+  <data name="LogicalOpRightOuterJoin" xml:space="preserve">
+    <value>右侧外部联接</value>
+  </data>
+  <data name="LogicalOpFullOuterJoin" xml:space="preserve">
+    <value>完全外部联接</value>
+  </data>
+  <data name="LogicalOpLeftSemiJoin" xml:space="preserve">
+    <value>左半连接</value>
+  </data>
+  <data name="LogicalOpLeftAntiSemiJoin" xml:space="preserve">
+    <value>Left Anti Semi Join</value>
+  </data>
+  <data name="LogicalOpRightSemiJoin" xml:space="preserve">
+    <value>右半联接</value>
+  </data>
+  <data name="LogicalOpRightAntiSemiJoin" xml:space="preserve">
+    <value>Right Anti Semi Join</value>
+  </data>
+  <data name="LogicalOpIntersect" xml:space="preserve">
+    <value>相交</value>
+  </data>
+  <data name="LogicalOpIntersectAll" xml:space="preserve">
+    <value>全部相交</value>
+  </data>
+  <data name="LogicalOpUnion" xml:space="preserve">
+    <value>联合</value>
+  </data>
+  <data name="LogicalOpLeftDiff" xml:space="preserve">
+    <value>左侧差异</value>
+  </data>
+  <data name="LogicalOpLeftDiffAll" xml:space="preserve">
+    <value>左侧差异全部</value>
+  </data>
+  <data name="LogicalOpRightDiff" xml:space="preserve">
+    <value>右侧差异</value>
+  </data>
+  <data name="LogicalOpRightDiffAll" xml:space="preserve">
+    <value>右差异全部</value>
+  </data>
+  <data name="LogicalOpAntiDiff" xml:space="preserve">
+    <value>反差异</value>
+  </data>
+  <data name="LogicalOpCrossJoin" xml:space="preserve">
+    <value>交叉联接</value>
+  </data>
+  <data name="LogicalOpBitmapCreate" xml:space="preserve">
+    <value>位图创建</value>
+  </data>
+  <data name="LogicalOpUDX" xml:space="preserve">
+    <value>UDX</value>
+  </data>
+  <data name="LogicalOpWindow" xml:space="preserve">
+    <value>Window Spool</value>
+  </data>
+  <data name="LogicalOpSwitch" xml:space="preserve">
+    <value>切换</value>
+  </data>
+  <data name="LogicalOpMergeStats" xml:space="preserve">
+    <value>合并统计信息</value>
+  </data>
+  <data name="LogicalOpLocalStats" xml:space="preserve">
+    <value>本地统计信息</value>
+  </data>
+  <data name="LogicalOpTableValuedFunction" xml:space="preserve">
+    <value>表值函数</value>
+  </data>
+  <data name="LogicalOpBatchHashTableBuild" xml:space="preserve">
+    <value>Batch Hash Table Build</value>
+  </data>
+  <data name="LogicalOpForeignKeyReferencesCheck" xml:space="preserve">
+    <value>外键引用检查</value>
+  </data>
+  <data name="LogicalOpRIDLookup" xml:space="preserve">
+    <value>RID 查找</value>
+  </data>
+  <data name="StoredProc" xml:space="preserve">
+    <value>存储的过程</value>
+  </data>
+  <data name="Udf" xml:space="preserve">
+    <value>UDF</value>
+  </data>
+  <data name="ProcName" xml:space="preserve">
+    <value>过程名称</value>
+  </data>
+  <data name="Storage" xml:space="preserve">
+    <value>存储</value>
+  </data>
+  <data name="StorageDesc" xml:space="preserve">
+    <value>存储</value>
+  </data>
+  <data name="ActualExecMode" xml:space="preserve">
+    <value>实际执行模式</value>
+  </data>
+  <data name="ActualExecModeDesc" xml:space="preserve">
+    <value>实际执行模式</value>
+  </data>
+  <data name="EstimatedExecMode" xml:space="preserve">
+    <value>估计的执行模式</value>
+  </data>
+  <data name="EstimatedExecModeDesc" xml:space="preserve">
+    <value>估计的执行模式</value>
+  </data>
+  <data name="CostFormat" xml:space="preserve">
+    <value>成本: {0} %</value>
+  </data>
+  <data name="RemoteDataAccess" xml:space="preserve">
+    <value>远程数据访问</value>
+  </data>
+  <data name="RemoteDataAccessDescription" xml:space="preserve">
+    <value>操作员是否使用远程过程调用(RPC)访问远程数据。</value>
+  </data>
+  <data name="CloneAccessScope" xml:space="preserve">
+    <value>克隆访问范围</value>
+  </data>
+  <data name="CloneAccessScopeDescription" xml:space="preserve">
+    <value>操作员可以访问的克隆。</value>
+  </data>
+  <data name="PrimaryClones" xml:space="preserve">
+    <value>主要克隆</value>
+  </data>
+  <data name="SecondaryClones" xml:space="preserve">
+    <value>次要克隆</value>
+  </data>
+  <data name="BothClones" xml:space="preserve">
+    <value>所有克隆</value>
+  </data>
+  <data name="EitherClones" xml:space="preserve">
+    <value>主要克隆或次要克隆</value>
+  </data>
+  <data name="ExactMatchClones" xml:space="preserve">
+    <value>单个克隆匹配</value>
+  </data>
+  <data name="Remoting" xml:space="preserve">
+    <value>远程处理</value>
+  </data>
+  <data name="RemotingDescription" xml:space="preserve">
+    <value>操作员是否可以远程运行。</value>
+  </data>
+  <data name="Activation" xml:space="preserve">
+    <value>激活</value>
+  </data>
+  <data name="BrickRouting" xml:space="preserve">
+    <value>块路由</value>
+  </data>
+  <data name="FragmentIdColumn" xml:space="preserve">
+    <value>片段 ID 列</value>
+  </data>
+  <data name="EditQueryText" xml:space="preserve">
+    <value>从显示计划 XML 编辑查询文本(可能已截断)</value>
+  </data>
+  <data name="UnknownShowPlanSource" xml:space="preserve">
+    <value>无法识别执行计划源类型。</value>
+  </data>
+  <data name="SavePlanFilter" xml:space="preserve">
+    <value>SQL 计划文件(*.SqlPlan)|*.SqlPlan|所有文件(*.*)|*.*</value>
+  </data>
+  <data name="NoXmlPlanData" xml:space="preserve">
+    <value>无法使用 XML 格式的计划数据。只能保存 SQL Server 2005 中的计划。</value>
+  </data>
+  <data name="PerThreadCounterDescription" xml:space="preserve">
+    <value>每线程计数器信息。</value>
+  </data>
+  <data name="RuntimeCounterThread" xml:space="preserve">
+    <value>线程 {0}</value>
+  </data>
+  <data name="RuntimeCounterThreadOnInstance" xml:space="preserve">
+    <value>实例 {1} 上的线程 {0}</value>
+  </data>
+  <data name="RuntimeCounterThreadAll" xml:space="preserve">
+    <value>所有线程</value>
+  </data>
+  <data name="ConnectionPropertiesLabel" xml:space="preserve">
+    <value>查看连接属性</value>
+  </data>
+  <data name="UnknownAssignType" xml:space="preserve">
+    <value>未知的分配类型。</value>
+  </data>
+  <data name="MessageBoxCaption" xml:space="preserve">
+    <value>SQL Server</value>
+  </data>
+  <data name="ZoomLevelShouldBeBetween" xml:space="preserve">
+    <value>缩放级别必须是 {0} 到 {1} 之间的整数值。</value>
+  </data>
+  <data name="UnknownNodeType" xml:space="preserve">
+    <value>未知的节点类型。</value>
+  </data>
+  <data name="UnknownCursorPlanOperation" xml:space="preserve">
+    <value>未知的游标计划操作“{0}”。</value>
+  </data>
+  <data name="UnknownStatementType" xml:space="preserve">
+    <value>无法识别语句类型。</value>
+  </data>
+  <data name="RollupInfo" xml:space="preserve">
+    <value>汇总信息</value>
+  </data>
+  <data name="RollupInfoDescription" xml:space="preserve">
+    <value>汇总信息。</value>
+  </data>
+  <data name="HighestLevel" xml:space="preserve">
+    <value>最高级别</value>
+  </data>
+  <data name="HighestLevelDescription" xml:space="preserve">
+    <value>在此汇总中计算的分组属性的最高级别。</value>
+  </data>
+  <data name="RollupLevel" xml:space="preserve">
+    <value>汇总级别</value>
+  </data>
+  <data name="RollupLevelDescription" xml:space="preserve">
+    <value>在此汇总中计算的所有分组属性级别。</value>
+  </data>
+  <data name="Level" xml:space="preserve">
+    <value>级别</value>
+  </data>
+  <data name="LevelDescription" xml:space="preserve">
+    <value>在此汇总中计算的分组属性级别。</value>
+  </data>
+  <data name="RemoteQuery" xml:space="preserve">
+    <value>远程查询</value>
+  </data>
+  <data name="RemoteQueryDescription" xml:space="preserve">
+    <value>将 SQL 查询发送到当前 SQL Server 之外的 SQL Server。</value>
+  </data>
+  <data name="ComputeScalar" xml:space="preserve">
+    <value>计算标量</value>
+  </data>
+  <data name="MergeInterval" xml:space="preserve">
+    <value>Merge Interval</value>
+  </data>
+  <data name="Print" xml:space="preserve">
+    <value>打印</value>
+  </data>
+  <data name="Segment" xml:space="preserve">
+    <value>Segment</value>
+  </data>
+  <data name="Split" xml:space="preserve">
+    <value>拆分</value>
+  </data>
+  <data name="BatchHashTableBuild" xml:space="preserve">
+    <value>Batch Hash Table Build</value>
+  </data>
+  <data name="Bitmap" xml:space="preserve">
+    <value>Bitmap</value>
+  </data>
+  <data name="Collapse" xml:space="preserve">
+    <value>折叠</value>
+  </data>
+  <data name="TableSpool" xml:space="preserve">
+    <value>表后台处理</value>
+  </data>
+  <data name="RepartitionStreams" xml:space="preserve">
+    <value>重新分区流</value>
+  </data>
+  <data name="Assert" xml:space="preserve">
+    <value>声明</value>
+  </data>
+  <data name="Sort" xml:space="preserve">
+    <value>排序</value>
+  </data>
+  <data name="Top" xml:space="preserve">
+    <value>排名靠前</value>
+  </data>
+  <data name="SequenceProject" xml:space="preserve">
+    <value>Sequence Project</value>
+  </data>
+  <data name="Spool" xml:space="preserve">
+    <value>后台处理</value>
+  </data>
+  <data name="Window" xml:space="preserve">
+    <value>窗口后台处理</value>
+  </data>
+  <data name="Parallelism" xml:space="preserve">
+    <value>并行</value>
+  </data>
+  <data name="RowCountSpool" xml:space="preserve">
+    <value>行计数后台处理</value>
+  </data>
+  <data name="Unknown" xml:space="preserve">
+    <value>未知</value>
+  </data>
+  <data name="UnknownDescription" xml:space="preserve">
+    <value>未知运算符。</value>
+  </data>
+  <data name="Result" xml:space="preserve">
+    <value>结果</value>
+  </data>
+  <data name="ResultDescription" xml:space="preserve">
+    <value>结果。</value>
+  </data>
+  <data name="CollapseDescription" xml:space="preserve">
+    <value>将有关相同值的插入和删除汇总到大范围更新计划中的更新中。</value>
+  </data>
+  <data name="Concatenation" xml:space="preserve">
+    <value>串联</value>
+  </data>
+  <data name="ConcatenationDescription" xml:space="preserve">
+    <value>追加多个输入表以组成输出表。</value>
+  </data>
+  <data name="ConstantScan" xml:space="preserve">
+    <value>常量扫描</value>
+  </data>
+  <data name="ConstantScanDescription" xml:space="preserve">
+    <value>扫描内部常量表。</value>
+  </data>
+  <data name="ParallelismDescription" xml:space="preserve">
+    <value>涉及并行度的操作。</value>
+  </data>
+  <data name="Put" xml:space="preserve">
+    <value>放置</value>
+  </data>
+  <data name="PutDescription" xml:space="preserve">
+    <value>将本地表或外部表中的行导入外部表。</value>
+  </data>
+  <data name="DistributeStreams" xml:space="preserve">
+    <value>分发流</value>
+  </data>
+  <data name="DistributeStreamsDescription" xml:space="preserve">
+    <value>分发流。</value>
+  </data>
+  <data name="GatherStreams" xml:space="preserve">
+    <value>收集流</value>
+  </data>
+  <data name="GatherStreamsDescription" xml:space="preserve">
+    <value>收集流。</value>
+  </data>
+  <data name="RepartitionStreamsDescription" xml:space="preserve">
+    <value>重新分区流。</value>
+  </data>
+  <data name="EagerSpool" xml:space="preserve">
+    <value>提前后台处理</value>
+  </data>
+  <data name="EagerSpoolDescription" xml:space="preserve">
+    <value>提前后台处理。</value>
+  </data>
+  <data name="LazySpool" xml:space="preserve">
+    <value>延迟后台处理</value>
+  </data>
+  <data name="LazySpoolDescription" xml:space="preserve">
+    <value>延迟后台处理。</value>
+  </data>
+  <data name="Filter" xml:space="preserve">
+    <value>筛选</value>
+  </data>
+  <data name="FilterDescription" xml:space="preserve">
+    <value>根据谓词限制行集。</value>
+  </data>
+  <data name="AssertDescription" xml:space="preserve">
+    <value>用于验证指定的条件是否存在。</value>
+  </data>
+  <data name="HashMatch" xml:space="preserve">
+    <value>哈希匹配</value>
+  </data>
+  <data name="HashMatchDescription" xml:space="preserve">
+    <value>使用来自顶部输入的每一行生成哈希表，使用来自底部输入的每一行探测该哈希表，然后输出所有匹配的行。</value>
+  </data>
+  <data name="HashMatchTeam" xml:space="preserve">
+    <value>哈希匹配团队</value>
+  </data>
+  <data name="HashMatchTeamDescription" xml:space="preserve">
+    <value>多个协同操作的哈希运算的参与者。</value>
+  </data>
+  <data name="HashMatchRoot" xml:space="preserve">
+    <value>哈希匹配根</value>
+  </data>
+  <data name="HashMatchRootDescription" xml:space="preserve">
+    <value>拥有相同哈希函数和分区策略的相互连接的哈希运算符组的根成员。</value>
+  </data>
+  <data name="BookmarkLookup" xml:space="preserve">
+    <value>Bookmark Lookup</value>
+  </data>
+  <data name="BookmarkLookupDescription" xml:space="preserve">
+    <value>使用书签(RID 或聚集键)在表或聚集索引中查找相应的行。</value>
+  </data>
+  <data name="LogRowScan" xml:space="preserve">
+    <value>日志行扫描</value>
+  </data>
+  <data name="LogRowScanDescription" xml:space="preserve">
+    <value>扫描日志中的行。</value>
+  </data>
+  <data name="MergeJoin" xml:space="preserve">
+    <value>Merge Join</value>
+  </data>
+  <data name="MergeJoinDescription" xml:space="preserve">
+    <value>从两个已进行了相应排序的输入表中，使用其排序顺序对行进行匹配。</value>
+  </data>
+  <data name="NestedLoops" xml:space="preserve">
+    <value>嵌套的循环</value>
+  </data>
+  <data name="NestedLoopsDescription" xml:space="preserve">
+    <value>对于顶部(外部)输入的每一行，扫描底部(内部)输入，然后输出匹配的行。</value>
+  </data>
+  <data name="PrintDescription" xml:space="preserve">
+    <value>打印。</value>
+  </data>
+  <data name="ComputeScalarDescription" xml:space="preserve">
+    <value>根据行中的现有值计算新值。</value>
+  </data>
+  <data name="MergeIntervalDescription" xml:space="preserve">
+    <value>合并间隔。</value>
+  </data>
+  <data name="Rank" xml:space="preserve">
+    <value>设置级别</value>
+  </data>
+  <data name="RankDescription" xml:space="preserve">
+    <value>使用表中现有列的值排名创建计算列。</value>
+  </data>
+  <data name="RowCountSpoolDescription" xml:space="preserve">
+    <value>将数据从输入存储到临时表中以优化重绕。</value>
+  </data>
+  <data name="SegmentDescription" xml:space="preserve">
+    <value>段。</value>
+  </data>
+  <data name="Sequence" xml:space="preserve">
+    <value>顺序</value>
+  </data>
+  <data name="SequenceDescription" xml:space="preserve">
+    <value>按从上到下的顺序处理每个输入。</value>
+  </data>
+  <data name="SequenceProjectDescription" xml:space="preserve">
+    <value>添加列以便计算有序集。</value>
+  </data>
+  <data name="SplitDescription" xml:space="preserve">
+    <value>拆分。</value>
+  </data>
+  <data name="StreamAggregate" xml:space="preserve">
+    <value>Stream 聚合</value>
+  </data>
+  <data name="StreamAggregateDescription" xml:space="preserve">
+    <value>在相应排序的流中，计算多组行的汇总值。</value>
+  </data>
+  <data name="TableScan" xml:space="preserve">
+    <value>表扫描</value>
+  </data>
+  <data name="TableScanDescription" xml:space="preserve">
+    <value>扫描表中的行。</value>
+  </data>
+  <data name="ClusteredIndexScan" xml:space="preserve">
+    <value>聚集索引扫描</value>
+  </data>
+  <data name="ClusteredIndexScanDescription" xml:space="preserve">
+    <value>整体扫描聚集索引或只扫描一定范围。</value>
+  </data>
+  <data name="ClusteredIndexSeek" xml:space="preserve">
+    <value>群集索引查找</value>
+  </data>
+  <data name="ClusteredIndexSeekDescription" xml:space="preserve">
+    <value>扫描聚集索引中特定范围的行。</value>
+  </data>
+  <data name="DeletedScan" xml:space="preserve">
+    <value>删除的扫描</value>
+  </data>
+  <data name="DeletedScanDescription" xml:space="preserve">
+    <value>在触发器中扫描伪表 "deleted"。</value>
+  </data>
+  <data name="InsertedScan" xml:space="preserve">
+    <value>插入的扫描</value>
+  </data>
+  <data name="InsertedScanDescription" xml:space="preserve">
+    <value>在触发器中扫描伪表 "inserted"。</value>
+  </data>
+  <data name="ParameterTableScan" xml:space="preserve">
+    <value>Parameter Table Scan</value>
+  </data>
+  <data name="ParameterTableScanDescription" xml:space="preserve">
+    <value>扫描参数值的内部表。</value>
+  </data>
+  <data name="IndexScan" xml:space="preserve">
+    <value>索引扫描</value>
+  </data>
+  <data name="IndexScanDescription" xml:space="preserve">
+    <value>整体扫描非聚集索引或只扫描一定范围。</value>
+  </data>
+  <data name="IndexSeek" xml:space="preserve">
+    <value>索引查找</value>
+  </data>
+  <data name="IndexSeekDescription" xml:space="preserve">
+    <value>扫描非聚集索引中特定范围的行。</value>
+  </data>
+  <data name="ColumnstoreIndexScan" xml:space="preserve">
+    <value>列存储索引扫描</value>
+  </data>
+  <data name="ColumnstoreIndexScanDescription" xml:space="preserve">
+    <value>完全扫描或只扫描某一范围的列存储索引。</value>
+  </data>
+  <data name="ColumnstoreIndexUpdate" xml:space="preserve">
+    <value>列存储索引更新</value>
+  </data>
+  <data name="ColumnstoreIndexUpdateDescription" xml:space="preserve">
+    <value>更新列存储索引中的行。</value>
+  </data>
+  <data name="ColumnstoreIndexInsert" xml:space="preserve">
+    <value>列存储索引插入</value>
+  </data>
+  <data name="ColumnstoreIndexInsertDescription" xml:space="preserve">
+    <value>在列存储索引中插入行。</value>
+  </data>
+  <data name="ColumnstoreIndexMerge" xml:space="preserve">
+    <value>列存储索引合并</value>
+  </data>
+  <data name="ColumnstoreIndexMergeDescription" xml:space="preserve">
+    <value>合并列存储索引中的行。</value>
+  </data>
+  <data name="ColumnstoreIndexDelete" xml:space="preserve">
+    <value>列存储索引删除</value>
+  </data>
+  <data name="ColumnstoreIndexDeleteDescription" xml:space="preserve">
+    <value>从列存储索引中删除行。</value>
+  </data>
+  <data name="RemoteScan" xml:space="preserve">
+    <value>远程扫描</value>
+  </data>
+  <data name="RemoteScanDescription" xml:space="preserve">
+    <value>扫描当前数据库服务器之外的数据库或文件中存储的表内的行。</value>
+  </data>
+  <data name="RemoteIndexScan" xml:space="preserve">
+    <value>远程索引扫描</value>
+  </data>
+  <data name="RemoteIndexScanDescription" xml:space="preserve">
+    <value>扫描当前数据库服务器之外的数据库或文件中存储的索引。</value>
+  </data>
+  <data name="RemoteIndexSeek" xml:space="preserve">
+    <value>远程索引查找</value>
+  </data>
+  <data name="RemoteIndexSeekDescription" xml:space="preserve">
+    <value>扫描当前数据库服务器之外的数据库或文件中存储的聚集索引中的特定范围的行。</value>
+  </data>
+  <data name="RemoteInsert" xml:space="preserve">
+    <value>远程插入</value>
+  </data>
+  <data name="RemoteInsertDescription" xml:space="preserve">
+    <value>在当前数据库服务器之外的数据库或文件中存储的表内插入行。</value>
+  </data>
+  <data name="RemoteUpdate" xml:space="preserve">
+    <value>远程更新</value>
+  </data>
+  <data name="RemoteUpdateDescription" xml:space="preserve">
+    <value>更新当前数据库服务器之外的数据库或文件中存储的表内的行。</value>
+  </data>
+  <data name="RemoteDelete" xml:space="preserve">
+    <value>远程删除</value>
+  </data>
+  <data name="RemoteDeleteDescription" xml:space="preserve">
+    <value>删除当前数据库服务器之外的数据库或文件中存储的表内的行。</value>
+  </data>
+  <data name="ClusteredUpdate" xml:space="preserve">
+    <value>群集更新</value>
+  </data>
+  <data name="ClusteredUpdateDescription" xml:space="preserve">
+    <value>群集更新。</value>
+  </data>
+  <data name="SortDescription" xml:space="preserve">
+    <value>对输入进行排序。</value>
+  </data>
+  <data name="TableSpoolDescription" xml:space="preserve">
+    <value>将数据从输入存储到临时表中以优化重绕。</value>
+  </data>
+  <data name="IndexSpool" xml:space="preserve">
+    <value>索引后台处理</value>
+  </data>
+  <data name="IndexSpoolDescription" xml:space="preserve">
+    <value>将输入的数据重新设置为临时索引的格式，然后用于使用所提供的 seek 谓词进行的查找中。</value>
+  </data>
+  <data name="TableUpdate" xml:space="preserve">
+    <value>表更新</value>
+  </data>
+  <data name="TableUpdateDescription" xml:space="preserve">
+    <value>更新“参数”字段指定的表中的输入行。</value>
+  </data>
+  <data name="TableInsert" xml:space="preserve">
+    <value>表插入</value>
+  </data>
+  <data name="TableInsertDescription" xml:space="preserve">
+    <value>将输入行插入“参数”字段所指定的表。</value>
+  </data>
+  <data name="TableDelete" xml:space="preserve">
+    <value>表删除</value>
+  </data>
+  <data name="TableDeleteDescription" xml:space="preserve">
+    <value>从“参数”字段指定的表中删除输入行。</value>
+  </data>
+  <data name="TableMerge" xml:space="preserve">
+    <value>表合并</value>
+  </data>
+  <data name="TableMergeDescription" xml:space="preserve">
+    <value>合并在“参数”字段中指定的表中的输入行。</value>
+  </data>
+  <data name="IndexUpdate" xml:space="preserve">
+    <value>索引更新</value>
+  </data>
+  <data name="IndexUpdateDescription" xml:space="preserve">
+    <value>更新索引中的行。</value>
+  </data>
+  <data name="IndexInsert" xml:space="preserve">
+    <value>索引插入</value>
+  </data>
+  <data name="IndexInsertDescription" xml:space="preserve">
+    <value>在索引中插入行。</value>
+  </data>
+  <data name="IndexDelete" xml:space="preserve">
+    <value>索引删除</value>
+  </data>
+  <data name="IndexDeleteDescription" xml:space="preserve">
+    <value>从索引中删除行。</value>
+  </data>
+  <data name="ClusteredIndexUpdate" xml:space="preserve">
+    <value>聚集索引更新</value>
+  </data>
+  <data name="ClusteredIndexUpdateDescription" xml:space="preserve">
+    <value>更新聚集索引中的行。</value>
+  </data>
+  <data name="ClusteredIndexInsert" xml:space="preserve">
+    <value>聚集索引插入</value>
+  </data>
+  <data name="ClusteredIndexInsertDescription" xml:space="preserve">
+    <value>在聚集索引中插入行。</value>
+  </data>
+  <data name="ClusteredIndexMerge" xml:space="preserve">
+    <value>群集索引合并</value>
+  </data>
+  <data name="ClusteredIndexMergeDescription" xml:space="preserve">
+    <value>合并聚集索引中的行。</value>
+  </data>
+  <data name="ClusteredIndexDelete" xml:space="preserve">
+    <value>聚集索引删除</value>
+  </data>
+  <data name="ClusteredIndexDeleteDescription" xml:space="preserve">
+    <value>从聚集索引中删除行。</value>
+  </data>
+  <data name="TopDescription" xml:space="preserve">
+    <value>根据排序顺序选择前几行。</value>
+  </data>
+  <data name="BitmapDescription" xml:space="preserve">
+    <value>位图。</value>
+  </data>
+  <data name="UDX" xml:space="preserve">
+    <value>UDX</value>
+  </data>
+  <data name="UDXDescription" xml:space="preserve">
+    <value>UDX。</value>
+  </data>
+  <data name="WindowDescription" xml:space="preserve">
+    <value>将每一行扩展到表示与其关联的窗口的行集中。</value>
+  </data>
+  <data name="WindowAggregate" xml:space="preserve">
+    <value>窗口聚合</value>
+  </data>
+  <data name="WindowAggregateDescription" xml:space="preserve">
+    <value>计算跨 OVER 子句定义的窗口的函数值。输入行集为经相应排序的流。</value>
+  </data>
+  <data name="BatchHashTableBuildDescription" xml:space="preserve">
+    <value>批处理哈希表生成。</value>
+  </data>
+  <data name="Switch" xml:space="preserve">
+    <value>切换</value>
+  </data>
+  <data name="SwitchDescription" xml:space="preserve">
+    <value>切换。</value>
+  </data>
+  <data name="TFP" xml:space="preserve">
+    <value>预测</value>
+  </data>
+  <data name="TFPDescription" xml:space="preserve">
+    <value>将经过定型的机器学习模型应用于输入数据	</value>
+  </data>
+  <data name="TableValueFunction" xml:space="preserve">
+    <value>表值函数</value>
+  </data>
+  <data name="TableValueFunctionDescription" xml:space="preserve">
+    <value>表值函数。</value>
+  </data>
+  <data name="Aggregate" xml:space="preserve">
+    <value>聚合</value>
+  </data>
+  <data name="AggregateDescription" xml:space="preserve">
+    <value>计算包含 SUM、COUNT、MIN、MAX 或 AVG 的表达式。</value>
+  </data>
+  <data name="ArithmeticExpression" xml:space="preserve">
+    <value>Arithmetic Expression</value>
+  </data>
+  <data name="ArithmeticExpressionDescription" xml:space="preserve">
+    <value>根据行中的现有值计算新值。</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>删除</value>
+  </data>
+  <data name="DeleteDescription" xml:space="preserve">
+    <value>从指定的表中删除指定的行。</value>
+  </data>
+  <data name="Insert" xml:space="preserve">
+    <value>插入</value>
+  </data>
+  <data name="InsertDescription" xml:space="preserve">
+    <value>向表中添加行。</value>
+  </data>
+  <data name="Locate" xml:space="preserve">
+    <value>定位</value>
+  </data>
+  <data name="LocateDescription" xml:space="preserve">
+    <value>从堆或聚集索引中提取一整行。</value>
+  </data>
+  <data name="SpoolDescription" xml:space="preserve">
+    <value>临时保存中间查询结果。</value>
+  </data>
+  <data name="SQL" xml:space="preserve">
+    <value>SQL</value>
+  </data>
+  <data name="SQLDescription" xml:space="preserve">
+    <value>SQL。</value>
+  </data>
+  <data name="Update" xml:space="preserve">
+    <value>更新</value>
+  </data>
+  <data name="UpdateDescription" xml:space="preserve">
+    <value>修改指定表中的值。</value>
+  </data>
+  <data name="Assign" xml:space="preserve">
+    <value>分配</value>
+  </data>
+  <data name="AssignDescription" xml:space="preserve">
+    <value>验证引用完整性约束。</value>
+  </data>
+  <data name="Convert" xml:space="preserve">
+    <value>转换</value>
+  </data>
+  <data name="ConvertDescription" xml:space="preserve">
+    <value>隐式或显式地将一种标量数据类型转换成另一种。</value>
+  </data>
+  <data name="Declare" xml:space="preserve">
+    <value>声明</value>
+  </data>
+  <data name="DeclareDescription" xml:space="preserve">
+    <value>分配局部变量。</value>
+  </data>
+  <data name="If" xml:space="preserve">
+    <value>If</value>
+  </data>
+  <data name="IfDescription" xml:space="preserve">
+    <value>基于表达式的有条件处理。</value>
+  </data>
+  <data name="Intrinsic" xml:space="preserve">
+    <value>内部</value>
+  </data>
+  <data name="IntrinsicDescription" xml:space="preserve">
+    <value>调用内部的 Transact-SQL 函数。</value>
+  </data>
+  <data name="SetFunction" xml:space="preserve">
+    <value>Set Function</value>
+  </data>
+  <data name="SetFunctionDescription" xml:space="preserve">
+    <value>Set 函数。</value>
+  </data>
+  <data name="Dynamic" xml:space="preserve">
+    <value>动态</value>
+  </data>
+  <data name="DynamicDescription" xml:space="preserve">
+    <value>可以查看其他人所做的全部更改的游标。</value>
+  </data>
+  <data name="FetchQuery" xml:space="preserve">
+    <value>提取查询</value>
+  </data>
+  <data name="FetchQueryDescription" xml:space="preserve">
+    <value>当对游标发出提取命令时用于检索行的查询。</value>
+  </data>
+  <data name="FastForward" xml:space="preserve">
+    <value>快进</value>
+  </data>
+  <data name="FastForwardDescription" xml:space="preserve">
+    <value>快进。</value>
+  </data>
+  <data name="Keyset" xml:space="preserve">
+    <value>密钥集</value>
+  </data>
+  <data name="KeysetDescription" xml:space="preserve">
+    <value>可以查看其他人所做的更新(但不包括插入)的游标。</value>
+  </data>
+  <data name="PopulationQuery" xml:space="preserve">
+    <value>总体查询</value>
+  </data>
+  <data name="PopulationQueryDescription" xml:space="preserve">
+    <value>在打开游标时用于填充游标工作表的查询。</value>
+  </data>
+  <data name="RefreshQuery" xml:space="preserve">
+    <value>刷新查询</value>
+  </data>
+  <data name="RefreshQueryDescription" xml:space="preserve">
+    <value>为提取缓冲区中的行提取当前数据。</value>
+  </data>
+  <data name="Snapshot" xml:space="preserve">
+    <value>快照</value>
+  </data>
+  <data name="SnapshotDescription" xml:space="preserve">
+    <value>看不到其他人所做更改的游标。</value>
+  </data>
+  <data name="RIDLookup" xml:space="preserve">
+    <value>RID 查找</value>
+  </data>
+  <data name="RIDLookupDescription" xml:space="preserve">
+    <value>RID 查找</value>
+  </data>
+  <data name="KeyLookup" xml:space="preserve">
+    <value>密钥查找</value>
+  </data>
+  <data name="KeyLookupDescription" xml:space="preserve">
+    <value>使用提供的聚集键在具有聚集索引的表中查找。</value>
+  </data>
+  <data name="LogicalKeyLookup" xml:space="preserve">
+    <value>密钥查找</value>
+  </data>
+  <data name="AdaptiveJoin" xml:space="preserve">
+    <value>自适应联接</value>
+  </data>
+  <data name="AdaptiveJoinDescription" xml:space="preserve">
+    <value>在哈希联接和嵌套循环之间动态选择。</value>
+  </data>
+  <data name="ForeignKeyReferencesCheck" xml:space="preserve">
+    <value>外键引用检查</value>
+  </data>
+  <data name="ForeignKeyReferencesCheckDescription" xml:space="preserve">
+    <value>检查删除操作的引用完整性。</value>
+  </data>
+  <data name="Apply" xml:space="preserve">
+    <value>应用</value>
+  </data>
+  <data name="ApplyDescription" xml:space="preserve">
+    <value>应用操作。</value>
+  </data>
+  <data name="Broadcast" xml:space="preserve">
+    <value>广播</value>
+  </data>
+  <data name="BroadcastDescription" xml:space="preserve">
+    <value>广播数据移动。</value>
+  </data>
+  <data name="ComputeToControlNode" xml:space="preserve">
+    <value>计算节点到控制节点</value>
+  </data>
+  <data name="ComputeToControlNodeDescription" xml:space="preserve">
+    <value>从计算节点到控制节点的数据流。</value>
+  </data>
+  <data name="ConstTableGet" xml:space="preserve">
+    <value>常量表获取</value>
+  </data>
+  <data name="ConstTableGetDescription" xml:space="preserve">
+    <value>从固定表格获取元组。</value>
+  </data>
+  <data name="ControlToComputeNodes" xml:space="preserve">
+    <value>控制节点到计算节点</value>
+  </data>
+  <data name="ControlToComputeNodesDescription" xml:space="preserve">
+    <value>从控制节点到计算节点的数据流。</value>
+  </data>
+  <data name="ExternalBroadcast" xml:space="preserve">
+    <value>外部广播</value>
+  </data>
+  <data name="ExternalBroadcastDescription" xml:space="preserve">
+    <value>广播外部表的数据移动。</value>
+  </data>
+  <data name="ExternalExport" xml:space="preserve">
+    <value>外部导出</value>
+  </data>
+  <data name="ExternalExportDescription" xml:space="preserve">
+    <value>导出外部表的数据移动。</value>
+  </data>
+  <data name="ExternalLocalStreaming" xml:space="preserve">
+    <value>外部本地流式处理</value>
+  </data>
+  <data name="ExternalLocalStreamingDescription" xml:space="preserve">
+    <value>流式处理外部表和本地表之间的数据移动。</value>
+  </data>
+  <data name="ExternalRoundRobin" xml:space="preserve">
+    <value>外部 RoundRobin</value>
+  </data>
+  <data name="ExternalRoundRobinDescription" xml:space="preserve">
+    <value>RoundRobin 外部表的数据移动。</value>
+  </data>
+  <data name="ExternalShuffle" xml:space="preserve">
+    <value>外部无序播放</value>
+  </data>
+  <data name="ExternalShuffleDescription" xml:space="preserve">
+    <value>无序播放外部表的数据移动。</value>
+  </data>
+  <data name="Get" xml:space="preserve">
+    <value>获取</value>
+  </data>
+  <data name="GetDescription" xml:space="preserve">
+    <value>从表获取元组。</value>
+  </data>
+  <data name="GbApply" xml:space="preserve">
+    <value>分组依据和应用</value>
+  </data>
+  <data name="GbApplyDescription" xml:space="preserve">
+    <value>分组依据和应用。</value>
+  </data>
+  <data name="GbAgg" xml:space="preserve">
+    <value>按聚合分组</value>
+  </data>
+  <data name="GbAggDescription" xml:space="preserve">
+    <value>按聚合分组。</value>
+  </data>
+  <data name="Join" xml:space="preserve">
+    <value>加入</value>
+  </data>
+  <data name="JoinDescription" xml:space="preserve">
+    <value>联接表。</value>
+  </data>
+  <data name="LocalCube" xml:space="preserve">
+    <value>汇总聚合</value>
+  </data>
+  <data name="LocalCubeDescription" xml:space="preserve">
+    <value>这表示 ROLLUP 运算符或 CUBE 运算符。</value>
+  </data>
+  <data name="Project" xml:space="preserve">
+    <value>项目</value>
+  </data>
+  <data name="ProjectDescription" xml:space="preserve">
+    <value>项目列。</value>
+  </data>
+  <data name="Shuffle" xml:space="preserve">
+    <value>无序播放</value>
+  </data>
+  <data name="ShuffleDescription" xml:space="preserve">
+    <value>无序播放数据移动。</value>
+  </data>
+  <data name="SingleSourceRoundRobin" xml:space="preserve">
+    <value>单一源 RoundRobin</value>
+  </data>
+  <data name="SingleSourceRoundRobinDescription" xml:space="preserve">
+    <value>单一源 RoundRobin 数据移动。</value>
+  </data>
+  <data name="SingleSourceShuffle" xml:space="preserve">
+    <value>单一源无序播放</value>
+  </data>
+  <data name="SingleSourceShuffleDescription" xml:space="preserve">
+    <value>单一源无序播放数据移动。</value>
+  </data>
+  <data name="Trim" xml:space="preserve">
+    <value>剪裁</value>
+  </data>
+  <data name="TrimDescription" xml:space="preserve">
+    <value>剪裁数据。</value>
+  </data>
+  <data name="Union" xml:space="preserve">
+    <value>联合</value>
+  </data>
+  <data name="UnionDescription" xml:space="preserve">
+    <value>联合表。</value>
+  </data>
+  <data name="UnionAll" xml:space="preserve">
+    <value>全部联合</value>
+  </data>
+  <data name="UnionAllDescription" xml:space="preserve">
+    <value>联合所有表。</value>
+  </data>
+  <data name="NameValuePair" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="SizeInBytesFormat" xml:space="preserve">
+    <value>{0} 字节</value>
+  </data>
+  <data name="SizeInKiloBytesFormat" xml:space="preserve">
+    <value>{0} KB</value>
+  </data>
+  <data name="SizeInMegaBytesFormat" xml:space="preserve">
+    <value>{0} MB</value>
+  </data>
+  <data name="SizeInGigaBytesFormat" xml:space="preserve">
+    <value>{0} GB</value>
+  </data>
+  <data name="SizeInTeraBytesFormat" xml:space="preserve">
+    <value>{0} TB</value>
+  </data>
+  <data name="TableNotInitializedException" xml:space="preserve">
+    <value>对于 ID 为 "{0}" 的表，初始化未正确完成</value>
+  </data>
+  <data name="TableColumnIdentityGroupName" xml:space="preserve">
+    <value>标识规范</value>
+  </data>
+  <data name="TableColumnIsIdentityPropertyTitle" xml:space="preserve">
+    <value>是标识</value>
+  </data>
+  <data name="TableColumnIsIdentityPropertyDescription" xml:space="preserve">
+    <value>指定该列是否为表的标识列。</value>
+  </data>
+  <data name="TableColumnIdentityIncrementPropertyTitle" xml:space="preserve">
+    <value>标识增量</value>
+  </data>
+  <data name="TableColumnIdentityIncrementPropertyDescription" xml:space="preserve">
+    <value>显示生成下一个标识值时加到最大现有行标识值的值。</value>
+  </data>
+  <data name="TableColumnIdentitySeedPropertyTitle" xml:space="preserve">
+    <value>标识种子</value>
+  </data>
+  <data name="TableColumnIdentitySeedPropertyDescription" xml:space="preserve">
+    <value>显示标识列的初始行值。</value>
+  </data>
+  <data name="TableEditPathNotProvidedException" xml:space="preserve">
+    <value>表更改信息中的路径不能为空</value>
+  </data>
+  <data name="InvalidTableEditPathException" xml:space="preserve">
+    <value>表更改信息中的路径 "{0}" 对于编辑类型 "{1}" 无效</value>
+  </data>
+  <data name="OperatorDisplayCost" xml:space="preserve">
+    <value>{0:0.#######} ({1}%)</value>
+  </data>
+  <data name="ActualOfEstimated" xml:space="preserve">
+    <value>{0} /
+{1} ({2}%)</value>
+  </data>
+  <data name="TableDesignerIsEnabledPropertyTitle" xml:space="preserve">
+    <value>已启用</value>
+  </data>
+  <data name="ForeignKeyIsEnabledDescription" xml:space="preserve">
+    <value>指定是否启用外键</value>
+  </data>
+  <data name="ForeignKeyIsNotForReplicationTitle" xml:space="preserve">
+    <value>不用于复制</value>
+  </data>
+  <data name="ForeignKeyIsNotForReplicationDescription" xml:space="preserve">
+    <value>对复制过程插入的数据启用或禁用 IDENTITY 约束。</value>
+  </data>
+  <data name="SqlForeignKeyAction_NoAction" xml:space="preserve">
+    <value>无操作</value>
+  </data>
+  <data name="SqlForeignKeyAction_Cascade" xml:space="preserve">
+    <value>级联</value>
+  </data>
+  <data name="SqlForeignKeyAction_SetNull" xml:space="preserve">
+    <value>设置 Null</value>
+  </data>
+  <data name="SqlForeignKeyAction_SetDefault" xml:space="preserve">
+    <value>设置默认值</value>
+  </data>
+  <data name="UnKnownSqlForeignKeyAction" xml:space="preserve">
+    <value>“{0}”不是受支持的 SqlForeignKeyAction。</value>
+  </data>
+  <data name="CheckConstraintIsEnabledDescription" xml:space="preserve">
+    <value>指定是否已启用检查约束</value>
   </data>
 </root>

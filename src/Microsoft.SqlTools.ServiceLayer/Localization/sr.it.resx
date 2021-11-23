@@ -205,7 +205,7 @@
     <value>La query richiesta non esiste</value>
   </data>
   <data name="QueryServiceQueryInvalidOwnerUri" xml:space="preserve">
-    <value>Questo editor non è connesso a un database</value>
+    <value>Non è possibile connettersi al database a causa di OwnerUri non valido</value>
   </data>
   <data name="QueryServiceQueryInProgress" xml:space="preserve">
     <value>È già in corso una query per questa sessione dell'editor. Annullare questa query o attenderne il completamento.</value>
@@ -244,7 +244,7 @@
     <value>Questa funzionalità non è attualmente supportata nel database SQL di Azure e Data Warehouse: {0}</value>
   </data>
   <data name="PeekDefinitionError" xml:space="preserve">
-    <value>Si è verificato un errore imprevisto durante l'esecuzione di Visualizza la definizione: {0}</value>
+    <value>Si è verificato un errore imprevisto durante l'esecuzione di Visualizza in anteprima la definizione: {0}</value>
   </data>
   <data name="PeekDefinitionNoResultsError" xml:space="preserve">
     <value>Non sono stati trovati risultati.</value>
@@ -1329,13 +1329,2174 @@
   <data name="SqlCmdUnsupportedToken" xml:space="preserve">
     <value>È stato rilevato il token {0} non supportato</value>
   </data>
+  <data name="SqlAssessmentGenerateScriptTaskName" xml:space="preserve">
+    <value>Genera script di Valutazione SQL</value>
+  </data>
+  <data name="SqlAssessmentQueryInvalidOwnerUri" xml:space="preserve">
+    <value>Non connesso a un server</value>
+  </data>
+  <data name="SqlAssessmentConnectingError" xml:space="preserve">
+    <value>Non è possibile connettersi al server</value>
+  </data>
+  <data name="SqlAssessmentUnsuppoertedEdition" xml:space="preserve">
+    <value>Edizione del motore {0} non supportata</value>
+  </data>
+  <data name="ParameterizationDetails" xml:space="preserve">
+    <value>{0} verrà convertito in un oggetto Microsoft.Data.SqlClient.SqlParameter con le proprietà seguenti: SqlDbType = {1}, Size = {2}, Precision = {3}, Scale = {4}, SqlValue = {5}</value>
+  </data>
+  <data name="ErrorMessageHeader" xml:space="preserve">
+    <value>Riga {0}</value>
+  </data>
+  <data name="ErrorMessage" xml:space="preserve">
+    <value>Non è possibile convertire {0} in un oggetto Microsoft.Data.SqlClient.SqlParameter. Il valore letterale specificato non può essere convertito in {1}(Microsoft.Data.SqlDbType). Valore letterale: {2} </value>
+  </data>
+  <data name="DateTimeErrorMessage" xml:space="preserve">
+    <value>Non è possibile convertire {0} in un oggetto Microsoft.Data.SqlClient.SqlParameter. Il valore letterale specificato non può essere convertito in {1}(Microsoft.Data.SqlDbType), perché è stato usato un formato di data/ora non supportato. Usare uno dei formati di data/ora supportati. Valore letterale: {2}</value>
+  </data>
+  <data name="BinaryLiteralPrefixMissingError" xml:space="preserve">
+    <value>Non è possibile convertire {0} in un oggetto Microsoft.Data.SqlClient.SqlParameter. Il valore letterale specificato non può essere convertito in {1}(Microsoft.Data.SqlDbType), perché per un valore letterale binario è previsto il prefisso 0x. Valore letterale: {2} </value>
+  </data>
+  <data name="ParsingErrorHeader" xml:space="preserve">
+    <value>Riga {0}, colonna {1}</value>
+  </data>
+  <data name="ScriptTooLarge" xml:space="preserve">
+    <value>Lo script corrente è troppo grande per la parametrizzazione per Always Encrypted. Disabilitare la parametrizzazione per Always Encrypted in Opzioni query (Query &gt; Opzioni query &gt; Esecuzione &gt; Avanzata). Lunghezza massima consentita: {0} caratteri, lunghezza script corrente: {1} caratteri</value>
+  </data>
+  <data name="ProjectExtractTaskName" xml:space="preserve">
+    <value>Estrai file di progetto</value>
+  </data>
+  <data name="ValidateStreamingJobTaskName" xml:space="preserve">
+    <value>Convalida processo di streaming</value>
+  </data>
+  <data name="StreamNotFoundInModel" xml:space="preserve">
+    <value>L'istruzione della query di streaming contiene un riferimento al flusso {0} '{1}' mancante. È necessario aggiungerlo al modello di database.</value>
+  </data>
+  <data name="Input" xml:space="preserve">
+    <value>input</value>
+  </data>
+  <data name="Output" xml:space="preserve">
+    <value>output</value>
+  </data>
+  <data name="StreamingJobValidationFailed" xml:space="preserve">
+    <value>Convalida del processo di streaming esterno '{0}' non riuscita:</value>
+  </data>
+  <data name="FragmentShouldHaveOnlyOneBatch" xml:space="preserve">
+    <value>Il frammento TSQL deve contenere esattamente un batch.</value>
+  </data>
+  <data name="NoCreateStreamingJobStatementFound" xml:space="preserve">
+    <value>Non è stato trovato alcun TSQL di creazione del processo di streaming esterno (istruzione EXEC sp_create_streaming_job).</value>
+  </data>
   <data name="CouldntFindAzureFunction" xml:space="preserve">
     <value>Non è stato possibile trovare la funzione di Azure con FunctionName '{0}' in {1}</value>
   </data>
   <data name="MoreThanOneAzureFunctionWithName" xml:space="preserve">
-    <value>È stata trovata più di una funzione di Azure con FunctionName '{0}' in {1}</value>
+    <value>È stata trovata più di una funzione di Azure con functionName '{0}' in {1}</value>
   </data>
   <data name="SqlBindingsNet5NotSupported" xml:space="preserve">
     <value>L'aggiunta di binding SQL non è supportata per .NET 5</value>
+  </data>
+  <data name="Statement" xml:space="preserve">
+    <value>Istruzione</value>
+  </data>
+  <data name="StatementDesc" xml:space="preserve">
+    <value>Nella maggior parte dei casi contiene il testo dell'istruzione Transact-SQL. Per le righe di tipo PLAN_ROW, contiene una descrizione dell'operazione.</value>
+  </data>
+  <data name="PhysicalOperation" xml:space="preserve">
+    <value>Operazione fisica</value>
+  </data>
+  <data name="PhysicalOperationDesc" xml:space="preserve">
+    <value>Algoritmo di implementazione fisica per il nodo. Solo per le righe di tipo PLAN_ROWS.</value>
+  </data>
+  <data name="LogicalOperation" xml:space="preserve">
+    <value>Operazione logica</value>
+  </data>
+  <data name="LogicalOperationDesc" xml:space="preserve">
+    <value>Operatore algebrico relazionale rappresentato da questo nodo. Solo per le righe di tipo PLAN_ROWS.</value>
+  </data>
+  <data name="OperationDescriptionShort" xml:space="preserve">
+    <value>Descrizione</value>
+  </data>
+  <data name="OperationDescription" xml:space="preserve">
+    <value>Descrizione dell'operazione.</value>
+  </data>
+  <data name="OperationArgumentShort" xml:space="preserve">
+    <value>Argomento</value>
+  </data>
+  <data name="OperationArgumentDescription" xml:space="preserve">
+    <value>Offre informazioni aggiuntive sull'operazione in corso. Il contenuto della colonna dipende dall'operatore fisico.</value>
+  </data>
+  <data name="ObjectShort" xml:space="preserve">
+    <value>Oggetto</value>
+  </data>
+  <data name="ObjectDescription" xml:space="preserve">
+    <value>Oggetto.</value>
+  </data>
+  <data name="IndexKind" xml:space="preserve">
+    <value>Tipo indice</value>
+  </data>
+  <data name="IndexKindDescription" xml:space="preserve">
+    <value>Tipo di indice per l'oggetto a cui si fa riferimento.</value>
+  </data>
+  <data name="DefinedValues" xml:space="preserve">
+    <value>Valori definiti</value>
+  </data>
+  <data name="DefinedValuesDescription" xml:space="preserve">
+    <value>Contiene un elenco delimitato da virgole dei valori introdotti dall'operatore, che possono essere espressioni calcolate nella query corrente oppure valori interni introdotti da Query Processor per elaborare la query. Solo per righe di tipo PLAN_ROWS.</value>
+  </data>
+  <data name="OutputList" xml:space="preserve">
+    <value>Elenco output</value>
+  </data>
+  <data name="OutputListDescription" xml:space="preserve">
+    <value>Contiene un elenco delimitato da virgole delle colonne risultanti dall'operazione corrente.</value>
+  </data>
+  <data name="Warnings" xml:space="preserve">
+    <value>Avvisi</value>
+  </data>
+  <data name="WarningsDescription" xml:space="preserve">
+    <value>Contiene un elenco delimitato da virgole dei messaggi di avviso relativi all'operazione corrente. I messaggi di avviso possono includere la stringa 'NO STATS:()' con un elenco di colonne.</value>
+  </data>
+  <data name="Parallel" xml:space="preserve">
+    <value>Parallelo</value>
+  </data>
+  <data name="ParallelDescription" xml:space="preserve">
+    <value>Indica se l'operatore viene eseguito in parallelo.</value>
+  </data>
+  <data name="EstimatedNumberOfRowsPerExecution" xml:space="preserve">
+    <value>Numero stimato di righe per esecuzione</value>
+  </data>
+  <data name="EstimatedNumberOfRowsPerExecutionDescription" xml:space="preserve">
+    <value>Numero stimato di righe per esecuzione restituito da questo operatore. Solo per PLAN_ROWS.</value>
+  </data>
+  <data name="EstimatedNumberOfRowsForAllExecutions" xml:space="preserve">
+    <value>Numero stimato di righe per tutte le esecuzioni</value>
+  </data>
+  <data name="EstimatedNumberOfRowsForAllExecutionsDescription" xml:space="preserve">
+    <value>Numero stimato di righe per tutte le esecuzioni restituito da questo operatore. Solo per PLAN_ROWS.</value>
+  </data>
+  <data name="EstimatedRowsRead" xml:space="preserve">
+    <value>Numero stimato di righe da leggere</value>
+  </data>
+  <data name="EstimatedRowsReadDescription" xml:space="preserve">
+    <value>Numero stimato di righe che verrà letto da questo operatore. Tale valore può essere diverso da "Numero stimato di righe per tutte le esecuzioni" se l'operatore ha un predicato.</value>
+  </data>
+  <data name="IsGraphDBTransitiveClosure" xml:space="preserve">
+    <value>Chiusura transitiva GraphDB</value>
+  </data>
+  <data name="IsGraphDBTransitiveClosureDescription" xml:space="preserve">
+    <value>Indica se la sequenza rappresenta una chiusura transitiva GraphDB.</value>
+  </data>
+  <data name="IsInterleavedExecuted" xml:space="preserve">
+    <value>IsInterleavedExecuted</value>
+  </data>
+  <data name="IsInterleavedExecutedDescription" xml:space="preserve">
+    <value>Indica se l'operatore viene eseguito in modo interleaved.</value>
+  </data>
+  <data name="IsAdaptive" xml:space="preserve">
+    <value>Adattivo</value>
+  </data>
+  <data name="IsAdaptiveDescription" xml:space="preserve">
+    <value>Indica se l'operatore è adattivo.</value>
+  </data>
+  <data name="AdaptiveThresholdRows" xml:space="preserve">
+    <value>Righe di soglia adattiva</value>
+  </data>
+  <data name="AdaptiveThresholdRowsDescription" xml:space="preserve">
+    <value>Cardinalità in base a cui adattarsi, se si tratta di un operatore adattivo.</value>
+  </data>
+  <data name="EstimatedJoinType" xml:space="preserve">
+    <value>Tipo di join stimato</value>
+  </data>
+  <data name="EstimatedJoinTypeDescription" xml:space="preserve">
+    <value>Tipo di join (join a cicli annidati o hash join) stimato da Query Optimizer prima dell'adattamento.</value>
+  </data>
+  <data name="ActualJoinType" xml:space="preserve">
+    <value>Tipo di join effettivo</value>
+  </data>
+  <data name="ActualJoinTypeDescription" xml:space="preserve">
+    <value>Join effettivo selezionato (join a cicli annidati o hash join) come parte dell'esecuzione del join adattivo.</value>
+  </data>
+  <data name="EstimatedRowSize" xml:space="preserve">
+    <value>Dimensioni stimate righe</value>
+  </data>
+  <data name="EstimatedRowSizeDescription" xml:space="preserve">
+    <value>Dimensioni medie stimate delle righe passate tramite l'operatore.</value>
+  </data>
+  <data name="EstimatedIoCost" xml:space="preserve">
+    <value>Costo I/O stimato</value>
+  </data>
+  <data name="EstimatedIoCostDescription" xml:space="preserve">
+    <value>Costo di I/O stimato per l'operatore. Solo per le righe di tipo PLAN_ROWS.</value>
+  </data>
+  <data name="EstimatedCpuCost" xml:space="preserve">
+    <value>Costo CPU stimato</value>
+  </data>
+  <data name="EstimatedCpuCostDescription" xml:space="preserve">
+    <value>Costo di CPU stimato per l'operatore. Solo per le righe di tipo PLAN_ROWS.</value>
+  </data>
+  <data name="EstimatedNumberOfExecutions" xml:space="preserve">
+    <value>Numero stimato di esecuzioni</value>
+  </data>
+  <data name="EstimatedNumberOfExecutionsDescription" xml:space="preserve">
+    <value>Numero stimato di esecuzioni dell'operatore durante l'esecuzione della query corrente.</value>
+  </data>
+  <data name="EstimatedOperatorCost" xml:space="preserve">
+    <value>Costo stimato operatore</value>
+  </data>
+  <data name="EstimatedOperatorCostDescription" xml:space="preserve">
+    <value>Costo stimato dell'operatore.</value>
+  </data>
+  <data name="EstimatedSubtreeCost" xml:space="preserve">
+    <value>Costo stimato sottoalbero</value>
+  </data>
+  <data name="EstimatedSubtreeCostDescription" xml:space="preserve">
+    <value>Costo cumulativo stimato dell'operazione e di tutte le operazioni figlio.</value>
+  </data>
+  <data name="NumberOfRows" xml:space="preserve">
+    <value>Numero effettivo di righe per tutte le esecuzioni</value>
+  </data>
+  <data name="NumberOfRowsDescription" xml:space="preserve">
+    <value>Numero effettivo di righe per tutte le esecuzioni restituito da questo operatore. Solo per le righe di tipo PLAN_ROWS.</value>
+  </data>
+  <data name="ActualRowsRead" xml:space="preserve">
+    <value>Numero di righe lette</value>
+  </data>
+  <data name="ActualRowsReadDescription" xml:space="preserve">
+    <value>Numero di righe lette da una tabella o un indice prima di applicare un filtro predicato. Solo per le righe di tipo PLAN_ROWS.</value>
+  </data>
+  <data name="NumberOfBatches" xml:space="preserve">
+    <value>Numero effettivo di batch</value>
+  </data>
+  <data name="NumberOfBatchesDescription" xml:space="preserve">
+    <value>Numero effettivo di batch di output di questo operatore.</value>
+  </data>
+  <data name="NumberOfExecutions" xml:space="preserve">
+    <value>Numero di esecuzioni</value>
+  </data>
+  <data name="NumberOfExecutionsDescription" xml:space="preserve">
+    <value>Numero di esecuzioni dell'operatore durante l'esecuzione della query corrente.</value>
+  </data>
+  <data name="EstimatedDataSize" xml:space="preserve">
+    <value>Dimensioni dati stimate</value>
+  </data>
+  <data name="EstimatedDataSizeDescription" xml:space="preserve">
+    <value>Dimensioni stimate dei dati passati tramite l'operatore.</value>
+  </data>
+  <data name="ParameterList" xml:space="preserve">
+    <value>Elenco parametri</value>
+  </data>
+  <data name="ParameterListDescription" xml:space="preserve">
+    <value>Elenco di parametri.</value>
+  </data>
+  <data name="MemoryFractions" xml:space="preserve">
+    <value>Memory Fractions</value>
+  </data>
+  <data name="MemoryFractionsDescription" xml:space="preserve">
+    <value>Frazioni di memoria.</value>
+  </data>
+  <data name="MemoryFractionsInput" xml:space="preserve">
+    <value>Memory Fractions Input</value>
+  </data>
+  <data name="MemoryFractionsInputDescription" xml:space="preserve">
+    <value>Input frazioni di memoria.</value>
+  </data>
+  <data name="MemoryFractionsOutput" xml:space="preserve">
+    <value>Memory Fractions Output</value>
+  </data>
+  <data name="MemoryFractionsOutputDescription" xml:space="preserve">
+    <value>Output frazioni di memoria.</value>
+  </data>
+  <data name="UdxName" xml:space="preserve">
+    <value>Nome</value>
+  </data>
+  <data name="UdxNameDescription" xml:space="preserve">
+    <value>Nome.</value>
+  </data>
+  <data name="Values" xml:space="preserve">
+    <value>Valori</value>
+  </data>
+  <data name="ValuesDescription" xml:space="preserve">
+    <value>Valori.</value>
+  </data>
+  <data name="CachedPlanSize" xml:space="preserve">
+    <value>Dimensioni piano cache</value>
+  </data>
+  <data name="CachedPlanSizeDescription" xml:space="preserve">
+    <value>Dimensioni del piano memorizzato nella cache.</value>
+  </data>
+  <data name="UsePlan" xml:space="preserve">
+    <value>Usa piano</value>
+  </data>
+  <data name="ContainsInlineScalarTsqlUdfs" xml:space="preserve">
+    <value>Contiene le funzioni definite dall'utente TSQL scalari inline</value>
+  </data>
+  <data name="DegreeOfParallelism" xml:space="preserve">
+    <value>Grado di parallelismo</value>
+  </data>
+  <data name="DegreeOfParallelismDescription" xml:space="preserve">
+    <value>Grado di parallelismo.</value>
+  </data>
+  <data name="EffectiveDegreeOfParallelism" xml:space="preserve">
+    <value>Grado di parallelismo effettivo</value>
+  </data>
+  <data name="EffectiveDegreeOfParallelismDescription" xml:space="preserve">
+    <value>Grado di parallelismo massimo durante la compilazione dell'indice columnstore.</value>
+  </data>
+  <data name="MemoryGrant" xml:space="preserve">
+    <value>Memory Grant</value>
+  </data>
+  <data name="MemoryGrantDescription" xml:space="preserve">
+    <value>Concessione di memoria.</value>
+  </data>
+  <data name="RemoteDestination" xml:space="preserve">
+    <value>Destinazione remota</value>
+  </data>
+  <data name="RemoteDestinationDescription" xml:space="preserve">
+    <value>Oggetto remoto.</value>
+  </data>
+  <data name="RemoteObject" xml:space="preserve">
+    <value>Oggetto remoto</value>
+  </data>
+  <data name="RemoteObjectDescription" xml:space="preserve">
+    <value>Oggetto remoto.</value>
+  </data>
+  <data name="RemoteSource" xml:space="preserve">
+    <value>Origine remota</value>
+  </data>
+  <data name="RemoteSourceDescription" xml:space="preserve">
+    <value>Origine remota.</value>
+  </data>
+  <data name="UsedUdxColumns" xml:space="preserve">
+    <value>Colonne UDX utilizzate</value>
+  </data>
+  <data name="UsedUdxColumnsDescription" xml:space="preserve">
+    <value>Colonne UDX utilizzate.</value>
+  </data>
+  <data name="InnerSideJoinColumns" xml:space="preserve">
+    <value>Colonne di join lato interno</value>
+  </data>
+  <data name="InnerSideJoinColumnsDescription" xml:space="preserve">
+    <value>Colonne di join lato interno.</value>
+  </data>
+  <data name="OuterSideJoinColumns" xml:space="preserve">
+    <value>Colonne di join lato esterno</value>
+  </data>
+  <data name="OuterSideJoinColumnsDescription" xml:space="preserve">
+    <value>Colonne di join lato esterno.</value>
+  </data>
+  <data name="WhereJoinColumns" xml:space="preserve">
+    <value>Dove (colonne di join)</value>
+  </data>
+  <data name="Residual" xml:space="preserve">
+    <value>Residuo</value>
+  </data>
+  <data name="ResidualDescription" xml:space="preserve">
+    <value>Residuo.</value>
+  </data>
+  <data name="PassThru" xml:space="preserve">
+    <value>Pass-through</value>
+  </data>
+  <data name="PassThruDescription" xml:space="preserve">
+    <value>Pass-through.</value>
+  </data>
+  <data name="ManyToMany" xml:space="preserve">
+    <value>Many to Many</value>
+  </data>
+  <data name="ManyToManyDescription" xml:space="preserve">
+    <value>Molti-a-molti.</value>
+  </data>
+  <data name="PartitionColumns" xml:space="preserve">
+    <value>Colonne partizione</value>
+  </data>
+  <data name="PartitionColumnsDescription" xml:space="preserve">
+    <value>Colonne della partizione.</value>
+  </data>
+  <data name="Ascending" xml:space="preserve">
+    <value>Ordine crescente</value>
+  </data>
+  <data name="Descending" xml:space="preserve">
+    <value>Ordine decrescente</value>
+  </data>
+  <data name="HashKeys" xml:space="preserve">
+    <value>Hash Keys</value>
+  </data>
+  <data name="HashKeysDescription" xml:space="preserve">
+    <value>Chiavi hash.</value>
+  </data>
+  <data name="ProbeColumn" xml:space="preserve">
+    <value>Colonna probe</value>
+  </data>
+  <data name="ProbeColumnDescription" xml:space="preserve">
+    <value>Colonna probe.</value>
+  </data>
+  <data name="PartitioningType" xml:space="preserve">
+    <value>Tipo partizionamento</value>
+  </data>
+  <data name="PartitioningTypeDescription" xml:space="preserve">
+    <value>Tipo di partizionamento.</value>
+  </data>
+  <data name="GroupBy" xml:space="preserve">
+    <value>Raggruppa per</value>
+  </data>
+  <data name="GroupByDescription" xml:space="preserve">
+    <value>Raggruppamento.</value>
+  </data>
+  <data name="GroupingSets" xml:space="preserve">
+    <value>Set di raggruppamento</value>
+  </data>
+  <data name="GroupingSetsDescription" xml:space="preserve">
+    <value>Elenco di set di gruppi. Ogni valore è una bitmap inversa per le colonne di raggruppamento nella proprietà Group By.</value>
+  </data>
+  <data name="SegmentColumn" xml:space="preserve">
+    <value>Colonna segmento</value>
+  </data>
+  <data name="SegmentColumnDescription" xml:space="preserve">
+    <value>Colonna segmento.</value>
+  </data>
+  <data name="RankColumns" xml:space="preserve">
+    <value>Colonne rango</value>
+  </data>
+  <data name="RankColumnsDescription" xml:space="preserve">
+    <value>Colonne di rango.</value>
+  </data>
+  <data name="Predicate" xml:space="preserve">
+    <value>Predicato</value>
+  </data>
+  <data name="PredicateDescription" xml:space="preserve">
+    <value>Predicato.</value>
+  </data>
+  <data name="OuterReferences" xml:space="preserve">
+    <value>Riferimenti esterni</value>
+  </data>
+  <data name="OuterReferencesDescription" xml:space="preserve">
+    <value>Riferimenti esterni.</value>
+  </data>
+  <data name="ScalarOperator" xml:space="preserve">
+    <value>Operatore scalare</value>
+  </data>
+  <data name="ActionColumn" xml:space="preserve">
+    <value>Colonna azione</value>
+  </data>
+  <data name="ActionColumnDescription" xml:space="preserve">
+    <value>Colonna dell'azione.</value>
+  </data>
+  <data name="OriginalActionColumn" xml:space="preserve">
+    <value>Colonna Azione originale</value>
+  </data>
+  <data name="OriginalActionColumnDescription" xml:space="preserve">
+    <value>Colonna Azione originale.</value>
+  </data>
+  <data name="Rows" xml:space="preserve">
+    <value>Prime righe</value>
+  </data>
+  <data name="RowsDescription" xml:space="preserve">
+    <value>Le prime righe.</value>
+  </data>
+  <data name="SeekPredicate" xml:space="preserve">
+    <value>Predicato Seek</value>
+  </data>
+  <data name="SeekPredicateDescription" xml:space="preserve">
+    <value>Predicato Seek.</value>
+  </data>
+  <data name="Partitioned" xml:space="preserve">
+    <value>Partizionato</value>
+  </data>
+  <data name="PartitionedDescription" xml:space="preserve">
+    <value>Indica se l'operazione è in una tabella o in un indice partizionato.</value>
+  </data>
+  <data name="SeekKeys" xml:space="preserve">
+    <value>Chiavi Seek</value>
+  </data>
+  <data name="SeekKeysDescription" xml:space="preserve">
+    <value>Le chiavi utilizzate in un'operazione Seek.</value>
+  </data>
+  <data name="PartitionsAccessed" xml:space="preserve">
+    <value>Partizioni effettive a cui è stato eseguito l'accesso</value>
+  </data>
+  <data name="PartitionCount" xml:space="preserve">
+    <value>Conteggio partizioni effettive</value>
+  </data>
+  <data name="TieColumns" xml:space="preserve">
+    <value>Colonne equivalenti</value>
+  </data>
+  <data name="TieColumnsDescription" xml:space="preserve">
+    <value>Colonne equivalenti.</value>
+  </data>
+  <data name="IsPercent" xml:space="preserve">
+    <value>Is Percent</value>
+  </data>
+  <data name="IsPercentDescription" xml:space="preserve">
+    <value>Percentuale.</value>
+  </data>
+  <data name="WithTies" xml:space="preserve">
+    <value>Con valori equivalenti</value>
+  </data>
+  <data name="WithTiesDescription" xml:space="preserve">
+    <value>Con valori equivalenti.</value>
+  </data>
+  <data name="PartitionId" xml:space="preserve">
+    <value>ID partizione</value>
+  </data>
+  <data name="PartitionIdDescription" xml:space="preserve">
+    <value>ID della partizione.</value>
+  </data>
+  <data name="Ordered" xml:space="preserve">
+    <value>Ordinato</value>
+  </data>
+  <data name="OrderedDescription" xml:space="preserve">
+    <value>Ordinato.</value>
+  </data>
+  <data name="ScanDirection" xml:space="preserve">
+    <value>Direzione analisi</value>
+  </data>
+  <data name="ScanDirectionDescription" xml:space="preserve">
+    <value>Direzione dell'operazione di analisi, ovvero in avanti o all'indietro.</value>
+  </data>
+  <data name="ForcedIndex" xml:space="preserve">
+    <value>Indice forzato</value>
+  </data>
+  <data name="ForcedIndexDescription" xml:space="preserve">
+    <value>Indice forzato.</value>
+  </data>
+  <data name="SetPredicate" xml:space="preserve">
+    <value>Predicato</value>
+  </data>
+  <data name="SetPredicateDescription" xml:space="preserve">
+    <value>Predicato</value>
+  </data>
+  <data name="TopExpression" xml:space="preserve">
+    <value>Espressione Top</value>
+  </data>
+  <data name="TopExpressionDescription" xml:space="preserve">
+    <value>Espressione con operatore Top.</value>
+  </data>
+  <data name="HashKeysBuild" xml:space="preserve">
+    <value>Hash Keys Build</value>
+  </data>
+  <data name="HashKeysBuildDescription" xml:space="preserve">
+    <value>Compilazione delle chiavi hash.</value>
+  </data>
+  <data name="HashKeysProbe" xml:space="preserve">
+    <value>Hash Keys Probe</value>
+  </data>
+  <data name="HashKeysProbeDescription" xml:space="preserve">
+    <value>Probe delle chiavi hash.</value>
+  </data>
+  <data name="BuildResidual" xml:space="preserve">
+    <value>Residuo compilazione</value>
+  </data>
+  <data name="BuildResidualDescription" xml:space="preserve">
+    <value>Residuo di compilazione.</value>
+  </data>
+  <data name="ProbeResidual" xml:space="preserve">
+    <value>Residuo probe</value>
+  </data>
+  <data name="ProbeResidualDescription" xml:space="preserve">
+    <value>Residuo probe.</value>
+  </data>
+  <data name="SeekPredicates" xml:space="preserve">
+    <value>Predicati Seek</value>
+  </data>
+  <data name="SeekPredicatesDescription" xml:space="preserve">
+    <value>Predicati Seek.</value>
+  </data>
+  <data name="SetOptions" xml:space="preserve">
+    <value>Opzioni SET</value>
+  </data>
+  <data name="SetOptionsDescription" xml:space="preserve">
+    <value>Opzioni SET.</value>
+  </data>
+  <data name="OptimizationLevel" xml:space="preserve">
+    <value>Livello ottimizzazione</value>
+  </data>
+  <data name="OptimizationLevelDescription" xml:space="preserve">
+    <value>Livello di ottimizzazione.</value>
+  </data>
+  <data name="StatementOptmEarlyAbortReason" xml:space="preserve">
+    <value>Motivo per l'interruzione anticipata dell'ottimizzazione dell'istruzione</value>
+  </data>
+  <data name="TimeOut" xml:space="preserve">
+    <value>Timeout</value>
+  </data>
+  <data name="MemoryLimitExceeded" xml:space="preserve">
+    <value>Superato limite di memoria</value>
+  </data>
+  <data name="GoodEnoughPlanFound" xml:space="preserve">
+    <value>Trovato piano adeguato</value>
+  </data>
+  <data name="EstimatedRebinds" xml:space="preserve">
+    <value>Numero stimato di riassociazioni</value>
+  </data>
+  <data name="EstimatedRebindsDescription" xml:space="preserve">
+    <value>Numero stimato di riassociazioni.</value>
+  </data>
+  <data name="EstimatedRewinds" xml:space="preserve">
+    <value>Numero stimato di ripristini</value>
+  </data>
+  <data name="EstimatedRewindsDescription" xml:space="preserve">
+    <value>Numero stimato di ripristini.</value>
+  </data>
+  <data name="ActualLocallyAggregatedRows" xml:space="preserve">
+    <value>Numero effettivo di righe aggregate localmente</value>
+  </data>
+  <data name="ActualLocallyAggregatedRowsDescription" xml:space="preserve">
+    <value>Numero effettivo di righe aggregate localmente</value>
+  </data>
+  <data name="ActualRebinds" xml:space="preserve">
+    <value>Riassociazioni effettive</value>
+  </data>
+  <data name="ActualRebindsDescription" xml:space="preserve">
+    <value>Riassociazioni effettive.</value>
+  </data>
+  <data name="ActualRewinds" xml:space="preserve">
+    <value>Ripristini effettivi</value>
+  </data>
+  <data name="ActualRewindsDescription" xml:space="preserve">
+    <value>Ripristini effettivi.</value>
+  </data>
+  <data name="ActualIOStatistics" xml:space="preserve">
+    <value>Statistiche di I/O effettive</value>
+  </data>
+  <data name="ActualIOStatisticsDescription" xml:space="preserve">
+    <value>Statistiche di I/O effettive</value>
+  </data>
+  <data name="ActualTimeStatistics" xml:space="preserve">
+    <value>Statistiche temporali effettive</value>
+  </data>
+  <data name="ActualTimeStatisticsDescription" xml:space="preserve">
+    <value>Statistiche temporali effettive</value>
+  </data>
+  <data name="ActualElapsedms" xml:space="preserve">
+    <value>Tempo trascorso effettivo (ms)</value>
+  </data>
+  <data name="ActualElapsedmsDescription" xml:space="preserve">
+    <value>Tempo trascorso effettivo in millisecondi</value>
+  </data>
+  <data name="ActualCPUms" xml:space="preserve">
+    <value>Tempo di CPU trascorso effettivo (ms)</value>
+  </data>
+  <data name="ActualCPUmsDescription" xml:space="preserve">
+    <value>Tempo di CPU trascorso effettivo in millisecondi</value>
+  </data>
+  <data name="ActualScans" xml:space="preserve">
+    <value>Analisi effettive</value>
+  </data>
+  <data name="ActualScansDescription" xml:space="preserve">
+    <value>Analisi effettive</value>
+  </data>
+  <data name="ActualLogicalReads" xml:space="preserve">
+    <value>Letture logiche effettive</value>
+  </data>
+  <data name="ActualLogicalReadsDescription" xml:space="preserve">
+    <value>Letture logiche effettive</value>
+  </data>
+  <data name="ActualPhysicalReads" xml:space="preserve">
+    <value>Letture fisiche effettive</value>
+  </data>
+  <data name="ActualPhysicalReadsDescription" xml:space="preserve">
+    <value>Letture fisiche effettive</value>
+  </data>
+  <data name="ActualPageServerReads" xml:space="preserve">
+    <value>Letture server di pagine effettive</value>
+  </data>
+  <data name="ActualPageServerReadsDescription" xml:space="preserve">
+    <value>Letture server di pagine effettive</value>
+  </data>
+  <data name="ActualReadAheads" xml:space="preserve">
+    <value>Letture read-ahead effettive</value>
+  </data>
+  <data name="ActualReadAheadsDescription" xml:space="preserve">
+    <value>Letture read-ahead effettive</value>
+  </data>
+  <data name="ActualPageServerReadAheads" xml:space="preserve">
+    <value>Letture read-ahead server di pagine effettive</value>
+  </data>
+  <data name="ActualPageServerReadAheadsDescription" xml:space="preserve">
+    <value>Letture read-ahead server di pagine effettive</value>
+  </data>
+  <data name="ActualLobLogicalReads" xml:space="preserve">
+    <value>Letture logiche LOB effettive</value>
+  </data>
+  <data name="ActualLobLogicalReadsDescription" xml:space="preserve">
+    <value>Letture logiche LOB effettive</value>
+  </data>
+  <data name="ActualLobPhysicalReads" xml:space="preserve">
+    <value>Letture fisiche LOB effettive</value>
+  </data>
+  <data name="ActualLobPhysicalReadsDescription" xml:space="preserve">
+    <value>Letture fisiche LOB effettive</value>
+  </data>
+  <data name="ActualLobPageServerReads" xml:space="preserve">
+    <value>Letture LOB server di pagine effettive</value>
+  </data>
+  <data name="ActualLobPageServerReadsDescription" xml:space="preserve">
+    <value>Letture LOB server di pagine effettive</value>
+  </data>
+  <data name="ActualLobReadAheads" xml:space="preserve">
+    <value>Letture read-ahead LOB effettive</value>
+  </data>
+  <data name="ActualLobReadAheadsDescription" xml:space="preserve">
+    <value>Letture read-ahead LOB effettive</value>
+  </data>
+  <data name="ActualLobPageServerReadAheads" xml:space="preserve">
+    <value>Letture read-ahead LOB server di pagine effettive</value>
+  </data>
+  <data name="ActualLobPageServerReadAheadsDescription" xml:space="preserve">
+    <value>Letture read-ahead LOB server di pagine effettive</value>
+  </data>
+  <data name="ActualMemoryGrantStats" xml:space="preserve">
+    <value>Utilizzo memoria</value>
+  </data>
+  <data name="HpcRowCount" xml:space="preserve">
+    <value>Conteggio righe Hpc</value>
+  </data>
+  <data name="HpcRowCountDescription" xml:space="preserve">
+    <value>Numero di righe elaborate dai dispositivi Hpc.</value>
+  </data>
+  <data name="HpcKernelElapsedUs" xml:space="preserve">
+    <value>Tempo trascorso del kernel Hpc in microsecondi</value>
+  </data>
+  <data name="HpcKernelElapsedUsDescription" xml:space="preserve">
+    <value>Tempo trascorso (in microsecondi) dell'esecuzione del kernel del dispositivo Hpc.</value>
+  </data>
+  <data name="HpcHostToDeviceBytes" xml:space="preserve">
+    <value>Byte dall'host Hpc al dispositivo</value>
+  </data>
+  <data name="HpcHostToDeviceBytesDescription" xml:space="preserve">
+    <value>Dati trasferiti dall'host al dispositivo Hpc in byte.</value>
+  </data>
+  <data name="HpcDeviceToHostBytes" xml:space="preserve">
+    <value>Byte dal dispositivo Hpc all'host</value>
+  </data>
+  <data name="HpcDeviceToHostBytesDescription" xml:space="preserve">
+    <value>Dati trasferiti dal dispositivo Hpc all'host in byte.</value>
+  </data>
+  <data name="InputMemoryGrant" xml:space="preserve">
+    <value>Memoria di input</value>
+  </data>
+  <data name="OutputMemoryGrant" xml:space="preserve">
+    <value>Memoria di output</value>
+  </data>
+  <data name="UsedMemoryGrant" xml:space="preserve">
+    <value>Memoria usata</value>
+  </data>
+  <data name="Distinct" xml:space="preserve">
+    <value>Distinct</value>
+  </data>
+  <data name="DistinctDescription" xml:space="preserve">
+    <value>Distinto.</value>
+  </data>
+  <data name="OrderBy" xml:space="preserve">
+    <value>Ordina per</value>
+  </data>
+  <data name="OrderByDescription" xml:space="preserve">
+    <value>Ordina per.</value>
+  </data>
+  <data name="SpillOccurredDisplayString" xml:space="preserve">
+    <value>L'operatore ha usato tempdb per eseguire lo spill dei dati durante l'esecuzione</value>
+  </data>
+  <data name="ColumnsWithNoStatistics" xml:space="preserve">
+    <value>Colonne senza statistiche</value>
+  </data>
+  <data name="ColumnsWithNoStatisticsDescription" xml:space="preserve">
+    <value>Avviso per colonne senza statistiche.</value>
+  </data>
+  <data name="NoJoinPredicate" xml:space="preserve">
+    <value>Nessun predicato di join</value>
+  </data>
+  <data name="NoJoinPredicateDescription" xml:space="preserve">
+    <value>Avviso per nessun predicato di join.</value>
+  </data>
+  <data name="SpillToTempDbOld" xml:space="preserve">
+    <value>L'operatore ha usato tempdb per eseguire lo spill dei dati durante l'esecuzione con livello di spill {0}</value>
+  </data>
+  <data name="SpillToTempDb" xml:space="preserve">
+    <value>L'operatore ha usato tempdb per eseguire lo spill dei dati durante l'esecuzione con livello di spill {0} e {1} thread di cui è stato eseguito lo spill</value>
+  </data>
+  <data name="SpillToTempDbDescription" xml:space="preserve">
+    <value>Avviso di spill dei dati in tempdb.</value>
+  </data>
+  <data name="SortSpillDetails" xml:space="preserve">
+    <value>La funzione di ordinamento ha scritto {0} pagine nel tempdb e ha letto {1} pagine dal tempdb con memoria concessa di {2} KB e memoria usata di {3} KB</value>
+  </data>
+  <data name="SortSpillDetailsDescription" xml:space="preserve">
+    <value>Dettagli dello spill della funzione ordinamento</value>
+  </data>
+  <data name="HashSpillDetails" xml:space="preserve">
+    <value>La funzione di hash ha scritto {0} pagine nel tempdb e ha letto {1} pagine dal tempdb con memoria concessa di {2} KB e memoria usata di {3} KB</value>
+  </data>
+  <data name="HashSpillDetailsDescription" xml:space="preserve">
+    <value>Dettagli dello spill della funzione hash</value>
+  </data>
+  <data name="FullUpdateForOnlineIndexBuild" xml:space="preserve">
+    <value>Un aggiornamento parziale è stato convertito in un aggiornamento completo a causa di una compilazione dell'indice online</value>
+  </data>
+  <data name="FullUpdateForOnlineIndexBuildDescription" xml:space="preserve">
+    <value>Avviso di aggiornamento completo per la compilazione dell'indice online</value>
+  </data>
+  <data name="Wait" xml:space="preserve">
+    <value>Query eseguita dopo {0} secondi di attesa per {1}</value>
+  </data>
+  <data name="WaitDescription" xml:space="preserve">
+    <value>Avviso di attesa query.</value>
+  </data>
+  <data name="PlanAffectingConvert" xml:space="preserve">
+    <value>La conversione dei tipi nell'espressione ({0}) può influire su "{1}" nella scelta del piano di query</value>
+  </data>
+  <data name="PlanAffectingConvertDescription" xml:space="preserve">
+    <value>Avviso sugli effetti della conversione dei tipi sul piano.</value>
+  </data>
+  <data name="MemoryGrantWarning" xml:space="preserve">
+    <value>È stata rilevata la concessione di memoria per le query "{0}", che potrebbe influire sull'affidabilità. Dimensioni concessione: iniziali {1} KB, finali {2} KB, usate {3} KB.</value>
+  </data>
+  <data name="MemoryGrantWarningDescription" xml:space="preserve">
+    <value>Dettagli sull'avviso di concessione di memoria</value>
+  </data>
+  <data name="StartupExpression" xml:space="preserve">
+    <value>Espressione avvio</value>
+  </data>
+  <data name="StartupExpressionDescription" xml:space="preserve">
+    <value>Indica se viene utilizzata un'espressione di avvio di filtro.</value>
+  </data>
+  <data name="StartupExpressionPredicate" xml:space="preserve">
+    <value>Predicato espressione avvio</value>
+  </data>
+  <data name="Query" xml:space="preserve">
+    <value>Query</value>
+  </data>
+  <data name="Stack" xml:space="preserve">
+    <value>Con stack</value>
+  </data>
+  <data name="RowCount" xml:space="preserve">
+    <value>Conteggio righe</value>
+  </data>
+  <data name="Optimized" xml:space="preserve">
+    <value>Ottimizzato</value>
+  </data>
+  <data name="WithPrefetch" xml:space="preserve">
+    <value>Con prelettura</value>
+  </data>
+  <data name="Prefix" xml:space="preserve">
+    <value>Prefisso</value>
+  </data>
+  <data name="StartRange" xml:space="preserve">
+    <value>Avvia</value>
+  </data>
+  <data name="StartRangeDescription" xml:space="preserve">
+    <value>Inizio dell'intervallo.</value>
+  </data>
+  <data name="EndRange" xml:space="preserve">
+    <value>Fine</value>
+  </data>
+  <data name="EndRangeDescription" xml:space="preserve">
+    <value>Fine dell'intervallo.</value>
+  </data>
+  <data name="RangeColumns" xml:space="preserve">
+    <value>Colonne intervallo</value>
+  </data>
+  <data name="RangeExpressions" xml:space="preserve">
+    <value>Espressioni intervallo</value>
+  </data>
+  <data name="ScanType" xml:space="preserve">
+    <value>Tipo analisi</value>
+  </data>
+  <data name="ColumnReference" xml:space="preserve">
+    <value>Riferimento colonna</value>
+  </data>
+  <data name="ObjectServer" xml:space="preserve">
+    <value>Server</value>
+  </data>
+  <data name="ObjectServerDescription" xml:space="preserve">
+    <value>Nome del server per l'oggetto di riferimento.</value>
+  </data>
+  <data name="ObjectDatabase" xml:space="preserve">
+    <value>Database</value>
+  </data>
+  <data name="ObjectDatabaseDescription" xml:space="preserve">
+    <value>Nome del database per l'oggetto di riferimento.</value>
+  </data>
+  <data name="ObjectIndex" xml:space="preserve">
+    <value>Indice</value>
+  </data>
+  <data name="ObjectIndexDescription" xml:space="preserve">
+    <value>Nome dell'indice per l'oggetto di riferimento.</value>
+  </data>
+  <data name="ObjectSchema" xml:space="preserve">
+    <value>Schema</value>
+  </data>
+  <data name="ObjectSchemaDescription" xml:space="preserve">
+    <value>Nome dello schema per l'oggetto di riferimento.</value>
+  </data>
+  <data name="ObjectTable" xml:space="preserve">
+    <value>Tabella</value>
+  </data>
+  <data name="ObjectTableDescription" xml:space="preserve">
+    <value>Nome della tabella per l'oggetto di riferimento.</value>
+  </data>
+  <data name="ObjectAlias" xml:space="preserve">
+    <value>Alias</value>
+  </data>
+  <data name="ObjectAliasDescription" xml:space="preserve">
+    <value>Alias utilizzato per l'oggetto di riferimento.</value>
+  </data>
+  <data name="ObjectColumn" xml:space="preserve">
+    <value>Colonna</value>
+  </data>
+  <data name="ObjectColumnDescription" xml:space="preserve">
+    <value>Nome della colonna per l'oggetto di riferimento.</value>
+  </data>
+  <data name="ObjectComputedColumn" xml:space="preserve">
+    <value>Colonna calcolata</value>
+  </data>
+  <data name="ObjectComputedColumnDescription" xml:space="preserve">
+    <value>Indica se si tratta di una colonna calcolata.</value>
+  </data>
+  <data name="ParameterDataType" xml:space="preserve">
+    <value>Tipo di dati del parametro</value>
+  </data>
+  <data name="ParameterCompiledValue" xml:space="preserve">
+    <value>Valore compilato parametro</value>
+  </data>
+  <data name="ParameterRuntimeValue" xml:space="preserve">
+    <value>Valore run-time parametro</value>
+  </data>
+  <data name="CursorPlan" xml:space="preserve">
+    <value>Piano cursore</value>
+  </data>
+  <data name="CursorOperation" xml:space="preserve">
+    <value>Operazione cursore</value>
+  </data>
+  <data name="CursorName" xml:space="preserve">
+    <value>Nome cursore</value>
+  </data>
+  <data name="CursorActualType" xml:space="preserve">
+    <value>Tipo effettivo cursore</value>
+  </data>
+  <data name="CursorRequestedType" xml:space="preserve">
+    <value>Tipo richiesto cursore</value>
+  </data>
+  <data name="CursorConcurrency" xml:space="preserve">
+    <value>Concorrenza cursore</value>
+  </data>
+  <data name="ForwardOnly" xml:space="preserve">
+    <value>Forward-only</value>
+  </data>
+  <data name="QueryPlan" xml:space="preserve">
+    <value>Piano di query</value>
+  </data>
+  <data name="OperationType" xml:space="preserve">
+    <value>Tipo operazione</value>
+  </data>
+  <data name="NodeId" xml:space="preserve">
+    <value>ID nodo</value>
+  </data>
+  <data name="PrimaryNodeId" xml:space="preserve">
+    <value>ID nodo primario</value>
+  </data>
+  <data name="InternalInfo" xml:space="preserve">
+    <value>Informazioni di debug interne</value>
+  </data>
+  <data name="ForeignKeyReferencesCount" xml:space="preserve">
+    <value>Conteggio dei riferimenti di chiave esterna</value>
+  </data>
+  <data name="NoMatchingIndexCount" xml:space="preserve">
+    <value>Nessun conteggio di indici corrispondenti</value>
+  </data>
+  <data name="PartialMatchingIndexCount" xml:space="preserve">
+    <value>Conteggio di indici corrispondenti parziale</value>
+  </data>
+  <data name="LogicalOpCollapse" xml:space="preserve">
+    <value>Comprimi</value>
+  </data>
+  <data name="LogicalOpConcatenation" xml:space="preserve">
+    <value>Concatenazione</value>
+  </data>
+  <data name="LogicalOpConstantScan" xml:space="preserve">
+    <value>Constant Scan</value>
+  </data>
+  <data name="LogicalOpGatherStreams" xml:space="preserve">
+    <value>Gather Streams</value>
+  </data>
+  <data name="LogicalOpRepartitionStreams" xml:space="preserve">
+    <value>Repartition Streams</value>
+  </data>
+  <data name="LogicalOpDistributeStreams" xml:space="preserve">
+    <value>Distribute Streams</value>
+  </data>
+  <data name="LogicalOpFilter" xml:space="preserve">
+    <value>Filtro</value>
+  </data>
+  <data name="LogicalOpAssert" xml:space="preserve">
+    <value>Asserzione</value>
+  </data>
+  <data name="LogicalOpLogRowScan" xml:space="preserve">
+    <value>Log Row Scan</value>
+  </data>
+  <data name="LogicalOpPrint" xml:space="preserve">
+    <value>Stampa</value>
+  </data>
+  <data name="LogicalOpComputeScalar" xml:space="preserve">
+    <value>Calcolo scalare</value>
+  </data>
+  <data name="LogicalOpMergeInterval" xml:space="preserve">
+    <value>Merge Interval</value>
+  </data>
+  <data name="LogicalOpRank" xml:space="preserve">
+    <value>Classifica</value>
+  </data>
+  <data name="LogicalOpSegment" xml:space="preserve">
+    <value>Segmento</value>
+  </data>
+  <data name="LogicalOpSequence" xml:space="preserve">
+    <value>Sequenza</value>
+  </data>
+  <data name="LogicalOpSplit" xml:space="preserve">
+    <value>Suddiviso</value>
+  </data>
+  <data name="LogicalOpAggregate" xml:space="preserve">
+    <value>Aggregato</value>
+  </data>
+  <data name="LogicalOpTableScan" xml:space="preserve">
+    <value>Analisi tabella</value>
+  </data>
+  <data name="LogicalOpClusteredIndexScan" xml:space="preserve">
+    <value>Clustered Index Scan</value>
+  </data>
+  <data name="LogicalOpClusteredIndexSeek" xml:space="preserve">
+    <value>Ricerca indice cluster</value>
+  </data>
+  <data name="LogicalOpDeletedScan" xml:space="preserve">
+    <value>Deleted Scan</value>
+  </data>
+  <data name="LogicalOpInsertedScan" xml:space="preserve">
+    <value>Inserted Scan</value>
+  </data>
+  <data name="LogicalOpParameterTableScan" xml:space="preserve">
+    <value>Parameter Table Scan</value>
+  </data>
+  <data name="LogicalOpPut" xml:space="preserve">
+    <value>Put</value>
+  </data>
+  <data name="LogicalOpIndexScan" xml:space="preserve">
+    <value>Index Scan</value>
+  </data>
+  <data name="LogicalOpIndexSeek" xml:space="preserve">
+    <value>Index Seek</value>
+  </data>
+  <data name="LogicalOpRemoteScan" xml:space="preserve">
+    <value>Remote Scan</value>
+  </data>
+  <data name="LogicalOpRemoteIndexScan" xml:space="preserve">
+    <value>Remote Index Scan</value>
+  </data>
+  <data name="LogicalOpRemoteIndexSeek" xml:space="preserve">
+    <value>Remote Index Seek</value>
+  </data>
+  <data name="LogicalOpRemoteQuery" xml:space="preserve">
+    <value>Query remota</value>
+  </data>
+  <data name="LogicalOpRemoteInsert" xml:space="preserve">
+    <value>Remote Insert</value>
+  </data>
+  <data name="LogicalOpRemoteUpdate" xml:space="preserve">
+    <value>Remote Update</value>
+  </data>
+  <data name="LogicalOpRemoteDelete" xml:space="preserve">
+    <value>Remote Delete</value>
+  </data>
+  <data name="LogicalOpClusteredUpdate" xml:space="preserve">
+    <value>Aggiornamento cluster</value>
+  </data>
+  <data name="LogicalOpDistinctSort" xml:space="preserve">
+    <value>Distinct Sort</value>
+  </data>
+  <data name="LogicalOpSort" xml:space="preserve">
+    <value>Ordina</value>
+  </data>
+  <data name="LogicalOpTopNSort" xml:space="preserve">
+    <value>Top N Sort</value>
+  </data>
+  <data name="LogicalOpEagerSpool" xml:space="preserve">
+    <value>Eager Spool</value>
+  </data>
+  <data name="LogicalOpLazySpool" xml:space="preserve">
+    <value>Lazy Spool</value>
+  </data>
+  <data name="LogicalOpUpdate" xml:space="preserve">
+    <value>Aggiorna</value>
+  </data>
+  <data name="LogicalOpInsert" xml:space="preserve">
+    <value>Inserisci</value>
+  </data>
+  <data name="LogicalOpDelete" xml:space="preserve">
+    <value>Elimina</value>
+  </data>
+  <data name="LogicalOpMerge" xml:space="preserve">
+    <value>Merge</value>
+  </data>
+  <data name="LogicalOpTop" xml:space="preserve">
+    <value>All'inizio</value>
+  </data>
+  <data name="LogicalOpDistinct" xml:space="preserve">
+    <value>Distinct</value>
+  </data>
+  <data name="LogicalOpFlowDistinct" xml:space="preserve">
+    <value>Flow Distinct</value>
+  </data>
+  <data name="LogicalOpPartialAggregate" xml:space="preserve">
+    <value>Partial Aggregate</value>
+  </data>
+  <data name="LogicalOpInnerApply" xml:space="preserve">
+    <value>Inner Apply</value>
+  </data>
+  <data name="LogicalOpInnerJoin" xml:space="preserve">
+    <value>Inner Join</value>
+  </data>
+  <data name="LogicalOpLeftAntiSemiApply" xml:space="preserve">
+    <value>Left Anti Semi Apply</value>
+  </data>
+  <data name="LogicalOpLeftSemiApply" xml:space="preserve">
+    <value>Left Semi Apply</value>
+  </data>
+  <data name="LogicalOpLeftOuterApply" xml:space="preserve">
+    <value>Left Outer Apply</value>
+  </data>
+  <data name="LogicalOpLeftOuterJoin" xml:space="preserve">
+    <value>Left Outer Join</value>
+  </data>
+  <data name="LogicalOpRightOuterJoin" xml:space="preserve">
+    <value>Right Outer Join</value>
+  </data>
+  <data name="LogicalOpFullOuterJoin" xml:space="preserve">
+    <value>Full Outer Join</value>
+  </data>
+  <data name="LogicalOpLeftSemiJoin" xml:space="preserve">
+    <value>Left Semi Join</value>
+  </data>
+  <data name="LogicalOpLeftAntiSemiJoin" xml:space="preserve">
+    <value>Left Anti Semi Join</value>
+  </data>
+  <data name="LogicalOpRightSemiJoin" xml:space="preserve">
+    <value>Right Semi Join</value>
+  </data>
+  <data name="LogicalOpRightAntiSemiJoin" xml:space="preserve">
+    <value>Right Anti Semi Join</value>
+  </data>
+  <data name="LogicalOpIntersect" xml:space="preserve">
+    <value>Intersecare</value>
+  </data>
+  <data name="LogicalOpIntersectAll" xml:space="preserve">
+    <value>Intersect All</value>
+  </data>
+  <data name="LogicalOpUnion" xml:space="preserve">
+    <value>Unione</value>
+  </data>
+  <data name="LogicalOpLeftDiff" xml:space="preserve">
+    <value>Left Diff</value>
+  </data>
+  <data name="LogicalOpLeftDiffAll" xml:space="preserve">
+    <value>Left Diff All</value>
+  </data>
+  <data name="LogicalOpRightDiff" xml:space="preserve">
+    <value>Right Diff</value>
+  </data>
+  <data name="LogicalOpRightDiffAll" xml:space="preserve">
+    <value>Right Diff All</value>
+  </data>
+  <data name="LogicalOpAntiDiff" xml:space="preserve">
+    <value>Anti Diff</value>
+  </data>
+  <data name="LogicalOpCrossJoin" xml:space="preserve">
+    <value>Cross Join</value>
+  </data>
+  <data name="LogicalOpBitmapCreate" xml:space="preserve">
+    <value>Bitmap Create</value>
+  </data>
+  <data name="LogicalOpUDX" xml:space="preserve">
+    <value>UDX</value>
+  </data>
+  <data name="LogicalOpWindow" xml:space="preserve">
+    <value>Spool finestra</value>
+  </data>
+  <data name="LogicalOpSwitch" xml:space="preserve">
+    <value>Cambia</value>
+  </data>
+  <data name="LogicalOpMergeStats" xml:space="preserve">
+    <value>Unisci statistiche</value>
+  </data>
+  <data name="LogicalOpLocalStats" xml:space="preserve">
+    <value>Statistiche locali</value>
+  </data>
+  <data name="LogicalOpTableValuedFunction" xml:space="preserve">
+    <value>Funzione con valori di tabella</value>
+  </data>
+  <data name="LogicalOpBatchHashTableBuild" xml:space="preserve">
+    <value>Compilazione tabella hash in batch</value>
+  </data>
+  <data name="LogicalOpForeignKeyReferencesCheck" xml:space="preserve">
+    <value>Controllo dei riferimenti di chiave esterna</value>
+  </data>
+  <data name="LogicalOpRIDLookup" xml:space="preserve">
+    <value>RID Lookup</value>
+  </data>
+  <data name="StoredProc" xml:space="preserve">
+    <value>Stored procedure</value>
+  </data>
+  <data name="Udf" xml:space="preserve">
+    <value>Funzione definita dall'utente</value>
+  </data>
+  <data name="ProcName" xml:space="preserve">
+    <value>Nome procedura</value>
+  </data>
+  <data name="Storage" xml:space="preserve">
+    <value>Archiviazione</value>
+  </data>
+  <data name="StorageDesc" xml:space="preserve">
+    <value>Archiviazione</value>
+  </data>
+  <data name="ActualExecMode" xml:space="preserve">
+    <value>Modalità di esecuzione effettiva</value>
+  </data>
+  <data name="ActualExecModeDesc" xml:space="preserve">
+    <value>Modalità di esecuzione effettiva</value>
+  </data>
+  <data name="EstimatedExecMode" xml:space="preserve">
+    <value>Modalità di esecuzione stimata</value>
+  </data>
+  <data name="EstimatedExecModeDesc" xml:space="preserve">
+    <value>Modalità di esecuzione stimata</value>
+  </data>
+  <data name="CostFormat" xml:space="preserve">
+    <value>Costo: {0} %</value>
+  </data>
+  <data name="RemoteDataAccess" xml:space="preserve">
+    <value>Accesso a dati remoti</value>
+  </data>
+  <data name="RemoteDataAccessDescription" xml:space="preserve">
+    <value>Indica se l'operatore utilizza RPC per accedere a dati remoti.</value>
+  </data>
+  <data name="CloneAccessScope" xml:space="preserve">
+    <value>Ambito accesso cloni</value>
+  </data>
+  <data name="CloneAccessScopeDescription" xml:space="preserve">
+    <value>Cloni a cui l'operatore è autorizzato ad accedere.</value>
+  </data>
+  <data name="PrimaryClones" xml:space="preserve">
+    <value>Cloni primari</value>
+  </data>
+  <data name="SecondaryClones" xml:space="preserve">
+    <value>Cloni secondari</value>
+  </data>
+  <data name="BothClones" xml:space="preserve">
+    <value>Tutti i cloni</value>
+  </data>
+  <data name="EitherClones" xml:space="preserve">
+    <value>Cloni primari o secondari</value>
+  </data>
+  <data name="ExactMatchClones" xml:space="preserve">
+    <value>Corrispondenza singolo clone</value>
+  </data>
+  <data name="Remoting" xml:space="preserve">
+    <value>Remoto</value>
+  </data>
+  <data name="RemotingDescription" xml:space="preserve">
+    <value>Indica se l'operatore può essere eseguito in remoto.</value>
+  </data>
+  <data name="Activation" xml:space="preserve">
+    <value>Attivazione</value>
+  </data>
+  <data name="BrickRouting" xml:space="preserve">
+    <value>Routing brick</value>
+  </data>
+  <data name="FragmentIdColumn" xml:space="preserve">
+    <value>Colonna ID frammento</value>
+  </data>
+  <data name="EditQueryText" xml:space="preserve">
+    <value>Modificare il testo della query dal file XML dello showplan (probabilmente troncato)</value>
+  </data>
+  <data name="UnknownShowPlanSource" xml:space="preserve">
+    <value>Impossibile riconoscere il tipo di origine del piano di esecuzione.</value>
+  </data>
+  <data name="SavePlanFilter" xml:space="preserve">
+    <value>File Sql Plan (*.SqlPlan)|*.SqlPlan|Tutti i file (*.*)|*.*</value>
+  </data>
+  <data name="NoXmlPlanData" xml:space="preserve">
+    <value>I dati del piano non sono disponibili in formato XML. È possibile salvare solo piani da SQL Server Yukon.</value>
+  </data>
+  <data name="PerThreadCounterDescription" xml:space="preserve">
+    <value>Informazioni sul contatore per thread.</value>
+  </data>
+  <data name="RuntimeCounterThread" xml:space="preserve">
+    <value>Thread {0}</value>
+  </data>
+  <data name="RuntimeCounterThreadOnInstance" xml:space="preserve">
+    <value>Thread {0} nell'istanza {1}</value>
+  </data>
+  <data name="RuntimeCounterThreadAll" xml:space="preserve">
+    <value>Tutti i thread</value>
+  </data>
+  <data name="ConnectionPropertiesLabel" xml:space="preserve">
+    <value>Visualizza proprietà connessione</value>
+  </data>
+  <data name="UnknownAssignType" xml:space="preserve">
+    <value>Tipo di assegnazione imprevisto.</value>
+  </data>
+  <data name="MessageBoxCaption" xml:space="preserve">
+    <value>SQL Server</value>
+  </data>
+  <data name="ZoomLevelShouldBeBetween" xml:space="preserve">
+    <value>Il livello di zoom deve essere un valore intero compreso tra {0} e {1}.</value>
+  </data>
+  <data name="UnknownNodeType" xml:space="preserve">
+    <value>Tipo di nodo sconosciuto.</value>
+  </data>
+  <data name="UnknownCursorPlanOperation" xml:space="preserve">
+    <value>Operazione sconosciuta del piano di cursore '{0}'.</value>
+  </data>
+  <data name="UnknownStatementType" xml:space="preserve">
+    <value>Tipo di istruzione non riconosciuto.</value>
+  </data>
+  <data name="RollupInfo" xml:space="preserve">
+    <value>Informazioni rollup</value>
+  </data>
+  <data name="RollupInfoDescription" xml:space="preserve">
+    <value>Informazioni rollup.</value>
+  </data>
+  <data name="HighestLevel" xml:space="preserve">
+    <value>Livello massimo</value>
+  </data>
+  <data name="HighestLevelDescription" xml:space="preserve">
+    <value>Il livello massimo degli attributi di raggruppamento calcolati in questo rollup.</value>
+  </data>
+  <data name="RollupLevel" xml:space="preserve">
+    <value>Livelli rollup</value>
+  </data>
+  <data name="RollupLevelDescription" xml:space="preserve">
+    <value>Tutti i livelli degli attributi di raggruppamento calcolati in questo rollup.</value>
+  </data>
+  <data name="Level" xml:space="preserve">
+    <value>Livello</value>
+  </data>
+  <data name="LevelDescription" xml:space="preserve">
+    <value>Un livello degli attributi di raggruppamento calcolati in questo rollup.</value>
+  </data>
+  <data name="RemoteQuery" xml:space="preserve">
+    <value>Query remota</value>
+  </data>
+  <data name="RemoteQueryDescription" xml:space="preserve">
+    <value>Invia una query SQL a un server diverso dal computer SQL Server corrente.</value>
+  </data>
+  <data name="ComputeScalar" xml:space="preserve">
+    <value>Calcolo scalare</value>
+  </data>
+  <data name="MergeInterval" xml:space="preserve">
+    <value>Merge Interval</value>
+  </data>
+  <data name="Print" xml:space="preserve">
+    <value>Stampa</value>
+  </data>
+  <data name="Segment" xml:space="preserve">
+    <value>Segmento</value>
+  </data>
+  <data name="Split" xml:space="preserve">
+    <value>Suddiviso</value>
+  </data>
+  <data name="BatchHashTableBuild" xml:space="preserve">
+    <value>Compilazione tabella hash in batch</value>
+  </data>
+  <data name="Bitmap" xml:space="preserve">
+    <value>Bitmap</value>
+  </data>
+  <data name="Collapse" xml:space="preserve">
+    <value>Comprimi</value>
+  </data>
+  <data name="TableSpool" xml:space="preserve">
+    <value>Table Spool</value>
+  </data>
+  <data name="RepartitionStreams" xml:space="preserve">
+    <value>Repartition Streams</value>
+  </data>
+  <data name="Assert" xml:space="preserve">
+    <value>Asserzione</value>
+  </data>
+  <data name="Sort" xml:space="preserve">
+    <value>Ordina</value>
+  </data>
+  <data name="Top" xml:space="preserve">
+    <value>All'inizio</value>
+  </data>
+  <data name="SequenceProject" xml:space="preserve">
+    <value>Progetto sequenza</value>
+  </data>
+  <data name="Spool" xml:space="preserve">
+    <value>Spool</value>
+  </data>
+  <data name="Window" xml:space="preserve">
+    <value>Spool finestra</value>
+  </data>
+  <data name="Parallelism" xml:space="preserve">
+    <value>Parallelismo</value>
+  </data>
+  <data name="RowCountSpool" xml:space="preserve">
+    <value>Row Count Spool</value>
+  </data>
+  <data name="Unknown" xml:space="preserve">
+    <value>Unbekannt</value>
+  </data>
+  <data name="UnknownDescription" xml:space="preserve">
+    <value>Operatore sconosciuto.</value>
+  </data>
+  <data name="Result" xml:space="preserve">
+    <value>Risultato</value>
+  </data>
+  <data name="ResultDescription" xml:space="preserve">
+    <value>Risultato.</value>
+  </data>
+  <data name="CollapseDescription" xml:space="preserve">
+    <value>Raggruppa in un'operazione di aggiornamento dei piani di aggiornamento estesi le operazioni di inserimento ed eliminazione eseguite sullo stesso valore.</value>
+  </data>
+  <data name="Concatenation" xml:space="preserve">
+    <value>Concatenazione</value>
+  </data>
+  <data name="ConcatenationDescription" xml:space="preserve">
+    <value>Accoda più tabelle di input per la creazione della tabella di output.</value>
+  </data>
+  <data name="ConstantScan" xml:space="preserve">
+    <value>Constant Scan</value>
+  </data>
+  <data name="ConstantScanDescription" xml:space="preserve">
+    <value>Esegue l'analisi di una tabella di costanti interna.</value>
+  </data>
+  <data name="ParallelismDescription" xml:space="preserve">
+    <value>Operazione che comporta parallelismo.</value>
+  </data>
+  <data name="Put" xml:space="preserve">
+    <value>Put</value>
+  </data>
+  <data name="PutDescription" xml:space="preserve">
+    <value>Esporta le righe da una tabella locale o esterna in una tabella esterna.</value>
+  </data>
+  <data name="DistributeStreams" xml:space="preserve">
+    <value>Distribute Streams</value>
+  </data>
+  <data name="DistributeStreamsDescription" xml:space="preserve">
+    <value>Distribuisce i flussi.</value>
+  </data>
+  <data name="GatherStreams" xml:space="preserve">
+    <value>Gather Streams</value>
+  </data>
+  <data name="GatherStreamsDescription" xml:space="preserve">
+    <value>Gather Streams.</value>
+  </data>
+  <data name="RepartitionStreamsDescription" xml:space="preserve">
+    <value>Flussi di ripartizione.</value>
+  </data>
+  <data name="EagerSpool" xml:space="preserve">
+    <value>Eager Spool</value>
+  </data>
+  <data name="EagerSpoolDescription" xml:space="preserve">
+    <value>Eager Spool.</value>
+  </data>
+  <data name="LazySpool" xml:space="preserve">
+    <value>Lazy Spool</value>
+  </data>
+  <data name="LazySpoolDescription" xml:space="preserve">
+    <value>Lazy Spool.</value>
+  </data>
+  <data name="Filter" xml:space="preserve">
+    <value>Filtro</value>
+  </data>
+  <data name="FilterDescription" xml:space="preserve">
+    <value>Limita il set di righe in base a un predicato.</value>
+  </data>
+  <data name="AssertDescription" xml:space="preserve">
+    <value>Utilizzato per verificare l'esistenza di una condizione specificata.</value>
+  </data>
+  <data name="HashMatch" xml:space="preserve">
+    <value>Hash Match</value>
+  </data>
+  <data name="HashMatchDescription" xml:space="preserve">
+    <value>Usa ogni riga dell'input iniziale per la compilazione di una tabella hash e ogni riga dell'input finale per il probe della tabella hash, quindi esegue l'output di tutte le righe corrispondenti.</value>
+  </data>
+  <data name="HashMatchTeam" xml:space="preserve">
+    <value>Hash Match Team</value>
+  </data>
+  <data name="HashMatchTeamDescription" xml:space="preserve">
+    <value>Elemento che contribuisce a più operazioni di hashing interoperative.</value>
+  </data>
+  <data name="HashMatchRoot" xml:space="preserve">
+    <value>Hash Match Root</value>
+  </data>
+  <data name="HashMatchRootDescription" xml:space="preserve">
+    <value>Membro radice di un gruppo di operatori hash correlati che condividono una funzione di hashing e una strategia di partizionamento comune.</value>
+  </data>
+  <data name="BookmarkLookup" xml:space="preserve">
+    <value>Bookmark Lookup</value>
+  </data>
+  <data name="BookmarkLookupDescription" xml:space="preserve">
+    <value>Usare un segnalibro (RID o chiave di clustering) per cercare la riga corrispondente nella tabella o nell'indice cluster.</value>
+  </data>
+  <data name="LogRowScan" xml:space="preserve">
+    <value>Log Row Scan</value>
+  </data>
+  <data name="LogRowScanDescription" xml:space="preserve">
+    <value>Esegue l'analisi delle righe nel log.</value>
+  </data>
+  <data name="MergeJoin" xml:space="preserve">
+    <value>Merge Join</value>
+  </data>
+  <data name="MergeJoinDescription" xml:space="preserve">
+    <value>Individua le righe corrispondenti di due tabelle di input ordinate adeguatamente basandosi sul tipo di ordinamento.</value>
+  </data>
+  <data name="NestedLoops" xml:space="preserve">
+    <value>Cicli annidati</value>
+  </data>
+  <data name="NestedLoopsDescription" xml:space="preserve">
+    <value>Per ogni riga dell'input iniziale (esterno), esegue l'analisi dell'input finale (interno) e l'output delle righe corrispondenti.</value>
+  </data>
+  <data name="PrintDescription" xml:space="preserve">
+    <value>Stampa.</value>
+  </data>
+  <data name="ComputeScalarDescription" xml:space="preserve">
+    <value>Calcola un nuovo valore in base ai valori esistenti di una riga.</value>
+  </data>
+  <data name="MergeIntervalDescription" xml:space="preserve">
+    <value>Intervallo di unione.</value>
+  </data>
+  <data name="Rank" xml:space="preserve">
+    <value>Classifica</value>
+  </data>
+  <data name="RankDescription" xml:space="preserve">
+    <value>Crea una colonna calcolata con il rango dei valori in una colonna esistente nella tabella.</value>
+  </data>
+  <data name="RowCountSpoolDescription" xml:space="preserve">
+    <value>Archivia i dati dell'input in una tabella temporanea per ottimizzare eventuali operazioni di ripristino.</value>
+  </data>
+  <data name="SegmentDescription" xml:space="preserve">
+    <value>Segmento.</value>
+  </data>
+  <data name="Sequence" xml:space="preserve">
+    <value>Sequenza</value>
+  </data>
+  <data name="SequenceDescription" xml:space="preserve">
+    <value>Elabora tutti i dati di input in sequenza, dall'inizio alla fine.</value>
+  </data>
+  <data name="SequenceProjectDescription" xml:space="preserve">
+    <value>Aggiunge le colonne per eseguire calcoli su un set ordinato.</value>
+  </data>
+  <data name="SplitDescription" xml:space="preserve">
+    <value>Divisione.</value>
+  </data>
+  <data name="StreamAggregate" xml:space="preserve">
+    <value>Stream Aggregate</value>
+  </data>
+  <data name="StreamAggregateDescription" xml:space="preserve">
+    <value>Calcola i valori di riepilogo per gruppi di righe di un flusso ordinato in modo adeguato.</value>
+  </data>
+  <data name="TableScan" xml:space="preserve">
+    <value>Analisi tabella</value>
+  </data>
+  <data name="TableScanDescription" xml:space="preserve">
+    <value>Esegue l'analisi delle righe di una tabella.</value>
+  </data>
+  <data name="ClusteredIndexScan" xml:space="preserve">
+    <value>Clustered Index Scan</value>
+  </data>
+  <data name="ClusteredIndexScanDescription" xml:space="preserve">
+    <value>Esegue l'analisi di un indice cluster, considerando l'intero indice o un intervallo di righe.</value>
+  </data>
+  <data name="ClusteredIndexSeek" xml:space="preserve">
+    <value>Ricerca indice cluster</value>
+  </data>
+  <data name="ClusteredIndexSeekDescription" xml:space="preserve">
+    <value>Esegue l'analisi di un intervallo di righe specifico in un indice cluster.</value>
+  </data>
+  <data name="DeletedScan" xml:space="preserve">
+    <value>Deleted Scan</value>
+  </data>
+  <data name="DeletedScanDescription" xml:space="preserve">
+    <value>Esegue l'analisi della pseudotabella 'deleted' per un trigger.</value>
+  </data>
+  <data name="InsertedScan" xml:space="preserve">
+    <value>Inserted Scan</value>
+  </data>
+  <data name="InsertedScanDescription" xml:space="preserve">
+    <value>Esegue l'analisi della pseudotabella 'inserted' in un trigger.</value>
+  </data>
+  <data name="ParameterTableScan" xml:space="preserve">
+    <value>Parameter Table Scan</value>
+  </data>
+  <data name="ParameterTableScanDescription" xml:space="preserve">
+    <value>Esegue l'analisi di una tabella interna di valori di parametri.</value>
+  </data>
+  <data name="IndexScan" xml:space="preserve">
+    <value>Index Scan</value>
+  </data>
+  <data name="IndexScanDescription" xml:space="preserve">
+    <value>Esegue l'analisi dell'intero indice non cluster o di un intervallo di valori specifico.</value>
+  </data>
+  <data name="IndexSeek" xml:space="preserve">
+    <value>Index Seek</value>
+  </data>
+  <data name="IndexSeekDescription" xml:space="preserve">
+    <value>Esegue l'analisi di un intervallo di righe specifico da un indice non cluster.</value>
+  </data>
+  <data name="ColumnstoreIndexScan" xml:space="preserve">
+    <value>Analisi indice Columnstore</value>
+  </data>
+  <data name="ColumnstoreIndexScanDescription" xml:space="preserve">
+    <value>Esegue l'analisi di un intero indice Columnstore o di un intervallo di valori specifico.</value>
+  </data>
+  <data name="ColumnstoreIndexUpdate" xml:space="preserve">
+    <value>Aggiornamento indice columnstore</value>
+  </data>
+  <data name="ColumnstoreIndexUpdateDescription" xml:space="preserve">
+    <value>Aggiorna le righe in un indice columnstore.</value>
+  </data>
+  <data name="ColumnstoreIndexInsert" xml:space="preserve">
+    <value>Inserimento indice columnstore</value>
+  </data>
+  <data name="ColumnstoreIndexInsertDescription" xml:space="preserve">
+    <value>Inserisce righe in un indice columnstore.</value>
+  </data>
+  <data name="ColumnstoreIndexMerge" xml:space="preserve">
+    <value>Unione indice columnstore</value>
+  </data>
+  <data name="ColumnstoreIndexMergeDescription" xml:space="preserve">
+    <value>Unisce le righe in un indice columnstore.</value>
+  </data>
+  <data name="ColumnstoreIndexDelete" xml:space="preserve">
+    <value>Eliminazione indice columnstore</value>
+  </data>
+  <data name="ColumnstoreIndexDeleteDescription" xml:space="preserve">
+    <value>Elimina righe da un indice columnstore.</value>
+  </data>
+  <data name="RemoteScan" xml:space="preserve">
+    <value>Remote Scan</value>
+  </data>
+  <data name="RemoteScanDescription" xml:space="preserve">
+    <value>Esegue un'analisi delle righe di una tabella archiviata in un database o file non incluso nel server di database corrente.</value>
+  </data>
+  <data name="RemoteIndexScan" xml:space="preserve">
+    <value>Remote Index Scan</value>
+  </data>
+  <data name="RemoteIndexScanDescription" xml:space="preserve">
+    <value>Esegue l'analisi di un indice archiviato in un database o file non incluso nel server di database corrente.</value>
+  </data>
+  <data name="RemoteIndexSeek" xml:space="preserve">
+    <value>Remote Index Seek</value>
+  </data>
+  <data name="RemoteIndexSeekDescription" xml:space="preserve">
+    <value>Esegue l'analisi di un intervallo di righe specifico in un indice cluster archiviato in un database o file non incluso nel server di database corrente.</value>
+  </data>
+  <data name="RemoteInsert" xml:space="preserve">
+    <value>Remote Insert</value>
+  </data>
+  <data name="RemoteInsertDescription" xml:space="preserve">
+    <value>Inserisce le righe in una tabella archiviata in un database o file non incluso nel server di database corrente.</value>
+  </data>
+  <data name="RemoteUpdate" xml:space="preserve">
+    <value>Remote Update</value>
+  </data>
+  <data name="RemoteUpdateDescription" xml:space="preserve">
+    <value>Aggiorna le righe di una tabella archiviata in un database o file non incluso nel server di database corrente.</value>
+  </data>
+  <data name="RemoteDelete" xml:space="preserve">
+    <value>Remote Delete</value>
+  </data>
+  <data name="RemoteDeleteDescription" xml:space="preserve">
+    <value>Elimina le righe di una tabella archiviata in un database o file non incluso nel server di database corrente.</value>
+  </data>
+  <data name="ClusteredUpdate" xml:space="preserve">
+    <value>Aggiornamento cluster</value>
+  </data>
+  <data name="ClusteredUpdateDescription" xml:space="preserve">
+    <value>Aggiornamento cluster.</value>
+  </data>
+  <data name="SortDescription" xml:space="preserve">
+    <value>Esegue l'ordinamento dell'input.</value>
+  </data>
+  <data name="TableSpoolDescription" xml:space="preserve">
+    <value>Archivia i dati dell'input in una tabella temporanea per ottimizzare eventuali operazioni di ripristino.</value>
+  </data>
+  <data name="IndexSpool" xml:space="preserve">
+    <value>Index Spool</value>
+  </data>
+  <data name="IndexSpoolDescription" xml:space="preserve">
+    <value>Riformatta i dati dell'input in un indice temporaneo da utilizzare per ricerche basate sul predicato di ricerca specificato.</value>
+  </data>
+  <data name="TableUpdate" xml:space="preserve">
+    <value>Table Update</value>
+  </data>
+  <data name="TableUpdateDescription" xml:space="preserve">
+    <value>Aggiorna le righe di input nella tabella specificata nel campo Argomento.</value>
+  </data>
+  <data name="TableInsert" xml:space="preserve">
+    <value>Table Insert</value>
+  </data>
+  <data name="TableInsertDescription" xml:space="preserve">
+    <value>Inserisce le righe di input nella tabella specificata nel campo Argomento.</value>
+  </data>
+  <data name="TableDelete" xml:space="preserve">
+    <value>Table Delete</value>
+  </data>
+  <data name="TableDeleteDescription" xml:space="preserve">
+    <value>Elimina le righe di input dalla tabella specificata nel campo Argomento.</value>
+  </data>
+  <data name="TableMerge" xml:space="preserve">
+    <value>Unione tabella</value>
+  </data>
+  <data name="TableMergeDescription" xml:space="preserve">
+    <value>Unisce le righe di input nella tabella specificata nel campo Argomento.</value>
+  </data>
+  <data name="IndexUpdate" xml:space="preserve">
+    <value>Index Update</value>
+  </data>
+  <data name="IndexUpdateDescription" xml:space="preserve">
+    <value>Aggiorna le righe in un indice.</value>
+  </data>
+  <data name="IndexInsert" xml:space="preserve">
+    <value>Index Insert</value>
+  </data>
+  <data name="IndexInsertDescription" xml:space="preserve">
+    <value>Inserisce righe in un indice.</value>
+  </data>
+  <data name="IndexDelete" xml:space="preserve">
+    <value>Index Delete</value>
+  </data>
+  <data name="IndexDeleteDescription" xml:space="preserve">
+    <value>Elimina le righe dall'indice.</value>
+  </data>
+  <data name="ClusteredIndexUpdate" xml:space="preserve">
+    <value>Clustered Index Update</value>
+  </data>
+  <data name="ClusteredIndexUpdateDescription" xml:space="preserve">
+    <value>Aggiorna le righe di un indice cluster.</value>
+  </data>
+  <data name="ClusteredIndexInsert" xml:space="preserve">
+    <value>Clustered Index Insert</value>
+  </data>
+  <data name="ClusteredIndexInsertDescription" xml:space="preserve">
+    <value>Inserisce righe in un indice cluster.</value>
+  </data>
+  <data name="ClusteredIndexMerge" xml:space="preserve">
+    <value>Clustered Index Merge</value>
+  </data>
+  <data name="ClusteredIndexMergeDescription" xml:space="preserve">
+    <value>Unisce le righe in un indice cluster.</value>
+  </data>
+  <data name="ClusteredIndexDelete" xml:space="preserve">
+    <value>Clustered Index Delete</value>
+  </data>
+  <data name="ClusteredIndexDeleteDescription" xml:space="preserve">
+    <value>Elimina righe da un indice cluster.</value>
+  </data>
+  <data name="TopDescription" xml:space="preserve">
+    <value>Seleziona le prime righe in base al tipo di ordinamento.</value>
+  </data>
+  <data name="BitmapDescription" xml:space="preserve">
+    <value>Mappa di bit.</value>
+  </data>
+  <data name="UDX" xml:space="preserve">
+    <value>UDX</value>
+  </data>
+  <data name="UDXDescription" xml:space="preserve">
+    <value>UDX.</value>
+  </data>
+  <data name="WindowDescription" xml:space="preserve">
+    <value>Espande ogni riga nel set di righe che rappresentano la finestra associata.</value>
+  </data>
+  <data name="WindowAggregate" xml:space="preserve">
+    <value>Aggregazione finestra</value>
+  </data>
+  <data name="WindowAggregateDescription" xml:space="preserve">
+    <value>Calcola i valori delle funzioni tra finestre definite dalla clausola OVER. Il set di righe di input è un flusso ordinato correttamente.</value>
+  </data>
+  <data name="BatchHashTableBuildDescription" xml:space="preserve">
+    <value>Compilazione tabella hash in batch.</value>
+  </data>
+  <data name="Switch" xml:space="preserve">
+    <value>Cambia</value>
+  </data>
+  <data name="SwitchDescription" xml:space="preserve">
+    <value>Operatore Switch.</value>
+  </data>
+  <data name="TFP" xml:space="preserve">
+    <value>Stima</value>
+  </data>
+  <data name="TFPDescription" xml:space="preserve">
+    <value>Applica un modello di Machine Learning con training ai dati di input	</value>
+  </data>
+  <data name="TableValueFunction" xml:space="preserve">
+    <value>Funzione con valori di tabella</value>
+  </data>
+  <data name="TableValueFunctionDescription" xml:space="preserve">
+    <value>Funzione con valori di tabella.</value>
+  </data>
+  <data name="Aggregate" xml:space="preserve">
+    <value>Aggregato</value>
+  </data>
+  <data name="AggregateDescription" xml:space="preserve">
+    <value>Calcola un'espressione contenente le funzioni SUM, COUNT, MIN, MAX o AVG.</value>
+  </data>
+  <data name="ArithmeticExpression" xml:space="preserve">
+    <value>Arithmetic Expression</value>
+  </data>
+  <data name="ArithmeticExpressionDescription" xml:space="preserve">
+    <value>Calcola un nuovo valore in base ai valori esistenti di una riga.</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Elimina</value>
+  </data>
+  <data name="DeleteDescription" xml:space="preserve">
+    <value>Rimuove le righe specificate dalla tabella specificata.</value>
+  </data>
+  <data name="Insert" xml:space="preserve">
+    <value>Inserisci</value>
+  </data>
+  <data name="InsertDescription" xml:space="preserve">
+    <value>Aggiunge una riga alla tabella.</value>
+  </data>
+  <data name="Locate" xml:space="preserve">
+    <value>Individuare</value>
+  </data>
+  <data name="LocateDescription" xml:space="preserve">
+    <value>Recupera una riga completa da un heap o indice cluster.</value>
+  </data>
+  <data name="SpoolDescription" xml:space="preserve">
+    <value>Salva temporaneamente risultati di query intermedi.</value>
+  </data>
+  <data name="SQL" xml:space="preserve">
+    <value>SQL</value>
+  </data>
+  <data name="SQLDescription" xml:space="preserve">
+    <value>SQL.</value>
+  </data>
+  <data name="Update" xml:space="preserve">
+    <value>Aggiorna</value>
+  </data>
+  <data name="UpdateDescription" xml:space="preserve">
+    <value>Modifica i valori nella tabella specificata.</value>
+  </data>
+  <data name="Assign" xml:space="preserve">
+    <value>Assegna</value>
+  </data>
+  <data name="AssignDescription" xml:space="preserve">
+    <value>Convalida i vincoli di integrità referenziale.</value>
+  </data>
+  <data name="Convert" xml:space="preserve">
+    <value>Convert</value>
+  </data>
+  <data name="ConvertDescription" xml:space="preserve">
+    <value>Conversione implicita o esplicita tra due tipi di dati scalari.</value>
+  </data>
+  <data name="Declare" xml:space="preserve">
+    <value>Declare</value>
+  </data>
+  <data name="DeclareDescription" xml:space="preserve">
+    <value>Assegna una variabile locale.</value>
+  </data>
+  <data name="If" xml:space="preserve">
+    <value>Se</value>
+  </data>
+  <data name="IfDescription" xml:space="preserve">
+    <value>Elaborazione condizionale basata su un'espressione.</value>
+  </data>
+  <data name="Intrinsic" xml:space="preserve">
+    <value>Intrinsic</value>
+  </data>
+  <data name="IntrinsicDescription" xml:space="preserve">
+    <value>Richiama una funzione Transact-SQL interna.</value>
+  </data>
+  <data name="SetFunction" xml:space="preserve">
+    <value>Set Function</value>
+  </data>
+  <data name="SetFunctionDescription" xml:space="preserve">
+    <value>Funzione sui set.</value>
+  </data>
+  <data name="Dynamic" xml:space="preserve">
+    <value>Dinamico</value>
+  </data>
+  <data name="DynamicDescription" xml:space="preserve">
+    <value>Cursore che riconosce tutte le modifiche apportate da altri.</value>
+  </data>
+  <data name="FetchQuery" xml:space="preserve">
+    <value>Fetch Query</value>
+  </data>
+  <data name="FetchQueryDescription" xml:space="preserve">
+    <value>Query utilizzata per recuperare le righe quando si esegue un comando di recupero su un cursore.</value>
+  </data>
+  <data name="FastForward" xml:space="preserve">
+    <value>Fast Forward</value>
+  </data>
+  <data name="FastForwardDescription" xml:space="preserve">
+    <value>Avanzamento rapido.</value>
+  </data>
+  <data name="Keyset" xml:space="preserve">
+    <value>Keyset</value>
+  </data>
+  <data name="KeysetDescription" xml:space="preserve">
+    <value>Cursore che riconosce gli aggiornamenti, ma non gli inserimenti, eseguiti da altri.</value>
+  </data>
+  <data name="PopulationQuery" xml:space="preserve">
+    <value>Population Query</value>
+  </data>
+  <data name="PopulationQueryDescription" xml:space="preserve">
+    <value>Query utilizzata per il popolamento della tabella di lavoro di un cursore all'apertura del cursore.</value>
+  </data>
+  <data name="RefreshQuery" xml:space="preserve">
+    <value>Aggiorna query</value>
+  </data>
+  <data name="RefreshQueryDescription" xml:space="preserve">
+    <value>Recupera i dati correnti per le righe nel buffer di recupero.</value>
+  </data>
+  <data name="Snapshot" xml:space="preserve">
+    <value>Snapshot</value>
+  </data>
+  <data name="SnapshotDescription" xml:space="preserve">
+    <value>Cursore che non riconosce le modifiche apportate da altri.</value>
+  </data>
+  <data name="RIDLookup" xml:space="preserve">
+    <value>RID Lookup</value>
+  </data>
+  <data name="RIDLookupDescription" xml:space="preserve">
+    <value>RID Lookup</value>
+  </data>
+  <data name="KeyLookup" xml:space="preserve">
+    <value>Ricerca chiave</value>
+  </data>
+  <data name="KeyLookupDescription" xml:space="preserve">
+    <value>Usa una chiave di clustering specificata per eseguire una ricerca in una tabella dotata di un indice cluster.</value>
+  </data>
+  <data name="LogicalKeyLookup" xml:space="preserve">
+    <value>Ricerca chiave</value>
+  </data>
+  <data name="AdaptiveJoin" xml:space="preserve">
+    <value>Join adattivo</value>
+  </data>
+  <data name="AdaptiveJoinDescription" xml:space="preserve">
+    <value>Sceglie dinamicamente tra hash join e cicli annidati.</value>
+  </data>
+  <data name="ForeignKeyReferencesCheck" xml:space="preserve">
+    <value>Controllo dei riferimenti di chiave esterna</value>
+  </data>
+  <data name="ForeignKeyReferencesCheckDescription" xml:space="preserve">
+    <value>Controlla l'integrità referenziale dell'operazione di eliminazione.</value>
+  </data>
+  <data name="Apply" xml:space="preserve">
+    <value>Applica</value>
+  </data>
+  <data name="ApplyDescription" xml:space="preserve">
+    <value>Applica l'operazione.</value>
+  </data>
+  <data name="Broadcast" xml:space="preserve">
+    <value>Trasmissione</value>
+  </data>
+  <data name="BroadcastDescription" xml:space="preserve">
+    <value>Spostamento dati trasmessi.</value>
+  </data>
+  <data name="ComputeToControlNode" xml:space="preserve">
+    <value>Dai nodo di calcolo al nodo di controllo</value>
+  </data>
+  <data name="ComputeToControlNodeDescription" xml:space="preserve">
+    <value>Flusso di dati dai nodi di calcolo al nodo di controllo.</value>
+  </data>
+  <data name="ConstTableGet" xml:space="preserve">
+    <value>Recupero tabella costanti</value>
+  </data>
+  <data name="ConstTableGetDescription" xml:space="preserve">
+    <value>Recupera le tuple da una tabella costanti.</value>
+  </data>
+  <data name="ControlToComputeNodes" xml:space="preserve">
+    <value>Dal nodo di controllo ai nodi di calcolo</value>
+  </data>
+  <data name="ControlToComputeNodesDescription" xml:space="preserve">
+    <value>Flusso di dati dal nodo di controllo ai nodi di calcolo.</value>
+  </data>
+  <data name="ExternalBroadcast" xml:space="preserve">
+    <value>Trasmissione esterna</value>
+  </data>
+  <data name="ExternalBroadcastDescription" xml:space="preserve">
+    <value>Spostamento dati trasmessi per una tabella esterna.</value>
+  </data>
+  <data name="ExternalExport" xml:space="preserve">
+    <value>Esportazione esterna</value>
+  </data>
+  <data name="ExternalExportDescription" xml:space="preserve">
+    <value>Spostamento dati di esportazione per una tabella esterna.</value>
+  </data>
+  <data name="ExternalLocalStreaming" xml:space="preserve">
+    <value>Streaming locale esterno</value>
+  </data>
+  <data name="ExternalLocalStreamingDescription" xml:space="preserve">
+    <value>Spostamento dati di streaming tra una tabella esterna e una tabella locale.</value>
+  </data>
+  <data name="ExternalRoundRobin" xml:space="preserve">
+    <value>RoundRobin esterno</value>
+  </data>
+  <data name="ExternalRoundRobinDescription" xml:space="preserve">
+    <value>Spostamento dati RoundRobin per una tabella esterna.</value>
+  </data>
+  <data name="ExternalShuffle" xml:space="preserve">
+    <value>Riproduzione casuale esterna</value>
+  </data>
+  <data name="ExternalShuffleDescription" xml:space="preserve">
+    <value>Spostamento dati di riproduzione casuale per una tabella esterna.</value>
+  </data>
+  <data name="Get" xml:space="preserve">
+    <value>Ottieni</value>
+  </data>
+  <data name="GetDescription" xml:space="preserve">
+    <value>Recupera le tuple da una tabella.</value>
+  </data>
+  <data name="GbApply" xml:space="preserve">
+    <value>Raggruppa e applica</value>
+  </data>
+  <data name="GbApplyDescription" xml:space="preserve">
+    <value>Raggruppa e applica.</value>
+  </data>
+  <data name="GbAgg" xml:space="preserve">
+    <value>Raggruppa per aggregati</value>
+  </data>
+  <data name="GbAggDescription" xml:space="preserve">
+    <value>Raggruppa per aggregati.</value>
+  </data>
+  <data name="Join" xml:space="preserve">
+    <value>Aggiungi</value>
+  </data>
+  <data name="JoinDescription" xml:space="preserve">
+    <value>Crea un join delle tabelle.</value>
+  </data>
+  <data name="LocalCube" xml:space="preserve">
+    <value>Rollup aggregato</value>
+  </data>
+  <data name="LocalCubeDescription" xml:space="preserve">
+    <value>Rappresenta un operatore ROLLUP o un operatore CUBE.</value>
+  </data>
+  <data name="Project" xml:space="preserve">
+    <value>Progetto</value>
+  </data>
+  <data name="ProjectDescription" xml:space="preserve">
+    <value>Colonne di progetto.</value>
+  </data>
+  <data name="Shuffle" xml:space="preserve">
+    <value>Riproduzione casuale</value>
+  </data>
+  <data name="ShuffleDescription" xml:space="preserve">
+    <value>Spostamento dati di riproduzione casuale.</value>
+  </data>
+  <data name="SingleSourceRoundRobin" xml:space="preserve">
+    <value>RoundRobin origine singola</value>
+  </data>
+  <data name="SingleSourceRoundRobinDescription" xml:space="preserve">
+    <value>Spostamento dati RoundRobin origine singola.</value>
+  </data>
+  <data name="SingleSourceShuffle" xml:space="preserve">
+    <value>Riproduzione causale origine singola</value>
+  </data>
+  <data name="SingleSourceShuffleDescription" xml:space="preserve">
+    <value>Spostamento dati di riproduzione causale origine singola.</value>
+  </data>
+  <data name="Trim" xml:space="preserve">
+    <value>Taglia</value>
+  </data>
+  <data name="TrimDescription" xml:space="preserve">
+    <value>Dati di taglio.</value>
+  </data>
+  <data name="Union" xml:space="preserve">
+    <value>Unione</value>
+  </data>
+  <data name="UnionDescription" xml:space="preserve">
+    <value>Tabelle UNION.</value>
+  </data>
+  <data name="UnionAll" xml:space="preserve">
+    <value>UNION ALL</value>
+  </data>
+  <data name="UnionAllDescription" xml:space="preserve">
+    <value>Tabelle UNION ALL.</value>
+  </data>
+  <data name="NameValuePair" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="SizeInBytesFormat" xml:space="preserve">
+    <value>{0} B</value>
+  </data>
+  <data name="SizeInKiloBytesFormat" xml:space="preserve">
+    <value>{0} KB</value>
+  </data>
+  <data name="SizeInMegaBytesFormat" xml:space="preserve">
+    <value>{0} MB</value>
+  </data>
+  <data name="SizeInGigaBytesFormat" xml:space="preserve">
+    <value>{0} GB</value>
+  </data>
+  <data name="SizeInTeraBytesFormat" xml:space="preserve">
+    <value>{0} TB</value>
+  </data>
+  <data name="TableNotInitializedException" xml:space="preserve">
+    <value>Inizializzazione non eseguita correttamente per la tabella con ID '{0}'</value>
+  </data>
+  <data name="TableColumnIdentityGroupName" xml:space="preserve">
+    <value>Specifica Identity</value>
+  </data>
+  <data name="TableColumnIsIdentityPropertyTitle" xml:space="preserve">
+    <value>Identità</value>
+  </data>
+  <data name="TableColumnIsIdentityPropertyDescription" xml:space="preserve">
+    <value>Specifica se la colonna è la colonna Identity della tabella.</value>
+  </data>
+  <data name="TableColumnIdentityIncrementPropertyTitle" xml:space="preserve">
+    <value>Incremento identità</value>
+  </data>
+  <data name="TableColumnIdentityIncrementPropertyDescription" xml:space="preserve">
+    <value>Visualizza il valore aggiunto al valore di identità riga massimo esistente durante la generazione del valore di identità successivo.</value>
+  </data>
+  <data name="TableColumnIdentitySeedPropertyTitle" xml:space="preserve">
+    <value>Inizio identità</value>
+  </data>
+  <data name="TableColumnIdentitySeedPropertyDescription" xml:space="preserve">
+    <value>Visualizza il valore di riga iniziale per una colonna Identity.</value>
+  </data>
+  <data name="TableEditPathNotProvidedException" xml:space="preserve">
+    <value>Il percorso nelle informazioni di modifica della tabella non può essere vuoto</value>
+  </data>
+  <data name="InvalidTableEditPathException" xml:space="preserve">
+    <value>Il percorso '{0}' nelle informazioni di modifica della tabella non è valido per il tipo di modifica: '{1}'</value>
+  </data>
+  <data name="OperatorDisplayCost" xml:space="preserve">
+    <value>{0:0.#######} ({1}%)</value>
+  </data>
+  <data name="ActualOfEstimated" xml:space="preserve">
+    <value>{0} di
+{1} ({2}%)</value>
+  </data>
+  <data name="TableDesignerIsEnabledPropertyTitle" xml:space="preserve">
+    <value>È abilitato</value>
+  </data>
+  <data name="ForeignKeyIsEnabledDescription" xml:space="preserve">
+    <value>Specifica se la chiave esterna è abilitata</value>
+  </data>
+  <data name="ForeignKeyIsNotForReplicationTitle" xml:space="preserve">
+    <value>Non per la replica</value>
+  </data>
+  <data name="ForeignKeyIsNotForReplicationDescription" xml:space="preserve">
+    <value>Abilita o disabilita un vincolo IDENTITY per i dati inseriti da un processo di replica.</value>
+  </data>
+  <data name="SqlForeignKeyAction_NoAction" xml:space="preserve">
+    <value>Nessuna azione</value>
+  </data>
+  <data name="SqlForeignKeyAction_Cascade" xml:space="preserve">
+    <value>Sovrapponi</value>
+  </data>
+  <data name="SqlForeignKeyAction_SetNull" xml:space="preserve">
+    <value>Set Null</value>
+  </data>
+  <data name="SqlForeignKeyAction_SetDefault" xml:space="preserve">
+    <value>Imposta predefinito</value>
+  </data>
+  <data name="UnKnownSqlForeignKeyAction" xml:space="preserve">
+    <value>'{0}' non è una SqlForeignKeyAction supportata.</value>
+  </data>
+  <data name="CheckConstraintIsEnabledDescription" xml:space="preserve">
+    <value>Specifica se il vincolo CHECK è Abilitato</value>
   </data>
 </root>
