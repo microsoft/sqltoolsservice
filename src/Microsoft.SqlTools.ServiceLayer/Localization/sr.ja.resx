@@ -205,7 +205,7 @@
     <value>要求されたクエリは存在しません</value>
   </data>
   <data name="QueryServiceQueryInvalidOwnerUri" xml:space="preserve">
-    <value>このエディターは、データベースに接続されていません</value>
+    <value>OwnerUri が無効なため、データベースに接続できません</value>
   </data>
   <data name="QueryServiceQueryInProgress" xml:space="preserve">
     <value>このエディター セッションのクエリは既に実行中です。このクエリをキャンセルするか、完了まで待ってください。</value>
@@ -244,7 +244,7 @@
     <value>Azure SQL DB と Data Warehouse では、この機能は現在サポートされていません: {0}</value>
   </data>
   <data name="PeekDefinitionError" xml:space="preserve">
-    <value>Peek Definition の実行中に予期しないエラーが発生しました: {0}</value>
+    <value>定義をここに表示の実行中に予期しないエラーが発生しました: {0}</value>
   </data>
   <data name="PeekDefinitionNoResultsError" xml:space="preserve">
     <value>結果は見つかりませんでした。</value>
@@ -1329,6 +1329,63 @@
   <data name="SqlCmdUnsupportedToken" xml:space="preserve">
     <value>サポートされていないトークン {0} が見つかりました</value>
   </data>
+  <data name="SqlAssessmentGenerateScriptTaskName" xml:space="preserve">
+    <value>SQL Assessment スクリプトの生成</value>
+  </data>
+  <data name="SqlAssessmentQueryInvalidOwnerUri" xml:space="preserve">
+    <value>サーバーに接続されていません</value>
+  </data>
+  <data name="SqlAssessmentConnectingError" xml:space="preserve">
+    <value>サーバーに接続できません</value>
+  </data>
+  <data name="SqlAssessmentUnsuppoertedEdition" xml:space="preserve">
+    <value>サポートされていないエンジンのエディション {0}</value>
+  </data>
+  <data name="ParameterizationDetails" xml:space="preserve">
+    <value>{0} は、次のプロパティを使用して Microsoft.Data.SqlClient.SqlParameter オブジェクトに変換されます: SqlDbType = {1}、サイズ = {2}、有効桁数 = {3}、小数点以下桁数 = {4}、SqlValue = {5}</value>
+  </data>
+  <data name="ErrorMessageHeader" xml:space="preserve">
+    <value>行 {0}</value>
+  </data>
+  <data name="ErrorMessage" xml:space="preserve">
+    <value>{0} を Microsoft.Data.SqlClient.SqlParameter オブジェクトに変換できません。指定されたリテラルを {1}(Microsoft.Data.SqlDbType) に変換できません。リテラル値: {2} </value>
+  </data>
+  <data name="DateTimeErrorMessage" xml:space="preserve">
+    <value>{0} を Microsoft.Data.SqlClient.SqlParameter オブジェクトに変換できません。サポートされていない日付/時間の形式が使用されているため、指定されたリテラルを {1}(Microsoft.Data.SqlDbType) に変換できません。サポートされている日付/時間の形式のいずれかをお使いください。リテラル値: {2}</value>
+  </data>
+  <data name="BinaryLiteralPrefixMissingError" xml:space="preserve">
+    <value>{0} を Microsoft.Data.SqlClient.SqlParameter オブジェクトに変換できません。プレフィックス 0x をバイナリ リテラルにする必要があるため、指定されたリテラルを {1}(Microsoft.Data.SqlDbType) に変換できません。リテラル値: {2}</value>
+  </data>
+  <data name="ParsingErrorHeader" xml:space="preserve">
+    <value>行 {0}、列 {1}</value>
+  </data>
+  <data name="ScriptTooLarge" xml:space="preserve">
+    <value>現在のスクリプトは Always Encrypted のパラメーター化には大きすぎます。クエリ オプション ([クエリ] &gt; [クエリ オプション] &gt; [実行] &gt; [詳細]) で Always Encrypted のパラメーター化を無効にしてください。許容可能な最大の長さ: {0} 文字、現在のスクリプトの長さ: {1} 文字</value>
+  </data>
+  <data name="ProjectExtractTaskName" xml:space="preserve">
+    <value>プロジェクト ファイルの抽出</value>
+  </data>
+  <data name="ValidateStreamingJobTaskName" xml:space="preserve">
+    <value>ストリーミング ジョブを検証します</value>
+  </data>
+  <data name="StreamNotFoundInModel" xml:space="preserve">
+    <value>ストリーミング クエリ ステートメントに、欠落している {0} ストリーム '{1}' への参照が含まれています。それをデータベース モデルに追加する必要があります。</value>
+  </data>
+  <data name="Input" xml:space="preserve">
+    <value>入力</value>
+  </data>
+  <data name="Output" xml:space="preserve">
+    <value>出力</value>
+  </data>
+  <data name="StreamingJobValidationFailed" xml:space="preserve">
+    <value>外部ストリーミング ジョブ '{0}' の検証に失敗しました:</value>
+  </data>
+  <data name="FragmentShouldHaveOnlyOneBatch" xml:space="preserve">
+    <value>TSQL フラグメントには、正確に 1 つのバッチを含める必要があります。</value>
+  </data>
+  <data name="NoCreateStreamingJobStatementFound" xml:space="preserve">
+    <value>外部ストリーミング ジョブ作成 TSQL が見つかりません (EXEC sp_create_streaming_job ステートメント)。</value>
+  </data>
   <data name="CouldntFindAzureFunction" xml:space="preserve">
     <value>FunctionName '{0}' の Azure 関数が {1} に見つかりませんでした</value>
   </data>
@@ -1337,5 +1394,2109 @@
   </data>
   <data name="SqlBindingsNet5NotSupported" xml:space="preserve">
     <value>.NET 5 では SQL バインドの追加はサポートされていません</value>
+  </data>
+  <data name="Statement" xml:space="preserve">
+    <value>ステートメント</value>
+  </data>
+  <data name="StatementDesc" xml:space="preserve">
+    <value>通常は、Transact-SQL ステートメントのテキストを含んでいます。PLAN_ROW 型の行の場合は、操作の説明を含んでいます。</value>
+  </data>
+  <data name="PhysicalOperation" xml:space="preserve">
+    <value>物理操作</value>
+  </data>
+  <data name="PhysicalOperationDesc" xml:space="preserve">
+    <value>ノードの物理実装アルゴリズムです。PLAN_ROWS 型の行専用です。</value>
+  </data>
+  <data name="LogicalOperation" xml:space="preserve">
+    <value>論理操作</value>
+  </data>
+  <data name="LogicalOperationDesc" xml:space="preserve">
+    <value>このノードが表現している関係代数操作です。PLAN_ROWS 型の行専用です。</value>
+  </data>
+  <data name="OperationDescriptionShort" xml:space="preserve">
+    <value>説明</value>
+  </data>
+  <data name="OperationDescription" xml:space="preserve">
+    <value>操作の説明。</value>
+  </data>
+  <data name="OperationArgumentShort" xml:space="preserve">
+    <value>引数</value>
+  </data>
+  <data name="OperationArgumentDescription" xml:space="preserve">
+    <value>実行中の操作に関する補足説明を提供します。この列の内容は、物理操作ごとに異なります。</value>
+  </data>
+  <data name="ObjectShort" xml:space="preserve">
+    <value>オブジェクト</value>
+  </data>
+  <data name="ObjectDescription" xml:space="preserve">
+    <value>オブジェクトです。</value>
+  </data>
+  <data name="IndexKind" xml:space="preserve">
+    <value>インデックスの種類</value>
+  </data>
+  <data name="IndexKindDescription" xml:space="preserve">
+    <value>参照先オブジェクトのインデックスの型です。</value>
+  </data>
+  <data name="DefinedValues" xml:space="preserve">
+    <value>定義済みの値</value>
+  </data>
+  <data name="DefinedValuesDescription" xml:space="preserve">
+    <value>この操作によって取り込まれた値のコンマ区切りの一覧を含みます。この値は、現在のクエリに存在する計算式、またはこのクエリを処理するためにクエリ プロセッサによって取り込まれた内部値である可能性があります。PLAN_ROWS 型の行専用です。</value>
+  </data>
+  <data name="OutputList" xml:space="preserve">
+    <value>出力一覧</value>
+  </data>
+  <data name="OutputListDescription" xml:space="preserve">
+    <value>現在の操作によって計画されている列のコンマ区切りの一覧を含みます。</value>
+  </data>
+  <data name="Warnings" xml:space="preserve">
+    <value>警告</value>
+  </data>
+  <data name="WarningsDescription" xml:space="preserve">
+    <value>現在の操作に関連する警告メッセージのコンマ区切りの一覧を含みます。警告メッセージには、列の一覧を使用して文字列 'NO STATS:()' が含まれる場合があります。</value>
+  </data>
+  <data name="Parallel" xml:space="preserve">
+    <value>並列</value>
+  </data>
+  <data name="ParallelDescription" xml:space="preserve">
+    <value>操作が並列処理されているかどうか。</value>
+  </data>
+  <data name="EstimatedNumberOfRowsPerExecution" xml:space="preserve">
+    <value>実行ごとの予測行数</value>
+  </data>
+  <data name="EstimatedNumberOfRowsPerExecutionDescription" xml:space="preserve">
+    <value>この演算子によって出力される実行あたりの予測行数。これは PLAN_ROWS 専用です。</value>
+  </data>
+  <data name="EstimatedNumberOfRowsForAllExecutions" xml:space="preserve">
+    <value>すべての実行の予測行数</value>
+  </data>
+  <data name="EstimatedNumberOfRowsForAllExecutionsDescription" xml:space="preserve">
+    <value>この演算子によって出力されるすべての実行の予測行数。これは PLAN_ROWS 専用です。</value>
+  </data>
+  <data name="EstimatedRowsRead" xml:space="preserve">
+    <value>読み取り対象の予測行数</value>
+  </data>
+  <data name="EstimatedRowsReadDescription" xml:space="preserve">
+    <value>この演算子によって読み取られると予測される行数。演算子に述語がある場合、この値は "すべての実行の予測行数" と異なる場合があります。</value>
+  </data>
+  <data name="IsGraphDBTransitiveClosure" xml:space="preserve">
+    <value>GraphDB 推移閉包である</value>
+  </data>
+  <data name="IsGraphDBTransitiveClosureDescription" xml:space="preserve">
+    <value>シーケンスが GraphDB 推移閉包を表しているかどうかです。</value>
+  </data>
+  <data name="IsInterleavedExecuted" xml:space="preserve">
+    <value>IsInterleavedExecuted</value>
+  </data>
+  <data name="IsInterleavedExecutedDescription" xml:space="preserve">
+    <value>演算子でインターリーブが実行されているかどうかを示します。</value>
+  </data>
+  <data name="IsAdaptive" xml:space="preserve">
+    <value>適応可能</value>
+  </data>
+  <data name="IsAdaptiveDescription" xml:space="preserve">
+    <value>演算子が適応可能かどうか。</value>
+  </data>
+  <data name="AdaptiveThresholdRows" xml:space="preserve">
+    <value>適応型しきい値行</value>
+  </data>
+  <data name="AdaptiveThresholdRowsDescription" xml:space="preserve">
+    <value>適応型演算子の場合、適応するレベルのカーディナリティ。</value>
+  </data>
+  <data name="EstimatedJoinType" xml:space="preserve">
+    <value>推定される結合の種類</value>
+  </data>
+  <data name="EstimatedJoinTypeDescription" xml:space="preserve">
+    <value>適応前にクエリ オプティマイザーが推定する結合の種類 (入れ子になったループまたはハッシュ結合)。</value>
+  </data>
+  <data name="ActualJoinType" xml:space="preserve">
+    <value>実際の結合の種類</value>
+  </data>
+  <data name="ActualJoinTypeDescription" xml:space="preserve">
+    <value>適応型結合の実行の一部として選択された実際の結合 (入れ子になったループまたはハッシュ結合)。</value>
+  </data>
+  <data name="EstimatedRowSize" xml:space="preserve">
+    <value>行の推定サイズ</value>
+  </data>
+  <data name="EstimatedRowSizeDescription" xml:space="preserve">
+    <value>この操作を通じて渡される行の推定平均サイズです。</value>
+  </data>
+  <data name="EstimatedIoCost" xml:space="preserve">
+    <value>I/O の推定コスト</value>
+  </data>
+  <data name="EstimatedIoCostDescription" xml:space="preserve">
+    <value>この操作の I/O の推定コストです。PLAN_ROWS 型の行専用です。</value>
+  </data>
+  <data name="EstimatedCpuCost" xml:space="preserve">
+    <value>CPU の推定コスト</value>
+  </data>
+  <data name="EstimatedCpuCostDescription" xml:space="preserve">
+    <value>この操作の CPU の推定コストです。PLAN_ROWS 型の行専用です。</value>
+  </data>
+  <data name="EstimatedNumberOfExecutions" xml:space="preserve">
+    <value>予測実行回数</value>
+  </data>
+  <data name="EstimatedNumberOfExecutionsDescription" xml:space="preserve">
+    <value>現在のクエリの実行中に、この操作が実行される推定回数です。</value>
+  </data>
+  <data name="EstimatedOperatorCost" xml:space="preserve">
+    <value>操作の推定コスト</value>
+  </data>
+  <data name="EstimatedOperatorCostDescription" xml:space="preserve">
+    <value>この操作の推定コストです。</value>
+  </data>
+  <data name="EstimatedSubtreeCost" xml:space="preserve">
+    <value>サブツリーの推定コスト</value>
+  </data>
+  <data name="EstimatedSubtreeCostDescription" xml:space="preserve">
+    <value>この操作とすべての子操作の推定累積コストです。</value>
+  </data>
+  <data name="NumberOfRows" xml:space="preserve">
+    <value>すべての実行の実際の行数</value>
+  </data>
+  <data name="NumberOfRowsDescription" xml:space="preserve">
+    <value>この演算子によって出力されるすべての実行の実際の行数です。PLAN_ROWS 型の行専用です。</value>
+  </data>
+  <data name="ActualRowsRead" xml:space="preserve">
+    <value>読み取った行数</value>
+  </data>
+  <data name="ActualRowsReadDescription" xml:space="preserve">
+    <value>述語フィルターを適用する前にテーブルまたはインデックスから読み取った行数。PLAN_ROWS 型の行のみ対象。</value>
+  </data>
+  <data name="NumberOfBatches" xml:space="preserve">
+    <value>実際のバッチ数</value>
+  </data>
+  <data name="NumberOfBatchesDescription" xml:space="preserve">
+    <value>この操作によって出力されるバッチの実際の数です。</value>
+  </data>
+  <data name="NumberOfExecutions" xml:space="preserve">
+    <value>実行回数</value>
+  </data>
+  <data name="NumberOfExecutionsDescription" xml:space="preserve">
+    <value>現在のクエリの実行中に、この操作が実行される回数です。</value>
+  </data>
+  <data name="EstimatedDataSize" xml:space="preserve">
+    <value>データの推定サイズ</value>
+  </data>
+  <data name="EstimatedDataSizeDescription" xml:space="preserve">
+    <value>この操作を通じて渡されるデータの推定サイズです。</value>
+  </data>
+  <data name="ParameterList" xml:space="preserve">
+    <value>パラメーター リスト</value>
+  </data>
+  <data name="ParameterListDescription" xml:space="preserve">
+    <value>パラメーター リスト。</value>
+  </data>
+  <data name="MemoryFractions" xml:space="preserve">
+    <value>メモリ部分</value>
+  </data>
+  <data name="MemoryFractionsDescription" xml:space="preserve">
+    <value>メモリ部分。</value>
+  </data>
+  <data name="MemoryFractionsInput" xml:space="preserve">
+    <value>メモリの詳細データの入力</value>
+  </data>
+  <data name="MemoryFractionsInputDescription" xml:space="preserve">
+    <value>メモリの詳細データの入力。</value>
+  </data>
+  <data name="MemoryFractionsOutput" xml:space="preserve">
+    <value>メモリの詳細データの出力</value>
+  </data>
+  <data name="MemoryFractionsOutputDescription" xml:space="preserve">
+    <value>メモリの詳細データの出力。</value>
+  </data>
+  <data name="UdxName" xml:space="preserve">
+    <value>名前</value>
+  </data>
+  <data name="UdxNameDescription" xml:space="preserve">
+    <value>名前。</value>
+  </data>
+  <data name="Values" xml:space="preserve">
+    <value>値</value>
+  </data>
+  <data name="ValuesDescription" xml:space="preserve">
+    <value>値です。</value>
+  </data>
+  <data name="CachedPlanSize" xml:space="preserve">
+    <value>キャッシュされたプラン サイズ</value>
+  </data>
+  <data name="CachedPlanSizeDescription" xml:space="preserve">
+    <value>キャッシュされたプラン サイズ。</value>
+  </data>
+  <data name="UsePlan" xml:space="preserve">
+    <value>プランを使用</value>
+  </data>
+  <data name="ContainsInlineScalarTsqlUdfs" xml:space="preserve">
+    <value>インライン スカラー Tsql Udf を含む</value>
+  </data>
+  <data name="DegreeOfParallelism" xml:space="preserve">
+    <value>並列処理の次数</value>
+  </data>
+  <data name="DegreeOfParallelismDescription" xml:space="preserve">
+    <value>並列処理の次数です。</value>
+  </data>
+  <data name="EffectiveDegreeOfParallelism" xml:space="preserve">
+    <value>有効な並列処理の次数</value>
+  </data>
+  <data name="EffectiveDegreeOfParallelismDescription" xml:space="preserve">
+    <value>列ストア インデックスの構築中の並列処理の最大限度。</value>
+  </data>
+  <data name="MemoryGrant" xml:space="preserve">
+    <value>メモリ許可</value>
+  </data>
+  <data name="MemoryGrantDescription" xml:space="preserve">
+    <value>メモリ許可。</value>
+  </data>
+  <data name="RemoteDestination" xml:space="preserve">
+    <value>リモートの宛先</value>
+  </data>
+  <data name="RemoteDestinationDescription" xml:space="preserve">
+    <value>リモート オブジェクト。</value>
+  </data>
+  <data name="RemoteObject" xml:space="preserve">
+    <value>リモート オブジェクト</value>
+  </data>
+  <data name="RemoteObjectDescription" xml:space="preserve">
+    <value>リモート オブジェクト。</value>
+  </data>
+  <data name="RemoteSource" xml:space="preserve">
+    <value>リモート ソース</value>
+  </data>
+  <data name="RemoteSourceDescription" xml:space="preserve">
+    <value>リモート ソース。</value>
+  </data>
+  <data name="UsedUdxColumns" xml:space="preserve">
+    <value>使用済み UDX 列</value>
+  </data>
+  <data name="UsedUdxColumnsDescription" xml:space="preserve">
+    <value>使用済み UDX 列です。</value>
+  </data>
+  <data name="InnerSideJoinColumns" xml:space="preserve">
+    <value>内部結合列</value>
+  </data>
+  <data name="InnerSideJoinColumnsDescription" xml:space="preserve">
+    <value>内部結合列。</value>
+  </data>
+  <data name="OuterSideJoinColumns" xml:space="preserve">
+    <value>外部結合列</value>
+  </data>
+  <data name="OuterSideJoinColumnsDescription" xml:space="preserve">
+    <value>外部結合列。</value>
+  </data>
+  <data name="WhereJoinColumns" xml:space="preserve">
+    <value>Where (結合列)</value>
+  </data>
+  <data name="Residual" xml:space="preserve">
+    <value>残余</value>
+  </data>
+  <data name="ResidualDescription" xml:space="preserve">
+    <value>残余。</value>
+  </data>
+  <data name="PassThru" xml:space="preserve">
+    <value>パス スルー</value>
+  </data>
+  <data name="PassThruDescription" xml:space="preserve">
+    <value>パス スルー。</value>
+  </data>
+  <data name="ManyToMany" xml:space="preserve">
+    <value>多対多</value>
+  </data>
+  <data name="ManyToManyDescription" xml:space="preserve">
+    <value>多対多。</value>
+  </data>
+  <data name="PartitionColumns" xml:space="preserve">
+    <value>パーティション列</value>
+  </data>
+  <data name="PartitionColumnsDescription" xml:space="preserve">
+    <value>パーティション列。</value>
+  </data>
+  <data name="Ascending" xml:space="preserve">
+    <value>昇順</value>
+  </data>
+  <data name="Descending" xml:space="preserve">
+    <value>降順</value>
+  </data>
+  <data name="HashKeys" xml:space="preserve">
+    <value>ハッシュ キー</value>
+  </data>
+  <data name="HashKeysDescription" xml:space="preserve">
+    <value>ハッシュ キー。</value>
+  </data>
+  <data name="ProbeColumn" xml:space="preserve">
+    <value>Probe 列</value>
+  </data>
+  <data name="ProbeColumnDescription" xml:space="preserve">
+    <value>Probe 列。</value>
+  </data>
+  <data name="PartitioningType" xml:space="preserve">
+    <value>パーティションの種類</value>
+  </data>
+  <data name="PartitioningTypeDescription" xml:space="preserve">
+    <value>パーティションの種類。</value>
+  </data>
+  <data name="GroupBy" xml:space="preserve">
+    <value>グループ化</value>
+  </data>
+  <data name="GroupByDescription" xml:space="preserve">
+    <value>グループ化。</value>
+  </data>
+  <data name="GroupingSets" xml:space="preserve">
+    <value>グループ化セット</value>
+  </data>
+  <data name="GroupingSetsDescription" xml:space="preserve">
+    <value>グループ化セットのリストです。それぞれの値は、Group By プロパティのグループ化列の反転ビット マップです。</value>
+  </data>
+  <data name="SegmentColumn" xml:space="preserve">
+    <value>セグメント列</value>
+  </data>
+  <data name="SegmentColumnDescription" xml:space="preserve">
+    <value>セグメント列。</value>
+  </data>
+  <data name="RankColumns" xml:space="preserve">
+    <value>列の順位付け</value>
+  </data>
+  <data name="RankColumnsDescription" xml:space="preserve">
+    <value>列に順位を付けます。</value>
+  </data>
+  <data name="Predicate" xml:space="preserve">
+    <value>述語</value>
+  </data>
+  <data name="PredicateDescription" xml:space="preserve">
+    <value>述語。</value>
+  </data>
+  <data name="OuterReferences" xml:space="preserve">
+    <value>外部参照</value>
+  </data>
+  <data name="OuterReferencesDescription" xml:space="preserve">
+    <value>外部参照。</value>
+  </data>
+  <data name="ScalarOperator" xml:space="preserve">
+    <value>スカラー演算子</value>
+  </data>
+  <data name="ActionColumn" xml:space="preserve">
+    <value>アクション列</value>
+  </data>
+  <data name="ActionColumnDescription" xml:space="preserve">
+    <value>アクション列。</value>
+  </data>
+  <data name="OriginalActionColumn" xml:space="preserve">
+    <value>元のアクション列</value>
+  </data>
+  <data name="OriginalActionColumnDescription" xml:space="preserve">
+    <value>元のアクション列。</value>
+  </data>
+  <data name="Rows" xml:space="preserve">
+    <value>上位の行数</value>
+  </data>
+  <data name="RowsDescription" xml:space="preserve">
+    <value>上位の行数。</value>
+  </data>
+  <data name="SeekPredicate" xml:space="preserve">
+    <value>シーク述語</value>
+  </data>
+  <data name="SeekPredicateDescription" xml:space="preserve">
+    <value>シーク述語。</value>
+  </data>
+  <data name="Partitioned" xml:space="preserve">
+    <value>パーティション分割</value>
+  </data>
+  <data name="PartitionedDescription" xml:space="preserve">
+    <value>操作の対象がパーティション テーブルかパーティション インデックスかどうか。</value>
+  </data>
+  <data name="SeekKeys" xml:space="preserve">
+    <value>シーク キー</value>
+  </data>
+  <data name="SeekKeysDescription" xml:space="preserve">
+    <value>シーク操作によって使用されるキー。</value>
+  </data>
+  <data name="PartitionsAccessed" xml:space="preserve">
+    <value>アクセスされた実際のパーティション</value>
+  </data>
+  <data name="PartitionCount" xml:space="preserve">
+    <value>実際のパーティション数</value>
+  </data>
+  <data name="TieColumns" xml:space="preserve">
+    <value>列の連結</value>
+  </data>
+  <data name="TieColumnsDescription" xml:space="preserve">
+    <value>列を連結します。</value>
+  </data>
+  <data name="IsPercent" xml:space="preserve">
+    <value>百分率</value>
+  </data>
+  <data name="IsPercentDescription" xml:space="preserve">
+    <value>百分率です。</value>
+  </data>
+  <data name="WithTies" xml:space="preserve">
+    <value>結合あり</value>
+  </data>
+  <data name="WithTiesDescription" xml:space="preserve">
+    <value>結合あり。</value>
+  </data>
+  <data name="PartitionId" xml:space="preserve">
+    <value>パーティション ID</value>
+  </data>
+  <data name="PartitionIdDescription" xml:space="preserve">
+    <value>パーティション ID。</value>
+  </data>
+  <data name="Ordered" xml:space="preserve">
+    <value>並べ替え済み</value>
+  </data>
+  <data name="OrderedDescription" xml:space="preserve">
+    <value>並べ替え済みです。</value>
+  </data>
+  <data name="ScanDirection" xml:space="preserve">
+    <value>スキャン方向</value>
+  </data>
+  <data name="ScanDirectionDescription" xml:space="preserve">
+    <value>前方または後方のいずれかのスキャン操作の方向です。</value>
+  </data>
+  <data name="ForcedIndex" xml:space="preserve">
+    <value>強制インデックス</value>
+  </data>
+  <data name="ForcedIndexDescription" xml:space="preserve">
+    <value>強制インデックス。</value>
+  </data>
+  <data name="SetPredicate" xml:space="preserve">
+    <value>述語</value>
+  </data>
+  <data name="SetPredicateDescription" xml:space="preserve">
+    <value>述語</value>
+  </data>
+  <data name="TopExpression" xml:space="preserve">
+    <value>上位の式</value>
+  </data>
+  <data name="TopExpressionDescription" xml:space="preserve">
+    <value>上位の式。</value>
+  </data>
+  <data name="HashKeysBuild" xml:space="preserve">
+    <value>ハッシュ キーの構築</value>
+  </data>
+  <data name="HashKeysBuildDescription" xml:space="preserve">
+    <value>ハッシュ キーの構築。</value>
+  </data>
+  <data name="HashKeysProbe" xml:space="preserve">
+    <value>ハッシュ キーの probe</value>
+  </data>
+  <data name="HashKeysProbeDescription" xml:space="preserve">
+    <value>ハッシュ キーの probe。</value>
+  </data>
+  <data name="BuildResidual" xml:space="preserve">
+    <value>構築の残余</value>
+  </data>
+  <data name="BuildResidualDescription" xml:space="preserve">
+    <value>構築の残余。</value>
+  </data>
+  <data name="ProbeResidual" xml:space="preserve">
+    <value>Probe の残余</value>
+  </data>
+  <data name="ProbeResidualDescription" xml:space="preserve">
+    <value>Probe の残余。</value>
+  </data>
+  <data name="SeekPredicates" xml:space="preserve">
+    <value>シーク述語</value>
+  </data>
+  <data name="SeekPredicatesDescription" xml:space="preserve">
+    <value>シーク述語。</value>
+  </data>
+  <data name="SetOptions" xml:space="preserve">
+    <value>オプションの設定</value>
+  </data>
+  <data name="SetOptionsDescription" xml:space="preserve">
+    <value>オプションを設定します。</value>
+  </data>
+  <data name="OptimizationLevel" xml:space="preserve">
+    <value>最適化レベル</value>
+  </data>
+  <data name="OptimizationLevelDescription" xml:space="preserve">
+    <value>最適化のレベル。</value>
+  </data>
+  <data name="StatementOptmEarlyAbortReason" xml:space="preserve">
+    <value>ステートメントの最適化が早期に終了した理由</value>
+  </data>
+  <data name="TimeOut" xml:space="preserve">
+    <value>タイムアウト</value>
+  </data>
+  <data name="MemoryLimitExceeded" xml:space="preserve">
+    <value>メモリの制限を超えました</value>
+  </data>
+  <data name="GoodEnoughPlanFound" xml:space="preserve">
+    <value>十分な数のプランが見つかりました</value>
+  </data>
+  <data name="EstimatedRebinds" xml:space="preserve">
+    <value>再バインドの推定数</value>
+  </data>
+  <data name="EstimatedRebindsDescription" xml:space="preserve">
+    <value>再バインドの推定数。</value>
+  </data>
+  <data name="EstimatedRewinds" xml:space="preserve">
+    <value>巻き戻しの推定回数</value>
+  </data>
+  <data name="EstimatedRewindsDescription" xml:space="preserve">
+    <value>巻き戻しの推定回数。</value>
+  </data>
+  <data name="ActualLocallyAggregatedRows" xml:space="preserve">
+    <value>ローカルに集計された実際の行数</value>
+  </data>
+  <data name="ActualLocallyAggregatedRowsDescription" xml:space="preserve">
+    <value>ローカルに集計された実際の行数</value>
+  </data>
+  <data name="ActualRebinds" xml:space="preserve">
+    <value>実際の再バインド数</value>
+  </data>
+  <data name="ActualRebindsDescription" xml:space="preserve">
+    <value>実際の再バインド数。</value>
+  </data>
+  <data name="ActualRewinds" xml:space="preserve">
+    <value>実際の巻き戻し数</value>
+  </data>
+  <data name="ActualRewindsDescription" xml:space="preserve">
+    <value>実際の巻き戻し数。</value>
+  </data>
+  <data name="ActualIOStatistics" xml:space="preserve">
+    <value>実際の I/O 統計</value>
+  </data>
+  <data name="ActualIOStatisticsDescription" xml:space="preserve">
+    <value>実際の I/O 統計</value>
+  </data>
+  <data name="ActualTimeStatistics" xml:space="preserve">
+    <value>実際の時間統計</value>
+  </data>
+  <data name="ActualTimeStatisticsDescription" xml:space="preserve">
+    <value>実際の時間統計</value>
+  </data>
+  <data name="ActualElapsedms" xml:space="preserve">
+    <value>実際の経過時間 (ミリ秒)</value>
+  </data>
+  <data name="ActualElapsedmsDescription" xml:space="preserve">
+    <value>ミリ秒単位での実際の経過時間</value>
+  </data>
+  <data name="ActualCPUms" xml:space="preserve">
+    <value>実際の経過 CPU 時間 (ミリ秒)</value>
+  </data>
+  <data name="ActualCPUmsDescription" xml:space="preserve">
+    <value>ミリ秒単位での実際の経過 CPU 時間</value>
+  </data>
+  <data name="ActualScans" xml:space="preserve">
+    <value>実際のスキャン</value>
+  </data>
+  <data name="ActualScansDescription" xml:space="preserve">
+    <value>実際のスキャン</value>
+  </data>
+  <data name="ActualLogicalReads" xml:space="preserve">
+    <value>実際の論理読み取り</value>
+  </data>
+  <data name="ActualLogicalReadsDescription" xml:space="preserve">
+    <value>実際の論理読み取り</value>
+  </data>
+  <data name="ActualPhysicalReads" xml:space="preserve">
+    <value>実際の物理読み取り</value>
+  </data>
+  <data name="ActualPhysicalReadsDescription" xml:space="preserve">
+    <value>実際の物理読み取り</value>
+  </data>
+  <data name="ActualPageServerReads" xml:space="preserve">
+    <value>実際のページ サーバー読み取り</value>
+  </data>
+  <data name="ActualPageServerReadsDescription" xml:space="preserve">
+    <value>実際のページ サーバー読み取り</value>
+  </data>
+  <data name="ActualReadAheads" xml:space="preserve">
+    <value>実際の先読み</value>
+  </data>
+  <data name="ActualReadAheadsDescription" xml:space="preserve">
+    <value>実際の先読み</value>
+  </data>
+  <data name="ActualPageServerReadAheads" xml:space="preserve">
+    <value>実際のページ サーバー先読み</value>
+  </data>
+  <data name="ActualPageServerReadAheadsDescription" xml:space="preserve">
+    <value>実際のページ サーバー先読み</value>
+  </data>
+  <data name="ActualLobLogicalReads" xml:space="preserve">
+    <value>実際の LOB 論理読み取り</value>
+  </data>
+  <data name="ActualLobLogicalReadsDescription" xml:space="preserve">
+    <value>実際の LOB 論理読み取り</value>
+  </data>
+  <data name="ActualLobPhysicalReads" xml:space="preserve">
+    <value>実際の LOB 物理読み取り</value>
+  </data>
+  <data name="ActualLobPhysicalReadsDescription" xml:space="preserve">
+    <value>実際の LOB 物理読み取り</value>
+  </data>
+  <data name="ActualLobPageServerReads" xml:space="preserve">
+    <value>実際の LOB ページ サーバー読み取り</value>
+  </data>
+  <data name="ActualLobPageServerReadsDescription" xml:space="preserve">
+    <value>実際の LOB ページ サーバー読み取り</value>
+  </data>
+  <data name="ActualLobReadAheads" xml:space="preserve">
+    <value>実際の LOB 先読み</value>
+  </data>
+  <data name="ActualLobReadAheadsDescription" xml:space="preserve">
+    <value>実際の LOB 先読み</value>
+  </data>
+  <data name="ActualLobPageServerReadAheads" xml:space="preserve">
+    <value>実際の LOB ページ サーバー先読み</value>
+  </data>
+  <data name="ActualLobPageServerReadAheadsDescription" xml:space="preserve">
+    <value>実際の LOB ページ サーバー先読み</value>
+  </data>
+  <data name="ActualMemoryGrantStats" xml:space="preserve">
+    <value>メモリ使用量</value>
+  </data>
+  <data name="HpcRowCount" xml:space="preserve">
+    <value>HPC 行数</value>
+  </data>
+  <data name="HpcRowCountDescription" xml:space="preserve">
+    <value>HPC デバイスで処理された行数。</value>
+  </data>
+  <data name="HpcKernelElapsedUs" xml:space="preserve">
+    <value>HPC カーネルの経過時間 (マイクロ秒)</value>
+  </data>
+  <data name="HpcKernelElapsedUsDescription" xml:space="preserve">
+    <value>HPC デバイス カーネル実行の経過時間 (マイクロ秒)。</value>
+  </data>
+  <data name="HpcHostToDeviceBytes" xml:space="preserve">
+    <value>HPC ホストからデバイスへのバイト数</value>
+  </data>
+  <data name="HpcHostToDeviceBytesDescription" xml:space="preserve">
+    <value>ホストから HPC デバイスへ転送されたデータ (バイト単位)。</value>
+  </data>
+  <data name="HpcDeviceToHostBytes" xml:space="preserve">
+    <value>HPC デバイスからホストへのバイト数</value>
+  </data>
+  <data name="HpcDeviceToHostBytesDescription" xml:space="preserve">
+    <value>HPC デバイスからホストへ転送されたデータ (バイト単位)。</value>
+  </data>
+  <data name="InputMemoryGrant" xml:space="preserve">
+    <value>入力メモリ</value>
+  </data>
+  <data name="OutputMemoryGrant" xml:space="preserve">
+    <value>出力メモリ</value>
+  </data>
+  <data name="UsedMemoryGrant" xml:space="preserve">
+    <value>使用済みメモリ</value>
+  </data>
+  <data name="Distinct" xml:space="preserve">
+    <value>一意</value>
+  </data>
+  <data name="DistinctDescription" xml:space="preserve">
+    <value>一意。</value>
+  </data>
+  <data name="OrderBy" xml:space="preserve">
+    <value>並べ替え</value>
+  </data>
+  <data name="OrderByDescription" xml:space="preserve">
+    <value>並べ替え。</value>
+  </data>
+  <data name="SpillOccurredDisplayString" xml:space="preserve">
+    <value>実行中にオペレーターが tempdb を使用してデータをスピルしました</value>
+  </data>
+  <data name="ColumnsWithNoStatistics" xml:space="preserve">
+    <value>統計に関係しない列</value>
+  </data>
+  <data name="ColumnsWithNoStatisticsDescription" xml:space="preserve">
+    <value>統計警告に関係しない列です。</value>
+  </data>
+  <data name="NoJoinPredicate" xml:space="preserve">
+    <value>結合述語なし</value>
+  </data>
+  <data name="NoJoinPredicateDescription" xml:space="preserve">
+    <value>結合述語の警告がありません。</value>
+  </data>
+  <data name="SpillToTempDbOld" xml:space="preserve">
+    <value>実行中にオペレーターが tempdb を使用してデータをスピルしました (スピル レベル {0})</value>
+  </data>
+  <data name="SpillToTempDb" xml:space="preserve">
+    <value>実行中にオペレーターが tempdb を使用してデータをスピルしました (スピル レベル {0}、スピルされたスレッド {1} 件)</value>
+  </data>
+  <data name="SpillToTempDbDescription" xml:space="preserve">
+    <value>tempdb へのスピルに関する警告。</value>
+  </data>
+  <data name="SortSpillDetails" xml:space="preserve">
+    <value>並べ替えによって tempdb に {0} ページが書き込まれ、tempdb から {1} ページが読み取られました (許可されているメモリ {2} KB、使用されたメモリ {3} KB)</value>
+  </data>
+  <data name="SortSpillDetailsDescription" xml:space="preserve">
+    <value>並べ替えによるスピルの詳細</value>
+  </data>
+  <data name="HashSpillDetails" xml:space="preserve">
+    <value>ハッシュによって tempdb に {0} ページが書き込まれ、tempdb から {1} ページが読み取られました (許可されているメモリ {2} KB、使用されたメモリ {3} KB)</value>
+  </data>
+  <data name="HashSpillDetailsDescription" xml:space="preserve">
+    <value>ハッシュによるスピルの詳細</value>
+  </data>
+  <data name="FullUpdateForOnlineIndexBuild" xml:space="preserve">
+    <value>オンライン インデックス ビルドにより、部分的な更新が完全な更新に変換されました</value>
+  </data>
+  <data name="FullUpdateForOnlineIndexBuildDescription" xml:space="preserve">
+    <value>オンライン インデックス ビルドによる完全な更新に関する警告</value>
+  </data>
+  <data name="Wait" xml:space="preserve">
+    <value>クエリは実行中に {1} を {0} 秒間待機する必要がありました。</value>
+  </data>
+  <data name="WaitDescription" xml:space="preserve">
+    <value>クエリ待機警告。</value>
+  </data>
+  <data name="PlanAffectingConvert" xml:space="preserve">
+    <value>式 ({0}) の型変換は、クエリ プランの選択の "{1}" に影響する可能性があります。</value>
+  </data>
+  <data name="PlanAffectingConvertDescription" xml:space="preserve">
+    <value>プランに影響を与える型変換の警告。</value>
+  </data>
+  <data name="MemoryGrantWarning" xml:space="preserve">
+    <value>クエリ メモリ許可によって、信頼性に影響を与える可能性のある "{0}" が検出されました。許可サイズ: 初期 {1} KB、最終 {2} KB、使用済み {3} KB。</value>
+  </data>
+  <data name="MemoryGrantWarningDescription" xml:space="preserve">
+    <value>メモリ許可の警告の詳細</value>
+  </data>
+  <data name="StartupExpression" xml:space="preserve">
+    <value>スタートアップ式</value>
+  </data>
+  <data name="StartupExpressionDescription" xml:space="preserve">
+    <value>フィルターのスタートアップ式が使用されるかどうか。</value>
+  </data>
+  <data name="StartupExpressionPredicate" xml:space="preserve">
+    <value>スタートアップ式の述語</value>
+  </data>
+  <data name="Query" xml:space="preserve">
+    <value>クエリ</value>
+  </data>
+  <data name="Stack" xml:space="preserve">
+    <value>スタックあり</value>
+  </data>
+  <data name="RowCount" xml:space="preserve">
+    <value>行数</value>
+  </data>
+  <data name="Optimized" xml:space="preserve">
+    <value>最適化済み</value>
+  </data>
+  <data name="WithPrefetch" xml:space="preserve">
+    <value>プレフェッチあり</value>
+  </data>
+  <data name="Prefix" xml:space="preserve">
+    <value>プレフィックス</value>
+  </data>
+  <data name="StartRange" xml:space="preserve">
+    <value>開始</value>
+  </data>
+  <data name="StartRangeDescription" xml:space="preserve">
+    <value>範囲の開始。</value>
+  </data>
+  <data name="EndRange" xml:space="preserve">
+    <value>終了</value>
+  </data>
+  <data name="EndRangeDescription" xml:space="preserve">
+    <value>範囲の終了。</value>
+  </data>
+  <data name="RangeColumns" xml:space="preserve">
+    <value>範囲の列</value>
+  </data>
+  <data name="RangeExpressions" xml:space="preserve">
+    <value>範囲の式</value>
+  </data>
+  <data name="ScanType" xml:space="preserve">
+    <value>スキャンの種類</value>
+  </data>
+  <data name="ColumnReference" xml:space="preserve">
+    <value>列参照</value>
+  </data>
+  <data name="ObjectServer" xml:space="preserve">
+    <value>サーバー</value>
+  </data>
+  <data name="ObjectServerDescription" xml:space="preserve">
+    <value>参照先オブジェクトのサーバー名です。</value>
+  </data>
+  <data name="ObjectDatabase" xml:space="preserve">
+    <value>データベース</value>
+  </data>
+  <data name="ObjectDatabaseDescription" xml:space="preserve">
+    <value>参照先オブジェクトのデータベース名です。</value>
+  </data>
+  <data name="ObjectIndex" xml:space="preserve">
+    <value>インデックス</value>
+  </data>
+  <data name="ObjectIndexDescription" xml:space="preserve">
+    <value>参照先オブジェクトのインデックス名です。</value>
+  </data>
+  <data name="ObjectSchema" xml:space="preserve">
+    <value>スキーマ</value>
+  </data>
+  <data name="ObjectSchemaDescription" xml:space="preserve">
+    <value>参照先オブジェクトのスキーマ名です。</value>
+  </data>
+  <data name="ObjectTable" xml:space="preserve">
+    <value>テーブル</value>
+  </data>
+  <data name="ObjectTableDescription" xml:space="preserve">
+    <value>参照先オブジェクトのテーブル名です。</value>
+  </data>
+  <data name="ObjectAlias" xml:space="preserve">
+    <value>別名</value>
+  </data>
+  <data name="ObjectAliasDescription" xml:space="preserve">
+    <value>参照先オブジェクトに使用される別名です。</value>
+  </data>
+  <data name="ObjectColumn" xml:space="preserve">
+    <value>列</value>
+  </data>
+  <data name="ObjectColumnDescription" xml:space="preserve">
+    <value>参照先オブジェクトの列名です。</value>
+  </data>
+  <data name="ObjectComputedColumn" xml:space="preserve">
+    <value>計算列</value>
+  </data>
+  <data name="ObjectComputedColumnDescription" xml:space="preserve">
+    <value>この列が計算列かどうか。</value>
+  </data>
+  <data name="ParameterDataType" xml:space="preserve">
+    <value>パラメーター データ型</value>
+  </data>
+  <data name="ParameterCompiledValue" xml:space="preserve">
+    <value>パラメータのコンパイル済みの値</value>
+  </data>
+  <data name="ParameterRuntimeValue" xml:space="preserve">
+    <value>パラメーターのランタイム値</value>
+  </data>
+  <data name="CursorPlan" xml:space="preserve">
+    <value>カーソル プラン</value>
+  </data>
+  <data name="CursorOperation" xml:space="preserve">
+    <value>カーソル操作</value>
+  </data>
+  <data name="CursorName" xml:space="preserve">
+    <value>カーソル名</value>
+  </data>
+  <data name="CursorActualType" xml:space="preserve">
+    <value>実際のカーソルの種類</value>
+  </data>
+  <data name="CursorRequestedType" xml:space="preserve">
+    <value>要求されたカーソルの種類</value>
+  </data>
+  <data name="CursorConcurrency" xml:space="preserve">
+    <value>カーソル コンカレンシー</value>
+  </data>
+  <data name="ForwardOnly" xml:space="preserve">
+    <value>順方向専用</value>
+  </data>
+  <data name="QueryPlan" xml:space="preserve">
+    <value>クエリ プラン</value>
+  </data>
+  <data name="OperationType" xml:space="preserve">
+    <value>操作の種類</value>
+  </data>
+  <data name="NodeId" xml:space="preserve">
+    <value>ノード ID</value>
+  </data>
+  <data name="PrimaryNodeId" xml:space="preserve">
+    <value>プライマリ ノード ID</value>
+  </data>
+  <data name="InternalInfo" xml:space="preserve">
+    <value>内部デバッグ情報</value>
+  </data>
+  <data name="ForeignKeyReferencesCount" xml:space="preserve">
+    <value>外部キー参照カウント</value>
+  </data>
+  <data name="NoMatchingIndexCount" xml:space="preserve">
+    <value>一致しないインデックスの数</value>
+  </data>
+  <data name="PartialMatchingIndexCount" xml:space="preserve">
+    <value>部分一致するインデックスの数</value>
+  </data>
+  <data name="LogicalOpCollapse" xml:space="preserve">
+    <value>Collapse</value>
+  </data>
+  <data name="LogicalOpConcatenation" xml:space="preserve">
+    <value>Concatenation</value>
+  </data>
+  <data name="LogicalOpConstantScan" xml:space="preserve">
+    <value>Constant Scan</value>
+  </data>
+  <data name="LogicalOpGatherStreams" xml:space="preserve">
+    <value>Gather Streams</value>
+  </data>
+  <data name="LogicalOpRepartitionStreams" xml:space="preserve">
+    <value>Repartition Streams</value>
+  </data>
+  <data name="LogicalOpDistributeStreams" xml:space="preserve">
+    <value>Distribute Streams</value>
+  </data>
+  <data name="LogicalOpFilter" xml:space="preserve">
+    <value>Filter</value>
+  </data>
+  <data name="LogicalOpAssert" xml:space="preserve">
+    <value>Assert</value>
+  </data>
+  <data name="LogicalOpLogRowScan" xml:space="preserve">
+    <value>Log Row Scan</value>
+  </data>
+  <data name="LogicalOpPrint" xml:space="preserve">
+    <value>Print</value>
+  </data>
+  <data name="LogicalOpComputeScalar" xml:space="preserve">
+    <value>Compute Scalar</value>
+  </data>
+  <data name="LogicalOpMergeInterval" xml:space="preserve">
+    <value>Merge Interval</value>
+  </data>
+  <data name="LogicalOpRank" xml:space="preserve">
+    <value>Rank</value>
+  </data>
+  <data name="LogicalOpSegment" xml:space="preserve">
+    <value>Segment</value>
+  </data>
+  <data name="LogicalOpSequence" xml:space="preserve">
+    <value>Sequence</value>
+  </data>
+  <data name="LogicalOpSplit" xml:space="preserve">
+    <value>Split</value>
+  </data>
+  <data name="LogicalOpAggregate" xml:space="preserve">
+    <value>Aggregate</value>
+  </data>
+  <data name="LogicalOpTableScan" xml:space="preserve">
+    <value>Table Scan</value>
+  </data>
+  <data name="LogicalOpClusteredIndexScan" xml:space="preserve">
+    <value>Clustered Index Scan</value>
+  </data>
+  <data name="LogicalOpClusteredIndexSeek" xml:space="preserve">
+    <value>Clustered Index Seek</value>
+  </data>
+  <data name="LogicalOpDeletedScan" xml:space="preserve">
+    <value>Deleted Scan</value>
+  </data>
+  <data name="LogicalOpInsertedScan" xml:space="preserve">
+    <value>Inserted Scan</value>
+  </data>
+  <data name="LogicalOpParameterTableScan" xml:space="preserve">
+    <value>Parameter Table Scan</value>
+  </data>
+  <data name="LogicalOpPut" xml:space="preserve">
+    <value>Put</value>
+  </data>
+  <data name="LogicalOpIndexScan" xml:space="preserve">
+    <value>Index Scan</value>
+  </data>
+  <data name="LogicalOpIndexSeek" xml:space="preserve">
+    <value>Index Seek</value>
+  </data>
+  <data name="LogicalOpRemoteScan" xml:space="preserve">
+    <value>Remote Scan</value>
+  </data>
+  <data name="LogicalOpRemoteIndexScan" xml:space="preserve">
+    <value>Remote Index Scan</value>
+  </data>
+  <data name="LogicalOpRemoteIndexSeek" xml:space="preserve">
+    <value>Remote Index Seek</value>
+  </data>
+  <data name="LogicalOpRemoteQuery" xml:space="preserve">
+    <value>Remote Query</value>
+  </data>
+  <data name="LogicalOpRemoteInsert" xml:space="preserve">
+    <value>Remote Insert</value>
+  </data>
+  <data name="LogicalOpRemoteUpdate" xml:space="preserve">
+    <value>Remote Update</value>
+  </data>
+  <data name="LogicalOpRemoteDelete" xml:space="preserve">
+    <value>Remote Delete</value>
+  </data>
+  <data name="LogicalOpClusteredUpdate" xml:space="preserve">
+    <value>Clustered Update</value>
+  </data>
+  <data name="LogicalOpDistinctSort" xml:space="preserve">
+    <value>Distinct Sort</value>
+  </data>
+  <data name="LogicalOpSort" xml:space="preserve">
+    <value>Sort</value>
+  </data>
+  <data name="LogicalOpTopNSort" xml:space="preserve">
+    <value>Top N Sort</value>
+  </data>
+  <data name="LogicalOpEagerSpool" xml:space="preserve">
+    <value>Eager Spool</value>
+  </data>
+  <data name="LogicalOpLazySpool" xml:space="preserve">
+    <value>Lazy Spool</value>
+  </data>
+  <data name="LogicalOpUpdate" xml:space="preserve">
+    <value>更新</value>
+  </data>
+  <data name="LogicalOpInsert" xml:space="preserve">
+    <value>Insert</value>
+  </data>
+  <data name="LogicalOpDelete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="LogicalOpMerge" xml:space="preserve">
+    <value>Merge</value>
+  </data>
+  <data name="LogicalOpTop" xml:space="preserve">
+    <value>Top</value>
+  </data>
+  <data name="LogicalOpDistinct" xml:space="preserve">
+    <value>一意</value>
+  </data>
+  <data name="LogicalOpFlowDistinct" xml:space="preserve">
+    <value>Flow Distinct</value>
+  </data>
+  <data name="LogicalOpPartialAggregate" xml:space="preserve">
+    <value>Partial Aggregate</value>
+  </data>
+  <data name="LogicalOpInnerApply" xml:space="preserve">
+    <value>Inner Apply</value>
+  </data>
+  <data name="LogicalOpInnerJoin" xml:space="preserve">
+    <value>Inner Join</value>
+  </data>
+  <data name="LogicalOpLeftAntiSemiApply" xml:space="preserve">
+    <value>Left Anti Semi Apply</value>
+  </data>
+  <data name="LogicalOpLeftSemiApply" xml:space="preserve">
+    <value>Left Semi Apply</value>
+  </data>
+  <data name="LogicalOpLeftOuterApply" xml:space="preserve">
+    <value>Left Outer Apply</value>
+  </data>
+  <data name="LogicalOpLeftOuterJoin" xml:space="preserve">
+    <value>Left Outer Join</value>
+  </data>
+  <data name="LogicalOpRightOuterJoin" xml:space="preserve">
+    <value>Right Outer Join</value>
+  </data>
+  <data name="LogicalOpFullOuterJoin" xml:space="preserve">
+    <value>Full Outer Join</value>
+  </data>
+  <data name="LogicalOpLeftSemiJoin" xml:space="preserve">
+    <value>Left Semi Join</value>
+  </data>
+  <data name="LogicalOpLeftAntiSemiJoin" xml:space="preserve">
+    <value>Left Anti Semi Join</value>
+  </data>
+  <data name="LogicalOpRightSemiJoin" xml:space="preserve">
+    <value>Right Semi Join</value>
+  </data>
+  <data name="LogicalOpRightAntiSemiJoin" xml:space="preserve">
+    <value>Right Anti Semi Join</value>
+  </data>
+  <data name="LogicalOpIntersect" xml:space="preserve">
+    <value>Intersect</value>
+  </data>
+  <data name="LogicalOpIntersectAll" xml:space="preserve">
+    <value>Intersect All</value>
+  </data>
+  <data name="LogicalOpUnion" xml:space="preserve">
+    <value>Union</value>
+  </data>
+  <data name="LogicalOpLeftDiff" xml:space="preserve">
+    <value>Left Diff</value>
+  </data>
+  <data name="LogicalOpLeftDiffAll" xml:space="preserve">
+    <value>Left Diff All</value>
+  </data>
+  <data name="LogicalOpRightDiff" xml:space="preserve">
+    <value>Right Diff</value>
+  </data>
+  <data name="LogicalOpRightDiffAll" xml:space="preserve">
+    <value>Right Diff All</value>
+  </data>
+  <data name="LogicalOpAntiDiff" xml:space="preserve">
+    <value>Anti Diff</value>
+  </data>
+  <data name="LogicalOpCrossJoin" xml:space="preserve">
+    <value>Cross Join</value>
+  </data>
+  <data name="LogicalOpBitmapCreate" xml:space="preserve">
+    <value>Bitmap Create</value>
+  </data>
+  <data name="LogicalOpUDX" xml:space="preserve">
+    <value>UDX</value>
+  </data>
+  <data name="LogicalOpWindow" xml:space="preserve">
+    <value>Window Spool</value>
+  </data>
+  <data name="LogicalOpSwitch" xml:space="preserve">
+    <value>Switch</value>
+  </data>
+  <data name="LogicalOpMergeStats" xml:space="preserve">
+    <value>Merge Stats</value>
+  </data>
+  <data name="LogicalOpLocalStats" xml:space="preserve">
+    <value>Local Stats</value>
+  </data>
+  <data name="LogicalOpTableValuedFunction" xml:space="preserve">
+    <value>Table Valued Function</value>
+  </data>
+  <data name="LogicalOpBatchHashTableBuild" xml:space="preserve">
+    <value>Batch Hash Table Build</value>
+  </data>
+  <data name="LogicalOpForeignKeyReferencesCheck" xml:space="preserve">
+    <value>Foreign Key References Check</value>
+  </data>
+  <data name="LogicalOpRIDLookup" xml:space="preserve">
+    <value>RID Lookup</value>
+  </data>
+  <data name="StoredProc" xml:space="preserve">
+    <value>ストアド プロシージャ</value>
+  </data>
+  <data name="Udf" xml:space="preserve">
+    <value>UDF</value>
+  </data>
+  <data name="ProcName" xml:space="preserve">
+    <value>プロシージャ名</value>
+  </data>
+  <data name="Storage" xml:space="preserve">
+    <value>ストレージ</value>
+  </data>
+  <data name="StorageDesc" xml:space="preserve">
+    <value>ストレージ</value>
+  </data>
+  <data name="ActualExecMode" xml:space="preserve">
+    <value>実際の実行モード</value>
+  </data>
+  <data name="ActualExecModeDesc" xml:space="preserve">
+    <value>実際の実行モード</value>
+  </data>
+  <data name="EstimatedExecMode" xml:space="preserve">
+    <value>推定実行モード</value>
+  </data>
+  <data name="EstimatedExecModeDesc" xml:space="preserve">
+    <value>推定実行モード</value>
+  </data>
+  <data name="CostFormat" xml:space="preserve">
+    <value>コスト: {0} %</value>
+  </data>
+  <data name="RemoteDataAccess" xml:space="preserve">
+    <value>リモート データ アクセス</value>
+  </data>
+  <data name="RemoteDataAccessDescription" xml:space="preserve">
+    <value>演算子でリモート プロシージャ呼び出し (RPC) を使用してリモート データにアクセスできるかどうか。</value>
+  </data>
+  <data name="CloneAccessScope" xml:space="preserve">
+    <value>アクセス スコープの複製</value>
+  </data>
+  <data name="CloneAccessScopeDescription" xml:space="preserve">
+    <value>演算子でアクセスできる複製。</value>
+  </data>
+  <data name="PrimaryClones" xml:space="preserve">
+    <value>一次複製</value>
+  </data>
+  <data name="SecondaryClones" xml:space="preserve">
+    <value>二次複製</value>
+  </data>
+  <data name="BothClones" xml:space="preserve">
+    <value>すべての複製</value>
+  </data>
+  <data name="EitherClones" xml:space="preserve">
+    <value>一次複製または二次複製</value>
+  </data>
+  <data name="ExactMatchClones" xml:space="preserve">
+    <value>単一複製一致</value>
+  </data>
+  <data name="Remoting" xml:space="preserve">
+    <value>リモート処理</value>
+  </data>
+  <data name="RemotingDescription" xml:space="preserve">
+    <value>演算子をリモートで実行できるかどうか。</value>
+  </data>
+  <data name="Activation" xml:space="preserve">
+    <value>アクティブ化</value>
+  </data>
+  <data name="BrickRouting" xml:space="preserve">
+    <value>ブリック ルーティング</value>
+  </data>
+  <data name="FragmentIdColumn" xml:space="preserve">
+    <value>断片化 ID 列</value>
+  </data>
+  <data name="EditQueryText" xml:space="preserve">
+    <value>プラン表示 XML からのクエリ テキストを編集 (切り詰められる可能性がある)</value>
+  </data>
+  <data name="UnknownShowPlanSource" xml:space="preserve">
+    <value>実行プランのソースの種類を認識できません。</value>
+  </data>
+  <data name="SavePlanFilter" xml:space="preserve">
+    <value>SQL プラン ファイル (*.SqlPlan)|*.SqlPlan|すべてのファイル (*.*)|*.*</value>
+  </data>
+  <data name="NoXmlPlanData" xml:space="preserve">
+    <value>XML 形式のプラン データは使用できません。SQL Server Yukon のプランのみが保存されます。</value>
+  </data>
+  <data name="PerThreadCounterDescription" xml:space="preserve">
+    <value>スレットごとのカウンター情報。</value>
+  </data>
+  <data name="RuntimeCounterThread" xml:space="preserve">
+    <value>スレッド {0}</value>
+  </data>
+  <data name="RuntimeCounterThreadOnInstance" xml:space="preserve">
+    <value>インスタンス {1} のスレッド {0}</value>
+  </data>
+  <data name="RuntimeCounterThreadAll" xml:space="preserve">
+    <value>すべてのスレッド</value>
+  </data>
+  <data name="ConnectionPropertiesLabel" xml:space="preserve">
+    <value>接続のプロパティの表示</value>
+  </data>
+  <data name="UnknownAssignType" xml:space="preserve">
+    <value>不明な割り当ての種類。</value>
+  </data>
+  <data name="MessageBoxCaption" xml:space="preserve">
+    <value>SQL Server</value>
+  </data>
+  <data name="ZoomLevelShouldBeBetween" xml:space="preserve">
+    <value>ズーム レベルには、{0} から {1} までの整数値を指定してください。</value>
+  </data>
+  <data name="UnknownNodeType" xml:space="preserve">
+    <value>不明なノードの種類です。</value>
+  </data>
+  <data name="UnknownCursorPlanOperation" xml:space="preserve">
+    <value>不明なカーソル プラン操作 '{0}' です。</value>
+  </data>
+  <data name="UnknownStatementType" xml:space="preserve">
+    <value>ステートメントの種類が認識されていません。</value>
+  </data>
+  <data name="RollupInfo" xml:space="preserve">
+    <value>ロールアップ情報</value>
+  </data>
+  <data name="RollupInfoDescription" xml:space="preserve">
+    <value>ロールアップ情報。</value>
+  </data>
+  <data name="HighestLevel" xml:space="preserve">
+    <value>概要レベル</value>
+  </data>
+  <data name="HighestLevelDescription" xml:space="preserve">
+    <value>このロールアップで計算されるグループ化属性の最上位レベル。</value>
+  </data>
+  <data name="RollupLevel" xml:space="preserve">
+    <value>ロールアップ レベル</value>
+  </data>
+  <data name="RollupLevelDescription" xml:space="preserve">
+    <value>このロールアップで計算されるグループ化属性のすべてのレベル。</value>
+  </data>
+  <data name="Level" xml:space="preserve">
+    <value>レベル</value>
+  </data>
+  <data name="LevelDescription" xml:space="preserve">
+    <value>このロールアップで計算されるグループ化属性のレベル。</value>
+  </data>
+  <data name="RemoteQuery" xml:space="preserve">
+    <value>Remote Query</value>
+  </data>
+  <data name="RemoteQueryDescription" xml:space="preserve">
+    <value>SQL クエリを現在の SQL Server 以外のサーバーに送信します。</value>
+  </data>
+  <data name="ComputeScalar" xml:space="preserve">
+    <value>Compute Scalar</value>
+  </data>
+  <data name="MergeInterval" xml:space="preserve">
+    <value>Merge Interval</value>
+  </data>
+  <data name="Print" xml:space="preserve">
+    <value>印刷</value>
+  </data>
+  <data name="Segment" xml:space="preserve">
+    <value>Segment</value>
+  </data>
+  <data name="Split" xml:space="preserve">
+    <value>Split</value>
+  </data>
+  <data name="BatchHashTableBuild" xml:space="preserve">
+    <value>Batch Hash Table Build</value>
+  </data>
+  <data name="Bitmap" xml:space="preserve">
+    <value>Bitmap</value>
+  </data>
+  <data name="Collapse" xml:space="preserve">
+    <value>Collapse</value>
+  </data>
+  <data name="TableSpool" xml:space="preserve">
+    <value>Table Spool</value>
+  </data>
+  <data name="RepartitionStreams" xml:space="preserve">
+    <value>Repartition Streams</value>
+  </data>
+  <data name="Assert" xml:space="preserve">
+    <value>Assert</value>
+  </data>
+  <data name="Sort" xml:space="preserve">
+    <value>Sort</value>
+  </data>
+  <data name="Top" xml:space="preserve">
+    <value>Top</value>
+  </data>
+  <data name="SequenceProject" xml:space="preserve">
+    <value>Sequence Project</value>
+  </data>
+  <data name="Spool" xml:space="preserve">
+    <value>Spool</value>
+  </data>
+  <data name="Window" xml:space="preserve">
+    <value>Window Spool</value>
+  </data>
+  <data name="Parallelism" xml:space="preserve">
+    <value>Parallelism</value>
+  </data>
+  <data name="RowCountSpool" xml:space="preserve">
+    <value>Row Count Spool</value>
+  </data>
+  <data name="Unknown" xml:space="preserve">
+    <value>不明</value>
+  </data>
+  <data name="UnknownDescription" xml:space="preserve">
+    <value>不明な操作です。</value>
+  </data>
+  <data name="Result" xml:space="preserve">
+    <value>Result</value>
+  </data>
+  <data name="ResultDescription" xml:space="preserve">
+    <value>結果。</value>
+  </data>
+  <data name="CollapseDescription" xml:space="preserve">
+    <value>広範な更新プラン内の更新に、同じ値を挿入し削除するグループ。</value>
+  </data>
+  <data name="Concatenation" xml:space="preserve">
+    <value>Concatenation</value>
+  </data>
+  <data name="ConcatenationDescription" xml:space="preserve">
+    <value>複数の入力テーブルを追加して、出力テーブルを作成します。</value>
+  </data>
+  <data name="ConstantScan" xml:space="preserve">
+    <value>Constant Scan</value>
+  </data>
+  <data name="ConstantScanDescription" xml:space="preserve">
+    <value>定数の内部テーブルをスキャンします。</value>
+  </data>
+  <data name="ParallelismDescription" xml:space="preserve">
+    <value>並列処理が必要な操作です。</value>
+  </data>
+  <data name="Put" xml:space="preserve">
+    <value>置く</value>
+  </data>
+  <data name="PutDescription" xml:space="preserve">
+    <value>ローカルまたは外部のテーブルから外部テーブルに行をエクスポートします。</value>
+  </data>
+  <data name="DistributeStreams" xml:space="preserve">
+    <value>Distribute Streams</value>
+  </data>
+  <data name="DistributeStreamsDescription" xml:space="preserve">
+    <value>ストリームを配布します。</value>
+  </data>
+  <data name="GatherStreams" xml:space="preserve">
+    <value>Gather Streams</value>
+  </data>
+  <data name="GatherStreamsDescription" xml:space="preserve">
+    <value>ストリームを収集します。</value>
+  </data>
+  <data name="RepartitionStreamsDescription" xml:space="preserve">
+    <value>ストリームのパーティション再分割。</value>
+  </data>
+  <data name="EagerSpool" xml:space="preserve">
+    <value>Eager Spool</value>
+  </data>
+  <data name="EagerSpoolDescription" xml:space="preserve">
+    <value>Eager Spool です。</value>
+  </data>
+  <data name="LazySpool" xml:space="preserve">
+    <value>Lazy Spool</value>
+  </data>
+  <data name="LazySpoolDescription" xml:space="preserve">
+    <value>Lazy Spool です。</value>
+  </data>
+  <data name="Filter" xml:space="preserve">
+    <value>Filter</value>
+  </data>
+  <data name="FilterDescription" xml:space="preserve">
+    <value>述語を基に行のセットを制限しています。</value>
+  </data>
+  <data name="AssertDescription" xml:space="preserve">
+    <value>指定した条件が存在するかどうかの確認に使用します。</value>
+  </data>
+  <data name="HashMatch" xml:space="preserve">
+    <value>Hash Match</value>
+  </data>
+  <data name="HashMatchDescription" xml:space="preserve">
+    <value>上に入力した各行を使用してハッシュ テーブルを作成します。下に入力した各行を使用してハッシュ テーブルを probe します。一致したすべての行が出力されます。</value>
+  </data>
+  <data name="HashMatchTeam" xml:space="preserve">
+    <value>Hash Match Team</value>
+  </data>
+  <data name="HashMatchTeamDescription" xml:space="preserve">
+    <value>複数の協調するハッシュ演算間のコントリビューターです。</value>
+  </data>
+  <data name="HashMatchRoot" xml:space="preserve">
+    <value>Hash Match Root</value>
+  </data>
+  <data name="HashMatchRootDescription" xml:space="preserve">
+    <value>ハッシュ共通関数とパーティショニング方法を共有している接続されたハッシュ操作のチームのルート メンバー。</value>
+  </data>
+  <data name="BookmarkLookup" xml:space="preserve">
+    <value>Bookmark Lookup</value>
+  </data>
+  <data name="BookmarkLookupDescription" xml:space="preserve">
+    <value>ブックマーク (RID またはクラスター化キー) を使用して、テーブルまたはクラスター化インデックス内の対応する行を参照します。</value>
+  </data>
+  <data name="LogRowScan" xml:space="preserve">
+    <value>Log Row Scan</value>
+  </data>
+  <data name="LogRowScanDescription" xml:space="preserve">
+    <value>ログ内の行をスキャンします。</value>
+  </data>
+  <data name="MergeJoin" xml:space="preserve">
+    <value>Merge Join</value>
+  </data>
+  <data name="MergeJoinDescription" xml:space="preserve">
+    <value>適切に並べ替えられた入力テーブルから、それぞれの並べ替え順序を使用して、行を一致させます。</value>
+  </data>
+  <data name="NestedLoops" xml:space="preserve">
+    <value>Nested Loops</value>
+  </data>
+  <data name="NestedLoopsDescription" xml:space="preserve">
+    <value>上 (外部) に入力した行ごとに、下 (内部) に入力した行をスキャンし、一致している行を出力します。</value>
+  </data>
+  <data name="PrintDescription" xml:space="preserve">
+    <value>印刷する。</value>
+  </data>
+  <data name="ComputeScalarDescription" xml:space="preserve">
+    <value>行内の既存の値から新しい値を計算します。</value>
+  </data>
+  <data name="MergeIntervalDescription" xml:space="preserve">
+    <value>間隔のマージ。</value>
+  </data>
+  <data name="Rank" xml:space="preserve">
+    <value>順位</value>
+  </data>
+  <data name="RankDescription" xml:space="preserve">
+    <value>テーブル内の既存の列の値の順位を使用して計算列を作成します。</value>
+  </data>
+  <data name="RowCountSpoolDescription" xml:space="preserve">
+    <value>巻き戻しを最適化するため、入力側のデータを一時テーブルに保存します。</value>
+  </data>
+  <data name="SegmentDescription" xml:space="preserve">
+    <value>セグメント。</value>
+  </data>
+  <data name="Sequence" xml:space="preserve">
+    <value>Sequence</value>
+  </data>
+  <data name="SequenceDescription" xml:space="preserve">
+    <value>各入力を上から下へ順に処理します。</value>
+  </data>
+  <data name="SequenceProjectDescription" xml:space="preserve">
+    <value>列を追加して、順序付けされたセットの計算を実行します。</value>
+  </data>
+  <data name="SplitDescription" xml:space="preserve">
+    <value>分割。</value>
+  </data>
+  <data name="StreamAggregate" xml:space="preserve">
+    <value>Stream Aggregate</value>
+  </data>
+  <data name="StreamAggregateDescription" xml:space="preserve">
+    <value>適合する並べ替えられたストリーム内で、行のグループの集約値を計算します。</value>
+  </data>
+  <data name="TableScan" xml:space="preserve">
+    <value>Table Scan</value>
+  </data>
+  <data name="TableScanDescription" xml:space="preserve">
+    <value>テーブルから行をスキャンします。</value>
+  </data>
+  <data name="ClusteredIndexScan" xml:space="preserve">
+    <value>Clustered Index Scan</value>
+  </data>
+  <data name="ClusteredIndexScanDescription" xml:space="preserve">
+    <value>クラスター化インデックスを全体的に、または特定の範囲だけスキャンしています。</value>
+  </data>
+  <data name="ClusteredIndexSeek" xml:space="preserve">
+    <value>Clustered Index Seek</value>
+  </data>
+  <data name="ClusteredIndexSeekDescription" xml:space="preserve">
+    <value>クラスター化インデックスから特定の範囲の行をスキャンしています。</value>
+  </data>
+  <data name="DeletedScan" xml:space="preserve">
+    <value>Deleted Scan</value>
+  </data>
+  <data name="DeletedScanDescription" xml:space="preserve">
+    <value>トリガー内の疑似テーブル 'deleted' をスキャンしています。</value>
+  </data>
+  <data name="InsertedScan" xml:space="preserve">
+    <value>Inserted Scan</value>
+  </data>
+  <data name="InsertedScanDescription" xml:space="preserve">
+    <value>トリガー内の疑似テーブル 'inserted' をスキャンします。</value>
+  </data>
+  <data name="ParameterTableScan" xml:space="preserve">
+    <value>Parameter Table Scan</value>
+  </data>
+  <data name="ParameterTableScanDescription" xml:space="preserve">
+    <value>パラメーター値の内部テーブルをスキャンします。</value>
+  </data>
+  <data name="IndexScan" xml:space="preserve">
+    <value>Index Scan</value>
+  </data>
+  <data name="IndexScanDescription" xml:space="preserve">
+    <value>非クラスター化インデックスを全体的に、または特定の範囲だけスキャンします。</value>
+  </data>
+  <data name="IndexSeek" xml:space="preserve">
+    <value>Index Seek</value>
+  </data>
+  <data name="IndexSeekDescription" xml:space="preserve">
+    <value>非クラスター化インデックスから特定範囲の行をスキャンします。</value>
+  </data>
+  <data name="ColumnstoreIndexScan" xml:space="preserve">
+    <value>Columnstore Index Scan</value>
+  </data>
+  <data name="ColumnstoreIndexScanDescription" xml:space="preserve">
+    <value>列ストア インデックスを全体的に、または特定の範囲だけスキャンします。</value>
+  </data>
+  <data name="ColumnstoreIndexUpdate" xml:space="preserve">
+    <value>Columnstore Index Update</value>
+  </data>
+  <data name="ColumnstoreIndexUpdateDescription" xml:space="preserve">
+    <value>列ストア インデックスの行を更新します。</value>
+  </data>
+  <data name="ColumnstoreIndexInsert" xml:space="preserve">
+    <value>Columnstore Index Insert</value>
+  </data>
+  <data name="ColumnstoreIndexInsertDescription" xml:space="preserve">
+    <value>列ストア インデックスに行を挿入します。</value>
+  </data>
+  <data name="ColumnstoreIndexMerge" xml:space="preserve">
+    <value>Columnstore Index Merge</value>
+  </data>
+  <data name="ColumnstoreIndexMergeDescription" xml:space="preserve">
+    <value>列ストア インデックスの行をマージします。</value>
+  </data>
+  <data name="ColumnstoreIndexDelete" xml:space="preserve">
+    <value>Columnstore Index Delete</value>
+  </data>
+  <data name="ColumnstoreIndexDeleteDescription" xml:space="preserve">
+    <value>列ストア インデックスから行を削除します。</value>
+  </data>
+  <data name="RemoteScan" xml:space="preserve">
+    <value>Remote Scan</value>
+  </data>
+  <data name="RemoteScanDescription" xml:space="preserve">
+    <value>現在のデータベース サーバー以外のデータベースまたはファイルに保存されているテーブルの行をスキャンします。</value>
+  </data>
+  <data name="RemoteIndexScan" xml:space="preserve">
+    <value>Remote Index Scan</value>
+  </data>
+  <data name="RemoteIndexScanDescription" xml:space="preserve">
+    <value>現在のデータベース サーバー以外のデータベースまたはファイルに保存されているインデックスをスキャンします。</value>
+  </data>
+  <data name="RemoteIndexSeek" xml:space="preserve">
+    <value>Remote Index Seek</value>
+  </data>
+  <data name="RemoteIndexSeekDescription" xml:space="preserve">
+    <value>現在のデータベース サーバー以外のデータベースまたはファイルに保存されているクラスター化インデックスから特定の範囲の行をスキャンします。</value>
+  </data>
+  <data name="RemoteInsert" xml:space="preserve">
+    <value>Remote Insert</value>
+  </data>
+  <data name="RemoteInsertDescription" xml:space="preserve">
+    <value>現在のデータベース サーバー以外のデータベースまたはファイルに保存されているテーブルに行を挿入します。</value>
+  </data>
+  <data name="RemoteUpdate" xml:space="preserve">
+    <value>Remote Update</value>
+  </data>
+  <data name="RemoteUpdateDescription" xml:space="preserve">
+    <value>現在のデータベース サーバー以外のデータベースまたはファイルに保存されているテーブルの行を更新します。</value>
+  </data>
+  <data name="RemoteDelete" xml:space="preserve">
+    <value>Remote Delete</value>
+  </data>
+  <data name="RemoteDeleteDescription" xml:space="preserve">
+    <value>現在のデータベース サーバー以外のデータベースまたはファイルに保存されているテーブルの行を削除します。</value>
+  </data>
+  <data name="ClusteredUpdate" xml:space="preserve">
+    <value>Clustered Update</value>
+  </data>
+  <data name="ClusteredUpdateDescription" xml:space="preserve">
+    <value>クラスター化された更新です。</value>
+  </data>
+  <data name="SortDescription" xml:space="preserve">
+    <value>入力を並べ替えます。</value>
+  </data>
+  <data name="TableSpoolDescription" xml:space="preserve">
+    <value>巻き戻しを最適化するため、入力側のデータを一時テーブルに保存します。</value>
+  </data>
+  <data name="IndexSpool" xml:space="preserve">
+    <value>Index Spool</value>
+  </data>
+  <data name="IndexSpoolDescription" xml:space="preserve">
+    <value>入力されたデータを一時インデックスに再フォーマットします。一時インデックスは指定されたシーク述語でシークするために使用します。</value>
+  </data>
+  <data name="TableUpdate" xml:space="preserve">
+    <value>Table Update</value>
+  </data>
+  <data name="TableUpdateDescription" xml:space="preserve">
+    <value>引数フィールドで指定したテーブルの入力行を更新します。</value>
+  </data>
+  <data name="TableInsert" xml:space="preserve">
+    <value>Table Insert</value>
+  </data>
+  <data name="TableInsertDescription" xml:space="preserve">
+    <value>引数フィールドで指定したテーブルに入力行を挿入します。</value>
+  </data>
+  <data name="TableDelete" xml:space="preserve">
+    <value>Table Delete</value>
+  </data>
+  <data name="TableDeleteDescription" xml:space="preserve">
+    <value>引数フィールドで指定したテーブルから入力行を削除します。</value>
+  </data>
+  <data name="TableMerge" xml:space="preserve">
+    <value>Table Merge</value>
+  </data>
+  <data name="TableMergeDescription" xml:space="preserve">
+    <value>引数フィールドで指定したテーブルの入力行をマージします。</value>
+  </data>
+  <data name="IndexUpdate" xml:space="preserve">
+    <value>Index Update</value>
+  </data>
+  <data name="IndexUpdateDescription" xml:space="preserve">
+    <value>インデックスの行を更新します。</value>
+  </data>
+  <data name="IndexInsert" xml:space="preserve">
+    <value>Index Insert</value>
+  </data>
+  <data name="IndexInsertDescription" xml:space="preserve">
+    <value>インデックスに行を挿入します。</value>
+  </data>
+  <data name="IndexDelete" xml:space="preserve">
+    <value>Index Delete</value>
+  </data>
+  <data name="IndexDeleteDescription" xml:space="preserve">
+    <value>インデックスから行を削除します。</value>
+  </data>
+  <data name="ClusteredIndexUpdate" xml:space="preserve">
+    <value>Clustered Index Update</value>
+  </data>
+  <data name="ClusteredIndexUpdateDescription" xml:space="preserve">
+    <value>クラスター化インデックスの行を更新します。</value>
+  </data>
+  <data name="ClusteredIndexInsert" xml:space="preserve">
+    <value>Clustered Index Insert</value>
+  </data>
+  <data name="ClusteredIndexInsertDescription" xml:space="preserve">
+    <value>クラスター化インデックスに行を挿入します。</value>
+  </data>
+  <data name="ClusteredIndexMerge" xml:space="preserve">
+    <value>Clustered Index Merge</value>
+  </data>
+  <data name="ClusteredIndexMergeDescription" xml:space="preserve">
+    <value>クラスター化インデックスの行をマージします。</value>
+  </data>
+  <data name="ClusteredIndexDelete" xml:space="preserve">
+    <value>Clustered Index Delete</value>
+  </data>
+  <data name="ClusteredIndexDeleteDescription" xml:space="preserve">
+    <value>クラスター化インデックスから行を削除します。</value>
+  </data>
+  <data name="TopDescription" xml:space="preserve">
+    <value>順序を並べ替えて最初の数行を選択します。</value>
+  </data>
+  <data name="BitmapDescription" xml:space="preserve">
+    <value>ビットマップ。</value>
+  </data>
+  <data name="UDX" xml:space="preserve">
+    <value>UDX</value>
+  </data>
+  <data name="UDXDescription" xml:space="preserve">
+    <value>UDX。</value>
+  </data>
+  <data name="WindowDescription" xml:space="preserve">
+    <value>各行を、その行が関連付けられているウィンドウを表す行のセットに展開します。</value>
+  </data>
+  <data name="WindowAggregate" xml:space="preserve">
+    <value>ウィンドウ集約</value>
+  </data>
+  <data name="WindowAggregateDescription" xml:space="preserve">
+    <value>OVER 句で定義されたウィンドウに対して関数の値を計算します。入力行セットは、適切に並べ替えられたストリームです。</value>
+  </data>
+  <data name="BatchHashTableBuildDescription" xml:space="preserve">
+    <value>バッチのハッシュ テーブルの構築。</value>
+  </data>
+  <data name="Switch" xml:space="preserve">
+    <value>Switch</value>
+  </data>
+  <data name="SwitchDescription" xml:space="preserve">
+    <value>切り替え。</value>
+  </data>
+  <data name="TFP" xml:space="preserve">
+    <value>Predict</value>
+  </data>
+  <data name="TFPDescription" xml:space="preserve">
+    <value>トレーニング済みの機械学習モデルを入力データに適用します	</value>
+  </data>
+  <data name="TableValueFunction" xml:space="preserve">
+    <value>Table Valued Function</value>
+  </data>
+  <data name="TableValueFunctionDescription" xml:space="preserve">
+    <value>テーブル値を持つ関数です。</value>
+  </data>
+  <data name="Aggregate" xml:space="preserve">
+    <value>Aggregate</value>
+  </data>
+  <data name="AggregateDescription" xml:space="preserve">
+    <value>SUM、COUNT、MIN、MAX、または AVG に含まれる式を計算します。</value>
+  </data>
+  <data name="ArithmeticExpression" xml:space="preserve">
+    <value>Arithmetic Expression</value>
+  </data>
+  <data name="ArithmeticExpressionDescription" xml:space="preserve">
+    <value>行内の既存の値から新しい値を計算します。</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>削除</value>
+  </data>
+  <data name="DeleteDescription" xml:space="preserve">
+    <value>指定したテーブルの指定した行を削除します。</value>
+  </data>
+  <data name="Insert" xml:space="preserve">
+    <value>Insert</value>
+  </data>
+  <data name="InsertDescription" xml:space="preserve">
+    <value>テーブルに行を追加します。</value>
+  </data>
+  <data name="Locate" xml:space="preserve">
+    <value>Locate</value>
+  </data>
+  <data name="LocateDescription" xml:space="preserve">
+    <value>ヒープまたはクラスター化インデックスからすべての行をフェッチしています。</value>
+  </data>
+  <data name="SpoolDescription" xml:space="preserve">
+    <value>クエリの途中結果を一時的に保存しています。</value>
+  </data>
+  <data name="SQL" xml:space="preserve">
+    <value>SQL</value>
+  </data>
+  <data name="SQLDescription" xml:space="preserve">
+    <value>SQL。</value>
+  </data>
+  <data name="Update" xml:space="preserve">
+    <value>更新</value>
+  </data>
+  <data name="UpdateDescription" xml:space="preserve">
+    <value>指定したテーブル内の値を変更します。</value>
+  </data>
+  <data name="Assign" xml:space="preserve">
+    <value>Assign</value>
+  </data>
+  <data name="AssignDescription" xml:space="preserve">
+    <value>参照整合性制約を検証します。</value>
+  </data>
+  <data name="Convert" xml:space="preserve">
+    <value>Convert</value>
+  </data>
+  <data name="ConvertDescription" xml:space="preserve">
+    <value>あるスカラー データ型を別のスカラー データ型に、明示的または暗黙的に変換します。</value>
+  </data>
+  <data name="Declare" xml:space="preserve">
+    <value>Declare</value>
+  </data>
+  <data name="DeclareDescription" xml:space="preserve">
+    <value>ローカル変数を割り当てます。</value>
+  </data>
+  <data name="If" xml:space="preserve">
+    <value>If</value>
+  </data>
+  <data name="IfDescription" xml:space="preserve">
+    <value>式に基づく条件処理。</value>
+  </data>
+  <data name="Intrinsic" xml:space="preserve">
+    <value>Intrinsic</value>
+  </data>
+  <data name="IntrinsicDescription" xml:space="preserve">
+    <value>内部の Transact-SQL 関数を呼び出します。</value>
+  </data>
+  <data name="SetFunction" xml:space="preserve">
+    <value>Set Function</value>
+  </data>
+  <data name="SetFunctionDescription" xml:space="preserve">
+    <value>関数を設定します。</value>
+  </data>
+  <data name="Dynamic" xml:space="preserve">
+    <value>Dynamic</value>
+  </data>
+  <data name="DynamicDescription" xml:space="preserve">
+    <value>他のユーザーが行った変更をすべて表示できるカーソル。</value>
+  </data>
+  <data name="FetchQuery" xml:space="preserve">
+    <value>Fetch Query</value>
+  </data>
+  <data name="FetchQueryDescription" xml:space="preserve">
+    <value>カーソルに対してフェッチが実行されたとき、行の取得に使用するクエリ。</value>
+  </data>
+  <data name="FastForward" xml:space="preserve">
+    <value>Fast Forward</value>
+  </data>
+  <data name="FastForwardDescription" xml:space="preserve">
+    <value>高速順方向。</value>
+  </data>
+  <data name="Keyset" xml:space="preserve">
+    <value>Keyset</value>
+  </data>
+  <data name="KeysetDescription" xml:space="preserve">
+    <value>他のユーザーが行った更新は表示でき、挿入は表示できないカーソル。</value>
+  </data>
+  <data name="PopulationQuery" xml:space="preserve">
+    <value>Population Query</value>
+  </data>
+  <data name="PopulationQueryDescription" xml:space="preserve">
+    <value>カーソルが開かれたとき、カーソルの作業テーブルを作成するために使用するクエリ。</value>
+  </data>
+  <data name="RefreshQuery" xml:space="preserve">
+    <value>クエリの更新</value>
+  </data>
+  <data name="RefreshQueryDescription" xml:space="preserve">
+    <value>フェッチ バッファーに、行の現在データをフェッチします。</value>
+  </data>
+  <data name="Snapshot" xml:space="preserve">
+    <value>Snapshot</value>
+  </data>
+  <data name="SnapshotDescription" xml:space="preserve">
+    <value>他のユーザーが行った変更を表示しないカーソル。</value>
+  </data>
+  <data name="RIDLookup" xml:space="preserve">
+    <value>RID Lookup</value>
+  </data>
+  <data name="RIDLookupDescription" xml:space="preserve">
+    <value>RID Lookup</value>
+  </data>
+  <data name="KeyLookup" xml:space="preserve">
+    <value>Key Lookup</value>
+  </data>
+  <data name="KeyLookupDescription" xml:space="preserve">
+    <value>指定されたクラスター キーを使用して、クラスター化インデックスを持つテーブルを参照します。</value>
+  </data>
+  <data name="LogicalKeyLookup" xml:space="preserve">
+    <value>Key Lookup</value>
+  </data>
+  <data name="AdaptiveJoin" xml:space="preserve">
+    <value>Adaptive Join</value>
+  </data>
+  <data name="AdaptiveJoinDescription" xml:space="preserve">
+    <value>ハッシュ結合と入れ子になったループ間で動的に選択されます。</value>
+  </data>
+  <data name="ForeignKeyReferencesCheck" xml:space="preserve">
+    <value>Foreign Key References Check</value>
+  </data>
+  <data name="ForeignKeyReferencesCheckDescription" xml:space="preserve">
+    <value>削除操作の参照整合性を確認します。</value>
+  </data>
+  <data name="Apply" xml:space="preserve">
+    <value>適用</value>
+  </data>
+  <data name="ApplyDescription" xml:space="preserve">
+    <value>操作を適用します。</value>
+  </data>
+  <data name="Broadcast" xml:space="preserve">
+    <value>Broadcast</value>
+  </data>
+  <data name="BroadcastDescription" xml:space="preserve">
+    <value>データ移動をブロードキャストします。</value>
+  </data>
+  <data name="ComputeToControlNode" xml:space="preserve">
+    <value>計算ノードから制御ノードへ</value>
+  </data>
+  <data name="ComputeToControlNodeDescription" xml:space="preserve">
+    <value>計算ノードから制御ノードへのデータ フローです。</value>
+  </data>
+  <data name="ConstTableGet" xml:space="preserve">
+    <value>Constant Table Get</value>
+  </data>
+  <data name="ConstTableGetDescription" xml:space="preserve">
+    <value>定数テーブルから組を取得します。</value>
+  </data>
+  <data name="ControlToComputeNodes" xml:space="preserve">
+    <value>制御ノードから計算ノードへ</value>
+  </data>
+  <data name="ControlToComputeNodesDescription" xml:space="preserve">
+    <value>制御ノードから計算ノードへのデータ フローです。</value>
+  </data>
+  <data name="ExternalBroadcast" xml:space="preserve">
+    <value>External Broadcast</value>
+  </data>
+  <data name="ExternalBroadcastDescription" xml:space="preserve">
+    <value>外部テーブルのデータ移動をブロードキャストします。</value>
+  </data>
+  <data name="ExternalExport" xml:space="preserve">
+    <value>External Export</value>
+  </data>
+  <data name="ExternalExportDescription" xml:space="preserve">
+    <value>外部テーブルのデータ移動をエクスポートします。</value>
+  </data>
+  <data name="ExternalLocalStreaming" xml:space="preserve">
+    <value>External Local Streaming</value>
+  </data>
+  <data name="ExternalLocalStreamingDescription" xml:space="preserve">
+    <value>外部テーブルとローカル テーブルの間のデータ移動をストリーミングします。</value>
+  </data>
+  <data name="ExternalRoundRobin" xml:space="preserve">
+    <value>External RoundRobin</value>
+  </data>
+  <data name="ExternalRoundRobinDescription" xml:space="preserve">
+    <value>外部テーブルのデータ移動を RoundRobin します。</value>
+  </data>
+  <data name="ExternalShuffle" xml:space="preserve">
+    <value>External Shuffle</value>
+  </data>
+  <data name="ExternalShuffleDescription" xml:space="preserve">
+    <value>外部テーブルのデータ移動をシャッフルします。</value>
+  </data>
+  <data name="Get" xml:space="preserve">
+    <value>Get</value>
+  </data>
+  <data name="GetDescription" xml:space="preserve">
+    <value>組をテーブルから取得します。</value>
+  </data>
+  <data name="GbApply" xml:space="preserve">
+    <value>グループ化と適用</value>
+  </data>
+  <data name="GbApplyDescription" xml:space="preserve">
+    <value>グループ化して適用します。 </value>
+  </data>
+  <data name="GbAgg" xml:space="preserve">
+    <value>Group by Aggregates</value>
+  </data>
+  <data name="GbAggDescription" xml:space="preserve">
+    <value>集計によってグループ化します。</value>
+  </data>
+  <data name="Join" xml:space="preserve">
+    <value>Join</value>
+  </data>
+  <data name="JoinDescription" xml:space="preserve">
+    <value>テーブルを結合します。</value>
+  </data>
+  <data name="LocalCube" xml:space="preserve">
+    <value>Rollup Aggregate</value>
+  </data>
+  <data name="LocalCubeDescription" xml:space="preserve">
+    <value>これは、ROLLUP 操作または CUBE 操作を表します。</value>
+  </data>
+  <data name="Project" xml:space="preserve">
+    <value>プロジェクト</value>
+  </data>
+  <data name="ProjectDescription" xml:space="preserve">
+    <value>プロジェクト列です。</value>
+  </data>
+  <data name="Shuffle" xml:space="preserve">
+    <value>Shuffle</value>
+  </data>
+  <data name="ShuffleDescription" xml:space="preserve">
+    <value>データ移動をシャッフルします。</value>
+  </data>
+  <data name="SingleSourceRoundRobin" xml:space="preserve">
+    <value>Single Source RoundRobin</value>
+  </data>
+  <data name="SingleSourceRoundRobinDescription" xml:space="preserve">
+    <value>データ移動を単一ソースで RoundRobin します。</value>
+  </data>
+  <data name="SingleSourceShuffle" xml:space="preserve">
+    <value>Single Source Shuffle</value>
+  </data>
+  <data name="SingleSourceShuffleDescription" xml:space="preserve">
+    <value>データ移動を単一ソースでシャッフルします。</value>
+  </data>
+  <data name="Trim" xml:space="preserve">
+    <value>Trim</value>
+  </data>
+  <data name="TrimDescription" xml:space="preserve">
+    <value>データをトリミングします。</value>
+  </data>
+  <data name="Union" xml:space="preserve">
+    <value>Union</value>
+  </data>
+  <data name="UnionDescription" xml:space="preserve">
+    <value>テーブルの和集合を作ります。</value>
+  </data>
+  <data name="UnionAll" xml:space="preserve">
+    <value>Union All</value>
+  </data>
+  <data name="UnionAllDescription" xml:space="preserve">
+    <value>すべてのテーブルの和集合を作ります。</value>
+  </data>
+  <data name="NameValuePair" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="SizeInBytesFormat" xml:space="preserve">
+    <value>{0} B</value>
+  </data>
+  <data name="SizeInKiloBytesFormat" xml:space="preserve">
+    <value>{0} KB</value>
+  </data>
+  <data name="SizeInMegaBytesFormat" xml:space="preserve">
+    <value>{0} MB</value>
+  </data>
+  <data name="SizeInGigaBytesFormat" xml:space="preserve">
+    <value>{0} GB</value>
+  </data>
+  <data name="SizeInTeraBytesFormat" xml:space="preserve">
+    <value>{0} TB</value>
+  </data>
+  <data name="TableNotInitializedException" xml:space="preserve">
+    <value>ID '{0}' のテーブルの初期化が正しく行われていません</value>
+  </data>
+  <data name="TableColumnIdentityGroupName" xml:space="preserve">
+    <value>ID の指定</value>
+  </data>
+  <data name="TableColumnIsIdentityPropertyTitle" xml:space="preserve">
+    <value>ID です</value>
+  </data>
+  <data name="TableColumnIsIdentityPropertyDescription" xml:space="preserve">
+    <value>列がテーブルの ID 列かどうかを指定します。</value>
+  </data>
+  <data name="TableColumnIdentityIncrementPropertyTitle" xml:space="preserve">
+    <value>ID の増分値</value>
+  </data>
+  <data name="TableColumnIdentityIncrementPropertyDescription" xml:space="preserve">
+    <value>次の ID 値を生成するときに既存の行の最大の ID 値に追加される値を表示します。</value>
+  </data>
+  <data name="TableColumnIdentitySeedPropertyTitle" xml:space="preserve">
+    <value>ID シード</value>
+  </data>
+  <data name="TableColumnIdentitySeedPropertyDescription" xml:space="preserve">
+    <value>ID 列の最初の行の値を表示します。</value>
+  </data>
+  <data name="TableEditPathNotProvidedException" xml:space="preserve">
+    <value>テーブル変更情報のパスを空にすることはできません</value>
+  </data>
+  <data name="InvalidTableEditPathException" xml:space="preserve">
+    <value>テーブル変更情報のパス '{0}' が編集の種類に対して無効です: '{1}'</value>
+  </data>
+  <data name="OperatorDisplayCost" xml:space="preserve">
+    <value>{0:0.#######} ({1}%)</value>
+  </data>
+  <data name="ActualOfEstimated" xml:space="preserve">
+    <value>{0} /
+{1} ({2}%)</value>
+  </data>
+  <data name="TableDesignerIsEnabledPropertyTitle" xml:space="preserve">
+    <value>有効である</value>
+  </data>
+  <data name="ForeignKeyIsEnabledDescription" xml:space="preserve">
+    <value>外部キーが有効かどうか。</value>
+  </data>
+  <data name="ForeignKeyIsNotForReplicationTitle" xml:space="preserve">
+    <value>レプリケーションでは使用しない</value>
+  </data>
+  <data name="ForeignKeyIsNotForReplicationDescription" xml:space="preserve">
+    <value>レプリケーション プロセスによって挿入されたデータの IDENTITY 制約を有効または無効にします。</value>
+  </data>
+  <data name="SqlForeignKeyAction_NoAction" xml:space="preserve">
+    <value>アクションなし</value>
+  </data>
+  <data name="SqlForeignKeyAction_Cascade" xml:space="preserve">
+    <value>重ねて表示</value>
+  </data>
+  <data name="SqlForeignKeyAction_SetNull" xml:space="preserve">
+    <value>NULL を設定</value>
+  </data>
+  <data name="SqlForeignKeyAction_SetDefault" xml:space="preserve">
+    <value>既定値を設定</value>
+  </data>
+  <data name="UnKnownSqlForeignKeyAction" xml:space="preserve">
+    <value>'{0}' はサポートされている SqlForeignKeyAction ではありません。</value>
+  </data>
+  <data name="CheckConstraintIsEnabledDescription" xml:space="preserve">
+    <value>CHECK 制約を有効にするかどうかを指定</value>
   </data>
 </root>
