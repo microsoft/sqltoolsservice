@@ -392,7 +392,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
             SqlStoreConnection connection = new SqlStoreConnection(sqlConnection);
             BaseXEStore store = CreateXEventStore(connInfo, connection);
-            ConnectionDetails newConnectionDetails = CreateXEliteConnectionDetails(connInfo.ConnectionDetails);
             Session session = store.Sessions[sessionName];
 
             // start the session if it isn't already running
@@ -409,7 +408,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             // create xevent session wrapper
             return new XEventSession()
             {
-                ConnDetails = newConnectionDetails,
+                ConnectionDetails = CreateXEliteConnectionDetails(connInfo.ConnectionDetails),
                 Session = session
             };
         }

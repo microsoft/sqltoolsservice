@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// <summary>
         /// Connection details associated with the session id.
         /// </summary>
-        ConnectionDetails ConnDetails { get; set; }
+        ConnectionDetails ConnectionDetails { get; set; }
 
         /// <summary>
         /// Session associated with the session id.

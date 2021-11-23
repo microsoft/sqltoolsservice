@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
     /// </summary>
     public class ProfilerSession
     {
-        private bool isStreaming = false;
+        public bool isStreaming = false;
         private ProfilerEvent lastSeenEvent = null;
 
         private bool eventsLost = false;
@@ -42,16 +42,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             {
                 return this.eventsLost;
             }
-        }
-
-        /// <summary>
-        /// Functions for marking and retrieving the status of the ProfilerSession having an active XELite stream running. 
-        /// </summary>
-        public void enableStreamLock(){
-            this.isStreaming = true;
-        }
-        public void disableStreamLock(){
-            this.isStreaming = false;
         }
 
         public bool isStreamActive(){

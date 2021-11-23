@@ -5696,6 +5696,12 @@
         <target state="new">Specifies whether the check constraint is Enabled</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="SessionMissingDetails">
+        <source>Session ID: {0} failed due to unexpectedly missing required information details.</source>
+        <target state="new">Session ID: {0} failed due to unexpectedly missing required information details.</target>
+        <note>.
+ Parameters: 0 - id (int) </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

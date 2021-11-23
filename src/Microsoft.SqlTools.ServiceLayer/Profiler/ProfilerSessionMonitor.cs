@@ -65,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
         }
 
-        public bool StartMonitoringSession(string viewerId, IXEventSession session)
+        public void StartMonitoringSession(string viewerId, IXEventSession session)
         {
             lock (this.sessionsLock)
             {
@@ -109,8 +109,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     sessionViewers.Add(session.Id, viewers);
                 }
             }
-
-            return true;
         }
 
         /// <summary>
@@ -159,7 +157,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 if (this.monitoredSessions.Remove(sessionId, out session) && session.isStreamActive())
                 {
                     // Toggle isStreaming status of removed session to not streaming.
-                    session.disableStreamLock();
+                    session.isStreaming = false;
 
                     //remove all viewers for this session
                     List<string> viewerIds;
@@ -247,24 +245,31 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// </summary>
         private void StartStream(int id, ProfilerSession session)
         {
-            CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
-            var connectionString = ConnectionService.BuildConnectionString(session.XEventSession.ConnDetails);
-            var eventStreamer = new XELiveEventStreamer(connectionString, session.XEventSession.Session.Name);
-            //Start streaming task here, will run until cancellation or error with the feed.
-            var task = eventStreamer.ReadEventStream(xEvent => HandleXEvent(xEvent, session), threadCancellationToken.Token);
+            if(session.XEventSession != null  && session.XEventSession.Session != null && session.XEventSession.ConnectionDetails != null){
+                CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
+                var connectionString = ConnectionService.BuildConnectionString(session.XEventSession.ConnectionDetails);
+                var eventStreamer = new XELiveEventStreamer(connectionString, session.XEventSession.Session.Name);
+                // Start streaming task here, will run until cancellation or error with the feed.
+                var task = eventStreamer.ReadEventStream(xEvent => HandleXEvent(xEvent, session), threadCancellationToken.Token);
 
-            task.ContinueWith(t =>
-            {
-                //If cancellation token is missing, that means stream was stopped normally, do not fire error in this case.
-                CancellationTokenSource targetToken;
-                if (monitoredCancellationTokenSources.TryGetValue(id, out targetToken))
+                task.ContinueWith(t =>
                 {
-                    stopSessionError(session.XEventSession.Id);
-                }
-            }, TaskContinuationOptions.OnlyOnFaulted);
+                    //If cancellation token is missing, that means stream was stopped normally, do not fire error in this case.
+                    CancellationTokenSource targetToken;
+                    if (monitoredCancellationTokenSources.TryGetValue(id, out targetToken))
+                    {
+                        stopSessionError(session.XEventSession.Id);
+                    }
+                }, TaskContinuationOptions.OnlyOnFaulted);
 
-            this.monitoredCancellationTokenSources.Add(id, threadCancellationToken);
-            session.enableStreamLock();
+                this.monitoredCancellationTokenSources.Add(id, threadCancellationToken);
+                session.isStreaming = true;
+            }
+            else {
+                ProfilerSession tempSession;
+                RemoveSession(id, out tempSession);
+                throw new Exception(SR.SessionMissingDetails(id));
+            }
         }
 
         /// <summary>

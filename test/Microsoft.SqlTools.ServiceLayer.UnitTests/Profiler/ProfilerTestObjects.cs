@@ -207,7 +207,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
 
         public int Id { get { return 51; } }
 
-        public ConnectionDetails ConnDetails { get; set; }
+        public ConnectionDetails ConnectionDetails { get; set; }
 
         public Session Session { get; set; }
 
@@ -296,7 +296,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
 
         public int Id { get { return 1; } }
 
-        public ConnectionDetails ConnDetails { get; set; }
+        public ConnectionDetails ConnectionDetails { get; set; }
 
         public Session Session { get; set; }
 
@@ -391,7 +391,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
 
         public int Id { get { return 2; } }
 
-        public ConnectionDetails ConnDetails { get; set; }
+        public ConnectionDetails ConnectionDetails { get; set; }
 
         public Session Session { get; set; }
 
