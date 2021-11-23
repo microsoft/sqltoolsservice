@@ -3054,11 +3054,6 @@ namespace Microsoft.Kusto.ServiceLayer
             return Keys.GetString(Keys.EditDataIncorrectTable, tableName);
         }
 
-        public static string CreateSessionFailed(String error)
-        {
-            return Keys.GetString(Keys.CreateSessionFailed, error);
-        }
-
         public static string StartSessionFailed(String error)
         {
             return Keys.GetString(Keys.StartSessionFailed, error);
@@ -4128,9 +4123,6 @@ namespace Microsoft.Kusto.ServiceLayer
 
 
             public const string AzureSystemDbProfilingError = "AzureSystemDbProfilingError";
-
-
-            public const string CreateSessionFailed = "CreateSessionFailed";
 
 
             public const string StartSessionFailed = "StartSessionFailed";

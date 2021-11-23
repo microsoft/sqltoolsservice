@@ -149,7 +149,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 }
                 catch (Exception e)
                 {
-                    await requestContext.SendError(new Exception(SR.CreateSessionFailed(e.Message)));
+                    await requestContext.SendError(e);
                 }
             });
         }
@@ -209,7 +209,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 }
                 catch (Exception e)
                 {
-                    await requestContext.SendError(new Exception(SR.CreateSessionFailed(e.Message)));
+                    await requestContext.SendError(e);
                 }
             });
         }
