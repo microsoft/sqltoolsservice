@@ -154,10 +154,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 {
                     targetToken.Cancel();
                 }
-                if (this.monitoredSessions.Remove(sessionId, out session) && session.isStreaming)
+                if (this.monitoredSessions.Remove(sessionId, out session) && session.IsStreaming)
                 {
                     // Toggle isStreaming status of removed session to not streaming.
-                    session.isStreaming = false;
+                    session.IsStreaming = false;
 
                     //remove all viewers for this session
                     List<string> viewerIds;
@@ -196,7 +196,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     {
                         ProfilerSession session;
                         this.monitoredSessions.TryGetValue(id, out session);
-                        if (!session.isStreaming)
+                        if (!session.IsStreaming)
                         {
                             StartStream(id, session);
                         }
@@ -263,7 +263,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 }, TaskContinuationOptions.OnlyOnFaulted);
 
                 this.monitoredCancellationTokenSources.Add(id, threadCancellationToken);
-                session.isStreaming = true;
+                session.IsStreaming = true;
             }
             else {
                 ProfilerSession tempSession;

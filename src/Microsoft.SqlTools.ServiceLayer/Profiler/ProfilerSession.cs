@@ -17,7 +17,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
     /// </summary>
     public class ProfilerSession
     {
-        public bool isStreaming = false;
+        public bool IsStreaming { get; set; }
+        
         private ProfilerEvent lastSeenEvent = null;
 
         private bool eventsLost = false;
