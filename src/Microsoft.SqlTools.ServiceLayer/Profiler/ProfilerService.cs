@@ -198,7 +198,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                             xeSession = this.XEventSessionFactory.GetXEventSession(parameters.SessionName, connInfo);
                         }
                         catch { 
-                            Logger.Write(TraceEventType.Information, "Session with name '" + parameters.SessionName + "' was not found");
+                            Logger.Write(TraceEventType.Verbose, "Session with name '" + parameters.SessionName + "' was not found");
                         }
 
                         if (xeSession == null)
