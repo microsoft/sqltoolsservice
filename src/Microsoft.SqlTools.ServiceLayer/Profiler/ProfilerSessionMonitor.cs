@@ -4,12 +4,12 @@
 //
 
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.XEvent.XELite;
 using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Profiler
@@ -154,7 +154,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 {
                     targetToken.Cancel();
                 }
-                if (this.monitoredSessions.Remove(sessionId, out session) && session.IsStreaming)
+                if (this.monitoredSessions.Remove(sessionId, out session))
                 {
                     // Toggle isStreaming status of removed session to not streaming.
                     session.IsStreaming = false;
@@ -198,7 +198,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                         this.monitoredSessions.TryGetValue(id, out session);
                         if (!session.IsStreaming)
                         {
-                            StartStream(id, session);
+                            List<string> viewers = this.sessionViewers[session.XEventSession.Id];
+                            if (viewers.Any(v => allViewers[v].active)){
+                                StartStream(id, session);
+                            }
                         }
                     }
                 }

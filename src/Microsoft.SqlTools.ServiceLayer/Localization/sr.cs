@@ -8761,6 +8761,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.SessionMissingDetails, id);
         }
 
+        public static string StartProfilingFailed(String error)
+        {
+            return Keys.GetString(Keys.StartProfilingFailed, error);
+        }
+
         public static string UnknownSizeUnit(string unit)
         {
             return Keys.GetString(Keys.UnknownSizeUnit, unit);
@@ -9950,6 +9955,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string SessionMissingDetails = "SessionMissingDetails";
+
+
+            public const string StartProfilingFailed = "StartProfilingFailed";
 
 
             public const string CategoryLocal = "CategoryLocal";

@@ -1573,9 +1573,14 @@
  Parameters: 0 - sessionName (String) </comment>
   </data>
   <data name="SessionMissingDetails" xml:space="preserve">
-    <value>Session ID: {0} failed due to unexpectedly missing required information details.</value>
+    <value>Unable to start streaming session {0} due to missing session details.</value>
     <comment>.
  Parameters: 0 - id (int) </comment>
+  </data>
+  <data name="StartProfilingFailed" xml:space="preserve">
+    <value>Failed to start profiler: {0}</value>
+    <comment>.
+ Parameters: 0 - error (String) </comment>
   </data>
   <data name="CategoryLocal" xml:space="preserve">
     <value>[Uncategorized (Local)]</value>

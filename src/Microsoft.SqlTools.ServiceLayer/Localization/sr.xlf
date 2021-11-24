@@ -5697,10 +5697,16 @@
         <note></note>
       </trans-unit>
       <trans-unit id="SessionMissingDetails">
-        <source>Session ID: {0} failed due to unexpectedly missing required information details.</source>
-        <target state="new">Session ID: {0} failed due to unexpectedly missing required information details.</target>
+        <source>Unable to start streaming session {0} due to missing session details.</source>
+        <target state="new">Unable to start streaming session {0} due to missing session details.</target>
         <note>.
  Parameters: 0 - id (int) </note>
+      </trans-unit>
+      <trans-unit id="StartProfilingFailed">
+        <source>Failed to start profiler: {0}</source>
+        <target state="new">Failed to start profiler: {0}</target>
+        <note>.
+ Parameters: 0 - error (String) </note>
       </trans-unit>
     </body>
   </file>

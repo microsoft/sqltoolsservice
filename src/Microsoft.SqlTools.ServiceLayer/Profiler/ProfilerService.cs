@@ -130,6 +130,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             {
                 try
                 {
+                    Logger.Write(TraceEventType.Verbose, "HandleStartProfilingRequest started");
                     ConnectionInfo connInfo;
                     ConnectionServiceInstance.TryFindConnection(
                         parameters.OwnerUri,
@@ -144,12 +145,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     }
                     else 
                     {
+                        Logger.Write(TraceEventType.Error, "Connection Info could not be found for " + parameters.OwnerUri);
                         throw new Exception(SR.ProfilerConnectionNotFound);
                     }
                 }
                 catch (Exception e)
                 {
-                    await requestContext.SendError(new Exception (SR.CreateSessionFailed(e.Message), e));
+                    await requestContext.SendError(new Exception (SR.StartProfilingFailed(e.Message), e));
                 }
             });
         }
