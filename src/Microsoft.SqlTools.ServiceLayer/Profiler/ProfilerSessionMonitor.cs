@@ -156,7 +156,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 }
                 if (this.monitoredSessions.Remove(sessionId, out session))
                 {
-                    // Toggle isStreaming status of removed session to not streaming.
                     session.IsStreaming = false;
 
                     //remove all viewers for this session
@@ -211,7 +210,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// <summary>
         /// Helper function used to process the XEvent feed from a session's stream.
         /// </summary>
-        internal async Task HandleXEvent(IXEvent xEvent, ProfilerSession session)
+        private async Task HandleXEvent(IXEvent xEvent, ProfilerSession session)
         {
             ProfilerEvent profileEvent = new ProfilerEvent(xEvent.Name, xEvent.Timestamp.ToString());
             foreach (var kvp in xEvent.Fields)
