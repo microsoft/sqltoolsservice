@@ -205,7 +205,7 @@
     <value>Указанный запрос не существует</value>
   </data>
   <data name="QueryServiceQueryInvalidOwnerUri" xml:space="preserve">
-    <value>Этот редактор не подключен к базе данных</value>
+    <value>Невозможно подключиться к базе данных из-за недопустимого значения OwnerUri</value>
   </data>
   <data name="QueryServiceQueryInProgress" xml:space="preserve">
     <value>Запрос уже выполняется для этого сеанса редактора. Отмените запрос или дождитесь завершения его выполнения.</value>
@@ -1063,7 +1063,7 @@
     <value>Azure SQL Stretch Database</value>
   </data>
   <data name="AzureSqlAnalyticsOnDemandEdition" xml:space="preserve">
-    <value>Аналитика SQL Azure On-Demand</value>
+    <value>Аналитика SQL Azure по требованию</value>
   </data>
   <data name="EditDataValueTooLarge" xml:space="preserve">
     <value>Значение {0} слишком велико, чтобы уместиться в столбце типа {1}</value>
@@ -1078,7 +1078,7 @@
     <value>Отсутствует шкала для скалярного столбца</value>
   </data>
   <data name="StoredProcedureScriptParameterComment" xml:space="preserve">
-    <value>--Список задач: задать значения параметров.</value>
+    <value>-- TODO: Set parameter values here.</value>
   </data>
   <data name="ScriptingGeneralError" xml:space="preserve">
     <value>Ошибка при выполнении скрипта с данными объектами.</value>
@@ -1329,6 +1329,63 @@
   <data name="SqlCmdUnsupportedToken" xml:space="preserve">
     <value>Обнаружен неподдерживаемый токен {0}.</value>
   </data>
+  <data name="SqlAssessmentGenerateScriptTaskName" xml:space="preserve">
+    <value>Создание сценария для Оценки SQL</value>
+  </data>
+  <data name="SqlAssessmentQueryInvalidOwnerUri" xml:space="preserve">
+    <value>Отсутствует соединение с сервером.</value>
+  </data>
+  <data name="SqlAssessmentConnectingError" xml:space="preserve">
+    <value>Не удалось подключиться к серверу.</value>
+  </data>
+  <data name="SqlAssessmentUnsuppoertedEdition" xml:space="preserve">
+    <value>Неподдерживаемый выпуск подсистемы {0}</value>
+  </data>
+  <data name="ParameterizationDetails" xml:space="preserve">
+    <value>Будет выполнено преобразование {0} в объект Microsoft.Data.SqlClient.SqlParameter со следующими свойствами: SqlDbType = {1}, Size = {2}, Precision = {3}, Scale = {4}, SqlValue = {5}.</value>
+  </data>
+  <data name="ErrorMessageHeader" xml:space="preserve">
+    <value>Строка {0}</value>
+  </data>
+  <data name="ErrorMessage" xml:space="preserve">
+    <value>Невозможно преобразовать {0} в объект Microsoft.Data.SqlClient.SqlParameter. Указанный литерал не может быть преобразован в {1}(Microsoft.Data.SqlDbType). Значение литерала: {2}. </value>
+  </data>
+  <data name="DateTimeErrorMessage" xml:space="preserve">
+    <value>Невозможно преобразовать {0} в объект Microsoft.Data.SqlClient.SqlParameter. Указанный литерал не может быть преобразован в {1}(Microsoft.Data.SqlDbType), так как он использует неподдерживаемый формат даты и времени. Используйте один из поддерживаемых форматов. Значение литерала: {2}.</value>
+  </data>
+  <data name="BinaryLiteralPrefixMissingError" xml:space="preserve">
+    <value>Невозможно преобразовать {0} в объект Microsoft.Data.SqlClient.SqlParameter. Указанный литерал не может быть преобразован в {1}(Microsoft.Data.SqlDbType), так как для двоичных литералов ожидается префикс 0x. Значение литерала: {2}. </value>
+  </data>
+  <data name="ParsingErrorHeader" xml:space="preserve">
+    <value>Строка {0}, столбец {1}</value>
+  </data>
+  <data name="ScriptTooLarge" xml:space="preserve">
+    <value>Текущий сценарий слишком большой, чтобы использовать параметризацию для Always Encrypted. Отключите ее в разделе "Запрос" &gt; "Параметры запроса" &gt; "Выполнение" &gt; "Дополнительно". Максимально допустимая длина сценария в символах: {0}. Текущая длина: {1}</value>
+  </data>
+  <data name="ProjectExtractTaskName" xml:space="preserve">
+    <value>Извлечение файлов проекта</value>
+  </data>
+  <data name="ValidateStreamingJobTaskName" xml:space="preserve">
+    <value>Проверка задания потоковой передачи</value>
+  </data>
+  <data name="StreamNotFoundInModel" xml:space="preserve">
+    <value>Инструкция запроса потоковой передачи содержит ссылку на отсутствующий поток "{1}" типа {0}. Добавьте его в модель базы данных.</value>
+  </data>
+  <data name="Input" xml:space="preserve">
+    <value>входные данные</value>
+  </data>
+  <data name="Output" xml:space="preserve">
+    <value>выходные данные</value>
+  </data>
+  <data name="StreamingJobValidationFailed" xml:space="preserve">
+    <value>Сбой проверки внешнего задания потоковой передачи "{0}":</value>
+  </data>
+  <data name="FragmentShouldHaveOnlyOneBatch" xml:space="preserve">
+    <value>Фрагмент T-SQL должен содержать ровно один пакет.</value>
+  </data>
+  <data name="NoCreateStreamingJobStatementFound" xml:space="preserve">
+    <value>Не найден код T-SQL для создания внешнего задания потоковой передачи (инструкция EXEC sp_create_streaming_job).</value>
+  </data>
   <data name="CouldntFindAzureFunction" xml:space="preserve">
     <value>Не удалось найти функцию Azure с FunctionName "{0}" в файле {1}.</value>
   </data>
@@ -1337,5 +1394,2109 @@
   </data>
   <data name="SqlBindingsNet5NotSupported" xml:space="preserve">
     <value>Добавление привязок SQL не поддерживается для .NET 5</value>
+  </data>
+  <data name="Statement" xml:space="preserve">
+    <value>Инструкция</value>
+  </data>
+  <data name="StatementDesc" xml:space="preserve">
+    <value>В большинстве случаев содержит текст инструкции Transact-SQL. Для строк типа PLAN_ROW содержит описание операции.</value>
+  </data>
+  <data name="PhysicalOperation" xml:space="preserve">
+    <value>Физическая операция</value>
+  </data>
+  <data name="PhysicalOperationDesc" xml:space="preserve">
+    <value>Физическая реализация алгоритма для узла. Только для строк типа PLAN_ROWS.</value>
+  </data>
+  <data name="LogicalOperation" xml:space="preserve">
+    <value>Логическая операция</value>
+  </data>
+  <data name="LogicalOperationDesc" xml:space="preserve">
+    <value>Оператор реляционной алгебры, которому соответствует данный узел. Только для строк типа PLAN_ROWS.</value>
+  </data>
+  <data name="OperationDescriptionShort" xml:space="preserve">
+    <value>Описание</value>
+  </data>
+  <data name="OperationDescription" xml:space="preserve">
+    <value>Описание операции.</value>
+  </data>
+  <data name="OperationArgumentShort" xml:space="preserve">
+    <value>Аргумент</value>
+  </data>
+  <data name="OperationArgumentDescription" xml:space="preserve">
+    <value>Предоставляет дополнительные сведения о выполняемой операции. Содержимое этого столбца зависит от физического оператора.</value>
+  </data>
+  <data name="ObjectShort" xml:space="preserve">
+    <value>Объект</value>
+  </data>
+  <data name="ObjectDescription" xml:space="preserve">
+    <value>Объект.</value>
+  </data>
+  <data name="IndexKind" xml:space="preserve">
+    <value>Тип индекса</value>
+  </data>
+  <data name="IndexKindDescription" xml:space="preserve">
+    <value>Тип индекса для объекта, на который имеется ссылка.</value>
+  </data>
+  <data name="DefinedValues" xml:space="preserve">
+    <value>Определенные значения</value>
+  </data>
+  <data name="DefinedValuesDescription" xml:space="preserve">
+    <value>Содержит список значений с разделителями-запятыми, вводимых данным оператором, которые могут представлять собой выражения в данном запросе или внутренние значения, введенные обработчиком запросов для обработки данного запроса. Только для строк типа PLAN_ROWS.</value>
+  </data>
+  <data name="OutputList" xml:space="preserve">
+    <value>Список выходных столбцов</value>
+  </data>
+  <data name="OutputListDescription" xml:space="preserve">
+    <value>Содержит разделенный запятыми список столбцов, проецируемых текущей операцией.</value>
+  </data>
+  <data name="Warnings" xml:space="preserve">
+    <value>Предупреждения</value>
+  </data>
+  <data name="WarningsDescription" xml:space="preserve">
+    <value>Содержит разделенный запятыми список предупреждений, относящихся к текущей операции. Предупреждения могут содержать строку "NO STATS:()" со списком столбцов.</value>
+  </data>
+  <data name="Parallel" xml:space="preserve">
+    <value>Параллельно</value>
+  </data>
+  <data name="ParallelDescription" xml:space="preserve">
+    <value>Выполняется ли оператор в параллельном режиме.</value>
+  </data>
+  <data name="EstimatedNumberOfRowsPerExecution" xml:space="preserve">
+    <value>Расчетное число строк на выполнение</value>
+  </data>
+  <data name="EstimatedNumberOfRowsPerExecutionDescription" xml:space="preserve">
+    <value>Расчетное число строк в выходных данных каждого выполнения этого оператора. Только для PLAN_ROWS.</value>
+  </data>
+  <data name="EstimatedNumberOfRowsForAllExecutions" xml:space="preserve">
+    <value>Расчетное число строк для всех выполнений</value>
+  </data>
+  <data name="EstimatedNumberOfRowsForAllExecutionsDescription" xml:space="preserve">
+    <value>Расчетное число строк в выходных данных всех выполнений этого оператора. Только для PLAN_ROWS.</value>
+  </data>
+  <data name="EstimatedRowsRead" xml:space="preserve">
+    <value>Приблизительное число считываемых строк</value>
+  </data>
+  <data name="EstimatedRowsReadDescription" xml:space="preserve">
+    <value>Расчетное число строк, считываемое этим оператором. Это значение может отличаться от "Расчетного числа строк для всех выполнений", если у оператора есть предикат.</value>
+  </data>
+  <data name="IsGraphDBTransitiveClosure" xml:space="preserve">
+    <value>Является транзитивным замыканием GraphDB</value>
+  </data>
+  <data name="IsGraphDBTransitiveClosureDescription" xml:space="preserve">
+    <value>Представляет ли последовательность транзитивное замыкание GraphDB.</value>
+  </data>
+  <data name="IsInterleavedExecuted" xml:space="preserve">
+    <value>Выполняется с чередованием</value>
+  </data>
+  <data name="IsInterleavedExecutedDescription" xml:space="preserve">
+    <value>Выполняется ли оператор с чередованием.</value>
+  </data>
+  <data name="IsAdaptive" xml:space="preserve">
+    <value>Адаптивный</value>
+  </data>
+  <data name="IsAdaptiveDescription" xml:space="preserve">
+    <value>Является ли оператор адаптивным.</value>
+  </data>
+  <data name="AdaptiveThresholdRows" xml:space="preserve">
+    <value>Строки адаптивного порогового значения</value>
+  </data>
+  <data name="AdaptiveThresholdRowsDescription" xml:space="preserve">
+    <value>Если это адаптивный оператор, кратность адаптации.</value>
+  </data>
+  <data name="EstimatedJoinType" xml:space="preserve">
+    <value>Оценка типа соединения</value>
+  </data>
+  <data name="EstimatedJoinTypeDescription" xml:space="preserve">
+    <value>Тип соединения (соединение вложенными циклами или хэш-соединение), вычисляемый оптимизатором запросов перед адаптацией.</value>
+  </data>
+  <data name="ActualJoinType" xml:space="preserve">
+    <value>Фактический тип соединения</value>
+  </data>
+  <data name="ActualJoinTypeDescription" xml:space="preserve">
+    <value>Выбранное фактическое соединение (соединение вложенными циклами или хэш-соединение) в рамках адаптивного соединения.</value>
+  </data>
+  <data name="EstimatedRowSize" xml:space="preserve">
+    <value>Предполагаемый размер строки</value>
+  </data>
+  <data name="EstimatedRowSizeDescription" xml:space="preserve">
+    <value>Предполагаемый средний размер строк, передаваемых через данный оператор.</value>
+  </data>
+  <data name="EstimatedIoCost" xml:space="preserve">
+    <value>Предполагаемая стоимость операций ввода-вывода</value>
+  </data>
+  <data name="EstimatedIoCostDescription" xml:space="preserve">
+    <value>Предполагаемая стоимость операций ввода-вывода для данного оператора. Только для строк типа PLAN_ROWS.</value>
+  </data>
+  <data name="EstimatedCpuCost" xml:space="preserve">
+    <value>Предполагаемая стоимость ЦП</value>
+  </data>
+  <data name="EstimatedCpuCostDescription" xml:space="preserve">
+    <value>Предполагаемая стоимость процессорного ресурса для данного оператора. Только для строк типа PLAN_ROWS.</value>
+  </data>
+  <data name="EstimatedNumberOfExecutions" xml:space="preserve">
+    <value>Предполагаемое количество выполнений</value>
+  </data>
+  <data name="EstimatedNumberOfExecutionsDescription" xml:space="preserve">
+    <value>Предполагаемое количество вызовов данного оператора при выполнении данного запроса.</value>
+  </data>
+  <data name="EstimatedOperatorCost" xml:space="preserve">
+    <value>Предполагаемая стоимость оператора</value>
+  </data>
+  <data name="EstimatedOperatorCostDescription" xml:space="preserve">
+    <value>Предполагаемая стоимость данного оператора.</value>
+  </data>
+  <data name="EstimatedSubtreeCost" xml:space="preserve">
+    <value>Предполагаемая стоимость поддерева</value>
+  </data>
+  <data name="EstimatedSubtreeCostDescription" xml:space="preserve">
+    <value>Предполагаемая совокупная стоимость данной операции и всех дочерних операций.</value>
+  </data>
+  <data name="NumberOfRows" xml:space="preserve">
+    <value>Фактическое число строк для всех выполнений</value>
+  </data>
+  <data name="NumberOfRowsDescription" xml:space="preserve">
+    <value>Фактическое число строк в выходных данных всех выполнений этого оператора. Только для строк типа PLAN_ROWS.</value>
+  </data>
+  <data name="ActualRowsRead" xml:space="preserve">
+    <value>Количество прочитанных строк</value>
+  </data>
+  <data name="ActualRowsReadDescription" xml:space="preserve">
+    <value>Количество строк, прочитанных из таблицы или индекса перед применением фильтра предиката. Только для строк типа PLAN_ROWS.</value>
+  </data>
+  <data name="NumberOfBatches" xml:space="preserve">
+    <value>Фактическое количество пакетов</value>
+  </data>
+  <data name="NumberOfBatchesDescription" xml:space="preserve">
+    <value>Фактический объем выходных данных пакетов от этого оператора.</value>
+  </data>
+  <data name="NumberOfExecutions" xml:space="preserve">
+    <value>Количество выполнений</value>
+  </data>
+  <data name="NumberOfExecutionsDescription" xml:space="preserve">
+    <value>Количество вызовов данного оператора при выполнении данного запроса.</value>
+  </data>
+  <data name="EstimatedDataSize" xml:space="preserve">
+    <value>Предполагаемый объем данных</value>
+  </data>
+  <data name="EstimatedDataSizeDescription" xml:space="preserve">
+    <value>Предполагаемый объем данных, передаваемых через данный оператор.</value>
+  </data>
+  <data name="ParameterList" xml:space="preserve">
+    <value>Список параметров</value>
+  </data>
+  <data name="ParameterListDescription" xml:space="preserve">
+    <value>Список параметров.</value>
+  </data>
+  <data name="MemoryFractions" xml:space="preserve">
+    <value>Фрагменты памяти</value>
+  </data>
+  <data name="MemoryFractionsDescription" xml:space="preserve">
+    <value>Фрагменты памяти.</value>
+  </data>
+  <data name="MemoryFractionsInput" xml:space="preserve">
+    <value>Ввод фрагментов памяти</value>
+  </data>
+  <data name="MemoryFractionsInputDescription" xml:space="preserve">
+    <value>Ввод фрагментов памяти.</value>
+  </data>
+  <data name="MemoryFractionsOutput" xml:space="preserve">
+    <value>Вывод фрагментов памяти</value>
+  </data>
+  <data name="MemoryFractionsOutputDescription" xml:space="preserve">
+    <value>Вывод фрагментов памяти.</value>
+  </data>
+  <data name="UdxName" xml:space="preserve">
+    <value>Имя</value>
+  </data>
+  <data name="UdxNameDescription" xml:space="preserve">
+    <value>Имя.</value>
+  </data>
+  <data name="Values" xml:space="preserve">
+    <value>Значения</value>
+  </data>
+  <data name="ValuesDescription" xml:space="preserve">
+    <value>Значения.</value>
+  </data>
+  <data name="CachedPlanSize" xml:space="preserve">
+    <value>Размер плана в кэш-памяти</value>
+  </data>
+  <data name="CachedPlanSizeDescription" xml:space="preserve">
+    <value>Размер плана в кэш-памяти.</value>
+  </data>
+  <data name="UsePlan" xml:space="preserve">
+    <value>Использовать план</value>
+  </data>
+  <data name="ContainsInlineScalarTsqlUdfs" xml:space="preserve">
+    <value>Содержит встроенные определяемые пользователем скалярные функции TSQL</value>
+  </data>
+  <data name="DegreeOfParallelism" xml:space="preserve">
+    <value>Степень параллелизма</value>
+  </data>
+  <data name="DegreeOfParallelismDescription" xml:space="preserve">
+    <value>Степень параллелизма.</value>
+  </data>
+  <data name="EffectiveDegreeOfParallelism" xml:space="preserve">
+    <value>Действительная степень распараллеливания</value>
+  </data>
+  <data name="EffectiveDegreeOfParallelismDescription" xml:space="preserve">
+    <value>Максимальная степень распараллеливания во время построения индекса columnstore.</value>
+  </data>
+  <data name="MemoryGrant" xml:space="preserve">
+    <value>Предоставление памяти</value>
+  </data>
+  <data name="MemoryGrantDescription" xml:space="preserve">
+    <value>Предоставление памяти.</value>
+  </data>
+  <data name="RemoteDestination" xml:space="preserve">
+    <value>Удаленное назначение</value>
+  </data>
+  <data name="RemoteDestinationDescription" xml:space="preserve">
+    <value>Удаленный объект.</value>
+  </data>
+  <data name="RemoteObject" xml:space="preserve">
+    <value>Удаленный объект</value>
+  </data>
+  <data name="RemoteObjectDescription" xml:space="preserve">
+    <value>Удаленный объект.</value>
+  </data>
+  <data name="RemoteSource" xml:space="preserve">
+    <value>Удаленный источник</value>
+  </data>
+  <data name="RemoteSourceDescription" xml:space="preserve">
+    <value>Удаленный источник.</value>
+  </data>
+  <data name="UsedUdxColumns" xml:space="preserve">
+    <value>Используемые столбцы UDX</value>
+  </data>
+  <data name="UsedUdxColumnsDescription" xml:space="preserve">
+    <value>Используемые столбцы UDX.</value>
+  </data>
+  <data name="InnerSideJoinColumns" xml:space="preserve">
+    <value>Столбцы внутреннего соединения</value>
+  </data>
+  <data name="InnerSideJoinColumnsDescription" xml:space="preserve">
+    <value>Столбцы внутреннего соединения.</value>
+  </data>
+  <data name="OuterSideJoinColumns" xml:space="preserve">
+    <value>Столбцы внешнего соединения</value>
+  </data>
+  <data name="OuterSideJoinColumnsDescription" xml:space="preserve">
+    <value>Внешнее соединение столбцов.</value>
+  </data>
+  <data name="WhereJoinColumns" xml:space="preserve">
+    <value>Где (соединение столбцов)</value>
+  </data>
+  <data name="Residual" xml:space="preserve">
+    <value>Остаток</value>
+  </data>
+  <data name="ResidualDescription" xml:space="preserve">
+    <value>Остаток.</value>
+  </data>
+  <data name="PassThru" xml:space="preserve">
+    <value>Передать</value>
+  </data>
+  <data name="PassThruDescription" xml:space="preserve">
+    <value>Передать.</value>
+  </data>
+  <data name="ManyToMany" xml:space="preserve">
+    <value>Многие ко многим</value>
+  </data>
+  <data name="ManyToManyDescription" xml:space="preserve">
+    <value>Многие ко многим.</value>
+  </data>
+  <data name="PartitionColumns" xml:space="preserve">
+    <value>Столбцы секционирования</value>
+  </data>
+  <data name="PartitionColumnsDescription" xml:space="preserve">
+    <value>Столбцы секционирования.</value>
+  </data>
+  <data name="Ascending" xml:space="preserve">
+    <value>По возрастанию</value>
+  </data>
+  <data name="Descending" xml:space="preserve">
+    <value>По убыванию</value>
+  </data>
+  <data name="HashKeys" xml:space="preserve">
+    <value>Хэш-ключи</value>
+  </data>
+  <data name="HashKeysDescription" xml:space="preserve">
+    <value>Хэш-ключи.</value>
+  </data>
+  <data name="ProbeColumn" xml:space="preserve">
+    <value>Столбец пробы</value>
+  </data>
+  <data name="ProbeColumnDescription" xml:space="preserve">
+    <value>Столбец пробы.</value>
+  </data>
+  <data name="PartitioningType" xml:space="preserve">
+    <value>Тип секционирования</value>
+  </data>
+  <data name="PartitioningTypeDescription" xml:space="preserve">
+    <value>Тип секционирования.</value>
+  </data>
+  <data name="GroupBy" xml:space="preserve">
+    <value>Группировать по</value>
+  </data>
+  <data name="GroupByDescription" xml:space="preserve">
+    <value>Группировать по.</value>
+  </data>
+  <data name="GroupingSets" xml:space="preserve">
+    <value>Наборы группирования</value>
+  </data>
+  <data name="GroupingSetsDescription" xml:space="preserve">
+    <value>Список наборов групп. Каждое значение является обратным двоичным представлением столбцов группирования в свойстве GROUP BY.</value>
+  </data>
+  <data name="SegmentColumn" xml:space="preserve">
+    <value>Столбец сегментов</value>
+  </data>
+  <data name="SegmentColumnDescription" xml:space="preserve">
+    <value>Столбец сегментов.</value>
+  </data>
+  <data name="RankColumns" xml:space="preserve">
+    <value>Столбцы ранга</value>
+  </data>
+  <data name="RankColumnsDescription" xml:space="preserve">
+    <value>Столбцы ранга.</value>
+  </data>
+  <data name="Predicate" xml:space="preserve">
+    <value>Предикат</value>
+  </data>
+  <data name="PredicateDescription" xml:space="preserve">
+    <value>Предикат.</value>
+  </data>
+  <data name="OuterReferences" xml:space="preserve">
+    <value>Внешние ссылки</value>
+  </data>
+  <data name="OuterReferencesDescription" xml:space="preserve">
+    <value>Внешние ссылки.</value>
+  </data>
+  <data name="ScalarOperator" xml:space="preserve">
+    <value>Скалярный оператор</value>
+  </data>
+  <data name="ActionColumn" xml:space="preserve">
+    <value>Столбец действий</value>
+  </data>
+  <data name="ActionColumnDescription" xml:space="preserve">
+    <value>Столбец действий.</value>
+  </data>
+  <data name="OriginalActionColumn" xml:space="preserve">
+    <value>Столбец "Исходное действие"</value>
+  </data>
+  <data name="OriginalActionColumnDescription" xml:space="preserve">
+    <value>Столбец "Исходное действие".</value>
+  </data>
+  <data name="Rows" xml:space="preserve">
+    <value>Верхние строки</value>
+  </data>
+  <data name="RowsDescription" xml:space="preserve">
+    <value>Верхние строки.</value>
+  </data>
+  <data name="SeekPredicate" xml:space="preserve">
+    <value>Поиск предиката</value>
+  </data>
+  <data name="SeekPredicateDescription" xml:space="preserve">
+    <value>Поиск предиката.</value>
+  </data>
+  <data name="Partitioned" xml:space="preserve">
+    <value>Секционированный</value>
+  </data>
+  <data name="PartitionedDescription" xml:space="preserve">
+    <value>Проводится ли операция на секционированной таблице или индексе.</value>
+  </data>
+  <data name="SeekKeys" xml:space="preserve">
+    <value>Ключи поиска</value>
+  </data>
+  <data name="SeekKeysDescription" xml:space="preserve">
+    <value>Ключи, используемые в операции поиска.</value>
+  </data>
+  <data name="PartitionsAccessed" xml:space="preserve">
+    <value>Фактическое количество секций, к которым получен доступ</value>
+  </data>
+  <data name="PartitionCount" xml:space="preserve">
+    <value>Фактическое количество секций</value>
+  </data>
+  <data name="TieColumns" xml:space="preserve">
+    <value>Связанные столбцы</value>
+  </data>
+  <data name="TieColumnsDescription" xml:space="preserve">
+    <value>Связанные столбцы.</value>
+  </data>
+  <data name="IsPercent" xml:space="preserve">
+    <value>В процентах</value>
+  </data>
+  <data name="IsPercentDescription" xml:space="preserve">
+    <value>В процентах.</value>
+  </data>
+  <data name="WithTies" xml:space="preserve">
+    <value>Со связями</value>
+  </data>
+  <data name="WithTiesDescription" xml:space="preserve">
+    <value>Со связями.</value>
+  </data>
+  <data name="PartitionId" xml:space="preserve">
+    <value>Идентификатор секции</value>
+  </data>
+  <data name="PartitionIdDescription" xml:space="preserve">
+    <value>Идентификатор секции.</value>
+  </data>
+  <data name="Ordered" xml:space="preserve">
+    <value>Заказано</value>
+  </data>
+  <data name="OrderedDescription" xml:space="preserve">
+    <value>Отсортировано.</value>
+  </data>
+  <data name="ScanDirection" xml:space="preserve">
+    <value>Направление сканирования</value>
+  </data>
+  <data name="ScanDirectionDescription" xml:space="preserve">
+    <value>Направление операции просмотра - вперед или назад.</value>
+  </data>
+  <data name="ForcedIndex" xml:space="preserve">
+    <value>Принудительный индекс</value>
+  </data>
+  <data name="ForcedIndexDescription" xml:space="preserve">
+    <value>Принудительный индекс.</value>
+  </data>
+  <data name="SetPredicate" xml:space="preserve">
+    <value>Предикат</value>
+  </data>
+  <data name="SetPredicateDescription" xml:space="preserve">
+    <value>Предикат</value>
+  </data>
+  <data name="TopExpression" xml:space="preserve">
+    <value>Верхнее выражение</value>
+  </data>
+  <data name="TopExpressionDescription" xml:space="preserve">
+    <value>Верхнее выражение.</value>
+  </data>
+  <data name="HashKeysBuild" xml:space="preserve">
+    <value>Сборка хэш-ключей</value>
+  </data>
+  <data name="HashKeysBuildDescription" xml:space="preserve">
+    <value>Сборка хэш-ключей.</value>
+  </data>
+  <data name="HashKeysProbe" xml:space="preserve">
+    <value>Проба хэш-ключей</value>
+  </data>
+  <data name="HashKeysProbeDescription" xml:space="preserve">
+    <value>Проба хэш-ключей.</value>
+  </data>
+  <data name="BuildResidual" xml:space="preserve">
+    <value>Сборка остатка</value>
+  </data>
+  <data name="BuildResidualDescription" xml:space="preserve">
+    <value>Сборка остатка.</value>
+  </data>
+  <data name="ProbeResidual" xml:space="preserve">
+    <value>Остаток пробы</value>
+  </data>
+  <data name="ProbeResidualDescription" xml:space="preserve">
+    <value>Остаток пробы.</value>
+  </data>
+  <data name="SeekPredicates" xml:space="preserve">
+    <value>Искать предикаты</value>
+  </data>
+  <data name="SeekPredicatesDescription" xml:space="preserve">
+    <value>Поиск предикатов.</value>
+  </data>
+  <data name="SetOptions" xml:space="preserve">
+    <value>Установить параметры</value>
+  </data>
+  <data name="SetOptionsDescription" xml:space="preserve">
+    <value>Установка параметров.</value>
+  </data>
+  <data name="OptimizationLevel" xml:space="preserve">
+    <value>Уровень оптимизации</value>
+  </data>
+  <data name="OptimizationLevelDescription" xml:space="preserve">
+    <value>Уровень оптимизации.</value>
+  </data>
+  <data name="StatementOptmEarlyAbortReason" xml:space="preserve">
+    <value>Причина преждевременного завершения оптимизации инструкции</value>
+  </data>
+  <data name="TimeOut" xml:space="preserve">
+    <value>Время ожидания</value>
+  </data>
+  <data name="MemoryLimitExceeded" xml:space="preserve">
+    <value>Превышен лимит памяти</value>
+  </data>
+  <data name="GoodEnoughPlanFound" xml:space="preserve">
+    <value>Найден достаточно хороший план</value>
+  </data>
+  <data name="EstimatedRebinds" xml:space="preserve">
+    <value>Предполагаемое количество повторных привязок</value>
+  </data>
+  <data name="EstimatedRebindsDescription" xml:space="preserve">
+    <value>Предполагаемое количество повторных привязок.</value>
+  </data>
+  <data name="EstimatedRewinds" xml:space="preserve">
+    <value>Предполагаемое количество сбросов на начало</value>
+  </data>
+  <data name="EstimatedRewindsDescription" xml:space="preserve">
+    <value>Предполагаемое количество сбросов на начало.</value>
+  </data>
+  <data name="ActualLocallyAggregatedRows" xml:space="preserve">
+    <value>Фактическое число локально агрегированных строк</value>
+  </data>
+  <data name="ActualLocallyAggregatedRowsDescription" xml:space="preserve">
+    <value>Фактическое число локально агрегированных строк</value>
+  </data>
+  <data name="ActualRebinds" xml:space="preserve">
+    <value>Фактическое число повторных привязок</value>
+  </data>
+  <data name="ActualRebindsDescription" xml:space="preserve">
+    <value>Фактическое число повторных привязок.</value>
+  </data>
+  <data name="ActualRewinds" xml:space="preserve">
+    <value>Фактическое число сбросов на начало</value>
+  </data>
+  <data name="ActualRewindsDescription" xml:space="preserve">
+    <value>Фактическое число сбросов на начало.</value>
+  </data>
+  <data name="ActualIOStatistics" xml:space="preserve">
+    <value>Фактическая статистика по операциям ввода-вывода</value>
+  </data>
+  <data name="ActualIOStatisticsDescription" xml:space="preserve">
+    <value>Фактическая статистика по операциям ввода-вывода</value>
+  </data>
+  <data name="ActualTimeStatistics" xml:space="preserve">
+    <value>Фактическая статистика по времени</value>
+  </data>
+  <data name="ActualTimeStatisticsDescription" xml:space="preserve">
+    <value>Фактическая статистика по времени</value>
+  </data>
+  <data name="ActualElapsedms" xml:space="preserve">
+    <value>Фактически затраченное время (мс)</value>
+  </data>
+  <data name="ActualElapsedmsDescription" xml:space="preserve">
+    <value>Фактически затраченное время в миллисекундах</value>
+  </data>
+  <data name="ActualCPUms" xml:space="preserve">
+    <value>Фактически затраченное время ЦП (мс)</value>
+  </data>
+  <data name="ActualCPUmsDescription" xml:space="preserve">
+    <value>Фактически затраченное время ЦП в миллисекундах</value>
+  </data>
+  <data name="ActualScans" xml:space="preserve">
+    <value>Фактическое число сканирований</value>
+  </data>
+  <data name="ActualScansDescription" xml:space="preserve">
+    <value>Фактическое число сканирований</value>
+  </data>
+  <data name="ActualLogicalReads" xml:space="preserve">
+    <value>Фактическое число логических операций чтения</value>
+  </data>
+  <data name="ActualLogicalReadsDescription" xml:space="preserve">
+    <value>Фактическое число логических операций чтения</value>
+  </data>
+  <data name="ActualPhysicalReads" xml:space="preserve">
+    <value>Фактическое число физических операций чтения</value>
+  </data>
+  <data name="ActualPhysicalReadsDescription" xml:space="preserve">
+    <value>Фактическое число физических операций чтения</value>
+  </data>
+  <data name="ActualPageServerReads" xml:space="preserve">
+    <value>Фактическое число операций чтения на сервере страниц</value>
+  </data>
+  <data name="ActualPageServerReadsDescription" xml:space="preserve">
+    <value>Фактическое число операций чтения на сервере страниц</value>
+  </data>
+  <data name="ActualReadAheads" xml:space="preserve">
+    <value>Фактическое число операций упреждающего чтения</value>
+  </data>
+  <data name="ActualReadAheadsDescription" xml:space="preserve">
+    <value>Фактическое число операций упреждающего чтения</value>
+  </data>
+  <data name="ActualPageServerReadAheads" xml:space="preserve">
+    <value>Фактическое число упреждающих операций чтения сервера страниц</value>
+  </data>
+  <data name="ActualPageServerReadAheadsDescription" xml:space="preserve">
+    <value>Фактическое число упреждающих операций чтения сервера страниц</value>
+  </data>
+  <data name="ActualLobLogicalReads" xml:space="preserve">
+    <value>Фактическое число логических операций чтения LOB</value>
+  </data>
+  <data name="ActualLobLogicalReadsDescription" xml:space="preserve">
+    <value>Фактическое число логических операций чтения LOB</value>
+  </data>
+  <data name="ActualLobPhysicalReads" xml:space="preserve">
+    <value>Фактическое число физических операций чтения LOB</value>
+  </data>
+  <data name="ActualLobPhysicalReadsDescription" xml:space="preserve">
+    <value>Фактическое число физических операций чтения LOB</value>
+  </data>
+  <data name="ActualLobPageServerReads" xml:space="preserve">
+    <value>Фактическое число операций чтения страничного сервера LOB-объектов</value>
+  </data>
+  <data name="ActualLobPageServerReadsDescription" xml:space="preserve">
+    <value>Фактическое число операций чтения страничного сервера LOB-объектов</value>
+  </data>
+  <data name="ActualLobReadAheads" xml:space="preserve">
+    <value>Фактическое число операций упреждающего чтения LOB</value>
+  </data>
+  <data name="ActualLobReadAheadsDescription" xml:space="preserve">
+    <value>Фактическое число операций упреждающего чтения LOB</value>
+  </data>
+  <data name="ActualLobPageServerReadAheads" xml:space="preserve">
+    <value>Фактическое число упреждающих операций чтения страничного сервера LOB-объектов</value>
+  </data>
+  <data name="ActualLobPageServerReadAheadsDescription" xml:space="preserve">
+    <value>Фактическое число упреждающих операций чтения страничного сервера LOB-объектов</value>
+  </data>
+  <data name="ActualMemoryGrantStats" xml:space="preserve">
+    <value>Использование памяти</value>
+  </data>
+  <data name="HpcRowCount" xml:space="preserve">
+    <value>Число строк HPC</value>
+  </data>
+  <data name="HpcRowCountDescription" xml:space="preserve">
+    <value>Число строк, обрабатываемых HPC-устройствами.</value>
+  </data>
+  <data name="HpcKernelElapsedUs" xml:space="preserve">
+    <value>Затраченное время ядра HPC в мкс</value>
+  </data>
+  <data name="HpcKernelElapsedUsDescription" xml:space="preserve">
+    <value>Затраченное время работы ядра на HPC-устройстве (в микросекундах).</value>
+  </data>
+  <data name="HpcHostToDeviceBytes" xml:space="preserve">
+    <value>Байт с узла на HPC-устройство</value>
+  </data>
+  <data name="HpcHostToDeviceBytesDescription" xml:space="preserve">
+    <value>Данные, передаваемые с узла на HPC-устройство, в байтах.</value>
+  </data>
+  <data name="HpcDeviceToHostBytes" xml:space="preserve">
+    <value>Байт с HPC-устройства на узел</value>
+  </data>
+  <data name="HpcDeviceToHostBytesDescription" xml:space="preserve">
+    <value>Данные, передаваемые с HPC-устройства на узел, в байтах.</value>
+  </data>
+  <data name="InputMemoryGrant" xml:space="preserve">
+    <value>Входная память</value>
+  </data>
+  <data name="OutputMemoryGrant" xml:space="preserve">
+    <value>Выходная память</value>
+  </data>
+  <data name="UsedMemoryGrant" xml:space="preserve">
+    <value>Используемая память</value>
+  </data>
+  <data name="Distinct" xml:space="preserve">
+    <value>Уникально</value>
+  </data>
+  <data name="DistinctDescription" xml:space="preserve">
+    <value>Уникально.</value>
+  </data>
+  <data name="OrderBy" xml:space="preserve">
+    <value>Сортировка по</value>
+  </data>
+  <data name="OrderByDescription" xml:space="preserve">
+    <value>Сортировка по.</value>
+  </data>
+  <data name="SpillOccurredDisplayString" xml:space="preserve">
+    <value>Оператор использовал tempdb для сброса данных во время выполнения.</value>
+  </data>
+  <data name="ColumnsWithNoStatistics" xml:space="preserve">
+    <value>Столбцы без статистики</value>
+  </data>
+  <data name="ColumnsWithNoStatisticsDescription" xml:space="preserve">
+    <value>Столбцы без статистических предупреждений.</value>
+  </data>
+  <data name="NoJoinPredicate" xml:space="preserve">
+    <value>Нет предиката соединения</value>
+  </data>
+  <data name="NoJoinPredicateDescription" xml:space="preserve">
+    <value>Предупреждение об отсутствии предиката соединения.</value>
+  </data>
+  <data name="SpillToTempDbOld" xml:space="preserve">
+    <value>Оператор использовал tempdb для сброса данных во время выполнения. Уровень сброса: {0}.</value>
+  </data>
+  <data name="SpillToTempDb" xml:space="preserve">
+    <value>Оператор использовал tempdb для сброса данных во время выполнения. Уровень сброса: {0}. Число сброшенных потоков: {1}.</value>
+  </data>
+  <data name="SpillToTempDbDescription" xml:space="preserve">
+    <value>Предупреждение о сбросе в tempdb.</value>
+  </data>
+  <data name="SortSpillDetails" xml:space="preserve">
+    <value>Операция сортировки записала {0} стр. в базу данных tempdb и считала {1} стр. из нее; предоставлено памяти: {2} КБ, использовано памяти: {3} КБ</value>
+  </data>
+  <data name="SortSpillDetailsDescription" xml:space="preserve">
+    <value>Сведения о сбросе сортировки</value>
+  </data>
+  <data name="HashSpillDetails" xml:space="preserve">
+    <value>Операция хэша записала {0} стр. и считала {1} стр. в базе данных tempdb; предоставлено памяти: {2} КБ, использовано памяти: {3} КБ</value>
+  </data>
+  <data name="HashSpillDetailsDescription" xml:space="preserve">
+    <value>Сведения о сбросе хэша</value>
+  </data>
+  <data name="FullUpdateForOnlineIndexBuild" xml:space="preserve">
+    <value>Частичное обновление было преобразовано в полное из-за построения индекса в режиме “в сети”</value>
+  </data>
+  <data name="FullUpdateForOnlineIndexBuildDescription" xml:space="preserve">
+    <value>Предупреждение полного обновления индекса в режиме "в сети"</value>
+  </data>
+  <data name="Wait" xml:space="preserve">
+    <value>Запрос был вынужден в течение {0} секунд ожидать {1} во время выполнения</value>
+  </data>
+  <data name="WaitDescription" xml:space="preserve">
+    <value>Предупреждение об ожидании запроса.</value>
+  </data>
+  <data name="PlanAffectingConvert" xml:space="preserve">
+    <value>Преобразование типов в выражении ({0}) может повлиять на "{1}" в выборе плана запроса</value>
+  </data>
+  <data name="PlanAffectingConvertDescription" xml:space="preserve">
+    <value>Предупреждение о преобразовании типов, влияющем на план.</value>
+  </data>
+  <data name="MemoryGrantWarning" xml:space="preserve">
+    <value>Временно предоставляемый буфер памяти для запроса обнаружил "{0}", который может повлиять на надежность. Размер буфера: первоначальный — {1} КБ, итоговый — {2} КБ, использованный — {3} КБ.</value>
+  </data>
+  <data name="MemoryGrantWarningDescription" xml:space="preserve">
+    <value>Сведения о предупреждении, связанном с временно предоставляемым буфером памяти</value>
+  </data>
+  <data name="StartupExpression" xml:space="preserve">
+    <value>Выражение запуска</value>
+  </data>
+  <data name="StartupExpressionDescription" xml:space="preserve">
+    <value>Используется ли выражение запуска фильтра.</value>
+  </data>
+  <data name="StartupExpressionPredicate" xml:space="preserve">
+    <value>Предикат выражения запуска</value>
+  </data>
+  <data name="Query" xml:space="preserve">
+    <value>Запрос</value>
+  </data>
+  <data name="Stack" xml:space="preserve">
+    <value>Со стеком</value>
+  </data>
+  <data name="RowCount" xml:space="preserve">
+    <value>Счетчик строк</value>
+  </data>
+  <data name="Optimized" xml:space="preserve">
+    <value>Оптимизировано</value>
+  </data>
+  <data name="WithPrefetch" xml:space="preserve">
+    <value>С упреждающей выборкой</value>
+  </data>
+  <data name="Prefix" xml:space="preserve">
+    <value>Префикс</value>
+  </data>
+  <data name="StartRange" xml:space="preserve">
+    <value>Начало</value>
+  </data>
+  <data name="StartRangeDescription" xml:space="preserve">
+    <value>Начало диапазона.</value>
+  </data>
+  <data name="EndRange" xml:space="preserve">
+    <value>Окончание</value>
+  </data>
+  <data name="EndRangeDescription" xml:space="preserve">
+    <value>Конец диапазона.</value>
+  </data>
+  <data name="RangeColumns" xml:space="preserve">
+    <value>Столбцы диапазона</value>
+  </data>
+  <data name="RangeExpressions" xml:space="preserve">
+    <value>Выражения диапазона</value>
+  </data>
+  <data name="ScanType" xml:space="preserve">
+    <value>Тип сканирования</value>
+  </data>
+  <data name="ColumnReference" xml:space="preserve">
+    <value>Ссылка на столбец</value>
+  </data>
+  <data name="ObjectServer" xml:space="preserve">
+    <value>Сервер</value>
+  </data>
+  <data name="ObjectServerDescription" xml:space="preserve">
+    <value>Имя сервера для объекта ссылки.</value>
+  </data>
+  <data name="ObjectDatabase" xml:space="preserve">
+    <value>База данных</value>
+  </data>
+  <data name="ObjectDatabaseDescription" xml:space="preserve">
+    <value>Имя базы данных для объекта ссылки.</value>
+  </data>
+  <data name="ObjectIndex" xml:space="preserve">
+    <value>Индекс</value>
+  </data>
+  <data name="ObjectIndexDescription" xml:space="preserve">
+    <value>Имя индекса для объекта ссылки.</value>
+  </data>
+  <data name="ObjectSchema" xml:space="preserve">
+    <value>Схема</value>
+  </data>
+  <data name="ObjectSchemaDescription" xml:space="preserve">
+    <value>Имя схемы для объекта ссылки.</value>
+  </data>
+  <data name="ObjectTable" xml:space="preserve">
+    <value>Таблица</value>
+  </data>
+  <data name="ObjectTableDescription" xml:space="preserve">
+    <value>Имя таблицы для объекта ссылки.</value>
+  </data>
+  <data name="ObjectAlias" xml:space="preserve">
+    <value>Псевдоним</value>
+  </data>
+  <data name="ObjectAliasDescription" xml:space="preserve">
+    <value>Псевдоним, используемый для объекта ссылки.</value>
+  </data>
+  <data name="ObjectColumn" xml:space="preserve">
+    <value>Столбец</value>
+  </data>
+  <data name="ObjectColumnDescription" xml:space="preserve">
+    <value>Имя столбца для объекта ссылки.</value>
+  </data>
+  <data name="ObjectComputedColumn" xml:space="preserve">
+    <value>Вычисляемый столбец</value>
+  </data>
+  <data name="ObjectComputedColumnDescription" xml:space="preserve">
+    <value>Является ли столбец вычисляемым.</value>
+  </data>
+  <data name="ParameterDataType" xml:space="preserve">
+    <value>Тип данных параметра</value>
+  </data>
+  <data name="ParameterCompiledValue" xml:space="preserve">
+    <value>Значение компилированного параметра</value>
+  </data>
+  <data name="ParameterRuntimeValue" xml:space="preserve">
+    <value>Значение параметра во время выполнения</value>
+  </data>
+  <data name="CursorPlan" xml:space="preserve">
+    <value>План исполнения курсора</value>
+  </data>
+  <data name="CursorOperation" xml:space="preserve">
+    <value>Использование курсора</value>
+  </data>
+  <data name="CursorName" xml:space="preserve">
+    <value>Имя курсора</value>
+  </data>
+  <data name="CursorActualType" xml:space="preserve">
+    <value>Текущий тип курсора</value>
+  </data>
+  <data name="CursorRequestedType" xml:space="preserve">
+    <value>Требуемый тип курсора</value>
+  </data>
+  <data name="CursorConcurrency" xml:space="preserve">
+    <value>Параллелизм курсоров</value>
+  </data>
+  <data name="ForwardOnly" xml:space="preserve">
+    <value>Только вперед</value>
+  </data>
+  <data name="QueryPlan" xml:space="preserve">
+    <value>План запроса</value>
+  </data>
+  <data name="OperationType" xml:space="preserve">
+    <value>Тип операции</value>
+  </data>
+  <data name="NodeId" xml:space="preserve">
+    <value>Идентификатор узла</value>
+  </data>
+  <data name="PrimaryNodeId" xml:space="preserve">
+    <value>Идентификатор первичного узла</value>
+  </data>
+  <data name="InternalInfo" xml:space="preserve">
+    <value>Внутренние сведения для отладки</value>
+  </data>
+  <data name="ForeignKeyReferencesCount" xml:space="preserve">
+    <value>Число ссылок на внешние ключи</value>
+  </data>
+  <data name="NoMatchingIndexCount" xml:space="preserve">
+    <value>Количество несовпадающих индексов</value>
+  </data>
+  <data name="PartialMatchingIndexCount" xml:space="preserve">
+    <value>Количество частично совпадающих индексов</value>
+  </data>
+  <data name="LogicalOpCollapse" xml:space="preserve">
+    <value>Свернуть</value>
+  </data>
+  <data name="LogicalOpConcatenation" xml:space="preserve">
+    <value>Объединение</value>
+  </data>
+  <data name="LogicalOpConstantScan" xml:space="preserve">
+    <value>Постоянное сканирование</value>
+  </data>
+  <data name="LogicalOpGatherStreams" xml:space="preserve">
+    <value>Собрать потоки</value>
+  </data>
+  <data name="LogicalOpRepartitionStreams" xml:space="preserve">
+    <value>Распределение потоков</value>
+  </data>
+  <data name="LogicalOpDistributeStreams" xml:space="preserve">
+    <value>Распределить потоки</value>
+  </data>
+  <data name="LogicalOpFilter" xml:space="preserve">
+    <value>Фильтр</value>
+  </data>
+  <data name="LogicalOpAssert" xml:space="preserve">
+    <value>Подтверждение</value>
+  </data>
+  <data name="LogicalOpLogRowScan" xml:space="preserve">
+    <value>Сканирование строк журнала</value>
+  </data>
+  <data name="LogicalOpPrint" xml:space="preserve">
+    <value>Печать</value>
+  </data>
+  <data name="LogicalOpComputeScalar" xml:space="preserve">
+    <value>Вычисление скалярного значения</value>
+  </data>
+  <data name="LogicalOpMergeInterval" xml:space="preserve">
+    <value>Интервал слияния</value>
+  </data>
+  <data name="LogicalOpRank" xml:space="preserve">
+    <value>Ранг</value>
+  </data>
+  <data name="LogicalOpSegment" xml:space="preserve">
+    <value>Сегмент</value>
+  </data>
+  <data name="LogicalOpSequence" xml:space="preserve">
+    <value>Последовательность</value>
+  </data>
+  <data name="LogicalOpSplit" xml:space="preserve">
+    <value>Разделить</value>
+  </data>
+  <data name="LogicalOpAggregate" xml:space="preserve">
+    <value>Агрегат</value>
+  </data>
+  <data name="LogicalOpTableScan" xml:space="preserve">
+    <value>Сканирование таблицы</value>
+  </data>
+  <data name="LogicalOpClusteredIndexScan" xml:space="preserve">
+    <value>Сканирование кластеризованного индекса</value>
+  </data>
+  <data name="LogicalOpClusteredIndexSeek" xml:space="preserve">
+    <value>Поиск кластеризованного индекса</value>
+  </data>
+  <data name="LogicalOpDeletedScan" xml:space="preserve">
+    <value>Удаленное сканирование</value>
+  </data>
+  <data name="LogicalOpInsertedScan" xml:space="preserve">
+    <value>Сканирование вставленных</value>
+  </data>
+  <data name="LogicalOpParameterTableScan" xml:space="preserve">
+    <value>Сканирование таблицы параметров</value>
+  </data>
+  <data name="LogicalOpPut" xml:space="preserve">
+    <value>Поместить</value>
+  </data>
+  <data name="LogicalOpIndexScan" xml:space="preserve">
+    <value>Сканирование индекса</value>
+  </data>
+  <data name="LogicalOpIndexSeek" xml:space="preserve">
+    <value>Поиск в индексе</value>
+  </data>
+  <data name="LogicalOpRemoteScan" xml:space="preserve">
+    <value>Удаленное сканирование</value>
+  </data>
+  <data name="LogicalOpRemoteIndexScan" xml:space="preserve">
+    <value>Удаленное сканирование индекса</value>
+  </data>
+  <data name="LogicalOpRemoteIndexSeek" xml:space="preserve">
+    <value>Удаленный поиск в индексе</value>
+  </data>
+  <data name="LogicalOpRemoteQuery" xml:space="preserve">
+    <value>Удаленный запрос</value>
+  </data>
+  <data name="LogicalOpRemoteInsert" xml:space="preserve">
+    <value>Удаленная вставка</value>
+  </data>
+  <data name="LogicalOpRemoteUpdate" xml:space="preserve">
+    <value>Удаленное обновление</value>
+  </data>
+  <data name="LogicalOpRemoteDelete" xml:space="preserve">
+    <value>Удаленное удаление</value>
+  </data>
+  <data name="LogicalOpClusteredUpdate" xml:space="preserve">
+    <value>Кластерное обновление</value>
+  </data>
+  <data name="LogicalOpDistinctSort" xml:space="preserve">
+    <value>Уникальная сортировка</value>
+  </data>
+  <data name="LogicalOpSort" xml:space="preserve">
+    <value>Сортировка</value>
+  </data>
+  <data name="LogicalOpTopNSort" xml:space="preserve">
+    <value>Сортировка верхних N</value>
+  </data>
+  <data name="LogicalOpEagerSpool" xml:space="preserve">
+    <value>Eager Spool</value>
+  </data>
+  <data name="LogicalOpLazySpool" xml:space="preserve">
+    <value>Отложенный пул</value>
+  </data>
+  <data name="LogicalOpUpdate" xml:space="preserve">
+    <value>Обновить</value>
+  </data>
+  <data name="LogicalOpInsert" xml:space="preserve">
+    <value>Вставить</value>
+  </data>
+  <data name="LogicalOpDelete" xml:space="preserve">
+    <value>Удалить</value>
+  </data>
+  <data name="LogicalOpMerge" xml:space="preserve">
+    <value>Слияние</value>
+  </data>
+  <data name="LogicalOpTop" xml:space="preserve">
+    <value>Сверху</value>
+  </data>
+  <data name="LogicalOpDistinct" xml:space="preserve">
+    <value>Уникально</value>
+  </data>
+  <data name="LogicalOpFlowDistinct" xml:space="preserve">
+    <value>Поток различий</value>
+  </data>
+  <data name="LogicalOpPartialAggregate" xml:space="preserve">
+    <value>Частичный агрегат</value>
+  </data>
+  <data name="LogicalOpInnerApply" xml:space="preserve">
+    <value>Применить внутреннее</value>
+  </data>
+  <data name="LogicalOpInnerJoin" xml:space="preserve">
+    <value>Внутреннее соединение</value>
+  </data>
+  <data name="LogicalOpLeftAntiSemiApply" xml:space="preserve">
+    <value>Применить левое антиполусоединение</value>
+  </data>
+  <data name="LogicalOpLeftSemiApply" xml:space="preserve">
+    <value>Применить левое полусоединение</value>
+  </data>
+  <data name="LogicalOpLeftOuterApply" xml:space="preserve">
+    <value>Применить левое внешнее</value>
+  </data>
+  <data name="LogicalOpLeftOuterJoin" xml:space="preserve">
+    <value>Левое внешнее соединение</value>
+  </data>
+  <data name="LogicalOpRightOuterJoin" xml:space="preserve">
+    <value>Правое внешнее соединение</value>
+  </data>
+  <data name="LogicalOpFullOuterJoin" xml:space="preserve">
+    <value>Полное внешнее соединение</value>
+  </data>
+  <data name="LogicalOpLeftSemiJoin" xml:space="preserve">
+    <value>Левое полусоединение</value>
+  </data>
+  <data name="LogicalOpLeftAntiSemiJoin" xml:space="preserve">
+    <value>Left Anti Semi Join</value>
+  </data>
+  <data name="LogicalOpRightSemiJoin" xml:space="preserve">
+    <value>Полусоединение справа</value>
+  </data>
+  <data name="LogicalOpRightAntiSemiJoin" xml:space="preserve">
+    <value>Right Anti Semi Join</value>
+  </data>
+  <data name="LogicalOpIntersect" xml:space="preserve">
+    <value>Пересечение</value>
+  </data>
+  <data name="LogicalOpIntersectAll" xml:space="preserve">
+    <value>Объединить по пересечению все</value>
+  </data>
+  <data name="LogicalOpUnion" xml:space="preserve">
+    <value>Объединение</value>
+  </data>
+  <data name="LogicalOpLeftDiff" xml:space="preserve">
+    <value>Различие слева</value>
+  </data>
+  <data name="LogicalOpLeftDiffAll" xml:space="preserve">
+    <value>Различие слева все</value>
+  </data>
+  <data name="LogicalOpRightDiff" xml:space="preserve">
+    <value>Различие справа</value>
+  </data>
+  <data name="LogicalOpRightDiffAll" xml:space="preserve">
+    <value>Различие справа все</value>
+  </data>
+  <data name="LogicalOpAntiDiff" xml:space="preserve">
+    <value>Противоразличие</value>
+  </data>
+  <data name="LogicalOpCrossJoin" xml:space="preserve">
+    <value>Перекрестное соединение</value>
+  </data>
+  <data name="LogicalOpBitmapCreate" xml:space="preserve">
+    <value>Создание битовой карты</value>
+  </data>
+  <data name="LogicalOpUDX" xml:space="preserve">
+    <value>UDX</value>
+  </data>
+  <data name="LogicalOpWindow" xml:space="preserve">
+    <value>Буфер окон</value>
+  </data>
+  <data name="LogicalOpSwitch" xml:space="preserve">
+    <value>Переключение</value>
+  </data>
+  <data name="LogicalOpMergeStats" xml:space="preserve">
+    <value>Объединенная статистика</value>
+  </data>
+  <data name="LogicalOpLocalStats" xml:space="preserve">
+    <value>Локальная статистика</value>
+  </data>
+  <data name="LogicalOpTableValuedFunction" xml:space="preserve">
+    <value>Функция, возвращающая табличное значение</value>
+  </data>
+  <data name="LogicalOpBatchHashTableBuild" xml:space="preserve">
+    <value>Построение хэш-таблицы пакета</value>
+  </data>
+  <data name="LogicalOpForeignKeyReferencesCheck" xml:space="preserve">
+    <value>Проверка ссылок на внешние ключи</value>
+  </data>
+  <data name="LogicalOpRIDLookup" xml:space="preserve">
+    <value>Поиск RID</value>
+  </data>
+  <data name="StoredProc" xml:space="preserve">
+    <value>Хранимая процедура</value>
+  </data>
+  <data name="Udf" xml:space="preserve">
+    <value>Определяемая пользователем функция</value>
+  </data>
+  <data name="ProcName" xml:space="preserve">
+    <value>Имя процедуры</value>
+  </data>
+  <data name="Storage" xml:space="preserve">
+    <value>Хранилище</value>
+  </data>
+  <data name="StorageDesc" xml:space="preserve">
+    <value>Хранилище</value>
+  </data>
+  <data name="ActualExecMode" xml:space="preserve">
+    <value>Действительный режим выполнения</value>
+  </data>
+  <data name="ActualExecModeDesc" xml:space="preserve">
+    <value>Действительный режим выполнения</value>
+  </data>
+  <data name="EstimatedExecMode" xml:space="preserve">
+    <value>Предполагаемый режим выполнения</value>
+  </data>
+  <data name="EstimatedExecModeDesc" xml:space="preserve">
+    <value>Предполагаемый режим выполнения</value>
+  </data>
+  <data name="CostFormat" xml:space="preserve">
+    <value>Стоимость: {0} %</value>
+  </data>
+  <data name="RemoteDataAccess" xml:space="preserve">
+    <value>Удаленный доступ к данным</value>
+  </data>
+  <data name="RemoteDataAccessDescription" xml:space="preserve">
+    <value>Использует ли оператор удаленный вызов процедур (RPC) для удаленного доступа к данным.</value>
+  </data>
+  <data name="CloneAccessScope" xml:space="preserve">
+    <value>Область доступа к клонам</value>
+  </data>
+  <data name="CloneAccessScopeDescription" xml:space="preserve">
+    <value>Клоны, к которым имеет доступ оператор.</value>
+  </data>
+  <data name="PrimaryClones" xml:space="preserve">
+    <value>Первичные клоны</value>
+  </data>
+  <data name="SecondaryClones" xml:space="preserve">
+    <value>Вторичные клоны</value>
+  </data>
+  <data name="BothClones" xml:space="preserve">
+    <value>Все клоны</value>
+  </data>
+  <data name="EitherClones" xml:space="preserve">
+    <value>Первичные или вторичные клоны</value>
+  </data>
+  <data name="ExactMatchClones" xml:space="preserve">
+    <value>Однократное совпадение с клоном</value>
+  </data>
+  <data name="Remoting" xml:space="preserve">
+    <value>Удаленный вызов</value>
+  </data>
+  <data name="RemotingDescription" xml:space="preserve">
+    <value>Может ли оператор вызываться удаленно.</value>
+  </data>
+  <data name="Activation" xml:space="preserve">
+    <value>Активация</value>
+  </data>
+  <data name="BrickRouting" xml:space="preserve">
+    <value>Маршрутизация блоков</value>
+  </data>
+  <data name="FragmentIdColumn" xml:space="preserve">
+    <value>Столбец идентификатора фрагмента</value>
+  </data>
+  <data name="EditQueryText" xml:space="preserve">
+    <value>Изменить текст запроса из XML-файла showplan (он может быть усечен)</value>
+  </data>
+  <data name="UnknownShowPlanSource" xml:space="preserve">
+    <value>Невозможно идентифицировать тип источника плана выполнения.</value>
+  </data>
+  <data name="SavePlanFilter" xml:space="preserve">
+    <value>Файлы планов (*.SqlPlan)|*.SqlPlan|Все файлы (*.*)|*.*</value>
+  </data>
+  <data name="NoXmlPlanData" xml:space="preserve">
+    <value>Данные плана недоступны в формате XML. Сохранение возможно только для планов SQL Server Yukon.</value>
+  </data>
+  <data name="PerThreadCounterDescription" xml:space="preserve">
+    <value>Сведения счетчиков по потокам.</value>
+  </data>
+  <data name="RuntimeCounterThread" xml:space="preserve">
+    <value>Поток {0}</value>
+  </data>
+  <data name="RuntimeCounterThreadOnInstance" xml:space="preserve">
+    <value>Поток {0} на экземпляре {1}</value>
+  </data>
+  <data name="RuntimeCounterThreadAll" xml:space="preserve">
+    <value>Все потоки</value>
+  </data>
+  <data name="ConnectionPropertiesLabel" xml:space="preserve">
+    <value>Просмотреть свойства соединения</value>
+  </data>
+  <data name="UnknownAssignType" xml:space="preserve">
+    <value>Неизвестный тип назначения.</value>
+  </data>
+  <data name="MessageBoxCaption" xml:space="preserve">
+    <value>SQL Server</value>
+  </data>
+  <data name="ZoomLevelShouldBeBetween" xml:space="preserve">
+    <value>Уровень увеличения должен быть целым числом от {0} до {1}.</value>
+  </data>
+  <data name="UnknownNodeType" xml:space="preserve">
+    <value>Неизвестный тип узла.</value>
+  </data>
+  <data name="UnknownCursorPlanOperation" xml:space="preserve">
+    <value>Неизвестная операция плана исполнения курсора "{0}".</value>
+  </data>
+  <data name="UnknownStatementType" xml:space="preserve">
+    <value>Невозможно идентифицировать тип инструкции.</value>
+  </data>
+  <data name="RollupInfo" xml:space="preserve">
+    <value>Сведения о свертке</value>
+  </data>
+  <data name="RollupInfoDescription" xml:space="preserve">
+    <value>Сведения о свертке.</value>
+  </data>
+  <data name="HighestLevel" xml:space="preserve">
+    <value>Наивысший уровень</value>
+  </data>
+  <data name="HighestLevelDescription" xml:space="preserve">
+    <value>Самый высокий уровень группирования атрибутов, вычисляемых в этой свертке.</value>
+  </data>
+  <data name="RollupLevel" xml:space="preserve">
+    <value>Уровни свертки</value>
+  </data>
+  <data name="RollupLevelDescription" xml:space="preserve">
+    <value>Все уровни группирования атрибутов, вычисляемых в этой свертке.</value>
+  </data>
+  <data name="Level" xml:space="preserve">
+    <value>Уровень</value>
+  </data>
+  <data name="LevelDescription" xml:space="preserve">
+    <value>Уровень группирования атрибутов, вычисляемых в этой свертке.</value>
+  </data>
+  <data name="RemoteQuery" xml:space="preserve">
+    <value>Удаленный запрос</value>
+  </data>
+  <data name="RemoteQueryDescription" xml:space="preserve">
+    <value>Направление SQL-запроса на сервер, отличный от текущего SQL Server.</value>
+  </data>
+  <data name="ComputeScalar" xml:space="preserve">
+    <value>Вычисление скалярного значения</value>
+  </data>
+  <data name="MergeInterval" xml:space="preserve">
+    <value>Интервал слияния</value>
+  </data>
+  <data name="Print" xml:space="preserve">
+    <value>Печать</value>
+  </data>
+  <data name="Segment" xml:space="preserve">
+    <value>Сегмент</value>
+  </data>
+  <data name="Split" xml:space="preserve">
+    <value>Разделить</value>
+  </data>
+  <data name="BatchHashTableBuild" xml:space="preserve">
+    <value>Построение хэш-таблицы пакета</value>
+  </data>
+  <data name="Bitmap" xml:space="preserve">
+    <value>Битовая карта</value>
+  </data>
+  <data name="Collapse" xml:space="preserve">
+    <value>Свернуть</value>
+  </data>
+  <data name="TableSpool" xml:space="preserve">
+    <value>Буферизация таблицы</value>
+  </data>
+  <data name="RepartitionStreams" xml:space="preserve">
+    <value>Распределение потоков</value>
+  </data>
+  <data name="Assert" xml:space="preserve">
+    <value>Подтверждение</value>
+  </data>
+  <data name="Sort" xml:space="preserve">
+    <value>Сортировка</value>
+  </data>
+  <data name="Top" xml:space="preserve">
+    <value>Сверху</value>
+  </data>
+  <data name="SequenceProject" xml:space="preserve">
+    <value>Проект последовательности</value>
+  </data>
+  <data name="Spool" xml:space="preserve">
+    <value>Очередь</value>
+  </data>
+  <data name="Window" xml:space="preserve">
+    <value>Буфер окон</value>
+  </data>
+  <data name="Parallelism" xml:space="preserve">
+    <value>Параллелизм</value>
+  </data>
+  <data name="RowCountSpool" xml:space="preserve">
+    <value>Очередь счетчика строк</value>
+  </data>
+  <data name="Unknown" xml:space="preserve">
+    <value>Unbekannt</value>
+  </data>
+  <data name="UnknownDescription" xml:space="preserve">
+    <value>Неизвестный оператор.</value>
+  </data>
+  <data name="Result" xml:space="preserve">
+    <value>Результат</value>
+  </data>
+  <data name="ResultDescription" xml:space="preserve">
+    <value>Результат.</value>
+  </data>
+  <data name="CollapseDescription" xml:space="preserve">
+    <value>Группирует операции вставки и удаления одного и того же значения в операцию обновления в широких планах обновления.</value>
+  </data>
+  <data name="Concatenation" xml:space="preserve">
+    <value>Объединение</value>
+  </data>
+  <data name="ConcatenationDescription" xml:space="preserve">
+    <value>Соединяет несколько входных таблиц для формирования выходной таблицы.</value>
+  </data>
+  <data name="ConstantScan" xml:space="preserve">
+    <value>Постоянное сканирование</value>
+  </data>
+  <data name="ConstantScanDescription" xml:space="preserve">
+    <value>Просмотр внутренней таблицы констант.</value>
+  </data>
+  <data name="ParallelismDescription" xml:space="preserve">
+    <value>Операция, требующая параллелизма.</value>
+  </data>
+  <data name="Put" xml:space="preserve">
+    <value>Поместить</value>
+  </data>
+  <data name="PutDescription" xml:space="preserve">
+    <value>Экспорт строк из локальной или внешней таблицы во внешнюю таблицу.</value>
+  </data>
+  <data name="DistributeStreams" xml:space="preserve">
+    <value>Распределить потоки</value>
+  </data>
+  <data name="DistributeStreamsDescription" xml:space="preserve">
+    <value>Распределяет потоки.</value>
+  </data>
+  <data name="GatherStreams" xml:space="preserve">
+    <value>Собрать потоки</value>
+  </data>
+  <data name="GatherStreamsDescription" xml:space="preserve">
+    <value>Сбор потоков.</value>
+  </data>
+  <data name="RepartitionStreamsDescription" xml:space="preserve">
+    <value>Распределение потоков.</value>
+  </data>
+  <data name="EagerSpool" xml:space="preserve">
+    <value>Eager Spool</value>
+  </data>
+  <data name="EagerSpoolDescription" xml:space="preserve">
+    <value>Eager Spool.</value>
+  </data>
+  <data name="LazySpool" xml:space="preserve">
+    <value>Отложенный пул</value>
+  </data>
+  <data name="LazySpoolDescription" xml:space="preserve">
+    <value>Отложенная очередь.</value>
+  </data>
+  <data name="Filter" xml:space="preserve">
+    <value>Фильтр</value>
+  </data>
+  <data name="FilterDescription" xml:space="preserve">
+    <value>Ограничение набора строк по предикату.</value>
+  </data>
+  <data name="AssertDescription" xml:space="preserve">
+    <value>Используется для проверки выполнения указанного условия.</value>
+  </data>
+  <data name="HashMatch" xml:space="preserve">
+    <value>Совпадение хэша</value>
+  </data>
+  <data name="HashMatchDescription" xml:space="preserve">
+    <value>Каждая строка верхнего входа используется для создания хэш-таблицы, а каждая строка нижнего входа - для пробы хэш-таблицы; выводятся все совпадающие строки.</value>
+  </data>
+  <data name="HashMatchTeam" xml:space="preserve">
+    <value>Команда совпадения хэша</value>
+  </data>
+  <data name="HashMatchTeamDescription" xml:space="preserve">
+    <value>Одна из нескольких совместно действующих операций хэширования.</value>
+  </data>
+  <data name="HashMatchRoot" xml:space="preserve">
+    <value>Корень совпадения хэша</value>
+  </data>
+  <data name="HashMatchRootDescription" xml:space="preserve">
+    <value>Корневой элемент группы соединенных хэш-операторов, имеющих общую хэш-функцию и стратегию секционирования.</value>
+  </data>
+  <data name="BookmarkLookup" xml:space="preserve">
+    <value>Поиск закладки</value>
+  </data>
+  <data name="BookmarkLookupDescription" xml:space="preserve">
+    <value>Использует закладку RID или ключ кластеризации для уточняющего запроса соответствующей строки в таблице или кластеризованном индексе.</value>
+  </data>
+  <data name="LogRowScan" xml:space="preserve">
+    <value>Сканирование строк журнала</value>
+  </data>
+  <data name="LogRowScanDescription" xml:space="preserve">
+    <value>Просматривает строки журнала.</value>
+  </data>
+  <data name="MergeJoin" xml:space="preserve">
+    <value>Соединение слиянием</value>
+  </data>
+  <data name="MergeJoinDescription" xml:space="preserve">
+    <value>Сопоставление строк из двух соответствующим образом отсортированных входных таблиц с использованием их порядка сортировки.</value>
+  </data>
+  <data name="NestedLoops" xml:space="preserve">
+    <value>Вложенные циклы</value>
+  </data>
+  <data name="NestedLoopsDescription" xml:space="preserve">
+    <value>Для каждой строки верхнего (внешнего) входа производится просмотр нижнего (внутреннего) входа и вывод совпадающих строк.</value>
+  </data>
+  <data name="PrintDescription" xml:space="preserve">
+    <value>Печать.</value>
+  </data>
+  <data name="ComputeScalarDescription" xml:space="preserve">
+    <value>Вычисляет новые значения по имеющимся в строке значениям.</value>
+  </data>
+  <data name="MergeIntervalDescription" xml:space="preserve">
+    <value>Интервал слияния.</value>
+  </data>
+  <data name="Rank" xml:space="preserve">
+    <value>Ранг</value>
+  </data>
+  <data name="RankDescription" xml:space="preserve">
+    <value>Создает вычисляемый столбец с рангом значений существующего столбца таблицы.</value>
+  </data>
+  <data name="RowCountSpoolDescription" xml:space="preserve">
+    <value>Сохраняет входные данные во временной таблице для оптимизации операций сброса на начало.</value>
+  </data>
+  <data name="SegmentDescription" xml:space="preserve">
+    <value>Сегмент.</value>
+  </data>
+  <data name="Sequence" xml:space="preserve">
+    <value>Последовательность</value>
+  </data>
+  <data name="SequenceDescription" xml:space="preserve">
+    <value>Обработать все данные ввода последовательно, сверху вниз.</value>
+  </data>
+  <data name="SequenceProjectDescription" xml:space="preserve">
+    <value>Добавляет столбцы для выполнения вычислений на упорядоченном наборе.</value>
+  </data>
+  <data name="SplitDescription" xml:space="preserve">
+    <value>Разбить.</value>
+  </data>
+  <data name="StreamAggregate" xml:space="preserve">
+    <value>Статистическое выражение потока</value>
+  </data>
+  <data name="StreamAggregateDescription" xml:space="preserve">
+    <value>Вычисление сводных значений для групп и строк в соответствующем образом упорядоченном потоке.</value>
+  </data>
+  <data name="TableScan" xml:space="preserve">
+    <value>Сканирование таблицы</value>
+  </data>
+  <data name="TableScanDescription" xml:space="preserve">
+    <value>Просмотр строк таблицы.</value>
+  </data>
+  <data name="ClusteredIndexScan" xml:space="preserve">
+    <value>Сканирование кластеризованного индекса</value>
+  </data>
+  <data name="ClusteredIndexScanDescription" xml:space="preserve">
+    <value>Просмотр всего кластеризованного индекса или его части.</value>
+  </data>
+  <data name="ClusteredIndexSeek" xml:space="preserve">
+    <value>Поиск кластеризованного индекса</value>
+  </data>
+  <data name="ClusteredIndexSeekDescription" xml:space="preserve">
+    <value>Просмотр определенного диапазона строк кластеризованного индекса.</value>
+  </data>
+  <data name="DeletedScan" xml:space="preserve">
+    <value>Удаленное сканирование</value>
+  </data>
+  <data name="DeletedScanDescription" xml:space="preserve">
+    <value>Просмотр псевдотаблицы, "удаленной" в триггере.</value>
+  </data>
+  <data name="InsertedScan" xml:space="preserve">
+    <value>Сканирование вставленных</value>
+  </data>
+  <data name="InsertedScanDescription" xml:space="preserve">
+    <value>Просмотр псевдотаблицы "inserted" в триггере.</value>
+  </data>
+  <data name="ParameterTableScan" xml:space="preserve">
+    <value>Сканирование таблицы параметров</value>
+  </data>
+  <data name="ParameterTableScanDescription" xml:space="preserve">
+    <value>Просмотр внутренней таблицы значений параметров.</value>
+  </data>
+  <data name="IndexScan" xml:space="preserve">
+    <value>Сканирование индекса</value>
+  </data>
+  <data name="IndexScanDescription" xml:space="preserve">
+    <value>Просмотр всего некластеризованного индекса или его части.</value>
+  </data>
+  <data name="IndexSeek" xml:space="preserve">
+    <value>Поиск в индексе</value>
+  </data>
+  <data name="IndexSeekDescription" xml:space="preserve">
+    <value>Просмотр определенного диапазона строк некластеризованного индекса.</value>
+  </data>
+  <data name="ColumnstoreIndexScan" xml:space="preserve">
+    <value>Сканирование индекса columnstore</value>
+  </data>
+  <data name="ColumnstoreIndexScanDescription" xml:space="preserve">
+    <value>Просмотр индекса columnstore целиком или только диапазона.</value>
+  </data>
+  <data name="ColumnstoreIndexUpdate" xml:space="preserve">
+    <value>Обновление индекса columnstore</value>
+  </data>
+  <data name="ColumnstoreIndexUpdateDescription" xml:space="preserve">
+    <value>Обновление строк в индексе columnstore.</value>
+  </data>
+  <data name="ColumnstoreIndexInsert" xml:space="preserve">
+    <value>Вставка индекса columnstore</value>
+  </data>
+  <data name="ColumnstoreIndexInsertDescription" xml:space="preserve">
+    <value>Вставка строк в индекс columnstore.</value>
+  </data>
+  <data name="ColumnstoreIndexMerge" xml:space="preserve">
+    <value>Слияние индекса columnstore</value>
+  </data>
+  <data name="ColumnstoreIndexMergeDescription" xml:space="preserve">
+    <value>Слияние строк в индексе columnstore.</value>
+  </data>
+  <data name="ColumnstoreIndexDelete" xml:space="preserve">
+    <value>Удаление индекса columnstore</value>
+  </data>
+  <data name="ColumnstoreIndexDeleteDescription" xml:space="preserve">
+    <value>Удаление строки из индекса columnstore.</value>
+  </data>
+  <data name="RemoteScan" xml:space="preserve">
+    <value>Удаленное сканирование</value>
+  </data>
+  <data name="RemoteScanDescription" xml:space="preserve">
+    <value>Просмотр строк в таблице, хранящейся в базе данных или файле, не принадлежащих текущему серверу базы данных.</value>
+  </data>
+  <data name="RemoteIndexScan" xml:space="preserve">
+    <value>Удаленное сканирование индекса</value>
+  </data>
+  <data name="RemoteIndexScanDescription" xml:space="preserve">
+    <value>Просмотр индекса, хранящегося в базе данных или файле, который расположен не на текущем сервере баз данных.</value>
+  </data>
+  <data name="RemoteIndexSeek" xml:space="preserve">
+    <value>Удаленный поиск в индексе</value>
+  </data>
+  <data name="RemoteIndexSeekDescription" xml:space="preserve">
+    <value>Просмотр определенного диапазона строк кластеризованного индекса, хранящегося в базе данных или файле, который расположен не на текущем сервере баз данных.</value>
+  </data>
+  <data name="RemoteInsert" xml:space="preserve">
+    <value>Удаленная вставка</value>
+  </data>
+  <data name="RemoteInsertDescription" xml:space="preserve">
+    <value>Вставка строк в таблицу, хранящуюся в базе данных или файле, отличном от текущего сервера базы данных.</value>
+  </data>
+  <data name="RemoteUpdate" xml:space="preserve">
+    <value>Удаленное обновление</value>
+  </data>
+  <data name="RemoteUpdateDescription" xml:space="preserve">
+    <value>Обновление строк в таблице, хранящейся в базе данных или файле, отличном от текущего сервера базы данных.</value>
+  </data>
+  <data name="RemoteDelete" xml:space="preserve">
+    <value>Удаленное удаление</value>
+  </data>
+  <data name="RemoteDeleteDescription" xml:space="preserve">
+    <value>Удаление строк из таблицы, хранящейся в базе данных или файле, отличном от текущего сервера базы данных.</value>
+  </data>
+  <data name="ClusteredUpdate" xml:space="preserve">
+    <value>Кластерное обновление</value>
+  </data>
+  <data name="ClusteredUpdateDescription" xml:space="preserve">
+    <value>Обновление кластеризованного индекса.</value>
+  </data>
+  <data name="SortDescription" xml:space="preserve">
+    <value>Сортировка данных ввода.</value>
+  </data>
+  <data name="TableSpoolDescription" xml:space="preserve">
+    <value>Сохраняет входные данные во временной таблице для оптимизации операций сброса на начало.</value>
+  </data>
+  <data name="IndexSpool" xml:space="preserve">
+    <value>Index Spool</value>
+  </data>
+  <data name="IndexSpoolDescription" xml:space="preserve">
+    <value>Переформатирует данные из входного индекса во временный, который затем используется для поиска с указанным предикатом поиска.</value>
+  </data>
+  <data name="TableUpdate" xml:space="preserve">
+    <value>Обновление таблицы</value>
+  </data>
+  <data name="TableUpdateDescription" xml:space="preserve">
+    <value>Обновление строк ввода из таблицы, указанной в поле Argument.</value>
+  </data>
+  <data name="TableInsert" xml:space="preserve">
+    <value>Вставка в таблицу</value>
+  </data>
+  <data name="TableInsertDescription" xml:space="preserve">
+    <value>Вставка строк ввода в таблицу, указанную в поле Argument.</value>
+  </data>
+  <data name="TableDelete" xml:space="preserve">
+    <value>Удаление из таблицы</value>
+  </data>
+  <data name="TableDeleteDescription" xml:space="preserve">
+    <value>Удаление строк ввода из таблицы, указанной в поле Argument.</value>
+  </data>
+  <data name="TableMerge" xml:space="preserve">
+    <value>Слияние таблиц</value>
+  </data>
+  <data name="TableMergeDescription" xml:space="preserve">
+    <value>Слияние строк ввода в таблицу, указанную в поле Argument.</value>
+  </data>
+  <data name="IndexUpdate" xml:space="preserve">
+    <value>Обновить индекс</value>
+  </data>
+  <data name="IndexUpdateDescription" xml:space="preserve">
+    <value>Обновление строк индекса.</value>
+  </data>
+  <data name="IndexInsert" xml:space="preserve">
+    <value>Вставить в индекс</value>
+  </data>
+  <data name="IndexInsertDescription" xml:space="preserve">
+    <value>Вставка строк в индекс.</value>
+  </data>
+  <data name="IndexDelete" xml:space="preserve">
+    <value>Удалить индекс</value>
+  </data>
+  <data name="IndexDeleteDescription" xml:space="preserve">
+    <value>Удаление строк из индекса.</value>
+  </data>
+  <data name="ClusteredIndexUpdate" xml:space="preserve">
+    <value>Обновление кластеризованного индекса</value>
+  </data>
+  <data name="ClusteredIndexUpdateDescription" xml:space="preserve">
+    <value>Обновление строк кластеризованного индекса.</value>
+  </data>
+  <data name="ClusteredIndexInsert" xml:space="preserve">
+    <value>Вставка кластеризованного индекса</value>
+  </data>
+  <data name="ClusteredIndexInsertDescription" xml:space="preserve">
+    <value>Вставка строк в кластеризованный индекс.</value>
+  </data>
+  <data name="ClusteredIndexMerge" xml:space="preserve">
+    <value>Слияние кластеризованного индекса</value>
+  </data>
+  <data name="ClusteredIndexMergeDescription" xml:space="preserve">
+    <value>Слияние строк в кластеризованном индексе.</value>
+  </data>
+  <data name="ClusteredIndexDelete" xml:space="preserve">
+    <value>Удаление кластеризованного индекса</value>
+  </data>
+  <data name="ClusteredIndexDeleteDescription" xml:space="preserve">
+    <value>Удаление строк из кластеризованного индекса.</value>
+  </data>
+  <data name="TopDescription" xml:space="preserve">
+    <value>Выберите первые несколько строк по порядку сортировки.</value>
+  </data>
+  <data name="BitmapDescription" xml:space="preserve">
+    <value>Битовая карта.</value>
+  </data>
+  <data name="UDX" xml:space="preserve">
+    <value>UDX</value>
+  </data>
+  <data name="UDXDescription" xml:space="preserve">
+    <value>UDX.</value>
+  </data>
+  <data name="WindowDescription" xml:space="preserve">
+    <value>Расширяет каждую строку до набора строк, представляющих окно, связанное с этой строкой.</value>
+  </data>
+  <data name="WindowAggregate" xml:space="preserve">
+    <value>Агрегрированное значение окна</value>
+  </data>
+  <data name="WindowAggregateDescription" xml:space="preserve">
+    <value>Вычисляет значения функций в окнах, определенных предложением OVER. Входной набор строк — упорядоченный соответствующим образом поток.</value>
+  </data>
+  <data name="BatchHashTableBuildDescription" xml:space="preserve">
+    <value>Построение хэш-таблицы пакета.</value>
+  </data>
+  <data name="Switch" xml:space="preserve">
+    <value>Переключение</value>
+  </data>
+  <data name="SwitchDescription" xml:space="preserve">
+    <value>Переключить.</value>
+  </data>
+  <data name="TFP" xml:space="preserve">
+    <value>Прогноз</value>
+  </data>
+  <data name="TFPDescription" xml:space="preserve">
+    <value>Применяет подготовленную модель машинного обучения для ввода данных.	</value>
+  </data>
+  <data name="TableValueFunction" xml:space="preserve">
+    <value>Функция, возвращающая табличное значение</value>
+  </data>
+  <data name="TableValueFunctionDescription" xml:space="preserve">
+    <value>Функция, возвращающая табличное значение.</value>
+  </data>
+  <data name="Aggregate" xml:space="preserve">
+    <value>Агрегат</value>
+  </data>
+  <data name="AggregateDescription" xml:space="preserve">
+    <value>Вычисляет выражение, содержащее SUM, COUNT, MIN, MAX или AVG.</value>
+  </data>
+  <data name="ArithmeticExpression" xml:space="preserve">
+    <value>Арифметическое выражение</value>
+  </data>
+  <data name="ArithmeticExpressionDescription" xml:space="preserve">
+    <value>Вычисляет новое значение по существующим значениям строки.</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Удалить</value>
+  </data>
+  <data name="DeleteDescription" xml:space="preserve">
+    <value>Удаляет указанные строки из указанной таблицы.</value>
+  </data>
+  <data name="Insert" xml:space="preserve">
+    <value>Вставить</value>
+  </data>
+  <data name="InsertDescription" xml:space="preserve">
+    <value>Добавляет строку к таблице.</value>
+  </data>
+  <data name="Locate" xml:space="preserve">
+    <value>Поиск</value>
+  </data>
+  <data name="LocateDescription" xml:space="preserve">
+    <value>Выборка целой строки из кучи или кластеризованного индекса.</value>
+  </data>
+  <data name="SpoolDescription" xml:space="preserve">
+    <value>Временное сохранение промежуточных результатов запроса.</value>
+  </data>
+  <data name="SQL" xml:space="preserve">
+    <value>SQL</value>
+  </data>
+  <data name="SQLDescription" xml:space="preserve">
+    <value>SQL.</value>
+  </data>
+  <data name="Update" xml:space="preserve">
+    <value>Обновить</value>
+  </data>
+  <data name="UpdateDescription" xml:space="preserve">
+    <value>Изменение значений в указанной таблице.</value>
+  </data>
+  <data name="Assign" xml:space="preserve">
+    <value>Назначить</value>
+  </data>
+  <data name="AssignDescription" xml:space="preserve">
+    <value>Проверяет ссылочные ограничения целостности.</value>
+  </data>
+  <data name="Convert" xml:space="preserve">
+    <value>Преобразовать</value>
+  </data>
+  <data name="ConvertDescription" xml:space="preserve">
+    <value>Явное или скрытое преобразование одного скалярного типа данных в другой.</value>
+  </data>
+  <data name="Declare" xml:space="preserve">
+    <value>Объявить</value>
+  </data>
+  <data name="DeclareDescription" xml:space="preserve">
+    <value>Выделяет локальную переменную.</value>
+  </data>
+  <data name="If" xml:space="preserve">
+    <value>Если</value>
+  </data>
+  <data name="IfDescription" xml:space="preserve">
+    <value>Выполнение в зависимости от выполнения условия выражения.</value>
+  </data>
+  <data name="Intrinsic" xml:space="preserve">
+    <value>Внутреннее</value>
+  </data>
+  <data name="IntrinsicDescription" xml:space="preserve">
+    <value>Вызывает внутреннюю функцию Transact-SQL.</value>
+  </data>
+  <data name="SetFunction" xml:space="preserve">
+    <value>Агрегатная функция</value>
+  </data>
+  <data name="SetFunctionDescription" xml:space="preserve">
+    <value>Агрегатная функция.</value>
+  </data>
+  <data name="Dynamic" xml:space="preserve">
+    <value>Динамический</value>
+  </data>
+  <data name="DynamicDescription" xml:space="preserve">
+    <value>Курсор, отслеживающий изменения, внесенные другими.</value>
+  </data>
+  <data name="FetchQuery" xml:space="preserve">
+    <value>Получить запрос</value>
+  </data>
+  <data name="FetchQueryDescription" xml:space="preserve">
+    <value>Запрос, используемый для получения строк при выборке из курсора.</value>
+  </data>
+  <data name="FastForward" xml:space="preserve">
+    <value>Перемотка вперед</value>
+  </data>
+  <data name="FastForwardDescription" xml:space="preserve">
+    <value>Перемотка вперед.</value>
+  </data>
+  <data name="Keyset" xml:space="preserve">
+    <value>Набор ключей</value>
+  </data>
+  <data name="KeysetDescription" xml:space="preserve">
+    <value>Курсор, отслеживающий обновления, но не вставки, сделанные другими.</value>
+  </data>
+  <data name="PopulationQuery" xml:space="preserve">
+    <value>Запрос заполнения</value>
+  </data>
+  <data name="PopulationQueryDescription" xml:space="preserve">
+    <value>Запрос, используемый для заполнения рабочей таблицы курсора при открытом курсоре.</value>
+  </data>
+  <data name="RefreshQuery" xml:space="preserve">
+    <value>Обновить запрос</value>
+  </data>
+  <data name="RefreshQueryDescription" xml:space="preserve">
+    <value>Получение текущих данных для строк буфера выборки.</value>
+  </data>
+  <data name="Snapshot" xml:space="preserve">
+    <value>Моментальный снимок</value>
+  </data>
+  <data name="SnapshotDescription" xml:space="preserve">
+    <value>Курсор, не отслеживающий изменения, внесенные другими.</value>
+  </data>
+  <data name="RIDLookup" xml:space="preserve">
+    <value>Поиск RID</value>
+  </data>
+  <data name="RIDLookupDescription" xml:space="preserve">
+    <value>Поиск RID</value>
+  </data>
+  <data name="KeyLookup" xml:space="preserve">
+    <value>Поиск ключа</value>
+  </data>
+  <data name="KeyLookupDescription" xml:space="preserve">
+    <value>Использование предоставленного кластеризованного ключа для поиска по таблице с кластеризованным индексом.</value>
+  </data>
+  <data name="LogicalKeyLookup" xml:space="preserve">
+    <value>Поиск ключа</value>
+  </data>
+  <data name="AdaptiveJoin" xml:space="preserve">
+    <value>Адаптивное соединение</value>
+  </data>
+  <data name="AdaptiveJoinDescription" xml:space="preserve">
+    <value>Выбирает динамически между хэш-соединением и соединением вложенными циклами.</value>
+  </data>
+  <data name="ForeignKeyReferencesCheck" xml:space="preserve">
+    <value>Проверка ссылок на внешние ключи</value>
+  </data>
+  <data name="ForeignKeyReferencesCheckDescription" xml:space="preserve">
+    <value>Проверяет ссылочную целостность операции удаления.</value>
+  </data>
+  <data name="Apply" xml:space="preserve">
+    <value>Применить</value>
+  </data>
+  <data name="ApplyDescription" xml:space="preserve">
+    <value>Операция применения.</value>
+  </data>
+  <data name="Broadcast" xml:space="preserve">
+    <value>Трансляция</value>
+  </data>
+  <data name="BroadcastDescription" xml:space="preserve">
+    <value>Перемещение данных трансляции.</value>
+  </data>
+  <data name="ComputeToControlNode" xml:space="preserve">
+    <value>Из вычислительных узлов в управляющий</value>
+  </data>
+  <data name="ComputeToControlNodeDescription" xml:space="preserve">
+    <value>Поток данных из вычислительных узлов в управляющий.</value>
+  </data>
+  <data name="ConstTableGet" xml:space="preserve">
+    <value>Получение из таблицы констант</value>
+  </data>
+  <data name="ConstTableGetDescription" xml:space="preserve">
+    <value>Получение кортежей из таблицы констант.</value>
+  </data>
+  <data name="ControlToComputeNodes" xml:space="preserve">
+    <value>Из управляющего узла в вычислительные</value>
+  </data>
+  <data name="ControlToComputeNodesDescription" xml:space="preserve">
+    <value>Поток данных из управляющего узла в вычислительные.</value>
+  </data>
+  <data name="ExternalBroadcast" xml:space="preserve">
+    <value>Внешняя трансляция</value>
+  </data>
+  <data name="ExternalBroadcastDescription" xml:space="preserve">
+    <value>Перемещение данных трансляции для внешней таблицы.</value>
+  </data>
+  <data name="ExternalExport" xml:space="preserve">
+    <value>Внешний экспорт</value>
+  </data>
+  <data name="ExternalExportDescription" xml:space="preserve">
+    <value>Перемещение данных экспорта для внешней таблицы.</value>
+  </data>
+  <data name="ExternalLocalStreaming" xml:space="preserve">
+    <value>Внешняя локальная потоковая передача</value>
+  </data>
+  <data name="ExternalLocalStreamingDescription" xml:space="preserve">
+    <value>Перемещение данных потоковой передачи между внешней и локальной таблицей.</value>
+  </data>
+  <data name="ExternalRoundRobin" xml:space="preserve">
+    <value>Внешний циклический перебор</value>
+  </data>
+  <data name="ExternalRoundRobinDescription" xml:space="preserve">
+    <value>Перемещение данных циклического перебора для внешней таблицы.</value>
+  </data>
+  <data name="ExternalShuffle" xml:space="preserve">
+    <value>Внешние данные в случайном порядке</value>
+  </data>
+  <data name="ExternalShuffleDescription" xml:space="preserve">
+    <value>Перемещение данных в случайном порядке для внешней таблицы.</value>
+  </data>
+  <data name="Get" xml:space="preserve">
+    <value>Получить</value>
+  </data>
+  <data name="GetDescription" xml:space="preserve">
+    <value>Получение кортежей из таблицы.</value>
+  </data>
+  <data name="GbApply" xml:space="preserve">
+    <value>Сгруппировать и применить</value>
+  </data>
+  <data name="GbApplyDescription" xml:space="preserve">
+    <value>Сгруппировать и применить.</value>
+  </data>
+  <data name="GbAgg" xml:space="preserve">
+    <value>Группировать по статистическим выражениям</value>
+  </data>
+  <data name="GbAggDescription" xml:space="preserve">
+    <value>Группировка по статистическим выражениям.</value>
+  </data>
+  <data name="Join" xml:space="preserve">
+    <value>Присоединиться</value>
+  </data>
+  <data name="JoinDescription" xml:space="preserve">
+    <value>Соединение таблиц.</value>
+  </data>
+  <data name="LocalCube" xml:space="preserve">
+    <value>Агрегат свертки</value>
+  </data>
+  <data name="LocalCubeDescription" xml:space="preserve">
+    <value>Представляет оператор ROLLUP или CUBE.</value>
+  </data>
+  <data name="Project" xml:space="preserve">
+    <value>Проект</value>
+  </data>
+  <data name="ProjectDescription" xml:space="preserve">
+    <value>Столбцы проекта.</value>
+  </data>
+  <data name="Shuffle" xml:space="preserve">
+    <value>В случайном порядке</value>
+  </data>
+  <data name="ShuffleDescription" xml:space="preserve">
+    <value>Перемещение данных в случайном порядке.</value>
+  </data>
+  <data name="SingleSourceRoundRobin" xml:space="preserve">
+    <value>Циклический перебор с одним источником</value>
+  </data>
+  <data name="SingleSourceRoundRobinDescription" xml:space="preserve">
+    <value>Перемещение данных циклического перебора с одним источником.</value>
+  </data>
+  <data name="SingleSourceShuffle" xml:space="preserve">
+    <value>Данные с одним источником в случайном порядке</value>
+  </data>
+  <data name="SingleSourceShuffleDescription" xml:space="preserve">
+    <value>Перемещение данных с одним источником в случайном порядке.</value>
+  </data>
+  <data name="Trim" xml:space="preserve">
+    <value>Обрезка</value>
+  </data>
+  <data name="TrimDescription" xml:space="preserve">
+    <value>Обрезка данных.</value>
+  </data>
+  <data name="Union" xml:space="preserve">
+    <value>Объединение</value>
+  </data>
+  <data name="UnionDescription" xml:space="preserve">
+    <value>Объединение таблиц.</value>
+  </data>
+  <data name="UnionAll" xml:space="preserve">
+    <value>Объединить все</value>
+  </data>
+  <data name="UnionAllDescription" xml:space="preserve">
+    <value>Объединение всех таблиц.</value>
+  </data>
+  <data name="NameValuePair" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="SizeInBytesFormat" xml:space="preserve">
+    <value>{0} Б</value>
+  </data>
+  <data name="SizeInKiloBytesFormat" xml:space="preserve">
+    <value>{0} КБ</value>
+  </data>
+  <data name="SizeInMegaBytesFormat" xml:space="preserve">
+    <value>{0} МБ</value>
+  </data>
+  <data name="SizeInGigaBytesFormat" xml:space="preserve">
+    <value>{0} ГБ</value>
+  </data>
+  <data name="SizeInTeraBytesFormat" xml:space="preserve">
+    <value>{0} ТБ</value>
+  </data>
+  <data name="TableNotInitializedException" xml:space="preserve">
+    <value>Инициализация выполнена некорректно для таблицы с идентификатором "{0}"</value>
+  </data>
+  <data name="TableColumnIdentityGroupName" xml:space="preserve">
+    <value>Спецификация идентификатора</value>
+  </data>
+  <data name="TableColumnIsIdentityPropertyTitle" xml:space="preserve">
+    <value>Является идентификатором</value>
+  </data>
+  <data name="TableColumnIsIdentityPropertyDescription" xml:space="preserve">
+    <value>Указывает, является ли данный столбец столбцом идентификаторов для таблицы.</value>
+  </data>
+  <data name="TableColumnIdentityIncrementPropertyTitle" xml:space="preserve">
+    <value>Шаг приращения идентификатора</value>
+  </data>
+  <data name="TableColumnIdentityIncrementPropertyDescription" xml:space="preserve">
+    <value>Отображает значение, добавляемое к максимальному существующему значению идентификатора при формировании следующего значения идентификатора.</value>
+  </data>
+  <data name="TableColumnIdentitySeedPropertyTitle" xml:space="preserve">
+    <value>Начальное значение идентификатора</value>
+  </data>
+  <data name="TableColumnIdentitySeedPropertyDescription" xml:space="preserve">
+    <value>Отображает значение начальной строки для столбца идентификаторов.</value>
+  </data>
+  <data name="TableEditPathNotProvidedException" xml:space="preserve">
+    <value>Путь в сведениях об изменении таблицы не может быть пустым</value>
+  </data>
+  <data name="InvalidTableEditPathException" xml:space="preserve">
+    <value>Недопустимый путь "{0}" в сведениях об изменении таблицы для типа правки: "{1}"</value>
+  </data>
+  <data name="OperatorDisplayCost" xml:space="preserve">
+    <value>{0:0.#######} ({1}%)</value>
+  </data>
+  <data name="ActualOfEstimated" xml:space="preserve">
+    <value>{0} из
+{1} ({2} %)</value>
+  </data>
+  <data name="TableDesignerIsEnabledPropertyTitle" xml:space="preserve">
+    <value>Включен</value>
+  </data>
+  <data name="ForeignKeyIsEnabledDescription" xml:space="preserve">
+    <value>Указывает, включен ли внешний ключ</value>
+  </data>
+  <data name="ForeignKeyIsNotForReplicationTitle" xml:space="preserve">
+    <value>Не для репликации</value>
+  </data>
+  <data name="ForeignKeyIsNotForReplicationDescription" xml:space="preserve">
+    <value>Включает или отключает ограничение IDENTITY для данных, вставленных в процессе репликации.</value>
+  </data>
+  <data name="SqlForeignKeyAction_NoAction" xml:space="preserve">
+    <value>Нет действия</value>
+  </data>
+  <data name="SqlForeignKeyAction_Cascade" xml:space="preserve">
+    <value>Каскад</value>
+  </data>
+  <data name="SqlForeignKeyAction_SetNull" xml:space="preserve">
+    <value>Присвоить NULL</value>
+  </data>
+  <data name="SqlForeignKeyAction_SetDefault" xml:space="preserve">
+    <value>Присвоить значение по умолчанию</value>
+  </data>
+  <data name="UnKnownSqlForeignKeyAction" xml:space="preserve">
+    <value>"{0}" не является поддерживаемым SqlForeignKeyAction.</value>
+  </data>
+  <data name="CheckConstraintIsEnabledDescription" xml:space="preserve">
+    <value>Указывает, включено ли проверочное ограничение.</value>
   </data>
 </root>
