@@ -327,7 +327,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 }
                 catch (Exception e)
                 {
-                    Logger.Write(TraceEventType.Error, "HandleGetXEventSessionRequest failed for uri " + parameters.OwnerUri);
+                    Logger.Write(TraceEventType.Error, "HandleGetXEventSessionsRequest failed for uri " + parameters.OwnerUri);
                     await requestContext.SendError(e);
                 }
             });
