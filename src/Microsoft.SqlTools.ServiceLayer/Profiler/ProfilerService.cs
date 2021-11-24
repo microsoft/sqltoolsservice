@@ -165,20 +165,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             {
                 try
                 {
+                    Logger.Write(TraceEventType.Verbose, "HandleCreateXEventSessionRequest started");
                     ConnectionInfo connInfo;
                     ConnectionServiceInstance.TryFindConnection(
                         parameters.OwnerUri,
                         out connInfo);
                     if (connInfo == null)
                     {
+                        Logger.Write(TraceEventType.Error, "Connection Info could not be found for " + parameters.OwnerUri);
                         throw new Exception(SR.ProfilerConnectionNotFound);
                     }
                     else if (parameters.SessionName == null)
                     {
+                        Logger.Write(TraceEventType.Error, "Session Name could not be found for " + parameters.OwnerUri);
                         throw new ArgumentNullException("SessionName");
                     }
                     else if (parameters.Template == null)
                     {
+                        Logger.Write(TraceEventType.Error, "Template could not be found for " + parameters.OwnerUri);
                         throw new ArgumentNullException("Template");
                     }
                     else
@@ -192,10 +196,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                         {
                             xeSession = this.XEventSessionFactory.GetXEventSession(parameters.SessionName, connInfo);
                         }
-                        catch { }
+                        catch { 
+                            Logger.Write(TraceEventType.Information, "Session with name '" + parameters.SessionName + "' was not found");
+                        }
 
                         if (xeSession == null)
                         {
+                            Logger.Write(TraceEventType.Verbose, "Creating new XEventSession with SessionName " + parameters.SessionName);
                             // create a new XEvent session and Profiler session
                             xeSession = this.XEventSessionFactory.CreateXEventSession(parameters.Template.CreateStatement, parameters.SessionName, connInfo);
                         }
@@ -225,6 +232,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             {
                 try
                 {
+                    Logger.Write(TraceEventType.Verbose, "HandleStopProfilingRequest started");
                     ProfilerSession session;
                     monitor.StopMonitoringSession(parameters.OwnerUri, out session);
 
@@ -246,6 +254,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                                 remainingAttempts--;
                                 if (remainingAttempts == 0)
                                 {
+                                    Logger.Write(TraceEventType.Error, "Stop profiler session '" + session.XEventSession.Session.Name + "' failed after three retries");
                                     throw;
                                 }
                                 Thread.Sleep(500);
