@@ -151,8 +151,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         {
             bool success = false;
             string testUri = "test_session";
-            // bool recievedEvents = false; // Removed due to incompatability with XElite stream.
-
+    
             // capture pausing results
             var requestContext = new Mock<RequestContext<PauseProfilingResult>>();
             requestContext.Setup(rc => rc.SendResult(It.IsAny<PauseProfilingResult>()))
@@ -162,16 +161,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
                     return Task.FromResult(0);
                 });
 
-            var mockListener = new TestSessionListener();
-
-            // capture Listener event notifications
-            // var mockListener = new Mock<IProfilerSessionListener>(); // Removed due to incompatability with XElite stream.
-            // mockListener.Setup(p => p.EventsAvailable(It.IsAny<string>(), It.IsAny<List<ProfilerEvent>>(), It.IsAny<bool>())).Callback(() =>
-            //     {
-            //         recievedEvents = true;
-            //     });
-
             // setup profiler service
+            var mockListener = new TestSessionListener();
             var profilerService = new ProfilerService();
             profilerService.SessionMonitor.AddSessionListener(mockListener);
             profilerService.ConnectionServiceInstance = TestObjects.GetTestConnectionService();
@@ -188,45 +179,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             // begin monitoring session
             profilerService.SessionMonitor.StartMonitoringSession(testUri, testSession);
 
-            // wait for polling to finish, or for timeout
-            // System.Timers.Timer pollingTimer = new System.Timers.Timer(); // Removed due to incompatability with XElite stream.
-            // pollingTimer.Interval = 10000;
-            // pollingTimer.Start();
-            // bool timeout = false;
-            // pollingTimer.Elapsed += new System.Timers.ElapsedEventHandler((s_, e_) => { timeout = true; });
-            // while (!recievedEvents && !timeout)
-            // {
-            //     Thread.Sleep(250);
-            // }
-            // pollingTimer.Stop();
-
-            // confirm that polling works
-            //Assert.True(recievedEvents);
-
             // pause viewer
             await profilerService.HandlePauseProfilingRequest(requestParams, requestContext.Object);
             Assert.True(success);
 
-            // recievedEvents = false;
             success = false;
-
-            // confirm that no events were sent to paused Listener
-            // Assert.False(recievedEvents);
 
             // unpause viewer
             await profilerService.HandlePauseProfilingRequest(requestParams, requestContext.Object);
             Assert.True(success);
-
-            // wait for polling to finish, or for timeout
-            // timeout = false; // Removed due to incompatability with XElite stream.
-            // pollingTimer.Start();
-            // while (!recievedEvents && !timeout)
-            // {
-            //     Thread.Sleep(250);
-            // }
-
-            // check that events got sent to Listener
-            // Assert.True(recievedEvents);
 
             requestContext.VerifyAll();
         }
