@@ -108,6 +108,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     case DesignerEditType.Remove:
                         this.HandleRemoveItemRequest(requestParams);
                         break;
+                    case DesignerEditType.Update:
+                        this.HandleUpdateItemRequest(requestParams);
+                        break;
                     default:
                         // TODO: Handle 'Update' request
                         break;
@@ -182,6 +185,35 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             else
             {
                 // TODO: Handle the add item request on second level properties, e.g. Adding a column to an index
+            }
+        }
+
+        private void HandleUpdateItemRequest(ProcessTableDesignerEditRequestParams requestParams)
+        {
+            var table = this.GetTable(requestParams.TableInfo);
+            var path = requestParams.TableChangeInfo.Path;
+
+            if (path.Length == 3)
+            {
+                var propertyName = path[0] as string;
+                switch (propertyName)
+                {
+                    case TablePropertyNames.Columns:
+                        var colIndex = (long)path[1];
+                        var colPropertyName = path[2] as string;
+                        if (colPropertyName == TableColumnPropertyNames.Length) {
+                            table.Columns.Items[Convert.ToInt32(colIndex)].Length = requestParams.TableChangeInfo.Value as string;
+                        } else if (colPropertyName == TableColumnPropertyNames.AllowNulls) {
+                            table.Columns.Items[Convert.ToInt32(colIndex)].IsNullable = (bool)requestParams.TableChangeInfo.Value;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else
+            {
+
             }
         }
 
