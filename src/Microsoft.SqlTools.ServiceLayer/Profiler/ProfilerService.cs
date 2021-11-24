@@ -249,12 +249,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                                 await requestContext.SendResult(new StopProfilingResult { });
                                 break;
                             }
-                            catch (InvalidOperationException)
+                            catch (InvalidOperationException e)
                             {
                                 remainingAttempts--;
                                 if (remainingAttempts == 0)
                                 {
-                                    Logger.Write(TraceEventType.Error, "Stop profiler session '" + session.XEventSession.Session.Name + "' failed after three retries");
+                                    Logger.Write(TraceEventType.Error, "Stop profiler session '" + session.XEventSession.Session.Name + "' failed after three retries, last exception was: " + e.Message);
                                     throw;
                                 }
                                 Thread.Sleep(500);
