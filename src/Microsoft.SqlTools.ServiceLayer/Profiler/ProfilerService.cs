@@ -151,6 +151,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 }
                 catch (Exception e)
                 {
+                    Logger.Write(TraceEventType.Error, "HandleStartProfilingRequest failed for uri " + parameters.OwnerUri);
                     await requestContext.SendError(new Exception (SR.StartProfilingFailed(e.Message), e));
                 }
             });
@@ -218,6 +219,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 }
                 catch (Exception e)
                 {
+                    Logger.Write(TraceEventType.Error, "HandleCreateXEventSessionRequest failed for uri " + parameters.OwnerUri);
                     await requestContext.SendError(new Exception (SR.CreateSessionFailed(e.Message), e));
                 }
             });
@@ -268,6 +270,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 }
                 catch (Exception e)
                 {
+                    Logger.Write(TraceEventType.Error, "HandleStopProfilingRequest failed for uri " + parameters.OwnerUri);
                     await requestContext.SendError(new Exception(SR.StopSessionFailed(e.Message)));
                 }
             });
@@ -282,12 +285,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             {
                 try
                 {
+                    Logger.Write(TraceEventType.Verbose, "HandlePauseProfilingRequest started");
                     monitor.PauseViewer(parameters.OwnerUri);
 
                     await requestContext.SendResult(new PauseProfilingResult { });
                 }
                 catch (Exception e)
                 {
+                    Logger.Write(TraceEventType.Error, "HandlePauseProfilingRequest failed for uri " + parameters.OwnerUri);
                     await requestContext.SendError(new Exception(SR.PauseSessionFailed(e.Message)));
                 }
             });
@@ -302,6 +307,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             {
                 try
                 {
+                    Logger.Write(TraceEventType.Verbose, "HandleGetXEventSessionsRequest started");
                     var result = new GetXEventSessionsResult();
                     ConnectionInfo connInfo;
                     ConnectionServiceInstance.TryFindConnection(
@@ -309,6 +315,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                         out connInfo);
                     if (connInfo == null)
                     {
+                        Logger.Write(TraceEventType.Error, "Connection Info could not be found for " + parameters.OwnerUri);
                         await requestContext.SendError(new Exception(SR.ProfilerConnectionNotFound));
                     }
                     else
@@ -320,6 +327,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 }
                 catch (Exception e)
                 {
+                    Logger.Write(TraceEventType.Error, "HandleGetXEventSessionRequest failed for uri " + parameters.OwnerUri);
                     await requestContext.SendError(e);
                 }
             });
@@ -334,11 +342,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                        {
                            try
                            {
+                               Logger.Write(TraceEventType.Verbose, "HandleDisconnectSessionRequest started");
                                ProfilerSession session;
                                monitor.StopMonitoringSession(parameters.OwnerUri, out session);
                            }
                            catch (Exception e)
                            {
+                               Logger.Write(TraceEventType.Error, "HandleDisconnectSessionRequest failed for uri " + parameters.OwnerUri);
                                await requestContext.SendError(e);
                            }
                        });
