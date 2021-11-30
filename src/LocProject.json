@@ -8,6 +8,48 @@
           "LclFile": "src\\Microsoft.SqlTools.ServiceLayer\\Localization\\LCL\\{Lang}\\sr.xlf.lcl",
           "CopyOption": "LangIDOnName",
           "OutputPath": "src\\Microsoft.SqlTools.ServiceLayer\\Localization"
+        },
+        {
+          "SourceFile": "src\\Microsoft.SqlTools.ResourceProvider\\Localization\\sr.xlf",
+          "LclFile": "src\\Microsoft.SqlTools.ResourceProvider\\Localization\\LCL\\{Lang}\\sr.xlf.lcl",
+          "CopyOption": "LangIDOnName",
+          "OutputPath": "src\\Microsoft.SqlTools.ResourceProvider\\Localization"
+        },
+        {
+          "SourceFile": "src\\Microsoft.SqlTools.ResourceProvider.DefaultImpl\\Localization\\sr.xlf",
+          "LclFile": "src\\Microsoft.SqlTools.ResourceProvider.DefaultImpl\\Localization\\LCL\\{Lang}\\sr.xlf.lcl",
+          "CopyOption": "LangIDOnName",
+          "OutputPath": "src\\Microsoft.SqlTools.ResourceProvider.DefaultImpl\\Localization"
+        },
+        {
+          "SourceFile": "src\\Microsoft.SqlTools.ResourceProvider.Core\\Localization\\sr.xlf",
+          "LclFile": "src\\Microsoft.SqlTools.ResourceProvider.Core\\Localization\\LCL\\{Lang}\\sr.xlf.lcl",
+          "CopyOption": "LangIDOnName",
+          "OutputPath": "src\\Microsoft.SqlTools.ResourceProvider.Core\\Localization"
+        },
+        {
+          "SourceFile": "src\\Microsoft.SqlTools.ManagedBatchParser\\Localization\\sr.xlf",
+          "LclFile": "src\\Microsoft.SqlTools.ManagedBatchParser\\Localization\\LCL\\{Lang}\\sr.xlf.lcl",
+          "CopyOption": "LangIDOnName",
+          "OutputPath": "src\\Microsoft.SqlTools.ManagedBatchParser\\Localization"
+        },
+        {
+          "SourceFile": "src\\Microsoft.SqlTools.Hosting\\Localization\\sr.xlf",
+          "LclFile": "src\\Microsoft.SqlTools.Hosting\\Localization\\LCL\\{Lang}\\sr.xlf.lcl",
+          "CopyOption": "LangIDOnName",
+          "OutputPath": "src\\Microsoft.SqlTools.Hosting\\Localization"
+        },
+        {
+          "SourceFile": "src\\Microsoft.SqlTools.Credentials\\Localization\\sr.xlf",
+          "LclFile": "src\\Microsoft.SqlTools.Credentials\\Localization\\LCL\\{Lang}\\sr.xlf.lcl",
+          "CopyOption": "LangIDOnName",
+          "OutputPath": "src\\Microsoft.SqlTools.Credentials\\Localization"
+        },
+        {
+          "SourceFile": "src\\Microsoft.Kusto.ServiceLayer\\Localization\\sr.xlf",
+          "LclFile": "src\\Microsoft.Kusto.ServiceLayer\\Localization\\LCL\\{Lang}\\sr.xlf.lcl",
+          "CopyOption": "LangIDOnName",
+          "OutputPath": "src\\Microsoft.Kusto.ServiceLayer\\Localization"
         }
       ]
     }
