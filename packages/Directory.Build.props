@@ -15,7 +15,7 @@
     it's only the release pipeline that generates the tag to use for the Github release. This
     is a workaround to get releases out until the pipelines can be refactored to pass in
     the correct version -->
-    <PackageVersion>3.0.0-release.157</PackageVersion>
+    <PackageVersion>3.0.0-release.163</PackageVersion>
     <PackageLicenseExpression></PackageLicenseExpression>
     <PackageLicenseFile>license/license.txt</PackageLicenseFile>
     <PackageIcon>images\sqlserver.png</PackageIcon>

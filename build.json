@@ -34,7 +34,7 @@
     "runtime.fedora.23-x64.native.Microsoft.SqlToolsService",
     "runtime.linux-x64.native.Microsoft.SqlToolsService",
     "runtime.opensuse.13.2-x64.native.Microsoft.SqlToolsService",
-    "runtime.osx.10.11-x64.native.Microsoft.SqlToolsService",
+    "runtime.osx-x64.native.Microsoft.SqlToolsService",
     "runtime.rhel.7.2-x64.native.Microsoft.SqlToolsService",
     "runtime.ubuntu.14.04-x64.native.Microsoft.SqlToolsService",
     "runtime.ubuntu.16.04-x64.native.Microsoft.SqlToolsService",
