@@ -76,7 +76,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 {typeof(bool),           (o, id, col) => ReadBoolean(o, id)},
                 {typeof(double),         (o, id, col) => ReadDouble(o, id)},
                 {typeof(float),          (o, id, col) => ReadSingle(o, id)},
-                {typeof(decimal),        (o, id, col) => ReadDecimal(o, id)},
+                {typeof(decimal),        (o, id, col) => ReadSqlDecimal(o, id)},
                 {typeof(DateTime),       ReadDateTime},
                 {typeof(DateTimeOffset), (o, id, col) => ReadDateTimeOffset(o, id)},
                 {typeof(TimeSpan),       (o, id, col) => ReadTimeSpan(o, id)},
