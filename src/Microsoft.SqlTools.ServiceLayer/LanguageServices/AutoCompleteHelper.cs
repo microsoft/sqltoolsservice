@@ -754,6 +754,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 starObjectIdentifier = (SqlObjectIdentifier)selectStarExpression.Children.ElementAt(0);
             }
 
+            /*
+            Returning no suggestions when the bound tables are null. 
+            This happens when there are no existing connections for the script. 
+            */ 
+            if(selectStarExpression.BoundTables == null){
+                return null;
+            }
+
             List<ITabular> boundedTableList = selectStarExpression.BoundTables.ToList();
 
             IList<string> columnNames = new List<string>();
