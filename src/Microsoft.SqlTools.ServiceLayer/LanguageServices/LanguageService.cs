@@ -947,18 +947,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         {
                             try
                             {
-                                    // parse current SQL file contents to retrieve a list of errors
-                                    ParseResult parseResult = Parser.IncrementalParse(
-                                    scriptFile.Contents,
-                                    parseInfo.ParseResult,
-                                    this.DefaultParseOptions);
+                                // parse current SQL file contents to retrieve a list of errors
+                                ParseResult parseResult = Parser.IncrementalParse(
+                                scriptFile.Contents,
+                                parseInfo.ParseResult,
+                                this.DefaultParseOptions);
 
                                 parseInfo.ParseResult = parseResult;
                             }
                             catch (Exception e)
                             {
-                                    // Log the exception but don't rethrow it to prevent parsing errors from crashing SQL Tools Service
-                                    Logger.Write(TraceEventType.Error, string.Format("An unexpected error occured while parsing: {0}", e.ToString()));
+                                // Log the exception but don't rethrow it to prevent parsing errors from crashing SQL Tools Service
+                                Logger.Write(TraceEventType.Error, string.Format("An unexpected error occured while parsing: {0}", e.ToString()));
                             }
                         }, ConnectedBindingQueue.QueueThreadStackSize);
                         parseThread.Start();
@@ -1658,12 +1658,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // cache the current script parse info object to resolve completions later
             this.currentCompletionParseInfo = scriptParseInfo;
             resultCompletionItems = result.CompletionItems;
-
-            // Expanding star expressions in query
-            CompletionItem[] starExpansionSuggestion = AutoCompleteHelper.ExpandSqlStarExpression(scriptDocumentInfo);
-            if (starExpansionSuggestion != null)
+ 
+            /*
+             Expanding star expressions in query only when the script is connected to a database
+             as the parser requires a connection to determine column names 
+            */
+            if (connInfo != null)
             {
-                return starExpansionSuggestion;
+                CompletionItem[] starExpansionSuggestion = AutoCompleteHelper.ExpandSqlStarExpression(scriptDocumentInfo);
+                if (starExpansionSuggestion != null)
+                {
+                    return starExpansionSuggestion;
+                }
             }
 
             // if there are no completions then provide the default list
