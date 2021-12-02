@@ -160,8 +160,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             GetSkuRecommendationsParams parameters,
             RequestContext<GetSkuRecommendationsResult> requestContext)
         {
-            var results = await GetSkuRecommendationResults(parameters);
-            await requestContext.SendResult(results);
+            try
+            {
+                var results = await GetSkuRecommendationResults(parameters);
+                await requestContext.SendResult(results);
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e.ToString());
+            }
         }
 
         internal class AssessmentRequest : IAssessmentRequest
@@ -214,7 +221,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             SqlAssessmentConfiguration.EnableLocalLogging = true;
             SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath = Path.GetDirectoryName(Logger.LogFileFullPath);
 
-            CsvRequirementsAggregator aggregator = new CsvRequirementsAggregator(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Microsoft", "SqlAssessment"));
+            CsvRequirementsAggregator aggregator = new CsvRequirementsAggregator(string.IsNullOrEmpty(parameters.DataFolder) ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Microsoft", "SqlAssessment") : parameters.DataFolder);
+            
             SqlInstanceRequirements req = aggregator.ComputeSqlInstanceRequirements(null,
                 parameters.TargetSqlInstance,
                 parameters.TargetPercentile,
@@ -227,13 +235,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
 
             return new GetSkuRecommendationsResult
             {
-                SqlDbRecommendationResults = recProvider.GetSkuRecommendation(new AzurePreferences() { EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlDatabase"), ScalingFactor = parameters.ScalingFactor / 100.0 }, req),
-                SqlMiRecommendationResults = recProvider.GetSkuRecommendation(new AzurePreferences() { EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlManagedInstance"), ScalingFactor = parameters.ScalingFactor / 100.0 }, req),
-                SqlVmRecommendationResults = recProvider.GetSkuRecommendation(new AzurePreferences() { EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlVirtualMachine"), ScalingFactor = parameters.ScalingFactor / 100.0 }, req),
+                SqlDbRecommendationResults = parameters.TargetPlatforms.Contains("AzureSqlDatabase") ? recProvider.GetSkuRecommendation(new AzurePreferences() { EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlDatabase"), ScalingFactor = parameters.ScalingFactor / 100.0 }, req) : new List<SkuRecommendationResult>(),
+                SqlMiRecommendationResults = parameters.TargetPlatforms.Contains("AzureSqlManagedInstance") ? recProvider.GetSkuRecommendation(new AzurePreferences() { EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlManagedInstance"), ScalingFactor = parameters.ScalingFactor / 100.0 }, req) : new List<SkuRecommendationResult>(),
+                SqlVmRecommendationResults = parameters.TargetPlatforms.Contains("AzureSqlVirtualMachine") ? recProvider.GetSkuRecommendation(new AzurePreferences() { EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlVirtualMachine"), ScalingFactor = parameters.ScalingFactor / 100.0 }, req) : new List<SkuRecommendationResult>()
             };
         }
 
-        // expose in NuGet
+        // TO-DO: expose in NuGet
         public static List<AzureSqlSkuCategory> GetEligibleSkuCategories(string targetPlatform)
         {
             List<AzureSqlSkuCategory> eligibleSkuCategories = new List<AzureSqlSkuCategory>();

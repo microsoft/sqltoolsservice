@@ -25,18 +25,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
 // - `databaseAllowList`: Optional. Space separated list of names of databases to be allowed for SKU recommendation consideration while excluding all others. Only set one of the following or neither: databaseAllowList, databaseDenyList. (Default: `null`)
 // - `databaseDenyList`: Optional. Space separated list of names of databases to not be considered for SKU recommendation. Only set one of the following or neither: databaseAllowList, databaseDenyList. (Default: `null`)
 
-
+        public string DataFolder { get; set; }
         public int PerfQueryIntervalInSec { get; set; }
-        public string TargetPlatform { get; set; }
+        public List<string> TargetPlatforms { get; set; }
         public string TargetSqlInstance { get; set; }
         public int TargetPercentile { get; set; }
         public int ScalingFactor { get; set; }
         public string StartTime { get; set; }
         public string EndTime { get; set; }
         public bool ElasticStrategy { get; set; }
-
         public List<string> DatabaseAllowList { get; set; }
-        // public List<string> DatabaseDenyList { get; set; }
     }
 
     public class GetSkuRecommendationsResult
