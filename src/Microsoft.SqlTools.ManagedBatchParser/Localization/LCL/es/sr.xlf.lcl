@@ -139,6 +139,9 @@
       <Item ItemId=";EE_BatchExecutionInfo_RowsAffected" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[({0} row(s) affected)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[({0} filas afectadas)]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -254,7 +257,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Scripting warning.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Advertencia de scripts.]]></Val>
+            <Val><![CDATA[Advertencia de scripting.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -262,6 +265,9 @@
       <Item ItemId=";SqlCmd_FailedInclude" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Could not find included file {0}.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[No se pudo encontrar el archivo incluido {0}.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -277,6 +283,9 @@
       <Item ItemId=";SqlCmd_PathLong" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Path too long.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[La ruta de acceso es demasiado larga.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>

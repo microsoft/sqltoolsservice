@@ -22,6 +22,9 @@
       <Item ItemId=";AzureSubscriptionFailedErrorMessage" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[An error occurred while getting Azure subscriptions: {0}]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Si è verificato un errore durante il recupero delle sottoscrizioni di Azure: {0}]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -55,12 +58,18 @@
       <Item ItemId=";FirewallRuleCreationFailedWithError" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[An error occurred while creating a new firewall rule: '{0}']]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Si è verificato un errore durante la creazione di una nuova regola del firewall: '{0}']]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";FirewallRuleUnsupportedConnectionType" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Cannot open a firewall rule for the specified connection type]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Impossibile aprire una regola del firewall per il tipo di connessione specificato]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -68,7 +77,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Invalid IP address]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[L'indirizzo IP non è valido]]></Val>
+            <Val><![CDATA[Indirizzo IP non valido]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -94,6 +103,9 @@
       <Item ItemId=";NoSubscriptionsFound" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[No subscriptions were found for the currently logged in user account.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Non sono state trovate sottoscrizioni per l'account utente attualmente connesso.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>

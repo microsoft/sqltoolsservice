@@ -517,6 +517,9 @@
       <Item ItemId=";EditDataComputedColumnPlaceholder" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[<TBD>]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[<TBD>]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
