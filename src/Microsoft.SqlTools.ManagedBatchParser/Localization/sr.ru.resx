@@ -127,90 +127,90 @@
     <value>Сообщение {0}, уровень {1}, состояние {2}</value>
   </data>
   <data name="EE_BatchError_Exception" xml:space="preserve">
-    <value>При обработке пакета произошла ошибка: {0}</value>
+    <value>При обработке пакета произошла ошибка. Сообщение об ошибке: {0}</value>
   </data>
   <data name="EE_BatchExecutionInfo_RowsAffected" xml:space="preserve">
-    <value>({0} строк затронуто)</value>
+    <value>({0} затронутых строк)</value>
   </data>
   <data name="EE_ExecutionNotYetCompleteError" xml:space="preserve">
     <value>Предыдущее выполнение еще не завершено.</value>
   </data>
   <data name="EE_ScriptError_Error" xml:space="preserve">
-    <value>Произошла ошибка сценария.</value>
+    <value>Произошла ошибка скрипта.</value>
   </data>
   <data name="EE_ScriptError_ParsingSyntax" xml:space="preserve">
-    <value>Обнаружен неправильный синтаксис при обработке {0}.</value>
+    <value>В ходе синтаксического анализа {0} обнаружен недопустимый синтаксис.</value>
   </data>
   <data name="EE_ScriptError_FatalError" xml:space="preserve">
     <value>Произошла неустранимая ошибка.</value>
   </data>
   <data name="EE_ExecutionInfo_FinalizingLoop" xml:space="preserve">
-    <value>Выполнение завершено такое количество раз: {0}...</value>
+    <value>Выполнение пакетного задания завершено {0} раз…</value>
   </data>
   <data name="EE_ExecutionInfo_QueryCancelledbyUser" xml:space="preserve">
-    <value>Пользователь отменил запрос.</value>
+    <value>Запрос отменен.</value>
   </data>
   <data name="EE_BatchExecutionError_Halting" xml:space="preserve">
     <value>При выполнении пакета произошла ошибка.</value>
   </data>
   <data name="EE_BatchExecutionError_Ignoring" xml:space="preserve">
-    <value>В процессе выполнения пакета произошла ошибка, но она была проигнорирована.</value>
+    <value>Произошла ошибка во время выполнения пакета, которая была проигнорирована.</value>
   </data>
   <data name="EE_ExecutionInfo_InitializingLoop" xml:space="preserve">
-    <value>Beginning execution loop</value>
+    <value>Начало цикла выполнения</value>
   </data>
   <data name="EE_ExecutionError_CommandNotSupported" xml:space="preserve">
     <value>Команда {0} не поддерживается.</value>
   </data>
   <data name="EE_ExecutionError_VariableNotFound" xml:space="preserve">
-    <value>Переменная {0} не найдена.</value>
+    <value>Не удалось найти переменную {0}.</value>
   </data>
   <data name="BatchParserWrapperExecutionEngineError" xml:space="preserve">
     <value>Ошибка выполнения SQL: {0}</value>
   </data>
   <data name="BatchParserWrapperExecutionError" xml:space="preserve">
-    <value>BatchParserWrapper: {0} найдено; строка {1}: {2}; описание: {3}</value>
+    <value>Выполнение программы-оболочки пакетного синтаксического анализатора: {0} найдено... в строке {1}: {2}  Описание: {3}</value>
   </data>
   <data name="BatchParserWrapperExecutionEngineBatchMessage" xml:space="preserve">
-    <value>BatchParserWrapper получено сообщение: {0}. Детали: {1}</value>
+    <value>Получено сообщение при выполнении программы-оболочки для пакетного синтаксического анализатора: Сообщение: {0} Подробное сообщение: {1}</value>
   </data>
   <data name="BatchParserWrapperExecutionEngineBatchResultSetProcessing" xml:space="preserve">
-    <value>BatchParserWrapper выполнение пакетной обработки ResultSet. DataReader.FieldCount: {0} DataReader.RecordsAffected: {1}</value>
+    <value>Программа-оболочка для пакетного синтаксического анализатора - подсистема выполнения - пакетная обработка ResultSet: DataReader.FieldCount: {0}  DataReader.RecordsAffected: {1}</value>
   </data>
   <data name="BatchParserWrapperExecutionEngineBatchResultSetFinished" xml:space="preserve">
-    <value>BatchParserWrapper: обработка завершена.</value>
+    <value>Завершен пакет ResultSet при выполнении программы-оболочки для пакетного синтаксического анализатора.</value>
   </data>
   <data name="BatchParserWrapperExecutionEngineBatchCancelling" xml:space="preserve">
-    <value>BatchParserWrapper: выполнение пакета отменено.</value>
+    <value>Происходит отмена выполнения программы-оболочки для пакетного синтаксического анализатора.</value>
   </data>
   <data name="EE_ScriptError_Warning" xml:space="preserve">
-    <value>Сценарий содержит предупреждения.</value>
+    <value>Предупреждение выполнения скрипта.</value>
   </data>
   <data name="TroubleshootingAssistanceMessage" xml:space="preserve">
-    <value>Для получения дополнительной информации об этой ошибке, обратитесь к разделам по устранению неполадок в документации по продукту.</value>
+    <value>Дополнительные сведения об этой ошибке см. в разделах документации продукта, посвященных устранению неполадок.</value>
   </data>
   <data name="BatchParser_CircularReference" xml:space="preserve">
-    <value>Обнаружена рекурсивная ссылка на файл «{0}».</value>
+    <value>Файл "{0}" включен рекурсивно.</value>
   </data>
   <data name="BatchParser_CommentNotTerminated" xml:space="preserve">
-    <value>Отсутствует обозначение конца комментария - «*/».</value>
+    <value>Отсутствует знак окончания комментария "*/".</value>
   </data>
   <data name="BatchParser_StringNotTerminated" xml:space="preserve">
     <value>Незакрытые кавычки в конце символьной строки.</value>
   </data>
   <data name="BatchParser_IncorrectSyntax" xml:space="preserve">
-    <value>При разборе «{0}» обнаружен неправильный синтаксис.</value>
+    <value>В ходе анализа "{0}" обнаружен неверный синтаксис.</value>
   </data>
   <data name="BatchParser_VariableNotDefined" xml:space="preserve">
     <value>Переменная {0} не определена.</value>
   </data>
   <data name="SqlCmd_PathInvalid" xml:space="preserve">
-    <value>Путь содержит недействительные символы.</value>
+    <value>Путь содержит недопустимые символы.</value>
   </data>
   <data name="SqlCmd_PathLong" xml:space="preserve">
-    <value>Путь слишком длинный.</value>
+    <value>Слишком длинный путь.</value>
   </data>
   <data name="SqlCmd_FailedInclude" xml:space="preserve">
-    <value>Не смог найти включенный файл {0}.</value>
+    <value>Не удалось найти включенные файлы {0}.</value>
   </data>
 </root>

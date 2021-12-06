@@ -1,198 +1,166 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
-  <file datatype="xml" source-language="en" target-language="ko">
+  <file datatype="xml" original="sr.resx" source-language="en" target-language="ko">
     <body>
       <trans-unit id="EE_BatchSqlMessageNoProcedureInfo">
         <source>Msg {0}, Level {1}, State {2}, Line {3}</source>
-        <target state="new">메시지 {0}, 수준{1}, 상태 {2}, 줄 {3}</target>
-        
-        <note/>
+        <target state="translated">메시지 {0}, 수준 {1}, 상태 {2}, 줄 {3}</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="EE_BatchSqlMessageWithProcedureInfo">
         <source>Msg {0}, Level {1}, State {2}, Procedure {3}, Line {4}</source>
-        <target state="new">메시지 {0}, 수준 {1}, 상태 {2}, 프로시저 {3}, 줄 {4}</target>
-        
-        <note/>
+        <target state="translated">메시지 {0}, 수준 {1}, 상태 {2}, 프로시저 {3}, 줄 {4}</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="EE_BatchSqlMessageNoLineInfo">
         <source>Msg {0}, Level {1}, State {2}</source>
-        <target state="new">메시지 {0}, 수준 {1}, 상태 {2}</target>
-        
-        <note/>
+        <target state="translated">메시지 {0}, 수준 {1}, 상태 {2}</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="EE_BatchError_Exception">
         <source>An error occurred while the batch was being processed. The error message is: {0}</source>
-        <target state="new">일괄 처리를 처리 하는 동안 하는 동안 오류가 발생 합니다. 오류 메시지: {0}</target>
-        
-        <note/>
+        <target state="translated">일괄 처리 작업을 처리하는 동안 오류가 발생했습니다. 오류 메시지: {0}</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="EE_BatchExecutionInfo_RowsAffected">
         <source>({0} row(s) affected)</source>
-        <target state="new">({0} 개 행이 영향을 받음)</target>
-        
-        <note/>
+        <target state="translated">({0}개 행이 영향을 받음)</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="EE_ExecutionNotYetCompleteError">
         <source>The previous execution is not yet complete.</source>
-        <target state="new">이전 실행이 아직 완료 되지 않았습니다.</target>
-        
-        <note/>
+        <target state="translated">이전 실행이 아직 완료되지 않았습니다.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="EE_ScriptError_Error">
         <source>A scripting error occurred.</source>
-        <target state="new">스크립팅 오류가 발생 했습니다.</target>
-        
-        <note/>
+        <target state="translated">스크립팅 오류가 발생했습니다.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="EE_ScriptError_ParsingSyntax">
         <source>Incorrect syntax was encountered while {0} was being parsed.</source>
-        <target state="new">{0}에 잘못된 구문이 발견되었습니다.</target>
-        
-        <note/>
+        <target state="translated">{0}을(를) 구문 분석하는 동안 잘못된 구문을 발견했습니다.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="EE_ScriptError_FatalError">
         <source>A fatal error occurred.</source>
-        <target state="new">치명적인 오류가 발생 했습니다.</target>
-        
-        <note/>
+        <target state="translated">오류가 발생했습니다.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="EE_ExecutionInfo_FinalizingLoop">
         <source>Batch execution completed {0} times...</source>
-        <target state="new">{0}회 실행 완료...</target>
-        
-        <note/>
+        <target state="translated">일괄 처리 실행이 {0}번 완료되었습니다.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="EE_ExecutionInfo_QueryCancelledbyUser">
         <source>You cancelled the query.</source>
-        <target state="new">쿼리를 취소 했습니다.</target>
-        
-        <note/>
+        <target state="translated">사용자가 쿼리를 취소했습니다.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="EE_BatchExecutionError_Halting">
         <source>An error occurred while the batch was being executed.</source>
-        <target state="new">일괄 처리를 실행 하는 동안 오류가 발생 합니다.</target>
-        
-        <note/>
+        <target state="translated">일괄 처리를 실행하는 동안 오류가 발생했습니다.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="EE_BatchExecutionError_Ignoring">
         <source>An error occurred while the batch was being executed, but the error has been ignored.</source>
-        <target state="new">일괄 처리를 실행 하는 동안 오류가 발생했으나 그 오류는 무시되었습니다.</target>
-        
-        <note/>
+        <target state="translated">일괄 처리를 실행하는 동안 오류가 발생했지만 무시되었습니다.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="EE_ExecutionInfo_InitializingLoop">
         <source>Beginning execution loop</source>
-        <target state="new">Beginning execution loop</target>
-        
-        <note/>
+        <target state="translated">실행 루프 시작</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="EE_ExecutionError_CommandNotSupported">
         <source>Command {0} is not supported.</source>
-        <target state="new">{0} 명령은 지원되지 않습니다.</target>
-        
-        <note/>
+        <target state="translated">{0} 명령이 지원되지 않습니다.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="EE_ExecutionError_VariableNotFound">
         <source>The variable {0} could not be found.</source>
-        <target state="new">{0} 변수를 찾을 수 없습니다.</target>
-        
-        <note/>
+        <target state="translated">{0} 변수를 찾을 수 없습니다.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="BatchParserWrapperExecutionEngineError">
         <source>SQL Execution error: {0}</source>
-        <target state="new">SQL 실행 오류: {0}</target>
-        
-        <note/>
+        <target state="translated">SQL 실행 오류: {0}</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="BatchParserWrapperExecutionError">
         <source>Batch parser wrapper execution: {0} found... at line {1}: {2}    Description: {3}</source>
-        <target state="new">일괄처리 구문분석 래퍼 실행: {0} 발견... 줄 {1}: {2} 설명: {3}</target>
-        
-        <note/>
+        <target state="translated">일괄 처리 파서 래퍼 실행: {0} 찾음... 줄 {1}: {2} 설명: {3}</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="BatchParserWrapperExecutionEngineBatchMessage">
         <source>Batch parser wrapper execution engine batch message received:  Message: {0}    Detailed message: {1}</source>
-        <target state="new">일괄 처리 파서 래퍼 실행 엔진 일괄 처리 메시지를 받았습니다. 메시지: {0} 자세한 메시지: {1}</target>
-        
-        <note/>
+        <target state="translated">일괄 처리 파서 래퍼 실행 엔진 일괄 처리 메시지를 받았습니다. 메시지: {0} 자세한 메시지: {1}</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="BatchParserWrapperExecutionEngineBatchResultSetProcessing">
         <source>Batch parser wrapper execution engine batch ResultSet processing: DataReader.FieldCount: {0}  DataReader.RecordsAffected: {1}</source>
-        <target state="new">일괄 처리 파서 래퍼 실행 엔진 일괄 처리 ResultSet을 처리하고 있습니다. DataReader.FieldCount: {0} DataReader.RecordsAffected: {1}</target>
-        
-        <note/>
+        <target state="translated">일괄 처리 파서 래퍼 실행 엔진 일괄 처리 ResultSet을 처리하고 있습니다. DataReader.FieldCount: {0} DataReader.RecordsAffected: {1}</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="BatchParserWrapperExecutionEngineBatchResultSetFinished">
         <source>Batch parser wrapper execution engine batch ResultSet finished.</source>
-        <target state="new">일괄 처리 파서 래퍼 실행 엔진 일괄 처리 ResultSet을 완료했습니다.</target>
-        
-        <note/>
+        <target state="translated">일괄 처리 파서 래퍼 실행 엔진 일괄 처리 ResultSet을 완료했습니다.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="BatchParserWrapperExecutionEngineBatchCancelling">
         <source>Canceling batch parser wrapper batch execution.</source>
-        <target state="new">일괄 처리 파서 래퍼 일괄 처리 실행을 취소하고 있습니다.</target>
-        
-        <note/>
+        <target state="translated">일괄 처리 파서 래퍼 일괄 처리 실행을 취소하고 있습니다.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="EE_ScriptError_Warning">
         <source>Scripting warning.</source>
-        <target state="new">스크립팅 경고.</target>
-        
-        <note/>
+        <target state="translated">스크립팅 경고입니다.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="TroubleshootingAssistanceMessage">
         <source>For more information about this error, see the troubleshooting topics in the product documentation.</source>
-        <target state="new">이 오류에 대한 추가 정보는 제품 설명서의 문제 해결 항목을 참조하십시오.</target>
-        
-        <note/>
+        <target state="translated">이 오류에 대한 자세한 내용은 제품 설명서의 문제 해결 항목을 참조하십시오.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="BatchParser_CircularReference">
         <source>File '{0}' recursively included.</source>
-        <target state="new">' {0} '이 (가) 재귀적으로 포함 된 파일입니다.</target>
-        
-        <note/>
+        <target state="translated">파일 '{0}'이(가) 재귀적으로 포함되었습니다.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="BatchParser_CommentNotTerminated">
         <source>Missing end comment mark '*/'.</source>
-        <target state="new">주석 끝 표시 ' * /' 누락 .</target>
-        
-        <note/>
+        <target state="translated">주석 끝 표시 '*/'가 없습니다.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="BatchParser_StringNotTerminated">
         <source>Unclosed quotation mark after the character string.</source>
-        <target state="new">문자열에 닫히지 않은 인용 부호.</target>
-        
-        <note/>
+        <target state="translated">문자열의 따옴표가 짝이 맞지 않습니다.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="BatchParser_IncorrectSyntax">
         <source>Incorrect syntax was encountered while parsing '{0}'.</source>
-        <target state="new">'{0}'을(를) 구문 분석하는 동안 잘못된 구문을 발견했습니다.</target>
-        
-        <note/>
+        <target state="translated">'{0}'을(를) 구문 분석하는 동안 잘못된 구문을 발견했습니다.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="BatchParser_VariableNotDefined">
         <source>Variable {0} is not defined.</source>
-        <target state="new">{0} 변수가 정의되지 않았습니다.</target>
-        
-        <note/>
+        <target state="translated">변수 {0}이(가) 정의되지 않았습니다.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="SqlCmd_PathInvalid">
         <source>Path contains invalid characters.</source>
-        <target state="translated">경로에는 잘못된 문자가 포함되어 있습니다.</target>
-        
-        <note/>
+        <target state="translated">경로에 잘못된 문자가 포함되어 있습니다.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="SqlCmd_PathLong">
         <source>Path too long.</source>
-        <target state="translated">경로가 너무 길다.</target>
-        
-        <note/>
+        <target state="translated">경로가 너무 깁니다.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="SqlCmd_FailedInclude">
         <source>Could not find included file {0}.</source>
-        <target state="translated">포함 된 파일 {0}를 찾을 수 없습니다.</target>
-        
-        <note/>
+        <target state="translated">포함된 {0} 파일을 찾을 수 없습니다.</target>
+        <note></note>
       </trans-unit>
     </body>
   </file>

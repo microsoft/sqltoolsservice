@@ -118,36 +118,36 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AzureServerNotFound" xml:space="preserve">
-    <value>O servidor que você especificou {0} não existe em nenhuma assinatura em {1}. Ou você assinou com uma conta incorreta ou seu servidor foi removido da(s) assinatura(s) nesta conta. Por favor, verifique sua conta e tente novamente.</value>
+    <value>O servidor que você especificou {0} não existe nas assinaturas em {1}. Você deve ter entrado com uma conta incorreta ou seu servidor foi removido das assinaturas dessa conta. Verifique sua conta e tente novamente.</value>
   </data>
   <data name="AzureSubscriptionFailedErrorMessage" xml:space="preserve">
-    <value>Ocorreu um erro ao receber as assinaturas do Azure: {0}</value>
+    <value>Ocorreu um erro ao obter as assinaturas do Azure: {0}</value>
   </data>
   <data name="DatabaseDiscoveryFailedErrorMessage" xml:space="preserve">
-    <value>Ocorreu um erro ao obter bancos de dados de servidores do tipo {0} de {1}.</value>
+    <value>Ocorreu um erro ao obter os bancos de dados de servidores do tipo {0} de {1}</value>
   </data>
   <data name="FirewallRuleAccessForbidden" xml:space="preserve">
-    <value>{0} não tem permissão para alterar a regra de firewall do servidor. Tente novamente com uma conta diferente que seja um Proprietário ou Contribuinte da assinatura do Azure ou do servidor.</value>
+    <value>{0} não tem permissão para alterar a regra de firewall do servidor. Tente novamente com uma conta diferente que seja de Proprietário ou Colaborador da assinatura do Azure ou do servidor.</value>
   </data>
   <data name="InvalidIpAddress" xml:space="preserve">
     <value>Endereço IP inválido</value>
   </data>
   <data name="InvalidServerTypeErrorMessage" xml:space="preserve">
-    <value>O tipo de servidor é inválido.</value>
+    <value>Tipo de Servidor inválido.</value>
   </data>
   <data name="LoadingExportableFailedGeneralErrorMessage" xml:space="preserve">
-    <value>Uma dll necessária não pode ser carregada. Por favor, repare sua aplicação.</value>
+    <value>Um dll necessário não pode ser carregado. Repare o aplicativo.</value>
   </data>
   <data name="FirewallRuleCreationFailed" xml:space="preserve">
     <value>Ocorreu um erro ao criar uma nova regra de firewall.</value>
   </data>
   <data name="FirewallRuleUnsupportedConnectionType" xml:space="preserve">
-    <value>Não é possível abrir uma regra de firewall para o tipo de conexão especificado</value>
+    <value>Não é possível abrir uma regra de firewall para o tipo de conexão especificado</value>
   </data>
   <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
-    <value>Ocorreu um erro ao criar uma nova regra de firewall: '{0}'.</value>
+    <value>Ocorreu um erro ao criar uma nova regra de firewall: '{0}'</value>
   </data>
   <data name="NoSubscriptionsFound" xml:space="preserve">
-    <value>Não foram encontradas assinaturas para a conta de usuário atualmente registrada.</value>
+    <value>Nenhuma assinatura foi encontrada para a conta de usuário conectada no momento.</value>
   </data>
 </root>

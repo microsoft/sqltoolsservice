@@ -118,34 +118,34 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AzureServerNotFound" xml:space="preserve">
-    <value>Il server specificato {0} non esiste in alcuna sottoscrizione in {1}. È stato effettuato l'accesso con un account errato o il server è stato rimosso dalle sottosortità in questo account. Controlla il tuo account e riprova.</value>
+    <value>Il server specificato {0} non esiste in alcuna sottoscrizione in {1}. È stato eseguito l'accesso con un account non corretto oppure il server è stato rimosso dalla sottoscrizione o dalle sottoscrizioni di questo account. Verificare l'account e riprovare.</value>
   </data>
   <data name="AzureSubscriptionFailedErrorMessage" xml:space="preserve">
-    <value>Errore durante il recupero delle sottoscrizioni di Azure: {0}</value>
+    <value>Si è verificato un errore durante il recupero delle sottoscrizioni di Azure: {0}</value>
   </data>
   <data name="DatabaseDiscoveryFailedErrorMessage" xml:space="preserve">
-    <value>Errore durante il recupero di database da server di tipo {0} da {1}</value>
+    <value>Si è verificato un errore durante il recupero dei database dai server di tipo {0} da {1}</value>
   </data>
   <data name="FirewallRuleAccessForbidden" xml:space="preserve">
-    <value>{0} non dispone dell'autorizzazione per modificare la regola del firewall del server. Riprovare con un account diverso che possiede o collabora alla sottoscrizione o al server di Azure.</value>
+    <value>{0} non ha l'autorizzazione per modificare la regola del firewall del server. Riprovare con un altro account che sia Proprietario o Collaboratore della sottoscrizione di Azure o del server.</value>
   </data>
   <data name="InvalidIpAddress" xml:space="preserve">
     <value>Indirizzo IP non valido</value>
   </data>
   <data name="InvalidServerTypeErrorMessage" xml:space="preserve">
-    <value>Tipo di server non valido.</value>
+    <value>Il tipo di server non è valido.</value>
   </data>
   <data name="LoadingExportableFailedGeneralErrorMessage" xml:space="preserve">
-    <value>Impossibile caricare una DLL obbligatoria. Si prega di riparare l'applicazione.</value>
+    <value>Non è possibile caricare una dll necessaria. Ripristinare l'applicazione.</value>
   </data>
   <data name="FirewallRuleCreationFailed" xml:space="preserve">
-    <value>Errore durante la creazione di una nuova regola del firewall.</value>
+    <value>Si è verificato un errore durante la creazione di una nuova regola del firewall.</value>
   </data>
   <data name="FirewallRuleUnsupportedConnectionType" xml:space="preserve">
-    <value>Impossibile aprire una regola firewall per il tipo di connessione specificato</value>
+    <value>Impossibile aprire una regola del firewall per il tipo di connessione specificato</value>
   </data>
   <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
-    <value>Errore durante la creazione di una nuova regola firewall: '{0}'</value>
+    <value>Si è verificato un errore durante la creazione di una nuova regola del firewall: '{0}'</value>
   </data>
   <data name="NoSubscriptionsFound" xml:space="preserve">
     <value>Non sono state trovate sottoscrizioni per l'account utente attualmente connesso.</value>

@@ -1,96 +1,81 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
-  <file datatype="xml" source-language="en" target-language="ja">
+  <file datatype="xml" original="sr.resx" source-language="en" target-language="ja">
     <body>
       <trans-unit id="CredentialsServiceInvalidCriticalHandle">
         <source>Invalid CriticalHandle!</source>
-        <target state="translated">無効なクリティカル ハンドルです。</target>
-        <note>
-        </note>
+        <target state="translated">CriticalHandle が無効です。</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="CredentialsServicePasswordLengthExceeded">
         <source>The password has exceeded 512 bytes</source>
-        <target state="translated">パスワードが 512 バイトを超えました</target>
-        <note>
-        </note>
+        <target state="translated">パスワードが 512 バイトを超えています</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="CredentialsServiceTargetForDelete">
         <source>Target must be specified to delete a credential</source>
-        <target state="translated">資格情報を削除するには、ターゲットを指定する必要があります</target>
-        <note>
-        </note>
+        <target state="translated">資格情報を削除するにはターゲットを指定する必要があります</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="CredentialsServiceTargetForLookup">
         <source>Target must be specified to check existance of a credential</source>
-        <target state="translated">資格情報の存在を確認するには、ターゲットを指定する必要があります。</target>
-        <note>
-        </note>
+        <target state="translated">資格情報の存在を確認するには、ターゲットを指定する必要があります</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="CredentialServiceWin32CredentialDisposed">
         <source>Win32Credential object is already disposed</source>
-        <target state="translated">Win32Credential オブジェクトは既に破棄されています。</target>
-        <note>
-        </note>
+        <target state="translated">Win32Credential オブジェクトは既に破棄されています</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="HostingUnexpectedEndOfStream">
         <source>MessageReader's input stream ended unexpectedly, terminating</source>
-        <target state="translated">メッセージ リーダーの入力ストリームが予期せず終了し、終了しました</target>
-        <note>
-        </note>
+        <target state="translated">MessageReader の入力ストリームが予期せず終了しました。終了しています</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="HostingHeaderMissingColon">
         <source>Message header must separate key and value using ':'</source>
-        <target state="translated">メッセージ ヘッダーは、':' を使用してキーと値を区切る必要があります。</target>
-        <note>
-        </note>
+        <target state="translated">メッセージ ヘッダーでは、':' を使用してキーと値を区切る必要があります</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="HostingHeaderMissingContentLengthHeader">
         <source>Fatal error: Content-Length header must be provided</source>
-        <target state="translated">致命的なエラー: コンテンツ長ヘッダーを指定する必要があります</target>
-        <note>
-        </note>
+        <target state="translated">致命的なエラー: Content-Length ヘッダーを指定する必要があります。</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="HostingHeaderMissingContentLengthValue">
         <source>Fatal error: Content-Length value is not an integer</source>
-        <target state="translated">致命的なエラー: コンテンツの長さの値は整数ではありません</target>
-        <note>
-        </note>
+        <target state="translated">致命的なエラー: Content-Length 値が整数ではありません</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="ServiceAlreadyRegistered">
         <source>Cannot register service for type {0}, one or more services already registered</source>
-        <target state="translated">1 つ以上のサービスが既に登録されているため、タイプ {0} のサービスを登録できません</target>
-        <note>
-        </note>
+        <target state="translated">種類 {0} のサービスを登録できません。1 つ以上のサービスが既に登録されています</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="MultipleServicesFound">
         <source>Multiple services found for type {0}, expected only 1</source>
-        <target state="translated">複数のタイプ {0} のサービスが見つかりました。1 つのサービスのみが必要です</target>
-        <note>
-        </note>
+        <target state="translated">型 {0} に対して複数のサービスが見つかりましたが、1 つだけ必要です</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="IncompatibleServiceForExtensionLoader">
         <source>Service of type {0} cannot be created by ExtensionLoader&lt;{1}&gt;</source>
-        <target state="translated">{0} 型のサービス、拡張ローダー &lt;{1}&gt; で作成できない</target>
-        <note>
-        </note>
+        <target state="translated">ExtensionLoader&lt;{1}&gt; では、種類 {0} のサービスを作成できません</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="ServiceProviderNotSet">
         <source>SetServiceProvider() was not called to establish the required service provider</source>
-        <target state="translated">必要なサービスプロバイダーを確立するために"SetServiceProvider()"が呼び出されませんでした</target>
-        <note>
-        </note>
+        <target state="translated">必要なサービス プロバイダーを確立するために SetServiceProvider() が呼び出されませんでした</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="ServiceNotFound">
         <source>Service {0} was not found in the service provider</source>
-        <target state="translated">サービス {0} がサービス プロバイダで見つかりませんでした</target>
-        <note>
-        </note>
+        <target state="translated">サービス {0} がサービス プロバイダーに見つかりませんでした</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="ServiceNotOfExpectedType">
         <source>Service of Type {0} is not compatible with registered Type {1}</source>
-        <target state="translated">タイプ {0} のサービスは、登録されたタイプ {1} と互換性がありません</target>
-        <note>
-        </note>
+        <target state="translated">型 {0} のサービスは、登録済みの型 {1} と互換性がありません</target>
+        <note></note>
       </trans-unit>
     </body>
   </file>
