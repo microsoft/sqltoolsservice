@@ -118,34 +118,34 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AzureServerNotFound" xml:space="preserve">
-    <value>Le serveur que vous avez spécifié {0} n’existe dans aucun abonnement dans {1}. Soit vous vous êtes connecté avec un compte incorrect, soit votre serveur a été supprimé des abonnements de ce compte. Veuillez vérifier votre compte et réessayer.</value>
+    <value>Le serveur que vous avez spécifié {0} n'existe dans aucun abonnement de {1}. Vous vous êtes connecté avec un compte incorrect ou votre serveur a été supprimé du ou des abonnements de ce compte. Vérifiez votre compte et réessayez.</value>
   </data>
   <data name="AzureSubscriptionFailedErrorMessage" xml:space="preserve">
-    <value>Une erreur s’est produite lors de l’obtention des abonnements Azure: {0}</value>
+    <value>Une erreur s’est produite lors de l’obtention des abonnements Azure : {0}</value>
   </data>
   <data name="DatabaseDiscoveryFailedErrorMessage" xml:space="preserve">
-    <value>Une erreur s’est produite lors de l’obtention de bases de données à partir de serveurs de type {0} à partir de {1}</value>
+    <value>Une erreur s'est produite lors de la récupération des bases de données depuis les serveurs de type {0} sur {1}</value>
   </data>
   <data name="FirewallRuleAccessForbidden" xml:space="preserve">
-    <value>{0} n’est pas autorisé à modifier la règle de pare-feu du serveur. Réessayez avec un autre compte qui est un propriétaire ou un contributeur de l’abonnement Azure ou du serveur.</value>
+    <value>{0} n'a pas d'autorisation pour changer la règle de pare-feu du serveur. Réessayez avec un autre compte qui est propriétaire ou contributeur de l'abonnement Azure ou du serveur.</value>
   </data>
   <data name="InvalidIpAddress" xml:space="preserve">
     <value>Adresse IP non valide</value>
   </data>
   <data name="InvalidServerTypeErrorMessage" xml:space="preserve">
-    <value>Le type de serveur n’est pas valide.</value>
+    <value>Le type de serveur n'est pas valide.</value>
   </data>
   <data name="LoadingExportableFailedGeneralErrorMessage" xml:space="preserve">
-    <value>Une dll requise ne peut pas être chargée. Veuillez réparer votre application.</value>
+    <value>Impossible de charger une dll requise. Veuillez réparer votre application.</value>
   </data>
   <data name="FirewallRuleCreationFailed" xml:space="preserve">
-    <value>Une erreur s’est produite lors de la création d’une nouvelle règle de pare-feu.</value>
+    <value>Une erreur s'est produite lors de la création d'une règle de pare-feu.</value>
   </data>
   <data name="FirewallRuleUnsupportedConnectionType" xml:space="preserve">
     <value>Impossible d’ouvrir une règle de pare-feu pour le type de connexion spécifié</value>
   </data>
   <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
-    <value>Une erreur s’est produite lors de la création d’une nouvelle règle de pare-feu: '{0}'</value>
+    <value>Une erreur s’est produite lors de la création d’une règle de pare-feu : « {0} »</value>
   </data>
   <data name="NoSubscriptionsFound" xml:space="preserve">
     <value>Aucun abonnement n’a été trouvé pour le compte d’utilisateur actuellement connecté.</value>

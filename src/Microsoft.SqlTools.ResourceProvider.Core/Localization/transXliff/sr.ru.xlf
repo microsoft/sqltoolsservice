@@ -1,60 +1,60 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
-  <file datatype="xml" source-language="en" target-language="ru">
+  <file datatype="xml" original="sr.resx" source-language="en" target-language="ru">
     <body>
       <trans-unit id="AzureServerNotFound">
         <source>The server you specified {0} does not exist in any subscription in {1}. Either you have signed in with an incorrect account or your server was removed from subscription(s) in this account. Please check your account and try again.</source>
-        <target state="translated">Указанный вами сервер {0} не существует ни в одной подписке в {1}. Либо вы вошли в систему с неправильной учетной записью, либо ваш сервер был удален из подписки (подписок) в этой учетной записи. Пожалуйста, проверьте свою учетную запись и повторите попытку.</target>
+        <target state="translated">Указанный сервер {0} отсутствует в подписках из {1}. Вы вошли под неправильной учетной записью, либо сервер был удален из подписок в этой учетной записи. Проверьте ее и повторите попытку.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="AzureSubscriptionFailedErrorMessage">
         <source>An error occurred while getting Azure subscriptions: {0}</source>
-        <target state="translated">Произошла ошибка при получении подписок Azure: {0}</target>
+        <target state="translated">Ошибка при получении подписок Azure: {0}</target>
         <note></note>
       </trans-unit>
       <trans-unit id="DatabaseDiscoveryFailedErrorMessage">
         <source>An error occurred while getting databases from servers of type {0} from {1}</source>
-        <target state="translated">Произошла ошибка при получении баз данных с серверов типа {0} из {1}</target>
+        <target state="translated">Произошла ошибка при получении баз данных от серверов типа {0} из {1}</target>
         <note></note>
       </trans-unit>
       <trans-unit id="FirewallRuleAccessForbidden">
         <source>{0} does not have permission to change the server firewall rule. Try again with a different account that is an Owner or Contributor of the Azure subscription or the server.</source>
-        <target state="translated">{0} не имеет разрешения на изменение правила брандмауэра сервера. Повторите попытку с другой учетной записью, которая является владельцем или вкладчиком подписки Azure или сервера.</target>
+        <target state="translated">У {0} нет разрешения на изменение правила брандмауэра сервера. Повторите попытку с другой учетной записью, имеющей разрешения владельца или участника подписки Azure или сервера.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="InvalidIpAddress">
         <source>Invalid IP address</source>
-        <target state="translated">Неверный IP-адрес</target>
+        <target state="translated">Недопустимый IP-адрес</target>
         <note></note>
       </trans-unit>
       <trans-unit id="InvalidServerTypeErrorMessage">
         <source>Server Type is invalid.</source>
-        <target state="translated">Тип сервера недействителен.</target>
+        <target state="translated">Недопустимый тип сервера.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="LoadingExportableFailedGeneralErrorMessage">
         <source>A required dll cannot be loaded. Please repair your application.</source>
-        <target state="translated">Требуемая dll не может быть загружена. Пожалуйста, восстановите ваше приложение.</target>
+        <target state="translated">Невозможно загрузить необходимую библиотеку dll Восстановите ваше приложение.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="FirewallRuleCreationFailed">
         <source>An error occurred while creating a new firewall rule.</source>
-        <target state="translated">Произошла ошибка при создании нового правила брандмауэра.</target>
+        <target state="translated">Произошла ошибка при создании правила брандмауэра.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="FirewallRuleUnsupportedConnectionType">
         <source>Cannot open a firewall rule for the specified connection type</source>
-        <target state="translated">Невозможно открыть правило брандмауэра для указанного типа соединения</target>
+        <target state="translated">Не удается открыть правило брандмауэра для указанного типа соединения</target>
         <note></note>
       </trans-unit>
       <trans-unit id="FirewallRuleCreationFailedWithError">
         <source>An error occurred while creating a new firewall rule: '{0}'</source>
-        <target state="translated">Произошла ошибка при создании нового правила брандмауэра: '{0}'</target>
+        <target state="translated">Ошибка при создании правила брандмауэра: "{0}"</target>
         <note></note>
       </trans-unit>
       <trans-unit id="NoSubscriptionsFound">
         <source>No subscriptions were found for the currently logged in user account.</source>
-        <target state="translated">Для учетной записи пользователя, вошедшего в систему в данный момент, подписки не найдены.</target>
+        <target state="translated">Подписки для текущей учетной записи пользователя, выполнившего вход, не найдены.</target>
         <note></note>
       </trans-unit>
     </body>

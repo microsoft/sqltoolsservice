@@ -118,33 +118,33 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="FailedToGetAzureDatabasesErrorMessage" xml:space="preserve">
-    <value>獲取Azure數據庫時發生錯誤</value>
+    <value>取得 Azure 資料庫時發生錯誤</value>
   </data>
   <data name="FailedToGetAzureResourceGroupsErrorMessage" xml:space="preserve">
-    <value>在獲取Azure資源組時發生了一個錯誤：{0}</value>
+    <value>取得 Azure 資源群組時發生錯誤: {0}</value>
   </data>
   <data name="FailedToGetAzureSqlServersErrorMessage" xml:space="preserve">
-    <value>在獲取Azure Sql Servers時發生錯誤</value>
+    <value>取得 Azure Sql Servers 時發生錯誤</value>
   </data>
   <data name="FirewallRuleCreationFailed" xml:space="preserve">
-    <value>在創建一個新的防火牆規則時發生了錯誤。</value>
+    <value>建立新的防火牆規則時發生錯誤。</value>
   </data>
   <data name="UnsupportedAuthType" xml:space="preserve">
-    <value>此供應商不支持的賬戶類型'{0}'。</value>
+    <value>不支援此提供者的帳戶類型 '{0}'</value>
   </data>
   <data name="FailedToGetAzureSqlServersWithError" xml:space="preserve">
-    <value>在獲取Azure Sql Servers時發生了一個錯誤：'{0}'</value>
+    <value>取得 Azure SQL 伺服器時發生錯誤: '{0}'</value>
   </data>
   <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
-    <value>在創建新的防火牆規則時發生了一個錯誤：'{0}'</value>
+    <value>建立新防火牆規則時發生錯誤: '{0}'</value>
   </data>
   <data name="FailedToGetAzureSubscriptionsErrorMessage" xml:space="preserve">
-    <value>在獲取Azure訂閱時，發生了一個錯誤: {0}</value>
+    <value>取得 Azure 訂用帳戶時發生錯誤: {0}</value>
   </data>
   <data name="UserNeedsAuthenticationError" xml:space="preserve">
-    <value>當前用戶必須在執行此操作前重新認證。</value>
+    <value>必須重新驗證目前的使用者，才能執行此作業</value>
   </data>
   <data name="UserNotFoundError" xml:space="preserve">
-    <value>沒有找到用戶，不能執行操作</value>
+    <value>找不到使用者，無法執行作業</value>
   </data>
 </root>

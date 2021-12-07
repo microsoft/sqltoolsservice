@@ -118,46 +118,46 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="EE_BatchSqlMessageNoProcedureInfo" xml:space="preserve">
-    <value>訊息 {0}，層級 {1} ，狀態 {2}，第 {3} 行</value>
+    <value>訊息 {0}，層級 {1}，狀態 {2}，行 {3}</value>
   </data>
   <data name="EE_BatchSqlMessageWithProcedureInfo" xml:space="preserve">
-    <value>訊息 {0} ，層級 {1}， 狀態 {2}， 程序 {3}，第 {4} 行</value>
+    <value>訊息 {0}，層級 {1}，狀態 {2}，程序 {3}，行 {4}</value>
   </data>
   <data name="EE_BatchSqlMessageNoLineInfo" xml:space="preserve">
-    <value>訊息 {0}，層級 {1} ，狀態 {2}</value>
+    <value>訊息 {0}，層級 {1}，狀態 {2}</value>
   </data>
   <data name="EE_BatchError_Exception" xml:space="preserve">
-    <value>處理批次時，發生錯誤。錯誤訊息是︰ {0}</value>
+    <value>批次處理時發生錯誤。錯誤訊息為: {0}</value>
   </data>
   <data name="EE_BatchExecutionInfo_RowsAffected" xml:space="preserve">
-    <value>（{0} 個資料列受到影響）</value>
+    <value>({0} 個資料列受影響)</value>
   </data>
   <data name="EE_ExecutionNotYetCompleteError" xml:space="preserve">
-    <value>前一個執行尚未完成。</value>
+    <value>上一個執行尚未完成。</value>
   </data>
   <data name="EE_ScriptError_Error" xml:space="preserve">
-    <value>發生指令碼的錯誤。</value>
+    <value>發生指令碼錯誤。</value>
   </data>
   <data name="EE_ScriptError_ParsingSyntax" xml:space="preserve">
-    <value>正在剖析 {0} 時遇到不正確的語法。</value>
+    <value>剖析 {0} 時發現不正確的語法。</value>
   </data>
   <data name="EE_ScriptError_FatalError" xml:space="preserve">
-    <value>發生嚴重的錯誤。</value>
+    <value>發生嚴重錯誤。</value>
   </data>
   <data name="EE_ExecutionInfo_FinalizingLoop" xml:space="preserve">
-    <value>已執行完成 {0} 次...</value>
+    <value>已完成 {0} 次批次執行...</value>
   </data>
   <data name="EE_ExecutionInfo_QueryCancelledbyUser" xml:space="preserve">
     <value>您已取消查詢。</value>
   </data>
   <data name="EE_BatchExecutionError_Halting" xml:space="preserve">
-    <value>執行此批次時發生錯誤。</value>
+    <value>批次執行時發生錯誤。</value>
   </data>
   <data name="EE_BatchExecutionError_Ignoring" xml:space="preserve">
-    <value>執行此批次時發生錯誤，但錯誤以忽略。</value>
+    <value>執行此批次時發生錯誤，但已忽略錯誤。</value>
   </data>
   <data name="EE_ExecutionInfo_InitializingLoop" xml:space="preserve">
-    <value>Beginning execution loop</value>
+    <value>開始執行迴圈</value>
   </data>
   <data name="EE_ExecutionError_CommandNotSupported" xml:space="preserve">
     <value>不支援命令 {0}。</value>
@@ -166,51 +166,51 @@
     <value>找不到變數 {0}。</value>
   </data>
   <data name="BatchParserWrapperExecutionEngineError" xml:space="preserve">
-    <value>SQL 執行錯誤︰ {0}</value>
+    <value>SQL 執行錯誤: {0}</value>
   </data>
   <data name="BatchParserWrapperExecutionError" xml:space="preserve">
-    <value>批次剖析器包裝函式執行︰位於第 {1} 行: {2} 描述︰{3} 找到 {0}</value>
+    <value>批次剖析器包裝函式執行: 已找到 {0}，位於行 {1}: {2}    描述: {3}</value>
   </data>
   <data name="BatchParserWrapperExecutionEngineBatchMessage" xml:space="preserve">
-    <value>批次剖析器包裝函式執行引擎批次所收到的訊息︰ 訊息︰ {0}，詳細的訊息︰ {1}</value>
+    <value>批次剖析器包裝函式執行引擎批次訊息已收到: 訊息: {0}，詳細訊息: {1}</value>
   </data>
   <data name="BatchParserWrapperExecutionEngineBatchResultSetProcessing" xml:space="preserve">
-    <value>批次剖析器包裝函式執行引擎批次結果集處理︰ DataReader.FieldCount: {0} DataReader.RecordsAffected: {1}</value>
+    <value>批次剖析器包裝函式執行引擎批次 ResultSet 處理中: DataReader.FieldCount: {0}  DataReader.RecordsAffected: {1}</value>
   </data>
   <data name="BatchParserWrapperExecutionEngineBatchResultSetFinished" xml:space="preserve">
-    <value>批次剖析器包裝函式執行引擎批次結果集已完成。</value>
+    <value>批次剖析器包裝函式執行引擎批次 ResultSet 已完成。</value>
   </data>
   <data name="BatchParserWrapperExecutionEngineBatchCancelling" xml:space="preserve">
-    <value>正在取消批次剖析器包裝函式的批次執行。</value>
+    <value>取消批次剖析器包裝函式批次執行。</value>
   </data>
   <data name="EE_ScriptError_Warning" xml:space="preserve">
     <value>指令碼警告。</value>
   </data>
   <data name="TroubleshootingAssistanceMessage" xml:space="preserve">
-    <value>有關此錯誤的詳細資訊，請參閱產品文件中的疑難排解主題。</value>
+    <value>如需有關此錯誤的詳細資訊，請參閱產品文件中的疑難排解主題。</value>
   </data>
   <data name="BatchParser_CircularReference" xml:space="preserve">
-    <value>檔案 '{0}' 具有遞迴。</value>
+    <value>以遞迴方式包含檔案 '{0}'。</value>
   </data>
   <data name="BatchParser_CommentNotTerminated" xml:space="preserve">
-    <value>遺漏結束的註解記號 ' * /'。</value>
+    <value>遺漏結尾的註解記號 '*/'。</value>
   </data>
   <data name="BatchParser_StringNotTerminated" xml:space="preserve">
-    <value>字元字串後有未封閉的雙引號</value>
+    <value>字元字串後面無結尾引號。</value>
   </data>
   <data name="BatchParser_IncorrectSyntax" xml:space="preserve">
-    <value>正在剖析 {0} 時遇到不正確的語法。</value>
+    <value>剖析 '{0}' 時遇到不正確的語法。</value>
   </data>
   <data name="BatchParser_VariableNotDefined" xml:space="preserve">
     <value>未定義變數 {0}。</value>
   </data>
   <data name="SqlCmd_PathInvalid" xml:space="preserve">
-    <value>路徑包含無效字元。</value>
+    <value>路徑包含無效的字元。</value>
   </data>
   <data name="SqlCmd_PathLong" xml:space="preserve">
-    <value>路太長了。</value>
+    <value>路徑太長。</value>
   </data>
   <data name="SqlCmd_FailedInclude" xml:space="preserve">
-    <value>找不到包含的檔{0}。</value>
+    <value>找不到包含的檔案 {0}。</value>
   </data>
 </root>

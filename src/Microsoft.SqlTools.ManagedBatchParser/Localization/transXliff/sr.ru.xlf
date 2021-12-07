@@ -1,198 +1,166 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
-  <file datatype="xml" source-language="en" target-language="ru">
+  <file datatype="xml" original="sr.resx" source-language="en" target-language="ru">
     <body>
       <trans-unit id="EE_BatchSqlMessageNoProcedureInfo">
         <source>Msg {0}, Level {1}, State {2}, Line {3}</source>
-        <target state="new">Сообщение {0}, уровень {1}, состояние {2}, строка {3}</target>
-        
-        <note/>
+        <target state="translated">Сообщение {0}, уровень {1}, состояние {2}, строка {3}</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="EE_BatchSqlMessageWithProcedureInfo">
         <source>Msg {0}, Level {1}, State {2}, Procedure {3}, Line {4}</source>
-        <target state="new">Сообщение {0}, уровень {1}, состояние {2}, процедура {3}, строка {4}</target>
-        
-        <note/>
+        <target state="translated">Сообщение {0}, уровень {1}, состояние {2}, процедура {3}, строка {4}</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="EE_BatchSqlMessageNoLineInfo">
         <source>Msg {0}, Level {1}, State {2}</source>
-        <target state="new">Сообщение {0}, уровень {1}, состояние {2}</target>
-        
-        <note/>
+        <target state="translated">Сообщение {0}, уровень {1}, состояние {2}</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="EE_BatchError_Exception">
         <source>An error occurred while the batch was being processed. The error message is: {0}</source>
-        <target state="new">При обработке пакета произошла ошибка: {0}</target>
-        
-        <note/>
+        <target state="translated">При обработке пакета произошла ошибка. Сообщение об ошибке: {0}</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="EE_BatchExecutionInfo_RowsAffected">
         <source>({0} row(s) affected)</source>
-        <target state="new">({0} строк затронуто)</target>
-        
-        <note/>
+        <target state="translated">({0} затронутых строк)</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="EE_ExecutionNotYetCompleteError">
         <source>The previous execution is not yet complete.</source>
-        <target state="new">Предыдущее выполнение еще не завершено.</target>
-        
-        <note/>
+        <target state="translated">Предыдущее выполнение еще не завершено.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="EE_ScriptError_Error">
         <source>A scripting error occurred.</source>
-        <target state="new">Произошла ошибка сценария.</target>
-        
-        <note/>
+        <target state="translated">Произошла ошибка скрипта.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="EE_ScriptError_ParsingSyntax">
         <source>Incorrect syntax was encountered while {0} was being parsed.</source>
-        <target state="new">Обнаружен неправильный синтаксис при обработке {0}.</target>
-        
-        <note/>
+        <target state="translated">В ходе синтаксического анализа {0} обнаружен недопустимый синтаксис.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="EE_ScriptError_FatalError">
         <source>A fatal error occurred.</source>
-        <target state="new">Произошла неустранимая ошибка.</target>
-        
-        <note/>
+        <target state="translated">Произошла неустранимая ошибка.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="EE_ExecutionInfo_FinalizingLoop">
         <source>Batch execution completed {0} times...</source>
-        <target state="new">Выполнение завершено такое количество раз: {0}...</target>
-        
-        <note/>
+        <target state="translated">Выполнение пакетного задания завершено {0} раз…</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="EE_ExecutionInfo_QueryCancelledbyUser">
         <source>You cancelled the query.</source>
-        <target state="new">Пользователь отменил запрос.</target>
-        
-        <note/>
+        <target state="translated">Запрос отменен.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="EE_BatchExecutionError_Halting">
         <source>An error occurred while the batch was being executed.</source>
-        <target state="new">При выполнении пакета произошла ошибка.</target>
-        
-        <note/>
+        <target state="translated">При выполнении пакета произошла ошибка.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="EE_BatchExecutionError_Ignoring">
         <source>An error occurred while the batch was being executed, but the error has been ignored.</source>
-        <target state="new">В процессе выполнения пакета произошла ошибка, но она была проигнорирована.</target>
-        
-        <note/>
+        <target state="translated">Произошла ошибка во время выполнения пакета, которая была проигнорирована.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="EE_ExecutionInfo_InitializingLoop">
         <source>Beginning execution loop</source>
-        <target state="new">Beginning execution loop</target>
-        
-        <note/>
+        <target state="translated">Начало цикла выполнения</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="EE_ExecutionError_CommandNotSupported">
         <source>Command {0} is not supported.</source>
-        <target state="new">Команда {0} не поддерживается.</target>
-        
-        <note/>
+        <target state="translated">Команда {0} не поддерживается.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="EE_ExecutionError_VariableNotFound">
         <source>The variable {0} could not be found.</source>
-        <target state="new">Переменная {0} не найдена.</target>
-        
-        <note/>
+        <target state="translated">Не удалось найти переменную {0}.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="BatchParserWrapperExecutionEngineError">
         <source>SQL Execution error: {0}</source>
-        <target state="new">Ошибка выполнения SQL: {0}</target>
-        
-        <note/>
+        <target state="translated">Ошибка выполнения SQL: {0}</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="BatchParserWrapperExecutionError">
         <source>Batch parser wrapper execution: {0} found... at line {1}: {2}    Description: {3}</source>
-        <target state="new">BatchParserWrapper: {0} найдено; строка {1}: {2}; описание: {3}</target>
-        
-        <note/>
+        <target state="translated">Выполнение программы-оболочки пакетного синтаксического анализатора: {0} найдено... в строке {1}: {2}  Описание: {3}</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="BatchParserWrapperExecutionEngineBatchMessage">
         <source>Batch parser wrapper execution engine batch message received:  Message: {0}    Detailed message: {1}</source>
-        <target state="new">BatchParserWrapper получено сообщение: {0}. Детали: {1}</target>
-        
-        <note/>
+        <target state="translated">Получено сообщение при выполнении программы-оболочки для пакетного синтаксического анализатора: Сообщение: {0} Подробное сообщение: {1}</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="BatchParserWrapperExecutionEngineBatchResultSetProcessing">
         <source>Batch parser wrapper execution engine batch ResultSet processing: DataReader.FieldCount: {0}  DataReader.RecordsAffected: {1}</source>
-        <target state="new">BatchParserWrapper выполнение пакетной обработки ResultSet. DataReader.FieldCount: {0} DataReader.RecordsAffected: {1}</target>
-        
-        <note/>
+        <target state="translated">Программа-оболочка для пакетного синтаксического анализатора - подсистема выполнения - пакетная обработка ResultSet: DataReader.FieldCount: {0}  DataReader.RecordsAffected: {1}</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="BatchParserWrapperExecutionEngineBatchResultSetFinished">
         <source>Batch parser wrapper execution engine batch ResultSet finished.</source>
-        <target state="new">BatchParserWrapper: обработка завершена.</target>
-        
-        <note/>
+        <target state="translated">Завершен пакет ResultSet при выполнении программы-оболочки для пакетного синтаксического анализатора.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="BatchParserWrapperExecutionEngineBatchCancelling">
         <source>Canceling batch parser wrapper batch execution.</source>
-        <target state="new">BatchParserWrapper: выполнение пакета отменено.</target>
-        
-        <note/>
+        <target state="translated">Происходит отмена выполнения программы-оболочки для пакетного синтаксического анализатора.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="EE_ScriptError_Warning">
         <source>Scripting warning.</source>
-        <target state="new">Сценарий содержит предупреждения.</target>
-        
-        <note/>
+        <target state="translated">Предупреждение выполнения скрипта.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="TroubleshootingAssistanceMessage">
         <source>For more information about this error, see the troubleshooting topics in the product documentation.</source>
-        <target state="new">Для получения дополнительной информации об этой ошибке, обратитесь к разделам по устранению неполадок в документации по продукту.</target>
-        
-        <note/>
+        <target state="translated">Дополнительные сведения об этой ошибке см. в разделах документации продукта, посвященных устранению неполадок.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="BatchParser_CircularReference">
         <source>File '{0}' recursively included.</source>
-        <target state="new">Обнаружена рекурсивная ссылка на файл «{0}».</target>
-        
-        <note/>
+        <target state="translated">Файл "{0}" включен рекурсивно.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="BatchParser_CommentNotTerminated">
         <source>Missing end comment mark '*/'.</source>
-        <target state="new">Отсутствует обозначение конца комментария - «*/».</target>
-        
-        <note/>
+        <target state="translated">Отсутствует знак окончания комментария "*/".</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="BatchParser_StringNotTerminated">
         <source>Unclosed quotation mark after the character string.</source>
-        <target state="new">Незакрытые кавычки в конце символьной строки.</target>
-        
-        <note/>
+        <target state="translated">Незакрытые кавычки в конце символьной строки.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="BatchParser_IncorrectSyntax">
         <source>Incorrect syntax was encountered while parsing '{0}'.</source>
-        <target state="new">При разборе «{0}» обнаружен неправильный синтаксис.</target>
-        
-        <note/>
+        <target state="translated">В ходе анализа "{0}" обнаружен неверный синтаксис.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="BatchParser_VariableNotDefined">
         <source>Variable {0} is not defined.</source>
-        <target state="new">Переменная {0} не определена.</target>
-        
-        <note/>
+        <target state="translated">Переменная {0} не определена.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="SqlCmd_PathInvalid">
         <source>Path contains invalid characters.</source>
-        <target state="translated">Путь содержит недействительные символы.</target>
-        
-        <note/>
+        <target state="translated">Путь содержит недопустимые символы.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="SqlCmd_PathLong">
         <source>Path too long.</source>
-        <target state="translated">Путь слишком длинный.</target>
-        
-        <note/>
+        <target state="translated">Слишком длинный путь.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="SqlCmd_FailedInclude">
         <source>Could not find included file {0}.</source>
-        <target state="translated">Не смог найти включенный файл {0}.</target>
-        
-        <note/>
+        <target state="translated">Не удалось найти включенные файлы {0}.</target>
+        <note></note>
       </trans-unit>
     </body>
   </file>

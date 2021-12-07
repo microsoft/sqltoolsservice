@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="EE_BatchSqlMessageNoProcedureInfo" xml:space="preserve">
-    <value>메시지 {0}, 수준{1}, 상태 {2}, 줄 {3}</value>
+    <value>메시지 {0}, 수준 {1}, 상태 {2}, 줄 {3}</value>
   </data>
   <data name="EE_BatchSqlMessageWithProcedureInfo" xml:space="preserve">
     <value>메시지 {0}, 수준 {1}, 상태 {2}, 프로시저 {3}, 줄 {4}</value>
@@ -127,40 +127,40 @@
     <value>메시지 {0}, 수준 {1}, 상태 {2}</value>
   </data>
   <data name="EE_BatchError_Exception" xml:space="preserve">
-    <value>일괄 처리를 처리 하는 동안 하는 동안 오류가 발생 합니다. 오류 메시지: {0}</value>
+    <value>일괄 처리 작업을 처리하는 동안 오류가 발생했습니다. 오류 메시지: {0}</value>
   </data>
   <data name="EE_BatchExecutionInfo_RowsAffected" xml:space="preserve">
-    <value>({0} 개 행이 영향을 받음)</value>
+    <value>({0}개 행이 영향을 받음)</value>
   </data>
   <data name="EE_ExecutionNotYetCompleteError" xml:space="preserve">
-    <value>이전 실행이 아직 완료 되지 않았습니다.</value>
+    <value>이전 실행이 아직 완료되지 않았습니다.</value>
   </data>
   <data name="EE_ScriptError_Error" xml:space="preserve">
-    <value>스크립팅 오류가 발생 했습니다.</value>
+    <value>스크립팅 오류가 발생했습니다.</value>
   </data>
   <data name="EE_ScriptError_ParsingSyntax" xml:space="preserve">
-    <value>{0}에 잘못된 구문이 발견되었습니다.</value>
+    <value>{0}을(를) 구문 분석하는 동안 잘못된 구문을 발견했습니다.</value>
   </data>
   <data name="EE_ScriptError_FatalError" xml:space="preserve">
-    <value>치명적인 오류가 발생 했습니다.</value>
+    <value>오류가 발생했습니다.</value>
   </data>
   <data name="EE_ExecutionInfo_FinalizingLoop" xml:space="preserve">
-    <value>{0}회 실행 완료...</value>
+    <value>일괄 처리 실행이 {0}번 완료되었습니다.</value>
   </data>
   <data name="EE_ExecutionInfo_QueryCancelledbyUser" xml:space="preserve">
-    <value>쿼리를 취소 했습니다.</value>
+    <value>사용자가 쿼리를 취소했습니다.</value>
   </data>
   <data name="EE_BatchExecutionError_Halting" xml:space="preserve">
-    <value>일괄 처리를 실행 하는 동안 오류가 발생 합니다.</value>
+    <value>일괄 처리를 실행하는 동안 오류가 발생했습니다.</value>
   </data>
   <data name="EE_BatchExecutionError_Ignoring" xml:space="preserve">
-    <value>일괄 처리를 실행 하는 동안 오류가 발생했으나 그 오류는 무시되었습니다.</value>
+    <value>일괄 처리를 실행하는 동안 오류가 발생했지만 무시되었습니다.</value>
   </data>
   <data name="EE_ExecutionInfo_InitializingLoop" xml:space="preserve">
-    <value>Beginning execution loop</value>
+    <value>실행 루프 시작</value>
   </data>
   <data name="EE_ExecutionError_CommandNotSupported" xml:space="preserve">
-    <value>{0} 명령은 지원되지 않습니다.</value>
+    <value>{0} 명령이 지원되지 않습니다.</value>
   </data>
   <data name="EE_ExecutionError_VariableNotFound" xml:space="preserve">
     <value>{0} 변수를 찾을 수 없습니다.</value>
@@ -169,7 +169,7 @@
     <value>SQL 실행 오류: {0}</value>
   </data>
   <data name="BatchParserWrapperExecutionError" xml:space="preserve">
-    <value>일괄처리 구문분석 래퍼 실행: {0} 발견... 줄 {1}: {2} 설명: {3}</value>
+    <value>일괄 처리 파서 래퍼 실행: {0} 찾음... 줄 {1}: {2} 설명: {3}</value>
   </data>
   <data name="BatchParserWrapperExecutionEngineBatchMessage" xml:space="preserve">
     <value>일괄 처리 파서 래퍼 실행 엔진 일괄 처리 메시지를 받았습니다. 메시지: {0} 자세한 메시지: {1}</value>
@@ -184,33 +184,33 @@
     <value>일괄 처리 파서 래퍼 일괄 처리 실행을 취소하고 있습니다.</value>
   </data>
   <data name="EE_ScriptError_Warning" xml:space="preserve">
-    <value>스크립팅 경고.</value>
+    <value>스크립팅 경고입니다.</value>
   </data>
   <data name="TroubleshootingAssistanceMessage" xml:space="preserve">
-    <value>이 오류에 대한 추가 정보는 제품 설명서의 문제 해결 항목을 참조하십시오.</value>
+    <value>이 오류에 대한 자세한 내용은 제품 설명서의 문제 해결 항목을 참조하십시오.</value>
   </data>
   <data name="BatchParser_CircularReference" xml:space="preserve">
-    <value>' {0} '이 (가) 재귀적으로 포함 된 파일입니다.</value>
+    <value>파일 '{0}'이(가) 재귀적으로 포함되었습니다.</value>
   </data>
   <data name="BatchParser_CommentNotTerminated" xml:space="preserve">
-    <value>주석 끝 표시 ' * /' 누락 .</value>
+    <value>주석 끝 표시 '*/'가 없습니다.</value>
   </data>
   <data name="BatchParser_StringNotTerminated" xml:space="preserve">
-    <value>문자열에 닫히지 않은 인용 부호.</value>
+    <value>문자열의 따옴표가 짝이 맞지 않습니다.</value>
   </data>
   <data name="BatchParser_IncorrectSyntax" xml:space="preserve">
     <value>'{0}'을(를) 구문 분석하는 동안 잘못된 구문을 발견했습니다.</value>
   </data>
   <data name="BatchParser_VariableNotDefined" xml:space="preserve">
-    <value>{0} 변수가 정의되지 않았습니다.</value>
+    <value>변수 {0}이(가) 정의되지 않았습니다.</value>
   </data>
   <data name="SqlCmd_PathInvalid" xml:space="preserve">
-    <value>경로에는 잘못된 문자가 포함되어 있습니다.</value>
+    <value>경로에 잘못된 문자가 포함되어 있습니다.</value>
   </data>
   <data name="SqlCmd_PathLong" xml:space="preserve">
-    <value>경로가 너무 길다.</value>
+    <value>경로가 너무 깁니다.</value>
   </data>
   <data name="SqlCmd_FailedInclude" xml:space="preserve">
-    <value>포함 된 파일 {0}를 찾을 수 없습니다.</value>
+    <value>포함된 {0} 파일을 찾을 수 없습니다.</value>
   </data>
 </root>

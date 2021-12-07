@@ -118,46 +118,46 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="CredentialsServiceInvalidCriticalHandle" xml:space="preserve">
-    <value>CriticalHandle non valido!</value>
+    <value>CriticalHandle non valido.</value>
   </data>
   <data name="CredentialsServicePasswordLengthExceeded" xml:space="preserve">
     <value>La password ha superato i 512 byte</value>
   </data>
   <data name="CredentialsServiceTargetForDelete" xml:space="preserve">
-    <value>È necessario specificare la destinazione per eliminare una credenziale</value>
+    <value>Per eliminare una credenziale è necessario specificare la destinazione</value>
   </data>
   <data name="CredentialsServiceTargetForLookup" xml:space="preserve">
-    <value>È necessario specificare la destinazione per verificare l'esistenza di una credenziale</value>
+    <value>Per verificare l'esistenza di una credenziale è necessario specificare la destinazione</value>
   </data>
   <data name="CredentialServiceWin32CredentialDisposed" xml:space="preserve">
     <value>L'oggetto Win32Credential è già stato eliminato</value>
   </data>
   <data name="HostingUnexpectedEndOfStream" xml:space="preserve">
-    <value>Il flusso di input di MessageReader è terminato in modo imprevisto, terminando</value>
+    <value>Il flusso di input di MessageReader è terminato in modo imprevisto. Arresto in corso</value>
   </data>
   <data name="HostingHeaderMissingColon" xml:space="preserve">
-    <value>L'intestazione del messaggio deve separare chiave e valore utilizzando ':'</value>
+    <value>Nell'intestazione del messaggio la chiave e il valore devono essere separati con ':'</value>
   </data>
   <data name="HostingHeaderMissingContentLengthHeader" xml:space="preserve">
-    <value>Errore irreversibile: è necessario fornire l'intestazione Content-Length</value>
+    <value>Errore irreversibile: è necessario specificare l'intestazione Content-Length</value>
   </data>
   <data name="HostingHeaderMissingContentLengthValue" xml:space="preserve">
-    <value>Errore irreversibile: il valore Content-Length non è un numero intero</value>
+    <value>Errore irreversibile: il valore Content-Length non è un intero</value>
   </data>
   <data name="ServiceAlreadyRegistered" xml:space="preserve">
-    <value>Impossibile registrare il servizio per {0} tipo, uno o più servizi già registrati</value>
+    <value>Impossibile registrare il servizio per il tipo {0}. Uno o più servizi risultano già registrati</value>
   </data>
   <data name="MultipleServicesFound" xml:space="preserve">
-    <value>Più servizi trovati per il tipo {0}, previsti solo 1</value>
+    <value>Sono stati trovati più servizi per il tipo {0}, previsto solo 1</value>
   </data>
   <data name="IncompatibleServiceForExtensionLoader" xml:space="preserve">
-    <value>Impossibile creare un servizio {0} tipo da ExtensionLoader&lt;{1}&gt;</value>
+    <value>Impossibile creare il servizio di tipo {0} da ExtensionLoader&lt;{1}&gt;</value>
   </data>
   <data name="ServiceProviderNotSet" xml:space="preserve">
-    <value>SetServiceProvider() non è stato chiamato per stabilire il provider di servizi richiesto</value>
+    <value>SetServiceProvider() non è stato chiamato per stabilire il provider dei servizi richiesto</value>
   </data>
   <data name="ServiceNotFound" xml:space="preserve">
-    <value>Il {0} di servizio non è stato trovato nel provider di servizi</value>
+    <value>Il servizio {0} non è stato trovato nel provider di servizi</value>
   </data>
   <data name="ServiceNotOfExpectedType" xml:space="preserve">
     <value>Il servizio di tipo {0} non è compatibile con il tipo registrato {1}</value>
