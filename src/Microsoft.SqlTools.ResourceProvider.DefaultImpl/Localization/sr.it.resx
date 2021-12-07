@@ -118,33 +118,33 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="FailedToGetAzureDatabasesErrorMessage" xml:space="preserve">
-    <value>Si è verificato un errore durante l'ottenimento dei database di Azure</value>
+    <value>Si è verificato un errore durante il recupero dei database di Azure</value>
   </data>
   <data name="FailedToGetAzureResourceGroupsErrorMessage" xml:space="preserve">
-    <value>Si è verificato un errore durante l'ottenimento dei gruppi di risorse Azure: {0}</value>
+    <value>Si è verificato un errore durante il recupero dei gruppi di risorse di Azure: {0}</value>
   </data>
   <data name="FailedToGetAzureSqlServersErrorMessage" xml:space="preserve">
-    <value>Si è verificato un errore durante l'ottenimento di Azure Sql Servers</value>
+    <value>Si è verificato un errore durante il recupero di Azure Sql Servers</value>
   </data>
   <data name="FirewallRuleCreationFailed" xml:space="preserve">
     <value>Si è verificato un errore durante la creazione di una nuova regola del firewall.</value>
   </data>
   <data name="UnsupportedAuthType" xml:space="preserve">
-    <value>Tipo di conto non supportato '{0}' per questo fornitore</value>
+    <value>Tipo di account '{0}' non supportato per questo provider</value>
   </data>
   <data name="FailedToGetAzureSqlServersWithError" xml:space="preserve">
-    <value>Si è verificato un errore durante l'ottenimento di Azure Sql Servers: '{0}'</value>
+    <value>Si è verificato un errore durante il recupero dei server Azure SQL: '{0}'</value>
   </data>
   <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
     <value>Si è verificato un errore durante la creazione di una nuova regola del firewall: '{0}'</value>
   </data>
   <data name="FailedToGetAzureSubscriptionsErrorMessage" xml:space="preserve">
-    <value>Si è verificato un errore durante l'ottenimento delle sottoscrizioni Azure: {0}</value>
+    <value>Si è verificato un errore durante il recupero delle sottoscrizioni di Azure: {0}</value>
   </data>
   <data name="UserNeedsAuthenticationError" xml:space="preserve">
-    <value>L'utente corrente deve essere riautentato prima di eseguire questa operazione </value>
+    <value>Prima di eseguire l’operazione, è necessario autenticare nuovamente l'utente corrente</value>
   </data>
   <data name="UserNotFoundError" xml:space="preserve">
-    <value>Nessun utente è stato trovato, non può eseguire l'operazione</value>
+    <value>Nessun utente trovato. Impossibile eseguire l'operazione</value>
   </data>
 </root>

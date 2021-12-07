@@ -118,48 +118,48 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="CredentialsServiceInvalidCriticalHandle" xml:space="preserve">
-    <value>无效的 CriticalHandle!</value>
+    <value>CriticalHandle 无效!</value>
   </data>
   <data name="CredentialsServicePasswordLengthExceeded" xml:space="preserve">
-    <value>密码已超过 512 字节</value>
+    <value>密码已超过 512 个字节</value>
   </data>
   <data name="CredentialsServiceTargetForDelete" xml:space="preserve">
     <value>必须指定目标才能删除凭据</value>
   </data>
   <data name="CredentialsServiceTargetForLookup" xml:space="preserve">
-    <value>必须指定目标以检查凭据的存在</value>
+    <value>必须指定目标才能检查凭据是否存在</value>
   </data>
   <data name="CredentialServiceWin32CredentialDisposed" xml:space="preserve">
-    <value>Win32 信用对象已处理</value>
+    <value>已处理 Win32Credential 对象</value>
   </data>
   <data name="HostingUnexpectedEndOfStream" xml:space="preserve">
-    <value>消息阅读器的输入流意外结束，终止</value>
+    <value>MessageReader 的输入流意外结束，终止中</value>
   </data>
   <data name="HostingHeaderMissingColon" xml:space="preserve">
-    <value>消息标题必须使用':'分离密钥和值</value>
+    <value>消息标头必须使用 ":" 分隔键和值</value>
   </data>
   <data name="HostingHeaderMissingContentLengthHeader" xml:space="preserve">
-    <value>致命错误：必须提供内容长度标题</value>
+    <value>灾难性错误: 必须提供 Content-Length 标头</value>
   </data>
   <data name="HostingHeaderMissingContentLengthValue" xml:space="preserve">
-    <value>致命错误：内容长度值不是整数</value>
+    <value>灾难性错误: Content-Length 值不是整数</value>
   </data>
   <data name="ServiceAlreadyRegistered" xml:space="preserve">
-    <value>无法注册已注册的 {0} 类、一种或多种服务的服务</value>
+    <value>无法为类型 {0} 注册服务，一个或多个服务已注册</value>
   </data>
   <data name="MultipleServicesFound" xml:space="preserve">
-    <value>为 {0} 型找到多个服务，预计只有 1 个</value>
+    <value>为类型 {0} 找到多个服务，应仅为 1</value>
   </data>
   <data name="IncompatibleServiceForExtensionLoader" xml:space="preserve">
-    <value>扩展加载器 &lt;{1}&gt; 无法创建 {0} 型服务</value>
+    <value>ExtensionLoader&lt;{1}&gt; 无法创建类型 {0} 的服务</value>
   </data>
   <data name="ServiceProviderNotSet" xml:space="preserve">
-    <value>SetServiceProvider() 没有调用，它需要建立所需的服务提供商</value>
+    <value>未调用 SetServiceProvider() 来建立所需的服务提供程序</value>
   </data>
   <data name="ServiceNotFound" xml:space="preserve">
-    <value>服务 {0} 未在服务提供商中找到</value>
+    <value>在服务提供程序中找不到服务 {0}</value>
   </data>
   <data name="ServiceNotOfExpectedType" xml:space="preserve">
-    <value>{0} 型服务与已注册的 {1} 型不兼容</value>
+    <value>类型 {0} 的服务与已注册的类型 {1} 不兼容</value>
   </data>
 </root>

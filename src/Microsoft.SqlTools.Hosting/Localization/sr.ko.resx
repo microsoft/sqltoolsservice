@@ -118,48 +118,48 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="CredentialsServiceInvalidCriticalHandle" xml:space="preserve">
-    <value>무효 크리티컬 핸들!</value>
+    <value>CriticalHandle이 잘못되었습니다!</value>
   </data>
   <data name="CredentialsServicePasswordLengthExceeded" xml:space="preserve">
-    <value>암호가 512바이트를 초과했습니다.</value>
+    <value>암호가 512바이트를 초과했습니다</value>
   </data>
   <data name="CredentialsServiceTargetForDelete" xml:space="preserve">
-    <value>자격 증명을 삭제하려면 대상을 지정해야 합니다.</value>
+    <value>자격 증명을 삭제하려면 대상을 지정해야 합니다</value>
   </data>
   <data name="CredentialsServiceTargetForLookup" xml:space="preserve">
-    <value>자격 증명의 존재를 확인하려면 대상을 지정해야 합니다.</value>
+    <value>자격 증명이 있는지 확인하려면 대상을 지정해야 합니다</value>
   </data>
   <data name="CredentialServiceWin32CredentialDisposed" xml:space="preserve">
-    <value>Win32자격 증명 개체가 이미 삭제되었습니다.</value>
+    <value>Win32Credential 개체가 이미 삭제되었습니다</value>
   </data>
   <data name="HostingUnexpectedEndOfStream" xml:space="preserve">
-    <value>MessageReader의 입력 스트림이 예기치 않게 종료되어 종료됩니다.</value>
+    <value>MessageReader의 입력 스트림이 예기치 않게 종료되어 스트림이 종료됩니다</value>
   </data>
   <data name="HostingHeaderMissingColon" xml:space="preserve">
-    <value>메시지 헤더는 ':'를 사용하여 키와 값을 분리해야 합니다.</value>
+    <value>메시지 헤더는 ':'를 사용하여 키와 값을 구분해야 합니다</value>
   </data>
   <data name="HostingHeaderMissingContentLengthHeader" xml:space="preserve">
-    <value>치명적인 오류: 콘텐츠 길이 헤더를 제공해야 합니다.</value>
+    <value>치명적인 오류: Content-Length 헤더를 입력해야 합니다</value>
   </data>
   <data name="HostingHeaderMissingContentLengthValue" xml:space="preserve">
-    <value>치명적인 오류: 콘텐츠 길이 값은 정수가 아닙니다.</value>
+    <value>치명적인 오류: Content-Length 값이 정수가 아닙니다</value>
   </data>
   <data name="ServiceAlreadyRegistered" xml:space="preserve">
-    <value>하나 이상의 서비스가 이미 등록되어 있기 때문에 {0}형에 대한 서비스를 등록할 수 없습니다.</value>
+    <value>{0} 유형에 대한 서비스를 등록할 수 없습니다. 하나 이상의 서비스가 이미 등록되어 있습니다</value>
   </data>
   <data name="MultipleServicesFound" xml:space="preserve">
-    <value>유형 {0}에 대해 여러 서비스가 검색되었습니다. 하나의 서비스를 찾을 것으로 예상되었다.</value>
+    <value>{0} 유형에 대해 여러 서비스가 발견되었습니다. 1개만 예상됩니다</value>
   </data>
   <data name="IncompatibleServiceForExtensionLoader" xml:space="preserve">
-    <value>{0}형의 서비스는 익스텐션 로더 &lt;{1}&gt;에서 만들 수 없습니다.</value>
+    <value>ExtensionLoader&lt;{1}&gt;에서 {0} 유형의 서비스를 만들 수 없습니다</value>
   </data>
   <data name="ServiceProviderNotSet" xml:space="preserve">
-    <value>SetServiceProvider() 필요한 서비스 공급자를 설정하도록 호출되지 않았습니다.</value>
+    <value>필요한 서비스 공급자를 설정하기 위해 SetServiceProvider()가 호출되지 않았습니다</value>
   </data>
   <data name="ServiceNotFound" xml:space="preserve">
-    <value>서비스 공급자에서 서비스 {0}를 찾을 수 없습니다.</value>
+    <value>서비스 공급자에서 {0} 서비스를 찾을 수 없습니다</value>
   </data>
   <data name="ServiceNotOfExpectedType" xml:space="preserve">
-    <value>{0}형의 서비스는 등록된 유형 {1}와 호환되지 않습니다.</value>
+    <value>{0} 유형 서비스가 등록된 {1} 유형과 호환되지 않습니다</value>
   </data>
 </root>

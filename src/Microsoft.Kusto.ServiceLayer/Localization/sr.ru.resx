@@ -118,40 +118,40 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ConnectionServiceConnectErrorNullParams" xml:space="preserve">
-    <value>Параметры подключения должны быть указаны, значение не может быть неопределенным (null)</value>
+    <value>Параметры подключения не могут иметь значение NULL</value>
   </data>
   <data name="ConnectionServiceListDbErrorNullOwnerUri" xml:space="preserve">
-    <value>OwnerUri не может быть неопределенным или пустым</value>
+    <value>OwnerUri не может быть пустым или иметь значение NULL.</value>
   </data>
   <data name="ConnectionServiceListDbErrorNotConnected" xml:space="preserve">
     <value>SpecifiedUri «{0}» не имеет существующего подключения</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidAuthType" xml:space="preserve">
-    <value>Значение «{0}» недопустимо для AuthenticationType. Ожидается значение «Integrated» или «SqlLogin».</value>
+    <value>Значение «{0}» недопустимо для AuthenticationType. Допустимые значения «Integrated» и «SqlLogin».</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidIntent" xml:space="preserve">
-    <value>Значение «{0}» недопустимо для ApplicationIntent. Ожидается значение «ReadWrite» или «ReadOnly».</value>
+    <value>Значение «{0}» недопустимо для ApplicationIntent. Допустимые значения «ReadWrite» или «ReadOnly».</value>
   </data>
   <data name="ConnectionServiceConnectionCanceled" xml:space="preserve">
-    <value>Подключение к серверу отменено.</value>
+    <value>Подключение отменено.</value>
   </data>
   <data name="ConnectionParamsValidateNullOwnerUri" xml:space="preserve">
-    <value>OwnerUri не может быть неопределенным или пустым</value>
+    <value>OwnerUri не может быть пустым или иметь значение NULL.</value>
   </data>
   <data name="ConnectionParamsValidateNullConnection" xml:space="preserve">
-    <value>Параметры подключения не могут быть неопределенными</value>
+    <value>Объект сведений о подключении не может иметь значение NULL</value>
   </data>
   <data name="ConnectionParamsValidateNullServerName" xml:space="preserve">
-    <value>Имя сервера не может быть неопределенным или пустым</value>
+    <value>Параметр ServerName не может быть пустым или иметь значение NULL</value>
   </data>
   <data name="ConnectionParamsValidateNullSqlAuth" xml:space="preserve">
-    <value>{0} не может быть неопределенным или пустым при использовании проверки подлинности SqlLogin</value>
+    <value>{0} не может быть пустым или иметь значение NULL при использовании проверки подлинности SqlLogin</value>
   </data>
   <data name="QueryServiceCancelAlreadyCompleted" xml:space="preserve">
     <value>Запрос уже был выполнен, отмена невозможна</value>
   </data>
   <data name="QueryServiceCancelDisposeFailed" xml:space="preserve">
-    <value>Запрос успешно отменен, но удалить запрос не удалось. Владелец URI не найден.</value>
+    <value>Запрос отменен, но удалить его не удалось. OwnerUri не найден.</value>
   </data>
   <data name="QueryServiceQueryCancelled" xml:space="preserve">
     <value>Выполнение запроса отменено пользователем</value>
@@ -163,7 +163,7 @@
     <value>Индекс пакета не может быть меньше нуля или больше числа пакетов</value>
   </data>
   <data name="QueryServiceSubsetResultSetOutOfRange" xml:space="preserve">
-    <value>Индекс не может быть меньше нуля или больше количества записей в наборе</value>
+    <value>Индекс не может быть меньше нуля или больше количества результирующих наборов</value>
   </data>
   <data name="QueryServiceDataReaderByteCountInvalid" xml:space="preserve">
     <value>Максимальное количество возвращаемых байтов должно быть больше нуля</value>
@@ -184,10 +184,10 @@
     <value>Этот экземпляр FileStreamWrapper не может быть использован для записи</value>
   </data>
   <data name="QueryServiceAffectedOneRow" xml:space="preserve">
-    <value>(одна строка затронута)</value>
+    <value>(Затронута одна строка)</value>
   </data>
   <data name="QueryServiceAffectedRows" xml:space="preserve">
-    <value>({0} строк затронуто)</value>
+    <value>(Затронуто строк: {0})</value>
   </data>
   <data name="QueryServiceCompletedSuccessfully" xml:space="preserve">
     <value>Выполнение команд успешно завершено.</value>
@@ -199,16 +199,16 @@
     <value>Не удалось выполнить запрос: {0}</value>
   </data>
   <data name="QueryServiceColumnNull" xml:space="preserve">
-    <value>(Нет имени столбца)</value>
+    <value>(Отсутствует имя столбца)</value>
   </data>
   <data name="QueryServiceRequestsNoQuery" xml:space="preserve">
-    <value>Указанный запрос не найден</value>
+    <value>Указанный запрос не существует</value>
   </data>
   <data name="QueryServiceQueryInvalidOwnerUri" xml:space="preserve">
     <value>Этот редактор не подключен к базе данных</value>
   </data>
   <data name="QueryServiceQueryInProgress" xml:space="preserve">
-    <value>Запрос уже выполняется для данного сеанса редактора. Отмените запрос или дождитесь завершения его выполнения.</value>
+    <value>Запрос уже выполняется для этого сеанса редактора. Отмените запрос или дождитесь завершения его выполнения.</value>
   </data>
   <data name="QueryServiceMessageSenderNotSql" xml:space="preserve">
     <value>В качестве отправителя (sender) для события OnInfoMessage ожидается экземпляр SqlConnection</value>
@@ -220,7 +220,7 @@
     <value>При запуске задачи сохранения произошла внутренняя ошибка</value>
   </data>
   <data name="QueryServiceSaveAsInProgress" xml:space="preserve">
-    <value>По указанному пути уже выполняется сохранение результатов</value>
+    <value>По указанному пути уже выполняется запрос сохранения</value>
   </data>
   <data name="QueryServiceSaveAsFail" xml:space="preserve">
     <value>Не удалось сохранить {0}: {1}</value>
@@ -238,13 +238,13 @@
     <value>Не удалось получить столбец схемы для результирующего набора</value>
   </data>
   <data name="QueryServiceExecutionPlanNotFound" xml:space="preserve">
-    <value>Не удалось получить план выполнения из результирующего набора</value>
+    <value>Не удалось получить план выполнения из результирующего набора </value>
   </data>
   <data name="PeekDefinitionAzureError" xml:space="preserve">
     <value>В настоящее время эта функция не поддерживается Azure SQL DB и Data Warehouse: {0}</value>
   </data>
   <data name="PeekDefinitionError" xml:space="preserve">
-    <value>Произошла непредвиденная ошибка во время выполнения Peek Definition: {0}</value>
+    <value>Произошла непредвиденная ошибка во время выполнения показа определения: {0}</value>
   </data>
   <data name="PeekDefinitionNoResultsError" xml:space="preserve">
     <value>Результаты не найдены.</value>
@@ -259,7 +259,7 @@
     <value>Истекло время ожидания операции.</value>
   </data>
   <data name="PeekDefinitionTypeNotSupportedError" xml:space="preserve">
-    <value>В настоящее время этот тип объекта не поддерживается этим средством.</value>
+    <value>В настоящее время этот тип объекта не поддерживается этой функцией.</value>
   </data>
   <data name="WorkspaceServicePositionLineOutOfRange" xml:space="preserve">
     <value>Позиция выходит за пределы диапазона строк файла</value>
@@ -268,94 +268,7 @@
     <value>Позиция выходит за пределы диапазона столбцов строки {0}</value>
   </data>
   <data name="WorkspaceServiceBufferPositionOutOfOrder" xml:space="preserve">
-    <value>Начальная позиция ({0}, {1}) должна быть меньше либо равна конечной ({2}, {3})</value>
-  </data>
-  <data name="EE_BatchSqlMessageNoProcedureInfo" xml:space="preserve">
-    <value>Сообщение {0}, уровень {1}, состояние {2}, строка {3}</value>
-  </data>
-  <data name="EE_BatchSqlMessageWithProcedureInfo" xml:space="preserve">
-    <value>Сообщение {0}, уровень {1}, состояние {2}, процедура {3}, строка {4}</value>
-  </data>
-  <data name="EE_BatchSqlMessageNoLineInfo" xml:space="preserve">
-    <value>Сообщение {0}, уровень {1}, состояние {2}</value>
-  </data>
-  <data name="EE_BatchError_Exception" xml:space="preserve">
-    <value>При обработке пакета произошла ошибка: {0}</value>
-  </data>
-  <data name="EE_BatchExecutionInfo_RowsAffected" xml:space="preserve">
-    <value>({0} строк затронуто)</value>
-  </data>
-  <data name="EE_ExecutionNotYetCompleteError" xml:space="preserve">
-    <value>Предыдущее выполнение еще не завершено.</value>
-  </data>
-  <data name="EE_ScriptError_Error" xml:space="preserve">
-    <value>Произошла ошибка сценария.</value>
-  </data>
-  <data name="EE_ScriptError_ParsingSyntax" xml:space="preserve">
-    <value>Обнаружен неправильный синтаксис при обработке {0}.</value>
-  </data>
-  <data name="EE_ScriptError_FatalError" xml:space="preserve">
-    <value>Произошла неустранимая ошибка.</value>
-  </data>
-  <data name="EE_ExecutionInfo_FinalizingLoop" xml:space="preserve">
-    <value>Выполнение завершено такое количество раз: {0}...</value>
-  </data>
-  <data name="EE_ExecutionInfo_QueryCancelledbyUser" xml:space="preserve">
-    <value>Пользователь отменил запрос.</value>
-  </data>
-  <data name="EE_BatchExecutionError_Halting" xml:space="preserve">
-    <value>При выполнении пакета произошла ошибка.</value>
-  </data>
-  <data name="EE_BatchExecutionError_Ignoring" xml:space="preserve">
-    <value>В процессе выполнения пакета произошла ошибка, но она была проигнорирована.</value>
-  </data>
-  <data name="EE_ExecutionInfo_InitializingLoop" xml:space="preserve">
-    <value>Beginning execution loop</value>
-  </data>
-  <data name="EE_ExecutionError_CommandNotSupported" xml:space="preserve">
-    <value>Команда {0} не поддерживается.</value>
-  </data>
-  <data name="EE_ExecutionError_VariableNotFound" xml:space="preserve">
-    <value>Переменная {0} не найдена.</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineError" xml:space="preserve">
-    <value>Ошибка выполнения SQL: {0}</value>
-  </data>
-  <data name="BatchParserWrapperExecutionError" xml:space="preserve">
-    <value>BatchParserWrapper: {0} найдено; строка {1}: {2}; описание: {3}</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchMessage" xml:space="preserve">
-    <value>BatchParserWrapper получено сообщение: {0}. Детали: {1}</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchResultSetProcessing" xml:space="preserve">
-    <value>BatchParserWrapper выполнение пакетной обработки ResultSet. DataReader.FieldCount: {0} DataReader.RecordsAffected: {1}</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchResultSetFinished" xml:space="preserve">
-    <value>BatchParserWrapper: обработка завершена.</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchCancelling" xml:space="preserve">
-    <value>BatchParserWrapper: выполнение пакета отменено.</value>
-  </data>
-  <data name="EE_ScriptError_Warning" xml:space="preserve">
-    <value>Сценарий содержит предупреждения.</value>
-  </data>
-  <data name="TroubleshootingAssistanceMessage" xml:space="preserve">
-    <value>Для получения дополнительной информации об этой ошибке, обратитесь к разделам по устранению неполадок в документации по продукту.</value>
-  </data>
-  <data name="BatchParser_CircularReference" xml:space="preserve">
-    <value>Обнаружена рекурсивная ссылка на файл «{0}».</value>
-  </data>
-  <data name="BatchParser_CommentNotTerminated" xml:space="preserve">
-    <value>Отсутствует обозначение конца комментария - «*/».</value>
-  </data>
-  <data name="BatchParser_StringNotTerminated" xml:space="preserve">
-    <value>Незакрытые кавычки в конце символьной строки.</value>
-  </data>
-  <data name="BatchParser_IncorrectSyntax" xml:space="preserve">
-    <value>При разборе «{0}» обнаружен неправильный синтаксис.</value>
-  </data>
-  <data name="BatchParser_VariableNotDefined" xml:space="preserve">
-    <value>Переменная {0} не определена.</value>
+    <value>Начальная позиция ({0}, {1}) должна быть меньше или равна конечной ({2}, {3})</value>
   </data>
   <data name="TestLocalizationConstant" xml:space="preserve">
     <value>тест</value>
@@ -364,7 +277,7 @@
     <value>Замена пустой строки на пустую строку.</value>
   </data>
   <data name="EditDataSessionNotFound" xml:space="preserve">
-    <value>Сеанс не найден.</value>
+    <value>Сеанс редактирования не существует.</value>
   </data>
   <data name="EditDataQueryNotCompleted" xml:space="preserve">
     <value>Выполнение запроса не завершено</value>
@@ -391,10 +304,10 @@
     <value>Недопустимый формат данных для двоичного столбца</value>
   </data>
   <data name="EditDataInvalidFormatBoolean" xml:space="preserve">
-    <value>Логические столбцы должны содержать число 1 или 0, либо строку true или false</value>
+    <value>Логические столбцы должны содержать число 1 или 0, либо значения TRUE или FALSE</value>
   </data>
   <data name="EditDataCreateScriptMissingValue" xml:space="preserve">
-    <value>Недопустимое значение ячейки</value>
+    <value>Столбец «{0}» определен как не NULL, но ему не присвоено значение</value>
   </data>
   <data name="EditDataDeleteSetCell" xml:space="preserve">
     <value>Обновление ячейки не может быть применено, поскольку для данной строки ожидается удаление.</value>
@@ -415,25 +328,25 @@
     <value>Объект базы данных {0} не может использоваться для редактирования.</value>
   </data>
   <data name="ConnectionServiceDbErrorDefaultNotConnected" xml:space="preserve">
-    <value>Указанный URI '{0}' не имеет соединения по умолчанию</value>
+    <value>Указанный URI «{0}» не имеет соединения по умолчанию</value>
   </data>
   <data name="EditDataCommitInProgress" xml:space="preserve">
-    <value>Выполняется фиксация. Пожалуйста, дождитесь завершения.</value>
+    <value>Выполняется фиксация. Дождитесь завершения.</value>
   </data>
   <data name="SqlScriptFormatterDecimalMissingPrecision" xml:space="preserve">
-    <value>В десятичном столбце отсутствует числовая точность или масштаб</value>
+    <value>В точном числовом столбце отсутствует числовая точность или шкала</value>
   </data>
   <data name="EditDataComputedColumnPlaceholder" xml:space="preserve">
-    <value>&lt;TBD&gt;</value>
+    <value>&lt;подлежит уточнению&gt;</value>
   </data>
   <data name="QueryServiceResultSetAddNoRows" xml:space="preserve">
-    <value>Невозможно добавить строку в файл буфера, поток не содержит строк</value>
+    <value>Невозможно добавить строку в буфер результатов, модуль чтения данных не содержит строк</value>
   </data>
   <data name="EditDataTimeOver24Hrs" xml:space="preserve">
-    <value>Значение столбца TIME должно находиться в диапазоне между 00:00:00.0000000 и 23:59:59.9999999</value>
+    <value>Значение столбца TIME (время) должно находиться в диапазоне от 00:00:00.0000000 до 23:59:59.9999999</value>
   </data>
   <data name="EditDataNullNotAllowed" xml:space="preserve">
-    <value>Значение NULL недопустимо в этом столбце.</value>
+    <value>Значение NULL для этого столбца недопустимо.</value>
   </data>
   <data name="EditDataSessionAlreadyExists" xml:space="preserve">
     <value>Сеанс редактирования уже существует.</value>
@@ -466,7 +379,7 @@
     <value>Метаданные таблицы не имеют расширенных свойств</value>
   </data>
   <data name="EditDataObjectNotFound" xml:space="preserve">
-    <value>Запрошенная таблица или представление не найдены.</value>
+    <value>Таблица или представление, запрошенные для редактирования, не найдены.</value>
   </data>
   <data name="TreeNodeError" xml:space="preserve">
     <value>Ошибка при расширении: {0}</value>
@@ -481,7 +394,7 @@
     <value>Роли сервера</value>
   </data>
   <data name="SchemaHierarchy_ApplicationRoles" xml:space="preserve">
-    <value>Роли приложения</value>
+    <value>Роли приложений</value>
   </data>
   <data name="SchemaHierarchy_Assemblies" xml:space="preserve">
     <value>Сборки</value>
@@ -502,7 +415,7 @@
     <value>Сертификаты</value>
   </data>
   <data name="SchemaHierarchy_FileTables" xml:space="preserve">
-    <value>Объекты FileTable</value>
+    <value>FileTables</value>
   </data>
   <data name="SchemaHierarchy_DatabaseCertificates" xml:space="preserve">
     <value>Сертификаты</value>
@@ -592,7 +505,7 @@
     <value>Имена входа на связанный сервер</value>
   </data>
   <data name="SchemaHierarchy_Logins" xml:space="preserve">
-    <value>Имена входа</value>
+    <value>Имена для входа</value>
   </data>
   <data name="SchemaHierarchy_MasterKey" xml:space="preserve">
     <value>Главный ключ</value>
@@ -604,7 +517,7 @@
     <value>Типы сообщений</value>
   </data>
   <data name="SchemaHierarchy_MultiSelectFunctions" xml:space="preserve">
-    <value>Функция с табличным значением</value>
+    <value>Функции с табличным значением</value>
   </data>
   <data name="SchemaHierarchy_Parameters" xml:space="preserve">
     <value>Параметры</value>
@@ -622,16 +535,16 @@
     <value>Первичные ключи</value>
   </data>
   <data name="SchemaHierarchy_Programmability" xml:space="preserve">
-    <value>Программируемость</value>
+    <value>Программирование</value>
   </data>
   <data name="SchemaHierarchy_Queues" xml:space="preserve">
-    <value>Списки ожидания</value>
+    <value>Очереди</value>
   </data>
   <data name="SchemaHierarchy_RemoteServiceBindings" xml:space="preserve">
     <value>Привязки удаленных служб</value>
   </data>
   <data name="SchemaHierarchy_ReturnedColumns" xml:space="preserve">
-    <value>Возвращенные столбцы</value>
+    <value>Возвращаемые столбцы</value>
   </data>
   <data name="SchemaHierarchy_Roles" xml:space="preserve">
     <value>Роли</value>
@@ -658,13 +571,13 @@
     <value>Триггеры</value>
   </data>
   <data name="SchemaHierarchy_ServiceBroker" xml:space="preserve">
-    <value>Компонент Service Broker</value>
+    <value>Service Broker</value>
   </data>
   <data name="SchemaHierarchy_Services" xml:space="preserve">
     <value>Службы</value>
   </data>
   <data name="SchemaHierarchy_Signatures" xml:space="preserve">
-    <value>Сигнатуры</value>
+    <value>Подписи</value>
   </data>
   <data name="SchemaHierarchy_LogFiles" xml:space="preserve">
     <value>Файлы журнала</value>
@@ -712,10 +625,10 @@
     <value>XML-индексы</value>
   </data>
   <data name="SchemaHierarchy_XMLSchemaCollections" xml:space="preserve">
-    <value>Коллекция схем XML</value>
+    <value>Коллекции схем XML</value>
   </data>
   <data name="SchemaHierarchy_UserDefinedTableTypes" xml:space="preserve">
-    <value>Определяемые пользователем типы таблиц</value>
+    <value>Определяемые пользователем табличные типы</value>
   </data>
   <data name="SchemaHierarchy_FilegroupFiles" xml:space="preserve">
     <value>Файлы</value>
@@ -724,7 +637,7 @@
     <value>Отсутствует заголовок</value>
   </data>
   <data name="SchemaHierarchy_BrokerPriorities" xml:space="preserve">
-    <value>Приоритеты брокера</value>
+    <value>Приоритеты компонента Service Broker</value>
   </data>
   <data name="SchemaHierarchy_CryptographicProviders" xml:space="preserve">
     <value>Поставщики служб шифрования</value>
@@ -745,7 +658,7 @@
     <value>Пулы ресурсов</value>
   </data>
   <data name="SchemaHierarchy_ServerAudits" xml:space="preserve">
-    <value>Аудит</value>
+    <value>Аудиты</value>
   </data>
   <data name="SchemaHierarchy_ServerAuditSpecifications" xml:space="preserve">
     <value>Спецификации аудита сервера</value>
@@ -769,7 +682,7 @@
     <value>Параметры сервера</value>
   </data>
   <data name="SchemaHierarchy_DatabaseDiagrams" xml:space="preserve">
-    <value>Диаграммы базы данных</value>
+    <value>Диаграммы баз данных</value>
   </data>
   <data name="SchemaHierarchy_SystemTables" xml:space="preserve">
     <value>Системные таблицы</value>
@@ -808,7 +721,7 @@
     <value>Агрегатные функции</value>
   </data>
   <data name="SchemaHierarchy_SystemApproximateNumerics" xml:space="preserve">
-    <value>Приблизительные числовые значения</value>
+    <value>Приблизительные числовые данные</value>
   </data>
   <data name="SchemaHierarchy_SystemBinaryStrings" xml:space="preserve">
     <value>Двоичные строки</value>
@@ -820,7 +733,7 @@
     <value>Типы данных CLR</value>
   </data>
   <data name="SchemaHierarchy_SystemConfigurationFunctions" xml:space="preserve">
-    <value>Функции конфигурации</value>
+    <value>Функции настройки</value>
   </data>
   <data name="SchemaHierarchy_SystemCursorFunctions" xml:space="preserve">
     <value>Функции работы с курсорами</value>
@@ -850,13 +763,13 @@
     <value>Функции метаданных</value>
   </data>
   <data name="SchemaHierarchy_SystemOtherDataTypes" xml:space="preserve">
-    <value>Другие типы данных</value>
+    <value>Прочие типы данных</value>
   </data>
   <data name="SchemaHierarchy_SystemOtherFunctions" xml:space="preserve">
-    <value>Другие функции</value>
+    <value>Прочие функции</value>
   </data>
   <data name="SchemaHierarchy_SystemRowsetFunctions" xml:space="preserve">
-    <value>Функции набора строк</value>
+    <value>Функции работы с наборами строк</value>
   </data>
   <data name="SchemaHierarchy_SystemSecurityFunctions" xml:space="preserve">
     <value>Функции безопасности</value>
@@ -871,10 +784,10 @@
     <value>Системные статистические функции</value>
   </data>
   <data name="SchemaHierarchy_SystemTextAndImageFunctions" xml:space="preserve">
-    <value>Функции для работы с изображениями и текстом</value>
+    <value>Функции обработки текста и изображений</value>
   </data>
   <data name="SchemaHierarchy_SystemUnicodeCharacterStrings" xml:space="preserve">
-    <value>Строки символов в Юникоде</value>
+    <value>Строка символов Юникода</value>
   </data>
   <data name="SchemaHierarchy_AggregateFunctions" xml:space="preserve">
     <value>Агрегатные функции</value>
@@ -934,10 +847,10 @@
     <value>Учетные данные для базы данных</value>
   </data>
   <data name="SchemaHierarchy_ExternalDataSources" xml:space="preserve">
-    <value>Внешние источники данных</value>
+    <value>Источники внешних данных</value>
   </data>
   <data name="SchemaHierarchy_ExternalFileFormats" xml:space="preserve">
-    <value>Внешние форматы файлов</value>
+    <value>Форматы внешнего файла</value>
   </data>
   <data name="SchemaHierarchy_ExternalResources" xml:space="preserve">
     <value>Внешние ресурсы</value>
@@ -949,7 +862,7 @@
     <value>Ключи Always Encrypted</value>
   </data>
   <data name="SchemaHierarchy_ColumnMasterKeys" xml:space="preserve">
-    <value>Главные ключи столбца</value>
+    <value>Главные ключи столбцов</value>
   </data>
   <data name="SchemaHierarchy_ColumnEncryptionKeys" xml:space="preserve">
     <value>Ключи шифрования столбца</value>
@@ -961,7 +874,7 @@
     <value>Ошибка при анализе свойства ScriptingParams.ConnectionString.</value>
   </data>
   <data name="ScriptingParams_FilePath_Property_Invalid" xml:space="preserve">
-    <value>Недопустимый каталог указан в свойстве ScriptingParams.FilePath.</value>
+    <value>В свойстве ScriptingParams.FilePath указан недопустимый каталог.</value>
   </data>
   <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid" xml:space="preserve">
     <value>Ошибка при анализе свойства ScriptingListObjectsCompleteParams.ConnectionString.</value>
@@ -973,10 +886,10 @@
     <value>Нет значения по умолчанию</value>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterInputLabel" xml:space="preserve">
-    <value>Входной</value>
+    <value>Ввод</value>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterInputOutputLabel" xml:space="preserve">
-    <value>Входной/выходной</value>
+    <value>Ввод-вывод</value>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterInputReadOnlyLabel" xml:space="preserve">
     <value>Входной/только для чтения</value>
@@ -985,13 +898,13 @@
     <value>Входной/выходной/только для чтения</value>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterDefaultLabel" xml:space="preserve">
-    <value>Значение по умолчанию</value>
+    <value>По умолчанию</value>
   </data>
   <data name="SchemaHierarchy_NullColumn_Label" xml:space="preserve">
-    <value>null</value>
+    <value>NULL</value>
   </data>
   <data name="SchemaHierarchy_NotNullColumn_Label" xml:space="preserve">
-    <value>not null</value>
+    <value>Не NULL</value>
   </data>
   <data name="SchemaHierarchy_UDDTLabelWithType" xml:space="preserve">
     <value>{0} ({1}, {2})</value>
@@ -1015,7 +928,7 @@
     <value>{0} (набор столбцов, {1}, {2}, {3})</value>
   </data>
   <data name="UniqueIndex_LabelPart" xml:space="preserve">
-    <value>UNIQUE</value>
+    <value>Уникальный</value>
   </data>
   <data name="NonUniqueIndex_LabelPart" xml:space="preserve">
     <value>Неуникальный</value>
@@ -1032,362 +945,26 @@
   <data name="SystemVersioned_LabelPart" xml:space="preserve">
     <value>Системно-версионный</value>
   </data>
-  <data name="unavailable" xml:space="preserve">
-    <value>Недоступно</value>
-  </data>
-  <data name="filegroup_dialog_defaultFilegroup" xml:space="preserve">
-    <value>Текущая файловая группа по умолчанию: {0}</value>
-  </data>
-  <data name="filegroup_dialog_title" xml:space="preserve">
-    <value>Создание файловой группы для {0}</value>
-  </data>
-  <data name="filegroups_default" xml:space="preserve">
-    <value>Значение по умолчанию</value>
-  </data>
-  <data name="filegroups_files" xml:space="preserve">
-    <value>Файлы</value>
-  </data>
-  <data name="filegroups_name" xml:space="preserve">
-    <value>Имя</value>
-  </data>
-  <data name="filegroups_readonly" xml:space="preserve">
-    <value>Только для чтения</value>
-  </data>
-  <data name="general_autogrowth" xml:space="preserve">
-    <value>Автоувеличение/максимальный размер</value>
-  </data>
-  <data name="general_builderText" xml:space="preserve">
-    <value>...</value>
-  </data>
-  <data name="general_default" xml:space="preserve">
-    <value>&lt;по умолчанию&gt;</value>
-  </data>
-  <data name="general_fileGroup" xml:space="preserve">
-    <value>Группа файлов</value>
-  </data>
-  <data name="general_fileName" xml:space="preserve">
-    <value>Логическое имя</value>
-  </data>
-  <data name="general_fileType" xml:space="preserve">
-    <value>Тип файла</value>
-  </data>
-  <data name="general_initialSize" xml:space="preserve">
-    <value>Начальный размер (МБ)</value>
-  </data>
-  <data name="general_newFilegroup" xml:space="preserve">
-    <value>&lt;создать файловую группу&gt;</value>
-  </data>
-  <data name="general_path" xml:space="preserve">
-    <value>Путь</value>
-  </data>
-  <data name="general_physicalFileName" xml:space="preserve">
-    <value>Имя файла</value>
-  </data>
-  <data name="general_rawDevice" xml:space="preserve">
-    <value>&lt;неформатированный носитель&gt;</value>
-  </data>
-  <data name="general_recoveryModel_bulkLogged" xml:space="preserve">
-    <value>С неполным протоколированием</value>
-  </data>
-  <data name="general_recoveryModel_full" xml:space="preserve">
-    <value>Полная</value>
-  </data>
-  <data name="general_recoveryModel_simple" xml:space="preserve">
-    <value>Простая</value>
-  </data>
-  <data name="general_titleSearchOwner" xml:space="preserve">
-    <value>Выбор владельца базы данных</value>
-  </data>
-  <data name="prototype_autogrowth_disabled" xml:space="preserve">
-    <value>Нет</value>
-  </data>
-  <data name="prototype_autogrowth_restrictedGrowthByMB" xml:space="preserve">
-    <value>С шагом по {0} МБ до {1} МБ</value>
-  </data>
-  <data name="prototype_autogrowth_restrictedGrowthByPercent" xml:space="preserve">
-    <value>С шагом по {0}% до {1} МБ </value>
-  </data>
-  <data name="prototype_autogrowth_unrestrictedGrowthByMB" xml:space="preserve">
-    <value>С шагом по {0} МБ, без ограничений</value>
-  </data>
-  <data name="prototype_autogrowth_unrestrictedGrowthByPercent" xml:space="preserve">
-    <value>С шагом по {0} %, без ограничений</value>
-  </data>
-  <data name="prototype_autogrowth_unlimitedfilestream" xml:space="preserve">
-    <value>Без ограничений</value>
-  </data>
-  <data name="prototype_autogrowth_limitedfilestream" xml:space="preserve">
-    <value>Ограничено {0} МБ</value>
-  </data>
-  <data name="prototype_db_category_automatic" xml:space="preserve">
-    <value>Автоматически</value>
-  </data>
-  <data name="prototype_db_category_servicebroker" xml:space="preserve">
-    <value>Service Broker</value>
-  </data>
-  <data name="prototype_db_category_collation" xml:space="preserve">
-    <value>Параметры сортировки</value>
-  </data>
-  <data name="prototype_db_category_cursor" xml:space="preserve">
-    <value>Курсор</value>
-  </data>
-  <data name="prototype_db_category_misc" xml:space="preserve">
-    <value>Прочее</value>
-  </data>
-  <data name="prototype_db_category_recovery" xml:space="preserve">
-    <value>Восстановление</value>
-  </data>
-  <data name="prototype_db_category_state" xml:space="preserve">
-    <value>Состояние</value>
-  </data>
-  <data name="prototype_db_prop_ansiNullDefault" xml:space="preserve">
-    <value>По умолчанию ANSI NULL</value>
-  </data>
-  <data name="prototype_db_prop_ansiNulls" xml:space="preserve">
-    <value>Значения ANSI NULLS включены</value>
-  </data>
-  <data name="prototype_db_prop_ansiPadding" xml:space="preserve">
-    <value>Включено заполнение ANSI </value>
-  </data>
-  <data name="prototype_db_prop_ansiWarnings" xml:space="preserve">
-    <value>Включены предупреждения ANSI</value>
-  </data>
-  <data name="prototype_db_prop_arithabort" xml:space="preserve">
-    <value>Включено прерывание при делении на ноль </value>
-  </data>
-  <data name="prototype_db_prop_autoClose" xml:space="preserve">
-    <value>Auto Close</value>
-  </data>
-  <data name="prototype_db_prop_autoCreateStatistics" xml:space="preserve">
-    <value>Автоматическое создание статистики</value>
-  </data>
-  <data name="prototype_db_prop_autoShrink" xml:space="preserve">
-    <value>Автоматическое сжатие</value>
-  </data>
-  <data name="prototype_db_prop_autoUpdateStatistics" xml:space="preserve">
-    <value>Автоматическое обновление статистики </value>
-  </data>
-  <data name="prototype_db_prop_autoUpdateStatisticsAsync" xml:space="preserve">
-    <value>Асинхронное автообновление статистики</value>
-  </data>
-  <data name="prototype_db_prop_caseSensitive" xml:space="preserve">
-    <value>Case Sensitive</value>
-  </data>
-  <data name="prototype_db_prop_closeCursorOnCommit" xml:space="preserve">
-    <value>Закрывать курсор при разрешении фиксации </value>
-  </data>
-  <data name="prototype_db_prop_collation" xml:space="preserve">
-    <value>Параметры сортировки</value>
-  </data>
-  <data name="prototype_db_prop_concatNullYieldsNull" xml:space="preserve">
-    <value>Объединение со значением NULL дает NULL </value>
-  </data>
-  <data name="prototype_db_prop_databaseCompatibilityLevel" xml:space="preserve">
-    <value>Уровень совместимости базы данных</value>
-  </data>
-  <data name="prototype_db_prop_databaseState" xml:space="preserve">
-    <value>Состояние базы данных </value>
-  </data>
-  <data name="prototype_db_prop_defaultCursor" xml:space="preserve">
-    <value>Курсор по умолчанию</value>
-  </data>
-  <data name="prototype_db_prop_fullTextIndexing" xml:space="preserve">
-    <value>Полнотекстовое индексирование включено </value>
-  </data>
-  <data name="prototype_db_prop_numericRoundAbort" xml:space="preserve">
-    <value>Автоокругление чисел </value>
-  </data>
-  <data name="prototype_db_prop_pageVerify" xml:space="preserve">
-    <value>Проверка страниц </value>
-  </data>
-  <data name="prototype_db_prop_quotedIdentifier" xml:space="preserve">
-    <value>Включены заключенные в кавычки идентификаторы</value>
-  </data>
-  <data name="prototype_db_prop_readOnly" xml:space="preserve">
-    <value>База данных только для чтения</value>
-  </data>
-  <data name="prototype_db_prop_recursiveTriggers" xml:space="preserve">
-    <value>Включены рекурсивные триггеры </value>
-  </data>
-  <data name="prototype_db_prop_restrictAccess" xml:space="preserve">
-    <value>Ограничение доступа</value>
-  </data>
-  <data name="prototype_db_prop_selectIntoBulkCopy" xml:space="preserve">
-    <value>Выбор/Массовое копирование </value>
-  </data>
-  <data name="prototype_db_prop_honorBrokerPriority" xml:space="preserve">
-    <value>Учитывать приоритет компонента Honor Broker</value>
-  </data>
-  <data name="prototype_db_prop_serviceBrokerGuid" xml:space="preserve">
-    <value>Идентификатор компонента Service Broker</value>
-  </data>
-  <data name="prototype_db_prop_brokerEnabled" xml:space="preserve">
-    <value>Включен компонент Broker</value>
-  </data>
-  <data name="prototype_db_prop_truncateLogOnCheckpoint" xml:space="preserve">
-    <value>Усечение журнала на контрольной точке </value>
-  </data>
-  <data name="prototype_db_prop_dbChaining" xml:space="preserve">
-    <value>Межбазовые цепочки владения включены</value>
-  </data>
-  <data name="prototype_db_prop_trustworthy" xml:space="preserve">
-    <value>Заслуживает доверия</value>
-  </data>
-  <data name="prototype_db_prop_dateCorrelationOptimization" xml:space="preserve">
-    <value>Date Correlation Optimization Enabledprototype_db_prop_parameterization = Parameterization</value>
-  </data>
-  <data name="prototype_db_prop_parameterization_value_forced" xml:space="preserve">
-    <value>Принудительное</value>
-  </data>
-  <data name="prototype_db_prop_parameterization_value_simple" xml:space="preserve">
-    <value>Простая</value>
-  </data>
-  <data name="prototype_file_dataFile" xml:space="preserve">
-    <value>Данные СТРОК</value>
-  </data>
-  <data name="prototype_file_logFile" xml:space="preserve">
-    <value>ЖУРНАЛ</value>
-  </data>
-  <data name="prototype_file_filestreamFile" xml:space="preserve">
-    <value>Данные FILESTREAM</value>
-  </data>
-  <data name="prototype_file_noFileGroup" xml:space="preserve">
-    <value>Неприменимо</value>
-  </data>
-  <data name="prototype_file_defaultpathstring" xml:space="preserve">
-    <value>&lt;default path&gt;</value>
-  </data>
-  <data name="title_openConnectionsMustBeClosed" xml:space="preserve">
-    <value>Открытые соединения</value>
-  </data>
-  <data name="warning_openConnectionsMustBeClosed" xml:space="preserve">
-    <value>Чтобы изменить свойства базы данных, SQL Server должен закрыть все остальные соединения с этой базой данных. Изменить свойства и закрыть остальные соединения?</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_autoClosed" xml:space="preserve">
-    <value>AUTO_CLOSED</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_emergency" xml:space="preserve">
-    <value>EMERGENCY</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_inaccessible" xml:space="preserve">
-    <value>INACCESSIBLE</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_normal" xml:space="preserve">
-    <value>NORMAL</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_offline" xml:space="preserve">
-    <value>OFFLINE</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_recovering" xml:space="preserve">
-    <value>RECOVERING</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_recoveryPending" xml:space="preserve">
-    <value>RECOVERY PENDING</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_restoring" xml:space="preserve">
-    <value>RESTORING</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_shutdown" xml:space="preserve">
-    <value>SHUTDOWN</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_standby" xml:space="preserve">
-    <value>STANDBY</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_suspect" xml:space="preserve">
-    <value>SUSPECT</value>
-  </data>
-  <data name="prototype_db_prop_defaultCursor_value_global" xml:space="preserve">
-    <value>GLOBAL</value>
-  </data>
-  <data name="prototype_db_prop_defaultCursor_value_local" xml:space="preserve">
-    <value>LOCAL</value>
-  </data>
-  <data name="prototype_db_prop_restrictAccess_value_multiple" xml:space="preserve">
-    <value>MULTI_USER</value>
-  </data>
-  <data name="prototype_db_prop_restrictAccess_value_restricted" xml:space="preserve">
-    <value>RESTRICTED_USER</value>
-  </data>
-  <data name="prototype_db_prop_restrictAccess_value_single" xml:space="preserve">
-    <value>SINGLE_USER</value>
-  </data>
-  <data name="prototype_db_prop_pageVerify_value_checksum" xml:space="preserve">
-    <value>CHECKSUM</value>
-  </data>
-  <data name="prototype_db_prop_pageVerify_value_none" xml:space="preserve">
-    <value>Нет</value>
-  </data>
-  <data name="prototype_db_prop_pageVerify_value_tornPageDetection" xml:space="preserve">
-    <value>TORN_PAGE_DETECTION</value>
-  </data>
-  <data name="prototype_db_prop_varDecimalEnabled" xml:space="preserve">
-    <value>Включен формат хранения VarDecimal</value>
-  </data>
-  <data name="compatibilityLevel_katmai" xml:space="preserve">
-    <value>SQL Server 2008 (100)</value>
-  </data>
-  <data name="prototype_db_prop_encryptionEnabled" xml:space="preserve">
-    <value>Шифрование включено</value>
-  </data>
-  <data name="prototype_db_prop_databasescopedconfig_value_off" xml:space="preserve">
-    <value>ОТКЛ.</value>
-  </data>
-  <data name="prototype_db_prop_databasescopedconfig_value_on" xml:space="preserve">
-    <value>ВКЛ.</value>
-  </data>
-  <data name="prototype_db_prop_databasescopedconfig_value_primary" xml:space="preserve">
-    <value>ПЕРВИЧНЫЙ</value>
-  </data>
-  <data name="error_db_prop_invalidleadingColumns" xml:space="preserve">
-    <value>Для политики распространения HASH количество начальных хэш-столбцов указывать не обязательно. Оно может составлять от 1 до 16 столбцов</value>
-  </data>
-  <data name="compatibilityLevel_denali" xml:space="preserve">
-    <value>SQL Server 2012 (110)</value>
-  </data>
-  <data name="compatibilityLevel_sql14" xml:space="preserve">
-    <value>SQL Server 2014 (120)</value>
-  </data>
-  <data name="compatibilityLevel_sql15" xml:space="preserve">
-    <value>SQL Server 2016 (130)</value>
-  </data>
-  <data name="compatibilityLevel_sqlvNext" xml:space="preserve">
-    <value>SQL Server vNext (140)</value>
-  </data>
-  <data name="general_containmentType_None" xml:space="preserve">
-    <value>Нет</value>
-  </data>
-  <data name="general_containmentType_Partial" xml:space="preserve">
-    <value>Частично</value>
-  </data>
-  <data name="filegroups_filestreamFiles" xml:space="preserve">
-    <value>Файлы FILESTREAM</value>
-  </data>
-  <data name="prototype_file_noApplicableFileGroup" xml:space="preserve">
-    <value>Применимая файловая группа отсутствует</value>
-  </data>
   <data name="DatabaseNotAccessible" xml:space="preserve">
     <value>База данных {0} недоступна.</value>
   </data>
   <data name="QueryServiceResultSetHasNoResults" xml:space="preserve">
-    <value>запрос не имеет результатов</value>
+    <value>Запрос не возвратил результатов</value>
   </data>
   <data name="QueryServiceResultSetTooLarge" xml:space="preserve">
-    <value>Pезультатов слишком много строк для безопасной загрузки</value>
-  </data>
-  <data name="prototype_db_prop_parameterization" xml:space="preserve">
-    <value>Параметризация</value>
+    <value>В результирующем наборе слишком много строк для безопасной загрузки</value>
   </data>
   <data name="ConflictWithNoRecovery" xml:space="preserve">
     <value>Не разрешается указывать этот параметр при восстановлении резервной копии с параметром NORECOVERY.</value>
   </data>
   <data name="InvalidPathForDatabaseFile" xml:space="preserve">
-    <value>Недопустимый путь к файлу базы данных: {0}""""</value>
+    <value>Недопустимый путь к файлу базы данных: {0}</value>
   </data>
   <data name="Log" xml:space="preserve">
     <value>Журнал</value>
   </data>
   <data name="RestorePlanFailed" xml:space="preserve">
-    <value>Не удалось создать план восстановления </value>
+    <value>Не удалось создать план восстановления</value>
   </data>
   <data name="RestoreNotSupported" xml:space="preserve">
     <value>Восстановление базы данных не поддерживается</value>
@@ -1399,7 +976,7 @@
     <value>(Копировать только)</value>
   </data>
   <data name="RestoreBackupSetComponent" xml:space="preserve">
-    <value>Тип копии</value>
+    <value>Компонент</value>
   </data>
   <data name="RestoreBackupSetType" xml:space="preserve">
     <value>Тип</value>
@@ -1438,7 +1015,7 @@
     <value>Имя пользователя</value>
   </data>
   <data name="RestoreBackupSetExpiration" xml:space="preserve">
-    <value>Истечение срока</value>
+    <value>Истечение срока действия</value>
   </data>
   <data name="RestoreBackupSetName" xml:space="preserve">
     <value>Имя</value>
@@ -1461,11 +1038,14 @@
   <data name="ProfilerConnectionNotFound" xml:space="preserve">
     <value>Соединение не найдено</value>
   </data>
+  <data name="AzureSystemDbProfilingError" xml:space="preserve">
+    <value>Не удается выполнить профилирование системных баз данных Azure</value>
+  </data>
   <data name="BackupPathIsFolderError" xml:space="preserve">
-    <value>Указанное имя файла является также именем каталога: {0}</value>
+    <value>Укажите имя файла, а не имя каталога</value>
   </data>
   <data name="InvalidBackupPathError" xml:space="preserve">
-    <value>Невозможно проверить существование расположения файла резервной копии: {0}</value>
+    <value>Указан недопустимый путь</value>
   </data>
   <data name="InvalidPathError" xml:space="preserve">
     <value>Указанный путь на сервере недоступен: {0}</value>
@@ -1473,7 +1053,262 @@
   <data name="NoBackupsetsToRestore" xml:space="preserve">
     <value>Для восстановления не выбран резервный набор данных</value>
   </data>
+  <data name="AzureSqlDbEdition" xml:space="preserve">
+    <value>БД SQL Azure</value>
+  </data>
+  <data name="AzureSqlDwEdition" xml:space="preserve">
+    <value>Хранилище данных SQL Azure</value>
+  </data>
+  <data name="AzureSqlStretchEdition" xml:space="preserve">
+    <value>Azure SQL Stretch Database</value>
+  </data>
+  <data name="EditDataValueTooLarge" xml:space="preserve">
+    <value>Значение {0} слишком велико, чтобы уместиться в столбце типа {1}</value>
+  </data>
+  <data name="EditDataInvalidFormat" xml:space="preserve">
+    <value>Недопустимый формат столбца «{0}». Столбец определен как {1}</value>
+  </data>
+  <data name="SqlScriptFormatterLengthTypeMissingSize" xml:space="preserve">
+    <value>Длина столбца не указана</value>
+  </data>
+  <data name="SqlScriptFormatterScalarTypeMissingScale" xml:space="preserve">
+    <value>Отсутствует шкала для скалярного столбца</value>
+  </data>
+  <data name="StoredProcedureScriptParameterComment" xml:space="preserve">
+    <value>-- TODO: Set parameter values here.</value>
+  </data>
+  <data name="ScriptingGeneralError" xml:space="preserve">
+    <value>Ошибка при выполнении скрипта с данными объектами.</value>
+  </data>
+  <data name="ScriptingExecuteNotSupportedError" xml:space="preserve">
+    <value>Скрипты при выполнении поддерживаются только для хранимых процедур</value>
+  </data>
+  <data name="External_LabelPart" xml:space="preserve">
+    <value>Внешний</value>
+  </data>
+  <data name="FileTable_LabelPart" xml:space="preserve">
+    <value>Таблица файлов</value>
+  </data>
+  <data name="EditDataMultiTableNotSupported" xml:space="preserve">
+    <value>Запросы EditData к нескольким таблицам не поддерживаются</value>
+  </data>
+  <data name="EditDataAliasesNotSupported" xml:space="preserve">
+    <value>Запросы EditData с использованием псевдонимов для столбцов не поддерживаются</value>
+  </data>
+  <data name="EditDataExpressionsNotSupported" xml:space="preserve">
+    <value>Запросы EditData со столбцами «статистическое выражение» или «выражение» не поддерживаются</value>
+  </data>
+  <data name="EditDataDuplicateColumnsNotSupported" xml:space="preserve">
+    <value>Запросы EditData с повторяющимися столбцами не поддерживаются</value>
+  </data>
+  <data name="EditDataIncorrectTable" xml:space="preserve">
+    <value>Запросы EditData должны быть нацелены на первоначально запрошенную таблицу «{0}»</value>
+  </data>
+  <data name="CategoryLocal" xml:space="preserve">
+    <value>[Без категорий (локальный)]</value>
+  </data>
+  <data name="CategoryFromMsx" xml:space="preserve">
+    <value>Задания из главного сервера</value>
+  </data>
+  <data name="CategoryMultiServer" xml:space="preserve">
+    <value>[Без категорий (многосерверный)]</value>
+  </data>
+  <data name="CategoryDBMaint" xml:space="preserve">
+    <value>Обслуживание базы данных</value>
+  </data>
+  <data name="CategoryWebAssistant" xml:space="preserve">
+    <value>Помощник Web Assistant</value>
+  </data>
+  <data name="CategoryFullText" xml:space="preserve">
+    <value>Полнотекстовый</value>
+  </data>
+  <data name="CategoryReplDistribution" xml:space="preserve">
+    <value>REPL: распространение</value>
+  </data>
+  <data name="CategoryReplDistributionCleanup" xml:space="preserve">
+    <value>REPL: очистка распространения</value>
+  </data>
+  <data name="CategoryReplHistoryCleanup" xml:space="preserve">
+    <value>REPL: очистка журнала</value>
+  </data>
+  <data name="CategoryReplLogReader" xml:space="preserve">
+    <value>REPL: агент чтения журнала</value>
+  </data>
+  <data name="CategoryReplMerge" xml:space="preserve">
+    <value>REPL: слияние</value>
+  </data>
+  <data name="CategoryReplSnapShot" xml:space="preserve">
+    <value>REPL: моментальный снимок</value>
+  </data>
+  <data name="CategoryReplCheckup" xml:space="preserve">
+    <value>REPL: проверка</value>
+  </data>
+  <data name="CategoryReplCleanup" xml:space="preserve">
+    <value>REPL: очистка подписки</value>
+  </data>
+  <data name="CategoryReplAlert" xml:space="preserve">
+    <value>REPL: ответ на предупреждение</value>
+  </data>
+  <data name="CategoryReplQReader" xml:space="preserve">
+    <value>REPL: агент чтения очереди</value>
+  </data>
+  <data name="CategoryReplication" xml:space="preserve">
+    <value>Репликация</value>
+  </data>
+  <data name="CategoryUncategorized" xml:space="preserve">
+    <value>[Без категорий]</value>
+  </data>
+  <data name="CategoryLogShipping" xml:space="preserve">
+    <value>Доставка журналов</value>
+  </data>
+  <data name="CategoryDBEngineTuningAdvisor" xml:space="preserve">
+    <value>Помощник по настройке ядра СУБД</value>
+  </data>
+  <data name="CategoryDataCollector" xml:space="preserve">
+    <value>Сборщик данных</value>
+  </data>
+  <data name="JobAlreadyExists" xml:space="preserve">
+    <value>Задание с именем «{0}» уже существует. Введите уникальное имя задания.</value>
+  </data>
+  <data name="JobStepNameCannotBeBlank" xml:space="preserve">
+    <value>Имя шага задания не может быть пустым.</value>
+  </data>
+  <data name="JobStepNameAlreadyExists" xml:space="preserve">
+    <value>В этом задании уже существует шаг с именем «{0}». Необходимо указать другое имя.</value>
+  </data>
+  <data name="AlertNameCannotBeBlank" xml:space="preserve">
+    <value>Имя предупреждения не может быть пустым.</value>
+  </data>
+  <data name="CannotCreateNewAlert" xml:space="preserve">
+    <value>Невозможно создать новое предупреждение.</value>
+  </data>
+  <data name="CannotAlterAlert" xml:space="preserve">
+    <value>Невозможно изменить предупреждение.</value>
+  </data>
+  <data name="SysadminAccount" xml:space="preserve">
+    <value>Учетная запись службы агента SQL Server</value>
+  </data>
+  <data name="ProxyAccountNotFound" xml:space="preserve">
+    <value>Учетная запись-посредник «{0}» не существует на этом сервере.</value>
+  </data>
+  <data name="CredentialNoLongerExists" xml:space="preserve">
+    <value>Объект больше не существует на сервере.</value>
+  </data>
+  <data name="UnknownServerType" xml:space="preserve">
+    <value>Неизвестный тип сервера «{0}».</value>
+  </data>
+  <data name="SetOwnerFailed" xml:space="preserve">
+    <value>Текущее имя для входа не имеет достаточно разрешений, чтобы установить владельцем базы данных «{0}». Однако база данных была создана.</value>
+  </data>
+  <data name="TargetServerNotSelected" xml:space="preserve">
+    <value>Определите целевые серверы, на которых будет выполняться это многосерверное задание.</value>
+  </data>
+  <data name="UnexpectedRunType" xml:space="preserve">
+    <value>Непредвиденный тип запуска.</value>
+  </data>
+  <data name="UnknownSizeUnit" xml:space="preserve">
+    <value>Неизвестная единица размера: {0} </value>
+  </data>
+  <data name="SessionNotFound" xml:space="preserve">
+    <value>Не удается найти запрошенный сеанс XEvent</value>
+  </data>
+  <data name="StopSessionFailed" xml:space="preserve">
+    <value>Не удалось остановить сеанс: {0}</value>
+  </data>
+  <data name="StartSessionFailed" xml:space="preserve">
+    <value>Не удалось запустить сеанс: {0}</value>
+  </data>
+  <data name="CreateSessionFailed" xml:space="preserve">
+    <value>Не удалось создать сеанс: {0}</value>
+  </data>
+  <data name="PauseSessionFailed" xml:space="preserve">
+    <value>Не удалось приостановить сеанс: {0}</value>
+  </data>
+  <data name="SessionAlreadyExists" xml:space="preserve">
+    <value>Сеанс XEvent с именем {0} уже существует</value>
+  </data>
+  <data name="InvalidScheduleTitle" xml:space="preserve">
+    <value>Недопустимое расписание</value>
+  </data>
+  <data name="InvalidWeeklySchedule" xml:space="preserve">
+    <value>Выберите по меньшей мере один день для включения в недельное расписание.</value>
+  </data>
+  <data name="StartDateGreaterThanEndDate" xml:space="preserve">
+    <value>Дата начала расписания не может быть позже даты завершения.</value>
+  </data>
+  <data name="StartTimeGreaterThanEndTime" xml:space="preserve">
+    <value>Время начала расписания задания не может быть позже времени завершения.</value>
+  </data>
+  <data name="EndTimeEqualToStartTime" xml:space="preserve">
+    <value>Время окончания расписания задания должно быть после времени начала.</value>
+  </data>
+  <data name="InvalidStartDate" xml:space="preserve">
+    <value>Дата начала должна быть установлена не ранее 1 января 1990 г.</value>
+  </data>
+  <data name="ScheduleNameAlreadyExists" xml:space="preserve">
+    <value>В этом задании уже существует расписание с именем «{0}». Необходимо указать другое имя.</value>
+  </data>
+  <data name="JobServerIsNotAvailable" xml:space="preserve">
+    <value>Сервер заданий недоступен</value>
+  </data>
   <data name="NeverBackedUp" xml:space="preserve">
-    <value>Никогда </value>
+    <value>Никогда</value>
+  </data>
+  <data name="Error_InvalidDirectoryName" xml:space="preserve">
+    <value>Путь {0} не является допустимым каталогом </value>
+  </data>
+  <data name="Error_ExistingDirectoryName" xml:space="preserve">
+    <value>Для каталога {0} файл с именем {1} уже существует</value>
+  </data>
+  <data name="EE_ExecutionInfo_InitializingLoop" xml:space="preserve">
+    <value>Начало цикла выполнения</value>
+  </data>
+  <data name="EE_BatchExecutionError_Ignoring" xml:space="preserve">
+    <value>Произошла ошибка во время выполнения пакета, которая была проигнорирована.</value>
+  </data>
+  <data name="EE_ExecutionInfo_FinalizingLoop" xml:space="preserve">
+    <value>Выполнение пакетного задания завершено {0} раз…</value>
+  </data>
+  <data name="BatchParserWrapperExecutionError" xml:space="preserve">
+    <value>Выполнение программы-оболочки пакетного синтаксического анализатора: {0} найдено... в строке {1}: {2}  Описание: {3}</value>
+  </data>
+  <data name="ExtractInvalidVersion" xml:space="preserve">
+    <value>Передан недопустимый номер версии «{0}». Номер версии должен быть в формате x.x.x.x, где x является числом.</value>
+  </data>
+  <data name="ExportBacpacTaskName" xml:space="preserve">
+    <value>Экспорт bacpac</value>
+  </data>
+  <data name="ImportBacpacTaskName" xml:space="preserve">
+    <value>Импорт bacpac</value>
+  </data>
+  <data name="ExtractDacpacTaskName" xml:space="preserve">
+    <value>Извлечение dacpac</value>
+  </data>
+  <data name="DeployDacpacTaskName" xml:space="preserve">
+    <value>Развертывание dacpac</value>
+  </data>
+  <data name="GenerateScriptTaskName" xml:space="preserve">
+    <value>Создать сценарий</value>
+  </data>
+  <data name="PublishChangesTaskName" xml:space="preserve">
+    <value>Применить изменения сравнения схемы</value>
+  </data>
+  <data name="SchemaCompareExcludeIncludeNodeNotFound" xml:space="preserve">
+    <value>Не удалось найти указанные изменения в модели</value>
+  </data>
+  <data name="OpenScmpConnectionBasedModelParsingError" xml:space="preserve">
+    <value>Произошла ошибка при попытке анализа сведений о подключении для конечной точки «{0}». Сообщение об ошибке: «{1}»</value>
+  </data>
+  <data name="SchemaCompareSessionNotFound" xml:space="preserve">
+    <value>Не удалось найти сеанс сравнения схемы для отмены</value>
+  </data>
+  <data name="SerializationServiceUnsupportedFormat" xml:space="preserve">
+    <value>Неподдерживаемый формат сохранения: {0}</value>
+  </data>
+  <data name="SerializationServiceRequestInProgress" xml:space="preserve">
+    <value>Запрос для файла {0} уже выполняется</value>
+  </data>
+  <data name="SerializationServiceRequestNotFound" xml:space="preserve">
+    <value>Не удается сериализовать больше данных, так как не удалось найти запрос для файла {0}</value>
   </data>
 </root>

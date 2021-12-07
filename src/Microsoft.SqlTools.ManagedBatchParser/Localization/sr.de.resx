@@ -127,7 +127,7 @@
     <value>Meldung {0}, Ebene {1}, Status {2}</value>
   </data>
   <data name="EE_BatchError_Exception" xml:space="preserve">
-    <value>Fehler beim Ausführen des Batches. Fehlermeldung: {0}</value>
+    <value>Fehler bei der Batchverarbeitung. Fehlermeldung: {0}</value>
   </data>
   <data name="EE_BatchExecutionInfo_RowsAffected" xml:space="preserve">
     <value>({0} Zeile(n) betroffen)</value>
@@ -136,81 +136,81 @@
     <value>Die vorherige Ausführung ist noch nicht abgeschlossen.</value>
   </data>
   <data name="EE_ScriptError_Error" xml:space="preserve">
-    <value>Ein Skriptfehler ist aufgetreten.</value>
+    <value>Skriptfehler.</value>
   </data>
   <data name="EE_ScriptError_ParsingSyntax" xml:space="preserve">
-    <value>Ein Syntaxfehler ist aufgetreten der bei Analyse von {0}</value>
+    <value>Falsche Syntax beim Analysieren von {0}</value>
   </data>
   <data name="EE_ScriptError_FatalError" xml:space="preserve">
-    <value>Ein schwerwiegender Fehler ist aufgetreten.</value>
+    <value>Schwerwiegender Fehler</value>
   </data>
   <data name="EE_ExecutionInfo_FinalizingLoop" xml:space="preserve">
-    <value>{0}-mal ausgeführt...</value>
+    <value>Die Batchausführung wurde {0}-mal abgeschlossen...</value>
   </data>
   <data name="EE_ExecutionInfo_QueryCancelledbyUser" xml:space="preserve">
-    <value>Sie haben die Abfrage abgebrochen.</value>
+    <value>Die Abfrage wurde von Ihnen abgebrochen.</value>
   </data>
   <data name="EE_BatchExecutionError_Halting" xml:space="preserve">
-    <value>Fehler während der Batchausführung.</value>
+    <value>Fehler bei der Batchausführung.</value>
   </data>
   <data name="EE_BatchExecutionError_Ignoring" xml:space="preserve">
-    <value>Fehler während der Batchausführung, aber des Fehlers wurde ignoriert.</value>
+    <value>Fehler während der Batchausführung, aber der Fehler wurde ignoriert.</value>
   </data>
   <data name="EE_ExecutionInfo_InitializingLoop" xml:space="preserve">
-    <value>Beginning execution loop</value>
+    <value>Die Ausführungsschleife wird begonnen.</value>
   </data>
   <data name="EE_ExecutionError_CommandNotSupported" xml:space="preserve">
-    <value>Befehl {0} wird nicht unterstützt.</value>
+    <value>Der Befehl {0} wird nicht unterstützt.</value>
   </data>
   <data name="EE_ExecutionError_VariableNotFound" xml:space="preserve">
-    <value>Die Variable {0} konnte nicht gefunden werden.</value>
+    <value>Die Variable '{0}' wurde nicht gefunden.</value>
   </data>
   <data name="BatchParserWrapperExecutionEngineError" xml:space="preserve">
-    <value>Fehler bei der SQL-Ausführung: {0}</value>
+    <value>SQL-Ausführungsfehler: {0}</value>
   </data>
   <data name="BatchParserWrapperExecutionError" xml:space="preserve">
-    <value>Batch-Ausführung des Batchanalysewrappers: {0} in Zeile {1} gefunden...: {2} Beschreibung: {3}</value>
+    <value>Ausführung des Batchanalysewrappers: "{0}" in Zeile {1} gefunden: {2}. Beschreibung: {3}</value>
   </data>
   <data name="BatchParserWrapperExecutionEngineBatchMessage" xml:space="preserve">
-    <value>Batch Parser Wrapper Execution Engine Meldung empfangen: Meldung: {0} Ausführliche Meldung: {1}</value>
+    <value>Batchmeldung der Ausführungs-Engine für den Batchanalysewrapper empfangen: Meldung: {0} Ausführliche Meldung: {1}</value>
   </data>
   <data name="BatchParserWrapperExecutionEngineBatchResultSetProcessing" xml:space="preserve">
-    <value>Stapelverarbeitung Parser Wrapper Execution Engine Stapel ResultSet: DataReader.FieldCount: {0} DataReader.RecordsAffected: {1}</value>
+    <value>Das Batch-ResultSet der Ausführungs-Engine für den Batchanalysewrapper wird verarbeitet: DataReader.FieldCount: {0} DataReader.RecordsAffected: {1}</value>
   </data>
   <data name="BatchParserWrapperExecutionEngineBatchResultSetFinished" xml:space="preserve">
-    <value>Batch-Parser Wrapper Execution Engine wurde beendet ResultSet.</value>
+    <value>Das Batch-ResultSet der Ausführungs-Engine für den Batchanalysewrapper wurde beendet.</value>
   </data>
   <data name="BatchParserWrapperExecutionEngineBatchCancelling" xml:space="preserve">
-    <value>Ausführung des Batchanalysewrappers Batch abgebrochen.</value>
+    <value>Die Batchausführung des Batchanalysewrappers wird abgebrochen.</value>
   </data>
   <data name="EE_ScriptError_Warning" xml:space="preserve">
-    <value>Scripting-Warnung.</value>
+    <value>Warnung für die Skripterstellung.</value>
   </data>
   <data name="TroubleshootingAssistanceMessage" xml:space="preserve">
-    <value>Weitere Informationen zu diesem Fehler finden Sie in den entsprechenden Abschnitten der Produktdokumentation.</value>
+    <value>Weitere Informationen über diesen Fehler finden Sie in der Produktdokumentation in den Themen zur Problembehandlung.</value>
   </data>
   <data name="BatchParser_CircularReference" xml:space="preserve">
     <value>Die Datei '{0}' ist rekursiv eingeschlossen.</value>
   </data>
   <data name="BatchParser_CommentNotTerminated" xml:space="preserve">
-    <value>Fehlender End Kommentarzeichen "* /".</value>
+    <value>Eine Kommentarendemarkierung '*/' fehlt.</value>
   </data>
   <data name="BatchParser_StringNotTerminated" xml:space="preserve">
-    <value>Fehlendes schließendes Anführungszeichen nach der Zeichenfolge</value>
+    <value>Kein schließendes Anführungszeichen nach der Zeichenfolge.</value>
   </data>
   <data name="BatchParser_IncorrectSyntax" xml:space="preserve">
-    <value>Syntaxfehler aufgetreten beim Analysieren von '{0}'.</value>
+    <value>Fehlerhafte Syntax beim Analysieren von '{0}'.</value>
   </data>
   <data name="BatchParser_VariableNotDefined" xml:space="preserve">
-    <value>Variable {0} ist nicht definiert.</value>
+    <value>Die {0}-Variable ist nicht definiert.</value>
   </data>
   <data name="SqlCmd_PathInvalid" xml:space="preserve">
-    <value>Pfad enthält ungültige Zeichen.</value>
+    <value>Der Pfad enthält ungültige Zeichen.</value>
   </data>
   <data name="SqlCmd_PathLong" xml:space="preserve">
-    <value>Pfad zu lang.</value>
+    <value>Der Pfad ist zu lang.</value>
   </data>
   <data name="SqlCmd_FailedInclude" xml:space="preserve">
-    <value>Die enthaltene Datei {0} konnte nicht gefunden werden.</value>
+    <value>Die eingeschlossene Datei {0} wurde nicht gefunden.</value>
   </data>
 </root>

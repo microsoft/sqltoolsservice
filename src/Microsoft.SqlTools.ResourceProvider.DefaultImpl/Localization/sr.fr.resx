@@ -118,33 +118,33 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="FailedToGetAzureDatabasesErrorMessage" xml:space="preserve">
-    <value>Une erreur s'est produite lors de l'obtention des bases de données Azure</value>
+    <value>Une erreur s'est produite lors de la récupération des bases de données Azure</value>
   </data>
   <data name="FailedToGetAzureResourceGroupsErrorMessage" xml:space="preserve">
-    <value>Une erreur s'est produite lors de l'obtention des groupes de ressources Azure : {0}</value>
+    <value>Une erreur s'est produite lors de la récupération des groupes de ressources Azure : {0}</value>
   </data>
   <data name="FailedToGetAzureSqlServersErrorMessage" xml:space="preserve">
-    <value>Une erreur s'est produite lors de l'obtention de Azure Sql Servers</value>
+    <value>Une erreur s'est produite lors de la récupération Azure Sql Servers</value>
   </data>
   <data name="FirewallRuleCreationFailed" xml:space="preserve">
-    <value>Une erreur s'est produite lors de la création d'une nouvelle règle de pare-feu.</value>
+    <value>Une erreur s'est produite lors de la création d'une règle de pare-feu.</value>
   </data>
   <data name="UnsupportedAuthType" xml:space="preserve">
-    <value>Le type de compte '{0}' n'est pas supporté par ce fournisseur</value>
+    <value>Type de compte « {0} » non pris en charge pour ce fournisseur</value>
   </data>
   <data name="FailedToGetAzureSqlServersWithError" xml:space="preserve">
-    <value>Une erreur s'est produite lors de l'obtention de Azure Sql Servers : '{0}'</value>
+    <value>Une erreur s’est produite lors de l’obtention des serveurs Azure Sql Server : « {0} »</value>
   </data>
   <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
-    <value>Une erreur s'est produite lors de la création d'une nouvelle règle de pare-feu : '{0}'</value>
+    <value>Une erreur s’est produite lors de la création d’une règle de pare-feu : « {0} »</value>
   </data>
   <data name="FailedToGetAzureSubscriptionsErrorMessage" xml:space="preserve">
-    <value>Une erreur s'est produite lors de l'obtention des abonnements Azure : {0}</value>
+    <value>Une erreur s’est produite lors de l’obtention des abonnements Azure : {0}</value>
   </data>
   <data name="UserNeedsAuthenticationError" xml:space="preserve">
-    <value>L'utilisateur actuel doit être réauthentifié avant d'exécuter cette opération </value>
+    <value>L’utilisateur actuel doit être réauthentifié avant d’exécuter cette opération </value>
   </data>
   <data name="UserNotFoundError" xml:space="preserve">
-    <value>Aucun utilisateur n'a été trouvé, impossible d'exécuter l'opération</value>
+    <value>Aucun utilisateur n’a été trouvé, impossible d’exécuter l’opération</value>
   </data>
 </root>
