@@ -5708,6 +5708,12 @@
         <note>.
  Parameters: 0 - error (String) </note>
       </trans-unit>
+      <trans-unit id="QueryServiceUnsupportedSqlVariantType">
+        <source>The underlying type "{0}" for sql variant column "{1}" could not be resolved.</source>
+        <target state="new">The underlying type "{0}" for sql variant column "{1}" could not be resolved.</target>
+        <note>.
+ Parameters: 0 - underlyingType (string), 1 - columnName (string) </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
