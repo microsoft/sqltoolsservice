@@ -124,6 +124,8 @@ QueryServiceResultSetHasNoResults = Query has no results to return
 
 QueryServiceResultSetTooLarge = Result set has too many rows to be safely loaded
 
+QueryServiceUnsupportedSqlVariantType(string columnName, string underlyingType) = The sql variant column "{0}"'s underlying type "{1}" can not be resolved.
+
 ### Save As Requests
 
 QueryServiceSaveAsResultSetNotComplete = Result cannot be saved until query execution has completed

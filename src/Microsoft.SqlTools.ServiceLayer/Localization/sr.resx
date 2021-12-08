@@ -303,6 +303,11 @@
     <value>Result set has too many rows to be safely loaded</value>
     <comment></comment>
   </data>
+  <data name="QueryServiceUnsupportedSqlVariantType" xml:space="preserve">
+    <value>The sql variant column &quot;{0}&quot;&apos;s underlying type &quot;{1}&quot; can not be resolved.</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - underlyingType (string) </comment>
+  </data>
   <data name="QueryServiceSaveAsResultSetNotComplete" xml:space="preserve">
     <value>Result cannot be saved until query execution has completed</value>
     <comment></comment>
