@@ -8631,9 +8631,9 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.QueryServiceQueryFailed, message);
         }
 
-        public static string QueryServiceUnsupportedSqlVariantType(string columnName, string underlyingType)
+        public static string QueryServiceUnsupportedSqlVariantType(string underlyingType, string columnName)
         {
-            return Keys.GetString(Keys.QueryServiceUnsupportedSqlVariantType, columnName, underlyingType);
+            return Keys.GetString(Keys.QueryServiceUnsupportedSqlVariantType, underlyingType, columnName);
         }
 
         public static string QueryServiceSaveAsFail(string fileName, string message)

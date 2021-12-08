@@ -142,7 +142,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                     colType = Type.GetType(sqlVariantType);
                     if (colType == null)
                     {
-                        throw new ArgumentException(SR.QueryServiceUnsupportedSqlVariantType(column.ColumnName, sqlVariantType));
+                        throw new ArgumentException(SR.QueryServiceUnsupportedSqlVariantType(sqlVariantType, column.ColumnName));
                     }
                 }
                 else
