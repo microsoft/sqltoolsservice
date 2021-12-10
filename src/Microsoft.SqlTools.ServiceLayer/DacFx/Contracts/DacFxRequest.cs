@@ -32,6 +32,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         /// Executation mode for the operation. Default is execution
         /// </summary>
         public TaskExecutionMode TaskExecutionMode { get; set; }
+
+        /// <summary>
+        /// Gets and sets diagnostics file path for logging
+        /// </summary>
+        public string DiagnosticsLogFilePath { get; set; }
     }
 
     /// <summary>

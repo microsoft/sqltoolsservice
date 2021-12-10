@@ -36,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 }
             }
 
-            this.DacServices.Deploy(dacpac, this.Parameters.DatabaseName, this.Parameters.UpgradeExisting, options, this.CancellationToken);
+            this.DacServices.Deploy(dacpac, this.Parameters.DatabaseName, this.Parameters.UpgradeExisting, options, this.CancellationToken, this.Parameters.DiagnosticsLogFilePath);
         }
     }
 }
