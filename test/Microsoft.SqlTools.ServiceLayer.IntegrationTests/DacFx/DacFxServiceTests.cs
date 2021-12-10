@@ -618,9 +618,10 @@ FROM MissingEdgeHubInputStream'";
             }
         }
 
-        ///
-        /// Verify that options are set correctly for a deploy request
+        /// <summary>
+        ///  Verify that diagnostic logging is created for a deploy request
         /// </summary>
+        /// <returns></returns>
         [Test]
         public async Task DeployWithDiagnosticLogging()
         {
@@ -650,11 +651,13 @@ FROM MissingEdgeHubInputStream'";
                     DiagnosticsLogFilePath = diagLogFilePath
                 };
 
-                // Remove the file
+                // Remove the file if exists before the creation
+                // Resaon for not deleting after verification is the log file is being used by other process untill this testcase stops
                 if (File.Exists(diagLogFilePath))
                 {
                     File.Delete(diagLogFilePath);
                 }
+
                 DeployOperation deployOperation = new DeployOperation(deployParams, result.ConnectionInfo);
                 service.PerformOperation(deployOperation, TaskExecutionMode.Execute);
 
