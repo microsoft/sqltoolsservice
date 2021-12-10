@@ -618,6 +618,61 @@ FROM MissingEdgeHubInputStream'";
             }
         }
 
+        ///
+        /// Verify that options are set correctly for a deploy request
+        /// </summary>
+        [Test]
+        public async Task DeployWithDiagnosticLogging()
+        {
+            var result = GetLiveAutoCompleteTestObjects();
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, query: SourceScript, dbNamePrefix: "DacFxDeployWithLogTestSource");
+            sourceDb.RunQuery(SourceViewScript);
+            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, query: TargetScript, dbNamePrefix: "DacFxDeployWithLogTestTarget");
+
+            // Create folder path for log file
+            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DeployWithDiagnosticLogging");
+            Directory.CreateDirectory(folderPath);
+            string diagLogFilePath = Path.Combine(folderPath, string.Format("DiagnosticsLogFile.log"));
+
+            try
+            {
+                DacFxService service = new DacFxService();
+                // First extract a db to have a dacpac to deploy later
+                string dacpacPath = InitialExtract(service, sourceDb, result);
+
+                // Deploy the created dacpac with options
+                var deployParams = new DeployParams
+                {
+                    PackageFilePath = dacpacPath,
+                    DatabaseName = targetDb.DatabaseName,
+                    UpgradeExisting = true,
+                    DeploymentOptions = new DeploymentOptions() { },
+                    DiagnosticsLogFilePath = diagLogFilePath
+                };
+
+                // Remove the file
+                if (File.Exists(diagLogFilePath))
+                {
+                    File.Delete(diagLogFilePath);
+                }
+                DeployOperation deployOperation = new DeployOperation(deployParams, result.ConnectionInfo);
+                service.PerformOperation(deployOperation, TaskExecutionMode.Execute);
+
+                VerifyAndCleanup(dacpacPath);
+
+                // Verify if file was created
+                Assert.True(File.Exists(diagLogFilePath));
+            }
+            finally
+            {
+                sourceDb.Cleanup();
+                if (targetDb != null)
+                {
+                    targetDb.Cleanup();
+                }
+            }
+        }
+
         private async Task VerifyDeployWithOptions(DeployParams deployParams, SqlTestDb targetDb, DacFxService service, ConnectionInfo connInfo, string expectedTableResult, string expectedViewResult)
         {
             var deployOperation = new DeployOperation(deployParams, connInfo);
