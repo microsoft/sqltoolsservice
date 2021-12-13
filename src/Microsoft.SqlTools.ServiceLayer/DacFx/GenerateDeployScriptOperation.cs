@@ -46,7 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 }
             }
 
-            this.Result = this.DacServices.Script(dacpac, this.Parameters.DatabaseName, publishOptions);
+            this.Result = this.DacServices.Script(dacpac, this.Parameters.DatabaseName, publishOptions, this.Parameters.DiagnosticsLogFilePath);
 
             // tests don't create a SqlTask, so only add the script when the SqlTask isn't null
             if (this.SqlTask != null)
