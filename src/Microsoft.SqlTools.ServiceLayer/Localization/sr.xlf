@@ -5696,6 +5696,18 @@
         <target state="new">Specifies whether the check constraint is Enabled</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="SessionMissingDetails">
+        <source>Unable to start streaming session {0} due to missing session details.</source>
+        <target state="new">Unable to start streaming session {0} due to missing session details.</target>
+        <note>.
+ Parameters: 0 - id (int) </note>
+      </trans-unit>
+      <trans-unit id="StartProfilingFailed">
+        <source>Failed to start profiler: {0}</source>
+        <target state="new">Failed to start profiler: {0}</target>
+        <note>.
+ Parameters: 0 - error (String) </note>
+      </trans-unit>
       <trans-unit id="QueryServiceUnsupportedSqlVariantType">
         <source>The underlying type "{0}" for sql variant column "{1}" could not be resolved.</source>
         <target state="new">The underlying type "{0}" for sql variant column "{1}" could not be resolved.</target>
