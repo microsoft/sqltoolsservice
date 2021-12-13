@@ -5696,6 +5696,12 @@
         <target state="translated">Spécifie si la contrainte de vérification est activée</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="QueryServiceUnsupportedSqlVariantType">
+        <source>The underlying type "{0}" for sql variant column "{1}" could not be resolved.</source>
+        <target state="translated">Le type sous-jacent "{0}" pour la variante sql de la colonne "{1}" n'a pas pu être résolu.</target>
+        <note>.
+ Parameters: 0 - underlyingType (string), 1 - columnName (string) </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
