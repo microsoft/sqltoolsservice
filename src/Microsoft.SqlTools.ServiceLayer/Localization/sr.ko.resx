@@ -3499,4 +3499,7 @@
   <data name="CheckConstraintIsEnabledDescription" xml:space="preserve">
     <value>CHECK 제약 조건을 사용할지 여부를 지정합니다.</value>
   </data>
+  <data name="QueryServiceUnsupportedSqlVariantType" xml:space="preserve">
+    <value>SQL 변형 열 "{1}"의 기본 유형 "{0}"을(를) 확인할 수 없습니다.</value>
+  </data>
 </root>

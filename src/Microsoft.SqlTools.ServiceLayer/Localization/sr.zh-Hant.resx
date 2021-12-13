@@ -3499,4 +3499,7 @@
   <data name="CheckConstraintIsEnabledDescription" xml:space="preserve">
     <value>指定是否啟用檢查條件約束</value>
   </data>
+  <data name="QueryServiceUnsupportedSqlVariantType" xml:space="preserve">
+    <value>基礎類型 "{0}" 無法解析 SQL 變體資料行 "{1} "。</value>
+  </data>
 </root>
