@@ -3499,4 +3499,7 @@
   <data name="CheckConstraintIsEnabledDescription" xml:space="preserve">
     <value>Specifica se il vincolo CHECK è Abilitato</value>
   </data>
+  <data name="QueryServiceUnsupportedSqlVariantType" xml:space="preserve">
+    <value>Impossibile risolvere il tipo sottostante "{0}" per la colonna variant SQL "{1}".</value>
+  </data>
 </root>

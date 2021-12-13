@@ -5696,6 +5696,12 @@
         <target state="translated">CHECK 制約を有効にするかどうかを指定</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="QueryServiceUnsupportedSqlVariantType">
+        <source>The underlying type "{0}" for sql variant column "{1}" could not be resolved.</source>
+        <target state="translated">SQL variant 列 "{1}" の基になる型 "{0}" を解決できませんでした。</target>
+        <note>.
+ Parameters: 0 - underlyingType (string), 1 - columnName (string) </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
