@@ -5696,6 +5696,12 @@
         <target state="translated">Указывает, включено ли проверочное ограничение.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="QueryServiceUnsupportedSqlVariantType">
+        <source>The underlying type "{0}" for sql variant column "{1}" could not be resolved.</source>
+        <target state="translated">Не удалось разрешить базовый тип "{0}" для столбца переменной SQL "{1}".</target>
+        <note>.
+ Parameters: 0 - underlyingType (string), 1 - columnName (string) </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
