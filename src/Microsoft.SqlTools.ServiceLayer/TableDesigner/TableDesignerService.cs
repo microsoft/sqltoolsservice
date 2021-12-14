@@ -112,7 +112,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         this.HandleUpdateItemRequest(requestParams);
                         break;
                     default:
-                        // TODO: Handle 'Update' request
                         break;
                 }
                 await requestContext.SendResult(new ProcessTableDesignerEditResponse()
@@ -228,10 +227,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     default:
                         break;
                 }
-            }
-            else
-            {
-
             }
         }
 
