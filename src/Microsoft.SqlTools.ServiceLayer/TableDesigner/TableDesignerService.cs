@@ -199,12 +199,30 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 switch (propertyName)
                 {
                     case TablePropertyNames.Columns:
-                        var colIndex = (long)path[1];
+                        var colIndex = Convert.ToInt32(path[1]);
                         var colPropertyName = path[2] as string;
-                        if (colPropertyName == TableColumnPropertyNames.Length) {
-                            table.Columns.Items[Convert.ToInt32(colIndex)].Length = requestParams.TableChangeInfo.Value as string;
-                        } else if (colPropertyName == TableColumnPropertyNames.AllowNulls) {
-                            table.Columns.Items[Convert.ToInt32(colIndex)].IsNullable = (bool)requestParams.TableChangeInfo.Value;
+                        switch (colPropertyName)
+                        {
+                            case TableColumnPropertyNames.Name:
+                                table.Columns.Items[colIndex].Name = requestParams.TableChangeInfo.Value as string;
+                                break;
+                            case TableColumnPropertyNames.Length:
+                                table.Columns.Items[colIndex].Length = requestParams.TableChangeInfo.Value as string;
+                                break;
+                            case TableColumnPropertyNames.AllowNulls:
+                                table.Columns.Items[colIndex].IsNullable = (bool)requestParams.TableChangeInfo.Value;
+                                break;
+                            case TableColumnPropertyNames.Precision:
+                                table.Columns.Items[colIndex].Precision = Int32.Parse(requestParams.TableChangeInfo.Value as string);
+                                break;
+                            case TableColumnPropertyNames.Scale:
+                                table.Columns.Items[colIndex].Scale = Int32.Parse(requestParams.TableChangeInfo.Value as string);
+                                break;
+                            case TableColumnPropertyNames.Type:
+                                table.Columns.Items[colIndex].DataType = requestParams.TableChangeInfo.Value as string;
+                                break;
+                            default:
+                                break;
                         }
                         break;
                     default:
