@@ -156,9 +156,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 ConnectionService.Disconnect(new DisconnectParams { OwnerUri = randomUri, Type = null });
             }
         }
-        
+
         /// <summary>
-        /// 
+        /// Handle request to generate SKU recommendations
         /// </summary>
         internal async Task HandleGetSkuRecommendationsRequest(
             GetSkuRecommendationsParams parameters,
@@ -176,7 +176,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         }
 
         /// <summary>
-        /// 
+        /// Handle request to start performance data collection process
         /// </summary>
         internal async Task HandleStartPerfDataCollectionRequest(
             StartPerfDataCollectionParams parameters,
@@ -200,7 +200,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 };
 
                 await ConnectionService.Connect(connectParams);
-
                 var connection = await ConnectionService.Instance.GetOrOpenConnection(randomUri, ConnectionType.Default);
                 var connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
                     
@@ -268,6 +267,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             SqlAssessmentConfiguration.EnableLocalLogging = true;
             SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath = Path.GetDirectoryName(Logger.LogFileFullPath);
 
+            // if DataFolder is not provided, default to reading data from the NuGet default (%localappdata%\Microsoft\SqlAssessment)
             CsvRequirementsAggregator aggregator = new CsvRequirementsAggregator(string.IsNullOrEmpty(parameters.DataFolder) ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Microsoft", "SqlAssessment") : parameters.DataFolder);
             
             SqlInstanceRequirements req = aggregator.ComputeSqlInstanceRequirements(null,
@@ -280,6 +280,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
 
             SkuRecommendationServiceProvider recProvider = new SkuRecommendationServiceProvider(new AzureSqlSkuBillingServiceProvider());
 
+            // only generate recommendations for target platforms specified
             return new GetSkuRecommendationsResult
             {
                 SqlDbRecommendationResults = parameters.TargetPlatforms.Contains("AzureSqlDatabase") ? recProvider.GetSkuRecommendation(new AzurePreferences() { EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlDatabase"), ScalingFactor = parameters.ScalingFactor / 100.0 }, req) : new List<SkuRecommendationResult>(),
@@ -288,64 +289,63 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             };
         }
 
-        // TO-DO: expose in NuGet
+        // TO-DO: maybe this should be exposed by the NuGet instead?
+        // this helper function generates the list of eligible SKUs to consider, depending on the desired target platform
         public static List<AzureSqlSkuCategory> GetEligibleSkuCategories(string targetPlatform)
         {
             List<AzureSqlSkuCategory> eligibleSkuCategories = new List<AzureSqlSkuCategory>();
 
-            if (targetPlatform == "AzureSqlDatabase" || targetPlatform == "Any")
+            switch (targetPlatform)
             {
-                // Gen5 BC/GP DB
-                eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
-                                                AzureSqlTargetPlatform.AzureSqlDatabase,
+                case "AzureSqlDatabase":
+                    // Gen5 BC/GP DB
+                    eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
+                                                    AzureSqlTargetPlatform.AzureSqlDatabase,
+                                                    AzureSqlPurchasingModel.vCore,
+                                                    AzureSqlPaaSServiceTier.BusinessCritical,
+                                                    ComputeTier.Provisioned,
+                                                    AzureSqlPaaSHardwareType.Gen5));
+
+                    eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
+                                                    AzureSqlTargetPlatform.AzureSqlDatabase,
+                                                    AzureSqlPurchasingModel.vCore,
+                                                    AzureSqlPaaSServiceTier.GeneralPurpose,
+                                                    ComputeTier.Provisioned,
+                                                    AzureSqlPaaSHardwareType.Gen5));
+                    break;
+
+                case "AzureSqlManagedInstance":
+                    // Gen5 BC/GP MI
+                    eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
+                                                AzureSqlTargetPlatform.AzureSqlManagedInstance,
                                                 AzureSqlPurchasingModel.vCore,
                                                 AzureSqlPaaSServiceTier.BusinessCritical,
                                                 ComputeTier.Provisioned,
                                                 AzureSqlPaaSHardwareType.Gen5));
 
-                eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
-                                                AzureSqlTargetPlatform.AzureSqlDatabase,
-                                                AzureSqlPurchasingModel.vCore,
-                                                AzureSqlPaaSServiceTier.GeneralPurpose,
-                                                ComputeTier.Provisioned,
-                                                AzureSqlPaaSHardwareType.Gen5));
-            }
+                    eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
+                                                    AzureSqlTargetPlatform.AzureSqlManagedInstance,
+                                                    AzureSqlPurchasingModel.vCore,
+                                                    AzureSqlPaaSServiceTier.GeneralPurpose,
+                                                    ComputeTier.Provisioned,
+                                                    AzureSqlPaaSHardwareType.Gen5));
+                    break;
 
-            if (targetPlatform == "AzureSqlManagedInstance" || targetPlatform == "Any")
-            {
-                // Gen5 BC/GP MI
-                eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
-                                            AzureSqlTargetPlatform.AzureSqlManagedInstance,
-                                            AzureSqlPurchasingModel.vCore,
-                                            AzureSqlPaaSServiceTier.BusinessCritical,
-                                            ComputeTier.Provisioned,
-                                            AzureSqlPaaSHardwareType.Gen5));
+                case "AzureSqlVirtualMachine":
+                    // Provisioned SQL IaaS
+                    eligibleSkuCategories.Add(new AzureSqlSkuIaaSCategory(
+                                                    AzureSqlTargetPlatform.AzureSqlVirtualMachine,
+                                                    ComputeTier.Provisioned,
+                                                    VirtualMachineFamilyType.GeneralPurpose));
 
-                eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
-                                                AzureSqlTargetPlatform.AzureSqlManagedInstance,
-                                                AzureSqlPurchasingModel.vCore,
-                                                AzureSqlPaaSServiceTier.GeneralPurpose,
-                                                ComputeTier.Provisioned,
-                                                AzureSqlPaaSHardwareType.Gen5));
-            }
+                    eligibleSkuCategories.Add(new AzureSqlSkuIaaSCategory(
+                                                    AzureSqlTargetPlatform.AzureSqlVirtualMachine,
+                                                    ComputeTier.Provisioned,
+                                                    VirtualMachineFamilyType.MemoryOptimized));
+                    break;
 
-            if (targetPlatform == "AzureSqlVirtualMachine" || targetPlatform == "Any")
-            {
-                // if (parameters.ElasticStrategy && parameters.TargetPlatform == "AzureSqlVirtualMachine")
-                // {
-                //     throw new ArgumentException("Elastic strategy does not currently support Azure SQL Virtual Machine as a target.");
-                // }
-
-                // Provisioned SQL IaaS
-                eligibleSkuCategories.Add(new AzureSqlSkuIaaSCategory(
-                                                AzureSqlTargetPlatform.AzureSqlVirtualMachine,
-                                                ComputeTier.Provisioned,
-                                                VirtualMachineFamilyType.GeneralPurpose));
-
-                eligibleSkuCategories.Add(new AzureSqlSkuIaaSCategory(
-                                                AzureSqlTargetPlatform.AzureSqlVirtualMachine,
-                                                ComputeTier.Provisioned,
-                                                VirtualMachineFamilyType.MemoryOptimized));
+                default:
+                    break;
             }
 
             return eligibleSkuCategories;
@@ -353,10 +353,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
 
         internal async Task<int> StartPerfDataCollection(string connectionString, StartPerfDataCollectionParams parameters)
         {
-            const string sqlAssessmentPath = @"C:\Program Files\Microsoft Data Migration Assistant\SqlAssessmentConsole";
+            const string sqlAssessmentExePath = @"C:\Program Files\Microsoft Data Migration Assistant\SqlAssessmentConsole\SqlAssessment.exe";
+
             string args = String.Format(
                 "PerfDataCollection --outputFolder \"{0}\" --sqlConnectionStrings \"{1}\" --perfQueryIntervalInSec {2} --staticQueryIntervalInSec {3} --numberOfIterations {4}",
-                string.IsNullOrEmpty(parameters.DataFolder) ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Microsoft", "SqlAssessment") : parameters.DataFolder,
+                string.IsNullOrEmpty(parameters.DataFolder) ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Microsoft", "SqlAssessment") : parameters.DataFolder,    // if DataFolder is not provided, default to writing data to the NuGet default (%localappdata%\Microsoft\SqlAssessment)
                 connectionString,
                 parameters.PerfQueryIntervalInSec,
                 parameters.StaticQueryIntervalInSec,
@@ -366,7 +367,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    FileName = $"{sqlAssessmentPath}\\SqlAssessment.exe",
+                    FileName = sqlAssessmentExePath,
                     Arguments = args,
                     CreateNoWindow = true,
                     UseShellExecute = false,
@@ -378,22 +379,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 EnableRaisingEvents = true,
             };
 
-            // var startInfo = new ProcessStartInfo
-            // {
-            //     // WorkingDirectory = sqlAssessmentPath,
-            //     // FileName = "cmd.exe",
-            //     // Arguments = $"/c SqlAssessment.exe {args}",
-            //     // UseShellExecute = false
-
-            //     FileName = $"{sqlAssessmentPath}\\SqlAssessment.exe",
-            //     Arguments = args,
-            //     UseShellExecute = true
-            // };
-
-            // Process.Start(startInfo);
+            // TO-DO: if we're committing to data collection being a wrapper for SqlAssessment.exe for now, then add logic to check for an already-running SqlAssessment.exe,
+            // find a way to capture error messages, etc.
 
             proc.Start();
-
             return proc.Id;
         }
 

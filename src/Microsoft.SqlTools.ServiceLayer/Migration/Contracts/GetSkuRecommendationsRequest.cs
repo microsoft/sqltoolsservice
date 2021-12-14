@@ -12,39 +12,78 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
 {
     public class GetSkuRecommendationsParams 
     {
-// - `perfQueryIntervalInSec`: Optional. Interval at which performance data was queried, in seconds. **Note:** This must match the value that was originally used during the performance data collection. (Default: `30`)
-// - `targetPlatform`: Optional. Target platform for SKU recommendation: either `AzureSqlDatabase`, `AzureSqlManagedInstance`, `AzureSqlVirtualMachine`, or `Any`. If `Any` is selected, then SKU recommendations for all three target platforms will be evaluated, and the best fit will be returned. (Default: `Any`)
-// - `targetSqlInstance`: Optional. Name of the SQL instance that SKU recommendation will be targeting. (Default: `outputFolder` will be scanned for files created by the `PerfDataCollection` action, and recommendations will be provided for every instance found) 
-// - `targetPercentile`: Optional. Percentile of data points to be used during aggregation of the performance data. Only used for baseline (non-elastic) strategy. (Default: `95`)
-// - `scalingFactor`: Optional. Scaling ('comfort') factor used during SKU recommendation. For example, if it is determined that there is a 4 vCore CPU requirement with a scaling factor of 150%, then the true CPU requirement will be 6 vCores. (Default: `100`)
-// - `startTime`: Optional. UTC start time of performance data points to consider during aggregation, in `"YYYY-MM-DD HH:MM"` format. Only used for baseline (non-elastic) strategy. (Default: all data points collected will be considered)
-// - `endTime`: Optional. UTC end time of performance data points to consider during aggregation, in `"YYYY-MM-DD HH:MM"` format. Only used for baseline (non-elastic) strategy. (Default: all data points collected will be considered)
-// - `overwrite`: Optional. Whether or not to overwrite any existing SKU recommendation reports. (Default: `true`)
-// - `displayResult`: Optional. Whether or not to print the SKU recommendation results to the console. (Default: `true`)
-// - `elasticStrategy`: Optional. Whether or not to use the elastic strategy for SKU recommendations based on resource usage profiling. (Default: `false`)
-// - `databaseAllowList`: Optional. Space separated list of names of databases to be allowed for SKU recommendation consideration while excluding all others. Only set one of the following or neither: databaseAllowList, databaseDenyList. (Default: `null`)
-// - `databaseDenyList`: Optional. Space separated list of names of databases to not be considered for SKU recommendation. Only set one of the following or neither: databaseAllowList, databaseDenyList. (Default: `null`)
-
+        /// <summary>
+        /// Folder from which collected performance data will be read from
+        /// </summary>
         public string DataFolder { get; set; }
+
+        /// <summary>
+        /// Interval at which collected performance data was originally queried at, in seconds
+        /// </summary>
         public int PerfQueryIntervalInSec { get; set; }
+
+        /// <summary>
+        /// List of target platforms to consider when generating recommendations
+        /// </summary>
         public List<string> TargetPlatforms { get; set; }
+
+        /// <summary>
+        /// Name of the SQL instance to generate recommendations for
+        /// </summary>
         public string TargetSqlInstance { get; set; }
+
+        /// <summary>
+        /// Target percentile to use when performing perf data aggregation
+        /// </summary>
         public int TargetPercentile { get; set; }
+
+        /// <summary>
+        /// Scaling ("comfort") factor when evalulating performance requirements
+        /// </summary>
         public int ScalingFactor { get; set; }
+
+        /// <summary>
+        /// Start time of collected data points to consider 
+        /// 
+        /// TO-DO: do we really need this? it's pretty safe to assume that most users would want us to evaluate all the collected data and not just part of it
+        /// </summary>
         public string StartTime { get; set; }
+
+        /// <summary>
+        /// End time of collected data points to consider
+        /// 
+        /// TO-DO: do we really need this? it's pretty safe to assume that most users would want us to evaluate all the collected data and not just part of it
+        /// </summary>
         public string EndTime { get; set; }
+
+        /// <summary>
+        /// Whether or not to use the elastic recommendation model (as opposed to the baseline model)
+        /// 
+        /// TO-DO: remove this - for now we're going to run both models but only display the results from the baseline model, but still use the gathered data to train the elastic model
+        /// </summary>
         public bool ElasticStrategy { get; set; }
+
+        /// <summary>
+        /// List of databases to consider when generating recommendations
+        /// </summary>
         public List<string> DatabaseAllowList { get; set; }
     }
 
     public class GetSkuRecommendationsResult
     {
         /// <summary>
-        /// List of SKU recommendation results returned by recommendation engine in NuGet
+        /// List of SQL DB recommendation results, if applicable
         /// </summary>
         public List<SkuRecommendationResult> SqlDbRecommendationResults { get; set; }
+
+        /// <summary>
+        /// List of SQL MI recommendation results, if applicable
+        /// </summary>
         public List<SkuRecommendationResult> SqlMiRecommendationResults { get; set; }
 
+        /// <summary>
+        /// List of SQL VM recommendation results, if applicable
+        /// </summary>
         public List<SkuRecommendationResult> SqlVmRecommendationResults { get; set; }
     }
 
