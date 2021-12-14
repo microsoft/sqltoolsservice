@@ -108,8 +108,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     case DesignerEditType.Remove:
                         this.HandleRemoveItemRequest(requestParams);
                         break;
+                    case DesignerEditType.Update:
+                        this.HandleUpdateItemRequest(requestParams);
+                        break;
                     default:
-                        // TODO: Handle 'Update' request
                         break;
                 }
                 await requestContext.SendResult(new ProcessTableDesignerEditResponse()
@@ -182,6 +184,49 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             else
             {
                 // TODO: Handle the add item request on second level properties, e.g. Adding a column to an index
+            }
+        }
+
+        private void HandleUpdateItemRequest(ProcessTableDesignerEditRequestParams requestParams)
+        {
+            var table = this.GetTable(requestParams.TableInfo);
+            var path = requestParams.TableChangeInfo.Path;
+
+            if (path.Length == 3)
+            {
+                var propertyName = path[0] as string;
+                switch (propertyName)
+                {
+                    case TablePropertyNames.Columns:
+                        var colIndex = Convert.ToInt32(path[1]);
+                        var colPropertyName = path[2] as string;
+                        switch (colPropertyName)
+                        {
+                            case TableColumnPropertyNames.Name:
+                                table.Columns.Items[colIndex].Name = requestParams.TableChangeInfo.Value as string;
+                                break;
+                            case TableColumnPropertyNames.Length:
+                                table.Columns.Items[colIndex].Length = requestParams.TableChangeInfo.Value as string;
+                                break;
+                            case TableColumnPropertyNames.AllowNulls:
+                                table.Columns.Items[colIndex].IsNullable = (bool)requestParams.TableChangeInfo.Value;
+                                break;
+                            case TableColumnPropertyNames.Precision:
+                                table.Columns.Items[colIndex].Precision = Int32.Parse(requestParams.TableChangeInfo.Value as string);
+                                break;
+                            case TableColumnPropertyNames.Scale:
+                                table.Columns.Items[colIndex].Scale = Int32.Parse(requestParams.TableChangeInfo.Value as string);
+                                break;
+                            case TableColumnPropertyNames.Type:
+                                table.Columns.Items[colIndex].DataType = requestParams.TableChangeInfo.Value as string;
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    default:
+                        break;
+                }
             }
         }
 
