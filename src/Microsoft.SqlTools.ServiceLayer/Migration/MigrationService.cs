@@ -30,6 +30,9 @@ using Microsoft.SqlServer.Migration.SkuRecommendation.Billing;
 using Microsoft.SqlServer.Migration.SkuRecommendation;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts.Constants;
 using System.Globalization;
+using System.Diagnostics;
+using System.Threading;
+using System.Text;
 
 namespace Microsoft.SqlTools.ServiceLayer.Migration
 {
@@ -101,6 +104,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             this.ServiceHost = serviceHost;
             this.ServiceHost.SetRequestHandler(MigrationAssessmentsRequest.Type, HandleMigrationAssessmentsRequest);
             this.ServiceHost.SetRequestHandler(GetSkuRecommendationsRequest.Type, HandleGetSkuRecommendationsRequest);
+            this.ServiceHost.SetRequestHandler(StartPerfDataCollectionRequest.Type, HandleStartPerfDataCollectionRequest);
         }
 
         /// <summary>
@@ -168,6 +172,49 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             catch (Exception e)
             {
                 await requestContext.SendError(e.ToString());
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        internal async Task HandleStartPerfDataCollectionRequest(
+            StartPerfDataCollectionParams parameters,
+            RequestContext<int> requestContext)
+        {
+            string randomUri = Guid.NewGuid().ToString();
+            try
+            {
+                // get connection
+                if (!ConnectionService.TryFindConnection(parameters.OwnerUri, out var connInfo))
+                {
+                    await requestContext.SendError("Could not find migration connection");
+                    return;
+                }
+
+                ConnectParams connectParams = new ConnectParams
+                {
+                    OwnerUri = randomUri,
+                    Connection = connInfo.ConnectionDetails,
+                    Type = ConnectionType.Default
+                };
+
+                await ConnectionService.Connect(connectParams);
+
+                var connection = await ConnectionService.Instance.GetOrOpenConnection(randomUri, ConnectionType.Default);
+                var connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
+                    
+                var results = await StartPerfDataCollection(connectionString, parameters);
+                await requestContext.SendResult(results);
+                
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e.ToString());
+            }
+            finally
+            {
+                ConnectionService.Disconnect(new DisconnectParams { OwnerUri = randomUri, Type = null });
             }
         }
 
@@ -304,6 +351,51 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             return eligibleSkuCategories;
         }
 
+        internal async Task<int> StartPerfDataCollection(string connectionString, StartPerfDataCollectionParams parameters)
+        {
+            const string sqlAssessmentPath = @"C:\Program Files\Microsoft Data Migration Assistant\SqlAssessmentConsole";
+            string args = String.Format(
+                "PerfDataCollection --outputFolder \"{0}\" --sqlConnectionStrings \"{1}\" --perfQueryIntervalInSec {2} --staticQueryIntervalInSec {3} --numberOfIterations {4}",
+                string.IsNullOrEmpty(parameters.DataFolder) ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Microsoft", "SqlAssessment") : parameters.DataFolder,
+                connectionString,
+                parameters.PerfQueryIntervalInSec,
+                parameters.StaticQueryIntervalInSec,
+                parameters.NumberOfIterations);
+
+            var proc = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = $"{sqlAssessmentPath}\\SqlAssessment.exe",
+                    Arguments = args,
+                    CreateNoWindow = true,
+                    UseShellExecute = false,
+                    RedirectStandardInput = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    StandardOutputEncoding = Encoding.UTF8,
+                },
+                EnableRaisingEvents = true,
+            };
+
+            // var startInfo = new ProcessStartInfo
+            // {
+            //     // WorkingDirectory = sqlAssessmentPath,
+            //     // FileName = "cmd.exe",
+            //     // Arguments = $"/c SqlAssessment.exe {args}",
+            //     // UseShellExecute = false
+
+            //     FileName = $"{sqlAssessmentPath}\\SqlAssessment.exe",
+            //     Arguments = args,
+            //     UseShellExecute = true
+            // };
+
+            // Process.Start(startInfo);
+
+            proc.Start();
+
+            return proc.Id;
+        }
 
         internal ServerAssessmentProperties ParseServerAssessmentInfo(IServerAssessmentInfo server, DmaEngine engine)
         {
