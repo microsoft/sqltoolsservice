@@ -134,15 +134,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                         continue;
                     }
 
-                    // We need to specify the assembly name for SQL types in order to resolve the type correctly.
-                    if (sqlVariantType.StartsWith("System.Data.SqlTypes."))
-                    {
-                        sqlVariantType = sqlVariantType + ", System.Data.Common";
-                    }
+                    // The typename is stored in the string
                     colType = Type.GetType(sqlVariantType);
-                    if (colType == null)
+
+                    // Workaround .NET bug, see sqlbu# 440643 and vswhidbey# 599834
+                    // TODO: Is this workaround necessary for .NET Core?
+                    if (colType == null && sqlVariantType == "System.Data.SqlTypes.SqlSingle")
                     {
-                        throw new ArgumentException(SR.QueryServiceUnsupportedSqlVariantType(sqlVariantType, column.ColumnName));
+                        colType = typeof(SqlSingle);
                     }
                 }
                 else
