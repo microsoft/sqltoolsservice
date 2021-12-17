@@ -5696,6 +5696,12 @@
         <target state="translated">Especifica si la restricción CHECK está habilitada.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="QueryServiceUnsupportedSqlVariantType">
+        <source>The underlying type "{0}" for sql variant column "{1}" could not be resolved.</source>
+        <target state="translated">No se pudo resolver el tipo subyacente "{0}" para la columna variant SQL "{1}".</target>
+        <note>.
+ Parameters: 0 - underlyingType (string), 1 - columnName (string) </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

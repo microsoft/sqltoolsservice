@@ -3499,4 +3499,7 @@
   <data name="CheckConstraintIsEnabledDescription" xml:space="preserve">
     <value>CHECK 制約を有効にするかどうかを指定</value>
   </data>
+  <data name="QueryServiceUnsupportedSqlVariantType" xml:space="preserve">
+    <value>SQL variant 列 "{1}" の基になる型 "{0}" を解決できませんでした。</value>
+  </data>
 </root>

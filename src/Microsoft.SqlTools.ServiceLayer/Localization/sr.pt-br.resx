@@ -3499,4 +3499,7 @@
   <data name="CheckConstraintIsEnabledDescription" xml:space="preserve">
     <value>Especifica se a restrição de verificação está habilitada</value>
   </data>
+  <data name="QueryServiceUnsupportedSqlVariantType" xml:space="preserve">
+    <value>O tipo subjacente "{0}" para a coluna sql variant "{1}" não pôde ser resolvido.</value>
+  </data>
 </root>
