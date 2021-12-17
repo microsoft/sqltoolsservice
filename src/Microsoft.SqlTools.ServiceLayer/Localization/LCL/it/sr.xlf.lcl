@@ -6166,15 +6166,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";QueryServiceUnsupportedSqlVariantType" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[The underlying type "{0}" for sql variant column "{1}" could not be resolved.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Impossibile risolvere il tipo sottostante "{0}" per la colonna variant SQL "{1}".]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";RIDLookup" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[RID Lookup]]></Val>
@@ -8731,6 +8722,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";SessionMissingDetails" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to start streaming session {0} due to missing session details.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Non è possibile avviare la sessione di streaming {0} perché mancano i dettagli della sessione.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";SessionNotFound" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Cannot find requested XEvent session]]></Val>
@@ -9168,6 +9168,15 @@
           <Val><![CDATA[The job schedule starting date cannot be greater than the ending date.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[La data di inizio della pianificazione del processo non può essere successiva alla data di fine.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";StartProfilingFailed" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Failed to start profiler: {0}]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Impossibile avviare il profiler: {0}]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
