@@ -157,6 +157,44 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             });
         }
 
+        private List<ProfilerEvent> fileSessionEvents = null;
+
+         /// <summary>
+        /// Handle request to start a profiling session
+        /// </summary>
+        internal async Task HandleOpenXelFileRequest(OpenXelFileParams parameters, RequestContext<OpenXelFileResult> requestContext)
+        {
+            await Task.Run(async () =>
+            {
+                try
+                {
+                    fileSessionEvents = new List<ProfilerEvent>();
+                    CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
+                    var eventStreamer = new XEFileEventStreamer(parameters.FilePath);
+                    //await eventStreamer.ReadEventStream(xEvent => new Task(), threadCancellationToken.Token);
+
+                    // pass the profiler events on to the client
+                    await this.ServiceHost.SendEvent(
+                        ProfilerEventsAvailableNotification.Type,
+                        new ProfilerEventsAvailableParams()
+                        {
+                            OwnerUri = parameters.OwnerUri,
+                            Events = fileSessionEvents,
+                            EventsLost = false
+                        });
+
+                    fileSessionEvents = null;
+
+                    var result = new OpenXelFileResult();
+                    await requestContext.SendResult(result);
+                }
+                catch (Exception e)
+                {
+                    await requestContext.SendError(new Exception(SR.CreateSessionFailed(e.Message)));
+                }
+            });
+        }
+
         /// <summary>
         /// Handle request to start a profiling session
         /// </summary>

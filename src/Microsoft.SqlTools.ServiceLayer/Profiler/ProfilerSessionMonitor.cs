@@ -210,7 +210,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// <summary>
         /// Helper function used to process the XEvent feed from a session's stream.
         /// </summary>
-        private async Task HandleXEvent(IXEvent xEvent, ProfilerSession session)
+        public async Task HandleXEvent(IXEvent xEvent, ProfilerSession session)
         {
             ProfilerEvent profileEvent = new ProfilerEvent(xEvent.Name, xEvent.Timestamp.ToString());
             foreach (var kvp in xEvent.Fields)
