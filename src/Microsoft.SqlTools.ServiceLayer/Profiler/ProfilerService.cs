@@ -18,6 +18,7 @@ using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.XEvent;
 using Microsoft.SqlServer.Management.XEventDbScoped;
+using Microsoft.SqlServer.XEvent.XELite;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -123,26 +124,66 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// <summary>
         /// Handle request to start a profiling session
         /// </summary>
+        internal async Task HandleStartProfilingRequest(StartProfilingParams parameters, RequestContext<StartProfilingResult> requestContext)
+        {
+            await Task.Run(async () =>
+            {
+                try
+                {
+                    Logger.Write(TraceEventType.Verbose, "HandleStartProfilingRequest started");
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(
+                        parameters.OwnerUri,
+                        out connInfo);
+                    if (connInfo != null)
+                    {
+                        // create a new XEvent session and Profiler session
+                        var xeSession = this.XEventSessionFactory.GetXEventSession(parameters.SessionName, connInfo);
+                        monitor.StartMonitoringSession(parameters.OwnerUri, xeSession);
+                        var result = new StartProfilingResult();
+                        await requestContext.SendResult(result);
+                    }
+                    else 
+                    {
+                        Logger.Write(TraceEventType.Error, "Connection Info could not be found for " + parameters.OwnerUri);
+                        throw new Exception(SR.ProfilerConnectionNotFound);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Logger.Write(TraceEventType.Error, "HandleStartProfilingRequest failed for uri " + parameters.OwnerUri);
+                    await requestContext.SendError(new Exception (SR.StartProfilingFailed(e.Message), e));
+                }
+            });
+        }
+
+        /// <summary>
+        /// Handle request to start a profiling session
+        /// </summary>
         internal async Task HandleCreateXEventSessionRequest(CreateXEventSessionParams parameters, RequestContext<CreateXEventSessionResult> requestContext)
         {
             await Task.Run(async () =>
             {
                 try
                 {
+                    Logger.Write(TraceEventType.Verbose, "HandleCreateXEventSessionRequest started");
                     ConnectionInfo connInfo;
                     ConnectionServiceInstance.TryFindConnection(
                         parameters.OwnerUri,
                         out connInfo);
                     if (connInfo == null)
                     {
+                        Logger.Write(TraceEventType.Error, "Connection Info could not be found for " + parameters.OwnerUri);
                         throw new Exception(SR.ProfilerConnectionNotFound);
                     }
                     else if (parameters.SessionName == null)
                     {
+                        Logger.Write(TraceEventType.Error, "Session Name could not be found for " + parameters.OwnerUri);
                         throw new ArgumentNullException("SessionName");
                     }
                     else if (parameters.Template == null)
                     {
+                        Logger.Write(TraceEventType.Error, "Template could not be found for " + parameters.OwnerUri);
                         throw new ArgumentNullException("Template");
                     }
                     else
@@ -156,10 +197,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                         {
                             xeSession = this.XEventSessionFactory.GetXEventSession(parameters.SessionName, connInfo);
                         }
-                        catch { }
+                        catch { 
+                            Logger.Write(TraceEventType.Verbose, "Session with name '" + parameters.SessionName + "' was not found");
+                        }
 
                         if (xeSession == null)
                         {
+                            Logger.Write(TraceEventType.Verbose, "Creating new XEventSession with SessionName " + parameters.SessionName);
                             // create a new XEvent session and Profiler session
                             xeSession = this.XEventSessionFactory.CreateXEventSession(parameters.Template.CreateStatement, parameters.SessionName, connInfo);
                         }
@@ -175,42 +219,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 }
                 catch (Exception e)
                 {
-                    await requestContext.SendError(new Exception(SR.CreateSessionFailed(e.Message)));
-                }
-            });
-        }
-
-        /// <summary>
-        /// Handle request to start a profiling session
-        /// </summary>
-        internal async Task HandleStartProfilingRequest(StartProfilingParams parameters, RequestContext<StartProfilingResult> requestContext)
-        {
-            await Task.Run(async () =>
-            {
-                try
-                {
-                    ConnectionInfo connInfo;
-                    ConnectionServiceInstance.TryFindConnection(
-                        parameters.OwnerUri,
-                        out connInfo);
-                    if (connInfo != null)
-                    {
-                        // create a new XEvent session and Profiler session
-                        var xeSession = this.XEventSessionFactory.GetXEventSession(parameters.SessionName, connInfo);
-                        // start monitoring the profiler session
-                        monitor.StartMonitoringSession(parameters.OwnerUri, xeSession);
-
-                        var result = new StartProfilingResult();
-                        await requestContext.SendResult(result);
-                    }
-                    else
-                    {
-                        throw new Exception(SR.ProfilerConnectionNotFound);
-                    }
-                }
-                catch (Exception e)
-                {
-                    await requestContext.SendError(new Exception(SR.StartSessionFailed(e.Message)));
+                    Logger.Write(TraceEventType.Error, "HandleCreateXEventSessionRequest failed for uri " + parameters.OwnerUri);
+                    await requestContext.SendError(new Exception (SR.CreateSessionFailed(e.Message), e));
                 }
             });
         }
@@ -224,6 +234,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             {
                 try
                 {
+                    Logger.Write(TraceEventType.Verbose, "HandleStopProfilingRequest started");
                     ProfilerSession session;
                     monitor.StopMonitoringSession(parameters.OwnerUri, out session);
 
@@ -240,11 +251,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                                 await requestContext.SendResult(new StopProfilingResult { });
                                 break;
                             }
-                            catch (InvalidOperationException)
+                            catch (InvalidOperationException e)
                             {
                                 remainingAttempts--;
                                 if (remainingAttempts == 0)
                                 {
+                                    Logger.Write(TraceEventType.Error, "Stop profiler session '" + session.XEventSession.Session.Name + "' failed after three retries, last exception was: " + e.Message);
                                     throw;
                                 }
                                 Thread.Sleep(500);
@@ -258,6 +270,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 }
                 catch (Exception e)
                 {
+                    Logger.Write(TraceEventType.Error, "HandleStopProfilingRequest failed for uri " + parameters.OwnerUri);
                     await requestContext.SendError(new Exception(SR.StopSessionFailed(e.Message)));
                 }
             });
@@ -272,12 +285,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             {
                 try
                 {
+                    Logger.Write(TraceEventType.Verbose, "HandlePauseProfilingRequest started");
                     monitor.PauseViewer(parameters.OwnerUri);
 
                     await requestContext.SendResult(new PauseProfilingResult { });
                 }
                 catch (Exception e)
                 {
+                    Logger.Write(TraceEventType.Error, "HandlePauseProfilingRequest failed for uri " + parameters.OwnerUri);
                     await requestContext.SendError(new Exception(SR.PauseSessionFailed(e.Message)));
                 }
             });
@@ -292,6 +307,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             {
                 try
                 {
+                    Logger.Write(TraceEventType.Verbose, "HandleGetXEventSessionsRequest started");
                     var result = new GetXEventSessionsResult();
                     ConnectionInfo connInfo;
                     ConnectionServiceInstance.TryFindConnection(
@@ -299,6 +315,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                         out connInfo);
                     if (connInfo == null)
                     {
+                        Logger.Write(TraceEventType.Error, "Connection Info could not be found for " + parameters.OwnerUri);
                         await requestContext.SendError(new Exception(SR.ProfilerConnectionNotFound));
                     }
                     else
@@ -310,6 +327,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 }
                 catch (Exception e)
                 {
+                    Logger.Write(TraceEventType.Error, "HandleGetXEventSessionsRequest failed for uri " + parameters.OwnerUri);
                     await requestContext.SendError(e);
                 }
             });
@@ -324,11 +342,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                        {
                            try
                            {
+                               Logger.Write(TraceEventType.Verbose, "HandleDisconnectSessionRequest started");
                                ProfilerSession session;
                                monitor.StopMonitoringSession(parameters.OwnerUri, out session);
                            }
                            catch (Exception e)
                            {
+                               Logger.Write(TraceEventType.Error, "HandleDisconnectSessionRequest failed for uri " + parameters.OwnerUri);
                                await requestContext.SendError(e);
                            }
                        });
@@ -375,6 +395,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         }
 
         /// <summary>
+        /// Nulls out properties in ConnectionDetails that aren't compatible with XElite.
+        /// </summary>
+        private static void RemoveIncompatibleConnectionProperties(ConnectionDetails connDetails){
+            connDetails.ConnectRetryCount = null;
+            connDetails.ConnectRetryInterval = null;
+            connDetails.MultiSubnetFailover = null;
+        }
+
+        /// <summary>
         /// Gets an XEvent session with the given name per the IXEventSessionFactory contract
         /// Also starts the session if it isn't currently running
         /// </summary>
@@ -383,6 +412,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
             SqlStoreConnection connection = new SqlStoreConnection(sqlConnection);
             BaseXEStore store = CreateXEventStore(connInfo, connection);
+            RemoveIncompatibleConnectionProperties(connInfo.ConnectionDetails);
             Session session = store.Sessions[sessionName];
 
             // start the session if it isn't already running
@@ -399,6 +429,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             // create xevent session wrapper
             return new XEventSession()
             {
+                ConnectionDetails = connInfo.ConnectionDetails,
                 Session = session
             };
         }
