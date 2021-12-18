@@ -5,8 +5,8 @@
   </PropertyGroup>
   <PropertyGroup>
     <ManagedBatchParserTargetFramework>netstandard2.1</ManagedBatchParserTargetFramework>
-    <CredentialsTargetFramework>net5.0</CredentialsTargetFramework>
-    <ServiceLayerTargetFramework>net5.0</ServiceLayerTargetFramework>
-    <ResourceProviderTargetFramework>net5.0</ResourceProviderTargetFramework>
+    <CredentialsTargetFramework>net6.0</CredentialsTargetFramework>
+    <ServiceLayerTargetFramework>net6.0</ServiceLayerTargetFramework>
+    <ResourceProviderTargetFramework>net6.0</ResourceProviderTargetFramework>
   </PropertyGroup>
 </Project>
