@@ -51,7 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         public void InitializeService(ServiceHost serviceHost)
         {
             this.ServiceHost = serviceHost;
-            this.ServiceHost.SetRequestHandler(InitializeTableDesignerRequest.Type, HandleGetTableDesignerInfoRequest);
+            this.ServiceHost.SetRequestHandler(InitializeTableDesignerRequest.Type, HandleInitializeTableDesignerRequest);
             this.ServiceHost.SetRequestHandler(ProcessTableDesignerEditRequest.Type, HandleProcessTableDesignerEditRequest);
             this.ServiceHost.SetRequestHandler(SaveTableChangesRequest.Type, HandleSaveTableChangesRequest);
             this.ServiceHost.SetRequestHandler(GenerateScriptRequest.Type, HandleGenerateScriptRequest);
@@ -76,7 +76,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             return Task.CompletedTask;
         }
 
-        private Task HandleGetTableDesignerInfoRequest(TableInfo tableInfo, RequestContext<TableDesignerInfo> requestContext)
+        private Task HandleInitializeTableDesignerRequest(TableInfo tableInfo, RequestContext<TableDesignerInfo> requestContext)
         {
             return this.HandleRequest<TableDesignerInfo>(requestContext, async () =>
             {
