@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
     /// </summary>
     public sealed class TableDesignerService : IDisposable
     {
-        private Dictionary<string, Dac.TableDesignerViewModel> idTableMap = new Dictionary<string, Dac.TableDesignerViewModel>();
+        private Dictionary<string, Dac.TableDesigner> idTableMap = new Dictionary<string, Dac.TableDesigner>();
         private bool disposed = false;
         private static readonly Lazy<TableDesignerService> instance = new Lazy<TableDesignerService>(() => new TableDesignerService());
 
@@ -51,9 +51,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         public void InitializeService(ServiceHost serviceHost)
         {
             this.ServiceHost = serviceHost;
-            this.ServiceHost.SetRequestHandler(GetTableDesignerInfoRequest.Type, HandleGetTableDesignerInfoRequest);
+            this.ServiceHost.SetRequestHandler(InitializeTableDesignerRequest.Type, HandleGetTableDesignerInfoRequest);
             this.ServiceHost.SetRequestHandler(ProcessTableDesignerEditRequest.Type, HandleProcessTableDesignerEditRequest);
             this.ServiceHost.SetRequestHandler(SaveTableChangesRequest.Type, HandleSaveTableChangesRequest);
+            this.ServiceHost.SetRequestHandler(GenerateScriptRequest.Type, HandleGenerateScriptRequest);
+            this.ServiceHost.SetRequestHandler(GenerateReportRequest.Type, HandleGenerateReportRequest);
             this.ServiceHost.SetRequestHandler(DisposeTableDesignerRequest.Type, HandleDisposeTableDesignerRequest);
         }
         private Task HandleRequest<T>(RequestContext<T> requestContext, Func<Task> action)
@@ -81,7 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 var connectinStringbuilder = new SqlConnectionStringBuilder(tableInfo.ConnectionString);
                 connectinStringbuilder.InitialCatalog = tableInfo.Database;
                 var connectionString = connectinStringbuilder.ToString();
-                var table = new Dac.TableDesignerViewModel(connectionString, tableInfo.Schema, tableInfo.Name, tableInfo.IsNewTable);
+                var table = new Dac.TableDesigner(connectionString, tableInfo.Schema, tableInfo.Name, tableInfo.IsNewTable);
                 this.idTableMap.Add(tableInfo.Id, table);
                 var viewModel = this.GetTableViewModel(tableInfo);
                 var view = this.GetDesignerViewInfo(tableInfo);
@@ -122,15 +124,35 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             });
         }
 
-        private Task HandleSaveTableChangesRequest(SaveTableChangesRequestParams requestParams, RequestContext<SaveTableChangesResponse> requestContext)
+        private Task HandleSaveTableChangesRequest(TableInfo tableInfo, RequestContext<SaveTableChangesResponse> requestContext)
         {
             return this.HandleRequest<SaveTableChangesResponse>(requestContext, async () =>
             {
-                // TODO: Handle the save changes request.
+                var tableDesigner = this.GetTableDesigner(tableInfo);
+                tableDesigner.CommitChanges();
                 await requestContext.SendResult(new SaveTableChangesResponse());
             });
         }
 
+        private Task HandleGenerateScriptRequest(TableInfo tableInfo, RequestContext<string> requestContext)
+        {
+            return this.HandleRequest<string>(requestContext, async () =>
+            {
+                var table = this.GetTableDesigner(tableInfo);
+                var script = table.GenerateScript();
+                await requestContext.SendResult(script);
+            });
+        }
+
+        private Task HandleGenerateReportRequest(TableInfo tableInfo, RequestContext<string> requestContext)
+        {
+            return this.HandleRequest<string>(requestContext, async () =>
+            {
+                var table = this.GetTableDesigner(tableInfo);
+                var report = table.GenerateReport();
+                await requestContext.SendResult(report);
+            });
+        }
 
         private Task HandleDisposeTableDesignerRequest(TableInfo tableInfo, RequestContext<DisposeTableDesignerResponse> requestContext)
         {
@@ -143,7 +165,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
         private void HandleAddItemRequest(ProcessTableDesignerEditRequestParams requestParams)
         {
-            var table = this.GetTable(requestParams.TableInfo);
+            var table = this.GetTableDesigner(requestParams.TableInfo).TableViewModel;
             var path = requestParams.TableChangeInfo.Path;
             // Handle the add item request on top level table properties, e.g. Columns, Indexes.
             if (path.Length == 1)
@@ -166,7 +188,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
         private void HandleRemoveItemRequest(ProcessTableDesignerEditRequestParams requestParams)
         {
-            var table = this.GetTable(requestParams.TableInfo);
+            var table = this.GetTableDesigner(requestParams.TableInfo).TableViewModel;
             var path = requestParams.TableChangeInfo.Path;
             // Handle the add item request on top level table properties, e.g. Columns, Indexes.
             if (path.Length == 2)
@@ -175,7 +197,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 switch (propertyName)
                 {
                     case TablePropertyNames.Columns:
-                        table.Columns.Items.RemoveAt(Convert.ToInt32(path[1]));
+                        table.Columns.RemoveAt(Convert.ToInt32(path[1]));
                         break;
                     default:
                         break;
@@ -189,7 +211,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
         private void HandleUpdateItemRequest(ProcessTableDesignerEditRequestParams requestParams)
         {
-            var table = this.GetTable(requestParams.TableInfo);
+            var table = this.GetTableDesigner(requestParams.TableInfo).TableViewModel;
             var path = requestParams.TableChangeInfo.Path;
 
             if (path.Length == 3)
@@ -232,7 +254,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
         private TableViewModel GetTableViewModel(TableInfo tableInfo)
         {
-            var table = this.GetTable(tableInfo);
+            var tableDesigner = this.GetTableDesigner(tableInfo);
+            var table = tableDesigner.TableViewModel;
             var tableViewModel = new TableViewModel();
             tableViewModel.Name.Value = table.Name;
             tableViewModel.Schema.Value = table.Schema;
@@ -276,7 +299,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 foreignKeyViewModel.OnUpdateAction.Value = SqlForeignKeyActionUtil.GetName(foreignKey.OnUpdateAction);
                 foreignKeyViewModel.OnUpdateAction.Values = SqlForeignKeyActionUtil.ActionNames;
                 foreignKeyViewModel.PrimaryKeyTable.Value = foreignKey.PrimaryKeyTable;
-                foreignKeyViewModel.PrimaryKeyTable.Values = table.AllTables.ToList();
+                foreignKeyViewModel.PrimaryKeyTable.Values = tableDesigner.AllTables.ToList();
                 foreignKeyViewModel.IsNotForReplication.Checked = foreignKey.IsNotForReplication;
                 for (int i = 0; i < foreignKey.ForeignKeyColumns.Count; i++)
                 {
@@ -286,7 +309,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     mapping.ForeignKeyColumn.Value = foreignKeyColumn;
                     mapping.ForeignKeyColumn.Values = table.Columns.Items.Select(c => c.Name).ToList();
                     mapping.PrimaryKeyColumn.Value = primaryKeyColumn;
-                    mapping.PrimaryKeyColumn.Values = table.GetColumnsForTable(foreignKey.PrimaryKeyTable).ToList();
+                    mapping.PrimaryKeyColumn.Values = tableDesigner.GetColumnsForTable(foreignKey.PrimaryKeyTable).ToList();
                     foreignKeyViewModel.Columns.Data.Add(mapping);
                 }
                 tableViewModel.ForeignKeys.Data.Add(foreignKeyViewModel);
@@ -302,7 +325,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             }
 
             tableViewModel.Script.Enabled = false;
-            tableViewModel.Script.Value = table.Script;
+            tableViewModel.Script.Value = tableDesigner.Script;
             // TODO: set other properties of the table
             return tableViewModel;
         }
@@ -384,12 +407,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             return view;
         }
 
-        private Dac.TableDesignerViewModel GetTable(TableInfo tableInfo)
+        private Dac.TableDesigner GetTableDesigner(TableInfo tableInfo)
         {
-            Dac.TableDesignerViewModel table;
-            if (this.idTableMap.TryGetValue(tableInfo.Id, out table))
+            Dac.TableDesigner tableDesigner;
+            if (this.idTableMap.TryGetValue(tableInfo.Id, out tableDesigner))
             {
-                return table;
+                return tableDesigner;
             }
             else
             {

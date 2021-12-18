@@ -8,18 +8,14 @@ using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 {
-    public class SaveTableChangesResponse
-    {
-    }
-
     /// <summary>
-    /// The service request to save the changes.
+    /// The service request to generate script for the changes.
     /// </summary>
-    public class SaveTableChangesRequest
+    public class GenerateScriptRequest
     {
         /// <summary>
         /// Request definition
         /// </summary>
-        public static readonly RequestType<TableInfo, SaveTableChangesResponse> Type = RequestType<TableInfo, SaveTableChangesResponse>.Create("tabledesigner/save");
+        public static readonly RequestType<TableInfo, string> Type = RequestType<TableInfo, string>.Create("tabledesigner/script");
     }
 }
