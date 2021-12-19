@@ -26,7 +26,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         private static readonly Lazy<DacFxService> instance = new Lazy<DacFxService>(() => new DacFxService());
         private readonly Lazy<ConcurrentDictionary<string, DacFxOperation>> operations =
             new Lazy<ConcurrentDictionary<string, DacFxOperation>>(() => new ConcurrentDictionary<string, DacFxOperation>());
-        public int diagnosticLogListenerIndex = -1;
 
         /// <summary>
         /// Gets the singleton instance object
@@ -72,9 +71,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                         out connInfo);
                 if (connInfo != null)
                 {
-                    // Set diagnostics logging
-                    SetUpDiagnosticsLogging(parameters.DiagnosticsLogFilePath);
-
                     ExportOperation operation = new ExportOperation(parameters, connInfo);
                     ExecuteOperation(operation, parameters, SR.ExportBacpacTaskName, requestContext);
                 }
@@ -99,9 +95,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                         out connInfo);
                 if (connInfo != null)
                 {
-                    // Set diagnostics logging
-                    SetUpDiagnosticsLogging(parameters.DiagnosticsLogFilePath);
-
                     ImportOperation operation = new ImportOperation(parameters, connInfo);
                     ExecuteOperation(operation, parameters, SR.ImportBacpacTaskName, requestContext);
                 }
@@ -126,9 +119,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                         out connInfo);
                 if (connInfo != null)
                 {
-                    // Set diagnostics logging
-                    SetUpDiagnosticsLogging(parameters.DiagnosticsLogFilePath);
-
                     // Set connection details database name to ensure the connection string gets created correctly for DW(extract doesn't work if connection is to master)
                     connInfo.ConnectionDetails.DatabaseName = parameters.DatabaseName;
                     ExtractOperation operation = new ExtractOperation(parameters, connInfo);
@@ -156,9 +146,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                         out connInfo);
                 if (connInfo != null)
                 {
-                    // Set diagnostics logging
-                    SetUpDiagnosticsLogging(parameters.DiagnosticsLogFilePath);
-
                     DeployOperation operation = new DeployOperation(parameters, connInfo);
                     ExecuteOperation(operation, parameters, SR.DeployDacpacTaskName, requestContext);
                 }
@@ -183,9 +170,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                         out connInfo);
                 if (connInfo != null)
                 {
-                    // Set diagnostics logging
-                    SetUpDiagnosticsLogging(parameters.DiagnosticsLogFilePath);
-
                     GenerateDeployScriptOperation operation = new GenerateDeployScriptOperation(parameters, connInfo);
                     SqlTask sqlTask = null;
                     TaskMetadata metadata = new TaskMetadata();
@@ -399,23 +383,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         internal void PerformOperation(DacFxOperation operation, TaskExecutionMode taskExecutionMode)
         {
             operation.Execute(taskExecutionMode);
-        }
-
-        /// <summary>
-        /// Set the diagnostics logging 
-        /// </summary>
-        public void SetUpDiagnosticsLogging(string diagPath)
-        {
-            if (!string.IsNullOrEmpty(diagPath))
-            {
-                FileStream logStream = new FileStream(diagPath, FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
-                var textWriteTracerListener = new TextWriterTraceListener(logStream);
-                DacServices.DiagnosticTrace.Listeners.Add(textWriteTracerListener);
-                DacServices.DiagnosticTrace.Switch.Level = SourceLevels.Verbose;
-
-                // diagnostic Log Listener Index to remove 
-                diagnosticLogListenerIndex = DacServices.DiagnosticTrace.Listeners.IndexOf(textWriteTracerListener);
-            }
         }
     }
 }

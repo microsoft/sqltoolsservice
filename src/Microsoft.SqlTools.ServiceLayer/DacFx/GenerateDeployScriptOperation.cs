@@ -32,36 +32,49 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
         public override void Execute()
         {
-            DacPackage dacpac = DacPackage.Load(this.Parameters.PackageFilePath);
-            PublishOptions publishOptions = new PublishOptions();
-            publishOptions.GenerateDeploymentReport = this.Parameters.GenerateDeploymentReport;
-            publishOptions.CancelToken = this.CancellationToken;
-            publishOptions.DeployOptions = this.Parameters.DeploymentOptions != null ? SchemaCompareUtils.CreateSchemaCompareOptions(this.Parameters.DeploymentOptions) : this.GetDefaultDeployOptions();
-
-            if (this.Parameters.SqlCommandVariableValues != null)
+            DacFxUtils utils = new DacFxUtils();
+            try
             {
-                foreach (string key in this.Parameters.SqlCommandVariableValues.Keys)
+                DacPackage dacpac = DacPackage.Load(this.Parameters.PackageFilePath);
+                PublishOptions publishOptions = new PublishOptions();
+                publishOptions.GenerateDeploymentReport = this.Parameters.GenerateDeploymentReport;
+                publishOptions.CancelToken = this.CancellationToken;
+                publishOptions.DeployOptions = this.Parameters.DeploymentOptions != null ? SchemaCompareUtils.CreateSchemaCompareOptions(this.Parameters.DeploymentOptions) : this.GetDefaultDeployOptions();
+
+                if (this.Parameters.SqlCommandVariableValues != null)
                 {
-                    publishOptions.DeployOptions.SqlCommandVariableValues[key] = this.Parameters.SqlCommandVariableValues[key];
+                    foreach (string key in this.Parameters.SqlCommandVariableValues.Keys)
+                    {
+                        publishOptions.DeployOptions.SqlCommandVariableValues[key] = this.Parameters.SqlCommandVariableValues[key];
+                    }
+                }
+
+                // Set diagnostics logging
+                // utils.SetUpDiagnosticsLogging(this.Parameters.DiagnosticsLogFilePath);
+
+                //this.Result = this.DacServices.Script(dacpac, this.Parameters.DatabaseName, publishOptions);
+                this.Result = this.DacServices.Script(dacpac, this.Parameters.DatabaseName, publishOptions, this.Parameters.DiagnosticsLogFilePath);
+
+                // tests don't create a SqlTask, so only add the script when the SqlTask isn't null
+                if (this.SqlTask != null)
+                {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+                    this.SqlTask.AddScript(SqlTaskStatus.Succeeded, Result.DatabaseScript);
+                    if (!string.IsNullOrEmpty(this.Result.MasterDbScript))
+                    {
+                        // master script is only used if the target is Azure SQL db and the script contains all operations that must be done against the master database
+                        this.SqlTask.AddScript(SqlTaskStatus.Succeeded, this.Result.MasterDbScript);
+                    }
+                }
+
+                if (this.Parameters.GenerateDeploymentReport && !string.IsNullOrEmpty(this.Parameters.DeploymentReportFilePath))
+                {
+                    File.WriteAllText(this.Parameters.DeploymentReportFilePath, this.Result.DeploymentReport);
                 }
             }
-
-            this.Result = this.DacServices.Script(dacpac, this.Parameters.DatabaseName, publishOptions);
-
-            // tests don't create a SqlTask, so only add the script when the SqlTask isn't null
-            if (this.SqlTask != null)
+            finally
             {
-                this.SqlTask.AddScript(SqlTaskStatus.Succeeded, Result.DatabaseScript);
-                if (!string.IsNullOrEmpty(this.Result.MasterDbScript))
-                {
-                    // master script is only used if the target is Azure SQL db and the script contains all operations that must be done against the master database
-                    this.SqlTask.AddScript(SqlTaskStatus.Succeeded, this.Result.MasterDbScript);
-                }
-            }
-
-            if (this.Parameters.GenerateDeploymentReport && !string.IsNullOrEmpty(this.Parameters.DeploymentReportFilePath))
-            {
-                File.WriteAllText(this.Parameters.DeploymentReportFilePath, this.Result.DeploymentReport);
+                // Remove the diagnostic tracer for the current operation based on Name:path
+                // utils.RemoveDiagnosticListener(this.Parameters.DiagnosticsLogFilePath);
             }
         }
     }

@@ -47,8 +47,21 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
         private DacExtractOptions GetExtractOptions(DacExtractTarget extractTarget)
         {
-            DacExtractOptions extractOptions = new DacExtractOptions() { ExtractTarget = extractTarget }; 
-            return extractOptions;
+            try
+            {
+                // Set diagnostics logging
+                DacFxUtils utils = new DacFxUtils();
+                utils.SetUpDiagnosticsLogging(this.Parameters.DiagnosticsLogFilePath);
+
+                DacExtractOptions extractOptions = new DacExtractOptions() { ExtractTarget = extractTarget };
+                return extractOptions;
+            }
+            finally
+            {
+                // Remove the diagnostic tracer for the current operation based on Name:path
+                DacFxUtils utils = new DacFxUtils();
+                utils.RemoveDiagnosticListener(this.Parameters.DiagnosticsLogFilePath);
+            }
         }
     }
 }

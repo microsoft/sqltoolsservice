@@ -28,8 +28,21 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
         public override void Execute()
         {
-            BacPackage bacpac = BacPackage.Load(this.Parameters.PackageFilePath);
-            this.DacServices.ImportBacpac(bacpac, this.Parameters.DatabaseName, this.CancellationToken);
+            try
+            {
+                // Set diagnostics logging
+                DacFxUtils utils = new DacFxUtils();
+                utils.SetUpDiagnosticsLogging(this.Parameters.DiagnosticsLogFilePath);
+
+                BacPackage bacpac = BacPackage.Load(this.Parameters.PackageFilePath);
+                this.DacServices.ImportBacpac(bacpac, this.Parameters.DatabaseName, this.CancellationToken);
+            }
+            finally
+            {
+                // Remove the diagnostic tracer for the current operation based on Name:path
+                DacFxUtils utils = new DacFxUtils();
+                utils.RemoveDiagnosticListener(this.Parameters.DiagnosticsLogFilePath);
+            }
         }
     }
 }

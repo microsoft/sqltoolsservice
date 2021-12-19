@@ -7,6 +7,8 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare;
 using Microsoft.SqlTools.Utility;
+using System.Diagnostics;
+using System.IO;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx
 {
@@ -25,18 +27,30 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
         public override void Execute()
         {
-            DacPackage dacpac = DacPackage.Load(this.Parameters.PackageFilePath);
-            DacDeployOptions options = this.Parameters.DeploymentOptions != null ? SchemaCompareUtils.CreateSchemaCompareOptions(this.Parameters.DeploymentOptions) : this.GetDefaultDeployOptions();
+            try {
+                DacPackage dacpac = DacPackage.Load(this.Parameters.PackageFilePath);
+                DacDeployOptions options = this.Parameters.DeploymentOptions != null ? SchemaCompareUtils.CreateSchemaCompareOptions(this.Parameters.DeploymentOptions) : this.GetDefaultDeployOptions();
 
-            if (this.Parameters.SqlCommandVariableValues != null)
-            {
-                foreach (string key in this.Parameters.SqlCommandVariableValues.Keys)
+                if (this.Parameters.SqlCommandVariableValues != null)
                 {
-                    options.SqlCommandVariableValues[key] = this.Parameters.SqlCommandVariableValues[key];
+                    foreach (string key in this.Parameters.SqlCommandVariableValues.Keys)
+                    {
+                        options.SqlCommandVariableValues[key] = this.Parameters.SqlCommandVariableValues[key];
+                    }
                 }
-            }
 
-            this.DacServices.Deploy(dacpac, this.Parameters.DatabaseName, this.Parameters.UpgradeExisting, options, this.CancellationToken);
+                // Set diagnostics logging
+                DacFxUtils utils = new DacFxUtils();
+                utils.SetUpDiagnosticsLogging(this.Parameters.DiagnosticsLogFilePath);
+
+                this.DacServices.Deploy(dacpac, this.Parameters.DatabaseName, this.Parameters.UpgradeExisting, options, this.CancellationToken);
+            }
+            finally
+            {
+                // Remove the diagnostic tracer for the current operation based on Name:path
+                DacFxUtils utils = new DacFxUtils();
+                utils.RemoveDiagnosticListener(this.Parameters.DiagnosticsLogFilePath);
+            }
         }
     }
 }
