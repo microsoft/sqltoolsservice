@@ -198,7 +198,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                         if (!session.IsStreaming)
                         {
                             List<string> viewers = this.sessionViewers[session.XEventSession.Id];
-                            if (viewers.Any(v => allViewers[v].active)){
+                            if (viewers.Any(v => allViewers[v].active))
+                            {
                                 StartStream(id, session);
                             }
                         }
@@ -207,10 +208,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
         }
 
-        /// <summary>
-        /// Helper function used to process the XEvent feed from a session's stream.
-        /// </summary>
-        public async Task HandleXEvent(IXEvent xEvent, ProfilerSession session)
+        private List<ProfilerEvent> fileSessionEvents = null;
+        internal async Task HandleXEvent(IXEvent xEvent, ProfilerSession session = null)
         {
             ProfilerEvent profileEvent = new ProfilerEvent(xEvent.Name, xEvent.Timestamp.ToString());
             foreach (var kvp in xEvent.Fields)
@@ -221,24 +220,32 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             {
                 profileEvent.Values.Add(kvp.Key, kvp.Value.ToString());
             }
+
             var eventList = new List<ProfilerEvent>();
             eventList.Add(profileEvent);
-            var eventsLost = session.EventsLost;
 
-            if (eventList.Count > 0 || eventsLost)
+            if (session != null)
             {
-                session.FilterOldEvents(eventList);
-                eventList = session.FilterProfilerEvents(eventList);
-                // notify all viewers of the event.
-                List<string> viewerIds = this.sessionViewers[session.XEventSession.Id];
+                var eventsLost = session.EventsLost;
 
-                foreach (string viewerId in viewerIds)
+                if (eventList.Count > 0 || eventsLost)
                 {
-                    if (allViewers[viewerId].active)
+                    session.FilterOldEvents(eventList);
+                    eventList = session.FilterProfilerEvents(eventList);
+                    // notify all viewers of the event.
+                    List<string> viewerIds = this.sessionViewers[session.XEventSession.Id];
+                    foreach (string viewerId in viewerIds)
                     {
-                        SendEventsToListeners(viewerId, eventList, eventsLost);
+                        if (allViewers[viewerId].active)
+                        {
+                            SendEventsToListeners(viewerId, eventList, eventsLost);
+                        }
                     }
                 }
+            }
+            else
+            {
+                fileSessionEvents.Concat(eventList);
             }
         }
 
@@ -247,7 +254,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// </summary>
         private void StartStream(int id, ProfilerSession session)
         {
-            if(session.XEventSession != null  && session.XEventSession.Session != null && session.XEventSession.ConnectionDetails != null){
+            if (session.XEventSession != null && session.XEventSession.Session != null && session.XEventSession.ConnectionDetails != null)
+            {
                 CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
                 var connectionString = ConnectionService.BuildConnectionString(session.XEventSession.ConnectionDetails);
                 var eventStreamer = new XELiveEventStreamer(connectionString, session.XEventSession.Session.Name);
@@ -267,7 +275,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 this.monitoredCancellationTokenSources.Add(id, threadCancellationToken);
                 session.IsStreaming = true;
             }
-            else {
+            else
+            {
                 ProfilerSession tempSession;
                 RemoveSession(id, out tempSession);
                 throw new Exception(SR.SessionMissingDetails(id));
@@ -277,7 +286,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// <summary>
         /// Helper function for notifying listeners and stopping session in case the session is stopped on the server. This is public for tests.  
         /// </summary>
-        public void StopSession(int Id){
+        public void StopSession(int Id)
+        {
             SendStoppedSessionInfoToListeners(Id);
             ProfilerSession tempSession;
             RemoveSession(Id, out tempSession);

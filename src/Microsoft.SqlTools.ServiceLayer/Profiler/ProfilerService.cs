@@ -144,7 +144,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                         var result = new StartProfilingResult();
                         await requestContext.SendResult(result);
                     }
-                    else 
+                    else
                     {
                         Logger.Write(TraceEventType.Error, "Connection Info could not be found for " + parameters.OwnerUri);
                         throw new Exception(SR.ProfilerConnectionNotFound);
@@ -153,28 +153,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 catch (Exception e)
                 {
                     Logger.Write(TraceEventType.Error, "HandleStartProfilingRequest failed for uri " + parameters.OwnerUri);
-                    await requestContext.SendError(new Exception (SR.StartProfilingFailed(e.Message), e));
+                    await requestContext.SendError(new Exception(SR.StartProfilingFailed(e.Message), e));
                 }
             });
         }
 
-        internal async Task HandleXEventFile(IXEvent xEvent)
-        {
-            ProfilerEvent profileEvent = new ProfilerEvent(xEvent.Name, xEvent.Timestamp.ToString());
-            foreach (var kvp in xEvent.Fields) 
-            {
-                profileEvent.Values.Add(kvp.Key, kvp.Value.ToString());
-            }
-            foreach (var kvp in xEvent.Actions) 
-            {
-                profileEvent.Values.Add(kvp.Key, kvp.Value.ToString());
-            }
-            fileSessionEvents.Add(profileEvent);
-        }
-
         private List<ProfilerEvent> fileSessionEvents = null;
 
-         /// <summary>
+
+        /// <summary>
         /// Handle request to start a profiling session
         /// </summary>
         internal async Task HandleOpenXelFileRequest(OpenXelFileParams parameters, RequestContext<OpenXelFileResult> requestContext)
@@ -186,7 +173,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     fileSessionEvents = new List<ProfilerEvent>();
                     CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
                     var eventStreamer = new XEFileEventStreamer(parameters.FilePath);
-                    await eventStreamer.ReadEventStream(xEvent => new Task(), threadCancellationToken.Token);
+                    //await eventStreamer.ReadEventStream(xEvent => new Task(), threadCancellationToken.Token);
 
                     // pass the profiler events on to the client
                     await this.ServiceHost.SendEvent(
@@ -250,7 +237,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                         {
                             xeSession = this.XEventSessionFactory.GetXEventSession(parameters.SessionName, connInfo);
                         }
-                        catch { 
+                        catch
+                        {
                             Logger.Write(TraceEventType.Verbose, "Session with name '" + parameters.SessionName + "' was not found");
                         }
 
@@ -273,7 +261,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 catch (Exception e)
                 {
                     Logger.Write(TraceEventType.Error, "HandleCreateXEventSessionRequest failed for uri " + parameters.OwnerUri);
-                    await requestContext.SendError(new Exception (SR.CreateSessionFailed(e.Message), e));
+                    await requestContext.SendError(new Exception(SR.CreateSessionFailed(e.Message), e));
                 }
             });
         }
@@ -450,7 +438,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// <summary>
         /// Nulls out properties in ConnectionDetails that aren't compatible with XElite.
         /// </summary>
-        private static void RemoveIncompatibleConnectionProperties(ConnectionDetails connDetails){
+        private static void RemoveIncompatibleConnectionProperties(ConnectionDetails connDetails)
+        {
             connDetails.ConnectRetryCount = null;
             connDetails.ConnectRetryInterval = null;
             connDetails.MultiSubnetFailover = null;
