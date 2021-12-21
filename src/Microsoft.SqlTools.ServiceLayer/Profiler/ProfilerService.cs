@@ -170,10 +170,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             {
                 try
                 {
-                    fileSessionEvents = new List<ProfilerEvent>();
-                    CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
-                    var eventStreamer = new XEFileEventStreamer(parameters.FilePath);
-                    //await eventStreamer.ReadEventStream(xEvent => new Task(), threadCancellationToken.Token);
+                    await monitor.OpenXELStream(parameters.FilePath);
 
                     // pass the profiler events on to the client
                     await this.ServiceHost.SendEvent(
@@ -185,7 +182,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                             EventsLost = false
                         });
 
-                    fileSessionEvents = null;
+                    monitor.fileSessionEvents = null;
 
                     var result = new OpenXelFileResult();
                     await requestContext.SendResult(result);

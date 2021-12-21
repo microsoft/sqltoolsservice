@@ -208,7 +208,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
         }
 
-        private List<ProfilerEvent> fileSessionEvents = null;
+        public async Task OpenXELStream(string filePath)
+        {
+            fileSessionEvents = new List<ProfilerEvent>();
+            CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
+            var eventStreamer = new XEFileEventStreamer(filePath);
+            await eventStreamer.ReadEventStream(xEvent => HandleXEvent(xEvent), threadCancellationToken.Token);
+        }
+
+        public List<ProfilerEvent> fileSessionEvents = null;
+
         internal async Task HandleXEvent(IXEvent xEvent, ProfilerSession session = null)
         {
             ProfilerEvent profileEvent = new ProfilerEvent(xEvent.Name, xEvent.Timestamp.ToString());
