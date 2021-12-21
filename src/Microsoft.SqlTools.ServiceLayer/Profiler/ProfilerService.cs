@@ -117,6 +117,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             this.ServiceHost.SetRequestHandler(PauseProfilingRequest.Type, HandlePauseProfilingRequest);
             this.ServiceHost.SetRequestHandler(GetXEventSessionsRequest.Type, HandleGetXEventSessionsRequest);
             this.ServiceHost.SetRequestHandler(DisconnectSessionRequest.Type, HandleDisconnectSessionRequest);
+            this.ServiceHost.SetRequestHandler(OpenXelFileRequest.Type, HandleOpenXelFileRequest);
 
             this.SessionMonitor.AddSessionListener(this);
         }
@@ -157,6 +158,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             });
         }
 
+        internal async Task HandleXEventFile(IXEvent xEvent)
+        {
+            ProfilerEvent profileEvent = new ProfilerEvent(xEvent.Name, xEvent.Timestamp.ToString());
+            foreach (var kvp in xEvent.Fields) 
+            {
+                profileEvent.Values.Add(kvp.Key, kvp.Value.ToString());
+            }
+            foreach (var kvp in xEvent.Actions) 
+            {
+                profileEvent.Values.Add(kvp.Key, kvp.Value.ToString());
+            }
+            fileSessionEvents.Add(profileEvent);
+        }
+
         private List<ProfilerEvent> fileSessionEvents = null;
 
          /// <summary>
@@ -171,7 +186,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     fileSessionEvents = new List<ProfilerEvent>();
                     CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
                     var eventStreamer = new XEFileEventStreamer(parameters.FilePath);
-                    //await eventStreamer.ReadEventStream(xEvent => new Task(), threadCancellationToken.Token);
+                    await eventStreamer.ReadEventStream(xEvent => new Task(), threadCancellationToken.Token);
 
                     // pass the profiler events on to the client
                     await this.ServiceHost.SendEvent(
