@@ -3499,7 +3499,10 @@
   <data name="CheckConstraintIsEnabledDescription" xml:space="preserve">
     <value>CHECK 制約を有効にするかどうかを指定</value>
   </data>
-  <data name="QueryServiceUnsupportedSqlVariantType" xml:space="preserve">
-    <value>SQL variant 列 "{1}" の基になる型 "{0}" を解決できませんでした。</value>
+  <data name="SessionMissingDetails" xml:space="preserve">
+    <value>セッションの詳細がないため、ストリーミング セッション {0} を開始できません。</value>
+  </data>
+  <data name="StartProfilingFailed" xml:space="preserve">
+    <value>プロファイラーを起動できませんでした: {0}</value>
   </data>
 </root>
