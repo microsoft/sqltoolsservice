@@ -3499,7 +3499,10 @@
   <data name="CheckConstraintIsEnabledDescription" xml:space="preserve">
     <value>Specifica se il vincolo CHECK è Abilitato</value>
   </data>
-  <data name="QueryServiceUnsupportedSqlVariantType" xml:space="preserve">
-    <value>Impossibile risolvere il tipo sottostante "{0}" per la colonna variant SQL "{1}".</value>
+  <data name="SessionMissingDetails" xml:space="preserve">
+    <value>Non è possibile avviare la sessione di streaming {0} perché mancano i dettagli della sessione.</value>
+  </data>
+  <data name="StartProfilingFailed" xml:space="preserve">
+    <value>Impossibile avviare il profiler: {0}</value>
   </data>
 </root>
