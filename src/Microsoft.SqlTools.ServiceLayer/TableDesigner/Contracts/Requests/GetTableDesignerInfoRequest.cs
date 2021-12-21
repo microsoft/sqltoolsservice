@@ -8,13 +8,13 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 {
     /// <summary>
-    /// The service request to get the designer information about a table.
+    /// The service request to initialize a table designer.
     /// </summary>
-    public class GetTableDesignerInfoRequest
+    public class InitializeTableDesignerRequest
     {
         /// <summary>
         /// Request definition
         /// </summary>
-        public static readonly RequestType<TableInfo, TableDesignerInfo> Type = RequestType<TableInfo, TableDesignerInfo>.Create("tabledesigner/gettabledesignerinfo");
+        public static readonly RequestType<TableInfo, TableDesignerInfo> Type = RequestType<TableInfo, TableDesignerInfo>.Create("tabledesigner/initialize");
     }
 }
