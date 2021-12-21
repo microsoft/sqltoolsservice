@@ -3499,7 +3499,10 @@
   <data name="CheckConstraintIsEnabledDescription" xml:space="preserve">
     <value>Especifica si la restricción CHECK está habilitada.</value>
   </data>
-  <data name="QueryServiceUnsupportedSqlVariantType" xml:space="preserve">
-    <value>No se pudo resolver el tipo subyacente "{0}" para la columna variant SQL "{1}".</value>
+  <data name="SessionMissingDetails" xml:space="preserve">
+    <value>No se puede iniciar la sesión de streaming {0} porque faltan los detalles de la sesión.</value>
+  </data>
+  <data name="StartProfilingFailed" xml:space="preserve">
+    <value>No se pudo iniciar el generador de perfiles: {0}</value>
   </data>
 </root>

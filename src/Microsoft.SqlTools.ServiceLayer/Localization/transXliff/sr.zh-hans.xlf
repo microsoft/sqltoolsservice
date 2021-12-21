@@ -5696,11 +5696,17 @@
         <target state="translated">指定是否已启用检查约束</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="QueryServiceUnsupportedSqlVariantType">
-        <source>The underlying type "{0}" for sql variant column "{1}" could not be resolved.</source>
-        <target state="translated">SQL 变体列 "{1}" 的基础类型 "{0}" 无法解析。</target>
+      <trans-unit id="SessionMissingDetails">
+        <source>Unable to start streaming session {0} due to missing session details.</source>
+        <target state="translated">由于缺少会话详细信息，无法启动流式处理会话 {0}。</target>
         <note>.
- Parameters: 0 - underlyingType (string), 1 - columnName (string) </note>
+ Parameters: 0 - id (int) </note>
+      </trans-unit>
+      <trans-unit id="StartProfilingFailed">
+        <source>Failed to start profiler: {0}</source>
+        <target state="translated">无法启动探查器: {0}</target>
+        <note>.
+ Parameters: 0 - error (String) </note>
       </trans-unit>
     </body>
   </file>
