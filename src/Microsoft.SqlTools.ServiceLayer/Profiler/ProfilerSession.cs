@@ -17,12 +17,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
     /// </summary>
     public class ProfilerSession
     {
-        public bool IsStreaming { get; set; }
-        
+        private static readonly TimeSpan DefaultPollingDelay = TimeSpan.FromSeconds(1);
+        private object pollingLock = new object();
+        private bool isPolling = false;
+        private DateTime lastPollTime = DateTime.Now.Subtract(DefaultPollingDelay);
+        private TimeSpan pollingDelay = DefaultPollingDelay;
         private ProfilerEvent lastSeenEvent = null;
 
         private bool eventsLost = false;
         int lastSeenId = -1;
+
+        public bool pollImmediatly = false;
 
         /// <summary>
         /// Connection to use for the session
@@ -33,6 +38,57 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// Underlying XEvent session wrapper
         /// </summary>
         public IXEventSession XEventSession { get; set; }
+
+        /// <summary>
+        /// Try to set the session into polling mode if criteria is meet
+        /// </summary>
+        /// <returns>True if session set to polling mode, False otherwise</returns>
+        public bool TryEnterPolling()
+        {
+            lock (this.pollingLock)
+            {
+                if (pollImmediatly || (!this.isPolling && DateTime.Now.Subtract(this.lastPollTime) >= pollingDelay))
+                {
+                    this.isPolling = true;
+                    this.lastPollTime = DateTime.Now;
+                    this.pollImmediatly = false;
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Is the session currently being polled
+        /// </summary>
+        public bool IsPolling
+        {
+            get
+            {
+                return this.isPolling;
+            }
+            set
+            {
+                lock (this.pollingLock)
+                {
+                    this.isPolling  = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// The delay between session polls
+        /// </summary>
+        public TimeSpan PollingDelay
+        {
+            get
+            {
+                return pollingDelay;
+            }
+        }
 
         /// <summary>
         /// Could events have been lost in the last poll
@@ -50,7 +106,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// </summary>
         private bool IsProfilerEvent(ProfilerEvent currentEvent)
         {
-            if (string.IsNullOrWhiteSpace(currentEvent.Name) || currentEvent.Values == null)
+            if (string.IsNullOrWhiteSpace(currentEvent.Name) ||  currentEvent.Values == null)
             {
                 return false;
             }
@@ -89,7 +145,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         public void FilterOldEvents(List<ProfilerEvent> events)
         {
             this.eventsLost = false;
-
+            
             if (lastSeenId != -1)
             {
                 // find the last event we've previously seen
@@ -113,7 +169,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 {
                     events.RemoveRange(0, idx + 1);
                 }
-                else if (earliestSeenEventId > (lastSeenId + 1))
+                else if(earliestSeenEventId > (lastSeenId + 1))
                 {
                     // if there's a gap between the expected next event sequence
                     // and the furthest back event seen, we know we've lost events
