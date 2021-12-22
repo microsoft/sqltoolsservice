@@ -123,5 +123,41 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             profilerSession.FilterOldEvents(profilerEvents);           
             Assert.False(profilerSession.EventsLost);    
         }
+
+        /// <summary>
+        /// Test the TryEnterPolling method
+        /// </summary>
+        [Test]
+        public void TestTryEnterPolling()
+        {
+            DateTime startTime = DateTime.Now;
+
+            // create new profiler session
+            var profilerSession = new ProfilerSession();
+            
+            // enter the polling block
+            Assert.True(profilerSession.TryEnterPolling());
+            Assert.True(profilerSession.IsPolling);
+
+            // verify we can't enter again
+            Assert.False(profilerSession.TryEnterPolling());
+
+            // set polling to false to exit polling block
+            profilerSession.IsPolling = false;
+
+            bool outsideDelay = DateTime.Now.Subtract(startTime) >= profilerSession.PollingDelay;
+
+            // verify we can only enter again if we're outside polling delay interval
+            Assert.AreEqual(profilerSession.TryEnterPolling(), outsideDelay);
+
+            // reset IsPolling in case the delay has elasped on slow machine or while debugging
+            profilerSession.IsPolling = false;
+
+            // wait for the polling delay to elapse
+            Thread.Sleep(profilerSession.PollingDelay);
+
+            // verify we can enter the polling block again
+            Assert.True(profilerSession.TryEnterPolling());
+        }
     }
 }
