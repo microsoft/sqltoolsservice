@@ -76,7 +76,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 {typeof(bool),           (o, id, col) => ReadBoolean(o, id)},
                 {typeof(double),         (o, id, col) => ReadDouble(o, id)},
                 {typeof(float),          (o, id, col) => ReadSingle(o, id)},
-                {typeof(decimal),        (o, id, col) => ReadDecimal(o, id)},
+                {typeof(decimal),        (o, id, col) => ReadSqlDecimal(o, id)},
                 {typeof(DateTime),       ReadDateTime},
                 {typeof(DateTimeOffset), (o, id, col) => ReadDateTimeOffset(o, id)},
                 {typeof(TimeSpan),       (o, id, col) => ReadTimeSpan(o, id)},
@@ -134,14 +134,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                         continue;
                     }
 
-                    // The typename is stored in the string
-                    colType = Type.GetType(sqlVariantType);
-
-                    // Workaround .NET bug, see sqlbu# 440643 and vswhidbey# 599834
-                    // TODO: Is this workaround necessary for .NET Core?
-                    if (colType == null && sqlVariantType == "System.Data.SqlTypes.SqlSingle")
+                    // We need to specify the assembly name for SQL types in order to resolve the type correctly.
+                    if (sqlVariantType.StartsWith("System.Data.SqlTypes."))
                     {
-                        colType = typeof(SqlSingle);
+                        sqlVariantType = sqlVariantType + ", System.Data.Common";
+                    }
+                    colType = Type.GetType(sqlVariantType);
+                    if (colType == null)
+                    {
+                        throw new ArgumentException(SR.QueryServiceUnsupportedSqlVariantType(sqlVariantType, column.ColumnName));
                     }
                 }
                 else
