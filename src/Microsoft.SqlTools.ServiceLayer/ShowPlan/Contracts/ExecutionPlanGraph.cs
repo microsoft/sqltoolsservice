@@ -71,9 +71,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
         /// </summary>
         public string Name { get; set; }
         /// <summary>
-        /// Formatted value for the property
+        /// Formatted value for the property. In case of nested properties, it can an array of ExecutionPlanGraphElementProperties
         /// </summary>
-        public string FormattedValue { get; set; }
+        public object Value { get; set; }
         /// <summary>
         /// Flag to show/hide props in tooltip
         /// </summary>

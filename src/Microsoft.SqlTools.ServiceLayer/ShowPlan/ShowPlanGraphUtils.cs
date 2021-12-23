@@ -55,13 +55,24 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
             List<ExecutionPlanGraphElementProperties> propsList = new List<ExecutionPlanGraphElementProperties>();
             foreach (PropertyValue prop in props)
             {
+                object propertyValue = null;
+                var complexProperty = prop.Value as Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph.ExpandableObjectWrapper;
+                if (complexProperty == null)
+                {
+                    propertyValue = prop.DisplayValue;
+
+                }
+                else
+                {
+                    propertyValue = GetProperties(complexProperty.Properties);
+                }
                 propsList.Add(new ExecutionPlanGraphElementProperties()
                 {
                     Name = prop.DisplayName,
-                    FormattedValue = prop.DisplayValue,
+                    Value = propertyValue,
                     ShowInTooltip = prop.IsBrowsable,
                     DisplayOrder = prop.DisplayOrder,
-                    IsLongString = prop.IsLongString
+                    IsLongString = prop.IsLongString,
                 });
             }
             return propsList;
