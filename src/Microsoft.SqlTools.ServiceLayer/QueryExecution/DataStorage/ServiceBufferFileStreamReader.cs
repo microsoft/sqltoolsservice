@@ -125,7 +125,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 {SqlDbType.SmallMoney, typeof(SqlMoney)},
                 {SqlDbType.Text, typeof(SqlString)},
                 {SqlDbType.Time, typeof(SqlDateTime)},
-                {SqlDbType.Timestamp, typeof(SqlDateTime)},
+                {SqlDbType.Timestamp, typeof(SqlString)},
                 {SqlDbType.TinyInt, typeof(SqlByte)},
                 {SqlDbType.UniqueIdentifier, typeof(SqlGuid)},
                 {SqlDbType.VarBinary, typeof(SqlBinary)},
