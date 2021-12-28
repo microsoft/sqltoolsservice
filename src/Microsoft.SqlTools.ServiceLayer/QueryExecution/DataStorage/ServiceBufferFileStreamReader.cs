@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlTypes;
 using System.IO;
 using System.Text;
@@ -39,6 +40,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         private readonly Stream fileStream;
 
         private readonly Dictionary<Type, ReadMethod> readMethods;
+
+        private readonly Dictionary<SqlDbType, Type> sqlDBTypeMap;
 
         #endregion
 
@@ -76,7 +79,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 {typeof(bool),           (o, id, col) => ReadBoolean(o, id)},
                 {typeof(double),         (o, id, col) => ReadDouble(o, id)},
                 {typeof(float),          (o, id, col) => ReadSingle(o, id)},
-                {typeof(decimal),        (o, id, col) => ReadSqlDecimal(o, id)},
+                {typeof(decimal),        (o, id, col) => ReadDecimal(o, id)},
                 {typeof(DateTime),       ReadDateTime},
                 {typeof(DateTimeOffset), (o, id, col) => ReadDateTimeOffset(o, id)},
                 {typeof(TimeSpan),       (o, id, col) => ReadTimeSpan(o, id)},
@@ -97,6 +100,37 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 {typeof(SqlBinary),      (o, id, col) => ReadBytes(o, id)},
                 {typeof(SqlGuid),        (o, id, col) => ReadGuid(o, id)},
                 {typeof(SqlMoney),       (o, id, col) => ReadMoney(o, id)},
+            };
+
+            sqlDBTypeMap = new Dictionary<SqlDbType, Type> {
+                {SqlDbType.BigInt, typeof(SqlInt64)},
+                {SqlDbType.Binary, typeof(SqlBinary)},
+                {SqlDbType.Bit, typeof(SqlBoolean)},
+                {SqlDbType.Char, typeof(SqlString)},
+                {SqlDbType.Date, typeof(SqlDateTime)},
+                {SqlDbType.DateTime, typeof(SqlDateTime)},
+                {SqlDbType.DateTime2, typeof(SqlDateTime)},
+                {SqlDbType.DateTimeOffset, typeof(DateTimeOffset)},
+                {SqlDbType.Decimal, typeof(SqlDecimal)},
+                {SqlDbType.Float, typeof(SqlDouble)},
+                {SqlDbType.Image, typeof(SqlBinary)},
+                {SqlDbType.Int, typeof(SqlInt32)},
+                {SqlDbType.Money, typeof(SqlMoney)},
+                {SqlDbType.NChar, typeof(SqlString)},
+                {SqlDbType.NText, typeof(SqlString)},
+                {SqlDbType.NVarChar, typeof(SqlString)},
+                {SqlDbType.Real, typeof(SqlSingle)},
+                {SqlDbType.SmallDateTime, typeof(SqlDateTime)},
+                {SqlDbType.SmallInt, typeof(SqlInt16)},
+                {SqlDbType.SmallMoney, typeof(SqlMoney)},
+                {SqlDbType.Text, typeof(SqlString)},
+                {SqlDbType.Time, typeof(SqlDateTime)},
+                {SqlDbType.Timestamp, typeof(SqlDateTime)},
+                {SqlDbType.TinyInt, typeof(SqlByte)},
+                {SqlDbType.UniqueIdentifier, typeof(SqlGuid)},
+                {SqlDbType.VarBinary, typeof(SqlBinary)},
+                {SqlDbType.VarChar, typeof(SqlString)},
+                {SqlDbType.Xml, typeof(SqlString)}
             };
         }
 
@@ -147,7 +181,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 }
                 else
                 {
-                    colType = column.DataType;
+                    Type type;
+                    if (!sqlDBTypeMap.TryGetValue(column.SqlDbType, out type))
+                    {
+                        type = typeof(SqlString);
+                    }
+                    colType = type;
                 }
 
                 // Use the right read function for the type to read the data from the file
