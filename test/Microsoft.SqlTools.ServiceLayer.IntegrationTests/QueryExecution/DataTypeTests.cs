@@ -17,175 +17,175 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
     public class DataTypeTests
     {
         [Test]
-        public void BigIntTest()
+        public async Task BigIntTest()
         {
-            ExecuteAndVerifyResult("SELECT CAST(100 AS BIGINT)", "100");
+            await ExecuteAndVerifyResult("SELECT CAST(100 AS BIGINT)", "100");
         }
 
         [Test]
-        public void BinaryTest()
+        public async Task BinaryTest()
         {
-            ExecuteAndVerifyResult("SELECT CAST(100 AS BINARY)", "0x000000000000000000000000000000000000000000000000000000000064");
+            await ExecuteAndVerifyResult("SELECT CAST(100 AS BINARY)", "0x000000000000000000000000000000000000000000000000000000000064");
         }
 
         [Test]
-        public void BitTest()
+        public async Task BitTest()
         {
-            ExecuteAndVerifyResult("SELECT CAST(0 AS BIT)", "0");
-            ExecuteAndVerifyResult("SELECT CAST(1 AS BIT)", "1");
+            await ExecuteAndVerifyResult("SELECT CAST(0 AS BIT)", "0");
+            await ExecuteAndVerifyResult("SELECT CAST(1 AS BIT)", "1");
         }
 
         [Test]
-        public void CharTest()
+        public async Task CharTest()
         {
-            ExecuteAndVerifyResult("SELECT CAST('A' AS CHAR)", "A");
+            await ExecuteAndVerifyResult("SELECT CAST('A' AS CHAR(1))", "A");
         }
 
         [Test]
-        public void DateTest()
+        public async Task DateTest()
         {
-            ExecuteAndVerifyResult("SELECT CAST('2020-01-01' AS DATE)", "2020-01-01");
+            await ExecuteAndVerifyResult("SELECT CAST('2020-01-01' AS DATE)", "2020-01-01");
         }
 
         [Test]
-        public void DateTimeTest()
+        public async Task DateTimeTest()
         {
-            ExecuteAndVerifyResult("SELECT CAST('2020-01-01' AS DATETIME)", "2020-01-01 00:00:00.000");
+            await ExecuteAndVerifyResult("SELECT CAST('2020-01-01' AS DATETIME)", "2020-01-01 00:00:00.000");
         }
 
         [Test]
-        public void DateTime2Test()
+        public async Task DateTime2Test()
         {
-            ExecuteAndVerifyResult("SELECT CAST('2020-01-01' AS DATETIME2)", "2020-01-01 00:00:00.0000000");
+            await ExecuteAndVerifyResult("SELECT CAST('2020-01-01' AS DATETIME2)", "2020-01-01 00:00:00.0000000");
         }
 
         [Test]
-        public void DateTimeOffsetTest()
+        public async Task DateTimeOffsetTest()
         {
-            ExecuteAndVerifyResult("SELECT CAST('2020-01-01' AS DATETIMEOFFSET)", "2020-01-01 00:00:00.0000000 +00:00");
+            await ExecuteAndVerifyResult("SELECT CAST('2020-01-01' AS DATETIMEOFFSET)", "2020-01-01 00:00:00.0000000 +00:00");
         }
 
         [Test]
-        public void DecimalTest()
+        public async Task DecimalTest()
         {
-            ExecuteAndVerifyResult("SELECT CAST(99999999999999999999999999999999999999 AS DECIMAL(38))", "99999999999999999999999999999999999999");
+            await ExecuteAndVerifyResult("SELECT CAST(99999999999999999999999999999999999999 AS DECIMAL(38))", "99999999999999999999999999999999999999");
         }
 
         [Test]
-        public void FloatTest()
+        public async Task FloatTest()
         {
-            ExecuteAndVerifyResult("SELECT CAST(100.11 AS FLOAT)", "100.11");
+            await ExecuteAndVerifyResult("SELECT CAST(100.11 AS FLOAT)", "100.11");
         }
 
         [Test]
-        public void ImageTest()
+        public async Task ImageTest()
         {
-            ExecuteAndVerifyResult("SELECT CAST('0' AS IMAGE)", "0X30");
+            await ExecuteAndVerifyResult("SELECT CAST('0' AS IMAGE)", "0x30");
         }
 
         [Test]
-        public void IntTest()
+        public async Task IntTest()
         {
-            ExecuteAndVerifyResult("SELECT CAST('100' AS INT)", "100");
+            await ExecuteAndVerifyResult("SELECT CAST('100' AS INT)", "100");
         }
 
         [Test]
-        public void MoneyTest()
+        public async Task MoneyTest()
         {
-            ExecuteAndVerifyResult("SELECT CAST('100' AS MONEY)", "100.00");
+            await ExecuteAndVerifyResult("SELECT CAST('100' AS MONEY)", "100.00");
         }
 
         [Test]
-        public void NCharTest()
+        public async Task NCharTest()
         {
-            ExecuteAndVerifyResult("SELECT CAST(N'测' AS NCHAR(1))", "测");
+            await ExecuteAndVerifyResult("SELECT CAST(N'测' AS NCHAR(1))", "测");
         }
 
         [Test]
-        public void NTextTest()
+        public async Task NTextTest()
         {
-            ExecuteAndVerifyResult("SELECT CAST(N'测试' AS NTEXT)", "测试");
+            await ExecuteAndVerifyResult("SELECT CAST(N'测试' AS NTEXT)", "测试");
         }
 
         [Test]
-        public void NVarCharTest()
+        public async Task NVarCharTest()
         {
-            ExecuteAndVerifyResult("SELECT CAST(N'测试' AS NVARCHAR)", "测试");
+            await ExecuteAndVerifyResult("SELECT CAST(N'测试' AS NVARCHAR)", "测试");
         }
 
         [Test]
-        public void RealTest()
+        public async Task RealTest()
         {
-            ExecuteAndVerifyResult("SELECT CAST(100 AS REAL)", "100");
+            await ExecuteAndVerifyResult("SELECT CAST(100 AS REAL)", "100");
         }
 
         [Test]
-        public void SmallDateTimeTest()
+        public async Task SmallDateTimeTest()
         {
-            ExecuteAndVerifyResult("SELECT CAST('2021-01-01' AS SMALLDATETIME)", "2021-01-01 00:00:00");
+            await ExecuteAndVerifyResult("SELECT CAST('2021-01-01' AS SMALLDATETIME)", "2021-01-01 00:00:00");
         }
 
         [Test]
-        public void SmallIntTest()
+        public async Task SmallIntTest()
         {
-            ExecuteAndVerifyResult("SELECT CAST(100 AS SMALLINT)", "100");
+            await ExecuteAndVerifyResult("SELECT CAST(100 AS SMALLINT)", "100");
         }
 
         [Test]
-        public void SmallMoneyTest()
+        public async Task SmallMoneyTest()
         {
-            ExecuteAndVerifyResult("SELECT CAST(100 AS SMALLMONEY)", "100.00");
+            await ExecuteAndVerifyResult("SELECT CAST(100 AS SMALLMONEY)", "100.00");
         }
 
         [Test]
-        public void TextTest()
+        public async Task TextTest()
         {
-            ExecuteAndVerifyResult("SELECT CAST('abc' AS TEXT)", "abc");
+            await ExecuteAndVerifyResult("SELECT CAST('abc' AS TEXT)", "abc");
         }
 
         [Test]
-        public void TimeTest()
+        public async Task TimeTest()
         {
-            ExecuteAndVerifyResult("SELECT CAST('1:00:00' AS TIME)", "01:00:00.0000000");
+            await ExecuteAndVerifyResult("SELECT CAST('1:00:00.001' AS TIME)", "01:00:00.0010000");
         }
 
         [Test]
-        public void TimestampTest()
+        public async Task TimestampTest()
         {
-            ExecuteAndVerifyResult("SELECT CAST('a' AS TIMESTAMP)", "0x4100000000000000");
+            await ExecuteAndVerifyResult("SELECT CAST('A' AS TIMESTAMP)", "0x4100000000000000");
         }
 
         [Test]
-        public void TinyIntTest()
+        public async Task TinyIntTest()
         {
-            ExecuteAndVerifyResult("SELECT CAST(1 AS TINYINT)", "1");
+            await ExecuteAndVerifyResult("SELECT CAST(1 AS TINYINT)", "1");
         }
 
         [Test]
-        public void UniqueIdentifierTest()
+        public async Task UniqueIdentifierTest()
         {
-            ExecuteAndVerifyResult("SELECT CAST('fbf31d5b-bda2-4907-a50c-5458e95248ae' AS UNIQUEIDENTIFIER)", "FBF31D5B-BDA2-4907-A50C-5458E95248AE");
+            await ExecuteAndVerifyResult("SELECT CAST('fbf31d5b-bda2-4907-a50c-5458e95248ae' AS UNIQUEIDENTIFIER)", "fbf31d5b-bda2-4907-a50c-5458e95248ae");
         }
 
         [Test]
-        public void VarBinaryTest()
+        public async Task VarBinaryTest()
         {
-            ExecuteAndVerifyResult("SELECT CAST('ABCD' AS VARBINARY)", "0x41424344");
+            await ExecuteAndVerifyResult("SELECT CAST('ABCD' AS VARBINARY)", "0x41424344");
         }
 
         [Test]
-        public void VarCharTest()
+        public async Task VarCharTest()
         {
-            ExecuteAndVerifyResult("SELECT CAST('ABCD' AS VARCHAR)", "ABCD");
+            await ExecuteAndVerifyResult("SELECT CAST('ABCD' AS VARCHAR)", "ABCD");
         }
 
         [Test]
-        public void XmlTest()
+        public async Task XmlTest()
         {
-            ExecuteAndVerifyResult("SELECT CAST('<ABC>1234</ABC>' AS XML)", "<ABC>1234</ABC>");
+            await ExecuteAndVerifyResult("SELECT CAST('<ABC>1234</ABC>' AS XML)", "<ABC>1234</ABC>");
         }
 
-        private async void ExecuteAndVerifyResult(string queryText, string expectedValue)
+        private async Task ExecuteAndVerifyResult(string queryText, string expectedValue)
         {
             // Given a connection to a live database
             var result = LiveConnectionHelper.InitLiveConnectionInfo();
