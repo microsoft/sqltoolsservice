@@ -395,13 +395,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         }
 
         /// <summary>
-        /// Nulls out properties in ConnectionDetails that aren't compatible with XElite.
+        /// Replaces properties in ConnectionDetails that aren't compatible with XElite.
         /// </summary>
         private static void RemoveIncompatibleConnectionProperties(ConnectionDetails connDetails){
             connDetails.ConnectRetryCount = null;
             connDetails.ConnectRetryInterval = null;
             connDetails.MultiSubnetFailover = null;
-            //initial catalog must be set to master, otherwise XElite won't function.
+            //initial catalog must be set to master for XElite stream, otherwise it will not function.
             connDetails.DatabaseName = "master";
         }
 
