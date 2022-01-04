@@ -45,6 +45,20 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution.DataSt
         }
 
         /// <summary>
+        /// Validate GetBytesWithMaxCapacity
+        /// </summary>
+        [Test]
+        public void GetLongDecimalTest()
+        {
+            // SQL Server support up to 38 digits of decimal
+            var storageReader = GetTestStorageDataReader(
+                "SELECT 99999999999999999999999999999999999999");
+            storageReader.DbDataReader.Read();
+            var value = storageReader.GetValue(0);
+            Assert.AreEqual("99999999999999999999999999999999999999", value.ToString());
+        }
+
+        /// <summary>
         /// Validate GetCharsWithMaxCapacity
         /// </summary>
         [Test]
@@ -63,7 +77,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution.DataSt
             Assert.True(shortName.Length == 2);
 
             Assert.Throws<ArgumentOutOfRangeException>(() => storageReader.GetBytesWithMaxCapacity(0, 0));
-            Assert.Throws<ArgumentOutOfRangeException>(() => storageReader.GetCharsWithMaxCapacity(0, 0));     
+            Assert.Throws<ArgumentOutOfRangeException>(() => storageReader.GetCharsWithMaxCapacity(0, 0));
         }
 
         /// <summary>
@@ -94,10 +108,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution.DataSt
             writer.Write(output);
             Assert.True(writer.ToString().Equals(output));
             writer.Write('.');
-            Assert.True(writer.ToString().Equals(output + '.'));       
+            Assert.True(writer.ToString().Equals(output + '.'));
             writer.Write(output);
             writer.Write('.');
             Assert.True(writer.ToString().Equals(output + '.'));
-        }       
+        }
     }
 }
