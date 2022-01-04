@@ -395,13 +395,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         }
 
         /// <summary>
-        /// Replaces properties in ConnectionDetails that aren't compatible with XElite.
+        /// Removes properties in ConnectionDetails that aren't compatible with XElite.
         /// </summary>
         private static void RemoveIncompatibleConnectionProperties(ConnectionDetails connDetails){
             connDetails.ConnectRetryCount = null;
             connDetails.ConnectRetryInterval = null;
             connDetails.MultiSubnetFailover = null;
-            //initial catalog must be set to master for XElite stream, otherwise it will not function.
+            // initial catalog must be set to master for XElite to work.
             connDetails.DatabaseName = "master";
         }
 
@@ -444,6 +444,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
             SqlStoreConnection connection = new SqlStoreConnection(sqlConnection);
             BaseXEStore store = CreateXEventStore(connInfo, connection);
+            RemoveIncompatibleConnectionProperties(connInfo.ConnectionDetails);
             Session session = store.Sessions[sessionName];
 
             // session shouldn't already exist
@@ -468,6 +469,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             // create xevent session wrapper
             return new XEventSession()
             {
+                ConnectionDetails = connInfo.ConnectionDetails,
                 Session = store.Sessions[sessionName]
             };
         }

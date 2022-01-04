@@ -249,6 +249,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         {
             if(session.XEventSession != null  && session.XEventSession.Session != null && session.XEventSession.ConnectionDetails != null){
                 CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
+                 //initial catalog must be set to master for XElite stream, otherwise it will not function.
                 var connectionString = ConnectionService.BuildConnectionString(session.XEventSession.ConnectionDetails);
                 var eventStreamer = new XELiveEventStreamer(connectionString, session.XEventSession.Session.Name);
                 // Start streaming task here, will run until cancellation or error with the feed.
