@@ -761,6 +761,8 @@ PauseSessionFailed(String error) = Failed to pause session: {0}
 StopSessionFailed(String error) = Failed to stop session: {0}
 SessionNotFound = Cannot find requested XEvent session
 SessionAlreadyExists(String sessionName) = An XEvent session named {0} already exists
+SessionMissingDetails(int id) = Unable to start streaming session {0} due to missing session details.
+StartProfilingFailed(String error) = Failed to start profiler: {0}
 
 
 ;job categories
