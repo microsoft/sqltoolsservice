@@ -23,6 +23,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
         }
 
         [Test]
+        public async Task SqlVariantTest()
+        {
+            await ExecuteAndVerifyResult("DECLARE @ID sql_variant = 90;select @ID", "90");
+        }
+
+        [Test]
         public async Task BinaryTest()
         {
             await ExecuteAndVerifyResult("SELECT CAST(100 AS BINARY)", "0x000000000000000000000000000000000000000000000000000000000064");
