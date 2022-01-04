@@ -258,7 +258,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 {
                     //If cancellation token is missing, that means stream was stopped by the client, do not notify in this case.
                     CancellationTokenSource targetToken;
-                    if (!monitoredCancellationTokenSources.TryGetValue(id, out targetToken))
+                    if (monitoredCancellationTokenSources.TryGetValue(id, out targetToken))
                     {
                         StopSession(session.XEventSession.Id);
                     }
