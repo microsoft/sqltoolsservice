@@ -8631,6 +8631,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.QueryServiceQueryFailed, message);
         }
 
+        public static string QueryServiceUnsupportedSqlVariantType(string underlyingType, string columnName)
+        {
+            return Keys.GetString(Keys.QueryServiceUnsupportedSqlVariantType, underlyingType, columnName);
+        }
+
         public static string QueryServiceSaveAsFail(string fileName, string message)
         {
             return Keys.GetString(Keys.QueryServiceSaveAsFail, fileName, message);
@@ -8754,16 +8759,6 @@ namespace Microsoft.SqlTools.ServiceLayer
         public static string SessionAlreadyExists(String sessionName)
         {
             return Keys.GetString(Keys.SessionAlreadyExists, sessionName);
-        }
-
-        public static string SessionMissingDetails(int id)
-        {
-            return Keys.GetString(Keys.SessionMissingDetails, id);
-        }
-
-        public static string StartProfilingFailed(String error)
-        {
-            return Keys.GetString(Keys.StartProfilingFailed, error);
         }
 
         public static string UnknownSizeUnit(string unit)
@@ -9019,6 +9014,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string QueryServiceResultSetTooLarge = "QueryServiceResultSetTooLarge";
+
+
+            public const string QueryServiceUnsupportedSqlVariantType = "QueryServiceUnsupportedSqlVariantType";
 
 
             public const string QueryServiceSaveAsResultSetNotComplete = "QueryServiceSaveAsResultSetNotComplete";
@@ -9952,12 +9950,6 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string SessionAlreadyExists = "SessionAlreadyExists";
-
-
-            public const string SessionMissingDetails = "SessionMissingDetails";
-
-
-            public const string StartProfilingFailed = "StartProfilingFailed";
 
 
             public const string CategoryLocal = "CategoryLocal";
