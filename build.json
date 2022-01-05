@@ -9,14 +9,14 @@
   "PackageName": "Microsoft.SqlTools.ServiceLayer",
   "TestProjects": {
     "Microsoft.SqlTools.ServiceLayer.UnitTests": [
-      "net5.0"
+      "net6.0"
     ],
     "Microsoft.Kusto.ServiceLayer.UnitTests": [
-      "net5.0"
+      "net6.0"
     ]
   },
   "Frameworks": [
-    "net5.0"
+    "net6.0"
   ],
   "MainProjects": [
     "Microsoft.SqlTools.Credentials",

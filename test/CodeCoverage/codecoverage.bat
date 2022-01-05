@@ -1,6 +1,6 @@
 SET WORKINGDIR=%~dp0
 SET REPOROOT=%WORKINGDIR%..\..
-SET NET5DIR=net5.0
+SET NET5DIR=net6.0
 SET SQLTOOLSSERVICE_EXE=%REPOROOT%\src\Microsoft.SqlTools.ServiceLayer\bin\Integration\%NET5DIR%\win-x64\MicrosoftSqlToolsServiceLayer.exe
 
 

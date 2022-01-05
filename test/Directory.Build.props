@@ -2,6 +2,6 @@
 	<Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
 
 	<PropertyGroup>
-		<TestProjectsTargetFramework>net5.0</TestProjectsTargetFramework>
+		<TestProjectsTargetFramework>net6.0</TestProjectsTargetFramework>
 	</PropertyGroup>
 </Project>
