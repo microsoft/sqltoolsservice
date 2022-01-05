@@ -32,7 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             {
                 // Set diagnostics logging
                 DacFxUtils utils = new DacFxUtils();
-                utils.SetUpDiagnosticsLogging(this.Parameters.DiagnosticsLogFilePath);
+                utils.SetUpDiagnosticsLogging(this.Parameters.DiagnosticsLogFilePath, this.DacServices);
 
                 this.DacServices.ExportBacpac(this.Parameters.PackageFilePath, this.Parameters.DatabaseName, null, this.CancellationToken);
             }
@@ -40,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             {
                 // Remove the diagnostic tracer for the current operation based on Name:path
                 DacFxUtils utils = new DacFxUtils();
-                utils.RemoveDiagnosticListener(this.Parameters.DiagnosticsLogFilePath);
+                utils.RemoveDiagnosticListener(this.Parameters.DiagnosticsLogFilePath, this.DacServices);
             }
         }
     }

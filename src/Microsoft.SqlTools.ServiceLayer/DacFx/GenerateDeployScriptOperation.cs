@@ -50,10 +50,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 }
 
                 // Set diagnostics logging
-                // utils.SetUpDiagnosticsLogging(this.Parameters.DiagnosticsLogFilePath);
+                utils.SetUpDiagnosticsLogging(this.Parameters.DiagnosticsLogFilePath, this.DacServices);
 
                 //this.Result = this.DacServices.Script(dacpac, this.Parameters.DatabaseName, publishOptions);
-                this.Result = this.DacServices.Script(dacpac, this.Parameters.DatabaseName, publishOptions, this.Parameters.DiagnosticsLogFilePath);
+                this.Result = this.DacServices.Script(dacpac, this.Parameters.DatabaseName, publishOptions);
 
                 // tests don't create a SqlTask, so only add the script when the SqlTask isn't null
                 if (this.SqlTask != null)
@@ -74,7 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             finally
             {
                 // Remove the diagnostic tracer for the current operation based on Name:path
-                // utils.RemoveDiagnosticListener(this.Parameters.DiagnosticsLogFilePath);
+                utils.RemoveDiagnosticListener(this.Parameters.DiagnosticsLogFilePath, this.DacServices);
             }
         }
     }

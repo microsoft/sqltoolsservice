@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// <summary>
         /// Set the diagnostics logging 
         /// </summary>
-        public void SetUpDiagnosticsLogging(string diagPath)
+        public void SetUpDiagnosticsLogging(string diagPath, DacServices dacService)
         {
             if (!string.IsNullOrEmpty(diagPath))
             {
@@ -27,18 +27,18 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
                     // Check if other diagnostic trace listeners exists, remove them from the DacService tracer collection 
                     // This will avoid the same diagnostic listener being added to other operations, and avoid in adding one operation's logs to other log file
-                    for (int i = 0; i < DacServices.DiagnosticTrace.Listeners.Count; i++)
-                    {
-                        if (DacServices.DiagnosticTrace.Listeners[i].GetType().Name == "TextWriterTraceListener")
-                        {
-                            _addedListernerDict.Add(DacServices.DiagnosticTrace.Listeners[i].Name, DacServices.DiagnosticTrace.Listeners[i]);
-                            DacServices.DiagnosticTrace.Listeners.RemoveAt(i);
-                        }
-                    }
+                    //for (int i = 0; i < DacServices.DiagnosticTrace.Listeners.Count; i++)
+                    //{
+                    //    if (DacServices.DiagnosticTrace.Listeners[i].GetType().Name == "TextWriterTraceListener")
+                    //    {
+                    //        _addedListernerDict.Add(DacServices.DiagnosticTrace.Listeners[i].Name, DacServices.DiagnosticTrace.Listeners[i]);
+                    //        DacServices.DiagnosticTrace.Listeners.RemoveAt(i);
+                    //    }
+                    //}
 
                     // Add the Diagnostic Trace listener to the dac service for the current operation
-                    DacServices.DiagnosticTrace.Listeners.Add(textWriteTracerListener);
-                    DacServices.DiagnosticTrace.Switch.Level = SourceLevels.Verbose;
+                    dacService.DiagnosticTrace.Listeners.Add(textWriteTracerListener);
+                    dacService.DiagnosticTrace.Switch.Level = SourceLevels.Verbose;
                 }
                 finally
                 {
@@ -51,18 +51,15 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// Removing the diagnostic tracer from the listener collections
         /// </summary>
         /// <param name="path"></param>
-        public void RemoveDiagnosticListener(string path)
+        public void RemoveDiagnosticListener(string path, DacServices dacService)
         {
             // Remove the listener from the dictionary, if not remove it from the traceListenerCollections
-            if (!_addedListernerDict.Remove(path))
+            for (int i = 0; i < dacService.DiagnosticTrace.Listeners.Count; i++)
             {
-                for (int i = 0; i < DacServices.DiagnosticTrace.Listeners.Count; i++)
+                if (dacService.DiagnosticTrace.Listeners[i].Name == path)
                 {
-                    if (DacServices.DiagnosticTrace.Listeners[i].Name == path)
-                    {
-                        DacServices.DiagnosticTrace.Listeners.RemoveAt(i);
-                        break;
-                    }
+                    dacService.DiagnosticTrace.Listeners.RemoveAt(i);
+                    break;
                 }
             }
         }
