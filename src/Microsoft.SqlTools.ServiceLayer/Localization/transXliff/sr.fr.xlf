@@ -5696,11 +5696,17 @@
         <target state="translated">Spécifie si la contrainte de vérification est activée</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="QueryServiceUnsupportedSqlVariantType">
-        <source>The underlying type "{0}" for sql variant column "{1}" could not be resolved.</source>
-        <target state="translated">Le type sous-jacent "{0}" pour la variante sql de la colonne "{1}" n'a pas pu être résolu.</target>
+      <trans-unit id="SessionMissingDetails">
+        <source>Unable to start streaming session {0} due to missing session details.</source>
+        <target state="translated">Impossible de démarrer la session de streaming {0} en raison de l’absence de détails sur la session</target>
         <note>.
- Parameters: 0 - underlyingType (string), 1 - columnName (string) </note>
+ Parameters: 0 - id (int) </note>
+      </trans-unit>
+      <trans-unit id="StartProfilingFailed">
+        <source>Failed to start profiler: {0}</source>
+        <target state="translated">Échec du démarrage du profileur : {0}</target>
+        <note>.
+ Parameters: 0 - error (String) </note>
       </trans-unit>
     </body>
   </file>

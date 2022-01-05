@@ -8631,6 +8631,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.QueryServiceQueryFailed, message);
         }
 
+        public static string QueryServiceUnsupportedSqlVariantType(string underlyingType, string columnName)
+        {
+            return Keys.GetString(Keys.QueryServiceUnsupportedSqlVariantType, underlyingType, columnName);
+        }
+
         public static string QueryServiceSaveAsFail(string fileName, string message)
         {
             return Keys.GetString(Keys.QueryServiceSaveAsFail, fileName, message);
@@ -9009,6 +9014,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string QueryServiceResultSetTooLarge = "QueryServiceResultSetTooLarge";
+
+
+            public const string QueryServiceUnsupportedSqlVariantType = "QueryServiceUnsupportedSqlVariantType";
 
 
             public const string QueryServiceSaveAsResultSetNotComplete = "QueryServiceSaveAsResultSetNotComplete";

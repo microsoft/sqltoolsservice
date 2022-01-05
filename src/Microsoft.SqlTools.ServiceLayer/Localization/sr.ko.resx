@@ -3499,7 +3499,10 @@
   <data name="CheckConstraintIsEnabledDescription" xml:space="preserve">
     <value>CHECK 제약 조건을 사용할지 여부를 지정합니다.</value>
   </data>
-  <data name="QueryServiceUnsupportedSqlVariantType" xml:space="preserve">
-    <value>SQL 변형 열 "{1}"의 기본 유형 "{0}"을(를) 확인할 수 없습니다.</value>
+  <data name="SessionMissingDetails" xml:space="preserve">
+    <value>세션 세부 정보가 누락되어 스트리밍 세션 {0}을(를) 시작할 수 없습니다.</value>
+  </data>
+  <data name="StartProfilingFailed" xml:space="preserve">
+    <value>프로파일러 시작 실패: {0}</value>
   </data>
 </root>

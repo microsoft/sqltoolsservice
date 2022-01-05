@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlTypes;
 using System.IO;
 using System.Text;
@@ -39,6 +40,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         private readonly Stream fileStream;
 
         private readonly Dictionary<Type, ReadMethod> readMethods;
+
+        private readonly Dictionary<SqlDbType, Type> sqlDBTypeMap;
 
         #endregion
 
@@ -98,6 +101,37 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 {typeof(SqlGuid),        (o, id, col) => ReadGuid(o, id)},
                 {typeof(SqlMoney),       (o, id, col) => ReadMoney(o, id)},
             };
+
+            sqlDBTypeMap = new Dictionary<SqlDbType, Type> {
+                {SqlDbType.BigInt, typeof(SqlInt64)},
+                {SqlDbType.Binary, typeof(SqlBinary)},
+                {SqlDbType.Bit, typeof(SqlBoolean)},
+                {SqlDbType.Char, typeof(SqlString)},
+                {SqlDbType.Date, typeof(SqlDateTime)},
+                {SqlDbType.DateTime, typeof(SqlDateTime)},
+                {SqlDbType.DateTime2, typeof(SqlDateTime)},
+                {SqlDbType.DateTimeOffset, typeof(DateTimeOffset)},
+                {SqlDbType.Decimal, typeof(SqlDecimal)},
+                {SqlDbType.Float, typeof(SqlDouble)},
+                {SqlDbType.Image, typeof(SqlBinary)},
+                {SqlDbType.Int, typeof(SqlInt32)},
+                {SqlDbType.Money, typeof(SqlMoney)},
+                {SqlDbType.NChar, typeof(SqlString)},
+                {SqlDbType.NText, typeof(SqlString)},
+                {SqlDbType.NVarChar, typeof(SqlString)},
+                {SqlDbType.Real, typeof(SqlSingle)},
+                {SqlDbType.SmallDateTime, typeof(SqlDateTime)},
+                {SqlDbType.SmallInt, typeof(SqlInt16)},
+                {SqlDbType.SmallMoney, typeof(SqlMoney)},
+                {SqlDbType.Text, typeof(SqlString)},
+                {SqlDbType.Time, typeof(TimeSpan)},
+                {SqlDbType.Timestamp, typeof(SqlBinary)},
+                {SqlDbType.TinyInt, typeof(SqlByte)},
+                {SqlDbType.UniqueIdentifier, typeof(SqlGuid)},
+                {SqlDbType.VarBinary, typeof(SqlBinary)},
+                {SqlDbType.VarChar, typeof(SqlString)},
+                {SqlDbType.Xml, typeof(SqlString)}
+            };
         }
 
         #region IFileStreamStorage Implementation
@@ -134,19 +168,25 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                         continue;
                     }
 
-                    // The typename is stored in the string
-                    colType = Type.GetType(sqlVariantType);
-
-                    // Workaround .NET bug, see sqlbu# 440643 and vswhidbey# 599834
-                    // TODO: Is this workaround necessary for .NET Core?
-                    if (colType == null && sqlVariantType == "System.Data.SqlTypes.SqlSingle")
+                    // We need to specify the assembly name for SQL types in order to resolve the type correctly.
+                    if (sqlVariantType.StartsWith("System.Data.SqlTypes."))
                     {
-                        colType = typeof(SqlSingle);
+                        sqlVariantType = sqlVariantType + ", System.Data.Common";
+                    }
+                    colType = Type.GetType(sqlVariantType);
+                    if (colType == null)
+                    {
+                        throw new ArgumentException(SR.QueryServiceUnsupportedSqlVariantType(sqlVariantType, column.ColumnName));
                     }
                 }
                 else
                 {
-                    colType = column.DataType;
+                    Type type;
+                    if (!sqlDBTypeMap.TryGetValue(column.SqlDbType, out type))
+                    {
+                        type = typeof(SqlString);
+                    }
+                    colType = type;
                 }
 
                 // Use the right read function for the type to read the data from the file

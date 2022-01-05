@@ -3499,7 +3499,10 @@
   <data name="CheckConstraintIsEnabledDescription" xml:space="preserve">
     <value>Especifica se a restrição de verificação está habilitada</value>
   </data>
-  <data name="QueryServiceUnsupportedSqlVariantType" xml:space="preserve">
-    <value>O tipo subjacente "{0}" para a coluna sql variant "{1}" não pôde ser resolvido.</value>
+  <data name="SessionMissingDetails" xml:space="preserve">
+    <value>Não é possível iniciar a sessão de streaming {0} devido à falta de detalhes da sessão.</value>
+  </data>
+  <data name="StartProfilingFailed" xml:space="preserve">
+    <value>Falha ao iniciar o criador de perfil: {0}</value>
   </data>
 </root>
