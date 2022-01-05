@@ -203,7 +203,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         switch (colPropertyName)
                         {
                             case TableColumnPropertyNames.Name:
-                                table.Columns.Items[colIndex].Name = requestParams.TableChangeInfo.Value as string;
+                                table.Columns.Items[colIndex].Delete();
+                                // table.Columns.Items[colIndex].Name = requestParams.TableChangeInfo.Value as string;
                                 break;
                             case TableColumnPropertyNames.Length:
                                 table.Columns.Items[colIndex].Length = requestParams.TableChangeInfo.Value as string;
