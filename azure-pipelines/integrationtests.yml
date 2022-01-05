@@ -31,7 +31,7 @@ steps:
     inputs:
       SourceFolder: '$(Agent.TempDirectory)'
       Contents: '**\testsettings.json'
-      TargetFolder: '$(Build.SourcesDirectory)\test\Microsoft.SqlTools.ServiceLayer.IntegrationTests\bin\Debug\net5.0'
+      TargetFolder: '$(Build.SourcesDirectory)\test\Microsoft.SqlTools.ServiceLayer.IntegrationTests\bin\Debug\net6.0'
 
   - task: DotNetCoreCLI@2
     displayName: 'Run integration tests'
