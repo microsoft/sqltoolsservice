@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFramework>$(TestProjectsTargetFramework)</TargetFramework>
     <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
-		<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+    <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
     <EnableDefaultNoneItems>false</EnableDefaultNoneItems>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <DefineConstants>$(DefineConstants);NETCOREAPP1_0;TRACE</DefineConstants>
