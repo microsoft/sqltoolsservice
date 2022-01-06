@@ -35,6 +35,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public string Message { get; set; }
 
         /// <summary>
+        /// Whether or not this message indicates the completion of a statement
+        /// </summary>
+        public bool? IsStatementCompleted { get; set; }
+
+        /// <summary>
         /// Constructor with default "Now" time
         /// </summary>
         public ResultMessage(string message, bool isError, int? batchId)
@@ -44,6 +49,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
             Time = DateTime.Now.ToString("o");
             Message = message;
         }
+
+        /// <summary>
+        /// Constructor with flag to indicate query statement completed
+        /// </summary>
+        public ResultMessage(string message, bool isError, int? batchId, bool isStatementCompleted)
+        {
+            BatchId = batchId;
+            IsError = isError;
+            Time = DateTime.Now.ToString("o");
+            Message = message;
+            IsStatementCompleted = isStatementCompleted;
+        }
+
 
         /// <summary>
         /// Default constructor, used for deserializing JSON RPC only
