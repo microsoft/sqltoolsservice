@@ -2,6 +2,7 @@
 	<PropertyGroup>
 		<TargetFramework>$(TestProjectsTargetFramework)</TargetFramework>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
 		<DebugType>portable</DebugType>
 		<AssemblyName>Microsoft.SqlTools.ServiceLayer.PerfTests</AssemblyName>
 		<OutputType>Exe</OutputType>

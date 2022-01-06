@@ -3,6 +3,7 @@
     <TargetFramework>$(TestProjectsTargetFramework)</TargetFramework>
     <DebugType>portable</DebugType>
     <AssemblyName>Microsoft.SqlTools.ServiceLayer.TestDriver.Tests</AssemblyName>
+    <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
     <OutputType>Exe</OutputType>
     <PackageId>Microsoft.SqlTools.ServiceLayer.TestDriver.Tests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>

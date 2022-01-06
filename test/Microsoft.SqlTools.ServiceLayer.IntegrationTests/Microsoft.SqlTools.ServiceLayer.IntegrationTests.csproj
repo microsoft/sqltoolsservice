@@ -4,6 +4,7 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <DebugType>portable</DebugType>
     <AssemblyName>Microsoft.SqlTools.ServiceLayer.IntegrationTests</AssemblyName>
+    <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
     <PackageId>Microsoft.SqlTools.ServiceLayer.IntegrationTests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <DefineConstants>$(DefineConstants);TRACE</DefineConstants>

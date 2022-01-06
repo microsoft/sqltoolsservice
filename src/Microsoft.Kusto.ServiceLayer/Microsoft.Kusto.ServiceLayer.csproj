@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>$(ServiceLayerTargetFramework)</TargetFramework>
+    <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
     <AssemblyName>MicrosoftKustoServiceLayer</AssemblyName>
     <OutputType>Exe</OutputType>
     <EnableDefaultItems>false</EnableDefaultItems>
