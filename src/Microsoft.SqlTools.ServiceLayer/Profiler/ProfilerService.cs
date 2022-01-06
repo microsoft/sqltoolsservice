@@ -401,8 +401,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             connDetails.ConnectRetryCount = null;
             connDetails.ConnectRetryInterval = null;
             connDetails.MultiSubnetFailover = null;
-            // initial catalog must be set to master for XElite to work.
-            connDetails.DatabaseName = "master";
         }
 
         /// <summary>

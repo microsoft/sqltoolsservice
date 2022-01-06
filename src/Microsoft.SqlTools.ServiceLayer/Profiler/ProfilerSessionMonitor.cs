@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.XEvent.XELite;
+using System.Text.RegularExpressions;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
 
@@ -251,6 +252,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
                  //initial catalog must be set to master for XElite stream, otherwise it will not function.
                 var connectionString = ConnectionService.BuildConnectionString(session.XEventSession.ConnectionDetails);
+                connectionString = Regex.Replace(connectionString, "Initial Catalog\\=[a-zA-Z0-9]+;", "Initial Catalog=master;");
                 var eventStreamer = new XELiveEventStreamer(connectionString, session.XEventSession.Session.Name);
                 // Start streaming task here, will run until cancellation or error with the feed.
                 var task = eventStreamer.ReadEventStream(xEvent => HandleXEvent(xEvent, session), threadCancellationToken.Token);
