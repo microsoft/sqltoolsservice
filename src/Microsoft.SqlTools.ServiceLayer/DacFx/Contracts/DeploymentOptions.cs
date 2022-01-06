@@ -213,6 +213,33 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
                 ObjectType.AssemblyFiles,
         };
 
+        public bool AllowExternalLibraryPaths { get; set; }
+
+        public bool AllowExternalLanguagePaths { get; set; }
+
+        public bool DoNotEvaluateSqlCmdVariables { get; set; }
+
+        public bool DisableParallelismForEnablingIndexes { get; set; }
+
+        public bool DoNotDropWorkloadClassifiers { get; set; }
+
+        public bool DisableIndexesForDataPhase { get; set; }
+
+        public bool DoNotDropDatabaseWorkloadGroups { get; set; }
+
+        public bool HashObjectNamesInLogs { get; set; }
+
+        public bool IgnoreWorkloadClassifiers { get; set; }
+
+        public bool IgnoreDatabaseWorkloadGroups { get; set; }
+
+        public bool IsAlwaysEncryptedParameterizationEnabled { get; set; }
+
+        public bool PreserveIdentityLastValues { get; set; }
+
+        public bool RestoreSequenceCurrentValue { get; set; }
+
+        public bool RebuildIndexesOfflineForDataPhase { get; set; }
         #endregion
 
         public DeploymentOptions()
