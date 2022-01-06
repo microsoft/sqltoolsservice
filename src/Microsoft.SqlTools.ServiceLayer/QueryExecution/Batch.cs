@@ -636,6 +636,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             await BatchMessageSent(new ResultMessage(message, isError, Id));
         }
 
+        private async Task SendStatementCompleteMessage(string message, bool isError)
+        {
+            // If the message event is null, this is a no-op
+            if (BatchMessageSent == null)
+            {
+                return;
+            }
+
+            // State that we've sent any message, and send it
+            messagesSent = true;
+            await BatchMessageSent(new ResultMessage(message, isError, Id, true));
+        }
+
         /// <summary>
         /// Handler for when the StatementCompleted event is fired for this batch's command. This
         /// will be executed ONLY when there is a rowcount to report. If this event is not fired
@@ -649,7 +662,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             string message = args.RecordCount == 1
                 ? SR.QueryServiceAffectedOneRow
                 : SR.QueryServiceAffectedRows(args.RecordCount);
-            SendMessage(message, false).Wait();
+            SendStatementCompleteMessage(message, false).Wait();
         }
 
         /// <summary>
