@@ -251,6 +251,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             if(session.XEventSession != null  && session.XEventSession.Session != null && session.XEventSession.ConnectionDetails != null){
                 CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
                  //initial catalog must be set to master for XElite stream, otherwise it will not function.
+                 //XElite stream is currently not supported on Azure Databases as read event stream is not available on them.
                 var connectionString = ConnectionService.BuildConnectionString(session.XEventSession.ConnectionDetails);
                 connectionString = Regex.Replace(connectionString, "Initial Catalog\\=[a-zA-Z0-9]+;", "Initial Catalog=master;");
                 var eventStreamer = new XELiveEventStreamer(connectionString, session.XEventSession.Session.Name);
