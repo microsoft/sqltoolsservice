@@ -8,14 +8,18 @@ using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 {
+    public class PublishTableChangesResponse
+    {
+    }
+
     /// <summary>
-    /// The service request to generate report for the changes.
+    /// The service request to publish the changes.
     /// </summary>
-    public class GenerateReportRequest
+    public class PublishTableChangesRequest
     {
         /// <summary>
         /// Request definition
         /// </summary>
-        public static readonly RequestType<TableInfo, string> Type = RequestType<TableInfo, string>.Create("tabledesigner/report");
+        public static readonly RequestType<TableInfo, PublishTableChangesResponse> Type = RequestType<TableInfo, PublishTableChangesResponse>.Create("tabledesigner/publish");
     }
 }
