@@ -53,9 +53,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             this.ServiceHost = serviceHost;
             this.ServiceHost.SetRequestHandler(InitializeTableDesignerRequest.Type, HandleInitializeTableDesignerRequest);
             this.ServiceHost.SetRequestHandler(ProcessTableDesignerEditRequest.Type, HandleProcessTableDesignerEditRequest);
-            this.ServiceHost.SetRequestHandler(SaveTableChangesRequest.Type, HandleSaveTableChangesRequest);
+            this.ServiceHost.SetRequestHandler(PublishTableChangesRequest.Type, HandlePublishTableChangesRequest);
             this.ServiceHost.SetRequestHandler(GenerateScriptRequest.Type, HandleGenerateScriptRequest);
-            this.ServiceHost.SetRequestHandler(GenerateReportRequest.Type, HandleGenerateReportRequest);
+            this.ServiceHost.SetRequestHandler(GeneratePreviewReportRequest.Type, HandleGeneratePreviewReportRequest);
             this.ServiceHost.SetRequestHandler(DisposeTableDesignerRequest.Type, HandleDisposeTableDesignerRequest);
         }
         private Task HandleRequest<T>(RequestContext<T> requestContext, Func<Task> action)
@@ -124,13 +124,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             });
         }
 
-        private Task HandleSaveTableChangesRequest(TableInfo tableInfo, RequestContext<SaveTableChangesResponse> requestContext)
+        private Task HandlePublishTableChangesRequest(TableInfo tableInfo, RequestContext<PublishTableChangesResponse> requestContext)
         {
-            return this.HandleRequest<SaveTableChangesResponse>(requestContext, async () =>
+            return this.HandleRequest<PublishTableChangesResponse>(requestContext, async () =>
             {
                 var tableDesigner = this.GetTableDesigner(tableInfo);
                 tableDesigner.CommitChanges();
-                await requestContext.SendResult(new SaveTableChangesResponse());
+                await requestContext.SendResult(new PublishTableChangesResponse());
             });
         }
 
@@ -144,7 +144,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             });
         }
 
-        private Task HandleGenerateReportRequest(TableInfo tableInfo, RequestContext<string> requestContext)
+        private Task HandleGeneratePreviewReportRequest(TableInfo tableInfo, RequestContext<string> requestContext)
         {
             return this.HandleRequest<string>(requestContext, async () =>
             {
