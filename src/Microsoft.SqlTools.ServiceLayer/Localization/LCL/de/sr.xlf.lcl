@@ -8731,15 +8731,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";SessionMissingDetails" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Unable to start streaming session {0} due to missing session details.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Die Streamingsitzung {0} kann aufgrund fehlender Sitzungsdetails nicht gestartet werden.]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";SessionNotFound" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Cannot find requested XEvent session]]></Val>
@@ -9177,15 +9168,6 @@
           <Val><![CDATA[The job schedule starting date cannot be greater than the ending date.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Das Startdatum für den Auftragszeitplan kann nicht nach dem Enddatum liegen.]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";StartProfilingFailed" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Failed to start profiler: {0}]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Fehler beim Starten vom Profiler: {0}]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
