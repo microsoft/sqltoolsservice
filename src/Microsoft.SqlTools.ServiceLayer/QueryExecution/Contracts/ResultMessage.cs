@@ -37,7 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// <summary>
         /// Whether or not this message indicates the completion of a statement
         /// </summary>
-        public bool? IsStatementCompleted { get; set; }
+        public bool? HasRowCount { get; set; }
 
         /// <summary>
         /// Constructor with default "Now" time
@@ -53,13 +53,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// <summary>
         /// Constructor with flag to indicate query statement completed
         /// </summary>
-        public ResultMessage(string message, bool isError, int? batchId, bool isStatementCompleted)
+        public ResultMessage(string message, bool isError, int? batchId, bool? hasRowCount)
         {
             BatchId = batchId;
             IsError = isError;
             Time = DateTime.Now.ToString("o");
             Message = message;
-            IsStatementCompleted = isStatementCompleted;
+            HasRowCount = hasRowCount;
         }
 
 
