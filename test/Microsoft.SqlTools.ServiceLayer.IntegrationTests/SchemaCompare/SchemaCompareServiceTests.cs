@@ -1827,12 +1827,30 @@ WITH VALUES
                 DeploymentOptions = new DeploymentOptions()
                 {
                     // change some random ones explicitly
-                    AllowDropBlockingAssemblies = true,
-                    DropConstraintsNotInSource = true,
-                    IgnoreAnsiNulls = true,
-                    NoAlterStatementsToChangeClrTypes = false,
-                    PopulateFilesOnFileGroups = false,
-                    VerifyDeployment = false,
+                    AllowDropBlockingAssemblies = new DeploymentOptionsProps
+                    {
+                        value = true
+                    },
+                    DropConstraintsNotInSource = new DeploymentOptionsProps
+                    {
+                        value = true
+                    },
+                    IgnoreAnsiNulls = new DeploymentOptionsProps
+                    {
+                        value = true
+                    },
+                    NoAlterStatementsToChangeClrTypes = new DeploymentOptionsProps
+                    {
+                        value = false
+                    },
+                    PopulateFilesOnFileGroups = new DeploymentOptionsProps
+                    {
+                        value = false
+                    },
+                    VerifyDeployment = new DeploymentOptionsProps
+                    {
+                        value = false
+                    },
                 },
                 ScmpFilePath = filePath,
                 ExcludedSourceObjects = schemaCompareObjectIds,

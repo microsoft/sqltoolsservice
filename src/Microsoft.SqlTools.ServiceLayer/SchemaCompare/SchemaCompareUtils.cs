@@ -32,7 +32,24 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 var prop = dacOptions.GetType().GetProperty(deployOptionsProp.Name);
                 if (prop != null)
                 {
-                    prop.SetValue(dacOptions, deployOptionsProp.GetValue(deploymentOptions));
+                    var optionVal = deployOptionsProp.GetValue(deploymentOptions);
+                    if (deployOptionsProp.Name == "DoNotDropObjectTypes" || deployOptionsProp.Name == "ExcludeObjectTypes")
+                    {
+                        prop.SetValue(dacOptions, optionVal);
+                    }
+                    else
+                    {
+                        // Get value of the DeploymentOptionsProps option value property
+                        var value = ((DeploymentOptionsProps)optionVal).value;
+                        
+                        // Convert Int64 to Int32
+                        if (value != null && value.GetType() == typeof(System.Int64))
+                        {
+                            value = Convert.ToInt32(value);
+                        }
+
+                        prop.SetValue(dacOptions, value);
+                    }
                 }
             }
             return dacOptions;

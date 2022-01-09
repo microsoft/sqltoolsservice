@@ -587,7 +587,7 @@ FROM MissingEdgeHubInputStream'";
                     UpgradeExisting = true,
                     DeploymentOptions = new DeploymentOptions()
                     {
-                        DropObjectsNotInSource = false,
+                        DropObjectsNotInSource = new DeploymentOptionsProps { value = false },
                         ExcludeObjectTypes = new[] { ObjectType.Views }
                     }
                 };
@@ -665,7 +665,10 @@ FROM MissingEdgeHubInputStream'";
                     DatabaseName = targetDb.DatabaseName,
                     DeploymentOptions = new DeploymentOptions()
                     {
-                        DropObjectsNotInSource = false,
+                        DropObjectsNotInSource = new DeploymentOptionsProps
+                        {
+                            value = false
+                        },
                         ExcludeObjectTypes = new[] { ObjectType.Views }
                     }
                 };
@@ -683,7 +686,10 @@ FROM MissingEdgeHubInputStream'";
                     DatabaseName = targetDb.DatabaseName,
                     DeploymentOptions = new DeploymentOptions()
                     {
-                        DropObjectsNotInSource = true,
+                        DropObjectsNotInSource = new DeploymentOptionsProps
+                        {
+                            value = true
+                        },
                         ExcludeObjectTypes = new[] { ObjectType.Views }
                     }
                 };
@@ -728,9 +734,9 @@ FROM MissingEdgeHubInputStream'";
             DeploymentOptions expectedResults = DeploymentOptions.GetDefaultPublishOptions();
 
             expectedResults.ExcludeObjectTypes = null;
-            expectedResults.IncludeCompositeObjects = true;
-            expectedResults.BlockOnPossibleDataLoss = true;
-            expectedResults.AllowIncompatiblePlatform = true;
+            expectedResults.IncludeCompositeObjects = new DeploymentOptionsProps { value = true };
+            expectedResults.BlockOnPossibleDataLoss = new DeploymentOptionsProps { value = true };
+            expectedResults.AllowIncompatiblePlatform = new DeploymentOptionsProps { value = true };
 
             var dacfxRequestContext = new Mock<RequestContext<DacFxOptionsResult>>();
             dacfxRequestContext.Setup((RequestContext<DacFxOptionsResult> x) => x.SendResult(It.Is<DacFxOptionsResult>((result) => ValidateOptions(expectedResults, result.DeploymentOptions) == true))).Returns(Task.FromResult(new object()));
