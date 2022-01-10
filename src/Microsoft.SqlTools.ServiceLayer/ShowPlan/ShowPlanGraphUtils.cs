@@ -50,30 +50,37 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
             };
         }
 
-        private static List<ExecutionPlanGraphElementProperties> GetProperties(PropertyDescriptorCollection props)
+        private static List<ExecutionPlanGraphPropertyBase> GetProperties(PropertyDescriptorCollection props)
         {
-            List<ExecutionPlanGraphElementProperties> propsList = new List<ExecutionPlanGraphElementProperties>();
+            List<ExecutionPlanGraphPropertyBase> propsList = new List<ExecutionPlanGraphPropertyBase>();
             foreach (PropertyValue prop in props)
             {
-                object propertyValue = null;
                 var complexProperty = prop.Value as Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph.ExpandableObjectWrapper;
                 if (complexProperty == null)
                 {
-                    propertyValue = prop.DisplayValue;
-
+                    var propertyValue = prop.DisplayValue;
+                    propsList.Add(new ExecutionPlanGraphProperty()
+                    {
+                        Name = prop.DisplayName,
+                        Value = propertyValue,
+                        ShowInTooltip = prop.IsBrowsable,
+                        DisplayOrder = prop.DisplayOrder,
+                        IsLongString = prop.IsLongString,
+                    });
                 }
                 else
                 {
-                    propertyValue = GetProperties(complexProperty.Properties);
+                    var propertyValue = GetProperties(complexProperty.Properties);
+                    propsList.Add(new NestedExecutionPlanGraphProperty()
+                    {
+                        Name = prop.DisplayName,
+                        Value = propertyValue,
+                        ShowInTooltip = prop.IsBrowsable,
+                        DisplayOrder = prop.DisplayOrder,
+                        IsLongString = prop.IsLongString,
+                    });
                 }
-                propsList.Add(new ExecutionPlanGraphElementProperties()
-                {
-                    Name = prop.DisplayName,
-                    Value = propertyValue,
-                    ShowInTooltip = prop.IsBrowsable,
-                    DisplayOrder = prop.DisplayOrder,
-                    IsLongString = prop.IsLongString,
-                });
+
             }
             return propsList;
         }

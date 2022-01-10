@@ -47,7 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
         /// <summary>
         /// Node properties to be shown in the tooltip
         /// </summary>
-        public List<ExecutionPlanGraphElementProperties> Properties { get; set; }
+        public List<ExecutionPlanGraphPropertyBase> Properties { get; set; }
         /// <summary>
         /// Display name for the node
         /// </summary>
@@ -64,16 +64,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
         public List<ExecutionPlanEdges> Edges { get; set; }
     }
 
-    public class ExecutionPlanGraphElementProperties
+    public class ExecutionPlanGraphPropertyBase
     {
         /// <summary>
         /// Name of the property
         /// </summary>
         public string Name { get; set; }
-        /// <summary>
-        /// Formatted value for the property. In case of nested properties, it can an array of ExecutionPlanGraphElementProperties
-        /// </summary>
-        public object Value { get; set; }
         /// <summary>
         /// Flag to show/hide props in tooltip
         /// </summary>
@@ -86,6 +82,22 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
         /// Flag to indicate if the property has a longer value so that it will be shown at the bottom of the tooltip
         /// </summary>
         public bool IsLongString { get; set; }
+    }
+
+    public class NestedExecutionPlanGraphProperty: ExecutionPlanGraphPropertyBase
+    {
+         /// <summary>
+        /// Formatted value for the property. In case of nested properties, it can an array of ExecutionPlanGraphElementProperties
+        /// </summary>
+        public List<ExecutionPlanGraphPropertyBase> Value { get; set; }
+    }
+
+    public class ExecutionPlanGraphProperty : ExecutionPlanGraphPropertyBase
+    {
+        /// <summary>
+        /// Formatted value for the property. In case of nested properties, it can an array of ExecutionPlanGraphElementProperties
+        /// </summary>
+        public string Value { get; set; }
     }
 
     public class ExecutionPlanEdges
@@ -103,6 +115,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
         /// Edge properties to be shown in the tooltip.
         /// </summary>
         /// <value></value>
-        public List<ExecutionPlanGraphElementProperties> Properties { get; set; }
+        public List<ExecutionPlanGraphPropertyBase> Properties { get; set; }
     }
 }
