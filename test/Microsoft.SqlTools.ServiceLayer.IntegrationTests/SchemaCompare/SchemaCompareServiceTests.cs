@@ -1851,6 +1851,10 @@ WITH VALUES
                     {
                         value = false
                     },
+                    DisableIndexesForDataPhase = new DeploymentOptionsProps
+                    {
+                        value = false
+                    }
                 },
                 ScmpFilePath = filePath,
                 ExcludedSourceObjects = schemaCompareObjectIds,

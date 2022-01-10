@@ -858,7 +858,9 @@ Streaming query statement contains a reference to missing output stream 'Missing
                 }
                 else
                 {
-                    Assert.True((defaultP == null && actualP == null) || (defaultP == null && (actualP as string) == string.Empty) || defaultP.Equals(actualP), $"Actual Property from Service is not equal to default property for {v.Name}, Actual value: {actualP} and Default value: {defaultP}");
+                    Assert.True((defaultP == null && actualP == null) || (defaultP == null && (actualP as string) == string.Empty) || defaultP.Equals(actualP) 
+                        || ((DeploymentOptionsProps)actualP).value == null && ((DeploymentOptionsProps)defaultP).value == null
+                        ||((DeploymentOptionsProps)actualP).value.Equals(((DeploymentOptionsProps)actualP).value), $"Actual Property from Service is not equal to default property for {v.Name}, Actual value: {actualP} and Default value: {defaultP}");
                 }
             }
 
