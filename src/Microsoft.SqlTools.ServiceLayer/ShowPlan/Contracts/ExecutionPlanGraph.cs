@@ -86,8 +86,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
 
     public class NestedExecutionPlanGraphProperty: ExecutionPlanGraphPropertyBase
     {
-         /// <summary>
-        /// Formatted value for the property. In case of nested properties, it can an array of ExecutionPlanGraphElementProperties
+        /// <summary>
+        /// In case of nested properties, the value field is a list of properties. 
         /// </summary>
         public List<ExecutionPlanGraphPropertyBase> Value { get; set; }
     }
@@ -95,7 +95,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
     public class ExecutionPlanGraphProperty : ExecutionPlanGraphPropertyBase
     {
         /// <summary>
-        /// Formatted value for the property. In case of nested properties, it can an array of ExecutionPlanGraphElementProperties
+        /// Formatted value for the property
         /// </summary>
         public string Value { get; set; }
     }
