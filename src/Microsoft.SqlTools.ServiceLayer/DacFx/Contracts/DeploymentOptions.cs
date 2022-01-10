@@ -14,7 +14,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// <summary>
     /// Class to define deployment option default value and the description
     /// </summary>
-    public class DeploymentOptionsProps
+    public class DeploymentOptionProps
     {
         public object value { get; set; }
         public string description { get; set; } = string.Empty;
@@ -28,171 +28,171 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     {
         #region Properties
 
-        public DeploymentOptionsProps IgnoreTableOptions { get; set; }
+        public DeploymentOptionProps IgnoreTableOptions { get; set; }
 
-        public DeploymentOptionsProps IgnoreSemicolonBetweenStatements { get; set; }
+        public DeploymentOptionProps IgnoreSemicolonBetweenStatements { get; set; }
 
-        public DeploymentOptionsProps IgnoreRouteLifetime { get; set; }
+        public DeploymentOptionProps IgnoreRouteLifetime { get; set; }
 
-        public DeploymentOptionsProps IgnoreRoleMembership { get; set; }
+        public DeploymentOptionProps IgnoreRoleMembership { get; set; }
 
-        public DeploymentOptionsProps IgnoreQuotedIdentifiers { get; set; }
+        public DeploymentOptionProps IgnoreQuotedIdentifiers { get; set; }
 
-        public DeploymentOptionsProps IgnorePermissions { get; set; }
+        public DeploymentOptionProps IgnorePermissions { get; set; }
 
-        public DeploymentOptionsProps IgnorePartitionSchemes { get; set; }
+        public DeploymentOptionProps IgnorePartitionSchemes { get; set; }
 
-        public DeploymentOptionsProps IgnoreObjectPlacementOnPartitionScheme { get; set; }
+        public DeploymentOptionProps IgnoreObjectPlacementOnPartitionScheme { get; set; }
 
-        public DeploymentOptionsProps IgnoreNotForReplication { get; set; }
+        public DeploymentOptionProps IgnoreNotForReplication { get; set; }
 
-        public DeploymentOptionsProps IgnoreLoginSids { get; set; }
+        public DeploymentOptionProps IgnoreLoginSids { get; set; }
 
-        public DeploymentOptionsProps IgnoreLockHintsOnIndexes { get; set; }
+        public DeploymentOptionProps IgnoreLockHintsOnIndexes { get; set; }
 
-        public DeploymentOptionsProps IgnoreKeywordCasing { get; set; }
+        public DeploymentOptionProps IgnoreKeywordCasing { get; set; }
 
-        public DeploymentOptionsProps IgnoreIndexPadding { get; set; }
+        public DeploymentOptionProps IgnoreIndexPadding { get; set; }
 
-        public DeploymentOptionsProps IgnoreIndexOptions { get; set; }
+        public DeploymentOptionProps IgnoreIndexOptions { get; set; }
 
-        public DeploymentOptionsProps IgnoreIncrement { get; set; }
+        public DeploymentOptionProps IgnoreIncrement { get; set; }
 
-        public DeploymentOptionsProps IgnoreIdentitySeed { get; set; }
+        public DeploymentOptionProps IgnoreIdentitySeed { get; set; }
 
-        public DeploymentOptionsProps IgnoreUserSettingsObjects { get; set; }
+        public DeploymentOptionProps IgnoreUserSettingsObjects { get; set; }
 
-        public DeploymentOptionsProps IgnoreFullTextCatalogFilePath { get; set; }
+        public DeploymentOptionProps IgnoreFullTextCatalogFilePath { get; set; }
 
-        public DeploymentOptionsProps IgnoreWhitespace { get; set; }
+        public DeploymentOptionProps IgnoreWhitespace { get; set; }
 
-        public DeploymentOptionsProps IgnoreWithNocheckOnForeignKeys { get; set; }
+        public DeploymentOptionProps IgnoreWithNocheckOnForeignKeys { get; set; }
 
-        public DeploymentOptionsProps VerifyCollationCompatibility { get; set; }
+        public DeploymentOptionProps VerifyCollationCompatibility { get; set; }
 
-        public DeploymentOptionsProps UnmodifiableObjectWarnings { get; set; }
+        public DeploymentOptionProps UnmodifiableObjectWarnings { get; set; }
 
-        public DeploymentOptionsProps TreatVerificationErrorsAsWarnings { get; set; }
+        public DeploymentOptionProps TreatVerificationErrorsAsWarnings { get; set; }
 
-        public DeploymentOptionsProps ScriptRefreshModule { get; set; }
+        public DeploymentOptionProps ScriptRefreshModule { get; set; }
 
-        public DeploymentOptionsProps ScriptNewConstraintValidation { get; set; }
+        public DeploymentOptionProps ScriptNewConstraintValidation { get; set; }
 
-        public DeploymentOptionsProps ScriptFileSize { get; set; }
+        public DeploymentOptionProps ScriptFileSize { get; set; }
 
-        public DeploymentOptionsProps ScriptDeployStateChecks { get; set; }
+        public DeploymentOptionProps ScriptDeployStateChecks { get; set; }
 
-        public DeploymentOptionsProps ScriptDatabaseOptions { get; set; }
+        public DeploymentOptionProps ScriptDatabaseOptions { get; set; }
 
-        public DeploymentOptionsProps ScriptDatabaseCompatibility { get; set; }
+        public DeploymentOptionProps ScriptDatabaseCompatibility { get; set; }
 
-        public DeploymentOptionsProps ScriptDatabaseCollation { get; set; }
+        public DeploymentOptionProps ScriptDatabaseCollation { get; set; }
 
-        public DeploymentOptionsProps RunDeploymentPlanExecutors { get; set; }
+        public DeploymentOptionProps RunDeploymentPlanExecutors { get; set; }
 
-        public DeploymentOptionsProps RegisterDataTierApplication { get; set; }
+        public DeploymentOptionProps RegisterDataTierApplication { get; set; }
 
-        public DeploymentOptionsProps PopulateFilesOnFileGroups { get; set; }
+        public DeploymentOptionProps PopulateFilesOnFileGroups { get; set; }
 
-        public DeploymentOptionsProps NoAlterStatementsToChangeClrTypes { get; set; }
+        public DeploymentOptionProps NoAlterStatementsToChangeClrTypes { get; set; }
 
-        public DeploymentOptionsProps IncludeTransactionalScripts { get; set; }
+        public DeploymentOptionProps IncludeTransactionalScripts { get; set; }
 
-        public DeploymentOptionsProps IncludeCompositeObjects { get; set; }
+        public DeploymentOptionProps IncludeCompositeObjects { get; set; }
 
-        public DeploymentOptionsProps AllowUnsafeRowLevelSecurityDataMovement { get; set; }
+        public DeploymentOptionProps AllowUnsafeRowLevelSecurityDataMovement { get; set; }
 
-        public DeploymentOptionsProps IgnoreWithNocheckOnCheckConstraints { get; set; }
+        public DeploymentOptionProps IgnoreWithNocheckOnCheckConstraints { get; set; }
 
-        public DeploymentOptionsProps IgnoreFillFactor { get; set; }
+        public DeploymentOptionProps IgnoreFillFactor { get; set; }
 
-        public DeploymentOptionsProps IgnoreFileSize { get; set; }
+        public DeploymentOptionProps IgnoreFileSize { get; set; }
 
-        public DeploymentOptionsProps IgnoreFilegroupPlacement { get; set; }
+        public DeploymentOptionProps IgnoreFilegroupPlacement { get; set; }
 
-        public DeploymentOptionsProps DoNotAlterReplicatedObjects { get; set; }
+        public DeploymentOptionProps DoNotAlterReplicatedObjects { get; set; }
 
-        public DeploymentOptionsProps DoNotAlterChangeDataCaptureObjects { get; set; }
+        public DeploymentOptionProps DoNotAlterChangeDataCaptureObjects { get; set; }
 
-        public DeploymentOptionsProps DisableAndReenableDdlTriggers { get; set; }
+        public DeploymentOptionProps DisableAndReenableDdlTriggers { get; set; }
 
-        public DeploymentOptionsProps DeployDatabaseInSingleUserMode { get; set; }
+        public DeploymentOptionProps DeployDatabaseInSingleUserMode { get; set; }
 
-        public DeploymentOptionsProps CreateNewDatabase { get; set; }
+        public DeploymentOptionProps CreateNewDatabase { get; set; }
 
-        public DeploymentOptionsProps CompareUsingTargetCollation { get; set; }
+        public DeploymentOptionProps CompareUsingTargetCollation { get; set; }
 
-        public DeploymentOptionsProps CommentOutSetVarDeclarations { get; set; }
+        public DeploymentOptionProps CommentOutSetVarDeclarations { get; set; }
 
-        public DeploymentOptionsProps CommandTimeout { get; set; } = new DeploymentOptionsProps{ value = 120, description = string.Empty };
+        public DeploymentOptionProps CommandTimeout { get; set; } = new DeploymentOptionProps{ value = 120, description = string.Empty };
 
-        public DeploymentOptionsProps LongRunningCommandTimeout { get; set; } = new DeploymentOptionsProps { value = 0, description = string.Empty };
+        public DeploymentOptionProps LongRunningCommandTimeout { get; set; } = new DeploymentOptionProps { value = 0, description = string.Empty };
 
-        public DeploymentOptionsProps DatabaseLockTimeout { get; set; } = new DeploymentOptionsProps { value = 60, description = string.Empty };
+        public DeploymentOptionProps DatabaseLockTimeout { get; set; } = new DeploymentOptionProps { value = 60, description = string.Empty };
 
-        public DeploymentOptionsProps BlockWhenDriftDetected { get; set; }
+        public DeploymentOptionProps BlockWhenDriftDetected { get; set; }
 
-        public DeploymentOptionsProps BlockOnPossibleDataLoss { get; set; }
+        public DeploymentOptionProps BlockOnPossibleDataLoss { get; set; }
 
-        public DeploymentOptionsProps BackupDatabaseBeforeChanges { get; set; }
+        public DeploymentOptionProps BackupDatabaseBeforeChanges { get; set; }
 
-        public DeploymentOptionsProps AllowIncompatiblePlatform { get; set; }
+        public DeploymentOptionProps AllowIncompatiblePlatform { get; set; }
 
-        public DeploymentOptionsProps AllowDropBlockingAssemblies { get; set; }
+        public DeploymentOptionProps AllowDropBlockingAssemblies { get; set; }
 
-        public DeploymentOptionsProps AdditionalDeploymentContributorArguments { get; set; }
+        public DeploymentOptionProps AdditionalDeploymentContributorArguments { get; set; }
 
-        public DeploymentOptionsProps AdditionalDeploymentContributors { get; set; }
+        public DeploymentOptionProps AdditionalDeploymentContributors { get; set; }
 
-        public DeploymentOptionsProps DropConstraintsNotInSource { get; set; }
+        public DeploymentOptionProps DropConstraintsNotInSource { get; set; }
 
-        public DeploymentOptionsProps DropDmlTriggersNotInSource { get; set; }
+        public DeploymentOptionProps DropDmlTriggersNotInSource { get; set; }
 
-        public DeploymentOptionsProps DropExtendedPropertiesNotInSource { get; set; }
+        public DeploymentOptionProps DropExtendedPropertiesNotInSource { get; set; }
 
-        public DeploymentOptionsProps DropIndexesNotInSource { get; set; }
+        public DeploymentOptionProps DropIndexesNotInSource { get; set; }
 
-        public DeploymentOptionsProps IgnoreFileAndLogFilePath { get; set; }
+        public DeploymentOptionProps IgnoreFileAndLogFilePath { get; set; }
 
-        public DeploymentOptionsProps IgnoreExtendedProperties { get; set; }
+        public DeploymentOptionProps IgnoreExtendedProperties { get; set; }
 
-        public DeploymentOptionsProps IgnoreDmlTriggerState { get; set; }
+        public DeploymentOptionProps IgnoreDmlTriggerState { get; set; }
 
-        public DeploymentOptionsProps IgnoreDmlTriggerOrder { get; set; }
+        public DeploymentOptionProps IgnoreDmlTriggerOrder { get; set; }
 
-        public DeploymentOptionsProps IgnoreDefaultSchema { get; set; }
+        public DeploymentOptionProps IgnoreDefaultSchema { get; set; }
 
-        public DeploymentOptionsProps IgnoreDdlTriggerState { get; set; }
+        public DeploymentOptionProps IgnoreDdlTriggerState { get; set; }
 
-        public DeploymentOptionsProps IgnoreDdlTriggerOrder { get; set; }
+        public DeploymentOptionProps IgnoreDdlTriggerOrder { get; set; }
 
-        public DeploymentOptionsProps IgnoreCryptographicProviderFilePath { get; set; }
+        public DeploymentOptionProps IgnoreCryptographicProviderFilePath { get; set; }
 
-        public DeploymentOptionsProps VerifyDeployment { get; set; }
+        public DeploymentOptionProps VerifyDeployment { get; set; }
 
-        public DeploymentOptionsProps IgnoreComments { get; set; }
+        public DeploymentOptionProps IgnoreComments { get; set; }
 
-        public DeploymentOptionsProps IgnoreColumnCollation { get; set; }
+        public DeploymentOptionProps IgnoreColumnCollation { get; set; }
 
-        public DeploymentOptionsProps IgnoreAuthorizer { get; set; }
+        public DeploymentOptionProps IgnoreAuthorizer { get; set; }
 
-        public DeploymentOptionsProps IgnoreAnsiNulls { get; set; }
+        public DeploymentOptionProps IgnoreAnsiNulls { get; set; }
 
-        public DeploymentOptionsProps GenerateSmartDefaults { get; set; }
+        public DeploymentOptionProps GenerateSmartDefaults { get; set; }
 
-        public DeploymentOptionsProps DropStatisticsNotInSource { get; set; }
+        public DeploymentOptionProps DropStatisticsNotInSource { get; set; }
 
-        public DeploymentOptionsProps DropRoleMembersNotInSource { get; set; }
+        public DeploymentOptionProps DropRoleMembersNotInSource { get; set; }
 
-        public DeploymentOptionsProps DropPermissionsNotInSource { get; set; }
+        public DeploymentOptionProps DropPermissionsNotInSource { get; set; }
 
-        public DeploymentOptionsProps DropObjectsNotInSource { get; set; }
+        public DeploymentOptionProps DropObjectsNotInSource { get; set; }
 
-        public DeploymentOptionsProps IgnoreColumnOrder { get; set; }
+        public DeploymentOptionProps IgnoreColumnOrder { get; set; }
 
-        public DeploymentOptionsProps IgnoreTablePartitionOptions { get; set; } // DW Specific
+        public DeploymentOptionProps IgnoreTablePartitionOptions { get; set; } // DW Specific
 
-        public DeploymentOptionsProps AdditionalDeploymentContributorPaths { get; set; } = new DeploymentOptionsProps { value = string.Empty, description = string.Empty };
+        public DeploymentOptionProps AdditionalDeploymentContributorPaths { get; set; } = new DeploymentOptionProps { value = string.Empty, description = string.Empty };
 
         public ObjectType[] DoNotDropObjectTypes { get; set; } = null;
 
@@ -222,33 +222,33 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
                 ObjectType.AssemblyFiles,
         };
 
-        public DeploymentOptionsProps AllowExternalLibraryPaths { get; set; }
+        public DeploymentOptionProps AllowExternalLibraryPaths { get; set; }
 
-        public DeploymentOptionsProps AllowExternalLanguagePaths { get; set; }
+        public DeploymentOptionProps AllowExternalLanguagePaths { get; set; }
 
-        public DeploymentOptionsProps DoNotEvaluateSqlCmdVariables { get; set; }
+        public DeploymentOptionProps DoNotEvaluateSqlCmdVariables { get; set; }
 
-        public DeploymentOptionsProps DisableParallelismForEnablingIndexes { get; set; }
+        public DeploymentOptionProps DisableParallelismForEnablingIndexes { get; set; }
 
-        public DeploymentOptionsProps DoNotDropWorkloadClassifiers { get; set; }
+        public DeploymentOptionProps DoNotDropWorkloadClassifiers { get; set; }
 
-        public DeploymentOptionsProps DisableIndexesForDataPhase { get; set; }
+        public DeploymentOptionProps DisableIndexesForDataPhase { get; set; }
 
-        public DeploymentOptionsProps DoNotDropDatabaseWorkloadGroups { get; set; }
+        public DeploymentOptionProps DoNotDropDatabaseWorkloadGroups { get; set; }
 
-        public DeploymentOptionsProps HashObjectNamesInLogs { get; set; }
+        public DeploymentOptionProps HashObjectNamesInLogs { get; set; }
 
-        public DeploymentOptionsProps IgnoreWorkloadClassifiers { get; set; }
+        public DeploymentOptionProps IgnoreWorkloadClassifiers { get; set; }
 
-        public DeploymentOptionsProps IgnoreDatabaseWorkloadGroups { get; set; }
+        public DeploymentOptionProps IgnoreDatabaseWorkloadGroups { get; set; }
 
-        public DeploymentOptionsProps IsAlwaysEncryptedParameterizationEnabled { get; set; }
+        public DeploymentOptionProps IsAlwaysEncryptedParameterizationEnabled { get; set; }
 
-        public DeploymentOptionsProps PreserveIdentityLastValues { get; set; }
+        public DeploymentOptionProps PreserveIdentityLastValues { get; set; }
 
-        public DeploymentOptionsProps RestoreSequenceCurrentValue { get; set; }
+        public DeploymentOptionProps RestoreSequenceCurrentValue { get; set; }
 
-        public DeploymentOptionsProps RebuildIndexesOfflineForDataPhase { get; set; }
+        public DeploymentOptionProps RebuildIndexesOfflineForDataPhase { get; set; }
         #endregion
 
         public DeploymentOptions()
@@ -282,7 +282,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
                     }
                     else
                     {
-                        DeploymentOptionsProps setProp = new DeploymentOptionsProps()
+                        DeploymentOptionProps setProp = new DeploymentOptionProps()
                         {
                             value = prop.GetValue(options),
                             description = description.Description
@@ -358,7 +358,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
                     }
                     else
                     {
-                        DeploymentOptionsProps setProp = new DeploymentOptionsProps()
+                        DeploymentOptionProps setProp = new DeploymentOptionProps()
                         {
                             value = prop.GetValue(options),
                             description = description.Description

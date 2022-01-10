@@ -587,7 +587,7 @@ FROM MissingEdgeHubInputStream'";
                     UpgradeExisting = true,
                     DeploymentOptions = new DeploymentOptions()
                     {
-                        DropObjectsNotInSource = new DeploymentOptionsProps { value = false },
+                        DropObjectsNotInSource = new DeploymentOptionProps { value = false },
                         ExcludeObjectTypes = new[] { ObjectType.Views }
                     }
                 };
@@ -665,7 +665,7 @@ FROM MissingEdgeHubInputStream'";
                     DatabaseName = targetDb.DatabaseName,
                     DeploymentOptions = new DeploymentOptions()
                     {
-                        DropObjectsNotInSource = new DeploymentOptionsProps
+                        DropObjectsNotInSource = new DeploymentOptionProps
                         {
                             value = false
                         },
@@ -686,7 +686,7 @@ FROM MissingEdgeHubInputStream'";
                     DatabaseName = targetDb.DatabaseName,
                     DeploymentOptions = new DeploymentOptions()
                     {
-                        DropObjectsNotInSource = new DeploymentOptionsProps
+                        DropObjectsNotInSource = new DeploymentOptionProps
                         {
                             value = true
                         },
@@ -734,9 +734,9 @@ FROM MissingEdgeHubInputStream'";
             DeploymentOptions expectedResults = DeploymentOptions.GetDefaultPublishOptions();
 
             expectedResults.ExcludeObjectTypes = null;
-            expectedResults.IncludeCompositeObjects = new DeploymentOptionsProps { value = true };
-            expectedResults.BlockOnPossibleDataLoss = new DeploymentOptionsProps { value = true };
-            expectedResults.AllowIncompatiblePlatform = new DeploymentOptionsProps { value = true };
+            expectedResults.IncludeCompositeObjects = new DeploymentOptionProps { value = true };
+            expectedResults.BlockOnPossibleDataLoss = new DeploymentOptionProps { value = true };
+            expectedResults.AllowIncompatiblePlatform = new DeploymentOptionProps { value = true };
 
             var dacfxRequestContext = new Mock<RequestContext<DacFxOptionsResult>>();
             dacfxRequestContext.Setup((RequestContext<DacFxOptionsResult> x) => x.SendResult(It.Is<DacFxOptionsResult>((result) => ValidateOptions(expectedResults, result.DeploymentOptions) == true))).Returns(Task.FromResult(new object()));
@@ -859,8 +859,8 @@ Streaming query statement contains a reference to missing output stream 'Missing
                 else
                 {
                     Assert.True((defaultP == null && actualP == null) || (defaultP == null && (actualP as string) == string.Empty) || defaultP.Equals(actualP) 
-                        || ((DeploymentOptionsProps)actualP).value == null && ((DeploymentOptionsProps)defaultP).value == null
-                        ||((DeploymentOptionsProps)actualP).value.Equals(((DeploymentOptionsProps)actualP).value), $"Actual Property from Service is not equal to default property for {v.Name}, Actual value: {actualP} and Default value: {defaultP}");
+                        || ((DeploymentOptionProps)actualP).value == null && ((DeploymentOptionProps)defaultP).value == null
+                        ||((DeploymentOptionProps)actualP).value.Equals(((DeploymentOptionProps)actualP).value), $"Actual Property from Service is not equal to default property for {v.Name}, Actual value: {actualP} and Default value: {defaultP}");
                 }
             }
 

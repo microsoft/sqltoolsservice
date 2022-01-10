@@ -141,8 +141,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
                 if (deployOptionsProp.Name != "ExcludeObjectTypes") // do not compare for ExcludeObjectTypes because it will be different
                 {
                     Assert.True((deployOptionsValue == null && dacValue == null) || deployOptionsValue.Equals(dacValue)
-                        || ((DeploymentOptionsProps)deployOptionsValue).value == null && dacValue == null
-                        || ((DeploymentOptionsProps)deployOptionsValue).value.Equals(dacValue), $"DacFx DacDeploy property not equal to Tools Service DeploymentOptions for { deployOptionsProp.Name}, SchemaCompareOptions value: {deployOptionsValue} and DacDeployOptions value: {dacValue} ");
+                        || ((DeploymentOptionProps)deployOptionsValue).value == null && dacValue == null
+                        || ((DeploymentOptionProps)deployOptionsValue).value.Equals(dacValue), $"DacFx DacDeploy property not equal to Tools Service DeploymentOptions for { deployOptionsProp.Name}, SchemaCompareOptions value: {deployOptionsValue} and DacDeployOptions value: {dacValue} ");
                 }
             }
         }
@@ -164,8 +164,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
                 else
                 {
                     Assert.True((defaultP == null && actualP == null) || defaultP.Equals(actualP)
-                        || ((DeploymentOptionsProps)actualP).value == null && ((DeploymentOptionsProps)defaultP).value == null
-                        || ((DeploymentOptionsProps)actualP).value.Equals(((DeploymentOptionsProps)actualP).value), $"Actual Property from Service is not equal to default property for { v.Name}, Actual value: {actualP} and Default value: {defaultP}");
+                        || ((DeploymentOptionProps)actualP).value == null && ((DeploymentOptionProps)defaultP).value == null
+                        || ((DeploymentOptionProps)actualP).value.Equals(((DeploymentOptionProps)actualP).value), $"Actual Property from Service is not equal to default property for { v.Name}, Actual value: {actualP} and Default value: {defaultP}");
                 }
             }
             return true;

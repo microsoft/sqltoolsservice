@@ -40,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                     else
                     {
                         // Get value of the DeploymentOptionsProps option value property
-                        var value = ((DeploymentOptionsProps)optionVal).value;
+                        var value = ((DeploymentOptionProps)optionVal).value;
                         
                         // Convert Int64 to Int32
                         if (value != null && value.GetType() == typeof(System.Int64))
