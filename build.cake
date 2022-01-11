@@ -279,6 +279,7 @@ Task("DotnetPackPublished")
 Task("TestAll")
     .IsDependentOn("Test")
     .IsDependentOn("TestCore")
+    .WithCriteria(c => HasArgument("runTests"))
     .Does(() =>{});
 
 /// <summary>
@@ -287,6 +288,7 @@ Task("TestAll")
 Task("TestCore")
     .IsDependentOn("Setup")
     .IsDependentOn("Restore")
+    .WithCriteria(c => HasArgument("runTests"))
     .Does(() =>
 {
     var testProjects = buildPlan.TestProjects
@@ -311,6 +313,7 @@ Task("Test")
 	.IsDependentOn("SRGen")
     .IsDependentOn("CodeGen")
     .IsDependentOn("BuildTest")
+    .WithCriteria(c => HasArgument("runTests"))
     .Does(() =>
 {
     foreach (var pair in buildPlan.TestProjects)
