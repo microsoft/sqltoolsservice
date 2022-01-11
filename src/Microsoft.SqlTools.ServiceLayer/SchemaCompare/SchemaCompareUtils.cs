@@ -4,7 +4,9 @@
 //
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlServer.Dac.Compare;
@@ -32,24 +34,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 var prop = dacOptions.GetType().GetProperty(deployOptionsProp.Name);
                 if (prop != null)
                 {
-                    var optionVal = deployOptionsProp.GetValue(deploymentOptions);
-                    if (deployOptionsProp.Name == "DoNotDropObjectTypes" || deployOptionsProp.Name == "ExcludeObjectTypes")
-                    {
-                        prop.SetValue(dacOptions, optionVal);
-                    }
-                    else
-                    {
-                        // Get value of the DeploymentOptionsProps option value property
-                        var value = ((DeploymentOptionProps)optionVal).value;
-                        
-                        // Convert Int64 to Int32
-                        if (value != null && value.GetType() == typeof(System.Int64))
-                        {
-                            value = Convert.ToInt32(value);
-                        }
+                    var val = deployOptionsProp.GetValue(deploymentOptions);
+                    var selectedVal = val.GetType().GetProperty("Value").GetValue(val);
 
-                        prop.SetValue(dacOptions, value);
-                    }
+                    prop.SetValue(dacOptions, selectedVal);
                 }
             }
             return dacOptions;

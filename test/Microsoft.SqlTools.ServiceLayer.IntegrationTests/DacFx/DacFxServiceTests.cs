@@ -587,8 +587,8 @@ FROM MissingEdgeHubInputStream'";
                     UpgradeExisting = true,
                     DeploymentOptions = new DeploymentOptions()
                     {
-                        DropObjectsNotInSource = new DeploymentOptionProps { value = false },
-                        ExcludeObjectTypes = new[] { ObjectType.Views }
+                        DropObjectsNotInSource = new DeploymentOptionProperty<bool> { Value = false },
+                        ExcludeObjectTypes = new DeploymentOptionProperty<ObjectType[]>{ Value = new[] { ObjectType.Views }}
                     }
                 };
 
@@ -665,11 +665,14 @@ FROM MissingEdgeHubInputStream'";
                     DatabaseName = targetDb.DatabaseName,
                     DeploymentOptions = new DeploymentOptions()
                     {
-                        DropObjectsNotInSource = new DeploymentOptionProps
+                        DropObjectsNotInSource = new DeploymentOptionProperty<bool>
                         {
-                            value = false
+                            Value = false
                         },
-                        ExcludeObjectTypes = new[] { ObjectType.Views }
+                        ExcludeObjectTypes = new DeploymentOptionProperty<ObjectType[]>
+                        {
+                            Value = new[] { ObjectType.Views }
+                        }
                     }
                 };
 
@@ -686,11 +689,14 @@ FROM MissingEdgeHubInputStream'";
                     DatabaseName = targetDb.DatabaseName,
                     DeploymentOptions = new DeploymentOptions()
                     {
-                        DropObjectsNotInSource = new DeploymentOptionProps
+                        DropObjectsNotInSource = new DeploymentOptionProperty<bool>
                         {
-                            value = true
+                            Value = true
                         },
-                        ExcludeObjectTypes = new[] { ObjectType.Views }
+                        ExcludeObjectTypes = new DeploymentOptionProperty<ObjectType[]>
+                        {
+                            Value = new[] { ObjectType.Views }
+                        }
                     }
                 };
 
@@ -734,9 +740,10 @@ FROM MissingEdgeHubInputStream'";
             DeploymentOptions expectedResults = DeploymentOptions.GetDefaultPublishOptions();
 
             expectedResults.ExcludeObjectTypes = null;
-            expectedResults.IncludeCompositeObjects = new DeploymentOptionProps { value = true };
-            expectedResults.BlockOnPossibleDataLoss = new DeploymentOptionProps { value = true };
-            expectedResults.AllowIncompatiblePlatform = new DeploymentOptionProps { value = true };
+            expectedResults.IncludeCompositeObjects = new DeploymentOptionProperty<bool> { Value = true };
+            expectedResults.BlockOnPossibleDataLoss = new DeploymentOptionProperty<bool> { Value = true };
+            expectedResults.AllowIncompatiblePlatform = new DeploymentOptionProperty<bool> { Value = true };
+            expectedResults.DisableIndexesForDataPhase = new DeploymentOptionProperty<bool> { Value = false };
 
             var dacfxRequestContext = new Mock<RequestContext<DacFxOptionsResult>>();
             dacfxRequestContext.Setup((RequestContext<DacFxOptionsResult> x) => x.SendResult(It.Is<DacFxOptionsResult>((result) => ValidateOptions(expectedResults, result.DeploymentOptions) == true))).Returns(Task.FromResult(new object()));
@@ -761,6 +768,7 @@ FROM MissingEdgeHubInputStream'";
         {
             DeploymentOptions expectedResults = DeploymentOptions.GetDefaultPublishOptions();
             expectedResults.ExcludeObjectTypes = null;
+            expectedResults.DisableIndexesForDataPhase = new DeploymentOptionProperty<bool> { Value = false };
 
             var dacfxRequestContext = new Mock<RequestContext<DacFxOptionsResult>>();
             dacfxRequestContext.Setup((RequestContext<DacFxOptionsResult> x) => x.SendResult(It.Is<DacFxOptionsResult>((result) => ValidateOptions(expectedResults, result.DeploymentOptions) == true))).Returns(Task.FromResult(new object()));
@@ -850,7 +858,9 @@ Streaming query statement contains a reference to missing output stream 'Missing
             foreach (var v in deploymentOptionsProperties)
             {
                 var defaultP = v.GetValue(expected);
+                var defaultPValue = defaultP != null ? defaultP.GetType().GetProperty("Value").GetValue(defaultP): defaultP;
                 var actualP = v.GetValue(actual);
+                var actualPValue = actualP.GetType().GetProperty("Value").GetValue(actualP);
 
                 if (v.Name == "ExcludeObjectTypes")
                 {
@@ -858,9 +868,9 @@ Streaming query statement contains a reference to missing output stream 'Missing
                 }
                 else
                 {
-                    Assert.True((defaultP == null && actualP == null) || (defaultP == null && (actualP as string) == string.Empty) || defaultP.Equals(actualP) 
-                        || ((DeploymentOptionProps)actualP).value == null && ((DeploymentOptionProps)defaultP).value == null
-                        ||((DeploymentOptionProps)actualP).value.Equals(((DeploymentOptionProps)actualP).value), $"Actual Property from Service is not equal to default property for {v.Name}, Actual value: {actualP} and Default value: {defaultP}");
+                    Assert.True((defaultP == null && actualP == null) || (defaultP == null && (actualP as string) == string.Empty) || defaultP.Equals(actualP)
+                        || (defaultPValue == null && (actualPValue as string) == string.Empty) || defaultPValue == null && actualPValue == null || (defaultPValue).Equals(actualPValue)
+                        , $"Actual Property from Service is not equal to default property for {v.Name}, Actual value: {actualPValue} and Default value: {defaultPValue}");
                 }
             }
 

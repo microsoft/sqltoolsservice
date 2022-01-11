@@ -1356,8 +1356,8 @@ WITH VALUES
                 DeploymentOptions options = new DeploymentOptions();
 
                 // ensure that files are excluded seperate from filegroups
-                Assert.True(options.ExcludeObjectTypes.Contains(SqlServer.Dac.ObjectType.Files));
-                Assert.False(options.ExcludeObjectTypes.Contains(SqlServer.Dac.ObjectType.Filegroups));
+                Assert.True(options.ExcludeObjectTypes.Value.Contains(SqlServer.Dac.ObjectType.Files));
+                Assert.False(options.ExcludeObjectTypes.Value.Contains(SqlServer.Dac.ObjectType.Filegroups));
 
                 var schemaCompareParams = new SchemaCompareParams
                 {
@@ -1827,33 +1827,33 @@ WITH VALUES
                 DeploymentOptions = new DeploymentOptions()
                 {
                     // change some random ones explicitly
-                    AllowDropBlockingAssemblies = new DeploymentOptionProps
+                    AllowDropBlockingAssemblies = new DeploymentOptionProperty<bool>
                     {
-                        value = true
+                        Value = true
                     },
-                    DropConstraintsNotInSource = new DeploymentOptionProps
+                    DropConstraintsNotInSource = new DeploymentOptionProperty<bool>
                     {
-                        value = true
+                        Value = true
                     },
-                    IgnoreAnsiNulls = new DeploymentOptionProps
+                    IgnoreAnsiNulls = new DeploymentOptionProperty<bool>
                     {
-                        value = true
+                        Value = true
                     },
-                    NoAlterStatementsToChangeClrTypes = new DeploymentOptionProps
+                    NoAlterStatementsToChangeClrTypes = new DeploymentOptionProperty<bool>
                     {
-                        value = false
+                        Value = false
                     },
-                    PopulateFilesOnFileGroups = new DeploymentOptionProps
+                    PopulateFilesOnFileGroups = new DeploymentOptionProperty<bool>
                     {
-                        value = false
+                        Value = false
                     },
-                    VerifyDeployment = new DeploymentOptionProps
+                    VerifyDeployment = new DeploymentOptionProperty<bool>
                     {
-                        value = false
+                        Value = false
                     },
-                    DisableIndexesForDataPhase = new DeploymentOptionProps
+                    DisableIndexesForDataPhase = new DeploymentOptionProperty<bool>
                     {
-                        value = false
+                        Value = false
                     }
                 },
                 ScmpFilePath = filePath,
