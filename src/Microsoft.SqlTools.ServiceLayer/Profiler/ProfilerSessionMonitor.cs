@@ -228,7 +228,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
 
             if (eventList.Count > 0)
             {
-                //session.FilterOldEvents(eventList); - Remove filter old events as it expects oldevents all the time in order to function correctly, this stream does not provide that.
+                //session.FilterOldEvents(eventList); - Remove filter old events as it expects old events all the time in order to function correctly, this stream does not provide that.
                 eventList = session.FilterProfilerEvents(eventList);
                 // notify all viewers of the event.
                 List<string> viewerIds = this.sessionViewers[session.XEventSession.Id];
