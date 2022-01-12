@@ -4,7 +4,6 @@
 //
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -26,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
     {
         internal static DacDeployOptions CreateSchemaCompareOptions(DeploymentOptions deploymentOptions)
         {
-            System.Reflection.PropertyInfo[] deploymentOptionsProperties = deploymentOptions.GetType().GetProperties();
+            PropertyInfo[] deploymentOptionsProperties = deploymentOptions.GetType().GetProperties();
 
             DacDeployOptions dacOptions = new DacDeployOptions();
             foreach (var deployOptionsProp in deploymentOptionsProperties)
@@ -36,6 +35,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 {
                     var val = deployOptionsProp.GetValue(deploymentOptions);
                     var selectedVal = val.GetType().GetProperty("Value").GetValue(val);
+
+                    // The integer value coming from the DeploymentOptions is of Int64 which overflows to set to DacDeployOptions.
+                    if (selectedVal != null && selectedVal.GetType() == typeof(System.Int64))
+                    {
+                        selectedVal = Convert.ToInt32(selectedVal);
+                    }
 
                     prop.SetValue(dacOptions, selectedVal);
                 }
