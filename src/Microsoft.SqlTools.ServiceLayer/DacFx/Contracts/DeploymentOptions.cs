@@ -261,6 +261,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 
         #endregion
 
+        /// <summary>
+        /// Mapping the DisplayName to the dac deploy option
+        /// Adding new properties here would give easy handling of new option to all extensions
+        /// </summary>
         private void SetDisplayNameForOption()
         {
             #region Display Name and Dac Options Mapping
@@ -414,6 +418,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 
         public DeploymentOptions(DacDeployOptions options)
         {
+            // Setting Display names for all dacDeploy options
+            SetDisplayNameForOption();
+
             SetOptions(options);
         }
 
