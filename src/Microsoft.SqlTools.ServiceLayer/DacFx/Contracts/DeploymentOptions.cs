@@ -18,6 +18,14 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// </summary>
     public class DeploymentOptionProperty<T>
     {
+
+        public DeploymentOptionProperty(T value, string description = "", string displayName = "")
+        {
+            this.Value = value;
+            this.Description = description;
+            this.DisplayName = displayName;
+        }
+
         public T Value { get; set; }
         public string Description { get; set; } = string.Empty;
 
@@ -33,7 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     {
         #region Properties
 
-        public DeploymentOptionProperty<object> IgnoreTableOptions { get; set; }
+        public DeploymentOptionProperty<bool> IgnoreTableOptions { get; set; }
 
         public DeploymentOptionProperty<object> IgnoreSemicolonBetweenStatements { get; set; }
 
@@ -129,11 +137,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 
         public DeploymentOptionProperty<object> CommentOutSetVarDeclarations { get; set; }
 
-        public DeploymentOptionProperty<object> CommandTimeout { get; set; } = new DeploymentOptionProperty<object> { Value = 120, Description = string.Empty };
+        public DeploymentOptionProperty<object> CommandTimeout { get; set; } = new DeploymentOptionProperty<object>(120);
 
-        public DeploymentOptionProperty<object> LongRunningCommandTimeout { get; set; } = new DeploymentOptionProperty<object> { Value = 0, Description = string.Empty };
+        public DeploymentOptionProperty<object> LongRunningCommandTimeout { get; set; } = new DeploymentOptionProperty<object>(0);
 
-        public DeploymentOptionProperty<object> DatabaseLockTimeout { get; set; } = new DeploymentOptionProperty<object> { Value = 60, Description = string.Empty };
+        public DeploymentOptionProperty<object> DatabaseLockTimeout { get; set; } = new DeploymentOptionProperty<object>(60);
 
         public DeploymentOptionProperty<object> BlockWhenDriftDetected { get; set; }
 
@@ -145,9 +153,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 
         public DeploymentOptionProperty<object> AllowDropBlockingAssemblies { get; set; }
 
-        public DeploymentOptionProperty<object> AdditionalDeploymentContributorArguments { get; set; } = new DeploymentOptionProperty<object>();
+        public DeploymentOptionProperty<object> AdditionalDeploymentContributorArguments { get; set; } = new DeploymentOptionProperty<object>(null);
 
-        public DeploymentOptionProperty<object> AdditionalDeploymentContributors { get; set; } = new DeploymentOptionProperty<object>();
+        public DeploymentOptionProperty<object> AdditionalDeploymentContributors { get; set; } = new DeploymentOptionProperty<object>(null);
 
         public DeploymentOptionProperty<object> DropConstraintsNotInSource { get; set; }
 
@@ -197,13 +205,13 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 
         public DeploymentOptionProperty<object> IgnoreTablePartitionOptions { get; set; } // DW Specific
 
-        public DeploymentOptionProperty<object> AdditionalDeploymentContributorPaths { get; set; } = new DeploymentOptionProperty<object>();
+        public DeploymentOptionProperty<object> AdditionalDeploymentContributorPaths { get; set; } = new DeploymentOptionProperty<object>(null);
 
-        public DeploymentOptionProperty<ObjectType[]> DoNotDropObjectTypes { get; set; } = new DeploymentOptionProperty<ObjectType[]>();
+        public DeploymentOptionProperty<ObjectType[]> DoNotDropObjectTypes { get; set; } = new DeploymentOptionProperty<ObjectType[]>(null);
 
         public DeploymentOptionProperty<ObjectType[]> ExcludeObjectTypes { get; set; } = new DeploymentOptionProperty<ObjectType[]>
-        {
-            Value = new ObjectType[] {
+        (
+            new ObjectType[] {
                 ObjectType.ServerTriggers,
                 ObjectType.Routes,
                 ObjectType.LinkedServerLogins,
@@ -225,9 +233,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
                 ObjectType.DatabaseOptions,
                 ObjectType.EventNotifications,
                 ObjectType.ServerRoleMembership,
-                ObjectType.AssemblyFiles,
+                ObjectType.AssemblyFiles
             }
-        };
+        );
 
         public DeploymentOptionProperty<object> AllowExternalLibraryPaths { get; set; }
 
@@ -490,27 +498,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         {
             var val = prop.GetValue(options);
             var attribute = prop.GetCustomAttributes<DescriptionAttribute>(true).FirstOrDefault();
-
-            if (prop != null && prop.PropertyType == typeof(ObjectType[]))
-            {
-                // Properties such as ExcludeObjectTypes and DoNotDropObjectTypes are ObjectType[] which needs type casting
-                DeploymentOptionProperty<ObjectType[]> setProp = new DeploymentOptionProperty<ObjectType[]>()
-                {
-                    Value = (ObjectType[])val,
-                    Description = attribute.Description,
-                    DisplayName = _displayNameMapDict[deployOptionsProp.Name]
-                };
-                deployOptionsProp.SetValue(this, setProp);
-            }
-            else {
-                DeploymentOptionProperty<Object> setProp = new DeploymentOptionProperty<Object>()
-                {
-                    Value = val,
-                    Description = attribute.Description,
-                    DisplayName = _displayNameMapDict[deployOptionsProp.Name]
-                };
-                deployOptionsProp.SetValue(this, setProp);
-            }
+            Type type = typeof(DeploymentOptionProperty<>).MakeGenericType(val.GetType());
+            object setProp = Activator.CreateInstance(type, val, attribute.Description, _displayNameMapDict[deployOptionsProp.Name]);
+            deployOptionsProp.SetValue(this, setProp);
         }
 
         public static DeploymentOptions GetDefaultSchemaCompareOptions()
