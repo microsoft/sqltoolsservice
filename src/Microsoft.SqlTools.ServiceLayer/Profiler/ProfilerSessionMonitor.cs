@@ -213,7 +213,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// </summary>
         private async Task HandleXEvent(IXEvent xEvent, ProfilerSession session)
         {
-            
             ProfilerEvent profileEvent = new ProfilerEvent(xEvent.Name, xEvent.Timestamp.ToString());
             foreach (var kvp in xEvent.Fields)
             {
@@ -225,8 +224,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
             var eventList = new List<ProfilerEvent>();
             eventList.Add(profileEvent);
+            var eventsLost = session.EventsLost;
 
-            if (eventList.Count > 0)
+            if (eventList.Count > 0 || eventsLost)
             {
                 //session.FilterOldEvents(eventList); - Remove filter old events as it expects old events all the time in order to function correctly, this stream does not provide that.
                 eventList = session.FilterProfilerEvents(eventList);
@@ -237,7 +237,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 {
                     if (allViewers[viewerId].active)
                     {
-                        SendEventsToListeners(viewerId, eventList, false);
+                        SendEventsToListeners(viewerId, eventList, eventsLost);
                     }
                 }
             }
