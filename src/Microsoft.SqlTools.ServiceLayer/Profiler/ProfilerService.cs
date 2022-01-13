@@ -121,8 +121,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             this.SessionMonitor.AddSessionListener(this);
         }
 
-        private List<ProfilerEvent> fileSessionEvents = null;
-
         /// <summary>
         /// Handle request to open a XEL file
         /// </summary>
@@ -140,7 +138,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                         new ProfilerEventsAvailableParams()
                         {
                             OwnerUri = parameters.OwnerUri,
-                            Events = fileSessionEvents,
+                            Events = monitor.fileSessionEvents,
                             EventsLost = false
                         });
 

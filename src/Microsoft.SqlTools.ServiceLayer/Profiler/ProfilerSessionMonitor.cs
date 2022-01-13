@@ -11,6 +11,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.SqlServer.XEvent.XELite;
+using Microsoft.SqlTools.ServiceLayer.Connection;
 using System.Xml;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.XEvent;
@@ -202,8 +204,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         {
             fileSessionEvents = new List<ProfilerEvent>();
             CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
-            //var eventStreamer = new XEFileEventStreamer(filePath);
-            //await eventStreamer.ReadEventStream(xEvent => HandleXEvent(xEvent), threadCancellationToken.Token);
+            var eventStreamer = new XEFileEventStreamer(filePath);
+            await eventStreamer.ReadEventStream(xEvent => null, threadCancellationToken.Token);
         }
 
         public List<ProfilerEvent> fileSessionEvents = null;
