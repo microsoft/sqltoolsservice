@@ -491,7 +491,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
             var val = prop.GetValue(options);
             var attribute = prop.GetCustomAttributes<DescriptionAttribute>(true).FirstOrDefault();
 
-            if (prop != null && prop.PropertyType == typeof(ObjectType[]))
+            if (prop.PropertyType == typeof(ObjectType[]))
             {
                 // Properties such as ExcludeObjectTypes and DoNotDropObjectTypes are ObjectType[] which needs type casting
                 DeploymentOptionProperty<ObjectType[]> setProp = new DeploymentOptionProperty<ObjectType[]>()
