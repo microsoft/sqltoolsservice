@@ -4,17 +4,22 @@
 //
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 {
+    public class PublishTableChangesResponse
+    {
+    }
+
     /// <summary>
-    /// The service request to get the designer information about a table.
+    /// The service request to publish the changes.
     /// </summary>
-    public class GetTableDesignerInfoRequest
+    public class PublishTableChangesRequest
     {
         /// <summary>
         /// Request definition
         /// </summary>
-        public static readonly RequestType<TableInfo, TableDesignerInfo> Type = RequestType<TableInfo, TableDesignerInfo>.Create("tabledesigner/gettabledesignerinfo");
+        public static readonly RequestType<TableInfo, PublishTableChangesResponse> Type = RequestType<TableInfo, PublishTableChangesResponse>.Create("tabledesigner/publish");
     }
 }

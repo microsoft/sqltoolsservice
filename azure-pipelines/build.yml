@@ -149,46 +149,46 @@ steps:
 - task: ArchiveFiles@1
   displayName: 'Archive osx build'
   inputs:
-    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/osx.10.11-x64/net5.0'
+    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/osx.10.11-x64/net6.0'
     includeRootFolder: false
     archiveType: tar
-    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-osx-x64-net5.0.tar.gz'
+    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-osx-x64-net6.0.tar.gz'
 
 - task: ArchiveFiles@1
   displayName: 'Archive rhel build'
   inputs:
-    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/rhel.7.2-x64/net5.0'
+    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/rhel.7.2-x64/net6.0'
     includeRootFolder: false
     archiveType: tar
-    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-rhel-x64-net5.0.tar.gz'
+    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-rhel-x64-net6.0.tar.gz'
 
 - task: ArchiveFiles@1
   displayName: 'Archive windows 64 bit build'
   inputs:
-    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win-x64/net5.0'
+    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win-x64/net6.0'
     includeRootFolder: false
-    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win-x64-net5.0.zip'
+    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win-x64-net6.0.zip'
 
 # - task: ArchiveFiles@1
 #   displayName: 'Archive windows 32 bit build'
 #   inputs:
-#     rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win7-x86/net5.0'
+#     rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win7-x86/net6.0'
 #     includeRootFolder: false
-#     archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win-x86-net5.0.zip'
+#     archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win-x86-net6.0.zip'
 
 # - task: ArchiveFiles@1
 #   displayName: 'Archive windows10 arm 32 bit build'
 #   inputs:
-#     rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win10-arm/net5.0'
+#     rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win10-arm/net6.0'
 #     includeRootFolder: false
-#     archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win10-arm-net5.0.zip'
+#     archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win10-arm-net6.0.zip'
 
 # - task: ArchiveFiles@1
 #   displayName: 'Archive windows10 arm 64 bit build'
 #   inputs:
-#     rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win10-arm64/net5.0'
+#     rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win10-arm64/net6.0'
 #     includeRootFolder: false
-#     archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win10-arm64-net5.0.zip'
+#     archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win10-arm64-net6.0.zip'
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact: build archives'

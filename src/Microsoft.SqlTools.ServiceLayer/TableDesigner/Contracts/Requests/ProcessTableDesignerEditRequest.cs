@@ -13,8 +13,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         public TableInfo TableInfo { get; set; }
 
         public TableDesignerChangeInfo TableChangeInfo { get; set; }
-
-        public TableViewModel ViewModel { get; set; }
     }
 
     public class ProcessTableDesignerEditResponse

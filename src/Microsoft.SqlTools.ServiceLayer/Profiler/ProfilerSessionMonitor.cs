@@ -4,13 +4,19 @@
 //
 
 using System;
-using System.Linq;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using Microsoft.Data.SqlClient;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.SqlServer.XEvent.XELite;
-using Microsoft.SqlTools.ServiceLayer.Connection;
+using System.Xml;
+using Microsoft.SqlServer.Management.Sdk.Sfc;
+using Microsoft.SqlServer.Management.XEvent;
+using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Profiler
 {
@@ -19,9 +25,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
     /// </summary>
     public class ProfilerSessionMonitor : IProfilerSessionMonitor
     {
+        private const int PollingLoopDelay = 1000;
+
         private object sessionsLock = new object();
 
         private object listenersLock = new object();
+
+        private object pollingLock = new object();
 
         private Task processorThread = null;
 
@@ -46,9 +56,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         // XEvent Session Id's matched to their Profiler Sessions
         private Dictionary<int, ProfilerSession> monitoredSessions = new Dictionary<int, ProfilerSession>();
 
-        // XEvent Session Id's matched to their stream cancellation tokens 
-        private Dictionary<int, CancellationTokenSource> monitoredCancellationTokenSources = new Dictionary<int, CancellationTokenSource>();
-
         // ViewerId -> Viewer objects
         private Dictionary<string, Viewer> allViewers = new Dictionary<string, Viewer>();
 
@@ -65,7 +72,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
         }
 
-        public void StartMonitoringSession(string viewerId, IXEventSession session)
+        /// <summary>
+        /// Start monitoring the provided session
+        /// </summary>
+        public bool StartMonitoringSession(string viewerId, IXEventSession session)
         {
             lock (this.sessionsLock)
             {
@@ -105,10 +115,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 }
                 else
                 {
-                    viewers = new List<string> { viewerId };
+                    viewers = new List<string>{ viewerId };
                     sessionViewers.Add(session.Id, viewers);
                 }
             }
+
+            return true;
         }
 
         /// <summary>
@@ -148,16 +160,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         {
             lock (this.sessionsLock)
             {
-                //cancel running XEventStream for session.
-                CancellationTokenSource targetToken;
-                if (monitoredCancellationTokenSources.Remove(sessionId, out targetToken))
-                {
-                    targetToken.Cancel();
-                }
                 if (this.monitoredSessions.Remove(sessionId, out session))
                 {
-                    session.IsStreaming = false;
-
                     //remove all viewers for this session
                     List<string> viewerIds;
                     if (sessionViewers.Remove(sessionId, out viewerIds))
@@ -182,124 +186,123 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
         }
 
-        /// <summary>
-        /// The core queue processing method, cycles through monitored sessions and creates a stream for them if not already.
-        /// </summary>
-        private void ProcessSessions()
+        public void PollSession(int sessionId)
         {
-            while (true)
+            lock (this.sessionsLock)
             {
-                lock (this.sessionsLock)
-                {
-                    foreach (var id in this.monitoredSessions.Keys)
-                    {
-                        ProfilerSession session;
-                        this.monitoredSessions.TryGetValue(id, out session);
-                        if (!session.IsStreaming)
-                        {
-                            List<string> viewers = this.sessionViewers[session.XEventSession.Id];
-                            if (viewers.Any(v => allViewers[v].active))
-                            {
-                                StartStream(id, session);
-                            }
-                        }
-                    }
-                }
+                this.monitoredSessions[sessionId].pollImmediatly = true;
+            }
+            lock (this.pollingLock)
+            {
+                Monitor.Pulse(pollingLock);
             }
         }
 
-        public async Task OpenXELStream(string filePath)
+         public async Task OpenXELStream(string filePath)
         {
             fileSessionEvents = new List<ProfilerEvent>();
             CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
-            var eventStreamer = new XEFileEventStreamer(filePath);
-            await eventStreamer.ReadEventStream(xEvent => HandleXEvent(xEvent), threadCancellationToken.Token);
+            //var eventStreamer = new XEFileEventStreamer(filePath);
+            //await eventStreamer.ReadEventStream(xEvent => HandleXEvent(xEvent), threadCancellationToken.Token);
         }
 
         public List<ProfilerEvent> fileSessionEvents = null;
 
-        internal async Task HandleXEvent(IXEvent xEvent, ProfilerSession session = null)
+        /// <summary>
+        /// The core queue processing method
+        /// </summary>
+        /// <param name="state"></param>
+        private void ProcessSessions()
         {
-            ProfilerEvent profileEvent = new ProfilerEvent(xEvent.Name, xEvent.Timestamp.ToString());
-            foreach (var kvp in xEvent.Fields)
+            while (true)
             {
-                profileEvent.Values.Add(kvp.Key, kvp.Value.ToString());
-            }
-            foreach (var kvp in xEvent.Actions)
-            {
-                profileEvent.Values.Add(kvp.Key, kvp.Value.ToString());
-            }
-
-            var eventList = new List<ProfilerEvent>();
-            eventList.Add(profileEvent);
-
-            if (session != null)
-            {
-                var eventsLost = session.EventsLost;
-
-                if (eventList.Count > 0 || eventsLost)
+                lock (this.pollingLock)
                 {
-                    session.FilterOldEvents(eventList);
-                    eventList = session.FilterProfilerEvents(eventList);
-                    // notify all viewers of the event.
-                    List<string> viewerIds = this.sessionViewers[session.XEventSession.Id];
-                    foreach (string viewerId in viewerIds)
+                    lock (this.sessionsLock)
                     {
-                        if (allViewers[viewerId].active)
+                        foreach (var session in this.monitoredSessions.Values)
                         {
-                            SendEventsToListeners(viewerId, eventList, eventsLost);
+                            List<string> viewers = this.sessionViewers[session.XEventSession.Id];
+                            if (viewers.Any(v => allViewers[v].active))
+                            {
+                                ProcessSession(session);
+                            }
                         }
+                    }
+                    Monitor.Wait(this.pollingLock, PollingLoopDelay);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Process a session for new XEvents if it meets the polling criteria
+        /// </summary>
+        private void ProcessSession(ProfilerSession session)
+        {
+            if (session.TryEnterPolling())
+            {
+                Task.Factory.StartNew(() =>
+                {
+                    var events = PollSession(session);
+                    bool eventsLost = session.EventsLost;
+                    if (events.Count > 0 || eventsLost)
+                    {
+                        // notify all viewers for the polled session
+                        List<string> viewerIds = this.sessionViewers[session.XEventSession.Id];
+                        foreach (string viewerId in viewerIds)
+                        {
+                            if (allViewers[viewerId].active)
+                            {
+                                SendEventsToListeners(viewerId, events, eventsLost);
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        private List<ProfilerEvent> PollSession(ProfilerSession session)
+        {
+            var events = new List<ProfilerEvent>();
+            try
+            {
+                if (session == null || session.XEventSession == null)
+                {
+                    return events;
+                }
+
+                var targetXml = session.XEventSession.GetTargetXml();
+
+                XmlDocument xmlDoc = new XmlDocument();
+                xmlDoc.LoadXml(targetXml);
+
+                var nodes = xmlDoc.DocumentElement.GetElementsByTagName("event");
+                foreach (XmlNode node in nodes)
+                {
+                    var profilerEvent = ParseProfilerEvent(node);
+                    if (profilerEvent != null)
+                    {
+                        events.Add(profilerEvent);
                     }
                 }
             }
-            else
+            catch (XEventException)
             {
-                fileSessionEvents.Concat(eventList);
-            }
-        }
-
-        /// <summary>
-        /// Function that creates a brand new stream from a session, this is called from ProcessSessions when a session doesn't have a stream running currently.
-        /// </summary>
-        private void StartStream(int id, ProfilerSession session)
-        {
-            if (session.XEventSession != null && session.XEventSession.Session != null && session.XEventSession.ConnectionDetails != null)
-            {
-                CancellationTokenSource threadCancellationToken = new CancellationTokenSource();
-                var connectionString = ConnectionService.BuildConnectionString(session.XEventSession.ConnectionDetails);
-                var eventStreamer = new XELiveEventStreamer(connectionString, session.XEventSession.Session.Name);
-                // Start streaming task here, will run until cancellation or error with the feed.
-                var task = eventStreamer.ReadEventStream(xEvent => HandleXEvent(xEvent, session), threadCancellationToken.Token);
-
-                task.ContinueWith(t =>
-                {
-                    //If cancellation token is missing, that means stream was stopped by the client, do not notify in this case.
-                    CancellationTokenSource targetToken;
-                    if (monitoredCancellationTokenSources.TryGetValue(id, out targetToken))
-                    {
-                        StopSession(session.XEventSession.Id);
-                    }
-                }, TaskContinuationOptions.OnlyOnFaulted);
-
-                this.monitoredCancellationTokenSources.Add(id, threadCancellationToken);
-                session.IsStreaming = true;
-            }
-            else
-            {
+                SendStoppedSessionInfoToListeners(session.XEventSession.Id);
                 ProfilerSession tempSession;
-                RemoveSession(id, out tempSession);
-                throw new Exception(SR.SessionMissingDetails(id));
+                RemoveSession(session.XEventSession.Id, out tempSession);
             }
-        }
+            catch (Exception ex)
+            {
+                Logger.Write(TraceEventType.Warning, "Failed to poll session. error: " + ex.Message);
+            }
+            finally
+            {
+                session.IsPolling = false;
+            }
 
-        /// <summary>
-        /// Helper function for notifying listeners and stopping session in case the session is stopped on the server. This is public for tests.  
-        /// </summary>
-        public void StopSession(int Id)
-        {
-            SendStoppedSessionInfoToListeners(Id);
-            ProfilerSession tempSession;
-            RemoveSession(Id, out tempSession);
+            session.FilterOldEvents(events);
+            return session.FilterProfilerEvents(events);
         }
 
         /// <summary>
@@ -311,7 +314,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             {
                 foreach (var listener in this.listeners)
                 {
-                    foreach (string viewerId in sessionViewers[sessionId])
+                    foreach(string viewerId in sessionViewers[sessionId])
                     {
                         listener.SessionStopped(viewerId, sessionId);
                     }
@@ -331,6 +334,32 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     listener.EventsAvailable(sessionId, events, eventsLost);
                 }
             }
+        }
+
+        /// <summary>
+        /// Parse a single event node from XEvent XML
+        /// </summary>
+        private ProfilerEvent ParseProfilerEvent(XmlNode node)
+        {
+            var name = node.Attributes["name"];
+            var timestamp = node.Attributes["timestamp"];
+
+            var profilerEvent = new ProfilerEvent(name.InnerText, timestamp.InnerText);
+
+            foreach (XmlNode childNode in node.ChildNodes)
+            {
+                var childName = childNode.Attributes["name"];
+                XmlNode typeNode = childNode.SelectSingleNode("type");
+                var typeName = typeNode.Attributes["name"];
+                XmlNode valueNode = childNode.SelectSingleNode("value");
+
+                if (!profilerEvent.Values.ContainsKey(childName.InnerText))
+                {
+                    profilerEvent.Values.Add(childName.InnerText, valueNode.InnerText);
+                }
+            }
+
+            return profilerEvent;
         }
     }
 }
