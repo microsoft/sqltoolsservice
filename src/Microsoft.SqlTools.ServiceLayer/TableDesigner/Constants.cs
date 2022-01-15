@@ -12,6 +12,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         public const string Description = "description";
         public const string Columns = "columns";
         public const string ForeignKeys = "foreignKeys";
+        public const string CheckConstraints = "checkConstraints";
+        public const string Indexes = "indexes";
     }
 
     public static class TableColumnPropertyNames
@@ -51,5 +53,21 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
     {
         public const string PrimaryKeyColumn = "primaryKeyColumn";
         public const string ForeignKeyColumn = "foreignKeyColumn";
+    }
+
+    public static class IndexPropertyNames
+    {
+        public const string Name = "name";
+        public const string Enabled = "enabled";
+        public const string IsUnique = "isUnique";
+        public const string IsClustered = "isClustered";
+        public const string Columns = "columns";
+        public const string ColumnsDisplayValue = "columnsDisplayValue";
+    }
+
+    public static class IndexColumnSpecificationPropertyNames
+    {
+        public const string Column = "column";
+        public const string Ascending = "ascending";
     }
 }

@@ -176,13 +176,49 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     case TablePropertyNames.Columns:
                         table.Columns.AddNew();
                         break;
+                    case TablePropertyNames.CheckConstraints:
+                        table.CheckConstraints.AddNew();
+                        break;
+                    case TablePropertyNames.ForeignKeys:
+                        table.ForeignKeys.AddNew();
+                        break;
+                    case TablePropertyNames.Indexes:
+                        table.Indexes.AddNew();
+                        break;
                     default:
                         break;
                 }
             }
-            else
+            else if (path.Length == 3)
             {
-                // TODO: Handle the add item request on second level properties, e.g. Adding a column to an index
+                var propertyNameL1 = path[0] as string;
+                var indexL1 = Convert.ToInt32(path[1]);
+                var propertyNameL2 = path[2] as string;
+                switch (propertyNameL1)
+                {
+                    case TablePropertyNames.ForeignKeys:
+                        switch (propertyNameL2)
+                        {
+                            case ForeignKeyPropertyNames.ColumnMapping:
+                                // TODO: handle add item to foreign key's column mapping
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    case TablePropertyNames.Indexes:
+                        switch (propertyNameL2)
+                        {
+                            case IndexPropertyNames.Columns:
+                                // TODO: handle add item to index's column specification
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    default:
+                        break;
+                }
             }
         }
 
@@ -194,53 +230,48 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             if (path.Length == 2)
             {
                 var propertyName = path[0] as string;
+                var objIndex = Convert.ToInt32(path[1]);
                 switch (propertyName)
                 {
                     case TablePropertyNames.Columns:
-                        table.Columns.RemoveAt(Convert.ToInt32(path[1]));
+                        table.Columns.RemoveAt(objIndex);
+                        break;
+                    case TablePropertyNames.CheckConstraints:
+                        table.CheckConstraints.RemoveAt(objIndex);
+                        break;
+                    case TablePropertyNames.ForeignKeys:
+                        table.ForeignKeys.RemoveAt(objIndex);
+                        break;
+                    case TablePropertyNames.Indexes:
+                        table.Indexes.RemoveAt(objIndex);
                         break;
                     default:
                         break;
                 }
             }
-            else
+            else if (path.Length == 4)
             {
-                // TODO: Handle the add item request on second level properties, e.g. Adding a column to an index
-            }
-        }
-
-        private void HandleUpdateItemRequest(ProcessTableDesignerEditRequestParams requestParams)
-        {
-            var table = this.GetTableDesigner(requestParams.TableInfo).TableViewModel;
-            var path = requestParams.TableChangeInfo.Path;
-
-            if (path.Length == 3)
-            {
-                var propertyName = path[0] as string;
-                switch (propertyName)
+                var propertyNameL1 = path[0] as string;
+                var indexL1 = Convert.ToInt32(path[1]);
+                var propertyNameL2 = path[2] as string;
+                var indexL2 = Convert.ToInt32(path[3]);
+                switch (propertyNameL1)
                 {
-                    case TablePropertyNames.Columns:
-                        var colIndex = Convert.ToInt32(path[1]);
-                        var colPropertyName = path[2] as string;
-                        switch (colPropertyName)
+                    case TablePropertyNames.ForeignKeys:
+                        switch (propertyNameL2)
                         {
-                            case TableColumnPropertyNames.Name:
-                                table.Columns.Items[colIndex].Name = requestParams.TableChangeInfo.Value as string;
+                            case ForeignKeyPropertyNames.ColumnMapping:
+                                // TODO: handle remove item from foreign key's column mapping
                                 break;
-                            case TableColumnPropertyNames.Length:
-                                table.Columns.Items[colIndex].Length = requestParams.TableChangeInfo.Value as string;
+                            default:
                                 break;
-                            case TableColumnPropertyNames.AllowNulls:
-                                table.Columns.Items[colIndex].IsNullable = (bool)requestParams.TableChangeInfo.Value;
-                                break;
-                            case TableColumnPropertyNames.Precision:
-                                table.Columns.Items[colIndex].Precision = Int32.Parse(requestParams.TableChangeInfo.Value as string);
-                                break;
-                            case TableColumnPropertyNames.Scale:
-                                table.Columns.Items[colIndex].Scale = Int32.Parse(requestParams.TableChangeInfo.Value as string);
-                                break;
-                            case TableColumnPropertyNames.Type:
-                                table.Columns.Items[colIndex].DataType = requestParams.TableChangeInfo.Value as string;
+                        }
+                        break;
+                    case TablePropertyNames.Indexes:
+                        switch (propertyNameL2)
+                        {
+                            case IndexPropertyNames.Columns:
+                                // TODO: handle remove item from index's column specification
                                 break;
                             default:
                                 break;
@@ -250,6 +281,201 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         break;
                 }
             }
+        }
+
+        private void HandleUpdateItemRequest(ProcessTableDesignerEditRequestParams requestParams)
+        {
+            var table = this.GetTableDesigner(requestParams.TableInfo).TableViewModel;
+            var path = requestParams.TableChangeInfo.Path;
+            var newValue = requestParams.TableChangeInfo.Value;
+            if (path.Length == 1)
+            {
+                var propertyName = path[0] as string;
+                switch (propertyName)
+                {
+                    case TablePropertyNames.Description:
+                        table.Description = GetStringValue(newValue);
+                        break;
+                    case TablePropertyNames.Name:
+                        table.Name = GetStringValue(newValue);
+                        break;
+                    case TablePropertyNames.Schema:
+                        table.Schema = GetStringValue(newValue);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else if (path.Length == 3)
+            {
+                var propertyNameL1 = path[0] as string;
+                var indexL1 = Convert.ToInt32(path[1]);
+                var propertyNameL2 = path[2] as string;
+                switch (propertyNameL1)
+                {
+                    case TablePropertyNames.Columns:
+                        var column = table.Columns.Items[indexL1];
+                        switch (propertyNameL2)
+                        {
+                            case TableColumnPropertyNames.Name:
+                                column.Name = GetStringValue(newValue);
+                                break;
+                            case TableColumnPropertyNames.Length:
+                                column.Length = GetStringValue(newValue);
+                                break;
+                            case TableColumnPropertyNames.AllowNulls:
+                                column.IsNullable = GetBooleanValue(newValue);
+                                break;
+                            case TableColumnPropertyNames.Precision:
+                                column.Precision = GetInt32Value(newValue);
+                                break;
+                            case TableColumnPropertyNames.Scale:
+                                column.Scale = GetInt32Value(newValue);
+                                break;
+                            case TableColumnPropertyNames.Type:
+                                column.DataType = GetStringValue(newValue);
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    case TablePropertyNames.CheckConstraints:
+                        var checkConstraint = table.CheckConstraints.Items[indexL1];
+                        switch (propertyNameL2)
+                        {
+                            case CheckConstraintPropertyNames.Name:
+                                checkConstraint.Name = GetStringValue(newValue);
+                                break;
+                            case CheckConstraintPropertyNames.Enabled:
+                                checkConstraint.Enabled = GetBooleanValue(newValue);
+                                break;
+                            case CheckConstraintPropertyNames.Expression:
+                                checkConstraint.Expression = GetStringValue(newValue);
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    case TablePropertyNames.ForeignKeys:
+                        var foreignKey = table.ForeignKeys.Items[indexL1];
+                        switch (propertyNameL2)
+                        {
+                            case ForeignKeyPropertyNames.Enabled:
+                                foreignKey.Enabled = GetBooleanValue(newValue);
+                                break;
+                            case ForeignKeyPropertyNames.IsNotForReplication:
+                                foreignKey.IsNotForReplication = GetBooleanValue(newValue);
+                                break;
+                            case ForeignKeyPropertyNames.Name:
+                                foreignKey.Name = GetStringValue(newValue);
+                                break;
+                            case ForeignKeyPropertyNames.OnDeleteAction:
+                                foreignKey.OnDeleteAction = SqlForeignKeyActionUtil.GetValue(GetStringValue(newValue));
+                                break;
+                            case ForeignKeyPropertyNames.OnUpdateAction:
+                                foreignKey.OnUpdateAction = SqlForeignKeyActionUtil.GetValue(GetStringValue(newValue));
+                                break;
+                            case ForeignKeyPropertyNames.PrimaryKeyTable:
+                                foreignKey.PrimaryKeyTable = GetStringValue(newValue);
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    case TablePropertyNames.Indexes:
+                        var sqlIndex = table.Indexes.Items[indexL1];
+                        switch (propertyNameL2)
+                        {
+                            case IndexPropertyNames.Enabled:
+                                sqlIndex.Enabled = GetBooleanValue(newValue);
+                                break;
+                            case IndexPropertyNames.IsClustered:
+                                sqlIndex.IsClustered = GetBooleanValue(newValue);
+                                break;
+                            case IndexPropertyNames.IsUnique:
+                                sqlIndex.IsUnique = GetBooleanValue(newValue);
+                                break;
+                            case IndexPropertyNames.Name:
+                                sqlIndex.Name = GetStringValue(newValue);
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else if (path.Length == 5)
+            {
+                var propertyNameL1 = path[0] as string;
+                var indexL1 = Convert.ToInt32(path[1]);
+                var propertyNameL2 = path[2] as string;
+                var indexL2 = Convert.ToInt32(path[3]);
+                var propertyNameL3 = path[4] as string;
+                switch (propertyNameL1)
+                {
+                    case TablePropertyNames.ForeignKeys:
+                        // TODO: handle foreign key collection property update
+                        // changes need to be made in DACFX to support it.
+                        switch (propertyNameL2)
+                        {
+                            case ForeignKeyPropertyNames.ColumnMapping:
+                                switch (propertyNameL3)
+                                {
+                                    case ForeignKeyColumnMappingPropertyNames.ForeignKeyColumn:
+                                        break;
+                                    case ForeignKeyColumnMappingPropertyNames.PrimaryKeyColumn:
+                                        break;
+                                    default:
+                                        break;
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    case TablePropertyNames.Indexes:
+                        var sqlIndex = table.Indexes.Items[indexL1];
+                        switch (propertyNameL2)
+                        {
+                            case IndexPropertyNames.Columns:
+                                var columnSpec = sqlIndex.Columns[indexL2];
+                                switch (propertyNameL3)
+                                {
+                                    case IndexColumnSpecificationPropertyNames.Column:
+                                        columnSpec.Column = GetStringValue(newValue);
+                                        break;
+                                    case IndexColumnSpecificationPropertyNames.Ascending:
+                                        columnSpec.isAscending = GetBooleanValue(newValue);
+                                        break;
+                                    default:
+                                        break;
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        private int GetInt32Value(object value)
+        {
+            return Int32.Parse(value as string);
+        }
+
+        private string GetStringValue(object value)
+        {
+            return value as string;
+        }
+
+        private bool GetBooleanValue(object value)
+        {
+            return (bool)value;
         }
 
         private TableViewModel GetTableViewModel(TableInfo tableInfo)
@@ -324,6 +550,25 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 tableViewModel.CheckConstraints.Data.Add(constraint);
             }
 
+            foreach (var index in table.Indexes.Items)
+            {
+                var indexVM = new IndexViewModel();
+                indexVM.Name.Value = index.Name;
+                indexVM.IsClustered.Checked = index.IsClustered;
+                indexVM.Enabled.Checked = index.Enabled;
+                indexVM.IsUnique.Checked = index.IsUnique;
+                foreach (var columnSpec in index.Columns)
+                {
+                    var columnSpecVM = new IndexedColumnSpecification();
+                    columnSpecVM.Ascending.Checked = columnSpec.isAscending;
+                    columnSpecVM.Column.Value = columnSpec.Column;
+                    columnSpecVM.Column.Values = table.Columns.Items.Select(c => c.Name).ToList();
+                    indexVM.Columns.Data.Add(columnSpecVM);
+                }
+                indexVM.ColumnsDisplayValue.Value = index.ColumnsDisplayValue;
+                indexVM.ColumnsDisplayValue.Enabled = false;
+                tableViewModel.Indexes.Data.Add(indexVM);
+            }
             tableViewModel.Script.Enabled = false;
             tableViewModel.Script.Value = tableDesigner.Script;
             // TODO: set other properties of the table
@@ -333,64 +578,84 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         private TableDesignerView GetDesignerViewInfo(TableInfo tableInfo)
         {
             var view = new TableDesignerView();
+            this.SetColumnsViewInfo(view);
+            this.SetForeignKeysViewInfo(view);
+            this.SetCheckConstraintsViewInfo(view);
+            this.SetIndexesViewInfo(view);
+            return view;
+        }
+
+        private void SetColumnsViewInfo(TableDesignerView view)
+        {
             view.ColumnTableOptions.AdditionalProperties.AddRange(new DesignerDataPropertyInfo[] {
                 new DesignerDataPropertyInfo()
-            {
-                PropertyName = TableColumnPropertyNames.IsIdentity,
-                Description = SR.TableColumnIsIdentityPropertyDescription,
-                Group = SR.TableColumnIdentityGroupName,
-                ComponentType = DesignerComponentType.Checkbox,
-                ComponentProperties = new CheckBoxProperties()
                 {
-                    Title = SR.TableColumnIsIdentityPropertyTitle
-                }
-            }, new DesignerDataPropertyInfo()
-            {
-                PropertyName = TableColumnPropertyNames.IdentitySeed,
-                Description = SR.TableColumnIdentitySeedPropertyDescription,
-                Group = SR.TableColumnIdentityGroupName,
-                ComponentType = DesignerComponentType.Input,
-                ComponentProperties = new InputBoxProperties()
+                    PropertyName = TableColumnPropertyNames.IsIdentity,
+                    Description = SR.TableColumnIsIdentityPropertyDescription,
+                    Group = SR.TableColumnIdentityGroupName,
+                    ComponentType = DesignerComponentType.Checkbox,
+                    ComponentProperties = new CheckBoxProperties()
+                    {
+                        Title = SR.TableColumnIsIdentityPropertyTitle
+                    }
+                },
+                new DesignerDataPropertyInfo()
                 {
-                    Title = SR.TableColumnIdentitySeedPropertyTitle
-                }
-            },new DesignerDataPropertyInfo()
-            {
-                PropertyName = TableColumnPropertyNames.IdentityIncrement,
-                Description = SR.TableColumnIdentityIncrementPropertyDescription,
-                Group = SR.TableColumnIdentityGroupName,
-                ComponentType = DesignerComponentType.Input,
-                ComponentProperties = new InputBoxProperties()
+                    PropertyName = TableColumnPropertyNames.IdentitySeed,
+                    Description = SR.TableColumnIdentitySeedPropertyDescription,
+                    Group = SR.TableColumnIdentityGroupName,
+                    ComponentType = DesignerComponentType.Input,
+                    ComponentProperties = new InputBoxProperties()
+                    {
+                        Title = SR.TableColumnIdentitySeedPropertyTitle
+                    }
+                },
+                new DesignerDataPropertyInfo()
                 {
-                    Title = SR.TableColumnIdentityIncrementPropertyTitle
+                    PropertyName = TableColumnPropertyNames.IdentityIncrement,
+                    Description = SR.TableColumnIdentityIncrementPropertyDescription,
+                    Group = SR.TableColumnIdentityGroupName,
+                    ComponentType = DesignerComponentType.Input,
+                    ComponentProperties = new InputBoxProperties()
+                    {
+                        Title = SR.TableColumnIdentityIncrementPropertyTitle
+                    }
                 }
-            }});
+            });
             view.ColumnTableOptions.canAddRows = true;
             view.ColumnTableOptions.canRemoveRows = true;
+        }
 
+        private void SetForeignKeysViewInfo(TableDesignerView view)
+        {
             view.ForeignKeyTableOptions.AdditionalProperties.AddRange(new DesignerDataPropertyInfo[] {
-            new DesignerDataPropertyInfo()
-            {
-                PropertyName = ForeignKeyPropertyNames.Enabled,
-                Description = SR.ForeignKeyIsEnabledDescription,
-                ComponentType = DesignerComponentType.Checkbox,
-                ComponentProperties = new CheckBoxProperties()
+                new DesignerDataPropertyInfo()
                 {
-                    Title = SR.TableDesignerIsEnabledPropertyTitle
-                }
-            },
-            new DesignerDataPropertyInfo()
-            {
-                PropertyName = ForeignKeyPropertyNames.IsNotForReplication,
-                Description = SR.ForeignKeyIsNotForReplicationDescription,
-                ComponentType = DesignerComponentType.Checkbox,
-                ComponentProperties = new CheckBoxProperties()
+                    PropertyName = ForeignKeyPropertyNames.Enabled,
+                    Description = SR.ForeignKeyIsEnabledDescription,
+                    ComponentType = DesignerComponentType.Checkbox,
+                    ComponentProperties = new CheckBoxProperties()
+                    {
+                        Title = SR.TableDesignerIsEnabledPropertyTitle
+                    }
+                },
+                new DesignerDataPropertyInfo()
                 {
-                    Title = SR.ForeignKeyIsNotForReplicationTitle
+                    PropertyName = ForeignKeyPropertyNames.IsNotForReplication,
+                    Description = SR.ForeignKeyIsNotForReplicationDescription,
+                    ComponentType = DesignerComponentType.Checkbox,
+                    ComponentProperties = new CheckBoxProperties()
+                    {
+                        Title = SR.ForeignKeyIsNotForReplicationTitle
+                    }
                 }
-            }});
+            });
             view.ForeignKeyTableOptions.canAddRows = true;
             view.ForeignKeyTableOptions.canRemoveRows = true;
+        }
+
+        private void SetCheckConstraintsViewInfo(TableDesignerView view)
+        {
             view.CheckConstraintTableOptions.AdditionalProperties.Add(
                 new DesignerDataPropertyInfo()
                 {
@@ -404,7 +669,71 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 });
             view.CheckConstraintTableOptions.canAddRows = true;
             view.CheckConstraintTableOptions.canRemoveRows = true;
-            return view;
+        }
+
+        private void SetIndexesViewInfo(TableDesignerView view)
+        {
+            view.IndexTableOptions.AdditionalProperties.AddRange(new DesignerDataPropertyInfo[] {
+                new DesignerDataPropertyInfo()
+                {
+                    PropertyName = IndexPropertyNames.ColumnsDisplayValue,
+                    ShowInPropertiesView = false,
+                    ComponentType = DesignerComponentType.Input,
+                    ComponentProperties = new InputBoxProperties()
+                    {
+                        Title = SR.TableDesignerColumnsDisplayValueTitle,
+                        Width = 200
+                    }
+                },
+                new DesignerDataPropertyInfo()
+                {
+                    PropertyName = IndexPropertyNames.Enabled,
+                    Description = SR.IndexIsEnabledPropertyDescription,
+                    ComponentType = DesignerComponentType.Checkbox,
+                    ComponentProperties = new CheckBoxProperties()
+                    {
+                        Title = SR.TableDesignerIsEnabledPropertyTitle
+                    }
+                },
+                new DesignerDataPropertyInfo()
+                {
+                    PropertyName = IndexPropertyNames.IsClustered,
+                    Description = SR.IndexIsClusteredPropertyDescription,
+                    ComponentType = DesignerComponentType.Checkbox,
+                    ComponentProperties = new CheckBoxProperties()
+                    {
+                        Title = SR.TableDesignerIndexIsClusteredPropertyTitle
+                    }
+                },
+                new DesignerDataPropertyInfo()
+                {
+                    PropertyName = IndexPropertyNames.IsUnique,
+                    Description = SR.IndexIsUniquePropertyDescription,
+                    ComponentType = DesignerComponentType.Checkbox,
+                    ComponentProperties = new CheckBoxProperties()
+                    {
+                        Title = SR.TableDesignerIsUniquePropertyTitle
+                    }
+                }
+            });
+            view.IndexTableOptions.PropertiesToDisplay = new List<string>() { IndexPropertyNames.Name, IndexPropertyNames.ColumnsDisplayValue, IndexPropertyNames.IsClustered, IndexPropertyNames.IsUnique };
+            view.IndexTableOptions.canAddRows = true;
+            view.IndexTableOptions.canRemoveRows = true;
+
+            view.IndexColumnSpecificationTableOptions.AdditionalProperties.Add(
+                new DesignerDataPropertyInfo()
+                {
+                    PropertyName = IndexColumnSpecificationPropertyNames.Ascending,
+                    Description = SR.IndexColumnIsAscendingPropertyDescription,
+                    ComponentType = DesignerComponentType.Checkbox,
+                    ComponentProperties = new CheckBoxProperties()
+                    {
+                        Title = SR.IndexColumnIsAscendingPropertyTitle
+                    }
+                });
+            view.IndexColumnSpecificationTableOptions.PropertiesToDisplay.AddRange(new string[] { IndexColumnSpecificationPropertyNames.Column, IndexColumnSpecificationPropertyNames.Ascending });
+            view.IndexColumnSpecificationTableOptions.canAddRows = true;
+            view.IndexColumnSpecificationTableOptions.canRemoveRows = true;
         }
 
         private Dac.TableDesigner GetTableDesigner(TableInfo tableInfo)
