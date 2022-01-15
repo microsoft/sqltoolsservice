@@ -317,14 +317,29 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         var column = table.Columns.Items[indexL1];
                         switch (propertyNameL2)
                         {
-                            case TableColumnPropertyNames.Name:
-                                column.Name = GetStringValue(newValue);
+                            case TableColumnPropertyNames.AllowNulls:
+                                column.IsNullable = GetBooleanValue(newValue);
+                                break;
+                            case TableColumnPropertyNames.DefaultValue:
+                                column.DefaultValue = GetStringValue(newValue);
+                                break;
+                            case TableColumnPropertyNames.IdentityIncrement:
+                                column.IdentityIncrement = GetInt32Value(newValue);
+                                break;
+                            case TableColumnPropertyNames.IdentitySeed:
+                                column.IdentitySeed = GetInt32Value(newValue);
+                                break;
+                            case TableColumnPropertyNames.IsIdentity:
+                                column.IsIdentity = GetBooleanValue(newValue);
+                                break;
+                            case TableColumnPropertyNames.IsPrimaryKey:
+                                column.IsPrimaryKey = GetBooleanValue(newValue);
                                 break;
                             case TableColumnPropertyNames.Length:
                                 column.Length = GetStringValue(newValue);
                                 break;
-                            case TableColumnPropertyNames.AllowNulls:
-                                column.IsNullable = GetBooleanValue(newValue);
+                            case TableColumnPropertyNames.Name:
+                                column.Name = GetStringValue(newValue);
                                 break;
                             case TableColumnPropertyNames.Precision:
                                 column.Precision = GetInt32Value(newValue);
