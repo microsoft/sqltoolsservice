@@ -55,7 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
             List<ExecutionPlanGraphPropertyBase> propsList = new List<ExecutionPlanGraphPropertyBase>();
             foreach (PropertyValue prop in props)
             {
-                var complexProperty = prop.Value as Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph.ExpandableObjectWrapper;
+                var complexProperty = prop.Value as ExpandableObjectWrapper;
                 if (complexProperty == null)
                 {
                     var propertyValue = prop.DisplayValue;
