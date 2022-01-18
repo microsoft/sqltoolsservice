@@ -225,8 +225,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         switch (colPropertyName)
                         {
                             case TableColumnPropertyNames.Name:
-                                table.Columns.Items[colIndex].Delete();
-                                // table.Columns.Items[colIndex].Name = requestParams.TableChangeInfo.Value as string;
+                                table.Columns.Items[colIndex].Name = requestParams.TableChangeInfo.Value as string;
                                 break;
                             case TableColumnPropertyNames.Length:
                                 table.Columns.Items[colIndex].Length = requestParams.TableChangeInfo.Value as string;
@@ -242,6 +241,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                                 break;
                             case TableColumnPropertyNames.Type:
                                 table.Columns.Items[colIndex].DataType = requestParams.TableChangeInfo.Value as string;
+                                break;
+                            case TableColumnPropertyNames.IsPrimaryKey:
+                                table.Columns.Items[colIndex].IsPrimaryKey = (bool)requestParams.TableChangeInfo.Value;
                                 break;
                             default:
                                 break;
