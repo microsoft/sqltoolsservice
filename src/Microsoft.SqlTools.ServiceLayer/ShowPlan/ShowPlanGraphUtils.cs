@@ -50,19 +50,37 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
             };
         }
 
-        private static List<ExecutionPlanGraphElementProperties> GetProperties(PropertyDescriptorCollection props)
+        private static List<ExecutionPlanGraphPropertyBase> GetProperties(PropertyDescriptorCollection props)
         {
-            List<ExecutionPlanGraphElementProperties> propsList = new List<ExecutionPlanGraphElementProperties>();
+            List<ExecutionPlanGraphPropertyBase> propsList = new List<ExecutionPlanGraphPropertyBase>();
             foreach (PropertyValue prop in props)
             {
-                propsList.Add(new ExecutionPlanGraphElementProperties()
+                var complexProperty = prop.Value as ExpandableObjectWrapper;
+                if (complexProperty == null)
                 {
-                    Name = prop.DisplayName,
-                    FormattedValue = prop.DisplayValue,
-                    ShowInTooltip = prop.IsBrowsable,
-                    DisplayOrder = prop.DisplayOrder,
-                    IsLongString = prop.IsLongString
-                });
+                    var propertyValue = prop.DisplayValue;
+                    propsList.Add(new ExecutionPlanGraphProperty()
+                    {
+                        Name = prop.DisplayName,
+                        Value = propertyValue,
+                        ShowInTooltip = prop.IsBrowsable,
+                        DisplayOrder = prop.DisplayOrder,
+                        IsLongString = prop.IsLongString,
+                    });
+                }
+                else
+                {
+                    var propertyValue = GetProperties(complexProperty.Properties);
+                    propsList.Add(new NestedExecutionPlanGraphProperty()
+                    {
+                        Name = prop.DisplayName,
+                        Value = propertyValue,
+                        ShowInTooltip = prop.IsBrowsable,
+                        DisplayOrder = prop.DisplayOrder,
+                        IsLongString = prop.IsLongString,
+                    });
+                }
+
             }
             return propsList;
         }
