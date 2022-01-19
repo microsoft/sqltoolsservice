@@ -4689,4 +4689,36 @@
     <value>Specifies whether the check constraint is Enabled</value>
     <comment></comment>
   </data>
+  <data name="IndexIsEnabledPropertyDescription" xml:space="preserve">
+    <value>Specifies whether the index is enabled</value>
+    <comment></comment>
+  </data>
+  <data name="IndexIsClusteredPropertyDescription" xml:space="preserve">
+    <value>Whether the index is clustered, only one clustered index is allowed in a table.</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerIndexIsClusteredPropertyTitle" xml:space="preserve">
+    <value>Is Clustered</value>
+    <comment></comment>
+  </data>
+  <data name="IndexIsUniquePropertyDescription" xml:space="preserve">
+    <value>Whether the data entered into this index must be unique.</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerIsUniquePropertyTitle" xml:space="preserve">
+    <value>Is Unique</value>
+    <comment></comment>
+  </data>
+  <data name="IndexColumnIsAscendingPropertyDescription" xml:space="preserve">
+    <value>Specifies the sort order of the column.</value>
+    <comment></comment>
+  </data>
+  <data name="IndexColumnIsAscendingPropertyTitle" xml:space="preserve">
+    <value>Is Ascending</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerColumnsDisplayValueTitle" xml:space="preserve">
+    <value>Columns</value>
+    <comment></comment>
+  </data>
 </root>
