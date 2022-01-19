@@ -33,101 +33,101 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     {
         #region Properties
 
-        public DeploymentOptionProperty<object> IgnoreTableOptions { get; set; }
+        public DeploymentOptionProperty<bool> IgnoreTableOptions { get; set; }
 
-        public DeploymentOptionProperty<object> IgnoreSemicolonBetweenStatements { get; set; }
+        public DeploymentOptionProperty<bool> IgnoreSemicolonBetweenStatements { get; set; }
 
-        public DeploymentOptionProperty<object> IgnoreRouteLifetime { get; set; }
+        public DeploymentOptionProperty<bool> IgnoreRouteLifetime { get; set; }
 
-        public DeploymentOptionProperty<object> IgnoreRoleMembership { get; set; }
+        public DeploymentOptionProperty<bool> IgnoreRoleMembership { get; set; }
 
-        public DeploymentOptionProperty<object> IgnoreQuotedIdentifiers { get; set; }
+        public DeploymentOptionProperty<bool> IgnoreQuotedIdentifiers { get; set; }
 
-        public DeploymentOptionProperty<object> IgnorePermissions { get; set; }
+        public DeploymentOptionProperty<bool> IgnorePermissions { get; set; }
 
-        public DeploymentOptionProperty<object> IgnorePartitionSchemes { get; set; }
+        public DeploymentOptionProperty<bool> IgnorePartitionSchemes { get; set; }
 
-        public DeploymentOptionProperty<object> IgnoreObjectPlacementOnPartitionScheme { get; set; }
+        public DeploymentOptionProperty<bool> IgnoreObjectPlacementOnPartitionScheme { get; set; }
 
-        public DeploymentOptionProperty<object> IgnoreNotForReplication { get; set; }
+        public DeploymentOptionProperty<bool> IgnoreNotForReplication { get; set; }
 
-        public DeploymentOptionProperty<object> IgnoreLoginSids { get; set; }
+        public DeploymentOptionProperty<bool> IgnoreLoginSids { get; set; }
 
-        public DeploymentOptionProperty<object> IgnoreLockHintsOnIndexes { get; set; }
+        public DeploymentOptionProperty<bool> IgnoreLockHintsOnIndexes { get; set; }
 
-        public DeploymentOptionProperty<object> IgnoreKeywordCasing { get; set; }
+        public DeploymentOptionProperty<bool> IgnoreKeywordCasing { get; set; }
 
-        public DeploymentOptionProperty<object> IgnoreIndexPadding { get; set; }
+        public DeploymentOptionProperty<bool> IgnoreIndexPadding { get; set; }
 
-        public DeploymentOptionProperty<object> IgnoreIndexOptions { get; set; }
+        public DeploymentOptionProperty<bool> IgnoreIndexOptions { get; set; }
 
-        public DeploymentOptionProperty<object> IgnoreIncrement { get; set; }
+        public DeploymentOptionProperty<bool> IgnoreIncrement { get; set; }
 
-        public DeploymentOptionProperty<object> IgnoreIdentitySeed { get; set; }
+        public DeploymentOptionProperty<bool> IgnoreIdentitySeed { get; set; }
 
-        public DeploymentOptionProperty<object> IgnoreUserSettingsObjects { get; set; }
+        public DeploymentOptionProperty<bool> IgnoreUserSettingsObjects { get; set; }
 
-        public DeploymentOptionProperty<object> IgnoreFullTextCatalogFilePath { get; set; }
+        public DeploymentOptionProperty<bool> IgnoreFullTextCatalogFilePath { get; set; }
 
-        public DeploymentOptionProperty<object> IgnoreWhitespace { get; set; }
+        public DeploymentOptionProperty<bool> IgnoreWhitespace { get; set; }
 
-        public DeploymentOptionProperty<object> IgnoreWithNocheckOnForeignKeys { get; set; }
+        public DeploymentOptionProperty<bool> IgnoreWithNocheckOnForeignKeys { get; set; }
 
-        public DeploymentOptionProperty<object> VerifyCollationCompatibility { get; set; }
+        public DeploymentOptionProperty<bool> VerifyCollationCompatibility { get; set; }
 
-        public DeploymentOptionProperty<object> UnmodifiableObjectWarnings { get; set; }
+        public DeploymentOptionProperty<bool> UnmodifiableObjectWarnings { get; set; }
 
-        public DeploymentOptionProperty<object> TreatVerificationErrorsAsWarnings { get; set; }
+        public DeploymentOptionProperty<bool> TreatVerificationErrorsAsWarnings { get; set; }
 
-        public DeploymentOptionProperty<object> ScriptRefreshModule { get; set; }
+        public DeploymentOptionProperty<bool> ScriptRefreshModule { get; set; }
 
-        public DeploymentOptionProperty<object> ScriptNewConstraintValidation { get; set; }
+        public DeploymentOptionProperty<bool> ScriptNewConstraintValidation { get; set; }
 
-        public DeploymentOptionProperty<object> ScriptFileSize { get; set; }
+        public DeploymentOptionProperty<bool> ScriptFileSize { get; set; }
 
-        public DeploymentOptionProperty<object> ScriptDeployStateChecks { get; set; }
+        public DeploymentOptionProperty<bool> ScriptDeployStateChecks { get; set; }
 
-        public DeploymentOptionProperty<object> ScriptDatabaseOptions { get; set; }
+        public DeploymentOptionProperty<bool> ScriptDatabaseOptions { get; set; }
 
-        public DeploymentOptionProperty<object> ScriptDatabaseCompatibility { get; set; }
+        public DeploymentOptionProperty<bool> ScriptDatabaseCompatibility { get; set; }
 
-        public DeploymentOptionProperty<object> ScriptDatabaseCollation { get; set; }
+        public DeploymentOptionProperty<bool> ScriptDatabaseCollation { get; set; }
 
-        public DeploymentOptionProperty<object> RunDeploymentPlanExecutors { get; set; }
+        public DeploymentOptionProperty<bool> RunDeploymentPlanExecutors { get; set; }
 
-        public DeploymentOptionProperty<object> RegisterDataTierApplication { get; set; }
+        public DeploymentOptionProperty<bool> RegisterDataTierApplication { get; set; }
 
-        public DeploymentOptionProperty<object> PopulateFilesOnFileGroups { get; set; }
+        public DeploymentOptionProperty<bool> PopulateFilesOnFileGroups { get; set; }
 
-        public DeploymentOptionProperty<object> NoAlterStatementsToChangeClrTypes { get; set; }
+        public DeploymentOptionProperty<bool> NoAlterStatementsToChangeClrTypes { get; set; }
 
-        public DeploymentOptionProperty<object> IncludeTransactionalScripts { get; set; }
+        public DeploymentOptionProperty<bool> IncludeTransactionalScripts { get; set; }
 
-        public DeploymentOptionProperty<object> IncludeCompositeObjects { get; set; }
+        public DeploymentOptionProperty<bool> IncludeCompositeObjects { get; set; }
 
-        public DeploymentOptionProperty<object> AllowUnsafeRowLevelSecurityDataMovement { get; set; }
+        public DeploymentOptionProperty<bool> AllowUnsafeRowLevelSecurityDataMovement { get; set; }
 
-        public DeploymentOptionProperty<object> IgnoreWithNocheckOnCheckConstraints { get; set; }
+        public DeploymentOptionProperty<bool> IgnoreWithNocheckOnCheckConstraints { get; set; }
 
-        public DeploymentOptionProperty<object> IgnoreFillFactor { get; set; }
+        public DeploymentOptionProperty<bool> IgnoreFillFactor { get; set; }
 
-        public DeploymentOptionProperty<object> IgnoreFileSize { get; set; }
+        public DeploymentOptionProperty<bool> IgnoreFileSize { get; set; }
 
-        public DeploymentOptionProperty<object> IgnoreFilegroupPlacement { get; set; }
+        public DeploymentOptionProperty<bool> IgnoreFilegroupPlacement { get; set; }
 
-        public DeploymentOptionProperty<object> DoNotAlterReplicatedObjects { get; set; }
+        public DeploymentOptionProperty<bool> DoNotAlterReplicatedObjects { get; set; }
 
-        public DeploymentOptionProperty<object> DoNotAlterChangeDataCaptureObjects { get; set; }
+        public DeploymentOptionProperty<bool> DoNotAlterChangeDataCaptureObjects { get; set; }
 
-        public DeploymentOptionProperty<object> DisableAndReenableDdlTriggers { get; set; }
+        public DeploymentOptionProperty<bool> DisableAndReenableDdlTriggers { get; set; }
 
-        public DeploymentOptionProperty<object> DeployDatabaseInSingleUserMode { get; set; }
+        public DeploymentOptionProperty<bool> DeployDatabaseInSingleUserMode { get; set; }
 
-        public DeploymentOptionProperty<object> CreateNewDatabase { get; set; }
+        public DeploymentOptionProperty<bool> CreateNewDatabase { get; set; }
 
-        public DeploymentOptionProperty<object> CompareUsingTargetCollation { get; set; }
+        public DeploymentOptionProperty<bool> CompareUsingTargetCollation { get; set; }
 
-        public DeploymentOptionProperty<object> CommentOutSetVarDeclarations { get; set; }
+        public DeploymentOptionProperty<bool> CommentOutSetVarDeclarations { get; set; }
 
         public DeploymentOptionProperty<object> CommandTimeout { get; set; } = new DeploymentOptionProperty<object> { Value = 120, Description = string.Empty };
 
@@ -135,69 +135,69 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 
         public DeploymentOptionProperty<object> DatabaseLockTimeout { get; set; } = new DeploymentOptionProperty<object> { Value = 60, Description = string.Empty };
 
-        public DeploymentOptionProperty<object> BlockWhenDriftDetected { get; set; }
+        public DeploymentOptionProperty<bool> BlockWhenDriftDetected { get; set; }
 
-        public DeploymentOptionProperty<object> BlockOnPossibleDataLoss { get; set; }
+        public DeploymentOptionProperty<bool> BlockOnPossibleDataLoss { get; set; }
 
-        public DeploymentOptionProperty<object> BackupDatabaseBeforeChanges { get; set; }
+        public DeploymentOptionProperty<bool> BackupDatabaseBeforeChanges { get; set; }
 
-        public DeploymentOptionProperty<object> AllowIncompatiblePlatform { get; set; }
+        public DeploymentOptionProperty<bool> AllowIncompatiblePlatform { get; set; }
 
-        public DeploymentOptionProperty<object> AllowDropBlockingAssemblies { get; set; }
+        public DeploymentOptionProperty<bool> AllowDropBlockingAssemblies { get; set; }
 
-        public DeploymentOptionProperty<object> AdditionalDeploymentContributorArguments { get; set; } = new DeploymentOptionProperty<object>();
+        public DeploymentOptionProperty<string> AdditionalDeploymentContributorArguments { get; set; }
 
-        public DeploymentOptionProperty<object> AdditionalDeploymentContributors { get; set; } = new DeploymentOptionProperty<object>();
+        public DeploymentOptionProperty<string> AdditionalDeploymentContributors { get; set; }
 
-        public DeploymentOptionProperty<object> DropConstraintsNotInSource { get; set; }
+        public DeploymentOptionProperty<bool> DropConstraintsNotInSource { get; set; }
 
-        public DeploymentOptionProperty<object> DropDmlTriggersNotInSource { get; set; }
+        public DeploymentOptionProperty<bool> DropDmlTriggersNotInSource { get; set; }
 
-        public DeploymentOptionProperty<object> DropExtendedPropertiesNotInSource { get; set; }
+        public DeploymentOptionProperty<bool> DropExtendedPropertiesNotInSource { get; set; }
 
-        public DeploymentOptionProperty<object> DropIndexesNotInSource { get; set; }
+        public DeploymentOptionProperty<bool> DropIndexesNotInSource { get; set; }
 
-        public DeploymentOptionProperty<object> IgnoreFileAndLogFilePath { get; set; }
+        public DeploymentOptionProperty<bool> IgnoreFileAndLogFilePath { get; set; }
 
-        public DeploymentOptionProperty<object> IgnoreExtendedProperties { get; set; }
+        public DeploymentOptionProperty<bool> IgnoreExtendedProperties { get; set; }
 
-        public DeploymentOptionProperty<object> IgnoreDmlTriggerState { get; set; }
+        public DeploymentOptionProperty<bool> IgnoreDmlTriggerState { get; set; }
 
-        public DeploymentOptionProperty<object> IgnoreDmlTriggerOrder { get; set; }
+        public DeploymentOptionProperty<bool> IgnoreDmlTriggerOrder { get; set; }
 
-        public DeploymentOptionProperty<object> IgnoreDefaultSchema { get; set; }
+        public DeploymentOptionProperty<bool> IgnoreDefaultSchema { get; set; }
 
-        public DeploymentOptionProperty<object> IgnoreDdlTriggerState { get; set; }
+        public DeploymentOptionProperty<bool> IgnoreDdlTriggerState { get; set; }
 
-        public DeploymentOptionProperty<object> IgnoreDdlTriggerOrder { get; set; }
+        public DeploymentOptionProperty<bool> IgnoreDdlTriggerOrder { get; set; }
 
-        public DeploymentOptionProperty<object> IgnoreCryptographicProviderFilePath { get; set; }
+        public DeploymentOptionProperty<bool> IgnoreCryptographicProviderFilePath { get; set; }
 
-        public DeploymentOptionProperty<object> VerifyDeployment { get; set; }
+        public DeploymentOptionProperty<bool> VerifyDeployment { get; set; }
 
-        public DeploymentOptionProperty<object> IgnoreComments { get; set; }
+        public DeploymentOptionProperty<bool> IgnoreComments { get; set; }
 
-        public DeploymentOptionProperty<object> IgnoreColumnCollation { get; set; }
+        public DeploymentOptionProperty<bool> IgnoreColumnCollation { get; set; }
 
-        public DeploymentOptionProperty<object> IgnoreAuthorizer { get; set; }
+        public DeploymentOptionProperty<bool> IgnoreAuthorizer { get; set; }
 
-        public DeploymentOptionProperty<object> IgnoreAnsiNulls { get; set; }
+        public DeploymentOptionProperty<bool> IgnoreAnsiNulls { get; set; }
 
-        public DeploymentOptionProperty<object> GenerateSmartDefaults { get; set; }
+        public DeploymentOptionProperty<bool> GenerateSmartDefaults { get; set; }
 
-        public DeploymentOptionProperty<object> DropStatisticsNotInSource { get; set; }
+        public DeploymentOptionProperty<bool> DropStatisticsNotInSource { get; set; }
 
-        public DeploymentOptionProperty<object> DropRoleMembersNotInSource { get; set; }
+        public DeploymentOptionProperty<bool> DropRoleMembersNotInSource { get; set; }
 
-        public DeploymentOptionProperty<object> DropPermissionsNotInSource { get; set; }
+        public DeploymentOptionProperty<bool> DropPermissionsNotInSource { get; set; }
 
-        public DeploymentOptionProperty<object> DropObjectsNotInSource { get; set; }
+        public DeploymentOptionProperty<bool> DropObjectsNotInSource { get; set; }
 
-        public DeploymentOptionProperty<object> IgnoreColumnOrder { get; set; }
+        public DeploymentOptionProperty<bool> IgnoreColumnOrder { get; set; }
 
-        public DeploymentOptionProperty<object> IgnoreTablePartitionOptions { get; set; } // DW Specific
+        public DeploymentOptionProperty<bool> IgnoreTablePartitionOptions { get; set; } // DW Specific
 
-        public DeploymentOptionProperty<object> AdditionalDeploymentContributorPaths { get; set; } = new DeploymentOptionProperty<object>();
+        public DeploymentOptionProperty<string> AdditionalDeploymentContributorPaths { get; set; }
 
         public DeploymentOptionProperty<ObjectType[]> DoNotDropObjectTypes { get; set; } = new DeploymentOptionProperty<ObjectType[]>();
 
@@ -229,33 +229,33 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
             }
         };
 
-        public DeploymentOptionProperty<object> AllowExternalLibraryPaths { get; set; }
+        public DeploymentOptionProperty<bool> AllowExternalLibraryPaths { get; set; }
 
-        public DeploymentOptionProperty<object> AllowExternalLanguagePaths { get; set; }
+        public DeploymentOptionProperty<bool> AllowExternalLanguagePaths { get; set; }
 
-        public DeploymentOptionProperty<object> DoNotEvaluateSqlCmdVariables { get; set; }
+        public DeploymentOptionProperty<bool> DoNotEvaluateSqlCmdVariables { get; set; }
 
-        public DeploymentOptionProperty<object> DisableParallelismForEnablingIndexes { get; set; }
+        public DeploymentOptionProperty<bool> DisableParallelismForEnablingIndexes { get; set; }
 
-        public DeploymentOptionProperty<object> DoNotDropWorkloadClassifiers { get; set; }
+        public DeploymentOptionProperty<bool> DoNotDropWorkloadClassifiers { get; set; }
 
-        public DeploymentOptionProperty<object> DisableIndexesForDataPhase { get; set; }
+        public DeploymentOptionProperty<bool> DisableIndexesForDataPhase { get; set; }
 
-        public DeploymentOptionProperty<object> DoNotDropDatabaseWorkloadGroups { get; set; }
+        public DeploymentOptionProperty<bool> DoNotDropDatabaseWorkloadGroups { get; set; }
 
-        public DeploymentOptionProperty<object> HashObjectNamesInLogs { get; set; }
+        public DeploymentOptionProperty<bool> HashObjectNamesInLogs { get; set; }
 
-        public DeploymentOptionProperty<object> IgnoreWorkloadClassifiers { get; set; }
+        public DeploymentOptionProperty<bool> IgnoreWorkloadClassifiers { get; set; }
 
-        public DeploymentOptionProperty<object> IgnoreDatabaseWorkloadGroups { get; set; }
+        public DeploymentOptionProperty<bool> IgnoreDatabaseWorkloadGroups { get; set; }
 
-        public DeploymentOptionProperty<object> IsAlwaysEncryptedParameterizationEnabled { get; set; }
+        public DeploymentOptionProperty<bool> IsAlwaysEncryptedParameterizationEnabled { get; set; }
 
-        public DeploymentOptionProperty<object> PreserveIdentityLastValues { get; set; }
+        public DeploymentOptionProperty<bool> PreserveIdentityLastValues { get; set; }
 
-        public DeploymentOptionProperty<object> RestoreSequenceCurrentValue { get; set; }
+        public DeploymentOptionProperty<bool> RestoreSequenceCurrentValue { get; set; }
 
-        public DeploymentOptionProperty<object> RebuildIndexesOfflineForDataPhase { get; set; }
+        public DeploymentOptionProperty<bool> RebuildIndexesOfflineForDataPhase { get; set; }
 
         private Dictionary<string, string> _displayNameMapDict;
 
@@ -502,10 +502,21 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
                 };
                 deployOptionsProp.SetValue(this, setProp);
             }
-            else {
-                DeploymentOptionProperty<Object> setProp = new DeploymentOptionProperty<Object>()
+            else if (prop.PropertyType == typeof(Boolean))
+            {
+                DeploymentOptionProperty<bool> setProp = new DeploymentOptionProperty<bool>()
                 {
-                    Value = val,
+                    Value = (bool)val,
+                    Description = attribute.Description,
+                    DisplayName = _displayNameMapDict[deployOptionsProp.Name]
+                };
+                deployOptionsProp.SetValue(this, setProp);
+            }
+            else if (prop.PropertyType == typeof(String))
+            {
+                DeploymentOptionProperty<string> setProp = new DeploymentOptionProperty<string>()
+                {
+                    Value = (string)val,
                     Description = attribute.Description,
                     DisplayName = _displayNameMapDict[deployOptionsProp.Name]
                 };

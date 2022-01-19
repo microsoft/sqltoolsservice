@@ -1827,31 +1827,31 @@ WITH VALUES
                 DeploymentOptions = new DeploymentOptions()
                 {
                     // change some random ones explicitly
-                    AllowDropBlockingAssemblies = new DeploymentOptionProperty<object>
+                    AllowDropBlockingAssemblies = new DeploymentOptionProperty<bool>
                     {
                         Value = true
                     },
-                    DropConstraintsNotInSource = new DeploymentOptionProperty<object>
+                    DropConstraintsNotInSource = new DeploymentOptionProperty<bool>
                     {
                         Value = true
                     },
-                    IgnoreAnsiNulls = new DeploymentOptionProperty<object>
+                    IgnoreAnsiNulls = new DeploymentOptionProperty<bool>
                     {
                         Value = true
                     },
-                    NoAlterStatementsToChangeClrTypes = new DeploymentOptionProperty<object>
+                    NoAlterStatementsToChangeClrTypes = new DeploymentOptionProperty<bool>
                     {
                         Value = false
                     },
-                    PopulateFilesOnFileGroups = new DeploymentOptionProperty<object>
+                    PopulateFilesOnFileGroups = new DeploymentOptionProperty<bool>
                     {
                         Value = false
                     },
-                    VerifyDeployment = new DeploymentOptionProperty<object>
+                    VerifyDeployment = new DeploymentOptionProperty<bool>
                     {
                         Value = false
                     },
-                    DisableIndexesForDataPhase = new DeploymentOptionProperty<object>
+                    DisableIndexesForDataPhase = new DeploymentOptionProperty<bool>
                     {
                         Value = false
                     }
