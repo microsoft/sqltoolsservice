@@ -33,7 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         public string DisplayName { get; set; }
     }
     /// <summary>
-    /// Class to define deployment options. 
+    /// Class to define deployment options.
     /// Keeping the order and defaults same as DacFx
     /// The default values here should also match the default values in ADS UX
     /// </summary>
@@ -515,6 +515,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
             result.ExcludeObjectTypes.Value = result.ExcludeObjectTypes.Value.Where(x => x != ObjectType.DatabaseScopedCredentials).ToArray(); // re-include database-scoped credentials
 
             return result;
-        }        
+        }
     }
 }

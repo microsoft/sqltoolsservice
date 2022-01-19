@@ -36,7 +36,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                     var val = deployOptionsProp.GetValue(deploymentOptions);
                     var selectedVal = val.GetType().GetProperty("Value").GetValue(val);
 
-                    // The integer value coming from the DeploymentOptions is of Int64 which overflows to set to DacDeployOptions.
+                    // JSON.NET by default reads Number type as Int64, deserializing an object type to dacOptions of Int32 type required to convert into Int32 from Int64.
+                    // If not converted setting value(Int64) to dacOption(Int32) will throw {"Object of type 'System.Int64' cannot be converted to type 'System.Int32'."}.
+                    // As these integet type options are non-editable and are not availbale in ADS to update, integer overflow exception will not be happening here.
                     if (selectedVal != null && selectedVal.GetType() == typeof(System.Int64))
                     {
                         selectedVal = Convert.ToInt32(selectedVal);
