@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.ComponentModel;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Dac;
@@ -587,7 +588,7 @@ FROM MissingEdgeHubInputStream'";
                     UpgradeExisting = true,
                     DeploymentOptions = new DeploymentOptions()
                     {
-                        DropObjectsNotInSource = new DeploymentOptionProperty<object> { Value = false },
+                        DropObjectsNotInSource = new DeploymentOptionProperty<bool> { Value = false },
                         ExcludeObjectTypes = new DeploymentOptionProperty<ObjectType[]>{ Value = new[] { ObjectType.Views }}
                     }
                 };
@@ -665,7 +666,7 @@ FROM MissingEdgeHubInputStream'";
                     DatabaseName = targetDb.DatabaseName,
                     DeploymentOptions = new DeploymentOptions()
                     {
-                        DropObjectsNotInSource = new DeploymentOptionProperty<object>
+                        DropObjectsNotInSource = new DeploymentOptionProperty<bool>
                         {
                             Value = false
                         },
@@ -689,7 +690,7 @@ FROM MissingEdgeHubInputStream'";
                     DatabaseName = targetDb.DatabaseName,
                     DeploymentOptions = new DeploymentOptions()
                     {
-                        DropObjectsNotInSource = new DeploymentOptionProperty<object>
+                        DropObjectsNotInSource = new DeploymentOptionProperty<bool>
                         {
                             Value = true
                         },
@@ -740,10 +741,10 @@ FROM MissingEdgeHubInputStream'";
             DeploymentOptions expectedResults = DeploymentOptions.GetDefaultPublishOptions();
 
             expectedResults.ExcludeObjectTypes = null;
-            expectedResults.IncludeCompositeObjects = new DeploymentOptionProperty<object> { Value = true };
-            expectedResults.BlockOnPossibleDataLoss = new DeploymentOptionProperty<object> { Value = true };
-            expectedResults.AllowIncompatiblePlatform = new DeploymentOptionProperty<object> { Value = true };
-            expectedResults.DisableIndexesForDataPhase = new DeploymentOptionProperty<object> { Value = false };
+            expectedResults.IncludeCompositeObjects = new DeploymentOptionProperty<bool> { Value = true };
+            expectedResults.BlockOnPossibleDataLoss = new DeploymentOptionProperty<bool> { Value = true };
+            expectedResults.AllowIncompatiblePlatform = new DeploymentOptionProperty<bool> { Value = true };
+            expectedResults.DisableIndexesForDataPhase = new DeploymentOptionProperty<bool> { Value = false };
 
             var dacfxRequestContext = new Mock<RequestContext<DacFxOptionsResult>>();
             dacfxRequestContext.Setup((RequestContext<DacFxOptionsResult> x) => x.SendResult(It.Is<DacFxOptionsResult>((result) => ValidateOptions(expectedResults, result.DeploymentOptions) == true))).Returns(Task.FromResult(new object()));
@@ -768,7 +769,7 @@ FROM MissingEdgeHubInputStream'";
         {
             DeploymentOptions expectedResults = DeploymentOptions.GetDefaultPublishOptions();
             expectedResults.ExcludeObjectTypes = null;
-            expectedResults.DisableIndexesForDataPhase = new DeploymentOptionProperty<object> { Value = false };
+            expectedResults.DisableIndexesForDataPhase = new DeploymentOptionProperty<bool> { Value = false };
 
             var dacfxRequestContext = new Mock<RequestContext<DacFxOptionsResult>>();
             dacfxRequestContext.Setup((RequestContext<DacFxOptionsResult> x) => x.SendResult(It.Is<DacFxOptionsResult>((result) => ValidateOptions(expectedResults, result.DeploymentOptions) == true))).Returns(Task.FromResult(new object()));
