@@ -8581,6 +8581,70 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string IndexIsEnabledPropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexIsEnabledPropertyDescription);
+            }
+        }
+
+        public static string IndexIsClusteredPropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexIsClusteredPropertyDescription);
+            }
+        }
+
+        public static string TableDesignerIndexIsClusteredPropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerIndexIsClusteredPropertyTitle);
+            }
+        }
+
+        public static string IndexIsUniquePropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexIsUniquePropertyDescription);
+            }
+        }
+
+        public static string TableDesignerIsUniquePropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerIsUniquePropertyTitle);
+            }
+        }
+
+        public static string IndexColumnIsAscendingPropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexColumnIsAscendingPropertyDescription);
+            }
+        }
+
+        public static string IndexColumnIsAscendingPropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexColumnIsAscendingPropertyTitle);
+            }
+        }
+
+        public static string TableDesignerColumnsDisplayValueTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerColumnsDisplayValueTitle);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -12282,6 +12346,30 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string CheckConstraintIsEnabledDescription = "CheckConstraintIsEnabledDescription";
+
+
+            public const string IndexIsEnabledPropertyDescription = "IndexIsEnabledPropertyDescription";
+
+
+            public const string IndexIsClusteredPropertyDescription = "IndexIsClusteredPropertyDescription";
+
+
+            public const string TableDesignerIndexIsClusteredPropertyTitle = "TableDesignerIndexIsClusteredPropertyTitle";
+
+
+            public const string IndexIsUniquePropertyDescription = "IndexIsUniquePropertyDescription";
+
+
+            public const string TableDesignerIsUniquePropertyTitle = "TableDesignerIsUniquePropertyTitle";
+
+
+            public const string IndexColumnIsAscendingPropertyDescription = "IndexColumnIsAscendingPropertyDescription";
+
+
+            public const string IndexColumnIsAscendingPropertyTitle = "IndexColumnIsAscendingPropertyTitle";
+
+
+            public const string TableDesignerColumnsDisplayValueTitle = "TableDesignerColumnsDisplayValueTitle";
 
 
             private Keys()
