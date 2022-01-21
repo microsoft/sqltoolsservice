@@ -3289,6 +3289,9 @@
       <Item ItemId=";IndexColumnIsAscendingPropertyTitle" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Is Ascending]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Es ascendente]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3331,18 +3334,27 @@
       <Item ItemId=";IndexIsClusteredPropertyDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Whether the index is clustered, only one clustered index is allowed in a table.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Especifica si el índice está en clúster. En una tabla solo se permite un índice en clúster.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";IndexIsEnabledPropertyDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Specifies whether the index is enabled]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Especifica si el índice está habilitado.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";IndexIsUniquePropertyDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Whether the data entered into this index must be unique.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Especifica si los datos incluidos en este índice deben ser únicos.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -9542,7 +9554,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Is Unique]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Es Unique]]></Val>
+            <Val><![CDATA[Es único]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
