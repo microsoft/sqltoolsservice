@@ -1827,34 +1827,13 @@ WITH VALUES
                 DeploymentOptions = new DeploymentOptions()
                 {
                     // change some random ones explicitly
-                    AllowDropBlockingAssemblies = new DeploymentOptionProperty<bool>
-                    {
-                        Value = true
-                    },
-                    DropConstraintsNotInSource = new DeploymentOptionProperty<bool>
-                    {
-                        Value = true
-                    },
-                    IgnoreAnsiNulls = new DeploymentOptionProperty<bool>
-                    {
-                        Value = true
-                    },
-                    NoAlterStatementsToChangeClrTypes = new DeploymentOptionProperty<bool>
-                    {
-                        Value = false
-                    },
-                    PopulateFilesOnFileGroups = new DeploymentOptionProperty<bool>
-                    {
-                        Value = false
-                    },
-                    VerifyDeployment = new DeploymentOptionProperty<bool>
-                    {
-                        Value = false
-                    },
-                    DisableIndexesForDataPhase = new DeploymentOptionProperty<bool>
-                    {
-                        Value = false
-                    }
+                    AllowDropBlockingAssemblies = new DeploymentOptionProperty<bool>(true),
+                    DropConstraintsNotInSource = new DeploymentOptionProperty<bool>(true),
+                    IgnoreAnsiNulls = new DeploymentOptionProperty<bool>(true),
+                    NoAlterStatementsToChangeClrTypes = new DeploymentOptionProperty<bool>(false),
+                    PopulateFilesOnFileGroups = new DeploymentOptionProperty<bool>(false),
+                    VerifyDeployment = new DeploymentOptionProperty<bool>(false),
+                    DisableIndexesForDataPhase = new DeploymentOptionProperty<bool>(false)
                 },
                 ScmpFilePath = filePath,
                 ExcludedSourceObjects = schemaCompareObjectIds,

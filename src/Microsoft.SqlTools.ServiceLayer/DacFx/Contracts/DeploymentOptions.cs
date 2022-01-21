@@ -18,14 +18,22 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// </summary>
     public class DeploymentOptionProperty<T>
     {
+        public DeploymentOptionProperty(T value, string description = "", string displayName = "")
+        {
+            this.Value = value;
+            this.Description = description;
+            this.DisplayName = displayName;
+        }
+
         public T Value { get; set; }
         public string Description { get; set; } = string.Empty;
 
         // To Diaply the options in ADS extensions UI in SchemaCompare/SQL-DB-Project/Dacpac extensions
         public string DisplayName { get; set; }
     }
+
     /// <summary>
-    /// Class to define deployment options. 
+    /// Class to define deployment options.
     /// Keeping the order and defaults same as DacFx
     /// The default values here should also match the default values in ADS UX
     /// </summary>
@@ -129,11 +137,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 
         public DeploymentOptionProperty<bool> CommentOutSetVarDeclarations { get; set; }
 
-        public DeploymentOptionProperty<object> CommandTimeout { get; set; } = new DeploymentOptionProperty<object> { Value = 120, Description = string.Empty };
+        public DeploymentOptionProperty<int> CommandTimeout { get; set; } = new DeploymentOptionProperty<int>(120);
 
-        public DeploymentOptionProperty<object> LongRunningCommandTimeout { get; set; } = new DeploymentOptionProperty<object> { Value = 0, Description = string.Empty };
+        public DeploymentOptionProperty<int> LongRunningCommandTimeout { get; set; } = new DeploymentOptionProperty<int>(0);
 
-        public DeploymentOptionProperty<object> DatabaseLockTimeout { get; set; } = new DeploymentOptionProperty<object> { Value = 60, Description = string.Empty };
+        public DeploymentOptionProperty<int> DatabaseLockTimeout { get; set; } = new DeploymentOptionProperty<int>(60);
 
         public DeploymentOptionProperty<bool> BlockWhenDriftDetected { get; set; }
 
@@ -199,11 +207,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 
         public DeploymentOptionProperty<string> AdditionalDeploymentContributorPaths { get; set; }
 
-        public DeploymentOptionProperty<ObjectType[]> DoNotDropObjectTypes { get; set; } = new DeploymentOptionProperty<ObjectType[]>();
+        public DeploymentOptionProperty<ObjectType[]> DoNotDropObjectTypes { get; set; } = new DeploymentOptionProperty<ObjectType[]>(null);
 
         public DeploymentOptionProperty<ObjectType[]> ExcludeObjectTypes { get; set; } = new DeploymentOptionProperty<ObjectType[]>
-        {
-            Value = new ObjectType[] {
+        (
+            new ObjectType[] {
                 ObjectType.ServerTriggers,
                 ObjectType.Routes,
                 ObjectType.LinkedServerLogins,
@@ -225,9 +233,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
                 ObjectType.DatabaseOptions,
                 ObjectType.EventNotifications,
                 ObjectType.ServerRoleMembership,
-                ObjectType.AssemblyFiles,
+                ObjectType.AssemblyFiles
             }
-        };
+        );
 
         public DeploymentOptionProperty<bool> AllowExternalLibraryPaths { get; set; }
 
@@ -490,38 +498,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         {
             var val = prop.GetValue(options);
             var attribute = prop.GetCustomAttributes<DescriptionAttribute>(true).FirstOrDefault();
-
-            if (prop.PropertyType == typeof(ObjectType[]))
-            {
-                // Properties such as ExcludeObjectTypes and DoNotDropObjectTypes are ObjectType[] which needs type casting
-                DeploymentOptionProperty<ObjectType[]> setProp = new DeploymentOptionProperty<ObjectType[]>()
-                {
-                    Value = (ObjectType[])val,
-                    Description = attribute.Description,
-                    DisplayName = _displayNameMapDict[deployOptionsProp.Name]
-                };
-                deployOptionsProp.SetValue(this, setProp);
-            }
-            else if (prop.PropertyType == typeof(Boolean))
-            {
-                DeploymentOptionProperty<bool> setProp = new DeploymentOptionProperty<bool>()
-                {
-                    Value = (bool)val,
-                    Description = attribute.Description,
-                    DisplayName = _displayNameMapDict[deployOptionsProp.Name]
-                };
-                deployOptionsProp.SetValue(this, setProp);
-            }
-            else if (prop.PropertyType == typeof(String))
-            {
-                DeploymentOptionProperty<string> setProp = new DeploymentOptionProperty<string>()
-                {
-                    Value = (string)val,
-                    Description = attribute.Description,
-                    DisplayName = _displayNameMapDict[deployOptionsProp.Name]
-                };
-                deployOptionsProp.SetValue(this, setProp);
-            }
+            Type type = val != null ? typeof(DeploymentOptionProperty<>).MakeGenericType(val.GetType()) 
+                : typeof(DeploymentOptionProperty<>).MakeGenericType(prop.PropertyType);
+            object setProp = Activator.CreateInstance(type, val, attribute.Description,_displayNameMapDict[deployOptionsProp.Name]);
+            deployOptionsProp.SetValue(this, setProp);
         }
 
         public static DeploymentOptions GetDefaultSchemaCompareOptions()

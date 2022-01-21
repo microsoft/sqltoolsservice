@@ -588,8 +588,8 @@ FROM MissingEdgeHubInputStream'";
                     UpgradeExisting = true,
                     DeploymentOptions = new DeploymentOptions()
                     {
-                        DropObjectsNotInSource = new DeploymentOptionProperty<bool> { Value = false },
-                        ExcludeObjectTypes = new DeploymentOptionProperty<ObjectType[]>{ Value = new[] { ObjectType.Views }}
+                        DropObjectsNotInSource = new DeploymentOptionProperty<bool>(false),
+                        ExcludeObjectTypes = new DeploymentOptionProperty<ObjectType[]>(new[] { ObjectType.Views })
                     }
                 };
 
@@ -666,14 +666,8 @@ FROM MissingEdgeHubInputStream'";
                     DatabaseName = targetDb.DatabaseName,
                     DeploymentOptions = new DeploymentOptions()
                     {
-                        DropObjectsNotInSource = new DeploymentOptionProperty<bool>
-                        {
-                            Value = false
-                        },
-                        ExcludeObjectTypes = new DeploymentOptionProperty<ObjectType[]>
-                        {
-                            Value = new[] { ObjectType.Views }
-                        }
+                        DropObjectsNotInSource = new DeploymentOptionProperty<bool>(false),
+                        ExcludeObjectTypes = new DeploymentOptionProperty<ObjectType[]>(new[] { ObjectType.Views })
                     }
                 };
 
@@ -690,14 +684,8 @@ FROM MissingEdgeHubInputStream'";
                     DatabaseName = targetDb.DatabaseName,
                     DeploymentOptions = new DeploymentOptions()
                     {
-                        DropObjectsNotInSource = new DeploymentOptionProperty<bool>
-                        {
-                            Value = true
-                        },
-                        ExcludeObjectTypes = new DeploymentOptionProperty<ObjectType[]>
-                        {
-                            Value = new[] { ObjectType.Views }
-                        }
+                        DropObjectsNotInSource = new DeploymentOptionProperty<bool>(true),
+                        ExcludeObjectTypes = new DeploymentOptionProperty<ObjectType[]>( new[] { ObjectType.Views })
                     }
                 };
 
@@ -741,10 +729,10 @@ FROM MissingEdgeHubInputStream'";
             DeploymentOptions expectedResults = DeploymentOptions.GetDefaultPublishOptions();
 
             expectedResults.ExcludeObjectTypes = null;
-            expectedResults.IncludeCompositeObjects = new DeploymentOptionProperty<bool> { Value = true };
-            expectedResults.BlockOnPossibleDataLoss = new DeploymentOptionProperty<bool> { Value = true };
-            expectedResults.AllowIncompatiblePlatform = new DeploymentOptionProperty<bool> { Value = true };
-            expectedResults.DisableIndexesForDataPhase = new DeploymentOptionProperty<bool> { Value = false };
+            expectedResults.IncludeCompositeObjects = new DeploymentOptionProperty<bool>(true);
+            expectedResults.BlockOnPossibleDataLoss = new DeploymentOptionProperty<bool>(true);
+            expectedResults.AllowIncompatiblePlatform = new DeploymentOptionProperty<bool>(true);
+            expectedResults.DisableIndexesForDataPhase = new DeploymentOptionProperty<bool>(false);
 
             var dacfxRequestContext = new Mock<RequestContext<DacFxOptionsResult>>();
             dacfxRequestContext.Setup((RequestContext<DacFxOptionsResult> x) => x.SendResult(It.Is<DacFxOptionsResult>((result) => ValidateOptions(expectedResults, result.DeploymentOptions) == true))).Returns(Task.FromResult(new object()));
@@ -769,7 +757,7 @@ FROM MissingEdgeHubInputStream'";
         {
             DeploymentOptions expectedResults = DeploymentOptions.GetDefaultPublishOptions();
             expectedResults.ExcludeObjectTypes = null;
-            expectedResults.DisableIndexesForDataPhase = new DeploymentOptionProperty<bool> { Value = false };
+            expectedResults.DisableIndexesForDataPhase = new DeploymentOptionProperty<bool>(false);
 
             var dacfxRequestContext = new Mock<RequestContext<DacFxOptionsResult>>();
             dacfxRequestContext.Setup((RequestContext<DacFxOptionsResult> x) => x.SendResult(It.Is<DacFxOptionsResult>((result) => ValidateOptions(expectedResults, result.DeploymentOptions) == true))).Returns(Task.FromResult(new object()));

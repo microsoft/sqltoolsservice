@@ -72,7 +72,7 @@ END
         private DeploymentOptions GetIgnoreColumnOptions()
         {
             var options = new DeploymentOptions();
-            options.IgnoreColumnOrder = new DeploymentOptionProperty<bool> { Value = true };
+            options.IgnoreColumnOrder = new DeploymentOptionProperty<bool>(true);
             return options;
         }
 
@@ -80,34 +80,34 @@ END
         {
             var options = new DeploymentOptions();
             options.ExcludeObjectTypes = new DeploymentOptionProperty<ObjectType[]>
-            {
-                Value = new ObjectType[]{
-                    ObjectType.ServerTriggers,
-                    ObjectType.Routes,
-                    ObjectType.LinkedServerLogins,
-                    ObjectType.Endpoints,
-                    ObjectType.ErrorMessages,
-                    ObjectType.Filegroups,
-                    ObjectType.Files,
-                    ObjectType.Logins,
-                    ObjectType.LinkedServers,
-                    ObjectType.Credentials,
-                    ObjectType.DatabaseScopedCredentials,
-                    ObjectType.DatabaseEncryptionKeys,
-                    ObjectType.MasterKeys,
-                    ObjectType.DatabaseAuditSpecifications,
-                    ObjectType.Audits,
-                    ObjectType.ServerAuditSpecifications,
-                    ObjectType.CryptographicProviders,
-                    ObjectType.ServerRoles,
-                    ObjectType.EventSessions,
-                    ObjectType.DatabaseOptions,
-                    ObjectType.EventNotifications,
-                    ObjectType.ServerRoleMembership,
-                    ObjectType.AssemblyFiles,
-                    ObjectType.TableValuedFunctions, //added Functions to excluded types
-                }
-            };
+                (
+                    new ObjectType[]{
+                        ObjectType.ServerTriggers,
+                        ObjectType.Routes,
+                        ObjectType.LinkedServerLogins,
+                        ObjectType.Endpoints,
+                        ObjectType.ErrorMessages,
+                        ObjectType.Filegroups,
+                        ObjectType.Files,
+                        ObjectType.Logins,
+                        ObjectType.LinkedServers,
+                        ObjectType.Credentials,
+                        ObjectType.DatabaseScopedCredentials,
+                        ObjectType.DatabaseEncryptionKeys,
+                        ObjectType.MasterKeys,
+                        ObjectType.DatabaseAuditSpecifications,
+                        ObjectType.Audits,
+                        ObjectType.ServerAuditSpecifications,
+                        ObjectType.CryptographicProviders,
+                        ObjectType.ServerRoles,
+                        ObjectType.EventSessions,
+                        ObjectType.DatabaseOptions,
+                        ObjectType.EventNotifications,
+                        ObjectType.ServerRoleMembership,
+                        ObjectType.AssemblyFiles,
+                        ObjectType.TableValuedFunctions, //added Functions to excluded types
+                    }
+                );
             return options;
         }
 
