@@ -5696,51 +5696,17 @@
         <target state="translated">指定是否啟用檢查條件約束</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="QueryServiceUnsupportedSqlVariantType">
-        <source>The underlying type "{0}" for sql variant column "{1}" could not be resolved.</source>
-        <target state="translated">基礎類型 "{0}" 無法解析 SQL 變體資料行 "{1} "。</target>
+      <trans-unit id="SessionMissingDetails">
+        <source>Unable to start streaming session {0} due to missing session details.</source>
+        <target state="translated">無法啟動串流工作階段 {0}，因為遺失工作階段詳細資料。</target>
         <note>.
- Parameters: 0 - underlyingType (string), 1 - columnName (string) </note>
+ Parameters: 0 - id (int) </note>
       </trans-unit>
-      <trans-unit id="IndexIsEnabledPropertyDescription">
-        <source>Specifies whether the index is enabled</source>
-        <target state="translated">指定是否已啟用索引。</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="IndexIsClusteredPropertyDescription">
-        <source>Whether the index is clustered, only one clustered index is allowed in a table.</source>
-        <target state="translated">索引是否為叢集索引。一個資料表中只允許一個叢集索引。</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="TableDesignerIndexIsClusteredPropertyTitle">
-        <source>Is Clustered</source>
-        <target state="translated">為叢集</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="IndexIsUniquePropertyDescription">
-        <source>Whether the data entered into this index must be unique.</source>
-        <target state="translated">輸入此索引的資料是否必須是唯一的。</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="TableDesignerIsUniquePropertyTitle">
-        <source>Is Unique</source>
-        <target state="translated">是唯一的</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="IndexColumnIsAscendingPropertyDescription">
-        <source>Specifies the sort order of the column.</source>
-        <target state="translated">指定資料行的排序次序。</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="IndexColumnIsAscendingPropertyTitle">
-        <source>Is Ascending</source>
-        <target state="translated">為遞增</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="TableDesignerColumnsDisplayValueTitle">
-        <source>Columns</source>
-        <target state="translated">資料行</target>
-        <note></note>
+      <trans-unit id="StartProfilingFailed">
+        <source>Failed to start profiler: {0}</source>
+        <target state="translated">無法啟動分析工具: {0}</target>
+        <note>.
+ Parameters: 0 - error (String) </note>
       </trans-unit>
     </body>
   </file>
