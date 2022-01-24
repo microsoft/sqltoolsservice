@@ -5696,51 +5696,17 @@
         <target state="translated">Especifica se a restrição de verificação está habilitada</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="QueryServiceUnsupportedSqlVariantType">
-        <source>The underlying type "{0}" for sql variant column "{1}" could not be resolved.</source>
-        <target state="translated">O tipo subjacente "{0}" para a coluna sql variant "{1}" não pôde ser resolvido.</target>
+      <trans-unit id="SessionMissingDetails">
+        <source>Unable to start streaming session {0} due to missing session details.</source>
+        <target state="translated">Não é possível iniciar a sessão de streaming {0} devido à falta de detalhes da sessão.</target>
         <note>.
- Parameters: 0 - underlyingType (string), 1 - columnName (string) </note>
+ Parameters: 0 - id (int) </note>
       </trans-unit>
-      <trans-unit id="IndexIsEnabledPropertyDescription">
-        <source>Specifies whether the index is enabled</source>
-        <target state="translated">Especifica se o índice está habilitado.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="IndexIsClusteredPropertyDescription">
-        <source>Whether the index is clustered, only one clustered index is allowed in a table.</source>
-        <target state="translated">Se o índice estiver clusterizado, apenas um índice clusterizado será permitido em uma tabela.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="TableDesignerIndexIsClusteredPropertyTitle">
-        <source>Is Clustered</source>
-        <target state="translated">Está Clusterizado</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="IndexIsUniquePropertyDescription">
-        <source>Whether the data entered into this index must be unique.</source>
-        <target state="translated">Se os dados inseridos neste índice devem ser exclusivos.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="TableDesignerIsUniquePropertyTitle">
-        <source>Is Unique</source>
-        <target state="translated">É Exclusivo</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="IndexColumnIsAscendingPropertyDescription">
-        <source>Specifies the sort order of the column.</source>
-        <target state="translated">Especifica a ordem de classificação da coluna.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="IndexColumnIsAscendingPropertyTitle">
-        <source>Is Ascending</source>
-        <target state="translated">É Ascendente</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="TableDesignerColumnsDisplayValueTitle">
-        <source>Columns</source>
-        <target state="translated">Colunas</target>
-        <note></note>
+      <trans-unit id="StartProfilingFailed">
+        <source>Failed to start profiler: {0}</source>
+        <target state="translated">Falha ao iniciar o criador de perfil: {0}</target>
+        <note>.
+ Parameters: 0 - error (String) </note>
       </trans-unit>
     </body>
   </file>
