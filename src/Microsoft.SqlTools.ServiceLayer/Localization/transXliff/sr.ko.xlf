@@ -5696,17 +5696,51 @@
         <target state="translated">CHECK 제약 조건을 사용할지 여부를 지정합니다.</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="SessionMissingDetails">
-        <source>Unable to start streaming session {0} due to missing session details.</source>
-        <target state="translated">세션 세부 정보가 누락되어 스트리밍 세션 {0}을(를) 시작할 수 없습니다.</target>
+      <trans-unit id="QueryServiceUnsupportedSqlVariantType">
+        <source>The underlying type "{0}" for sql variant column "{1}" could not be resolved.</source>
+        <target state="translated">SQL 변형 열 "{1}"의 기본 유형 "{0}"을(를) 확인할 수 없습니다.</target>
         <note>.
- Parameters: 0 - id (int) </note>
+ Parameters: 0 - underlyingType (string), 1 - columnName (string) </note>
       </trans-unit>
-      <trans-unit id="StartProfilingFailed">
-        <source>Failed to start profiler: {0}</source>
-        <target state="translated">프로파일러 시작 실패: {0}</target>
-        <note>.
- Parameters: 0 - error (String) </note>
+      <trans-unit id="IndexIsEnabledPropertyDescription">
+        <source>Specifies whether the index is enabled</source>
+        <target state="translated">인덱스를 사용할지 여부를 지정합니다.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexIsClusteredPropertyDescription">
+        <source>Whether the index is clustered, only one clustered index is allowed in a table.</source>
+        <target state="translated">인덱스가 클러스터되는지 여부를 지정합니다. 테이블에서 클러스터된 인덱스는 하나만 허용됩니다.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerIndexIsClusteredPropertyTitle">
+        <source>Is Clustered</source>
+        <target state="translated">클러스터형 여부</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexIsUniquePropertyDescription">
+        <source>Whether the data entered into this index must be unique.</source>
+        <target state="translated">이 인덱스로 입력한 데이터가 고유해야 하는지 여부입니다.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerIsUniquePropertyTitle">
+        <source>Is Unique</source>
+        <target state="translated">고유함</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexColumnIsAscendingPropertyDescription">
+        <source>Specifies the sort order of the column.</source>
+        <target state="translated">열의 정렬 순서를 지정합니다.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexColumnIsAscendingPropertyTitle">
+        <source>Is Ascending</source>
+        <target state="translated">오름차순</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerColumnsDisplayValueTitle">
+        <source>Columns</source>
+        <target state="translated">열</target>
+        <note></note>
       </trans-unit>
     </body>
   </file>
