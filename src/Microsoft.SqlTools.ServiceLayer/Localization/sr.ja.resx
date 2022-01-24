@@ -3499,10 +3499,31 @@
   <data name="CheckConstraintIsEnabledDescription" xml:space="preserve">
     <value>CHECK 制約を有効にするかどうかを指定</value>
   </data>
-  <data name="SessionMissingDetails" xml:space="preserve">
-    <value>セッションの詳細がないため、ストリーミング セッション {0} を開始できません。</value>
+  <data name="QueryServiceUnsupportedSqlVariantType" xml:space="preserve">
+    <value>SQL variant 列 "{1}" の基になる型 "{0}" を解決できませんでした。</value>
   </data>
-  <data name="StartProfilingFailed" xml:space="preserve">
-    <value>プロファイラーを起動できませんでした: {0}</value>
+  <data name="IndexIsEnabledPropertyDescription" xml:space="preserve">
+    <value>インデックスが有効になっているかどうかを指定します。</value>
+  </data>
+  <data name="IndexIsClusteredPropertyDescription" xml:space="preserve">
+    <value>インデックスがクラスター化されるかどうか。テーブルで使用できるクラスター化されたインデックスは 1 つだけです。</value>
+  </data>
+  <data name="TableDesignerIndexIsClusteredPropertyTitle" xml:space="preserve">
+    <value>クラスター化</value>
+  </data>
+  <data name="IndexIsUniquePropertyDescription" xml:space="preserve">
+    <value>このインデックスに入力されるデータが一意であるかどうか。</value>
+  </data>
+  <data name="TableDesignerIsUniquePropertyTitle" xml:space="preserve">
+    <value>一意である</value>
+  </data>
+  <data name="IndexColumnIsAscendingPropertyDescription" xml:space="preserve">
+    <value>列の並べ替え順序を指定します。</value>
+  </data>
+  <data name="IndexColumnIsAscendingPropertyTitle" xml:space="preserve">
+    <value>昇順</value>
+  </data>
+  <data name="TableDesignerColumnsDisplayValueTitle" xml:space="preserve">
+    <value>列</value>
   </data>
 </root>
