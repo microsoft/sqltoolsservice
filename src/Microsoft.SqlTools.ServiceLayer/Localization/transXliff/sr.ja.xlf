@@ -5696,51 +5696,17 @@
         <target state="translated">CHECK 制約を有効にするかどうかを指定</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="QueryServiceUnsupportedSqlVariantType">
-        <source>The underlying type "{0}" for sql variant column "{1}" could not be resolved.</source>
-        <target state="translated">SQL variant 列 "{1}" の基になる型 "{0}" を解決できませんでした。</target>
+      <trans-unit id="SessionMissingDetails">
+        <source>Unable to start streaming session {0} due to missing session details.</source>
+        <target state="translated">セッションの詳細がないため、ストリーミング セッション {0} を開始できません。</target>
         <note>.
- Parameters: 0 - underlyingType (string), 1 - columnName (string) </note>
+ Parameters: 0 - id (int) </note>
       </trans-unit>
-      <trans-unit id="IndexIsEnabledPropertyDescription">
-        <source>Specifies whether the index is enabled</source>
-        <target state="translated">インデックスが有効になっているかどうかを指定します。</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="IndexIsClusteredPropertyDescription">
-        <source>Whether the index is clustered, only one clustered index is allowed in a table.</source>
-        <target state="translated">インデックスがクラスター化されるかどうか。テーブルで使用できるクラスター化されたインデックスは 1 つだけです。</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="TableDesignerIndexIsClusteredPropertyTitle">
-        <source>Is Clustered</source>
-        <target state="translated">クラスター化</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="IndexIsUniquePropertyDescription">
-        <source>Whether the data entered into this index must be unique.</source>
-        <target state="translated">このインデックスに入力されるデータが一意であるかどうか。</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="TableDesignerIsUniquePropertyTitle">
-        <source>Is Unique</source>
-        <target state="translated">一意である</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="IndexColumnIsAscendingPropertyDescription">
-        <source>Specifies the sort order of the column.</source>
-        <target state="translated">列の並べ替え順序を指定します。</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="IndexColumnIsAscendingPropertyTitle">
-        <source>Is Ascending</source>
-        <target state="translated">昇順</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="TableDesignerColumnsDisplayValueTitle">
-        <source>Columns</source>
-        <target state="translated">列</target>
-        <note></note>
+      <trans-unit id="StartProfilingFailed">
+        <source>Failed to start profiler: {0}</source>
+        <target state="translated">プロファイラーを起動できませんでした: {0}</target>
+        <note>.
+ Parameters: 0 - error (String) </note>
       </trans-unit>
     </body>
   </file>
