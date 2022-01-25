@@ -20,6 +20,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
         /// Underlying query for the execution plan graph
         /// </summary>
         public string Query { get; set; }
+        /// <summary>
+        /// Underlying xml plan used to generate Execution Plan Graph.
+        /// </summary>
+        public string XmlString { get; set; }
     }
 
     public class ExecutionPlanNode
