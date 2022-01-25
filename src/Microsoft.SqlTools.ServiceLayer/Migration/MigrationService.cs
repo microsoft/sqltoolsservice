@@ -92,12 +92,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         }
 
         /// <summary>
+        /// Controller for collecting performance data for SKU recommendation
+        /// </summary>
+        internal SqlDataQueryController DataCollectionController 
+        { 
+            get; 
+            set; 
+        }
+
+        /// <summary>
         /// Initializes the Migration Service instance
         /// </summary>
         public void InitializeService(ServiceHost serviceHost)
         {
             this.ServiceHost = serviceHost;
             this.ServiceHost.SetRequestHandler(MigrationAssessmentsRequest.Type, HandleMigrationAssessmentsRequest);
+            this.ServiceHost.SetRequestHandler(StartPerfDataCollectionRequest.Type, HandleStartPerfDataCollectionRequest);
+            this.ServiceHost.SetRequestHandler(StopPerfDataCollectionRequest.Type, HandleStopPerfDataCollectionRequest);
             this.ServiceHost.SetRequestHandler(GetSkuRecommendationsRequest.Type, HandleGetSkuRecommendationsRequest);
         }
 
@@ -148,6 +159,77 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             finally
             {
                 ConnectionService.Disconnect(new DisconnectParams { OwnerUri = randomUri, Type = null });
+            }
+        }
+
+        /// <summary>
+        /// Handle request to start performance data collection process
+        /// </summary>
+        internal async Task HandleStartPerfDataCollectionRequest(
+            StartPerfDataCollectionParams parameters,
+            RequestContext<StartPerfDataCollectionResult> requestContext)
+        {
+            string randomUri = Guid.NewGuid().ToString();
+            try
+            {
+                // get connection
+                if (!ConnectionService.TryFindConnection(parameters.OwnerUri, out var connInfo))
+                {
+                    await requestContext.SendError("Could not find migration connection");
+                    return;
+                }
+
+                ConnectParams connectParams = new ConnectParams
+                {
+                    OwnerUri = randomUri,
+                    Connection = connInfo.ConnectionDetails,
+                    Type = ConnectionType.Default
+                };
+
+                await ConnectionService.Connect(connectParams);
+                var connection = await ConnectionService.Instance.GetOrOpenConnection(randomUri, ConnectionType.Default);
+                var connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
+
+                this.DataCollectionController = new SqlDataQueryController(
+                    connectionString, 
+                    parameters.DataFolder, 
+                    parameters.PerfQueryIntervalInSec,
+                    parameters.NumberOfIterations, 
+                    parameters.StaticQueryIntervalInSec, 
+                    null);
+
+                this.DataCollectionController.Start();
+
+                // TO-DO: what should be returned?
+                await requestContext.SendResult(new StartPerfDataCollectionResult() { DateTimeStarted = DateTime.UtcNow });
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e.ToString());
+            }
+            finally
+            {
+                ConnectionService.Disconnect(new DisconnectParams { OwnerUri = randomUri, Type = null });
+            }
+        }
+
+        /// <summary>
+        /// Handle request to stop performance data collection process
+        /// </summary>
+        internal async Task HandleStopPerfDataCollectionRequest(
+            StopPerfDataCollectionParams parameters,
+            RequestContext<StopPerfDataCollectionResult> requestContext)
+        {
+            try
+            {
+                this.DataCollectionController.Dispose();
+
+                // TO-DO: what should be returned?
+                await requestContext.SendResult(new StopPerfDataCollectionResult() { DateTimeStopped = DateTime.UtcNow });
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e.ToString());
             }
         }
 
@@ -402,6 +484,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         {
             if (!disposed)
             {
+                this.DataCollectionController.Dispose();
                 disposed = true;
             }
         }
