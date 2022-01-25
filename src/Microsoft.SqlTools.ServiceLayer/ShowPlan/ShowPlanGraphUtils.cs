@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
             {
                 Root = ConvertShowPlanTreeToExecutionPlanTree(g.Root),
                 Query = g.Statement,
-                Xml = xml
+                XmlString = xml
             }).ToList();
         }
 
