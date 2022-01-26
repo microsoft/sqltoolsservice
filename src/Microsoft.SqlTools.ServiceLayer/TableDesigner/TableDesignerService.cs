@@ -84,7 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 connectinStringbuilder.InitialCatalog = tableInfo.Database;
                 var connectionString = connectinStringbuilder.ToString();
                 var table = new Dac.TableDesigner(connectionString, tableInfo.Schema, tableInfo.Name, tableInfo.IsNewTable);
-                this.idTableMap[tableInfo.Id]= table;
+                this.idTableMap[tableInfo.Id] = table;
                 var viewModel = this.GetTableViewModel(tableInfo);
                 var view = this.GetDesignerViewInfo(tableInfo);
                 await requestContext.SendResult(new TableDesignerInfo()
@@ -130,11 +130,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             {
                 var tableDesigner = this.GetTableDesigner(tableInfo);
                 tableDesigner.CommitChanges();
-                string newId = null;
+                string newId = string.Format("{0}|{1}|{2}|{3}", tableInfo.ConnectionString, tableInfo.Database, tableDesigner.TableViewModel.Schema, tableDesigner.TableViewModel.Name);
                 string oldId = tableInfo.Id;
-                if (tableInfo.IsNewTable)
+                if (newId != oldId)
                 {
-                    newId = string.Format("{0}|{1}|{2}|{3}", tableInfo.ConnectionString, tableInfo.Database, tableDesigner.TableViewModel.Schema, tableDesigner.TableViewModel.Name);
                     this.idTableMap[newId] = tableDesigner;
                     this.idTableMap.Remove(oldId);
                     tableInfo.Name = tableDesigner.TableViewModel.Name;
