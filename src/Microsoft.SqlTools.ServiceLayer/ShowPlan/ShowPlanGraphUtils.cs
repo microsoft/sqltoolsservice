@@ -18,7 +18,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
             return graphs.Select(g => new ExecutionPlanGraph
             {
                 Root = ConvertShowPlanTreeToExecutionPlanTree(g.Root),
-                Query = g.Statement
+                Query = g.Statement,
+                XmlString = xml
             }).ToList();
         }
 

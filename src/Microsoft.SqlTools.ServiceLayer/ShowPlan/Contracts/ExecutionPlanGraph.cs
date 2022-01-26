@@ -20,6 +20,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
         /// Underlying query for the execution plan graph
         /// </summary>
         public string Query { get; set; }
+        /// <summary>
+        /// Underlying xml string used for generating execution plan graph
+        /// </summary>
+        public string XmlString { get; set; }
     }
 
     public class ExecutionPlanNode
@@ -84,7 +88,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
         public bool IsLongString { get; set; }
     }
 
-    public class NestedExecutionPlanGraphProperty: ExecutionPlanGraphPropertyBase
+    public class NestedExecutionPlanGraphProperty : ExecutionPlanGraphPropertyBase
     {
         /// <summary>
         /// In case of nested properties, the value field is a list of properties. 
