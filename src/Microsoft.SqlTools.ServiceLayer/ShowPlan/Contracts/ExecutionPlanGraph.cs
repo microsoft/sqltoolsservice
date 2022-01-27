@@ -23,11 +23,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
         /// <summary>
         /// Underlying xml string used for generating execution plan graph
         /// </summary>
-        public string RawGraph { get; set; }
+        public RawExecutionPlanGraph RawGraph { get; set; }
         /// <summary>
         /// Index recommendations given by show plan to improve query performance
         /// </summary>
-        public List<ExecutionPlanRecommendation> Recommendations;
+        public List<ExecutionPlanRecommendation> Recommendations { get; set; }
     }
 
     public class ExecutionPlanNode
@@ -139,5 +139,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
         /// Query that will be opened in a new file once the user click on the recommendation
         /// </summary>
         public string FormattedQueryText { get; set; }
+    }
+
+    public class RawExecutionPlanGraph 
+    {
+        /// <summary>
+        /// Raw execution plan graph from which the query plan graph is generated
+        /// </summary>
+        public string RawGraphString { get; set; }
+        /// <summary>
+        /// file type for raw execution plan. This will be the file type of the editor when the user opens the raw graph
+        /// </summary>
+        public string RawGraphFileType { get; set; }
     }
 }
