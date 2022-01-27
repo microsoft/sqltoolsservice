@@ -98,13 +98,21 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
                 return g.Description.MissingIndices.Select(mi => new ExecutionPlanRecommendation
                 {
                     DisplayString = mi.MissingIndexCaption,
-                    QueryText = mi.MissingIndexQueryText,
-                    FormattedQueryText = ParseMissingIndexQueryText(fileName, mi.MissingIndexImpact, mi.MissingIndexDatabase, mi.MissingIndexQueryText)
+                    Query = mi.MissingIndexQueryText,
+                    QueryWithDescription = ParseMissingIndexQueryText(fileName, mi.MissingIndexImpact, mi.MissingIndexDatabase, mi.MissingIndexQueryText)
                 }).ToList();
             }
             return null;
         }
 
+        /// <summary>
+        /// Creates query file text for the recommendations. It has the missing index query along with some lines of description.
+        /// </summary>
+        /// <param name="fileName">query file name that has generated the plan</param>
+        /// <param name="impact">impact of the missing query on performance</param>
+        /// <param name="database">database name to create the missing index in</param>
+        /// <param name="query">actual query that will be used to create the missing index</param>
+        /// <returns></returns>
         private static string ParseMissingIndexQueryText(string fileName, string impact, string database, string query)
         {
             return $@"{string.Format(SR.MissingIndexDetailsTitle, fileName, impact)}

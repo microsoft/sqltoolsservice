@@ -439,7 +439,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
                                 if (includeColumns == string.Empty)
                                     includeColumns = columnName;
                                 else
-                                    includeColumns = string.Format("{0},{1}", includeColumns, columnName);
+                                    includeColumns = $"{indexColumns},{columnName}";
                             }
                         }
                     }
@@ -451,7 +451,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
                     }
 
                     string impact = indexGroup.Attributes["Impact"].Value;
-                    string caption = string.Format(SR.MissingIndexFormat, impact, queryText);
+                    string caption = SR.MissingIndexFormat(impact, queryText);
                     parsedIndexes.Add(new MissingIndex()
                     {
                         MissingIndexDatabase = database,

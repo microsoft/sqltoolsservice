@@ -134,11 +134,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
         /// <summary>
         /// Raw query that is recommended to the user
         /// </summary>
-        public string QueryText { get; set; }
+        public string Query { get; set; }
         /// <summary>
         /// Query that will be opened in a new file once the user click on the recommendation
         /// </summary>
-        public string FormattedQueryText { get; set; }
+        public string QueryWithDescription { get; set; }
     }
 
     public class RawExecutionPlanGraph 
