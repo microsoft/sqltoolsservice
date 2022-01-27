@@ -2220,7 +2220,7 @@ OperatorDisplayCost(double cost, int percentage) = {0:0.#######} ({1}%)
 #Would like to display actual rows and estimated rows in two lines: <number_actual_rows> of\n <number_estimated_rows> (xx%)
 ActualOfEstimated(string actual, string estimated, decimal percent) = {0} of\n{1} ({2}%)
 ;"Missing Index (Impact {0}): {1}" format string for showplan
-MissingIndexFormat = Missing Index (Impact {0}): {1}
+MissingIndexFormat(string impact, string queryText) = Missing Index (Impact {0}): {1}
 ;title of missing index details
 MissingIndexDetailsTitle = /*\r\nMissing Index Details from {0}\r\nThe Query Processor estimates that implementing the following index could improve the query cost by {1}%.\r\n*/
 

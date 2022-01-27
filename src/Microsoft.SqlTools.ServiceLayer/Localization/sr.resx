@@ -4608,7 +4608,8 @@
   </data>
   <data name="MissingIndexFormat" xml:space="preserve">
     <value>Missing Index (Impact {0}): {1}</value>
-    <comment>&quot;Missing Index (Impact {0}): {1}&quot; format string for showplan</comment>
+    <comment>&quot;Missing Index (Impact {0}): {1}&quot; format string for showplan.
+ Parameters: 0 - impact (string), 1 - queryText (string) </comment>
   </data>
   <data name="MissingIndexDetailsTitle" xml:space="preserve">
     <value>/*

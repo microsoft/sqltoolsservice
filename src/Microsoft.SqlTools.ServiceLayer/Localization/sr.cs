@@ -8445,14 +8445,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string MissingIndexFormat
-        {
-            get
-            {
-                return Keys.GetString(Keys.MissingIndexFormat);
-            }
-        }
-
         public static string MissingIndexDetailsTitle
         {
             get
@@ -8939,6 +8931,11 @@ namespace Microsoft.SqlTools.ServiceLayer
         public static string ActualOfEstimated(string actual, string estimated, decimal percent)
         {
             return Keys.GetString(Keys.ActualOfEstimated, actual, estimated, percent);
+        }
+
+        public static string MissingIndexFormat(string impact, string queryText)
+        {
+            return Keys.GetString(Keys.MissingIndexFormat, impact, queryText);
         }
 
         public static string TableNotInitializedException(string tableId)
