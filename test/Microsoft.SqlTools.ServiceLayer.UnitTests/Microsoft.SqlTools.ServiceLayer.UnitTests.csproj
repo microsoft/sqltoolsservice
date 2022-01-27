@@ -33,4 +33,8 @@
 	    <Content Remove=".\ShowPlan\TestExecution.xml" />
     	<EmbeddedResource Include=".\ShowPlan\TestExecutionPlan.xml" />
 	</ItemGroup>
+	<ItemGroup>
+	    <Content Remove=".\ShowPlan\TestExecutionPlanRecommendations.xml" />
+    	<EmbeddedResource Include=".\ShowPlan\TestExecutionPlanRecommendations.xml" />
+	</ItemGroup>
 </Project>

@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -12,14 +13,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
 {
     public class ShowPlanGraphUtils
     {
-        public static List<ExecutionPlanGraph> CreateShowPlanGraph(string xml)
+        public static List<ExecutionPlanGraph> CreateShowPlanGraph(string xml, string fileName = "")
         {
             ShowPlanGraph.ShowPlanGraph[] graphs = ShowPlanGraph.ShowPlanGraph.ParseShowPlanXML(xml, ShowPlanGraph.ShowPlanType.Unknown);
             return graphs.Select(g => new ExecutionPlanGraph
             {
                 Root = ConvertShowPlanTreeToExecutionPlanTree(g.Root),
                 Query = g.Statement,
-                XmlString = xml
+                RawGraph = xml,
+                Recommendations = ParseRecommendations(g, fileName)
             }).ToList();
         }
 
@@ -84,6 +86,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
 
             }
             return propsList;
+        }
+
+        private static List<ExecutionPlanRecommendation> ParseRecommendations(ShowPlanGraph.ShowPlanGraph g, string fileName)
+        {
+            if (g.Description != null && g.Description.MissingIndices != null)
+            {
+                return g.Description.MissingIndices.Select(mi => new ExecutionPlanRecommendation
+                {
+                    DisplayString = mi.MissingIndexCaption,
+                    QueryText = mi.MissingIndexQueryText,
+                    FormattedQueryText = ParseMissingIndexQueryText(fileName, mi.MissingIndexImpact, mi.MissingIndexDatabase, mi.MissingIndexQueryText)
+                }).ToList();
+            }
+            return null;
+        }
+
+        private static string ParseMissingIndexQueryText(string doctitle, string impact, string database, string query)
+        {
+            return $@"{string.Format(SR.MissingIndexDetailsTitle, doctitle, impact)}
+
+/*
+{string.Format("USE {0}", database)}
+GO
+{string.Format("{0}", query)}
+GO
+*/
+";
         }
     }
 }

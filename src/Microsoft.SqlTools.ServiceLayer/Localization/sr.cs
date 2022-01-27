@@ -8445,6 +8445,22 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string MissingIndexFormat
+        {
+            get
+            {
+                return Keys.GetString(Keys.MissingIndexFormat);
+            }
+        }
+
+        public static string MissingIndexDetailsTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.MissingIndexDetailsTitle);
+            }
+        }
+
         public static string TableEditPathNotProvidedException
         {
             get
@@ -12270,6 +12286,12 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ActualOfEstimated = "ActualOfEstimated";
+
+
+            public const string MissingIndexFormat = "MissingIndexFormat";
+
+
+            public const string MissingIndexDetailsTitle = "MissingIndexDetailsTitle";
 
 
             public const string TableNotInitializedException = "TableNotInitializedException";
