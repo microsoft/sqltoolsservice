@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
 {
     public class ShowPlanGraphUtils
     {
-        public static List<ExecutionPlanGraph> CreateShowPlanGraph(string xml, string fileName = "")
+        public static List<ExecutionPlanGraph> CreateShowPlanGraph(string xml, string fileName)
         {
             ShowPlanGraph.ShowPlanGraph[] graphs = ShowPlanGraph.ShowPlanGraph.ParseShowPlanXML(xml, ShowPlanGraph.ShowPlanType.Unknown);
             return graphs.Select(g => new ExecutionPlanGraph
@@ -105,9 +105,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
             return null;
         }
 
-        private static string ParseMissingIndexQueryText(string doctitle, string impact, string database, string query)
+        private static string ParseMissingIndexQueryText(string fileName, string impact, string database, string query)
         {
-            return $@"{string.Format(SR.MissingIndexDetailsTitle, doctitle, impact)}
+            return $@"{string.Format(SR.MissingIndexDetailsTitle, fileName, impact)}
 
 /*
 {string.Format("USE {0}", database)}

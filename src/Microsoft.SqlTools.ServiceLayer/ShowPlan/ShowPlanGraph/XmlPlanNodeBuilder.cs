@@ -57,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
                 // Get the statement XML for the graph.
                 context.Graph.XmlDocument = GetSingleStatementXml(dataSource, i++);
                 // Parse the graph description.
-                context.Graph.Description = ParseDescription(context.Graph, context.Graph.XmlDocument, i);
+                context.Graph.Description = ParseDescription(context.Graph, i);
                 // Add graph to the list
                 graphs.Add(context.Graph);
             }
@@ -374,97 +374,100 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
             }
         }
 
-        private Description ParseDescription(ShowPlanGraph graph, string XmlDocument, int index)
+        private Description ParseDescription(ShowPlanGraph graph, int index)
         {
 
-            Description description = new Description();
-            description.HasMissingIndex = true;
-            description.QueryText = graph.Statement;
+
 
             XmlDocument stmtXmlDocument = new XmlDocument();
-            stmtXmlDocument.LoadXml(XmlDocument);
-            var nsmgr = new XmlNamespaceManager(stmtXmlDocument.NameTable);
-            nsmgr.AddNamespace("shp", "http://schemas.microsoft.com/sqlserver/2004/07/showplan");
+            stmtXmlDocument.LoadXml(graph.XmlDocument);
+            var nsMgr = new XmlNamespaceManager(stmtXmlDocument.NameTable);
+            nsMgr.AddNamespace("shp", "http://schemas.microsoft.com/sqlserver/2004/07/showplan");
             XmlNode rootNode = stmtXmlDocument.DocumentElement;
 
-            XmlNode missingIndexes = rootNode.SelectSingleNode("descendant::shp:MissingIndexes", nsmgr);
-            //Returning null if no missing indexes are found in the xml file
-            if (missingIndexes == null)
-            {
-                return null;
-            }
-            XmlNodeList indexGroups = missingIndexes.SelectNodes("descendant::shp:MissingIndexGroup", nsmgr);
-
-            bool memoryOptimzed = false;
-            XmlNode scan = rootNode.SelectSingleNode("descendant::shp:IndexScan", nsmgr);
-            if (scan == null)
-            {
-                scan = rootNode.SelectSingleNode("descendant::shp:TableScan", nsmgr);
-            }
-            if (scan != null && scan.Attributes["Storage"] != null)
-            {
-                if (0 == string.Compare(scan.Attributes["Storage"].Value, "MemoryOptimized", StringComparison.Ordinal))
-                {
-                    memoryOptimzed = true;
-                }
-            }
-
-            const string createIndexTemplate = "CREATE NONCLUSTERED INDEX [<Name of Missing Index, sysname,>]\r\nON {0}.{1} ({2})\r\n";
-            const string addIndexTemplate = "ALTER TABLE {0}.{1}\r\nADD INDEX [<Name of Missing Index, sysname,>]\r\nNONCLUSTERED ({2})\r\n";
-            const string includeTemplate = "INCLUDE ({0})";
+            XmlNode missingIndexes = rootNode.SelectSingleNode("descendant::shp:MissingIndexes", nsMgr);
 
             List<MissingIndex> parsedIndexes = new List<MissingIndex>();
-            foreach (XmlNode indexGroup in indexGroups)
+            //Returning null if no missing indexes are found in the xml file
+            if (missingIndexes != null)
             {
-                XmlNode missingIndex = indexGroup.SelectSingleNode("descendant::shp:MissingIndex", nsmgr);
-                string database = missingIndex.Attributes["Database"].Value;
-                string schemaName = missingIndex.Attributes["Schema"].Value;
-                string tableName = missingIndex.Attributes["Table"].Value;
-                string indexColumns = string.Empty;
-                string includeColumns = string.Empty;
+                XmlNodeList indexGroups = missingIndexes.SelectNodes("descendant::shp:MissingIndexGroup", nsMgr);
 
-                // populate index columns and include columns
-                XmlNodeList columnGroups = missingIndex.SelectNodes("shp:ColumnGroup", nsmgr);
-                foreach (XmlNode columnGroup in columnGroups)
+                bool memoryOptimzed = false;
+                XmlNode scan = rootNode.SelectSingleNode("descendant::shp:IndexScan", nsMgr);
+                if (scan == null)
                 {
-                    foreach (XmlNode column in columnGroup.ChildNodes)
+                    scan = rootNode.SelectSingleNode("descendant::shp:TableScan", nsMgr);
+                }
+                if (scan != null && scan.Attributes["Storage"] != null)
+                {
+                    if (0 == string.Compare(scan.Attributes["Storage"].Value, "MemoryOptimized", StringComparison.Ordinal))
                     {
-                        string columnName = column.Attributes["Name"].Value;
-                        if (0 != string.Compare(columnGroup.Attributes["Usage"].Value, "INCLUDE", StringComparison.Ordinal))
-                        {
-                            if (indexColumns == string.Empty)
-                                indexColumns = columnName;
-                            else
-                                indexColumns = string.Format("{0},{1}", indexColumns, columnName);
-                        }
-                        else if (!memoryOptimzed)
-                        {
-                            if (includeColumns == string.Empty)
-                                includeColumns = columnName;
-                            else
-                                includeColumns = string.Format("{0},{1}", includeColumns, columnName);
-                        }
+                        memoryOptimzed = true;
                     }
                 }
 
-                string queryText = string.Format((memoryOptimzed) ? addIndexTemplate : createIndexTemplate, schemaName, tableName, indexColumns);
-                if (!String.IsNullOrEmpty(includeColumns))
-                {
-                    queryText += string.Format(includeTemplate, includeColumns);
-                }
+                const string createIndexTemplate = "CREATE NONCLUSTERED INDEX [<Name of Missing Index, sysname,>]\r\nON {0}.{1} ({2})\r\n";
+                const string addIndexTemplate = "ALTER TABLE {0}.{1}\r\nADD INDEX [<Name of Missing Index, sysname,>]\r\nNONCLUSTERED ({2})\r\n";
+                const string includeTemplate = "INCLUDE ({0})";
 
-                string impact = indexGroup.Attributes["Impact"].Value;
-                string caption = string.Format(SR.MissingIndexFormat, impact, queryText);
-                parsedIndexes.Add(new MissingIndex()
+                foreach (XmlNode indexGroup in indexGroups)
                 {
-                    MissingIndexDatabase = database,
-                    MissingIndexQueryText = queryText,
-                    MissingIndexImpact = impact,
-                    MissingIndexCaption = caption
-                });
+                    XmlNode missingIndex = indexGroup.SelectSingleNode("descendant::shp:MissingIndex", nsMgr);
+                    string database = missingIndex.Attributes["Database"].Value;
+                    string schemaName = missingIndex.Attributes["Schema"].Value;
+                    string tableName = missingIndex.Attributes["Table"].Value;
+                    string indexColumns = string.Empty;
+                    string includeColumns = string.Empty;
+
+                    // populate index columns and include columns
+                    XmlNodeList columnGroups = missingIndex.SelectNodes("shp:ColumnGroup", nsMgr);
+                    foreach (XmlNode columnGroup in columnGroups)
+                    {
+                        foreach (XmlNode column in columnGroup.ChildNodes)
+                        {
+                            string columnName = column.Attributes["Name"].Value;
+                            if (0 != string.Compare(columnGroup.Attributes["Usage"].Value, "INCLUDE", StringComparison.Ordinal))
+                            {
+                                if (indexColumns == string.Empty)
+                                    indexColumns = columnName;
+                                else
+                                    indexColumns = $"{indexColumns},{columnName}";
+                            }
+                            else if (!memoryOptimzed)
+                            {
+                                if (includeColumns == string.Empty)
+                                    includeColumns = columnName;
+                                else
+                                    includeColumns = string.Format("{0},{1}", includeColumns, columnName);
+                            }
+                        }
+                    }
+
+                    string queryText = string.Format((memoryOptimzed) ? addIndexTemplate : createIndexTemplate, schemaName, tableName, indexColumns);
+                    if (!String.IsNullOrEmpty(includeColumns))
+                    {
+                        queryText += string.Format(includeTemplate, includeColumns);
+                    }
+
+                    string impact = indexGroup.Attributes["Impact"].Value;
+                    string caption = string.Format(SR.MissingIndexFormat, impact, queryText);
+                    parsedIndexes.Add(new MissingIndex()
+                    {
+                        MissingIndexDatabase = database,
+                        MissingIndexQueryText = queryText,
+                        MissingIndexImpact = impact,
+                        MissingIndexCaption = caption
+                    });
+                }
             }
-            description.MissingIndices = parsedIndexes;
-            description.HasMissingIndex = true;
+
+
+            Description description = new Description
+            {
+                QueryText = graph.Statement,
+                MissingIndices = parsedIndexes,
+            };
             return description;
         }
 

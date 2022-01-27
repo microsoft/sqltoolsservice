@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ShowPlan
         [Test]
         public void ParseXMLFileReturnsValidShowPlanGraph()
         {
-            readFile(".ShowPlan.TestExecutionPlan.xml");
+            ReadFile(".ShowPlan.TestExecutionPlan.xml");
             var showPlanGraphs = ShowPlanGraphUtils.CreateShowPlanGraph(queryPlanFileText, "testFile.sql");
             Assert.AreEqual(1, showPlanGraphs.Count, "exactly one show plan graph should be returned");
             Assert.NotNull(showPlanGraphs[0], "graph should not be null");
@@ -30,9 +30,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ShowPlan
         [Test]
         public void ParsingNestedProperties()
         {
-            readFile(".ShowPlan.TestExecutionPlan.xml");
+            ReadFile(".ShowPlan.TestExecutionPlan.xml");
             string[] commonNestedPropertiesNames = { "MemoryGrantInfo", "OptimizerHardwareDependentProperties" };
-            var showPlanGraphs = ShowPlanGraphUtils.CreateShowPlanGraph(queryPlanFileText);
+            var showPlanGraphs = ShowPlanGraphUtils.CreateShowPlanGraph(queryPlanFileText, "testFile.sql");
             ExecutionPlanNode rootNode = showPlanGraphs[0].Root;
             rootNode.Properties.ForEach(p =>
             {
@@ -47,14 +47,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ShowPlan
         public void ParseXMLFileWithRecommendations()
         {
             //The first graph in this execution plan has 3 recommendations
-            readFile(".ShowPlan.TestExecutionPlanRecommendations.xml");
+            ReadFile(".ShowPlan.TestExecutionPlanRecommendations.xml");
             string[] commonNestedPropertiesNames = { "MemoryGrantInfo", "OptimizerHardwareDependentProperties" };
-            var showPlanGraphs = ShowPlanGraphUtils.CreateShowPlanGraph(queryPlanFileText);
+            var showPlanGraphs = ShowPlanGraphUtils.CreateShowPlanGraph(queryPlanFileText, "testFile.sql");
             List<ExecutionPlanRecommendation> rootNode = showPlanGraphs[0].Recommendations;
             Assert.AreEqual(3, rootNode.Count, "3 recommendations should be returned by the showplan parser");
         }
 
-        private void readFile(string fileName)
+        private void ReadFile(string fileName)
         {
             Assembly assembly = Assembly.GetAssembly(typeof(ShowPlanXMLTests));
             Stream scriptStream = assembly.GetManifestResourceStream(assembly.GetName().Name + fileName);

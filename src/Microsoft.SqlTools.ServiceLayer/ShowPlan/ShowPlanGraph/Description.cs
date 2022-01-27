@@ -1,3 +1,4 @@
+using System;
 //
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
@@ -16,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
             get { return this.title; }
             set
             {
-                this.title = value.Trim().Replace(NewLine, " ");
+                this.title = value.Trim().Replace(Environment.NewLine, " ");
             }
         }
 
@@ -26,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
             set
             {
                 string text = value.Trim();
-                this.queryText = text.Replace(NewLine, " ");
+                this.queryText = text.Replace(Environment.NewLine, " ");
             }
         }
 
@@ -35,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
             get { return this.clusteredMode; }
             set
             {
-                this.clusteredMode = value.Trim().Replace(NewLine, " ");
+                this.clusteredMode = value.Trim().Replace(Environment.NewLine, " ");
             }
         }
 
@@ -46,17 +47,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
                 this.isClusteredMode = value;
             }
         }
-
-        public bool HasMissingIndex
-        {
-            get { return this.hasMissingIndex; }
-            set { this.hasMissingIndex = value; }
-        }
-
+        
         public List<MissingIndex> MissingIndices
         {
             get { return this.missingIndexes; }
-            set 
+            set
             {
                 this.missingIndexes = value;
             }
@@ -71,10 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
         private string toolTipQueryText = string.Empty;
         private string clusteredMode = string.Empty;
         private bool isClusteredMode = false;
-        private bool hasMissingIndex = false;
         private List<MissingIndex> missingIndexes = new List<MissingIndex>();
-        private const string NewLine = "\r\n";
-
         #endregion
     }
 
