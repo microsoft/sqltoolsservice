@@ -376,9 +376,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
 
         private Description ParseDescription(ShowPlanGraph graph, int index)
         {
-
-
-
             XmlDocument stmtXmlDocument = new XmlDocument();
             stmtXmlDocument.LoadXml(graph.XmlDocument);
             var nsMgr = new XmlNamespaceManager(stmtXmlDocument.NameTable);

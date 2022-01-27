@@ -47,15 +47,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
                 this.isClusteredMode = value;
             }
         }
-        
-        public List<MissingIndex> MissingIndices
-        {
-            get { return this.missingIndexes; }
-            set
-            {
-                this.missingIndexes = value;
-            }
-        }
+
+        public List<MissingIndex> MissingIndices { get; set; }
 
         #endregion
 
@@ -66,50 +59,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
         private string toolTipQueryText = string.Empty;
         private string clusteredMode = string.Empty;
         private bool isClusteredMode = false;
-        private List<MissingIndex> missingIndexes = new List<MissingIndex>();
         #endregion
     }
 
     public class MissingIndex
     {
-        public string MissingIndexCaption
-        {
-            get { return this.missingIndexCaption; }
-            set
-            {
-                this.missingIndexCaption = value;
-            }
-        }
-        public string MissingIndexQueryText
-        {
-            get { return this.missingIndexQueryText; }
-            set
-            {
-                this.missingIndexQueryText = value;
-            }
-        }
-
-        public string MissingIndexImpact
-        {
-            get { return this.missingIndexImpact; }
-            set
-            {
-                this.missingIndexImpact = value;
-            }
-        }
-
-        public string MissingIndexDatabase
-        {
-            get { return this.missingIndexDatabase; }
-            set
-            {
-                this.missingIndexDatabase = value;
-            }
-        }
-
-        private string missingIndexCaption = string.Empty;    // actual caption text that will be displayed on the screen
-        private string missingIndexQueryText = string.Empty;  // create index query
-        private string missingIndexImpact = string.Empty;     // impact
-        private string missingIndexDatabase = string.Empty;   // database context
+        public string MissingIndexCaption { get; set; }
+        public string MissingIndexQueryText { get; set; }
+        public string MissingIndexImpact { get; set; }
+        public string MissingIndexDatabase { get; set; }
     }
 }
