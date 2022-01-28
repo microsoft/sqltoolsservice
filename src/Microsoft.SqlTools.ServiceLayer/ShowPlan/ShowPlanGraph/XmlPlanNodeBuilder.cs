@@ -373,22 +373,31 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
                 }
             }
         }
-
         private Description ParseDescription(ShowPlanGraph graph, int index)
         {
             XmlDocument stmtXmlDocument = new XmlDocument();
             stmtXmlDocument.LoadXml(graph.XmlDocument);
             var nsMgr = new XmlNamespaceManager(stmtXmlDocument.NameTable);
+            //Manually add our showplan namespace since the document won't have it in the default NameTable
             nsMgr.AddNamespace("shp", "http://schemas.microsoft.com/sqlserver/2004/07/showplan");
+
+            //The root node in this case is the statement node
             XmlNode rootNode = stmtXmlDocument.DocumentElement;
+            if(rootNode == null)
+            {
+                //Couldn't find our statement node, this should never happen in a properly formed document
+                throw new ArgumentNullException("StatementNode");
+            }
 
             XmlNode missingIndexes = rootNode.SelectSingleNode("descendant::shp:MissingIndexes", nsMgr);
 
             List<MissingIndex> parsedIndexes = new List<MissingIndex>();
+
+            // Not all plans will have a missing index. For those plans, just return the description.
             if (missingIndexes != null)
             {
-                XmlNodeList indexGroups = missingIndexes.SelectNodes("descendant::shp:MissingIndexGroup", nsMgr);
 
+                // check Memory Optimized table.
                 bool memoryOptimzed = false;
                 XmlNode scan = rootNode.SelectSingleNode("descendant::shp:IndexScan", nsMgr);
                 if (scan == null)
@@ -403,13 +412,20 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
                     }
                 }
 
+                // getting all the indexgroups from the plan. A plan can have multiple missing index groups.
+                XmlNodeList indexGroups = missingIndexes.SelectNodes("descendant::shp:MissingIndexGroup", nsMgr);
+
+                // missing index template
                 const string createIndexTemplate = "CREATE NONCLUSTERED INDEX [<Name of Missing Index, sysname,>]\r\nON {0}.{1} ({2})\r\n";
                 const string addIndexTemplate = "ALTER TABLE {0}.{1}\r\nADD INDEX [<Name of Missing Index, sysname,>]\r\nNONCLUSTERED ({2})\r\n";
                 const string includeTemplate = "INCLUDE ({0})";
 
+                // iterating over all missing index groups
                 foreach (XmlNode indexGroup in indexGroups)
                 {
+                    // we only have one missing index per index group 
                     XmlNode missingIndex = indexGroup.SelectSingleNode("descendant::shp:MissingIndex", nsMgr);
+
                     string database = missingIndex.Attributes["Database"].Value;
                     string schemaName = missingIndex.Attributes["Schema"].Value;
                     string tableName = missingIndex.Attributes["Table"].Value;
@@ -440,6 +456,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
                         }
                     }
 
+                    // for memory optimized we just alter the existing index where as for non optimized tables we create a new one.
                     string queryText = string.Format((memoryOptimzed) ? addIndexTemplate : createIndexTemplate, schemaName, tableName, indexColumns);
                     if (!String.IsNullOrEmpty(includeColumns))
                     {

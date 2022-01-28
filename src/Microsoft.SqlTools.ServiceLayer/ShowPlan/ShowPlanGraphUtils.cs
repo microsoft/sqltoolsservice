@@ -20,10 +20,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
             {
                 Root = ConvertShowPlanTreeToExecutionPlanTree(g.Root),
                 Query = g.Statement,
-                RawGraph = new RawExecutionPlanGraph
+                GraphFile = new ExecutionPlanGraphFile
                 {
-                    RawGraphString = xml,
-                    RawGraphFileType = "xml"
+                    GraphFileContent = xml,
+                    GraphFileType = "xml"
                 },
                 Recommendations = ParseRecommendations(g, fileName)
             }).ToList();
