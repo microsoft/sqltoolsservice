@@ -144,11 +144,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
     public class ExecutionPlanGraphFile 
     {
         /// <summary>
-        /// file contents
+        /// File contents
         /// </summary>
         public string GraphFileContent { get; set; }
         /// <summary>
-        /// file type for execution plan. This will be the file type of the editor when the user opens the graph file
+        /// File type for execution plan. This will be the file type of the editor when the user opens the graph file
         /// </summary>
         public string GraphFileType { get; set; }
     }
