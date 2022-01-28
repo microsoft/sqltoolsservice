@@ -647,8 +647,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     }
                 }
             });
-            view.ColumnTableOptions.canAddRows = true;
-            view.ColumnTableOptions.canRemoveRows = true;
+            view.ColumnTableOptions.CanAddRows = true;
+            view.ColumnTableOptions.CanRemoveRows = true;
+            view.ColumnTableOptions.RemoveRowConfirmationMessage = SR.TableDesignerDeleteColumnConfirmationMessage;
+            view.ColumnTableOptions.ShowRemoveRowConfirmation = true;
         }
 
         private void SetForeignKeysViewInfo(TableDesignerView view)
@@ -675,8 +677,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     }
                 }
             });
-            view.ForeignKeyTableOptions.canAddRows = true;
-            view.ForeignKeyTableOptions.canRemoveRows = true;
+            view.ForeignKeyTableOptions.CanAddRows = true;
+            view.ForeignKeyTableOptions.CanRemoveRows = true;
         }
 
         private void SetCheckConstraintsViewInfo(TableDesignerView view)
@@ -692,8 +694,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         Title = SR.TableDesignerIsEnabledPropertyTitle
                     }
                 });
-            view.CheckConstraintTableOptions.canAddRows = true;
-            view.CheckConstraintTableOptions.canRemoveRows = true;
+            view.CheckConstraintTableOptions.CanAddRows = true;
+            view.CheckConstraintTableOptions.CanRemoveRows = true;
         }
 
         private void SetIndexesViewInfo(TableDesignerView view)
@@ -742,8 +744,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 }
             });
             view.IndexTableOptions.PropertiesToDisplay = new List<string>() { IndexPropertyNames.Name, IndexPropertyNames.ColumnsDisplayValue, IndexPropertyNames.IsClustered, IndexPropertyNames.IsUnique };
-            view.IndexTableOptions.canAddRows = true;
-            view.IndexTableOptions.canRemoveRows = true;
+            view.IndexTableOptions.CanAddRows = true;
+            view.IndexTableOptions.CanRemoveRows = true;
 
             view.IndexColumnSpecificationTableOptions.AdditionalProperties.Add(
                 new DesignerDataPropertyInfo()
@@ -757,8 +759,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     }
                 });
             view.IndexColumnSpecificationTableOptions.PropertiesToDisplay.AddRange(new string[] { IndexColumnSpecificationPropertyNames.Column, IndexColumnSpecificationPropertyNames.Ascending });
-            view.IndexColumnSpecificationTableOptions.canAddRows = true;
-            view.IndexColumnSpecificationTableOptions.canRemoveRows = true;
+            view.IndexColumnSpecificationTableOptions.CanAddRows = true;
+            view.IndexColumnSpecificationTableOptions.CanRemoveRows = true;
         }
 
         private Dac.TableDesigner GetTableDesigner(TableInfo tableInfo)
