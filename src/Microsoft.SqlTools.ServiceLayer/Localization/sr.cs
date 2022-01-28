@@ -8925,6 +8925,16 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.ActualOfEstimated, actual, estimated, percent);
         }
 
+        public static string MissingIndexFormat(string impact, string queryText)
+        {
+            return Keys.GetString(Keys.MissingIndexFormat, impact, queryText);
+        }
+
+        public static string MissingIndexDetailsTitle(string fileName, string impact)
+        {
+            return Keys.GetString(Keys.MissingIndexDetailsTitle, fileName, impact);
+        }
+
         public static string TableNotInitializedException(string tableId)
         {
             return Keys.GetString(Keys.TableNotInitializedException, tableId);
@@ -12270,6 +12280,12 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ActualOfEstimated = "ActualOfEstimated";
+
+
+            public const string MissingIndexFormat = "MissingIndexFormat";
+
+
+            public const string MissingIndexDetailsTitle = "MissingIndexDetailsTitle";
 
 
             public const string TableNotInitializedException = "TableNotInitializedException";

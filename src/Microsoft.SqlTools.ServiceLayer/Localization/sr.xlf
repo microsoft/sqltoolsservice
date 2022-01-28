@@ -5742,6 +5742,22 @@
         <target state="new">Columns</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="MissingIndexFormat">
+        <source>Missing Index (Impact {0}): {1}</source>
+        <target state="new">Missing Index (Impact {0}): {1}</target>
+        <note>"Missing Index (Impact {0}): {1}" format string for showplan</note>
+      </trans-unit>
+      <trans-unit id="MissingIndexDetailsTitle">
+        <source>/*
+Missing Index Details from {0}
+The Query Processor estimates that implementing the following index could improve the query cost by {1}%.
+*/</source>
+        <target state="new">/*
+Missing Index Details from {0}
+The Query Processor estimates that implementing the following index could improve the query cost by {1}%.
+*/</target>
+        <note>title of missing index details</note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -4606,6 +4606,19 @@
     <comment>.
  Parameters: 0 - actual (string), 1 - estimated (string), 2 - percent (decimal) </comment>
   </data>
+  <data name="MissingIndexFormat" xml:space="preserve">
+    <value>Missing Index (Impact {0}): {1}</value>
+    <comment>&quot;Missing Index (Impact {0}): {1}&quot; format string for showplan.
+ Parameters: 0 - impact (string), 1 - queryText (string) </comment>
+  </data>
+  <data name="MissingIndexDetailsTitle" xml:space="preserve">
+    <value>/*
+Missing Index Details from {0}
+The Query Processor estimates that implementing the following index could improve the query cost by {1}%.
+*/</value>
+    <comment>title of missing index details.
+ Parameters: 0 - fileName (string), 1 - impact (string) </comment>
+  </data>
   <data name="TableNotInitializedException" xml:space="preserve">
     <value>Initialization is not properly done for table with id &apos;{0}&apos;</value>
     <comment>.
