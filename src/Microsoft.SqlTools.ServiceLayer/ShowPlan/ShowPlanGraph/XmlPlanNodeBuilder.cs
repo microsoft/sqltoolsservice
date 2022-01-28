@@ -46,7 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
             }
             List<ShowPlanGraph> graphs = new List<ShowPlanGraph>();
 
-            int i = 0;
+            int statementIndex = 0;
             foreach (BaseStmtInfoType statement in EnumStatements(plan))
             {
                 // Reset currentNodeId (used through Context) and create new context
@@ -55,11 +55,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
                 // Parse the statement block
                 XmlPlanParser.Parse(statement, null, null, context);
                 // Get the statement XML for the graph.
-                context.Graph.XmlDocument = GetSingleStatementXml(dataSource, i++);
+                context.Graph.XmlDocument = GetSingleStatementXml(dataSource, statementIndex);
                 // Parse the graph description.
-                context.Graph.Description = ParseDescription(context.Graph, i);
+                context.Graph.Description = ParseDescription(context.Graph);
                 // Add graph to the list
                 graphs.Add(context.Graph);
+                // Incrementing statement index
+                statementIndex++;
             }
 
             return graphs.ToArray();
@@ -373,7 +375,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
                 }
             }
         }
-        private Description ParseDescription(ShowPlanGraph graph, int index)
+        private Description ParseDescription(ShowPlanGraph graph)
         {
             XmlDocument stmtXmlDocument = new XmlDocument();
             stmtXmlDocument.LoadXml(graph.XmlDocument);
@@ -458,7 +460,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
 
                     // for memory optimized we just alter the existing index where as for non optimized tables we create a new one.
                     string queryText = string.Format((memoryOptimzed) ? addIndexTemplate : createIndexTemplate, schemaName, tableName, indexColumns);
-                    if (!String.IsNullOrEmpty(includeColumns))
+                    if (!string.IsNullOrEmpty(includeColumns))
                     {
                         queryText += string.Format(includeTemplate, includeColumns);
                     }
