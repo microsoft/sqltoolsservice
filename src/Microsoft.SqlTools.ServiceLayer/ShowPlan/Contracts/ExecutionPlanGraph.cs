@@ -21,9 +21,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
         /// </summary>
         public string Query { get; set; }
         /// <summary>
-        /// Underlying xml string used for generating execution plan graph
+        /// Graph file that used to generate ExecutionPlanGraph
         /// </summary>
-        public string XmlString { get; set; }
+        public ExecutionPlanGraphFile GraphFile { get; set; }
+        /// <summary>
+        /// Index recommendations given by show plan to improve query performance
+        /// </summary>
+        public List<ExecutionPlanRecommendation> Recommendations { get; set; }
     }
 
     public class ExecutionPlanNode
@@ -113,12 +117,39 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
         /// <summary>
         /// Size of the rows returned by the subtree of the edge.
         /// </summary>
-        /// <value></value>
         public double RowSize { get; set; }
         /// <summary>
         /// Edge properties to be shown in the tooltip.
         /// </summary>
-        /// <value></value>
         public List<ExecutionPlanGraphPropertyBase> Properties { get; set; }
+    }
+
+
+    public class ExecutionPlanRecommendation
+    {
+        /// <summary>
+        /// Text displayed in the show plan graph control
+        /// </summary>
+        public string DisplayString { get; set; }
+        /// <summary>
+        /// Raw query that is recommended to the user
+        /// </summary>
+        public string Query { get; set; }
+        /// <summary>
+        /// Query that will be opened in a new file once the user click on the recommendation
+        /// </summary>
+        public string QueryWithDescription { get; set; }
+    }
+
+    public class ExecutionPlanGraphFile 
+    {
+        /// <summary>
+        /// File contents
+        /// </summary>
+        public string GraphFileContent { get; set; }
+        /// <summary>
+        /// File type for execution plan. This will be the file type of the editor when the user opens the graph file
+        /// </summary>
+        public string GraphFileType { get; set; }
     }
 }
