@@ -20,7 +20,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
             {
                 Root = ConvertShowPlanTreeToExecutionPlanTree(g.Root),
                 Query = g.Statement,
-                RawGraph = new RawExecutionPlanGraph{
+                RawGraph = new RawExecutionPlanGraph
+                {
                     RawGraphString = xml,
                     RawGraphFileType = "xml"
                 },
@@ -93,16 +94,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
 
         private static List<ExecutionPlanRecommendation> ParseRecommendations(ShowPlanGraph.ShowPlanGraph g, string fileName)
         {
-            if (g.Description != null && g.Description.MissingIndices != null)
+            return g.Description.MissingIndices.Select(mi => new ExecutionPlanRecommendation
             {
-                return g.Description.MissingIndices.Select(mi => new ExecutionPlanRecommendation
-                {
-                    DisplayString = mi.MissingIndexCaption,
-                    Query = mi.MissingIndexQueryText,
-                    QueryWithDescription = ParseMissingIndexQueryText(fileName, mi.MissingIndexImpact, mi.MissingIndexDatabase, mi.MissingIndexQueryText)
-                }).ToList();
-            }
-            return null;
+                DisplayString = mi.MissingIndexCaption,
+                Query = mi.MissingIndexQueryText,
+                QueryWithDescription = ParseMissingIndexQueryText(fileName, mi.MissingIndexImpact, mi.MissingIndexDatabase, mi.MissingIndexQueryText)
+            }).ToList();
         }
 
         /// <summary>
@@ -115,7 +112,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
         /// <returns></returns>
         private static string ParseMissingIndexQueryText(string fileName, string impact, string database, string query)
         {
-            return $@"{string.Format(SR.MissingIndexDetailsTitle, fileName, impact)}
+            return $@"{SR.MissingIndexDetailsTitle(fileName, impact)}
 
 /*
 {string.Format("USE {0}", database)}

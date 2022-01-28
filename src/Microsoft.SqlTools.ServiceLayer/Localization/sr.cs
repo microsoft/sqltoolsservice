@@ -8445,14 +8445,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string MissingIndexDetailsTitle
-        {
-            get
-            {
-                return Keys.GetString(Keys.MissingIndexDetailsTitle);
-            }
-        }
-
         public static string TableEditPathNotProvidedException
         {
             get
@@ -8936,6 +8928,11 @@ namespace Microsoft.SqlTools.ServiceLayer
         public static string MissingIndexFormat(string impact, string queryText)
         {
             return Keys.GetString(Keys.MissingIndexFormat, impact, queryText);
+        }
+
+        public static string MissingIndexDetailsTitle(string fileName, string impact)
+        {
+            return Keys.GetString(Keys.MissingIndexDetailsTitle, fileName, impact);
         }
 
         public static string TableNotInitializedException(string tableId)

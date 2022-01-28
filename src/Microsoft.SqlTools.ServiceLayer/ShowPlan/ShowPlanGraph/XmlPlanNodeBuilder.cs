@@ -385,7 +385,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
             XmlNode missingIndexes = rootNode.SelectSingleNode("descendant::shp:MissingIndexes", nsMgr);
 
             List<MissingIndex> parsedIndexes = new List<MissingIndex>();
-            //Returning null if no missing indexes are found in the xml file
             if (missingIndexes != null)
             {
                 XmlNodeList indexGroups = missingIndexes.SelectNodes("descendant::shp:MissingIndexGroup", nsMgr);
