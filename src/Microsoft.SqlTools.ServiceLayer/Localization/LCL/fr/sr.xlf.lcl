@@ -4771,6 +4771,24 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";MissingIndexDetailsTitle" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[/*]D;]A;Missing Index Details from {0}]D;]A;The Query Processor estimates that implementing the following index could improve the query cost by {1}%.]D;]A;*/]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[/*]D;]A;Détails de l'index absent de {0}]D;]A;Le processeur de requêtes estime que l'implémentation de l'index suivant peut améliorer le coût de requête de {1}%.]D;]A;*/]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";MissingIndexFormat" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Missing Index (Impact {0}): {1}]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Index absent (Impact) {0} : {1}]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";MoreThanOneAzureFunctionWithName" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[More than one Azure function found with the FunctionName '{0}' in {1}]]></Val>
