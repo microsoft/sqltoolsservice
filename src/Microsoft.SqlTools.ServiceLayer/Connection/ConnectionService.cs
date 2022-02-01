@@ -1328,8 +1328,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                             connStringBuilder.Password = ConnectionService.PasswordPlaceholder;
                         }
 
-                        connStringBuilder.ApplicationName = "sqlops-connection-string";
-
+                        if (connStringParams.IncludeApplicationName)
+                        {
+                           connStringBuilder.ApplicationName = "sqlops-connection-string";
+                        }
                         connectionString = connStringBuilder.ConnectionString;
                     }
                     catch (Exception e)
