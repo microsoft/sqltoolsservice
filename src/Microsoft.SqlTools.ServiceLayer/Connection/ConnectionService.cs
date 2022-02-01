@@ -1317,7 +1317,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 string connectionString = string.Empty;
                 ConnectionInfo info;
-                if (TryFindConnection(connStringParams.OwnerUri, out info))
+                if (connStringParams.ConnectionInfo != null)
+                {
+                    info = connStringParams.ConnectionInfo;
+                }
+                else if (TryFindConnection(connStringParams.OwnerUri, out info))
                 {
                     try
                     {

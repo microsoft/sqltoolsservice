@@ -16,6 +16,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         public string OwnerUri { get; set; }
 
         /// <summary>
+        /// Connection information for the connection
+        /// </summary>
+        public ConnectionInfo ConnectionInfo { get; set; }
+
+        /// <summary>
         /// Indicates whether the password should be return in the connection string
         /// </summary>
         public bool IncludePassword { get; set; }
