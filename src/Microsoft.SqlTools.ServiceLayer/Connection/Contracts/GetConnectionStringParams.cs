@@ -23,6 +23,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// <summary>
         /// Indicates whether the application name should be return in the connection string
         /// </summary>
-        public bool IncludeApplicationName{ get; set; }
+        public bool? IncludeApplicationName { get; set;}
     }
 }
