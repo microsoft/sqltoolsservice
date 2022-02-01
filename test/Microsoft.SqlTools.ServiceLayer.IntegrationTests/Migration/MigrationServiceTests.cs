@@ -19,7 +19,7 @@ using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Migration
 {
-    public class MigrationgentServiceTests
+    public class MigrationServiceTests
     {
         [Test]
         public async Task TestHandleMigrationAssessmentRequest()
@@ -67,6 +67,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Migration
             Assert.IsNotNull(result.SqlMiRecommendationResults, "Get MI SKU Recommendation result is null");
             // TODO: Include Negative Justification in future when we start recommending more than one SKU.
             Assert.Greater(result.SqlMiRecommendationResults.First().PositiveJustifications.Count, 0, "No positive justification for MI SKU Recommendation result");
+
+            Assert.IsNotNull(result.InstanceRequirements);
+            Assert.AreEqual(result.InstanceRequirements.InstanceId, "TEST");
+            Assert.AreEqual(result.InstanceRequirements.DatabaseLevelRequirements.Count, 2);
+            Assert.AreEqual(result.InstanceRequirements.DatabaseLevelRequirements.Sum(db => db.FileLevelRequirements.Count), 4);
         }
     }
 }

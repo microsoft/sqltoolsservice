@@ -263,7 +263,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 {
                     SqlDbRecommendationResults = parameters.TargetPlatforms.Contains("AzureSqlDatabase") ? provider.GetSkuRecommendation(new AzurePreferences() { EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlDatabase"), ScalingFactor = parameters.ScalingFactor / 100.0 }, req) : new List<SkuRecommendationResult>(),
                     SqlMiRecommendationResults = parameters.TargetPlatforms.Contains("AzureSqlManagedInstance") ? provider.GetSkuRecommendation(new AzurePreferences() { EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlManagedInstance"), ScalingFactor = parameters.ScalingFactor / 100.0 }, req) : new List<SkuRecommendationResult>(),
-                    SqlVmRecommendationResults = parameters.TargetPlatforms.Contains("AzureSqlVirtualMachine") ? provider.GetSkuRecommendation(new AzurePreferences() { EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlVirtualMachine"), ScalingFactor = parameters.ScalingFactor / 100.0 }, req) : new List<SkuRecommendationResult>()
+                    SqlVmRecommendationResults = parameters.TargetPlatforms.Contains("AzureSqlVirtualMachine") ? provider.GetSkuRecommendation(new AzurePreferences() { EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlVirtualMachine"), ScalingFactor = parameters.ScalingFactor / 100.0 }, req) : new List<SkuRecommendationResult>(),
+                    InstanceRequirements = req
                 };
 
                 await requestContext.SendResult(results);
