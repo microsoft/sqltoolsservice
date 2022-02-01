@@ -4,6 +4,7 @@
 //
 
 using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts.Models;
+using Microsoft.SqlServer.Migration.SkuRecommendation.Models.Sql;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using System.Collections.Generic;
 
@@ -77,6 +78,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
         /// List of SQL VM recommendation results, if applicable
         /// </summary>
         public List<SkuRecommendationResult> SqlVmRecommendationResults { get; set; }
+
+        /// <summary>
+        /// SQL instance requirements, representing an aggregated view of the performance requirements of the source instance
+        /// </summary>
+        public SqlInstanceRequirements InstanceRequirements { get; set; }
     }
 
     public class GetSkuRecommendationsRequest
