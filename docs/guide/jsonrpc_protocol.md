@@ -538,7 +538,7 @@ Get a connection string for the provided connection.
         public bool IncludePassword { get; set; }
 
         /// <summary>
-        /// Indicates whether the application name should be return in the connection string
+        /// Indicates whether the application name should be return in the connection string. Default is false.
         /// </summary>
         public bool? IncludeApplicationName { get; set;}
     }
