@@ -10,6 +10,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 {
     public class PublishTableChangesResponse
     {
+        public TableInfo NewTableInfo;
     }
 
     /// <summary>
