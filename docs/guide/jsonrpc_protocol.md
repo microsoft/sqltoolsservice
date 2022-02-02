@@ -536,6 +536,11 @@ Get a connection string for the provided connection.
         /// Indicates whether the password should be return in the connection string
         /// </summary>
         public bool IncludePassword { get; set; }
+
+        /// <summary>
+        /// Indicates whether the application name should be return in the connection string
+        /// </summary>
+        public bool? IncludeApplicationName { get; set;}
     }
 ```
 #### Response
