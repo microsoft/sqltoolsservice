@@ -1328,11 +1328,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                             connStringBuilder.Password = ConnectionService.PasswordPlaceholder;
                         }
                         // default connection string application name to always be included unless set to false
-                        if (connStringParams.IncludeApplicationName != false)
-                        {
-                            connStringParams.IncludeApplicationName = true;
-                        }
-                        if (connStringParams.IncludeApplicationName.HasTrue())
+                        if (!connStringParams.IncludeApplicationName.HasValue || connStringParams.IncludeApplicationName.Value == true)
                         {
                             connStringBuilder.ApplicationName = "sqlops-connection-string";
                         }

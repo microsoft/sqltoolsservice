@@ -140,5 +140,38 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
             await service.HandleGetConnectionStringRequest(requestParams, requestContext.Object);
             requestContext.VerifyAll();
         }
+
+        /// <summary>
+        /// Test HandleGetConnectionStringRequest
+        /// When Application Name is set to false, the connection string should not contain the application name
+        /// </summary>
+        [Test]
+        public async Task GetCurrentConnectionStringTestwithoutApplicationName()
+        {
+            // If we make a connection to a live database 
+            ConnectionService service = ConnectionService.Instance;
+            var result = LiveConnectionHelper.InitLiveConnectionInfo();
+            var resultApplicationName = result.ConnectionInfo.ConnectionDetails.ApplicationName;
+            var requestContext = new Mock<SqlTools.Hosting.Protocol.RequestContext<string>>();
+
+            requestContext.Setup(x => x.SendResult(It.Is<string>((connectionString) => !connectionString.Contains("Application Name="))))
+                .Returns(Task.FromResult(new object()));
+
+            var requestParams = new GetConnectionStringParams()
+            {
+                OwnerUri = result.ConnectionInfo.OwnerUri,
+                IncludePassword = false,
+                IncludeApplicationName = false
+            };
+
+            await service.HandleGetConnectionStringRequest(requestParams, requestContext.Object);
+            requestContext.VerifyAll();
+
+            requestContext.Setup(x => x.SendResult(It.Is<string>((connectionString) => !connectionString.Contains(resultApplicationName))))
+                .Returns(Task.FromResult(new object()));
+
+            await service.HandleGetConnectionStringRequest(requestParams, requestContext.Object);
+            requestContext.VerifyAll();
+        }
     }
 }
