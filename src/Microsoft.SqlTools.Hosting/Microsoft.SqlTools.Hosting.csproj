@@ -4,6 +4,7 @@
 		<EnableDefaultItems>false</EnableDefaultItems>
 		<EnableDefaultCompileItems>false</EnableDefaultCompileItems>
 		<EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
+		<EmbeddedResourceUseDependentUponConvention>false</EmbeddedResourceUseDependentUponConvention>
 		<EnableDefaultNoneItems>false</EnableDefaultNoneItems>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<DefineConstants>$(DefineConstants);NETCOREAPP1_0;TRACE</DefineConstants>

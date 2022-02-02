@@ -56,6 +56,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
         }
 
         /// <summary>
+        /// Contains the raw xml document for the graph. Used to save graphs. 
+        /// </summary>
+        public string XmlDocument { get; set; }
+
+        /// <summary>
         /// The QueryPlanHash as recorded in the RootNode for this graph, null if not available
         /// </summary>
         public string QueryPlanHash

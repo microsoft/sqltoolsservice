@@ -3499,10 +3499,31 @@
   <data name="CheckConstraintIsEnabledDescription" xml:space="preserve">
     <value>CHECK 제약 조건을 사용할지 여부를 지정합니다.</value>
   </data>
-  <data name="SessionMissingDetails" xml:space="preserve">
-    <value>세션 세부 정보가 누락되어 스트리밍 세션 {0}을(를) 시작할 수 없습니다.</value>
+  <data name="QueryServiceUnsupportedSqlVariantType" xml:space="preserve">
+    <value>SQL 변형 열 "{1}"의 기본 유형 "{0}"을(를) 확인할 수 없습니다.</value>
   </data>
-  <data name="StartProfilingFailed" xml:space="preserve">
-    <value>프로파일러 시작 실패: {0}</value>
+  <data name="IndexIsEnabledPropertyDescription" xml:space="preserve">
+    <value>인덱스를 사용할지 여부를 지정합니다.</value>
+  </data>
+  <data name="IndexIsClusteredPropertyDescription" xml:space="preserve">
+    <value>인덱스가 클러스터되는지 여부를 지정합니다. 테이블에서 클러스터된 인덱스는 하나만 허용됩니다.</value>
+  </data>
+  <data name="TableDesignerIndexIsClusteredPropertyTitle" xml:space="preserve">
+    <value>클러스터형 여부</value>
+  </data>
+  <data name="IndexIsUniquePropertyDescription" xml:space="preserve">
+    <value>이 인덱스로 입력한 데이터가 고유해야 하는지 여부입니다.</value>
+  </data>
+  <data name="TableDesignerIsUniquePropertyTitle" xml:space="preserve">
+    <value>고유함</value>
+  </data>
+  <data name="IndexColumnIsAscendingPropertyDescription" xml:space="preserve">
+    <value>열의 정렬 순서를 지정합니다.</value>
+  </data>
+  <data name="IndexColumnIsAscendingPropertyTitle" xml:space="preserve">
+    <value>오름차순</value>
+  </data>
+  <data name="TableDesignerColumnsDisplayValueTitle" xml:space="preserve">
+    <value>열</value>
   </data>
 </root>
