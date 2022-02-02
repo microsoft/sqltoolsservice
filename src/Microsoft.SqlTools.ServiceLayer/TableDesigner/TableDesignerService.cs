@@ -84,7 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 connectinStringbuilder.InitialCatalog = tableInfo.Database;
                 var connectionString = connectinStringbuilder.ToString();
                 var table = new Dac.TableDesigner(connectionString, tableInfo.Schema, tableInfo.Name, tableInfo.IsNewTable);
-                this.idTableMap.Add(tableInfo.Id, table);
+                this.idTableMap[tableInfo.Id] = table;
                 var viewModel = this.GetTableViewModel(tableInfo);
                 var view = this.GetDesignerViewInfo(tableInfo);
                 await requestContext.SendResult(new TableDesignerInfo()
@@ -130,7 +130,18 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             {
                 var tableDesigner = this.GetTableDesigner(tableInfo);
                 tableDesigner.CommitChanges();
-                await requestContext.SendResult(new PublishTableChangesResponse());
+                string newId = string.Format("{0}|{1}|{2}|{3}", tableInfo.ConnectionString, tableInfo.Database, tableDesigner.TableViewModel.Schema, tableDesigner.TableViewModel.Name);
+                string oldId = tableInfo.Id;
+                if (newId != oldId)
+                {
+                    this.idTableMap[newId] = tableDesigner;
+                    this.idTableMap.Remove(oldId);
+                    tableInfo.Name = tableDesigner.TableViewModel.Name;
+                    tableInfo.Schema = tableDesigner.TableViewModel.Schema;
+                    tableInfo.IsNewTable = false;
+                    tableInfo.Id = newId;
+                }
+                await requestContext.SendResult(new PublishTableChangesResponse() { NewTableInfo = tableInfo });
             });
         }
 
@@ -200,7 +211,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         switch (propertyNameL2)
                         {
                             case ForeignKeyPropertyNames.ColumnMapping:
-                                // TODO: handle add item to foreign key's column mapping
+                                table.ForeignKeys.Items[indexL1].AddNewColumnMapping();
                                 break;
                             default:
                                 break;
@@ -210,7 +221,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         switch (propertyNameL2)
                         {
                             case IndexPropertyNames.Columns:
-                                // TODO: handle add item to index's column specification
+                                table.Indexes.Items[indexL1].AddNewColumnSpecification();
                                 break;
                             default:
                                 break;
@@ -261,7 +272,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         switch (propertyNameL2)
                         {
                             case ForeignKeyPropertyNames.ColumnMapping:
-                                // TODO: handle remove item from foreign key's column mapping
+                                table.ForeignKeys.Items[indexL1].RemoveColumnMapping(indexL2);
                                 break;
                             default:
                                 break;
@@ -271,7 +282,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         switch (propertyNameL2)
                         {
                             case IndexPropertyNames.Columns:
-                                // TODO: handle remove item from index's column specification
+                                table.Indexes.Items[indexL1].RemoveColumnSpecification(indexL2);
                                 break;
                             default:
                                 break;
@@ -390,8 +401,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                             case ForeignKeyPropertyNames.OnUpdateAction:
                                 foreignKey.OnUpdateAction = SqlForeignKeyActionUtil.GetValue(GetStringValue(newValue));
                                 break;
-                            case ForeignKeyPropertyNames.PrimaryKeyTable:
-                                foreignKey.PrimaryKeyTable = GetStringValue(newValue);
+                            case ForeignKeyPropertyNames.ForeignTable:
+                                foreignKey.ForeignTable = GetStringValue(newValue);
                                 break;
                             default:
                                 break;
@@ -431,16 +442,17 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 switch (propertyNameL1)
                 {
                     case TablePropertyNames.ForeignKeys:
-                        // TODO: handle foreign key collection property update
-                        // changes need to be made in DACFX to support it.
                         switch (propertyNameL2)
                         {
                             case ForeignKeyPropertyNames.ColumnMapping:
+                                var foreignKey = table.ForeignKeys.Items[indexL1];
                                 switch (propertyNameL3)
                                 {
-                                    case ForeignKeyColumnMappingPropertyNames.ForeignKeyColumn:
+                                    case ForeignKeyColumnMappingPropertyNames.ForeignColumn:
+                                        foreignKey.UpdateForeignColumn(indexL2, GetStringValue(newValue));
                                         break;
-                                    case ForeignKeyColumnMappingPropertyNames.PrimaryKeyColumn:
+                                    case ForeignKeyColumnMappingPropertyNames.Column:
+                                        foreignKey.UpdateColumn(indexL2, GetStringValue(newValue));
                                         break;
                                     default:
                                         break;
@@ -455,14 +467,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         switch (propertyNameL2)
                         {
                             case IndexPropertyNames.Columns:
-                                var columnSpec = sqlIndex.Columns[indexL2];
                                 switch (propertyNameL3)
                                 {
                                     case IndexColumnSpecificationPropertyNames.Column:
-                                        columnSpec.Column = GetStringValue(newValue);
+                                        sqlIndex.UpdateColumnName(indexL2, GetStringValue(newValue));
                                         break;
                                     case IndexColumnSpecificationPropertyNames.Ascending:
-                                        columnSpec.isAscending = GetBooleanValue(newValue);
+                                        sqlIndex.UpdateIsAscending(indexL2, GetBooleanValue(newValue));
                                         break;
                                     default:
                                         break;
@@ -539,18 +550,18 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 foreignKeyViewModel.OnDeleteAction.Values = SqlForeignKeyActionUtil.ActionNames;
                 foreignKeyViewModel.OnUpdateAction.Value = SqlForeignKeyActionUtil.GetName(foreignKey.OnUpdateAction);
                 foreignKeyViewModel.OnUpdateAction.Values = SqlForeignKeyActionUtil.ActionNames;
-                foreignKeyViewModel.PrimaryKeyTable.Value = foreignKey.PrimaryKeyTable;
-                foreignKeyViewModel.PrimaryKeyTable.Values = tableDesigner.AllTables.ToList();
+                foreignKeyViewModel.ForeignTable.Value = foreignKey.ForeignTable;
+                foreignKeyViewModel.ForeignTable.Values = tableDesigner.AllTables.ToList();
                 foreignKeyViewModel.IsNotForReplication.Checked = foreignKey.IsNotForReplication;
-                for (int i = 0; i < foreignKey.ForeignKeyColumns.Count; i++)
+                for (int i = 0; i < foreignKey.ForeignColumns.Count; i++)
                 {
-                    var foreignKeyColumn = foreignKey.ForeignKeyColumns[i];
-                    var primaryKeyColumn = foreignKey.PrimaryKeyColumns[i];
+                    var foreignColumn = foreignKey.ForeignColumns[i];
+                    var column = foreignKey.Columns[i];
                     var mapping = new ForeignKeyColumnMapping();
-                    mapping.ForeignKeyColumn.Value = foreignKeyColumn;
-                    mapping.ForeignKeyColumn.Values = table.Columns.Items.Select(c => c.Name).ToList();
-                    mapping.PrimaryKeyColumn.Value = primaryKeyColumn;
-                    mapping.PrimaryKeyColumn.Values = tableDesigner.GetColumnsForTable(foreignKey.PrimaryKeyTable).ToList();
+                    mapping.ForeignColumn.Value = foreignColumn;
+                    mapping.ForeignColumn.Values = tableDesigner.GetColumnsForTable(foreignKey.ForeignTable).ToList();
+                    mapping.Column.Value = column;
+                    mapping.Column.Values = tableDesigner.GetColumnsForTable(table.FullName).ToList();
                     foreignKeyViewModel.Columns.Data.Add(mapping);
                 }
                 tableViewModel.ForeignKeys.Data.Add(foreignKeyViewModel);
@@ -577,7 +588,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     var columnSpecVM = new IndexedColumnSpecification();
                     columnSpecVM.Ascending.Checked = columnSpec.isAscending;
                     columnSpecVM.Column.Value = columnSpec.Column;
-                    columnSpecVM.Column.Values = table.Columns.Items.Select(c => c.Name).ToList();
+                    columnSpecVM.Column.Values = tableDesigner.GetColumnsForTable(table.FullName).ToList();
                     indexVM.Columns.Data.Add(columnSpecVM);
                 }
                 indexVM.ColumnsDisplayValue.Value = index.ColumnsDisplayValue;
@@ -586,7 +597,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             }
             tableViewModel.Script.Enabled = false;
             tableViewModel.Script.Value = tableDesigner.Script;
-            // TODO: set other properties of the table
             return tableViewModel;
         }
 
@@ -637,8 +647,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     }
                 }
             });
-            view.ColumnTableOptions.canAddRows = true;
-            view.ColumnTableOptions.canRemoveRows = true;
+            view.ColumnTableOptions.CanAddRows = true;
+            view.ColumnTableOptions.CanRemoveRows = true;
+            view.ColumnTableOptions.RemoveRowConfirmationMessage = SR.TableDesignerDeleteColumnConfirmationMessage;
+            view.ColumnTableOptions.ShowRemoveRowConfirmation = true;
         }
 
         private void SetForeignKeysViewInfo(TableDesignerView view)
@@ -665,8 +677,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     }
                 }
             });
-            view.ForeignKeyTableOptions.canAddRows = true;
-            view.ForeignKeyTableOptions.canRemoveRows = true;
+            view.ForeignKeyTableOptions.CanAddRows = true;
+            view.ForeignKeyTableOptions.CanRemoveRows = true;
         }
 
         private void SetCheckConstraintsViewInfo(TableDesignerView view)
@@ -682,8 +694,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         Title = SR.TableDesignerIsEnabledPropertyTitle
                     }
                 });
-            view.CheckConstraintTableOptions.canAddRows = true;
-            view.CheckConstraintTableOptions.canRemoveRows = true;
+            view.CheckConstraintTableOptions.CanAddRows = true;
+            view.CheckConstraintTableOptions.CanRemoveRows = true;
         }
 
         private void SetIndexesViewInfo(TableDesignerView view)
@@ -732,8 +744,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 }
             });
             view.IndexTableOptions.PropertiesToDisplay = new List<string>() { IndexPropertyNames.Name, IndexPropertyNames.ColumnsDisplayValue, IndexPropertyNames.IsClustered, IndexPropertyNames.IsUnique };
-            view.IndexTableOptions.canAddRows = true;
-            view.IndexTableOptions.canRemoveRows = true;
+            view.IndexTableOptions.CanAddRows = true;
+            view.IndexTableOptions.CanRemoveRows = true;
 
             view.IndexColumnSpecificationTableOptions.AdditionalProperties.Add(
                 new DesignerDataPropertyInfo()
@@ -747,8 +759,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     }
                 });
             view.IndexColumnSpecificationTableOptions.PropertiesToDisplay.AddRange(new string[] { IndexColumnSpecificationPropertyNames.Column, IndexColumnSpecificationPropertyNames.Ascending });
-            view.IndexColumnSpecificationTableOptions.canAddRows = true;
-            view.IndexColumnSpecificationTableOptions.canRemoveRows = true;
+            view.IndexColumnSpecificationTableOptions.CanAddRows = true;
+            view.IndexColumnSpecificationTableOptions.CanRemoveRows = true;
         }
 
         private Dac.TableDesigner GetTableDesigner(TableInfo tableInfo)

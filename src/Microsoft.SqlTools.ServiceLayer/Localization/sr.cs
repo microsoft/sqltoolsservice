@@ -8645,6 +8645,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string TableDesignerDeleteColumnConfirmationMessage
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerDeleteColumnConfirmationMessage);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -12370,6 +12378,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string TableDesignerColumnsDisplayValueTitle = "TableDesignerColumnsDisplayValueTitle";
+
+
+            public const string TableDesignerDeleteColumnConfirmationMessage = "TableDesignerDeleteColumnConfirmationMessage";
 
 
             private Keys()

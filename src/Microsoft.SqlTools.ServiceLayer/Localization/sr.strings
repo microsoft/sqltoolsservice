@@ -2256,3 +2256,4 @@ TableDesignerIsUniquePropertyTitle = Is Unique
 IndexColumnIsAscendingPropertyDescription = Specifies the sort order of the column.
 IndexColumnIsAscendingPropertyTitle = Is Ascending
 TableDesignerColumnsDisplayValueTitle = Columns
+TableDesignerDeleteColumnConfirmationMessage = Removing a column will also remove it from the indexes and foreign keys. Are you sure you want to continue?
