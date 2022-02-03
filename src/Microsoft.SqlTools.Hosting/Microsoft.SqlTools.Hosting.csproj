@@ -19,6 +19,7 @@
 		<PackageReference Include="Microsoft.Extensions.DependencyModel" />
 		<PackageReference Include="System.Runtime.Loader" />
 		<PackageReference Include="System.Composition" />
+        <PackageReference Include="System.Text.Encodings.Web" />
 	</ItemGroup>
 	<ItemGroup>
 		<EmbeddedResource Include="Localization\*.resx" />
