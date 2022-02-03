@@ -165,9 +165,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
 
             await service.HandleGetConnectionStringRequest(requestParams, requestContext.Object);
             requestContext.VerifyAll();
-
-            await service.HandleGetConnectionStringRequest(requestParams, requestContext.Object);
-            requestContext.VerifyAll();
         }
     }
 }
