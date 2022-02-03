@@ -3526,4 +3526,13 @@
   <data name="TableDesignerColumnsDisplayValueTitle" xml:space="preserve">
     <value>Столбцы</value>
   </data>
+  <data name="MissingIndexFormat" xml:space="preserve">
+    <value>Отсутствует индекс (влияние {0}): {1}</value>
+  </data>
+  <data name="MissingIndexDetailsTitle" xml:space="preserve">
+    <value>/*
+Отсутствуют сведения об индексе из {0}
+Обработчик запросов считает, что реализация следующего индекса может сократить стоимость запроса на {1}%.
+*/</value>
+  </data>
 </root>

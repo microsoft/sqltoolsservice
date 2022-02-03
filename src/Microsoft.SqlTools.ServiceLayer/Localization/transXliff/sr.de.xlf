@@ -5742,6 +5742,22 @@
         <target state="translated">Spalten</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="MissingIndexFormat">
+        <source>Missing Index (Impact {0}): {1}</source>
+        <target state="translated">Fehlender Index (Auswirkung {0}): {1}</target>
+        <note>"Missing Index (Impact {0}): {1}" format string for showplan</note>
+      </trans-unit>
+      <trans-unit id="MissingIndexDetailsTitle">
+        <source>/*
+Missing Index Details from {0}
+The Query Processor estimates that implementing the following index could improve the query cost by {1}%.
+*/</source>
+        <target state="translated">/*
+Fehlende Indexdetails von {0}
+Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Indexes die Abfragekosten um {1} % verbessert werden können.
+*/</target>
+        <note>title of missing index details</note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
