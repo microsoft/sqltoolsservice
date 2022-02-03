@@ -17,6 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
 
         /// <summary>
         /// Indicates whether the password should be return in the connection string
+        /// default is set to false
         /// </summary>
         public bool IncludePassword { get; set; }
 
