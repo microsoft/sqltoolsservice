@@ -3526,4 +3526,13 @@
   <data name="TableDesignerColumnsDisplayValueTitle" xml:space="preserve">
     <value>Colunas</value>
   </data>
+  <data name="MissingIndexFormat" xml:space="preserve">
+    <value>Índice Ausente (Impacto {0}): {1}</value>
+  </data>
+  <data name="MissingIndexDetailsTitle" xml:space="preserve">
+    <value>/*
+Detalhes de Índice Ausentes de {0}
+O Processador de Consultas estima que a implementação do índice a seguir pode melhorar o custo da consulta em {1}%.
+*/</value>
+  </data>
 </root>

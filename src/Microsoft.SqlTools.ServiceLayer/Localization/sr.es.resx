@@ -3526,4 +3526,13 @@
   <data name="TableDesignerColumnsDisplayValueTitle" xml:space="preserve">
     <value>Columnas</value>
   </data>
+  <data name="MissingIndexFormat" xml:space="preserve">
+    <value>Índice que falta (impacto {0}): {1}</value>
+  </data>
+  <data name="MissingIndexDetailsTitle" xml:space="preserve">
+    <value>/*
+Faltan detalles del índice de {0}
+El procesador de consultas estima que la implementación del siguiente índice podría mejorar el costo de la consulta en un {1}%.
+*/</value>
+  </data>
 </root>

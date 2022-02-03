@@ -3526,4 +3526,13 @@
   <data name="TableDesignerColumnsDisplayValueTitle" xml:space="preserve">
     <value>Colonne</value>
   </data>
+  <data name="MissingIndexFormat" xml:space="preserve">
+    <value>Indice mancante (impatto {0}): {1}</value>
+  </data>
+  <data name="MissingIndexDetailsTitle" xml:space="preserve">
+    <value>/*
+Dettagli indice mancanti in {0}
+Query Processor stima che l'implementazione del seguente indice potrebbe migliorare il costo della query di {1}%.
+*/</value>
+  </data>
 </root>
