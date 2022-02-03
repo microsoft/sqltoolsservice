@@ -111,6 +111,7 @@ Task("PopulateRuntimes")
             {
                 "default", // To allow testing the published artifact
                 "win-x64",
+                "win-x86",
                 "ubuntu.14.04-x64",
                 "ubuntu.16.04-x64",
                 "centos.7-x64",
