@@ -138,6 +138,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     tableInfo.Id = newId;
                 }
                 // Recreate the table designer after the changes are published to make sure the table information is up to date.
+                // Todo: improve the dacfx table designer feature, so that we don't have to recreate it.
                 this.CreateTableDesigner(tableInfo);
                 await requestContext.SendResult(new PublishTableChangesResponse()
                 {
