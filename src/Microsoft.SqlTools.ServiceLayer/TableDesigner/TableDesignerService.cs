@@ -12,6 +12,7 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts;
 using Dac = Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
+using STSHost = Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost;
 
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 {
@@ -80,19 +81,15 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         {
             return this.HandleRequest<TableDesignerInfo>(requestContext, async () =>
             {
-                var connectinStringbuilder = new SqlConnectionStringBuilder(tableInfo.ConnectionString);
-                connectinStringbuilder.InitialCatalog = tableInfo.Database;
-                var connectionString = connectinStringbuilder.ToString();
-                var table = new Dac.TableDesigner(connectionString, tableInfo.Schema, tableInfo.Name, tableInfo.IsNewTable);
-                this.idTableMap[tableInfo.Id] = table;
+                var tableDesigner = this.CreateTableDesigner(tableInfo);
                 var viewModel = this.GetTableViewModel(tableInfo);
                 var view = this.GetDesignerViewInfo(tableInfo);
                 await requestContext.SendResult(new TableDesignerInfo()
                 {
                     ViewModel = viewModel,
                     View = view,
-                    ColumnTypes = table.DataTypes.ToList(),
-                    Schemas = table.Schemas.ToList()
+                    ColumnTypes = tableDesigner.DataTypes.ToList(),
+                    Schemas = tableDesigner.Schemas.ToList()
                 });
             });
         }
@@ -130,18 +127,24 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             {
                 var tableDesigner = this.GetTableDesigner(tableInfo);
                 tableDesigner.CommitChanges();
-                string newId = string.Format("{0}|{1}|{2}|{3}", tableInfo.ConnectionString, tableInfo.Database, tableDesigner.TableViewModel.Schema, tableDesigner.TableViewModel.Name);
+                string newId = string.Format("{0}|{1}|{2}|{3}|{4}", STSHost.ProviderName, tableInfo.Server, tableInfo.Database, tableDesigner.TableViewModel.Schema, tableDesigner.TableViewModel.Name);
                 string oldId = tableInfo.Id;
+                this.idTableMap.Remove(oldId);
                 if (newId != oldId)
                 {
-                    this.idTableMap[newId] = tableDesigner;
-                    this.idTableMap.Remove(oldId);
                     tableInfo.Name = tableDesigner.TableViewModel.Name;
                     tableInfo.Schema = tableDesigner.TableViewModel.Schema;
                     tableInfo.IsNewTable = false;
                     tableInfo.Id = newId;
                 }
-                await requestContext.SendResult(new PublishTableChangesResponse() { NewTableInfo = tableInfo });
+                // Recreate the table designer after the changes are published to make sure the table information is up to date.
+                // Todo: improve the dacfx table designer feature, so that we don't have to recreate it.
+                this.CreateTableDesigner(tableInfo);
+                await requestContext.SendResult(new PublishTableChangesResponse()
+                {
+                    NewTableInfo = tableInfo,
+                    ViewModel = this.GetTableViewModel(tableInfo)
+                });
             });
         }
 
@@ -761,6 +764,16 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             view.IndexColumnSpecificationTableOptions.PropertiesToDisplay.AddRange(new string[] { IndexColumnSpecificationPropertyNames.Column, IndexColumnSpecificationPropertyNames.Ascending });
             view.IndexColumnSpecificationTableOptions.CanAddRows = true;
             view.IndexColumnSpecificationTableOptions.CanRemoveRows = true;
+        }
+
+        private Dac.TableDesigner CreateTableDesigner(TableInfo tableInfo)
+        {
+            var connectinStringbuilder = new SqlConnectionStringBuilder(tableInfo.ConnectionString);
+            connectinStringbuilder.InitialCatalog = tableInfo.Database;
+            var connectionString = connectinStringbuilder.ToString();
+            var tableDesigner = new Dac.TableDesigner(connectionString, tableInfo.Schema, tableInfo.Name, tableInfo.IsNewTable);
+            this.idTableMap[tableInfo.Id] = tableDesigner;
+            return tableDesigner;
         }
 
         private Dac.TableDesigner GetTableDesigner(TableInfo tableInfo)
