@@ -3526,4 +3526,13 @@
   <data name="TableDesignerColumnsDisplayValueTitle" xml:space="preserve">
     <value>Spalten</value>
   </data>
+  <data name="MissingIndexFormat" xml:space="preserve">
+    <value>Fehlender Index (Auswirkung {0}): {1}</value>
+  </data>
+  <data name="MissingIndexDetailsTitle" xml:space="preserve">
+    <value>/*
+Fehlende Indexdetails von {0}
+Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Indexes die Abfragekosten um {1} % verbessert werden können.
+*/</value>
+  </data>
 </root>

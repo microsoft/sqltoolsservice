@@ -3526,4 +3526,13 @@
   <data name="TableDesignerColumnsDisplayValueTitle" xml:space="preserve">
     <value>資料行</value>
   </data>
+  <data name="MissingIndexFormat" xml:space="preserve">
+    <value>遺漏索引 (影響 {0}): {1}</value>
+  </data>
+  <data name="MissingIndexDetailsTitle" xml:space="preserve">
+    <value>/*
+遺漏 {0} 的索引詳細資料
+查詢處理器預估若實作下列索引則可改善 {1}% 的查詢成本。
+*/</value>
+  </data>
 </root>

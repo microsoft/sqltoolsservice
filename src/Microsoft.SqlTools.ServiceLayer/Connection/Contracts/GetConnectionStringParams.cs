@@ -22,7 +22,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
 
         /// <summary>
         /// Indicates whether the password should be return in the connection string
+        /// default is set to false
         /// </summary>
         public bool IncludePassword { get; set; }
+
+        /// <summary>
+        /// Indicates whether the application name should be return in the connection string
+        /// default is set to true
+        /// </summary>
+        public bool? IncludeApplicationName { get; set;}
     }
 }

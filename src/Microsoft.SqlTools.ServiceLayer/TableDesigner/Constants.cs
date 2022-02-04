@@ -37,8 +37,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         public const string Enabled = "enabled";
         public const string OnDeleteAction = "onDeleteAction";
         public const string OnUpdateAction = "onUpdateAction";
-        public const string ColumnMapping = "columnMapping";
-        public const string PrimaryKeyTable = "primaryKeyTable";
+        public const string ColumnMapping = "columns";
+        public const string ForeignTable = "foreignTable";
         public const string IsNotForReplication = "isNotForReplication";
     }
 
@@ -51,8 +51,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
     public static class ForeignKeyColumnMappingPropertyNames
     {
-        public const string PrimaryKeyColumn = "primaryKeyColumn";
-        public const string ForeignKeyColumn = "foreignKeyColumn";
+        public const string Column = "column";
+        public const string ForeignColumn = "foreignColumn";
     }
 
     public static class IndexPropertyNames
