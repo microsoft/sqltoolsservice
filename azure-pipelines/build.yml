@@ -215,3 +215,8 @@ steps:
     packagesToPush: '$(Build.SourcesDirectory)/artifacts/nugetPackages/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
     publishVstsFeed: '2191dd5f-4aec-491b-ac50-568bbc331c8a'
     allowPackageConflicts: true
+
+- task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
+  displayName: 'Component Detection'
+  inputs:
+    failOnAlert: true
