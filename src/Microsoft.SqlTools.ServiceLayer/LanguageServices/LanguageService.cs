@@ -446,7 +446,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     return;
                 }
                 // check if Intellisense suggestions are enabled
-                if (ShouldSkipIntellisense(scriptFile.ClientUri))
+                if (ShouldSkipIntellisense(scriptFile.ClientUri) || RefreshNeeded(scriptFile.ClientUri))
                 {
                     await requestContext.SendResult(null);
                 }
@@ -1212,6 +1212,17 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 || !string.Equals(prevSqlText, currentSqlText);
         }
 
+        private bool RefreshNeeded(string uri)
+        {
+            ConnectionInfo connInfo;
+            connectionService.TryFindConnection(uri, out connInfo);
+            if (connInfo.ConnectionDetails.AuthenticationType != "AzureMFA") {
+                return false;
+            } else {
+                // check if token refresh is needed
+            }
+        }
+        
         /// <summary>
         /// Resolves the details and documentation for a completion item
         /// </summary>
