@@ -2,16 +2,16 @@ trigger: none
 pr: none
 
 stages:
-- stage: Build
-  jobs:
-  - job: Build
-    pool:
-        vmImage: 'windows-latest'
-        demands:
-        - Cmd
-        - npm
-    steps:
-    - template: build.yml
+# - stage: Build
+#   jobs:
+#   - job: Build
+#     pool:
+#         vmImage: 'windows-latest'
+#         demands:
+#         - Cmd
+#         - npm
+#     steps:
+#     - template: build.yml
 
 - stage: Release
   dependsOn:
