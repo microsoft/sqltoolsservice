@@ -1212,6 +1212,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 || !string.Equals(prevSqlText, currentSqlText);
         }
 
+        /// <summary>
+        /// Checks whether a token refresh is needed for azure connections
+        /// </summary>
+        /// <param name="uri"></param>
         private bool RefreshNeeded(string uri)
         {
             ConnectionInfo connInfo;
@@ -1229,7 +1233,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
                 else
                 {
-                    return true;
+                    //TODO: Handle token expiration here
+                    return false;
                 }
             }
         }
