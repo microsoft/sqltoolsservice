@@ -118,91 +118,91 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="EE_BatchSqlMessageNoProcedureInfo" xml:space="preserve">
-    <value>Msg. {0}, Livello {1}, Stato {2}, Riga {3}</value>
+    <value>Messaggio {0}, livello {1}, stato {2}, riga {3}</value>
   </data>
   <data name="EE_BatchSqlMessageWithProcedureInfo" xml:space="preserve">
-    <value>Msg. {0}, Livello {1}, Stato {2}, Procedura {3}, Riga {4}</value>
+    <value>Messaggio {0}, livello {1}, stato {2}, procedura {3}, riga {4}</value>
   </data>
   <data name="EE_BatchSqlMessageNoLineInfo" xml:space="preserve">
-    <value>Msg. {0}, Livello {1}, Stato {2}</value>
+    <value>Messaggio {0}, livello {1}, stato {2}</value>
   </data>
   <data name="EE_BatchError_Exception" xml:space="preserve">
-    <value>Si è verificato un errore durante l'elaborazione batch. Messaggio di errore: {0}</value>
+    <value>Errore durante l'elaborazione del batch. Messaggio di errore: {0}</value>
   </data>
   <data name="EE_BatchExecutionInfo_RowsAffected" xml:space="preserve">
-    <value>({0} righe interessate dall'operazione)</value>
+    <value>({0} righe interessate)</value>
   </data>
   <data name="EE_ExecutionNotYetCompleteError" xml:space="preserve">
-    <value>L'esecuzione precedente non è ancora completa.</value>
+    <value>Esecuzione precedente non ancora completata.</value>
   </data>
   <data name="EE_ScriptError_Error" xml:space="preserve">
     <value>Si è verificato un errore di scripting.</value>
   </data>
   <data name="EE_ScriptError_ParsingSyntax" xml:space="preserve">
-    <value>Sintassi errata rilevata durante l'analisi di '{0}'.</value>
+    <value>Sintassi errata rilevata durante l'analisi di {0}.</value>
   </data>
   <data name="EE_ScriptError_FatalError" xml:space="preserve">
-    <value>Si è verificato un errore irreversibile.</value>
+    <value>Errore irreversibile.</value>
   </data>
   <data name="EE_ExecutionInfo_FinalizingLoop" xml:space="preserve">
-    <value>Esecuzione completata {0} volte...</value>
+    <value>Esecuzione del batch completata {0} volte...</value>
   </data>
   <data name="EE_ExecutionInfo_QueryCancelledbyUser" xml:space="preserve">
-    <value>È stata annullata la query.</value>
+    <value>Query annullata dall'utente.</value>
   </data>
   <data name="EE_BatchExecutionError_Halting" xml:space="preserve">
-    <value>Si è verificato un errore durante l'esecuzione del batch.</value>
+    <value>Errore durante l'esecuzione del batch.</value>
   </data>
   <data name="EE_BatchExecutionError_Ignoring" xml:space="preserve">
-    <value>Si è verificato un errore durante l'esecuzione del batch, ma l'errore è stato ignorato.</value>
+    <value>È stato rilevato un errore durante l'esecuzione del batch, ma è stato ignorato.</value>
   </data>
   <data name="EE_ExecutionInfo_InitializingLoop" xml:space="preserve">
-    <value>Beginning execution loop</value>
+    <value>Inizio del ciclo di esecuzione</value>
   </data>
   <data name="EE_ExecutionError_CommandNotSupported" xml:space="preserve">
-    <value>Il comando {0} non è supportato.</value>
+    <value>Comando {0} non supportato.</value>
   </data>
   <data name="EE_ExecutionError_VariableNotFound" xml:space="preserve">
-    <value>Impossibile trovare la variabile {0}.</value>
+    <value>Variabile {0} non trovata.</value>
   </data>
   <data name="BatchParserWrapperExecutionEngineError" xml:space="preserve">
-    <value>Errore di esecuzione di SQL: {0}</value>
+    <value>Errore di esecuzione SQL: {0}</value>
   </data>
   <data name="BatchParserWrapperExecutionError" xml:space="preserve">
-    <value>Esecuzione del wrapper parser batch: trovati {0}... alla riga {1}: {2} Descrizione: {3}</value>
+    <value>Esecuzione del wrapper parser batch: {0} trovati... alla riga {1}: {2}    Descrizione: {3}</value>
   </data>
   <data name="BatchParserWrapperExecutionEngineBatchMessage" xml:space="preserve">
-    <value>Motore di esecuzione wrapper parser di batch, ricevuto messaggio batch: messaggio: {0} messaggio dettagliato: {1}</value>
+    <value>Ricevuto messaggio batch del motore di esecuzione del wrapper parser batch:  Messaggio: {0}    Messaggio dettagliato: {1}</value>
   </data>
   <data name="BatchParserWrapperExecutionEngineBatchResultSetProcessing" xml:space="preserve">
-    <value>Motore di esecuzione wrapper parser di batch, elaborazione batch di ResultSet: DataReader.FieldCount: {0} DataReader.RecordsAffected: {1}</value>
+    <value>Elaborazione del ResultSet del batch del motore di esecuzione del wrapper parser batch: DataReader.FieldCount: {0}  DataReader.RecordsAffected: {1}</value>
   </data>
   <data name="BatchParserWrapperExecutionEngineBatchResultSetFinished" xml:space="preserve">
-    <value>Motore di esecuzione wrapper parser di batch, batch di ResultSet completato.</value>
+    <value>ResultSet del batch del motore di esecuzione del wrapper parser batch completato.</value>
   </data>
   <data name="BatchParserWrapperExecutionEngineBatchCancelling" xml:space="preserve">
-    <value>Annullamento dell'esecuzione batch del wrapper parser batch.</value>
+    <value>Annullamento dell'esecuzione in batch del wrapper parser batch.</value>
   </data>
   <data name="EE_ScriptError_Warning" xml:space="preserve">
-    <value>Avviso di script.</value>
+    <value>Avviso di scripting.</value>
   </data>
   <data name="TroubleshootingAssistanceMessage" xml:space="preserve">
-    <value>Per ulteriori informazioni su questo errore, vedere gli argomenti sulla risoluzione dei problemi nella documentazione del prodotto.</value>
+    <value>Per ulteriori informazioni su questo errore, consultare gli argomenti relativi alla risoluzione dei problemi nella documentazione del prodotto.</value>
   </data>
   <data name="BatchParser_CircularReference" xml:space="preserve">
-    <value>File '{0}' incluso ricorsivamente.</value>
+    <value>File '{0}' incluso in modo ricorsivo.</value>
   </data>
   <data name="BatchParser_CommentNotTerminated" xml:space="preserve">
-    <value>Marker ' * /' di fine commento mancante.</value>
+    <value>Contrassegno di fine commento '*/' mancante.</value>
   </data>
   <data name="BatchParser_StringNotTerminated" xml:space="preserve">
-    <value>Virgolette mancanti alla fine della stringa di caratteri.</value>
+    <value>Virgoletta di chiusura mancante dopo la stringa di caratteri.</value>
   </data>
   <data name="BatchParser_IncorrectSyntax" xml:space="preserve">
     <value>Sintassi errata rilevata durante l'analisi di '{0}'.</value>
   </data>
   <data name="BatchParser_VariableNotDefined" xml:space="preserve">
-    <value>Variabile {0} non è definita.</value>
+    <value>Variabile {0} non definita.</value>
   </data>
   <data name="SqlCmd_PathInvalid" xml:space="preserve">
     <value>Il percorso contiene caratteri non validi.</value>
@@ -211,6 +211,6 @@
     <value>Percorso troppo lungo.</value>
   </data>
   <data name="SqlCmd_FailedInclude" xml:space="preserve">
-    <value>Impossibile trovare i file inclusi {0}.</value>
+    <value>Non è stato possibile trovare il file incluso {0}.</value>
   </data>
 </root>

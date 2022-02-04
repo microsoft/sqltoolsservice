@@ -118,36 +118,36 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AzureServerNotFound" xml:space="preserve">
-    <value>你指定的服务器{0}不存在于{1}的任何订阅中。要么你用一个错误的账户登录，要么你的服务器被从这个账户的订阅中删除。请检查您的账户并重试。</value>
+    <value>您指定的服务器 {0} 不存在于 {1} 的任何订阅中。这可能是因为您使用了不正确的帐户进行登录，也可能是因为您的服务器已从此帐户的订阅中删除。请检查您的帐户，然后重试。</value>
   </data>
   <data name="AzureSubscriptionFailedErrorMessage" xml:space="preserve">
-    <value>在获取Azure订阅时，发生了一个错误。{0}</value>
+    <value>获取 Azure 订阅 {0} 时出错</value>
   </data>
   <data name="DatabaseDiscoveryFailedErrorMessage" xml:space="preserve">
-    <value>在从{1}的{0}类型的服务器中获取数据库时发生了错误。</value>
+    <value>从 {1} 获取类型为 {0} 的服务器数据时出错 </value>
   </data>
   <data name="FirewallRuleAccessForbidden" xml:space="preserve">
-    <value>{0}没有权限更改服务器的防火墙规则。用Azure订阅或服务器的所有者或贡献者的不同账户再试一次。</value>
+    <value>{0} 无权更改此服务器防火墙规则。请使用作为 Azure 订阅或此服务器的所有者或参与者的其他帐户重试。</value>
   </data>
   <data name="InvalidIpAddress" xml:space="preserve">
-    <value>无效的IP地址</value>
+    <value>无效 IP 地址</value>
   </data>
   <data name="InvalidServerTypeErrorMessage" xml:space="preserve">
-    <value>服务器类型是无效的。</value>
+    <value>服务器类型无效。</value>
   </data>
   <data name="LoadingExportableFailedGeneralErrorMessage" xml:space="preserve">
-    <value>无法加载一个所需的dll。请修复您的应用程序。</value>
+    <value>无法加载所需 dll。请修复应用程序。</value>
   </data>
   <data name="FirewallRuleCreationFailed" xml:space="preserve">
-    <value>在创建一个新的防火墙规则时发生了错误。</value>
+    <value>新建防火墙规则时出错。</value>
   </data>
   <data name="FirewallRuleUnsupportedConnectionType" xml:space="preserve">
-    <value>无法为指定的连接类型打开一个防火墙规则。</value>
+    <value>无法打开指定连接类型的防火墙规则</value>
   </data>
   <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
-    <value>在创建新的防火墙规则时发生了一个错误：'{0}'</value>
+    <value>新建防火墙规则 {0} 时出错</value>
   </data>
   <data name="NoSubscriptionsFound" xml:space="preserve">
-    <value>没有发现当前登录的用户账户有任何订阅。</value>
+    <value>找不到当前登录用户帐户的订阅。</value>
   </data>
 </root>

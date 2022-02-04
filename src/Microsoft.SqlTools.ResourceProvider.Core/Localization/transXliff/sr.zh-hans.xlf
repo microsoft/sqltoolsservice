@@ -1,60 +1,60 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
-  <file datatype="xml" source-language="en" target-language="zh-Hans">
+  <file datatype="xml" original="sr.resx" source-language="en" target-language="zh-Hans">
     <body>
       <trans-unit id="AzureServerNotFound">
         <source>The server you specified {0} does not exist in any subscription in {1}. Either you have signed in with an incorrect account or your server was removed from subscription(s) in this account. Please check your account and try again.</source>
-        <target state="translated">你指定的服务器{0}不存在于{1}的任何订阅中。要么你用一个错误的账户登录，要么你的服务器被从这个账户的订阅中删除。请检查您的账户并重试。</target>
+        <target state="translated">您指定的服务器 {0} 不存在于 {1} 的任何订阅中。这可能是因为您使用了不正确的帐户进行登录，也可能是因为您的服务器已从此帐户的订阅中删除。请检查您的帐户，然后重试。</target>
         <note></note>
       </trans-unit>
       <trans-unit id="AzureSubscriptionFailedErrorMessage">
         <source>An error occurred while getting Azure subscriptions: {0}</source>
-        <target state="translated">在获取Azure订阅时，发生了一个错误。{0}</target>
+        <target state="translated">获取 Azure 订阅 {0} 时出错</target>
         <note></note>
       </trans-unit>
       <trans-unit id="DatabaseDiscoveryFailedErrorMessage">
         <source>An error occurred while getting databases from servers of type {0} from {1}</source>
-        <target state="translated">在从{1}的{0}类型的服务器中获取数据库时发生了错误。</target>
+        <target state="translated">从 {1} 获取类型为 {0} 的服务器数据时出错 </target>
         <note></note>
       </trans-unit>
       <trans-unit id="FirewallRuleAccessForbidden">
         <source>{0} does not have permission to change the server firewall rule. Try again with a different account that is an Owner or Contributor of the Azure subscription or the server.</source>
-        <target state="translated">{0}没有权限更改服务器的防火墙规则。用Azure订阅或服务器的所有者或贡献者的不同账户再试一次。</target>
+        <target state="translated">{0} 无权更改此服务器防火墙规则。请使用作为 Azure 订阅或此服务器的所有者或参与者的其他帐户重试。</target>
         <note></note>
       </trans-unit>
       <trans-unit id="InvalidIpAddress">
         <source>Invalid IP address</source>
-        <target state="translated">无效的IP地址</target>
+        <target state="translated">无效 IP 地址</target>
         <note></note>
       </trans-unit>
       <trans-unit id="InvalidServerTypeErrorMessage">
         <source>Server Type is invalid.</source>
-        <target state="translated">服务器类型是无效的。</target>
+        <target state="translated">服务器类型无效。</target>
         <note></note>
       </trans-unit>
       <trans-unit id="LoadingExportableFailedGeneralErrorMessage">
         <source>A required dll cannot be loaded. Please repair your application.</source>
-        <target state="translated">无法加载一个所需的dll。请修复您的应用程序。</target>
+        <target state="translated">无法加载所需 dll。请修复应用程序。</target>
         <note></note>
       </trans-unit>
       <trans-unit id="FirewallRuleCreationFailed">
         <source>An error occurred while creating a new firewall rule.</source>
-        <target state="translated">在创建一个新的防火墙规则时发生了错误。</target>
+        <target state="translated">新建防火墙规则时出错。</target>
         <note></note>
       </trans-unit>
       <trans-unit id="FirewallRuleUnsupportedConnectionType">
         <source>Cannot open a firewall rule for the specified connection type</source>
-        <target state="translated">无法为指定的连接类型打开一个防火墙规则。</target>
+        <target state="translated">无法打开指定连接类型的防火墙规则</target>
         <note></note>
       </trans-unit>
       <trans-unit id="FirewallRuleCreationFailedWithError">
         <source>An error occurred while creating a new firewall rule: '{0}'</source>
-        <target state="translated">在创建新的防火墙规则时发生了一个错误：'{0}'</target>
+        <target state="translated">新建防火墙规则 {0} 时出错</target>
         <note></note>
       </trans-unit>
       <trans-unit id="NoSubscriptionsFound">
         <source>No subscriptions were found for the currently logged in user account.</source>
-        <target state="translated">没有发现当前登录的用户账户有任何订阅。</target>
+        <target state="translated">找不到当前登录用户帐户的订阅。</target>
         <note></note>
       </trans-unit>
     </body>

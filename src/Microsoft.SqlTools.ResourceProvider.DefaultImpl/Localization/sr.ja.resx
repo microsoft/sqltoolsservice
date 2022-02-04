@@ -118,33 +118,33 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="FailedToGetAzureDatabasesErrorMessage" xml:space="preserve">
-    <value>Azureデータベースの取得中にエラーが発生しました。</value>
+    <value>Azure データベースの取得中にエラーが発生しました</value>
   </data>
   <data name="FailedToGetAzureResourceGroupsErrorMessage" xml:space="preserve">
-    <value>Azureリソースグループの取得中にエラーが発生しました：{0}。</value>
+    <value>Azure リソース グループの取得中にエラーが発生しました: {0}</value>
   </data>
   <data name="FailedToGetAzureSqlServersErrorMessage" xml:space="preserve">
-    <value>Azure Sql Serversの取得中にエラーが発生しました。</value>
+    <value>Azure Sql Servers の取得中にエラーが発生しました</value>
   </data>
   <data name="FirewallRuleCreationFailed" xml:space="preserve">
-    <value>新しいファイアウォールルールの作成中にエラーが発生しました。</value>
+    <value>新しいファイアウォール規則を作成中にエラーが発生しました。</value>
   </data>
   <data name="UnsupportedAuthType" xml:space="preserve">
-    <value>このプロバイダでサポートされていないアカウントタイプ'{0}'。</value>
+    <value>このプロバイダーではサポートされていないアカウントの種類 '{0}'</value>
   </data>
   <data name="FailedToGetAzureSqlServersWithError" xml:space="preserve">
-    <value>Azure Sql Serversの取得中にエラーが発生しました：'{0}'。</value>
+    <value>Azure SQL Server の取得中にエラーが発生しました: '{0}'</value>
   </data>
   <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
-    <value>新しいファイアウォールルールの作成中にエラーが発生しました：'{0}'。</value>
+    <value>新しいファイアウォール規則を作成中にエラーが発生しました: '{0}'</value>
   </data>
   <data name="FailedToGetAzureSubscriptionsErrorMessage" xml:space="preserve">
-    <value>Azureサブスクリプションの取得中にエラーが発生しました: {0}。</value>
+    <value>Azure サブスクリプションの取得中にエラーが発生しました: {0}</value>
   </data>
   <data name="UserNeedsAuthenticationError" xml:space="preserve">
-    <value>この操作を実行する前に、現在のユーザーを再認証する必要があります。</value>
+    <value>この操作を実行する前に、現在のユーザーを再認証する必要があります</value>
   </data>
   <data name="UserNotFoundError" xml:space="preserve">
-    <value>ユーザーが見つからないため、操作を実行できない</value>
+    <value>ユーザーが見つかりませんでした。操作を実行できません</value>
   </data>
 </root>

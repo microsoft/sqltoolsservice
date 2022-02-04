@@ -118,33 +118,33 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="FailedToGetAzureDatabasesErrorMessage" xml:space="preserve">
-    <value>Ocorreu um erro ao obter os bancos de dados Azure</value>
+    <value>Ocorreu um erro ao obter os bancos de dados do Azure</value>
   </data>
   <data name="FailedToGetAzureResourceGroupsErrorMessage" xml:space="preserve">
-    <value>Ocorreu um erro ao obter grupos de recursos Azure: {0}</value>
+    <value>Erro ao obter grupos de recursos do Azure: {0}</value>
   </data>
   <data name="FailedToGetAzureSqlServersErrorMessage" xml:space="preserve">
-    <value>Ocorreu um erro ao obter Servidores Azure Sql</value>
+    <value>Ocorreu um erro ao obter os Azure Sql Servers</value>
   </data>
   <data name="FirewallRuleCreationFailed" xml:space="preserve">
     <value>Ocorreu um erro ao criar uma nova regra de firewall.</value>
   </data>
   <data name="UnsupportedAuthType" xml:space="preserve">
-    <value>Conta não suportada tipo '{0}' para este provedor</value>
+    <value>Tipo de conta sem suporte '{0}' para este provedor</value>
   </data>
   <data name="FailedToGetAzureSqlServersWithError" xml:space="preserve">
-    <value>Ocorreu um erro ao obter Servidores Azure Sql: '{0}'</value>
+    <value>Erro ao obter os Sql Servers do Azure: '{0}'</value>
   </data>
   <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
-    <value>Ocorreu um erro ao criar uma nova regra de firewall: '{0}'</value>
+    <value>Erro ao criar uma nova regra de firewall: '{0}'</value>
   </data>
   <data name="FailedToGetAzureSubscriptionsErrorMessage" xml:space="preserve">
-    <value>Ocorreu um erro ao receber as assinaturas do Azure: {0}</value>
+    <value>Erro ao obter assinaturas do Azure: {0}</value>
   </data>
   <data name="UserNeedsAuthenticationError" xml:space="preserve">
-    <value>O usuário atual deve ser reautenticado antes de executar esta operação </value>
+    <value>O usuário atual deve ser autenticado novamente antes de executar esta operação </value>
   </data>
   <data name="UserNotFoundError" xml:space="preserve">
-    <value>Nenhum usuário foi encontrado, não pode executar a operação</value>
+    <value>Nenhum usuário foi encontrado, não é possível executar a operação</value>
   </data>
 </root>

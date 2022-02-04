@@ -16,22 +16,14 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 
         public InputBoxProperties Description { get; set; } = new InputBoxProperties();
 
-        public TableColumnCollection Columns { get; set; } = new TableColumnCollection();
+        public TableComponentProperties<TableColumnViewModel> Columns { get; set; } = new TableComponentProperties<TableColumnViewModel>();
+
+        public TableComponentProperties<ForeignKeyViewModel> ForeignKeys { get; set; } = new TableComponentProperties<ForeignKeyViewModel>();
+
+        public TableComponentProperties<CheckConstraintViewModel> CheckConstraints { get; set; } = new TableComponentProperties<CheckConstraintViewModel>();
+
+        public TableComponentProperties<IndexViewModel> Indexes { get; set; } = new TableComponentProperties<IndexViewModel>();
 
         public InputBoxProperties Script { get; set; } = new InputBoxProperties();
-    }
-
-    public class TableColumnCollection : TableComponentProperties<TableColumnViewModel>
-    {
-        [JsonIgnore]
-        protected override string NewObjectNamePrefix { get { return "column"; } }
-
-        protected override TableColumnViewModel CreateNew(string name)
-        {
-            //TODO: Add the default values
-            var column = new TableColumnViewModel();
-            column.Name.Value = this.GetDefaultNewObjectName();
-            return column;
-        }
     }
 }

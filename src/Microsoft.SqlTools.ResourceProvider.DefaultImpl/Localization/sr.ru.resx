@@ -121,30 +121,30 @@
     <value>Произошла ошибка при получении баз данных Azure</value>
   </data>
   <data name="FailedToGetAzureResourceGroupsErrorMessage" xml:space="preserve">
-    <value>Произошла ошибка при получении групп ресурсов Azure: {0}</value>
+    <value>Ошибка при получении групп ресурсов Azure: {0}</value>
   </data>
   <data name="FailedToGetAzureSqlServersErrorMessage" xml:space="preserve">
-    <value>Произошла ошибка при получении Azure Sql Servers</value>
+    <value>Произошла ошибка при получении серверов Azure Sql Servers</value>
   </data>
   <data name="FirewallRuleCreationFailed" xml:space="preserve">
-    <value>Произошла ошибка при создании нового правила брандмауэра.</value>
+    <value>Произошла ошибка при создании правила брандмауэра.</value>
   </data>
   <data name="UnsupportedAuthType" xml:space="preserve">
-    <value>Неподдерживаемый тип счета '{0}' для данного провайдера</value>
+    <value>Тип учетной записи {0} не поддерживается для этого поставщика</value>
   </data>
   <data name="FailedToGetAzureSqlServersWithError" xml:space="preserve">
-    <value>Произошла ошибка при получении Azure Sql Servers: '{0}'</value>
+    <value>Ошибка при получении серверов Azure SQL: "{0}"</value>
   </data>
   <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
-    <value>Произошла ошибка при создании нового правила брандмауэра: '{0}'</value>
+    <value>Ошибка при создании правила брандмауэра: "{0}"</value>
   </data>
   <data name="FailedToGetAzureSubscriptionsErrorMessage" xml:space="preserve">
-    <value>Произошла ошибка при получении подписок Azure: {0}</value>
+    <value>Ошибка при получении подписок Azure: {0}</value>
   </data>
   <data name="UserNeedsAuthenticationError" xml:space="preserve">
-    <value>Текущий пользователь должен быть повторно аутентифицирован перед выполнением этой операции </value>
+    <value>Перед выполнением этой операции текущий пользователь должен заново пройти проверку подлинности </value>
   </data>
   <data name="UserNotFoundError" xml:space="preserve">
-    <value>Пользователь не найден, невозможно выполнить операцию</value>
+    <value>Пользователи не найдены. Невозможно выполнить операцию.</value>
   </data>
 </root>

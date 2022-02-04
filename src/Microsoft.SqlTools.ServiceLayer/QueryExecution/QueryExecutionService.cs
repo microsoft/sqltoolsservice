@@ -6,19 +6,21 @@
 using System;
 using System.IO;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
-using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.ServiceLayer.Workspace;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
+using Microsoft.SqlTools.ServiceLayer.ShowPlan;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.Utility;
-using System.Diagnostics;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -136,7 +138,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// Internal storage of active query settings
         /// </summary>
         private readonly Lazy<ConcurrentDictionary<string, QueryExecutionSettings>> queryExecutionSettings =
-            new Lazy<ConcurrentDictionary<string, QueryExecutionSettings>>(() => new ConcurrentDictionary<string, QueryExecutionSettings>());            
+            new Lazy<ConcurrentDictionary<string, QueryExecutionSettings>>(() => new ConcurrentDictionary<string, QueryExecutionSettings>());
 
         /// <summary>
         /// Settings that will be used to execute queries. Internal for unit testing
@@ -220,12 +222,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 WorkTask = Task.Run(async () =>
                 {
                     await InterServiceExecuteQuery(
-                        executeParams, 
-                        null, 
-                        requestContext, 
-                        queryCreateSuccessAction, 
-                        queryCreateFailureAction, 
-                        null, 
+                        executeParams,
+                        null,
+                        requestContext,
+                        queryCreateSuccessAction,
+                        queryCreateFailureAction,
+                        null,
                         null,
                         isQueryEditor(executeParams.OwnerUri));
                 });
@@ -267,7 +269,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     Type = ConnectionType.Default
                 };
 
-                Task workTask = Task.Run(async () => {
+                Task workTask = Task.Run(async () =>
+                {
                     await ConnectionService.Connect(connectParams);
 
                     ConnectionInfo newConn;
@@ -328,7 +331,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             // remove the active query since we are done with it
                             ActiveQueries.TryRemove(randomUri, out removedQuery);
                             ActiveSimpleExecuteRequests.TryRemove(randomUri, out removedTask);
-                            ConnectionService.Disconnect(new DisconnectParams(){
+                            ConnectionService.Disconnect(new DisconnectParams()
+                            {
                                 OwnerUri = randomUri,
                                 Type = null
                             });
@@ -359,12 +363,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         internal Task HandleConnectionUriChangedNotification(ConnectionUriChangedParams changeUriParams,
             EventContext eventContext)
         {
-            try {
+            try
+            {
                 string OriginalOwnerUri = changeUriParams.OriginalOwnerUri;
                 string NewOwnerUri = changeUriParams.NewOwnerUri;
                 // Attempt to load the query
                 Query query;
-                if(!ActiveQueries.TryRemove(OriginalOwnerUri, out query)){
+                if (!ActiveQueries.TryRemove(OriginalOwnerUri, out query))
+                {
                     throw new Exception("Uri: " + OriginalOwnerUri + " is not associated with an active query.");
                 }
                 ConnectionService.ReplaceUri(OriginalOwnerUri, NewOwnerUri);
@@ -372,7 +378,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 ActiveQueries.TryAdd(NewOwnerUri, query);
                 return Task.FromResult(true);
             }
-             catch (Exception ex)
+            catch (Exception ex)
             {
                 Logger.Write(TraceEventType.Error, "Error encountered " + ex.ToString());
                 return Task.FromException(ex);
@@ -402,7 +408,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
-        
+
         /// <summary>
         /// Handles a request to set query execution options
         /// </summary>
@@ -411,7 +417,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {
             try
             {
-                string uri = queryExecutionOptionsParams.OwnerUri; 
+                string uri = queryExecutionOptionsParams.OwnerUri;
                 if (ActiveQueryExecutionSettings.ContainsKey(uri))
                 {
                     QueryExecutionSettings settings;
@@ -426,7 +432,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 // This was unexpected, so send back as error
                 await requestContext.SendError(e.Message);
-            }        
+            }
         }
 
         /// <summary>
@@ -712,30 +718,30 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     QueryExecutionSettings settings;
                     this.ActiveQueryExecutionSettings.TryRemove(uri, out settings);
-                }                
+                }
             }
             catch (Exception ex)
             {
                 Logger.Write(TraceEventType.Error, "Unknown error " + ex.ToString());
             }
             await Task.FromResult(true);
-        }        
+        }
 
         #endregion
 
         #region Private Helpers
 
         private Query CreateQuery(
-            ExecuteRequestParamsBase executeParams, 
-            ConnectionInfo connInfo, 
+            ExecuteRequestParamsBase executeParams,
+            ConnectionInfo connInfo,
             bool applyExecutionSettings)
         {
             // Attempt to get the connection for the editor
             ConnectionInfo connectionInfo;
-            if (connInfo != null) 
+            if (connInfo != null)
             {
                 connectionInfo = connInfo;
-            } 
+            }
             else if (!ConnectionService.TryFindConnection(executeParams.OwnerUri, out connectionInfo))
             {
                 throw new ArgumentOutOfRangeException(nameof(executeParams.OwnerUri), SR.QueryServiceQueryInvalidOwnerUri);
@@ -752,11 +758,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 oldQuery.Dispose();
                 ActiveQueries.TryRemove(executeParams.OwnerUri, out oldQuery);
             }
-            
+
             // check if there are active query execution settings for the editor, otherwise, use the global settings
-            QueryExecutionSettings settings;            
+            QueryExecutionSettings settings;
             if (this.ActiveQueryExecutionSettings.TryGetValue(executeParams.OwnerUri, out settings))
-            {                
+            {
                 // special-case handling for query plan options to maintain compat with query execution API parameters
                 // the logic is that if either the query execute API parameters or the active query setttings 
                 // request a plan then enable the query option
@@ -772,17 +778,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 settings.ExecutionPlanOptions = executionPlanOptions;
             }
             else
-            {     
+            {
                 settings = Settings.QueryExecutionSettings;
                 settings.ExecutionPlanOptions = executeParams.ExecutionPlanOptions;
             }
 
             // If we can't add the query now, it's assumed the query is in progress
             Query newQuery = new Query(
-                GetSqlText(executeParams), 
-                connectionInfo, 
-                settings, 
-                BufferFileFactory, 
+                GetSqlText(executeParams),
+                connectionInfo,
+                settings,
+                BufferFileFactory,
                 executeParams.GetFullColumnSchema,
                 applyExecutionSettings);
 
@@ -893,13 +899,33 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Setup the ResultSet updated callback
             ResultSet.ResultSetAsyncEventHandler resultUpdatedCallback = async r =>
             {
+                
+                //Generating and sending an execution plan graphs if it is requested.
+                List<ExecutionPlanGraph> plans = null;
+                string planErrors = "";
+                if (r.Summary.Complete && r.Summary.SpecialAction.ExpectYukonXMLShowPlan && r.RowCount == 1 && r.GetRow(0)[0] != null)
+                {
+                    var xmlString = r.GetRow(0)[0].DisplayValue;
+                    try
+                    {
+                        plans = ShowPlanGraphUtils.CreateShowPlanGraph(xmlString, Path.GetFileName(ownerUri));
+                    }
+                    catch (Exception ex)
+                    {
+                        // In case of error we are sending an empty execution plan graph with the error message.
+                        Logger.Write(TraceEventType.Error, String.Format("Failed to generate show plan graph{0}{1}", Environment.NewLine, ex.Message));
+                        planErrors = ex.Message;
+                    }
+
+                }
                 ResultSetUpdatedEventParams eventParams = new ResultSetUpdatedEventParams
                 {
                     ResultSetSummary = r.Summary,
-                    OwnerUri = ownerUri
+                    OwnerUri = ownerUri,
+                    ExecutionPlans = plans,
+                    ExecutionPlanErrorMessage = planErrors
                 };
 
-                Logger.Write(TraceEventType.Information, $"Result:'{r.Summary} on Query:'{ownerUri}' is updated with additional rows");
                 await eventSender.SendEvent(ResultSetUpdatedEvent.Type, eventParams);
             };
             query.ResultSetUpdated += resultUpdatedCallback;

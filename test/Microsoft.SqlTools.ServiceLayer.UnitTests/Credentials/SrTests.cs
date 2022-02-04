@@ -55,7 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
             Assert.AreEqual(options.Locale, locale);
             
             var CredentialsServiceInvalidCriticalHandle = CredSR.CredentialsServiceInvalidCriticalHandle;
-            Assert.AreEqual("CriticalHandle no válido!", CredentialsServiceInvalidCriticalHandle);
+            Assert.AreEqual("CriticalHandle no válido.", CredentialsServiceInvalidCriticalHandle);
 
             // Reset the locale
             SrStringsTestWithEnLocalization(); 

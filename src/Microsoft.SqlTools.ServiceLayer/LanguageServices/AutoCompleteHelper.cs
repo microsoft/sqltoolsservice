@@ -754,6 +754,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 starObjectIdentifier = (SqlObjectIdentifier)selectStarExpression.Children.ElementAt(0);
             }
 
+            /*
+            Returning no suggestions when the bound tables are null. 
+            This happens when there are no existing connections for the script. 
+            */
+            if (selectStarExpression.BoundTables == null)
+            {
+                return null;
+            }
+
             List<ITabular> boundedTableList = selectStarExpression.BoundTables.ToList();
 
             IList<string> columnNames = new List<string>();
@@ -829,11 +838,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         public static SqlSelectStarExpression TryGetSelectStarStatement(SqlCodeObject currentNode, ScriptDocumentInfo scriptDocumentInfo)
         {
-            if(currentNode == null || scriptDocumentInfo == null)
+            if (currentNode == null || scriptDocumentInfo == null)
             {
                 return null;
             }
-            
+
             // Checking if the current node is a sql select star expression.
             if (currentNode is SqlSelectStarExpression)
             {

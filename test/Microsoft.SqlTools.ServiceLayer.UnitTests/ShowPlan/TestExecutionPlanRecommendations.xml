@@ -1,0 +1,1870 @@
+<ShowPlanXML xmlns="http://schemas.microsoft.com/sqlserver/2004/07/showplan" Version="1.539" Build="15.0.2080.9">
+	<BatchSequence>
+		<Batch>
+			<Statements>
+				<StmtSimple StatementText="SELECT *&#xd;&#xa;FROM dbo.t1 t1&#xd;&#xa;    INNER JOIN dbo.t2 t2 ON t1.rowId = t2.rowId&#xd;&#xa;WHERE t2.rowId = 999" StatementId="1" StatementCompId="1" StatementType="SELECT" RetrievedFromCache="false" StatementSubTreeCost="0.571457" StatementEstRows="1" SecurityPolicyApplied="false" StatementOptmLevel="FULL" QueryHash="0x83D4838ADDAA58B1" QueryPlanHash="0xCA75AFF35DB6C6F2" StatementOptmEarlyAbortReason="GoodEnoughPlanFound" CardinalityEstimationModelVersion="150">
+					<StatementSetOptions QUOTED_IDENTIFIER="true" ARITHABORT="true" CONCAT_NULL_YIELDS_NULL="true" ANSI_NULLS="true" ANSI_PADDING="true" ANSI_WARNINGS="true" NUMERIC_ROUNDABORT="false">
+					</StatementSetOptions>
+					<QueryPlan CachedPlanSize="16" CompileTime="0" CompileCPU="0" CompileMemory="248">
+						<MissingIndexes>
+							<MissingIndexGroup Impact="49.3232">
+								<MissingIndex Database="[tempdb]" Schema="[dbo]" Table="[t1]">
+									<ColumnGroup Usage="EQUALITY">
+										<Column Name="[rowId]" ColumnId="1">
+										</Column>
+									</ColumnGroup>
+								</MissingIndex>
+							</MissingIndexGroup>
+							<MissingIndexGroup Impact="49.3232">
+								<MissingIndex Database="[tempdb]" Schema="[dbo]" Table="[t2]">
+									<ColumnGroup Usage="EQUALITY">
+										<Column Name="[rowId]" ColumnId="1">
+										</Column>
+									</ColumnGroup>
+								</MissingIndex>
+							</MissingIndexGroup>
+							<MissingIndexGroup Impact="49.3239">
+								<MissingIndex Database="[tempdb]" Schema="[dbo]" Table="[t1]">
+									<ColumnGroup Usage="EQUALITY">
+										<Column Name="[rowId]" ColumnId="1">
+										</Column>
+									</ColumnGroup>
+								</MissingIndex>
+							</MissingIndexGroup>
+						</MissingIndexes>
+						<MemoryGrantInfo SerialRequiredMemory="0" SerialDesiredMemory="0" GrantedMemory="0" MaxUsedMemory="0">
+						</MemoryGrantInfo>
+						<OptimizerHardwareDependentProperties EstimatedAvailableMemoryGrant="139456" EstimatedPagesCached="209184" EstimatedAvailableDegreeOfParallelism="12" MaxCompileMemory="19624">
+						</OptimizerHardwareDependentProperties>
+						<OptimizerStatsUsage>
+							<StatisticsInfo LastUpdate="2022-01-26T14:20:38.56" ModificationCount="0" SamplingPercent="100" Statistics="[_WA_Sys_00000001_267ABA7A]" Table="[t2]" Schema="[dbo]" Database="[tempdb]">
+							</StatisticsInfo>
+							<StatisticsInfo LastUpdate="2022-01-26T14:20:38.51" ModificationCount="0" SamplingPercent="100" Statistics="[_WA_Sys_00000001_25869641]" Table="[t1]" Schema="[dbo]" Database="[tempdb]">
+							</StatisticsInfo>
+						</OptimizerStatsUsage>
+						<RelOp NodeId="0" PhysicalOp="Nested Loops" LogicalOp="Inner Join" EstimateRows="1" EstimateIO="0" EstimateCPU="4.18e-06" AvgRowSize="15" EstimatedTotalSubtreeCost="0.571457" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+							<OutputList>
+								<ColumnReference Database="[tempdb]" Schema="[dbo]" Table="[t1]" Alias="[t1]" Column="rowId">
+								</ColumnReference>
+								<ColumnReference Database="[tempdb]" Schema="[dbo]" Table="[t2]" Alias="[t2]" Column="rowId">
+								</ColumnReference>
+							</OutputList>
+							<NestedLoops Optimized="0">
+								<RelOp NodeId="1" PhysicalOp="Table Scan" LogicalOp="Table Scan" EstimateRows="1" EstimatedRowsRead="100000" EstimateIO="0.127569" EstimateCPU="0.110157" AvgRowSize="11" EstimatedTotalSubtreeCost="0.237726" TableCardinality="100000" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+									<OutputList>
+										<ColumnReference Database="[tempdb]" Schema="[dbo]" Table="[t2]" Alias="[t2]" Column="rowId">
+										</ColumnReference>
+									</OutputList>
+									<TableScan Ordered="0" ForcedIndex="0" ForceScan="0" NoExpandHint="0" Storage="RowStore">
+										<DefinedValues>
+											<DefinedValue>
+												<ColumnReference Database="[tempdb]" Schema="[dbo]" Table="[t2]" Alias="[t2]" Column="rowId">
+												</ColumnReference>
+											</DefinedValue>
+										</DefinedValues>
+										<Object Database="[tempdb]" Schema="[dbo]" Table="[t2]" Alias="[t2]" IndexKind="Heap" Storage="RowStore">
+										</Object>
+										<Predicate>
+											<ScalarOperator ScalarString="[tempdb].[dbo].[t2].[rowId] as [t2].[rowId]=(999)">
+												<Compare CompareOp="EQ">
+													<ScalarOperator>
+														<Identifier>
+															<ColumnReference Database="[tempdb]" Schema="[dbo]" Table="[t2]" Alias="[t2]" Column="rowId">
+															</ColumnReference>
+														</Identifier>
+													</ScalarOperator>
+													<ScalarOperator>
+														<Const ConstValue="(999)">
+														</Const>
+													</ScalarOperator>
+												</Compare>
+											</ScalarOperator>
+										</Predicate>
+									</TableScan>
+								</RelOp>
+								<RelOp NodeId="2" PhysicalOp="Table Scan" LogicalOp="Table Scan" EstimateRows="1" EstimatedRowsRead="100000" EstimateIO="0.127569" EstimateCPU="0.110157" AvgRowSize="11" EstimatedTotalSubtreeCost="0.237726" TableCardinality="100000" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+									<OutputList>
+										<ColumnReference Database="[tempdb]" Schema="[dbo]" Table="[t1]" Alias="[t1]" Column="rowId">
+										</ColumnReference>
+									</OutputList>
+									<TableScan Ordered="0" ForcedIndex="0" ForceScan="0" NoExpandHint="0" Storage="RowStore">
+										<DefinedValues>
+											<DefinedValue>
+												<ColumnReference Database="[tempdb]" Schema="[dbo]" Table="[t1]" Alias="[t1]" Column="rowId">
+												</ColumnReference>
+											</DefinedValue>
+										</DefinedValues>
+										<Object Database="[tempdb]" Schema="[dbo]" Table="[t1]" Alias="[t1]" IndexKind="Heap" Storage="RowStore">
+										</Object>
+										<Predicate>
+											<ScalarOperator ScalarString="[tempdb].[dbo].[t1].[rowId] as [t1].[rowId]=(999)">
+												<Compare CompareOp="EQ">
+													<ScalarOperator>
+														<Identifier>
+															<ColumnReference Database="[tempdb]" Schema="[dbo]" Table="[t1]" Alias="[t1]" Column="rowId">
+															</ColumnReference>
+														</Identifier>
+													</ScalarOperator>
+													<ScalarOperator>
+														<Const ConstValue="(999)">
+														</Const>
+													</ScalarOperator>
+												</Compare>
+											</ScalarOperator>
+										</Predicate>
+									</TableScan>
+								</RelOp>
+							</NestedLoops>
+						</RelOp>
+					</QueryPlan>
+				</StmtSimple>
+				<StmtSimple StatementText=";&#xd;&#xa;&#xd;&#xa;SELECT * from sys.all_objects" StatementId="2" StatementCompId="2" StatementType="SELECT" RetrievedFromCache="false" StatementSubTreeCost="0.1144" StatementEstRows="2613.32" SecurityPolicyApplied="false" StatementOptmLevel="FULL" QueryHash="0x4922066139F88DC8" QueryPlanHash="0xEAB53BC0ABF34472" StatementOptmEarlyAbortReason="GoodEnoughPlanFound" CardinalityEstimationModelVersion="150">
+					<StatementSetOptions QUOTED_IDENTIFIER="true" ARITHABORT="true" CONCAT_NULL_YIELDS_NULL="true" ANSI_NULLS="true" ANSI_PADDING="true" ANSI_WARNINGS="true" NUMERIC_ROUNDABORT="false">
+					</StatementSetOptions>
+					<QueryPlan NonParallelPlanReason="CouldNotGenerateValidParallelPlan" CachedPlanSize="112" CompileTime="4" CompileCPU="4" CompileMemory="672">
+						<MemoryGrantInfo SerialRequiredMemory="2048" SerialDesiredMemory="2224" GrantedMemory="0" MaxUsedMemory="0">
+						</MemoryGrantInfo>
+						<OptimizerHardwareDependentProperties EstimatedAvailableMemoryGrant="139456" EstimatedPagesCached="209184" EstimatedAvailableDegreeOfParallelism="12" MaxCompileMemory="19624">
+						</OptimizerHardwareDependentProperties>
+						<OptimizerStatsUsage>
+							<StatisticsInfo LastUpdate="2021-10-26T16:11:47.29" ModificationCount="142" SamplingPercent="100" Statistics="[_WA_Sys_00000001_0000004A]" Table="[syssingleobjrefs]" Schema="[sys]" Database="[tempdb]">
+							</StatisticsInfo>
+							<StatisticsInfo LastUpdate="2022-01-26T13:20:38.59" ModificationCount="674" SamplingPercent="100" Statistics="[_WA_Sys_00000006_00000022]" Table="[sysschobjs]" Schema="[sys]" Database="[tempdb]">
+							</StatisticsInfo>
+							<StatisticsInfo LastUpdate="2020-11-06T17:20:55.04" ModificationCount="0" SamplingPercent="100" Statistics="[value]" Table="[syspalnames]" Schema="[sys]" Database="[mssqlsystemresource]">
+							</StatisticsInfo>
+							<StatisticsInfo LastUpdate="2022-01-26T13:20:38.59" ModificationCount="674" SamplingPercent="100" Statistics="[nc1]" Table="[sysschobjs]" Schema="[sys]" Database="[tempdb]">
+							</StatisticsInfo>
+							<StatisticsInfo LastUpdate="2009-04-13T12:59:17.25" ModificationCount="230" SamplingPercent="100" Statistics="[clst]" Table="[syssingleobjrefs]" Schema="[sys]" Database="[tempdb]">
+							</StatisticsInfo>
+							<StatisticsInfo LastUpdate="2022-01-26T13:20:38.59" ModificationCount="674" SamplingPercent="100" Statistics="[clst]" Table="[sysschobjs]" Schema="[sys]" Database="[tempdb]">
+							</StatisticsInfo>
+							<StatisticsInfo LastUpdate="2022-01-26T13:20:38.60" ModificationCount="674" SamplingPercent="100" Statistics="[nc2]" Table="[sysschobjs]" Schema="[sys]" Database="[tempdb]">
+							</StatisticsInfo>
+							<StatisticsInfo LastUpdate="2022-01-26T13:20:38.59" ModificationCount="674" SamplingPercent="100" Statistics="[nc3]" Table="[sysschobjs]" Schema="[sys]" Database="[tempdb]">
+							</StatisticsInfo>
+							<StatisticsInfo LastUpdate="2009-04-13T12:59:17.25" ModificationCount="230" SamplingPercent="100" Statistics="[nc1]" Table="[syssingleobjrefs]" Schema="[sys]" Database="[tempdb]">
+							</StatisticsInfo>
+							<StatisticsInfo LastUpdate="2020-11-06T17:19:54.05" ModificationCount="0" SamplingPercent="100" Statistics="[cl]" Table="[syspalnames]" Schema="[sys]" Database="[mssqlsystemresource]">
+							</StatisticsInfo>
+							<StatisticsInfo LastUpdate="2021-10-26T16:11:47.29" ModificationCount="142" SamplingPercent="100" Statistics="[_WA_Sys_00000003_0000004A]" Table="[syssingleobjrefs]" Schema="[sys]" Database="[tempdb]">
+							</StatisticsInfo>
+						</OptimizerStatsUsage>
+						<RelOp NodeId="0" PhysicalOp="Hash Match" LogicalOp="Right Outer Join" EstimateRows="2613.32" EstimateIO="0" EstimateCPU="0.0390218" AvgRowSize="237" EstimatedTotalSubtreeCost="0.1144" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+							<OutputList>
+								<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="id">
+								</ColumnReference>
+								<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="name">
+								</ColumnReference>
+								<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="nsid">
+								</ColumnReference>
+								<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="pid">
+								</ColumnReference>
+								<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="created">
+								</ColumnReference>
+								<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="modified">
+								</ColumnReference>
+								<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[syssingleobjrefs]" Alias="[r]" Column="indepid">
+								</ColumnReference>
+								<ColumnReference Database="[mssqlsystemresource]" Schema="[sys]" Table="[syspalnames]" Alias="[n]" Column="name">
+								</ColumnReference>
+								<ColumnReference Column="Expr1003">
+								</ColumnReference>
+								<ColumnReference Column="Expr1004">
+								</ColumnReference>
+								<ColumnReference Column="Expr1005">
+								</ColumnReference>
+								<ColumnReference Column="Expr1006">
+								</ColumnReference>
+							</OutputList>
+							<MemoryFractions Input="0.5" Output="0.5">
+							</MemoryFractions>
+							<Hash>
+								<DefinedValues>
+								</DefinedValues>
+								<HashKeysBuild>
+									<ColumnReference Database="[mssqlsystemresource]" Schema="[sys]" Table="[syspalnames]" Alias="[n]" Column="value">
+									</ColumnReference>
+								</HashKeysBuild>
+								<HashKeysProbe>
+									<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="type">
+									</ColumnReference>
+								</HashKeysProbe>
+								<ProbeResidual>
+									<ScalarOperator ScalarString="[mssqlsystemresource].[sys].[syspalnames].[value] as [n].[value]=[tempdb].[sys].[sysschobjs].[type] as [o].[type]">
+										<Compare CompareOp="EQ">
+											<ScalarOperator>
+												<Identifier>
+													<ColumnReference Database="[mssqlsystemresource]" Schema="[sys]" Table="[syspalnames]" Alias="[n]" Column="value">
+													</ColumnReference>
+												</Identifier>
+											</ScalarOperator>
+											<ScalarOperator>
+												<Identifier>
+													<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="type">
+													</ColumnReference>
+												</Identifier>
+											</ScalarOperator>
+										</Compare>
+									</ScalarOperator>
+								</ProbeResidual>
+								<RelOp NodeId="1" PhysicalOp="Clustered Index Seek" LogicalOp="Clustered Index Seek" EstimateRows="32" EstimatedRowsRead="32" EstimateIO="0.003125" EstimateCPU="0.0001922" AvgRowSize="74" EstimatedTotalSubtreeCost="0.0033172" TableCardinality="159" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+									<OutputList>
+										<ColumnReference Database="[mssqlsystemresource]" Schema="[sys]" Table="[syspalnames]" Alias="[n]" Column="value">
+										</ColumnReference>
+										<ColumnReference Database="[mssqlsystemresource]" Schema="[sys]" Table="[syspalnames]" Alias="[n]" Column="name">
+										</ColumnReference>
+									</OutputList>
+									<IndexScan Ordered="1" ScanDirection="FORWARD" ForcedIndex="0" ForceSeek="0" ForceScan="0" NoExpandHint="0" Storage="RowStore">
+										<DefinedValues>
+											<DefinedValue>
+												<ColumnReference Database="[mssqlsystemresource]" Schema="[sys]" Table="[syspalnames]" Alias="[n]" Column="value">
+												</ColumnReference>
+											</DefinedValue>
+											<DefinedValue>
+												<ColumnReference Database="[mssqlsystemresource]" Schema="[sys]" Table="[syspalnames]" Alias="[n]" Column="name">
+												</ColumnReference>
+											</DefinedValue>
+										</DefinedValues>
+										<Object Database="[mssqlsystemresource]" Schema="[sys]" Table="[syspalnames]" Index="[cl]" Alias="[n]" IndexKind="Clustered" Storage="RowStore">
+										</Object>
+										<SeekPredicates>
+											<SeekPredicateNew>
+												<SeekKeys>
+													<Prefix ScanType="EQ">
+														<RangeColumns>
+															<ColumnReference Database="[mssqlsystemresource]" Schema="[sys]" Table="[syspalnames]" Alias="[n]" Column="class">
+															</ColumnReference>
+														</RangeColumns>
+														<RangeExpressions>
+															<ScalarOperator ScalarString="&apos;OBTY&apos;">
+																<Const ConstValue="&apos;OBTY&apos;">
+																</Const>
+															</ScalarOperator>
+														</RangeExpressions>
+													</Prefix>
+												</SeekKeys>
+											</SeekPredicateNew>
+										</SeekPredicates>
+									</IndexScan>
+								</RelOp>
+								<RelOp NodeId="2" PhysicalOp="Hash Match" LogicalOp="Right Outer Join" EstimateRows="2549.25" EstimateIO="0" EstimateCPU="0.0313761" AvgRowSize="177" EstimatedTotalSubtreeCost="0.0720583" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+									<OutputList>
+										<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="id">
+										</ColumnReference>
+										<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="name">
+										</ColumnReference>
+										<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="nsid">
+										</ColumnReference>
+										<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="type">
+										</ColumnReference>
+										<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="pid">
+										</ColumnReference>
+										<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="created">
+										</ColumnReference>
+										<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="modified">
+										</ColumnReference>
+										<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[syssingleobjrefs]" Alias="[r]" Column="indepid">
+										</ColumnReference>
+										<ColumnReference Column="Expr1003">
+										</ColumnReference>
+										<ColumnReference Column="Expr1004">
+										</ColumnReference>
+										<ColumnReference Column="Expr1005">
+										</ColumnReference>
+										<ColumnReference Column="Expr1006">
+										</ColumnReference>
+									</OutputList>
+									<MemoryFractions Input="0.5" Output="0.5">
+									</MemoryFractions>
+									<Hash>
+										<DefinedValues>
+										</DefinedValues>
+										<HashKeysBuild>
+											<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[syssingleobjrefs]" Alias="[r]" Column="depid">
+											</ColumnReference>
+										</HashKeysBuild>
+										<HashKeysProbe>
+											<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="id">
+											</ColumnReference>
+										</HashKeysProbe>
+										<RelOp NodeId="3" PhysicalOp="Index Scan" LogicalOp="Index Scan" EstimateRows="1" EstimatedRowsRead="183" EstimateIO="0.003125" EstimateCPU="0.0003583" AvgRowSize="20" EstimatedTotalSubtreeCost="0.0034833" TableCardinality="183" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+											<OutputList>
+												<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[syssingleobjrefs]" Alias="[r]" Column="depid">
+												</ColumnReference>
+												<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[syssingleobjrefs]" Alias="[r]" Column="indepid">
+												</ColumnReference>
+											</OutputList>
+											<IndexScan Ordered="0" ForcedIndex="0" ForceSeek="0" ForceScan="0" NoExpandHint="0" Storage="RowStore">
+												<DefinedValues>
+													<DefinedValue>
+														<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[syssingleobjrefs]" Alias="[r]" Column="depid">
+														</ColumnReference>
+													</DefinedValue>
+													<DefinedValue>
+														<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[syssingleobjrefs]" Alias="[r]" Column="indepid">
+														</ColumnReference>
+													</DefinedValue>
+												</DefinedValues>
+												<Object Database="[tempdb]" Schema="[sys]" Table="[syssingleobjrefs]" Index="[nc1]" Alias="[r]" IndexKind="NonClustered" Storage="RowStore">
+												</Object>
+												<Predicate>
+													<ScalarOperator ScalarString="[tempdb].[sys].[syssingleobjrefs].[class] as [r].[class]=(97) AND [tempdb].[sys].[syssingleobjrefs].[depsubid] as [r].[depsubid]=(0)">
+														<Logical Operation="AND">
+															<ScalarOperator>
+																<Compare CompareOp="EQ">
+																	<ScalarOperator>
+																		<Identifier>
+																			<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[syssingleobjrefs]" Alias="[r]" Column="class">
+																			</ColumnReference>
+																		</Identifier>
+																	</ScalarOperator>
+																	<ScalarOperator>
+																		<Const ConstValue="(97)">
+																		</Const>
+																	</ScalarOperator>
+																</Compare>
+															</ScalarOperator>
+															<ScalarOperator>
+																<Compare CompareOp="EQ">
+																	<ScalarOperator>
+																		<Identifier>
+																			<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[syssingleobjrefs]" Alias="[r]" Column="depsubid">
+																			</ColumnReference>
+																		</Identifier>
+																	</ScalarOperator>
+																	<ScalarOperator>
+																		<Const ConstValue="(0)">
+																		</Const>
+																	</ScalarOperator>
+																</Compare>
+															</ScalarOperator>
+														</Logical>
+													</ScalarOperator>
+												</Predicate>
+											</IndexScan>
+										</RelOp>
+										<RelOp NodeId="4" PhysicalOp="Filter" LogicalOp="Filter" EstimateRows="2549" EstimateIO="0" EstimateCPU="0.00402742" AvgRowSize="173" EstimatedTotalSubtreeCost="0.0370349" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+											<OutputList>
+												<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="id">
+												</ColumnReference>
+												<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="name">
+												</ColumnReference>
+												<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="nsid">
+												</ColumnReference>
+												<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="type">
+												</ColumnReference>
+												<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="pid">
+												</ColumnReference>
+												<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="created">
+												</ColumnReference>
+												<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="modified">
+												</ColumnReference>
+												<ColumnReference Column="Expr1003">
+												</ColumnReference>
+												<ColumnReference Column="Expr1004">
+												</ColumnReference>
+												<ColumnReference Column="Expr1005">
+												</ColumnReference>
+												<ColumnReference Column="Expr1006">
+												</ColumnReference>
+											</OutputList>
+											<Filter StartupExpression="0">
+												<RelOp NodeId="5" PhysicalOp="Compute Scalar" LogicalOp="Compute Scalar" EstimateRows="2549" EstimateIO="0" EstimateCPU="0.0002549" AvgRowSize="174" EstimatedTotalSubtreeCost="0.0330075" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+													<OutputList>
+														<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="id">
+														</ColumnReference>
+														<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="name">
+														</ColumnReference>
+														<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="nsid">
+														</ColumnReference>
+														<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="type">
+														</ColumnReference>
+														<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="pid">
+														</ColumnReference>
+														<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="created">
+														</ColumnReference>
+														<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="modified">
+														</ColumnReference>
+														<ColumnReference Column="Expr1003">
+														</ColumnReference>
+														<ColumnReference Column="Expr1004">
+														</ColumnReference>
+														<ColumnReference Column="Expr1005">
+														</ColumnReference>
+														<ColumnReference Column="Expr1006">
+														</ColumnReference>
+													</OutputList>
+													<ComputeScalar>
+														<DefinedValues>
+															<DefinedValue>
+																<ColumnReference Column="Expr1003">
+																</ColumnReference>
+																<ScalarOperator ScalarString="CONVERT(char(2),CASE WHEN [tempdb].[sys].[sysschobjs].[type] as [o].[type]=&apos;ET&apos; THEN &apos;U&apos; ELSE [tempdb].[sys].[sysschobjs].[type] as [o].[type] END,0)">
+																	<Convert DataType="char" Length="2" Style="0" Implicit="0">
+																		<ScalarOperator>
+																			<IF>
+																				<Condition>
+																					<ScalarOperator>
+																						<Compare CompareOp="EQ">
+																							<ScalarOperator>
+																								<Identifier>
+																									<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="type">
+																									</ColumnReference>
+																								</Identifier>
+																							</ScalarOperator>
+																							<ScalarOperator>
+																								<Const ConstValue="&apos;ET&apos;">
+																								</Const>
+																							</ScalarOperator>
+																						</Compare>
+																					</ScalarOperator>
+																				</Condition>
+																				<Then>
+																					<ScalarOperator>
+																						<Const ConstValue="&apos;U&apos;">
+																						</Const>
+																					</ScalarOperator>
+																				</Then>
+																				<Else>
+																					<ScalarOperator>
+																						<Identifier>
+																							<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="type">
+																							</ColumnReference>
+																						</Identifier>
+																					</ScalarOperator>
+																				</Else>
+																			</IF>
+																		</ScalarOperator>
+																	</Convert>
+																</ScalarOperator>
+															</DefinedValue>
+															<DefinedValue>
+																<ColumnReference Column="Expr1004">
+																</ColumnReference>
+																<ScalarOperator ScalarString="CONVERT(bit,[tempdb].[sys].[sysschobjs].[status] as [o].[status]&amp;(1),0)">
+																	<Convert DataType="bit" Style="0" Implicit="0">
+																		<ScalarOperator>
+																			<Arithmetic Operation="BIT_AND">
+																				<ScalarOperator>
+																					<Identifier>
+																						<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="status">
+																						</ColumnReference>
+																					</Identifier>
+																				</ScalarOperator>
+																				<ScalarOperator>
+																					<Const ConstValue="(1)">
+																					</Const>
+																				</ScalarOperator>
+																			</Arithmetic>
+																		</ScalarOperator>
+																	</Convert>
+																</ScalarOperator>
+															</DefinedValue>
+															<DefinedValue>
+																<ColumnReference Column="Expr1005">
+																</ColumnReference>
+																<ScalarOperator ScalarString="CONVERT(bit,[tempdb].[sys].[sysschobjs].[status] as [o].[status]&amp;(16),0)">
+																	<Convert DataType="bit" Style="0" Implicit="0">
+																		<ScalarOperator>
+																			<Arithmetic Operation="BIT_AND">
+																				<ScalarOperator>
+																					<Identifier>
+																						<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="status">
+																						</ColumnReference>
+																					</Identifier>
+																				</ScalarOperator>
+																				<ScalarOperator>
+																					<Const ConstValue="(16)">
+																					</Const>
+																				</ScalarOperator>
+																			</Arithmetic>
+																		</ScalarOperator>
+																	</Convert>
+																</ScalarOperator>
+															</DefinedValue>
+															<DefinedValue>
+																<ColumnReference Column="Expr1006">
+																</ColumnReference>
+																<ScalarOperator ScalarString="CONVERT(bit,[tempdb].[sys].[sysschobjs].[status] as [o].[status]&amp;(64),0)">
+																	<Convert DataType="bit" Style="0" Implicit="0">
+																		<ScalarOperator>
+																			<Arithmetic Operation="BIT_AND">
+																				<ScalarOperator>
+																					<Identifier>
+																						<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="status">
+																						</ColumnReference>
+																					</Identifier>
+																				</ScalarOperator>
+																				<ScalarOperator>
+																					<Const ConstValue="(64)">
+																					</Const>
+																				</ScalarOperator>
+																			</Arithmetic>
+																		</ScalarOperator>
+																	</Convert>
+																</ScalarOperator>
+															</DefinedValue>
+														</DefinedValues>
+														<RelOp NodeId="6" PhysicalOp="Clustered Index Scan" LogicalOp="Clustered Index Scan" EstimateRows="2549" EstimatedRowsRead="2549" EstimateIO="0.0297917" EstimateCPU="0.0029609" AvgRowSize="175" EstimatedTotalSubtreeCost="0.0327526" TableCardinality="2549" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+															<OutputList>
+																<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="id">
+																</ColumnReference>
+																<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="name">
+																</ColumnReference>
+																<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="nsid">
+																</ColumnReference>
+																<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="status">
+																</ColumnReference>
+																<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="type">
+																</ColumnReference>
+																<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="pid">
+																</ColumnReference>
+																<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="created">
+																</ColumnReference>
+																<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="modified">
+																</ColumnReference>
+															</OutputList>
+															<IndexScan Ordered="0" ForcedIndex="0" ForceScan="0" NoExpandHint="0" Storage="RowStore">
+																<DefinedValues>
+																	<DefinedValue>
+																		<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="id">
+																		</ColumnReference>
+																	</DefinedValue>
+																	<DefinedValue>
+																		<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="name">
+																		</ColumnReference>
+																	</DefinedValue>
+																	<DefinedValue>
+																		<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="nsid">
+																		</ColumnReference>
+																	</DefinedValue>
+																	<DefinedValue>
+																		<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="status">
+																		</ColumnReference>
+																	</DefinedValue>
+																	<DefinedValue>
+																		<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="type">
+																		</ColumnReference>
+																	</DefinedValue>
+																	<DefinedValue>
+																		<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="pid">
+																		</ColumnReference>
+																	</DefinedValue>
+																	<DefinedValue>
+																		<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="created">
+																		</ColumnReference>
+																	</DefinedValue>
+																	<DefinedValue>
+																		<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="modified">
+																		</ColumnReference>
+																	</DefinedValue>
+																</DefinedValues>
+																<Object Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Index="[clst]" Alias="[o]" IndexKind="Clustered" Storage="RowStore">
+																</Object>
+																<Predicate>
+																	<ScalarOperator ScalarString="[tempdb].[sys].[sysschobjs].[nsclass] as [o].[nsclass]&lt;&gt;(20) AND [tempdb].[sys].[sysschobjs].[nsclass] as [o].[nsclass]&lt;&gt;(21)">
+																		<Logical Operation="AND">
+																			<ScalarOperator>
+																				<Compare CompareOp="NE">
+																					<ScalarOperator>
+																						<Identifier>
+																							<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="nsclass">
+																							</ColumnReference>
+																						</Identifier>
+																					</ScalarOperator>
+																					<ScalarOperator>
+																						<Const ConstValue="(20)">
+																						</Const>
+																					</ScalarOperator>
+																				</Compare>
+																			</ScalarOperator>
+																			<ScalarOperator>
+																				<Compare CompareOp="NE">
+																					<ScalarOperator>
+																						<Identifier>
+																							<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="nsclass">
+																							</ColumnReference>
+																						</Identifier>
+																					</ScalarOperator>
+																					<ScalarOperator>
+																						<Const ConstValue="(21)">
+																						</Const>
+																					</ScalarOperator>
+																				</Compare>
+																			</ScalarOperator>
+																		</Logical>
+																	</ScalarOperator>
+																</Predicate>
+															</IndexScan>
+														</RelOp>
+													</ComputeScalar>
+												</RelOp>
+												<Predicate>
+													<ScalarOperator ScalarString="has_access(&apos;AO&apos;,[tempdb].[sys].[sysschobjs].[id] as [o].[id])=(1)">
+														<Compare CompareOp="EQ">
+															<ScalarOperator>
+																<Intrinsic FunctionName="has_access">
+																	<ScalarOperator>
+																		<Const ConstValue="&apos;AO&apos;">
+																		</Const>
+																	</ScalarOperator>
+																	<ScalarOperator>
+																		<Identifier>
+																			<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="id">
+																			</ColumnReference>
+																		</Identifier>
+																	</ScalarOperator>
+																	<ScalarOperator>
+																		<Const ConstValue="">
+																		</Const>
+																	</ScalarOperator>
+																	<ScalarOperator>
+																		<Const ConstValue="">
+																		</Const>
+																	</ScalarOperator>
+																</Intrinsic>
+															</ScalarOperator>
+															<ScalarOperator>
+																<Const ConstValue="(1)">
+																</Const>
+															</ScalarOperator>
+														</Compare>
+													</ScalarOperator>
+												</Predicate>
+											</Filter>
+										</RelOp>
+									</Hash>
+								</RelOp>
+							</Hash>
+						</RelOp>
+					</QueryPlan>
+				</StmtSimple>
+				<StmtSimple StatementText="&#xd;&#xa;&#xd;&#xa;select * from sys.all_objects" StatementId="3" StatementCompId="3" StatementType="SELECT" RetrievedFromCache="false" StatementSubTreeCost="0.1144" StatementEstRows="2613.32" SecurityPolicyApplied="false" StatementOptmLevel="FULL" QueryHash="0x4922066139F88DC8" QueryPlanHash="0xEAB53BC0ABF34472" StatementOptmEarlyAbortReason="GoodEnoughPlanFound" CardinalityEstimationModelVersion="150">
+					<StatementSetOptions QUOTED_IDENTIFIER="true" ARITHABORT="true" CONCAT_NULL_YIELDS_NULL="true" ANSI_NULLS="true" ANSI_PADDING="true" ANSI_WARNINGS="true" NUMERIC_ROUNDABORT="false">
+					</StatementSetOptions>
+					<QueryPlan NonParallelPlanReason="CouldNotGenerateValidParallelPlan" CachedPlanSize="112" CompileTime="3" CompileCPU="3" CompileMemory="672">
+						<MemoryGrantInfo SerialRequiredMemory="2048" SerialDesiredMemory="2224" GrantedMemory="0" MaxUsedMemory="0">
+						</MemoryGrantInfo>
+						<OptimizerHardwareDependentProperties EstimatedAvailableMemoryGrant="139456" EstimatedPagesCached="209184" EstimatedAvailableDegreeOfParallelism="12" MaxCompileMemory="19624">
+						</OptimizerHardwareDependentProperties>
+						<OptimizerStatsUsage>
+							<StatisticsInfo LastUpdate="2021-10-26T16:11:47.29" ModificationCount="142" SamplingPercent="100" Statistics="[_WA_Sys_00000001_0000004A]" Table="[syssingleobjrefs]" Schema="[sys]" Database="[tempdb]">
+							</StatisticsInfo>
+							<StatisticsInfo LastUpdate="2022-01-26T13:20:38.59" ModificationCount="674" SamplingPercent="100" Statistics="[_WA_Sys_00000006_00000022]" Table="[sysschobjs]" Schema="[sys]" Database="[tempdb]">
+							</StatisticsInfo>
+							<StatisticsInfo LastUpdate="2020-11-06T17:20:55.04" ModificationCount="0" SamplingPercent="100" Statistics="[value]" Table="[syspalnames]" Schema="[sys]" Database="[mssqlsystemresource]">
+							</StatisticsInfo>
+							<StatisticsInfo LastUpdate="2022-01-26T13:20:38.59" ModificationCount="674" SamplingPercent="100" Statistics="[nc1]" Table="[sysschobjs]" Schema="[sys]" Database="[tempdb]">
+							</StatisticsInfo>
+							<StatisticsInfo LastUpdate="2009-04-13T12:59:17.25" ModificationCount="230" SamplingPercent="100" Statistics="[clst]" Table="[syssingleobjrefs]" Schema="[sys]" Database="[tempdb]">
+							</StatisticsInfo>
+							<StatisticsInfo LastUpdate="2022-01-26T13:20:38.59" ModificationCount="674" SamplingPercent="100" Statistics="[clst]" Table="[sysschobjs]" Schema="[sys]" Database="[tempdb]">
+							</StatisticsInfo>
+							<StatisticsInfo LastUpdate="2022-01-26T13:20:38.60" ModificationCount="674" SamplingPercent="100" Statistics="[nc2]" Table="[sysschobjs]" Schema="[sys]" Database="[tempdb]">
+							</StatisticsInfo>
+							<StatisticsInfo LastUpdate="2022-01-26T13:20:38.59" ModificationCount="674" SamplingPercent="100" Statistics="[nc3]" Table="[sysschobjs]" Schema="[sys]" Database="[tempdb]">
+							</StatisticsInfo>
+							<StatisticsInfo LastUpdate="2009-04-13T12:59:17.25" ModificationCount="230" SamplingPercent="100" Statistics="[nc1]" Table="[syssingleobjrefs]" Schema="[sys]" Database="[tempdb]">
+							</StatisticsInfo>
+							<StatisticsInfo LastUpdate="2020-11-06T17:19:54.05" ModificationCount="0" SamplingPercent="100" Statistics="[cl]" Table="[syspalnames]" Schema="[sys]" Database="[mssqlsystemresource]">
+							</StatisticsInfo>
+							<StatisticsInfo LastUpdate="2021-10-26T16:11:47.29" ModificationCount="142" SamplingPercent="100" Statistics="[_WA_Sys_00000003_0000004A]" Table="[syssingleobjrefs]" Schema="[sys]" Database="[tempdb]">
+							</StatisticsInfo>
+						</OptimizerStatsUsage>
+						<RelOp NodeId="0" PhysicalOp="Hash Match" LogicalOp="Right Outer Join" EstimateRows="2613.32" EstimateIO="0" EstimateCPU="0.0390218" AvgRowSize="237" EstimatedTotalSubtreeCost="0.1144" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+							<OutputList>
+								<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="id">
+								</ColumnReference>
+								<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="name">
+								</ColumnReference>
+								<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="nsid">
+								</ColumnReference>
+								<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="pid">
+								</ColumnReference>
+								<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="created">
+								</ColumnReference>
+								<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="modified">
+								</ColumnReference>
+								<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[syssingleobjrefs]" Alias="[r]" Column="indepid">
+								</ColumnReference>
+								<ColumnReference Database="[mssqlsystemresource]" Schema="[sys]" Table="[syspalnames]" Alias="[n]" Column="name">
+								</ColumnReference>
+								<ColumnReference Column="Expr1003">
+								</ColumnReference>
+								<ColumnReference Column="Expr1004">
+								</ColumnReference>
+								<ColumnReference Column="Expr1005">
+								</ColumnReference>
+								<ColumnReference Column="Expr1006">
+								</ColumnReference>
+							</OutputList>
+							<MemoryFractions Input="0.5" Output="0.5">
+							</MemoryFractions>
+							<Hash>
+								<DefinedValues>
+								</DefinedValues>
+								<HashKeysBuild>
+									<ColumnReference Database="[mssqlsystemresource]" Schema="[sys]" Table="[syspalnames]" Alias="[n]" Column="value">
+									</ColumnReference>
+								</HashKeysBuild>
+								<HashKeysProbe>
+									<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="type">
+									</ColumnReference>
+								</HashKeysProbe>
+								<ProbeResidual>
+									<ScalarOperator ScalarString="[mssqlsystemresource].[sys].[syspalnames].[value] as [n].[value]=[tempdb].[sys].[sysschobjs].[type] as [o].[type]">
+										<Compare CompareOp="EQ">
+											<ScalarOperator>
+												<Identifier>
+													<ColumnReference Database="[mssqlsystemresource]" Schema="[sys]" Table="[syspalnames]" Alias="[n]" Column="value">
+													</ColumnReference>
+												</Identifier>
+											</ScalarOperator>
+											<ScalarOperator>
+												<Identifier>
+													<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="type">
+													</ColumnReference>
+												</Identifier>
+											</ScalarOperator>
+										</Compare>
+									</ScalarOperator>
+								</ProbeResidual>
+								<RelOp NodeId="1" PhysicalOp="Clustered Index Seek" LogicalOp="Clustered Index Seek" EstimateRows="32" EstimatedRowsRead="32" EstimateIO="0.003125" EstimateCPU="0.0001922" AvgRowSize="74" EstimatedTotalSubtreeCost="0.0033172" TableCardinality="159" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+									<OutputList>
+										<ColumnReference Database="[mssqlsystemresource]" Schema="[sys]" Table="[syspalnames]" Alias="[n]" Column="value">
+										</ColumnReference>
+										<ColumnReference Database="[mssqlsystemresource]" Schema="[sys]" Table="[syspalnames]" Alias="[n]" Column="name">
+										</ColumnReference>
+									</OutputList>
+									<IndexScan Ordered="1" ScanDirection="FORWARD" ForcedIndex="0" ForceSeek="0" ForceScan="0" NoExpandHint="0" Storage="RowStore">
+										<DefinedValues>
+											<DefinedValue>
+												<ColumnReference Database="[mssqlsystemresource]" Schema="[sys]" Table="[syspalnames]" Alias="[n]" Column="value">
+												</ColumnReference>
+											</DefinedValue>
+											<DefinedValue>
+												<ColumnReference Database="[mssqlsystemresource]" Schema="[sys]" Table="[syspalnames]" Alias="[n]" Column="name">
+												</ColumnReference>
+											</DefinedValue>
+										</DefinedValues>
+										<Object Database="[mssqlsystemresource]" Schema="[sys]" Table="[syspalnames]" Index="[cl]" Alias="[n]" IndexKind="Clustered" Storage="RowStore">
+										</Object>
+										<SeekPredicates>
+											<SeekPredicateNew>
+												<SeekKeys>
+													<Prefix ScanType="EQ">
+														<RangeColumns>
+															<ColumnReference Database="[mssqlsystemresource]" Schema="[sys]" Table="[syspalnames]" Alias="[n]" Column="class">
+															</ColumnReference>
+														</RangeColumns>
+														<RangeExpressions>
+															<ScalarOperator ScalarString="&apos;OBTY&apos;">
+																<Const ConstValue="&apos;OBTY&apos;">
+																</Const>
+															</ScalarOperator>
+														</RangeExpressions>
+													</Prefix>
+												</SeekKeys>
+											</SeekPredicateNew>
+										</SeekPredicates>
+									</IndexScan>
+								</RelOp>
+								<RelOp NodeId="2" PhysicalOp="Hash Match" LogicalOp="Right Outer Join" EstimateRows="2549.25" EstimateIO="0" EstimateCPU="0.0313761" AvgRowSize="177" EstimatedTotalSubtreeCost="0.0720583" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+									<OutputList>
+										<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="id">
+										</ColumnReference>
+										<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="name">
+										</ColumnReference>
+										<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="nsid">
+										</ColumnReference>
+										<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="type">
+										</ColumnReference>
+										<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="pid">
+										</ColumnReference>
+										<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="created">
+										</ColumnReference>
+										<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="modified">
+										</ColumnReference>
+										<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[syssingleobjrefs]" Alias="[r]" Column="indepid">
+										</ColumnReference>
+										<ColumnReference Column="Expr1003">
+										</ColumnReference>
+										<ColumnReference Column="Expr1004">
+										</ColumnReference>
+										<ColumnReference Column="Expr1005">
+										</ColumnReference>
+										<ColumnReference Column="Expr1006">
+										</ColumnReference>
+									</OutputList>
+									<MemoryFractions Input="0.5" Output="0.5">
+									</MemoryFractions>
+									<Hash>
+										<DefinedValues>
+										</DefinedValues>
+										<HashKeysBuild>
+											<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[syssingleobjrefs]" Alias="[r]" Column="depid">
+											</ColumnReference>
+										</HashKeysBuild>
+										<HashKeysProbe>
+											<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="id">
+											</ColumnReference>
+										</HashKeysProbe>
+										<RelOp NodeId="3" PhysicalOp="Index Scan" LogicalOp="Index Scan" EstimateRows="1" EstimatedRowsRead="183" EstimateIO="0.003125" EstimateCPU="0.0003583" AvgRowSize="20" EstimatedTotalSubtreeCost="0.0034833" TableCardinality="183" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+											<OutputList>
+												<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[syssingleobjrefs]" Alias="[r]" Column="depid">
+												</ColumnReference>
+												<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[syssingleobjrefs]" Alias="[r]" Column="indepid">
+												</ColumnReference>
+											</OutputList>
+											<IndexScan Ordered="0" ForcedIndex="0" ForceSeek="0" ForceScan="0" NoExpandHint="0" Storage="RowStore">
+												<DefinedValues>
+													<DefinedValue>
+														<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[syssingleobjrefs]" Alias="[r]" Column="depid">
+														</ColumnReference>
+													</DefinedValue>
+													<DefinedValue>
+														<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[syssingleobjrefs]" Alias="[r]" Column="indepid">
+														</ColumnReference>
+													</DefinedValue>
+												</DefinedValues>
+												<Object Database="[tempdb]" Schema="[sys]" Table="[syssingleobjrefs]" Index="[nc1]" Alias="[r]" IndexKind="NonClustered" Storage="RowStore">
+												</Object>
+												<Predicate>
+													<ScalarOperator ScalarString="[tempdb].[sys].[syssingleobjrefs].[class] as [r].[class]=(97) AND [tempdb].[sys].[syssingleobjrefs].[depsubid] as [r].[depsubid]=(0)">
+														<Logical Operation="AND">
+															<ScalarOperator>
+																<Compare CompareOp="EQ">
+																	<ScalarOperator>
+																		<Identifier>
+																			<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[syssingleobjrefs]" Alias="[r]" Column="class">
+																			</ColumnReference>
+																		</Identifier>
+																	</ScalarOperator>
+																	<ScalarOperator>
+																		<Const ConstValue="(97)">
+																		</Const>
+																	</ScalarOperator>
+																</Compare>
+															</ScalarOperator>
+															<ScalarOperator>
+																<Compare CompareOp="EQ">
+																	<ScalarOperator>
+																		<Identifier>
+																			<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[syssingleobjrefs]" Alias="[r]" Column="depsubid">
+																			</ColumnReference>
+																		</Identifier>
+																	</ScalarOperator>
+																	<ScalarOperator>
+																		<Const ConstValue="(0)">
+																		</Const>
+																	</ScalarOperator>
+																</Compare>
+															</ScalarOperator>
+														</Logical>
+													</ScalarOperator>
+												</Predicate>
+											</IndexScan>
+										</RelOp>
+										<RelOp NodeId="4" PhysicalOp="Filter" LogicalOp="Filter" EstimateRows="2549" EstimateIO="0" EstimateCPU="0.00402742" AvgRowSize="173" EstimatedTotalSubtreeCost="0.0370349" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+											<OutputList>
+												<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="id">
+												</ColumnReference>
+												<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="name">
+												</ColumnReference>
+												<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="nsid">
+												</ColumnReference>
+												<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="type">
+												</ColumnReference>
+												<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="pid">
+												</ColumnReference>
+												<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="created">
+												</ColumnReference>
+												<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="modified">
+												</ColumnReference>
+												<ColumnReference Column="Expr1003">
+												</ColumnReference>
+												<ColumnReference Column="Expr1004">
+												</ColumnReference>
+												<ColumnReference Column="Expr1005">
+												</ColumnReference>
+												<ColumnReference Column="Expr1006">
+												</ColumnReference>
+											</OutputList>
+											<Filter StartupExpression="0">
+												<RelOp NodeId="5" PhysicalOp="Compute Scalar" LogicalOp="Compute Scalar" EstimateRows="2549" EstimateIO="0" EstimateCPU="0.0002549" AvgRowSize="174" EstimatedTotalSubtreeCost="0.0330075" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+													<OutputList>
+														<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="id">
+														</ColumnReference>
+														<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="name">
+														</ColumnReference>
+														<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="nsid">
+														</ColumnReference>
+														<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="type">
+														</ColumnReference>
+														<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="pid">
+														</ColumnReference>
+														<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="created">
+														</ColumnReference>
+														<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="modified">
+														</ColumnReference>
+														<ColumnReference Column="Expr1003">
+														</ColumnReference>
+														<ColumnReference Column="Expr1004">
+														</ColumnReference>
+														<ColumnReference Column="Expr1005">
+														</ColumnReference>
+														<ColumnReference Column="Expr1006">
+														</ColumnReference>
+													</OutputList>
+													<ComputeScalar>
+														<DefinedValues>
+															<DefinedValue>
+																<ColumnReference Column="Expr1003">
+																</ColumnReference>
+																<ScalarOperator ScalarString="CONVERT(char(2),CASE WHEN [tempdb].[sys].[sysschobjs].[type] as [o].[type]=&apos;ET&apos; THEN &apos;U&apos; ELSE [tempdb].[sys].[sysschobjs].[type] as [o].[type] END,0)">
+																	<Convert DataType="char" Length="2" Style="0" Implicit="0">
+																		<ScalarOperator>
+																			<IF>
+																				<Condition>
+																					<ScalarOperator>
+																						<Compare CompareOp="EQ">
+																							<ScalarOperator>
+																								<Identifier>
+																									<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="type">
+																									</ColumnReference>
+																								</Identifier>
+																							</ScalarOperator>
+																							<ScalarOperator>
+																								<Const ConstValue="&apos;ET&apos;">
+																								</Const>
+																							</ScalarOperator>
+																						</Compare>
+																					</ScalarOperator>
+																				</Condition>
+																				<Then>
+																					<ScalarOperator>
+																						<Const ConstValue="&apos;U&apos;">
+																						</Const>
+																					</ScalarOperator>
+																				</Then>
+																				<Else>
+																					<ScalarOperator>
+																						<Identifier>
+																							<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="type">
+																							</ColumnReference>
+																						</Identifier>
+																					</ScalarOperator>
+																				</Else>
+																			</IF>
+																		</ScalarOperator>
+																	</Convert>
+																</ScalarOperator>
+															</DefinedValue>
+															<DefinedValue>
+																<ColumnReference Column="Expr1004">
+																</ColumnReference>
+																<ScalarOperator ScalarString="CONVERT(bit,[tempdb].[sys].[sysschobjs].[status] as [o].[status]&amp;(1),0)">
+																	<Convert DataType="bit" Style="0" Implicit="0">
+																		<ScalarOperator>
+																			<Arithmetic Operation="BIT_AND">
+																				<ScalarOperator>
+																					<Identifier>
+																						<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="status">
+																						</ColumnReference>
+																					</Identifier>
+																				</ScalarOperator>
+																				<ScalarOperator>
+																					<Const ConstValue="(1)">
+																					</Const>
+																				</ScalarOperator>
+																			</Arithmetic>
+																		</ScalarOperator>
+																	</Convert>
+																</ScalarOperator>
+															</DefinedValue>
+															<DefinedValue>
+																<ColumnReference Column="Expr1005">
+																</ColumnReference>
+																<ScalarOperator ScalarString="CONVERT(bit,[tempdb].[sys].[sysschobjs].[status] as [o].[status]&amp;(16),0)">
+																	<Convert DataType="bit" Style="0" Implicit="0">
+																		<ScalarOperator>
+																			<Arithmetic Operation="BIT_AND">
+																				<ScalarOperator>
+																					<Identifier>
+																						<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="status">
+																						</ColumnReference>
+																					</Identifier>
+																				</ScalarOperator>
+																				<ScalarOperator>
+																					<Const ConstValue="(16)">
+																					</Const>
+																				</ScalarOperator>
+																			</Arithmetic>
+																		</ScalarOperator>
+																	</Convert>
+																</ScalarOperator>
+															</DefinedValue>
+															<DefinedValue>
+																<ColumnReference Column="Expr1006">
+																</ColumnReference>
+																<ScalarOperator ScalarString="CONVERT(bit,[tempdb].[sys].[sysschobjs].[status] as [o].[status]&amp;(64),0)">
+																	<Convert DataType="bit" Style="0" Implicit="0">
+																		<ScalarOperator>
+																			<Arithmetic Operation="BIT_AND">
+																				<ScalarOperator>
+																					<Identifier>
+																						<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="status">
+																						</ColumnReference>
+																					</Identifier>
+																				</ScalarOperator>
+																				<ScalarOperator>
+																					<Const ConstValue="(64)">
+																					</Const>
+																				</ScalarOperator>
+																			</Arithmetic>
+																		</ScalarOperator>
+																	</Convert>
+																</ScalarOperator>
+															</DefinedValue>
+														</DefinedValues>
+														<RelOp NodeId="6" PhysicalOp="Clustered Index Scan" LogicalOp="Clustered Index Scan" EstimateRows="2549" EstimatedRowsRead="2549" EstimateIO="0.0297917" EstimateCPU="0.0029609" AvgRowSize="175" EstimatedTotalSubtreeCost="0.0327526" TableCardinality="2549" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+															<OutputList>
+																<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="id">
+																</ColumnReference>
+																<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="name">
+																</ColumnReference>
+																<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="nsid">
+																</ColumnReference>
+																<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="status">
+																</ColumnReference>
+																<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="type">
+																</ColumnReference>
+																<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="pid">
+																</ColumnReference>
+																<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="created">
+																</ColumnReference>
+																<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="modified">
+																</ColumnReference>
+															</OutputList>
+															<IndexScan Ordered="0" ForcedIndex="0" ForceScan="0" NoExpandHint="0" Storage="RowStore">
+																<DefinedValues>
+																	<DefinedValue>
+																		<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="id">
+																		</ColumnReference>
+																	</DefinedValue>
+																	<DefinedValue>
+																		<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="name">
+																		</ColumnReference>
+																	</DefinedValue>
+																	<DefinedValue>
+																		<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="nsid">
+																		</ColumnReference>
+																	</DefinedValue>
+																	<DefinedValue>
+																		<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="status">
+																		</ColumnReference>
+																	</DefinedValue>
+																	<DefinedValue>
+																		<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="type">
+																		</ColumnReference>
+																	</DefinedValue>
+																	<DefinedValue>
+																		<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="pid">
+																		</ColumnReference>
+																	</DefinedValue>
+																	<DefinedValue>
+																		<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="created">
+																		</ColumnReference>
+																	</DefinedValue>
+																	<DefinedValue>
+																		<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="modified">
+																		</ColumnReference>
+																	</DefinedValue>
+																</DefinedValues>
+																<Object Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Index="[clst]" Alias="[o]" IndexKind="Clustered" Storage="RowStore">
+																</Object>
+																<Predicate>
+																	<ScalarOperator ScalarString="[tempdb].[sys].[sysschobjs].[nsclass] as [o].[nsclass]&lt;&gt;(20) AND [tempdb].[sys].[sysschobjs].[nsclass] as [o].[nsclass]&lt;&gt;(21)">
+																		<Logical Operation="AND">
+																			<ScalarOperator>
+																				<Compare CompareOp="NE">
+																					<ScalarOperator>
+																						<Identifier>
+																							<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="nsclass">
+																							</ColumnReference>
+																						</Identifier>
+																					</ScalarOperator>
+																					<ScalarOperator>
+																						<Const ConstValue="(20)">
+																						</Const>
+																					</ScalarOperator>
+																				</Compare>
+																			</ScalarOperator>
+																			<ScalarOperator>
+																				<Compare CompareOp="NE">
+																					<ScalarOperator>
+																						<Identifier>
+																							<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="nsclass">
+																							</ColumnReference>
+																						</Identifier>
+																					</ScalarOperator>
+																					<ScalarOperator>
+																						<Const ConstValue="(21)">
+																						</Const>
+																					</ScalarOperator>
+																				</Compare>
+																			</ScalarOperator>
+																		</Logical>
+																	</ScalarOperator>
+																</Predicate>
+															</IndexScan>
+														</RelOp>
+													</ComputeScalar>
+												</RelOp>
+												<Predicate>
+													<ScalarOperator ScalarString="has_access(&apos;AO&apos;,[tempdb].[sys].[sysschobjs].[id] as [o].[id])=(1)">
+														<Compare CompareOp="EQ">
+															<ScalarOperator>
+																<Intrinsic FunctionName="has_access">
+																	<ScalarOperator>
+																		<Const ConstValue="&apos;AO&apos;">
+																		</Const>
+																	</ScalarOperator>
+																	<ScalarOperator>
+																		<Identifier>
+																			<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="id">
+																			</ColumnReference>
+																		</Identifier>
+																	</ScalarOperator>
+																	<ScalarOperator>
+																		<Const ConstValue="">
+																		</Const>
+																	</ScalarOperator>
+																	<ScalarOperator>
+																		<Const ConstValue="">
+																		</Const>
+																	</ScalarOperator>
+																</Intrinsic>
+															</ScalarOperator>
+															<ScalarOperator>
+																<Const ConstValue="(1)">
+																</Const>
+															</ScalarOperator>
+														</Compare>
+													</ScalarOperator>
+												</Predicate>
+											</Filter>
+										</RelOp>
+									</Hash>
+								</RelOp>
+							</Hash>
+						</RelOp>
+					</QueryPlan>
+				</StmtSimple>
+				<StmtSimple StatementText="&#xd;&#xa;&#xd;&#xa;select * from sys.all_views" StatementId="4" StatementCompId="4" StatementType="SELECT" RetrievedFromCache="false" StatementSubTreeCost="0.176081" StatementEstRows="678.599" SecurityPolicyApplied="false" StatementOptmLevel="FULL" QueryHash="0x6F43820DC66676A7" QueryPlanHash="0x3238B477D6248087" StatementOptmEarlyAbortReason="GoodEnoughPlanFound" CardinalityEstimationModelVersion="150">
+					<StatementSetOptions QUOTED_IDENTIFIER="true" ARITHABORT="true" CONCAT_NULL_YIELDS_NULL="true" ANSI_NULLS="true" ANSI_PADDING="true" ANSI_WARNINGS="true" NUMERIC_ROUNDABORT="false">
+					</StatementSetOptions>
+					<QueryPlan NonParallelPlanReason="CouldNotGenerateValidParallelPlan" CachedPlanSize="96" CompileTime="3" CompileCPU="3" CompileMemory="760">
+						<MemoryGrantInfo SerialRequiredMemory="1024" SerialDesiredMemory="1080" GrantedMemory="0" MaxUsedMemory="0">
+						</MemoryGrantInfo>
+						<OptimizerHardwareDependentProperties EstimatedAvailableMemoryGrant="139456" EstimatedPagesCached="209184" EstimatedAvailableDegreeOfParallelism="12" MaxCompileMemory="19624">
+						</OptimizerHardwareDependentProperties>
+						<OptimizerStatsUsage>
+							<StatisticsInfo LastUpdate="2021-10-26T16:11:47.29" ModificationCount="142" SamplingPercent="100" Statistics="[_WA_Sys_00000001_0000004A]" Table="[syssingleobjrefs]" Schema="[sys]" Database="[tempdb]">
+							</StatisticsInfo>
+							<StatisticsInfo LastUpdate="2022-01-26T13:20:38.59" ModificationCount="674" SamplingPercent="100" Statistics="[_WA_Sys_00000006_00000022]" Table="[sysschobjs]" Schema="[sys]" Database="[tempdb]">
+							</StatisticsInfo>
+							<StatisticsInfo LastUpdate="2022-01-26T13:20:38.59" ModificationCount="674" SamplingPercent="100" Statistics="[nc1]" Table="[sysschobjs]" Schema="[sys]" Database="[tempdb]">
+							</StatisticsInfo>
+							<StatisticsInfo LastUpdate="2009-04-13T12:59:17.25" ModificationCount="230" SamplingPercent="100" Statistics="[clst]" Table="[syssingleobjrefs]" Schema="[sys]" Database="[tempdb]">
+							</StatisticsInfo>
+							<StatisticsInfo LastUpdate="2022-01-26T13:20:38.59" ModificationCount="674" SamplingPercent="100" Statistics="[clst]" Table="[sysschobjs]" Schema="[sys]" Database="[tempdb]">
+							</StatisticsInfo>
+							<StatisticsInfo LastUpdate="2022-01-26T13:20:38.60" ModificationCount="674" SamplingPercent="100" Statistics="[nc2]" Table="[sysschobjs]" Schema="[sys]" Database="[tempdb]">
+							</StatisticsInfo>
+							<StatisticsInfo LastUpdate="2022-01-26T13:20:38.59" ModificationCount="674" SamplingPercent="100" Statistics="[nc3]" Table="[sysschobjs]" Schema="[sys]" Database="[tempdb]">
+							</StatisticsInfo>
+							<StatisticsInfo LastUpdate="2009-04-13T12:59:17.25" ModificationCount="230" SamplingPercent="100" Statistics="[nc1]" Table="[syssingleobjrefs]" Schema="[sys]" Database="[tempdb]">
+							</StatisticsInfo>
+							<StatisticsInfo LastUpdate="2022-01-26T13:20:38.58" ModificationCount="674" SamplingPercent="100" Statistics="[_WA_Sys_00000008_00000022]" Table="[sysschobjs]" Schema="[sys]" Database="[tempdb]">
+							</StatisticsInfo>
+							<StatisticsInfo LastUpdate="2021-10-26T16:11:47.29" ModificationCount="142" SamplingPercent="100" Statistics="[_WA_Sys_00000003_0000004A]" Table="[syssingleobjrefs]" Schema="[sys]" Database="[tempdb]">
+							</StatisticsInfo>
+						</OptimizerStatsUsage>
+						<RelOp NodeId="0" PhysicalOp="Nested Loops" LogicalOp="Left Outer Join" EstimateRows="678.599" EstimateIO="0" EstimateCPU="0.00283654" AvgRowSize="239" EstimatedTotalSubtreeCost="0.176081" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+							<OutputList>
+								<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="id">
+								</ColumnReference>
+								<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="name">
+								</ColumnReference>
+								<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="nsid">
+								</ColumnReference>
+								<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="type">
+								</ColumnReference>
+								<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="pid">
+								</ColumnReference>
+								<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="created">
+								</ColumnReference>
+								<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="modified">
+								</ColumnReference>
+								<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[syssingleobjrefs]" Alias="[r]" Column="indepid">
+								</ColumnReference>
+								<ColumnReference Database="[mssqlsystemresource]" Schema="[sys]" Table="[syspalnames]" Alias="[n]" Column="name">
+								</ColumnReference>
+								<ColumnReference Column="Expr1003">
+								</ColumnReference>
+								<ColumnReference Column="Expr1004">
+								</ColumnReference>
+								<ColumnReference Column="Expr1005">
+								</ColumnReference>
+								<ColumnReference Column="Expr1006">
+								</ColumnReference>
+								<ColumnReference Column="Expr1007">
+								</ColumnReference>
+								<ColumnReference Column="Expr1008">
+								</ColumnReference>
+								<ColumnReference Column="Expr1009">
+								</ColumnReference>
+								<ColumnReference Column="Expr1010">
+								</ColumnReference>
+								<ColumnReference Column="Expr1011">
+								</ColumnReference>
+								<ColumnReference Column="Expr1012">
+								</ColumnReference>
+								<ColumnReference Column="Expr1013">
+								</ColumnReference>
+							</OutputList>
+							<NestedLoops Optimized="0">
+								<RelOp NodeId="1" PhysicalOp="Hash Match" LogicalOp="Right Outer Join" EstimateRows="678.599" EstimateIO="0" EstimateCPU="0.0213857" AvgRowSize="177" EstimatedTotalSubtreeCost="0.0628327" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+									<OutputList>
+										<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="id">
+										</ColumnReference>
+										<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="name">
+										</ColumnReference>
+										<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="nsid">
+										</ColumnReference>
+										<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="type">
+										</ColumnReference>
+										<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="pid">
+										</ColumnReference>
+										<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="created">
+										</ColumnReference>
+										<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="modified">
+										</ColumnReference>
+										<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[syssingleobjrefs]" Alias="[r]" Column="indepid">
+										</ColumnReference>
+										<ColumnReference Column="Expr1003">
+										</ColumnReference>
+										<ColumnReference Column="Expr1004">
+										</ColumnReference>
+										<ColumnReference Column="Expr1005">
+										</ColumnReference>
+										<ColumnReference Column="Expr1006">
+										</ColumnReference>
+										<ColumnReference Column="Expr1007">
+										</ColumnReference>
+										<ColumnReference Column="Expr1008">
+										</ColumnReference>
+										<ColumnReference Column="Expr1009">
+										</ColumnReference>
+										<ColumnReference Column="Expr1010">
+										</ColumnReference>
+										<ColumnReference Column="Expr1011">
+										</ColumnReference>
+										<ColumnReference Column="Expr1012">
+										</ColumnReference>
+										<ColumnReference Column="Expr1013">
+										</ColumnReference>
+									</OutputList>
+									<MemoryFractions Input="1" Output="1">
+									</MemoryFractions>
+									<Hash>
+										<DefinedValues>
+										</DefinedValues>
+										<HashKeysBuild>
+											<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[syssingleobjrefs]" Alias="[r]" Column="depid">
+											</ColumnReference>
+										</HashKeysBuild>
+										<HashKeysProbe>
+											<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="id">
+											</ColumnReference>
+										</HashKeysProbe>
+										<RelOp NodeId="2" PhysicalOp="Index Scan" LogicalOp="Index Scan" EstimateRows="1" EstimatedRowsRead="183" EstimateIO="0.003125" EstimateCPU="0.0003583" AvgRowSize="20" EstimatedTotalSubtreeCost="0.0034833" TableCardinality="183" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+											<OutputList>
+												<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[syssingleobjrefs]" Alias="[r]" Column="depid">
+												</ColumnReference>
+												<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[syssingleobjrefs]" Alias="[r]" Column="indepid">
+												</ColumnReference>
+											</OutputList>
+											<IndexScan Ordered="0" ForcedIndex="0" ForceSeek="0" ForceScan="0" NoExpandHint="0" Storage="RowStore">
+												<DefinedValues>
+													<DefinedValue>
+														<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[syssingleobjrefs]" Alias="[r]" Column="depid">
+														</ColumnReference>
+													</DefinedValue>
+													<DefinedValue>
+														<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[syssingleobjrefs]" Alias="[r]" Column="indepid">
+														</ColumnReference>
+													</DefinedValue>
+												</DefinedValues>
+												<Object Database="[tempdb]" Schema="[sys]" Table="[syssingleobjrefs]" Index="[nc1]" Alias="[r]" IndexKind="NonClustered" Storage="RowStore">
+												</Object>
+												<Predicate>
+													<ScalarOperator ScalarString="[tempdb].[sys].[syssingleobjrefs].[class] as [r].[class]=(97) AND [tempdb].[sys].[syssingleobjrefs].[depsubid] as [r].[depsubid]=(0)">
+														<Logical Operation="AND">
+															<ScalarOperator>
+																<Compare CompareOp="EQ">
+																	<ScalarOperator>
+																		<Identifier>
+																			<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[syssingleobjrefs]" Alias="[r]" Column="class">
+																			</ColumnReference>
+																		</Identifier>
+																	</ScalarOperator>
+																	<ScalarOperator>
+																		<Const ConstValue="(97)">
+																		</Const>
+																	</ScalarOperator>
+																</Compare>
+															</ScalarOperator>
+															<ScalarOperator>
+																<Compare CompareOp="EQ">
+																	<ScalarOperator>
+																		<Identifier>
+																			<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[syssingleobjrefs]" Alias="[r]" Column="depsubid">
+																			</ColumnReference>
+																		</Identifier>
+																	</ScalarOperator>
+																	<ScalarOperator>
+																		<Const ConstValue="(0)">
+																		</Const>
+																	</ScalarOperator>
+																</Compare>
+															</ScalarOperator>
+														</Logical>
+													</ScalarOperator>
+												</Predicate>
+											</IndexScan>
+										</RelOp>
+										<RelOp NodeId="3" PhysicalOp="Filter" LogicalOp="Filter" EstimateRows="678.532" EstimateIO="0" EstimateCPU="0.00479212" AvgRowSize="173" EstimatedTotalSubtreeCost="0.0377996" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+											<OutputList>
+												<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="id">
+												</ColumnReference>
+												<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="name">
+												</ColumnReference>
+												<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="nsid">
+												</ColumnReference>
+												<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="type">
+												</ColumnReference>
+												<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="pid">
+												</ColumnReference>
+												<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="created">
+												</ColumnReference>
+												<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="modified">
+												</ColumnReference>
+												<ColumnReference Column="Expr1003">
+												</ColumnReference>
+												<ColumnReference Column="Expr1004">
+												</ColumnReference>
+												<ColumnReference Column="Expr1005">
+												</ColumnReference>
+												<ColumnReference Column="Expr1006">
+												</ColumnReference>
+												<ColumnReference Column="Expr1007">
+												</ColumnReference>
+												<ColumnReference Column="Expr1008">
+												</ColumnReference>
+												<ColumnReference Column="Expr1009">
+												</ColumnReference>
+												<ColumnReference Column="Expr1010">
+												</ColumnReference>
+												<ColumnReference Column="Expr1011">
+												</ColumnReference>
+												<ColumnReference Column="Expr1012">
+												</ColumnReference>
+												<ColumnReference Column="Expr1013">
+												</ColumnReference>
+											</OutputList>
+											<Filter StartupExpression="0">
+												<RelOp NodeId="4" PhysicalOp="Compute Scalar" LogicalOp="Compute Scalar" EstimateRows="678.532" EstimateIO="0" EstimateCPU="0.0002549" AvgRowSize="175" EstimatedTotalSubtreeCost="0.0330075" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+													<OutputList>
+														<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="id">
+														</ColumnReference>
+														<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="name">
+														</ColumnReference>
+														<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="nsid">
+														</ColumnReference>
+														<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="type">
+														</ColumnReference>
+														<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="pid">
+														</ColumnReference>
+														<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="created">
+														</ColumnReference>
+														<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="modified">
+														</ColumnReference>
+														<ColumnReference Column="Expr1003">
+														</ColumnReference>
+														<ColumnReference Column="Expr1004">
+														</ColumnReference>
+														<ColumnReference Column="Expr1005">
+														</ColumnReference>
+														<ColumnReference Column="Expr1006">
+														</ColumnReference>
+														<ColumnReference Column="Expr1007">
+														</ColumnReference>
+														<ColumnReference Column="Expr1008">
+														</ColumnReference>
+														<ColumnReference Column="Expr1009">
+														</ColumnReference>
+														<ColumnReference Column="Expr1010">
+														</ColumnReference>
+														<ColumnReference Column="Expr1011">
+														</ColumnReference>
+														<ColumnReference Column="Expr1012">
+														</ColumnReference>
+														<ColumnReference Column="Expr1013">
+														</ColumnReference>
+													</OutputList>
+													<ComputeScalar>
+														<DefinedValues>
+															<DefinedValue>
+																<ColumnReference Column="Expr1003">
+																</ColumnReference>
+																<ScalarOperator ScalarString="CONVERT(bit,[tempdb].[sys].[sysschobjs].[status] as [o].[status]&amp;(1),0)">
+																	<Convert DataType="bit" Style="0" Implicit="0">
+																		<ScalarOperator>
+																			<Arithmetic Operation="BIT_AND">
+																				<ScalarOperator>
+																					<Identifier>
+																						<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="status">
+																						</ColumnReference>
+																					</Identifier>
+																				</ScalarOperator>
+																				<ScalarOperator>
+																					<Const ConstValue="(1)">
+																					</Const>
+																				</ScalarOperator>
+																			</Arithmetic>
+																		</ScalarOperator>
+																	</Convert>
+																</ScalarOperator>
+															</DefinedValue>
+															<DefinedValue>
+																<ColumnReference Column="Expr1004">
+																</ColumnReference>
+																<ScalarOperator ScalarString="CONVERT(bit,[tempdb].[sys].[sysschobjs].[status] as [o].[status]&amp;(16),0)">
+																	<Convert DataType="bit" Style="0" Implicit="0">
+																		<ScalarOperator>
+																			<Arithmetic Operation="BIT_AND">
+																				<ScalarOperator>
+																					<Identifier>
+																						<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="status">
+																						</ColumnReference>
+																					</Identifier>
+																				</ScalarOperator>
+																				<ScalarOperator>
+																					<Const ConstValue="(16)">
+																					</Const>
+																				</ScalarOperator>
+																			</Arithmetic>
+																		</ScalarOperator>
+																	</Convert>
+																</ScalarOperator>
+															</DefinedValue>
+															<DefinedValue>
+																<ColumnReference Column="Expr1005">
+																</ColumnReference>
+																<ScalarOperator ScalarString="CONVERT(bit,[tempdb].[sys].[sysschobjs].[status] as [o].[status]&amp;(64),0)">
+																	<Convert DataType="bit" Style="0" Implicit="0">
+																		<ScalarOperator>
+																			<Arithmetic Operation="BIT_AND">
+																				<ScalarOperator>
+																					<Identifier>
+																						<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="status">
+																						</ColumnReference>
+																					</Identifier>
+																				</ScalarOperator>
+																				<ScalarOperator>
+																					<Const ConstValue="(64)">
+																					</Const>
+																				</ScalarOperator>
+																			</Arithmetic>
+																		</ScalarOperator>
+																	</Convert>
+																</ScalarOperator>
+															</DefinedValue>
+															<DefinedValue>
+																<ColumnReference Column="Expr1006">
+																</ColumnReference>
+																<ScalarOperator ScalarString="CONVERT(bit,[tempdb].[sys].[sysschobjs].[status] as [o].[status]&amp;(4096),0)">
+																	<Convert DataType="bit" Style="0" Implicit="0">
+																		<ScalarOperator>
+																			<Arithmetic Operation="BIT_AND">
+																				<ScalarOperator>
+																					<Identifier>
+																						<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="status">
+																						</ColumnReference>
+																					</Identifier>
+																				</ScalarOperator>
+																				<ScalarOperator>
+																					<Const ConstValue="(4096)">
+																					</Const>
+																				</ScalarOperator>
+																			</Arithmetic>
+																		</ScalarOperator>
+																	</Convert>
+																</ScalarOperator>
+															</DefinedValue>
+															<DefinedValue>
+																<ColumnReference Column="Expr1007">
+																</ColumnReference>
+																<ScalarOperator ScalarString="CONVERT(bit,[tempdb].[sys].[sysschobjs].[status] as [o].[status]&amp;(8192),0)">
+																	<Convert DataType="bit" Style="0" Implicit="0">
+																		<ScalarOperator>
+																			<Arithmetic Operation="BIT_AND">
+																				<ScalarOperator>
+																					<Identifier>
+																						<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="status">
+																						</ColumnReference>
+																					</Identifier>
+																				</ScalarOperator>
+																				<ScalarOperator>
+																					<Const ConstValue="(8192)">
+																					</Const>
+																				</ScalarOperator>
+																			</Arithmetic>
+																		</ScalarOperator>
+																	</Convert>
+																</ScalarOperator>
+															</DefinedValue>
+															<DefinedValue>
+																<ColumnReference Column="Expr1008">
+																</ColumnReference>
+																<ScalarOperator ScalarString="CONVERT(bit,[tempdb].[sys].[sysschobjs].[status] as [o].[status]&amp;(512),0)">
+																	<Convert DataType="bit" Style="0" Implicit="0">
+																		<ScalarOperator>
+																			<Arithmetic Operation="BIT_AND">
+																				<ScalarOperator>
+																					<Identifier>
+																						<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="status">
+																						</ColumnReference>
+																					</Identifier>
+																				</ScalarOperator>
+																				<ScalarOperator>
+																					<Const ConstValue="(512)">
+																					</Const>
+																				</ScalarOperator>
+																			</Arithmetic>
+																		</ScalarOperator>
+																	</Convert>
+																</ScalarOperator>
+															</DefinedValue>
+															<DefinedValue>
+																<ColumnReference Column="Expr1009">
+																</ColumnReference>
+																<ScalarOperator ScalarString="CONVERT(bit,[tempdb].[sys].[sysschobjs].[status] as [o].[status]&amp;(2048),0)">
+																	<Convert DataType="bit" Style="0" Implicit="0">
+																		<ScalarOperator>
+																			<Arithmetic Operation="BIT_AND">
+																				<ScalarOperator>
+																					<Identifier>
+																						<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="status">
+																						</ColumnReference>
+																					</Identifier>
+																				</ScalarOperator>
+																				<ScalarOperator>
+																					<Const ConstValue="(2048)">
+																					</Const>
+																				</ScalarOperator>
+																			</Arithmetic>
+																		</ScalarOperator>
+																	</Convert>
+																</ScalarOperator>
+															</DefinedValue>
+															<DefinedValue>
+																<ColumnReference Column="Expr1010">
+																</ColumnReference>
+																<ScalarOperator ScalarString="CONVERT(bit,[tempdb].[sys].[sysschobjs].[status] as [o].[status]&amp;(1024),0)">
+																	<Convert DataType="bit" Style="0" Implicit="0">
+																		<ScalarOperator>
+																			<Arithmetic Operation="BIT_AND">
+																				<ScalarOperator>
+																					<Identifier>
+																						<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="status">
+																						</ColumnReference>
+																					</Identifier>
+																				</ScalarOperator>
+																				<ScalarOperator>
+																					<Const ConstValue="(1024)">
+																					</Const>
+																				</ScalarOperator>
+																			</Arithmetic>
+																		</ScalarOperator>
+																	</Convert>
+																</ScalarOperator>
+															</DefinedValue>
+															<DefinedValue>
+																<ColumnReference Column="Expr1011">
+																</ColumnReference>
+																<ScalarOperator ScalarString="CONVERT(bit,[tempdb].[sys].[sysschobjs].[status] as [o].[status]&amp;(2),0)">
+																	<Convert DataType="bit" Style="0" Implicit="0">
+																		<ScalarOperator>
+																			<Arithmetic Operation="BIT_AND">
+																				<ScalarOperator>
+																					<Identifier>
+																						<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="status">
+																						</ColumnReference>
+																					</Identifier>
+																				</ScalarOperator>
+																				<ScalarOperator>
+																					<Const ConstValue="(2)">
+																					</Const>
+																				</ScalarOperator>
+																			</Arithmetic>
+																		</ScalarOperator>
+																	</Convert>
+																</ScalarOperator>
+															</DefinedValue>
+															<DefinedValue>
+																<ColumnReference Column="Expr1012">
+																</ColumnReference>
+																<ScalarOperator ScalarString="CONVERT(bit,[tempdb].[sys].[sysschobjs].[status] as [o].[status]&amp;(16777216),0)">
+																	<Convert DataType="bit" Style="0" Implicit="0">
+																		<ScalarOperator>
+																			<Arithmetic Operation="BIT_AND">
+																				<ScalarOperator>
+																					<Identifier>
+																						<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="status">
+																						</ColumnReference>
+																					</Identifier>
+																				</ScalarOperator>
+																				<ScalarOperator>
+																					<Const ConstValue="(16777216)">
+																					</Const>
+																				</ScalarOperator>
+																			</Arithmetic>
+																		</ScalarOperator>
+																	</Convert>
+																</ScalarOperator>
+															</DefinedValue>
+															<DefinedValue>
+																<ColumnReference Column="Expr1013">
+																</ColumnReference>
+																<ScalarOperator ScalarString="CONVERT(bit,[tempdb].[sys].[sysschobjs].[status2] as [o].[status2]&amp;(4096),0)">
+																	<Convert DataType="bit" Style="0" Implicit="0">
+																		<ScalarOperator>
+																			<Arithmetic Operation="BIT_AND">
+																				<ScalarOperator>
+																					<Identifier>
+																						<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="status2">
+																						</ColumnReference>
+																					</Identifier>
+																				</ScalarOperator>
+																				<ScalarOperator>
+																					<Const ConstValue="(4096)">
+																					</Const>
+																				</ScalarOperator>
+																			</Arithmetic>
+																		</ScalarOperator>
+																	</Convert>
+																</ScalarOperator>
+															</DefinedValue>
+														</DefinedValues>
+														<RelOp NodeId="5" PhysicalOp="Clustered Index Scan" LogicalOp="Clustered Index Scan" EstimateRows="678.532" EstimatedRowsRead="2549" EstimateIO="0.0297917" EstimateCPU="0.0029609" AvgRowSize="180" EstimatedTotalSubtreeCost="0.0327526" TableCardinality="2549" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+															<OutputList>
+																<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="id">
+																</ColumnReference>
+																<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="name">
+																</ColumnReference>
+																<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="nsid">
+																</ColumnReference>
+																<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="status">
+																</ColumnReference>
+																<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="type">
+																</ColumnReference>
+																<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="pid">
+																</ColumnReference>
+																<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="created">
+																</ColumnReference>
+																<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="modified">
+																</ColumnReference>
+																<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="status2">
+																</ColumnReference>
+															</OutputList>
+															<IndexScan Ordered="0" ForcedIndex="0" ForceScan="0" NoExpandHint="0" Storage="RowStore">
+																<DefinedValues>
+																	<DefinedValue>
+																		<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="id">
+																		</ColumnReference>
+																	</DefinedValue>
+																	<DefinedValue>
+																		<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="name">
+																		</ColumnReference>
+																	</DefinedValue>
+																	<DefinedValue>
+																		<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="nsid">
+																		</ColumnReference>
+																	</DefinedValue>
+																	<DefinedValue>
+																		<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="status">
+																		</ColumnReference>
+																	</DefinedValue>
+																	<DefinedValue>
+																		<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="type">
+																		</ColumnReference>
+																	</DefinedValue>
+																	<DefinedValue>
+																		<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="pid">
+																		</ColumnReference>
+																	</DefinedValue>
+																	<DefinedValue>
+																		<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="created">
+																		</ColumnReference>
+																	</DefinedValue>
+																	<DefinedValue>
+																		<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="modified">
+																		</ColumnReference>
+																	</DefinedValue>
+																	<DefinedValue>
+																		<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="status2">
+																		</ColumnReference>
+																	</DefinedValue>
+																</DefinedValues>
+																<Object Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Index="[clst]" Alias="[o]" IndexKind="Clustered" Storage="RowStore">
+																</Object>
+																<Predicate>
+																	<ScalarOperator ScalarString="[tempdb].[sys].[sysschobjs].[nsclass] as [o].[nsclass]=(0) AND [tempdb].[sys].[sysschobjs].[pclass] as [o].[pclass]=(1) AND [tempdb].[sys].[sysschobjs].[type] as [o].[type]=&apos;V&apos;">
+																		<Logical Operation="AND">
+																			<ScalarOperator>
+																				<Compare CompareOp="EQ">
+																					<ScalarOperator>
+																						<Identifier>
+																							<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="nsclass">
+																							</ColumnReference>
+																						</Identifier>
+																					</ScalarOperator>
+																					<ScalarOperator>
+																						<Const ConstValue="(0)">
+																						</Const>
+																					</ScalarOperator>
+																				</Compare>
+																			</ScalarOperator>
+																			<ScalarOperator>
+																				<Compare CompareOp="EQ">
+																					<ScalarOperator>
+																						<Identifier>
+																							<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="pclass">
+																							</ColumnReference>
+																						</Identifier>
+																					</ScalarOperator>
+																					<ScalarOperator>
+																						<Const ConstValue="(1)">
+																						</Const>
+																					</ScalarOperator>
+																				</Compare>
+																			</ScalarOperator>
+																			<ScalarOperator>
+																				<Compare CompareOp="EQ">
+																					<ScalarOperator>
+																						<Identifier>
+																							<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="type">
+																							</ColumnReference>
+																						</Identifier>
+																					</ScalarOperator>
+																					<ScalarOperator>
+																						<Const ConstValue="&apos;V&apos;">
+																						</Const>
+																					</ScalarOperator>
+																				</Compare>
+																			</ScalarOperator>
+																		</Logical>
+																	</ScalarOperator>
+																</Predicate>
+															</IndexScan>
+														</RelOp>
+													</ComputeScalar>
+												</RelOp>
+												<Predicate>
+													<ScalarOperator ScalarString="has_access(&apos;AO&apos;,[tempdb].[sys].[sysschobjs].[id] as [o].[id])=(1)">
+														<Compare CompareOp="EQ">
+															<ScalarOperator>
+																<Intrinsic FunctionName="has_access">
+																	<ScalarOperator>
+																		<Const ConstValue="&apos;AO&apos;">
+																		</Const>
+																	</ScalarOperator>
+																	<ScalarOperator>
+																		<Identifier>
+																			<ColumnReference Database="[tempdb]" Schema="[sys]" Table="[sysschobjs]" Alias="[o]" Column="id">
+																			</ColumnReference>
+																		</Identifier>
+																	</ScalarOperator>
+																	<ScalarOperator>
+																		<Const ConstValue="">
+																		</Const>
+																	</ScalarOperator>
+																	<ScalarOperator>
+																		<Const ConstValue="">
+																		</Const>
+																	</ScalarOperator>
+																</Intrinsic>
+															</ScalarOperator>
+															<ScalarOperator>
+																<Const ConstValue="(1)">
+																</Const>
+															</ScalarOperator>
+														</Compare>
+													</ScalarOperator>
+												</Predicate>
+											</Filter>
+										</RelOp>
+									</Hash>
+								</RelOp>
+								<RelOp NodeId="6" PhysicalOp="Clustered Index Seek" LogicalOp="Clustered Index Seek" EstimateRows="1" EstimatedRowsRead="1" EstimateIO="0.003125" EstimateCPU="0.0001581" AvgRowSize="71" EstimatedTotalSubtreeCost="0.110412" TableCardinality="159" Parallel="0" EstimateRebinds="0" EstimateRewinds="677.599" EstimatedExecutionMode="Row">
+									<OutputList>
+										<ColumnReference Database="[mssqlsystemresource]" Schema="[sys]" Table="[syspalnames]" Alias="[n]" Column="name">
+										</ColumnReference>
+									</OutputList>
+									<IndexScan Ordered="1" ScanDirection="FORWARD" ForcedIndex="0" ForceSeek="0" ForceScan="0" NoExpandHint="0" Storage="RowStore">
+										<DefinedValues>
+											<DefinedValue>
+												<ColumnReference Database="[mssqlsystemresource]" Schema="[sys]" Table="[syspalnames]" Alias="[n]" Column="name">
+												</ColumnReference>
+											</DefinedValue>
+										</DefinedValues>
+										<Object Database="[mssqlsystemresource]" Schema="[sys]" Table="[syspalnames]" Index="[cl]" Alias="[n]" IndexKind="Clustered" Storage="RowStore">
+										</Object>
+										<SeekPredicates>
+											<SeekPredicateNew>
+												<SeekKeys>
+													<Prefix ScanType="EQ">
+														<RangeColumns>
+															<ColumnReference Database="[mssqlsystemresource]" Schema="[sys]" Table="[syspalnames]" Alias="[n]" Column="class">
+															</ColumnReference>
+															<ColumnReference Database="[mssqlsystemresource]" Schema="[sys]" Table="[syspalnames]" Alias="[n]" Column="value">
+															</ColumnReference>
+														</RangeColumns>
+														<RangeExpressions>
+															<ScalarOperator ScalarString="&apos;OBTY&apos;">
+																<Const ConstValue="&apos;OBTY&apos;">
+																</Const>
+															</ScalarOperator>
+															<ScalarOperator ScalarString="&apos;V&apos;">
+																<Const ConstValue="&apos;V&apos;">
+																</Const>
+															</ScalarOperator>
+														</RangeExpressions>
+													</Prefix>
+												</SeekKeys>
+											</SeekPredicateNew>
+										</SeekPredicates>
+									</IndexScan>
+								</RelOp>
+							</NestedLoops>
+						</RelOp>
+					</QueryPlan>
+				</StmtSimple>
+			</Statements>
+		</Batch>
+	</BatchSequence>
+</ShowPlanXML>

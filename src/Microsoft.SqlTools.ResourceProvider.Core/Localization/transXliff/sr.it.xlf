@@ -1,25 +1,25 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
-  <file datatype="xml" source-language="en" target-language="it">
+  <file datatype="xml" original="sr.resx" source-language="en" target-language="it">
     <body>
       <trans-unit id="AzureServerNotFound">
         <source>The server you specified {0} does not exist in any subscription in {1}. Either you have signed in with an incorrect account or your server was removed from subscription(s) in this account. Please check your account and try again.</source>
-        <target state="translated">Il server specificato {0} non esiste in alcuna sottoscrizione in {1}. È stato effettuato l'accesso con un account errato o il server è stato rimosso dalle sottosortità in questo account. Controlla il tuo account e riprova.</target>
+        <target state="translated">Il server specificato {0} non esiste in alcuna sottoscrizione in {1}. È stato eseguito l'accesso con un account non corretto oppure il server è stato rimosso dalla sottoscrizione o dalle sottoscrizioni di questo account. Verificare l'account e riprovare.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="AzureSubscriptionFailedErrorMessage">
         <source>An error occurred while getting Azure subscriptions: {0}</source>
-        <target state="translated">Errore durante il recupero delle sottoscrizioni di Azure: {0}</target>
+        <target state="translated">Si è verificato un errore durante il recupero delle sottoscrizioni di Azure: {0}</target>
         <note></note>
       </trans-unit>
       <trans-unit id="DatabaseDiscoveryFailedErrorMessage">
         <source>An error occurred while getting databases from servers of type {0} from {1}</source>
-        <target state="translated">Errore durante il recupero di database da server di tipo {0} da {1}</target>
+        <target state="translated">Si è verificato un errore durante il recupero dei database dai server di tipo {0} da {1}</target>
         <note></note>
       </trans-unit>
       <trans-unit id="FirewallRuleAccessForbidden">
         <source>{0} does not have permission to change the server firewall rule. Try again with a different account that is an Owner or Contributor of the Azure subscription or the server.</source>
-        <target state="translated">{0} non dispone dell'autorizzazione per modificare la regola del firewall del server. Riprovare con un account diverso che possiede o collabora alla sottoscrizione o al server di Azure.</target>
+        <target state="translated">{0} non ha l'autorizzazione per modificare la regola del firewall del server. Riprovare con un altro account che sia Proprietario o Collaboratore della sottoscrizione di Azure o del server.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="InvalidIpAddress">
@@ -29,27 +29,27 @@
       </trans-unit>
       <trans-unit id="InvalidServerTypeErrorMessage">
         <source>Server Type is invalid.</source>
-        <target state="translated">Tipo di server non valido.</target>
+        <target state="translated">Il tipo di server non è valido.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="LoadingExportableFailedGeneralErrorMessage">
         <source>A required dll cannot be loaded. Please repair your application.</source>
-        <target state="translated">Impossibile caricare una DLL obbligatoria. Si prega di riparare l'applicazione.</target>
+        <target state="translated">Non è possibile caricare una dll necessaria. Ripristinare l'applicazione.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="FirewallRuleCreationFailed">
         <source>An error occurred while creating a new firewall rule.</source>
-        <target state="translated">Errore durante la creazione di una nuova regola del firewall.</target>
+        <target state="translated">Si è verificato un errore durante la creazione di una nuova regola del firewall.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="FirewallRuleUnsupportedConnectionType">
         <source>Cannot open a firewall rule for the specified connection type</source>
-        <target state="translated">Impossibile aprire una regola firewall per il tipo di connessione specificato</target>
+        <target state="translated">Impossibile aprire una regola del firewall per il tipo di connessione specificato</target>
         <note></note>
       </trans-unit>
       <trans-unit id="FirewallRuleCreationFailedWithError">
         <source>An error occurred while creating a new firewall rule: '{0}'</source>
-        <target state="translated">Errore durante la creazione di una nuova regola firewall: '{0}'</target>
+        <target state="translated">Si è verificato un errore durante la creazione di una nuova regola del firewall: '{0}'</target>
         <note></note>
       </trans-unit>
       <trans-unit id="NoSubscriptionsFound">

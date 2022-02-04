@@ -118,34 +118,34 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AzureServerNotFound" xml:space="preserve">
-    <value>Der von Ihnen angegebene Server {0} ist in keinem Abonnement in {1} vorhanden. Entweder haben Sie sich mit einem falschen Konto angemeldet, oder Ihr Server wurde aus Abonnements in diesem Konto entfernt. Überprüfen Sie Ihr Konto, und versuchen Sie es erneut.</value>
+    <value>Der angegebene Server "{0}" ist in keinem Abonnement in {1} enthalten. Sie haben sich mit einem falschen Konto angemeldet, oder Ihr Server wurde aus mindestens einem Abonnement in diesem Konto entfernt. Bitte überprüfen Sie Ihr Konto, und versuchen Sie es dann erneut.</value>
   </data>
   <data name="AzureSubscriptionFailedErrorMessage" xml:space="preserve">
-    <value>Beim Abrufen von Azure-Abonnements ist ein Fehler aufgetreten: {0}</value>
+    <value>Fehler beim Abrufen von Azure-Abonnements: {0}</value>
   </data>
   <data name="DatabaseDiscoveryFailedErrorMessage" xml:space="preserve">
-    <value>Beim Abrufen von Datenbanken von Servern vom Typ {0} aus {1} ist ein Fehler aufgetreten.</value>
+    <value>Fehler beim Abrufen von Datenbanken von Servern des Typs "{0}" aus {1}.</value>
   </data>
   <data name="FirewallRuleAccessForbidden" xml:space="preserve">
-    <value>{0} ist nicht berechtigt, die Serverfirewallregel zu ändern. Versuchen Sie es erneut mit einem anderen Konto, das ein Besitzer oder Mitwirkender des Azure-Abonnements oder des Servers ist.</value>
+    <value>{0} ist nicht berechtigt, die Serverfirewallregel zu ändern. Versuchen Sie es noch mal mit einem anderen Konto, das Besitzer oder Mitwirkender des Azure-Abonnements oder des Servers ist.</value>
   </data>
   <data name="InvalidIpAddress" xml:space="preserve">
-    <value>Ungültige IP-Adresse</value>
+    <value>Ungültige IP-Adresse.</value>
   </data>
   <data name="InvalidServerTypeErrorMessage" xml:space="preserve">
     <value>Der Servertyp ist ungültig.</value>
   </data>
   <data name="LoadingExportableFailedGeneralErrorMessage" xml:space="preserve">
-    <value>Eine erforderliche DLL kann nicht geladen werden. Bitte reparieren Sie Ihre Anwendung.</value>
+    <value>Eine erforderliche dll kann nicht geladen werden. Reparieren Sie Ihre Anwendung.</value>
   </data>
   <data name="FirewallRuleCreationFailed" xml:space="preserve">
-    <value>Beim Erstellen einer neuen Firewallregel ist ein Fehler aufgetreten.</value>
+    <value>Fehler beim Erstellen einer neuen Firewallregel.</value>
   </data>
   <data name="FirewallRuleUnsupportedConnectionType" xml:space="preserve">
-    <value>Eine Firewallregel für den angegebenen Verbindungstyp kann nicht geöffnet werden.</value>
+    <value>Für den angegebenen Verbindungstyp kann keine Firewallregel geöffnet werden.</value>
   </data>
   <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
-    <value>Beim Erstellen einer neuen Firewallregel ist ein Fehler aufgetreten: '{0}'</value>
+    <value>Fehler beim Erstellen einer neuen Firewallregel: „{0}“</value>
   </data>
   <data name="NoSubscriptionsFound" xml:space="preserve">
     <value>Für das aktuell angemeldete Benutzerkonto wurden keine Abonnements gefunden.</value>

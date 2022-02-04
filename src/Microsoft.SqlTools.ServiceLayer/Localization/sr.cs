@@ -3061,6 +3061,5598 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string Statement
+        {
+            get
+            {
+                return Keys.GetString(Keys.Statement);
+            }
+        }
+
+        public static string StatementDesc
+        {
+            get
+            {
+                return Keys.GetString(Keys.StatementDesc);
+            }
+        }
+
+        public static string PhysicalOperation
+        {
+            get
+            {
+                return Keys.GetString(Keys.PhysicalOperation);
+            }
+        }
+
+        public static string PhysicalOperationDesc
+        {
+            get
+            {
+                return Keys.GetString(Keys.PhysicalOperationDesc);
+            }
+        }
+
+        public static string LogicalOperation
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOperation);
+            }
+        }
+
+        public static string LogicalOperationDesc
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOperationDesc);
+            }
+        }
+
+        public static string OperationDescriptionShort
+        {
+            get
+            {
+                return Keys.GetString(Keys.OperationDescriptionShort);
+            }
+        }
+
+        public static string OperationDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.OperationDescription);
+            }
+        }
+
+        public static string OperationArgumentShort
+        {
+            get
+            {
+                return Keys.GetString(Keys.OperationArgumentShort);
+            }
+        }
+
+        public static string OperationArgumentDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.OperationArgumentDescription);
+            }
+        }
+
+        public static string ObjectShort
+        {
+            get
+            {
+                return Keys.GetString(Keys.ObjectShort);
+            }
+        }
+
+        public static string ObjectDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ObjectDescription);
+            }
+        }
+
+        public static string IndexKind
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexKind);
+            }
+        }
+
+        public static string IndexKindDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexKindDescription);
+            }
+        }
+
+        public static string DefinedValues
+        {
+            get
+            {
+                return Keys.GetString(Keys.DefinedValues);
+            }
+        }
+
+        public static string DefinedValuesDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.DefinedValuesDescription);
+            }
+        }
+
+        public static string OutputList
+        {
+            get
+            {
+                return Keys.GetString(Keys.OutputList);
+            }
+        }
+
+        public static string OutputListDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.OutputListDescription);
+            }
+        }
+
+        public static string Warnings
+        {
+            get
+            {
+                return Keys.GetString(Keys.Warnings);
+            }
+        }
+
+        public static string WarningsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.WarningsDescription);
+            }
+        }
+
+        public static string Parallel
+        {
+            get
+            {
+                return Keys.GetString(Keys.Parallel);
+            }
+        }
+
+        public static string ParallelDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ParallelDescription);
+            }
+        }
+
+        public static string EstimatedNumberOfRowsPerExecution
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedNumberOfRowsPerExecution);
+            }
+        }
+
+        public static string EstimatedNumberOfRowsPerExecutionDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedNumberOfRowsPerExecutionDescription);
+            }
+        }
+
+        public static string EstimatedNumberOfRowsForAllExecutions
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedNumberOfRowsForAllExecutions);
+            }
+        }
+
+        public static string EstimatedNumberOfRowsForAllExecutionsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedNumberOfRowsForAllExecutionsDescription);
+            }
+        }
+
+        public static string EstimatedRowsRead
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedRowsRead);
+            }
+        }
+
+        public static string EstimatedRowsReadDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedRowsReadDescription);
+            }
+        }
+
+        public static string IsGraphDBTransitiveClosure
+        {
+            get
+            {
+                return Keys.GetString(Keys.IsGraphDBTransitiveClosure);
+            }
+        }
+
+        public static string IsGraphDBTransitiveClosureDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.IsGraphDBTransitiveClosureDescription);
+            }
+        }
+
+        public static string IsInterleavedExecuted
+        {
+            get
+            {
+                return Keys.GetString(Keys.IsInterleavedExecuted);
+            }
+        }
+
+        public static string IsInterleavedExecutedDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.IsInterleavedExecutedDescription);
+            }
+        }
+
+        public static string IsAdaptive
+        {
+            get
+            {
+                return Keys.GetString(Keys.IsAdaptive);
+            }
+        }
+
+        public static string IsAdaptiveDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.IsAdaptiveDescription);
+            }
+        }
+
+        public static string AdaptiveThresholdRows
+        {
+            get
+            {
+                return Keys.GetString(Keys.AdaptiveThresholdRows);
+            }
+        }
+
+        public static string AdaptiveThresholdRowsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.AdaptiveThresholdRowsDescription);
+            }
+        }
+
+        public static string EstimatedJoinType
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedJoinType);
+            }
+        }
+
+        public static string EstimatedJoinTypeDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedJoinTypeDescription);
+            }
+        }
+
+        public static string ActualJoinType
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualJoinType);
+            }
+        }
+
+        public static string ActualJoinTypeDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualJoinTypeDescription);
+            }
+        }
+
+        public static string EstimatedRowSize
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedRowSize);
+            }
+        }
+
+        public static string EstimatedRowSizeDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedRowSizeDescription);
+            }
+        }
+
+        public static string EstimatedIoCost
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedIoCost);
+            }
+        }
+
+        public static string EstimatedIoCostDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedIoCostDescription);
+            }
+        }
+
+        public static string EstimatedCpuCost
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedCpuCost);
+            }
+        }
+
+        public static string EstimatedCpuCostDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedCpuCostDescription);
+            }
+        }
+
+        public static string EstimatedNumberOfExecutions
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedNumberOfExecutions);
+            }
+        }
+
+        public static string EstimatedNumberOfExecutionsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedNumberOfExecutionsDescription);
+            }
+        }
+
+        public static string EstimatedOperatorCost
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedOperatorCost);
+            }
+        }
+
+        public static string EstimatedOperatorCostDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedOperatorCostDescription);
+            }
+        }
+
+        public static string EstimatedSubtreeCost
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedSubtreeCost);
+            }
+        }
+
+        public static string EstimatedSubtreeCostDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedSubtreeCostDescription);
+            }
+        }
+
+        public static string NumberOfRows
+        {
+            get
+            {
+                return Keys.GetString(Keys.NumberOfRows);
+            }
+        }
+
+        public static string NumberOfRowsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.NumberOfRowsDescription);
+            }
+        }
+
+        public static string ActualRowsRead
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualRowsRead);
+            }
+        }
+
+        public static string ActualRowsReadDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualRowsReadDescription);
+            }
+        }
+
+        public static string NumberOfBatches
+        {
+            get
+            {
+                return Keys.GetString(Keys.NumberOfBatches);
+            }
+        }
+
+        public static string NumberOfBatchesDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.NumberOfBatchesDescription);
+            }
+        }
+
+        public static string NumberOfExecutions
+        {
+            get
+            {
+                return Keys.GetString(Keys.NumberOfExecutions);
+            }
+        }
+
+        public static string NumberOfExecutionsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.NumberOfExecutionsDescription);
+            }
+        }
+
+        public static string EstimatedDataSize
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedDataSize);
+            }
+        }
+
+        public static string EstimatedDataSizeDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedDataSizeDescription);
+            }
+        }
+
+        public static string ParameterList
+        {
+            get
+            {
+                return Keys.GetString(Keys.ParameterList);
+            }
+        }
+
+        public static string ParameterListDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ParameterListDescription);
+            }
+        }
+
+        public static string MemoryFractions
+        {
+            get
+            {
+                return Keys.GetString(Keys.MemoryFractions);
+            }
+        }
+
+        public static string MemoryFractionsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.MemoryFractionsDescription);
+            }
+        }
+
+        public static string MemoryFractionsInput
+        {
+            get
+            {
+                return Keys.GetString(Keys.MemoryFractionsInput);
+            }
+        }
+
+        public static string MemoryFractionsInputDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.MemoryFractionsInputDescription);
+            }
+        }
+
+        public static string MemoryFractionsOutput
+        {
+            get
+            {
+                return Keys.GetString(Keys.MemoryFractionsOutput);
+            }
+        }
+
+        public static string MemoryFractionsOutputDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.MemoryFractionsOutputDescription);
+            }
+        }
+
+        public static string UdxName
+        {
+            get
+            {
+                return Keys.GetString(Keys.UdxName);
+            }
+        }
+
+        public static string UdxNameDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.UdxNameDescription);
+            }
+        }
+
+        public static string Values
+        {
+            get
+            {
+                return Keys.GetString(Keys.Values);
+            }
+        }
+
+        public static string ValuesDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ValuesDescription);
+            }
+        }
+
+        public static string CachedPlanSize
+        {
+            get
+            {
+                return Keys.GetString(Keys.CachedPlanSize);
+            }
+        }
+
+        public static string CachedPlanSizeDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.CachedPlanSizeDescription);
+            }
+        }
+
+        public static string UsePlan
+        {
+            get
+            {
+                return Keys.GetString(Keys.UsePlan);
+            }
+        }
+
+        public static string ContainsInlineScalarTsqlUdfs
+        {
+            get
+            {
+                return Keys.GetString(Keys.ContainsInlineScalarTsqlUdfs);
+            }
+        }
+
+        public static string DegreeOfParallelism
+        {
+            get
+            {
+                return Keys.GetString(Keys.DegreeOfParallelism);
+            }
+        }
+
+        public static string DegreeOfParallelismDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.DegreeOfParallelismDescription);
+            }
+        }
+
+        public static string EffectiveDegreeOfParallelism
+        {
+            get
+            {
+                return Keys.GetString(Keys.EffectiveDegreeOfParallelism);
+            }
+        }
+
+        public static string EffectiveDegreeOfParallelismDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.EffectiveDegreeOfParallelismDescription);
+            }
+        }
+
+        public static string MemoryGrant
+        {
+            get
+            {
+                return Keys.GetString(Keys.MemoryGrant);
+            }
+        }
+
+        public static string MemoryGrantDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.MemoryGrantDescription);
+            }
+        }
+
+        public static string RemoteDestination
+        {
+            get
+            {
+                return Keys.GetString(Keys.RemoteDestination);
+            }
+        }
+
+        public static string RemoteDestinationDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.RemoteDestinationDescription);
+            }
+        }
+
+        public static string RemoteObject
+        {
+            get
+            {
+                return Keys.GetString(Keys.RemoteObject);
+            }
+        }
+
+        public static string RemoteObjectDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.RemoteObjectDescription);
+            }
+        }
+
+        public static string RemoteSource
+        {
+            get
+            {
+                return Keys.GetString(Keys.RemoteSource);
+            }
+        }
+
+        public static string RemoteSourceDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.RemoteSourceDescription);
+            }
+        }
+
+        public static string UsedUdxColumns
+        {
+            get
+            {
+                return Keys.GetString(Keys.UsedUdxColumns);
+            }
+        }
+
+        public static string UsedUdxColumnsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.UsedUdxColumnsDescription);
+            }
+        }
+
+        public static string InnerSideJoinColumns
+        {
+            get
+            {
+                return Keys.GetString(Keys.InnerSideJoinColumns);
+            }
+        }
+
+        public static string InnerSideJoinColumnsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.InnerSideJoinColumnsDescription);
+            }
+        }
+
+        public static string OuterSideJoinColumns
+        {
+            get
+            {
+                return Keys.GetString(Keys.OuterSideJoinColumns);
+            }
+        }
+
+        public static string OuterSideJoinColumnsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.OuterSideJoinColumnsDescription);
+            }
+        }
+
+        public static string WhereJoinColumns
+        {
+            get
+            {
+                return Keys.GetString(Keys.WhereJoinColumns);
+            }
+        }
+
+        public static string Residual
+        {
+            get
+            {
+                return Keys.GetString(Keys.Residual);
+            }
+        }
+
+        public static string ResidualDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ResidualDescription);
+            }
+        }
+
+        public static string PassThru
+        {
+            get
+            {
+                return Keys.GetString(Keys.PassThru);
+            }
+        }
+
+        public static string PassThruDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.PassThruDescription);
+            }
+        }
+
+        public static string ManyToMany
+        {
+            get
+            {
+                return Keys.GetString(Keys.ManyToMany);
+            }
+        }
+
+        public static string ManyToManyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ManyToManyDescription);
+            }
+        }
+
+        public static string PartitionColumns
+        {
+            get
+            {
+                return Keys.GetString(Keys.PartitionColumns);
+            }
+        }
+
+        public static string PartitionColumnsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.PartitionColumnsDescription);
+            }
+        }
+
+        public static string Ascending
+        {
+            get
+            {
+                return Keys.GetString(Keys.Ascending);
+            }
+        }
+
+        public static string Descending
+        {
+            get
+            {
+                return Keys.GetString(Keys.Descending);
+            }
+        }
+
+        public static string HashKeys
+        {
+            get
+            {
+                return Keys.GetString(Keys.HashKeys);
+            }
+        }
+
+        public static string HashKeysDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.HashKeysDescription);
+            }
+        }
+
+        public static string ProbeColumn
+        {
+            get
+            {
+                return Keys.GetString(Keys.ProbeColumn);
+            }
+        }
+
+        public static string ProbeColumnDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ProbeColumnDescription);
+            }
+        }
+
+        public static string PartitioningType
+        {
+            get
+            {
+                return Keys.GetString(Keys.PartitioningType);
+            }
+        }
+
+        public static string PartitioningTypeDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.PartitioningTypeDescription);
+            }
+        }
+
+        public static string GroupBy
+        {
+            get
+            {
+                return Keys.GetString(Keys.GroupBy);
+            }
+        }
+
+        public static string GroupByDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.GroupByDescription);
+            }
+        }
+
+        public static string GroupingSets
+        {
+            get
+            {
+                return Keys.GetString(Keys.GroupingSets);
+            }
+        }
+
+        public static string GroupingSetsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.GroupingSetsDescription);
+            }
+        }
+
+        public static string SegmentColumn
+        {
+            get
+            {
+                return Keys.GetString(Keys.SegmentColumn);
+            }
+        }
+
+        public static string SegmentColumnDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.SegmentColumnDescription);
+            }
+        }
+
+        public static string RankColumns
+        {
+            get
+            {
+                return Keys.GetString(Keys.RankColumns);
+            }
+        }
+
+        public static string RankColumnsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.RankColumnsDescription);
+            }
+        }
+
+        public static string Predicate
+        {
+            get
+            {
+                return Keys.GetString(Keys.Predicate);
+            }
+        }
+
+        public static string PredicateDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.PredicateDescription);
+            }
+        }
+
+        public static string OuterReferences
+        {
+            get
+            {
+                return Keys.GetString(Keys.OuterReferences);
+            }
+        }
+
+        public static string OuterReferencesDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.OuterReferencesDescription);
+            }
+        }
+
+        public static string ScalarOperator
+        {
+            get
+            {
+                return Keys.GetString(Keys.ScalarOperator);
+            }
+        }
+
+        public static string ActionColumn
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActionColumn);
+            }
+        }
+
+        public static string ActionColumnDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActionColumnDescription);
+            }
+        }
+
+        public static string OriginalActionColumn
+        {
+            get
+            {
+                return Keys.GetString(Keys.OriginalActionColumn);
+            }
+        }
+
+        public static string OriginalActionColumnDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.OriginalActionColumnDescription);
+            }
+        }
+
+        public static string Rows
+        {
+            get
+            {
+                return Keys.GetString(Keys.Rows);
+            }
+        }
+
+        public static string RowsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.RowsDescription);
+            }
+        }
+
+        public static string SeekPredicate
+        {
+            get
+            {
+                return Keys.GetString(Keys.SeekPredicate);
+            }
+        }
+
+        public static string SeekPredicateDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.SeekPredicateDescription);
+            }
+        }
+
+        public static string Partitioned
+        {
+            get
+            {
+                return Keys.GetString(Keys.Partitioned);
+            }
+        }
+
+        public static string PartitionedDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.PartitionedDescription);
+            }
+        }
+
+        public static string SeekKeys
+        {
+            get
+            {
+                return Keys.GetString(Keys.SeekKeys);
+            }
+        }
+
+        public static string SeekKeysDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.SeekKeysDescription);
+            }
+        }
+
+        public static string PartitionsAccessed
+        {
+            get
+            {
+                return Keys.GetString(Keys.PartitionsAccessed);
+            }
+        }
+
+        public static string PartitionCount
+        {
+            get
+            {
+                return Keys.GetString(Keys.PartitionCount);
+            }
+        }
+
+        public static string TieColumns
+        {
+            get
+            {
+                return Keys.GetString(Keys.TieColumns);
+            }
+        }
+
+        public static string TieColumnsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TieColumnsDescription);
+            }
+        }
+
+        public static string IsPercent
+        {
+            get
+            {
+                return Keys.GetString(Keys.IsPercent);
+            }
+        }
+
+        public static string IsPercentDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.IsPercentDescription);
+            }
+        }
+
+        public static string WithTies
+        {
+            get
+            {
+                return Keys.GetString(Keys.WithTies);
+            }
+        }
+
+        public static string WithTiesDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.WithTiesDescription);
+            }
+        }
+
+        public static string PartitionId
+        {
+            get
+            {
+                return Keys.GetString(Keys.PartitionId);
+            }
+        }
+
+        public static string PartitionIdDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.PartitionIdDescription);
+            }
+        }
+
+        public static string Ordered
+        {
+            get
+            {
+                return Keys.GetString(Keys.Ordered);
+            }
+        }
+
+        public static string OrderedDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.OrderedDescription);
+            }
+        }
+
+        public static string ScanDirection
+        {
+            get
+            {
+                return Keys.GetString(Keys.ScanDirection);
+            }
+        }
+
+        public static string ScanDirectionDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ScanDirectionDescription);
+            }
+        }
+
+        public static string ForcedIndex
+        {
+            get
+            {
+                return Keys.GetString(Keys.ForcedIndex);
+            }
+        }
+
+        public static string ForcedIndexDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ForcedIndexDescription);
+            }
+        }
+
+        public static string SetPredicate
+        {
+            get
+            {
+                return Keys.GetString(Keys.SetPredicate);
+            }
+        }
+
+        public static string SetPredicateDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.SetPredicateDescription);
+            }
+        }
+
+        public static string TopExpression
+        {
+            get
+            {
+                return Keys.GetString(Keys.TopExpression);
+            }
+        }
+
+        public static string TopExpressionDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TopExpressionDescription);
+            }
+        }
+
+        public static string HashKeysBuild
+        {
+            get
+            {
+                return Keys.GetString(Keys.HashKeysBuild);
+            }
+        }
+
+        public static string HashKeysBuildDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.HashKeysBuildDescription);
+            }
+        }
+
+        public static string HashKeysProbe
+        {
+            get
+            {
+                return Keys.GetString(Keys.HashKeysProbe);
+            }
+        }
+
+        public static string HashKeysProbeDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.HashKeysProbeDescription);
+            }
+        }
+
+        public static string BuildResidual
+        {
+            get
+            {
+                return Keys.GetString(Keys.BuildResidual);
+            }
+        }
+
+        public static string BuildResidualDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.BuildResidualDescription);
+            }
+        }
+
+        public static string ProbeResidual
+        {
+            get
+            {
+                return Keys.GetString(Keys.ProbeResidual);
+            }
+        }
+
+        public static string ProbeResidualDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ProbeResidualDescription);
+            }
+        }
+
+        public static string SeekPredicates
+        {
+            get
+            {
+                return Keys.GetString(Keys.SeekPredicates);
+            }
+        }
+
+        public static string SeekPredicatesDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.SeekPredicatesDescription);
+            }
+        }
+
+        public static string SetOptions
+        {
+            get
+            {
+                return Keys.GetString(Keys.SetOptions);
+            }
+        }
+
+        public static string SetOptionsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.SetOptionsDescription);
+            }
+        }
+
+        public static string OptimizationLevel
+        {
+            get
+            {
+                return Keys.GetString(Keys.OptimizationLevel);
+            }
+        }
+
+        public static string OptimizationLevelDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.OptimizationLevelDescription);
+            }
+        }
+
+        public static string StatementOptmEarlyAbortReason
+        {
+            get
+            {
+                return Keys.GetString(Keys.StatementOptmEarlyAbortReason);
+            }
+        }
+
+        public static string TimeOut
+        {
+            get
+            {
+                return Keys.GetString(Keys.TimeOut);
+            }
+        }
+
+        public static string MemoryLimitExceeded
+        {
+            get
+            {
+                return Keys.GetString(Keys.MemoryLimitExceeded);
+            }
+        }
+
+        public static string GoodEnoughPlanFound
+        {
+            get
+            {
+                return Keys.GetString(Keys.GoodEnoughPlanFound);
+            }
+        }
+
+        public static string EstimatedRebinds
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedRebinds);
+            }
+        }
+
+        public static string EstimatedRebindsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedRebindsDescription);
+            }
+        }
+
+        public static string EstimatedRewinds
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedRewinds);
+            }
+        }
+
+        public static string EstimatedRewindsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedRewindsDescription);
+            }
+        }
+
+        public static string ActualLocallyAggregatedRows
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualLocallyAggregatedRows);
+            }
+        }
+
+        public static string ActualLocallyAggregatedRowsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualLocallyAggregatedRowsDescription);
+            }
+        }
+
+        public static string ActualRebinds
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualRebinds);
+            }
+        }
+
+        public static string ActualRebindsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualRebindsDescription);
+            }
+        }
+
+        public static string ActualRewinds
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualRewinds);
+            }
+        }
+
+        public static string ActualRewindsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualRewindsDescription);
+            }
+        }
+
+        public static string ActualIOStatistics
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualIOStatistics);
+            }
+        }
+
+        public static string ActualIOStatisticsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualIOStatisticsDescription);
+            }
+        }
+
+        public static string ActualTimeStatistics
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualTimeStatistics);
+            }
+        }
+
+        public static string ActualTimeStatisticsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualTimeStatisticsDescription);
+            }
+        }
+
+        public static string ActualElapsedms
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualElapsedms);
+            }
+        }
+
+        public static string ActualElapsedmsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualElapsedmsDescription);
+            }
+        }
+
+        public static string ActualCPUms
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualCPUms);
+            }
+        }
+
+        public static string ActualCPUmsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualCPUmsDescription);
+            }
+        }
+
+        public static string ActualScans
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualScans);
+            }
+        }
+
+        public static string ActualScansDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualScansDescription);
+            }
+        }
+
+        public static string ActualLogicalReads
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualLogicalReads);
+            }
+        }
+
+        public static string ActualLogicalReadsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualLogicalReadsDescription);
+            }
+        }
+
+        public static string ActualPhysicalReads
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualPhysicalReads);
+            }
+        }
+
+        public static string ActualPhysicalReadsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualPhysicalReadsDescription);
+            }
+        }
+
+        public static string ActualPageServerReads
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualPageServerReads);
+            }
+        }
+
+        public static string ActualPageServerReadsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualPageServerReadsDescription);
+            }
+        }
+
+        public static string ActualReadAheads
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualReadAheads);
+            }
+        }
+
+        public static string ActualReadAheadsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualReadAheadsDescription);
+            }
+        }
+
+        public static string ActualPageServerReadAheads
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualPageServerReadAheads);
+            }
+        }
+
+        public static string ActualPageServerReadAheadsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualPageServerReadAheadsDescription);
+            }
+        }
+
+        public static string ActualLobLogicalReads
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualLobLogicalReads);
+            }
+        }
+
+        public static string ActualLobLogicalReadsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualLobLogicalReadsDescription);
+            }
+        }
+
+        public static string ActualLobPhysicalReads
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualLobPhysicalReads);
+            }
+        }
+
+        public static string ActualLobPhysicalReadsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualLobPhysicalReadsDescription);
+            }
+        }
+
+        public static string ActualLobPageServerReads
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualLobPageServerReads);
+            }
+        }
+
+        public static string ActualLobPageServerReadsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualLobPageServerReadsDescription);
+            }
+        }
+
+        public static string ActualLobReadAheads
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualLobReadAheads);
+            }
+        }
+
+        public static string ActualLobReadAheadsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualLobReadAheadsDescription);
+            }
+        }
+
+        public static string ActualLobPageServerReadAheads
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualLobPageServerReadAheads);
+            }
+        }
+
+        public static string ActualLobPageServerReadAheadsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualLobPageServerReadAheadsDescription);
+            }
+        }
+
+        public static string ActualMemoryGrantStats
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualMemoryGrantStats);
+            }
+        }
+
+        public static string HpcRowCount
+        {
+            get
+            {
+                return Keys.GetString(Keys.HpcRowCount);
+            }
+        }
+
+        public static string HpcRowCountDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.HpcRowCountDescription);
+            }
+        }
+
+        public static string HpcKernelElapsedUs
+        {
+            get
+            {
+                return Keys.GetString(Keys.HpcKernelElapsedUs);
+            }
+        }
+
+        public static string HpcKernelElapsedUsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.HpcKernelElapsedUsDescription);
+            }
+        }
+
+        public static string HpcHostToDeviceBytes
+        {
+            get
+            {
+                return Keys.GetString(Keys.HpcHostToDeviceBytes);
+            }
+        }
+
+        public static string HpcHostToDeviceBytesDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.HpcHostToDeviceBytesDescription);
+            }
+        }
+
+        public static string HpcDeviceToHostBytes
+        {
+            get
+            {
+                return Keys.GetString(Keys.HpcDeviceToHostBytes);
+            }
+        }
+
+        public static string HpcDeviceToHostBytesDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.HpcDeviceToHostBytesDescription);
+            }
+        }
+
+        public static string InputMemoryGrant
+        {
+            get
+            {
+                return Keys.GetString(Keys.InputMemoryGrant);
+            }
+        }
+
+        public static string OutputMemoryGrant
+        {
+            get
+            {
+                return Keys.GetString(Keys.OutputMemoryGrant);
+            }
+        }
+
+        public static string UsedMemoryGrant
+        {
+            get
+            {
+                return Keys.GetString(Keys.UsedMemoryGrant);
+            }
+        }
+
+        public static string Distinct
+        {
+            get
+            {
+                return Keys.GetString(Keys.Distinct);
+            }
+        }
+
+        public static string DistinctDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.DistinctDescription);
+            }
+        }
+
+        public static string OrderBy
+        {
+            get
+            {
+                return Keys.GetString(Keys.OrderBy);
+            }
+        }
+
+        public static string OrderByDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.OrderByDescription);
+            }
+        }
+
+        public static string SpillOccurredDisplayString
+        {
+            get
+            {
+                return Keys.GetString(Keys.SpillOccurredDisplayString);
+            }
+        }
+
+        public static string ColumnsWithNoStatistics
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnsWithNoStatistics);
+            }
+        }
+
+        public static string ColumnsWithNoStatisticsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnsWithNoStatisticsDescription);
+            }
+        }
+
+        public static string NoJoinPredicate
+        {
+            get
+            {
+                return Keys.GetString(Keys.NoJoinPredicate);
+            }
+        }
+
+        public static string NoJoinPredicateDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.NoJoinPredicateDescription);
+            }
+        }
+
+        public static string SpillToTempDbOld
+        {
+            get
+            {
+                return Keys.GetString(Keys.SpillToTempDbOld);
+            }
+        }
+
+        public static string SpillToTempDb
+        {
+            get
+            {
+                return Keys.GetString(Keys.SpillToTempDb);
+            }
+        }
+
+        public static string SpillToTempDbDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.SpillToTempDbDescription);
+            }
+        }
+
+        public static string SortSpillDetails
+        {
+            get
+            {
+                return Keys.GetString(Keys.SortSpillDetails);
+            }
+        }
+
+        public static string SortSpillDetailsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.SortSpillDetailsDescription);
+            }
+        }
+
+        public static string HashSpillDetails
+        {
+            get
+            {
+                return Keys.GetString(Keys.HashSpillDetails);
+            }
+        }
+
+        public static string HashSpillDetailsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.HashSpillDetailsDescription);
+            }
+        }
+
+        public static string FullUpdateForOnlineIndexBuild
+        {
+            get
+            {
+                return Keys.GetString(Keys.FullUpdateForOnlineIndexBuild);
+            }
+        }
+
+        public static string FullUpdateForOnlineIndexBuildDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.FullUpdateForOnlineIndexBuildDescription);
+            }
+        }
+
+        public static string Wait
+        {
+            get
+            {
+                return Keys.GetString(Keys.Wait);
+            }
+        }
+
+        public static string WaitDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.WaitDescription);
+            }
+        }
+
+        public static string PlanAffectingConvert
+        {
+            get
+            {
+                return Keys.GetString(Keys.PlanAffectingConvert);
+            }
+        }
+
+        public static string PlanAffectingConvertDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.PlanAffectingConvertDescription);
+            }
+        }
+
+        public static string MemoryGrantWarning
+        {
+            get
+            {
+                return Keys.GetString(Keys.MemoryGrantWarning);
+            }
+        }
+
+        public static string MemoryGrantWarningDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.MemoryGrantWarningDescription);
+            }
+        }
+
+        public static string StartupExpression
+        {
+            get
+            {
+                return Keys.GetString(Keys.StartupExpression);
+            }
+        }
+
+        public static string StartupExpressionDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.StartupExpressionDescription);
+            }
+        }
+
+        public static string StartupExpressionPredicate
+        {
+            get
+            {
+                return Keys.GetString(Keys.StartupExpressionPredicate);
+            }
+        }
+
+        public static string Query
+        {
+            get
+            {
+                return Keys.GetString(Keys.Query);
+            }
+        }
+
+        public static string Stack
+        {
+            get
+            {
+                return Keys.GetString(Keys.Stack);
+            }
+        }
+
+        public static string RowCount
+        {
+            get
+            {
+                return Keys.GetString(Keys.RowCount);
+            }
+        }
+
+        public static string Optimized
+        {
+            get
+            {
+                return Keys.GetString(Keys.Optimized);
+            }
+        }
+
+        public static string WithPrefetch
+        {
+            get
+            {
+                return Keys.GetString(Keys.WithPrefetch);
+            }
+        }
+
+        public static string Prefix
+        {
+            get
+            {
+                return Keys.GetString(Keys.Prefix);
+            }
+        }
+
+        public static string StartRange
+        {
+            get
+            {
+                return Keys.GetString(Keys.StartRange);
+            }
+        }
+
+        public static string StartRangeDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.StartRangeDescription);
+            }
+        }
+
+        public static string EndRange
+        {
+            get
+            {
+                return Keys.GetString(Keys.EndRange);
+            }
+        }
+
+        public static string EndRangeDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.EndRangeDescription);
+            }
+        }
+
+        public static string RangeColumns
+        {
+            get
+            {
+                return Keys.GetString(Keys.RangeColumns);
+            }
+        }
+
+        public static string RangeExpressions
+        {
+            get
+            {
+                return Keys.GetString(Keys.RangeExpressions);
+            }
+        }
+
+        public static string ScanType
+        {
+            get
+            {
+                return Keys.GetString(Keys.ScanType);
+            }
+        }
+
+        public static string ColumnReference
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnReference);
+            }
+        }
+
+        public static string ObjectServer
+        {
+            get
+            {
+                return Keys.GetString(Keys.ObjectServer);
+            }
+        }
+
+        public static string ObjectServerDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ObjectServerDescription);
+            }
+        }
+
+        public static string ObjectDatabase
+        {
+            get
+            {
+                return Keys.GetString(Keys.ObjectDatabase);
+            }
+        }
+
+        public static string ObjectDatabaseDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ObjectDatabaseDescription);
+            }
+        }
+
+        public static string ObjectIndex
+        {
+            get
+            {
+                return Keys.GetString(Keys.ObjectIndex);
+            }
+        }
+
+        public static string ObjectIndexDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ObjectIndexDescription);
+            }
+        }
+
+        public static string ObjectSchema
+        {
+            get
+            {
+                return Keys.GetString(Keys.ObjectSchema);
+            }
+        }
+
+        public static string ObjectSchemaDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ObjectSchemaDescription);
+            }
+        }
+
+        public static string ObjectTable
+        {
+            get
+            {
+                return Keys.GetString(Keys.ObjectTable);
+            }
+        }
+
+        public static string ObjectTableDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ObjectTableDescription);
+            }
+        }
+
+        public static string ObjectAlias
+        {
+            get
+            {
+                return Keys.GetString(Keys.ObjectAlias);
+            }
+        }
+
+        public static string ObjectAliasDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ObjectAliasDescription);
+            }
+        }
+
+        public static string ObjectColumn
+        {
+            get
+            {
+                return Keys.GetString(Keys.ObjectColumn);
+            }
+        }
+
+        public static string ObjectColumnDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ObjectColumnDescription);
+            }
+        }
+
+        public static string ObjectComputedColumn
+        {
+            get
+            {
+                return Keys.GetString(Keys.ObjectComputedColumn);
+            }
+        }
+
+        public static string ObjectComputedColumnDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ObjectComputedColumnDescription);
+            }
+        }
+
+        public static string ParameterDataType
+        {
+            get
+            {
+                return Keys.GetString(Keys.ParameterDataType);
+            }
+        }
+
+        public static string ParameterCompiledValue
+        {
+            get
+            {
+                return Keys.GetString(Keys.ParameterCompiledValue);
+            }
+        }
+
+        public static string ParameterRuntimeValue
+        {
+            get
+            {
+                return Keys.GetString(Keys.ParameterRuntimeValue);
+            }
+        }
+
+        public static string CursorPlan
+        {
+            get
+            {
+                return Keys.GetString(Keys.CursorPlan);
+            }
+        }
+
+        public static string CursorOperation
+        {
+            get
+            {
+                return Keys.GetString(Keys.CursorOperation);
+            }
+        }
+
+        public static string CursorName
+        {
+            get
+            {
+                return Keys.GetString(Keys.CursorName);
+            }
+        }
+
+        public static string CursorActualType
+        {
+            get
+            {
+                return Keys.GetString(Keys.CursorActualType);
+            }
+        }
+
+        public static string CursorRequestedType
+        {
+            get
+            {
+                return Keys.GetString(Keys.CursorRequestedType);
+            }
+        }
+
+        public static string CursorConcurrency
+        {
+            get
+            {
+                return Keys.GetString(Keys.CursorConcurrency);
+            }
+        }
+
+        public static string ForwardOnly
+        {
+            get
+            {
+                return Keys.GetString(Keys.ForwardOnly);
+            }
+        }
+
+        public static string QueryPlan
+        {
+            get
+            {
+                return Keys.GetString(Keys.QueryPlan);
+            }
+        }
+
+        public static string OperationType
+        {
+            get
+            {
+                return Keys.GetString(Keys.OperationType);
+            }
+        }
+
+        public static string NodeId
+        {
+            get
+            {
+                return Keys.GetString(Keys.NodeId);
+            }
+        }
+
+        public static string PrimaryNodeId
+        {
+            get
+            {
+                return Keys.GetString(Keys.PrimaryNodeId);
+            }
+        }
+
+        public static string InternalInfo
+        {
+            get
+            {
+                return Keys.GetString(Keys.InternalInfo);
+            }
+        }
+
+        public static string ForeignKeyReferencesCount
+        {
+            get
+            {
+                return Keys.GetString(Keys.ForeignKeyReferencesCount);
+            }
+        }
+
+        public static string NoMatchingIndexCount
+        {
+            get
+            {
+                return Keys.GetString(Keys.NoMatchingIndexCount);
+            }
+        }
+
+        public static string PartialMatchingIndexCount
+        {
+            get
+            {
+                return Keys.GetString(Keys.PartialMatchingIndexCount);
+            }
+        }
+
+        public static string LogicalOpCollapse
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpCollapse);
+            }
+        }
+
+        public static string LogicalOpConcatenation
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpConcatenation);
+            }
+        }
+
+        public static string LogicalOpConstantScan
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpConstantScan);
+            }
+        }
+
+        public static string LogicalOpGatherStreams
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpGatherStreams);
+            }
+        }
+
+        public static string LogicalOpRepartitionStreams
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpRepartitionStreams);
+            }
+        }
+
+        public static string LogicalOpDistributeStreams
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpDistributeStreams);
+            }
+        }
+
+        public static string LogicalOpFilter
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpFilter);
+            }
+        }
+
+        public static string LogicalOpAssert
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpAssert);
+            }
+        }
+
+        public static string LogicalOpLogRowScan
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpLogRowScan);
+            }
+        }
+
+        public static string LogicalOpPrint
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpPrint);
+            }
+        }
+
+        public static string LogicalOpComputeScalar
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpComputeScalar);
+            }
+        }
+
+        public static string LogicalOpMergeInterval
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpMergeInterval);
+            }
+        }
+
+        public static string LogicalOpRank
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpRank);
+            }
+        }
+
+        public static string LogicalOpSegment
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpSegment);
+            }
+        }
+
+        public static string LogicalOpSequence
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpSequence);
+            }
+        }
+
+        public static string LogicalOpSplit
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpSplit);
+            }
+        }
+
+        public static string LogicalOpAggregate
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpAggregate);
+            }
+        }
+
+        public static string LogicalOpTableScan
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpTableScan);
+            }
+        }
+
+        public static string LogicalOpClusteredIndexScan
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpClusteredIndexScan);
+            }
+        }
+
+        public static string LogicalOpClusteredIndexSeek
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpClusteredIndexSeek);
+            }
+        }
+
+        public static string LogicalOpDeletedScan
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpDeletedScan);
+            }
+        }
+
+        public static string LogicalOpInsertedScan
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpInsertedScan);
+            }
+        }
+
+        public static string LogicalOpParameterTableScan
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpParameterTableScan);
+            }
+        }
+
+        public static string LogicalOpPut
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpPut);
+            }
+        }
+
+        public static string LogicalOpIndexScan
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpIndexScan);
+            }
+        }
+
+        public static string LogicalOpIndexSeek
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpIndexSeek);
+            }
+        }
+
+        public static string LogicalOpRemoteScan
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpRemoteScan);
+            }
+        }
+
+        public static string LogicalOpRemoteIndexScan
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpRemoteIndexScan);
+            }
+        }
+
+        public static string LogicalOpRemoteIndexSeek
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpRemoteIndexSeek);
+            }
+        }
+
+        public static string LogicalOpRemoteQuery
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpRemoteQuery);
+            }
+        }
+
+        public static string LogicalOpRemoteInsert
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpRemoteInsert);
+            }
+        }
+
+        public static string LogicalOpRemoteUpdate
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpRemoteUpdate);
+            }
+        }
+
+        public static string LogicalOpRemoteDelete
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpRemoteDelete);
+            }
+        }
+
+        public static string LogicalOpClusteredUpdate
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpClusteredUpdate);
+            }
+        }
+
+        public static string LogicalOpDistinctSort
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpDistinctSort);
+            }
+        }
+
+        public static string LogicalOpSort
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpSort);
+            }
+        }
+
+        public static string LogicalOpTopNSort
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpTopNSort);
+            }
+        }
+
+        public static string LogicalOpEagerSpool
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpEagerSpool);
+            }
+        }
+
+        public static string LogicalOpLazySpool
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpLazySpool);
+            }
+        }
+
+        public static string LogicalOpUpdate
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpUpdate);
+            }
+        }
+
+        public static string LogicalOpInsert
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpInsert);
+            }
+        }
+
+        public static string LogicalOpDelete
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpDelete);
+            }
+        }
+
+        public static string LogicalOpMerge
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpMerge);
+            }
+        }
+
+        public static string LogicalOpTop
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpTop);
+            }
+        }
+
+        public static string LogicalOpDistinct
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpDistinct);
+            }
+        }
+
+        public static string LogicalOpFlowDistinct
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpFlowDistinct);
+            }
+        }
+
+        public static string LogicalOpPartialAggregate
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpPartialAggregate);
+            }
+        }
+
+        public static string LogicalOpInnerApply
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpInnerApply);
+            }
+        }
+
+        public static string LogicalOpInnerJoin
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpInnerJoin);
+            }
+        }
+
+        public static string LogicalOpLeftAntiSemiApply
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpLeftAntiSemiApply);
+            }
+        }
+
+        public static string LogicalOpLeftSemiApply
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpLeftSemiApply);
+            }
+        }
+
+        public static string LogicalOpLeftOuterApply
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpLeftOuterApply);
+            }
+        }
+
+        public static string LogicalOpLeftOuterJoin
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpLeftOuterJoin);
+            }
+        }
+
+        public static string LogicalOpRightOuterJoin
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpRightOuterJoin);
+            }
+        }
+
+        public static string LogicalOpFullOuterJoin
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpFullOuterJoin);
+            }
+        }
+
+        public static string LogicalOpLeftSemiJoin
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpLeftSemiJoin);
+            }
+        }
+
+        public static string LogicalOpLeftAntiSemiJoin
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpLeftAntiSemiJoin);
+            }
+        }
+
+        public static string LogicalOpRightSemiJoin
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpRightSemiJoin);
+            }
+        }
+
+        public static string LogicalOpRightAntiSemiJoin
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpRightAntiSemiJoin);
+            }
+        }
+
+        public static string LogicalOpIntersect
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpIntersect);
+            }
+        }
+
+        public static string LogicalOpIntersectAll
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpIntersectAll);
+            }
+        }
+
+        public static string LogicalOpUnion
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpUnion);
+            }
+        }
+
+        public static string LogicalOpLeftDiff
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpLeftDiff);
+            }
+        }
+
+        public static string LogicalOpLeftDiffAll
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpLeftDiffAll);
+            }
+        }
+
+        public static string LogicalOpRightDiff
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpRightDiff);
+            }
+        }
+
+        public static string LogicalOpRightDiffAll
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpRightDiffAll);
+            }
+        }
+
+        public static string LogicalOpAntiDiff
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpAntiDiff);
+            }
+        }
+
+        public static string LogicalOpCrossJoin
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpCrossJoin);
+            }
+        }
+
+        public static string LogicalOpBitmapCreate
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpBitmapCreate);
+            }
+        }
+
+        public static string LogicalOpUDX
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpUDX);
+            }
+        }
+
+        public static string LogicalOpWindow
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpWindow);
+            }
+        }
+
+        public static string LogicalOpSwitch
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpSwitch);
+            }
+        }
+
+        public static string LogicalOpMergeStats
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpMergeStats);
+            }
+        }
+
+        public static string LogicalOpLocalStats
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpLocalStats);
+            }
+        }
+
+        public static string LogicalOpTableValuedFunction
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpTableValuedFunction);
+            }
+        }
+
+        public static string LogicalOpBatchHashTableBuild
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpBatchHashTableBuild);
+            }
+        }
+
+        public static string LogicalOpForeignKeyReferencesCheck
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpForeignKeyReferencesCheck);
+            }
+        }
+
+        public static string LogicalOpRIDLookup
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalOpRIDLookup);
+            }
+        }
+
+        public static string StoredProc
+        {
+            get
+            {
+                return Keys.GetString(Keys.StoredProc);
+            }
+        }
+
+        public static string Udf
+        {
+            get
+            {
+                return Keys.GetString(Keys.Udf);
+            }
+        }
+
+        public static string ProcName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ProcName);
+            }
+        }
+
+        public static string Storage
+        {
+            get
+            {
+                return Keys.GetString(Keys.Storage);
+            }
+        }
+
+        public static string StorageDesc
+        {
+            get
+            {
+                return Keys.GetString(Keys.StorageDesc);
+            }
+        }
+
+        public static string ActualExecMode
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualExecMode);
+            }
+        }
+
+        public static string ActualExecModeDesc
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualExecModeDesc);
+            }
+        }
+
+        public static string EstimatedExecMode
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedExecMode);
+            }
+        }
+
+        public static string EstimatedExecModeDesc
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedExecModeDesc);
+            }
+        }
+
+        public static string RemoteDataAccess
+        {
+            get
+            {
+                return Keys.GetString(Keys.RemoteDataAccess);
+            }
+        }
+
+        public static string RemoteDataAccessDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.RemoteDataAccessDescription);
+            }
+        }
+
+        public static string CloneAccessScope
+        {
+            get
+            {
+                return Keys.GetString(Keys.CloneAccessScope);
+            }
+        }
+
+        public static string CloneAccessScopeDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.CloneAccessScopeDescription);
+            }
+        }
+
+        public static string PrimaryClones
+        {
+            get
+            {
+                return Keys.GetString(Keys.PrimaryClones);
+            }
+        }
+
+        public static string SecondaryClones
+        {
+            get
+            {
+                return Keys.GetString(Keys.SecondaryClones);
+            }
+        }
+
+        public static string BothClones
+        {
+            get
+            {
+                return Keys.GetString(Keys.BothClones);
+            }
+        }
+
+        public static string EitherClones
+        {
+            get
+            {
+                return Keys.GetString(Keys.EitherClones);
+            }
+        }
+
+        public static string ExactMatchClones
+        {
+            get
+            {
+                return Keys.GetString(Keys.ExactMatchClones);
+            }
+        }
+
+        public static string Remoting
+        {
+            get
+            {
+                return Keys.GetString(Keys.Remoting);
+            }
+        }
+
+        public static string RemotingDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.RemotingDescription);
+            }
+        }
+
+        public static string Activation
+        {
+            get
+            {
+                return Keys.GetString(Keys.Activation);
+            }
+        }
+
+        public static string BrickRouting
+        {
+            get
+            {
+                return Keys.GetString(Keys.BrickRouting);
+            }
+        }
+
+        public static string FragmentIdColumn
+        {
+            get
+            {
+                return Keys.GetString(Keys.FragmentIdColumn);
+            }
+        }
+
+        public static string EditQueryText
+        {
+            get
+            {
+                return Keys.GetString(Keys.EditQueryText);
+            }
+        }
+
+        public static string UnknownShowPlanSource
+        {
+            get
+            {
+                return Keys.GetString(Keys.UnknownShowPlanSource);
+            }
+        }
+
+        public static string SavePlanFilter
+        {
+            get
+            {
+                return Keys.GetString(Keys.SavePlanFilter);
+            }
+        }
+
+        public static string NoXmlPlanData
+        {
+            get
+            {
+                return Keys.GetString(Keys.NoXmlPlanData);
+            }
+        }
+
+        public static string PerThreadCounterDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.PerThreadCounterDescription);
+            }
+        }
+
+        public static string RuntimeCounterThreadAll
+        {
+            get
+            {
+                return Keys.GetString(Keys.RuntimeCounterThreadAll);
+            }
+        }
+
+        public static string ConnectionPropertiesLabel
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionPropertiesLabel);
+            }
+        }
+
+        public static string UnknownAssignType
+        {
+            get
+            {
+                return Keys.GetString(Keys.UnknownAssignType);
+            }
+        }
+
+        public static string MessageBoxCaption
+        {
+            get
+            {
+                return Keys.GetString(Keys.MessageBoxCaption);
+            }
+        }
+
+        public static string UnknownNodeType
+        {
+            get
+            {
+                return Keys.GetString(Keys.UnknownNodeType);
+            }
+        }
+
+        public static string UnknownStatementType
+        {
+            get
+            {
+                return Keys.GetString(Keys.UnknownStatementType);
+            }
+        }
+
+        public static string RollupInfo
+        {
+            get
+            {
+                return Keys.GetString(Keys.RollupInfo);
+            }
+        }
+
+        public static string RollupInfoDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.RollupInfoDescription);
+            }
+        }
+
+        public static string HighestLevel
+        {
+            get
+            {
+                return Keys.GetString(Keys.HighestLevel);
+            }
+        }
+
+        public static string HighestLevelDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.HighestLevelDescription);
+            }
+        }
+
+        public static string RollupLevel
+        {
+            get
+            {
+                return Keys.GetString(Keys.RollupLevel);
+            }
+        }
+
+        public static string RollupLevelDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.RollupLevelDescription);
+            }
+        }
+
+        public static string Level
+        {
+            get
+            {
+                return Keys.GetString(Keys.Level);
+            }
+        }
+
+        public static string LevelDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.LevelDescription);
+            }
+        }
+
+        public static string Unknown
+        {
+            get
+            {
+                return Keys.GetString(Keys.Unknown);
+            }
+        }
+
+        public static string UnknownDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.UnknownDescription);
+            }
+        }
+
+        public static string Result
+        {
+            get
+            {
+                return Keys.GetString(Keys.Result);
+            }
+        }
+
+        public static string ResultDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ResultDescription);
+            }
+        }
+
+        public static string Collapse
+        {
+            get
+            {
+                return Keys.GetString(Keys.Collapse);
+            }
+        }
+
+        public static string CollapseDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.CollapseDescription);
+            }
+        }
+
+        public static string Concatenation
+        {
+            get
+            {
+                return Keys.GetString(Keys.Concatenation);
+            }
+        }
+
+        public static string ConcatenationDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConcatenationDescription);
+            }
+        }
+
+        public static string ConstantScan
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConstantScan);
+            }
+        }
+
+        public static string ConstantScanDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConstantScanDescription);
+            }
+        }
+
+        public static string Parallelism
+        {
+            get
+            {
+                return Keys.GetString(Keys.Parallelism);
+            }
+        }
+
+        public static string ParallelismDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ParallelismDescription);
+            }
+        }
+
+        public static string Put
+        {
+            get
+            {
+                return Keys.GetString(Keys.Put);
+            }
+        }
+
+        public static string PutDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.PutDescription);
+            }
+        }
+
+        public static string DistributeStreams
+        {
+            get
+            {
+                return Keys.GetString(Keys.DistributeStreams);
+            }
+        }
+
+        public static string DistributeStreamsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.DistributeStreamsDescription);
+            }
+        }
+
+        public static string GatherStreams
+        {
+            get
+            {
+                return Keys.GetString(Keys.GatherStreams);
+            }
+        }
+
+        public static string GatherStreamsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.GatherStreamsDescription);
+            }
+        }
+
+        public static string RepartitionStreams
+        {
+            get
+            {
+                return Keys.GetString(Keys.RepartitionStreams);
+            }
+        }
+
+        public static string RepartitionStreamsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.RepartitionStreamsDescription);
+            }
+        }
+
+        public static string EagerSpool
+        {
+            get
+            {
+                return Keys.GetString(Keys.EagerSpool);
+            }
+        }
+
+        public static string EagerSpoolDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.EagerSpoolDescription);
+            }
+        }
+
+        public static string LazySpool
+        {
+            get
+            {
+                return Keys.GetString(Keys.LazySpool);
+            }
+        }
+
+        public static string LazySpoolDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.LazySpoolDescription);
+            }
+        }
+
+        public static string Filter
+        {
+            get
+            {
+                return Keys.GetString(Keys.Filter);
+            }
+        }
+
+        public static string FilterDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.FilterDescription);
+            }
+        }
+
+        public static string Assert
+        {
+            get
+            {
+                return Keys.GetString(Keys.Assert);
+            }
+        }
+
+        public static string AssertDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.AssertDescription);
+            }
+        }
+
+        public static string HashMatch
+        {
+            get
+            {
+                return Keys.GetString(Keys.HashMatch);
+            }
+        }
+
+        public static string HashMatchDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.HashMatchDescription);
+            }
+        }
+
+        public static string HashMatchTeam
+        {
+            get
+            {
+                return Keys.GetString(Keys.HashMatchTeam);
+            }
+        }
+
+        public static string HashMatchTeamDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.HashMatchTeamDescription);
+            }
+        }
+
+        public static string HashMatchRoot
+        {
+            get
+            {
+                return Keys.GetString(Keys.HashMatchRoot);
+            }
+        }
+
+        public static string HashMatchRootDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.HashMatchRootDescription);
+            }
+        }
+
+        public static string BookmarkLookup
+        {
+            get
+            {
+                return Keys.GetString(Keys.BookmarkLookup);
+            }
+        }
+
+        public static string BookmarkLookupDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.BookmarkLookupDescription);
+            }
+        }
+
+        public static string LogRowScan
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogRowScan);
+            }
+        }
+
+        public static string LogRowScanDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogRowScanDescription);
+            }
+        }
+
+        public static string MergeJoin
+        {
+            get
+            {
+                return Keys.GetString(Keys.MergeJoin);
+            }
+        }
+
+        public static string MergeJoinDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.MergeJoinDescription);
+            }
+        }
+
+        public static string NestedLoops
+        {
+            get
+            {
+                return Keys.GetString(Keys.NestedLoops);
+            }
+        }
+
+        public static string NestedLoopsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.NestedLoopsDescription);
+            }
+        }
+
+        public static string Print
+        {
+            get
+            {
+                return Keys.GetString(Keys.Print);
+            }
+        }
+
+        public static string PrintDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.PrintDescription);
+            }
+        }
+
+        public static string ComputeScalar
+        {
+            get
+            {
+                return Keys.GetString(Keys.ComputeScalar);
+            }
+        }
+
+        public static string ComputeScalarDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ComputeScalarDescription);
+            }
+        }
+
+        public static string MergeInterval
+        {
+            get
+            {
+                return Keys.GetString(Keys.MergeInterval);
+            }
+        }
+
+        public static string MergeIntervalDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.MergeIntervalDescription);
+            }
+        }
+
+        public static string Rank
+        {
+            get
+            {
+                return Keys.GetString(Keys.Rank);
+            }
+        }
+
+        public static string RankDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.RankDescription);
+            }
+        }
+
+        public static string RowCountSpool
+        {
+            get
+            {
+                return Keys.GetString(Keys.RowCountSpool);
+            }
+        }
+
+        public static string RowCountSpoolDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.RowCountSpoolDescription);
+            }
+        }
+
+        public static string Segment
+        {
+            get
+            {
+                return Keys.GetString(Keys.Segment);
+            }
+        }
+
+        public static string SegmentDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.SegmentDescription);
+            }
+        }
+
+        public static string Sequence
+        {
+            get
+            {
+                return Keys.GetString(Keys.Sequence);
+            }
+        }
+
+        public static string SequenceDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.SequenceDescription);
+            }
+        }
+
+        public static string SequenceProject
+        {
+            get
+            {
+                return Keys.GetString(Keys.SequenceProject);
+            }
+        }
+
+        public static string SequenceProjectDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.SequenceProjectDescription);
+            }
+        }
+
+        public static string Split
+        {
+            get
+            {
+                return Keys.GetString(Keys.Split);
+            }
+        }
+
+        public static string SplitDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.SplitDescription);
+            }
+        }
+
+        public static string StreamAggregate
+        {
+            get
+            {
+                return Keys.GetString(Keys.StreamAggregate);
+            }
+        }
+
+        public static string StreamAggregateDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.StreamAggregateDescription);
+            }
+        }
+
+        public static string TableScan
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableScan);
+            }
+        }
+
+        public static string TableScanDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableScanDescription);
+            }
+        }
+
+        public static string ClusteredIndexScan
+        {
+            get
+            {
+                return Keys.GetString(Keys.ClusteredIndexScan);
+            }
+        }
+
+        public static string ClusteredIndexScanDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ClusteredIndexScanDescription);
+            }
+        }
+
+        public static string ClusteredIndexSeek
+        {
+            get
+            {
+                return Keys.GetString(Keys.ClusteredIndexSeek);
+            }
+        }
+
+        public static string ClusteredIndexSeekDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ClusteredIndexSeekDescription);
+            }
+        }
+
+        public static string DeletedScan
+        {
+            get
+            {
+                return Keys.GetString(Keys.DeletedScan);
+            }
+        }
+
+        public static string DeletedScanDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.DeletedScanDescription);
+            }
+        }
+
+        public static string InsertedScan
+        {
+            get
+            {
+                return Keys.GetString(Keys.InsertedScan);
+            }
+        }
+
+        public static string InsertedScanDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.InsertedScanDescription);
+            }
+        }
+
+        public static string ParameterTableScan
+        {
+            get
+            {
+                return Keys.GetString(Keys.ParameterTableScan);
+            }
+        }
+
+        public static string ParameterTableScanDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ParameterTableScanDescription);
+            }
+        }
+
+        public static string IndexScan
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexScan);
+            }
+        }
+
+        public static string IndexScanDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexScanDescription);
+            }
+        }
+
+        public static string IndexSeek
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexSeek);
+            }
+        }
+
+        public static string IndexSeekDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexSeekDescription);
+            }
+        }
+
+        public static string ColumnstoreIndexScan
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnstoreIndexScan);
+            }
+        }
+
+        public static string ColumnstoreIndexScanDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnstoreIndexScanDescription);
+            }
+        }
+
+        public static string ColumnstoreIndexUpdate
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnstoreIndexUpdate);
+            }
+        }
+
+        public static string ColumnstoreIndexUpdateDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnstoreIndexUpdateDescription);
+            }
+        }
+
+        public static string ColumnstoreIndexInsert
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnstoreIndexInsert);
+            }
+        }
+
+        public static string ColumnstoreIndexInsertDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnstoreIndexInsertDescription);
+            }
+        }
+
+        public static string ColumnstoreIndexMerge
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnstoreIndexMerge);
+            }
+        }
+
+        public static string ColumnstoreIndexMergeDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnstoreIndexMergeDescription);
+            }
+        }
+
+        public static string ColumnstoreIndexDelete
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnstoreIndexDelete);
+            }
+        }
+
+        public static string ColumnstoreIndexDeleteDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnstoreIndexDeleteDescription);
+            }
+        }
+
+        public static string RemoteScan
+        {
+            get
+            {
+                return Keys.GetString(Keys.RemoteScan);
+            }
+        }
+
+        public static string RemoteScanDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.RemoteScanDescription);
+            }
+        }
+
+        public static string RemoteIndexScan
+        {
+            get
+            {
+                return Keys.GetString(Keys.RemoteIndexScan);
+            }
+        }
+
+        public static string RemoteIndexScanDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.RemoteIndexScanDescription);
+            }
+        }
+
+        public static string RemoteIndexSeek
+        {
+            get
+            {
+                return Keys.GetString(Keys.RemoteIndexSeek);
+            }
+        }
+
+        public static string RemoteIndexSeekDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.RemoteIndexSeekDescription);
+            }
+        }
+
+        public static string RemoteQuery
+        {
+            get
+            {
+                return Keys.GetString(Keys.RemoteQuery);
+            }
+        }
+
+        public static string RemoteQueryDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.RemoteQueryDescription);
+            }
+        }
+
+        public static string RemoteInsert
+        {
+            get
+            {
+                return Keys.GetString(Keys.RemoteInsert);
+            }
+        }
+
+        public static string RemoteInsertDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.RemoteInsertDescription);
+            }
+        }
+
+        public static string RemoteUpdate
+        {
+            get
+            {
+                return Keys.GetString(Keys.RemoteUpdate);
+            }
+        }
+
+        public static string RemoteUpdateDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.RemoteUpdateDescription);
+            }
+        }
+
+        public static string RemoteDelete
+        {
+            get
+            {
+                return Keys.GetString(Keys.RemoteDelete);
+            }
+        }
+
+        public static string RemoteDeleteDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.RemoteDeleteDescription);
+            }
+        }
+
+        public static string ClusteredUpdate
+        {
+            get
+            {
+                return Keys.GetString(Keys.ClusteredUpdate);
+            }
+        }
+
+        public static string ClusteredUpdateDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ClusteredUpdateDescription);
+            }
+        }
+
+        public static string Sort
+        {
+            get
+            {
+                return Keys.GetString(Keys.Sort);
+            }
+        }
+
+        public static string SortDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.SortDescription);
+            }
+        }
+
+        public static string TableSpool
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableSpool);
+            }
+        }
+
+        public static string TableSpoolDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableSpoolDescription);
+            }
+        }
+
+        public static string IndexSpool
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexSpool);
+            }
+        }
+
+        public static string IndexSpoolDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexSpoolDescription);
+            }
+        }
+
+        public static string TableUpdate
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableUpdate);
+            }
+        }
+
+        public static string TableUpdateDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableUpdateDescription);
+            }
+        }
+
+        public static string TableInsert
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableInsert);
+            }
+        }
+
+        public static string TableInsertDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableInsertDescription);
+            }
+        }
+
+        public static string TableDelete
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDelete);
+            }
+        }
+
+        public static string TableDeleteDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDeleteDescription);
+            }
+        }
+
+        public static string TableMerge
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableMerge);
+            }
+        }
+
+        public static string TableMergeDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableMergeDescription);
+            }
+        }
+
+        public static string IndexUpdate
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexUpdate);
+            }
+        }
+
+        public static string IndexUpdateDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexUpdateDescription);
+            }
+        }
+
+        public static string IndexInsert
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexInsert);
+            }
+        }
+
+        public static string IndexInsertDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexInsertDescription);
+            }
+        }
+
+        public static string IndexDelete
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexDelete);
+            }
+        }
+
+        public static string IndexDeleteDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexDeleteDescription);
+            }
+        }
+
+        public static string ClusteredIndexUpdate
+        {
+            get
+            {
+                return Keys.GetString(Keys.ClusteredIndexUpdate);
+            }
+        }
+
+        public static string ClusteredIndexUpdateDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ClusteredIndexUpdateDescription);
+            }
+        }
+
+        public static string ClusteredIndexInsert
+        {
+            get
+            {
+                return Keys.GetString(Keys.ClusteredIndexInsert);
+            }
+        }
+
+        public static string ClusteredIndexInsertDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ClusteredIndexInsertDescription);
+            }
+        }
+
+        public static string ClusteredIndexMerge
+        {
+            get
+            {
+                return Keys.GetString(Keys.ClusteredIndexMerge);
+            }
+        }
+
+        public static string ClusteredIndexMergeDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ClusteredIndexMergeDescription);
+            }
+        }
+
+        public static string ClusteredIndexDelete
+        {
+            get
+            {
+                return Keys.GetString(Keys.ClusteredIndexDelete);
+            }
+        }
+
+        public static string ClusteredIndexDeleteDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ClusteredIndexDeleteDescription);
+            }
+        }
+
+        public static string Top
+        {
+            get
+            {
+                return Keys.GetString(Keys.Top);
+            }
+        }
+
+        public static string TopDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TopDescription);
+            }
+        }
+
+        public static string Bitmap
+        {
+            get
+            {
+                return Keys.GetString(Keys.Bitmap);
+            }
+        }
+
+        public static string BitmapDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.BitmapDescription);
+            }
+        }
+
+        public static string UDX
+        {
+            get
+            {
+                return Keys.GetString(Keys.UDX);
+            }
+        }
+
+        public static string UDXDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.UDXDescription);
+            }
+        }
+
+        public static string Window
+        {
+            get
+            {
+                return Keys.GetString(Keys.Window);
+            }
+        }
+
+        public static string WindowDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.WindowDescription);
+            }
+        }
+
+        public static string WindowAggregate
+        {
+            get
+            {
+                return Keys.GetString(Keys.WindowAggregate);
+            }
+        }
+
+        public static string WindowAggregateDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.WindowAggregateDescription);
+            }
+        }
+
+        public static string BatchHashTableBuild
+        {
+            get
+            {
+                return Keys.GetString(Keys.BatchHashTableBuild);
+            }
+        }
+
+        public static string BatchHashTableBuildDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.BatchHashTableBuildDescription);
+            }
+        }
+
+        public static string Switch
+        {
+            get
+            {
+                return Keys.GetString(Keys.Switch);
+            }
+        }
+
+        public static string SwitchDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.SwitchDescription);
+            }
+        }
+
+        public static string TFP
+        {
+            get
+            {
+                return Keys.GetString(Keys.TFP);
+            }
+        }
+
+        public static string TFPDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TFPDescription);
+            }
+        }
+
+        public static string TableValueFunction
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableValueFunction);
+            }
+        }
+
+        public static string TableValueFunctionDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableValueFunctionDescription);
+            }
+        }
+
+        public static string Aggregate
+        {
+            get
+            {
+                return Keys.GetString(Keys.Aggregate);
+            }
+        }
+
+        public static string AggregateDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.AggregateDescription);
+            }
+        }
+
+        public static string ArithmeticExpression
+        {
+            get
+            {
+                return Keys.GetString(Keys.ArithmeticExpression);
+            }
+        }
+
+        public static string ArithmeticExpressionDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ArithmeticExpressionDescription);
+            }
+        }
+
+        public static string Delete
+        {
+            get
+            {
+                return Keys.GetString(Keys.Delete);
+            }
+        }
+
+        public static string DeleteDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.DeleteDescription);
+            }
+        }
+
+        public static string Insert
+        {
+            get
+            {
+                return Keys.GetString(Keys.Insert);
+            }
+        }
+
+        public static string InsertDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.InsertDescription);
+            }
+        }
+
+        public static string Locate
+        {
+            get
+            {
+                return Keys.GetString(Keys.Locate);
+            }
+        }
+
+        public static string LocateDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.LocateDescription);
+            }
+        }
+
+        public static string Spool
+        {
+            get
+            {
+                return Keys.GetString(Keys.Spool);
+            }
+        }
+
+        public static string SpoolDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.SpoolDescription);
+            }
+        }
+
+        public static string SQL
+        {
+            get
+            {
+                return Keys.GetString(Keys.SQL);
+            }
+        }
+
+        public static string SQLDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.SQLDescription);
+            }
+        }
+
+        public static string Update
+        {
+            get
+            {
+                return Keys.GetString(Keys.Update);
+            }
+        }
+
+        public static string UpdateDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.UpdateDescription);
+            }
+        }
+
+        public static string Assign
+        {
+            get
+            {
+                return Keys.GetString(Keys.Assign);
+            }
+        }
+
+        public static string AssignDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.AssignDescription);
+            }
+        }
+
+        public static string Convert
+        {
+            get
+            {
+                return Keys.GetString(Keys.Convert);
+            }
+        }
+
+        public static string ConvertDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConvertDescription);
+            }
+        }
+
+        public static string Declare
+        {
+            get
+            {
+                return Keys.GetString(Keys.Declare);
+            }
+        }
+
+        public static string DeclareDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.DeclareDescription);
+            }
+        }
+
+        public static string If
+        {
+            get
+            {
+                return Keys.GetString(Keys.If);
+            }
+        }
+
+        public static string IfDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.IfDescription);
+            }
+        }
+
+        public static string Intrinsic
+        {
+            get
+            {
+                return Keys.GetString(Keys.Intrinsic);
+            }
+        }
+
+        public static string IntrinsicDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.IntrinsicDescription);
+            }
+        }
+
+        public static string SetFunction
+        {
+            get
+            {
+                return Keys.GetString(Keys.SetFunction);
+            }
+        }
+
+        public static string SetFunctionDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.SetFunctionDescription);
+            }
+        }
+
+        public static string Dynamic
+        {
+            get
+            {
+                return Keys.GetString(Keys.Dynamic);
+            }
+        }
+
+        public static string DynamicDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.DynamicDescription);
+            }
+        }
+
+        public static string FetchQuery
+        {
+            get
+            {
+                return Keys.GetString(Keys.FetchQuery);
+            }
+        }
+
+        public static string FetchQueryDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.FetchQueryDescription);
+            }
+        }
+
+        public static string FastForward
+        {
+            get
+            {
+                return Keys.GetString(Keys.FastForward);
+            }
+        }
+
+        public static string FastForwardDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.FastForwardDescription);
+            }
+        }
+
+        public static string Keyset
+        {
+            get
+            {
+                return Keys.GetString(Keys.Keyset);
+            }
+        }
+
+        public static string KeysetDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.KeysetDescription);
+            }
+        }
+
+        public static string PopulationQuery
+        {
+            get
+            {
+                return Keys.GetString(Keys.PopulationQuery);
+            }
+        }
+
+        public static string PopulationQueryDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.PopulationQueryDescription);
+            }
+        }
+
+        public static string RefreshQuery
+        {
+            get
+            {
+                return Keys.GetString(Keys.RefreshQuery);
+            }
+        }
+
+        public static string RefreshQueryDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.RefreshQueryDescription);
+            }
+        }
+
+        public static string Snapshot
+        {
+            get
+            {
+                return Keys.GetString(Keys.Snapshot);
+            }
+        }
+
+        public static string SnapshotDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.SnapshotDescription);
+            }
+        }
+
+        public static string RIDLookup
+        {
+            get
+            {
+                return Keys.GetString(Keys.RIDLookup);
+            }
+        }
+
+        public static string RIDLookupDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.RIDLookupDescription);
+            }
+        }
+
+        public static string KeyLookup
+        {
+            get
+            {
+                return Keys.GetString(Keys.KeyLookup);
+            }
+        }
+
+        public static string KeyLookupDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.KeyLookupDescription);
+            }
+        }
+
+        public static string LogicalKeyLookup
+        {
+            get
+            {
+                return Keys.GetString(Keys.LogicalKeyLookup);
+            }
+        }
+
+        public static string AdaptiveJoin
+        {
+            get
+            {
+                return Keys.GetString(Keys.AdaptiveJoin);
+            }
+        }
+
+        public static string AdaptiveJoinDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.AdaptiveJoinDescription);
+            }
+        }
+
+        public static string ForeignKeyReferencesCheck
+        {
+            get
+            {
+                return Keys.GetString(Keys.ForeignKeyReferencesCheck);
+            }
+        }
+
+        public static string ForeignKeyReferencesCheckDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ForeignKeyReferencesCheckDescription);
+            }
+        }
+
+        public static string Apply
+        {
+            get
+            {
+                return Keys.GetString(Keys.Apply);
+            }
+        }
+
+        public static string ApplyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ApplyDescription);
+            }
+        }
+
+        public static string Broadcast
+        {
+            get
+            {
+                return Keys.GetString(Keys.Broadcast);
+            }
+        }
+
+        public static string BroadcastDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.BroadcastDescription);
+            }
+        }
+
+        public static string ComputeToControlNode
+        {
+            get
+            {
+                return Keys.GetString(Keys.ComputeToControlNode);
+            }
+        }
+
+        public static string ComputeToControlNodeDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ComputeToControlNodeDescription);
+            }
+        }
+
+        public static string ConstTableGet
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConstTableGet);
+            }
+        }
+
+        public static string ConstTableGetDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConstTableGetDescription);
+            }
+        }
+
+        public static string ControlToComputeNodes
+        {
+            get
+            {
+                return Keys.GetString(Keys.ControlToComputeNodes);
+            }
+        }
+
+        public static string ControlToComputeNodesDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ControlToComputeNodesDescription);
+            }
+        }
+
+        public static string ExternalBroadcast
+        {
+            get
+            {
+                return Keys.GetString(Keys.ExternalBroadcast);
+            }
+        }
+
+        public static string ExternalBroadcastDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ExternalBroadcastDescription);
+            }
+        }
+
+        public static string ExternalExport
+        {
+            get
+            {
+                return Keys.GetString(Keys.ExternalExport);
+            }
+        }
+
+        public static string ExternalExportDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ExternalExportDescription);
+            }
+        }
+
+        public static string ExternalLocalStreaming
+        {
+            get
+            {
+                return Keys.GetString(Keys.ExternalLocalStreaming);
+            }
+        }
+
+        public static string ExternalLocalStreamingDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ExternalLocalStreamingDescription);
+            }
+        }
+
+        public static string ExternalRoundRobin
+        {
+            get
+            {
+                return Keys.GetString(Keys.ExternalRoundRobin);
+            }
+        }
+
+        public static string ExternalRoundRobinDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ExternalRoundRobinDescription);
+            }
+        }
+
+        public static string ExternalShuffle
+        {
+            get
+            {
+                return Keys.GetString(Keys.ExternalShuffle);
+            }
+        }
+
+        public static string ExternalShuffleDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ExternalShuffleDescription);
+            }
+        }
+
+        public static string Get
+        {
+            get
+            {
+                return Keys.GetString(Keys.Get);
+            }
+        }
+
+        public static string GetDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.GetDescription);
+            }
+        }
+
+        public static string GbApply
+        {
+            get
+            {
+                return Keys.GetString(Keys.GbApply);
+            }
+        }
+
+        public static string GbApplyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.GbApplyDescription);
+            }
+        }
+
+        public static string GbAgg
+        {
+            get
+            {
+                return Keys.GetString(Keys.GbAgg);
+            }
+        }
+
+        public static string GbAggDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.GbAggDescription);
+            }
+        }
+
+        public static string Join
+        {
+            get
+            {
+                return Keys.GetString(Keys.Join);
+            }
+        }
+
+        public static string JoinDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.JoinDescription);
+            }
+        }
+
+        public static string LocalCube
+        {
+            get
+            {
+                return Keys.GetString(Keys.LocalCube);
+            }
+        }
+
+        public static string LocalCubeDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.LocalCubeDescription);
+            }
+        }
+
+        public static string Project
+        {
+            get
+            {
+                return Keys.GetString(Keys.Project);
+            }
+        }
+
+        public static string ProjectDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ProjectDescription);
+            }
+        }
+
+        public static string Shuffle
+        {
+            get
+            {
+                return Keys.GetString(Keys.Shuffle);
+            }
+        }
+
+        public static string ShuffleDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ShuffleDescription);
+            }
+        }
+
+        public static string SingleSourceRoundRobin
+        {
+            get
+            {
+                return Keys.GetString(Keys.SingleSourceRoundRobin);
+            }
+        }
+
+        public static string SingleSourceRoundRobinDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.SingleSourceRoundRobinDescription);
+            }
+        }
+
+        public static string SingleSourceShuffle
+        {
+            get
+            {
+                return Keys.GetString(Keys.SingleSourceShuffle);
+            }
+        }
+
+        public static string SingleSourceShuffleDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.SingleSourceShuffleDescription);
+            }
+        }
+
+        public static string Trim
+        {
+            get
+            {
+                return Keys.GetString(Keys.Trim);
+            }
+        }
+
+        public static string TrimDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TrimDescription);
+            }
+        }
+
+        public static string Union
+        {
+            get
+            {
+                return Keys.GetString(Keys.Union);
+            }
+        }
+
+        public static string UnionDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.UnionDescription);
+            }
+        }
+
+        public static string UnionAll
+        {
+            get
+            {
+                return Keys.GetString(Keys.UnionAll);
+            }
+        }
+
+        public static string UnionAllDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.UnionAllDescription);
+            }
+        }
+
+        public static string SizeInBytesFormat
+        {
+            get
+            {
+                return Keys.GetString(Keys.SizeInBytesFormat);
+            }
+        }
+
+        public static string SizeInKiloBytesFormat
+        {
+            get
+            {
+                return Keys.GetString(Keys.SizeInKiloBytesFormat);
+            }
+        }
+
+        public static string SizeInMegaBytesFormat
+        {
+            get
+            {
+                return Keys.GetString(Keys.SizeInMegaBytesFormat);
+            }
+        }
+
+        public static string SizeInGigaBytesFormat
+        {
+            get
+            {
+                return Keys.GetString(Keys.SizeInGigaBytesFormat);
+            }
+        }
+
+        public static string SizeInTeraBytesFormat
+        {
+            get
+            {
+                return Keys.GetString(Keys.SizeInTeraBytesFormat);
+            }
+        }
+
+        public static string TableEditPathNotProvidedException
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableEditPathNotProvidedException);
+            }
+        }
+
+        public static string TableColumnIdentityGroupName
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableColumnIdentityGroupName);
+            }
+        }
+
+        public static string TableColumnIsIdentityPropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableColumnIsIdentityPropertyTitle);
+            }
+        }
+
+        public static string TableColumnIsIdentityPropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableColumnIsIdentityPropertyDescription);
+            }
+        }
+
+        public static string TableColumnIdentityIncrementPropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableColumnIdentityIncrementPropertyTitle);
+            }
+        }
+
+        public static string TableColumnIdentityIncrementPropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableColumnIdentityIncrementPropertyDescription);
+            }
+        }
+
+        public static string TableColumnIdentitySeedPropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableColumnIdentitySeedPropertyTitle);
+            }
+        }
+
+        public static string TableColumnIdentitySeedPropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableColumnIdentitySeedPropertyDescription);
+            }
+        }
+
+        public static string TableDesignerIsEnabledPropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerIsEnabledPropertyTitle);
+            }
+        }
+
+        public static string ForeignKeyIsEnabledDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ForeignKeyIsEnabledDescription);
+            }
+        }
+
+        public static string ForeignKeyIsNotForReplicationTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.ForeignKeyIsNotForReplicationTitle);
+            }
+        }
+
+        public static string ForeignKeyIsNotForReplicationDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ForeignKeyIsNotForReplicationDescription);
+            }
+        }
+
+        public static string SqlForeignKeyAction_NoAction
+        {
+            get
+            {
+                return Keys.GetString(Keys.SqlForeignKeyAction_NoAction);
+            }
+        }
+
+        public static string SqlForeignKeyAction_Cascade
+        {
+            get
+            {
+                return Keys.GetString(Keys.SqlForeignKeyAction_Cascade);
+            }
+        }
+
+        public static string SqlForeignKeyAction_SetNull
+        {
+            get
+            {
+                return Keys.GetString(Keys.SqlForeignKeyAction_SetNull);
+            }
+        }
+
+        public static string SqlForeignKeyAction_SetDefault
+        {
+            get
+            {
+                return Keys.GetString(Keys.SqlForeignKeyAction_SetDefault);
+            }
+        }
+
+        public static string CheckConstraintIsEnabledDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.CheckConstraintIsEnabledDescription);
+            }
+        }
+
+        public static string IndexIsEnabledPropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexIsEnabledPropertyDescription);
+            }
+        }
+
+        public static string IndexIsClusteredPropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexIsClusteredPropertyDescription);
+            }
+        }
+
+        public static string TableDesignerIndexIsClusteredPropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerIndexIsClusteredPropertyTitle);
+            }
+        }
+
+        public static string IndexIsUniquePropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexIsUniquePropertyDescription);
+            }
+        }
+
+        public static string TableDesignerIsUniquePropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerIsUniquePropertyTitle);
+            }
+        }
+
+        public static string IndexColumnIsAscendingPropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexColumnIsAscendingPropertyDescription);
+            }
+        }
+
+        public static string IndexColumnIsAscendingPropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexColumnIsAscendingPropertyTitle);
+            }
+        }
+
+        public static string TableDesignerColumnsDisplayValueTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerColumnsDisplayValueTitle);
+            }
+        }
+
+        public static string TableDesignerDeleteColumnConfirmationMessage
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerDeleteColumnConfirmationMessage);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -3109,6 +8701,11 @@ namespace Microsoft.SqlTools.ServiceLayer
         public static string QueryServiceQueryFailed(string message)
         {
             return Keys.GetString(Keys.QueryServiceQueryFailed, message);
+        }
+
+        public static string QueryServiceUnsupportedSqlVariantType(string underlyingType, string columnName)
+        {
+            return Keys.GetString(Keys.QueryServiceUnsupportedSqlVariantType, underlyingType, columnName);
         }
 
         public static string QueryServiceSaveAsFail(string fileName, string message)
@@ -3296,6 +8893,71 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.MoreThanOneAzureFunctionWithName, functionName, fileName);
         }
 
+        public static string CostFormat(int x)
+        {
+            return Keys.GetString(Keys.CostFormat, x);
+        }
+
+        public static string RuntimeCounterThread(int index)
+        {
+            return Keys.GetString(Keys.RuntimeCounterThread, index);
+        }
+
+        public static string RuntimeCounterThreadOnInstance(int thread, int instance)
+        {
+            return Keys.GetString(Keys.RuntimeCounterThreadOnInstance, thread, instance);
+        }
+
+        public static string ZoomLevelShouldBeBetween(int minimum, int maximum)
+        {
+            return Keys.GetString(Keys.ZoomLevelShouldBeBetween, minimum, maximum);
+        }
+
+        public static string UnknownCursorPlanOperation(string name)
+        {
+            return Keys.GetString(Keys.UnknownCursorPlanOperation, name);
+        }
+
+        public static string NameValuePair(string name, string value)
+        {
+            return Keys.GetString(Keys.NameValuePair, name, value);
+        }
+
+        public static string OperatorDisplayCost(double cost, int percentage)
+        {
+            return Keys.GetString(Keys.OperatorDisplayCost, cost, percentage);
+        }
+
+        public static string ActualOfEstimated(string actual, string estimated, decimal percent)
+        {
+            return Keys.GetString(Keys.ActualOfEstimated, actual, estimated, percent);
+        }
+
+        public static string MissingIndexFormat(string impact, string queryText)
+        {
+            return Keys.GetString(Keys.MissingIndexFormat, impact, queryText);
+        }
+
+        public static string MissingIndexDetailsTitle(string fileName, string impact)
+        {
+            return Keys.GetString(Keys.MissingIndexDetailsTitle, fileName, impact);
+        }
+
+        public static string TableNotInitializedException(string tableId)
+        {
+            return Keys.GetString(Keys.TableNotInitializedException, tableId);
+        }
+
+        public static string InvalidTableEditPathException(string path, string editType)
+        {
+            return Keys.GetString(Keys.InvalidTableEditPathException, path, editType);
+        }
+
+        public static string UnKnownSqlForeignKeyAction(string name)
+        {
+            return Keys.GetString(Keys.UnKnownSqlForeignKeyAction, name);
+        }
+
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class Keys
         {
@@ -3434,6 +9096,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string QueryServiceResultSetTooLarge = "QueryServiceResultSetTooLarge";
+
+
+            public const string QueryServiceUnsupportedSqlVariantType = "QueryServiceUnsupportedSqlVariantType";
 
 
             public const string QueryServiceSaveAsResultSetNotComplete = "QueryServiceSaveAsResultSetNotComplete";
@@ -4580,6 +10245,2142 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string SqlBindingsNet5NotSupported = "SqlBindingsNet5NotSupported";
+
+
+            public const string Statement = "Statement";
+
+
+            public const string StatementDesc = "StatementDesc";
+
+
+            public const string PhysicalOperation = "PhysicalOperation";
+
+
+            public const string PhysicalOperationDesc = "PhysicalOperationDesc";
+
+
+            public const string LogicalOperation = "LogicalOperation";
+
+
+            public const string LogicalOperationDesc = "LogicalOperationDesc";
+
+
+            public const string OperationDescriptionShort = "OperationDescriptionShort";
+
+
+            public const string OperationDescription = "OperationDescription";
+
+
+            public const string OperationArgumentShort = "OperationArgumentShort";
+
+
+            public const string OperationArgumentDescription = "OperationArgumentDescription";
+
+
+            public const string ObjectShort = "ObjectShort";
+
+
+            public const string ObjectDescription = "ObjectDescription";
+
+
+            public const string IndexKind = "IndexKind";
+
+
+            public const string IndexKindDescription = "IndexKindDescription";
+
+
+            public const string DefinedValues = "DefinedValues";
+
+
+            public const string DefinedValuesDescription = "DefinedValuesDescription";
+
+
+            public const string OutputList = "OutputList";
+
+
+            public const string OutputListDescription = "OutputListDescription";
+
+
+            public const string Warnings = "Warnings";
+
+
+            public const string WarningsDescription = "WarningsDescription";
+
+
+            public const string Parallel = "Parallel";
+
+
+            public const string ParallelDescription = "ParallelDescription";
+
+
+            public const string EstimatedNumberOfRowsPerExecution = "EstimatedNumberOfRowsPerExecution";
+
+
+            public const string EstimatedNumberOfRowsPerExecutionDescription = "EstimatedNumberOfRowsPerExecutionDescription";
+
+
+            public const string EstimatedNumberOfRowsForAllExecutions = "EstimatedNumberOfRowsForAllExecutions";
+
+
+            public const string EstimatedNumberOfRowsForAllExecutionsDescription = "EstimatedNumberOfRowsForAllExecutionsDescription";
+
+
+            public const string EstimatedRowsRead = "EstimatedRowsRead";
+
+
+            public const string EstimatedRowsReadDescription = "EstimatedRowsReadDescription";
+
+
+            public const string IsGraphDBTransitiveClosure = "IsGraphDBTransitiveClosure";
+
+
+            public const string IsGraphDBTransitiveClosureDescription = "IsGraphDBTransitiveClosureDescription";
+
+
+            public const string IsInterleavedExecuted = "IsInterleavedExecuted";
+
+
+            public const string IsInterleavedExecutedDescription = "IsInterleavedExecutedDescription";
+
+
+            public const string IsAdaptive = "IsAdaptive";
+
+
+            public const string IsAdaptiveDescription = "IsAdaptiveDescription";
+
+
+            public const string AdaptiveThresholdRows = "AdaptiveThresholdRows";
+
+
+            public const string AdaptiveThresholdRowsDescription = "AdaptiveThresholdRowsDescription";
+
+
+            public const string EstimatedJoinType = "EstimatedJoinType";
+
+
+            public const string EstimatedJoinTypeDescription = "EstimatedJoinTypeDescription";
+
+
+            public const string ActualJoinType = "ActualJoinType";
+
+
+            public const string ActualJoinTypeDescription = "ActualJoinTypeDescription";
+
+
+            public const string EstimatedRowSize = "EstimatedRowSize";
+
+
+            public const string EstimatedRowSizeDescription = "EstimatedRowSizeDescription";
+
+
+            public const string EstimatedIoCost = "EstimatedIoCost";
+
+
+            public const string EstimatedIoCostDescription = "EstimatedIoCostDescription";
+
+
+            public const string EstimatedCpuCost = "EstimatedCpuCost";
+
+
+            public const string EstimatedCpuCostDescription = "EstimatedCpuCostDescription";
+
+
+            public const string EstimatedNumberOfExecutions = "EstimatedNumberOfExecutions";
+
+
+            public const string EstimatedNumberOfExecutionsDescription = "EstimatedNumberOfExecutionsDescription";
+
+
+            public const string EstimatedOperatorCost = "EstimatedOperatorCost";
+
+
+            public const string EstimatedOperatorCostDescription = "EstimatedOperatorCostDescription";
+
+
+            public const string EstimatedSubtreeCost = "EstimatedSubtreeCost";
+
+
+            public const string EstimatedSubtreeCostDescription = "EstimatedSubtreeCostDescription";
+
+
+            public const string NumberOfRows = "NumberOfRows";
+
+
+            public const string NumberOfRowsDescription = "NumberOfRowsDescription";
+
+
+            public const string ActualRowsRead = "ActualRowsRead";
+
+
+            public const string ActualRowsReadDescription = "ActualRowsReadDescription";
+
+
+            public const string NumberOfBatches = "NumberOfBatches";
+
+
+            public const string NumberOfBatchesDescription = "NumberOfBatchesDescription";
+
+
+            public const string NumberOfExecutions = "NumberOfExecutions";
+
+
+            public const string NumberOfExecutionsDescription = "NumberOfExecutionsDescription";
+
+
+            public const string EstimatedDataSize = "EstimatedDataSize";
+
+
+            public const string EstimatedDataSizeDescription = "EstimatedDataSizeDescription";
+
+
+            public const string ParameterList = "ParameterList";
+
+
+            public const string ParameterListDescription = "ParameterListDescription";
+
+
+            public const string MemoryFractions = "MemoryFractions";
+
+
+            public const string MemoryFractionsDescription = "MemoryFractionsDescription";
+
+
+            public const string MemoryFractionsInput = "MemoryFractionsInput";
+
+
+            public const string MemoryFractionsInputDescription = "MemoryFractionsInputDescription";
+
+
+            public const string MemoryFractionsOutput = "MemoryFractionsOutput";
+
+
+            public const string MemoryFractionsOutputDescription = "MemoryFractionsOutputDescription";
+
+
+            public const string UdxName = "UdxName";
+
+
+            public const string UdxNameDescription = "UdxNameDescription";
+
+
+            public const string Values = "Values";
+
+
+            public const string ValuesDescription = "ValuesDescription";
+
+
+            public const string CachedPlanSize = "CachedPlanSize";
+
+
+            public const string CachedPlanSizeDescription = "CachedPlanSizeDescription";
+
+
+            public const string UsePlan = "UsePlan";
+
+
+            public const string ContainsInlineScalarTsqlUdfs = "ContainsInlineScalarTsqlUdfs";
+
+
+            public const string DegreeOfParallelism = "DegreeOfParallelism";
+
+
+            public const string DegreeOfParallelismDescription = "DegreeOfParallelismDescription";
+
+
+            public const string EffectiveDegreeOfParallelism = "EffectiveDegreeOfParallelism";
+
+
+            public const string EffectiveDegreeOfParallelismDescription = "EffectiveDegreeOfParallelismDescription";
+
+
+            public const string MemoryGrant = "MemoryGrant";
+
+
+            public const string MemoryGrantDescription = "MemoryGrantDescription";
+
+
+            public const string RemoteDestination = "RemoteDestination";
+
+
+            public const string RemoteDestinationDescription = "RemoteDestinationDescription";
+
+
+            public const string RemoteObject = "RemoteObject";
+
+
+            public const string RemoteObjectDescription = "RemoteObjectDescription";
+
+
+            public const string RemoteSource = "RemoteSource";
+
+
+            public const string RemoteSourceDescription = "RemoteSourceDescription";
+
+
+            public const string UsedUdxColumns = "UsedUdxColumns";
+
+
+            public const string UsedUdxColumnsDescription = "UsedUdxColumnsDescription";
+
+
+            public const string InnerSideJoinColumns = "InnerSideJoinColumns";
+
+
+            public const string InnerSideJoinColumnsDescription = "InnerSideJoinColumnsDescription";
+
+
+            public const string OuterSideJoinColumns = "OuterSideJoinColumns";
+
+
+            public const string OuterSideJoinColumnsDescription = "OuterSideJoinColumnsDescription";
+
+
+            public const string WhereJoinColumns = "WhereJoinColumns";
+
+
+            public const string Residual = "Residual";
+
+
+            public const string ResidualDescription = "ResidualDescription";
+
+
+            public const string PassThru = "PassThru";
+
+
+            public const string PassThruDescription = "PassThruDescription";
+
+
+            public const string ManyToMany = "ManyToMany";
+
+
+            public const string ManyToManyDescription = "ManyToManyDescription";
+
+
+            public const string PartitionColumns = "PartitionColumns";
+
+
+            public const string PartitionColumnsDescription = "PartitionColumnsDescription";
+
+
+            public const string Ascending = "Ascending";
+
+
+            public const string Descending = "Descending";
+
+
+            public const string HashKeys = "HashKeys";
+
+
+            public const string HashKeysDescription = "HashKeysDescription";
+
+
+            public const string ProbeColumn = "ProbeColumn";
+
+
+            public const string ProbeColumnDescription = "ProbeColumnDescription";
+
+
+            public const string PartitioningType = "PartitioningType";
+
+
+            public const string PartitioningTypeDescription = "PartitioningTypeDescription";
+
+
+            public const string GroupBy = "GroupBy";
+
+
+            public const string GroupByDescription = "GroupByDescription";
+
+
+            public const string GroupingSets = "GroupingSets";
+
+
+            public const string GroupingSetsDescription = "GroupingSetsDescription";
+
+
+            public const string SegmentColumn = "SegmentColumn";
+
+
+            public const string SegmentColumnDescription = "SegmentColumnDescription";
+
+
+            public const string RankColumns = "RankColumns";
+
+
+            public const string RankColumnsDescription = "RankColumnsDescription";
+
+
+            public const string Predicate = "Predicate";
+
+
+            public const string PredicateDescription = "PredicateDescription";
+
+
+            public const string OuterReferences = "OuterReferences";
+
+
+            public const string OuterReferencesDescription = "OuterReferencesDescription";
+
+
+            public const string ScalarOperator = "ScalarOperator";
+
+
+            public const string ActionColumn = "ActionColumn";
+
+
+            public const string ActionColumnDescription = "ActionColumnDescription";
+
+
+            public const string OriginalActionColumn = "OriginalActionColumn";
+
+
+            public const string OriginalActionColumnDescription = "OriginalActionColumnDescription";
+
+
+            public const string Rows = "Rows";
+
+
+            public const string RowsDescription = "RowsDescription";
+
+
+            public const string SeekPredicate = "SeekPredicate";
+
+
+            public const string SeekPredicateDescription = "SeekPredicateDescription";
+
+
+            public const string Partitioned = "Partitioned";
+
+
+            public const string PartitionedDescription = "PartitionedDescription";
+
+
+            public const string SeekKeys = "SeekKeys";
+
+
+            public const string SeekKeysDescription = "SeekKeysDescription";
+
+
+            public const string PartitionsAccessed = "PartitionsAccessed";
+
+
+            public const string PartitionCount = "PartitionCount";
+
+
+            public const string TieColumns = "TieColumns";
+
+
+            public const string TieColumnsDescription = "TieColumnsDescription";
+
+
+            public const string IsPercent = "IsPercent";
+
+
+            public const string IsPercentDescription = "IsPercentDescription";
+
+
+            public const string WithTies = "WithTies";
+
+
+            public const string WithTiesDescription = "WithTiesDescription";
+
+
+            public const string PartitionId = "PartitionId";
+
+
+            public const string PartitionIdDescription = "PartitionIdDescription";
+
+
+            public const string Ordered = "Ordered";
+
+
+            public const string OrderedDescription = "OrderedDescription";
+
+
+            public const string ScanDirection = "ScanDirection";
+
+
+            public const string ScanDirectionDescription = "ScanDirectionDescription";
+
+
+            public const string ForcedIndex = "ForcedIndex";
+
+
+            public const string ForcedIndexDescription = "ForcedIndexDescription";
+
+
+            public const string SetPredicate = "SetPredicate";
+
+
+            public const string SetPredicateDescription = "SetPredicateDescription";
+
+
+            public const string TopExpression = "TopExpression";
+
+
+            public const string TopExpressionDescription = "TopExpressionDescription";
+
+
+            public const string HashKeysBuild = "HashKeysBuild";
+
+
+            public const string HashKeysBuildDescription = "HashKeysBuildDescription";
+
+
+            public const string HashKeysProbe = "HashKeysProbe";
+
+
+            public const string HashKeysProbeDescription = "HashKeysProbeDescription";
+
+
+            public const string BuildResidual = "BuildResidual";
+
+
+            public const string BuildResidualDescription = "BuildResidualDescription";
+
+
+            public const string ProbeResidual = "ProbeResidual";
+
+
+            public const string ProbeResidualDescription = "ProbeResidualDescription";
+
+
+            public const string SeekPredicates = "SeekPredicates";
+
+
+            public const string SeekPredicatesDescription = "SeekPredicatesDescription";
+
+
+            public const string SetOptions = "SetOptions";
+
+
+            public const string SetOptionsDescription = "SetOptionsDescription";
+
+
+            public const string OptimizationLevel = "OptimizationLevel";
+
+
+            public const string OptimizationLevelDescription = "OptimizationLevelDescription";
+
+
+            public const string StatementOptmEarlyAbortReason = "StatementOptmEarlyAbortReason";
+
+
+            public const string TimeOut = "TimeOut";
+
+
+            public const string MemoryLimitExceeded = "MemoryLimitExceeded";
+
+
+            public const string GoodEnoughPlanFound = "GoodEnoughPlanFound";
+
+
+            public const string EstimatedRebinds = "EstimatedRebinds";
+
+
+            public const string EstimatedRebindsDescription = "EstimatedRebindsDescription";
+
+
+            public const string EstimatedRewinds = "EstimatedRewinds";
+
+
+            public const string EstimatedRewindsDescription = "EstimatedRewindsDescription";
+
+
+            public const string ActualLocallyAggregatedRows = "ActualLocallyAggregatedRows";
+
+
+            public const string ActualLocallyAggregatedRowsDescription = "ActualLocallyAggregatedRowsDescription";
+
+
+            public const string ActualRebinds = "ActualRebinds";
+
+
+            public const string ActualRebindsDescription = "ActualRebindsDescription";
+
+
+            public const string ActualRewinds = "ActualRewinds";
+
+
+            public const string ActualRewindsDescription = "ActualRewindsDescription";
+
+
+            public const string ActualIOStatistics = "ActualIOStatistics";
+
+
+            public const string ActualIOStatisticsDescription = "ActualIOStatisticsDescription";
+
+
+            public const string ActualTimeStatistics = "ActualTimeStatistics";
+
+
+            public const string ActualTimeStatisticsDescription = "ActualTimeStatisticsDescription";
+
+
+            public const string ActualElapsedms = "ActualElapsedms";
+
+
+            public const string ActualElapsedmsDescription = "ActualElapsedmsDescription";
+
+
+            public const string ActualCPUms = "ActualCPUms";
+
+
+            public const string ActualCPUmsDescription = "ActualCPUmsDescription";
+
+
+            public const string ActualScans = "ActualScans";
+
+
+            public const string ActualScansDescription = "ActualScansDescription";
+
+
+            public const string ActualLogicalReads = "ActualLogicalReads";
+
+
+            public const string ActualLogicalReadsDescription = "ActualLogicalReadsDescription";
+
+
+            public const string ActualPhysicalReads = "ActualPhysicalReads";
+
+
+            public const string ActualPhysicalReadsDescription = "ActualPhysicalReadsDescription";
+
+
+            public const string ActualPageServerReads = "ActualPageServerReads";
+
+
+            public const string ActualPageServerReadsDescription = "ActualPageServerReadsDescription";
+
+
+            public const string ActualReadAheads = "ActualReadAheads";
+
+
+            public const string ActualReadAheadsDescription = "ActualReadAheadsDescription";
+
+
+            public const string ActualPageServerReadAheads = "ActualPageServerReadAheads";
+
+
+            public const string ActualPageServerReadAheadsDescription = "ActualPageServerReadAheadsDescription";
+
+
+            public const string ActualLobLogicalReads = "ActualLobLogicalReads";
+
+
+            public const string ActualLobLogicalReadsDescription = "ActualLobLogicalReadsDescription";
+
+
+            public const string ActualLobPhysicalReads = "ActualLobPhysicalReads";
+
+
+            public const string ActualLobPhysicalReadsDescription = "ActualLobPhysicalReadsDescription";
+
+
+            public const string ActualLobPageServerReads = "ActualLobPageServerReads";
+
+
+            public const string ActualLobPageServerReadsDescription = "ActualLobPageServerReadsDescription";
+
+
+            public const string ActualLobReadAheads = "ActualLobReadAheads";
+
+
+            public const string ActualLobReadAheadsDescription = "ActualLobReadAheadsDescription";
+
+
+            public const string ActualLobPageServerReadAheads = "ActualLobPageServerReadAheads";
+
+
+            public const string ActualLobPageServerReadAheadsDescription = "ActualLobPageServerReadAheadsDescription";
+
+
+            public const string ActualMemoryGrantStats = "ActualMemoryGrantStats";
+
+
+            public const string HpcRowCount = "HpcRowCount";
+
+
+            public const string HpcRowCountDescription = "HpcRowCountDescription";
+
+
+            public const string HpcKernelElapsedUs = "HpcKernelElapsedUs";
+
+
+            public const string HpcKernelElapsedUsDescription = "HpcKernelElapsedUsDescription";
+
+
+            public const string HpcHostToDeviceBytes = "HpcHostToDeviceBytes";
+
+
+            public const string HpcHostToDeviceBytesDescription = "HpcHostToDeviceBytesDescription";
+
+
+            public const string HpcDeviceToHostBytes = "HpcDeviceToHostBytes";
+
+
+            public const string HpcDeviceToHostBytesDescription = "HpcDeviceToHostBytesDescription";
+
+
+            public const string InputMemoryGrant = "InputMemoryGrant";
+
+
+            public const string OutputMemoryGrant = "OutputMemoryGrant";
+
+
+            public const string UsedMemoryGrant = "UsedMemoryGrant";
+
+
+            public const string Distinct = "Distinct";
+
+
+            public const string DistinctDescription = "DistinctDescription";
+
+
+            public const string OrderBy = "OrderBy";
+
+
+            public const string OrderByDescription = "OrderByDescription";
+
+
+            public const string SpillOccurredDisplayString = "SpillOccurredDisplayString";
+
+
+            public const string ColumnsWithNoStatistics = "ColumnsWithNoStatistics";
+
+
+            public const string ColumnsWithNoStatisticsDescription = "ColumnsWithNoStatisticsDescription";
+
+
+            public const string NoJoinPredicate = "NoJoinPredicate";
+
+
+            public const string NoJoinPredicateDescription = "NoJoinPredicateDescription";
+
+
+            public const string SpillToTempDbOld = "SpillToTempDbOld";
+
+
+            public const string SpillToTempDb = "SpillToTempDb";
+
+
+            public const string SpillToTempDbDescription = "SpillToTempDbDescription";
+
+
+            public const string SortSpillDetails = "SortSpillDetails";
+
+
+            public const string SortSpillDetailsDescription = "SortSpillDetailsDescription";
+
+
+            public const string HashSpillDetails = "HashSpillDetails";
+
+
+            public const string HashSpillDetailsDescription = "HashSpillDetailsDescription";
+
+
+            public const string FullUpdateForOnlineIndexBuild = "FullUpdateForOnlineIndexBuild";
+
+
+            public const string FullUpdateForOnlineIndexBuildDescription = "FullUpdateForOnlineIndexBuildDescription";
+
+
+            public const string Wait = "Wait";
+
+
+            public const string WaitDescription = "WaitDescription";
+
+
+            public const string PlanAffectingConvert = "PlanAffectingConvert";
+
+
+            public const string PlanAffectingConvertDescription = "PlanAffectingConvertDescription";
+
+
+            public const string MemoryGrantWarning = "MemoryGrantWarning";
+
+
+            public const string MemoryGrantWarningDescription = "MemoryGrantWarningDescription";
+
+
+            public const string StartupExpression = "StartupExpression";
+
+
+            public const string StartupExpressionDescription = "StartupExpressionDescription";
+
+
+            public const string StartupExpressionPredicate = "StartupExpressionPredicate";
+
+
+            public const string Query = "Query";
+
+
+            public const string Stack = "Stack";
+
+
+            public const string RowCount = "RowCount";
+
+
+            public const string Optimized = "Optimized";
+
+
+            public const string WithPrefetch = "WithPrefetch";
+
+
+            public const string Prefix = "Prefix";
+
+
+            public const string StartRange = "StartRange";
+
+
+            public const string StartRangeDescription = "StartRangeDescription";
+
+
+            public const string EndRange = "EndRange";
+
+
+            public const string EndRangeDescription = "EndRangeDescription";
+
+
+            public const string RangeColumns = "RangeColumns";
+
+
+            public const string RangeExpressions = "RangeExpressions";
+
+
+            public const string ScanType = "ScanType";
+
+
+            public const string ColumnReference = "ColumnReference";
+
+
+            public const string ObjectServer = "ObjectServer";
+
+
+            public const string ObjectServerDescription = "ObjectServerDescription";
+
+
+            public const string ObjectDatabase = "ObjectDatabase";
+
+
+            public const string ObjectDatabaseDescription = "ObjectDatabaseDescription";
+
+
+            public const string ObjectIndex = "ObjectIndex";
+
+
+            public const string ObjectIndexDescription = "ObjectIndexDescription";
+
+
+            public const string ObjectSchema = "ObjectSchema";
+
+
+            public const string ObjectSchemaDescription = "ObjectSchemaDescription";
+
+
+            public const string ObjectTable = "ObjectTable";
+
+
+            public const string ObjectTableDescription = "ObjectTableDescription";
+
+
+            public const string ObjectAlias = "ObjectAlias";
+
+
+            public const string ObjectAliasDescription = "ObjectAliasDescription";
+
+
+            public const string ObjectColumn = "ObjectColumn";
+
+
+            public const string ObjectColumnDescription = "ObjectColumnDescription";
+
+
+            public const string ObjectComputedColumn = "ObjectComputedColumn";
+
+
+            public const string ObjectComputedColumnDescription = "ObjectComputedColumnDescription";
+
+
+            public const string ParameterDataType = "ParameterDataType";
+
+
+            public const string ParameterCompiledValue = "ParameterCompiledValue";
+
+
+            public const string ParameterRuntimeValue = "ParameterRuntimeValue";
+
+
+            public const string CursorPlan = "CursorPlan";
+
+
+            public const string CursorOperation = "CursorOperation";
+
+
+            public const string CursorName = "CursorName";
+
+
+            public const string CursorActualType = "CursorActualType";
+
+
+            public const string CursorRequestedType = "CursorRequestedType";
+
+
+            public const string CursorConcurrency = "CursorConcurrency";
+
+
+            public const string ForwardOnly = "ForwardOnly";
+
+
+            public const string QueryPlan = "QueryPlan";
+
+
+            public const string OperationType = "OperationType";
+
+
+            public const string NodeId = "NodeId";
+
+
+            public const string PrimaryNodeId = "PrimaryNodeId";
+
+
+            public const string InternalInfo = "InternalInfo";
+
+
+            public const string ForeignKeyReferencesCount = "ForeignKeyReferencesCount";
+
+
+            public const string NoMatchingIndexCount = "NoMatchingIndexCount";
+
+
+            public const string PartialMatchingIndexCount = "PartialMatchingIndexCount";
+
+
+            public const string LogicalOpCollapse = "LogicalOpCollapse";
+
+
+            public const string LogicalOpConcatenation = "LogicalOpConcatenation";
+
+
+            public const string LogicalOpConstantScan = "LogicalOpConstantScan";
+
+
+            public const string LogicalOpGatherStreams = "LogicalOpGatherStreams";
+
+
+            public const string LogicalOpRepartitionStreams = "LogicalOpRepartitionStreams";
+
+
+            public const string LogicalOpDistributeStreams = "LogicalOpDistributeStreams";
+
+
+            public const string LogicalOpFilter = "LogicalOpFilter";
+
+
+            public const string LogicalOpAssert = "LogicalOpAssert";
+
+
+            public const string LogicalOpLogRowScan = "LogicalOpLogRowScan";
+
+
+            public const string LogicalOpPrint = "LogicalOpPrint";
+
+
+            public const string LogicalOpComputeScalar = "LogicalOpComputeScalar";
+
+
+            public const string LogicalOpMergeInterval = "LogicalOpMergeInterval";
+
+
+            public const string LogicalOpRank = "LogicalOpRank";
+
+
+            public const string LogicalOpSegment = "LogicalOpSegment";
+
+
+            public const string LogicalOpSequence = "LogicalOpSequence";
+
+
+            public const string LogicalOpSplit = "LogicalOpSplit";
+
+
+            public const string LogicalOpAggregate = "LogicalOpAggregate";
+
+
+            public const string LogicalOpTableScan = "LogicalOpTableScan";
+
+
+            public const string LogicalOpClusteredIndexScan = "LogicalOpClusteredIndexScan";
+
+
+            public const string LogicalOpClusteredIndexSeek = "LogicalOpClusteredIndexSeek";
+
+
+            public const string LogicalOpDeletedScan = "LogicalOpDeletedScan";
+
+
+            public const string LogicalOpInsertedScan = "LogicalOpInsertedScan";
+
+
+            public const string LogicalOpParameterTableScan = "LogicalOpParameterTableScan";
+
+
+            public const string LogicalOpPut = "LogicalOpPut";
+
+
+            public const string LogicalOpIndexScan = "LogicalOpIndexScan";
+
+
+            public const string LogicalOpIndexSeek = "LogicalOpIndexSeek";
+
+
+            public const string LogicalOpRemoteScan = "LogicalOpRemoteScan";
+
+
+            public const string LogicalOpRemoteIndexScan = "LogicalOpRemoteIndexScan";
+
+
+            public const string LogicalOpRemoteIndexSeek = "LogicalOpRemoteIndexSeek";
+
+
+            public const string LogicalOpRemoteQuery = "LogicalOpRemoteQuery";
+
+
+            public const string LogicalOpRemoteInsert = "LogicalOpRemoteInsert";
+
+
+            public const string LogicalOpRemoteUpdate = "LogicalOpRemoteUpdate";
+
+
+            public const string LogicalOpRemoteDelete = "LogicalOpRemoteDelete";
+
+
+            public const string LogicalOpClusteredUpdate = "LogicalOpClusteredUpdate";
+
+
+            public const string LogicalOpDistinctSort = "LogicalOpDistinctSort";
+
+
+            public const string LogicalOpSort = "LogicalOpSort";
+
+
+            public const string LogicalOpTopNSort = "LogicalOpTopNSort";
+
+
+            public const string LogicalOpEagerSpool = "LogicalOpEagerSpool";
+
+
+            public const string LogicalOpLazySpool = "LogicalOpLazySpool";
+
+
+            public const string LogicalOpUpdate = "LogicalOpUpdate";
+
+
+            public const string LogicalOpInsert = "LogicalOpInsert";
+
+
+            public const string LogicalOpDelete = "LogicalOpDelete";
+
+
+            public const string LogicalOpMerge = "LogicalOpMerge";
+
+
+            public const string LogicalOpTop = "LogicalOpTop";
+
+
+            public const string LogicalOpDistinct = "LogicalOpDistinct";
+
+
+            public const string LogicalOpFlowDistinct = "LogicalOpFlowDistinct";
+
+
+            public const string LogicalOpPartialAggregate = "LogicalOpPartialAggregate";
+
+
+            public const string LogicalOpInnerApply = "LogicalOpInnerApply";
+
+
+            public const string LogicalOpInnerJoin = "LogicalOpInnerJoin";
+
+
+            public const string LogicalOpLeftAntiSemiApply = "LogicalOpLeftAntiSemiApply";
+
+
+            public const string LogicalOpLeftSemiApply = "LogicalOpLeftSemiApply";
+
+
+            public const string LogicalOpLeftOuterApply = "LogicalOpLeftOuterApply";
+
+
+            public const string LogicalOpLeftOuterJoin = "LogicalOpLeftOuterJoin";
+
+
+            public const string LogicalOpRightOuterJoin = "LogicalOpRightOuterJoin";
+
+
+            public const string LogicalOpFullOuterJoin = "LogicalOpFullOuterJoin";
+
+
+            public const string LogicalOpLeftSemiJoin = "LogicalOpLeftSemiJoin";
+
+
+            public const string LogicalOpLeftAntiSemiJoin = "LogicalOpLeftAntiSemiJoin";
+
+
+            public const string LogicalOpRightSemiJoin = "LogicalOpRightSemiJoin";
+
+
+            public const string LogicalOpRightAntiSemiJoin = "LogicalOpRightAntiSemiJoin";
+
+
+            public const string LogicalOpIntersect = "LogicalOpIntersect";
+
+
+            public const string LogicalOpIntersectAll = "LogicalOpIntersectAll";
+
+
+            public const string LogicalOpUnion = "LogicalOpUnion";
+
+
+            public const string LogicalOpLeftDiff = "LogicalOpLeftDiff";
+
+
+            public const string LogicalOpLeftDiffAll = "LogicalOpLeftDiffAll";
+
+
+            public const string LogicalOpRightDiff = "LogicalOpRightDiff";
+
+
+            public const string LogicalOpRightDiffAll = "LogicalOpRightDiffAll";
+
+
+            public const string LogicalOpAntiDiff = "LogicalOpAntiDiff";
+
+
+            public const string LogicalOpCrossJoin = "LogicalOpCrossJoin";
+
+
+            public const string LogicalOpBitmapCreate = "LogicalOpBitmapCreate";
+
+
+            public const string LogicalOpUDX = "LogicalOpUDX";
+
+
+            public const string LogicalOpWindow = "LogicalOpWindow";
+
+
+            public const string LogicalOpSwitch = "LogicalOpSwitch";
+
+
+            public const string LogicalOpMergeStats = "LogicalOpMergeStats";
+
+
+            public const string LogicalOpLocalStats = "LogicalOpLocalStats";
+
+
+            public const string LogicalOpTableValuedFunction = "LogicalOpTableValuedFunction";
+
+
+            public const string LogicalOpBatchHashTableBuild = "LogicalOpBatchHashTableBuild";
+
+
+            public const string LogicalOpForeignKeyReferencesCheck = "LogicalOpForeignKeyReferencesCheck";
+
+
+            public const string LogicalOpRIDLookup = "LogicalOpRIDLookup";
+
+
+            public const string StoredProc = "StoredProc";
+
+
+            public const string Udf = "Udf";
+
+
+            public const string ProcName = "ProcName";
+
+
+            public const string Storage = "Storage";
+
+
+            public const string StorageDesc = "StorageDesc";
+
+
+            public const string ActualExecMode = "ActualExecMode";
+
+
+            public const string ActualExecModeDesc = "ActualExecModeDesc";
+
+
+            public const string EstimatedExecMode = "EstimatedExecMode";
+
+
+            public const string EstimatedExecModeDesc = "EstimatedExecModeDesc";
+
+
+            public const string CostFormat = "CostFormat";
+
+
+            public const string RemoteDataAccess = "RemoteDataAccess";
+
+
+            public const string RemoteDataAccessDescription = "RemoteDataAccessDescription";
+
+
+            public const string CloneAccessScope = "CloneAccessScope";
+
+
+            public const string CloneAccessScopeDescription = "CloneAccessScopeDescription";
+
+
+            public const string PrimaryClones = "PrimaryClones";
+
+
+            public const string SecondaryClones = "SecondaryClones";
+
+
+            public const string BothClones = "BothClones";
+
+
+            public const string EitherClones = "EitherClones";
+
+
+            public const string ExactMatchClones = "ExactMatchClones";
+
+
+            public const string Remoting = "Remoting";
+
+
+            public const string RemotingDescription = "RemotingDescription";
+
+
+            public const string Activation = "Activation";
+
+
+            public const string BrickRouting = "BrickRouting";
+
+
+            public const string FragmentIdColumn = "FragmentIdColumn";
+
+
+            public const string EditQueryText = "EditQueryText";
+
+
+            public const string UnknownShowPlanSource = "UnknownShowPlanSource";
+
+
+            public const string SavePlanFilter = "SavePlanFilter";
+
+
+            public const string NoXmlPlanData = "NoXmlPlanData";
+
+
+            public const string PerThreadCounterDescription = "PerThreadCounterDescription";
+
+
+            public const string RuntimeCounterThread = "RuntimeCounterThread";
+
+
+            public const string RuntimeCounterThreadOnInstance = "RuntimeCounterThreadOnInstance";
+
+
+            public const string RuntimeCounterThreadAll = "RuntimeCounterThreadAll";
+
+
+            public const string ConnectionPropertiesLabel = "ConnectionPropertiesLabel";
+
+
+            public const string UnknownAssignType = "UnknownAssignType";
+
+
+            public const string MessageBoxCaption = "MessageBoxCaption";
+
+
+            public const string ZoomLevelShouldBeBetween = "ZoomLevelShouldBeBetween";
+
+
+            public const string UnknownNodeType = "UnknownNodeType";
+
+
+            public const string UnknownCursorPlanOperation = "UnknownCursorPlanOperation";
+
+
+            public const string UnknownStatementType = "UnknownStatementType";
+
+
+            public const string RollupInfo = "RollupInfo";
+
+
+            public const string RollupInfoDescription = "RollupInfoDescription";
+
+
+            public const string HighestLevel = "HighestLevel";
+
+
+            public const string HighestLevelDescription = "HighestLevelDescription";
+
+
+            public const string RollupLevel = "RollupLevel";
+
+
+            public const string RollupLevelDescription = "RollupLevelDescription";
+
+
+            public const string Level = "Level";
+
+
+            public const string LevelDescription = "LevelDescription";
+
+
+            public const string Unknown = "Unknown";
+
+
+            public const string UnknownDescription = "UnknownDescription";
+
+
+            public const string Result = "Result";
+
+
+            public const string ResultDescription = "ResultDescription";
+
+
+            public const string Collapse = "Collapse";
+
+
+            public const string CollapseDescription = "CollapseDescription";
+
+
+            public const string Concatenation = "Concatenation";
+
+
+            public const string ConcatenationDescription = "ConcatenationDescription";
+
+
+            public const string ConstantScan = "ConstantScan";
+
+
+            public const string ConstantScanDescription = "ConstantScanDescription";
+
+
+            public const string Parallelism = "Parallelism";
+
+
+            public const string ParallelismDescription = "ParallelismDescription";
+
+
+            public const string Put = "Put";
+
+
+            public const string PutDescription = "PutDescription";
+
+
+            public const string DistributeStreams = "DistributeStreams";
+
+
+            public const string DistributeStreamsDescription = "DistributeStreamsDescription";
+
+
+            public const string GatherStreams = "GatherStreams";
+
+
+            public const string GatherStreamsDescription = "GatherStreamsDescription";
+
+
+            public const string RepartitionStreams = "RepartitionStreams";
+
+
+            public const string RepartitionStreamsDescription = "RepartitionStreamsDescription";
+
+
+            public const string EagerSpool = "EagerSpool";
+
+
+            public const string EagerSpoolDescription = "EagerSpoolDescription";
+
+
+            public const string LazySpool = "LazySpool";
+
+
+            public const string LazySpoolDescription = "LazySpoolDescription";
+
+
+            public const string Filter = "Filter";
+
+
+            public const string FilterDescription = "FilterDescription";
+
+
+            public const string Assert = "Assert";
+
+
+            public const string AssertDescription = "AssertDescription";
+
+
+            public const string HashMatch = "HashMatch";
+
+
+            public const string HashMatchDescription = "HashMatchDescription";
+
+
+            public const string HashMatchTeam = "HashMatchTeam";
+
+
+            public const string HashMatchTeamDescription = "HashMatchTeamDescription";
+
+
+            public const string HashMatchRoot = "HashMatchRoot";
+
+
+            public const string HashMatchRootDescription = "HashMatchRootDescription";
+
+
+            public const string BookmarkLookup = "BookmarkLookup";
+
+
+            public const string BookmarkLookupDescription = "BookmarkLookupDescription";
+
+
+            public const string LogRowScan = "LogRowScan";
+
+
+            public const string LogRowScanDescription = "LogRowScanDescription";
+
+
+            public const string MergeJoin = "MergeJoin";
+
+
+            public const string MergeJoinDescription = "MergeJoinDescription";
+
+
+            public const string NestedLoops = "NestedLoops";
+
+
+            public const string NestedLoopsDescription = "NestedLoopsDescription";
+
+
+            public const string Print = "Print";
+
+
+            public const string PrintDescription = "PrintDescription";
+
+
+            public const string ComputeScalar = "ComputeScalar";
+
+
+            public const string ComputeScalarDescription = "ComputeScalarDescription";
+
+
+            public const string MergeInterval = "MergeInterval";
+
+
+            public const string MergeIntervalDescription = "MergeIntervalDescription";
+
+
+            public const string Rank = "Rank";
+
+
+            public const string RankDescription = "RankDescription";
+
+
+            public const string RowCountSpool = "RowCountSpool";
+
+
+            public const string RowCountSpoolDescription = "RowCountSpoolDescription";
+
+
+            public const string Segment = "Segment";
+
+
+            public const string SegmentDescription = "SegmentDescription";
+
+
+            public const string Sequence = "Sequence";
+
+
+            public const string SequenceDescription = "SequenceDescription";
+
+
+            public const string SequenceProject = "SequenceProject";
+
+
+            public const string SequenceProjectDescription = "SequenceProjectDescription";
+
+
+            public const string Split = "Split";
+
+
+            public const string SplitDescription = "SplitDescription";
+
+
+            public const string StreamAggregate = "StreamAggregate";
+
+
+            public const string StreamAggregateDescription = "StreamAggregateDescription";
+
+
+            public const string TableScan = "TableScan";
+
+
+            public const string TableScanDescription = "TableScanDescription";
+
+
+            public const string ClusteredIndexScan = "ClusteredIndexScan";
+
+
+            public const string ClusteredIndexScanDescription = "ClusteredIndexScanDescription";
+
+
+            public const string ClusteredIndexSeek = "ClusteredIndexSeek";
+
+
+            public const string ClusteredIndexSeekDescription = "ClusteredIndexSeekDescription";
+
+
+            public const string DeletedScan = "DeletedScan";
+
+
+            public const string DeletedScanDescription = "DeletedScanDescription";
+
+
+            public const string InsertedScan = "InsertedScan";
+
+
+            public const string InsertedScanDescription = "InsertedScanDescription";
+
+
+            public const string ParameterTableScan = "ParameterTableScan";
+
+
+            public const string ParameterTableScanDescription = "ParameterTableScanDescription";
+
+
+            public const string IndexScan = "IndexScan";
+
+
+            public const string IndexScanDescription = "IndexScanDescription";
+
+
+            public const string IndexSeek = "IndexSeek";
+
+
+            public const string IndexSeekDescription = "IndexSeekDescription";
+
+
+            public const string ColumnstoreIndexScan = "ColumnstoreIndexScan";
+
+
+            public const string ColumnstoreIndexScanDescription = "ColumnstoreIndexScanDescription";
+
+
+            public const string ColumnstoreIndexUpdate = "ColumnstoreIndexUpdate";
+
+
+            public const string ColumnstoreIndexUpdateDescription = "ColumnstoreIndexUpdateDescription";
+
+
+            public const string ColumnstoreIndexInsert = "ColumnstoreIndexInsert";
+
+
+            public const string ColumnstoreIndexInsertDescription = "ColumnstoreIndexInsertDescription";
+
+
+            public const string ColumnstoreIndexMerge = "ColumnstoreIndexMerge";
+
+
+            public const string ColumnstoreIndexMergeDescription = "ColumnstoreIndexMergeDescription";
+
+
+            public const string ColumnstoreIndexDelete = "ColumnstoreIndexDelete";
+
+
+            public const string ColumnstoreIndexDeleteDescription = "ColumnstoreIndexDeleteDescription";
+
+
+            public const string RemoteScan = "RemoteScan";
+
+
+            public const string RemoteScanDescription = "RemoteScanDescription";
+
+
+            public const string RemoteIndexScan = "RemoteIndexScan";
+
+
+            public const string RemoteIndexScanDescription = "RemoteIndexScanDescription";
+
+
+            public const string RemoteIndexSeek = "RemoteIndexSeek";
+
+
+            public const string RemoteIndexSeekDescription = "RemoteIndexSeekDescription";
+
+
+            public const string RemoteQuery = "RemoteQuery";
+
+
+            public const string RemoteQueryDescription = "RemoteQueryDescription";
+
+
+            public const string RemoteInsert = "RemoteInsert";
+
+
+            public const string RemoteInsertDescription = "RemoteInsertDescription";
+
+
+            public const string RemoteUpdate = "RemoteUpdate";
+
+
+            public const string RemoteUpdateDescription = "RemoteUpdateDescription";
+
+
+            public const string RemoteDelete = "RemoteDelete";
+
+
+            public const string RemoteDeleteDescription = "RemoteDeleteDescription";
+
+
+            public const string ClusteredUpdate = "ClusteredUpdate";
+
+
+            public const string ClusteredUpdateDescription = "ClusteredUpdateDescription";
+
+
+            public const string Sort = "Sort";
+
+
+            public const string SortDescription = "SortDescription";
+
+
+            public const string TableSpool = "TableSpool";
+
+
+            public const string TableSpoolDescription = "TableSpoolDescription";
+
+
+            public const string IndexSpool = "IndexSpool";
+
+
+            public const string IndexSpoolDescription = "IndexSpoolDescription";
+
+
+            public const string TableUpdate = "TableUpdate";
+
+
+            public const string TableUpdateDescription = "TableUpdateDescription";
+
+
+            public const string TableInsert = "TableInsert";
+
+
+            public const string TableInsertDescription = "TableInsertDescription";
+
+
+            public const string TableDelete = "TableDelete";
+
+
+            public const string TableDeleteDescription = "TableDeleteDescription";
+
+
+            public const string TableMerge = "TableMerge";
+
+
+            public const string TableMergeDescription = "TableMergeDescription";
+
+
+            public const string IndexUpdate = "IndexUpdate";
+
+
+            public const string IndexUpdateDescription = "IndexUpdateDescription";
+
+
+            public const string IndexInsert = "IndexInsert";
+
+
+            public const string IndexInsertDescription = "IndexInsertDescription";
+
+
+            public const string IndexDelete = "IndexDelete";
+
+
+            public const string IndexDeleteDescription = "IndexDeleteDescription";
+
+
+            public const string ClusteredIndexUpdate = "ClusteredIndexUpdate";
+
+
+            public const string ClusteredIndexUpdateDescription = "ClusteredIndexUpdateDescription";
+
+
+            public const string ClusteredIndexInsert = "ClusteredIndexInsert";
+
+
+            public const string ClusteredIndexInsertDescription = "ClusteredIndexInsertDescription";
+
+
+            public const string ClusteredIndexMerge = "ClusteredIndexMerge";
+
+
+            public const string ClusteredIndexMergeDescription = "ClusteredIndexMergeDescription";
+
+
+            public const string ClusteredIndexDelete = "ClusteredIndexDelete";
+
+
+            public const string ClusteredIndexDeleteDescription = "ClusteredIndexDeleteDescription";
+
+
+            public const string Top = "Top";
+
+
+            public const string TopDescription = "TopDescription";
+
+
+            public const string Bitmap = "Bitmap";
+
+
+            public const string BitmapDescription = "BitmapDescription";
+
+
+            public const string UDX = "UDX";
+
+
+            public const string UDXDescription = "UDXDescription";
+
+
+            public const string Window = "Window";
+
+
+            public const string WindowDescription = "WindowDescription";
+
+
+            public const string WindowAggregate = "WindowAggregate";
+
+
+            public const string WindowAggregateDescription = "WindowAggregateDescription";
+
+
+            public const string BatchHashTableBuild = "BatchHashTableBuild";
+
+
+            public const string BatchHashTableBuildDescription = "BatchHashTableBuildDescription";
+
+
+            public const string Switch = "Switch";
+
+
+            public const string SwitchDescription = "SwitchDescription";
+
+
+            public const string TFP = "TFP";
+
+
+            public const string TFPDescription = "TFPDescription";
+
+
+            public const string TableValueFunction = "TableValueFunction";
+
+
+            public const string TableValueFunctionDescription = "TableValueFunctionDescription";
+
+
+            public const string Aggregate = "Aggregate";
+
+
+            public const string AggregateDescription = "AggregateDescription";
+
+
+            public const string ArithmeticExpression = "ArithmeticExpression";
+
+
+            public const string ArithmeticExpressionDescription = "ArithmeticExpressionDescription";
+
+
+            public const string Delete = "Delete";
+
+
+            public const string DeleteDescription = "DeleteDescription";
+
+
+            public const string Insert = "Insert";
+
+
+            public const string InsertDescription = "InsertDescription";
+
+
+            public const string Locate = "Locate";
+
+
+            public const string LocateDescription = "LocateDescription";
+
+
+            public const string Spool = "Spool";
+
+
+            public const string SpoolDescription = "SpoolDescription";
+
+
+            public const string SQL = "SQL";
+
+
+            public const string SQLDescription = "SQLDescription";
+
+
+            public const string Update = "Update";
+
+
+            public const string UpdateDescription = "UpdateDescription";
+
+
+            public const string Assign = "Assign";
+
+
+            public const string AssignDescription = "AssignDescription";
+
+
+            public const string Convert = "Convert";
+
+
+            public const string ConvertDescription = "ConvertDescription";
+
+
+            public const string Declare = "Declare";
+
+
+            public const string DeclareDescription = "DeclareDescription";
+
+
+            public const string If = "If";
+
+
+            public const string IfDescription = "IfDescription";
+
+
+            public const string Intrinsic = "Intrinsic";
+
+
+            public const string IntrinsicDescription = "IntrinsicDescription";
+
+
+            public const string SetFunction = "SetFunction";
+
+
+            public const string SetFunctionDescription = "SetFunctionDescription";
+
+
+            public const string Dynamic = "Dynamic";
+
+
+            public const string DynamicDescription = "DynamicDescription";
+
+
+            public const string FetchQuery = "FetchQuery";
+
+
+            public const string FetchQueryDescription = "FetchQueryDescription";
+
+
+            public const string FastForward = "FastForward";
+
+
+            public const string FastForwardDescription = "FastForwardDescription";
+
+
+            public const string Keyset = "Keyset";
+
+
+            public const string KeysetDescription = "KeysetDescription";
+
+
+            public const string PopulationQuery = "PopulationQuery";
+
+
+            public const string PopulationQueryDescription = "PopulationQueryDescription";
+
+
+            public const string RefreshQuery = "RefreshQuery";
+
+
+            public const string RefreshQueryDescription = "RefreshQueryDescription";
+
+
+            public const string Snapshot = "Snapshot";
+
+
+            public const string SnapshotDescription = "SnapshotDescription";
+
+
+            public const string RIDLookup = "RIDLookup";
+
+
+            public const string RIDLookupDescription = "RIDLookupDescription";
+
+
+            public const string KeyLookup = "KeyLookup";
+
+
+            public const string KeyLookupDescription = "KeyLookupDescription";
+
+
+            public const string LogicalKeyLookup = "LogicalKeyLookup";
+
+
+            public const string AdaptiveJoin = "AdaptiveJoin";
+
+
+            public const string AdaptiveJoinDescription = "AdaptiveJoinDescription";
+
+
+            public const string ForeignKeyReferencesCheck = "ForeignKeyReferencesCheck";
+
+
+            public const string ForeignKeyReferencesCheckDescription = "ForeignKeyReferencesCheckDescription";
+
+
+            public const string Apply = "Apply";
+
+
+            public const string ApplyDescription = "ApplyDescription";
+
+
+            public const string Broadcast = "Broadcast";
+
+
+            public const string BroadcastDescription = "BroadcastDescription";
+
+
+            public const string ComputeToControlNode = "ComputeToControlNode";
+
+
+            public const string ComputeToControlNodeDescription = "ComputeToControlNodeDescription";
+
+
+            public const string ConstTableGet = "ConstTableGet";
+
+
+            public const string ConstTableGetDescription = "ConstTableGetDescription";
+
+
+            public const string ControlToComputeNodes = "ControlToComputeNodes";
+
+
+            public const string ControlToComputeNodesDescription = "ControlToComputeNodesDescription";
+
+
+            public const string ExternalBroadcast = "ExternalBroadcast";
+
+
+            public const string ExternalBroadcastDescription = "ExternalBroadcastDescription";
+
+
+            public const string ExternalExport = "ExternalExport";
+
+
+            public const string ExternalExportDescription = "ExternalExportDescription";
+
+
+            public const string ExternalLocalStreaming = "ExternalLocalStreaming";
+
+
+            public const string ExternalLocalStreamingDescription = "ExternalLocalStreamingDescription";
+
+
+            public const string ExternalRoundRobin = "ExternalRoundRobin";
+
+
+            public const string ExternalRoundRobinDescription = "ExternalRoundRobinDescription";
+
+
+            public const string ExternalShuffle = "ExternalShuffle";
+
+
+            public const string ExternalShuffleDescription = "ExternalShuffleDescription";
+
+
+            public const string Get = "Get";
+
+
+            public const string GetDescription = "GetDescription";
+
+
+            public const string GbApply = "GbApply";
+
+
+            public const string GbApplyDescription = "GbApplyDescription";
+
+
+            public const string GbAgg = "GbAgg";
+
+
+            public const string GbAggDescription = "GbAggDescription";
+
+
+            public const string Join = "Join";
+
+
+            public const string JoinDescription = "JoinDescription";
+
+
+            public const string LocalCube = "LocalCube";
+
+
+            public const string LocalCubeDescription = "LocalCubeDescription";
+
+
+            public const string Project = "Project";
+
+
+            public const string ProjectDescription = "ProjectDescription";
+
+
+            public const string Shuffle = "Shuffle";
+
+
+            public const string ShuffleDescription = "ShuffleDescription";
+
+
+            public const string SingleSourceRoundRobin = "SingleSourceRoundRobin";
+
+
+            public const string SingleSourceRoundRobinDescription = "SingleSourceRoundRobinDescription";
+
+
+            public const string SingleSourceShuffle = "SingleSourceShuffle";
+
+
+            public const string SingleSourceShuffleDescription = "SingleSourceShuffleDescription";
+
+
+            public const string Trim = "Trim";
+
+
+            public const string TrimDescription = "TrimDescription";
+
+
+            public const string Union = "Union";
+
+
+            public const string UnionDescription = "UnionDescription";
+
+
+            public const string UnionAll = "UnionAll";
+
+
+            public const string UnionAllDescription = "UnionAllDescription";
+
+
+            public const string NameValuePair = "NameValuePair";
+
+
+            public const string SizeInBytesFormat = "SizeInBytesFormat";
+
+
+            public const string SizeInKiloBytesFormat = "SizeInKiloBytesFormat";
+
+
+            public const string SizeInMegaBytesFormat = "SizeInMegaBytesFormat";
+
+
+            public const string SizeInGigaBytesFormat = "SizeInGigaBytesFormat";
+
+
+            public const string SizeInTeraBytesFormat = "SizeInTeraBytesFormat";
+
+
+            public const string OperatorDisplayCost = "OperatorDisplayCost";
+
+
+            public const string ActualOfEstimated = "ActualOfEstimated";
+
+
+            public const string MissingIndexFormat = "MissingIndexFormat";
+
+
+            public const string MissingIndexDetailsTitle = "MissingIndexDetailsTitle";
+
+
+            public const string TableNotInitializedException = "TableNotInitializedException";
+
+
+            public const string TableEditPathNotProvidedException = "TableEditPathNotProvidedException";
+
+
+            public const string InvalidTableEditPathException = "InvalidTableEditPathException";
+
+
+            public const string TableColumnIdentityGroupName = "TableColumnIdentityGroupName";
+
+
+            public const string TableColumnIsIdentityPropertyTitle = "TableColumnIsIdentityPropertyTitle";
+
+
+            public const string TableColumnIsIdentityPropertyDescription = "TableColumnIsIdentityPropertyDescription";
+
+
+            public const string TableColumnIdentityIncrementPropertyTitle = "TableColumnIdentityIncrementPropertyTitle";
+
+
+            public const string TableColumnIdentityIncrementPropertyDescription = "TableColumnIdentityIncrementPropertyDescription";
+
+
+            public const string TableColumnIdentitySeedPropertyTitle = "TableColumnIdentitySeedPropertyTitle";
+
+
+            public const string TableColumnIdentitySeedPropertyDescription = "TableColumnIdentitySeedPropertyDescription";
+
+
+            public const string TableDesignerIsEnabledPropertyTitle = "TableDesignerIsEnabledPropertyTitle";
+
+
+            public const string ForeignKeyIsEnabledDescription = "ForeignKeyIsEnabledDescription";
+
+
+            public const string ForeignKeyIsNotForReplicationTitle = "ForeignKeyIsNotForReplicationTitle";
+
+
+            public const string ForeignKeyIsNotForReplicationDescription = "ForeignKeyIsNotForReplicationDescription";
+
+
+            public const string SqlForeignKeyAction_NoAction = "SqlForeignKeyAction_NoAction";
+
+
+            public const string SqlForeignKeyAction_Cascade = "SqlForeignKeyAction_Cascade";
+
+
+            public const string SqlForeignKeyAction_SetNull = "SqlForeignKeyAction_SetNull";
+
+
+            public const string SqlForeignKeyAction_SetDefault = "SqlForeignKeyAction_SetDefault";
+
+
+            public const string UnKnownSqlForeignKeyAction = "UnKnownSqlForeignKeyAction";
+
+
+            public const string CheckConstraintIsEnabledDescription = "CheckConstraintIsEnabledDescription";
+
+
+            public const string IndexIsEnabledPropertyDescription = "IndexIsEnabledPropertyDescription";
+
+
+            public const string IndexIsClusteredPropertyDescription = "IndexIsClusteredPropertyDescription";
+
+
+            public const string TableDesignerIndexIsClusteredPropertyTitle = "TableDesignerIndexIsClusteredPropertyTitle";
+
+
+            public const string IndexIsUniquePropertyDescription = "IndexIsUniquePropertyDescription";
+
+
+            public const string TableDesignerIsUniquePropertyTitle = "TableDesignerIsUniquePropertyTitle";
+
+
+            public const string IndexColumnIsAscendingPropertyDescription = "IndexColumnIsAscendingPropertyDescription";
+
+
+            public const string IndexColumnIsAscendingPropertyTitle = "IndexColumnIsAscendingPropertyTitle";
+
+
+            public const string TableDesignerColumnsDisplayValueTitle = "TableDesignerColumnsDisplayValueTitle";
+
+
+            public const string TableDesignerDeleteColumnConfirmationMessage = "TableDesignerDeleteColumnConfirmationMessage";
 
 
             private Keys()

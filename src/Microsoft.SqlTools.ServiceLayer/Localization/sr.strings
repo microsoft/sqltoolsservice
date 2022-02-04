@@ -124,6 +124,8 @@ QueryServiceResultSetHasNoResults = Query has no results to return
 
 QueryServiceResultSetTooLarge = Result set has too many rows to be safely loaded
 
+QueryServiceUnsupportedSqlVariantType(string underlyingType, string columnName) = The underlying type "{0}" for sql variant column "{1}" could not be resolved.
+
 ### Save As Requests
 
 QueryServiceSaveAsResultSetNotComplete = Result cannot be saved until query execution has completed
@@ -855,3 +857,1403 @@ SqlAssessmentUnsuppoertedEdition(int editionCode) = Unsupported engine edition {
 CouldntFindAzureFunction(string functionName, string fileName) = Couldn't find Azure function with FunctionName '{0}' in {1}
 MoreThanOneAzureFunctionWithName(string functionName, string fileName) = More than one Azure function found with the FunctionName '{0}' in {1}
 SqlBindingsNet5NotSupported = Adding SQL bindings is not supported for .NET 5
+
+
+############################################################################
+# Show Plan
+
+; Statement
+Statement = Statement
+; Statement description
+StatementDesc = In most cases, contains the text of the Transact-SQL statement.  For rows of type PLAN_ROW, contains a description of the operation.
+; Physical Operation
+PhysicalOperation = Physical Operation
+; Physical Operation description
+PhysicalOperationDesc = Physical implementation algorithm for the node. For rows of type PLAN_ROWS only.
+; Logical Operation
+LogicalOperation = Logical Operation
+; Logical Operation description
+LogicalOperationDesc = Relational algebraic operator this node represents. For rows of type PLAN_ROWS only.
+; Operation description. Short
+OperationDescriptionShort = Description
+; Operation description
+OperationDescription = Operation description.
+; Operation Argument. Short
+OperationArgumentShort = Argument
+; Operation Argument description
+OperationArgumentDescription = Provides supplemental information about the operation being performed. The contents of this column depend on the physical operator.
+; Object field
+ObjectShort = Object
+; Object field description
+ObjectDescription = Object.
+; IndexKind field
+IndexKind = Index Kind
+; IndexKind field description
+IndexKindDescription = Type of index for the referenced object.
+; Defined Values
+DefinedValues = Defined Values
+; Defined Values description
+DefinedValuesDescription = Contains a comma-separated list of values introduced by this operator, which may be computed expressions present in the current query, or internal values introduced by the query processor in order to process this query.  For rows of type PLAN_ROWS only.
+; Output List
+OutputList = Output List
+; Output List
+OutputListDescription = Contains a comma-separated list of columns being projected by the current operation.
+; Warnings
+Warnings = Warnings
+; Warnings description
+WarningsDescription = Contains a comma-separated list of warning messages relating to the current operation. Warning messages may include the string 'NO STATS:()' with a list of columns.
+; Parallel
+Parallel = Parallel
+; Parallel description
+ParallelDescription = Whether the operator is running in parallel.
+; Estimated Number of Rows Per Execution
+EstimatedNumberOfRowsPerExecution = Estimated Number of Rows Per Execution
+; Estimated Number of Rows Per Execution description
+EstimatedNumberOfRowsPerExecutionDescription = Estimated number of rows per execution output by this operator. This is for PLAN_ROWS only.
+; Estimated Number of Rows for All Executions
+EstimatedNumberOfRowsForAllExecutions = Estimated Number of Rows for All Executions
+; Estimated Number of Rows for All Executions description
+EstimatedNumberOfRowsForAllExecutionsDescription = Estimated number of rows for all executions output by this operator. This is for PLAN_ROWS only.
+; Estimated Rows Read
+EstimatedRowsRead = Estimated Number of Rows to be Read
+; Estimated Rows Read description
+EstimatedRowsReadDescription = Number of rows estimated to be read by this operator. This value may differ from "Estimated Number of Rows for All Executions" if the operator has a predicate.
+; GraphDB Transitive Closure
+IsGraphDBTransitiveClosure = Is GraphDB Transitive Closure
+; GraphDB Transitive Closure Description
+IsGraphDBTransitiveClosureDescription = Whether the sequence represents a GraphDB transitive closure.
+; Interleaved Executed
+IsInterleavedExecuted = IsInterleavedExecuted
+; Interleaved Executed Description
+IsInterleavedExecutedDescription = Whether the operator is interleaved executed.
+; Is Adaptive
+IsAdaptive = Is Adaptive
+; Is Adaptive description
+IsAdaptiveDescription = Whether the operator is adaptive.
+; Adaptive Threshold Rows
+AdaptiveThresholdRows = Adaptive Threshold Rows
+; Adaptive Threshold Rows description
+AdaptiveThresholdRowsDescription = If this is an adaptive operator, the cardinality at which it adapts.
+; Estimated Join Type
+EstimatedJoinType = Estimated Join Type
+; Estimated Join Type description
+EstimatedJoinTypeDescription = The join type (nested loops or hash join) estimated by the query optimizer before adapting.
+; Actual Join Type
+ActualJoinType = Actual Join Type
+; Actual Join Type Description
+ActualJoinTypeDescription = The actual join picked (nested loops or hash join) as part of adaptive join execution.
+; Estimated Row Size
+EstimatedRowSize = Estimated Row Size
+; Estimated Row Size description
+EstimatedRowSizeDescription = Estimated average row size of the row being passed through this operator.
+; Estimated IO Cost
+EstimatedIoCost = Estimated I/O Cost
+; Estimated IO Cost description
+EstimatedIoCostDescription = Estimated I/O cost for this operator. For rows of type PLAN_ROWS only.
+; Estimated CPU Cost
+EstimatedCpuCost = Estimated CPU Cost
+; Estimated CPU Cost description
+EstimatedCpuCostDescription = Estimated CPU cost for this operator. For rows of type PLAN_ROWS only.
+; Estimated Number of Executions
+EstimatedNumberOfExecutions = Estimated Number of Executions
+; Estimated Number of Executions description
+EstimatedNumberOfExecutionsDescription = Estimated number of times this operator will be executed while running the current query.
+; Show plan node property name
+EstimatedOperatorCost = Estimated Operator Cost
+; Estimated Costs description
+EstimatedOperatorCostDescription = Estimated cost of this operator.
+; Estimated Subtree Cost
+EstimatedSubtreeCost = Estimated Subtree Cost
+; Estimated Subtree Cost description
+EstimatedSubtreeCostDescription = Estimated cumulative cost of this operation and all child operations.
+; Number of Rows
+NumberOfRows = Actual Number of Rows for All Executions
+; Number of Rows description
+NumberOfRowsDescription = Actual number of rows for All Executions output by this operator. For rows of type PLAN_ROWS only.
+; Number of Rows Read by a Rowset (Table or Index)
+ActualRowsRead = Number of Rows Read
+; Number of Rows Read by a Rowset (Table or Index) Description
+ActualRowsReadDescription = Number of rows read from a table or an index prior to applying a predicate filter. For rows of type PLAN_ROWS only.
+; Number of Batches
+NumberOfBatches = Actual Number of Batches
+; Number of Batches description
+NumberOfBatchesDescription = Actual number of Batches output by this operator.
+; Number of Executions
+NumberOfExecutions = Number of Executions
+; Number of Executions description
+NumberOfExecutionsDescription = Number of times this operator will be executed while running the current query.
+; Estimated Data Size
+EstimatedDataSize = Estimated Data Size
+; Estimated Data Size description
+EstimatedDataSizeDescription = Estimated data size of the data being passed through this operator.
+; Show plan's simple root node property
+ParameterList = Parameter List
+; Show plan's simple root node property description
+ParameterListDescription = Parameter list.
+; Show plan's simple root node property
+MemoryFractions = Memory Fractions
+; Show plan's simple root node property description
+MemoryFractionsDescription = Memory fractions.
+; Show plan's simple root node property
+MemoryFractionsInput = Memory Fractions Input
+; Show plan's simple root node property description
+MemoryFractionsInputDescription = Memory fractions input.
+; Show plan's simple root node property
+MemoryFractionsOutput = Memory Fractions Output
+; Show plan's simple root node property description
+MemoryFractionsOutputDescription = Memory fractions output.
+; Show plan's UDX node property
+UdxName = Name
+; Show plan's UDX node property description
+UdxNameDescription = Name.
+; Show plan's ConstantScan node property
+Values = Values
+; Show plan's ConstantScan node property description
+ValuesDescription = Values.
+; CachedPlanSize property
+CachedPlanSize = Cached plan size
+; Description for CachedPlanSize property
+CachedPlanSizeDescription = Cached plan size.
+; UsePlan property
+UsePlan = Use plan
+; InlineScalarTsqlUdf property
+ContainsInlineScalarTsqlUdfs = Contains Inline Scalar Tsql Udfs
+; DegreeOfParallelism property
+DegreeOfParallelism = Degree of Parallelism
+; Description for DegreeOfParallelism property
+DegreeOfParallelismDescription = Degree of parallelism.
+; EffectiveDegreeOfParallelism property
+EffectiveDegreeOfParallelism = Effective Degree of Parallelism
+; Description for EffectiveDegreeOfParallelism property
+EffectiveDegreeOfParallelismDescription = Max degree of parallelism during columnstore index build.
+; Root node for show plan property
+MemoryGrant = Memory Grant
+; Description for MemoryGrant property
+MemoryGrantDescription = Memory grant.
+; Show plan node property
+RemoteDestination = Remote Destination
+; Show plan node property description
+RemoteDestinationDescription = Remote object.
+; Show plan node property
+RemoteObject = Remote Object
+; Show plan node property description
+RemoteObjectDescription = Remote object.
+; Show plan node property
+RemoteSource = Remote Source
+; Show plan node property description
+RemoteSourceDescription = Remote source.
+; Show plan node property
+UsedUdxColumns = Used UDX Columns
+; Show plan node property description
+UsedUdxColumnsDescription = Used UDX columns.
+; Show plan node property
+InnerSideJoinColumns = Inner Side Join columns
+; Show plan node property description
+InnerSideJoinColumnsDescription = Inner side join columns.
+; Show plan node property
+OuterSideJoinColumns = Outer Side Join columns
+; Show plan node property description
+OuterSideJoinColumnsDescription = Outer side join columns.
+; Show plan node property
+WhereJoinColumns = Where (join columns)
+; Show plan node property
+Residual = Residual
+; Show plan node property description
+ResidualDescription = Residual.
+; Show plan node property
+PassThru = Pass Through
+; Show plan node property description
+PassThruDescription = Pass throuh.
+; Show plan node property
+ManyToMany = Many to Many
+; Show plan node property description
+ManyToManyDescription = Many to many.
+; Show plan node property
+PartitionColumns = Partition Columns
+; Show plan node property description
+PartitionColumnsDescription = Partition columns.
+; Column sort type
+Ascending = Ascending
+; Column sort type
+Descending = Descending
+; Show plan node property
+HashKeys = Hash Keys
+; Show plan node property description
+HashKeysDescription = Hash keys.
+; Show plan node property
+ProbeColumn = Probe Column
+; Show plan node property description
+ProbeColumnDescription = Probe column.
+; Show plan node property
+PartitioningType = Partitioning Type
+; Show plan node property description
+PartitioningTypeDescription = Partitioning type.
+; Show plan node property
+GroupBy = Group By
+; Show plan node property description
+GroupByDescription = Group by.
+; Show plan node property
+GroupingSets = Grouping Sets
+; Show plan node property description
+GroupingSetsDescription = The group sets list. Each Value is a reverse bit map for the grouping columns in Group By property.
+; Show plan node property
+SegmentColumn = Segment Column
+; Show plan node property description
+SegmentColumnDescription = Segment column.
+; Show plan node property
+RankColumns = Rank Columns
+; Show plan node property description
+RankColumnsDescription = Rank columns.
+; Show plan node property
+Predicate = Predicate
+; Show plan node property description
+PredicateDescription = Predicate.
+; Show plan node property
+OuterReferences = Outer References
+; Show plan node property description
+OuterReferencesDescription = Outer references.
+; Show plan node property
+ScalarOperator = Scalar Operator
+; Show plan node property
+ActionColumn = Action Column
+; Show plan node property description
+ActionColumnDescription = Action column.
+; Show plan node property
+OriginalActionColumn = Original Action Column
+; Show plan node property description
+OriginalActionColumnDescription = Original Action column.
+; Show plan node property
+Rows = Top Rows
+; Show plan node property description
+RowsDescription = Top Rows.
+; Show plan node property
+SeekPredicate = Seek Predicate
+; Show plan node property description
+SeekPredicateDescription = Seek predicate.
+; Show plan node property
+Partitioned = Partitioned
+; Show plan node property description
+PartitionedDescription = Whether the operation is on a partitioned table or index.
+; Show plan node property
+SeekKeys = Seek Keys
+; Show plan node property description
+SeekKeysDescription = Keys used by a seek operation.
+; Show plan node property
+PartitionsAccessed = Actual Partitions Accessed
+; Show plan node property
+PartitionCount = Actual Partition Count
+; Show plan node property
+TieColumns = Tie Columns
+; Show plan node property description
+TieColumnsDescription = Tie columns.
+; Show plan node property
+IsPercent = Is Percent
+; Show plan node property description
+IsPercentDescription = Is percent.
+; Show plan node property
+WithTies = With Ties
+; Show plan node property description
+WithTiesDescription = With ties.
+; Show plan node property
+PartitionId = Partition ID
+; Show plan node property description
+PartitionIdDescription = Partition ID.
+; Show plan node property
+Ordered = Ordered
+; Show plan node property description
+OrderedDescription = Ordered.
+; ScanDirection property
+ScanDirection = Scan Direction
+;ScanDirection property description
+ScanDirectionDescription = Direction of the scan operation as either forward or backward.
+; Show plan node property
+ForcedIndex = Forced Index
+; Show plan node property description
+ForcedIndexDescription = Forced index.
+; Show plan node property
+SetPredicate = Predicate
+; Show plan node property description
+SetPredicateDescription = Predicate
+; Show plan node property
+TopExpression = Top Expression
+; Show plan node property description
+TopExpressionDescription = Top expression.
+; Show plan node property
+HashKeysBuild = Hash Keys Build
+; Show plan node property description
+HashKeysBuildDescription = Hash keys build.
+; Show plan node property
+HashKeysProbe = Hash Keys Probe
+; Show plan node property description
+HashKeysProbeDescription = Hash keys probe.
+; Show plan node property
+BuildResidual = Build Residual
+; Show plan node property description
+BuildResidualDescription = Build residual.
+; Show plan node property
+ProbeResidual = Probe Residual
+; Show plan node property description
+ProbeResidualDescription = Probe residual.
+; Show plan node property
+SeekPredicates = Seek Predicates
+; Show plan node property description
+SeekPredicatesDescription = Seek predicates.
+; Set options property in show plan
+SetOptions = Set Options
+; Set options property in show plan description
+SetOptionsDescription = Set options.
+; Optimization Level property in show plan
+OptimizationLevel = Optimization Level
+; Optimization Level property in show plan description
+OptimizationLevelDescription = Optimization level.
+; StatementOptmEarlyAbortReason property
+StatementOptmEarlyAbortReason = Reason For Early Termination Of Statement Optimization
+; StatementOptmEarlyAbortReason property value
+TimeOut = Time Out
+; StatementOptmEarlyAbortReason property value
+MemoryLimitExceeded = Memory Limit Exceeded
+; StatementOptmEarlyAbortReason property value
+GoodEnoughPlanFound = Good Enough Plan Found
+; Estimated Rebinds
+EstimatedRebinds = Estimated Rebinds
+; Estimated Rebinds Description
+EstimatedRebindsDescription = Estimated rebinds.
+; Estimated Rewinds
+EstimatedRewinds = Estimated Rewinds
+; Estimated Rewinds Description
+EstimatedRewindsDescription = Estimated rewinds.
+; Actual Locally Aggregated Rows
+ActualLocallyAggregatedRows = Actual Number of Locally Aggregated Rows
+; Actual Locally Aggregated Rows Description
+ActualLocallyAggregatedRowsDescription = Actual number of locally aggregated rows
+; Actual Rebinds
+ActualRebinds = Actual Rebinds
+; Actual Rebinds Description
+ActualRebindsDescription = Actual Rebinds.
+; Actual Rewinds
+ActualRewinds = Actual Rewinds
+; Actual Rewinds Description
+ActualRewindsDescription = Actual Rewinds.
+; Actual I/O Statistics
+ActualIOStatistics = Actual I/O Statistics
+; Actual I/O Statistics Description
+ActualIOStatisticsDescription = Actual I/O Statistics
+; Actual Time Statistics
+ActualTimeStatistics = Actual Time Statistics
+; Actual Time Statistics Description
+ActualTimeStatisticsDescription = Actual Time Statistics
+; Actual Elapsed Milliseconds
+ActualElapsedms = Actual Elapsed Time (ms)
+; Actual Elapsed Milliseconds Description
+ActualElapsedmsDescription = Actual elapsed time in milliseconds
+; Actual CPU Time Milliseconds
+ActualCPUms = Actual Elapsed CPU Time (ms)
+; Actual CPU Time Milliseconds Description
+ActualCPUmsDescription = Actual elapsed CPU time in milliseconds
+; Actual Scans
+ActualScans = Actual Scans
+; Actual Scans Description
+ActualScansDescription = Actual Scans
+; Actual Logical Reads
+ActualLogicalReads = Actual Logical Reads
+; Actual Logical Reads Description
+ActualLogicalReadsDescription = Actual Logical Reads
+; Actual Physical Reads
+ActualPhysicalReads = Actual Physical Reads
+; Actual Physical Reads Description
+ActualPhysicalReadsDescription = Actual Physical Reads
+; Actual Page Server Reads
+ActualPageServerReads = Actual Page Server Reads
+; Actual Page Server Reads Description
+ActualPageServerReadsDescription = Actual Page Server Reads
+; Actual Read Aheads
+ActualReadAheads = Actual Read Aheads
+; Actual Read Aheads Description
+ActualReadAheadsDescription = Actual Read Aheads
+; Actual Page Server Read Aheads
+ActualPageServerReadAheads = Actual Page Server Read Aheads
+; Actual Page Server Read Aheads Description
+ActualPageServerReadAheadsDescription = Actual Page Server Read Aheads
+; Actual Lob Logical Reads
+ActualLobLogicalReads = Actual Lob Logical Reads
+; Actual Lob Logical Reads Description
+ActualLobLogicalReadsDescription = Actual Lob Logical Reads
+; Actual Lob Physical Reads
+ActualLobPhysicalReads = Actual Lob Physical Reads
+; Actual Lob Physical Reads Description
+ActualLobPhysicalReadsDescription = Actual Lob Physical Reads
+; Actual Lob Page Server Reads
+ActualLobPageServerReads = Actual Lob Page Server Reads
+; Actual Lob Page Server Reads Description
+ActualLobPageServerReadsDescription = Actual Lob Page Server Reads
+; Actual Lob Read Aheads
+ActualLobReadAheads = Actual Lob Read Aheads
+; Actual Lob Read Aheads Description
+ActualLobReadAheadsDescription = Actual Lob Read Aheads
+; Actual Lob Page Server Read Aheads
+ActualLobPageServerReadAheads = Actual Lob Page Server Read Aheads
+; Actual Lob Page Server Read Aheads Description
+ActualLobPageServerReadAheadsDescription = Actual Lob Page Server Read Aheads
+; ActualMemoryGrantStats
+ActualMemoryGrantStats = Memory Usage
+; Hpc Row Count
+HpcRowCount = Hpc Row Count
+; Hpc Row Count Description
+HpcRowCountDescription = Number of rows processed by Hpc devices.
+; Hpc Kernel Elapsed Us
+HpcKernelElapsedUs = Hpc Kernel Elapsed Time in Us
+; Hpc Kernel Elapsed Us Description
+HpcKernelElapsedUsDescription = Elapsed time (in micro seconds) of Hpc device kernel execution.
+; Hpc Host To Device Bytes
+HpcHostToDeviceBytes = Hpc Host To Device Bytes
+; Hpc Host To Device Bytes Description
+HpcHostToDeviceBytesDescription = Data transferred from host to Hpc device in bytes.
+; Hpc Device To Host Bytes
+HpcDeviceToHostBytes = Hpc Device To Host Bytes
+; Hpc Device To Host Bytes Description
+HpcDeviceToHostBytesDescription = Data transferred from Hpc device to host in bytes.
+; InputMemoryGrant
+InputMemoryGrant = Input Memory
+; OutputMemoryGrant
+OutputMemoryGrant = Output Memory
+; UsedMemoryGrant
+UsedMemoryGrant = Used Memory
+; Distinct
+Distinct = Distinct
+; Distinct description
+DistinctDescription = Distinct.
+; OrderBy
+OrderBy = Order By
+; OrderBy description
+OrderByDescription = Order by.
+SpillOccurredDisplayString = Operator used tempdb to spill data during execution
+; ColumnsWithNoStatistics property
+ColumnsWithNoStatistics = Columns With No Statistics
+; ColumnsWithNoStatistics property description
+ColumnsWithNoStatisticsDescription = Columns with no statistics warning.
+; NoJoinPredicate property
+NoJoinPredicate = No Join Predicate
+; NoJoinPredicate property description
+NoJoinPredicateDescription = No Join predicate warning.
+; SpillToTempDbOld property
+SpillToTempDbOld = Operator used tempdb to spill data during execution with spill level {0}
+; SpillToTempDb property
+SpillToTempDb = Operator used tempdb to spill data during execution with spill level {0} and {1} spilled thread(s)
+; SpillToTempDb property description
+SpillToTempDbDescription = Spill to tempdb warning.
+; SortSpillDetails property
+SortSpillDetails = Sort wrote {0} pages to and read {1} pages from tempdb with granted memory {2}KB and used memory {3}KB
+; SortSpillDetails property description
+SortSpillDetailsDescription = Details of sort spill
+; HashSpillDetails property
+HashSpillDetails = Hash wrote {0} pages to and read {1} pages from tempdb with granted memory {2}KB and used memory {3}KB
+; HahSpillDetails property description
+HashSpillDetailsDescription = Details of hash spill
+; FullUpdateForOnlineIndexBuild property
+FullUpdateForOnlineIndexBuild = A partial update was converted to a full update because of an online index build
+; FullUpdateForOnlineIndexBuild property description
+FullUpdateForOnlineIndexBuildDescription = Full update for online index build warning
+; Wait property
+Wait = The query had to wait {0} seconds for {1} during execution
+; Wait property description
+WaitDescription = Query wait warning.
+; PlanAffectingConvert property
+PlanAffectingConvert = Type conversion in expression ({0}) may affect "{1}" in query plan choice
+; PlanAffectingConvert property description
+PlanAffectingConvertDescription = Plan-affecting type conversion warning.
+; MemoryGrantWarning property
+MemoryGrantWarning = The query memory grant detected "{0}", which may impact the reliability. Grant size: Initial {1} KB, Final {2} KB, Used {3} KB.
+;MemoryGrantWarning property description
+MemoryGrantWarningDescription = Details on memory grant warning
+; StartupExpression property
+StartupExpression = Startup Expression
+; StartupExpression property description
+StartupExpressionDescription = Whether a filter startup expression is used.
+; StartupExpressionPredicate property
+StartupExpressionPredicate = Startup Expression Predicate
+; Query property
+Query = Query
+; Stack property
+Stack = With Stack
+; RowCount property
+RowCount = Is Row Count
+; Optimized property
+Optimized = Optimized
+; WithPrefetch property
+WithPrefetch = With Prefetch
+; Prefix property
+Prefix = Prefix
+; StartRange property
+StartRange = Start
+; StartRange property description
+StartRangeDescription = Start of the range.
+; EndRange property
+EndRange = End
+; EndRange property description
+EndRangeDescription = End of the range.
+; RangeColumns property
+RangeColumns = Range Columns
+; RangeExpressions property
+RangeExpressions = Range Expressions
+; ScanType property
+ScanType = Scan Type
+; ColumnReference property
+ColumnReference = Column Reference
+; Server property
+ObjectServer = Server
+; Server property description
+ObjectServerDescription = Server name for the referenced object.
+; Database property
+ObjectDatabase = Database
+; Database property description
+ObjectDatabaseDescription = Database name for the referenced object.
+; Index property
+ObjectIndex = Index
+; Index property description
+ObjectIndexDescription = Index name for the referenced object.
+; Schema property
+ObjectSchema = Schema
+; Schema property description
+ObjectSchemaDescription = Schema name for the referenced object.
+; Table property
+ObjectTable = Table
+; Table property description 
+ObjectTableDescription = Table name for the referenced object.
+; Alias property
+ObjectAlias = Alias
+; Alias property description
+ObjectAliasDescription = Alias used for the referenced object.
+; Column property
+ObjectColumn = Column
+; Column property description
+ObjectColumnDescription = Column name for the referenced object.
+; ComputedColumn property
+ObjectComputedColumn = Computed Column
+; ComputedColumn property description
+ObjectComputedColumnDescription = Whether this is a computed column.
+; ParameterDataType property
+ParameterDataType = Parameter Data Type
+; ParameterCompiledValue property
+ParameterCompiledValue = Parameter Compiled Value
+; ParameterRuntimeValue property
+ParameterRuntimeValue = Parameter Runtime Value
+; CursorPlan property
+CursorPlan = Cursor Plan
+; CursorOperation property
+CursorOperation = Cursor Operation
+; CursorName property
+CursorName = Cursor Name
+; CursorActualType property
+CursorActualType = Cursor Actual Type
+; CursorRequestedType property
+CursorRequestedType = Cursor Requested Type
+; CursorConcurrency property
+CursorConcurrency = Cursor Concurrency
+; ForwardOnly property
+ForwardOnly = Forward Only
+; QueryPlan property
+QueryPlan = Query Plan
+; OperationType property
+OperationType = Operation Type
+; Node ID property
+NodeId = Node ID
+; Primary Node ID property
+PrimaryNodeId = Primary Node ID
+; Internal Info property
+InternalInfo = Internal Debugging Information
+; Foreign Key References Count property
+ForeignKeyReferencesCount = Foreign Key References Count
+; No Matching Index Count property
+NoMatchingIndexCount = No Matching Indexes Count
+; Partial Matching Index Count property
+PartialMatchingIndexCount = Partial Matching Indexes Count
+; Logical operator
+LogicalOpCollapse = Collapse
+; Logical operator
+LogicalOpConcatenation = Concatenation
+; Logical operator
+LogicalOpConstantScan = Constant Scan
+; Logical operator
+LogicalOpGatherStreams = Gather Streams
+; Logical operator
+LogicalOpRepartitionStreams = Repartition Streams
+; Logical operator
+LogicalOpDistributeStreams = Distribute Streams
+; Logical operator
+LogicalOpFilter = Filter
+; Logical operator
+LogicalOpAssert = Assert
+; Logical operator
+LogicalOpLogRowScan = Log Row Scan
+; Logical operator
+LogicalOpPrint = Print
+; Logical operator
+LogicalOpComputeScalar = Compute Scalar
+; Logical operator
+LogicalOpMergeInterval = Merge Interval
+; Logical operator
+LogicalOpRank = Rank
+; Logical operator
+LogicalOpSegment = Segment
+; Logical operator
+LogicalOpSequence = Sequence
+; Logical operator
+LogicalOpSplit = Split
+; Logical operator
+LogicalOpAggregate = Aggregate
+; Logical operator
+LogicalOpTableScan = Table Scan
+; Logical operator
+LogicalOpClusteredIndexScan = Clustered Index Scan
+; Logical operator
+LogicalOpClusteredIndexSeek = Clustered Index Seek
+; Logical operator
+LogicalOpDeletedScan = Deleted Scan
+; Logical operator
+LogicalOpInsertedScan = Inserted Scan
+; Logical operator
+LogicalOpParameterTableScan = Parameter Table Scan
+; Logical operator
+LogicalOpPut = Put
+; Logical operator
+LogicalOpIndexScan = Index Scan
+; Logical operator
+LogicalOpIndexSeek = Index Seek
+; Logical operator
+LogicalOpRemoteScan = Remote Scan
+; Logical operator
+LogicalOpRemoteIndexScan = Remote Index Scan
+; Logical operator
+LogicalOpRemoteIndexSeek = Remote Index Seek
+; Logical operator
+LogicalOpRemoteQuery = Remote Query
+; Logical operator
+LogicalOpRemoteInsert = Remote Insert
+; Logical operator
+LogicalOpRemoteUpdate = Remote Update
+; Logical operator
+LogicalOpRemoteDelete = Remote Delete
+; Logical operator
+LogicalOpClusteredUpdate = Clustered Update
+; Logical operator
+LogicalOpDistinctSort = Distinct Sort
+; Logical operator
+LogicalOpSort = Sort
+; Logical operator
+LogicalOpTopNSort = Top N Sort
+; Logical operator
+LogicalOpEagerSpool = Eager Spool
+; Logical operator
+LogicalOpLazySpool = Lazy Spool
+; Logical operator
+LogicalOpUpdate = Update
+; Logical operator
+LogicalOpInsert = Insert
+; Logical operator
+LogicalOpDelete = Delete
+; Logical operator
+LogicalOpMerge = Merge
+; Logical operator
+LogicalOpTop = Top
+; Logical operator
+LogicalOpDistinct = Distinct
+; Logical operator
+LogicalOpFlowDistinct = Flow Distinct
+; Logical operator
+LogicalOpPartialAggregate = Partial Aggregate
+; Logical operator
+LogicalOpInnerApply = Inner Apply
+; Logical operator
+LogicalOpInnerJoin = Inner Join
+; Logical operator
+LogicalOpLeftAntiSemiApply = Left Anti Semi Apply
+; Logical operator
+LogicalOpLeftSemiApply = Left Semi Apply
+; Logical operator
+LogicalOpLeftOuterApply = Left Outer Apply
+; Logical operator
+LogicalOpLeftOuterJoin = Left Outer Join
+; Logical operator
+LogicalOpRightOuterJoin = Right Outer Join
+; Logical operator
+LogicalOpFullOuterJoin = Full Outer Join
+; Logical operator
+LogicalOpLeftSemiJoin = Left Semi Join
+; Logical operator
+LogicalOpLeftAntiSemiJoin = Left Anti Semi Join
+; Logical operator
+LogicalOpRightSemiJoin = Right Semi Join
+; Logical operator
+LogicalOpRightAntiSemiJoin = Right Anti Semi Join
+; Logical operator
+LogicalOpIntersect = Intersect
+; Logical operator
+LogicalOpIntersectAll = Intersect All
+; Logical operator
+LogicalOpUnion = Union
+; Logical operator
+LogicalOpLeftDiff = Left Diff
+; Logical operator
+LogicalOpLeftDiffAll = Left Diff All
+; Logical operator
+LogicalOpRightDiff = Right Diff
+; Logical operator
+LogicalOpRightDiffAll = Right Diff All
+; Logical operator
+LogicalOpAntiDiff = Anti Diff
+; Logical operator
+LogicalOpCrossJoin = Cross Join
+; Logical operator
+LogicalOpBitmapCreate = Bitmap Create
+; Logical operator
+LogicalOpUDX = UDX
+; Logical operator
+LogicalOpWindow = Window Spool
+; Logical operator
+LogicalOpSwitch = Switch
+; Logical operator
+LogicalOpMergeStats = Merge Stats
+; Logical operator
+LogicalOpLocalStats = Local Stats
+; Logical operator
+LogicalOpTableValuedFunction = Table Valued Function
+; Logical operator
+LogicalOpBatchHashTableBuild = Batch Hash Table Build
+; Logical operator
+LogicalOpForeignKeyReferencesCheck = Foreign Key References Check
+; RIDLookup operator
+LogicalOpRIDLookup = RID Lookup
+; StoredProc node
+StoredProc = Stored Procedure
+; UDF node
+Udf = UDF
+; ProcName property
+ProcName = Procedure Name
+; Storage property
+Storage = Storage
+; Storage property
+StorageDesc = Storage
+; ActualExectionMode property
+ActualExecMode = Actual Execution Mode
+ActualExecModeDesc = Actual Execution Mode
+; EstimatedExecutionMode property
+EstimatedExecMode = Estimated Execution Mode
+EstimatedExecModeDesc = Estimated Execution Mode
+;"Cost: {0} percent" String to format
+CostFormat(int x) = Cost: {0} %
+; Remote Data Access
+RemoteDataAccess = Remote Data Access
+RemoteDataAccessDescription = Whether the operator uses remote procedure call (RPC) to access remote data.
+; Clone Access Scope
+CloneAccessScope = Clone Access Scope
+CloneAccessScopeDescription = Clones that the operator may access.
+PrimaryClones = Primary Clones
+SecondaryClones = Secondary Clones
+BothClones = All Clones
+EitherClones = Primary Or Secondary Clones
+ExactMatchClones = Single Clone Match
+; Remoting for remote exchange operator
+Remoting = Remoting
+RemotingDescription = Whether the operator can run remotely.
+; Activation
+Activation = Activation
+; Brick Routing
+BrickRouting = Brick Routing
+FragmentIdColumn = Fragment Id Column
+; Showplan edit query text button
+EditQueryText = Edit Query Text from Showplan XML (possibly truncated)
+; error message when the ShowPlan source cannot be recognized
+UnknownShowPlanSource = Execution plan source type can not be recognized.
+; Save plan dialog filter string
+SavePlanFilter = Sql Plan files (*.SqlPlan)|*.SqlPlan|All files (*.*)|*.*
+; Message box if user tries to save in XML show plan from Shiloh or Sphinx
+NoXmlPlanData = Plan data is not available in XML format. Only plans from SQL Server Yukon can be saved.
+; Description of a per thread counter
+PerThreadCounterDescription = Per-thread counter information.
+; Runtime counter property name
+RuntimeCounterThread(int index) = Thread {0}
+; Runtime counter property name. Thread on Instance.
+RuntimeCounterThreadOnInstance(int thread, int instance) = Thread {0} on Instance {1}
+; Runtime counter property name
+RuntimeCounterThreadAll = All threads
+; label for Connection Properties hyperlink
+ConnectionPropertiesLabel = View connection properties
+; Error when displaying show plan properties
+UnknownAssignType = Unknown assign type.
+; exception message box caption
+MessageBoxCaption = SQL Server
+; Message shown when user enters wrong zoom level
+ZoomLevelShouldBeBetween(int minimum, int maximum) = Zoom level must be an integer value between {0} and {1}.
+; Exception thrown when node type is unknown
+UnknownNodeType = Unknown node type.
+; Exception thrown by show plan when it gets unknown type of cursor plan operation
+UnknownCursorPlanOperation(string name) = Unknown cursor plan operation '{0}'.
+; Exception thrown by show plan when it gets unknown statement type
+UnknownStatementType = Statement type is not recognized.
+; Show plan node property
+RollupInfo = Rollup Information
+; Show plan node property description
+RollupInfoDescription = Rollup information.
+; Show plan node property
+HighestLevel = Highest Level
+; Show plan node property description
+HighestLevelDescription = The highest level of grouping attributes computed in this rollup.
+; Show plan node property
+RollupLevel = Rollup Levels
+; Show plan node property description
+RollupLevelDescription = All levels of grouping attributes computed in this rollup.
+; Show plan node property
+Level = Level
+; Show plan node property description
+LevelDescription = A level of grouping attributes computed in this rollup.
+
+#
+# Operators
+#
+; Unkown (reused string, unkown operator, or unkown reason, or unknown ...)
+Unknown = Unknown
+; Operator description
+UnknownDescription = Unknown operator.
+; Operator name
+Result = Result
+; Operator description
+ResultDescription = Result.
+; Operator name
+Collapse = Collapse
+; Operator description
+CollapseDescription = Groups an insert and delete on the same value into an update within wide update plans.
+; Operator name
+Concatenation = Concatenation
+; Operator description
+ConcatenationDescription = Append multiple input tables to form the output table.
+; Operator name
+ConstantScan = Constant Scan
+; Operator description
+ConstantScanDescription = Scan an internal table of constants.
+; Operator name
+Parallelism = Parallelism
+; Operator description
+ParallelismDescription = An operation involving parallelism.
+; Operator name
+Put = Put
+; Operator description
+PutDescription = Export the rows from a local or external table to an external table.
+; Operator name
+DistributeStreams = Distribute Streams
+; Operator description
+DistributeStreamsDescription = Distribute streams.
+; Operator name
+GatherStreams = Gather Streams
+; Operator description
+GatherStreamsDescription = Gather streams.
+; Operator name
+RepartitionStreams = Repartition Streams
+; Operator description
+RepartitionStreamsDescription = Repartition streams.
+; Operator name
+EagerSpool = Eager Spool
+; Operator description
+EagerSpoolDescription = Eager Spool.
+; Operator name
+LazySpool = Lazy Spool
+; Operator description
+LazySpoolDescription = Lazy Spool.
+; Operator name
+Filter = Filter
+; Operator description
+FilterDescription = Restricting the set of rows based on a predicate.
+; Operator name
+Assert = Assert
+; Operator description
+AssertDescription = Used to verify that a specified condition exists.
+; Operator name
+HashMatch = Hash Match
+; Operator description
+HashMatchDescription = Use each row from the top input to build a hash table, and each row from the bottom input to probe into the hash table, outputting all matching rows.
+; Operator name
+HashMatchTeam = Hash Match Team
+; Operator description
+HashMatchTeamDescription = A contributor among multiple cooperating hashing operations.
+; Operator name
+HashMatchRoot = Hash Match Root
+; Operator description
+HashMatchRootDescription = The root member of a team of connected hash operators sharing a common hash function and partitioning strategy.
+; Operator name
+BookmarkLookup = Bookmark Lookup
+; Operator description
+BookmarkLookupDescription = Use a Bookmark (RID or clustering key) to look up the corresponding row in the table or clustered index.
+; Operator name
+LogRowScan = Log Row Scan
+; Operator description
+LogRowScanDescription = Scan the rows in the log.
+; Operator name
+MergeJoin = Merge Join
+; Operator description
+MergeJoinDescription = Match rows from two suitably sorted input tables exploiting their sort order.
+; Operator name
+NestedLoops = Nested Loops
+; Operator description
+NestedLoopsDescription = For each row in the top (outer) input, scan the bottom (inner) input, and output matching rows.
+; Operator name
+Print = Print
+; Operator description
+PrintDescription = Print.
+; Operator name
+ComputeScalar = Compute Scalar
+; Operator description
+ComputeScalarDescription = Compute new values from existing values in a row.
+; Operator name
+MergeInterval = Merge Interval
+; Operator description
+MergeIntervalDescription = Merge interval.
+; Operator name
+Rank = Rank
+; Operator description
+RankDescription = Creates a computed column with the rank of the values in an existing column in the table.
+; Operator name
+RowCountSpool = Row Count Spool
+; Operator description
+RowCountSpoolDescription = Stores the data from the input into a temporary table in order to optimize rewinds.
+; Operator name
+Segment = Segment
+; Operator description
+SegmentDescription = Segment.
+; Operator name
+Sequence = Sequence
+; Operator description
+SequenceDescription = Process each input, in sequence from top to bottom.
+; Operator name
+SequenceProject = Sequence Project
+; Operator description
+SequenceProjectDescription = Adds columns to perform computations over an ordered set.
+; Operator name
+Split = Split
+; Operator description
+SplitDescription = Split.
+; Operator name
+StreamAggregate = Stream Aggregate
+; Operator description
+StreamAggregateDescription = Compute summary values for groups of rows in a suitably sorted stream.
+; Operator name
+TableScan = Table Scan
+; Operator description
+TableScanDescription = Scan rows from a table.
+; Operator name
+ClusteredIndexScan = Clustered Index Scan
+; Operator description
+ClusteredIndexScanDescription = Scanning a clustered index, entirely or only a range.
+; Operator name
+ClusteredIndexSeek = Clustered Index Seek
+; Operator description
+ClusteredIndexSeekDescription = Scanning a particular range of rows from a clustered index.
+; Operator name
+DeletedScan = Deleted Scan
+; Operator description
+DeletedScanDescription = Scanning the pseudo-table 'deleted' within a trigger.
+; Operator name
+InsertedScan = Inserted Scan
+; Operator description
+InsertedScanDescription = Scan the pseudo-table 'inserted' within a trigger.
+; Operator name
+ParameterTableScan = Parameter Table Scan
+; Operator description
+ParameterTableScanDescription = Scan an internal table of parameter values.
+; Operator name
+IndexScan = Index Scan
+; Operator description
+IndexScanDescription = Scan a nonclustered index, entirely or only a range.
+; Operator name
+IndexSeek = Index Seek
+; Operator description
+IndexSeekDescription = Scan a particular range of rows from a nonclustered index.
+; Operator name
+ColumnstoreIndexScan = Columnstore Index Scan
+; Operator description
+ColumnstoreIndexScanDescription = Scan a columnstore index, entirely or only a range.
+; Operator name
+ColumnstoreIndexUpdate = Columnstore Index Update
+; Operator description
+ColumnstoreIndexUpdateDescription = Update rows in a columnstore index.
+; Operator name
+ColumnstoreIndexInsert = Columnstore Index Insert
+; Operator description
+ColumnstoreIndexInsertDescription = Insert rows in a columnstore index.
+; Operator name
+ColumnstoreIndexMerge = Columnstore Index Merge
+; Operator description
+ColumnstoreIndexMergeDescription = Merge rows in a columnstore index.
+; Operator name
+ColumnstoreIndexDelete = Columnstore Index Delete
+; Operator description
+ColumnstoreIndexDeleteDescription = Delete rows from a columnstore index.
+; Operator name
+RemoteScan = Remote Scan
+; Operator description
+RemoteScanDescription = Scan rows in a table stored in a database or file other than the current database server.
+; Operator name
+RemoteIndexScan = Remote Index Scan
+; Operator description
+RemoteIndexScanDescription = Scan an index stored in a database or file other than the current database server.
+; Operator name
+RemoteIndexSeek = Remote Index Seek
+; Operator description
+RemoteIndexSeekDescription = Scan a particular range of rows from a clustered index that is stored in a database or file other than the current database server.
+; Operator name
+RemoteQuery = Remote Query
+; Operator description
+RemoteQueryDescription = Send a SQL query to another than the current SQL Server.
+; Operator name
+RemoteInsert = Remote Insert
+; Operator description
+RemoteInsertDescription = Insert rows into a table stored in a database or file other than the current database server.
+; Operator name
+RemoteUpdate = Remote Update
+; Operator description
+RemoteUpdateDescription = Update rows in a table stored in a database or file other than the current database server.
+; Operator name
+RemoteDelete = Remote Delete
+; Operator description
+RemoteDeleteDescription = Delete rows in a table stored in a database or file other than the current database server.
+; Operator name
+ClusteredUpdate = Clustered Update
+; Operator description
+ClusteredUpdateDescription = Clustered Update.
+; Operator name
+Sort = Sort
+; Operator description
+SortDescription = Sort the input.
+; Operator name
+TableSpool = Table Spool
+; Operator description
+TableSpoolDescription = Stores the data from the input into a temporary table in order to optimize rewinds.
+; Operator name
+IndexSpool = Index Spool
+; Operator description
+IndexSpoolDescription = Reformats the data from the input into a temporary index, which is then used for seeking with the supplied seek predicate.
+; Operator name
+TableUpdate = Table Update
+; Operator description
+TableUpdateDescription = Update input rows in the table specified in the Argument field.
+; Operator name
+TableInsert = Table Insert
+; Operator description
+TableInsertDescription = Insert input rows into the table specified in Argument field.
+; Operator name
+TableDelete = Table Delete
+; Operator description
+TableDeleteDescription = Delete input rows from the table specified in Argument field.
+; Operator name
+TableMerge = Table Merge
+; Operator description
+TableMergeDescription = Merge input rows in the table specified in Argument field.
+; Operator name
+IndexUpdate = Index Update
+; Operator description
+IndexUpdateDescription = Update rows in an index.
+; Operator name
+IndexInsert = Index Insert
+; Operator description
+IndexInsertDescription = Insert rows into an index.
+; Operator name
+IndexDelete = Index Delete
+; Operator description
+IndexDeleteDescription = Delete rows from index.
+; Operator name
+ClusteredIndexUpdate = Clustered Index Update
+; Operator description
+ClusteredIndexUpdateDescription = Update rows in a clustered index.
+; Operator name
+ClusteredIndexInsert = Clustered Index Insert
+; Operator description
+ClusteredIndexInsertDescription = Insert rows in a clustered index.
+; Operator name
+ClusteredIndexMerge = Clustered Index Merge
+; Operator description
+ClusteredIndexMergeDescription = Merge rows in a clustered index.
+; Operator name
+ClusteredIndexDelete = Clustered Index Delete
+; Operator description
+ClusteredIndexDeleteDescription = Delete rows from a clustered index.
+; Operator name
+Top = Top
+; Operator description
+TopDescription = Select the first few rows based on a sort order.
+; Operator name
+Bitmap = Bitmap
+; Operator description
+BitmapDescription = Bitmap.
+; Operator name
+UDX = UDX
+; Operator description
+UDXDescription = UDX.
+; Show plan's Window node property
+Window = Window Spool
+; Show plan's Window node property description
+WindowDescription = Expands each row into the set of rows that represent the window associated with it.
+; Show plan's Window Aggregate node property
+WindowAggregate = Window Aggregate
+; Show plan's Window Aggregate node property description
+WindowAggregateDescription = Computes values of functions across the windows defined by the OVER clause. Input rowset is suitably sorted stream.
+; Operator name
+BatchHashTableBuild = Batch Hash Table Build
+; Operator description
+BatchHashTableBuildDescription = Batch Hash Table Build.
+; Operator name
+Switch = Switch
+; Operator description
+SwitchDescription = Switch.
+; Operator name
+TFP = Predict
+; Operator description
+TFPDescription = Applies a trained machine learning model to input data	
+; Operator name
+TableValueFunction = Table Valued Function
+; Operator description
+TableValueFunctionDescription = Table valued function.
+; Operator name
+Aggregate = Aggregate
+; Operator description
+AggregateDescription = Calculates an expression containing SUM, COUNT, MIN, MAX, or AVG.
+; Operator name
+ArithmeticExpression = Arithmetic Expression
+; Operator description
+ArithmeticExpressionDescription = Computes a new value from existing values in a row.
+; Operator name
+Delete = Delete
+; Operator description
+DeleteDescription = Removes the specified rows from the specified table.
+; Operator name
+Insert = Insert
+; Operator description
+InsertDescription = Adds a row to table.
+; Operator name
+Locate = Locate
+; Operator description
+LocateDescription = Fetching a full row from a heap or a clustered index.
+; Operator name
+Spool = Spool
+; Operator description
+SpoolDescription = Saving temporarily an intermediate query result.
+; Operator name
+SQL = SQL
+; Operator description
+SQLDescription = SQL.
+; Operator name
+Update = Update
+; Operator description
+UpdateDescription = Modify the values in the specified table.
+; Operator name
+Assign = Assign
+; Operator description
+AssignDescription = Validate referential integrity constraints.
+; Operator name
+Convert = Convert
+; Operator description
+ConvertDescription = Implicit or explicit conversion of one scalar datatype to another.
+; Operator name
+Declare = Declare
+; Operator description
+DeclareDescription = Allocates a local variable.
+; Operator name
+If = If
+; Operator description
+IfDescription = Conditional processing based on an expression.
+; Operator name
+Intrinsic = Intrinsic
+; Operator description
+IntrinsicDescription = Invokes an internal Transact-SQL function.
+; Operator name
+SetFunction = Set Function
+; Operator description
+SetFunctionDescription = Set Function.
+; Operator name
+Dynamic = Dynamic
+; Operator description
+DynamicDescription = Cursor that can see all changes made by others.
+; Operator name
+FetchQuery = Fetch Query
+; Operator description
+FetchQueryDescription = The query used to retrieve rows when a fetch is issued against a cursor.
+; Operator name
+FastForward = Fast Forward
+; Operator description
+FastForwardDescription = Fast Forward.
+; Operator name
+Keyset = Keyset
+; Operator description
+KeysetDescription = Cursor that can see updates made by others, but not inserts.
+; Operator name
+PopulationQuery = Population Query
+; Operator description
+PopulationQueryDescription = The query used to populate a cursor's work table when the cursor is opened.
+; Operator name
+RefreshQuery = Refresh Query
+; Operator description
+RefreshQueryDescription = Fetches current data for rows in fetch buffer.
+; Operator name
+Snapshot = Snapshot
+; Operator description
+SnapshotDescription = A cursor that does not see changes made by others.
+; Operator name
+RIDLookup = RID Lookup
+; Operator description
+RIDLookupDescription = RID Lookup
+; Operator name
+KeyLookup = Key Lookup
+; Operator description
+KeyLookupDescription = Uses a supplied clustering key to lookup on a table that has a clustered index.
+; Operator name
+LogicalKeyLookup = Key Lookup
+; Operator name
+AdaptiveJoin = Adaptive Join
+; Operator description
+AdaptiveJoinDescription = Chooses dynamically between hash join and nested loops.
+; Operator name
+ForeignKeyReferencesCheck = Foreign Key References Check
+; Operator description
+ForeignKeyReferencesCheckDescription = Checks referential integrity of the delete operation.
+#
+# PDW Operators
+#
+; Operator name
+Apply = Apply
+; Operator description
+ApplyDescription = Apply opration.
+; Operator name
+Broadcast = Broadcast
+; Operator description
+BroadcastDescription = Broadcast data movement.
+; Operator name
+ComputeToControlNode = Compute To Control Node
+; Operator description
+ComputeToControlNodeDescription = Data flow from compute nodes to control node.
+; Operator name
+ConstTableGet = Constant Table Get
+; Operator description
+ConstTableGetDescription = Get tuples from contant table.
+; Operator name
+ControlToComputeNodes = Control To Compute Nodes
+; Operator description
+ControlToComputeNodesDescription = Data flow from control node to compute nodes.
+; Operator name
+ExternalBroadcast = External Broadcast
+; Operator description
+ExternalBroadcastDescription = Broadcast data movement for external table.
+; Operator name
+ExternalExport = External Export
+; Operator description
+ExternalExportDescription = Export data movement for external table.
+; Operator name
+ExternalLocalStreaming = External Local Streaming
+; Operator description
+ExternalLocalStreamingDescription = Streaming data movement between external table and local table.
+; Operator name
+ExternalRoundRobin = External RoundRobin
+; Operator description
+ExternalRoundRobinDescription = RoundRobin data movement for external table.
+; Operator name
+ExternalShuffle = External Shuffle
+; Operator description
+ExternalShuffleDescription = Shuffle data movement for external table.
+; Operator name
+Get = Get
+; Operator description
+GetDescription = Get tuples from table.
+; Operator name
+GbApply = Group by and Apply
+; Operator description
+GbApplyDescription = Group by and Apply.
+; Operator name
+GbAgg = Group by Aggregates
+; Operator description
+GbAggDescription = Group by aggregates.
+; Operator name
+Join = Join
+; Operator description
+JoinDescription = Join tables.
+; Operator name
+LocalCube = Rollup Aggregate
+; Operator description
+LocalCubeDescription = This represents a ROLLUP operator or a CUBE operator.
+; Operator name
+Project = Project
+; Operator description
+ProjectDescription = Project columns.
+; Operator name
+Shuffle = Shuffle
+; Operator description
+ShuffleDescription = Shuffle data movement.
+; Operator name
+SingleSourceRoundRobin = Single Source RoundRobin
+; Operator description
+SingleSourceRoundRobinDescription = Single Source RoundRobin data movement.
+; Operator name
+SingleSourceShuffle = Single Source Shuffle
+; Operator description
+SingleSourceShuffleDescription = Single Source Shuffle data movement.
+; Operator name
+Trim = Trim
+; Operator description
+TrimDescription = Trim data.
+; Operator name
+Union = Union
+; Operator description
+UnionDescription = Union tables.
+; Operator name
+UnionAll = Union All
+; Operator description
+UnionAllDescription = Union All tables.
+;Format for name / value pair -  {0} is property name, {1} is property value
+NameValuePair(name, value) = {0}: {1}
+;Size in Bytes format
+SizeInBytesFormat = {0} B
+;Size in KiloBytes format
+SizeInKiloBytesFormat = {0} KB
+;Size in Bytes format
+SizeInMegaBytesFormat = {0} MB
+;Size in GigaBytes format
+SizeInGigaBytesFormat = {0} GB
+;Size in TeraBytes format
+SizeInTeraBytesFormat = {0} TB
+; display string for the operator cost property - 0.###### - is the float number format specifier
+OperatorDisplayCost(double cost, int percentage) = {0:0.#######} ({1}%)
+#Would like to display actual rows and estimated rows in two lines: <number_actual_rows> of\n <number_estimated_rows> (xx%)
+ActualOfEstimated(string actual, string estimated, decimal percent) = {0} of\n{1} ({2}%)
+;"Missing Index (Impact {0}): {1}" format string for showplan
+MissingIndexFormat(string impact, string queryText) = Missing Index (Impact {0}): {1}
+;title of missing index details
+MissingIndexDetailsTitle(string fileName, string impact) = /*\r\nMissing Index Details from {0}\r\nThe Query Processor estimates that implementing the following index could improve the query cost by {1}%.\r\n*/
+
+
+############################################################################
+# Table Designer
+
+TableNotInitializedException(string tableId) = Initialization is not properly done for table with id '{0}'
+TableEditPathNotProvidedException = The path in the table change information cannot be empty
+InvalidTableEditPathException(string path, string editType) = The path '{0}' in the table change information is not valid for edit type: '{1}'
+TableColumnIdentityGroupName = Identity Specification
+TableColumnIsIdentityPropertyTitle = Is Identity
+TableColumnIsIdentityPropertyDescription = Specifies whether the column is the identity column for the table.
+TableColumnIdentityIncrementPropertyTitle = Identity Increment
+TableColumnIdentityIncrementPropertyDescription = Displays the value added to the maximum existing row identity value when generating the next identity value.
+TableColumnIdentitySeedPropertyTitle = Identity Seed
+TableColumnIdentitySeedPropertyDescription = Displays the initial row value for an identity column.
+TableDesignerIsEnabledPropertyTitle = Is Enabled
+ForeignKeyIsEnabledDescription = Specifies whether the foreign key is Enabled
+ForeignKeyIsNotForReplicationTitle = Not For Replication
+ForeignKeyIsNotForReplicationDescription = Enables or disables an IDENTITY constraint for data inserted by a replication process.
+SqlForeignKeyAction_NoAction = No Action
+SqlForeignKeyAction_Cascade = Cascade
+SqlForeignKeyAction_SetNull = Set Null
+SqlForeignKeyAction_SetDefault = Set Default
+UnKnownSqlForeignKeyAction(string name) = '{0}' is not a supported SqlForeignKeyAction.
+CheckConstraintIsEnabledDescription = Specifies whether the check constraint is Enabled
+IndexIsEnabledPropertyDescription = Specifies whether the index is enabled
+IndexIsClusteredPropertyDescription = Whether the index is clustered, only one clustered index is allowed in a table.
+TableDesignerIndexIsClusteredPropertyTitle = Is Clustered
+IndexIsUniquePropertyDescription = Whether the data entered into this index must be unique.
+TableDesignerIsUniquePropertyTitle = Is Unique
+IndexColumnIsAscendingPropertyDescription = Specifies the sort order of the column.
+IndexColumnIsAscendingPropertyTitle = Is Ascending
+TableDesignerColumnsDisplayValueTitle = Columns
+TableDesignerDeleteColumnConfirmationMessage = Removing a column will also remove it from the indexes and foreign keys. Are you sure you want to continue?

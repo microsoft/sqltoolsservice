@@ -2,7 +2,9 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.ServiceLayer.ShowPlan;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests
 {
@@ -35,9 +37,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteReques
     /// </summary>
     public class ResultSetUpdatedEventParams : ResultSetEventParams
     {
+        /// <summary>
+        /// Execution plans for statements in the current batch.
+        /// </summary>
+        public List<ExecutionPlanGraph> ExecutionPlans { get; set; }
+        /// <summary>
+        /// Error message for exception raised while generating execution plan.
+        /// </summary>
+        public string ExecutionPlanErrorMessage { get; set; }
     }
 
-    public class ResultSetCompleteEvent 
+    public class ResultSetCompleteEvent
     {
         public static string MethodName { get; } = "query/resultSetComplete";
 
@@ -46,7 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteReques
             EventType<ResultSetCompleteEventParams>.Create(MethodName);
     }
 
-    public class ResultSetAvailableEvent 
+    public class ResultSetAvailableEvent
     {
         public static string MethodName { get; } = "query/resultSetAvailable";
 
@@ -55,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteReques
             EventType<ResultSetAvailableEventParams>.Create(MethodName);
     }
 
-    public class ResultSetUpdatedEvent 
+    public class ResultSetUpdatedEvent
     {
         public static string MethodName { get; } = "query/resultSetUpdated";
 

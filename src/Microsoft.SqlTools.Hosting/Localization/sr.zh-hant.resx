@@ -121,45 +121,45 @@
     <value>無效的 CriticalHandle!</value>
   </data>
   <data name="CredentialsServicePasswordLengthExceeded" xml:space="preserve">
-    <value>密碼已超過 512 位元組</value>
+    <value>密碼超過 512 個位元組</value>
   </data>
   <data name="CredentialsServiceTargetForDelete" xml:space="preserve">
-    <value>必須指定目標才能刪除憑據</value>
+    <value>必須指定目標才能刪除認證</value>
   </data>
   <data name="CredentialsServiceTargetForLookup" xml:space="preserve">
-    <value>必須指定目標以檢查憑據的存在</value>
+    <value>必須指定目標才能檢查認證是否存在</value>
   </data>
   <data name="CredentialServiceWin32CredentialDisposed" xml:space="preserve">
-    <value>Win32 信用物件已處理</value>
+    <value>已處置 Win32Credential 物件</value>
   </data>
   <data name="HostingUnexpectedEndOfStream" xml:space="preserve">
-    <value>消息閱讀器的輸入流意外結束，終止</value>
+    <value>MessageReader 的輸入資料流程意外結束，正在終止</value>
   </data>
   <data name="HostingHeaderMissingColon" xml:space="preserve">
-    <value>消息標題必須使用'.'分離金鑰和值</value>
+    <value>訊息標頭必須使用 ':' 分隔金鑰與值</value>
   </data>
   <data name="HostingHeaderMissingContentLengthHeader" xml:space="preserve">
-    <value>致命錯誤：必須提供內容長度標題</value>
+    <value>嚴重錯誤: 必須提供 Content-length 標頭</value>
   </data>
   <data name="HostingHeaderMissingContentLengthValue" xml:space="preserve">
-    <value>致命錯誤：內容長度值不是整數</value>
+    <value>嚴重錯誤: Content-Length 值並非整數</value>
   </data>
   <data name="ServiceAlreadyRegistered" xml:space="preserve">
-    <value>無法註冊已註冊的 {0} 類、一種或多種服務的服務</value>
+    <value>無法為類型 {0} 註冊服務，一或更多服務已註冊</value>
   </data>
   <data name="MultipleServicesFound" xml:space="preserve">
-    <value>為 {0} 型找到多個服務，預計只有 1 個</value>
+    <value>找到類型 {0} 的多個服務，預期只能有 1 個</value>
   </data>
   <data name="IncompatibleServiceForExtensionLoader" xml:space="preserve">
-    <value>擴展載入器 &lt;{1}&gt; 無法建立 {0} 型服務</value>
+    <value>類型 {0} 的服務不能由　ExtensionLoader&lt;{1}&gt;　建立</value>
   </data>
   <data name="ServiceProviderNotSet" xml:space="preserve">
-    <value>SetServiceProvider() 沒有調用，它需要建立所需的服務提供者</value>
+    <value>未呼叫 SetServiceProvider() 來建立必要的服務提供者</value>
   </data>
   <data name="ServiceNotFound" xml:space="preserve">
-    <value>服務 {0} 未在服務提供者中找到</value>
+    <value>在服務提供者中找不到服務 {0}</value>
   </data>
   <data name="ServiceNotOfExpectedType" xml:space="preserve">
-    <value>{0} 型服務與已註冊的 {1} 型不相容</value>
+    <value>類型　{0}　的服務與註冊的類型　{1}　不相容</value>
   </data>
 </root>

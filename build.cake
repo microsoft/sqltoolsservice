@@ -48,7 +48,10 @@ public class BuildPlan
     public string[] Frameworks { get; set; }
     public string[] Rids { get; set; }
     public string[] MainProjects { get; set; }
+    // The set of projects that we want to call dotnet pack on directly
     public string[] PackageProjects { get; set; }
+    // The set of projects that we want to call dotnet pack on which require publishing being done first
+    public string[] PackagePublishedProjects { get; set; }
 }
 
 var buildPlan = JsonConvert.DeserializeObject<BuildPlan>(
@@ -61,6 +64,7 @@ var toolsFolder = System.IO.Path.Combine(workingDirectory, buildPlan.BuildToolsF
 
 var sourceFolder = System.IO.Path.Combine(workingDirectory, "src");
 var testFolder = System.IO.Path.Combine(workingDirectory, "test");
+var packagesFolder = System.IO.Path.Combine(workingDirectory, "packages");
 
 var artifactFolder = System.IO.Path.Combine(workingDirectory, buildPlan.ArtifactsFolder);
 var publishFolder = System.IO.Path.Combine(artifactFolder, "publish");
@@ -106,10 +110,8 @@ Task("PopulateRuntimes")
     buildPlan.Rids = new string[]
             {
                 "default", // To allow testing the published artifact
-                "win7-x64",
-                "win7-x86",
-                "win10-arm",
-                "win10-arm64",
+                "win-x64",
+                "win-x86",
                 "ubuntu.14.04-x64",
                 "ubuntu.16.04-x64",
                 "centos.7-x64",
@@ -118,6 +120,7 @@ Task("PopulateRuntimes")
                 "fedora.23-x64",
                 "opensuse.13.2-x64",
                 "osx.10.11-x64",
+                "osx-x64",
                 "linux-x64"
             };
 });
@@ -219,19 +222,23 @@ Task("BuildTest")
         {
             var project = pair.Key;
             var projectFolder = System.IO.Path.Combine(testFolder, project);
-            var runLog = new List<string>();
-            Run(dotnetcli, $"build --framework {framework} --configuration {testConfiguration} \"{projectFolder}\"",
+            var logPath = System.IO.Path.Combine(logFolder, $"{project}-{framework}-build.log");
+            using (var logWriter = new StreamWriter(logPath)) {
+                Run(dotnetcli, $"build --framework {framework} --configuration {testConfiguration} \"{projectFolder}\"",
                     new RunOptions
                     {
-                        StandardOutputListing = runLog
+                        StandardOutputWriter = logWriter,
+                        StandardErrorWriter = logWriter
                     })
                 .ExceptionOnError($"Building test {project} failed for {framework}.");
-            System.IO.File.WriteAllLines(System.IO.Path.Combine(logFolder, $"{project}-{framework}-build.log"), runLog.ToArray());
+            }
+
         }
     }
 });
+
 /// <summary>
-///  Build Test projects.
+///  Packages projects specified in PackageProjects
 /// </summary>
 Task("DotnetPack")
     .IsDependentOn("Cleanup")
@@ -244,22 +251,36 @@ Task("DotnetPack")
         // For now, putting all nugets in the 1 directory
         var outputFolder = System.IO.Path.Combine(nugetPackageFolder);
         var projectFolder = System.IO.Path.Combine(sourceFolder, project);
-        var runLog = new List<string>();
-        Run(dotnetcli, $"pack --configuration {configuration} --output {outputFolder} \"{projectFolder}\"",
-            new RunOptions
-            {
-                StandardOutputListing = runLog
-            })
-        .ExceptionOnError($"Packaging {project} failed.");
-        System.IO.File.WriteAllLines(System.IO.Path.Combine(logFolder, $"{project}-pack.log"), runLog.ToArray());
+        DotnetPack(outputFolder, projectFolder, project);
     }
 });
+
+/// <summary>
+///  Packages projects specified in PackagePublishedProjects, these projects require that publishing be done first. Note that we
+///  don't do the publishing here because we need the binaries to be signed before being packaged up and that is done by the pipeline
+///  currently.
+/// </summary>
+Task("DotnetPackPublished")
+    .Does(() =>
+{
+    foreach (var project in buildPlan.PackagePublishedProjects)
+    {
+        // For now, putting all nugets in the 1 directory
+        var outputFolder = System.IO.Path.Combine(nugetPackageFolder);
+        var projectFolder = System.IO.Path.Combine(packagesFolder, project);
+        DotnetPack(outputFolder, projectFolder, project);
+    }
+});
+
+
+
 /// <summary>
 ///  Run all tests for .NET Desktop and .NET Core
 /// </summary>
 Task("TestAll")
     .IsDependentOn("Test")
     .IsDependentOn("TestCore")
+    .WithCriteria(c => HasArgument("runTests"))
     .Does(() =>{});
 
 /// <summary>
@@ -268,6 +289,7 @@ Task("TestAll")
 Task("TestCore")
     .IsDependentOn("Setup")
     .IsDependentOn("Restore")
+    .WithCriteria(c => HasArgument("runTests"))
     .Does(() =>
 {
     var testProjects = buildPlan.TestProjects
@@ -292,6 +314,7 @@ Task("Test")
 	.IsDependentOn("SRGen")
     .IsDependentOn("CodeGen")
     .IsDependentOn("BuildTest")
+    .WithCriteria(c => HasArgument("runTests"))
     .Does(() =>
 {
     foreach (var pair in buildPlan.TestProjects)
@@ -341,7 +364,7 @@ Task("OnlyPublish")
 	.IsDependentOn("SRGen")
     .IsDependentOn("CodeGen")
     .Does(() =>
-{    
+{
 	var packageName = buildPlan.PackageName;
     foreach (var project in buildPlan.MainProjects)
     {
@@ -364,7 +387,7 @@ Task("OnlyPublish")
                 //Only required for mac. We're assuming the openssl is installed in /usr/local/opt/openssl
                 //If that's not the case user has to run the command manually
                 if (!IsRunningOnWindows() && !IsRunningOnUnix() && runtime.Contains("osx"))
-                {    
+                {
                     Run("install_name_tool",  "-add_rpath /usr/local/opt/openssl/lib " + outputFolder + "/System.Security.Cryptography.Native.dylib");
                 }
             }
@@ -382,7 +405,7 @@ Task("OnlyPublish")
                 }
         }
         CreateRunScript(System.IO.Path.Combine(publishFolder, project, "default"), scriptFolder);
-    }    
+    }
 });
 
 /// <summary>
@@ -561,17 +584,17 @@ Task("SRGen")
     try
     {
         var projects = System.IO.Directory.GetFiles(sourceFolder, "*.csproj", SearchOption.AllDirectories).ToList();
-        var locTemplateDir = System.IO.Path.Combine(sourceFolder, "../localization"); 
+        var locTemplateDir = System.IO.Path.Combine(sourceFolder, "../localization");
 
         foreach(var project in projects) {
             var projectDir = System.IO.Path.GetDirectoryName(project);
 
             // set current directory to this project so relative paths can be reliably
             // used. This is to address an issue with quoting differences between Windows
-            // and MacOS.  On MacOS the dotnet command ends up calling SRGen with quotations around 
+            // and MacOS.  On MacOS the dotnet command ends up calling SRGen with quotations around
             // the arguments stripped off.  This causes SRGen to interpret the arg values as options
             System.IO.Directory.SetCurrentDirectory(projectDir);
-            
+
             // build remaining paths relative to the project directory
             var localizationDir = System.IO.Path.Combine(".", "Localization");
             var projectName = (new System.IO.DirectoryInfo(projectDir)).Name;
@@ -600,7 +623,7 @@ Task("SRGen")
                 System.IO.File.Delete(outputCs);
             }
 
-            if (!System.IO.Directory.Exists(inputXliff)) 
+            if (!System.IO.Directory.Exists(inputXliff))
             {
                 System.IO.Directory.CreateDirectory(inputXliff);
             }
@@ -631,23 +654,23 @@ Task("SRGen")
                 var xlfDoc = new XliffParser.XlfDocument(docName);
                 var xlfFile = xlfDoc.Files.Single();
 
-                // load a language template 
+                // load a language template
                 var templateFileLocation = System.IO.Path.Combine(locTemplateDir, System.IO.Path.GetFileName(docName) + ".template");
                 var templateDoc = new XliffParser.XlfDocument(templateFileLocation);
-                var templateFile = templateDoc.Files.Single(); 
+                var templateFile = templateDoc.Files.Single();
 
                 // iterate through our tranlation units and prune invalid units
                 foreach (var unit in xlfFile.TransUnits)
                 {
-                    // if a unit does not have a target it is invalid 
+                    // if a unit does not have a target it is invalid
                     if (unit.Target != null) {
                         templateFile.AddTransUnit(unit.Id, unit.Source, unit.Target, 0, 0);
                     }
-                } 
+                }
 
                 // export modified template to RESX
                 var newPath = System.IO.Path.Combine(localizationDir, System.IO.Path.GetFileName(docName));
-                templateDoc.SaveAsResX(newPath.Replace("xlf","resx"));        
+                templateDoc.SaveAsResX(newPath.Replace("xlf","resx"));
             }
         }
     }

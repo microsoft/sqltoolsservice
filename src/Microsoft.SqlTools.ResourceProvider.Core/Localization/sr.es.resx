@@ -118,16 +118,16 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AzureServerNotFound" xml:space="preserve">
-    <value>El servidor que especificó {0} no existe en ninguna suscripción de {1}. Ha iniciado sesión con una cuenta incorrecta o el servidor se ha eliminado de las suscripciones de esta cuenta. Comprueba tu cuenta e inténtalo de nuevo.</value>
+    <value>El servidor especificado {0} no existe en ninguna suscripción de {1}. Puede que haya iniciado sesión con una cuenta incorrecta o que el servidor se haya eliminado de las suscripciones de esta cuenta. Compruebe la cuenta e inténtelo de nuevo.</value>
   </data>
   <data name="AzureSubscriptionFailedErrorMessage" xml:space="preserve">
-    <value>Se ha producido un error al obtener suscripciones de Azure: {0}</value>
+    <value>Error al obtener las suscripciones de Azure: {0}</value>
   </data>
   <data name="DatabaseDiscoveryFailedErrorMessage" xml:space="preserve">
-    <value>Se ha producido un error al obtener bases de datos de servidores de tipo {0} de {1}</value>
+    <value>Error al obtener bases de datos de los servidores de tipo {0} de {1}</value>
   </data>
   <data name="FirewallRuleAccessForbidden" xml:space="preserve">
-    <value>{0} no tiene permiso para cambiar la regla de firewall del servidor. Inténtelo de nuevo con una cuenta diferente que sea propietario o colaborador de la suscripción de Azure o del servidor.</value>
+    <value>{0} no tiene permiso para cambiar la regla de firewall del servidor. Vuelva a intentarlo con otra cuenta que sea de un propietario o colaborador del servidor o de la suscripción a Azure.</value>
   </data>
   <data name="InvalidIpAddress" xml:space="preserve">
     <value>Dirección IP no válida</value>
@@ -136,18 +136,18 @@
     <value>El tipo de servidor no es válido.</value>
   </data>
   <data name="LoadingExportableFailedGeneralErrorMessage" xml:space="preserve">
-    <value>No se puede cargar un archivo DLL necesario. Por favor, repare su aplicación.</value>
+    <value>No se puede cargar una dll necesaria. Repare la aplicación.</value>
   </data>
   <data name="FirewallRuleCreationFailed" xml:space="preserve">
-    <value>Se ha producido un error al crear una nueva regla de firewall.</value>
+    <value>Error al crear una regla de firewall nueva.</value>
   </data>
   <data name="FirewallRuleUnsupportedConnectionType" xml:space="preserve">
     <value>No se puede abrir una regla de firewall para el tipo de conexión especificado</value>
   </data>
   <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
-    <value>Se ha producido un error al crear una nueva regla de firewall: '{0}'</value>
+    <value>Error al crear una regla de firewall nueva: '{0}'</value>
   </data>
   <data name="NoSubscriptionsFound" xml:space="preserve">
-    <value>No se encontró ninguna suscripción para la cuenta de usuario que ha iniciado sesión actualmente.</value>
+    <value>No se encontraron suscripciones para la cuenta de usuario que ha iniciado sesión actualmente.</value>
   </data>
 </root>

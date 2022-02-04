@@ -118,33 +118,33 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="FailedToGetAzureDatabasesErrorMessage" xml:space="preserve">
-    <value>Beim Abrufen von Azure-Datenbanken ist ein Fehler aufgetreten</value>
+    <value>Fehler beim Abrufen von Azure-Datenbanken.</value>
   </data>
   <data name="FailedToGetAzureResourceGroupsErrorMessage" xml:space="preserve">
-    <value>Beim Abrufen von Azure-Ressourcengruppen ist ein Fehler aufgetreten: {0}</value>
+    <value>Fehler beim Abrufen von Azure-Ressourcengruppen: {0}</value>
   </data>
   <data name="FailedToGetAzureSqlServersErrorMessage" xml:space="preserve">
-    <value>Beim Abrufen von Azure Sql-Servern ist ein Fehler aufgetreten</value>
+    <value>Fehler beim Abrufen von Azure Sql Servers-Instanzen.</value>
   </data>
   <data name="FirewallRuleCreationFailed" xml:space="preserve">
-    <value>Beim Erstellen einer neuen Firewall-Regel ist ein Fehler aufgetreten.</value>
+    <value>Fehler beim Erstellen einer neuen Firewallregel.</value>
   </data>
   <data name="UnsupportedAuthType" xml:space="preserve">
-    <value>Nicht unterstützter Kontotyp '{0}' für diesen Anbieter</value>
+    <value>Nicht unterstützter Kontotyp „{0}“ für diesen Anbieter</value>
   </data>
   <data name="FailedToGetAzureSqlServersWithError" xml:space="preserve">
-    <value>Beim Abrufen von Azure Sql Servern ist ein Fehler aufgetreten: '{0}'</value>
+    <value>Fehler beim Abrufen von Azure SQL-Serverinstanzen: „{0}“</value>
   </data>
   <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
-    <value>Beim Erstellen einer neuen Firewall-Regel ist ein Fehler aufgetreten: '{0}'</value>
+    <value>Fehler beim Erstellen einer neuen Firewallregel: „{0}“</value>
   </data>
   <data name="FailedToGetAzureSubscriptionsErrorMessage" xml:space="preserve">
-    <value>Beim Abrufen von Azure-Abonnements ist ein Fehler aufgetreten: {0}</value>
+    <value>Fehler beim Abrufen von Azure-Abonnements: {0}</value>
   </data>
   <data name="UserNeedsAuthenticationError" xml:space="preserve">
-    <value>Der aktuelle Benutzer muss neu authentifiziert werden, bevor dieser Vorgang ausgeführt werden kann </value>
+    <value>Der aktuelle Benutzer muss erneut authentifiziert werden, bevor dieser Vorgang ausgeführt wird. </value>
   </data>
   <data name="UserNotFoundError" xml:space="preserve">
-    <value>Es wurde kein Benutzer gefunden, kann den Vorgang nicht ausführen</value>
+    <value>Kein Benutzer gefunden, Vorgang kann nicht ausgeführt werden</value>
   </data>
 </root>

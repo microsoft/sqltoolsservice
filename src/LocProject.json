@@ -1,0 +1,57 @@
+{
+  "Projects": [
+    {
+      "LanguageSet": "AzureKatal_Languages",
+      "LocItems": [
+        {
+          "SourceFile": "src\\Microsoft.SqlTools.ServiceLayer\\Localization\\sr.xlf",
+          "LclFile": "src\\Microsoft.SqlTools.ServiceLayer\\Localization\\LCL\\{Lang}\\sr.xlf.lcl",
+          "CopyOption": "LangIDOnName",
+          "OutputPath": "src\\Microsoft.SqlTools.ServiceLayer\\Localization\\transXliff"
+        },
+        {
+          "SourceFile": "src\\Microsoft.SqlTools.ResourceProvider\\Localization\\sr.xlf",
+          "LclFile": "src\\Microsoft.SqlTools.ResourceProvider\\Localization\\LCL\\{Lang}\\sr.xlf.lcl",
+          "CopyOption": "LangIDOnName",
+          "OutputPath": "src\\Microsoft.SqlTools.ResourceProvider\\Localization\\transXliff"
+        },
+        {
+          "SourceFile": "src\\Microsoft.SqlTools.ResourceProvider.DefaultImpl\\Localization\\sr.xlf",
+          "LclFile": "src\\Microsoft.SqlTools.ResourceProvider.DefaultImpl\\Localization\\LCL\\{Lang}\\sr.xlf.lcl",
+          "CopyOption": "LangIDOnName",
+          "OutputPath": "src\\Microsoft.SqlTools.ResourceProvider.DefaultImpl\\Localization\\transXliff"
+        },
+        {
+          "SourceFile": "src\\Microsoft.SqlTools.ResourceProvider.Core\\Localization\\sr.xlf",
+          "LclFile": "src\\Microsoft.SqlTools.ResourceProvider.Core\\Localization\\LCL\\{Lang}\\sr.xlf.lcl",
+          "CopyOption": "LangIDOnName",
+          "OutputPath": "src\\Microsoft.SqlTools.ResourceProvider.Core\\Localization\\transXliff"
+        },
+        {
+          "SourceFile": "src\\Microsoft.SqlTools.ManagedBatchParser\\Localization\\sr.xlf",
+          "LclFile": "src\\Microsoft.SqlTools.ManagedBatchParser\\Localization\\LCL\\{Lang}\\sr.xlf.lcl",
+          "CopyOption": "LangIDOnName",
+          "OutputPath": "src\\Microsoft.SqlTools.ManagedBatchParser\\Localization\\transXliff"
+        },
+        {
+          "SourceFile": "src\\Microsoft.SqlTools.Hosting\\Localization\\sr.xlf",
+          "LclFile": "src\\Microsoft.SqlTools.Hosting\\Localization\\LCL\\{Lang}\\sr.xlf.lcl",
+          "CopyOption": "LangIDOnName",
+          "OutputPath": "src\\Microsoft.SqlTools.Hosting\\Localization\\transXliff"
+        },
+        {
+          "SourceFile": "src\\Microsoft.SqlTools.Credentials\\Localization\\sr.xlf",
+          "LclFile": "src\\Microsoft.SqlTools.Credentials\\Localization\\LCL\\{Lang}\\sr.xlf.lcl",
+          "CopyOption": "LangIDOnName",
+          "OutputPath": "src\\Microsoft.SqlTools.Credentials\\Localization\\transXliff"
+        },
+        {
+          "SourceFile": "src\\Microsoft.Kusto.ServiceLayer\\Localization\\sr.xlf",
+          "LclFile": "src\\Microsoft.Kusto.ServiceLayer\\Localization\\LCL\\{Lang}\\sr.xlf.lcl",
+          "CopyOption": "LangIDOnName",
+          "OutputPath": "src\\Microsoft.Kusto.ServiceLayer\\Localization\\transXliff"
+        }
+      ]
+    }
+  ]
+}

@@ -1,36 +1,31 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
-  <file datatype="xml" source-language="en" target-language="it">
+  <file datatype="xml" original="sr.resx" source-language="en" target-language="it">
     <body>
       <trans-unit id="CredentialsServiceInvalidCriticalHandle">
         <source>Invalid CriticalHandle!</source>
-        <target state="translated">CriticalHandle non valido!</target>
-        <note>
-        </note>
+        <target state="translated">CriticalHandle non valido.</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="CredentialsServicePasswordLengthExceeded">
         <source>The password has exceeded 512 bytes</source>
         <target state="translated">La password ha superato i 512 byte</target>
-        <note>
-        </note>
+        <note></note>
       </trans-unit>
       <trans-unit id="CredentialsServiceTargetForDelete">
         <source>Target must be specified to delete a credential</source>
-        <target state="translated">È necessario specificare la destinazione per eliminare una credenziale</target>
-        <note>
-        </note>
+        <target state="translated">Per eliminare una credenziale è necessario specificare la destinazione</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="CredentialsServiceTargetForLookup">
         <source>Target must be specified to check existance of a credential</source>
-        <target state="translated">È necessario specificare la destinazione per verificare l'esistenza di una credenziale</target>
-        <note>
-        </note>
+        <target state="translated">Per verificare l'esistenza di una credenziale è necessario specificare la destinazione</target>
+        <note></note>
       </trans-unit>
       <trans-unit id="CredentialServiceWin32CredentialDisposed">
         <source>Win32Credential object is already disposed</source>
         <target state="translated">L'oggetto Win32Credential è già stato eliminato</target>
-        <note>
-        </note>
+        <note></note>
       </trans-unit>
     </body>
   </file>

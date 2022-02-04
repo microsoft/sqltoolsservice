@@ -39,7 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
     /// </summary>
     class SchemaComparePublishChangesRequest
     {
-        public static readonly RequestType<SchemaComparePublishChangesParams, ResultStatus> Type =
-            RequestType<SchemaComparePublishChangesParams, ResultStatus>.Create("schemaCompare/publish");
+        public static readonly RequestType<SchemaComparePublishDatabaseChangesParams, ResultStatus> Type =
+            RequestType<SchemaComparePublishDatabaseChangesParams, ResultStatus>.Create("schemaCompare/publish");
     }
 }

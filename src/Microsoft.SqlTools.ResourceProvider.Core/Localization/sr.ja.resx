@@ -118,36 +118,36 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AzureServerNotFound" xml:space="preserve">
-    <value>{0} を指定したサーバーは、{1} のサブスクリプションに存在しません。アカウントを確認して、もう一度お試しください。</value>
+    <value>指定したサーバー {0} は、{1} のいずれのサブスクリプションにも存在しません。サインインしたアカウントが正しくないか、サーバーがこのアカウントのサブスクリプションから削除されています。アカウントを確認して、もう一度お試しください。</value>
   </data>
   <data name="AzureSubscriptionFailedErrorMessage" xml:space="preserve">
     <value>Azure サブスクリプションの取得中にエラーが発生しました: {0}</value>
   </data>
   <data name="DatabaseDiscoveryFailedErrorMessage" xml:space="preserve">
-    <value>{1} からタイプ {0} のサーバーからデータベースを取得中にエラーが発生しました</value>
+    <value>{1} の種類 {0} のサーバーからデータベースを取得するときにエラーが発生しました</value>
   </data>
   <data name="FirewallRuleAccessForbidden" xml:space="preserve">
-    <value>{0}には、サーバーファイアウォール規則を変更する権限がありません。Azure サブスクリプションまたはサーバーの所有者または共同作成者である別のアカウントで再試行してください。</value>
+    <value>{0} にはサーバーのファイアウォール規則を変更するためのアクセス許可がありません。Azure サブスクリプションかサーバーの所有者または共同作成者のアカウントでもう一度試してください。</value>
   </data>
   <data name="InvalidIpAddress" xml:space="preserve">
-    <value>無効なIPアドレス</value>
+    <value>無効な IP アドレス</value>
   </data>
   <data name="InvalidServerTypeErrorMessage" xml:space="preserve">
-    <value>サーバータイプが無効</value>
+    <value>サーバーの種類が正しくありません。</value>
   </data>
   <data name="LoadingExportableFailedGeneralErrorMessage" xml:space="preserve">
-    <value>必要なDLLがロードできません。アプリケーションを修復してください。</value>
+    <value>必要な dll を読み込むことができません。アプリケーションを修復してください。</value>
   </data>
   <data name="FirewallRuleCreationFailed" xml:space="preserve">
-    <value>新しいファイアウォールルールの作成中にエラーが発生しました。</value>
+    <value>新しいファイアウォール規則を作成中にエラーが発生しました。</value>
   </data>
   <data name="FirewallRuleUnsupportedConnectionType" xml:space="preserve">
-    <value>指定された接続タイプのファイアウォールルールを開くことができない</value>
+    <value>指定された接続の種類のファイアウォール規則を開けません</value>
   </data>
   <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
-    <value>新しいファイアウォールルールの作成中にエラーが発生しました：'{0}'</value>
+    <value>新しいファイアウォール規則を作成中にエラーが発生しました: '{0}'</value>
   </data>
   <data name="NoSubscriptionsFound" xml:space="preserve">
-    <value>現在ログインしているユーザーアカウントのサブスクリプションが見つかりませんでした。</value>
+    <value>現在ログインしているユーザー アカウントのサブスクリプションが見つかりませんでした。</value>
   </data>
 </root>

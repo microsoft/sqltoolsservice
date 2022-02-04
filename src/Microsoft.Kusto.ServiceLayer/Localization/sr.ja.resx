@@ -118,13 +118,13 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ConnectionServiceConnectErrorNullParams" xml:space="preserve">
-    <value>接続パラメーターを null にすることはできません。</value>
+    <value>接続パラメーターを null にすることはできません</value>
   </data>
   <data name="ConnectionServiceListDbErrorNullOwnerUri" xml:space="preserve">
-    <value>OwnerUri を null または空にすることはできません。</value>
+    <value>OwnerUri を null または空にすることはできません</value>
   </data>
   <data name="ConnectionServiceListDbErrorNotConnected" xml:space="preserve">
-    <value>SpecifiedUri '{0}' には、既存の接続はありません。</value>
+    <value>SpecifiedUri '{0}' には、既存の接続はありません</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidAuthType" xml:space="preserve">
     <value>AuthenticationType の値 '{0}' が無効です。有効な値は 'Integrated' または 'SqlLogin' です。</value>
@@ -133,67 +133,67 @@
     <value>ApplicationIntent の値 '{0}' が無効です。有効な値は 'ReadWrite' または 'ReadOnly' です。</value>
   </data>
   <data name="ConnectionServiceConnectionCanceled" xml:space="preserve">
-    <value>接続がキャンセルされました。</value>
+    <value>接続がキャンセルされました</value>
   </data>
   <data name="ConnectionParamsValidateNullOwnerUri" xml:space="preserve">
-    <value>OwnerUri を null または空にすることはできません。</value>
+    <value>OwnerUri を null または空にすることはできません</value>
   </data>
   <data name="ConnectionParamsValidateNullConnection" xml:space="preserve">
-    <value>接続の詳細オブジェクトを null にすることはできません。</value>
+    <value>接続の詳細オブジェクトを null にすることはできません</value>
   </data>
   <data name="ConnectionParamsValidateNullServerName" xml:space="preserve">
-    <value>ServerName を null または空にすることはできません。</value>
+    <value>ServerName を null または空にすることはできません</value>
   </data>
   <data name="ConnectionParamsValidateNullSqlAuth" xml:space="preserve">
-    <value>SqlLogin 認証を使用する場合に、{0} を null または空にすることはできません。</value>
+    <value>SqlLogin 認証を使用する場合に、{0} を null または空にすることはできません</value>
   </data>
   <data name="QueryServiceCancelAlreadyCompleted" xml:space="preserve">
-    <value>クエリは既に完了して、取り消すことができません。</value>
+    <value>クエリは既に完了して、取り消すことができません</value>
   </data>
   <data name="QueryServiceCancelDisposeFailed" xml:space="preserve">
-    <value>クエリのキャンセルに成功しましたが、クエリの処理に失敗しました。OwnerURIが見つかりません。</value>
+    <value>クエリのキャンセルに成功しましたが、クエリの破棄に失敗しました。OwnerURI が見つかりません。</value>
   </data>
   <data name="QueryServiceQueryCancelled" xml:space="preserve">
-    <value>クエリは、ユーザーによってキャンセルされました</value>
+    <value>クエリはユーザーによってキャンセルされました</value>
   </data>
   <data name="QueryServiceSubsetBatchNotCompleted" xml:space="preserve">
-    <value>バッチがまだ完了していません、</value>
+    <value>バッチがまだ完了していません</value>
   </data>
   <data name="QueryServiceSubsetBatchOutOfRange" xml:space="preserve">
-    <value>バッチのインデックスは、0 未満あるいは、バッチの数より大きい値にすることはできません。</value>
+    <value>バッチのインデックスは、0 未満あるいは、バッチの数より大きい値にすることはできません</value>
   </data>
   <data name="QueryServiceSubsetResultSetOutOfRange" xml:space="preserve">
     <value>結果セットのインデックスは、0 未満あるいは、結果セットの数より大きい値にすることはできません</value>
   </data>
   <data name="QueryServiceDataReaderByteCountInvalid" xml:space="preserve">
-    <value>戻り値の最大バイト数は 0 より大きくする必要があります。</value>
+    <value>戻り値の最大バイト数は 0 より大きくする必要があります</value>
   </data>
   <data name="QueryServiceDataReaderCharCountInvalid" xml:space="preserve">
-    <value>戻り値の最大文字数は 0 より大きくする必要があります。</value>
+    <value>戻り値の最大文字数は 0 より大きくする必要があります</value>
   </data>
   <data name="QueryServiceDataReaderXmlCountInvalid" xml:space="preserve">
-    <value>戻り値の最大のXMLバイト数は 0 より大きくする必要があります。</value>
+    <value>戻り値の最大の XML バイト数は 0 より大きくする必要があります</value>
   </data>
   <data name="QueryServiceFileWrapperWriteOnly" xml:space="preserve">
-    <value>アクセス メソッドを書き込み専用にすることはできません。</value>
+    <value>アクセス メソッドを書き込み専用にすることはできません</value>
   </data>
   <data name="QueryServiceFileWrapperNotInitialized" xml:space="preserve">
-    <value>FileStreamWrapper は、操作を実行する前に初期化されなければなりません。</value>
+    <value>FileStreamWrapper は、操作を実行する前に初期化されなければなりません</value>
   </data>
   <data name="QueryServiceFileWrapperReadOnly" xml:space="preserve">
-    <value>この FileStreamWrapper は、書き込みには利用できません。</value>
+    <value>この FileStreamWrapper は、書き込みには利用できません</value>
   </data>
   <data name="QueryServiceAffectedOneRow" xml:space="preserve">
-    <value>(1 件処理されました)</value>
+    <value>(1 行に影響しました)</value>
   </data>
   <data name="QueryServiceAffectedRows" xml:space="preserve">
-    <value>({0} 行処理されました)</value>
+    <value>({0} 行に影響しました)</value>
   </data>
   <data name="QueryServiceCompletedSuccessfully" xml:space="preserve">
     <value>コマンドが正常に完了しました。</value>
   </data>
   <data name="QueryServiceErrorFormat" xml:space="preserve">
-    <value>Msg {0}, Level {1}, State {2}, Line {3}{4}{5}</value>
+    <value>メッセージ {0}、レベル {1}、状態 {2}、行 {3}{4}{5}</value>
   </data>
   <data name="QueryServiceQueryFailed" xml:space="preserve">
     <value>クエリに失敗しました: {0}</value>
@@ -205,46 +205,46 @@
     <value>要求されたクエリは存在しません</value>
   </data>
   <data name="QueryServiceQueryInvalidOwnerUri" xml:space="preserve">
-    <value>このエディターは、データベースに接続されていません。</value>
+    <value>このエディターは、データベースに接続されていません</value>
   </data>
   <data name="QueryServiceQueryInProgress" xml:space="preserve">
-    <value>このエディターのクエリは既に実行中です。クエリをキャンセルするか完了まで待って下さい。</value>
+    <value>このエディター セッションのクエリは既に実行中です。このクエリをキャンセルするか、完了まで待ってください。</value>
   </data>
   <data name="QueryServiceMessageSenderNotSql" xml:space="preserve">
-    <value>OnInfoMessage イベントのSenderは、SqlConnectionである必要があります。</value>
+    <value>OnInfoMessage イベントのセンダーは、SqlConnection である必要があります</value>
   </data>
   <data name="QueryServiceSaveAsResultSetNotComplete" xml:space="preserve">
-    <value>クエリの実行が完了するまで、結果を保存することはできません。</value>
+    <value>クエリの実行が完了するまで、結果を保存することはできません</value>
   </data>
   <data name="QueryServiceSaveAsMiscStartingError" xml:space="preserve">
-    <value>保存タスクの開始中に内部エラーが発生しました。</value>
+    <value>保存タスクの開始中に内部エラーが発生しました</value>
   </data>
   <data name="QueryServiceSaveAsInProgress" xml:space="preserve">
-    <value>同一のパスへの保存リクエストを実行中です。</value>
+    <value>同一のパスへの保存要求を実行中です</value>
   </data>
   <data name="QueryServiceSaveAsFail" xml:space="preserve">
     <value>{0} を保存できませんでした: {1}</value>
   </data>
   <data name="QueryServiceResultSetNotRead" xml:space="preserve">
-    <value>サーバーから結果が受信されていないため、サブセットを読み取ることができません。</value>
+    <value>サーバーから結果が受信されていなければ、サブセットを読み取ることができません</value>
   </data>
   <data name="QueryServiceResultSetStartRowOutOfRange" xml:space="preserve">
-    <value>開始行は 0 未満か、結果セット内の行数より大きい値にすることはできません。</value>
+    <value>開始行は 0 未満あるいは、結果セット内の行数より大きい値にすることはできません</value>
   </data>
   <data name="QueryServiceResultSetRowCountOutOfRange" xml:space="preserve">
-    <value>行数は正の整数でなければなりません。</value>
+    <value>行数は正の整数でなければなりません</value>
   </data>
   <data name="QueryServiceResultSetNoColumnSchema" xml:space="preserve">
-    <value>結果セットの列のスキーマを取得できませんでした。</value>
+    <value>結果セットの列のスキーマを取得できませんでした</value>
   </data>
   <data name="QueryServiceExecutionPlanNotFound" xml:space="preserve">
-    <value>結果セットから実行プランを取得できませんでした。</value>
+    <value>結果セットから実行プランを取得できませんでした </value>
   </data>
   <data name="PeekDefinitionAzureError" xml:space="preserve">
-    <value>この機能はAzure SQL DBとData Warehouseでは、現在サポートされていません: {0}</value>
+    <value>Azure SQL DB と Data Warehouse では、この機能は現在サポートされていません: {0}</value>
   </data>
   <data name="PeekDefinitionError" xml:space="preserve">
-    <value>Peek Definitionの実行中に予期しないエラーが発生しました: {0}</value>
+    <value>定義をここに表示の実行中に予期しないエラーが発生しました: {0}</value>
   </data>
   <data name="PeekDefinitionNoResultsError" xml:space="preserve">
     <value>結果は見つかりませんでした。</value>
@@ -262,100 +262,13 @@
     <value>このオブジェクトの種類は現在この機能ではサポートされていません。</value>
   </data>
   <data name="WorkspaceServicePositionLineOutOfRange" xml:space="preserve">
-    <value>位置がファイルの行の範囲外です。</value>
+    <value>位置がファイルの行の範囲外です</value>
   </data>
   <data name="WorkspaceServicePositionColumnOutOfRange" xml:space="preserve">
-    <value>位置が行 {0} の列の範囲外です。</value>
+    <value>位置が行 {0} の列の範囲外です</value>
   </data>
   <data name="WorkspaceServiceBufferPositionOutOfOrder" xml:space="preserve">
-    <value>開始位置 ({0}, {1}) は、終了位置 ({2}, {3}) より前、または同じでなければなりません。</value>
-  </data>
-  <data name="EE_BatchSqlMessageNoProcedureInfo" xml:space="preserve">
-    <value>Msg {0}, Level {1}, State {2}, Line {3}</value>
-  </data>
-  <data name="EE_BatchSqlMessageWithProcedureInfo" xml:space="preserve">
-    <value>Msg {0}, Level {1}, State {2}, Procedure {3}, Line {4}</value>
-  </data>
-  <data name="EE_BatchSqlMessageNoLineInfo" xml:space="preserve">
-    <value>Msg {0}, Level {1}, State {2}</value>
-  </data>
-  <data name="EE_BatchError_Exception" xml:space="preserve">
-    <value>バッチを処理中にエラーが発生しました。エラー メッセージ: {0}</value>
-  </data>
-  <data name="EE_BatchExecutionInfo_RowsAffected" xml:space="preserve">
-    <value>({0} 件処理されました)</value>
-  </data>
-  <data name="EE_ExecutionNotYetCompleteError" xml:space="preserve">
-    <value>前回の実行がまだ完了していません。</value>
-  </data>
-  <data name="EE_ScriptError_Error" xml:space="preserve">
-    <value>スクリプト エラーが発生しました。</value>
-  </data>
-  <data name="EE_ScriptError_ParsingSyntax" xml:space="preserve">
-    <value>{0} の解析中に不正な構文が見つかりました。</value>
-  </data>
-  <data name="EE_ScriptError_FatalError" xml:space="preserve">
-    <value>致命的なエラーが発生しました。</value>
-  </data>
-  <data name="EE_ExecutionInfo_FinalizingLoop" xml:space="preserve">
-    <value>実行を {0} 回完了しました...</value>
-  </data>
-  <data name="EE_ExecutionInfo_QueryCancelledbyUser" xml:space="preserve">
-    <value>クエリをキャンセルしました。</value>
-  </data>
-  <data name="EE_BatchExecutionError_Halting" xml:space="preserve">
-    <value>バッチの実行中にエラーが発生しました。</value>
-  </data>
-  <data name="EE_BatchExecutionError_Ignoring" xml:space="preserve">
-    <value>バッチの実行中にエラーが発生しましたが、エラーを無視しました。</value>
-  </data>
-  <data name="EE_ExecutionInfo_InitializingLoop" xml:space="preserve">
-    <value>Beginning execution loop</value>
-  </data>
-  <data name="EE_ExecutionError_CommandNotSupported" xml:space="preserve">
-    <value>コマンド {0} はサポートされていません。</value>
-  </data>
-  <data name="EE_ExecutionError_VariableNotFound" xml:space="preserve">
-    <value>変数 {0} が見つかりませんでした。</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineError" xml:space="preserve">
-    <value>SQL の実行エラー: {0}</value>
-  </data>
-  <data name="BatchParserWrapperExecutionError" xml:space="preserve">
-    <value>バッチ パーサー ラッパーの実行: 行 {1}: {2} で {0} を検出... 説明: {3}</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchMessage" xml:space="preserve">
-    <value>バッチ パーサー ラッパー実行エンジンのバッチ メッセージを受信しました: メッセージ: {0} 詳細メッセージ: {1}</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchResultSetProcessing" xml:space="preserve">
-    <value>バッチ パーサー ラッパー実行エンジンのバッチ ResultSet 処理: DataReader.FieldCount: {0} DataReader.RecordsAffected: {1}</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchResultSetFinished" xml:space="preserve">
-    <value>バッチ パーサー ラッパー実行エンジンのバッチ ResultSet が終了しました。</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchCancelling" xml:space="preserve">
-    <value>バッチ パーサー ラッパーのバッチ実行をキャンセルしています。</value>
-  </data>
-  <data name="EE_ScriptError_Warning" xml:space="preserve">
-    <value>スクリプトの警告。</value>
-  </data>
-  <data name="TroubleshootingAssistanceMessage" xml:space="preserve">
-    <value>このエラーの詳細については、製品ドキュメントのトラブルシューティングに関するトピックを参照してください。</value>
-  </data>
-  <data name="BatchParser_CircularReference" xml:space="preserve">
-    <value>ファイル '{0}' が再帰的に含まれています。</value>
-  </data>
-  <data name="BatchParser_CommentNotTerminated" xml:space="preserve">
-    <value>'*/' でマークされたコメントの終端がありません。</value>
-  </data>
-  <data name="BatchParser_StringNotTerminated" xml:space="preserve">
-    <value>文字列の引用符が閉じていません。</value>
-  </data>
-  <data name="BatchParser_IncorrectSyntax" xml:space="preserve">
-    <value>'{0}' の解析中に無効な構文が見つかりました。</value>
-  </data>
-  <data name="BatchParser_VariableNotDefined" xml:space="preserve">
-    <value>変数 {0} が定義されていません。</value>
+    <value>開始位置 ({0}, {1}) は、終了位置 ({2}, {3}) より前、または同じでなければなりません</value>
   </data>
   <data name="TestLocalizationConstant" xml:space="preserve">
     <value>テスト</value>
@@ -367,109 +280,109 @@
     <value>編集セッションは存在しません。</value>
   </data>
   <data name="EditDataQueryNotCompleted" xml:space="preserve">
-    <value>クエリの実行が完了していません。</value>
+    <value>クエリの実行が完了していません</value>
   </data>
   <data name="EditDataQueryImproperResultSets" xml:space="preserve">
-    <value>クエリは 1 つの結果セットを生成できませんでした。</value>
+    <value>クエリは 1 つの結果セットを生成できませんでした</value>
   </data>
   <data name="EditDataFailedAddRow" xml:space="preserve">
-    <value>キャッシュを更新する新しい行を追加できませんでした。</value>
+    <value>キャッシュを更新する新しい行を追加できませんでした</value>
   </data>
   <data name="EditDataRowOutOfRange" xml:space="preserve">
-    <value>与えられた行IDは、編集キャッシュに存在する行の範囲外です。</value>
+    <value>与えられた行 ID は、編集キャッシュに存在する行の範囲外です</value>
   </data>
   <data name="EditDataUpdatePending" xml:space="preserve">
-    <value>この行に対する更新がすでに保留されています。まず更新を戻す必要があります。</value>
+    <value>この行に対する更新が既に保留されていて、まず更新を戻す必要があります</value>
   </data>
   <data name="EditDataUpdateNotPending" xml:space="preserve">
-    <value>与えられた行IDには保留中の更新はありません。</value>
+    <value>与えられた行 ID には保留中の更新はありません</value>
   </data>
   <data name="EditDataObjectMetadataNotFound" xml:space="preserve">
-    <value>テーブルまたはビューのメタデータが見つかりませんでした。</value>
+    <value>テーブルまたはビューのメタデータが見つかりませんでした</value>
   </data>
   <data name="EditDataInvalidFormatBinary" xml:space="preserve">
-    <value>バイナリ列の形式が無効です。</value>
+    <value>バイナリ列の形式が無効です</value>
   </data>
   <data name="EditDataInvalidFormatBoolean" xml:space="preserve">
-    <value>ブール列の型は1もしくは0の数値、または true もしくは false の文字列でなければいけません。</value>
+    <value>ブール列に許可されている値は 0、1、"true"、または "false" です</value>
   </data>
   <data name="EditDataCreateScriptMissingValue" xml:space="preserve">
-    <value>必須なセルの値が入力されていません。</value>
+    <value>列 '{0}' は NOT NULL と定義されていますが、値がありません</value>
   </data>
   <data name="EditDataDeleteSetCell" xml:space="preserve">
     <value>この行の削除が保留中であるため、セルの更新は適用できません。</value>
   </data>
   <data name="EditDataColumnIdOutOfRange" xml:space="preserve">
-    <value>列 ID がクエリの列の範囲である必要があります。</value>
+    <value>列 ID はクエリの列の範囲内である必要があります</value>
   </data>
   <data name="EditDataColumnCannotBeEdited" xml:space="preserve">
-    <value>列を編集できません。</value>
+    <value>列を編集できません</value>
   </data>
   <data name="EditDataColumnNoKeyColumns" xml:space="preserve">
-    <value>キー列が見つかりませんでした。</value>
+    <value>キー列が見つかりませんでした</value>
   </data>
   <data name="EditDataScriptFilePathNull" xml:space="preserve">
-    <value>出力ファイル名を指定する必要があります。</value>
+    <value>出力ファイル名を指定する必要があります</value>
   </data>
   <data name="EditDataUnsupportedObjectType" xml:space="preserve">
-    <value>データベース オブジェクト {0} は、編集のため使用できません。</value>
+    <value>データベース オブジェクト {0} は、編集用に使用できません。</value>
   </data>
   <data name="ConnectionServiceDbErrorDefaultNotConnected" xml:space="preserve">
-    <value>指定された URI '{0}' には既定の接続はありません。</value>
+    <value>指定された URI '{0}' には既定の接続はありません</value>
   </data>
   <data name="EditDataCommitInProgress" xml:space="preserve">
     <value>コミット処理は実行中です。完了するまで待機してください。</value>
   </data>
   <data name="SqlScriptFormatterDecimalMissingPrecision" xml:space="preserve">
-    <value>Decimal 型の列に有効桁数もしくは小数点以下桁数のどちらかが存在していません。</value>
+    <value>真数の列に、有効桁数もしくは小数点以下桁数のどちらかが存在していません</value>
   </data>
   <data name="EditDataComputedColumnPlaceholder" xml:space="preserve">
     <value>&lt;TBD&gt;</value>
   </data>
   <data name="QueryServiceResultSetAddNoRows" xml:space="preserve">
-    <value>結果バッファーへ行を追加できません。データリーダーは行を含んでいません。</value>
+    <value>結果バッファーへ行を追加できません。データ リーダーは行を含んでいません</value>
   </data>
   <data name="EditDataTimeOver24Hrs" xml:space="preserve">
-    <value>time 型の値は 00:00:00.0000000 と 23:59:59.9999999 の範囲内になければなりません。</value>
+    <value>TIME 列の値は 00:00:00.0000000 から 23:59:59.9999999 までの範囲内になければなりません</value>
   </data>
   <data name="EditDataNullNotAllowed" xml:space="preserve">
-    <value>この列では NULL は許可されていません。</value>
+    <value>この列では NULL は許可されていません</value>
   </data>
   <data name="EditDataSessionAlreadyExists" xml:space="preserve">
-    <value>編集セッションがすでに存在します。</value>
+    <value>編集セッションが既に存在します。</value>
   </data>
   <data name="EditDataSessionNotInitialized" xml:space="preserve">
-    <value>編集セッションが初期化されていません。</value>
+    <value>編集セッションが初期化されていません</value>
   </data>
   <data name="EditDataSessionAlreadyInitialized" xml:space="preserve">
-    <value>編集セッションはすでに初期化されました。</value>
+    <value>編集セッションは既に初期化されました</value>
   </data>
   <data name="EditDataSessionAlreadyInitializing" xml:space="preserve">
-    <value>編集セッションはすでに初期化されたか、初期化中です。</value>
+    <value>編集セッションは既に初期化されたか、初期化中です</value>
   </data>
   <data name="EditDataQueryFailed" xml:space="preserve">
-    <value>クエリーの実行が失敗しました。詳細メッセージを確認してください。</value>
+    <value>クエリの実行が失敗しました。詳細はメッセージを確認してください</value>
   </data>
   <data name="EditDataFilteringNegativeLimit" xml:space="preserve">
-    <value>結果の上限は負の値にできません。</value>
+    <value>結果の上限は負の値にできません</value>
   </data>
   <data name="QueryServiceCellNull" xml:space="preserve">
     <value>NULL</value>
   </data>
   <data name="EditDataMetadataObjectNameRequired" xml:space="preserve">
-    <value>オブジェクトの名前を指定する必要があります。</value>
+    <value>オブジェクトの名前を指定する必要があります</value>
   </data>
   <data name="EditDataMetadataTooManyIdentifiers" xml:space="preserve">
-    <value>明示的なサーバーもしくはデータベースの指定はサポートされていません。</value>
+    <value>明示的なサーバーもしくはデータベースの指定はサポートされていません</value>
   </data>
   <data name="EditDataMetadataNotExtended" xml:space="preserve">
-    <value>テーブルメタデータは拡張プロパティを持っていません。</value>
+    <value>テーブル メタデータは拡張プロパティを持っていません</value>
   </data>
   <data name="EditDataObjectNotFound" xml:space="preserve">
-    <value>編集を要求したテーブルもしくはビューが見つかりませんでした。</value>
+    <value>編集を要求したテーブルもしくはビューが見つかりませんでした</value>
   </data>
   <data name="TreeNodeError" xml:space="preserve">
-    <value>'{0}' の拡張中にエラーが発生しました。</value>
+    <value>'{0}' の拡張中にエラーが発生しました</value>
   </data>
   <data name="ServerNodeConnectionError" xml:space="preserve">
     <value>{0} への接続中にエラーが発生しました</value>
@@ -502,7 +415,7 @@
     <value>証明書</value>
   </data>
   <data name="SchemaHierarchy_FileTables" xml:space="preserve">
-    <value>ファイルテーブル</value>
+    <value>FileTable</value>
   </data>
   <data name="SchemaHierarchy_DatabaseCertificates" xml:space="preserve">
     <value>証明書</value>
@@ -628,7 +541,7 @@
     <value>キュー</value>
   </data>
   <data name="SchemaHierarchy_RemoteServiceBindings" xml:space="preserve">
-    <value>リモート サービスのバインド</value>
+    <value>リモート サービス バインド</value>
   </data>
   <data name="SchemaHierarchy_ReturnedColumns" xml:space="preserve">
     <value>返された列</value>
@@ -724,7 +637,7 @@
     <value>キャプションが見つかりません</value>
   </data>
   <data name="SchemaHierarchy_BrokerPriorities" xml:space="preserve">
-    <value>Broker の優先度</value>
+    <value>ブローカーの優先度</value>
   </data>
   <data name="SchemaHierarchy_CryptographicProviders" xml:space="preserve">
     <value>暗号化プロバイダー</value>
@@ -889,7 +802,7 @@
     <value>システム拡張ストアド プロシージャ</value>
   </data>
   <data name="SchemaHierarchy_BuiltInType" xml:space="preserve">
-    <value>ビルトイン型</value>
+    <value>組み込み型</value>
   </data>
   <data name="SchemaHierarchy_BuiltInServerRole" xml:space="preserve">
     <value>組み込みのサーバー ロール</value>
@@ -925,10 +838,10 @@
     <value>XML 名前空間</value>
   </data>
   <data name="SchemaHierarchy_XmlTypedPromotedPaths" xml:space="preserve">
-    <value>XML の型指定された昇格パス</value>
+    <value>XML 型の昇格パス</value>
   </data>
   <data name="SchemaHierarchy_SqlTypedPromotedPaths" xml:space="preserve">
-    <value>T-SQL の型指定された昇格パス</value>
+    <value>T-SQL 型の昇格パス</value>
   </data>
   <data name="SchemaHierarchy_DatabaseScopedCredentials" xml:space="preserve">
     <value>データベース スコープ資格情報</value>
@@ -985,7 +898,7 @@
     <value>入力/出力/読み取り専用</value>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterDefaultLabel" xml:space="preserve">
-    <value>既定値</value>
+    <value>既定</value>
   </data>
   <data name="SchemaHierarchy_NullColumn_Label" xml:space="preserve">
     <value>NULL</value>
@@ -1024,7 +937,7 @@
     <value>クラスター化</value>
   </data>
   <data name="NonClusteredIndex_LabelPart" xml:space="preserve">
-    <value>非クラスター</value>
+    <value>非クラスター化</value>
   </data>
   <data name="History_LabelPart" xml:space="preserve">
     <value>履歴</value>
@@ -1032,354 +945,17 @@
   <data name="SystemVersioned_LabelPart" xml:space="preserve">
     <value>システムバージョン管理</value>
   </data>
-  <data name="unavailable" xml:space="preserve">
-    <value>使用不可</value>
-  </data>
-  <data name="filegroup_dialog_defaultFilegroup" xml:space="preserve">
-    <value>現在の既定のファイル グループ: {0}</value>
-  </data>
-  <data name="filegroup_dialog_title" xml:space="preserve">
-    <value>新しいファイルグループ {0}</value>
-  </data>
-  <data name="filegroups_default" xml:space="preserve">
-    <value>既定値</value>
-  </data>
-  <data name="filegroups_files" xml:space="preserve">
-    <value>ファイル</value>
-  </data>
-  <data name="filegroups_name" xml:space="preserve">
-    <value>名前</value>
-  </data>
-  <data name="filegroups_readonly" xml:space="preserve">
-    <value>読み取り専用</value>
-  </data>
-  <data name="general_autogrowth" xml:space="preserve">
-    <value>自動拡張 / 最大容量</value>
-  </data>
-  <data name="general_builderText" xml:space="preserve">
-    <value>...</value>
-  </data>
-  <data name="general_default" xml:space="preserve">
-    <value>&lt;既定&gt;</value>
-  </data>
-  <data name="general_fileGroup" xml:space="preserve">
-    <value>ファイル グループ</value>
-  </data>
-  <data name="general_fileName" xml:space="preserve">
-    <value>論理名</value>
-  </data>
-  <data name="general_fileType" xml:space="preserve">
-    <value>ファイルタイプ</value>
-  </data>
-  <data name="general_initialSize" xml:space="preserve">
-    <value>初期サイズ (MB)</value>
-  </data>
-  <data name="general_newFilegroup" xml:space="preserve">
-    <value>&lt;新しいファイルグループ&gt;</value>
-  </data>
-  <data name="general_path" xml:space="preserve">
-    <value>パス</value>
-  </data>
-  <data name="general_physicalFileName" xml:space="preserve">
-    <value>ファイル名</value>
-  </data>
-  <data name="general_rawDevice" xml:space="preserve">
-    <value>&lt;RAWデバイス&gt;</value>
-  </data>
-  <data name="general_recoveryModel_bulkLogged" xml:space="preserve">
-    <value>一括ログ</value>
-  </data>
-  <data name="general_recoveryModel_full" xml:space="preserve">
-    <value>完全</value>
-  </data>
-  <data name="general_recoveryModel_simple" xml:space="preserve">
-    <value>単純</value>
-  </data>
-  <data name="general_titleSearchOwner" xml:space="preserve">
-    <value>データベース 所有者の選択</value>
-  </data>
-  <data name="prototype_autogrowth_disabled" xml:space="preserve">
-    <value>なし</value>
-  </data>
-  <data name="prototype_autogrowth_restrictedGrowthByMB" xml:space="preserve">
-    <value>{0} MBごと、{1} MBを上限</value>
-  </data>
-  <data name="prototype_autogrowth_restrictedGrowthByPercent" xml:space="preserve">
-    <value>{0} パーセントごと、{1} MBまで</value>
-  </data>
-  <data name="prototype_autogrowth_unrestrictedGrowthByMB" xml:space="preserve">
-    <value>{0} MBごと、無制限</value>
-  </data>
-  <data name="prototype_autogrowth_unrestrictedGrowthByPercent" xml:space="preserve">
-    <value>{0} パーセントごと、無制限</value>
-  </data>
-  <data name="prototype_autogrowth_unlimitedfilestream" xml:space="preserve">
-    <value>無制限</value>
-  </data>
-  <data name="prototype_autogrowth_limitedfilestream" xml:space="preserve">
-    <value>{0} MBまで</value>
-  </data>
-  <data name="prototype_db_category_automatic" xml:space="preserve">
-    <value>自動</value>
-  </data>
-  <data name="prototype_db_category_servicebroker" xml:space="preserve">
-    <value>Service Broker</value>
-  </data>
-  <data name="prototype_db_category_collation" xml:space="preserve">
-    <value>照合順序</value>
-  </data>
-  <data name="prototype_db_category_cursor" xml:space="preserve">
-    <value>カーソル</value>
-  </data>
-  <data name="prototype_db_category_misc" xml:space="preserve">
-    <value>その他</value>
-  </data>
-  <data name="prototype_db_category_recovery" xml:space="preserve">
-    <value>復旧</value>
-  </data>
-  <data name="prototype_db_category_state" xml:space="preserve">
-    <value>状態</value>
-  </data>
-  <data name="prototype_db_prop_ansiNullDefault" xml:space="preserve">
-    <value>ANSI NULL 既定値</value>
-  </data>
-  <data name="prototype_db_prop_ansiNulls" xml:space="preserve">
-    <value>ANSI NULLS 有効</value>
-  </data>
-  <data name="prototype_db_prop_ansiPadding" xml:space="preserve">
-    <value>ANSI Padding 有効</value>
-  </data>
-  <data name="prototype_db_prop_ansiWarnings" xml:space="preserve">
-    <value>ANSI 警告有効</value>
-  </data>
-  <data name="prototype_db_prop_arithabort" xml:space="preserve">
-    <value>算術アボート有効</value>
-  </data>
-  <data name="prototype_db_prop_autoClose" xml:space="preserve">
-    <value>自動クローズ</value>
-  </data>
-  <data name="prototype_db_prop_autoCreateStatistics" xml:space="preserve">
-    <value>統計の自動作成</value>
-  </data>
-  <data name="prototype_db_prop_autoShrink" xml:space="preserve">
-    <value>自動圧縮</value>
-  </data>
-  <data name="prototype_db_prop_autoUpdateStatistics" xml:space="preserve">
-    <value>統計の自動更新</value>
-  </data>
-  <data name="prototype_db_prop_autoUpdateStatisticsAsync" xml:space="preserve">
-    <value>統計の非同期的自動更新</value>
-  </data>
-  <data name="prototype_db_prop_caseSensitive" xml:space="preserve">
-    <value>大文字と小文字を区別する</value>
-  </data>
-  <data name="prototype_db_prop_closeCursorOnCommit" xml:space="preserve">
-    <value>コミットでカーソルを閉じる</value>
-  </data>
-  <data name="prototype_db_prop_collation" xml:space="preserve">
-    <value>照合順序</value>
-  </data>
-  <data name="prototype_db_prop_concatNullYieldsNull" xml:space="preserve">
-    <value>Nullとの連結をNullとして取り扱う</value>
-  </data>
-  <data name="prototype_db_prop_databaseCompatibilityLevel" xml:space="preserve">
-    <value>データベース互換性レベル</value>
-  </data>
-  <data name="prototype_db_prop_databaseState" xml:space="preserve">
-    <value>データベース状態</value>
-  </data>
-  <data name="prototype_db_prop_defaultCursor" xml:space="preserve">
-    <value>既定のカーソル</value>
-  </data>
-  <data name="prototype_db_prop_fullTextIndexing" xml:space="preserve">
-    <value>フルテキスト インデックス 有効化</value>
-  </data>
-  <data name="prototype_db_prop_numericRoundAbort" xml:space="preserve">
-    <value>数値丸め処理アボート</value>
-  </data>
-  <data name="prototype_db_prop_pageVerify" xml:space="preserve">
-    <value>ページ確認</value>
-  </data>
-  <data name="prototype_db_prop_quotedIdentifier" xml:space="preserve">
-    <value>引用符で囲まれた識別子が有効</value>
-  </data>
-  <data name="prototype_db_prop_readOnly" xml:space="preserve">
-    <value>読み取り専用データベース</value>
-  </data>
-  <data name="prototype_db_prop_recursiveTriggers" xml:space="preserve">
-    <value>再帰トリガー有効</value>
-  </data>
-  <data name="prototype_db_prop_restrictAccess" xml:space="preserve">
-    <value>アクセスの制限</value>
-  </data>
-  <data name="prototype_db_prop_selectIntoBulkCopy" xml:space="preserve">
-    <value>Select Into/ バルクコピー</value>
-  </data>
-  <data name="prototype_db_prop_honorBrokerPriority" xml:space="preserve">
-    <value>Broker の優先度の許可</value>
-  </data>
-  <data name="prototype_db_prop_serviceBrokerGuid" xml:space="preserve">
-    <value>Service Broker 識別子</value>
-  </data>
-  <data name="prototype_db_prop_brokerEnabled" xml:space="preserve">
-    <value>ブローカー有効化</value>
-  </data>
-  <data name="prototype_db_prop_truncateLogOnCheckpoint" xml:space="preserve">
-    <value>チェックポイントでのログの切り捨て</value>
-  </data>
-  <data name="prototype_db_prop_dbChaining" xml:space="preserve">
-    <value>複数データベースの組み合わせ所有権有効</value>
-  </data>
-  <data name="prototype_db_prop_trustworthy" xml:space="preserve">
-    <value>信頼可能</value>
-  </data>
-  <data name="prototype_db_prop_dateCorrelationOptimization" xml:space="preserve">
-    <value>データ相関性の最適化
-Enabledprototype_db_prop_parameterization = Parameterization</value>
-  </data>
-  <data name="prototype_db_prop_parameterization_value_forced" xml:space="preserve">
-    <value>強制</value>
-  </data>
-  <data name="prototype_db_prop_parameterization_value_simple" xml:space="preserve">
-    <value>単純</value>
-  </data>
-  <data name="prototype_file_dataFile" xml:space="preserve">
-    <value>列データ</value>
-  </data>
-  <data name="prototype_file_logFile" xml:space="preserve">
-    <value>ログ</value>
-  </data>
-  <data name="prototype_file_filestreamFile" xml:space="preserve">
-    <value>FILESTREAM データ</value>
-  </data>
-  <data name="prototype_file_noFileGroup" xml:space="preserve">
-    <value>適用不可</value>
-  </data>
-  <data name="prototype_file_defaultpathstring" xml:space="preserve">
-    <value>&lt;既定のパス&gt;</value>
-  </data>
-  <data name="title_openConnectionsMustBeClosed" xml:space="preserve">
-    <value>コネクションを開く</value>
-  </data>
-  <data name="warning_openConnectionsMustBeClosed" xml:space="preserve">
-    <value>データベースのプロパティを変更するには、SQL Server はデータベースへの他のすべての接続を閉じる必要があります。プロパティを変更して、他のすべての接続を閉じてよろしいですか？</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_autoClosed" xml:space="preserve">
-    <value>AUTO_CLOSED</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_emergency" xml:space="preserve">
-    <value>EMERGENCY</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_inaccessible" xml:space="preserve">
-    <value>INACCESSIBLE</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_normal" xml:space="preserve">
-    <value>NORMAL</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_offline" xml:space="preserve">
-    <value>OFFLINE</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_recovering" xml:space="preserve">
-    <value>RECOVERING</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_recoveryPending" xml:space="preserve">
-    <value>RECOVERY PENDING</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_restoring" xml:space="preserve">
-    <value>RESTORING</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_shutdown" xml:space="preserve">
-    <value>SHUTDOWN</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_standby" xml:space="preserve">
-    <value>STANDBY</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_suspect" xml:space="preserve">
-    <value>SUSPECT</value>
-  </data>
-  <data name="prototype_db_prop_defaultCursor_value_global" xml:space="preserve">
-    <value>GLOBAL</value>
-  </data>
-  <data name="prototype_db_prop_defaultCursor_value_local" xml:space="preserve">
-    <value>LOCAL</value>
-  </data>
-  <data name="prototype_db_prop_restrictAccess_value_multiple" xml:space="preserve">
-    <value>MULTI_USER</value>
-  </data>
-  <data name="prototype_db_prop_restrictAccess_value_restricted" xml:space="preserve">
-    <value>RESTRICTED_USER</value>
-  </data>
-  <data name="prototype_db_prop_restrictAccess_value_single" xml:space="preserve">
-    <value>SINGLE_USER</value>
-  </data>
-  <data name="prototype_db_prop_pageVerify_value_checksum" xml:space="preserve">
-    <value>CHECKSUM</value>
-  </data>
-  <data name="prototype_db_prop_pageVerify_value_none" xml:space="preserve">
-    <value>NONE</value>
-  </data>
-  <data name="prototype_db_prop_pageVerify_value_tornPageDetection" xml:space="preserve">
-    <value>TORN_PAGE_DETECTION</value>
-  </data>
-  <data name="prototype_db_prop_varDecimalEnabled" xml:space="preserve">
-    <value>VarDecimal ストレージ形式有効</value>
-  </data>
-  <data name="compatibilityLevel_katmai" xml:space="preserve">
-    <value>SQL Server 2008 (100)</value>
-  </data>
-  <data name="prototype_db_prop_encryptionEnabled" xml:space="preserve">
-    <value>暗号化有効</value>
-  </data>
-  <data name="prototype_db_prop_databasescopedconfig_value_off" xml:space="preserve">
-    <value>OFF</value>
-  </data>
-  <data name="prototype_db_prop_databasescopedconfig_value_on" xml:space="preserve">
-    <value>ON</value>
-  </data>
-  <data name="prototype_db_prop_databasescopedconfig_value_primary" xml:space="preserve">
-    <value>PRIMARY</value>
-  </data>
-  <data name="error_db_prop_invalidleadingColumns" xml:space="preserve">
-    <value>配布ポリシーのハッシュでは、ハッシュの先頭列の番号は任意ですが、1 から 16 個の列にする必要があります</value>
-  </data>
-  <data name="compatibilityLevel_denali" xml:space="preserve">
-    <value>SQL Server 2012 (110)</value>
-  </data>
-  <data name="compatibilityLevel_sql14" xml:space="preserve">
-    <value>SQL Server 2014 (120) </value>
-  </data>
-  <data name="compatibilityLevel_sql15" xml:space="preserve">
-    <value>SQL Server 2016 (130) </value>
-  </data>
-  <data name="compatibilityLevel_sqlvNext" xml:space="preserve">
-    <value>SQL Server vNext (140) </value>
-  </data>
-  <data name="general_containmentType_None" xml:space="preserve">
-    <value>なし</value>
-  </data>
-  <data name="general_containmentType_Partial" xml:space="preserve">
-    <value>部分的</value>
-  </data>
-  <data name="filegroups_filestreamFiles" xml:space="preserve">
-    <value>FILESTREAM ファイル</value>
-  </data>
-  <data name="prototype_file_noApplicableFileGroup" xml:space="preserve">
-    <value>適用不可なファイルグループ</value>
-  </data>
   <data name="DatabaseNotAccessible" xml:space="preserve">
     <value>データベース {0} にアクセスできません。</value>
   </data>
   <data name="QueryServiceResultSetHasNoResults" xml:space="preserve">
-    <value>クエリーは結果を返しませんでした</value>
+    <value>クエリは結果を返しませんでした</value>
   </data>
   <data name="QueryServiceResultSetTooLarge" xml:space="preserve">
-    <value>結果セットの行数が多すぎるため安全にロードすることはできません</value>
-  </data>
-  <data name="prototype_db_prop_parameterization" xml:space="preserve">
-    <value>パラメーター化</value>
+    <value>結果セットの行数が多すぎるため、安全にロードすることはできません</value>
   </data>
   <data name="ConflictWithNoRecovery" xml:space="preserve">
-    <value>NORECOVERY オプションを使用してバックアップを復元するときにこのオプションを指定することはできません。</value>
+    <value>NORECOVERY オプションを使用してバックアップを復元するときに、このオプションを指定することはできません。</value>
   </data>
   <data name="InvalidPathForDatabaseFile" xml:space="preserve">
     <value>データベース ファイルのパスが無効です: '{0}'</value>
@@ -1388,10 +964,10 @@ Enabledprototype_db_prop_parameterization = Parameterization</value>
     <value>ログ</value>
   </data>
   <data name="RestorePlanFailed" xml:space="preserve">
-    <value>リストア プランの作成に失敗しました。</value>
+    <value>リストア プランの作成に失敗しました</value>
   </data>
   <data name="RestoreNotSupported" xml:space="preserve">
-    <value>データベースのリストアはサポートされていません。</value>
+    <value>データベースのリストアはサポートされていません</value>
   </data>
   <data name="RestoreTaskName" xml:space="preserve">
     <value>データベースのリストア</value>
@@ -1451,7 +1027,7 @@ Enabledprototype_db_prop_parameterization = Parameterization</value>
     <value>データベースをバックアップする</value>
   </data>
   <data name="TaskInProgress" xml:space="preserve">
-    <value>実行中</value>
+    <value>進行中</value>
   </data>
   <data name="TaskCompleted" xml:space="preserve">
     <value>完了</value>
@@ -1460,22 +1036,22 @@ Enabledprototype_db_prop_parameterization = Parameterization</value>
     <value>スクリプト</value>
   </data>
   <data name="ProfilerConnectionNotFound" xml:space="preserve">
-    <value>接続が見つかりません。</value>
+    <value>接続が見つかりません</value>
+  </data>
+  <data name="AzureSystemDbProfilingError" xml:space="preserve">
+    <value>Azure システム データベースのプロファイルを生成できません</value>
   </data>
   <data name="BackupPathIsFolderError" xml:space="preserve">
-    <value>指定されたファイル名がディレクトリ名と同じです: {0}</value>
+    <value>ディレクトリ パスではなく、ファイル パスを指定してください</value>
   </data>
   <data name="InvalidBackupPathError" xml:space="preserve">
-    <value>バックアップ ファイルの場所が存在するかどうか確認できません: {0}</value>
+    <value> 指定されたパスは無効です</value>
   </data>
   <data name="InvalidPathError" xml:space="preserve">
-    <value>サーバーで指定されたパスにアクセスできません: {0}</value>
+    <value>サーバー上の指定されたパスにアクセスできません: {0}</value>
   </data>
   <data name="NoBackupsetsToRestore" xml:space="preserve">
     <value>リストアするバックアップセットが選択されていません</value>
-  </data>
-  <data name="NeverBackedUp" xml:space="preserve">
-    <value>行わない</value>
   </data>
   <data name="AzureSqlDbEdition" xml:space="preserve">
     <value>Azure SQL DB</value>
@@ -1486,13 +1062,253 @@ Enabledprototype_db_prop_parameterization = Parameterization</value>
   <data name="AzureSqlStretchEdition" xml:space="preserve">
     <value>Azure SQL Stretch Database</value>
   </data>
+  <data name="EditDataValueTooLarge" xml:space="preserve">
+    <value>値 {0} は大きすぎるため、型 {1} の列に収まりません</value>
+  </data>
+  <data name="EditDataInvalidFormat" xml:space="preserve">
+    <value>列 '{0}' のフォーマットが無効です。列は {1} と定義されています</value>
+  </data>
+  <data name="SqlScriptFormatterLengthTypeMissingSize" xml:space="preserve">
+    <value>長さを持つ列にサイズが指定されていません</value>
+  </data>
+  <data name="SqlScriptFormatterScalarTypeMissingScale" xml:space="preserve">
+    <value>スカラー列のスケールが欠落しています</value>
+  </data>
+  <data name="StoredProcedureScriptParameterComment" xml:space="preserve">
+    <value>-- TODO: ここにパラメーター値を設定します。</value>
+  </data>
+  <data name="ScriptingGeneralError" xml:space="preserve">
+    <value>オブジェクトのスクリプト作成中にエラーが発生しました。</value>
+  </data>
+  <data name="ScriptingExecuteNotSupportedError" xml:space="preserve">
+    <value>Execute としてのスクリプトはストアド プロシージャでのみサポートされます</value>
+  </data>
+  <data name="External_LabelPart" xml:space="preserve">
+    <value>外部</value>
+  </data>
+  <data name="FileTable_LabelPart" xml:space="preserve">
+    <value>ファイル テーブル</value>
+  </data>
+  <data name="EditDataMultiTableNotSupported" xml:space="preserve">
+    <value>複数のテーブルを対象とした EditData クエリはサポートされていません</value>
+  </data>
+  <data name="EditDataAliasesNotSupported" xml:space="preserve">
+    <value>別名の列が含まれる EditData クエリはサポートされていません</value>
+  </data>
+  <data name="EditDataExpressionsNotSupported" xml:space="preserve">
+    <value>集計または式の列が含まれる EditData クエリはサポートされていません</value>
+  </data>
+  <data name="EditDataDuplicateColumnsNotSupported" xml:space="preserve">
+    <value>重複した列を持つ EditData クエリはサポートされていません</value>
+  </data>
+  <data name="EditDataIncorrectTable" xml:space="preserve">
+    <value>EditData クエリは、元のターゲット テーブル '{0}' に対してクエリを実行する必要があります</value>
+  </data>
+  <data name="CategoryLocal" xml:space="preserve">
+    <value>[未分類 (ローカル)]</value>
+  </data>
+  <data name="CategoryFromMsx" xml:space="preserve">
+    <value>MSX からのジョブ</value>
+  </data>
+  <data name="CategoryMultiServer" xml:space="preserve">
+    <value>[未分類 (マルチサーバー)]</value>
+  </data>
+  <data name="CategoryDBMaint" xml:space="preserve">
+    <value>データベース メンテナンス</value>
+  </data>
+  <data name="CategoryWebAssistant" xml:space="preserve">
+    <value>Web Assistant</value>
+  </data>
+  <data name="CategoryFullText" xml:space="preserve">
+    <value>フルテキスト</value>
+  </data>
+  <data name="CategoryReplDistribution" xml:space="preserve">
+    <value>REPL - ディストリビューション</value>
+  </data>
+  <data name="CategoryReplDistributionCleanup" xml:space="preserve">
+    <value>REPL - ディストリビューション クリーンアップ</value>
+  </data>
+  <data name="CategoryReplHistoryCleanup" xml:space="preserve">
+    <value>REPL - 履歴のクリーンアップ</value>
+  </data>
+  <data name="CategoryReplLogReader" xml:space="preserve">
+    <value>REPL-LogReader</value>
+  </data>
+  <data name="CategoryReplMerge" xml:space="preserve">
+    <value>REPL - マージ</value>
+  </data>
+  <data name="CategoryReplSnapShot" xml:space="preserve">
+    <value>REPL - スナップショット</value>
+  </data>
+  <data name="CategoryReplCheckup" xml:space="preserve">
+    <value>REPL - 照合</value>
+  </data>
+  <data name="CategoryReplCleanup" xml:space="preserve">
+    <value>REPL - サブスクリプション クリーンアップ</value>
+  </data>
+  <data name="CategoryReplAlert" xml:space="preserve">
+    <value>REPL - 警告応答</value>
+  </data>
+  <data name="CategoryReplQReader" xml:space="preserve">
+    <value>REPL-QueueReader</value>
+  </data>
+  <data name="CategoryReplication" xml:space="preserve">
+    <value>レプリケーション</value>
+  </data>
+  <data name="CategoryUncategorized" xml:space="preserve">
+    <value>[未分類]</value>
+  </data>
+  <data name="CategoryLogShipping" xml:space="preserve">
+    <value>ログ配布</value>
+  </data>
+  <data name="CategoryDBEngineTuningAdvisor" xml:space="preserve">
+    <value>データベース エンジン チューニング アドバイザー</value>
+  </data>
+  <data name="CategoryDataCollector" xml:space="preserve">
+    <value>データ コレクター</value>
+  </data>
+  <data name="JobAlreadyExists" xml:space="preserve">
+    <value>'{0}' という名前のジョブは既に存在します。ジョブの一意の名前を入力してください。</value>
+  </data>
+  <data name="JobStepNameCannotBeBlank" xml:space="preserve">
+    <value>ジョブ ステップの名前を空白にすることはできません。</value>
+  </data>
+  <data name="JobStepNameAlreadyExists" xml:space="preserve">
+    <value>このジョブには '{0}' という名前のステップが既に存在します。別の名前を指定する必要があります。</value>
+  </data>
+  <data name="AlertNameCannotBeBlank" xml:space="preserve">
+    <value>アラートの名前を空白にすることはできません。</value>
+  </data>
+  <data name="CannotCreateNewAlert" xml:space="preserve">
+    <value>新しいアラートを作成できません。</value>
+  </data>
+  <data name="CannotAlterAlert" xml:space="preserve">
+    <value>アラートを変更できません。</value>
+  </data>
+  <data name="SysadminAccount" xml:space="preserve">
+    <value>SQL Server エージェント サービス アカウント</value>
+  </data>
+  <data name="ProxyAccountNotFound" xml:space="preserve">
+    <value>プロキシ アカウント '{0}' はサーバーに存在しません。</value>
+  </data>
+  <data name="CredentialNoLongerExists" xml:space="preserve">
+    <value>オブジェクトはサーバーにもはや存在しません。</value>
+  </data>
+  <data name="UnknownServerType" xml:space="preserve">
+    <value>サーバーの種類 '{0}' が不明です。</value>
+  </data>
+  <data name="SetOwnerFailed" xml:space="preserve">
+    <value>現在のログインにはデータベースの所有者を '{0}' に設定する権限がありませんが、データベースは正常に作成されました。</value>
+  </data>
+  <data name="TargetServerNotSelected" xml:space="preserve">
+    <value>このマルチ サーバー ジョブを実行するターゲット サーバーを指定する必要があります。</value>
+  </data>
+  <data name="UnexpectedRunType" xml:space="preserve">
+    <value>予期しない実行の種類です。</value>
+  </data>
+  <data name="UnknownSizeUnit" xml:space="preserve">
+    <value>{0} は不明なサイズの単位です</value>
+  </data>
+  <data name="SessionNotFound" xml:space="preserve">
+    <value>要求された XEvent セッションが見つかりません</value>
+  </data>
+  <data name="StopSessionFailed" xml:space="preserve">
+    <value>セッションを停止できませんでした: {0}</value>
+  </data>
+  <data name="StartSessionFailed" xml:space="preserve">
+    <value>セッションを開始できませんでした: {0}</value>
+  </data>
+  <data name="CreateSessionFailed" xml:space="preserve">
+    <value>セッションを作成できませんでした: {0}</value>
+  </data>
+  <data name="PauseSessionFailed" xml:space="preserve">
+    <value>セッションを一時停止できませんでした: {0}</value>
+  </data>
+  <data name="SessionAlreadyExists" xml:space="preserve">
+    <value>{0} という名前の XEvent セッションは既に存在します</value>
+  </data>
+  <data name="InvalidScheduleTitle" xml:space="preserve">
+    <value>無効なスケジュール</value>
+  </data>
+  <data name="InvalidWeeklySchedule" xml:space="preserve">
+    <value>この週のスケジュールに含める日を少なくとも 1 日選択してください。</value>
+  </data>
+  <data name="StartDateGreaterThanEndDate" xml:space="preserve">
+    <value>ジョブ スケジュールの開始日は、終了日より後の日付にすることはできません。</value>
+  </data>
+  <data name="StartTimeGreaterThanEndTime" xml:space="preserve">
+    <value>ジョブ スケジュールの開始時刻は、終了時間より後にすることはできません。</value>
+  </data>
+  <data name="EndTimeEqualToStartTime" xml:space="preserve">
+    <value>ジョブ スケジュールの終了時刻は、開始時刻より後にする必要があります。</value>
+  </data>
+  <data name="InvalidStartDate" xml:space="preserve">
+    <value>開始日は、1990 年 1 月 1 日以降にする必要があります。</value>
+  </data>
+  <data name="ScheduleNameAlreadyExists" xml:space="preserve">
+    <value>このジョブには既に '{0}' という名前のスケジュールが存在します。別の名前を指定する必要があります。</value>
+  </data>
+  <data name="JobServerIsNotAvailable" xml:space="preserve">
+    <value>ジョブ サーバーが使用できません</value>
+  </data>
+  <data name="NeverBackedUp" xml:space="preserve">
+    <value>なし</value>
+  </data>
   <data name="Error_InvalidDirectoryName" xml:space="preserve">
     <value>パス {0} は有効なディレクトリではありません</value>
   </data>
   <data name="Error_ExistingDirectoryName" xml:space="preserve">
-    <value>ディレクトリ {0} 内に {1} という名前のファイルは既に存在します</value>
+    <value>ディレクトリ {0} では、{1} という名前のファイルは既に存在します</value>
   </data>
-  <data name="EditDataValueTooLarge" xml:space="preserve">
-    <value>値 {0} は大きすぎるため、型 {1} の列に収まりません</value>
+  <data name="EE_ExecutionInfo_InitializingLoop" xml:space="preserve">
+    <value>実行ループを開始しています</value>
+  </data>
+  <data name="EE_BatchExecutionError_Ignoring" xml:space="preserve">
+    <value>バッチの実行中にエラーが発生しましたが、エラーは無視されました。</value>
+  </data>
+  <data name="EE_ExecutionInfo_FinalizingLoop" xml:space="preserve">
+    <value>バッチの実行が {0} 回完了しました...</value>
+  </data>
+  <data name="BatchParserWrapperExecutionError" xml:space="preserve">
+    <value>バッチ パーサー ラッパー実行: {0} が見つかりました... 行 {1}: {2}    説明: {3}</value>
+  </data>
+  <data name="ExtractInvalidVersion" xml:space="preserve">
+    <value>無効なバージョン '{0}' が渡されました。バージョンの形式は x.x.x.x (x は数値) でなければなりません。</value>
+  </data>
+  <data name="ExportBacpacTaskName" xml:space="preserve">
+    <value>bacpac のエクスポート</value>
+  </data>
+  <data name="ImportBacpacTaskName" xml:space="preserve">
+    <value>bacpac のインポート</value>
+  </data>
+  <data name="ExtractDacpacTaskName" xml:space="preserve">
+    <value>dacpac の抽出</value>
+  </data>
+  <data name="DeployDacpacTaskName" xml:space="preserve">
+    <value>dacpac のデプロイ</value>
+  </data>
+  <data name="GenerateScriptTaskName" xml:space="preserve">
+    <value>スクリプトの生成</value>
+  </data>
+  <data name="PublishChangesTaskName" xml:space="preserve">
+    <value>スキーマ比較変更の適用</value>
+  </data>
+  <data name="SchemaCompareExcludeIncludeNodeNotFound" xml:space="preserve">
+    <value>指定された変更をモデル内に見つけられませんでした</value>
+  </data>
+  <data name="OpenScmpConnectionBasedModelParsingError" xml:space="preserve">
+    <value>エンドポイント '{0}' の接続情報を解析しようとしているときにエラーが発生しました。エラー メッセージ: '{1}'</value>
+  </data>
+  <data name="SchemaCompareSessionNotFound" xml:space="preserve">
+    <value>キャンセルするスキーマ比較セッションが見つかりませんでした</value>
+  </data>
+  <data name="SerializationServiceUnsupportedFormat" xml:space="preserve">
+    <value>サポートされていない保存形式: {0}</value>
+  </data>
+  <data name="SerializationServiceRequestInProgress" xml:space="preserve">
+    <value>ファイル {0} に対する要求は既に進行中です</value>
+  </data>
+  <data name="SerializationServiceRequestNotFound" xml:space="preserve">
+    <value>ファイル {0} に対する要求が見つからなかったので、これ以上のデータはシリアル化できません</value>
   </data>
 </root>

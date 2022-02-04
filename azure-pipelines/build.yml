@@ -1,47 +1,8 @@
 steps:
-- task: ArchiveFiles@1
-  displayName: 'Archive source '
-  inputs:
-    rootFolder: '$(Build.SourcesDirectory)'
-    includeRootFolder: false
-    archiveType: tar
-    archiveFile: '$(Build.ArtifactStagingDirectory)/source.tar.gz'
-
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifact: source'
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)/source.tar.gz'
-    ArtifactName: source
-
 - task: UseDotNet@2
   displayName: 'Use defined .NET Core sdk'
   inputs:
     useGlobalJson: true
-
-- task: DotNetCoreCLI@1
-  displayName: 'dotnet restore sqltoolsservice.sln'
-  inputs:
-    command: restore
-    projects: '$(Build.SourcesDirectory)/sqltoolsservice.sln'
-    feedsToUse: config
-    nugetConfigPath: nuget.config
-
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet build src/Microsoft.Kusto.ServiceLayer'
-  inputs:
-    projects: '$(Build.SourcesDirectory)/src/Microsoft.Kusto.ServiceLayer'
-
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet build src/Microsoft.SqlTools.ServiceLayer --configuration Release'
-  inputs:
-    projects: '$(Build.SourcesDirectory)/src/Microsoft.SqlTools.ServiceLayer '
-    arguments: '--configuration Release'
-
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet build src/Microsoft.Kusto.ServiceLayer --configuration Release'
-  inputs:
-    projects: '$(Build.SourcesDirectory)/src/Microsoft.Kusto.ServiceLayer'
-    arguments: '--configuration Release'
 
 - task: UseDotNet@2
   displayName: 'Installing dotnet 3.1 to run srgen (To be removed after srgen is updated)'
@@ -97,11 +58,6 @@ steps:
     workingFolder: test/CodeCoverage
   enabled: false
 
-- task: UseDotNet@2
-  displayName: 'Use .NET Core sdk 2.2.108 for CodeSigning'
-  inputs:
-    version: 2.2.108
-
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
   displayName: 'ESRP CodeSigning - sha256 only'
   inputs:
@@ -154,56 +110,102 @@ steps:
      ]
     SessionTimeout: 600
     MaxConcurrency: 5
-  condition: and(succeeded(), eq(variables['signed'], true))
+
+- task: BatchScript@1
+  displayName: 'Package published projects'
+  inputs:
+    filename: build.cmd
+    arguments: '-target=dotnetpackpublished -mono'
+  continueOnError: true
+
+- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+  displayName: 'ESRP Code Signing - Nuget Package'
+  inputs:
+    ConnectedServiceName: 'Code Signing'
+    FolderPath: '$(Build.SourcesDirectory)/artifacts/nugetPackages'
+    Pattern: '*.nupkg'
+    signConfigType: 'inlineSignParams'
+    inlineOperation: |
+      [
+          {
+              "keyCode": "CP-401405",
+              "operationSetCode": "NuGetSign",
+              "parameters": [ ],
+              "toolName": "sign",
+              "toolVersion": "1.0"
+          },
+          {
+              "keyCode": "CP-401405",
+              "operationSetCode": "NuGetVerify",
+              "parameters": [ ],
+              "toolName": "sign",
+              "toolVersion": "1.0"
+          }
+      ]
+    SessionTimeout: '60'
+    MaxConcurrency: '50'
+    MaxRetryAttempts: '5'
 
 - task: ArchiveFiles@1
   displayName: 'Archive osx build'
   inputs:
-    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/osx.10.11-x64/net5.0'
+    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/osx.10.11-x64/net6.0'
     includeRootFolder: false
     archiveType: tar
-    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-osx-x64-net5.0.tar.gz'
+    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-osx-x64-net6.0.tar.gz'
 
 - task: ArchiveFiles@1
   displayName: 'Archive rhel build'
   inputs:
-    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/rhel.7.2-x64/net5.0'
+    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/rhel.7.2-x64/net6.0'
     includeRootFolder: false
     archiveType: tar
-    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-rhel-x64-net5.0.tar.gz'
+    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-rhel-x64-net6.0.tar.gz'
 
 - task: ArchiveFiles@1
   displayName: 'Archive windows 64 bit build'
   inputs:
-    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win7-x64/net5.0'
+    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win-x64/net6.0'
     includeRootFolder: false
-    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win-x64-net5.0.zip'
+    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win-x64-net6.0.zip'
 
-# - task: ArchiveFiles@1
-#   displayName: 'Archive windows 32 bit build'
-#   inputs:
-#     rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win7-x86/net5.0'
-#     includeRootFolder: false
-#     archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win-x86-net5.0.zip'
+- task: ArchiveFiles@1
+  displayName: 'Archive windows 32 bit build'
+  inputs:
+    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win-x86/net6.0'
+    includeRootFolder: false
+    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win-x86-net6.0.zip'
 
 # - task: ArchiveFiles@1
 #   displayName: 'Archive windows10 arm 32 bit build'
 #   inputs:
-#     rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win10-arm/net5.0'
+#     rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win10-arm/net6.0'
 #     includeRootFolder: false
-#     archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win10-arm-net5.0.zip'
+#     archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win10-arm-net6.0.zip'
 
 # - task: ArchiveFiles@1
 #   displayName: 'Archive windows10 arm 64 bit build'
 #   inputs:
-#     rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win10-arm64/net5.0'
+#     rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win10-arm64/net6.0'
 #     includeRootFolder: false
-#     archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win10-arm64-net5.0.zip'
+#     archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win10-arm64-net6.0.zip'
 
 - task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifact: drop'
+  displayName: 'Publish Artifact: build archives'
   inputs:
     PathtoPublish: '$(Build.SourcesDirectory)/artifacts/package'
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact: nuget packages'
+  inputs:
+    PathtoPublish: '$(Build.SourcesDirectory)/artifacts/nugetPackages'
+    ArtifactName: 'packages'
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact: logs'
+  inputs:
+    PathtoPublish: '$(Build.SourcesDirectory)/artifacts/logs'
+    ArtifactName: 'logs'
 
 - task: NuGetCommand@2
   displayName: 'NuGet push'
@@ -213,3 +215,8 @@ steps:
     packagesToPush: '$(Build.SourcesDirectory)/artifacts/nugetPackages/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
     publishVstsFeed: '2191dd5f-4aec-491b-ac50-568bbc331c8a'
     allowPackageConflicts: true
+
+- task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
+  displayName: 'Component Detection'
+  inputs:
+    failOnAlert: true

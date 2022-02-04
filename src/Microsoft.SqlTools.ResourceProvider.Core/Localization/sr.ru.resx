@@ -118,36 +118,36 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AzureServerNotFound" xml:space="preserve">
-    <value>Указанный вами сервер {0} не существует ни в одной подписке в {1}. Либо вы вошли в систему с неправильной учетной записью, либо ваш сервер был удален из подписки (подписок) в этой учетной записи. Пожалуйста, проверьте свою учетную запись и повторите попытку.</value>
+    <value>Указанный сервер {0} отсутствует в подписках из {1}. Вы вошли под неправильной учетной записью, либо сервер был удален из подписок в этой учетной записи. Проверьте ее и повторите попытку.</value>
   </data>
   <data name="AzureSubscriptionFailedErrorMessage" xml:space="preserve">
-    <value>Произошла ошибка при получении подписок Azure: {0}</value>
+    <value>Ошибка при получении подписок Azure: {0}</value>
   </data>
   <data name="DatabaseDiscoveryFailedErrorMessage" xml:space="preserve">
-    <value>Произошла ошибка при получении баз данных с серверов типа {0} из {1}</value>
+    <value>Произошла ошибка при получении баз данных от серверов типа {0} из {1}</value>
   </data>
   <data name="FirewallRuleAccessForbidden" xml:space="preserve">
-    <value>{0} не имеет разрешения на изменение правила брандмауэра сервера. Повторите попытку с другой учетной записью, которая является владельцем или вкладчиком подписки Azure или сервера.</value>
+    <value>У {0} нет разрешения на изменение правила брандмауэра сервера. Повторите попытку с другой учетной записью, имеющей разрешения владельца или участника подписки Azure или сервера.</value>
   </data>
   <data name="InvalidIpAddress" xml:space="preserve">
-    <value>Неверный IP-адрес</value>
+    <value>Недопустимый IP-адрес</value>
   </data>
   <data name="InvalidServerTypeErrorMessage" xml:space="preserve">
-    <value>Тип сервера недействителен.</value>
+    <value>Недопустимый тип сервера.</value>
   </data>
   <data name="LoadingExportableFailedGeneralErrorMessage" xml:space="preserve">
-    <value>Требуемая dll не может быть загружена. Пожалуйста, восстановите ваше приложение.</value>
+    <value>Невозможно загрузить необходимую библиотеку dll Восстановите ваше приложение.</value>
   </data>
   <data name="FirewallRuleCreationFailed" xml:space="preserve">
-    <value>Произошла ошибка при создании нового правила брандмауэра.</value>
+    <value>Произошла ошибка при создании правила брандмауэра.</value>
   </data>
   <data name="FirewallRuleUnsupportedConnectionType" xml:space="preserve">
-    <value>Невозможно открыть правило брандмауэра для указанного типа соединения</value>
+    <value>Не удается открыть правило брандмауэра для указанного типа соединения</value>
   </data>
   <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
-    <value>Произошла ошибка при создании нового правила брандмауэра: '{0}'</value>
+    <value>Ошибка при создании правила брандмауэра: "{0}"</value>
   </data>
   <data name="NoSubscriptionsFound" xml:space="preserve">
-    <value>Для учетной записи пользователя, вошедшего в систему в данный момент, подписки не найдены.</value>
+    <value>Подписки для текущей учетной записи пользователя, выполнившего вход, не найдены.</value>
   </data>
 </root>

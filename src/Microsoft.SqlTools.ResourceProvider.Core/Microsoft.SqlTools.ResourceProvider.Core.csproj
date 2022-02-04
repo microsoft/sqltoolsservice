@@ -4,6 +4,7 @@
 		<PackageId>Microsoft.SqlTools.ResourceProvider.Core</PackageId>
 		<AssemblyName>Microsoft.SqlTools.ResourceProvider.Core</AssemblyName>
 		<EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
+		<EmbeddedResourceUseDependentUponConvention>false</EmbeddedResourceUseDependentUponConvention>
 		<ApplicationIcon />
 		<OutputType>Library</OutputType>
 		<StartupObject />

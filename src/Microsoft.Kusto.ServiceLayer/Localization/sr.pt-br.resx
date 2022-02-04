@@ -118,67 +118,67 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ConnectionServiceConnectErrorNullParams" xml:space="preserve">
-    <value>Parâmetros de Conexão não podem ser nulos</value>
+    <value>Os parâmetros de conexão não podem ser nulos</value>
   </data>
   <data name="ConnectionServiceListDbErrorNullOwnerUri" xml:space="preserve">
-    <value>OwnerUri não pode ser nulo ou vazio</value>
+    <value>O OwnerUri não pode ser nulo ou vazio</value>
   </data>
   <data name="ConnectionServiceListDbErrorNotConnected" xml:space="preserve">
-    <value>SpecifiedUri '{0}' não há uma conexão existente</value>
+    <value>O SpecifiedUri '{0}' não tem uma conexão existente</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidAuthType" xml:space="preserve">
-    <value>Valor inválido '{0}' para AuthenticationType. Os valores válidos são 'Integrada' e 'SqlLogin'.</value>
+    <value>Valor '{0}' inválido para AuthenticationType. Os valores válidos são 'Integrated' e 'SqlLogin'.</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidIntent" xml:space="preserve">
-    <value>Valor inválido '{0}' para ApplicationIntent. Os valores válidos são 'ReadWrite' e 'Somente leitura'.</value>
+    <value>Valor '{0}' inválido para ApplicationIntent. Os valores válidos são 'ReadWrite' e 'ReadOnly'.</value>
   </data>
   <data name="ConnectionServiceConnectionCanceled" xml:space="preserve">
     <value>Conexão cancelada</value>
   </data>
   <data name="ConnectionParamsValidateNullOwnerUri" xml:space="preserve">
-    <value>OwnerUri não pode ser nulo ou vazio</value>
+    <value>O OwnerUri não pode ser nulo ou vazio</value>
   </data>
   <data name="ConnectionParamsValidateNullConnection" xml:space="preserve">
-    <value>Objeto de detalhes de Conexão não pode ser nulo</value>
+    <value>O objeto de detalhes da conexão não pode ser nulo</value>
   </data>
   <data name="ConnectionParamsValidateNullServerName" xml:space="preserve">
     <value>ServerName não pode ser nulo ou vazio</value>
   </data>
   <data name="ConnectionParamsValidateNullSqlAuth" xml:space="preserve">
-    <value>{0} não pode ser nulo ou vazio quando estiver usando autenticação SqlLogin</value>
+    <value>O {0} não poderá ser nulo ou vazio quando estiver usando autenticação SqlLogin</value>
   </data>
   <data name="QueryServiceCancelAlreadyCompleted" xml:space="preserve">
-    <value>A consulta já foi concluída, ela não pode ser cancelada</value>
+    <value>A consulta já foi concluída, portanto, não pode ser cancelada</value>
   </data>
   <data name="QueryServiceCancelDisposeFailed" xml:space="preserve">
-    <value>Consulta cancelada com êxito, Falha ao descartar a consulta. Proprietário do URI não encontrado.</value>
+    <value>Consulta cancelada com êxito. Falha ao descartar a consulta. Proprietário do URI não encontrado.</value>
   </data>
   <data name="QueryServiceQueryCancelled" xml:space="preserve">
-    <value>Consulta foi cancelada pelo usuário</value>
+    <value>A consulta foi cancelada pelo usuário</value>
   </data>
   <data name="QueryServiceSubsetBatchNotCompleted" xml:space="preserve">
-    <value>O lote ainda não foi concluído.</value>
+    <value>O lote ainda não foi concluído</value>
   </data>
   <data name="QueryServiceSubsetBatchOutOfRange" xml:space="preserve">
-    <value>Índice de lote não pode ser menor que 0 ou maior que o número de lotes</value>
+    <value>O índice de lote não pode ser menor que 0 ou maior que o número de lotes</value>
   </data>
   <data name="QueryServiceSubsetResultSetOutOfRange" xml:space="preserve">
-    <value>Índice do conjunto de resultados não pode ser menor que 0 ou maior que o número do conjuntos de resultados</value>
+    <value>O índice do conjunto de resultados não pode ser menor que 0 ou maior que o número de conjuntos de resultados</value>
   </data>
   <data name="QueryServiceDataReaderByteCountInvalid" xml:space="preserve">
-    <value>Número máximo de bytes a serem retornados deve ser maior que zero</value>
+    <value>O número máximo de bytes a serem retornados deve ser maior que zero</value>
   </data>
   <data name="QueryServiceDataReaderCharCountInvalid" xml:space="preserve">
-    <value>Número máximo de caracteres a serem retornados deve ser maior que zero</value>
+    <value>O número máximo de caracteres a serem retornados deve ser maior que zero</value>
   </data>
   <data name="QueryServiceDataReaderXmlCountInvalid" xml:space="preserve">
-    <value>Número máximo de bytes XML a serem retornados deve ser maior que zero</value>
+    <value>O número máximo de bytes XML a serem retornados deve ser maior que zero</value>
   </data>
   <data name="QueryServiceFileWrapperWriteOnly" xml:space="preserve">
-    <value>Método de acesso não pode ser somente gravação</value>
+    <value>O método de acesso não pode ser somente gravação</value>
   </data>
   <data name="QueryServiceFileWrapperNotInitialized" xml:space="preserve">
-    <value>FileStreamWrapper deve ser inicializado antes de executar operações</value>
+    <value>O FileStreamWrapper deve ser inicializado antes de executar operações</value>
   </data>
   <data name="QueryServiceFileWrapperReadOnly" xml:space="preserve">
     <value>Este FileStreamWrapper não pode ser usado para gravação</value>
@@ -190,10 +190,10 @@
     <value>({0} linhas afetadas)</value>
   </data>
   <data name="QueryServiceCompletedSuccessfully" xml:space="preserve">
-    <value>Comandos concluídos com sucesso.</value>
+    <value>Comandos concluídos com êxito.</value>
   </data>
   <data name="QueryServiceErrorFormat" xml:space="preserve">
-    <value>Msg {0}, Nível {1}, Estado {2}, Linha {3} {4} {5}</value>
+    <value>Mensagem {0}, Nível {1}, Estado {2}, Linha {3}{4}{5}</value>
   </data>
   <data name="QueryServiceQueryFailed" xml:space="preserve">
     <value>Falha na consulta: {0}</value>
@@ -202,22 +202,22 @@
     <value>(Nenhum nome de coluna)</value>
   </data>
   <data name="QueryServiceRequestsNoQuery" xml:space="preserve">
-    <value>A consulta solicitada não existe.</value>
+    <value>A consulta solicitada não existe</value>
   </data>
   <data name="QueryServiceQueryInvalidOwnerUri" xml:space="preserve">
     <value>Este editor não está conectado a um banco de dados</value>
   </data>
   <data name="QueryServiceQueryInProgress" xml:space="preserve">
-    <value>Uma consulta já está em andamento para esta sessão do editor. Favor cancelar esta consulta ou aguardar a sua conclusão</value>
+    <value>Uma consulta já está em andamento para esta sessão do editor. Cancele esta consulta ou aguarde a conclusão.</value>
   </data>
   <data name="QueryServiceMessageSenderNotSql" xml:space="preserve">
-    <value>Remetente do evento OnInfoMessage deve ser um SqlConnection</value>
+    <value>O remetente do evento OnInfoMessage deve ser um SqlConnection</value>
   </data>
   <data name="QueryServiceSaveAsResultSetNotComplete" xml:space="preserve">
-    <value>Resultado não pode ser salvo até que seja concluída a execução da consulta</value>
+    <value>O resultado não poderá ser salvo até a execução da consulta ser concluída</value>
   </data>
   <data name="QueryServiceSaveAsMiscStartingError" xml:space="preserve">
-    <value>Ocorreu um erro interno ao iniciar tarefa de salvamento</value>
+    <value>Ocorreu um erro interno ao iniciar o salvamento da tarefa</value>
   </data>
   <data name="QueryServiceSaveAsInProgress" xml:space="preserve">
     <value>Uma solicitação de salvamento para o mesmo caminho está em andamento</value>
@@ -229,22 +229,22 @@
     <value>Não é possível ler o subconjunto, a menos que os resultados tenham sido lidos do servidor</value>
   </data>
   <data name="QueryServiceResultSetStartRowOutOfRange" xml:space="preserve">
-    <value>Linha de início não pode ser menor que 0 ou maior que o número de linhas no conjunto de resultados</value>
+    <value>A linha de início não pode ser menor que 0 ou maior que o número de linhas no conjunto de resultados</value>
   </data>
   <data name="QueryServiceResultSetRowCountOutOfRange" xml:space="preserve">
-    <value>Contagem de linhas deve ser um inteiro positivo</value>
+    <value>A contagem de linhas deve ser um inteiro positivo</value>
   </data>
   <data name="QueryServiceResultSetNoColumnSchema" xml:space="preserve">
     <value>Não foi possível recuperar o esquema de colunas para o conjunto de resultados</value>
   </data>
   <data name="QueryServiceExecutionPlanNotFound" xml:space="preserve">
-    <value>Não foi possível recuperar um plano de execução do conjunto de resultados</value>
+    <value>Não foi possível recuperar um plano de execução do conjunto de resultados </value>
   </data>
   <data name="PeekDefinitionAzureError" xml:space="preserve">
-    <value>Esse recurso não é atualmente suportado no banco de dados de SQL Azure e Data Warehouse: {0}</value>
+    <value>No momento, esse recurso não é compatível com o Banco de Dados SQL do Azure e com o Data Warehouse: {0}</value>
   </data>
   <data name="PeekDefinitionError" xml:space="preserve">
-    <value>Ocorreu um erro inesperado durante a execução da inspeção da definição:</value>
+    <value>Ocorreu um erro inesperado durante a execução de Espiar Definição: {0}</value>
   </data>
   <data name="PeekDefinitionNoResultsError" xml:space="preserve">
     <value>Nenhum resultado foi encontrado.</value>
@@ -253,121 +253,34 @@
     <value>Nenhum objeto de banco de dados foi recuperado.</value>
   </data>
   <data name="PeekDefinitionNotConnectedError" xml:space="preserve">
-    <value>Favor conectar-se a um servidor.</value>
+    <value>Conecte-se a um servidor.</value>
   </data>
   <data name="PeekDefinitionTimedoutError" xml:space="preserve">
-    <value>Tempo limite da operação esgotado.</value>
+    <value>Tempo limite da operação atingido.</value>
   </data>
   <data name="PeekDefinitionTypeNotSupportedError" xml:space="preserve">
-    <value>Este tipo de objeto não é suportado atualmente por esse recurso.</value>
+    <value>No momento, este tipo de objeto não é compatível com esse recurso.</value>
   </data>
   <data name="WorkspaceServicePositionLineOutOfRange" xml:space="preserve">
-    <value>Posição está fora do intervalo de linhas do arquivo</value>
+    <value>A posição está fora do intervalo de linhas do arquivo</value>
   </data>
   <data name="WorkspaceServicePositionColumnOutOfRange" xml:space="preserve">
-    <value>A posição está fora do intervalo de colunas para linha {0}</value>
+    <value>A posição está fora do intervalo de colunas para a linha {0}</value>
   </data>
   <data name="WorkspaceServiceBufferPositionOutOfOrder" xml:space="preserve">
-    <value>Posição inicial ({0}, {1}) deve vir antes ou ser igual a posição final ({2}, {3})</value>
-  </data>
-  <data name="EE_BatchSqlMessageNoProcedureInfo" xml:space="preserve">
-    <value>Msg {0}, Nível {1}, Estado {2}, Linha {3}</value>
-  </data>
-  <data name="EE_BatchSqlMessageWithProcedureInfo" xml:space="preserve">
-    <value>Msg {0}, Nível {1}, Estado {2}, Procedimento {3}, Linha {4}</value>
-  </data>
-  <data name="EE_BatchSqlMessageNoLineInfo" xml:space="preserve">
-    <value>Msg {0}, Nível {1}, Estado {2}</value>
-  </data>
-  <data name="EE_BatchError_Exception" xml:space="preserve">
-    <value>Ocorreu um erro durante o processamento do lote. A mensagem de erro é: {0}</value>
-  </data>
-  <data name="EE_BatchExecutionInfo_RowsAffected" xml:space="preserve">
-    <value>({0} linhas afetadas)</value>
-  </data>
-  <data name="EE_ExecutionNotYetCompleteError" xml:space="preserve">
-    <value>Execução anterior ainda não foi concluída.</value>
-  </data>
-  <data name="EE_ScriptError_Error" xml:space="preserve">
-    <value>Ocorreu um erro de script.</value>
-  </data>
-  <data name="EE_ScriptError_ParsingSyntax" xml:space="preserve">
-    <value>Sintaxe incorreta foi encontrada enquanto {0} estava sendo analisado.</value>
-  </data>
-  <data name="EE_ScriptError_FatalError" xml:space="preserve">
-    <value>Ocorreu um erro fatal.</value>
-  </data>
-  <data name="EE_ExecutionInfo_FinalizingLoop" xml:space="preserve">
-    <value>Execução concluída {0} vezes...</value>
-  </data>
-  <data name="EE_ExecutionInfo_QueryCancelledbyUser" xml:space="preserve">
-    <value>Você cancelou a consulta.</value>
-  </data>
-  <data name="EE_BatchExecutionError_Halting" xml:space="preserve">
-    <value>Ocorreu um erro enquanto o lote estava sendo executado.</value>
-  </data>
-  <data name="EE_BatchExecutionError_Ignoring" xml:space="preserve">
-    <value>Ocorreu um erro enquanto o lote estava sendo executado, mas o erro foi ignorado.</value>
-  </data>
-  <data name="EE_ExecutionInfo_InitializingLoop" xml:space="preserve">
-    <value>Beginning execution loop</value>
-  </data>
-  <data name="EE_ExecutionError_CommandNotSupported" xml:space="preserve">
-    <value>Comando {0} não é suportado.</value>
-  </data>
-  <data name="EE_ExecutionError_VariableNotFound" xml:space="preserve">
-    <value>A variável {0} não pôde ser encontrada.</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineError" xml:space="preserve">
-    <value>Erro de execução de SQL: {0}</value>
-  </data>
-  <data name="BatchParserWrapperExecutionError" xml:space="preserve">
-    <value>Execução do pacote do analisador de lotes: {0} encontrado... na linha {1}: {2} Descrição: {3} </value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchMessage" xml:space="preserve">
-    <value>Mensagem recebida do motor de execução do pacote do analisador de lotes: Mensagem: {0} Mensagem detalhada: {1}</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchResultSetProcessing" xml:space="preserve">
-    <value>Processando o conjunto de resultados no motor de execução do pacote do analisador de lotes: DataReader.FieldCount: {0} DataReader.RecordsAffected: {1}</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchResultSetFinished" xml:space="preserve">
-    <value>Execução do conjunto de resultados do motor de execução de pacotes do analisador de lotes terminada.</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchCancelling" xml:space="preserve">
-    <value>Cancelando execução do conjunto de resultados do motor de execução de pacotes do analisador de lotes.</value>
-  </data>
-  <data name="EE_ScriptError_Warning" xml:space="preserve">
-    <value>Aviso de script.</value>
-  </data>
-  <data name="TroubleshootingAssistanceMessage" xml:space="preserve">
-    <value>Para obter mais informações sobre esse erro, consulte os tópicos de solução de problemas na documentação do produto.</value>
-  </data>
-  <data name="BatchParser_CircularReference" xml:space="preserve">
-    <value>Arquivo '{0}' incluído recursivamente.</value>
-  </data>
-  <data name="BatchParser_CommentNotTerminated" xml:space="preserve">
-    <value>Sem marca de comentário final ' * /'.</value>
-  </data>
-  <data name="BatchParser_StringNotTerminated" xml:space="preserve">
-    <value>Aspas não fechadas depois da sequência de caracteres.</value>
-  </data>
-  <data name="BatchParser_IncorrectSyntax" xml:space="preserve">
-    <value>Sintaxe incorreta foi encontrada enquanto {0} estava sendo analisado.</value>
-  </data>
-  <data name="BatchParser_VariableNotDefined" xml:space="preserve">
-    <value>A variável {0} não está definida.</value>
+    <value>A posição inicial ({0}, {1}) deve vir antes ou ser igual à posição final ({2}, {3})</value>
   </data>
   <data name="TestLocalizationConstant" xml:space="preserve">
     <value>teste</value>
   </data>
   <data name="ErrorEmptyStringReplacement" xml:space="preserve">
-    <value>Substituição de uma sequência vazia por uma cadeia de caracteres vazia.</value>
+    <value>Substituição de uma cadeia de caracteres vazia por uma cadeia de caracteres vazia.</value>
   </data>
   <data name="EditDataSessionNotFound" xml:space="preserve">
-    <value>Sessão de edição não existe.</value>
+    <value>A sessão de edição não existe.</value>
   </data>
   <data name="EditDataQueryNotCompleted" xml:space="preserve">
-    <value>A consulta não completou a execução</value>
+    <value>A consulta não concluiu a execução</value>
   </data>
   <data name="EditDataQueryImproperResultSets" xml:space="preserve">
     <value>A consulta não gerou exatamente um conjunto de resultados</value>
@@ -376,139 +289,139 @@
     <value>Falha ao adicionar uma nova linha ao cache de atualização</value>
   </data>
   <data name="EditDataRowOutOfRange" xml:space="preserve">
-    <value>ID de linha de entrada fora da faixa de linhas no cache de edição</value>
+    <value>A ID de linha informada está fora do intervalo de linhas no cache de edição</value>
   </data>
   <data name="EditDataUpdatePending" xml:space="preserve">
-    <value>Uma atualização está ainda pendente para esta linha e deve ser revertida antes</value>
+    <value>Há uma atualização pendente para esta linha e ela deve ser revertida antes</value>
   </data>
   <data name="EditDataUpdateNotPending" xml:space="preserve">
-    <value>Não existem atualizações pendentes para o ID informado.</value>
+    <value>Não há atualizações pendentes para a ID de linha informada</value>
   </data>
   <data name="EditDataObjectMetadataNotFound" xml:space="preserve">
-    <value>Tabela ou view de metadados não pode ser encontrada</value>
+    <value>Não foi possível encontrar metadados de exibição ou de tabela</value>
   </data>
   <data name="EditDataInvalidFormatBinary" xml:space="preserve">
-    <value>Formato inválido para coluna binária</value>
+    <value>Formato inválido para a coluna binária</value>
   </data>
   <data name="EditDataInvalidFormatBoolean" xml:space="preserve">
-    <value>Colunas Booleanas devem possuir o número 1 ou 0 ou a string true ou false</value>
+    <value>Os valores permitidos para as colunas boolianas são 0, 1, "true" ou "false"</value>
   </data>
   <data name="EditDataCreateScriptMissingValue" xml:space="preserve">
-    <value>Um valor requerido para a célula está faltando</value>
+    <value>A coluna '{0}' está definida como NOT NULL, mas não teve um valor atribuído</value>
   </data>
   <data name="EditDataDeleteSetCell" xml:space="preserve">
-    <value>Uma exclusão está pendente para esta linha. Uma atualização desta célula não pode ser aplicada.</value>
+    <value>Uma exclusão está pendente para esta linha. Não foi possível aplicar uma atualização desta célula.</value>
   </data>
   <data name="EditDataColumnIdOutOfRange" xml:space="preserve">
-    <value>Um ID de coluna deve estar no intervalo de colunas para a consulta</value>
+    <value>Uma ID de coluna deve estar no intervalo de colunas para a consulta</value>
   </data>
   <data name="EditDataColumnCannotBeEdited" xml:space="preserve">
-    <value>Coluna não pode ser editada</value>
+    <value>A coluna não pode ser editada</value>
   </data>
   <data name="EditDataColumnNoKeyColumns" xml:space="preserve">
-    <value>Não foram encontradas colunas chave</value>
+    <value>Não foram encontradas colunas de chave</value>
   </data>
   <data name="EditDataScriptFilePathNull" xml:space="preserve">
     <value>Um nome de arquivo de saída deve ser fornecido</value>
   </data>
   <data name="EditDataUnsupportedObjectType" xml:space="preserve">
-    <value>O objecto de banco de dados {0} não pode ser usado para edição.</value>
+    <value>O objeto de banco de dados {0} não pode ser usado para edição.</value>
   </data>
   <data name="ConnectionServiceDbErrorDefaultNotConnected" xml:space="preserve">
-    <value>A URI especificada '{0}' não tem uma conexão padrão</value>
+    <value>O URI '{0}' especificado não tem uma conexão padrão</value>
   </data>
   <data name="EditDataCommitInProgress" xml:space="preserve">
-    <value>Uma tarefa de gravação está em progresso. Favor aguardar o térnino.</value>
+    <value>Uma tarefa de commit está em andamento. Aguarde a conclusão.</value>
   </data>
   <data name="SqlScriptFormatterDecimalMissingPrecision" xml:space="preserve">
-    <value>Coluna decimal não tem precisão numérica ou escala numérica</value>
+    <value>A coluna decimal informada está sem precisão numérica ou escala numérica</value>
   </data>
   <data name="EditDataComputedColumnPlaceholder" xml:space="preserve">
     <value>&lt;TBD&gt;</value>
   </data>
   <data name="QueryServiceResultSetAddNoRows" xml:space="preserve">
-    <value>Não é possível adicionar linha ao buffer de resultados, o datareader não contém linhas</value>
+    <value>Não é possível adicionar a linha ao buffer de resultados. O leitor de dados não contém linhas</value>
   </data>
   <data name="EditDataTimeOver24Hrs" xml:space="preserve">
-    <value>Os valores da coluna do tipo de dados TIME devem estar entre 00:00:00.0000000 e 23:59:59.9999999</value>
+    <value>Os valores da coluna TIME devem estar entre 00:00:00.0000000 e 23:59:59.9999999</value>
   </data>
   <data name="EditDataNullNotAllowed" xml:space="preserve">
-    <value>Nulo não é permitido para esta coluna.</value>
+    <value>NULL não é permitido para esta coluna</value>
   </data>
   <data name="EditDataSessionAlreadyExists" xml:space="preserve">
-    <value>Sessão de edição já existe.</value>
+    <value>A sessão de edição já existe.</value>
   </data>
   <data name="EditDataSessionNotInitialized" xml:space="preserve">
-    <value>Sessão de edição não foi inicializada</value>
+    <value>A sessão de edição não foi inicializada</value>
   </data>
   <data name="EditDataSessionAlreadyInitialized" xml:space="preserve">
-    <value>Sessão de edição já foi inicializada</value>
+    <value>A sessão de edição já foi inicializada</value>
   </data>
   <data name="EditDataSessionAlreadyInitializing" xml:space="preserve">
-    <value>Sessão de edição já foi inicializada ou está em processo de inicialização</value>
+    <value>A sessão de edição já foi inicializada ou está em processo de inicialização</value>
   </data>
   <data name="EditDataQueryFailed" xml:space="preserve">
-    <value>A execução da consulta falhou, veja as mensagens para detalhes</value>
+    <value>A execução da consulta falhou. Consulte as mensagens para mais detalhes</value>
   </data>
   <data name="EditDataFilteringNegativeLimit" xml:space="preserve">
-    <value>Limite de resultados não pode ser negativo</value>
+    <value>O limite de resultados não pode ser negativo</value>
   </data>
   <data name="QueryServiceCellNull" xml:space="preserve">
     <value>NULL</value>
   </data>
   <data name="EditDataMetadataObjectNameRequired" xml:space="preserve">
-    <value>O nome do objeto deve ser fornecido.</value>
+    <value>Um nome do objeto deve ser fornecido</value>
   </data>
   <data name="EditDataMetadataTooManyIdentifiers" xml:space="preserve">
-    <value>O servidor ou banco de dados especificado  não é suportado.</value>
+    <value>O servidor ou banco de dados especificado não é compatível</value>
   </data>
   <data name="EditDataMetadataNotExtended" xml:space="preserve">
-    <value>Metadados da tabela não possuem propriedades extendidas</value>
+    <value>Os metadados da tabela não têm propriedades estendidas</value>
   </data>
   <data name="EditDataObjectNotFound" xml:space="preserve">
-    <value>Tabela ou view requisitada para edição não foi encontrada</value>
+    <value>A tabela ou exibição solicitada para edição não foi encontrada</value>
   </data>
   <data name="TreeNodeError" xml:space="preserve">
-    <value>Erro expandindo: {0}</value>
+    <value>Erro ao expandir: {0}</value>
   </data>
   <data name="ServerNodeConnectionError" xml:space="preserve">
-    <value>Erro conectando a {0}</value>
+    <value>Erro ao se conectar a {0}</value>
   </data>
   <data name="SchemaHierarchy_Aggregates" xml:space="preserve">
-    <value>Agregados</value>
+    <value>Agregações</value>
   </data>
   <data name="SchemaHierarchy_ServerRoles" xml:space="preserve">
-    <value>Funcões de Servidor</value>
+    <value>Funções de servidor</value>
   </data>
   <data name="SchemaHierarchy_ApplicationRoles" xml:space="preserve">
-    <value>Funções de Aplicação</value>
+    <value>Funções de aplicativo</value>
   </data>
   <data name="SchemaHierarchy_Assemblies" xml:space="preserve">
     <value>Assemblies</value>
   </data>
   <data name="SchemaHierarchy_AssemblyFiles" xml:space="preserve">
-    <value>Arquivos de Assemblies</value>
+    <value>Arquivos do assembly</value>
   </data>
   <data name="SchemaHierarchy_AsymmetricKeys" xml:space="preserve">
-    <value>Chaves Assimétricas</value>
+    <value>Chaves assimétricas</value>
   </data>
   <data name="SchemaHierarchy_DatabaseAsymmetricKeys" xml:space="preserve">
-    <value>Chaves Assimétricas</value>
+    <value>Chaves assimétricas</value>
   </data>
   <data name="SchemaHierarchy_DataCompressionOptions" xml:space="preserve">
-    <value>Opções de Compressão de Dados</value>
+    <value>Opções de compactação de dados</value>
   </data>
   <data name="SchemaHierarchy_Certificates" xml:space="preserve">
     <value>Certificados</value>
   </data>
   <data name="SchemaHierarchy_FileTables" xml:space="preserve">
-    <value>Tabelas de Arquivos</value>
+    <value>FileTables</value>
   </data>
   <data name="SchemaHierarchy_DatabaseCertificates" xml:space="preserve">
     <value>Certificados</value>
   </data>
   <data name="SchemaHierarchy_CheckConstraints" xml:space="preserve">
-    <value>Verificação de Restrições</value>
+    <value>Restrições de verificação</value>
   </data>
   <data name="SchemaHierarchy_Columns" xml:space="preserve">
     <value>Colunas</value>
@@ -523,26 +436,25 @@
     <value>Credenciais</value>
   </data>
   <data name="SchemaHierarchy_ErrorMessages" xml:space="preserve">
-    <value>Mensagens de Erro</value>
+    <value>Mensagens de erro</value>
   </data>
   <data name="SchemaHierarchy_ServerRoleMembership" xml:space="preserve">
-    <value>Adesão às Funções de Servidor</value>
+    <value>Associação de função de servidor</value>
   </data>
   <data name="SchemaHierarchy_DatabaseOptions" xml:space="preserve">
-    <value>Opções de Banco de Dados</value>
+    <value>Opções do banco de dados</value>
   </data>
   <data name="SchemaHierarchy_DatabaseRoles" xml:space="preserve">
-    <value>Funções de Bancos de Dados</value>
+    <value>Funções do banco de dados</value>
   </data>
   <data name="SchemaHierarchy_RoleMemberships" xml:space="preserve">
-    <value>Adesão às Funções</value>
+    <value>Associações da função</value>
   </data>
   <data name="SchemaHierarchy_DatabaseTriggers" xml:space="preserve">
-    <value>Gatilhos de Bancos de Dados
-</value>
+    <value>Gatilhos do banco de dados</value>
   </data>
   <data name="SchemaHierarchy_DefaultConstraints" xml:space="preserve">
-    <value>Restrições Padrão</value>
+    <value>Restrições padrão</value>
   </data>
   <data name="SchemaHierarchy_Defaults" xml:space="preserve">
     <value>Padrões</value>
@@ -551,28 +463,28 @@
     <value>Sequências</value>
   </data>
   <data name="SchemaHierarchy_Endpoints" xml:space="preserve">
-    <value>Pontos finais</value>
+    <value>Pontos de extremidade</value>
   </data>
   <data name="SchemaHierarchy_EventNotifications" xml:space="preserve">
-    <value>Notificações de Eventos</value>
+    <value>Notificações de eventos</value>
   </data>
   <data name="SchemaHierarchy_ServerEventNotifications" xml:space="preserve">
-    <value>Notificações de Eventos de Servidor</value>
+    <value>Notificações de eventos do servidor</value>
   </data>
   <data name="SchemaHierarchy_ExtendedProperties" xml:space="preserve">
-    <value>Propriedades Extendidas</value>
+    <value>Propriedades estendidas</value>
   </data>
   <data name="SchemaHierarchy_FileGroups" xml:space="preserve">
-    <value>Grupos de Arquivos</value>
+    <value>Grupos de arquivos</value>
   </data>
   <data name="SchemaHierarchy_ForeignKeys" xml:space="preserve">
-    <value>Chaves Estrangeiras</value>
+    <value>Chaves estrangeiras</value>
   </data>
   <data name="SchemaHierarchy_FullTextCatalogs" xml:space="preserve">
-    <value>Catálogos Full-Text</value>
+    <value>Catálogos de texto completo</value>
   </data>
   <data name="SchemaHierarchy_FullTextIndexes" xml:space="preserve">
-    <value>Índices Full-Text</value>
+    <value>Índices de texto completo</value>
   </data>
   <data name="SchemaHierarchy_Functions" xml:space="preserve">
     <value>Funções</value>
@@ -581,7 +493,7 @@
     <value>Índices</value>
   </data>
   <data name="SchemaHierarchy_InlineFunctions" xml:space="preserve">
-    <value>Funções em Linha</value>
+    <value>Funções embutidas</value>
   </data>
   <data name="SchemaHierarchy_Keys" xml:space="preserve">
     <value>Chaves</value>
@@ -590,49 +502,49 @@
     <value>Servidores vinculados</value>
   </data>
   <data name="SchemaHierarchy_LinkedServerLogins" xml:space="preserve">
-    <value>Logins de servidores vinculados</value>
+    <value>Logons de servidor vinculado</value>
   </data>
   <data name="SchemaHierarchy_Logins" xml:space="preserve">
-    <value>Logins</value>
+    <value>Logons</value>
   </data>
   <data name="SchemaHierarchy_MasterKey" xml:space="preserve">
-    <value>Master key</value>
+    <value>Chave mestra</value>
   </data>
   <data name="SchemaHierarchy_MasterKeys" xml:space="preserve">
-    <value>Master Keys</value>
+    <value>Chaves mestras</value>
   </data>
   <data name="SchemaHierarchy_MessageTypes" xml:space="preserve">
-    <value>Tipos de Mensagens</value>
+    <value>Tipos de mensagem</value>
   </data>
   <data name="SchemaHierarchy_MultiSelectFunctions" xml:space="preserve">
-    <value>Funções de Valor de Tabelas</value>
+    <value>Funções com valor de tabela</value>
   </data>
   <data name="SchemaHierarchy_Parameters" xml:space="preserve">
     <value>Parâmetros</value>
   </data>
   <data name="SchemaHierarchy_PartitionFunctions" xml:space="preserve">
-    <value>Funções de Partição</value>
+    <value>Funções de partição</value>
   </data>
   <data name="SchemaHierarchy_PartitionSchemes" xml:space="preserve">
-    <value>Esquemas de Partição</value>
+    <value>Esquemas de partição</value>
   </data>
   <data name="SchemaHierarchy_Permissions" xml:space="preserve">
     <value>Permissões</value>
   </data>
   <data name="SchemaHierarchy_PrimaryKeys" xml:space="preserve">
-    <value>Chaves Primárias</value>
+    <value>Chaves primárias</value>
   </data>
   <data name="SchemaHierarchy_Programmability" xml:space="preserve">
-    <value>Programabilidade</value>
+    <value>Programação</value>
   </data>
   <data name="SchemaHierarchy_Queues" xml:space="preserve">
     <value>Filas</value>
   </data>
   <data name="SchemaHierarchy_RemoteServiceBindings" xml:space="preserve">
-    <value>Ligações de Serviço Remoto</value>
+    <value>Associações de serviço remoto</value>
   </data>
   <data name="SchemaHierarchy_ReturnedColumns" xml:space="preserve">
-    <value>Colunas Retornadas</value>
+    <value>Colunas retornadas</value>
   </data>
   <data name="SchemaHierarchy_Roles" xml:space="preserve">
     <value>Funções</value>
@@ -650,7 +562,7 @@
     <value>Segurança</value>
   </data>
   <data name="SchemaHierarchy_ServerObjects" xml:space="preserve">
-    <value>Objetos de Servidor</value>
+    <value>Objetos do servidor</value>
   </data>
   <data name="SchemaHierarchy_Management" xml:space="preserve">
     <value>Gerenciamento</value>
@@ -668,7 +580,7 @@
     <value>Assinaturas</value>
   </data>
   <data name="SchemaHierarchy_LogFiles" xml:space="preserve">
-    <value>Arquivos de Log</value>
+    <value>Arquivos de log</value>
   </data>
   <data name="SchemaHierarchy_Statistics" xml:space="preserve">
     <value>Estatísticas</value>
@@ -677,10 +589,10 @@
     <value>Armazenamento</value>
   </data>
   <data name="SchemaHierarchy_StoredProcedures" xml:space="preserve">
-    <value>Stored Procedures</value>
+    <value>Procedimentos armazenados</value>
   </data>
   <data name="SchemaHierarchy_SymmetricKeys" xml:space="preserve">
-    <value>Chaves Simétricas</value>
+    <value>Chaves simétricas</value>
   </data>
   <data name="SchemaHierarchy_Synonyms" xml:space="preserve">
     <value>Sinônimos</value>
@@ -695,265 +607,265 @@
     <value>Tipos</value>
   </data>
   <data name="SchemaHierarchy_UniqueKeys" xml:space="preserve">
-    <value>Chaves Únicas</value>
+    <value>Chaves exclusivas</value>
   </data>
   <data name="SchemaHierarchy_UserDefinedDataTypes" xml:space="preserve">
-    <value>Tipos de Dados Definidos pelo Usuário</value>
+    <value>Tipos de dados definidos pelo usuário</value>
   </data>
   <data name="SchemaHierarchy_UserDefinedTypes" xml:space="preserve">
-    <value>Tipos Definidos pelo Usuário (CLR)</value>
+    <value>CLR (Tipos Definidos pelo Usuário)</value>
   </data>
   <data name="SchemaHierarchy_Users" xml:space="preserve">
     <value>Usuários</value>
   </data>
   <data name="SchemaHierarchy_Views" xml:space="preserve">
-    <value>Visualizações</value>
+    <value>Exibições</value>
   </data>
   <data name="SchemaHierarchy_XmlIndexes" xml:space="preserve">
     <value>Índices XML</value>
   </data>
   <data name="SchemaHierarchy_XMLSchemaCollections" xml:space="preserve">
-    <value>Coleções de Esquemas XML</value>
+    <value>Coleções de esquema XML</value>
   </data>
   <data name="SchemaHierarchy_UserDefinedTableTypes" xml:space="preserve">
-    <value>Tipos de Tabelas Definidas pelo Usuário</value>
+    <value>Tipos de tabelas definidos pelo usuário</value>
   </data>
   <data name="SchemaHierarchy_FilegroupFiles" xml:space="preserve">
     <value>Arquivos</value>
   </data>
   <data name="MissingCaption" xml:space="preserve">
-    <value>Título Faltando</value>
+    <value>Legenda ausente</value>
   </data>
   <data name="SchemaHierarchy_BrokerPriorities" xml:space="preserve">
-    <value>Prioridades do Agente</value>
+    <value>Prioridades do agente</value>
   </data>
   <data name="SchemaHierarchy_CryptographicProviders" xml:space="preserve">
-    <value>Provedores de Criptografia</value>
+    <value>Provedores criptográficos</value>
   </data>
   <data name="SchemaHierarchy_DatabaseAuditSpecifications" xml:space="preserve">
-    <value>Especificações de Auditoria de Banco de Dados</value>
+    <value>Especificações de auditoria de banco de dados</value>
   </data>
   <data name="SchemaHierarchy_DatabaseEncryptionKeys" xml:space="preserve">
-    <value>Chaves de Criptografia de Banco de Dados</value>
+    <value>Chaves de criptografia de banco de dados</value>
   </data>
   <data name="SchemaHierarchy_EventSessions" xml:space="preserve">
-    <value>Sessões de Evento</value>
+    <value>Sessões de evento</value>
   </data>
   <data name="SchemaHierarchy_FullTextStopLists" xml:space="preserve">
-    <value>Listas de Parada Full Text</value>
+    <value>Listas de palavras irrelevantes de texto completo</value>
   </data>
   <data name="SchemaHierarchy_ResourcePools" xml:space="preserve">
-    <value>Pool de Recursos</value>
+    <value>Pools de recursos</value>
   </data>
   <data name="SchemaHierarchy_ServerAudits" xml:space="preserve">
     <value>Auditorias</value>
   </data>
   <data name="SchemaHierarchy_ServerAuditSpecifications" xml:space="preserve">
-    <value>Especificações de Auditoria de Servidor</value>
+    <value>Especificações de auditoria de servidor</value>
   </data>
   <data name="SchemaHierarchy_SpatialIndexes" xml:space="preserve">
-    <value>Índices Espaciais</value>
+    <value>Índices espaciais</value>
   </data>
   <data name="SchemaHierarchy_WorkloadGroups" xml:space="preserve">
-    <value>Grupos de Trabalho</value>
+    <value>Grupos de carga de trabalho</value>
   </data>
   <data name="SchemaHierarchy_SqlFiles" xml:space="preserve">
     <value>Arquivos SQL</value>
   </data>
   <data name="SchemaHierarchy_ServerFunctions" xml:space="preserve">
-    <value>Funções de Servidor</value>
+    <value>Funções de servidor</value>
   </data>
   <data name="SchemaHierarchy_SqlType" xml:space="preserve">
     <value>Tipo SQL</value>
   </data>
   <data name="SchemaHierarchy_ServerOptions" xml:space="preserve">
-    <value>Opções de Servidor</value>
+    <value>Opções de servidor</value>
   </data>
   <data name="SchemaHierarchy_DatabaseDiagrams" xml:space="preserve">
-    <value>Diagramas de Banco de Dados</value>
+    <value>Diagramas de banco de dados</value>
   </data>
   <data name="SchemaHierarchy_SystemTables" xml:space="preserve">
-    <value>Tabelas do Sistema</value>
+    <value>Tabelas do sistema</value>
   </data>
   <data name="SchemaHierarchy_Databases" xml:space="preserve">
-    <value>Bancos de Dados</value>
+    <value>Bancos de dados</value>
   </data>
   <data name="SchemaHierarchy_SystemContracts" xml:space="preserve">
-    <value>Contratos do Sistema</value>
+    <value>Contratos do sistema</value>
   </data>
   <data name="SchemaHierarchy_SystemDatabases" xml:space="preserve">
-    <value>Bancos de Dados do Sistema</value>
+    <value>Bancos de dados do sistema</value>
   </data>
   <data name="SchemaHierarchy_SystemMessageTypes" xml:space="preserve">
-    <value>Tipos de Mensagens do Sistema</value>
+    <value>Tipos de mensagens do sistema</value>
   </data>
   <data name="SchemaHierarchy_SystemQueues" xml:space="preserve">
-    <value>Filas do Sistema</value>
+    <value>Filas do sistema</value>
   </data>
   <data name="SchemaHierarchy_SystemServices" xml:space="preserve">
-    <value>Serviços do Sistema</value>
+    <value>Serviços do sistema</value>
   </data>
   <data name="SchemaHierarchy_SystemStoredProcedures" xml:space="preserve">
-    <value>Stored Procedures do Sistema</value>
+    <value>Procedimentos armazenados do sistema</value>
   </data>
   <data name="SchemaHierarchy_SystemViews" xml:space="preserve">
-    <value>Visualizações do Sistema</value>
+    <value>Exibições do sistema</value>
   </data>
   <data name="SchemaHierarchy_DataTierApplications" xml:space="preserve">
-    <value>Aplicações da Camada de Dados</value>
+    <value>Aplicativos da camada de dados</value>
   </data>
   <data name="SchemaHierarchy_ExtendedStoredProcedures" xml:space="preserve">
-    <value>Stored Procedures Estendidas</value>
+    <value>Procedimentos armazenados estendidos</value>
   </data>
   <data name="SchemaHierarchy_SystemAggregateFunctions" xml:space="preserve">
-    <value>Funções Agregadas</value>
+    <value>Funções de agregação</value>
   </data>
   <data name="SchemaHierarchy_SystemApproximateNumerics" xml:space="preserve">
-    <value>Numéricos Aproximados</value>
+    <value>Numéricos aproximados</value>
   </data>
   <data name="SchemaHierarchy_SystemBinaryStrings" xml:space="preserve">
-    <value>Cadeias de Caracteres Binárias</value>
+    <value>Cadeias de caracteres binárias</value>
   </data>
   <data name="SchemaHierarchy_SystemCharacterStrings" xml:space="preserve">
-    <value>Cadeias de Caracteres</value>
+    <value>Cadeias de caracteres</value>
   </data>
   <data name="SchemaHierarchy_SystemCLRDataTypes" xml:space="preserve">
-    <value>Tipos de Dados CLR</value>
+    <value>Tipos de dados CLR</value>
   </data>
   <data name="SchemaHierarchy_SystemConfigurationFunctions" xml:space="preserve">
-    <value>Funções de Configuração</value>
+    <value>Funções de configuração</value>
   </data>
   <data name="SchemaHierarchy_SystemCursorFunctions" xml:space="preserve">
-    <value>Funções de Cursor</value>
+    <value>Funções de cursor</value>
   </data>
   <data name="SchemaHierarchy_SystemDataTypes" xml:space="preserve">
-    <value>Tipos de Dados do Sistema</value>
+    <value>Tipos de dados do sistema</value>
   </data>
   <data name="SchemaHierarchy_SystemDateAndTime" xml:space="preserve">
     <value>Data e Hora</value>
   </data>
   <data name="SchemaHierarchy_SystemDateAndTimeFunctions" xml:space="preserve">
-    <value>Funções de Data e Hora</value>
+    <value>Funções de data e hora</value>
   </data>
   <data name="SchemaHierarchy_SystemExactNumerics" xml:space="preserve">
-    <value>Numéricos Exatos</value>
+    <value>Numéricos exatos</value>
   </data>
   <data name="SchemaHierarchy_SystemFunctions" xml:space="preserve">
-    <value>Funções do Sistema</value>
+    <value>Funções do sistema</value>
   </data>
   <data name="SchemaHierarchy_SystemHierarchyIdFunctions" xml:space="preserve">
-    <value>Funções de ID de Hierarquia</value>
+    <value>Funções de ID de hierarquia</value>
   </data>
   <data name="SchemaHierarchy_SystemMathematicalFunctions" xml:space="preserve">
-    <value>Funções Matemáticas</value>
+    <value>Funções matemáticas</value>
   </data>
   <data name="SchemaHierarchy_SystemMetadataFunctions" xml:space="preserve">
-    <value>Funções de Metadados</value>
+    <value>Funções de metadados</value>
   </data>
   <data name="SchemaHierarchy_SystemOtherDataTypes" xml:space="preserve">
-    <value>Outros tipos de Dados</value>
+    <value>Outros tipos de dados</value>
   </data>
   <data name="SchemaHierarchy_SystemOtherFunctions" xml:space="preserve">
-    <value>Outras Funções</value>
+    <value>Outras funções</value>
   </data>
   <data name="SchemaHierarchy_SystemRowsetFunctions" xml:space="preserve">
-    <value>Funções de Conjuntos de Linhas</value>
+    <value>Funções de conjunto de linhas</value>
   </data>
   <data name="SchemaHierarchy_SystemSecurityFunctions" xml:space="preserve">
-    <value>Funções de Segurança</value>
+    <value>Funções de segurança</value>
   </data>
   <data name="SchemaHierarchy_SystemSpatialDataTypes" xml:space="preserve">
-    <value>Tipos de Dados Espaciais</value>
+    <value>Tipos de dados espaciais</value>
   </data>
   <data name="SchemaHierarchy_SystemStringFunctions" xml:space="preserve">
-    <value>Funções de Cadeias de Caracteres</value>
+    <value>Funções de cadeia de caracteres</value>
   </data>
   <data name="SchemaHierarchy_SystemSystemStatisticalFunctions" xml:space="preserve">
-    <value>Funções Estatísticas do Sistema</value>
+    <value>Funções estatísticas do sistema</value>
   </data>
   <data name="SchemaHierarchy_SystemTextAndImageFunctions" xml:space="preserve">
-    <value>Funções de Texto e Imagem</value>
+    <value>Funções de texto e imagem</value>
   </data>
   <data name="SchemaHierarchy_SystemUnicodeCharacterStrings" xml:space="preserve">
-    <value>Cadeias de Caracteres Unicode</value>
+    <value>Cadeias de caracteres Unicode</value>
   </data>
   <data name="SchemaHierarchy_AggregateFunctions" xml:space="preserve">
-    <value>Funções Agregadas</value>
+    <value>Funções de agregação</value>
   </data>
   <data name="SchemaHierarchy_ScalarValuedFunctions" xml:space="preserve">
-    <value>Funções de Valores Escalares</value>
+    <value>Funções de valor escalar</value>
   </data>
   <data name="SchemaHierarchy_TableValuedFunctions" xml:space="preserve">
-    <value>Funções de Valores Baseadas em Tabelas</value>
+    <value>Funções com valor de tabela</value>
   </data>
   <data name="SchemaHierarchy_SystemExtendedStoredProcedures" xml:space="preserve">
-    <value>Stored Procedures do Sistema Estendidas </value>
+    <value>Procedimentos armazenados estendidos do sistema</value>
   </data>
   <data name="SchemaHierarchy_BuiltInType" xml:space="preserve">
-    <value>Tipos Intrínsecos</value>
+    <value>Tipos internos</value>
   </data>
   <data name="SchemaHierarchy_BuiltInServerRole" xml:space="preserve">
-    <value>Funções de Servidor Intrínsecas</value>
+    <value>Funções de servidor internas</value>
   </data>
   <data name="SchemaHierarchy_UserWithPassword" xml:space="preserve">
-    <value>Usuário com Senha</value>
+    <value>Usuário com senha</value>
   </data>
   <data name="SchemaHierarchy_SearchPropertyList" xml:space="preserve">
-    <value>Pesquisar Lista de Propriedades</value>
+    <value>Lista de propriedades de pesquisa</value>
   </data>
   <data name="SchemaHierarchy_SecurityPolicies" xml:space="preserve">
-    <value>Políticas de Segurança</value>
+    <value>Políticas de segurança</value>
   </data>
   <data name="SchemaHierarchy_SecurityPredicates" xml:space="preserve">
-    <value>Predicados de Segurança</value>
+    <value>Predicados de segurança</value>
   </data>
   <data name="SchemaHierarchy_ServerRole" xml:space="preserve">
-    <value>Função de Servidor</value>
+    <value>Função de servidor</value>
   </data>
   <data name="SchemaHierarchy_SearchPropertyLists" xml:space="preserve">
-    <value>Pesquisar Listas de Propriedades</value>
+    <value>Listas de propriedades de pesquisa</value>
   </data>
   <data name="SchemaHierarchy_ColumnStoreIndexes" xml:space="preserve">
-    <value>Índices de Colunas</value>
+    <value>Índices do repositório de coluna</value>
   </data>
   <data name="SchemaHierarchy_TableTypeIndexes" xml:space="preserve">
-    <value>Índices de Tipos de Tabelas</value>
+    <value>Índices de tipo de tabela</value>
   </data>
   <data name="SchemaHierarchy_SelectiveXmlIndexes" xml:space="preserve">
-    <value>Índices XML Seletivos</value>
+    <value>Índices XML seletivos</value>
   </data>
   <data name="SchemaHierarchy_XmlNamespaces" xml:space="preserve">
     <value>Namespaces XML</value>
   </data>
   <data name="SchemaHierarchy_XmlTypedPromotedPaths" xml:space="preserve">
-    <value>Caminhos Promovidos de Tipos XML</value>
+    <value>Caminhos promovidos tipados XML</value>
   </data>
   <data name="SchemaHierarchy_SqlTypedPromotedPaths" xml:space="preserve">
-    <value>Caminhos Promovidos de Tipos T-SQL</value>
+    <value>Caminhos promovidos tipados T-SQL</value>
   </data>
   <data name="SchemaHierarchy_DatabaseScopedCredentials" xml:space="preserve">
-    <value>Credenciais de Escopo de Banco de Dados</value>
+    <value>Credenciais no escopo do banco de dados</value>
   </data>
   <data name="SchemaHierarchy_ExternalDataSources" xml:space="preserve">
-    <value>Fontes de Dados Externas</value>
+    <value>Fontes de dados externas</value>
   </data>
   <data name="SchemaHierarchy_ExternalFileFormats" xml:space="preserve">
-    <value>Formatos de Arquivos Externos</value>
+    <value>Formatos de arquivo externos</value>
   </data>
   <data name="SchemaHierarchy_ExternalResources" xml:space="preserve">
-    <value>Recursos Externos</value>
+    <value>Recursos externos</value>
   </data>
   <data name="SchemaHierarchy_ExternalTables" xml:space="preserve">
-    <value>Tabelas Externas</value>
+    <value>Tabelas externas</value>
   </data>
   <data name="SchemaHierarchy_AlwaysEncryptedKeys" xml:space="preserve">
-    <value>Chaves Sempre Criptografadas</value>
+    <value>Chaves Always Encrypted</value>
   </data>
   <data name="SchemaHierarchy_ColumnMasterKeys" xml:space="preserve">
-    <value>Chaves Mestras de Colunas</value>
+    <value>Chaves mestras de coluna</value>
   </data>
   <data name="SchemaHierarchy_ColumnEncryptionKeys" xml:space="preserve">
-    <value>Chaves de Criptografia de Colunas</value>
+    <value>Chaves de criptografia de coluna</value>
   </data>
   <data name="SchemaHierarchy_Server" xml:space="preserve">
     <value>Servidor</value>
@@ -980,10 +892,10 @@
     <value>Entrada/Saída</value>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterInputReadOnlyLabel" xml:space="preserve">
-    <value>Entrada/SomenteLeitura</value>
+    <value>Entrada/ReadOnly</value>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterInputOutputReadOnlyLabel" xml:space="preserve">
-    <value>Entrada/Saída/SomenteLeitura</value>
+    <value>Entrada/Saída/ReadOnly</value>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterDefaultLabel" xml:space="preserve">
     <value>Padrão</value>
@@ -1001,382 +913,46 @@
     <value>{0} ({1})</value>
   </data>
   <data name="SchemaHierarchy_ComputedColumnLabelWithType" xml:space="preserve">
-    <value>{0} ({1} Computado, {2}, {3})</value>
+    <value>{0} ({1}Computado, {2}, {3})</value>
   </data>
   <data name="SchemaHierarchy_ComputedColumnLabelWithoutType" xml:space="preserve">
     <value>{0} ({1}Computado)</value>
   </data>
   <data name="SchemaHierarchy_ColumnSetLabelWithoutType" xml:space="preserve">
-    <value>{0} (Conjunto de Colunas, {1})</value>
+    <value>{0} (Conjunto de colunas, {1})</value>
   </data>
   <data name="SchemaHierarchy_ColumnSetLabelWithType" xml:space="preserve">
-    <value>{0} (Conjunto de Colunas, {1}{2}, {3})</value>
+    <value>{0} (Conjunto de colunas, {1}{2}, {3})</value>
   </data>
   <data name="SchemaHierarchy_ColumnSetLabelWithTypeAndKeyString" xml:space="preserve">
-    <value>{0} (Conjunto de Colunas, {1}, {2}, {3})</value>
+    <value>{0} (Conjunto de colunas, {1}, {2}, {3})</value>
   </data>
   <data name="UniqueIndex_LabelPart" xml:space="preserve">
     <value>Exclusivo</value>
   </data>
   <data name="NonUniqueIndex_LabelPart" xml:space="preserve">
-    <value>Não Exclusivo</value>
+    <value>Não exclusivo</value>
   </data>
   <data name="ClusteredIndex_LabelPart" xml:space="preserve">
     <value>Clusterizado</value>
   </data>
   <data name="NonClusteredIndex_LabelPart" xml:space="preserve">
-    <value>Não Clusterizado</value>
+    <value>Não clusterizado</value>
   </data>
   <data name="History_LabelPart" xml:space="preserve">
     <value>Histórico</value>
   </data>
   <data name="SystemVersioned_LabelPart" xml:space="preserve">
-    <value>Versionado pelo sistema</value>
-  </data>
-  <data name="unavailable" xml:space="preserve">
-    <value>Indisponível</value>
-  </data>
-  <data name="filegroup_dialog_defaultFilegroup" xml:space="preserve">
-    <value>Grupo de arquivos padrão atual: {0}</value>
-  </data>
-  <data name="filegroup_dialog_title" xml:space="preserve">
-    <value>Novo Grupo de Arquivos para {0}</value>
-  </data>
-  <data name="filegroups_default" xml:space="preserve">
-    <value>Padrão</value>
-  </data>
-  <data name="filegroups_files" xml:space="preserve">
-    <value>Arquivos</value>
-  </data>
-  <data name="filegroups_name" xml:space="preserve">
-    <value>Nome</value>
-  </data>
-  <data name="filegroups_readonly" xml:space="preserve">
-    <value>Somente Leitura</value>
-  </data>
-  <data name="general_autogrowth" xml:space="preserve">
-    <value>Auto crescimento / Tamanho máximo</value>
-  </data>
-  <data name="general_builderText" xml:space="preserve">
-    <value>...</value>
-  </data>
-  <data name="general_default" xml:space="preserve">
-    <value>&lt;padrão&gt;</value>
-  </data>
-  <data name="general_fileGroup" xml:space="preserve">
-    <value>Grupo de Arquivos</value>
-  </data>
-  <data name="general_fileName" xml:space="preserve">
-    <value>Nome Lógico</value>
-  </data>
-  <data name="general_fileType" xml:space="preserve">
-    <value>Tipo de Arquivo</value>
-  </data>
-  <data name="general_initialSize" xml:space="preserve">
-    <value>Tamanho Inicial (MB)</value>
-  </data>
-  <data name="general_newFilegroup" xml:space="preserve">
-    <value>&lt;novo grupo de arquivos&gt;</value>
-  </data>
-  <data name="general_path" xml:space="preserve">
-    <value>Caminho</value>
-  </data>
-  <data name="general_physicalFileName" xml:space="preserve">
-    <value>Nome do Arquivo</value>
-  </data>
-  <data name="general_rawDevice" xml:space="preserve">
-    <value>&lt;dispositivo bruto&gt;</value>
-  </data>
-  <data name="general_recoveryModel_bulkLogged" xml:space="preserve">
-    <value>Logado em massa</value>
-  </data>
-  <data name="general_recoveryModel_full" xml:space="preserve">
-    <value>Completo</value>
-  </data>
-  <data name="general_recoveryModel_simple" xml:space="preserve">
-    <value>Simples</value>
-  </data>
-  <data name="general_titleSearchOwner" xml:space="preserve">
-    <value>Selecionar o proprietário do banco de dados</value>
-  </data>
-  <data name="prototype_autogrowth_disabled" xml:space="preserve">
-    <value>Nenhum</value>
-  </data>
-  <data name="prototype_autogrowth_restrictedGrowthByMB" xml:space="preserve">
-    <value>Por {0} MB, limitado a {1} MB</value>
-  </data>
-  <data name="prototype_autogrowth_restrictedGrowthByPercent" xml:space="preserve">
-    <value>Por {0}%, Limitado a {1} mb</value>
-  </data>
-  <data name="prototype_autogrowth_unrestrictedGrowthByMB" xml:space="preserve">
-    <value>Por {0} MB, Ilimitado</value>
-  </data>
-  <data name="prototype_autogrowth_unrestrictedGrowthByPercent" xml:space="preserve">
-    <value>Por {0}%, Ilimitado</value>
-  </data>
-  <data name="prototype_autogrowth_unlimitedfilestream" xml:space="preserve">
-    <value>Ilimitado</value>
-  </data>
-  <data name="prototype_autogrowth_limitedfilestream" xml:space="preserve">
-    <value>Limitado a {0} MB</value>
-  </data>
-  <data name="prototype_db_category_automatic" xml:space="preserve">
-    <value>Automático</value>
-  </data>
-  <data name="prototype_db_category_servicebroker" xml:space="preserve">
-    <value>Service Broker</value>
-  </data>
-  <data name="prototype_db_category_collation" xml:space="preserve">
-    <value>Agrupamento</value>
-  </data>
-  <data name="prototype_db_category_cursor" xml:space="preserve">
-    <value>Cursor</value>
-  </data>
-  <data name="prototype_db_category_misc" xml:space="preserve">
-    <value>Diversos</value>
-  </data>
-  <data name="prototype_db_category_recovery" xml:space="preserve">
-    <value>Recuperação</value>
-  </data>
-  <data name="prototype_db_category_state" xml:space="preserve">
-    <value>Estado</value>
-  </data>
-  <data name="prototype_db_prop_ansiNullDefault" xml:space="preserve">
-    <value>Padrão ANSI NULL</value>
-  </data>
-  <data name="prototype_db_prop_ansiNulls" xml:space="preserve">
-    <value>ANSI NULLS Habilitado</value>
-  </data>
-  <data name="prototype_db_prop_ansiPadding" xml:space="preserve">
-    <value>Preenchimento ANSI habilitado </value>
-  </data>
-  <data name="prototype_db_prop_ansiWarnings" xml:space="preserve">
-    <value>ANSI Warnings Habilitados</value>
-  </data>
-  <data name="prototype_db_prop_arithabort" xml:space="preserve">
-    <value>Arithmetic Abortar habilitado </value>
-  </data>
-  <data name="prototype_db_prop_autoClose" xml:space="preserve">
-    <value>Fechamento automático</value>
-  </data>
-  <data name="prototype_db_prop_autoCreateStatistics" xml:space="preserve">
-    <value>Criar Estatísticas Automaticamente</value>
-  </data>
-  <data name="prototype_db_prop_autoShrink" xml:space="preserve">
-    <value>Reduzir Automaticamente</value>
-  </data>
-  <data name="prototype_db_prop_autoUpdateStatistics" xml:space="preserve">
-    <value>Estatísticas Atualizadas Automaticamente</value>
-  </data>
-  <data name="prototype_db_prop_autoUpdateStatisticsAsync" xml:space="preserve">
-    <value>Atualizar estatísticas automaticamente de forma assíncrona</value>
-  </data>
-  <data name="prototype_db_prop_caseSensitive" xml:space="preserve">
-    <value>Sensível à Caixa</value>
-  </data>
-  <data name="prototype_db_prop_closeCursorOnCommit" xml:space="preserve">
-    <value>Fechar Cursor na Confirmação Habilitado</value>
-  </data>
-  <data name="prototype_db_prop_collation" xml:space="preserve">
-    <value>Agrupamento</value>
-  </data>
-  <data name="prototype_db_prop_concatNullYieldsNull" xml:space="preserve">
-    <value>Concatenar Nulo Produz Nulo</value>
-  </data>
-  <data name="prototype_db_prop_databaseCompatibilityLevel" xml:space="preserve">
-    <value>Nível de Compatibilidade do Banco de Dados</value>
-  </data>
-  <data name="prototype_db_prop_databaseState" xml:space="preserve">
-    <value>Estado do Banco de Dados</value>
-  </data>
-  <data name="prototype_db_prop_defaultCursor" xml:space="preserve">
-    <value>Cursor Padrão</value>
-  </data>
-  <data name="prototype_db_prop_fullTextIndexing" xml:space="preserve">
-    <value>Indexação Full-Text Habilitada</value>
-  </data>
-  <data name="prototype_db_prop_numericRoundAbort" xml:space="preserve">
-    <value>Anular arredondamento numérico.</value>
-  </data>
-  <data name="prototype_db_prop_pageVerify" xml:space="preserve">
-    <value>Verificação de Página</value>
-  </data>
-  <data name="prototype_db_prop_quotedIdentifier" xml:space="preserve">
-    <value>Identificadores Entre Aspas Habilitados</value>
-  </data>
-  <data name="prototype_db_prop_readOnly" xml:space="preserve">
-    <value>Banco de Dados Somente Leitura</value>
-  </data>
-  <data name="prototype_db_prop_recursiveTriggers" xml:space="preserve">
-    <value>Gatilhos Recursivos Habilitados</value>
-  </data>
-  <data name="prototype_db_prop_restrictAccess" xml:space="preserve">
-    <value>Acesso Restrito</value>
-  </data>
-  <data name="prototype_db_prop_selectIntoBulkCopy" xml:space="preserve">
-    <value>Selecionar Cópia Into/Em Massa</value>
-  </data>
-  <data name="prototype_db_prop_honorBrokerPriority" xml:space="preserve">
-    <value>Respeitar a Prioridade do Broker</value>
-  </data>
-  <data name="prototype_db_prop_serviceBrokerGuid" xml:space="preserve">
-    <value>Identificador de agente de serviço</value>
-  </data>
-  <data name="prototype_db_prop_brokerEnabled" xml:space="preserve">
-    <value>Agente habilitado</value>
-  </data>
-  <data name="prototype_db_prop_truncateLogOnCheckpoint" xml:space="preserve">
-    <value>Truncar o Log no Ponto de Verificação</value>
-  </data>
-  <data name="prototype_db_prop_dbChaining" xml:space="preserve">
-    <value>Encadeamento de Propriedades de Bancos de Dados Habilitado</value>
-  </data>
-  <data name="prototype_db_prop_trustworthy" xml:space="preserve">
-    <value>Confiável</value>
-  </data>
-  <data name="prototype_db_prop_dateCorrelationOptimization" xml:space="preserve">
-    <value>Otimizaçao da Correlação de Data Enabledprototype_db_prop_parameterization = Parametrização</value>
-  </data>
-  <data name="prototype_db_prop_parameterization_value_forced" xml:space="preserve">
-    <value>Forçado</value>
-  </data>
-  <data name="prototype_db_prop_parameterization_value_simple" xml:space="preserve">
-    <value>Simples</value>
-  </data>
-  <data name="prototype_file_dataFile" xml:space="preserve">
-    <value>Dados ROWS</value>
-  </data>
-  <data name="prototype_file_logFile" xml:space="preserve">
-    <value>LOG</value>
-  </data>
-  <data name="prototype_file_filestreamFile" xml:space="preserve">
-    <value>Dados FILESTREAM</value>
-  </data>
-  <data name="prototype_file_noFileGroup" xml:space="preserve">
-    <value>Não aplicável</value>
-  </data>
-  <data name="prototype_file_defaultpathstring" xml:space="preserve">
-    <value>&lt;caminho padrão&gt;</value>
-  </data>
-  <data name="title_openConnectionsMustBeClosed" xml:space="preserve">
-    <value>Conexões Abertas</value>
-  </data>
-  <data name="warning_openConnectionsMustBeClosed" xml:space="preserve">
-    <value>Para modificar as propriedades do banco de dados, o SQL Server deve fechar todas as outras conexões ao banco de dados_ Tem certeza que você quer modificar as propriedades e fechar todas as outras conexões?</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_autoClosed" xml:space="preserve">
-    <value>AUTO_CLOSED</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_emergency" xml:space="preserve">
-    <value>EMERGÊNCIA</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_inaccessible" xml:space="preserve">
-    <value>INACESSÍVEL</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_normal" xml:space="preserve">
-    <value>NORMAL</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_offline" xml:space="preserve">
-    <value>OFF-LINE</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_recovering" xml:space="preserve">
-    <value>RECUPERANDO</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_recoveryPending" xml:space="preserve">
-    <value>RECUPERAÇÃO PENDENTE</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_restoring" xml:space="preserve">
-    <value>RESTAURANDO</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_shutdown" xml:space="preserve">
-    <value>DESLIGAMENTO</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_standby" xml:space="preserve">
-    <value>MODO DE ESPERA</value>
-  </data>
-  <data name="prototype_db_prop_databaseState_value_suspect" xml:space="preserve">
-    <value>SUSPEITO</value>
-  </data>
-  <data name="prototype_db_prop_defaultCursor_value_global" xml:space="preserve">
-    <value>GLOBAL</value>
-  </data>
-  <data name="prototype_db_prop_defaultCursor_value_local" xml:space="preserve">
-    <value>LOCAL</value>
-  </data>
-  <data name="prototype_db_prop_restrictAccess_value_multiple" xml:space="preserve">
-    <value>MULTI_USUÁRIO</value>
-  </data>
-  <data name="prototype_db_prop_restrictAccess_value_restricted" xml:space="preserve">
-    <value>USUÁRIO_RESTRITO</value>
-  </data>
-  <data name="prototype_db_prop_restrictAccess_value_single" xml:space="preserve">
-    <value>MONO_USUÁRIO</value>
-  </data>
-  <data name="prototype_db_prop_pageVerify_value_checksum" xml:space="preserve">
-    <value>SOMA DE VERIFICAÇÃO</value>
-  </data>
-  <data name="prototype_db_prop_pageVerify_value_none" xml:space="preserve">
-    <value>NENHUM</value>
-  </data>
-  <data name="prototype_db_prop_pageVerify_value_tornPageDetection" xml:space="preserve">
-    <value>TORN_PAGE_DETECTION</value>
-  </data>
-  <data name="prototype_db_prop_varDecimalEnabled" xml:space="preserve">
-    <value>Formato de Armazenamento VarDecimal Habilitado</value>
-  </data>
-  <data name="compatibilityLevel_katmai" xml:space="preserve">
-    <value>SQL Server 2008 (100)</value>
-  </data>
-  <data name="prototype_db_prop_encryptionEnabled" xml:space="preserve">
-    <value>Criptografia Habilitada</value>
-  </data>
-  <data name="prototype_db_prop_databasescopedconfig_value_off" xml:space="preserve">
-    <value>DESLIGADO</value>
-  </data>
-  <data name="prototype_db_prop_databasescopedconfig_value_on" xml:space="preserve">
-    <value>LIGADO</value>
-  </data>
-  <data name="prototype_db_prop_databasescopedconfig_value_primary" xml:space="preserve">
-    <value>PRIMÁRIO</value>
-  </data>
-  <data name="error_db_prop_invalidleadingColumns" xml:space="preserve">
-    <value>Para a política de distribuição de HASH, o número de colunas hash principais é opcional, mas deve ser de 1 a 16 colunas  </value>
-  </data>
-  <data name="compatibilityLevel_denali" xml:space="preserve">
-    <value>SQL Server 2012 (110)</value>
-  </data>
-  <data name="compatibilityLevel_sql14" xml:space="preserve">
-    <value>SQL Server 2014 (120)</value>
-  </data>
-  <data name="compatibilityLevel_sql15" xml:space="preserve">
-    <value>SQL Server 2016 (130)</value>
-  </data>
-  <data name="compatibilityLevel_sqlvNext" xml:space="preserve">
-    <value>SQL Server vNext (140)</value>
-  </data>
-  <data name="general_containmentType_None" xml:space="preserve">
-    <value>Nenhum</value>
-  </data>
-  <data name="general_containmentType_Partial" xml:space="preserve">
-    <value>Parcial</value>
-  </data>
-  <data name="filegroups_filestreamFiles" xml:space="preserve">
-    <value>Arquivos FILESTREAM</value>
-  </data>
-  <data name="prototype_file_noApplicableFileGroup" xml:space="preserve">
-    <value>Nenhum grupo de arquivos aplicável</value>
+    <value>Com versão do sistema</value>
   </data>
   <data name="DatabaseNotAccessible" xml:space="preserve">
     <value>O banco de dados {0} não está acessível.</value>
   </data>
   <data name="QueryServiceResultSetHasNoResults" xml:space="preserve">
-    <value>A consulta não tem resultado para retornar</value>
+    <value>A consulta não tem resultados para retornar</value>
   </data>
   <data name="QueryServiceResultSetTooLarge" xml:space="preserve">
-    <value>Conjunto de resultados tem muitas linhas para ser carregado com segurança</value>
-  </data>
-  <data name="prototype_db_prop_parameterization" xml:space="preserve">
-    <value>Parametrização</value>
+    <value>O conjunto de resultados tem muitas linhas para ser carregado com segurança</value>
   </data>
   <data name="ConflictWithNoRecovery" xml:space="preserve">
     <value>Não é permitido especificar essa opção ao restaurar um backup com a opção NORECOVERY.</value>
@@ -1388,13 +964,13 @@
     <value>Log</value>
   </data>
   <data name="RestorePlanFailed" xml:space="preserve">
-    <value>Falha ao criar o plano de restauração</value>
+    <value>Falha ao criar plano de restauração</value>
   </data>
   <data name="RestoreNotSupported" xml:space="preserve">
-    <value>Restauração de banco de dados não é suportado</value>
+    <value>A restauração do banco de dados não é compatível</value>
   </data>
   <data name="RestoreTaskName" xml:space="preserve">
-    <value>Restaurar o banco de dados</value>
+    <value>Restaurar banco de dados</value>
   </data>
   <data name="RestoreCopyOnly" xml:space="preserve">
     <value>(Apenas cópia)</value>
@@ -1421,25 +997,25 @@
     <value>Último LSN</value>
   </data>
   <data name="RestoreBackupSetCheckpointLsn" xml:space="preserve">
-    <value>Checkpoint LSN</value>
+    <value>LSN do ponto de verificação</value>
   </data>
   <data name="RestoreBackupSetFullLsn" xml:space="preserve">
     <value>LSN completo</value>
   </data>
   <data name="RestoreBackupSetStartDate" xml:space="preserve">
-    <value>Data de Início</value>
+    <value>Data de início</value>
   </data>
   <data name="RestoreBackupSetFinishDate" xml:space="preserve">
-    <value>Data de Término</value>
+    <value>Data de término</value>
   </data>
   <data name="RestoreBackupSetSize" xml:space="preserve">
     <value>Tamanho</value>
   </data>
   <data name="RestoreBackupSetUserName" xml:space="preserve">
-    <value>Nome do usuário</value>
+    <value>Nome de usuário</value>
   </data>
   <data name="RestoreBackupSetExpiration" xml:space="preserve">
-    <value>Expiração</value>
+    <value>Término</value>
   </data>
   <data name="RestoreBackupSetName" xml:space="preserve">
     <value>Nome</value>
@@ -1448,7 +1024,7 @@
     <value>O último backup feito ({0})</value>
   </data>
   <data name="BackupTaskName" xml:space="preserve">
-    <value>Backup do Banco de Dados</value>
+    <value>Backup do banco de dados</value>
   </data>
   <data name="TaskInProgress" xml:space="preserve">
     <value>Em andamento</value>
@@ -1457,42 +1033,282 @@
     <value>Concluído</value>
   </data>
   <data name="ScriptTaskName" xml:space="preserve">
-    <value>Gerando script</value>
+    <value>script</value>
   </data>
   <data name="ProfilerConnectionNotFound" xml:space="preserve">
     <value>Conexão não encontrada</value>
   </data>
+  <data name="AzureSystemDbProfilingError" xml:space="preserve">
+    <value>Não é possível analisar os bancos de dados do sistema do Azure</value>
+  </data>
   <data name="BackupPathIsFolderError" xml:space="preserve">
-    <value>O nome do arquivo especificado também é um nome de diretório: {0}</value>
+    <value>Forneça um caminho de arquivo em vez do caminho do diretório</value>
   </data>
   <data name="InvalidBackupPathError" xml:space="preserve">
-    <value>Não foi possível verificar a existência do local do arquivo de backup: {0}</value>
+    <value>O caminho fornecido é inválido</value>
   </data>
   <data name="InvalidPathError" xml:space="preserve">
-    <value>Não foi possível acessar o diretório especificado no servidor: {0}</value>
+    <value>Não é possível acessar o caminho especificado no servidor: {0}</value>
   </data>
   <data name="NoBackupsetsToRestore" xml:space="preserve">
     <value>Nenhum conjunto de backup selecionado para ser restaurado</value>
   </data>
+  <data name="AzureSqlDbEdition" xml:space="preserve">
+    <value>Banco de Dados SQL do Azure</value>
+  </data>
+  <data name="AzureSqlDwEdition" xml:space="preserve">
+    <value>Data Warehouse do SQL do Azure</value>
+  </data>
+  <data name="AzureSqlStretchEdition" xml:space="preserve">
+    <value>Stretch Database do SQL do Azure</value>
+  </data>
+  <data name="EditDataValueTooLarge" xml:space="preserve">
+    <value>O valor {0} é muito grande para caber em uma coluna do tipo {1}</value>
+  </data>
+  <data name="EditDataInvalidFormat" xml:space="preserve">
+    <value>Formato inválido para a coluna '{0}'. A coluna é definida como {1}</value>
+  </data>
+  <data name="SqlScriptFormatterLengthTypeMissingSize" xml:space="preserve">
+    <value>A coluna com comprimento está sem tamanho</value>
+  </data>
+  <data name="SqlScriptFormatterScalarTypeMissingScale" xml:space="preserve">
+    <value>A coluna escalar está sem escala</value>
+  </data>
+  <data name="StoredProcedureScriptParameterComment" xml:space="preserve">
+    <value>--TODO: defina os valores de parâmetro aqui.</value>
+  </data>
+  <data name="ScriptingGeneralError" xml:space="preserve">
+    <value>Ocorreu um erro ao gerar o script dos objetos.</value>
+  </data>
+  <data name="ScriptingExecuteNotSupportedError" xml:space="preserve">
+    <value>A função de criação de script ao executar é compatível apenas com os procedimentos armazenados</value>
+  </data>
+  <data name="External_LabelPart" xml:space="preserve">
+    <value>Externo</value>
+  </data>
+  <data name="FileTable_LabelPart" xml:space="preserve">
+    <value>Tabela de arquivos</value>
+  </data>
+  <data name="EditDataMultiTableNotSupported" xml:space="preserve">
+    <value>As consultas EditData que têm como destino várias tabelas não são compatíveis</value>
+  </data>
+  <data name="EditDataAliasesNotSupported" xml:space="preserve">
+    <value>As consultas EditData com colunas com alias não são compatíveis</value>
+  </data>
+  <data name="EditDataExpressionsNotSupported" xml:space="preserve">
+    <value>As consultas EditData com colunas de agregação ou expressão não são compatíveis</value>
+  </data>
+  <data name="EditDataDuplicateColumnsNotSupported" xml:space="preserve">
+    <value>As consultas EditData com colunas duplicadas não são compatíveis</value>
+  </data>
+  <data name="EditDataIncorrectTable" xml:space="preserve">
+    <value>As consultas EditData devem consultar a tabela de destino original '{0}'</value>
+  </data>
+  <data name="CategoryLocal" xml:space="preserve">
+    <value>[Sem categoria (local)]</value>
+  </data>
+  <data name="CategoryFromMsx" xml:space="preserve">
+    <value>Trabalhos do MSX</value>
+  </data>
+  <data name="CategoryMultiServer" xml:space="preserve">
+    <value>[Sem categoria (vários servidores)]</value>
+  </data>
+  <data name="CategoryDBMaint" xml:space="preserve">
+    <value>Manutenção de banco de dados</value>
+  </data>
+  <data name="CategoryWebAssistant" xml:space="preserve">
+    <value>Assistente Web</value>
+  </data>
+  <data name="CategoryFullText" xml:space="preserve">
+    <value>Texto completo</value>
+  </data>
+  <data name="CategoryReplDistribution" xml:space="preserve">
+    <value>REPL-Distribuição</value>
+  </data>
+  <data name="CategoryReplDistributionCleanup" xml:space="preserve">
+    <value>REPL-Limpeza de distribuição</value>
+  </data>
+  <data name="CategoryReplHistoryCleanup" xml:space="preserve">
+    <value>REPL-Limpeza de histórico</value>
+  </data>
+  <data name="CategoryReplLogReader" xml:space="preserve">
+    <value>REPL-LogReader</value>
+  </data>
+  <data name="CategoryReplMerge" xml:space="preserve">
+    <value>REPL-Mesclar</value>
+  </data>
+  <data name="CategoryReplSnapShot" xml:space="preserve">
+    <value>REPL-Instantâneo</value>
+  </data>
+  <data name="CategoryReplCheckup" xml:space="preserve">
+    <value>REPL-Verificação</value>
+  </data>
+  <data name="CategoryReplCleanup" xml:space="preserve">
+    <value>REPL-Limpeza de assinatura</value>
+  </data>
+  <data name="CategoryReplAlert" xml:space="preserve">
+    <value>REPL-Resposta de alerta</value>
+  </data>
+  <data name="CategoryReplQReader" xml:space="preserve">
+    <value>REPL-QueueReader</value>
+  </data>
+  <data name="CategoryReplication" xml:space="preserve">
+    <value>Replicação</value>
+  </data>
+  <data name="CategoryUncategorized" xml:space="preserve">
+    <value>[Sem categoria]</value>
+  </data>
+  <data name="CategoryLogShipping" xml:space="preserve">
+    <value>Envio de logs</value>
+  </data>
+  <data name="CategoryDBEngineTuningAdvisor" xml:space="preserve">
+    <value>Orientador de Otimização do Mecanismo de Banco de Dados</value>
+  </data>
+  <data name="CategoryDataCollector" xml:space="preserve">
+    <value>Coletor de dados</value>
+  </data>
+  <data name="JobAlreadyExists" xml:space="preserve">
+    <value>Um trabalho chamado '{0}' já existe. Digite um nome exclusivo para o trabalho.</value>
+  </data>
+  <data name="JobStepNameCannotBeBlank" xml:space="preserve">
+    <value>O nome da etapa de trabalho não pode ficar em branco.</value>
+  </data>
+  <data name="JobStepNameAlreadyExists" xml:space="preserve">
+    <value>Já existe uma etapa chamada '{0}' para este trabalho. Especifique um nome diferente.</value>
+  </data>
+  <data name="AlertNameCannotBeBlank" xml:space="preserve">
+    <value>O nome do alerta não pode ficar em branco.</value>
+  </data>
+  <data name="CannotCreateNewAlert" xml:space="preserve">
+    <value>Não é possível criar um alerta.</value>
+  </data>
+  <data name="CannotAlterAlert" xml:space="preserve">
+    <value>Não é possível alterar o alerta.</value>
+  </data>
+  <data name="SysadminAccount" xml:space="preserve">
+    <value>Conta de serviço do SQL Server Agent</value>
+  </data>
+  <data name="ProxyAccountNotFound" xml:space="preserve">
+    <value>A conta de proxy '{0}' não existe no servidor.</value>
+  </data>
+  <data name="CredentialNoLongerExists" xml:space="preserve">
+    <value>O objeto não existe mais no servidor.</value>
+  </data>
+  <data name="UnknownServerType" xml:space="preserve">
+    <value>Tipo de servidor '{0}' desconhecido.</value>
+  </data>
+  <data name="SetOwnerFailed" xml:space="preserve">
+    <value>O logon atual não tem permissões para definir o proprietário do banco de dados como '{0}'. No entanto, o banco de dados foi criado com êxito.</value>
+  </data>
+  <data name="TargetServerNotSelected" xml:space="preserve">
+    <value>Você deve especificar os servidores de destino nos quais esse trabalho de vários servidores será executado.</value>
+  </data>
+  <data name="UnexpectedRunType" xml:space="preserve">
+    <value>Tipo de execução inesperado.</value>
+  </data>
+  <data name="UnknownSizeUnit" xml:space="preserve">
+    <value>Tamanho desconhecido da unidade {0}</value>
+  </data>
+  <data name="SessionNotFound" xml:space="preserve">
+    <value>Não foi possível encontrar a sessão XEvent solicitada</value>
+  </data>
+  <data name="StopSessionFailed" xml:space="preserve">
+    <value>Falha ao interromper sessão: {0}</value>
+  </data>
+  <data name="StartSessionFailed" xml:space="preserve">
+    <value>Falha ao iniciar sessão: {0}</value>
+  </data>
+  <data name="CreateSessionFailed" xml:space="preserve">
+    <value>Falha ao criar sessão: {0}</value>
+  </data>
+  <data name="PauseSessionFailed" xml:space="preserve">
+    <value>Falha ao pausar sessão: {0}</value>
+  </data>
+  <data name="SessionAlreadyExists" xml:space="preserve">
+    <value>Uma sessão XEvent chamada {0} já existe</value>
+  </data>
+  <data name="InvalidScheduleTitle" xml:space="preserve">
+    <value>Agendamento inválido</value>
+  </data>
+  <data name="InvalidWeeklySchedule" xml:space="preserve">
+    <value>Selecione pelo menos um dia para fazer parte desta agenda semanal.</value>
+  </data>
+  <data name="StartDateGreaterThanEndDate" xml:space="preserve">
+    <value>A data de início do agendamento do trabalho não pode ser maior que a data término.</value>
+  </data>
+  <data name="StartTimeGreaterThanEndTime" xml:space="preserve">
+    <value>A hora de início do agendamento do trabalho não pode ser posterior à hora de término.</value>
+  </data>
+  <data name="EndTimeEqualToStartTime" xml:space="preserve">
+    <value>A hora de término do agendamento do trabalho deve ser posterior à hora de início.</value>
+  </data>
+  <data name="InvalidStartDate" xml:space="preserve">
+    <value>A data de início deve ser em ou após 1º de janeiro de 1990.</value>
+  </data>
+  <data name="ScheduleNameAlreadyExists" xml:space="preserve">
+    <value>Já existe um agendamento chamado '{0}' para este trabalho. Você deve especificar um nome diferente.</value>
+  </data>
+  <data name="JobServerIsNotAvailable" xml:space="preserve">
+    <value>O servidor de trabalho não está disponível</value>
+  </data>
   <data name="NeverBackedUp" xml:space="preserve">
     <value>Nunca</value>
   </data>
-  <data name="AzureSqlDbEdition" xml:space="preserve">
-    <value>Azure SQL DB</value>
-  </data>
-  <data name="AzureSqlDwEdition" xml:space="preserve">
-    <value>Azure SQL Data Warehouse</value>
-  </data>
-  <data name="AzureSqlStretchEdition" xml:space="preserve">
-    <value>Azure SQL Stretch Database</value>
-  </data>
   <data name="Error_InvalidDirectoryName" xml:space="preserve">
-    <value>Caminho {0} não é um diretório válido </value>
+    <value>O caminho {0} não é um diretório válido</value>
   </data>
   <data name="Error_ExistingDirectoryName" xml:space="preserve">
-    <value>Já existe um arquivo com nome {1} para o diretório {0}</value>
+    <value>Já existe um arquivo com o nome {1} para o diretório {0}</value>
   </data>
-  <data name="EditDataValueTooLarge" xml:space="preserve">
-    <value>Valor {0} é muito grande para caber em uma coluna do tipo {1}</value>
+  <data name="EE_ExecutionInfo_InitializingLoop" xml:space="preserve">
+    <value>Início do loop de execução</value>
+  </data>
+  <data name="EE_BatchExecutionError_Ignoring" xml:space="preserve">
+    <value>Ocorreu um erro enquanto o lote era executado, mas esse erro foi ignorado.</value>
+  </data>
+  <data name="EE_ExecutionInfo_FinalizingLoop" xml:space="preserve">
+    <value>A execução do lote foi concluída {0} vezes...</value>
+  </data>
+  <data name="BatchParserWrapperExecutionError" xml:space="preserve">
+    <value>Execução do wrapper do analisador de lotes: {0} encontrado... na linha {1}: {2}    Descrição: {3}</value>
+  </data>
+  <data name="ExtractInvalidVersion" xml:space="preserve">
+    <value>Versão '{0}' inválida passada. A versão deve estar no formato x.x.x.x, em que x é um número.</value>
+  </data>
+  <data name="ExportBacpacTaskName" xml:space="preserve">
+    <value>Exportar bacpac</value>
+  </data>
+  <data name="ImportBacpacTaskName" xml:space="preserve">
+    <value>Importar bacpac</value>
+  </data>
+  <data name="ExtractDacpacTaskName" xml:space="preserve">
+    <value>Extrair dacpac</value>
+  </data>
+  <data name="DeployDacpacTaskName" xml:space="preserve">
+    <value>Implantar dacpac</value>
+  </data>
+  <data name="GenerateScriptTaskName" xml:space="preserve">
+    <value>Gerar script</value>
+  </data>
+  <data name="PublishChangesTaskName" xml:space="preserve">
+    <value>Aplicar alterações de comparação do esquema</value>
+  </data>
+  <data name="SchemaCompareExcludeIncludeNodeNotFound" xml:space="preserve">
+    <value>Falha ao localizar a alteração especificada no modelo</value>
+  </data>
+  <data name="OpenScmpConnectionBasedModelParsingError" xml:space="preserve">
+    <value>Foi encontrado um erro ao tentar analisar as informações de conexão para o ponto de extremidade '{0}'. A mensagem de erro foi '{1}'</value>
+  </data>
+  <data name="SchemaCompareSessionNotFound" xml:space="preserve">
+    <value>Não foi possível localizar a sessão de comparação de esquema a ser cancelada</value>
+  </data>
+  <data name="SerializationServiceUnsupportedFormat" xml:space="preserve">
+    <value>Formato de salvamento não compatível: {0}</value>
+  </data>
+  <data name="SerializationServiceRequestInProgress" xml:space="preserve">
+    <value>Uma solicitação para o arquivo {0} já está em andamento</value>
+  </data>
+  <data name="SerializationServiceRequestNotFound" xml:space="preserve">
+    <value>Não foi possível serializar mais dados porque nenhuma solicitação para o arquivo {0} foi encontrada</value>
   </data>
 </root>
