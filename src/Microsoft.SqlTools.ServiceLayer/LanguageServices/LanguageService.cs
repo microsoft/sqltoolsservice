@@ -1223,13 +1223,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             } 
             else 
             {
-                if (!connInfo.TryGetConnection(ConnectionType.Default, out connection))
+                if (connInfo.TryGetConnection(ConnectionType.Default, out connection))
                 {
-                    return true;
+                    return false;
                 }
                 else
                 {
-                    return false;
+                    return true;
                 }
             }
         }
