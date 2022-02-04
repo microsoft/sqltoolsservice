@@ -5742,6 +5742,22 @@
         <target state="translated">열</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="MissingIndexFormat">
+        <source>Missing Index (Impact {0}): {1}</source>
+        <target state="translated">인덱스 없음(영향 {0}): {1}</target>
+        <note>"Missing Index (Impact {0}): {1}" format string for showplan</note>
+      </trans-unit>
+      <trans-unit id="MissingIndexDetailsTitle">
+        <source>/*
+Missing Index Details from {0}
+The Query Processor estimates that implementing the following index could improve the query cost by {1}%.
+*/</source>
+        <target state="translated">/*
+{0}의 인덱스 세부 정보 없음
+쿼리 프로세서에서는 다음 인덱스를 구현하는 경우 쿼리 비용이 {1}%만큼 향상될 수 있다고 평가합니다.
+*/</target>
+        <note>title of missing index details</note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

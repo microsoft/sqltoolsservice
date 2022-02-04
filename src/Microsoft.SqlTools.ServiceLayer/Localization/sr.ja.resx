@@ -3526,4 +3526,13 @@
   <data name="TableDesignerColumnsDisplayValueTitle" xml:space="preserve">
     <value>列</value>
   </data>
+  <data name="MissingIndexFormat" xml:space="preserve">
+    <value>不足しているインデックス (影響 {0}): {1}</value>
+  </data>
+  <data name="MissingIndexDetailsTitle" xml:space="preserve">
+    <value>/*
+{0} から不足しているインデックスの詳細
+クエリ プロセッサの予測では、以下のインデックスの実装によりクエリ コストが {1}% 向上します。
+*/</value>
+  </data>
 </root>

@@ -5742,6 +5742,22 @@
         <target state="translated">Colonne</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="MissingIndexFormat">
+        <source>Missing Index (Impact {0}): {1}</source>
+        <target state="translated">Indice mancante (impatto {0}): {1}</target>
+        <note>"Missing Index (Impact {0}): {1}" format string for showplan</note>
+      </trans-unit>
+      <trans-unit id="MissingIndexDetailsTitle">
+        <source>/*
+Missing Index Details from {0}
+The Query Processor estimates that implementing the following index could improve the query cost by {1}%.
+*/</source>
+        <target state="translated">/*
+Dettagli indice mancanti in {0}
+Query Processor stima che l'implementazione del seguente indice potrebbe migliorare il costo della query di {1}%.
+*/</target>
+        <note>title of missing index details</note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

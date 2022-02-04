@@ -3526,4 +3526,13 @@
   <data name="TableDesignerColumnsDisplayValueTitle" xml:space="preserve">
     <value>列</value>
   </data>
+  <data name="MissingIndexFormat" xml:space="preserve">
+    <value>缺少索引(影响 {0}): {1}</value>
+  </data>
+  <data name="MissingIndexDetailsTitle" xml:space="preserve">
+    <value>//*
+{0} 中缺少索引的详细信息
+查询处理器估计采用以下索引可以将查询开销减少 {1}%。
+*/</value>
+  </data>
 </root>
