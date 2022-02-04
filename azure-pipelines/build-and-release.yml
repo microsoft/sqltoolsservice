@@ -2,21 +2,23 @@ trigger: none
 pr: none
 
 stages:
-# - stage: Build
-#   jobs:
-#   - job: Build
-#     pool:
-#         vmImage: 'windows-latest'
-#         demands:
-#         - Cmd
-#         - npm
-#     steps:
-#     - template: build.yml
+- stage: Build
+  jobs:
+  - job: Build
+    pool:
+        vmImage: 'windows-latest'
+        demands:
+        - Cmd
+        - npm
+    steps:
+    - template: build.yml
 
 - stage: Release
   variables:
   - name: skipComponentGovernanceDetection
     value: true
+  dependsOn:
+  - Build
   condition: and(succeeded(), eq(variables['RELEASE'], 'true'))
   pool:
     vmImage: 'Ubuntu-18.04'
