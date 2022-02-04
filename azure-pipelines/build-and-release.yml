@@ -17,8 +17,6 @@ stages:
   variables:
   - name: skipComponentGovernanceDetection
     value: true
-  dependsOn:
-  - Build
   condition: and(succeeded(), eq(variables['RELEASE'], 'true'))
   pool:
     vmImage: 'Ubuntu-18.04'
