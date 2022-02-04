@@ -1,7 +1,3 @@
-variables:
-- name: skipComponentGovernanceDetection
-  value: true
-
 steps:
 - task: AzureKeyVault@1
   displayName: 'Azure Key Vault: ado-secrets'
