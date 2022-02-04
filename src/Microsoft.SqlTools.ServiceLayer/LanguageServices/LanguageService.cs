@@ -446,7 +446,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     return;
                 }
                 // check if Intellisense suggestions are enabled
-                if (ShouldSkipIntellisense(scriptFile.ClientUri) || RefreshNeeded(scriptFile.ClientUri))
+                if (ShouldSkipIntellisense(scriptFile.ClientUri))
                 {
                     await requestContext.SendResult(null);
                 }
@@ -1191,7 +1191,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         private bool ShouldSkipIntellisense(string uri)
         {
             return !CurrentWorkspaceSettings.IsSuggestionsEnabled
-                || ShouldSkipNonMssqlFile(uri);
+                || ShouldSkipNonMssqlFile(uri) || RefreshNeeded(uri);
         }
 
         /// <summary>
@@ -1215,11 +1215,22 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         private bool RefreshNeeded(string uri)
         {
             ConnectionInfo connInfo;
+            System.Data.Common.DbConnection connection;
             connectionService.TryFindConnection(uri, out connInfo);
-            if (connInfo.ConnectionDetails.AuthenticationType != "AzureMFA") {
+            if (connInfo.ConnectionDetails.AuthenticationType != "AzureMFA") 
+            {
                 return false;
-            } else {
-                // check if token refresh is needed
+            } 
+            else 
+            {
+                if (!connInfo.TryGetConnection(ConnectionType.Default, out connection))
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
         }
         
