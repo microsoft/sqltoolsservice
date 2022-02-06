@@ -1,5 +1,5 @@
-﻿// 
-// 
+﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -49,21 +49,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private readonly LongList<long> fileOffsets;
 
         /// <summary>
-        /// The factory to use to get reading/writing handlers
+        /// The factory to use to get service buffer reading/writing handlers
         /// </summary>
-        private readonly IFileStreamFactory fileStreamFactory;
+        private readonly IServiceBufferFileStreamFactory bufferFileStreamFactory;
 
         /// <summary>
         /// Whether or not the result set has been read in from the database,
         /// set as internal in order to fake value in unit tests.
         /// This gets set as soon as we start reading.
         /// </summary>
-        internal bool hasStartedRead = false;
+        internal bool hasStartedRead;
 
         /// <summary>
         /// Set when all results have been read for this resultSet from the server
         /// </summary>
-        private bool hasCompletedRead = false;
+        private bool hasCompletedRead;
 
         /// <summary>
         /// Whether resultSet is a 'for xml' or 'for json' result
@@ -76,9 +76,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private readonly string outputFileName;
 
         /// <summary>
+        /// Timer for tracking how long it takes to read results.
+        /// </summary>
+        private readonly Timer resultsTimer;
+
+        /// <summary>
         /// Row count to use in special scenarios where we want to override the number of rows.
         /// </summary>
-        private long? rowCountOverride=null;
+        private long? rowCountOverride;
+
+        /// <summary>
+        /// Semaphore to use to prevent >1 method from sending results.
+        /// </summary>
+        private readonly SemaphoreSlim sendResultsSemaphore = new SemaphoreSlim(1);
 
         /// <summary>
         /// The special action which applied to this result set
@@ -91,10 +101,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         internal long totalBytesWritten;
 
-        private readonly Timer resultsTimer;
-
-        private readonly SemaphoreSlim sendResultsSemphore = new SemaphoreSlim(1);
-
         #endregion
 
         /// <summary>
@@ -103,7 +109,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="ordinal">The ID of the resultset, the ordinal of the result within the batch</param>
         /// <param name="batchOrdinal">The ID of the batch, the ordinal of the batch within the query</param>
         /// <param name="factory">Factory for creating a reader/writer</param>
-        public ResultSet(int ordinal, int batchOrdinal, IFileStreamFactory factory)
+        public ResultSet(int ordinal, int batchOrdinal, IServiceBufferFileStreamFactory factory)
         {
             Id = ordinal;
             BatchId = batchOrdinal;
@@ -115,7 +121,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             specialAction = new SpecialAction();
 
             // Store the factory
-            fileStreamFactory = factory;
+            bufferFileStreamFactory = factory;
             hasStartedRead = false;
             hasCompletedRead = false;
             SaveTasks = new ConcurrentDictionary<string, Task>();
@@ -233,7 +239,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 throw new ArgumentOutOfRangeException(nameof(rowId), SR.QueryServiceResultSetStartRowOutOfRange);
             }
 
-            using (IFileStreamReader fileStreamReader = fileStreamFactory.GetReader(outputFileName))
+            using (IFileStreamReader fileStreamReader = bufferFileStreamFactory.GetReader(outputFileName))
             {
                 return fileStreamReader.ReadRow(fileOffsets[rowId], rowId, Columns);
             }
@@ -268,7 +274,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 DbCellValue[][] rows;
 
-                using (IFileStreamReader fileStreamReader = fileStreamFactory.GetReader(outputFileName))
+                using (IFileStreamReader fileStreamReader = bufferFileStreamFactory.GetReader(outputFileName))
                 {
                     // If result set is 'for xml' or 'for json',
                     // Concatenate all the rows together into one row
@@ -307,12 +313,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         }
 
         /// <summary>
-        /// Generates the execution plan from the table returned 
+        /// Generates the execution plan from the table returned
         /// </summary>
         /// <returns>An execution plan object</returns>
         public Task<ExecutionPlan> GetExecutionPlan()
         {
-            // Process the action just in case it hasn't been yet 
+            // Process the action just in case it hasn't been yet
             ProcessSpecialAction();
 
             // Sanity check to make sure that results read has started
@@ -320,7 +326,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 throw new InvalidOperationException(SR.QueryServiceResultSetNotRead);
             }
-            // Check that we this result set contains a showplan 
+            // Check that we this result set contains a showplan
             if (!specialAction.ExpectYukonXMLShowPlan)
             {
                 throw new Exception(SR.QueryServiceExecutionPlanNotFound);
@@ -328,21 +334,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
 
             return Task.Factory.StartNew(() =>
-            { 
+            {
                 string content;
                 string format = null;
 
-                using (IFileStreamReader fileStreamReader = fileStreamFactory.GetReader(outputFileName))
+                using (IFileStreamReader fileStreamReader = bufferFileStreamFactory.GetReader(outputFileName))
                 {
                     // Determine the format and get the first col/row of XML
                     content = fileStreamReader.ReadRow(0, 0, Columns)[0].DisplayValue;
 
-                    if (specialAction.ExpectYukonXMLShowPlan) 
+                    if (specialAction.ExpectYukonXMLShowPlan)
                     {
                         format = "xml";
                     }
                 }
-                    
+
                 return new ExecutionPlan
                 {
                     Format = format,
@@ -372,7 +378,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 // Open a writer for the file
                 //
-                var fileWriter = fileStreamFactory.GetWriter(outputFileName);
+                var fileWriter = bufferFileStreamFactory.GetWriter(outputFileName);
                 using (fileWriter)
                 {
                     // If we can initialize the columns using the column schema, use that
@@ -457,7 +463,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         }
 
         /// <summary>
-        /// Updates the values in a row with the 
+        /// Updates the values in a row with the
         /// </summary>
         /// <param name="rowId"></param>
         /// <param name="dbDataReader"></param>
@@ -480,7 +486,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </param>
         /// <param name="successHandler">Handler for a successful write of all rows</param>
         /// <param name="failureHandler">Handler for unsuccessful write of all rows</param>
-        public void SaveAs(SaveResultsRequestParams saveParams, IFileStreamFactory fileFactory,
+        public void SaveAs(SaveResultsRequestParams saveParams, ISaveAsFileStreamFactory fileFactory,
             SaveAsAsyncEventHandler successHandler, SaveAsFailureAsyncEventHandler failureHandler)
         {
             // Sanity check the save params and file factory
@@ -494,8 +500,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             // Make sure there isn't a task for this file already
-            Task existingTask;
-            if (SaveTasks.TryGetValue(saveParams.FilePath, out existingTask))
+            if (SaveTasks.TryGetValue(saveParams.FilePath, out var existingTask))
             {
                 if (existingTask.IsCompleted)
                 {
@@ -529,13 +534,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     }
 
                     using (var fileReader = fileFactory.GetReader(outputFileName))
-                    using (var fileWriter = fileFactory.GetWriter(saveParams.FilePath))
+                    using (var fileWriter = fileFactory.GetWriter(saveParams.FilePath, Columns))
                     {
                         // Iterate over the rows that are in the selected row set
                         for (long i = rowStartIndex; i < rowEndIndex; ++i)
                         {
                             var row = fileReader.ReadRow(fileOffsets[i], i, Columns);
-                            fileWriter.WriteRow(row, Columns);
+                            fileWriter.WriteRow(row);
                         }
                         if (successHandler != null)
                         {
@@ -552,7 +557,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     }
                 }
             });
-            
+
             // Add exception handling to the save task
             Task taskWithHandling = saveAsTask.ContinueWithOnFaulted(async t =>
             {
@@ -598,7 +603,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     if (disposing)
                     {
-                        fileStreamFactory.DisposeFile(outputFileName);
+                        bufferFileStreamFactory.DisposeFile(outputFileName);
                     }
                     disposed = true;
                 });
@@ -608,7 +613,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 // If saveTasks is empty, continue with dispose
                 if (disposing)
                 {
-                    fileStreamFactory.DisposeFile(outputFileName);
+                    bufferFileStreamFactory.DisposeFile(outputFileName);
                 }
                 disposed = true;
             }
@@ -633,32 +638,32 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             try
             {
 
-                // Wait to acquire the sendResultsSemphore before proceeding, as we want only one instance of this method executing at any given time.
-                //
-                sendResultsSemphore.Wait();
+                // Wait to acquire the semaphore before proceeding, as we want only one instance of
+                // this method executing at any given time.
+                await sendResultsSemaphore.WaitAsync();
 
                 ResultSet currentResultSetSnapshot = (ResultSet) MemberwiseClone();
                 if (LastUpdatedSummary == null) // We need to send results available message.
                 {
                     // Fire off results Available task and await it
-                    //
                     await (ResultAvailable?.Invoke(currentResultSetSnapshot) ?? Task.CompletedTask);
                 }
                 else if (LastUpdatedSummary.Complete) // If last result summary sent had already set the Complete flag
                 {
-                    // We do not need to do anything except that make sure that RowCount has not update since last send.
+                    // We do not need to do anything except that make sure that RowCount has not
+                    // update since last send.
                     Debug.Assert(LastUpdatedSummary.RowCount == currentResultSetSnapshot.RowCount,
                         $"Already reported rows should be equal to current RowCount, if had already sent completion flag as set in last message, countReported:{LastUpdatedSummary.RowCount}, current total row count: {currentResultSetSnapshot.RowCount}, row count override: {currentResultSetSnapshot.rowCountOverride}, this.rowCountOverride: {this.rowCountOverride} and this.RowCount: {this.RowCount}, LastUpdatedSummary: {LastUpdatedSummary}");
                 }
                 else // We need to send results updated message.
                 {
-                    // Previously reported rows should be less than or equal to current number of rows about to be reported
-                    //
+                    // Previously reported rows should be less than or equal to current number of
+                    // rows about to be reported
                     Debug.Assert(LastUpdatedSummary.RowCount <= currentResultSetSnapshot.RowCount,
                         $"Already reported rows should less than or equal to current total RowCount, countReported:{LastUpdatedSummary.RowCount}, current total row count: {currentResultSetSnapshot.RowCount}, row count override: {currentResultSetSnapshot.rowCountOverride}, this.rowCountOverride: {this.rowCountOverride} and this.RowCount: {this.RowCount}, LastUpdatedSummary: {LastUpdatedSummary}");
 
-                    // If there has been no change in rowCount since last update and we have not yet completed read then log and increase the timer duration
-                    //
+                    // If there has been no change in rowCount since last update and we have not
+                    // yet completed read then log and increase the timer duration.
                     if (!currentResultSetSnapshot.hasCompletedRead &&
                         LastUpdatedSummary.RowCount == currentResultSetSnapshot.RowCount)
                     {
@@ -668,34 +673,30 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     }
 
                     // Fire off results updated task and await it
-                    //
                     await (ResultUpdated?.Invoke(currentResultSetSnapshot) ?? Task.CompletedTask);
                 }
 
                 // Update the LastUpdatedSummary to be the value captured in current snapshot
-                //
                 LastUpdatedSummary = currentResultSetSnapshot.Summary;
 
                 // Setup timer for the next callback
-                //
                 if (currentResultSetSnapshot.hasCompletedRead)
                 {
-                    // If we have already completed reading then we are done and we do not need to send any more updates. Switch off timer.
-                    //
+                    // If we have already completed reading then we are done and we do not need to
+                    // send any more updates. Switch off timer.
                     resultsTimer.Change(Timeout.Infinite, Timeout.Infinite);
                 }
                 else
                 {
-                    // If we have not yet completed reading then set the timer so this method gets called again after ResultTimerInterval milliseconds
-                    //
+                    // If we have not yet completed reading then set the timer so this method gets
+                    // called again after ResultTimerInterval milliseconds.
                     resultsTimer.Change(ResultTimerInterval, Timeout.Infinite);
                 }
             }
             finally
-            { 
-                // Release the sendResultsSemphore so the next invocation gets unblocked
-                //
-                sendResultsSemphore.Release();
+            {
+                // Release the sendResultsSemaphore so the next invocation gets unblocked
+                sendResultsSemaphore.Release();
             }
         }
 
@@ -707,7 +708,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         /// <summary>
         /// If the result set represented by this class corresponds to a single XML
-        /// column that contains results of "for xml" query, set isXml = true 
+        /// column that contains results of "for xml" query, set isXml = true
         /// If the result set represented by this class corresponds to a single JSON
         /// column that contains results of "for json" query, set isJson = true
         /// </summary>
@@ -756,10 +757,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Determine the special action, if any, for this result set
         /// </summary>
-        private SpecialAction ProcessSpecialAction() 
-        {           
+        private SpecialAction ProcessSpecialAction()
+        {
 
-            // Check if this result set is a showplan 
+            // Check if this result set is a showplan
             if (Columns.Length == 1 && string.Compare(Columns[0].ColumnName, YukonXmlShowPlanColumn, StringComparison.OrdinalIgnoreCase) == 0)
             {
                 specialAction.ExpectYukonXMLShowPlan = true;
@@ -781,7 +782,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 throw new InvalidOperationException(SR.QueryServiceResultSetNotRead);
             }
-            // NOTE: We are no longer checking to see if the data reader has rows before reading 
+            // NOTE: We are no longer checking to see if the data reader has rows before reading
             // b/c of a quirk in SqlClient. In some scenarios, a SqlException isn't thrown until we
             // read. In order to get appropriate errors back to the user, we'll read first.
             // Returning false from .ReadAsync means there aren't any rows.
@@ -792,8 +793,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 throw new InvalidOperationException(SR.QueryServiceResultSetAddNoRows);
             }
-            
-            using (IFileStreamWriter writer = fileStreamFactory.GetWriter(outputFileName))
+
+            using (IServiceBufferFileStreamWriter writer = bufferFileStreamFactory.GetWriter(outputFileName))
             {
                 // Write the row to the end of the file
                 long currentFileOffset = totalBytesWritten;

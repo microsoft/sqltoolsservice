@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
     /// <summary>
     /// Writer for service buffer formatted file streams
     /// </summary>
-    public class ServiceBufferFileStreamWriter : IFileStreamWriter
+    public class ServiceBufferFileStreamWriter : IServiceBufferFileStreamWriter
     {
         private const int DefaultBufferLength = 8192;
 
@@ -167,7 +167,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                         }
                         else
                         {
-                            // not a long field 
+                            // not a long field
                             values[i] = reader.GetValue(i);
                         }
                     }
@@ -206,12 +206,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             // Flush the buffer after every row
             FlushBuffer();
             return rowBytes;
-        }
-
-        [Obsolete]
-        public void WriteRow(IList<DbCellValue> row, IList<DbColumnWrapper> columns)
-        {
-            throw new InvalidOperationException("This type of writer is meant to write values from a DbDataReader only.");
         }
 
         /// <summary>
@@ -442,7 +436,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 // Convert to a unicode byte array
                 byte[] bytes = Encoding.Unicode.GetBytes(sVal);
 
-                // convert char array into byte array and write it out							
+                // convert char array into byte array and write it out
                 iTotalLen = WriteLength(bytes.Length);
                 iTotalLen += FileUtilities.WriteWithLength(fileStream, bytes, bytes.Length);
             }

@@ -8,6 +8,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Composition;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
@@ -17,14 +18,13 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 
-
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
 
     [Export(typeof(IHostedService))]
     public class SerializationService : HostedService<SerializationService>, IComposableService
     {
-        private ConcurrentDictionary<string, DataSerializer> inProgressSerializations;
+        private readonly ConcurrentDictionary<string, DataSerializer> inProgressSerializations;
 
         public SerializationService()
         {
@@ -41,7 +41,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Begin to process request to save a resultSet to a file in CSV format
         /// </summary>
-        internal Task HandleSerializeStartRequest(SerializeDataStartRequestParams serializeParams,
+        internal Task HandleSerializeStartRequest(
+            SerializeDataStartRequestParams serializeParams,
             RequestContext<SerializeDataResult> requestContext)
         {
             // Run in separate thread so that message thread isn't held up by a potentially time consuming file write
@@ -72,7 +73,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     inProgressSerializations.AddOrUpdate(serializer.FilePath, serializer, (key, old) => serializer);
                 }
-                
+
                 Logger.Write(TraceEventType.Verbose, "HandleSerializeStartRequest");
                 SerializeDataResult result = serializer.ProcessRequest(serializeParams);
                 await requestContext.SendResult(result);
@@ -108,7 +109,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Process request to save a resultSet to a file in CSV format
         /// </summary>
-        internal Task HandleSerializeContinueRequest(SerializeDataContinueRequestParams serializeParams,
+        internal Task HandleSerializeContinueRequest(
+            SerializeDataContinueRequestParams serializeParams,
             RequestContext<SerializeDataResult> requestContext)
         {
             // Run in separate thread so that message thread isn't held up by a potentially time consuming file write
@@ -149,32 +151,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
     }
-    class DataSerializer
-    {
-        private IFileStreamWriter writer;
-        private SerializeDataStartRequestParams requestParams;
-        private IList<DbColumnWrapper> columns;
 
-        public string FilePath { get; private set; }
+    internal class DataSerializer
+    {
+        private readonly SerializeDataStartRequestParams requestParams;
+        private readonly IReadOnlyList<DbColumnWrapper> columns;
+        private ISaveAsFileStreamWriter writer;
 
         public DataSerializer(SerializeDataStartRequestParams requestParams)
         {
             this.requestParams = requestParams;
-            this.columns = this.MapColumns(requestParams.Columns);
-            this.FilePath = requestParams.FilePath;
+            columns = requestParams.Columns.Select(column => new DbColumnWrapper(column)).ToList();
+            FilePath = requestParams.FilePath;
         }
 
-        private IList<DbColumnWrapper> MapColumns(ColumnInfo[] columns)
-        {
-            List<DbColumnWrapper> columnWrappers = new List<DbColumnWrapper>();
-            foreach (ColumnInfo column in columns)
-            {
-                DbColumnWrapper wrapper = new DbColumnWrapper(column);
-                columnWrappers.Add(wrapper);
-            }
-            return columnWrappers;
-        }
-
+        public string FilePath { get; }
 
         public SerializeDataResult ProcessRequest(ISerializationParams serializeParams)
         {
@@ -199,11 +190,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         public void WriteData(DbCellValue[][] rows, bool isComplete)
         {
-            this.EnsureWriterCreated();
+            EnsureWriterCreated();
             foreach (var row in rows)
             {
                 SetRawObjects(row);
-                writer.WriteRow(row, this.columns);
+                writer.WriteRow(row);
             }
         }
 
@@ -226,47 +217,50 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         private void EnsureWriterCreated()
         {
-            if (this.writer == null)
+            if (writer != null)
             {
-                IFileStreamFactory factory;
-                switch (this.requestParams.SaveFormat.ToLowerInvariant())
-                {
-                    case "json":
-                        factory = new SaveAsJsonFileStreamFactory()
-                        {
-                            SaveRequestParams = CreateJsonRequestParams()
-                        };
-                        break;
-                    case "csv":
-                        factory = new SaveAsCsvFileStreamFactory()
-                        {
-                            SaveRequestParams = CreateCsvRequestParams()
-                        };
-                        break;
-                    case "xml":
-                        factory = new SaveAsXmlFileStreamFactory()
-                        {
-                            SaveRequestParams = CreateXmlRequestParams()
-                        };
-                        break;
-                    case "excel":
-                        factory = new SaveAsExcelFileStreamFactory()
-                        {
-                            SaveRequestParams = CreateExcelRequestParams()
-                        };
-                        break;
-                    default:
-                        throw new Exception(SR.SerializationServiceUnsupportedFormat(this.requestParams.SaveFormat));
-                }
-                this.writer = factory.GetWriter(requestParams.FilePath);
+                return;
             }
+
+            ISaveAsFileStreamFactory factory;
+            switch (requestParams.SaveFormat.ToLowerInvariant())
+            {
+                case "json":
+                    factory = new SaveAsJsonFileStreamFactory
+                    {
+                        SaveRequestParams = CreateJsonRequestParams()
+                    };
+                    break;
+                case "csv":
+                    factory = new SaveAsCsvFileStreamFactory
+                    {
+                        SaveRequestParams = CreateCsvRequestParams()
+                    };
+                    break;
+                case "xml":
+                    factory = new SaveAsXmlFileStreamFactory
+                    {
+                        SaveRequestParams = CreateXmlRequestParams()
+                    };
+                    break;
+                case "excel":
+                    factory = new SaveAsExcelFileStreamFactory
+                    {
+                        SaveRequestParams = CreateExcelRequestParams()
+                    };
+                    break;
+                default:
+                    throw new Exception(SR.SerializationServiceUnsupportedFormat(requestParams.SaveFormat));
+            }
+            writer = factory.GetWriter(requestParams.FilePath, columns);
         }
+
         public void CloseStreams()
         {
-            if (this.writer != null)
+            if (writer != null)
             {
-                this.writer.Dispose();
-                this.writer = null;
+                writer.Dispose();
+                writer = null;
             }
         }
 
@@ -274,45 +268,48 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {
             return new SaveResultsAsJsonRequestParams
             {
-                FilePath = this.requestParams.FilePath,
+                FilePath = requestParams.FilePath,
                 BatchIndex = 0,
                 ResultSetIndex = 0
             };
         }
+
         private SaveResultsAsExcelRequestParams CreateExcelRequestParams()
         {
             return new SaveResultsAsExcelRequestParams
             {
-                FilePath = this.requestParams.FilePath,
+                FilePath = requestParams.FilePath,
                 BatchIndex = 0,
                 ResultSetIndex = 0,
                 IncludeHeaders = this.requestParams.IncludeHeaders
             };
         }
+
         private SaveResultsAsCsvRequestParams CreateCsvRequestParams()
         {
             return new SaveResultsAsCsvRequestParams
             {
-                FilePath = this.requestParams.FilePath,
+                FilePath = requestParams.FilePath,
                 BatchIndex = 0,
                 ResultSetIndex = 0,
-                IncludeHeaders = this.requestParams.IncludeHeaders,
-                Delimiter = this.requestParams.Delimiter,
-                LineSeperator = this.requestParams.LineSeparator,
-                TextIdentifier = this.requestParams.TextIdentifier,
-                Encoding = this.requestParams.Encoding,
-                MaxCharsToStore = this.requestParams.MaxCharsToStore
+                IncludeHeaders = requestParams.IncludeHeaders,
+                Delimiter = requestParams.Delimiter,
+                LineSeperator = requestParams.LineSeparator,
+                TextIdentifier = requestParams.TextIdentifier,
+                Encoding = requestParams.Encoding,
+                MaxCharsToStore = requestParams.MaxCharsToStore
             };
         }
+
         private SaveResultsAsXmlRequestParams CreateXmlRequestParams()
         {
             return new SaveResultsAsXmlRequestParams
             {
-                FilePath = this.requestParams.FilePath,
+                FilePath = requestParams.FilePath,
                 BatchIndex = 0,
                 ResultSetIndex = 0,
-                Formatted = this.requestParams.Formatted,
-                Encoding = this.requestParams.Encoding
+                Formatted = requestParams.Formatted,
+                Encoding = requestParams.Encoding
             };
         }
     }

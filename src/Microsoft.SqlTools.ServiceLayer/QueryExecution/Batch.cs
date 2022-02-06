@@ -1,4 +1,4 @@
-// 
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
@@ -16,7 +16,6 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.Utility;
 using System.Globalization;
-using System.Collections.ObjectModel;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.BatchParser;
 using Microsoft.SqlTools.ServiceLayer.AutoParameterizaition;
@@ -31,6 +30,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
     public class Batch : IDisposable
     {
         #region Member Variables
+
+        /// <summary>
+        /// Factory for creating readers/writers for the output of the batch
+        /// </summary>
+        private readonly IServiceBufferFileStreamFactory bufferFileStreamFactory;
+
         /// <summary>
         /// For IDisposable implementation, whether or not this has been disposed
         /// </summary>
@@ -52,17 +57,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private bool messagesSent;
 
         /// <summary>
-        /// Factory for creating readers/writers for the output of the batch
-        /// </summary>
-        private readonly IFileStreamFactory outputFileFactory;
-
-        /// <summary>
         /// Internal representation of the result sets so we can modify internally
         /// </summary>
         private readonly List<ResultSet> resultSets;
 
         /// <summary>
-        /// Special action which this batch performed 
+        /// Special action which this batch performed
         /// </summary>
         private readonly SpecialAction specialAction;
 
@@ -74,19 +74,30 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         #endregion
 
-        internal Batch(string batchText, SelectionData selection, int ordinalId,
-          IFileStreamFactory outputFileFactory, SqlCmdCommand sqlCmdCommand, int executionCount = 1, bool getFullColumnSchema = false) : this(batchText, selection, ordinalId,
-             outputFileFactory, executionCount, getFullColumnSchema)
+        internal Batch(
+            string batchText,
+            SelectionData selection,
+            int ordinalId,
+            IServiceBufferFileStreamFactory bufferFileStreamFactory,
+            SqlCmdCommand sqlCmdCommand,
+            int executionCount = 1,
+            bool getFullColumnSchema = false)
+            : this(batchText, selection, ordinalId, bufferFileStreamFactory, executionCount, getFullColumnSchema)
         {
-            this.SqlCmdCommand = sqlCmdCommand;
+            SqlCmdCommand = sqlCmdCommand;
         }
 
-        internal Batch(string batchText, SelectionData selection, int ordinalId,
-        IFileStreamFactory outputFileFactory, int executionCount = 1, bool getFullColumnSchema = false)
+        internal Batch(
+            string batchText,
+            SelectionData selection,
+            int ordinalId,
+            IServiceBufferFileStreamFactory bufferFileStreamFactory,
+            int executionCount = 1,
+            bool getFullColumnSchema = false)
         {
             // Sanity check for input
             Validate.IsNotNullOrEmptyString(nameof(batchText), batchText);
-            Validate.IsNotNull(nameof(outputFileFactory), outputFileFactory);
+            Validate.IsNotNull(nameof(bufferFileStreamFactory), bufferFileStreamFactory);
             Validate.IsGreaterThan(nameof(ordinalId), ordinalId, 0);
 
             // Initialize the internal state
@@ -96,7 +107,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             HasExecuted = false;
             Id = ordinalId;
             resultSets = new List<ResultSet>();
-            this.outputFileFactory = outputFileFactory;
+            this.bufferFileStreamFactory = bufferFileStreamFactory;
             specialAction = new SpecialAction();
             BatchExecutionCount = executionCount > 0 ? executionCount : 1;
 
@@ -160,13 +171,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         #region Properties
 
         /// <summary>
+        /// Number of times the batch should be executed.
+        /// </summary>
+        public int BatchExecutionCount { get; private set; }
+
+        /// <summary>
         /// The text of batch that will be executed
         /// </summary>
         public string BatchText { get; set; }
 
-        public SqlCmdCommand SqlCmdCommand { get; set; }
-
-        public int BatchExecutionCount { get; private set; }
         /// <summary>
         /// Localized timestamp for when the execution completed.
         /// Stored in UTC ISO 8601 format; should be localized before displaying to any user
@@ -197,7 +210,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public bool HasError { get; set; }
 
         /// <summary>
-        /// Whether or not this batch has been executed, regardless of success or failure 
+        /// Whether or not this batch has been executed, regardless of success or failure
         /// </summary>
         public bool HasExecuted { get; set; }
 
@@ -224,6 +237,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 }
             }
         }
+
+        /// <summary>
+        /// The range from the file that is this batch
+        /// </summary>
+        internal SelectionData Selection { get; set; }
+
+        public SqlCmdCommand SqlCmdCommand { get; set; }
 
         /// <summary>
         /// Creates a <see cref="BatchSummary"/> based on the batch instance
@@ -253,11 +273,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 return summary;
             }
         }
-
-        /// <summary>
-        /// The range from the file that is this batch
-        /// </summary>
-        internal SelectionData Selection { get; set; }
 
         #endregion
 
@@ -341,7 +356,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private async Task DoExecute(DbConnection conn, CancellationToken cancellationToken, OnErrorAction onErrorAction = OnErrorAction.Ignore)
         {
             bool canContinue = true;
-            int timesLoop = this.BatchExecutionCount;
+            int timesLoop = BatchExecutionCount;
 
             await SendMessageIfExecutingMultipleTimes(SR.EE_ExecutionInfo_InitializingLoop, false);
 
@@ -370,7 +385,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 timesLoop--;
             }
 
-            await SendMessageIfExecutingMultipleTimes(string.Format(CultureInfo.CurrentCulture, SR.EE_ExecutionInfo_FinalizingLoop, this.BatchExecutionCount), false);
+            await SendMessageIfExecutingMultipleTimes(
+                string.Format(CultureInfo.CurrentCulture, SR.EE_ExecutionInfo_FinalizingLoop, BatchExecutionCount),
+                false);
         }
 
         private async Task SendMessageIfExecutingMultipleTimes(string message, bool isError)
@@ -383,7 +400,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         private bool IsExecutingMultipleTimes()
         {
-            return this.BatchExecutionCount > 1;
+            return BatchExecutionCount > 1;
         }
 
         private async Task ExecuteOnce(DbConnection conn, CancellationToken cancellationToken)
@@ -423,7 +440,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     columnSchemas = new List<DbColumn[]>();
                     using (DbDataReader reader = dbCommand.ExecuteReader(CommandBehavior.KeyInfo | CommandBehavior.SchemaOnly))
                     {
-                        if (reader != null && reader.CanGetColumnSchema())
+                        if (reader.CanGetColumnSchema())
                         {
                             do
                             {
@@ -450,7 +467,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         }
 
                         // This resultset has results (i.e. SELECT/etc queries)
-                        ResultSet resultSet = new ResultSet(resultSets.Count, Id, outputFileFactory);
+                        ResultSet resultSet = new ResultSet(resultSets.Count, Id, bufferFileStreamFactory);
                         resultSet.ResultAvailable += ResultSetAvailable;
                         resultSet.ResultUpdated += ResultSetUpdated;
                         resultSet.ResultCompletion += ResultSetCompletion;
@@ -466,7 +483,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                     } while (reader.NextResult());
 
-                    // If there were no messages, for whatever reason (NO COUNT set, messages 
+                    // If there were no messages, for whatever reason (NO COUNT set, messages
                     // were emitted, records returned), output a "successful" message
                     if (!messagesSent)
                     {
@@ -534,7 +551,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 dbCommand = conn.CreateCommand();
             }
 
-            // Make sure we aren't using a ReliableCommad since we do not want automatic retry
+            // Make sure we aren't using a ReliableCommand since we do not want automatic retry
             Debug.Assert(!(dbCommand is ReliableSqlConnection.ReliableSqlCommand),
                 "ReliableSqlCommand command should not be used to execute queries");
 
@@ -600,8 +617,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </param>
         /// <param name="successHandler">Delegate to call when request successfully completes</param>
         /// <param name="failureHandler">Delegate to call if the request fails</param>
-        public void SaveAs(SaveResultsRequestParams saveParams, IFileStreamFactory fileFactory,
-            ResultSet.SaveAsAsyncEventHandler successHandler, ResultSet.SaveAsFailureAsyncEventHandler failureHandler)
+        public void SaveAs(
+            SaveResultsRequestParams saveParams,
+            ISaveAsFileStreamFactory fileFactory,
+            ResultSet.SaveAsAsyncEventHandler successHandler,
+            ResultSet.SaveAsFailureAsyncEventHandler failureHandler)
         {
             // Get the result set to save
             ResultSet resultSet;
@@ -728,7 +748,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Attempts to convert an <see cref="Exception"/> to a <see cref="SqlException"/> that
         /// contains much more info about Sql Server errors. The exception is then unwrapped and
-        /// messages are formatted and sent to the extension. If the exception cannot be 
+        /// messages are formatted and sent to the extension. If the exception cannot be
         /// converted to SqlException, the message is written to the messages list.
         /// </summary>
         /// <param name="dbe">The exception to unwrap</param>
@@ -751,7 +771,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 }
                 else
                 {
-                    // Not a user cancellation error, add all 
+                    // Not a user cancellation error, add all
                     foreach (var error in errors)
                     {
                         int lineNumber = error.LineNumber + (Selection != null ? Selection.StartLine : 0);
@@ -770,7 +790,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         }
 
         /// <summary>
-        /// Aggregates all result sets in the batch into a single special action 
+        /// Aggregates all result sets in the batch into a single special action
         /// </summary>
         private SpecialAction ProcessResultSetSpecialActions()
         {

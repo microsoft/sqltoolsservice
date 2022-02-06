@@ -12,7 +12,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
     /// <summary>
     /// Factory that creates file reader/writers that process rows in an internal, non-human readable file format
     /// </summary>
-    public class ServiceBufferFileStreamFactory : IFileStreamFactory
+    public class ServiceBufferFileStreamFactory : IServiceBufferFileStreamFactory
     {
         #region Properties
 
@@ -49,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </summary>
         /// <param name="fileName">The file to write values to</param>
         /// <returns>A <see cref="ServiceBufferFileStreamWriter"/></returns>
-        public IFileStreamWriter GetWriter(string fileName)
+        public IServiceBufferFileStreamWriter GetWriter(string fileName)
         {
             return new ServiceBufferFileStreamWriter(new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite), QueryExecutionSettings);
         }

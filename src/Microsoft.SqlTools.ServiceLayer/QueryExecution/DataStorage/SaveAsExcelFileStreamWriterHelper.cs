@@ -1,4 +1,4 @@
-﻿// 
+﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
     // http://www.ecma-international.org/publications/standards/Ecma-376.htm
 
     // The page number in the comments are based on
-    // ECMA-376, Fifth Edition, Part 1 - Fundamentals And Markup Language Reference 
+    // ECMA-376, Fifth Edition, Part 1 - Fundamentals And Markup Language Reference
 
     // Page 75, SpreadsheetML package structure
     // |- [Content_Types].xml
@@ -31,15 +31,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
     //     |- sheet1.xml
 
     /// <summary>
-    /// A helper class for write xlsx file base on ECMA-376. It tries to be minimal,
-    /// both in implementation and runtime allocation. 
+    /// A helper class for write xlsx file based on ECMA-376. It tries to be minimal,
+    /// both in implementation and runtime allocation.
     /// </summary>
-    /// <example> 
-    /// This sample shows how to use the class 
+    /// <example>
+    /// This sample shows how to use the class
     /// <code>
     /// public class TestClass
     /// {
-    ///     public static int Main() 
+    ///     public static int Main()
     ///     {
     ///         using (Stream stream = File.Create("test.xlsx"))
     ///         using (var helper = new SaveAsExcelFileStreamWriterHelper(stream, false))
@@ -140,7 +140,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             /// <summary>
             /// Write a object cell
             /// </summary>
-            /// The program will try to output number/datetime, otherwise, call the ToString 
+            /// The program will try to output number/datetime, otherwise, call the ToString
             /// <param name="o"></param>
             public void AddCell(DbCellValue dbCellValue)
             {
@@ -187,7 +187,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             public void Dispose()
             {
                 EndRowIfNeeded();
-                writer.WriteEndElement(); // <sheetData> 
+                writer.WriteEndElement(); // <sheetData>
                 writer.WriteEndElement(); // <worksheet>
                 writer.Dispose();
             }
@@ -202,7 +202,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             }
 
             /// <summary>
-            /// Write a bool cell. 
+            /// Write a bool cell.
             /// </summary>
             /// <param name="time"></param>
             private void AddCell(bool value)
@@ -232,7 +232,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             }
 
             /// <summary>
-            /// Write a TimeSpan cell. 
+            /// Write a TimeSpan cell.
             /// </summary>
             /// <param name="time"></param>
             private void AddCell(TimeSpan time)
@@ -350,7 +350,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             // and write to the XmlWriter through WriteChars.
             // For example, when the reference has value AA15,
             // The content of this array will be @AA15xxxxx, with currReferenceRowLength=2
-            // and currReferenceColumnLength=2 
+            // and currReferenceColumnLength=2
             private char[] currReference = new char[3 + 7]; //maximal XFD1048576
             private int currReferenceRowLength;
             private int currReferenceColumnLength;
@@ -358,7 +358,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             private XmlWriter writer;
 
             /// <summary>
-            /// Initializes a new instance of the ReferenceManager class.   
+            /// Initializes a new instance of the ReferenceManager class.
             /// </summary>
             /// <param name="writer">XmlWriter to write the reference attribute to.</param>
             public ReferenceManager(XmlWriter writer)
@@ -394,7 +394,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             }
 
             /// <summary>
-            /// Increase the column of internal bookmark. 
+            /// Increase the column of internal bookmark.
             /// </summary>
             public void IncreaseColumnReference()
             {
@@ -422,7 +422,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             }
 
             /// <summary>
-            /// Check that we have not write too many rows. (xlsx has a limit of 1048576 rows) 
+            /// Check that we have not write too many rows. (xlsx has a limit of 1048576 rows)
             /// </summary>
             public void AssureRowReference()
             {
@@ -478,7 +478,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         };
 
         /// <summary>
-        /// Initializes a new instance of the SaveAsExcelFileStreamWriterHelper class.  
+        /// Initializes a new instance of the SaveAsExcelFileStreamWriterHelper class.
         /// </summary>
         /// <param name="stream">The input or output stream.</param>
         public SaveAsExcelFileStreamWriterHelper(Stream stream)
@@ -487,10 +487,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         }
 
         /// <summary>
-        /// Initializes a new instance of the SaveAsExcelFileStreamWriterHelper class. 
+        /// Initializes a new instance of the SaveAsExcelFileStreamWriterHelper class.
         /// </summary>
         /// <param name="stream">The input or output stream.</param>
-        /// <param name="leaveOpen">true to leave the stream open after the 
+        /// <param name="leaveOpen">true to leave the stream open after the
         /// SaveAsExcelFileStreamWriterHelper object is disposed; otherwise, false.</param>
         public SaveAsExcelFileStreamWriterHelper(Stream stream, bool leaveOpen)
         {
@@ -522,7 +522,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         }
 
         /// <summary>
-        /// Write out the rest of the xlsx files and release the resources used by the current instance 
+        /// Write out the rest of the xlsx files and release the resources used by the current instance
         /// </summary>
         public void Dispose()
         {

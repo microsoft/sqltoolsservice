@@ -1,4 +1,4 @@
-﻿// 
+﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -17,25 +17,36 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
         #region Member Variables
 
-        private readonly SaveResultsAsExcelRequestParams saveParams;
-        private bool headerWritten;
-        private SaveAsExcelFileStreamWriterHelper helper;
-        private SaveAsExcelFileStreamWriterHelper.ExcelSheet sheet;
+        private readonly SaveAsExcelFileStreamWriterHelper helper;
+        private readonly SaveAsExcelFileStreamWriterHelper.ExcelSheet sheet;
 
         #endregion
 
         /// <summary>
-        /// Constructor, stores the Excel specific request params locally, chains into the base 
+        /// Constructor, stores the Excel specific request params locally, chains into the base
         /// constructor
         /// </summary>
         /// <param name="stream">FileStream to access the Excel file output</param>
         /// <param name="requestParams">Excel save as request parameters</param>
-        public SaveAsExcelFileStreamWriter(Stream stream, SaveResultsAsExcelRequestParams requestParams)
-            : base(stream, requestParams)
+        /// <param name="columns">
+        /// The entire list of columns for the result set. They will be filtered down as per the
+        /// request params.
+        /// </param>
+        public SaveAsExcelFileStreamWriter(Stream stream, SaveResultsAsExcelRequestParams requestParams, IReadOnlyList<DbColumnWrapper> columns)
+            : base(stream, requestParams, columns)
         {
-            saveParams = requestParams;
             helper = new SaveAsExcelFileStreamWriterHelper(stream);
             sheet = helper.AddSheet();
+
+            // Output the headers if the user requested them
+            if (requestParams.IncludeHeaders)
+            {
+                sheet.AddRow();
+                for (int i = ColumnStartIndex; i < ColumnEndIndex; i++)
+                {
+                    sheet.AddCell(columns[i].ColumnName);
+                }
+            }
         }
 
         /// <summary>
@@ -43,35 +54,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// it, the headers for the column will be emitted as well.
         /// </summary>
         /// <param name="row">The data of the row to output to the file</param>
-        /// <param name="columns">
-        /// The entire list of columns for the result set. They will be filtered down as per the
-        /// request params.
-        /// </param>
-        public override void WriteRow(IList<DbCellValue> row, IList<DbColumnWrapper> columns)
+        public override void WriteRow(IList<DbCellValue> row)
         {
-            int columnStart = ColumnStartIndex ?? 0;
-            int columnEnd = (ColumnEndIndex != null) ? ColumnEndIndex.Value + 1 : columns.Count;
-
-            // Write out the header if we haven't already and the user chose to have it
-            if (saveParams.IncludeHeaders && !headerWritten)
-            {
-                sheet.AddRow();
-                for (int i = columnStart; i < columnEnd; i++)
-                {
-                    sheet.AddCell(columns[i].ColumnName);
-                }
-                headerWritten = true;
-            }
-
             sheet.AddRow();
-            for (int i = columnStart; i < columnEnd; i++)
+            for (int i = ColumnStartIndex; i < ColumnEndIndex; i++)
             {
                 sheet.AddCell(row[i]);
             }
         }
 
         private bool disposed;
-        override protected void Dispose(bool disposing)
+        protected override void Dispose(bool disposing)
         {
             if (disposed)
                 return;

@@ -1,9 +1,8 @@
-﻿// 
+﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -20,14 +19,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
     /// created when the writer was created. Since this behavior is different than the standard
     /// file stream cleanup, the extra Dispose method was added.
     /// </remarks>
-    public class SaveAsXmlFileStreamWriter : SaveAsStreamWriter, IDisposable
+    public class SaveAsXmlFileStreamWriter : SaveAsStreamWriter
     {
         // Root element name for the output XML
         private const string RootElementTag = "data";
-        
+
         // Item element name which will be used for every row
         private const string ItemElementTag = "row";
-        
+
         #region Member Variables
 
         private readonly XmlTextWriter xmlTextWriter;
@@ -39,8 +38,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </summary>
         /// <param name="stream">FileStream to access the JSON file output</param>
         /// <param name="requestParams">XML save as request parameters</param>
-        public SaveAsXmlFileStreamWriter(Stream stream, SaveResultsAsXmlRequestParams requestParams)
-            : base(stream, requestParams)
+        /// <param name="columns">
+        /// The entire list of columns for the result set. They will be filtered down as per the
+        /// request params.
+        /// </param>
+        public SaveAsXmlFileStreamWriter(Stream stream, SaveResultsAsXmlRequestParams requestParams, IReadOnlyList<DbColumnWrapper> columns)
+            : base(stream, requestParams, columns)
         {
             // Setup the internal state
             var encoding = GetEncoding(requestParams);
@@ -56,23 +59,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// Writes a row of data as a XML object
         /// </summary>
         /// <param name="row">The data of the row to output to the file</param>
-        /// <param name="columns">
-        /// The entire list of columns for the result set. They will be filtered down as per the
-        /// request params.
-        /// </param>
-        public override void WriteRow(IList<DbCellValue> row, IList<DbColumnWrapper> columns)
+        public override void WriteRow(IList<DbCellValue> row)
         {
             // Write the header for the object
             xmlTextWriter.WriteStartElement(ItemElementTag);
 
             // Write the items out as properties
-            int columnStart = ColumnStartIndex ?? 0;
-            int columnEnd = ColumnEndIndex + 1 ?? columns.Count;
-            for (int i = columnStart; i < columnEnd; i++)
+            for (int i = ColumnStartIndex; i < ColumnEndIndex; i++)
             {
                 // Write the column name as item tag
-                xmlTextWriter.WriteStartElement(columns[i].ColumnName);
-                
+                xmlTextWriter.WriteStartElement(Columns[i].ColumnName);
+
                 if (row[i].RawObject != null)
                 {
                     xmlTextWriter.WriteString(row[i].DisplayValue);
@@ -91,7 +88,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </summary>
         /// <param name="requestParams">XML save as request parameters</param>
         /// <returns></returns>
-        private Encoding GetEncoding(SaveResultsAsXmlRequestParams requestParams)
+        private static Encoding GetEncoding(SaveResultsAsXmlRequestParams requestParams)
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             Encoding encoding;

@@ -1,4 +1,4 @@
-﻿// 
+﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -66,6 +66,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private readonly CancellationTokenSource cancellationSource;
 
         /// <summary>
+        /// Cancelled but not user but by SQLCMD settings
+        /// </summary>
+        private bool cancelledBySqlCmd;
+
+        /// <summary>
         /// For IDisposable implementation, whether or not this object has been disposed
         /// </summary>
         private bool disposed;
@@ -92,15 +97,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private OnErrorAction onErrorAction;
 
         /// <summary>
-        /// Connection that is used for query to run 
+        /// Connection that is used for query to run
         /// This is always initialized from editor connection but might be different in case of SQLCMD mode
         /// </summary>
         private DbConnection queryConnection;
-
-        /// <summary>
-        /// Cancelled but not user but by SQLCMD settings
-        /// </summary>
-        private bool CancelledBySqlCmd;
 
         #endregion
 
@@ -110,12 +110,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="queryText">The text of the query to execute</param>
         /// <param name="connection">The information of the connection to use to execute the query</param>
         /// <param name="settings">Settings for how to execute the query, from the user</param>
-        /// <param name="outputFactory">Factory for creating output files</param>
+        /// <param name="serviceBufferFactory">Factory for creating buffer files</param>
         public Query(
             string queryText,
             ConnectionInfo connection,
             QueryExecutionSettings settings,
-            IFileStreamFactory outputFactory,
+            IServiceBufferFileStreamFactory serviceBufferFactory,
             bool getFullColumnSchema = false,
             bool applyExecutionSettings = false)
         {
@@ -123,14 +123,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             Validate.IsNotNull(nameof(queryText), queryText);
             Validate.IsNotNull(nameof(connection), connection);
             Validate.IsNotNull(nameof(settings), settings);
-            Validate.IsNotNull(nameof(outputFactory), outputFactory);
+            Validate.IsNotNull(nameof(serviceBufferFactory), serviceBufferFactory);
 
             // Initialize the internal state
             QueryText = queryText;
             editorConnection = connection;
             cancellationSource = new CancellationTokenSource();
 
-            // Process the query into batches 
+            // Process the query into batches
             BatchParserWrapper parser = new BatchParserWrapper();
             ExecutionEngineConditions conditions = null;
             if (settings.IsSqlCmdMode)
@@ -147,7 +147,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             batchDefinition.StartColumn-1,
                             batchDefinition.EndLine-1,
                             batchDefinition.EndColumn-1),
-                        index, outputFactory,
+                        index, serviceBufferFactory,
                         batchDefinition.SqlCmdCommand,
                         batchDefinition.BatchExecutionCount,
                         getFullColumnSchema));
@@ -160,7 +160,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             if (applyExecutionSettings)
             {
-                ApplyExecutionSettings(connection, settings, outputFactory);
+                ApplyExecutionSettings(connection, settings, serviceBufferFactory);
             }
         }
 
@@ -223,19 +223,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         #region Properties
 
         /// <summary>
-        /// The batches which should run before the user batches 
+        /// The batches which should run after the user batches
         /// </summary>
-        private List<Batch> BeforeBatches { get; }
+        internal List<Batch> AfterBatches { get; }
 
         /// <summary>
         /// The batches underneath this query
         /// </summary>
         internal Batch[] Batches { get; }
-
-        /// <summary>
-        /// The batches which should run after the user batches 
-        /// </summary>
-        internal List<Batch> AfterBatches { get; }
 
         /// <summary>
         /// The summaries of the batches underneath this query
@@ -250,6 +245,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 }
                 return Batches.Select(b => b.Summary).ToArray();
             }
+        }
+
+        /// <summary>
+        /// The batches which should run before the user batches
+        /// </summary>
+        private List<Batch> BeforeBatches { get; }
+
+        /// <summary>
+        /// Changes the OwnerURI for the editor connection.
+        /// </summary>
+        public string ConnectionOwnerURI {
+            get => editorConnection.OwnerUri;
+            set => editorConnection.OwnerUri = value;
         }
 
         /// <summary>
@@ -308,7 +316,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             // Issue the cancellation token for the query
-            this.HasCancelled = true;
+            HasCancelled = true;
             cancellationSource.Cancel();
         }
 
@@ -373,8 +381,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </param>
         /// <param name="successHandler">Delegate to call when the request completes successfully</param>
         /// <param name="failureHandler">Delegate to call if the request fails</param>
-        public void SaveAs(SaveResultsRequestParams saveParams, IFileStreamFactory fileFactory,
-            ResultSet.SaveAsAsyncEventHandler successHandler, ResultSet.SaveAsFailureAsyncEventHandler failureHandler)
+        public void SaveAs(
+            SaveResultsRequestParams saveParams,
+            ISaveAsFileStreamFactory fileFactory,
+            ResultSet.SaveAsAsyncEventHandler successHandler,
+            ResultSet.SaveAsFailureAsyncEventHandler failureHandler)
         {
             // Sanity check to make sure that the batch is within bounds
             if (saveParams.BatchIndex < 0 || saveParams.BatchIndex >= Batches.Length)
@@ -383,20 +394,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             Batches[saveParams.BatchIndex].SaveAs(saveParams, fileFactory, successHandler, failureHandler);
-        }
-
-        /// <summary>
-        /// Changes the OwnerURI for the editor connection.
-        /// </summary>
-        public String ConnectionOwnerURI { 
-            get
-            {
-                return this.editorConnection.OwnerUri;
-            }
-            set
-            {
-                this.editorConnection.OwnerUri = value;
-            }
         }
 
         #endregion
@@ -433,7 +430,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 // Locate and setup the connection
                 queryConnection = await ConnectionService.Instance.GetOrOpenConnection(editorConnection.OwnerUri, ConnectionType.Query);
-                onErrorAction = OnErrorAction.Ignore; 
+                onErrorAction = OnErrorAction.Ignore;
                 sqlConn = queryConnection as ReliableSqlConnection;
                 if (sqlConn != null)
                 {
@@ -443,7 +440,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 }
 
 
-                // Execute beforeBatches synchronously, before the user defined batches 
+                // Execute beforeBatches synchronously, before the user defined batches
                 foreach (Batch b in BeforeBatches)
                 {
                     await b.Execute(queryConnection, cancellationSource.Token);
@@ -452,7 +449,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 // We need these to execute synchronously, otherwise the user will be very unhappy
                 foreach (Batch b in Batches)
                 {
-                    // Add completion callbacks 
+                    // Add completion callbacks
                     b.BatchStart += BatchStarted;
                     b.BatchCompletion += BatchCompleted;
                     b.BatchMessageSent += BatchMessageSent;
@@ -478,7 +475,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             catch (Exception e)
             {
                 HasErrored = true;
-                if (e is SqlCmdException || CancelledBySqlCmd)
+                if (e is SqlCmdException || cancelledBySqlCmd)
                 {
                     await BatchMessageSent(new ResultMessage(SR.SqlCmdExitOnError, false, null));
                 }
@@ -501,19 +498,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     sqlConn.GetUnderlyingConnection().InfoMessage -= OnInfoMessage;
                 }
 
-                // If any message notified us we had changed databases, then we must let the connection service know 
+                // If any message notified us we had changed databases, then we must let the connection service know
                 if (newDatabaseName != null)
                 {
                     ConnectionService.Instance.ChangeConnectionDatabaseContext(editorConnection.OwnerUri, newDatabaseName);
                 }
 
-                foreach (Batch b in Batches)
+                if (Batches.Any(b => b.HasError))
                 {
-                    if (b.HasError)
-                    {
-                        ConnectionService.EnsureConnectionIsOpen(sqlConn);
-                        break;
-                    }
+                    ConnectionService.EnsureConnectionIsOpen(sqlConn);
                 }
             }
         }
@@ -522,18 +515,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             if (b.SqlCmdCommand != null)
             {
                 b.HandleOnErrorAction += HandleOnErrorAction;
-                await PerformInplaceSqlCmdAction(b);
+                await PerformInPlaceSqlCmdAction(b);
             }
 
             await b.Execute(queryConnection, cancellationSource.Token, this.onErrorAction);
 
-            if (CancelledBySqlCmd)
+            if (cancelledBySqlCmd)
             {
                 throw new SqlCmdException(SR.SqlCmdExitOnError);
             }
         }
 
-        public async Task PerformInplaceSqlCmdAction(Batch b)
+        private async Task PerformInPlaceSqlCmdAction(Batch b)
         {
             try
             {
@@ -554,10 +547,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 b.HasError = true;
                 await BatchMessageSent(new ResultMessage(ex.Message, true, null));
-                if (this.onErrorAction == OnErrorAction.Exit)
+                if (onErrorAction == OnErrorAction.Exit)
                 {
                     HasCancelled = true;
-                    CancelledBySqlCmd = true;
+                    cancelledBySqlCmd = true;
                     cancellationSource.Cancel();
                     throw new SqlCmdException(SR.SqlCmdExitOnError);
                 }
@@ -565,12 +558,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
-        private void HandleOnErrorAction(object sender, bool iserror)
+        private void HandleOnErrorAction(object sender, bool isError)
         {
-            if (iserror && this.onErrorAction == OnErrorAction.Exit)
+            if (isError && this.onErrorAction == OnErrorAction.Exit)
             {
                 HasCancelled = true;
-                CancelledBySqlCmd = true;
+                cancelledBySqlCmd = true;
                 cancellationSource.Cancel();
             }
         }
@@ -599,7 +592,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Function to add a new batch to a Batch set
         /// </summary>
-        private static void AddBatch(string query, ICollection<Batch> batchSet, IFileStreamFactory outputFactory)
+        private static void AddBatch(string query, ICollection<Batch> batchSet, IServiceBufferFileStreamFactory outputFactory)
         {
             batchSet.Add(new Batch(query, null, batchSet.Count, outputFactory, 1));
         }
@@ -607,15 +600,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private void ApplyExecutionSettings(
             ConnectionInfo connection,
             QueryExecutionSettings settings,
-            IFileStreamFactory outputFactory)
+            IServiceBufferFileStreamFactory outputFactory)
         {
-            outputFactory.QueryExecutionSettings = settings;
             QuerySettingsHelper helper = new QuerySettingsHelper(settings);
 
             // set query execution plan options
             if (DoesSupportExecutionPlan(connection))
             {
-                // Checking settings for execution plan options 
+                // Checking settings for execution plan options
                 if (settings.ExecutionPlanOptions.IncludeEstimatedExecutionPlanXml)
                 {
                     // Enable set showplan xml
@@ -634,37 +626,36 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             if (!connection.IsSqlDW)
             {
-                // "set noexec off" should be the very first command, cause everything after 
+                // "set noexec off" should be the very first command, cause everything after
                 // corresponding "set noexec on" is not executed until "set noexec off"
                 // is encounted
                 // NOEXEC is not currently supported by SqlOnDemand servers
                 if (!settings.NoExec && connection.EngineEdition != SqlServer.Management.Common.DatabaseEngineEdition.SqlOnDemand)
                 {
-                    builderBefore.AppendFormat("{0} ", helper.SetNoExecString);
+                    builderBefore.Append($"{helper.SetNoExecString} ");
                 }
 
                 if (settings.StatisticsIO)
                 {
-                    builderBefore.AppendFormat("{0} ", helper.GetSetStatisticsIOString(true));
-                    builderAfter.AppendFormat("{0} ", helper.GetSetStatisticsIOString (false));
+                    builderBefore.Append($"{helper.GetSetStatisticsIOString(true)} ");
+                    builderAfter.Append($"{helper.GetSetStatisticsIOString(false)} ");
                 }
 
                 if (settings.StatisticsTime)
                 {
-                    builderBefore.AppendFormat("{0} ", helper.GetSetStatisticsTimeString (true));
-                    builderAfter.AppendFormat("{0} ", helper.GetSetStatisticsTimeString(false));
+                    builderBefore.Append($"{helper.GetSetStatisticsTimeString(true)} ");
+                    builderAfter.Append($"{helper.GetSetStatisticsTimeString(false)} ");
                 }
             }
 
             if (settings.ParseOnly)
             {
-                builderBefore.AppendFormat("{0} ", helper.GetSetParseOnlyString(true));
-                builderAfter.AppendFormat("{0} ", helper.GetSetParseOnlyString(false));
+                builderBefore.Append($"{helper.GetSetParseOnlyString(true)} ");
+                builderAfter.Append($"{helper.GetSetParseOnlyString(false)} ");
             }
 
             // append first part of exec options
-            builderBefore.AppendFormat("{0} {1} {2}",
-                helper.SetRowCountString,  helper.SetTextSizeString,  helper.SetNoCountString);
+            builderBefore.Append($"{helper.SetRowCountString} {helper.SetTextSizeString} {helper.SetNoCountString}");
 
             if (!connection.IsSqlDW)
             {
@@ -682,11 +673,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                                         // set and having a client change it could be dangerous (the reverse is much
                                         // less risky)
 
-                                        // The full fix would probably be to make the options tri-state instead of 
+                                        // The full fix would probably be to make the options tri-state instead of
                                         // just on/off, where the default is to use the servers default. Until that
                                         // happens though this is the best solution we came up with. See TFS#7937925
 
-                                        // Note that users can always specifically add SET XACT_ABORT OFF to their 
+                                        // Note that users can always specifically add SET XACT_ABORT OFF to their
                                         // queries if they do truly want to set it off. We just don't want  to
                                         // do it silently (since the default is going to be off)
                                         settings.XactAbortOn ? helper.SetXactAbortString : string.Empty);
@@ -702,7 +693,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 // NOEXEC is not currently supported by SqlOnDemand servers
                 if (settings.NoExec && connection.EngineEdition != SqlServer.Management.Common.DatabaseEngineEdition.SqlOnDemand)
                 {
-                    builderBefore.AppendFormat("{0} ", helper.SetNoExecString);
+                    builderBefore.Append($"{helper.SetNoExecString} ");
                 }
             }
 

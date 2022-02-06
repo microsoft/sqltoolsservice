@@ -62,12 +62,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <remarks>
         /// Made internal here to allow for overriding in unit testing
         /// </remarks>
-        internal IFileStreamFactory BufferFileStreamFactory;
+        internal IServiceBufferFileStreamFactory BufferFileStreamFactory;
 
         /// <summary>
         /// File factory to be used to create a buffer file for results
         /// </summary>
-        private IFileStreamFactory BufferFileFactory
+        private IServiceBufferFileStreamFactory BufferFileFactory
         {
             get
             {
@@ -86,25 +86,25 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// File factory to be used to create CSV files from result sets. Set to internal in order
         /// to allow overriding in unit testing
         /// </summary>
-        internal IFileStreamFactory CsvFileFactory { get; set; }
+        internal ISaveAsFileStreamFactory CsvFileFactory { get; set; }
 
         /// <summary>
         /// File factory to be used to create Excel files from result sets. Set to internal in order
         /// to allow overriding in unit testing
         /// </summary>
-        internal IFileStreamFactory ExcelFileFactory { get; set; }
+        internal ISaveAsFileStreamFactory ExcelFileFactory { get; set; }
 
         /// <summary>
         /// File factory to be used to create JSON files from result sets. Set to internal in order
         /// to allow overriding in unit testing
         /// </summary>
-        internal IFileStreamFactory JsonFileFactory { get; set; }
+        internal ISaveAsFileStreamFactory JsonFileFactory { get; set; }
 
         /// <summary>
         /// File factory to be used to create XML files from result sets. Set to internal in order
         /// to allow overriding in unit testing
         /// </summary>
-        internal IFileStreamFactory XmlFileFactory { get; set; }
+        internal ISaveAsFileStreamFactory XmlFileFactory { get; set; }
 
         /// <summary>
         /// The collection of active queries
@@ -519,11 +519,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Process request to save a resultSet to a file in CSV format
         /// </summary>
-        internal async Task HandleSaveResultsAsCsvRequest(SaveResultsAsCsvRequestParams saveParams,
+        internal async Task HandleSaveResultsAsCsvRequest(
+            SaveResultsAsCsvRequestParams saveParams,
             RequestContext<SaveResultRequestResult> requestContext)
         {
             // Use the default CSV file factory if we haven't overridden it
-            IFileStreamFactory csvFactory = CsvFileFactory ?? new SaveAsCsvFileStreamFactory
+            ISaveAsFileStreamFactory csvFactory = CsvFileFactory ?? new SaveAsCsvFileStreamFactory
             {
                 SaveRequestParams = saveParams,
                 QueryExecutionSettings = Settings.QueryExecutionSettings
@@ -534,11 +535,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Process request to save a resultSet to a file in Excel format
         /// </summary>
-        internal async Task HandleSaveResultsAsExcelRequest(SaveResultsAsExcelRequestParams saveParams,
+        internal async Task HandleSaveResultsAsExcelRequest(
+            SaveResultsAsExcelRequestParams saveParams,
             RequestContext<SaveResultRequestResult> requestContext)
         {
             // Use the default Excel file factory if we haven't overridden it
-            IFileStreamFactory excelFactory = ExcelFileFactory ?? new SaveAsExcelFileStreamFactory
+            ISaveAsFileStreamFactory excelFactory = ExcelFileFactory ?? new SaveAsExcelFileStreamFactory
             {
                 SaveRequestParams = saveParams,
                 QueryExecutionSettings = Settings.QueryExecutionSettings
@@ -549,11 +551,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Process request to save a resultSet to a file in JSON format
         /// </summary>
-        internal async Task HandleSaveResultsAsJsonRequest(SaveResultsAsJsonRequestParams saveParams,
+        internal async Task HandleSaveResultsAsJsonRequest(
+            SaveResultsAsJsonRequestParams saveParams,
             RequestContext<SaveResultRequestResult> requestContext)
         {
             // Use the default JSON file factory if we haven't overridden it
-            IFileStreamFactory jsonFactory = JsonFileFactory ?? new SaveAsJsonFileStreamFactory
+            ISaveAsFileStreamFactory jsonFactory = JsonFileFactory ?? new SaveAsJsonFileStreamFactory
             {
                 SaveRequestParams = saveParams,
                 QueryExecutionSettings = Settings.QueryExecutionSettings
@@ -564,11 +567,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Process request to save a resultSet to a file in XML format
         /// </summary>
-        internal async Task HandleSaveResultsAsXmlRequest(SaveResultsAsXmlRequestParams saveParams,
+        internal async Task HandleSaveResultsAsXmlRequest(
+            SaveResultsAsXmlRequestParams saveParams,
             RequestContext<SaveResultRequestResult> requestContext)
         {
             // Use the default XML file factory if we haven't overridden it
-            IFileStreamFactory xmlFactory = XmlFileFactory ?? new SaveAsXmlFileStreamFactory
+            ISaveAsFileStreamFactory xmlFactory = XmlFileFactory ?? new SaveAsXmlFileStreamFactory
             {
                 SaveRequestParams = saveParams,
                 QueryExecutionSettings = Settings.QueryExecutionSettings
@@ -748,12 +752,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             // Attempt to clean out any old query on the owner URI
-            Query oldQuery;
             // DevNote:
             //    if any oldQuery exists on the executeParams.OwnerUri but it has not yet executed,
             //    then shouldn't we cancel and clean out that query since we are about to create a new query object on the current OwnerUri.
             //
-            if (ActiveQueries.TryGetValue(executeParams.OwnerUri, out oldQuery) && (oldQuery.HasExecuted || oldQuery.HasCancelled || oldQuery.HasErrored))
+            if (ActiveQueries.TryGetValue(executeParams.OwnerUri, out var oldQuery)
+                && (oldQuery.HasExecuted || oldQuery.HasCancelled || oldQuery.HasErrored))
             {
                 oldQuery.Dispose();
                 ActiveQueries.TryRemove(executeParams.OwnerUri, out oldQuery);
@@ -764,7 +768,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             if (this.ActiveQueryExecutionSettings.TryGetValue(executeParams.OwnerUri, out settings))
             {
                 // special-case handling for query plan options to maintain compat with query execution API parameters
-                // the logic is that if either the query execute API parameters or the active query setttings 
+                // the logic is that if either the query execute API parameters or the active query settings
                 // request a plan then enable the query option
                 ExecutionPlanOptions executionPlanOptions = executeParams.ExecutionPlanOptions;
                 if (settings.IncludeActualExecutionPlanXml)
@@ -899,7 +903,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Setup the ResultSet updated callback
             ResultSet.ResultSetAsyncEventHandler resultUpdatedCallback = async r =>
             {
-                
+
                 //Generating and sending an execution plan graphs if it is requested.
                 List<ExecutionPlanGraph> plans = null;
                 string planErrors = "";
@@ -913,7 +917,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     catch (Exception ex)
                     {
                         // In case of error we are sending an empty execution plan graph with the error message.
-                        Logger.Write(TraceEventType.Error, String.Format("Failed to generate show plan graph{0}{1}", Environment.NewLine, ex.Message));
+                        Logger.Write(
+                            TraceEventType.Error,
+                            $"Failed to generate show plan graph{Environment.NewLine}{ex.Message}");
                         planErrors = ex.Message;
                     }
 
@@ -949,11 +955,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         }
 
         private async Task SaveResultsHelper(SaveResultsRequestParams saveParams,
-            RequestContext<SaveResultRequestResult> requestContext, IFileStreamFactory fileFactory)
+            RequestContext<SaveResultRequestResult> requestContext, ISaveAsFileStreamFactory fileFactory)
         {
             // retrieve query for OwnerUri
-            Query query;
-            if (!ActiveQueries.TryGetValue(saveParams.OwnerUri, out query))
+            if (!ActiveQueries.TryGetValue(saveParams.OwnerUri, out var query))
             {
                 await requestContext.SendError(SR.QueryServiceQueryInvalidOwnerUri);
                 return;
@@ -988,29 +993,24 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // then we'll fail to find it since GetFile expects the URI to be a fully-escaped URI as that's
             // what the document events are sent in as.
             var escapedOwnerUri = Uri.EscapeUriString(request.OwnerUri);
-            // If it is a document selection, we'll retrieve the text from the document
-            ExecuteDocumentSelectionParams docRequest = request as ExecuteDocumentSelectionParams;
-            if (docRequest != null)
+            switch (request)
             {
-                return GetSqlTextFromSelectionData(escapedOwnerUri, docRequest.QuerySelection);
-            }
+                case ExecuteDocumentSelectionParams docRequest:
+                    // If it is a document selection, we'll retrieve the text from the document
+                    return GetSqlTextFromSelectionData(escapedOwnerUri, docRequest.QuerySelection);
 
-            // If it is a document statement, we'll retrieve the text from the document
-            ExecuteDocumentStatementParams stmtRequest = request as ExecuteDocumentStatementParams;
-            if (stmtRequest != null)
-            {
-                return GetSqlStatementAtPosition(escapedOwnerUri, stmtRequest.Line, stmtRequest.Column);
-            }
+                case ExecuteDocumentStatementParams stmtRequest:
+                    // If it is a document statement, we'll retrieve the text from the document
+                    return GetSqlStatementAtPosition(escapedOwnerUri, stmtRequest.Line, stmtRequest.Column);
 
-            // If it is an ExecuteStringParams, return the text as is
-            ExecuteStringParams stringRequest = request as ExecuteStringParams;
-            if (stringRequest != null)
-            {
-                return stringRequest.Query;
-            }
+                case ExecuteStringParams stringRequest:
+                    // If it is an ExecuteStringParams, return the text as is
+                    return stringRequest.Query;
 
-            // Note, this shouldn't be possible due to inheritance rules
-            throw new InvalidCastException("Invalid request type");
+                default:
+                    // Note, this shouldn't be possible due to inheritance rules
+                    throw new InvalidCastException("Invalid request type");
+            }
         }
 
         /// <summary>
