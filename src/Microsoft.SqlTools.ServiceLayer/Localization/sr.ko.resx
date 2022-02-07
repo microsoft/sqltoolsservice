@@ -3526,6 +3526,9 @@
   <data name="TableDesignerColumnsDisplayValueTitle" xml:space="preserve">
     <value>열</value>
   </data>
+  <data name="TableDesignerDeleteColumnConfirmationMessage" xml:space="preserve">
+    <value>열을 제거하면 인덱스 및 외장 키에서도 제거됩니다. 계속하시겠습니까?</value>
+  </data>
   <data name="MissingIndexFormat" xml:space="preserve">
     <value>인덱스 없음(영향 {0}): {1}</value>
   </data>

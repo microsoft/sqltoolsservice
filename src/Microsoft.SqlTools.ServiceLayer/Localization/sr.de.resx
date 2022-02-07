@@ -3526,6 +3526,9 @@
   <data name="TableDesignerColumnsDisplayValueTitle" xml:space="preserve">
     <value>Spalten</value>
   </data>
+  <data name="TableDesignerDeleteColumnConfirmationMessage" xml:space="preserve">
+    <value>Wenn Sie eine Spalte entfernen, wird sie auch aus den Indizes und Fremdschlüsseln entfernt. Möchten Sie den Vorgang wirklich fortsetzen?</value>
+  </data>
   <data name="MissingIndexFormat" xml:space="preserve">
     <value>Fehlender Index (Auswirkung {0}): {1}</value>
   </data>

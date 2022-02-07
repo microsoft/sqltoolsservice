@@ -3526,6 +3526,9 @@
   <data name="TableDesignerColumnsDisplayValueTitle" xml:space="preserve">
     <value>列</value>
   </data>
+  <data name="TableDesignerDeleteColumnConfirmationMessage" xml:space="preserve">
+    <value>删除列还将从索引和外键中删除该列。是否确实要继续?</value>
+  </data>
   <data name="MissingIndexFormat" xml:space="preserve">
     <value>缺少索引(影响 {0}): {1}</value>
   </data>

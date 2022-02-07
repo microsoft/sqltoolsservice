@@ -3526,6 +3526,9 @@
   <data name="TableDesignerColumnsDisplayValueTitle" xml:space="preserve">
     <value>資料行</value>
   </data>
+  <data name="TableDesignerDeleteColumnConfirmationMessage" xml:space="preserve">
+    <value>移除資料行也會將它從索引和外部索引鍵移除。確定要繼續嗎?</value>
+  </data>
   <data name="MissingIndexFormat" xml:space="preserve">
     <value>遺漏索引 (影響 {0}): {1}</value>
   </data>
