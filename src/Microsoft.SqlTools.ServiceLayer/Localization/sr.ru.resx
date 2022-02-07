@@ -3526,6 +3526,9 @@
   <data name="TableDesignerColumnsDisplayValueTitle" xml:space="preserve">
     <value>Столбцы</value>
   </data>
+  <data name="TableDesignerDeleteColumnConfirmationMessage" xml:space="preserve">
+    <value>Удаление столбца также приведет к его удалению из индексов и внешних ключей. Вы действительно хотите продолжить?</value>
+  </data>
   <data name="MissingIndexFormat" xml:space="preserve">
     <value>Отсутствует индекс (влияние {0}): {1}</value>
   </data>

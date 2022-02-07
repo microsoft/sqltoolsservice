@@ -3526,6 +3526,9 @@
   <data name="TableDesignerColumnsDisplayValueTitle" xml:space="preserve">
     <value>Columnas</value>
   </data>
+  <data name="TableDesignerDeleteColumnConfirmationMessage" xml:space="preserve">
+    <value>Si quita una columna, también se quitará de los índices y las claves externas. ¿Seguro que desea continuar?</value>
+  </data>
   <data name="MissingIndexFormat" xml:space="preserve">
     <value>Índice que falta (impacto {0}): {1}</value>
   </data>
