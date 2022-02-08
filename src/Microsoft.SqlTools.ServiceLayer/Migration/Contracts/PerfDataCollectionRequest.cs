@@ -10,11 +10,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
 {
     public class StartPerfDataCollectionParams
     {
+        /// <summary>
+        /// Uri identifier for the connection
+        /// </summary>
         public string OwnerUri { get; set; }
 
         /// <summary>
         /// Path to SqlAssessment executable, installed by the SQL migration extension
         /// </summary>
+        /// <remarks> TO DO: include Console App executable with migration extension</remarks>
         public string SqlAssessmentPath { get; set; }
 
         /// <summary>
