@@ -1317,17 +1317,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 string connectionString = string.Empty;
                 ConnectionInfo info;
-                if (connStringParams.ConnectionInfo != null)
+                SqlConnectionStringBuilder connStringBuilder;
+                if (connStringParams.OwnerUri == null)
                 {
-                    info = connStringParams.ConnectionInfo;
+                    // Use connection info to create connection string
+                    if (connStringParams.ConnectionDetails != null)
+                    {
+                        connStringBuilder = CreateConnectionStringBuilder(connStringParams.ConnectionDetails);
+                    }
                 }
                 else if (TryFindConnection(connStringParams.OwnerUri, out info))
                 {
                     try
                     {
-                        SqlConnectionStringBuilder connStringBuilder = CreateConnectionStringBuilder(info.ConnectionDetails);
+                        connStringBuilder = CreateConnectionStringBuilder(info.ConnectionDetails);
 
-                        if (!connStringParams.IncludePassword)
+                        if (!connStringParams.IncludePassword.HasValue)
                         {
                             connStringBuilder.Password = ConnectionService.PasswordPlaceholder;
                         }

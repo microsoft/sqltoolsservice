@@ -124,6 +124,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
             var requestParams = new GetConnectionStringParams()
             {
                 OwnerUri = result.ConnectionInfo.OwnerUri,
+                ConnectionDetails = result.ConnectionInfo.ConnectionDetails,
                 IncludePassword = false,
                 IncludeApplicationName = true
             };

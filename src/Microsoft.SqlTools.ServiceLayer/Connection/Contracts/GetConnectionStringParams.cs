@@ -16,15 +16,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         public string OwnerUri { get; set; }
 
         /// <summary>
-        /// Connection information for the connection
+        /// Connection information of the connection
         /// </summary>
-        public ConnectionInfo ConnectionInfo { get; set; }
+        public ConnectionDetails ConnectionDetails { get; set; }
 
         /// <summary>
         /// Indicates whether the password should be return in the connection string
         /// default is set to false
         /// </summary>
-        public bool IncludePassword { get; set; }
+        public bool? IncludePassword { get; set; }
 
         /// <summary>
         /// Indicates whether the application name should be return in the connection string
