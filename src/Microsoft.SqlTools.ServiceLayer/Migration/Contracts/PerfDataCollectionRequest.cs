@@ -5,6 +5,7 @@
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using System;
+using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
 {
@@ -40,7 +41,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
 
     public class StopPerfDataCollectionParams
     {
+        // TO-DO: currently stop data collection doesn't require any parameters
+    }
 
+    public class RefreshPerfDataCollectionParams
+    {
+        public DateTime LastRefreshedTime { get; set; }
     }
 
     public class StartPerfDataCollectionResult
@@ -51,6 +57,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
     public class StopPerfDataCollectionResult
     {
         public DateTime DateTimeStopped { get; set; }
+    }
+
+    public class RefreshPerfDataCollectionResult
+    {
+        public List<string> Messages { get; set; }
+
+        public List<string> Errors { get; set; }
+
+        public DateTime RefreshTime { get; set; }
     }
 
     public class StartPerfDataCollectionRequest
@@ -65,5 +80,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
         public static readonly
             RequestType<StopPerfDataCollectionParams, StopPerfDataCollectionResult> Type =
                 RequestType<StopPerfDataCollectionParams, StopPerfDataCollectionResult>.Create("migration/stopperfdatacollection");
+    }
+
+    public class RefreshPerfDataCollectionRequest
+    {
+        public static readonly
+            RequestType<RefreshPerfDataCollectionParams, RefreshPerfDataCollectionResult> Type =
+                RequestType<RefreshPerfDataCollectionParams, RefreshPerfDataCollectionResult>.Create("migration/refreshperfdatacollection");
     }
 }
