@@ -515,6 +515,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             tableViewModel.Name.Value = table.Name;
             tableViewModel.Schema.Value = table.Schema;
             tableViewModel.Description.Value = table.Description;
+            tableViewModel.Description.Enabled = false; // TODO: https://github.com/microsoft/azuredatastudio/issues/18247
 
             foreach (var column in table.Columns.Items)
             {
@@ -771,7 +772,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             var connectinStringbuilder = new SqlConnectionStringBuilder(tableInfo.ConnectionString);
             connectinStringbuilder.InitialCatalog = tableInfo.Database;
             var connectionString = connectinStringbuilder.ToString();
-            var tableDesigner = new Dac.TableDesigner(connectionString, tableInfo.Schema, tableInfo.Name, tableInfo.IsNewTable);
+            var tableDesigner = new Dac.TableDesigner(connectionString, tableInfo.AccessToken, tableInfo.Schema, tableInfo.Name, tableInfo.IsNewTable);
             this.idTableMap[tableInfo.Id] = tableDesigner;
             return tableDesigner;
         }
