@@ -3526,6 +3526,9 @@
   <data name="TableDesignerColumnsDisplayValueTitle" xml:space="preserve">
     <value>列</value>
   </data>
+  <data name="TableDesignerDeleteColumnConfirmationMessage" xml:space="preserve">
+    <value>列を削除すると、インデックスおよび外部キーからも削除されます。続行しますか?</value>
+  </data>
   <data name="MissingIndexFormat" xml:space="preserve">
     <value>不足しているインデックス (影響 {0}): {1}</value>
   </data>

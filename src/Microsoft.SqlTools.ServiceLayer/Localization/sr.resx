@@ -4674,7 +4674,7 @@ The Query Processor estimates that implementing the following index could improv
     <comment></comment>
   </data>
   <data name="ForeignKeyIsNotForReplicationDescription" xml:space="preserve">
-    <value>Enables or disables an IDENTITY constraint for data inserted by a replication process.</value>
+    <value>Enables or disables the constraint for data inserted by a replication process.</value>
     <comment></comment>
   </data>
   <data name="SqlForeignKeyAction_NoAction" xml:space="preserve">

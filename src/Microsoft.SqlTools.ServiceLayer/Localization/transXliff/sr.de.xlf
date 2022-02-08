@@ -5742,6 +5742,11 @@
         <target state="translated">Spalten</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="TableDesignerDeleteColumnConfirmationMessage">
+        <source>Removing a column will also remove it from the indexes and foreign keys. Are you sure you want to continue?</source>
+        <target state="translated">Wenn Sie eine Spalte entfernen, wird sie auch aus den Indizes und Fremdschlüsseln entfernt. Möchten Sie den Vorgang wirklich fortsetzen?</target>
+        <note></note>
+      </trans-unit>
       <trans-unit id="MissingIndexFormat">
         <source>Missing Index (Impact {0}): {1}</source>
         <target state="translated">Fehlender Index (Auswirkung {0}): {1}</target>

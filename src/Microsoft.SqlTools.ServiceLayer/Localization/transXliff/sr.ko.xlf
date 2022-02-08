@@ -5742,6 +5742,11 @@
         <target state="translated">열</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="TableDesignerDeleteColumnConfirmationMessage">
+        <source>Removing a column will also remove it from the indexes and foreign keys. Are you sure you want to continue?</source>
+        <target state="translated">열을 제거하면 인덱스 및 외장 키에서도 제거됩니다. 계속하시겠습니까?</target>
+        <note></note>
+      </trans-unit>
       <trans-unit id="MissingIndexFormat">
         <source>Missing Index (Impact {0}): {1}</source>
         <target state="translated">인덱스 없음(영향 {0}): {1}</target>
