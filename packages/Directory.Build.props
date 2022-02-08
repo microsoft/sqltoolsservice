@@ -16,8 +16,7 @@
     is a workaround to get releases out until the pipelines can be refactored to pass in
     the correct version -->
     <PackageVersion>3.0.0-release.163</PackageVersion>
-    <PackageLicenseExpression></PackageLicenseExpression>
-    <PackageLicenseFile>license/license.txt</PackageLicenseFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>images\sqlserver.png</PackageIcon>
     <PackageIconFullPath></PackageIconFullPath>
     <Authors>Microsoft</Authors>
@@ -28,7 +27,6 @@
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="../license/license.txt" Pack="true" PackagePath="license/" />
     <None Include="../images/sqlserver.png" Pack="true" PackagePath="images/" />
     <None Include="../lib/_._" Pack="true" PackagePath="lib/$(TargetFramework)/" />
   </ItemGroup>
