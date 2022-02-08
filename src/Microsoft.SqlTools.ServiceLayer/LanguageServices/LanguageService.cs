@@ -1227,14 +1227,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             } 
             else 
             {
-                if (connInfo.TryGetConnection(ConnectionType.Default, out connection))
+                if (connInfo.TryGetConnection(Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType.Default, out connection))
                 {
                     return false;
                 }
                 else
                 {
                     //TODO: Handle token expiration here
-                    return false;
+                    return true;
                 }
             }
         }
