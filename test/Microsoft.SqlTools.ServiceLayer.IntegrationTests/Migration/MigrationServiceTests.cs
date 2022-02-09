@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
@@ -48,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Migration
 
             var requestParams = new GetSkuRecommendationsParams()
             {
-                DataFolder = Path.Combine("..", "..", "..", "Migration","Data"),
+                DataFolder = Path.Combine("..", "..", "..", "Migration", "Data"),
                 TargetPlatforms = new List<string> { "AzureSqlManagedInstance" },
                 TargetSqlInstance = "Test",
                 TargetPercentile = 95,
@@ -72,6 +73,48 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Migration
             Assert.AreEqual(result.InstanceRequirements.InstanceId, "TEST");
             Assert.AreEqual(result.InstanceRequirements.DatabaseLevelRequirements.Count, 2);
             Assert.AreEqual(result.InstanceRequirements.DatabaseLevelRequirements.Sum(db => db.FileLevelRequirements.Count), 4);
+        }
+
+        [Test]
+        public async Task TestHandleStartStopPerfDataCollectionRequest()
+        {
+            StartPerfDataCollectionResult result = null;
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            {
+                var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
+                string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SkuRecommendationTest");
+                Directory.CreateDirectory(folderPath);
+
+                var requestParams = new StartPerfDataCollectionParams()
+                {
+                    OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
+                    DataFolder = folderPath,
+                    PerfQueryIntervalInSec = 30,
+                    NumberOfIterations = 20,
+                    StaticQueryIntervalInSec = 3600,
+                    SqlAssessmentPath = null
+                };
+
+                var requestContext = RequestContextMocks.Create<StartPerfDataCollectionResult>(r => result = r).AddErrorHandling(null);
+
+                MigrationService service = new MigrationService();
+                await service.HandleStartPerfDataCollectionRequest(requestParams, requestContext.Object);
+                Assert.IsNotNull(result, "Start Perf Data Collection result is null");
+                Assert.IsNotNull(result.DateTimeStarted, "Time perf data collection started is null");
+
+                // Stop data collection
+                StopPerfDataCollectionResult stopResult = null;
+                var stopRequestParams = new StopPerfDataCollectionParams()
+                {
+
+                };
+
+                var stopRequestContext = RequestContextMocks.Create<StopPerfDataCollectionResult>(r => stopResult = r).AddErrorHandling(null);
+
+                await service.HandleStopPerfDataCollectionRequest(stopRequestParams, stopRequestContext.Object);
+                Assert.IsNotNull(stopResult, "Stop Perf Data Collection result is null");
+                Assert.IsNotNull(stopResult.DateTimeStopped, "Time perf data collection stoped is null");
+            }
         }
     }
 }
