@@ -57,6 +57,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
         public string EndTime { get; set; }
 
         /// <summary>
+        /// Whether or not to consider preview SKUs when generating SKU recommendations
+        /// </summary>
+        public bool IncludePreviewSkus { get; set; }
+
+        /// <summary>
         /// List of databases to consider when generating recommendations
         /// </summary>
         public List<string> DatabaseAllowList { get; set; }

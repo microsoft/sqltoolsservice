@@ -28,6 +28,7 @@ using Microsoft.SqlServer.Migration.SkuRecommendation.Billing;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts.Models.Sku;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts.Models;
+using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts.Exceptions;
 
 namespace Microsoft.SqlTools.ServiceLayer.Migration
 {
@@ -109,6 +110,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             this.ServiceHost.SetRequestHandler(MigrationAssessmentsRequest.Type, HandleMigrationAssessmentsRequest);
             this.ServiceHost.SetRequestHandler(StartPerfDataCollectionRequest.Type, HandleStartPerfDataCollectionRequest);
             this.ServiceHost.SetRequestHandler(StopPerfDataCollectionRequest.Type, HandleStopPerfDataCollectionRequest);
+            this.ServiceHost.SetRequestHandler(RefreshPerfDataCollectionRequest.Type, HandleRefreshPerfDataCollectionRequest);
             this.ServiceHost.SetRequestHandler(GetSkuRecommendationsRequest.Type, HandleGetSkuRecommendationsRequest);
         }
 
@@ -234,6 +236,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         }
 
         /// <summary>
+        /// Handle request to refresh performance data collection status
+        /// </summary>
+        internal async Task HandleRefreshPerfDataCollectionRequest(
+            RefreshPerfDataCollectionParams parameters,
+            RequestContext<RefreshPerfDataCollectionResult> requestContext)
+        {
+            try
+            {
+                await requestContext.SendResult(new RefreshPerfDataCollectionResult() 
+                { 
+                    RefreshTime = DateTime.UtcNow,
+                    Messages = this.DataCollectionController.FetchLatestMessages(parameters.LastRefreshedTime),
+                    Errors = this.DataCollectionController.FetchLatestErrors(parameters.LastRefreshedTime)
+                });
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e.ToString());
+            }
+        }
+        /// <summary>
         /// Handle request to generate SKU recommendations
         /// </summary>
         internal async Task HandleGetSkuRecommendationsRequest(
@@ -258,16 +281,108 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
 
                 SkuRecommendationServiceProvider provider = new SkuRecommendationServiceProvider(new AzureSqlSkuBillingServiceProvider());
 
-                // only generate recommendations for target platforms specified
+                // generate SQL DB recommendations, if applicable
+                List<SkuRecommendationResult> sqlDbResults = new List<SkuRecommendationResult>();
+                if (parameters.TargetPlatforms.Contains("AzureSqlDatabase"))
+                {
+                    var prefs = new AzurePreferences() 
+                    { 
+                        EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlDatabase", parameters.IncludePreviewSkus), 
+                        ScalingFactor = parameters.ScalingFactor / 100.0 
+                    };
+                    sqlDbResults = provider.GetSkuRecommendation(prefs, req);
+
+                    if (sqlDbResults.Count < parameters.DatabaseAllowList.Count)
+                    {
+                        // if there are fewer recommendations than expected, find which databases didn't have a result generated and create a result with a null SKU
+                        // TO-DO: in the future the NuGet will supply this logic directly so this won't be necessary anymore
+                        List<string> databasesWithRecommendation = sqlDbResults.Select(db => db.DatabaseName).ToList();
+                        foreach (var databaseWithoutRecommendation in parameters.DatabaseAllowList.Where(db => !databasesWithRecommendation.Contains(db)))
+                        {
+                            sqlDbResults.Add(new SkuRecommendationResult()
+                            {
+                                //SqlInstanceName = sqlDbResults.FirstOrDefault().SqlInstanceName,
+                                SqlInstanceName = parameters.TargetSqlInstance,
+                                DatabaseName = databaseWithoutRecommendation,
+                                TargetSku = null,
+                                MonthlyCost = null,
+                                Ranking = -1,
+                                PositiveJustifications = null,
+                                NegativeJustifications = null,
+                            });
+                        }
+                    }
+                }
+
+                // generate SQL MI recommendations, if applicable
+                List<SkuRecommendationResult> sqlMiResults = new List<SkuRecommendationResult>();
+                if (parameters.TargetPlatforms.Contains("AzureSqlManagedInstance"))
+                {
+                    var prefs = new AzurePreferences()
+                    {
+                        EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlManagedInstance", parameters.IncludePreviewSkus),
+                        ScalingFactor = parameters.ScalingFactor / 100.0
+                    };
+                    sqlMiResults = provider.GetSkuRecommendation(prefs, req);
+
+                    // if no result was generated, create a result with a null SKU
+                    // TO-DO: in the future the NuGet will supply this logic directly so this won't be necessary anymore
+                    if (!sqlMiResults.Any())
+                    {
+                        sqlMiResults.Add(new SkuRecommendationResult()
+                        {
+                            SqlInstanceName = parameters.TargetSqlInstance,
+                            DatabaseName = null,
+                            TargetSku = null,
+                            MonthlyCost = null,
+                            Ranking = -1,
+                            PositiveJustifications = null,
+                            NegativeJustifications = null,
+                        });
+                    }
+                }
+
+                // generate SQL VM recommendations, if applicable
+                List<SkuRecommendationResult> sqlVmResults = new List<SkuRecommendationResult>();
+                if (parameters.TargetPlatforms.Contains("AzureSqlVirtualMachine"))
+                {
+                    var prefs = new AzurePreferences()
+                    {
+                        EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlVirtualMachine", parameters.IncludePreviewSkus),
+                        ScalingFactor = parameters.ScalingFactor / 100.0
+                    };
+                    sqlVmResults = provider.GetSkuRecommendation(prefs, req);
+
+                    // if no result was generated, create a result with a null SKU
+                    // TO-DO: in the future the NuGet will supply this logic directly so this won't be necessary anymore
+                    if (!sqlVmResults.Any())
+                    {
+                        sqlVmResults.Add(new SkuRecommendationResult()
+                        {
+                            SqlInstanceName = parameters.TargetSqlInstance,
+                            DatabaseName = null,
+                            TargetSku = null,
+                            MonthlyCost = null,
+                            Ranking = -1,
+                            PositiveJustifications = null,
+                            NegativeJustifications = null,
+                        });
+                    }
+                }
+
                 GetSkuRecommendationsResult results = new GetSkuRecommendationsResult
                 {
-                    SqlDbRecommendationResults = parameters.TargetPlatforms.Contains("AzureSqlDatabase") ? provider.GetSkuRecommendation(new AzurePreferences() { EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlDatabase"), ScalingFactor = parameters.ScalingFactor / 100.0 }, req) : new List<SkuRecommendationResult>(),
-                    SqlMiRecommendationResults = parameters.TargetPlatforms.Contains("AzureSqlManagedInstance") ? provider.GetSkuRecommendation(new AzurePreferences() { EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlManagedInstance"), ScalingFactor = parameters.ScalingFactor / 100.0 }, req) : new List<SkuRecommendationResult>(),
-                    SqlVmRecommendationResults = parameters.TargetPlatforms.Contains("AzureSqlVirtualMachine") ? provider.GetSkuRecommendation(new AzurePreferences() { EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlVirtualMachine"), ScalingFactor = parameters.ScalingFactor / 100.0 }, req) : new List<SkuRecommendationResult>(),
+                    SqlDbRecommendationResults = sqlDbResults,
+                    SqlMiRecommendationResults = sqlMiResults,
+                    SqlVmRecommendationResults = sqlVmResults,
                     InstanceRequirements = req
                 };
 
                 await requestContext.SendResult(results);
+            }
+            catch (FailedToQueryCountersException e)
+            {
+                await requestContext.SendError($"Unable to read collected performance data from {parameters.DataFolder}. Please specify another folder or start data collection instead.");
             }
             catch (Exception e)
             {
@@ -418,7 +533,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         }
 
         // Returns the list of eligible SKUs to consider, depending on the desired target platform
-        internal static List<AzureSqlSkuCategory> GetEligibleSkuCategories(string targetPlatform)
+        internal static List<AzureSqlSkuCategory> GetEligibleSkuCategories(string targetPlatform, bool includePreviewSkus)
         {
             List<AzureSqlSkuCategory> eligibleSkuCategories = new List<AzureSqlSkuCategory>();
 
@@ -456,6 +571,38 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                                                     AzureSqlPaaSServiceTier.GeneralPurpose,
                                                     ComputeTier.Provisioned,
                                                     AzureSqlPaaSHardwareType.Gen5));
+                    //if (includePreviewSkus)
+                    //{
+                    //    // Premium BC/GP
+                    //    eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
+                    //                                    AzureSqlTargetPlatform.AzureSqlManagedInstance,
+                    //                                    AzureSqlPurchasingModel.vCore,
+                    //                                    AzureSqlPaaSServiceTier.BusinessCritical,
+                    //                                    ComputeTier.Provisioned,
+                    //                                    AzureSqlPaaSHardwareType.PremiumSeries));
+
+                    //    eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
+                    //                                    AzureSqlTargetPlatform.AzureSqlManagedInstance,
+                    //                                    AzureSqlPurchasingModel.vCore,
+                    //                                    AzureSqlPaaSServiceTier.GeneralPurpose,
+                    //                                    ComputeTier.Provisioned,
+                    //                                    AzureSqlPaaSHardwareType.PremiumSeries));
+
+                    //    // Premium Memory Optimized BC/GP
+                    //    eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
+                    //                                    AzureSqlTargetPlatform.AzureSqlManagedInstance,
+                    //                                    AzureSqlPurchasingModel.vCore,
+                    //                                    AzureSqlPaaSServiceTier.BusinessCritical,
+                    //                                    ComputeTier.Provisioned,
+                    //                                    AzureSqlPaaSHardwareType.PremiumSeriesMemoryOptimized));
+
+                    //    eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
+                    //                                    AzureSqlTargetPlatform.AzureSqlManagedInstance,
+                    //                                    AzureSqlPurchasingModel.vCore,
+                    //                                    AzureSqlPaaSServiceTier.GeneralPurpose,
+                    //                                    ComputeTier.Provisioned,
+                    //                                    AzureSqlPaaSHardwareType.PremiumSeriesMemoryOptimized));
+                    //}
                     break;
 
                 case "AzureSqlVirtualMachine":

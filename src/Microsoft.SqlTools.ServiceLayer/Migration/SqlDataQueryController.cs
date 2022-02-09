@@ -41,6 +41,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
 
         private ISqlAssessmentLogger _logger;
 
+        // since this "console app" doesn't have any console to write to, store any messages so that they can be periodically fetched
+        private List<KeyValuePair<string, DateTime>> messages;
+        private List<KeyValuePair<string, DateTime>> errors;
+
         /// <summary>
         /// Create a new SqlDataQueryController.
         /// </summary>
@@ -62,6 +66,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             this.perfQueryIntervalInSec = perfQueryIntervalInSec;
             this.numberOfIterations = numberOfIterations;
             this._logger = logger;
+            this.messages = new List<KeyValuePair<string, DateTime>>();
+            this.errors = new List<KeyValuePair<string, DateTime>>();
             perfDataCache = new SqlPerfDataPointsCache(this.outputFolder, _logger);
             dataCollector = new DataPointsCollector(new string[] { connectionString }, _logger);
 
@@ -95,6 +101,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         {
             try
             {
+                messages.Add(new KeyValuePair<string, DateTime>("perf query event", DateTime.UtcNow));
+
                 int currentIteration = perfDataCache.CurrentIteration;
 
                 // Get raw perf data points
@@ -132,6 +140,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         {
             try
             {
+                messages.Add(new KeyValuePair<string, DateTime>("aggregation and persist event", DateTime.UtcNow));
+
                 // Aggregate the records in the Cache 
                 int rawDataPointsCount = this.perfDataCache.GetRawDataPointsCount();
 
@@ -157,6 +167,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         {
             try
             {
+                messages.Add(new KeyValuePair<string, DateTime>("static query event", DateTime.UtcNow));
+
                 var validationResult = this.dataCollector.CollectCommonDataPoints(CancellationToken.None).Result.FirstOrDefault();
                 if (validationResult != null && validationResult.Status == SqlAssessmentStatus.Completed)
                 {
@@ -190,6 +202,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         /// <param name="ex">Exception to log</param>
         private void Logging(Exception ex)
         {
+            this.errors.Add(new KeyValuePair<string, DateTime>(ex.Message, DateTime.UtcNow));
+
             var error = new UnhandledSqlExceptionErrorModel(ex, ErrorScope.General);
             _logger.Log(error, ErrorLevel.Error, TelemetryScope.PerfCollection);
             _logger.Log(TelemetryScope.PerfCollection, ex.Message);
@@ -201,8 +215,34 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         /// <param name="error">Error to log</param>
         private void Logging(IErrorModel error)
         {
+            this.errors.Add(new KeyValuePair<string, DateTime>(error.RawException.Message, DateTime.UtcNow));
+
             _logger.Log(error, ErrorLevel.Error, TelemetryScope.PerfCollection);
             _logger.Log(TelemetryScope.PerfCollection, error.RawException.Message);
+        }
+
+        /// <summary>
+        /// Fetches the latest messages, and then clears the message list.
+        /// </summary>
+        /// <param name="startTime"></param>
+        /// <returns></returns>
+        public List<string> FetchLatestMessages(DateTime startTime)
+        {
+            List<string> latestMessages = this.messages.Where(kvp => kvp.Value > startTime).Select(kvp => kvp.Key).ToList();
+            //this.messages.Clear();
+            return latestMessages;
+        }
+
+        /// <summary>
+        /// Fetches the latest messages, and then clears the message list.
+        /// </summary>
+        /// <param name="startTime"></param>
+        /// <returns></returns>
+        public List<string> FetchLatestErrors(DateTime startTime)
+        {
+            List<string> latestErrors = this.errors.Where(kvp => kvp.Value > startTime).Select(kvp => kvp.Key).ToList();
+            //this.messages.Clear();
+            return latestErrors;
         }
 
         /// <summary>
