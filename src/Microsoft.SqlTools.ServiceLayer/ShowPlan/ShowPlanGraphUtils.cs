@@ -70,9 +70,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
                     {
                         Name = prop.DisplayName,
                         Value = propertyValue,
-                        ShowInTooltip = prop.IsBrowsable,
+                        ShowInTooltip = prop.ShowInToolTip,
                         DisplayOrder = prop.DisplayOrder,
                         IsLongString = prop.IsLongString,
+                        DisplayValue = GetPropertyText(prop)
                     });
                 }
                 else
@@ -82,9 +83,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
                     {
                         Name = prop.DisplayName,
                         Value = propertyValue,
-                        ShowInTooltip = prop.IsBrowsable,
+                        ShowInTooltip = prop.ShowInToolTip,
                         DisplayOrder = prop.DisplayOrder,
                         IsLongString = prop.IsLongString,
+                        DisplayValue = GetPropertyText(prop)
                     });
                 }
 
@@ -121,6 +123,27 @@ GO
 GO
 */
 ";
+        }
+
+        private static string GetPropertyText(PropertyDescriptor property)
+        {
+            try
+            {
+                // Get the property value.
+                object propertyValue = property.GetValue(property);
+
+                if (propertyValue == null)
+                {
+                    return String.Empty;
+                }
+
+                // Convert the property value to the text.
+                return property.Converter.ConvertToString(propertyValue).Trim();
+            }
+            catch 
+            {
+                return String.Empty;
+            }
         }
     }
 }

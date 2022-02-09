@@ -90,6 +90,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
         /// Flag to indicate if the property has a longer value so that it will be shown at the bottom of the tooltip
         /// </summary>
         public bool IsLongString { get; set; }
+        /// <summary>
+        /// Value to be displayed in UI like tooltips and properties View
+        /// </summary>
+        /// <value></value>
+        public string DisplayValue { get; set; }
     }
 
     public class NestedExecutionPlanGraphProperty : ExecutionPlanGraphPropertyBase

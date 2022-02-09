@@ -49,6 +49,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
             }
         }
 
+        public bool ShowInToolTip
+        {
+            get
+            {
+                return this.showInToolTip;
+            }
+        }
+
         public bool IsLongString
         {
             get
@@ -189,6 +197,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
             if (showInToolTipAttribute != null)
             {
                 this.isLongString = showInToolTipAttribute.LongString;
+                this.showInToolTip = showInToolTipAttribute.Value;
+            } else 
+            {
+                this.showInToolTip = false;
             }
         }
 
@@ -203,6 +215,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
         private PropertyDescriptor baseProperty;
         private bool isLongString;
         private bool initialized;
+        private bool showInToolTip;
 
         #endregion
 
