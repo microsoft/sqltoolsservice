@@ -92,7 +92,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Migration
                     PerfQueryIntervalInSec = 30,
                     NumberOfIterations = 20,
                     StaticQueryIntervalInSec = 3600,
-                    SqlAssessmentPath = null
                 };
 
                 var requestContext = RequestContextMocks.Create<StartPerfDataCollectionResult>(r => result = r).AddErrorHandling(null);

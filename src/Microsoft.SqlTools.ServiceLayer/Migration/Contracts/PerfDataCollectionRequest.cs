@@ -17,12 +17,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
         public string OwnerUri { get; set; }
 
         /// <summary>
-        /// Path to SqlAssessment executable, installed by the SQL migration extension
-        /// </summary>
-        /// <remarks> TO DO: include Console App executable with migration extension</remarks>
-        public string SqlAssessmentPath { get; set; }
-
-        /// <summary>
         /// Folder from which collected performance data will be written to
         /// </summary>
         public string DataFolder { get; set; }
