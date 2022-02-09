@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System.Collections.Generic;
+
 namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
 {
     /// <summary>
@@ -11,9 +13,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
     public class GetConnectionStringParams
     {
         /// <summary>
-        /// URI of the owner of the connection or connection info of the connection
+        /// URI of the owner of the connection
         /// </summary>
-        public object ConnectionContext { get; set; }
+        public string OwnerUri { get; set; }
+
+        /// <summary>
+        /// Connection information of the connection
+        /// </summary>
+        public ConnectionDetails ConnectionDetails { get; set; }
 
         /// <summary>
         /// Indicates whether the password should be return in the connection string
@@ -25,6 +32,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// Indicates whether the application name should be return in the connection string
         /// default is set to true
         /// </summary>
-        public bool? IncludeApplicationName { get; set;}
+        public bool? IncludeApplicationName { get; set; }
     }
 }

@@ -528,11 +528,15 @@ Get a connection string for the provided connection.
     public class GetConnectionStringParams
     {
         /// <summary>
-        /// URI of the owner of the connection or connection info of the connection
+        /// URI of the owner of the connection
         /// </summary>
-        public object ConnectionContext { get; set; }
+        public string OwnerUri { get; set; }
 
+        /// Connection info of the connection
+        /// </summary>
+        public ConnectionDetails ConnectionInfo { get; set; }
         /// <summary>
+
         /// Indicates whether the password should be return in the connection string. Default is false.
         /// </summary>
         public bool IncludePassword { get; set; }

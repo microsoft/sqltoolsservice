@@ -1318,17 +1318,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 string connectionString = string.Empty;
                 ConnectionInfo info;
                 SqlConnectionStringBuilder connStringBuilder;
-                bool isConnectionDetails = connStringParams.ConnectionContext is ConnectionDetails;
                 try
-                {
-                    if (!isConnectionDetails)
+                {   
+                    // set connection string using connection uri if connection details are undefined
+                    if (connStringParams.ConnectionDetails == null)
                     {
-                        TryFindConnection(connStringParams.ConnectionContext.ToString(), out info);
+                        TryFindConnection(connStringParams.OwnerUri, out info);
                         connStringBuilder = CreateConnectionStringBuilder(info.ConnectionDetails);
                     }
+                    // set connection string using connection details
                     else
                     {
-                        connStringBuilder = CreateConnectionStringBuilder(connStringParams.ConnectionContext as ConnectionDetails);
+                        connStringBuilder = CreateConnectionStringBuilder(connStringParams.ConnectionDetails as ConnectionDetails);
                     }
                     if (!connStringParams.IncludePassword)
                     {

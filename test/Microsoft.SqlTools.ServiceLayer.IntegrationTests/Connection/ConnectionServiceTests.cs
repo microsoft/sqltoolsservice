@@ -123,7 +123,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
 
             var requestParams = new GetConnectionStringParams()
             {
-                ConnectionContext = result.ConnectionInfo.OwnerUri,
+                OwnerUri = result.ConnectionInfo.OwnerUri,
+                ConnectionDetails = null,
                 IncludePassword = false,
                 IncludeApplicationName = true
             };
@@ -158,9 +159,37 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
                             .Returns(Task.FromResult(new object()));
             var requestParams = new GetConnectionStringParams()
             {
-                ConnectionContext = result.ConnectionInfo.OwnerUri,
+                OwnerUri = result.ConnectionInfo.OwnerUri,
+                ConnectionDetails = null,
                 IncludePassword = false,
                 IncludeApplicationName = false
+            };
+
+            await service.HandleGetConnectionStringRequest(requestParams, requestContext.Object);
+            requestContext.VerifyAll();
+        }
+
+        /// <summary>
+        /// Test HandleGetConnectionStringRequest
+        /// Using connection details to build connection string
+        /// </summary>
+        [Test]
+        public async Task GetCurrentConnectionStringTestwithConnectionDetails()
+        {
+            // If we make a connection to a live database 
+            ConnectionService service = ConnectionService.Instance;
+            var result = LiveConnectionHelper.InitLiveConnectionInfo();
+            var resultConnectionDetails = result.ConnectionInfo.ConnectionDetails;
+            var requestContext = new Mock<SqlTools.Hosting.Protocol.RequestContext<string>>();
+
+            requestContext.Setup(x => x.SendResult(It.Is<string>((connectionString) => connectionString.Contains(resultConnectionDetails.ToString()))))
+                            .Returns(Task.FromResult(new object()));
+            var requestParams = new GetConnectionStringParams()
+            {
+                OwnerUri = null,
+                ConnectionDetails = {},
+                IncludePassword = true,
+                IncludeApplicationName = true
             };
 
             await service.HandleGetConnectionStringRequest(requestParams, requestContext.Object);
