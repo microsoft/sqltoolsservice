@@ -202,10 +202,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         /// <param name="ex">Exception to log</param>
         private void Logging(Exception ex)
         {
+            this.errors.Add(new KeyValuePair<string, DateTime>(ex.Message, DateTime.UtcNow));
+
             var error = new UnhandledSqlExceptionErrorModel(ex, ErrorScope.General);
             _logger.Log(error, ErrorLevel.Error, TelemetryScope.PerfCollection);
             _logger.Log(TelemetryScope.PerfCollection, ex.Message);
-            this.errors.Add(new KeyValuePair<string, DateTime>(ex.Message, DateTime.UtcNow));
         }
 
         /// <summary>
@@ -214,9 +215,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         /// <param name="error">Error to log</param>
         private void Logging(IErrorModel error)
         {
+            this.errors.Add(new KeyValuePair<string, DateTime>(error.RawException.Message, DateTime.UtcNow));
+
             _logger.Log(error, ErrorLevel.Error, TelemetryScope.PerfCollection);
             _logger.Log(TelemetryScope.PerfCollection, error.RawException.Message);
-            this.errors.Add(new KeyValuePair<string, DateTime>(error.RawException.Message, DateTime.UtcNow));
         }
 
         /// <summary>
