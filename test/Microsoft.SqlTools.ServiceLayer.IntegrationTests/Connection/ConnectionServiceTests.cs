@@ -123,8 +123,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
 
             var requestParams = new GetConnectionStringParams()
             {
-                OwnerUri = result.ConnectionInfo.OwnerUri,
-                ConnectionDetails = result.ConnectionInfo.ConnectionDetails,
+                ConnectionContext = result.ConnectionInfo.OwnerUri,
                 IncludePassword = false,
                 IncludeApplicationName = true
             };
@@ -159,7 +158,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
                             .Returns(Task.FromResult(new object()));
             var requestParams = new GetConnectionStringParams()
             {
-                OwnerUri = result.ConnectionInfo.OwnerUri,
+                ConnectionContext = result.ConnectionInfo.OwnerUri,
                 IncludePassword = false,
                 IncludeApplicationName = false
             };

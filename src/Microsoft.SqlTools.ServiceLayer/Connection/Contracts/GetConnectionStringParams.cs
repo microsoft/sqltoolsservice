@@ -11,20 +11,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
     public class GetConnectionStringParams
     {
         /// <summary>
-        /// URI of the owner of the connection
+        /// URI of the owner of the connection or connection info of the connection
         /// </summary>
-        public string OwnerUri { get; set; }
-
-        /// <summary>
-        /// Connection information of the connection
-        /// </summary>
-        public ConnectionDetails ConnectionDetails { get; set; }
+        public object ConnectionContext { get; set; }
 
         /// <summary>
         /// Indicates whether the password should be return in the connection string
         /// default is set to false
         /// </summary>
-        public bool? IncludePassword { get; set; }
+        public bool IncludePassword { get; set; }
 
         /// <summary>
         /// Indicates whether the application name should be return in the connection string

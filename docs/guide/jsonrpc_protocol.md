@@ -528,9 +528,9 @@ Get a connection string for the provided connection.
     public class GetConnectionStringParams
     {
         /// <summary>
-        /// URI of the owner of the connection
+        /// URI of the owner of the connection or connection info of the connection
         /// </summary>
-        public string OwnerUri { get; set; }
+        public object ConnectionContext { get; set; }
 
         /// <summary>
         /// Indicates whether the password should be return in the connection string. Default is false.
