@@ -224,24 +224,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         /// <summary>
         /// Fetches the latest messages, and then clears the message list.
         /// </summary>
-        /// <param name="startTime"></param>
-        /// <returns></returns>
+        /// <param name="startTime">Only return messages from after this time</param>
+        /// <returns>List of queued messages</returns>
         public List<string> FetchLatestMessages(DateTime startTime)
         {
             List<string> latestMessages = this.messages.Where(kvp => kvp.Value > startTime).Select(kvp => kvp.Key).ToList();
-            //this.messages.Clear();
+            this.messages.Clear();
             return latestMessages;
         }
 
         /// <summary>
         /// Fetches the latest messages, and then clears the message list.
         /// </summary>
-        /// <param name="startTime"></param>
-        /// <returns></returns>
+        /// <param name="startTime">Only return messages from after this time</param>
+        /// <returns>List of queued errors</returns>
         public List<string> FetchLatestErrors(DateTime startTime)
         {
             List<string> latestErrors = this.errors.Where(kvp => kvp.Value > startTime).Select(kvp => kvp.Key).ToList();
-            //this.messages.Clear();
+            this.messages.Clear();
             return latestErrors;
         }
 
