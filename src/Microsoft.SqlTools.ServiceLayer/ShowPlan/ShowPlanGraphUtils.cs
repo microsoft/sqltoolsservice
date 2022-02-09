@@ -72,7 +72,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
                         Value = propertyValue,
                         ShowInTooltip = prop.ShowInToolTip,
                         DisplayOrder = prop.DisplayOrder,
-                        IsLongString = prop.IsLongString,
+                        PositionAtBottom = prop.IsLongString,
                         DisplayValue = GetPropertyText(prop)
                     });
                 }
@@ -85,7 +85,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
                         Value = propertyValue,
                         ShowInTooltip = prop.ShowInToolTip,
                         DisplayOrder = prop.DisplayOrder,
-                        IsLongString = prop.IsLongString,
+                        PositionAtBottom = prop.IsLongString,
                         DisplayValue = GetPropertyText(prop)
                     });
                 }
