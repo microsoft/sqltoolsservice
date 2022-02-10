@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph;
+using Microsoft.SqlTools.Utility;
+using System.Diagnostics;
 
 namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
 {
@@ -70,9 +72,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
                     {
                         Name = prop.DisplayName,
                         Value = propertyValue,
-                        ShowInTooltip = prop.IsBrowsable,
+                        ShowInTooltip = prop.ShowInTooltip,
                         DisplayOrder = prop.DisplayOrder,
-                        IsLongString = prop.IsLongString,
+                        PositionAtBottom = prop.IsLongString,
+                        DisplayValue = GetPropertyDisplayValue(prop)
                     });
                 }
                 else
@@ -82,9 +85,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
                     {
                         Name = prop.DisplayName,
                         Value = propertyValue,
-                        ShowInTooltip = prop.IsBrowsable,
+                        ShowInTooltip = prop.ShowInTooltip,
                         DisplayOrder = prop.DisplayOrder,
-                        IsLongString = prop.IsLongString,
+                        PositionAtBottom = prop.IsLongString,
+                        DisplayValue = GetPropertyDisplayValue(prop)
                     });
                 }
 
@@ -121,6 +125,28 @@ GO
 GO
 */
 ";
+        }
+
+        private static string GetPropertyDisplayValue(PropertyValue property)
+        {
+            try
+            {
+                // Get the property value.
+                object propertyValue = property.GetValue(property.Value);
+
+                if (propertyValue == null)
+                {
+                    return String.Empty;
+                }
+
+                // Convert the property value to the text.
+                return property.Converter.ConvertToString(propertyValue).Trim();
+            }
+            catch (Exception e)
+            {
+                Logger.Write(TraceEventType.Error, e.ToString());
+                return String.Empty;
+            }
         }
     }
 }
