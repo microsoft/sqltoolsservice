@@ -3499,10 +3499,43 @@
   <data name="CheckConstraintIsEnabledDescription" xml:space="preserve">
     <value>Specifica se il vincolo CHECK è Abilitato</value>
   </data>
-  <data name="SessionMissingDetails" xml:space="preserve">
-    <value>Non è possibile avviare la sessione di streaming {0} perché mancano i dettagli della sessione.</value>
+  <data name="QueryServiceUnsupportedSqlVariantType" xml:space="preserve">
+    <value>Impossibile risolvere il tipo sottostante "{0}" per la colonna variant SQL "{1}".</value>
   </data>
-  <data name="StartProfilingFailed" xml:space="preserve">
-    <value>Impossibile avviare il profiler: {0}</value>
+  <data name="IndexIsEnabledPropertyDescription" xml:space="preserve">
+    <value>Specifica se l'indice è abilitato.</value>
+  </data>
+  <data name="IndexIsClusteredPropertyDescription" xml:space="preserve">
+    <value>Se l'indice è cluster. È consentito un solo indice cluster in una tabella.</value>
+  </data>
+  <data name="TableDesignerIndexIsClusteredPropertyTitle" xml:space="preserve">
+    <value>In cluster</value>
+  </data>
+  <data name="IndexIsUniquePropertyDescription" xml:space="preserve">
+    <value>Indica se i dati immessi in questo indice devono essere univoci.</value>
+  </data>
+  <data name="TableDesignerIsUniquePropertyTitle" xml:space="preserve">
+    <value>Univoco</value>
+  </data>
+  <data name="IndexColumnIsAscendingPropertyDescription" xml:space="preserve">
+    <value>Specifica il tipo di ordinamento della colonna.</value>
+  </data>
+  <data name="IndexColumnIsAscendingPropertyTitle" xml:space="preserve">
+    <value>Crescente</value>
+  </data>
+  <data name="TableDesignerColumnsDisplayValueTitle" xml:space="preserve">
+    <value>Colonne</value>
+  </data>
+  <data name="TableDesignerDeleteColumnConfirmationMessage" xml:space="preserve">
+    <value>La rimozione di una colonna comporterà la sua rimozione anche dagli indici e dalle chiavi esterne. Continuare?</value>
+  </data>
+  <data name="MissingIndexFormat" xml:space="preserve">
+    <value>Indice mancante (impatto {0}): {1}</value>
+  </data>
+  <data name="MissingIndexDetailsTitle" xml:space="preserve">
+    <value>/*
+Dettagli indice mancanti in {0}
+Query Processor stima che l'implementazione del seguente indice potrebbe migliorare il costo della query di {1}%.
+*/</value>
   </data>
 </root>

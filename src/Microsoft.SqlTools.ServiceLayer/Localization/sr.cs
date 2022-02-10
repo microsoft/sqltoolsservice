@@ -8581,6 +8581,78 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string IndexIsEnabledPropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexIsEnabledPropertyDescription);
+            }
+        }
+
+        public static string IndexIsClusteredPropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexIsClusteredPropertyDescription);
+            }
+        }
+
+        public static string TableDesignerIndexIsClusteredPropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerIndexIsClusteredPropertyTitle);
+            }
+        }
+
+        public static string IndexIsUniquePropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexIsUniquePropertyDescription);
+            }
+        }
+
+        public static string TableDesignerIsUniquePropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerIsUniquePropertyTitle);
+            }
+        }
+
+        public static string IndexColumnIsAscendingPropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexColumnIsAscendingPropertyDescription);
+            }
+        }
+
+        public static string IndexColumnIsAscendingPropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexColumnIsAscendingPropertyTitle);
+            }
+        }
+
+        public static string TableDesignerColumnsDisplayValueTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerColumnsDisplayValueTitle);
+            }
+        }
+
+        public static string TableDesignerDeleteColumnConfirmationMessage
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerDeleteColumnConfirmationMessage);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -8859,6 +8931,16 @@ namespace Microsoft.SqlTools.ServiceLayer
         public static string ActualOfEstimated(string actual, string estimated, decimal percent)
         {
             return Keys.GetString(Keys.ActualOfEstimated, actual, estimated, percent);
+        }
+
+        public static string MissingIndexFormat(string impact, string queryText)
+        {
+            return Keys.GetString(Keys.MissingIndexFormat, impact, queryText);
+        }
+
+        public static string MissingIndexDetailsTitle(string fileName, string impact)
+        {
+            return Keys.GetString(Keys.MissingIndexDetailsTitle, fileName, impact);
         }
 
         public static string TableNotInitializedException(string tableId)
@@ -12208,6 +12290,12 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string ActualOfEstimated = "ActualOfEstimated";
 
 
+            public const string MissingIndexFormat = "MissingIndexFormat";
+
+
+            public const string MissingIndexDetailsTitle = "MissingIndexDetailsTitle";
+
+
             public const string TableNotInitializedException = "TableNotInitializedException";
 
 
@@ -12266,6 +12354,33 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string CheckConstraintIsEnabledDescription = "CheckConstraintIsEnabledDescription";
+
+
+            public const string IndexIsEnabledPropertyDescription = "IndexIsEnabledPropertyDescription";
+
+
+            public const string IndexIsClusteredPropertyDescription = "IndexIsClusteredPropertyDescription";
+
+
+            public const string TableDesignerIndexIsClusteredPropertyTitle = "TableDesignerIndexIsClusteredPropertyTitle";
+
+
+            public const string IndexIsUniquePropertyDescription = "IndexIsUniquePropertyDescription";
+
+
+            public const string TableDesignerIsUniquePropertyTitle = "TableDesignerIsUniquePropertyTitle";
+
+
+            public const string IndexColumnIsAscendingPropertyDescription = "IndexColumnIsAscendingPropertyDescription";
+
+
+            public const string IndexColumnIsAscendingPropertyTitle = "IndexColumnIsAscendingPropertyTitle";
+
+
+            public const string TableDesignerColumnsDisplayValueTitle = "TableDesignerColumnsDisplayValueTitle";
+
+
+            public const string TableDesignerDeleteColumnConfirmationMessage = "TableDesignerDeleteColumnConfirmationMessage";
 
 
             private Keys()

@@ -5696,17 +5696,72 @@
         <target state="translated">Spécifie si la contrainte de vérification est activée</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="SessionMissingDetails">
-        <source>Unable to start streaming session {0} due to missing session details.</source>
-        <target state="translated">Impossible de démarrer la session de streaming {0} en raison de l’absence de détails sur la session</target>
+      <trans-unit id="QueryServiceUnsupportedSqlVariantType">
+        <source>The underlying type "{0}" for sql variant column "{1}" could not be resolved.</source>
+        <target state="translated">Le type sous-jacent "{0}" pour la variante sql de la colonne "{1}" n'a pas pu être résolu.</target>
         <note>.
- Parameters: 0 - id (int) </note>
+ Parameters: 0 - underlyingType (string), 1 - columnName (string) </note>
       </trans-unit>
-      <trans-unit id="StartProfilingFailed">
-        <source>Failed to start profiler: {0}</source>
-        <target state="translated">Échec du démarrage du profileur : {0}</target>
-        <note>.
- Parameters: 0 - error (String) </note>
+      <trans-unit id="IndexIsEnabledPropertyDescription">
+        <source>Specifies whether the index is enabled</source>
+        <target state="translated">Indique si l'index est activé</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexIsClusteredPropertyDescription">
+        <source>Whether the index is clustered, only one clustered index is allowed in a table.</source>
+        <target state="translated">Que l'index soit clusterisé, un seul index clusterisé est autorisé dans une table.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerIndexIsClusteredPropertyTitle">
+        <source>Is Clustered</source>
+        <target state="translated">Est en cluster</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexIsUniquePropertyDescription">
+        <source>Whether the data entered into this index must be unique.</source>
+        <target state="translated">Si les données saisies dans cet index doivent être uniques.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerIsUniquePropertyTitle">
+        <source>Is Unique</source>
+        <target state="translated">Est unique</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexColumnIsAscendingPropertyDescription">
+        <source>Specifies the sort order of the column.</source>
+        <target state="translated">Spécifie l'ordre de tri de la colonne.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexColumnIsAscendingPropertyTitle">
+        <source>Is Ascending</source>
+        <target state="translated">Ordre croissant</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerColumnsDisplayValueTitle">
+        <source>Columns</source>
+        <target state="translated">Colonnes</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerDeleteColumnConfirmationMessage">
+        <source>Removing a column will also remove it from the indexes and foreign keys. Are you sure you want to continue?</source>
+        <target state="translated">La suppression d’une colonne entraîne également sa suppression des index et des clés étrangères. Voulez-vous vraiment continuer ?</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="MissingIndexFormat">
+        <source>Missing Index (Impact {0}): {1}</source>
+        <target state="translated">Index absent (Impact) {0} : {1}</target>
+        <note>"Missing Index (Impact {0}): {1}" format string for showplan</note>
+      </trans-unit>
+      <trans-unit id="MissingIndexDetailsTitle">
+        <source>/*
+Missing Index Details from {0}
+The Query Processor estimates that implementing the following index could improve the query cost by {1}%.
+*/</source>
+        <target state="translated">/*
+Détails de l'index absent de {0}
+Le processeur de requêtes estime que l'implémentation de l'index suivant peut améliorer le coût de requête de {1}%.
+*/</target>
+        <note>title of missing index details</note>
       </trans-unit>
     </body>
   </file>

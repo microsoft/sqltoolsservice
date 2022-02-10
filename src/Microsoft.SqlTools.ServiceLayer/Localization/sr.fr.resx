@@ -3499,10 +3499,43 @@
   <data name="CheckConstraintIsEnabledDescription" xml:space="preserve">
     <value>Spécifie si la contrainte de vérification est activée</value>
   </data>
-  <data name="SessionMissingDetails" xml:space="preserve">
-    <value>Impossible de démarrer la session de streaming {0} en raison de l’absence de détails sur la session</value>
+  <data name="QueryServiceUnsupportedSqlVariantType" xml:space="preserve">
+    <value>Le type sous-jacent "{0}" pour la variante sql de la colonne "{1}" n'a pas pu être résolu.</value>
   </data>
-  <data name="StartProfilingFailed" xml:space="preserve">
-    <value>Échec du démarrage du profileur : {0}</value>
+  <data name="IndexIsEnabledPropertyDescription" xml:space="preserve">
+    <value>Indique si l'index est activé</value>
+  </data>
+  <data name="IndexIsClusteredPropertyDescription" xml:space="preserve">
+    <value>Que l'index soit clusterisé, un seul index clusterisé est autorisé dans une table.</value>
+  </data>
+  <data name="TableDesignerIndexIsClusteredPropertyTitle" xml:space="preserve">
+    <value>Est en cluster</value>
+  </data>
+  <data name="IndexIsUniquePropertyDescription" xml:space="preserve">
+    <value>Si les données saisies dans cet index doivent être uniques.</value>
+  </data>
+  <data name="TableDesignerIsUniquePropertyTitle" xml:space="preserve">
+    <value>Est unique</value>
+  </data>
+  <data name="IndexColumnIsAscendingPropertyDescription" xml:space="preserve">
+    <value>Spécifie l'ordre de tri de la colonne.</value>
+  </data>
+  <data name="IndexColumnIsAscendingPropertyTitle" xml:space="preserve">
+    <value>Ordre croissant</value>
+  </data>
+  <data name="TableDesignerColumnsDisplayValueTitle" xml:space="preserve">
+    <value>Colonnes</value>
+  </data>
+  <data name="TableDesignerDeleteColumnConfirmationMessage" xml:space="preserve">
+    <value>La suppression d’une colonne entraîne également sa suppression des index et des clés étrangères. Voulez-vous vraiment continuer ?</value>
+  </data>
+  <data name="MissingIndexFormat" xml:space="preserve">
+    <value>Index absent (Impact) {0} : {1}</value>
+  </data>
+  <data name="MissingIndexDetailsTitle" xml:space="preserve">
+    <value>/*
+Détails de l'index absent de {0}
+Le processeur de requêtes estime que l'implémentation de l'index suivant peut améliorer le coût de requête de {1}%.
+*/</value>
   </data>
 </root>

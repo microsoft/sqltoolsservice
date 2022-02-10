@@ -5696,17 +5696,72 @@
         <target state="translated">指定是否已启用检查约束</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="SessionMissingDetails">
-        <source>Unable to start streaming session {0} due to missing session details.</source>
-        <target state="translated">由于缺少会话详细信息，无法启动流式处理会话 {0}。</target>
+      <trans-unit id="QueryServiceUnsupportedSqlVariantType">
+        <source>The underlying type "{0}" for sql variant column "{1}" could not be resolved.</source>
+        <target state="translated">SQL 变体列 "{1}" 的基础类型 "{0}" 无法解析。</target>
         <note>.
- Parameters: 0 - id (int) </note>
+ Parameters: 0 - underlyingType (string), 1 - columnName (string) </note>
       </trans-unit>
-      <trans-unit id="StartProfilingFailed">
-        <source>Failed to start profiler: {0}</source>
-        <target state="translated">无法启动探查器: {0}</target>
-        <note>.
- Parameters: 0 - error (String) </note>
+      <trans-unit id="IndexIsEnabledPropertyDescription">
+        <source>Specifies whether the index is enabled</source>
+        <target state="translated">指定是否启用索引。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexIsClusteredPropertyDescription">
+        <source>Whether the index is clustered, only one clustered index is allowed in a table.</source>
+        <target state="translated">无论索引是否为聚集索引，一个表中只允许存在一个聚集索引。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerIndexIsClusteredPropertyTitle">
+        <source>Is Clustered</source>
+        <target state="translated">为聚集索引</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexIsUniquePropertyDescription">
+        <source>Whether the data entered into this index must be unique.</source>
+        <target state="translated">输入到此索引中的数据是否必须是唯一的。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerIsUniquePropertyTitle">
+        <source>Is Unique</source>
+        <target state="translated">为唯一</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexColumnIsAscendingPropertyDescription">
+        <source>Specifies the sort order of the column.</source>
+        <target state="translated">指定列的排序顺序。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexColumnIsAscendingPropertyTitle">
+        <source>Is Ascending</source>
+        <target state="translated">为升序</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerColumnsDisplayValueTitle">
+        <source>Columns</source>
+        <target state="translated">列</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerDeleteColumnConfirmationMessage">
+        <source>Removing a column will also remove it from the indexes and foreign keys. Are you sure you want to continue?</source>
+        <target state="translated">删除列还将从索引和外键中删除该列。是否确实要继续?</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="MissingIndexFormat">
+        <source>Missing Index (Impact {0}): {1}</source>
+        <target state="translated">缺少索引(影响 {0}): {1}</target>
+        <note>"Missing Index (Impact {0}): {1}" format string for showplan</note>
+      </trans-unit>
+      <trans-unit id="MissingIndexDetailsTitle">
+        <source>/*
+Missing Index Details from {0}
+The Query Processor estimates that implementing the following index could improve the query cost by {1}%.
+*/</source>
+        <target state="translated">//*
+{0} 中缺少索引的详细信息
+查询处理器估计采用以下索引可以将查询开销减少 {1}%。
+*/</target>
+        <note>title of missing index details</note>
       </trans-unit>
     </body>
   </file>

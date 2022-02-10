@@ -6,7 +6,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Xml;
@@ -45,9 +44,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
             {
                 plan = ReadXmlShowPlan(dataSource);
             }
-            
             List<ShowPlanGraph> graphs = new List<ShowPlanGraph>();
 
+            int statementIndex = 0;
             foreach (BaseStmtInfoType statement in EnumStatements(plan))
             {
                 // Reset currentNodeId (used through Context) and create new context
@@ -55,8 +54,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
                 NodeBuilderContext context = new NodeBuilderContext(new ShowPlanGraph(), this.showPlanType, this);
                 // Parse the statement block
                 XmlPlanParser.Parse(statement, null, null, context);
+                // Get the statement XML for the graph.
+                context.Graph.XmlDocument = GetSingleStatementXml(dataSource, statementIndex);
+                // Parse the graph description.
+                context.Graph.Description = ParseDescription(context.Graph);
                 // Add graph to the list
                 graphs.Add(context.Graph);
+                // Incrementing statement index
+                statementIndex++;
             }
 
             return graphs.ToArray();
@@ -79,11 +84,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
 
             // Now make the new plan based on the existing one that contains only one statement.
             ShowPlanXML plan = ReadXmlShowPlan(dataSource);
-            plan.BatchSequence = new StmtBlockType[][] 
+            plan.BatchSequence = new StmtBlockType[][]
             {
                 new StmtBlockType[] { newStatementBlock }
             };
-            
+
             // Serialize the new plan.
             StringBuilder stringBuilder = new StringBuilder();
             Serializer.Serialize(new StringWriter(stringBuilder), plan);
@@ -369,6 +374,116 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
                     yield return statement;
                 }
             }
+        }
+        private Description ParseDescription(ShowPlanGraph graph)
+        {
+            XmlDocument stmtXmlDocument = new XmlDocument();
+            stmtXmlDocument.LoadXml(graph.XmlDocument);
+            var nsMgr = new XmlNamespaceManager(stmtXmlDocument.NameTable);
+            //Manually add our showplan namespace since the document won't have it in the default NameTable
+            nsMgr.AddNamespace("shp", "http://schemas.microsoft.com/sqlserver/2004/07/showplan");
+
+            //The root node in this case is the statement node
+            XmlNode rootNode = stmtXmlDocument.DocumentElement;
+            if(rootNode == null)
+            {
+                //Couldn't find our statement node, this should never happen in a properly formed document
+                throw new ArgumentNullException("StatementNode");
+            }
+
+            XmlNode missingIndexes = rootNode.SelectSingleNode("descendant::shp:MissingIndexes", nsMgr);
+
+            List<MissingIndex> parsedIndexes = new List<MissingIndex>();
+
+            // Not all plans will have a missing index. For those plans, just return the description.
+            if (missingIndexes != null)
+            {
+
+                // check Memory Optimized table.
+                bool memoryOptimzed = false;
+                XmlNode scan = rootNode.SelectSingleNode("descendant::shp:IndexScan", nsMgr);
+                if (scan == null)
+                {
+                    scan = rootNode.SelectSingleNode("descendant::shp:TableScan", nsMgr);
+                }
+                if (scan != null && scan.Attributes["Storage"] != null)
+                {
+                    if (0 == string.Compare(scan.Attributes["Storage"].Value, "MemoryOptimized", StringComparison.Ordinal))
+                    {
+                        memoryOptimzed = true;
+                    }
+                }
+
+                // getting all the indexgroups from the plan. A plan can have multiple missing index groups.
+                XmlNodeList indexGroups = missingIndexes.SelectNodes("descendant::shp:MissingIndexGroup", nsMgr);
+
+                // missing index template
+                const string createIndexTemplate = "CREATE NONCLUSTERED INDEX [<Name of Missing Index, sysname,>]\r\nON {0}.{1} ({2})\r\n";
+                const string addIndexTemplate = "ALTER TABLE {0}.{1}\r\nADD INDEX [<Name of Missing Index, sysname,>]\r\nNONCLUSTERED ({2})\r\n";
+                const string includeTemplate = "INCLUDE ({0})";
+
+                // iterating over all missing index groups
+                foreach (XmlNode indexGroup in indexGroups)
+                {
+                    // we only have one missing index per index group 
+                    XmlNode missingIndex = indexGroup.SelectSingleNode("descendant::shp:MissingIndex", nsMgr);
+
+                    string database = missingIndex.Attributes["Database"].Value;
+                    string schemaName = missingIndex.Attributes["Schema"].Value;
+                    string tableName = missingIndex.Attributes["Table"].Value;
+                    string indexColumns = string.Empty;
+                    string includeColumns = string.Empty;
+
+                    // populate index columns and include columns
+                    XmlNodeList columnGroups = missingIndex.SelectNodes("shp:ColumnGroup", nsMgr);
+                    foreach (XmlNode columnGroup in columnGroups)
+                    {
+                        foreach (XmlNode column in columnGroup.ChildNodes)
+                        {
+                            string columnName = column.Attributes["Name"].Value;
+                            if (0 != string.Compare(columnGroup.Attributes["Usage"].Value, "INCLUDE", StringComparison.Ordinal))
+                            {
+                                if (indexColumns == string.Empty)
+                                    indexColumns = columnName;
+                                else
+                                    indexColumns = $"{indexColumns},{columnName}";
+                            }
+                            else if (!memoryOptimzed)
+                            {
+                                if (includeColumns == string.Empty)
+                                    includeColumns = columnName;
+                                else
+                                    includeColumns = $"{indexColumns},{columnName}";
+                            }
+                        }
+                    }
+
+                    // for memory optimized we just alter the existing index where as for non optimized tables we create a new one.
+                    string queryText = string.Format((memoryOptimzed) ? addIndexTemplate : createIndexTemplate, schemaName, tableName, indexColumns);
+                    if (!string.IsNullOrEmpty(includeColumns))
+                    {
+                        queryText += string.Format(includeTemplate, includeColumns);
+                    }
+
+                    string impact = indexGroup.Attributes["Impact"].Value;
+                    string caption = SR.MissingIndexFormat(impact, queryText);
+                    parsedIndexes.Add(new MissingIndex()
+                    {
+                        MissingIndexDatabase = database,
+                        MissingIndexQueryText = queryText,
+                        MissingIndexImpact = impact,
+                        MissingIndexCaption = caption
+                    });
+                }
+            }
+
+
+            Description description = new Description
+            {
+                QueryText = graph.Statement,
+                MissingIndices = parsedIndexes,
+            };
+            return description;
         }
 
         #endregion

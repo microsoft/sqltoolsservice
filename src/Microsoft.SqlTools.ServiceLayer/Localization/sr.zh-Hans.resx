@@ -3499,10 +3499,43 @@
   <data name="CheckConstraintIsEnabledDescription" xml:space="preserve">
     <value>指定是否已启用检查约束</value>
   </data>
-  <data name="SessionMissingDetails" xml:space="preserve">
-    <value>由于缺少会话详细信息，无法启动流式处理会话 {0}。</value>
+  <data name="QueryServiceUnsupportedSqlVariantType" xml:space="preserve">
+    <value>SQL 变体列 "{1}" 的基础类型 "{0}" 无法解析。</value>
   </data>
-  <data name="StartProfilingFailed" xml:space="preserve">
-    <value>无法启动探查器: {0}</value>
+  <data name="IndexIsEnabledPropertyDescription" xml:space="preserve">
+    <value>指定是否启用索引。</value>
+  </data>
+  <data name="IndexIsClusteredPropertyDescription" xml:space="preserve">
+    <value>无论索引是否为聚集索引，一个表中只允许存在一个聚集索引。</value>
+  </data>
+  <data name="TableDesignerIndexIsClusteredPropertyTitle" xml:space="preserve">
+    <value>为聚集索引</value>
+  </data>
+  <data name="IndexIsUniquePropertyDescription" xml:space="preserve">
+    <value>输入到此索引中的数据是否必须是唯一的。</value>
+  </data>
+  <data name="TableDesignerIsUniquePropertyTitle" xml:space="preserve">
+    <value>为唯一</value>
+  </data>
+  <data name="IndexColumnIsAscendingPropertyDescription" xml:space="preserve">
+    <value>指定列的排序顺序。</value>
+  </data>
+  <data name="IndexColumnIsAscendingPropertyTitle" xml:space="preserve">
+    <value>为升序</value>
+  </data>
+  <data name="TableDesignerColumnsDisplayValueTitle" xml:space="preserve">
+    <value>列</value>
+  </data>
+  <data name="TableDesignerDeleteColumnConfirmationMessage" xml:space="preserve">
+    <value>删除列还将从索引和外键中删除该列。是否确实要继续?</value>
+  </data>
+  <data name="MissingIndexFormat" xml:space="preserve">
+    <value>缺少索引(影响 {0}): {1}</value>
+  </data>
+  <data name="MissingIndexDetailsTitle" xml:space="preserve">
+    <value>//*
+{0} 中缺少索引的详细信息
+查询处理器估计采用以下索引可以将查询开销减少 {1}%。
+*/</value>
   </data>
 </root>

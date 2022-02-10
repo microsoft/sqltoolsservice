@@ -4606,6 +4606,19 @@
     <comment>.
  Parameters: 0 - actual (string), 1 - estimated (string), 2 - percent (decimal) </comment>
   </data>
+  <data name="MissingIndexFormat" xml:space="preserve">
+    <value>Missing Index (Impact {0}): {1}</value>
+    <comment>&quot;Missing Index (Impact {0}): {1}&quot; format string for showplan.
+ Parameters: 0 - impact (string), 1 - queryText (string) </comment>
+  </data>
+  <data name="MissingIndexDetailsTitle" xml:space="preserve">
+    <value>/*
+Missing Index Details from {0}
+The Query Processor estimates that implementing the following index could improve the query cost by {1}%.
+*/</value>
+    <comment>title of missing index details.
+ Parameters: 0 - fileName (string), 1 - impact (string) </comment>
+  </data>
   <data name="TableNotInitializedException" xml:space="preserve">
     <value>Initialization is not properly done for table with id &apos;{0}&apos;</value>
     <comment>.
@@ -4661,7 +4674,7 @@
     <comment></comment>
   </data>
   <data name="ForeignKeyIsNotForReplicationDescription" xml:space="preserve">
-    <value>Enables or disables an IDENTITY constraint for data inserted by a replication process.</value>
+    <value>Enables or disables the constraint for data inserted by a replication process.</value>
     <comment></comment>
   </data>
   <data name="SqlForeignKeyAction_NoAction" xml:space="preserve">
@@ -4687,6 +4700,42 @@
   </data>
   <data name="CheckConstraintIsEnabledDescription" xml:space="preserve">
     <value>Specifies whether the check constraint is Enabled</value>
+    <comment></comment>
+  </data>
+  <data name="IndexIsEnabledPropertyDescription" xml:space="preserve">
+    <value>Specifies whether the index is enabled</value>
+    <comment></comment>
+  </data>
+  <data name="IndexIsClusteredPropertyDescription" xml:space="preserve">
+    <value>Whether the index is clustered, only one clustered index is allowed in a table.</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerIndexIsClusteredPropertyTitle" xml:space="preserve">
+    <value>Is Clustered</value>
+    <comment></comment>
+  </data>
+  <data name="IndexIsUniquePropertyDescription" xml:space="preserve">
+    <value>Whether the data entered into this index must be unique.</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerIsUniquePropertyTitle" xml:space="preserve">
+    <value>Is Unique</value>
+    <comment></comment>
+  </data>
+  <data name="IndexColumnIsAscendingPropertyDescription" xml:space="preserve">
+    <value>Specifies the sort order of the column.</value>
+    <comment></comment>
+  </data>
+  <data name="IndexColumnIsAscendingPropertyTitle" xml:space="preserve">
+    <value>Is Ascending</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerColumnsDisplayValueTitle" xml:space="preserve">
+    <value>Columns</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerDeleteColumnConfirmationMessage" xml:space="preserve">
+    <value>Removing a column will also remove it from the indexes and foreign keys. Are you sure you want to continue?</value>
     <comment></comment>
   </data>
 </root>
