@@ -87,7 +87,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
         /// </summary>
         public int DisplayOrder { get; set; }
         /// <summary>
-        /// Flag to indicate if the property has a longer value so that it will be shown at the bottom of the tooltip
+        /// Flag to show property at the bottom of tooltip. Generally done for for properties with longer value.
         /// </summary>
         public bool PositionAtBottom { get; set; }
         /// <summary>
