@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph;
+using Microsoft.SqlTools.Utility;
+using System.Diagnostics;
 
 namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
 {
@@ -140,8 +142,9 @@ GO
                 // Convert the property value to the text.
                 return property.Converter.ConvertToString(propertyValue).Trim();
             }
-            catch 
+            catch (Exception e)
             {
+                Logger.Write(TraceEventType.Error, e.ToString());
                 return String.Empty;
             }
         }
