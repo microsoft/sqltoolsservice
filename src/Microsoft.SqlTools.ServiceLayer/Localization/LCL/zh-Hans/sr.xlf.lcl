@@ -2811,10 +2811,13 @@
       </Item>
       <Item ItemId=";ForeignKeyIsNotForReplicationDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Enables or disables an IDENTITY constraint for data inserted by a replication process.]]></Val>
+          <Val><![CDATA[Enables or disables the constraint for data inserted by a replication process.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[对复制过程插入的数据启用或禁用 IDENTITY 约束。]]></Val>
+            <Val><![CDATA[启用或禁用复制进程插入的数据的约束。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Enables or disables an IDENTITY constraint for data inserted by a replication process.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
