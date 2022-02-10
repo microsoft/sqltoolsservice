@@ -30,8 +30,3 @@ steps:
   env:
     GITHUB_DISTRO_MIXIN_PASSWORD: $(github-distro-mixin-password)
     ADO_CROSSPLATBUILDSCRIPTS_PASSWORD: $(ado-crossplatbuildscripts-password)
-
-- task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
-  displayName: 'Component Detection'
-  inputs:
-    failOnAlert: true
