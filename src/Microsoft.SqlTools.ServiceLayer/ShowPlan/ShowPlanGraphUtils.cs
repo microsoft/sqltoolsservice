@@ -73,7 +73,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
                         ShowInTooltip = prop.ShowInToolTip,
                         DisplayOrder = prop.DisplayOrder,
                         PositionAtBottom = prop.IsLongString,
-                        DisplayValue = GetPropertyText(prop)
+                        DisplayValue = GetPropertyDisplayValue(prop)
                     });
                 }
                 else
@@ -86,7 +86,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
                         ShowInTooltip = prop.ShowInToolTip,
                         DisplayOrder = prop.DisplayOrder,
                         PositionAtBottom = prop.IsLongString,
-                        DisplayValue = GetPropertyText(prop)
+                        DisplayValue = GetPropertyDisplayValue(prop)
                     });
                 }
 
@@ -125,12 +125,12 @@ GO
 ";
         }
 
-        private static string GetPropertyText(PropertyDescriptor property)
+        private static string GetPropertyDisplayValue(PropertyValue property)
         {
             try
             {
                 // Get the property value.
-                object propertyValue = property.GetValue(property);
+                object propertyValue = property.GetValue(property.Value);
 
                 if (propertyValue == null)
                 {
