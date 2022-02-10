@@ -22,6 +22,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 
         public TableComponentProperties<CheckConstraintViewModel> CheckConstraints { get; set; } = new TableComponentProperties<CheckConstraintViewModel>();
 
+        public TableComponentProperties<IndexViewModel> Indexes { get; set; } = new TableComponentProperties<IndexViewModel>();
+
         public InputBoxProperties Script { get; set; } = new InputBoxProperties();
     }
 }

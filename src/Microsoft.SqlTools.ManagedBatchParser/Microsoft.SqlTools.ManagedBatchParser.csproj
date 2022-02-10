@@ -3,6 +3,7 @@
 		<TargetFramework>$(ManagedBatchParserTargetFramework)</TargetFramework>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
+		<EmbeddedResourceUseDependentUponConvention>false</EmbeddedResourceUseDependentUponConvention>
 	</PropertyGroup>
 	<ItemGroup>
 		<Folder Include="Localization\transXliff\" />

@@ -23,5 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         public string ConnectionString { get; set; }
 
         public string Id { get; set; }
+
+        public string AccessToken { get; set; }
     }
 }

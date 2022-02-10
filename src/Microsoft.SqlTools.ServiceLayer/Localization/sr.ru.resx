@@ -3499,10 +3499,43 @@
   <data name="CheckConstraintIsEnabledDescription" xml:space="preserve">
     <value>Указывает, включено ли проверочное ограничение.</value>
   </data>
-  <data name="SessionMissingDetails" xml:space="preserve">
-    <value>Не удалось запустить сеанс потоковой передачи {0} из-за отсутствующих сведений о сеансе.</value>
+  <data name="QueryServiceUnsupportedSqlVariantType" xml:space="preserve">
+    <value>Не удалось разрешить базовый тип "{0}" для столбца переменной SQL "{1}".</value>
   </data>
-  <data name="StartProfilingFailed" xml:space="preserve">
-    <value>Не удалось запустить профилировщика: {0}</value>
+  <data name="IndexIsEnabledPropertyDescription" xml:space="preserve">
+    <value>Указывает, включен ли индекс.</value>
+  </data>
+  <data name="IndexIsClusteredPropertyDescription" xml:space="preserve">
+    <value>Указывает, является ли индекс кластеризованным. В каждой таблице может существовать только один кластеризованный индекс.</value>
+  </data>
+  <data name="TableDesignerIndexIsClusteredPropertyTitle" xml:space="preserve">
+    <value>Является кластеризованным</value>
+  </data>
+  <data name="IndexIsUniquePropertyDescription" xml:space="preserve">
+    <value>Указывает, являются ли данные, вводимые в индекс, уникальными.</value>
+  </data>
+  <data name="TableDesignerIsUniquePropertyTitle" xml:space="preserve">
+    <value>Является уникальным</value>
+  </data>
+  <data name="IndexColumnIsAscendingPropertyDescription" xml:space="preserve">
+    <value>Указывает порядок сортировки столбца.</value>
+  </data>
+  <data name="IndexColumnIsAscendingPropertyTitle" xml:space="preserve">
+    <value>По возрастанию</value>
+  </data>
+  <data name="TableDesignerColumnsDisplayValueTitle" xml:space="preserve">
+    <value>Столбцы</value>
+  </data>
+  <data name="TableDesignerDeleteColumnConfirmationMessage" xml:space="preserve">
+    <value>Удаление столбца также приведет к его удалению из индексов и внешних ключей. Вы действительно хотите продолжить?</value>
+  </data>
+  <data name="MissingIndexFormat" xml:space="preserve">
+    <value>Отсутствует индекс (влияние {0}): {1}</value>
+  </data>
+  <data name="MissingIndexDetailsTitle" xml:space="preserve">
+    <value>/*
+Отсутствуют сведения об индексе из {0}
+Обработчик запросов считает, что реализация следующего индекса может сократить стоимость запроса на {1}%.
+*/</value>
   </data>
 </root>

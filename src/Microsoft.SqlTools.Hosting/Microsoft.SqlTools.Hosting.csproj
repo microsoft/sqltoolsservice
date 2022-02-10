@@ -4,6 +4,7 @@
 		<EnableDefaultItems>false</EnableDefaultItems>
 		<EnableDefaultCompileItems>false</EnableDefaultCompileItems>
 		<EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
+		<EmbeddedResourceUseDependentUponConvention>false</EmbeddedResourceUseDependentUponConvention>
 		<EnableDefaultNoneItems>false</EnableDefaultNoneItems>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<DefineConstants>$(DefineConstants);NETCOREAPP1_0;TRACE</DefineConstants>
@@ -18,6 +19,7 @@
 		<PackageReference Include="Microsoft.Extensions.DependencyModel" />
 		<PackageReference Include="System.Runtime.Loader" />
 		<PackageReference Include="System.Composition" />
+		<PackageReference Include="System.Text.Encodings.Web" />
 	</ItemGroup>
 	<ItemGroup>
 		<EmbeddedResource Include="Localization\*.resx" />

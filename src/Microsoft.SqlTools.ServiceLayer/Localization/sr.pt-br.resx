@@ -3499,10 +3499,43 @@
   <data name="CheckConstraintIsEnabledDescription" xml:space="preserve">
     <value>Especifica se a restrição de verificação está habilitada</value>
   </data>
-  <data name="SessionMissingDetails" xml:space="preserve">
-    <value>Não é possível iniciar a sessão de streaming {0} devido à falta de detalhes da sessão.</value>
+  <data name="QueryServiceUnsupportedSqlVariantType" xml:space="preserve">
+    <value>O tipo subjacente "{0}" para a coluna sql variant "{1}" não pôde ser resolvido.</value>
   </data>
-  <data name="StartProfilingFailed" xml:space="preserve">
-    <value>Falha ao iniciar o criador de perfil: {0}</value>
+  <data name="IndexIsEnabledPropertyDescription" xml:space="preserve">
+    <value>Especifica se o índice está habilitado.</value>
+  </data>
+  <data name="IndexIsClusteredPropertyDescription" xml:space="preserve">
+    <value>Se o índice estiver clusterizado, apenas um índice clusterizado será permitido em uma tabela.</value>
+  </data>
+  <data name="TableDesignerIndexIsClusteredPropertyTitle" xml:space="preserve">
+    <value>Está Clusterizado</value>
+  </data>
+  <data name="IndexIsUniquePropertyDescription" xml:space="preserve">
+    <value>Se os dados inseridos neste índice devem ser exclusivos.</value>
+  </data>
+  <data name="TableDesignerIsUniquePropertyTitle" xml:space="preserve">
+    <value>É Exclusivo</value>
+  </data>
+  <data name="IndexColumnIsAscendingPropertyDescription" xml:space="preserve">
+    <value>Especifica a ordem de classificação da coluna.</value>
+  </data>
+  <data name="IndexColumnIsAscendingPropertyTitle" xml:space="preserve">
+    <value>É Ascendente</value>
+  </data>
+  <data name="TableDesignerColumnsDisplayValueTitle" xml:space="preserve">
+    <value>Colunas</value>
+  </data>
+  <data name="TableDesignerDeleteColumnConfirmationMessage" xml:space="preserve">
+    <value>Remover uma coluna também a removerá dos índices e chaves estrangeiras. Tem certeza de que deseja continuar?</value>
+  </data>
+  <data name="MissingIndexFormat" xml:space="preserve">
+    <value>Índice Ausente (Impacto {0}): {1}</value>
+  </data>
+  <data name="MissingIndexDetailsTitle" xml:space="preserve">
+    <value>/*
+Detalhes de Índice Ausentes de {0}
+O Processador de Consultas estima que a implementação do índice a seguir pode melhorar o custo da consulta em {1}%.
+*/</value>
   </data>
 </root>
