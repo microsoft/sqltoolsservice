@@ -29,6 +29,9 @@ using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts.Models.Sku;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts.Models;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts.Exceptions;
+using Newtonsoft.Json;
+using System.Reflection;
+using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts.Models.Environment;
 
 namespace Microsoft.SqlTools.ServiceLayer.Migration
 {
@@ -277,7 +280,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                     startTime: DateTime.ParseExact(parameters.StartTime, RecommendationConstants.TimestampDateTimeFormat, CultureInfo.InvariantCulture),
                     endTime: DateTime.ParseExact(parameters.EndTime, RecommendationConstants.TimestampDateTimeFormat, CultureInfo.InvariantCulture),
                     collectionInterval: parameters.PerfQueryIntervalInSec,
-                    dbsToInclude: new HashSet<string>(parameters.DatabaseAllowList));
+                    dbsToInclude: new HashSet<string>(parameters.DatabaseAllowList),
+                    hostRequirements: new SqlServerHostRequirements() { NICCount = 1 });
 
                 SkuRecommendationServiceProvider provider = new SkuRecommendationServiceProvider(new AzureSqlSkuBillingServiceProvider());
 
@@ -349,7 +353,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                     var prefs = new AzurePreferences()
                     {
                         EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlVirtualMachine", parameters.IncludePreviewSkus),
-                        ScalingFactor = parameters.ScalingFactor / 100.0
+                        ScalingFactor = parameters.ScalingFactor / 100.0,
+                        TargetEnvironment = TargetEnvironmentType.Production
                     };
                     sqlVmResults = provider.GetSkuRecommendation(prefs, req);
 
@@ -571,51 +576,69 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                                                     AzureSqlPaaSServiceTier.GeneralPurpose,
                                                     ComputeTier.Provisioned,
                                                     AzureSqlPaaSHardwareType.Gen5));
-                    //if (includePreviewSkus)
-                    //{
-                    //    // Premium BC/GP
-                    //    eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
-                    //                                    AzureSqlTargetPlatform.AzureSqlManagedInstance,
-                    //                                    AzureSqlPurchasingModel.vCore,
-                    //                                    AzureSqlPaaSServiceTier.BusinessCritical,
-                    //                                    ComputeTier.Provisioned,
-                    //                                    AzureSqlPaaSHardwareType.PremiumSeries));
+                    if (includePreviewSkus)
+                    {
+                        // Premium BC/GP
+                        eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
+                                                        AzureSqlTargetPlatform.AzureSqlManagedInstance,
+                                                        AzureSqlPurchasingModel.vCore,
+                                                        AzureSqlPaaSServiceTier.BusinessCritical,
+                                                        ComputeTier.Provisioned,
+                                                        AzureSqlPaaSHardwareType.PremiumSeries));
 
-                    //    eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
-                    //                                    AzureSqlTargetPlatform.AzureSqlManagedInstance,
-                    //                                    AzureSqlPurchasingModel.vCore,
-                    //                                    AzureSqlPaaSServiceTier.GeneralPurpose,
-                    //                                    ComputeTier.Provisioned,
-                    //                                    AzureSqlPaaSHardwareType.PremiumSeries));
+                        eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
+                                                        AzureSqlTargetPlatform.AzureSqlManagedInstance,
+                                                        AzureSqlPurchasingModel.vCore,
+                                                        AzureSqlPaaSServiceTier.GeneralPurpose,
+                                                        ComputeTier.Provisioned,
+                                                        AzureSqlPaaSHardwareType.PremiumSeries));
 
-                    //    // Premium Memory Optimized BC/GP
-                    //    eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
-                    //                                    AzureSqlTargetPlatform.AzureSqlManagedInstance,
-                    //                                    AzureSqlPurchasingModel.vCore,
-                    //                                    AzureSqlPaaSServiceTier.BusinessCritical,
-                    //                                    ComputeTier.Provisioned,
-                    //                                    AzureSqlPaaSHardwareType.PremiumSeriesMemoryOptimized));
+                        // Premium Memory Optimized BC/GP
+                        eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
+                                                        AzureSqlTargetPlatform.AzureSqlManagedInstance,
+                                                        AzureSqlPurchasingModel.vCore,
+                                                        AzureSqlPaaSServiceTier.BusinessCritical,
+                                                        ComputeTier.Provisioned,
+                                                        AzureSqlPaaSHardwareType.PremiumSeriesMemoryOptimized));
 
-                    //    eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
-                    //                                    AzureSqlTargetPlatform.AzureSqlManagedInstance,
-                    //                                    AzureSqlPurchasingModel.vCore,
-                    //                                    AzureSqlPaaSServiceTier.GeneralPurpose,
-                    //                                    ComputeTier.Provisioned,
-                    //                                    AzureSqlPaaSHardwareType.PremiumSeriesMemoryOptimized));
-                    //}
+                        eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
+                                                        AzureSqlTargetPlatform.AzureSqlManagedInstance,
+                                                        AzureSqlPurchasingModel.vCore,
+                                                        AzureSqlPaaSServiceTier.GeneralPurpose,
+                                                        ComputeTier.Provisioned,
+                                                        AzureSqlPaaSHardwareType.PremiumSeriesMemoryOptimized));
+                    }
                     break;
 
                 case "AzureSqlVirtualMachine":
-                    // Provisioned SQL IaaS
-                    eligibleSkuCategories.Add(new AzureSqlSkuIaaSCategory(
-                                                    AzureSqlTargetPlatform.AzureSqlVirtualMachine,
-                                                    ComputeTier.Provisioned,
-                                                    VirtualMachineFamilyType.GeneralPurpose));
+                    string assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-                    eligibleSkuCategories.Add(new AzureSqlSkuIaaSCategory(
-                                                    AzureSqlTargetPlatform.AzureSqlVirtualMachine,
-                                                    ComputeTier.Provisioned,
-                                                    VirtualMachineFamilyType.MemoryOptimized));
+                    // load Azure VM capabilities
+                    string jsonFile = File.ReadAllText(Path.Combine(assemblyPath, RecommendationConstants.DataFolder, RecommendationConstants.SqlVmCapability));
+                    List<AzureSqlIaaSCapability> vmCapabilities = JsonConvert.DeserializeObject<List<AzureSqlIaaSCapability>>(jsonFile);
+
+                    if (includePreviewSkus)
+                    {
+                        // Eb series (in preview) capabilities stored separately 
+                        string computePreviewFilePath = Path.Combine(assemblyPath, RecommendationConstants.DataFolder, RecommendationConstants.SqlVmPreviewCapability);
+                        if (File.Exists(computePreviewFilePath))
+                        {
+                            jsonFile = File.ReadAllText(computePreviewFilePath);
+                            List<AzureSqlIaaSCapability> vmPreviewCapabilities = JsonConvert.DeserializeObject<List<AzureSqlIaaSCapability>>(jsonFile);
+
+                            vmCapabilities.AddRange(vmPreviewCapabilities);
+                        }
+                    }
+
+                    foreach (VirtualMachineFamily family in AzureVirtualMachineFamilyGroup.FamilyGroups[VirtualMachineFamilyType.GeneralPurpose]
+                        .Concat(AzureVirtualMachineFamilyGroup.FamilyGroups[VirtualMachineFamilyType.MemoryOptimized]))
+                    {
+                        var skus = vmCapabilities.Where(c => string.Equals(c.Family, family.ToString(), StringComparison.OrdinalIgnoreCase)).Select(c => c.Name);
+                        AzureSqlSkuIaaSCategory category = new AzureSqlSkuIaaSCategory(family);
+                        category.AvailableVmSkus.AddRange(skus);
+
+                        eligibleSkuCategories.Add(category);
+                    }
                     break;
 
                 default:

@@ -17,12 +17,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
         public string OwnerUri { get; set; }
 
         /// <summary>
-        /// Path to SqlAssessment executable, installed by the SQL migration extension
-        /// </summary>
-        /// <remarks> TO DO: include Console App executable with migration extension</remarks>
-        public string SqlAssessmentPath { get; set; }
-
-        /// <summary>
         /// Folder from which collected performance data will be written to
         /// </summary>
         public string DataFolder { get; set; }
@@ -50,25 +44,43 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
 
     public class RefreshPerfDataCollectionParams
     {
+        /// <summary>
+        /// The last time data collection status was refreshed
+        /// </summary>
         public DateTime LastRefreshedTime { get; set; }
     }
 
     public class StartPerfDataCollectionResult
     {
+        /// <summary>
+        /// The time data collection started
+        /// </summary>
         public DateTime DateTimeStarted { get; set; }
     }
 
     public class StopPerfDataCollectionResult
     {
+        /// <summary>
+        /// The time data collection stopped
+        /// </summary>
         public DateTime DateTimeStopped { get; set; }
     }
 
     public class RefreshPerfDataCollectionResult
     {
+        /// <summary>
+        /// List of status messages captured during data collection
+        /// </summary>
         public List<string> Messages { get; set; }
 
+        /// <summary>
+        /// List of error messages captured during data collection
+        /// </summary>
         public List<string> Errors { get; set; }
 
+        /// <summary>
+        /// The last time data collecton status was refreshed
+        /// </summary>
         public DateTime RefreshTime { get; set; }
     }
 
