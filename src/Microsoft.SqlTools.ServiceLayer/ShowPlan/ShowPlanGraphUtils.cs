@@ -70,7 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
                     {
                         Name = prop.DisplayName,
                         Value = propertyValue,
-                        ShowInTooltip = prop.ShowInToolTip,
+                        ShowInTooltip = prop.ShowInTooltip,
                         DisplayOrder = prop.DisplayOrder,
                         PositionAtBottom = prop.IsLongString,
                         DisplayValue = GetPropertyDisplayValue(prop)
@@ -83,7 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
                     {
                         Name = prop.DisplayName,
                         Value = propertyValue,
-                        ShowInTooltip = prop.ShowInToolTip,
+                        ShowInTooltip = prop.ShowInTooltip,
                         DisplayOrder = prop.DisplayOrder,
                         PositionAtBottom = prop.IsLongString,
                         DisplayValue = GetPropertyDisplayValue(prop)
