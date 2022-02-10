@@ -101,8 +101,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         {
             try
             {
-                messages.Add(new KeyValuePair<string, DateTime>("perf query event", DateTime.UtcNow));
-
                 int currentIteration = perfDataCache.CurrentIteration;
 
                 // Get raw perf data points
@@ -113,6 +111,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                     IList<ISqlPerfDataPoints> result = validationResult.SqlPerfDataPoints;
                     perfDataCache.AddingPerfData(result);
                     serverName = this.perfDataCache.ServerName;
+
+                    this.messages.Add(new KeyValuePair<string, DateTime>(
+                        string.Format("Performance data query iteration: {0} of {1}, collected {2} data points.", currentIteration, numberOfIterations, result.Count),
+                        DateTime.UtcNow)); 
 
                     // perform aggregation and persistence once enough iterations have completed
                     if (currentIteration == numberOfIterations)
@@ -140,8 +142,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         {
             try
             {
-                messages.Add(new KeyValuePair<string, DateTime>("aggregation and persist event", DateTime.UtcNow));
-
                 // Aggregate the records in the Cache 
                 int rawDataPointsCount = this.perfDataCache.GetRawDataPointsCount();
 
@@ -152,6 +152,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 if (aggregatedDataPointsCount > 0)
                 {
                     this.perfDataCache.PersistingCacheAsCsv();
+
+                    this.messages.Add(new KeyValuePair<string, DateTime>(
+                        string.Format("Aggregated {0} raw data points to {1} performance counters, and saved to {2}.", rawDataPointsCount, aggregatedDataPointsCount, this.outputFolder),
+                        DateTime.UtcNow));
                 }
             }
             catch (Exception e)
@@ -167,8 +171,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         {
             try
             {
-                messages.Add(new KeyValuePair<string, DateTime>("static query event", DateTime.UtcNow));
-
                 var validationResult = this.dataCollector.CollectCommonDataPoints(CancellationToken.None).Result.FirstOrDefault();
                 if (validationResult != null && validationResult.Status == SqlAssessmentStatus.Completed)
                 {
@@ -182,6 +184,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
 
                     serverName = staticDataResult.Select(p => p.ServerName).FirstOrDefault();
                     persistor.SaveCommonDataPoints(staticDataResult, serverName);
+
+                    this.messages.Add(new KeyValuePair<string, DateTime>(
+                        string.Format("Collected static configuration data, and saved to {0}.", this.outputFolder),
+                        DateTime.UtcNow));
                 }
                 else if (validationResult != null && validationResult.Status == SqlAssessmentStatus.Error)
                 {
