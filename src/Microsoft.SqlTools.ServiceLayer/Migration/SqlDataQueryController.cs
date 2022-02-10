@@ -95,6 +95,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         }
 
         /// <summary>
+        /// Returns whether or not this SqlDataQueryController is currently running.
+        /// </summary>
+        public bool IsRunning()
+        {
+            return this.timers.All(timer => timer.Enabled);
+        }
+
+        /// <summary>
         /// Collect performance data, adding the collected points to the cache.
         /// </summary>
         private void PerfDataQueryEvent()

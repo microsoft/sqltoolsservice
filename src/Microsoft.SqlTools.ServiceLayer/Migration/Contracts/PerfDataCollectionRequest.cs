@@ -82,6 +82,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
         /// The last time data collecton status was refreshed
         /// </summary>
         public DateTime RefreshTime { get; set; }
+
+        /// <summary>
+        /// Whether or not data collection is currently running
+        /// </summary>
+        public bool IsCollecting { get; set; }
     }
 
     public class StartPerfDataCollectionRequest
