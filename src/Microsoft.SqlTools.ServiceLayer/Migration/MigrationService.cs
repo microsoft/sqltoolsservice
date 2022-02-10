@@ -247,12 +247,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         {
             try
             {
-                await requestContext.SendResult(new RefreshPerfDataCollectionResult() 
+                bool isCollecting = !(this.DataCollectionController is null) ? this.DataCollectionController.IsRunning() : false;
+                List<string> messages = !(this.DataCollectionController is null) ? this.DataCollectionController.FetchLatestMessages(parameters.LastRefreshedTime) : new List<string>();
+                List<string> errors = !(this.DataCollectionController is null) ? this.DataCollectionController.FetchLatestErrors(parameters.LastRefreshedTime) : new List<string>();
+
+                RefreshPerfDataCollectionResult result = new RefreshPerfDataCollectionResult() 
                 { 
                     RefreshTime = DateTime.UtcNow,
-                    Messages = this.DataCollectionController.FetchLatestMessages(parameters.LastRefreshedTime),
-                    Errors = this.DataCollectionController.FetchLatestErrors(parameters.LastRefreshedTime)
-                });
+                    IsCollecting = isCollecting,
+                    Messages = messages,
+                    Errors = errors,
+                };
+
+                await requestContext.SendResult(result);
             }
             catch (Exception e)
             {
