@@ -1219,24 +1219,29 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         private bool RefreshNeeded(string uri)
         {
             ConnectionInfo connInfo;
-            System.Data.Common.DbConnection connection;
-            connectionService.TryFindConnection(uri, out connInfo);
-            if (connInfo.ConnectionDetails.AuthenticationType != "AzureMFA") 
+            if (connectionService.TryFindConnection(uri, out connInfo))
             {
-                return false;
-            } 
-            else 
-            {
-                if (connInfo.TryGetConnection(Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType.Default, out connection))
+                // If not an azure connection, no need to refresh token
+                if (connInfo.ConnectionDetails.AuthenticationType != "AzureMFA") 
                 {
                     return false;
-                }
-                else
+                } 
+                else 
                 {
-                    //TODO: Handle token expiration here
-                    return false;
+                    // If token is not expired, no need to refresh token
+                    if (connInfo.ConnectionDetails.ExpiresOn > DateTimeOffset.Now.ToUnixTimeSeconds())
+                    {
+                        return false;
+                    }
+                    // Refresh token here
+                    else
+                    {
+                        //TODO: Handle token expiration here
+                        return true;
+                    }
                 }
             }
+            return false;
         }
         
         /// <summary>
