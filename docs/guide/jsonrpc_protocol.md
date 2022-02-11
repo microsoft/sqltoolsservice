@@ -534,7 +534,7 @@ Get a connection string for the provided connection.
 
         /// Connection info of the connection
         /// </summary>
-        public ConnectionDetails ConnectionInfo { get; set; }
+        public ConnectionDetails ConnectionDetails { get; set; }
         /// <summary>
 
         /// Indicates whether the password should be return in the connection string. Default is false.
