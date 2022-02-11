@@ -1314,27 +1314,34 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 string connectionString = string.Empty;
                 ConnectionInfo info;
-                if (TryFindConnection(connStringParams.OwnerUri, out info))
+                SqlConnectionStringBuilder connStringBuilder;
+                try
+                {   
+                    // set connection string using connection uri if connection details are undefined
+                    if (connStringParams.ConnectionDetails == null)
+                    {
+                        TryFindConnection(connStringParams.OwnerUri, out info);
+                        connStringBuilder = CreateConnectionStringBuilder(info.ConnectionDetails);
+                    }
+                    // set connection string using connection details
+                    else
+                    {
+                        connStringBuilder = CreateConnectionStringBuilder(connStringParams.ConnectionDetails as ConnectionDetails);
+                    }
+                    if (!connStringParams.IncludePassword)
+                    {
+                        connStringBuilder.Password = ConnectionService.PasswordPlaceholder;
+                    }
+                    // default connection string application name to always be included unless set to false
+                    if (!connStringParams.IncludeApplicationName.HasValue || connStringParams.IncludeApplicationName.Value == true)
+                    {
+                        connStringBuilder.ApplicationName = "sqlops-connection-string";
+                    }
+                    connectionString = connStringBuilder.ConnectionString;
+                }
+                catch (Exception e)
                 {
-                    try
-                    {
-                        SqlConnectionStringBuilder connStringBuilder = CreateConnectionStringBuilder(info.ConnectionDetails);
-
-                        if (!connStringParams.IncludePassword)
-                        {
-                            connStringBuilder.Password = ConnectionService.PasswordPlaceholder;
-                        }
-                        // default connection string application name to always be included unless set to false
-                        if (!connStringParams.IncludeApplicationName.HasValue || connStringParams.IncludeApplicationName.Value == true)
-                        {
-                            connStringBuilder.ApplicationName = "sqlops-connection-string";
-                        }
-                        connectionString = connStringBuilder.ConnectionString;
-                    }
-                    catch (Exception e)
-                    {
-                        await requestContext.SendError(e.ToString());
-                    }
+                    await requestContext.SendError(e.ToString());
                 }
 
                 await requestContext.SendResult(connectionString);
