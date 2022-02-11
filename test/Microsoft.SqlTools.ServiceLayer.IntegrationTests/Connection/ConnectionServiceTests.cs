@@ -155,7 +155,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
             var resultApplicationName = result.ConnectionInfo.ConnectionDetails.ApplicationName;
             var requestContext = new Mock<SqlTools.Hosting.Protocol.RequestContext<string>>();
 
-            requestContext.Setup(x => x.SendResult(It.Is<string>((connectionString) => !connectionString.Contains("Application Name="+ resultApplicationName))))
+            requestContext.Setup(x => x.SendResult(It.Is<string>((connectionString) => !connectionString.Contains("Application Name=" + resultApplicationName))))
                             .Returns(Task.FromResult(new object()));
             var requestParams = new GetConnectionStringParams()
             {
@@ -187,7 +187,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
             var requestParams = new GetConnectionStringParams()
             {
                 OwnerUri = null,
-                ConnectionDetails = {},
+                ConnectionDetails = {ServerName = "testServer", DatabaseName = "testDatabase", UserName = "sa", Password = "password", ApplicationName = "TestApp"},
                 IncludePassword = true,
                 IncludeApplicationName = true
             };
