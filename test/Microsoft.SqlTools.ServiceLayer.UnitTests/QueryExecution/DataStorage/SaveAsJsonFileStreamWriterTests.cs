@@ -22,10 +22,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
         {
             // Setup: Create storage for the output
             byte[] output = new byte[8192];
-            SaveResultsAsJsonRequestParams saveParams = new SaveResultsAsJsonRequestParams();
+            var saveParams = new SaveResultsAsJsonRequestParams();
+            var columns = Array.Empty<DbColumnWrapper>();
 
             // If: I create and then destruct a json writer
-            var jsonWriter = new SaveAsJsonFileStreamWriter(new MemoryStream(output), saveParams, null);
+            var jsonWriter = new SaveAsJsonFileStreamWriter(new MemoryStream(output), saveParams, columns);
             jsonWriter.Dispose();
 
             // Then: The output should be an empty array

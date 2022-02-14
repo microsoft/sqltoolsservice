@@ -324,7 +324,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // If: I initialize it
             // Then: I should get an exception
-            Assert.Throws<ArgumentException>(() => s.Initialize(initParams, c, qr, sh, fh));
+            Assert.Catch<ArgumentException>(() => s.Initialize(initParams, c, qr, sh, fh));
         }
 
         public static IEnumerable<object[]> InitializeNullParamsData

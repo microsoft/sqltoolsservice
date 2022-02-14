@@ -42,7 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             {
                 // Save request was for the entire result set, use default start/end
                 ColumnStartIndex = 0;
-                ColumnEndIndex = columns.Count;
+                ColumnEndIndex = columns.Count - 1;
             }
 
             ColumnCount = ColumnEndIndex - ColumnStartIndex + 1;
@@ -57,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         protected IReadOnlyList<DbColumnWrapper> Columns { get; }
 
         /// <summary>
-        /// Index of the first column to write to the output file
+        /// Index of the first column to write to the output file (inclusive).
         /// </summary>
         protected int ColumnStartIndex { get; }
 
@@ -67,7 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         protected int ColumnCount { get; }
 
         /// <summary>
-        /// Index of the last column to write to the output file
+        /// Index of the last column to write to the output file (inclusive).
         /// </summary>
         protected int ColumnEndIndex { get; }
 

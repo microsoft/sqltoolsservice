@@ -57,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             jsonWriter.WriteStartObject();
 
             // Write the items out as properties
-            for (int i = ColumnStartIndex; i < ColumnEndIndex; i++)
+            for (int i = ColumnStartIndex; i <= ColumnEndIndex; i++)
             {
                 jsonWriter.WritePropertyName(Columns[i].ColumnName);
                 if (row[i].RawObject == null)
