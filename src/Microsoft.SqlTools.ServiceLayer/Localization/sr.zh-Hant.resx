@@ -3479,7 +3479,7 @@
     <value>不可複寫</value>
   </data>
   <data name="ForeignKeyIsNotForReplicationDescription" xml:space="preserve">
-    <value>啟用或停用複寫處理所插入之資料的 IDENTITY 條件約束。</value>
+    <value>啟用或停用複寫程式插入之資料的限制式。</value>
   </data>
   <data name="SqlForeignKeyAction_NoAction" xml:space="preserve">
     <value>沒有動作</value>

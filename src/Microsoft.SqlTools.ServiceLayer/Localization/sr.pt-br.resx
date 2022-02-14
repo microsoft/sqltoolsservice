@@ -3479,7 +3479,7 @@
     <value>Não para replicação</value>
   </data>
   <data name="ForeignKeyIsNotForReplicationDescription" xml:space="preserve">
-    <value>Habilita ou desabilita uma restrição IDENTITY para dados inseridos por um processo de replicação.</value>
+    <value>Habilita ou desabilita a restrição de dados inseridos por um processo de replicação.</value>
   </data>
   <data name="SqlForeignKeyAction_NoAction" xml:space="preserve">
     <value>Nenhuma Ação</value>
