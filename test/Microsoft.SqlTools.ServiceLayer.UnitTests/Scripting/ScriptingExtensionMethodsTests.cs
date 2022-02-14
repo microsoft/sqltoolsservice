@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.SqlServer.Management.Sdk.Sfc;
+﻿using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlTools.ServiceLayer.Scripting;
 using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 using NUnit.Framework;
-using Assert = NUnit.Framework.Assert;
+
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
 {
-    
     public class ScriptingExtensionMethodsTests
     {
         /// <summary>
@@ -17,23 +13,37 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
         [Test]
         public void ToUrnEscapesAttributes()
         {
-            var scriptingObject = new ScriptingObject() { Name = "quoted'Name", Schema = "quoted'Schema", Type = "Table" };
+            // Arrange
+            var scriptingObject = new ScriptingObject { Name = "quoted'Name", Schema = "quoted'Schema", Type = "Table" };
+
+            // Act
             var urn = scriptingObject.ToUrn("server", "quoted'db");
-            Assert.That(urn.ToString, Is.EqualTo("Server[@Name='SERVER']/Database[@Name='quoted''db']/Table[@Name='quoted''Name' and @Schema = 'quoted''Schema']"), "Urn should have escaped Name attributes");
-            Assert.That(urn.Type, Is.EqualTo("Table"), "Urn Type");
+
+            // Assert
+            Assert.AreEqual(
+                "Server[@Name='SERVER']/Database[@Name='quoted''db']/Table[@Name='quoted''Name' and @Schema = 'quoted''Schema']",
+                urn.ToString,
+                "Urn should have escaped Name attributes");
+            Assert.AreEqual("Table", urn.Type, "Urn Type");
+
             // These assertions are more for educational purposes than for testing, since the methods are Urn methods in SFC.
-            Assert.That(urn.GetNameForType("Database"), Is.EqualTo("quoted'db"), "GetNameForType('Database')");
-            Assert.That(urn.GetAttribute("Schema"), Is.EqualTo("quoted'Schema"), "GetAttribute('Schema')");
+            Assert.AreEqual("quoted'db", urn.GetNameForType("Database"), "GetNameForType('Database')");
+            Assert.AreEqual("quoted'Schema", urn.GetAttribute("Schema"), "GetAttribute('Schema')");
         }
 
         [Test]
         public void ToObjectStringUnescapesAttributes()
         {
+            // Arrange
             var urn = new Urn(@"Server[@Name = 'SERVER']/Database[@Name = 'quoted''db']/Table[@Name = 'quoted''Name' and @Schema = 'quoted''Schema']");
+
+            // Act
             var scriptingObject = urn.ToScriptingObject();
-            Assert.That(scriptingObject.Type, Is.EqualTo("Table"), "Type");
-            Assert.That(scriptingObject.Name, Is.EqualTo("quoted'Name"), "Name");
-            Assert.That(scriptingObject.Schema, Is.EqualTo("quoted'Schema"), "Schema");
+
+            // Assert
+            Assert.AreEqual("Table", scriptingObject.Type, "Type");
+            Assert.AreEqual("quoted'Name", scriptingObject.Name, "Name");
+            Assert.AreEqual("quoted'Schema", scriptingObject.Schema, "Schema");
         }
     }
 }

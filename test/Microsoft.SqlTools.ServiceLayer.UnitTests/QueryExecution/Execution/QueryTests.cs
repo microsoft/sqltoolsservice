@@ -25,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // If:
             // ... I create a query
             ConnectionInfo ci = Common.CreateTestConnectionInfo(null, false, false);
-            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
+            var fileStreamFactory = MemoryFileSystem.GetServiceBufferFileStreamFactory();
             Query query = new Query(Constants.StandardQuery, ci, new QueryExecutionSettings(), fileStreamFactory);
 
             // Then:
@@ -42,7 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // ... I create a query that has a null connection info
             // Then:
             // ... It should throw an exception
-            Assert.Throws<ArgumentNullException>(() => new Query("Some Query", null, new QueryExecutionSettings(), MemoryFileSystem.GetFileStreamFactory()));
+            Assert.Throws<ArgumentNullException>(() => new Query("Some Query", null, new QueryExecutionSettings(), MemoryFileSystem.GetServiceBufferFileStreamFactory()));
         }
 
         [Test]
@@ -53,7 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // Then:
             // ... It should throw an exception
             Assert.Throws<ArgumentNullException>(() =>
-                new Query("Some query", Common.CreateTestConnectionInfo(null, false, false), null, MemoryFileSystem.GetFileStreamFactory()));
+                new Query("Some query", Common.CreateTestConnectionInfo(null, false, false), null, MemoryFileSystem.GetServiceBufferFileStreamFactory()));
         }
 
         [Test]
@@ -79,7 +79,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // If:
             // ... I create a query from a single batch (without separator)
             ConnectionInfo ci = Common.CreateTestConnectionInfo(null, false, false);
-            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
+            var fileStreamFactory = MemoryFileSystem.GetServiceBufferFileStreamFactory();
             Query query = new Query(Constants.StandardQuery, ci, new QueryExecutionSettings(), fileStreamFactory);
             BatchCallbackHelper(query,
                 b => batchStartCallbacksReceived++,
@@ -115,7 +115,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // If:
             // ... I create a query from a single batch that does nothing
             ConnectionInfo ci = Common.CreateTestConnectionInfo(null, false, false);
-            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
+            var fileStreamFactory = MemoryFileSystem.GetServiceBufferFileStreamFactory();
             Query query = new Query(Common.NoOpQuery, ci, new QueryExecutionSettings(), fileStreamFactory);
             BatchCallbackHelper(query,
                 b => { throw new Exception("Batch startup callback should not have been called."); },
@@ -152,7 +152,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             ConnectionInfo ci = Common.CreateConnectedConnectionInfo(null, false, false);
 
             string queryText = string.Format("{0}\r\nGO\r\n{0}", Constants.StandardQuery);
-            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
+            var fileStreamFactory = MemoryFileSystem.GetServiceBufferFileStreamFactory();
             Query query = new Query(queryText, ci, new QueryExecutionSettings(), fileStreamFactory);
             BatchCallbackHelper(query,
                 b => batchStartCallbacksReceived++,
@@ -192,7 +192,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // ... I create a query from a two batches (with separator)
             ConnectionInfo ci = Common.CreateConnectedConnectionInfo(null, false, false);
             string queryText = string.Format("{0}\r\nGO\r\n{1}", Constants.StandardQuery, Common.NoOpQuery);
-            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
+            var fileStreamFactory = MemoryFileSystem.GetServiceBufferFileStreamFactory();
             Query query = new Query(queryText, ci, new QueryExecutionSettings(), fileStreamFactory);
             BatchCallbackHelper(query, 
                 b => batchStartCallbacksReceived++,
@@ -228,7 +228,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // ... I create a query from a two batches (with separator)
             ConnectionInfo ci = Common.CreateTestConnectionInfo(null, false, false);
             string queryText = string.Format("{0}\r\nGO\r\n{1}", Common.NoOpQuery, Common.NoOpQuery);
-            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
+            var fileStreamFactory = MemoryFileSystem.GetServiceBufferFileStreamFactory();
             Query query = new Query(queryText, ci, new QueryExecutionSettings(), fileStreamFactory);
             BatchCallbackHelper(query,
                 b => { throw new Exception("Batch start handler was called"); },
@@ -264,7 +264,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             ConnectionInfo ci = Common.CreateTestConnectionInfo(null, true, false);
             ConnectionService.Instance.OwnerToConnectionMap[ci.OwnerUri] = ci;
 
-            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
+            var fileStreamFactory = MemoryFileSystem.GetServiceBufferFileStreamFactory();
             Query query = new Query(Common.InvalidQuery, ci, new QueryExecutionSettings(), fileStreamFactory);
             BatchCallbackHelper(query,
                 b => batchStartCallbacksReceived++,

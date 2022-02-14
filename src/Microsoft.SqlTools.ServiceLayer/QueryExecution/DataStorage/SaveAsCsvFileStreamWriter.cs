@@ -24,6 +24,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         private readonly Encoding encoding;
         private readonly string lineSeparator;
         private readonly char textIdentifier;
+        private readonly string textIdentifierString;
+        private readonly char[] wrappedCharacters;
 
         #endregion
 
@@ -58,6 +60,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             {
                 textIdentifier = requestParams.TextIdentifier[0];
             }
+            textIdentifierString = textIdentifier.ToString();
 
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             try
@@ -72,7 +75,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 encoding = Encoding.GetEncoding("utf-8");
             }
 
+            // Determine the characters that indicate field should be wrapped
+            var wrappedCharactersList = new List<char> { delimiter, textIdentifier };
+            wrappedCharactersList.AddRange(lineSeparator);
+            wrappedCharacters = wrappedCharactersList.ToArray();
+
             // Output the header if the user requested it
+            if (requestParams.IncludeHeaders)
             {
                 // Build the string
                 var selectedColumns = columns.Skip(ColumnStartIndex)
@@ -114,7 +123,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <list type="bullet">
         /// <item><description>The field begins or ends with a space</description></item>
         /// <item><description>The field begins or ends with a tab</description></item>
-        /// <item><description>The field contains the ListSeparator string</description></item>
+        /// <item><description>The field contains the delimiter string</description></item>
         /// <item><description>The field contains the '\n' character</description></item>
         /// <item><description>The field contains the '\r' character</description></item>
         /// <item><description>The field contains the '"' character</description></item>
@@ -124,25 +133,22 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>The CSV encoded version of the original field</returns>
         internal string EncodeCsvField(string field)
         {
-            string strTextIdentifier = textIdentifier.ToString();
-
             // Special case for nulls
             if (field == null)
             {
                 return "NULL";
             }
 
+            // Replace all quotes in the original field with double quotes
+            string ret = field.Replace(textIdentifierString, textIdentifierString + textIdentifierString);
+
             // Whether this field has special characters which require it to be embedded in quotes
-            bool embedInQuotes = field.IndexOfAny(new[] { delimiter, '\r', '\n', textIdentifier }) >= 0 // Contains special characters
+            bool embedInQuotes = field.IndexOfAny(wrappedCharacters) >= 0                 // Contains special characters
                                  || field.StartsWith(" ") || field.EndsWith(" ")          // Start/Ends with space
                                  || field.StartsWith("\t") || field.EndsWith("\t");       // Starts/Ends with tab
-
-            // Replace all quotes in the original field with double quotes
-            string ret = field.Replace(strTextIdentifier, strTextIdentifier + strTextIdentifier);
-
             if (embedInQuotes)
             {
-                ret = $"{strTextIdentifier}{ret}{strTextIdentifier}";
+                ret = $"{textIdentifier}{ret}{textIdentifier}";
             }
 
             return ret;

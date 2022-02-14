@@ -17,8 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution.DataSt
         private StorageDataReader GetTestStorageDataReader(string query)
         {
             var result = LiveConnectionHelper.InitLiveConnectionInfo();
-            DbConnection connection;
-            result.ConnectionInfo.TryGetConnection(ConnectionType.Default, out connection);
+            result.ConnectionInfo.TryGetConnection(ConnectionType.Default, out var connection);
 
             var command = connection.CreateCommand();
             command.CommandText = query;

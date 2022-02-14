@@ -564,7 +564,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             object[][] rows = {};
             var testResultSet = new TestResultSet(cols, rows);
             var testReader = new TestDbDataReader(new[] {testResultSet}, false);
-            var rs = new ResultSet(0, 0, MemoryFileSystem.GetFileStreamFactory());
+            var rs = new ResultSet(0, 0, MemoryFileSystem.GetServiceBufferFileStreamFactory());
             await rs.ReadResultToEnd(testReader, CancellationToken.None);
 
             // ... Generate the metadata

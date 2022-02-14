@@ -1,16 +1,17 @@
-﻿// 
+﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
 using System;
-using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
+using Moq;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
@@ -18,144 +19,203 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
     public class SaveAsCsvFileStreamWriterTests
     {
         [Test]
-        public void EncodeCsvFieldShouldWrap(
-            [Values("Something\rElse",
-        "Something\nElse",
-        "Something\"Else",
-        "Something,Else",
-        "\tSomething",
-        "Something\t",
-        " Something",
-        "Something ",
-        " \t\r\n\",\r\n\"\r ")] string field)
+        public void Constructor_WithoutSelectionWithHeader_WritesHeaderWithAllColumns()
         {
-            // If: I CSV encode a field that has forbidden characters in it
-            string output = SaveAsCsvFileStreamWriter.EncodeCsvField(field, ',', '\"');
+            // Setup:
+            // ... Create a request params that has no selection made, headers should be printed
+            // ... Create a set of columns
+            // --- Create a memory location to store the output
+            var requestParams = new SaveResultsAsCsvRequestParams { IncludeHeaders = true };
+            var (columns, _) = GetTestValues(2);
+            using var outputStream = new MemoryStream();
+            byte[] output = new byte[8192];
 
-            // Then: It should wrap it in quotes
-            Assert.True(Regex.IsMatch(output, "^\".*")
-                && Regex.IsMatch(output, ".*\"$"));
+            // If: I construct a CSV file writer
+            var writer = new SaveAsCsvFileStreamWriter(new MemoryStream(output), requestParams, columns);
+            writer.Dispose();
+
+            // Then:
+            // ... It should have written a line
+            string[] lines = ParseWriterOutput(output, Environment.NewLine);
+            Assert.AreEqual(1, lines.Length);
+
+            // ... It should have written a header line with two comma separated names
+            string[] headerValues = lines[0].Split(",");
+            Assert.AreEqual(2, headerValues.Length);
+            for (int i = 0; i < columns.Length; i++)
+            {
+                Assert.AreEqual(columns[i].ColumnName, headerValues[i]);
+            }
         }
 
         [Test]
-        public void EncodeCsvFieldShouldNotWrap(
-            [Values(
-            "Something",
-            "Something valid.",
-            "Something\tvalid"
-            )] string field)
+        public void Constructor_WithSelectionWithHeader_WritesHeaderWithSelectedColumns()
         {
+            // Setup:
+            // ... Create a request params that has no selection made, headers should be printed
+            // ... Create a set of columns
+            // --- Create a memory location to store the output
+            var requestParams = new SaveResultsAsCsvRequestParams
+            {
+                IncludeHeaders = true,
+                ColumnStartIndex = 1,
+                ColumnEndIndex = 2,
+                RowStartIndex = 0,      // Including b/c it is required to be a "save selection"
+                RowEndIndex = 10
+            };
+            var (columns, _) = GetTestValues(4);
+            using var outputStream = new MemoryStream();
+            byte[] output = new byte[8192];
+
+            // If: I construct a CSV file writer
+            var writer = new SaveAsCsvFileStreamWriter(new MemoryStream(output), requestParams, columns);
+            writer.Dispose();
+
+            // Then:
+            // ... It should have written a line
+            string[] lines = ParseWriterOutput(output, Environment.NewLine);
+            Assert.AreEqual(1, lines.Length);
+
+            // ... It should have written a header line with two comma separated names
+            string[] headerValues = lines[0].Split(",");
+            Assert.AreEqual(2, headerValues.Length);
+            for (int i = 0; i < 2; i++)
+            {
+                Assert.AreEqual(columns[i + 1].ColumnName, headerValues[i]);
+            }
+        }
+
+        [Test]
+        public void Constructor_WithoutSelectionWithoutHeader_DoesNotWriteHeader()
+        {
+            // Setup:
+            // ... Create a request params that has no selection made, headers should not be printed
+            // ... Create a set of columns
+            // --- Create a memory location to store the output
+            var requestParams = new SaveResultsAsCsvRequestParams { IncludeHeaders = false };
+            var (columns, _) = GetTestValues(2);
+            byte[] output = new byte[8192];
+
+            // If: I construct a CSV file writer
+            var writer = new SaveAsCsvFileStreamWriter(new MemoryStream(output), requestParams, columns);
+            writer.Dispose();
+
+            // Then:
+            // ... It not have written anything
+            string[] lines = ParseWriterOutput(output, Environment.NewLine);
+            Assert.IsEmpty(lines);
+        }
+
+        [TestCase("Something\rElse")]
+        [TestCase("Something\nElse")]
+        [TestCase("Something\"Else")]
+        [TestCase("Something,Else")]
+        [TestCase("\tSomething")]
+        [TestCase("Something\t")]
+        [TestCase(" Something")]
+        [TestCase("Something ")]
+        [TestCase(" \t\r\n\",\r\n\"\r ")]
+        public void EncodeCsvField_DefaultControlCharacters_ShouldWrap(string field)
+        {
+            // Setup: Initialize a new CSV writer w/default separators
+            using var writer = GetWriterForEncodingTests(null, null, null);
+
+            // If: I CSV encode a field that has forbidden characters in it
+            string output = writer.EncodeCsvField(field);
+
+            // Then: It should wrap it in quotes
+            Assert.True(Regex.IsMatch(output, "^\".*")); // Starts with "
+            Assert.True(Regex.IsMatch(output, ".*\"$")); // Ends with "
+        }
+
+        [TestCase("Something")]
+        [TestCase("Something valid.")]
+        [TestCase("Something\tvalid")]
+        public void EncodeCsvField_DefaultControlCharacters_ShouldNotWrap(string field)
+        {
+            // Setup: Initialize a new CSV writer w/default separators
+            using var writer = GetWriterForEncodingTests(null, null, null);
+
             // If: I CSV encode a field that does not have forbidden characters in it
-            string output = SaveAsCsvFileStreamWriter.EncodeCsvField(field, ',', '\"');
+            string output = writer.EncodeCsvField(field);
 
             // Then: It should not wrap it in quotes
             Assert.False(Regex.IsMatch(output, "^\".*\"$"));
         }
 
-        [Test]
-        public void EncodeCsvFieldReplace()
+        [TestCase(null, "Some\"thing", "\"Some\"\"thing\"")]
+        [TestCase("*", "Some*thing", "*Some**thing*")]
+        public void EncodeCsvField_EscapeIdentifier(string identifier, string input, string expectedOutput)
         {
+            // Setup: Initialize a new CSV writer w/specified identifier
+            using var writer = GetWriterForEncodingTests(null, identifier, null);
+
             // If: I CSV encode a field that has a double quote in it,
-            string output = SaveAsCsvFileStreamWriter.EncodeCsvField("Some\"thing", ',', '\"');
+            string output = writer.EncodeCsvField(input);
 
             // Then: It should be replaced with double double quotes
-            Assert.AreEqual("\"Some\"\"thing\"", output);
+            Assert.AreEqual(expectedOutput, output);
+        }
+
+        [TestCase("Something$$Else")]
+        [TestCase("Something*Else")]
+        [TestCase("Something|Else")]
+        public void EncodeCsvField_CustomControlCharacters_ShouldWrap(string field)
+        {
+            // Setup: Initialize a new CSV writer w/non-default separators
+            // ... `|ignored` as field delimiter
+            // ... `*ignored` as text identifier
+            // ... `$$` as new line
+            using var writer = GetWriterForEncodingTests("|ignored", "*ignored", "$$");
+
+            // If: I CSV encode a field
+            string output = writer.EncodeCsvField(field);
+
+            // Then: I should be wrapped in quotes
+            Assert.True(Regex.IsMatch(output, "^\\*.*")); // Starts with *
+            Assert.True(Regex.IsMatch(output, ".*\\*$")); // Ends with *
         }
 
         [Test]
-        public void EncodeCsvFieldNull()
+        public void EncodeCsvField_Null()
         {
+            // Setup: Initialize a new CSV writer w/ default control characters
+            using var writer = GetWriterForEncodingTests(null, null, null);
+
             // If: I CSV encode a null
-            string output = SaveAsCsvFileStreamWriter.EncodeCsvField(null, ',', '\"');
+            string output = writer.EncodeCsvField(null);
 
             // Then: there should be a string version of null returned
             Assert.AreEqual("NULL", output);
         }
 
         [Test]
-        public void WriteRowWithoutColumnSelectionOrHeader()
+        public void WriteRow_WithoutColumnSelection()
         {
-            // Setup: 
+            // Setup:
             // ... Create a request params that has no selection made
             // ... Create a set of data to write
             // ... Create a memory location to store the data
             var requestParams = new SaveResultsAsCsvRequestParams();
-            List<DbCellValue> data = new List<DbCellValue>
-            {
-                new DbCellValue { DisplayValue = "item1" },
-                new DbCellValue { DisplayValue = "item2" }
-            };
-            List<DbColumnWrapper> columns = new List<DbColumnWrapper>
-            {
-                new DbColumnWrapper(new TestDbColumn("column1")),
-                new DbColumnWrapper(new TestDbColumn("column2"))
-            };
+            var (columns, data) = GetTestValues(2);
             byte[] output = new byte[8192];
 
             // If: I write a row
-            SaveAsCsvFileStreamWriter writer = new SaveAsCsvFileStreamWriter(new MemoryStream(output), requestParams);
-            using (writer)
+            using (var writer = new SaveAsCsvFileStreamWriter(new MemoryStream(output), requestParams, columns))
             {
-                writer.WriteRow(data, columns);
+                writer.WriteRow(data);
             }
 
             // Then: It should write one line with 2 items, comma delimited
-            string outputString = Encoding.UTF8.GetString(output).TrimEnd('\0', '\r', '\n');
-            string[] lines = outputString.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+            string[] lines = ParseWriterOutput(output, Environment.NewLine);
             Assert.AreEqual(1, lines.Length);
+
             string[] values = lines[0].Split(',');
             Assert.AreEqual(2, values.Length);
         }
 
         [Test]
-        public void WriteRowWithHeader()
-        {
-            // Setup:
-            // ... Create a request params that has no selection made, headers should be printed
-            // ... Create a set of data to write
-            // ... Create a memory location to store the data
-            var requestParams = new SaveResultsAsCsvRequestParams
-            {
-                IncludeHeaders = true
-            };
-            List<DbCellValue> data = new List<DbCellValue>
-            {
-                new DbCellValue { DisplayValue = "item1" },
-                new DbCellValue { DisplayValue = "item2" }
-            };
-            List<DbColumnWrapper> columns = new List<DbColumnWrapper>
-            {
-                new DbColumnWrapper(new TestDbColumn("column1")),
-                new DbColumnWrapper(new TestDbColumn("column2"))
-            };
-            byte[] output = new byte[8192];
-
-            // If: I write a row
-            SaveAsCsvFileStreamWriter writer = new SaveAsCsvFileStreamWriter(new MemoryStream(output), requestParams);
-            using (writer)
-            {
-                writer.WriteRow(data, columns);
-            }
-
-            // Then:
-            // ... It should have written two lines
-            string outputString = Encoding.UTF8.GetString(output).TrimEnd('\0', '\r', '\n');
-            string[] lines = outputString.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
-            Assert.AreEqual(2, lines.Length);
-
-            // ... It should have written a header line with two, comma separated names
-            string[] headerValues = lines[0].Split(',');
-            Assert.AreEqual(2, headerValues.Length);
-            for (int i = 0; i < columns.Count; i++)
-            {
-                Assert.AreEqual(columns[i].ColumnName, headerValues[i]);
-            }
-
-            // Note: No need to check values, it is done as part of the previous test
-        }
-
-        [Test]
-        public void WriteRowWithColumnSelection()
+        public void WriteRow_WithColumnSelection()
         {
             // Setup:
             // ... Create a request params that selects n-1 columns from the front and back
@@ -166,48 +226,25 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
                 ColumnStartIndex = 1,
                 ColumnEndIndex = 2,
                 RowStartIndex = 0,          // Including b/c it is required to be a "save selection"
-                RowEndIndex = 10,
-                IncludeHeaders = true       // Including headers to test both column selection logic
+                RowEndIndex = 10
             };
-            List<DbCellValue> data = new List<DbCellValue>
-            {
-                new DbCellValue { DisplayValue = "item1" },
-                new DbCellValue { DisplayValue = "item2" },
-                new DbCellValue { DisplayValue = "item3" },
-                new DbCellValue { DisplayValue = "item4" }
-            };
-            List<DbColumnWrapper> columns = new List<DbColumnWrapper>
-            {
-                new DbColumnWrapper(new TestDbColumn("column1")),
-                new DbColumnWrapper(new TestDbColumn("column2")),
-                new DbColumnWrapper(new TestDbColumn("column3")),
-                new DbColumnWrapper(new TestDbColumn("column4"))
-            };
+            var (columns, data) = GetTestValues(4);
             byte[] output = new byte[8192];
 
             // If: I write a row
-            SaveAsCsvFileStreamWriter writer = new SaveAsCsvFileStreamWriter(new MemoryStream(output), requestParams);
+            SaveAsCsvFileStreamWriter writer = new SaveAsCsvFileStreamWriter(new MemoryStream(output), requestParams, columns);
             using (writer)
             {
-                writer.WriteRow(data, columns);
+                writer.WriteRow(data);
             }
 
             // Then:
-            // ... It should have written two lines
-            string outputString = Encoding.UTF8.GetString(output).TrimEnd('\0', '\r', '\n');
-            string[] lines = outputString.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
-            Assert.AreEqual(2, lines.Length);
+            // ... It should have written one line
+            var lines = ParseWriterOutput(output, Environment.NewLine);
+            Assert.AreEqual(1, lines.Length);
 
-            // ... It should have written a header line with two, comma separated names
-            string[] headerValues = lines[0].Split(',');
-            Assert.AreEqual(2, headerValues.Length);
-            for (int i = 1; i <= 2; i++)
-            {
-                Assert.AreEqual(columns[i].ColumnName, headerValues[i - 1]);
-            }
-
-            // ... The second line should have two, comma separated values
-            string[] dataValues = lines[1].Split(',');
+            // ... The line should have two, comma separated values
+            string[] dataValues = lines[0].Split(',');
             Assert.AreEqual(2, dataValues.Length);
             for (int i = 1; i <= 2; i++)
             {
@@ -216,7 +253,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
         }
 
         [Test]
-        public void WriteRowWithCustomDelimiters()
+        public void WriteRow_CustomDelimiter()
         {
             // Setup:
             // ... Create a request params that has custom delimiter say pipe("|") then this delimiter should be used
@@ -227,35 +264,24 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
                 Delimiter = "|",
                 IncludeHeaders = true
             };
-            List<DbCellValue> data = new List<DbCellValue>
-            {
-                new DbCellValue { DisplayValue = "item1" },
-                new DbCellValue { DisplayValue = "item2" }
-            };
-            List<DbColumnWrapper> columns = new List<DbColumnWrapper>
-            {
-                new DbColumnWrapper(new TestDbColumn("column1")),
-                new DbColumnWrapper(new TestDbColumn("column2"))
-            };
+            var (columns, data) = GetTestValues(2);
             byte[] output = new byte[8192];
 
             // If: I write a row
-            SaveAsCsvFileStreamWriter writer = new SaveAsCsvFileStreamWriter(new MemoryStream(output), requestParams);
-            using (writer)
+            using (var writer = new SaveAsCsvFileStreamWriter(new MemoryStream(output), requestParams, columns))
             {
-                writer.WriteRow(data, columns);
+                writer.WriteRow(data);
             }
 
             // Then:
             // ... It should have written two lines
-            string outputString = Encoding.UTF8.GetString(output).TrimEnd('\0', '\r', '\n');
-            string[] lines = outputString.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+            string[] lines = ParseWriterOutput(output, Environment.NewLine);
             Assert.AreEqual(2, lines.Length);
 
             // ... It should have written a header line with two, pipe("|") separated names
             string[] headerValues = lines[0].Split('|');
             Assert.AreEqual(2, headerValues.Length);
-            for (int i = 0; i < columns.Count; i++)
+            for (int i = 0; i < columns.Length; i++)
             {
                 Assert.AreEqual(columns[i].ColumnName, headerValues[i]);
             }
@@ -264,146 +290,51 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
         }
 
         [Test]
-        public void WriteRowsWithCustomLineSeperator()
+        public void WriteRow_CustomLineSeparator()
         {
             // Setup:
-            // ... Create a request params that has custom line seperator then this seperator should be used
+            // ... Create a request params that has custom line separator
             // ... Create a set of data to write
             // ... Create a memory location to store the data
             var requestParams = new SaveResultsAsCsvRequestParams
             {
+                LineSeperator = "$$",
                 IncludeHeaders = true
             };
-            List<DbCellValue> data = new List<DbCellValue>
-            {
-                new DbCellValue { DisplayValue = "item1" },
-                new DbCellValue { DisplayValue = "item2" }
-            };
-            List<DbColumnWrapper> columns = new List<DbColumnWrapper>
-            {
-                new DbColumnWrapper(new TestDbColumn("column1")),
-                new DbColumnWrapper(new TestDbColumn("column2"))
-            };
-
-            byte[] output;
-            string outputString;
-            string[] lines;
-            SaveAsCsvFileStreamWriter writer;
-
-            // If: I set default seperator and write a row
-            requestParams.LineSeperator = null;
-            output = new byte[8192];
-            writer = new SaveAsCsvFileStreamWriter(new MemoryStream(output), requestParams);
-            using (writer)
-            {
-                writer.WriteRow(data, columns);
-            }
-
-            // Then:
-            // ... It should have splitten the lines by system's default line seperator
-            outputString = Encoding.UTF8.GetString(output).TrimEnd('\0', '\r', '\n');
-            lines = outputString.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
-            Assert.AreEqual(2, lines.Length);
-
-            // If: I set \n (line feed) as seperator and write a row
-            requestParams.LineSeperator = "\n";
-            output = new byte[8192];
-            writer = new SaveAsCsvFileStreamWriter(new MemoryStream(output), requestParams);
-            using (writer)
-            {
-                writer.WriteRow(data, columns);
-            }
-
-            // Then:
-            // ... It should have splitten the lines by \n
-            outputString = Encoding.UTF8.GetString(output).TrimEnd('\0', '\r', '\n');
-            lines = outputString.Split(new[] { '\n' }, StringSplitOptions.None);
-            Assert.AreEqual(2, lines.Length);
-
-            // If: I set \r\n (carriage return + line feed) as seperator and write a row
-            requestParams.LineSeperator = "\r\n";
-            output = new byte[8192];
-            writer = new SaveAsCsvFileStreamWriter(new MemoryStream(output), requestParams);
-            using (writer)
-            {
-                writer.WriteRow(data, columns);
-            }
-
-            // Then:
-            // ... It should have splitten the lines by \r\n
-            outputString = Encoding.UTF8.GetString(output).TrimEnd('\0', '\r', '\n');
-            lines = outputString.Split(new[] { "\r\n" }, StringSplitOptions.None);
-            Assert.AreEqual(2, lines.Length);
-            
-        }
-
-        [Test]
-        public void WriteRowWithCustomTextIdentifier()
-        {
-            // Setup:
-            // ... Create a request params that has a text identifier set say single quotation marks("'") then this text identifier should be used
-            // ... Create a set of data to write
-            // ... Create a memory location to store the data
-            var requestParams = new SaveResultsAsCsvRequestParams()
-            {
-                TextIdentifier = "\'",
-                Delimiter = ";"
-            };
-            List<DbCellValue> data = new List<DbCellValue>
-            {
-                new DbCellValue { DisplayValue = "item;1" },
-                new DbCellValue { DisplayValue = "item,2" },
-                new DbCellValue { DisplayValue = "item\"3" },
-                new DbCellValue { DisplayValue = "item\'4" }
-            };
-            List<DbColumnWrapper> columns = new List<DbColumnWrapper>
-            {
-                new DbColumnWrapper(new TestDbColumn("column1")),
-                new DbColumnWrapper(new TestDbColumn("column2")),
-                new DbColumnWrapper(new TestDbColumn("column3")),
-                new DbColumnWrapper(new TestDbColumn("column4"))
-            };
+            var (columns, data) = GetTestValues(2);
             byte[] output = new byte[8192];
 
-            // If: I write a row
-            SaveAsCsvFileStreamWriter writer = new SaveAsCsvFileStreamWriter(new MemoryStream(output), requestParams);
-            using (writer)
+            // If: I set write a row
+            using (var writer = new SaveAsCsvFileStreamWriter(new MemoryStream(output), requestParams, columns))
             {
-                writer.WriteRow(data, columns);
+                writer.WriteRow(data);
             }
 
             // Then:
-            // ... It should have splitten the columns by delimiter, embedded in text identifier when field contains delimiter or the text identifier
-            string outputString = Encoding.UTF8.GetString(output).TrimEnd('\0', '\r', '\n');
-            Assert.AreEqual("\'item;1\';item,2;item\"3;\'item\'\'4\'", outputString);
+            // ... The lines should be split by the custom line separator
+            var lines = ParseWriterOutput(output, "$$");
+            Assert.AreEqual(2, lines.Length);
         }
 
         [Test]
-        public void WriteRowWithCustomEncoding()
+        public void WriteRow_CustomEncoding()
         {
             // Setup:
-            // ... Create a request params that has custom delimiter say pipe("|") then this delimiter should be used
+            // ... Create a request params that uses a custom encoding
             // ... Create a set of data to write
             // ... Create a memory location to store the data
             var requestParams = new SaveResultsAsCsvRequestParams
             {
                 Encoding = "Windows-1252"
             };
-            List<DbCellValue> data = new List<DbCellValue>
-            {
-                new DbCellValue { DisplayValue = "ü" }
-            };
-            List<DbColumnWrapper> columns = new List<DbColumnWrapper>
-            {
-                new DbColumnWrapper(new TestDbColumn("column1"))
-            };
+            var data = new[] { new DbCellValue { DisplayValue = "ü" } };
+            var columns = new[] { new DbColumnWrapper(new TestDbColumn("column1")) };
             byte[] output = new byte[8192];
 
             // If: I write a row
-            SaveAsCsvFileStreamWriter writer = new SaveAsCsvFileStreamWriter(new MemoryStream(output), requestParams);
-            using (writer)
+            using (var writer = new SaveAsCsvFileStreamWriter(new MemoryStream(output), requestParams, columns))
             {
-                writer.WriteRow(data, columns);
+                writer.WriteRow(data);
             }
 
             // Then:
@@ -414,5 +345,40 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
 
         }
 
+        private static (DbColumnWrapper[] columns, DbCellValue[] cells) GetTestValues(int columnCount)
+        {
+            var data = new DbCellValue[columnCount];
+            var columns = new DbColumnWrapper[columnCount];
+            for (int i = 0; i < columnCount; i++)
+            {
+                data[i] = new DbCellValue { DisplayValue = $"item{i}"};
+                columns[i] = new DbColumnWrapper(new TestDbColumn($"column{i}"));
+            }
+            return (columns, data);
+        }
+
+        private static SaveAsCsvFileStreamWriter GetWriterForEncodingTests(string delimiter, string identifier, string lineSeparator)
+        {
+            var settings = new SaveResultsAsCsvRequestParams
+            {
+                Delimiter = delimiter,
+                IncludeHeaders = false,
+                LineSeperator = lineSeparator,
+                TextIdentifier = identifier,
+            };
+            var mockStream = new Mock<Stream>();
+            var mockColumns = Array.Empty<DbColumnWrapper>();
+            return new SaveAsCsvFileStreamWriter(mockStream.Object, settings, mockColumns);
+        }
+
+        private static string[] ParseWriterOutput(byte[] output, string lineSeparator)
+        {
+            string outputString = Encoding.UTF8.GetString(output).Trim('\0');
+            string[] lines = outputString.Split(new[] { lineSeparator }, StringSplitOptions.None);
+
+            // Make sure the file ends with a new line and return all but the meaningful lines
+            Assert.IsEmpty(lines[lines.Length - 1]);
+            return lines.Take(lines.Length - 1).ToArray();
+        }
     }
 }

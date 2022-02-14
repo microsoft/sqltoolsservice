@@ -196,7 +196,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
             // Given a connection to a live database
             var result = LiveConnectionHelper.InitLiveConnectionInfo();
             ConnectionInfo connInfo = result.ConnectionInfo;
-            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
+            var fileStreamFactory = MemoryFileSystem.GetServiceBufferFileStreamFactory();
             Query query = new Query(queryText, connInfo, new QueryExecutionSettings(), fileStreamFactory);
             query.Execute();
             query.ExecutionTask.Wait();

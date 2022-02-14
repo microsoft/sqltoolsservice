@@ -9,7 +9,6 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
@@ -24,8 +23,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
         public void DisposeResultSet()
         {
             // Setup: Mock file stream factory, mock db reader
-            var mockFileStreamFactory = new Mock<IFileStreamFactory>();
-            
+            var mockFileStreamFactory = new Mock<IServiceBufferFileStreamFactory>();
+
             // If: I setup a single resultset and then dispose it
             ResultSet rs = new ResultSet(Common.Ordinal, Common.Ordinal, mockFileStreamFactory.Object);
             rs.Dispose();

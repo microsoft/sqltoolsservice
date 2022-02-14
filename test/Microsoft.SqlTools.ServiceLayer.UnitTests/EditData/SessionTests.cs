@@ -84,7 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             ConnectionInfo ci = QueryExecution.Common.CreateConnectedConnectionInfo(results, false, false);
             ConnectionService.Instance.OwnerToConnectionMap[ci.OwnerUri] = ci;
 
-            var fsf = MemoryFileSystem.GetFileStreamFactory();
+            var fsf = MemoryFileSystem.GetServiceBufferFileStreamFactory();
             Query query = new Query(Constants.StandardQuery, ci, new QueryExecutionSettings(), fsf);
             query.Execute();
             query.ExecutionTask.Wait();
@@ -138,7 +138,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             s.EditCache[rs.RowCount] = mockEdit;
 
             // If: I create a row in the session
-            // Then: 
+            // Then:
             // ... An exception should be thrown
             Assert.Throws<InvalidOperationException>(() => s.CreateRow());
 
@@ -313,7 +313,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
         [Test]
         [TestCaseSource(nameof(InitializeNullParamsData))]
-        public void InitializeNullParams(EditInitializeParams initParams, EditSession.Connector c,
+        public void InitializeNullParams(
+            EditInitializeParams initParams, EditSession.Connector c,
             EditSession.QueryRunner qr, Func<Task> sh, Func<Exception, Task> fh)
         {
             // Setup:
@@ -321,7 +322,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
             EditSession s = new EditSession(emf.Object);
 
-            Assert.That(() => s.Initialize(initParams, c, qr, sh, fh), Throws.InstanceOf<ArgumentException>(), "I initialize it with a missing parameter. It should throw an exception");
+            // If: I initialize it
+            // Then: I should get an exception
+            Assert.Throws<ArgumentException>(() => s.Initialize(initParams, c, qr, sh, fh));
         }
 
         public static IEnumerable<object[]> InitializeNullParamsData
@@ -390,7 +393,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             var successHandler = DoNothingSuccessMock;
             var failureHandler = DoNothingFailureMock;
 
-            // If: I initalize the session with a metadata factory that will fail
+            // If: I initialize the session with a metadata factory that will fail
             s.Initialize(Common.BasicInitializeParameters, DoNothingConnector, DoNothingQueryRunner, successHandler.Object, failureHandler.Object);
             await s.InitializeTask;
 
@@ -551,7 +554,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             s.EditCache[0] = mockEdit;
 
             // If: I delete a row in the session
-            // Then: 
+            // Then:
             // ... An exception should be thrown
             Assert.Throws<InvalidOperationException>(() => s.DeleteRow(0));
 
@@ -680,7 +683,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // If: I update a cell on a row that already has a pending edit
             s.UpdateCell(0, 0, null);
 
-            // Then: 
+            // Then:
             // ... The mock update should still be in the cache
             // ... And it should have had set cell called on it
             Assert.That(s.EditCache.Values, Has.Member(mockEdit.Object));
@@ -943,7 +946,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 // If: I script the edit cache to a local output path
                 string outputPath = s.ScriptEdits(file.FilePath);
 
-                // Then: 
+                // Then:
                 // ... The output path used should be the same as the one we provided
                 Assert.AreEqual(file.FilePath, outputPath);
 
@@ -984,7 +987,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         [Test]
         public async Task CommitNullSuccessHandler()
         {
-            // Setup: 
+            // Setup:
             // ... Create a basic session
             EditSession s = await GetBasicSession();
 
@@ -999,7 +1002,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         [Test]
         public async Task CommitNullFailureHandler()
         {
-            // Setup: 
+            // Setup:
             // ... Create a basic session
             EditSession s = await GetBasicSession();
 
@@ -1014,7 +1017,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         [Test]
         public async Task CommitInProgress()
         {
-            // Setup: 
+            // Setup:
             // ... Basic session and db connection
             EditSession s = await GetBasicSession();
             DbConnection conn = new TestSqlConnection(null);
@@ -1046,7 +1049,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // If: I commit these changes (and await completion)
             bool successCalled = false;
             bool failureCalled = false;
-            s.CommitEdits(conn, 
+            s.CommitEdits(conn,
                 () => {
                     successCalled = true;
                     return Task.FromResult(0);

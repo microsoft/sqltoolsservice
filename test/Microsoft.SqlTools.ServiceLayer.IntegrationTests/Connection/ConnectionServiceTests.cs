@@ -38,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
                 Assert.AreEqual(1, service.OwnerToConnectionMap.Count);
 
                 // If we run a query
-                var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
+                var fileStreamFactory = MemoryFileSystem.GetServiceBufferFileStreamFactory();
                 Query query = new Query(Constants.StandardQuery, connectionInfo, new QueryExecutionSettings(), fileStreamFactory);
                 query.Execute();
                 query.ExecutionTask.Wait();
@@ -66,7 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         [Test]
         public void DatabaseChangesAffectAllConnections()
         {
-            // If we make a connection to a live database 
+            // If we make a connection to a live database
             ConnectionService service = ConnectionService.Instance;
             var result = LiveConnectionHelper.InitLiveConnectionInfo();
             ConnectionInfo connectionInfo = result.ConnectionInfo;
@@ -77,7 +77,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
             string changeDatabaseQuery = "use " + newDatabaseName;
 
             // Then run any query to create a query DbConnection
-            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
+            var fileStreamFactory = MemoryFileSystem.GetServiceBufferFileStreamFactory();
             Query query = new Query(Constants.StandardQuery, connectionInfo, new QueryExecutionSettings(), fileStreamFactory);
             query.Execute();
             query.ExecutionTask.Wait();
@@ -112,7 +112,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         [Test]
         public async Task GetCurrentConnectionStringTest()
         {
-            // If we make a connection to a live database 
+            // If we make a connection to a live database
             ConnectionService service = ConnectionService.Instance;
             var result = LiveConnectionHelper.InitLiveConnectionInfo();
             var resultPassword = result.ConnectionInfo.ConnectionDetails.Password;
@@ -148,7 +148,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         [Test]
         public async Task GetCurrentConnectionStringTestwithoutApplicationName()
         {
-            // If we make a connection to a live database 
+            // If we make a connection to a live database
             ConnectionService service = ConnectionService.Instance;
             var result = LiveConnectionHelper.InitLiveConnectionInfo();
             var resultApplicationName = result.ConnectionInfo.ConnectionDetails.ApplicationName;

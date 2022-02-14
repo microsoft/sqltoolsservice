@@ -130,7 +130,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
         public static Batch GetBasicExecutedBatch()
         {
             Batch batch = new Batch(Constants.StandardQuery, SubsectionDocument, 1,
-                MemoryFileSystem.GetFileStreamFactory());
+                MemoryFileSystem.GetServiceBufferFileStreamFactory());
             batch.Execute(CreateTestConnection(StandardTestDataSet, false, false), CancellationToken.None).Wait();
             return batch;
         }
@@ -138,7 +138,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
         public static Batch GetExecutedBatchWithExecutionPlan()
         {
             Batch batch = new Batch(Constants.StandardQuery, SubsectionDocument, 1,
-                MemoryFileSystem.GetFileStreamFactory());
+                MemoryFileSystem.GetServiceBufferFileStreamFactory());
             batch.Execute(CreateTestConnection(ExecutionPlanTestDataSet, false, false), CancellationToken.None).Wait();
             return batch;
         }
@@ -152,7 +152,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             ConnectionService.Instance.OwnerToConnectionMap[ci.OwnerUri] = ci;
 
             Query query = new Query(Constants.StandardQuery, ci, new QueryExecutionSettings(), 
-                MemoryFileSystem.GetFileStreamFactory());
+                MemoryFileSystem.GetServiceBufferFileStreamFactory());
             query.Execute();
             query.ExecutionTask.Wait();
             return query;
@@ -167,7 +167,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             ConnectionService.Instance.OwnerToConnectionMap[ci.OwnerUri] = ci;
 
             Query query = new Query(Constants.StandardQuery, ci, querySettings, 
-                MemoryFileSystem.GetFileStreamFactory());
+                MemoryFileSystem.GetServiceBufferFileStreamFactory());
             query.Execute();
             query.ExecutionTask.Wait();
             return query;
@@ -293,7 +293,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
                 .OutCallback((string owner, out ConnectionInfo connInfo) => connInfo = isConnected ? ci : null)
                 .Returns(isConnected);
 
-            return new QueryExecutionService(connectionService.Object, workspaceService) { BufferFileStreamFactory = MemoryFileSystem.GetFileStreamFactory(storage, sizeFactor) };
+            return new QueryExecutionService(connectionService.Object, workspaceService) { BufferFileStreamFactory = MemoryFileSystem.GetServiceBufferFileStreamFactory(storage, sizeFactor) };
         }
 
         public static QueryExecutionService GetPrimedExecutionService(

@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         public void BatchCreationTest()
         {
             // If I create a new batch...
-            Batch batch = new Batch(Constants.StandardQuery, Common.SubsectionDocument, Common.Ordinal, MemoryFileSystem.GetFileStreamFactory());
+            Batch batch = new Batch(Constants.StandardQuery, Common.SubsectionDocument, Common.Ordinal, MemoryFileSystem.GetServiceBufferFileStreamFactory());
 
             // Then: 
             // ... The text of the batch should be stored
@@ -66,7 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             List<ResultMessage> messages = new List<ResultMessage>();
 
             // If I execute a query that should get no result sets
-            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
+            var fileStreamFactory = MemoryFileSystem.GetServiceBufferFileStreamFactory();
             Batch batch = new Batch(Constants.StandardQuery, Common.SubsectionDocument, Common.Ordinal, fileStreamFactory);
             BatchCallbackHelper(batch,
                 b => batchStartCalls++,
@@ -102,7 +102,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             ConnectionInfo ci = Common.CreateTestConnectionInfo(Common.GetTestDataSet(resultSets), false, false);
 
             // If I execute a query that should get one result set
-            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
+            var fileStreamFactory = MemoryFileSystem.GetServiceBufferFileStreamFactory();
             Batch batch = new Batch(Constants.StandardQuery, Common.SubsectionDocument, Common.Ordinal, fileStreamFactory);
             BatchCallbackHelper(batch,
                 b => batchStartCalls++,
@@ -138,7 +138,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             ConnectionInfo ci = Common.CreateTestConnectionInfo(Common.GetTestDataSet(resultSets), false, false);
 
             // If I execute a query that should get two result sets
-            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
+            var fileStreamFactory = MemoryFileSystem.GetServiceBufferFileStreamFactory();
             Batch batch = new Batch(Constants.StandardQuery, Common.SubsectionDocument, Common.Ordinal, fileStreamFactory);
             BatchCallbackHelper(batch,
                 b => batchStartCalls++,
@@ -174,7 +174,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             ConnectionInfo ci = Common.CreateTestConnectionInfo(Common.GetTestDataSet(resultSets), false, false);
 
             // If I execute a query that should get one result set, but execute it twice using "GO 2" syntax
-            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
+            var fileStreamFactory = MemoryFileSystem.GetServiceBufferFileStreamFactory();
             Batch batch = new Batch(Constants.StandardQuery, Common.SubsectionDocument, Common.Ordinal, fileStreamFactory, 2);
             BatchCallbackHelper(batch,
                 b => batchStartCalls++,
@@ -207,7 +207,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // If I execute a batch that is invalid
             var ci = Common.CreateTestConnectionInfo(null, true, false);
-            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
+            var fileStreamFactory = MemoryFileSystem.GetServiceBufferFileStreamFactory();
             Batch batch = new Batch(Constants.StandardQuery, Common.SubsectionDocument, Common.Ordinal, fileStreamFactory);
             BatchCallbackHelper(batch,
                 b => batchStartCalls++,
@@ -239,7 +239,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // If I execute a batch that is invalid, and if "GO 2" is added to execute more than once
             var ci = Common.CreateTestConnectionInfo(null, true, false);
-            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
+            var fileStreamFactory = MemoryFileSystem.GetServiceBufferFileStreamFactory();
             Batch batch = new Batch(Constants.StandardQuery + Environment.NewLine, Common.SubsectionDocument, Common.Ordinal, fileStreamFactory, 2);
             BatchCallbackHelper(batch,
                 b => batchStartCalls++,
@@ -271,7 +271,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             ConnectionInfo ci = Common.CreateTestConnectionInfo(Common.GetTestDataSet(resultSets), false, false);
 
             // If I execute a batch
-            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
+            var fileStreamFactory = MemoryFileSystem.GetServiceBufferFileStreamFactory();
             Batch batch = new Batch(Constants.StandardQuery, Common.SubsectionDocument, Common.Ordinal, fileStreamFactory);
             await batch.Execute(GetConnection(ci), CancellationToken.None);
 
@@ -302,7 +302,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // ... I create a batch that has an empty query
             // Then:
             // ... It should throw an exception
-            Assert.Throws<ArgumentException>(() => new Batch(query, Common.SubsectionDocument, Common.Ordinal, MemoryFileSystem.GetFileStreamFactory()));
+            Assert.Throws<ArgumentException>(() => new Batch(query, Common.SubsectionDocument, Common.Ordinal, MemoryFileSystem.GetServiceBufferFileStreamFactory()));
         }
 
         [Test]
@@ -322,7 +322,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // ... I create a batch has has an ordinal less than 0
             // Then:
             // ... It should throw an exception
-            Assert.Throws<ArgumentOutOfRangeException>(() => new Batch("stuff", Common.SubsectionDocument, -1, MemoryFileSystem.GetFileStreamFactory()));
+            Assert.Throws<ArgumentOutOfRangeException>(() => new Batch("stuff", Common.SubsectionDocument, -1, MemoryFileSystem.GetServiceBufferFileStreamFactory()));
         }        
 
         [Test]
@@ -330,7 +330,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         {
             // If:
             // ... I call the StatementCompletedHandler
-            Batch batch = new Batch(Constants.StandardQuery, Common.SubsectionDocument, Common.Ordinal, MemoryFileSystem.GetFileStreamFactory());
+            Batch batch = new Batch(Constants.StandardQuery, Common.SubsectionDocument, Common.Ordinal, MemoryFileSystem.GetServiceBufferFileStreamFactory());
             int messageCalls = 0;
             batch.BatchMessageSent += args =>
             {
@@ -350,7 +350,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         public async Task ServerMessageHandlerShowsErrorMessages()
         {
             // Set up the batch to track message calls
-            Batch batch = new Batch(Constants.StandardQuery, Common.SubsectionDocument, Common.Ordinal, MemoryFileSystem.GetFileStreamFactory());
+            Batch batch = new Batch(Constants.StandardQuery, Common.SubsectionDocument, Common.Ordinal, MemoryFileSystem.GetServiceBufferFileStreamFactory());
             int errorMessageCalls = 0;
             int infoMessageCalls = 0;
             string actualMessage = null;
@@ -384,7 +384,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         public async Task ServerMessageHandlerShowsInfoMessages()
         {
             // Set up the batch to track message calls
-            Batch batch = new Batch(Constants.StandardQuery, Common.SubsectionDocument, Common.Ordinal, MemoryFileSystem.GetFileStreamFactory());
+            Batch batch = new Batch(Constants.StandardQuery, Common.SubsectionDocument, Common.Ordinal, MemoryFileSystem.GetServiceBufferFileStreamFactory());
             int errorMessageCalls = 0;
             int infoMessageCalls = 0;
             string actualMessage = null;

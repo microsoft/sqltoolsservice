@@ -116,7 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             // Create query with a failure callback function
             ConnectionInfo ci = Common.CreateTestConnectionInfo(null, false, false);
             ConnectionService.Instance.OwnerToConnectionMap[ci.OwnerUri] = ci;
-            Query query = new Query(Constants.StandardQuery, ci, querySettings, MemoryFileSystem.GetFileStreamFactory());
+            Query query = new Query(Constants.StandardQuery, ci, querySettings, MemoryFileSystem.GetServiceBufferFileStreamFactory());
 
             string errorMessage = null;
             Query.QueryAsyncErrorEventHandler failureCallback = async (q, e) =>

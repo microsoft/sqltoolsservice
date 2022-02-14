@@ -1,8 +1,9 @@
-﻿// 
+﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -14,7 +15,6 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
-using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Moq;
 using NUnit.Framework;
@@ -51,11 +51,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
         [Test]
         public async Task SaveResultAsCsvFailure()
         {
-            // Given: 
+            // Given:
             // ... A working query and workspace service
             WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
-            ConcurrentDictionary<string, byte[]> storage;
-            QueryExecutionService qes = Common.GetPrimedExecutionService(Common.ExecutionPlanTestDataSet, true, false, false, ws, out storage);
+            QueryExecutionService qes = Common.GetPrimedExecutionService(
+                Common.ExecutionPlanTestDataSet,
+                true,
+                false,
+                false,
+                ws,
+                out ConcurrentDictionary<string, byte[]> storage);
 
             // ... The query execution service has executed a query with results
             var executeParams = new ExecuteDocumentSelectionParams { QuerySelection = null, OwnerUri = Constants.OwnerUri };
@@ -97,11 +102,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
         [Test]
         public async Task SaveResultsAsCsvSuccess()
         {
-            // Given: 
+            // Given:
             // ... A working query and workspace service
             WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
-            ConcurrentDictionary<string, byte[]> storage;
-            QueryExecutionService qes = Common.GetPrimedExecutionService(Common.ExecutionPlanTestDataSet, true, false, false, ws, out storage);
+            QueryExecutionService qes = Common.GetPrimedExecutionService(
+                Common.ExecutionPlanTestDataSet,
+                true,
+                false,
+                false,
+                ws,
+                out ConcurrentDictionary<string, byte[]> storage);
 
             // ... The query execution service has executed a query with results
             var executeParams = new ExecuteDocumentSelectionParams {QuerySelection = null, OwnerUri = Constants.OwnerUri};
@@ -165,11 +175,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
         [Test]
         public async Task SaveResultAsJsonFailure()
         {
-            // Given: 
+            // Given:
             // ... A working query and workspace service
             WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
-            ConcurrentDictionary<string, byte[]> storage;
-            QueryExecutionService qes = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, false, ws, out storage);
+            QueryExecutionService qes = Common.GetPrimedExecutionService(
+                Common.StandardTestDataSet,
+                true,
+                false,
+                false,
+                ws,
+                out ConcurrentDictionary<string, byte[]> storage);
 
             // ... The query execution service has executed a query with results
             var executeParams = new ExecuteDocumentSelectionParams { QuerySelection = null, OwnerUri = Constants.OwnerUri };
@@ -209,11 +224,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
         [Test]
         public async Task SaveResultsAsJsonSuccess()
         {
-            // Given: 
+            // Given:
             // ... A working query and workspace service
             WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
-            ConcurrentDictionary<string, byte[]> storage;
-            QueryExecutionService qes = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, false, ws, out storage);
+            QueryExecutionService qes = Common.GetPrimedExecutionService(
+                Common.StandardTestDataSet,
+                true,
+                false,
+                false,
+                ws,
+                out ConcurrentDictionary<string, byte[]> storage);
 
             // ... The query execution service has executed a query with results
             var executeParams = new ExecuteDocumentSelectionParams { QuerySelection = null, OwnerUri = Constants.OwnerUri };
@@ -247,7 +267,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
         }
 
         #endregion
-        
+
         #region XML tests
 
         [Test]
@@ -276,11 +296,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
         [Test]
         public async Task SaveResultAsXmlFailure()
         {
-            // Given: 
+            // Given:
             // ... A working query and workspace service
             WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
-            ConcurrentDictionary<string, byte[]> storage;
-            QueryExecutionService qes = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, false, ws, out storage);
+            QueryExecutionService qes = Common.GetPrimedExecutionService(
+                Common.StandardTestDataSet,
+                true,
+                false,
+                false,
+                ws,
+                out ConcurrentDictionary<string, byte[]> storage);
 
             // ... The query execution service has executed a query with results
             var executeParams = new ExecuteDocumentSelectionParams {QuerySelection = null, OwnerUri = Constants.OwnerUri};
@@ -320,11 +345,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
         [Test]
         public async Task SaveResultsAsXmlSuccess()
         {
-            // Given: 
+            // Given:
             // ... A working query and workspace service
             WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
-            ConcurrentDictionary<string, byte[]> storage;
-            QueryExecutionService qes = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, false, ws, out storage);
+            QueryExecutionService qes = Common.GetPrimedExecutionService(
+                Common.StandardTestDataSet,
+                true,
+                false,
+                false,
+                ws,
+                out ConcurrentDictionary<string, byte[]> storage);
 
             // ... The query execution service has executed a query with results
             var executeParams = new ExecuteDocumentSelectionParams {QuerySelection = null, OwnerUri = Constants.OwnerUri};
@@ -343,7 +373,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
                 Formatted = true
             };
             qes.XmlFileFactory = GetXmlStreamFactory(storage, saveParams);
-            
+
             var efv = new EventFlowValidator<SaveResultRequestResult>()
                 .AddStandardResultValidator()
                 .Complete();
@@ -360,9 +390,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
         }
 
         #endregion
-        
-        #region Excel Tests 
-        
+
+        #region Excel Tests
+
         [Test]
         public async Task SaveResultsExcelNonExistentQuery()
         {
@@ -389,11 +419,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
         [Test]
         public async Task SaveResultAsExcelFailure()
         {
-            // Given: 
+            // Given:
             // ... A working query and workspace service
             WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
-            ConcurrentDictionary<string, byte[]> storage;
-            QueryExecutionService qes = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, false, ws, out storage);
+            QueryExecutionService qes = Common.GetPrimedExecutionService(
+                Common.StandardTestDataSet,
+                true, false,
+                false,
+                ws,
+                out ConcurrentDictionary<string, byte[]> storage);
 
             // ... The query execution service has executed a query with results
             var executeParams = new ExecuteDocumentSelectionParams { QuerySelection = null, OwnerUri = Constants.OwnerUri };
@@ -433,11 +467,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
         [Test]
         public async Task SaveResultsAsExcelSuccess()
         {
-            // Given: 
+            // Given:
             // ... A working query and workspace service
             WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
-            ConcurrentDictionary<string, byte[]> storage;
-            QueryExecutionService qes = Common.GetPrimedExecutionService(Common.StandardTestDataSet, true, false, false, ws, out storage);
+            QueryExecutionService qes = Common.GetPrimedExecutionService(
+                Common.StandardTestDataSet,
+                true,
+                false,
+                false,
+                ws,
+                out ConcurrentDictionary<string, byte[]> storage);
 
             // ... The query execution service has executed a query with results
             var executeParams = new ExecuteDocumentSelectionParams { QuerySelection = null, OwnerUri = Constants.OwnerUri };
@@ -469,70 +508,52 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             // ... There should not have been an error
             efv.Validate();
         }
-        
+
         #endregion
 
         #region Private Helpers
 
-        private static IFileStreamFactory GetCsvStreamFactory(IDictionary<string, byte[]> storage, SaveResultsAsCsvRequestParams saveParams)
+        private static ISaveAsFileStreamFactory GetCsvStreamFactory(
+            IDictionary<string, byte[]> storage,
+            SaveResultsAsCsvRequestParams saveParams)
         {
-            Mock<IFileStreamFactory> mock = new Mock<IFileStreamFactory>();
-            mock.Setup(fsf => fsf.GetReader(It.IsAny<string>()))
-                .Returns<string>(output => new ServiceBufferFileStreamReader(new MemoryStream(storage[output]), new QueryExecutionSettings()));
-            mock.Setup(fsf => fsf.GetWriter(It.IsAny<string>()))
-                .Returns<string>(output =>
-                {
-                    storage.Add(output, new byte[8192]);
-                    return new SaveAsCsvFileStreamWriter(new MemoryStream(storage[output]), saveParams);
-                });
-
-            return mock.Object;
+            return GetSaveAsFileStreamFactory(storage, (s, c) => new SaveAsCsvFileStreamWriter(s, saveParams, c));
         }
 
-        private static IFileStreamFactory GetJsonStreamFactory(IDictionary<string, byte[]> storage, SaveResultsAsJsonRequestParams saveParams)
+        private static ISaveAsFileStreamFactory GetJsonStreamFactory(
+            IDictionary<string, byte[]> storage,
+            SaveResultsAsJsonRequestParams saveParams)
         {
-            Mock<IFileStreamFactory> mock = new Mock<IFileStreamFactory>();
-            mock.Setup(fsf => fsf.GetReader(It.IsAny<string>()))
-                .Returns<string>(output => new ServiceBufferFileStreamReader(new MemoryStream(storage[output]), new QueryExecutionSettings()));
-            mock.Setup(fsf => fsf.GetWriter(It.IsAny<string>()))
-                .Returns<string>(output =>
-                {
-                    storage.Add(output, new byte[8192]);
-                    return new SaveAsJsonFileStreamWriter(new MemoryStream(storage[output]), saveParams);
-                });
-
-            return mock.Object;
+            return GetSaveAsFileStreamFactory(storage, (s, c) => new SaveAsJsonFileStreamWriter(s, saveParams, c));
         }
 
-        private static IFileStreamFactory GetXmlStreamFactory(IDictionary<string, byte[]> storage,
+        private static ISaveAsFileStreamFactory GetXmlStreamFactory(
+            IDictionary<string, byte[]> storage,
             SaveResultsAsXmlRequestParams saveParams)
         {
-            Mock<IFileStreamFactory> mock = new Mock<IFileStreamFactory>();
-            mock.Setup(fsf => fsf.GetReader(It.IsAny<string>()))
-                .Returns<string>(output => new ServiceBufferFileStreamReader(new MemoryStream(storage[output]), new QueryExecutionSettings()));
-            mock.Setup(fsf => fsf.GetWriter(It.IsAny<string>()))
-                .Returns<string>(output =>
-                {
-                    storage.Add(output, new byte[8192]);
-                    return new SaveAsXmlFileStreamWriter(new MemoryStream(storage[output]), saveParams);
-                });
-
-            return mock.Object;
+            return GetSaveAsFileStreamFactory(storage, (s, c) => new SaveAsXmlFileStreamWriter(s, saveParams, c));
         }
-        
-        private static IFileStreamFactory GetExcelStreamFactory(IDictionary<string, byte[]> storage,
+
+        private static ISaveAsFileStreamFactory GetExcelStreamFactory(
+            IDictionary<string, byte[]> storage,
             SaveResultsAsExcelRequestParams saveParams)
         {
-            Mock<IFileStreamFactory> mock = new Mock<IFileStreamFactory>();
+            return GetSaveAsFileStreamFactory(storage, (s, c) => new SaveAsExcelFileStreamWriter(s, saveParams, c));
+        }
+
+        private static ISaveAsFileStreamFactory GetSaveAsFileStreamFactory(
+            IDictionary<string, byte[]> storage,
+            Func<Stream, IReadOnlyList<DbColumnWrapper>, ISaveAsFileStreamWriter> streamWriterFunc)
+        {
+            Mock<ISaveAsFileStreamFactory> mock = new Mock<ISaveAsFileStreamFactory>();
             mock.Setup(fsf => fsf.GetReader(It.IsAny<string>()))
                 .Returns<string>(output => new ServiceBufferFileStreamReader(new MemoryStream(storage[output]), new QueryExecutionSettings()));
-            mock.Setup(fsf => fsf.GetWriter(It.IsAny<string>()))
-                .Returns<string>(output =>
+            mock.Setup(fsf => fsf.GetWriter(It.IsAny<string>(), It.IsAny<IReadOnlyList<DbColumnWrapper>>()))
+                .Returns<string, IReadOnlyList<DbColumnWrapper>>((output, columns) =>
                 {
                     storage.Add(output, new byte[8192]);
-                    return new SaveAsExcelFileStreamWriter(new MemoryStream(storage[output]), saveParams);
+                    return streamWriterFunc(new MemoryStream(storage[output]), columns);
                 });
-            
             return mock.Object;
         }
 
@@ -544,6 +565,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
         public static EventFlowValidator<SaveResultRequestResult> AddStandardResultValidator(
             this EventFlowValidator<SaveResultRequestResult> efv)
         {
+            // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local Yes, this is a unit test.
             return efv.AddResultValidation(r =>
             {
                 Assert.NotNull(r);

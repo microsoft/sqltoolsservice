@@ -1,4 +1,4 @@
-﻿// 
+﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -20,18 +20,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
         [Test]
         public void ArrayWrapperTest()
         {
-            // Setup:
-            // ... Create storage for the output
+            // Setup: Create storage for the output
             byte[] output = new byte[8192];
             SaveResultsAsJsonRequestParams saveParams = new SaveResultsAsJsonRequestParams();
 
-            // If:
-            // ... I create and then destruct a json writer
-            var jsonWriter = new SaveAsJsonFileStreamWriter(new MemoryStream(output), saveParams);
+            // If: I create and then destruct a json writer
+            var jsonWriter = new SaveAsJsonFileStreamWriter(new MemoryStream(output), saveParams, null);
             jsonWriter.Dispose();
 
-            // Then:
-            // ... The output should be an empty array
+            // Then: The output should be an empty array
             string outputString = Encoding.UTF8.GetString(output).TrimEnd('\0');
             object[] outputArray = JsonConvert.DeserializeObject<object[]>(outputString);
             Assert.AreEqual(0, outputArray.Length);
@@ -45,12 +42,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             // ... Create a set of data to write
             // ... Create storage for the output
             SaveResultsAsJsonRequestParams saveParams = new SaveResultsAsJsonRequestParams();
-            List<DbCellValue> data = new List<DbCellValue>
+            var data = new[]
             {
                 new DbCellValue {DisplayValue = "item1", RawObject = "item1"},
                 new DbCellValue {DisplayValue = "null", RawObject = null}
             };
-            List<DbColumnWrapper> columns = new List<DbColumnWrapper>
+            var columns = new[]
             {
                 new DbColumnWrapper(new TestDbColumn("column1")),
                 new DbColumnWrapper(new TestDbColumn("column2"))
@@ -59,18 +56,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
 
             // If:
             // ... I write two rows
-            var jsonWriter = new SaveAsJsonFileStreamWriter(new MemoryStream(output), saveParams);
+            var jsonWriter = new SaveAsJsonFileStreamWriter(new MemoryStream(output), saveParams, columns);
             using (jsonWriter)
             {
-                jsonWriter.WriteRow(data, columns);
-                jsonWriter.WriteRow(data, columns);
+                jsonWriter.WriteRow(data);
+                jsonWriter.WriteRow(data);
             }
 
             // Then:
             // ... Upon deserialization to an array of dictionaries
             string outputString = Encoding.UTF8.GetString(output).TrimEnd('\0');
-            Dictionary<string, string>[] outputObject =
-                JsonConvert.DeserializeObject<Dictionary<string, string>[]>(outputString);
+            var outputObject = JsonConvert.DeserializeObject<Dictionary<string, string>[]>(outputString);
 
             // ... There should be 2 items in the array,
             // ... The item should have two fields, and two values, assigned appropriately
@@ -78,7 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             foreach (var item in outputObject)
             {
                 Assert.AreEqual(2, item.Count);
-                for (int i = 0; i < columns.Count; i++)
+                for (int i = 0; i < columns.Length; i++)
                 {
                     Assert.True(item.ContainsKey(columns[i].ColumnName));
                     Assert.AreEqual(data[i].RawObject == null ? null : data[i].DisplayValue, item[columns[i].ColumnName]);
@@ -100,14 +96,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
                 RowStartIndex = 0,          // Including b/c it is required to be a "save selection"
                 RowEndIndex = 10
             };
-            List<DbCellValue> data = new List<DbCellValue>
+            var data = new[]
             {
                 new DbCellValue { DisplayValue = "item1", RawObject = "item1"},
                 new DbCellValue { DisplayValue = "item2", RawObject = "item2"},
                 new DbCellValue { DisplayValue = "null", RawObject = null},
                 new DbCellValue { DisplayValue = "null", RawObject = null}
             };
-            List<DbColumnWrapper> columns = new List<DbColumnWrapper>
+            var columns = new[]
             {
                 new DbColumnWrapper(new TestDbColumn("column1")),
                 new DbColumnWrapper(new TestDbColumn("column2")),
@@ -117,18 +113,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             byte[] output = new byte[8192];
 
             // If: I write two rows
-            var jsonWriter = new SaveAsJsonFileStreamWriter(new MemoryStream(output), saveParams);
+            var jsonWriter = new SaveAsJsonFileStreamWriter(new MemoryStream(output), saveParams, columns);
             using (jsonWriter)
             {
-                jsonWriter.WriteRow(data, columns);
-                jsonWriter.WriteRow(data, columns);
+                jsonWriter.WriteRow(data);
+                jsonWriter.WriteRow(data);
             }
 
             // Then:
             // ... Upon deserialization to an array of dictionaries
             string outputString = Encoding.UTF8.GetString(output).Trim('\0');
-            Dictionary<string, string>[] outputObject =
-                JsonConvert.DeserializeObject<Dictionary<string, string>[]>(outputString);
+            var outputObject = JsonConvert.DeserializeObject<Dictionary<string, string>[]>(outputString);
 
             // ... There should be 2 items in the array
             // ... The items should have 2 fields and values
@@ -153,14 +148,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             // ... Create a set of data to write
             // ... Create storage for the output
             SaveResultsAsJsonRequestParams saveParams = new SaveResultsAsJsonRequestParams();
-            List<DbCellValue> data = new List<DbCellValue>
+            var data = new[]
             {
                 new DbCellValue {DisplayValue = "1", RawObject = 1},
                 new DbCellValue {DisplayValue = "1.234", RawObject = 1.234},
                 new DbCellValue {DisplayValue = "2017-07-08T00:00:00", RawObject = new DateTime(2017, 07, 08)},
-                
+
             };
-            List<DbColumnWrapper> columns = new List<DbColumnWrapper>
+            var columns = new[]
             {
                 new DbColumnWrapper(new TestDbColumn("numberCol", typeof(int))),
                 new DbColumnWrapper(new TestDbColumn("decimalCol", typeof(decimal))),
@@ -170,11 +165,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
 
             // If:
             // ... I write two rows
-            var jsonWriter = new SaveAsJsonFileStreamWriter(new MemoryStream(output), saveParams);
+            var jsonWriter = new SaveAsJsonFileStreamWriter(new MemoryStream(output), saveParams, columns);
             using (jsonWriter)
             {
-                jsonWriter.WriteRow(data, columns);
-                jsonWriter.WriteRow(data, columns);
+                jsonWriter.WriteRow(data);
+                jsonWriter.WriteRow(data);
             }
 
             // Then:
@@ -190,7 +185,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             foreach (var item in outputObject)
             {
                 Assert.AreEqual(3, item.Count);
-                for (int i = 0; i < columns.Count; i++)
+                for (int i = 0; i < columns.Length; i++)
                 {
                     Assert.True(item.ContainsKey(columns[i].ColumnName));
                     Assert.AreEqual(data[i].RawObject == null ? null : data[i].DisplayValue, item[columns[i].ColumnName]);

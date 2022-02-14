@@ -103,7 +103,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                 uri = queryTempFile.FilePath;
 
                 ConnectionInfo connInfo = InitLiveConnectionInfo(serverType, databaseName, uri);
-                Query query = new Query(queryText, connInfo, new QueryExecutionSettings(), MemoryFileSystem.GetFileStreamFactory());
+                Query query = new Query(queryText, connInfo, new QueryExecutionSettings(), MemoryFileSystem.GetServiceBufferFileStreamFactory());
                 query.Execute();
                 await query.ExecutionTask;
 

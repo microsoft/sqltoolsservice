@@ -27,8 +27,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </param>
         protected SaveAsStreamWriter(Stream stream, SaveResultsRequestParams requestParams, IReadOnlyList<DbColumnWrapper> columns)
         {
-            Columns = columns;
-            FileStream = stream;
+            Columns = columns ?? throw new ArgumentNullException(nameof(columns));
+            FileStream = stream ?? throw new ArgumentNullException(nameof(stream));
 
             if (requestParams.IsSaveSelection)
             {

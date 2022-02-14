@@ -3,10 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
 using System.Collections.Concurrent;
 using System.Data.Common;
-using System.Linq;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
@@ -27,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
             // Given a connection to a live database
             var result = LiveConnectionHelper.InitLiveConnectionInfo();
             ConnectionInfo connInfo = result.ConnectionInfo;
-            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
+            var fileStreamFactory = MemoryFileSystem.GetServiceBufferFileStreamFactory();
 
             // If I run a "ROLLBACK TRANSACTION" query
             Query query = new Query(refactorText, connInfo, new QueryExecutionSettings(), fileStreamFactory);
@@ -47,7 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
             // Given a connection to a live database
             var result = LiveConnectionHelper.InitLiveConnectionInfo();
             ConnectionInfo connInfo = result.ConnectionInfo;
-            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
+            var fileStreamFactory = MemoryFileSystem.GetServiceBufferFileStreamFactory();
 
             // If I run a "BEGIN TRANSACTION" query
             CreateAndExecuteQuery(beginText, connInfo, fileStreamFactory);
@@ -66,7 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
             // Given a connection to a live database
             var result = LiveConnectionHelper.InitLiveConnectionInfo();
             ConnectionInfo connInfo = result.ConnectionInfo;
-            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory(new ConcurrentDictionary<string, byte[]>());
+            var fileStreamFactory = MemoryFileSystem.GetServiceBufferFileStreamFactory(new ConcurrentDictionary<string, byte[]>());
 
             // If I run a query creating a temp table
             CreateAndExecuteQuery(createTempText, connInfo, fileStreamFactory);
@@ -86,10 +84,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
             // Given a connection to a live database
             var result = LiveConnectionHelper.InitLiveConnectionInfo();
             ConnectionInfo connInfo = result.ConnectionInfo;
-            DbConnection connection;
-            connInfo.TryGetConnection(ConnectionType.Default, out connection);
+            connInfo.TryGetConnection(ConnectionType.Default, out DbConnection connection);
 
-            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory(new ConcurrentDictionary<string, byte[]>());
+            var fileStreamFactory = MemoryFileSystem.GetServiceBufferFileStreamFactory(new ConcurrentDictionary<string, byte[]>());
 
             // If I use master, the current database should be master
             CreateAndExecuteQuery(string.Format(useQuery, master), connInfo, fileStreamFactory);
@@ -104,9 +101,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
             Assert.AreEqual(master, connInfo.ConnectionDetails.DatabaseName);
         }
 
-        public static Query CreateAndExecuteQuery(string queryText, ConnectionInfo connectionInfo, IFileStreamFactory fileStreamFactory, bool IsSqlCmd = false)
+        public static Query CreateAndExecuteQuery(string queryText, ConnectionInfo connectionInfo, IServiceBufferFileStreamFactory fileStreamFactory, bool isSqlCmd = false)
         {
-            var settings = new QueryExecutionSettings() { IsSqlCmdMode = IsSqlCmd };
+            var settings = new QueryExecutionSettings { IsSqlCmdMode = isSqlCmd };
             Query query = new Query(queryText, connectionInfo, settings, fileStreamFactory);
             query.Execute();
             query.ExecutionTask.Wait();

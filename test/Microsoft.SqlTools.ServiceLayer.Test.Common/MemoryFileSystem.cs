@@ -10,14 +10,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
     public class MemoryFileSystem
     {
 
-        public static IFileStreamFactory GetFileStreamFactory(int sizeFactor=1)
+        public static IServiceBufferFileStreamFactory GetServiceBufferFileStreamFactory(int sizeFactor=1)
         {
-            return GetFileStreamFactory(new ConcurrentDictionary<string, byte[]>(), sizeFactor);
+            return GetServiceBufferFileStreamFactory(new ConcurrentDictionary<string, byte[]>(), sizeFactor);
         }
 
-        public static IFileStreamFactory GetFileStreamFactory(ConcurrentDictionary<string, byte[]> storage, int sizeFactor=1)
+        public static IServiceBufferFileStreamFactory GetServiceBufferFileStreamFactory(ConcurrentDictionary<string, byte[]> storage, int sizeFactor=1)
         {
-            Mock<IFileStreamFactory> mock = new Mock<IFileStreamFactory>();
+            Mock<IServiceBufferFileStreamFactory> mock = new Mock<IServiceBufferFileStreamFactory>();
             mock.Setup(fsf => fsf.CreateFile())
                 .Returns(() =>
                 {

@@ -78,7 +78,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 : Enumerable.Repeat(new object[] { "1", "2", "3" }, rowCount);
             var testResultSet = new TestResultSet(columns, rows);
             var reader = new TestDbDataReader(new[] { testResultSet }, false);
-            var resultSet = new ResultSet(0, 0, MemoryFileSystem.GetFileStreamFactory());
+            var resultSet = new ResultSet(0, 0, MemoryFileSystem.GetServiceBufferFileStreamFactory());
             await resultSet.ReadResultToEnd(reader, CancellationToken.None);
             return resultSet;
         }
