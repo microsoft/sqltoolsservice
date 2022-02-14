@@ -3479,7 +3479,7 @@
     <value>Не для репликации</value>
   </data>
   <data name="ForeignKeyIsNotForReplicationDescription" xml:space="preserve">
-    <value>Включает или отключает ограничение IDENTITY для данных, вставленных в процессе репликации.</value>
+    <value>Включает или отключает ограничение для данных, вставленных в процессе репликации.</value>
   </data>
   <data name="SqlForeignKeyAction_NoAction" xml:space="preserve">
     <value>Нет действия</value>
