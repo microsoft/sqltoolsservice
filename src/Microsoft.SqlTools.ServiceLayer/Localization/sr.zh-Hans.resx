@@ -3479,7 +3479,7 @@
     <value>不用于复制</value>
   </data>
   <data name="ForeignKeyIsNotForReplicationDescription" xml:space="preserve">
-    <value>对复制过程插入的数据启用或禁用 IDENTITY 约束。</value>
+    <value>启用或禁用复制进程插入的数据的约束。</value>
   </data>
   <data name="SqlForeignKeyAction_NoAction" xml:space="preserve">
     <value>无操作</value>

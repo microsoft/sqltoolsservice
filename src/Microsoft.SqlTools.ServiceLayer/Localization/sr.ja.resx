@@ -3479,7 +3479,7 @@
     <value>レプリケーションでは使用しない</value>
   </data>
   <data name="ForeignKeyIsNotForReplicationDescription" xml:space="preserve">
-    <value>レプリケーション プロセスによって挿入されたデータの IDENTITY 制約を有効または無効にします。</value>
+    <value>レプリケーション プロセスによって挿入されたデータの制約を有効または無効にします。</value>
   </data>
   <data name="SqlForeignKeyAction_NoAction" xml:space="preserve">
     <value>アクションなし</value>
