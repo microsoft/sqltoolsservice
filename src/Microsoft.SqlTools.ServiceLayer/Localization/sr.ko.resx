@@ -3479,7 +3479,7 @@
     <value>복제용 아님</value>
   </data>
   <data name="ForeignKeyIsNotForReplicationDescription" xml:space="preserve">
-    <value>복제 프로세스에 의해 삽입된 데이터에 대해 IDENTITY 제약 조건을 설정하거나 해제합니다.</value>
+    <value>복제 프로세스에서 삽입한 데이터에 대한 제약 조건을 사용하거나 사용하지 않도록 설정합니다.</value>
   </data>
   <data name="SqlForeignKeyAction_NoAction" xml:space="preserve">
     <value>조치 없음</value>

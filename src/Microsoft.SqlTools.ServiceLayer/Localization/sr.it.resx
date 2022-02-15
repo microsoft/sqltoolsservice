@@ -3479,7 +3479,7 @@
     <value>Non per la replica</value>
   </data>
   <data name="ForeignKeyIsNotForReplicationDescription" xml:space="preserve">
-    <value>Abilita o disabilita un vincolo IDENTITY per i dati inseriti da un processo di replica.</value>
+    <value>Abilita o disabilita il vincolo per i dati inseriti da un processo di replica.</value>
   </data>
   <data name="SqlForeignKeyAction_NoAction" xml:space="preserve">
     <value>Nessuna azione</value>

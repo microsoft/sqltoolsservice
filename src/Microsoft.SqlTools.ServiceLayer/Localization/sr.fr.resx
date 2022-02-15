@@ -3479,7 +3479,7 @@
     <value>Pas pour la réplication</value>
   </data>
   <data name="ForeignKeyIsNotForReplicationDescription" xml:space="preserve">
-    <value>Active ou désactive une contrainte IDENTITY pour les données insérées par un processus de réplication.</value>
+    <value>Active ou désactive la contrainte pour les données insérées par un processus de réplication.</value>
   </data>
   <data name="SqlForeignKeyAction_NoAction" xml:space="preserve">
     <value>Aucune action</value>
