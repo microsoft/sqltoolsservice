@@ -181,10 +181,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             ConnectionDetails.AzureAccountToken = token;
             ConnectionDetails.ExpiresOn = expiresOn;
 
-            // foreach (var connection in ConnectionTypeToConnectionMap.Values)
-            // {
-            //     connection.UpdateAuthToken(token);
-            // }
         }
     }
 }
