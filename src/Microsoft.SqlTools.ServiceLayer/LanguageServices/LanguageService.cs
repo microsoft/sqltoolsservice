@@ -452,6 +452,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
                 else
                 {
+                    if (RefreshNeeded(scriptFile.ClientUri)) {
+                        await connectionService.TryRefreshAuthToken(scriptFile.ClientUri);
+                    }
                     // get the current list of completion items and return to client
                     ConnectionServiceInstance.TryFindConnection(
                         scriptFile.ClientUri,
@@ -1191,7 +1194,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         private bool ShouldSkipIntellisense(string uri)
         {
             return !CurrentWorkspaceSettings.IsSuggestionsEnabled
-                || ShouldSkipNonMssqlFile(uri) || RefreshNeeded(uri);
+                || ShouldSkipNonMssqlFile(uri);
         }
 
         /// <summary>
@@ -1228,15 +1231,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 } 
                 else 
                 {
-                    // If token is not expired, no need to refresh token
+                    // Check if token is expired
                     if (connInfo.ConnectionDetails.ExpiresOn > DateTimeOffset.Now.ToUnixTimeSeconds())
                     {
                         return false;
                     }
-                    // Refresh token here
                     else
                     {
-                        //TODO: Handle token expiration here
                         return true;
                     }
                 }

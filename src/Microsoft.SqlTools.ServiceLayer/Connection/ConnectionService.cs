@@ -234,6 +234,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <param name="connectionParams">The params to validate</param>
         /// <returns>A ConnectionCompleteParams object upon validation error, 
         /// null upon validation success</returns>
+
+        internal async Task<bool> TryRefreshAuthToken(string ownerUri)
+        {
+            if (!this.TryFindConnection(ownerUri, out ConnectionInfo connection))
+            {
+                return false;
+            }
+
+            var requestMessage = new RequestSecurityTokenParams
+            {
+                AccountId = connection.ConnectionDetails.GetOptionValue("azureAccount", string.Empty),
+                Authority = connection.ConnectionDetails.GetOptionValue("azureTenantId", string.Empty),
+                Provider = connection.ConnectionDetails.AuthenticationType,
+                Resource = "SQL",
+                Scope = ""
+            };
+            RequestSecurityTokenResponse response = await this.ServiceHost.SendRequest(SecurityTokenRequest.Type, requestMessage, true);
+            connection.UpdateAuthToken(response.Token, response.ExpiresOn);
+            return true;
+        }
         public ConnectionCompleteParams ValidateConnectParams(ConnectParams connectionParams)
         {
             string paramValidationErrorMessage;
