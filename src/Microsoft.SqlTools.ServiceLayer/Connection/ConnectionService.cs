@@ -246,7 +246,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 AccountId = connection.ConnectionDetails.GetOptionValue("azureAccount", string.Empty),
                 Authority = connection.ConnectionDetails.GetOptionValue("azureTenantId", string.Empty),
-                Provider = connection.ConnectionDetails.AuthenticationType,
+                Provider = "Azure",
                 Resource = "SQL",
                 Scope = ""
             };
