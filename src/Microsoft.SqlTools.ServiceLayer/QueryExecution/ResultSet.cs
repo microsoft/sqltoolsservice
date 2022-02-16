@@ -34,9 +34,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         private const string YukonXmlShowPlanColumn = "Microsoft SQL Server 2005 XML Showplan";
         private const uint MaxResultsTimerPulseMilliseconds = 1000;
         private const uint MinResultTimerPulseMilliseconds = 10;
+
+        private static readonly Regex JsonColumnRegex = new Regex(@"({.*?})", RegexOptions.Compiled);
+
         #endregion
 
         #region Member Variables
+
+        /// <summary>
+        /// The factory to use to get service buffer reading/writing handlers
+        /// </summary>
+        private readonly IServiceBufferFileStreamFactory bufferFileStreamFactory;
 
         /// <summary>
         /// For IDisposable pattern, whether or not object has been disposed
@@ -47,11 +55,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// A list of offsets into the buffer file that correspond to where rows start
         /// </summary>
         private readonly LongList<long> fileOffsets;
-
-        /// <summary>
-        /// The factory to use to get service buffer reading/writing handlers
-        /// </summary>
-        private readonly IServiceBufferFileStreamFactory bufferFileStreamFactory;
 
         /// <summary>
         /// Whether or not the result set has been read in from the database,
@@ -170,6 +173,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         #region Properties
 
         /// <summary>
+        /// ID of the batch set, relative to the query
+        /// </summary>
+        public int BatchId { get; private set; }
+
+        /// <summary>
         /// The columns for this result set
         /// </summary>
         public DbColumnWrapper[] Columns { get; private set; }
@@ -179,15 +187,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         public int Id { get; private set; }
 
-        /// <summary>
-        /// ID of the batch set, relative to the query
-        /// </summary>
-        public int BatchId { get; private set; }
+        internal ResultSetSummary LastUpdatedSummary { get; set; }
+
+        private uint ResultsIntervalMultiplier { get; set; } = 1;
+
+        internal uint ResultTimerInterval => Math.Max(Math.Min(MaxResultsTimerPulseMilliseconds, (uint)RowCount / 500 /* 1 millisec per 500 rows*/), MinResultTimerPulseMilliseconds * ResultsIntervalMultiplier);
 
         /// <summary>
         /// The number of rows for this result set
         /// </summary>
-        public long RowCount => rowCountOverride != null ? Math.Min(rowCountOverride.Value, fileOffsets.Count) : fileOffsets.Count;
+        public long RowCount => rowCountOverride != null
+            ? Math.Min(rowCountOverride.Value, fileOffsets.Count)
+            : fileOffsets.Count;
 
         /// <summary>
         /// All save tasks currently saving this ResultSet
@@ -212,6 +223,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 };
             }
         }
+
         #endregion
 
         #region Public Methods
@@ -318,20 +330,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <returns>An execution plan object</returns>
         public Task<ExecutionPlan> GetExecutionPlan()
         {
-            // Process the action just in case it hasn't been yet
-            ProcessSpecialAction();
-
             // Sanity check to make sure that results read has started
             if (!hasStartedRead)
             {
                 throw new InvalidOperationException(SR.QueryServiceResultSetNotRead);
             }
+
             // Check that we this result set contains a showplan
+            ProcessSpecialAction();
             if (!specialAction.ExpectYukonXMLShowPlan)
             {
                 throw new Exception(SR.QueryServiceExecutionPlanNotFound);
             }
-
 
             return Task.Factory.StartNew(() =>
             {
@@ -413,22 +423,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
 
                 // await the completion of available notification in case it is not already done before proceeding
-                //
-                await availableTask;
+                if (availableTask != null)
+                {
+                    await availableTask;
+                }
 
                 // now set the flag to indicate that we are done reading. this equates to Complete flag to be marked 'True' in any future notifications.
-                //
                 hasCompletedRead = true;
 
 
                 // Make a final call to SendCurrentResults() and await its completion. If the previously scheduled task already took care of latest status send then this should be a no-op
-                //
                 await SendCurrentResults();
 
 
                 // and finally:
                 // Make a call to send ResultCompletion and await its completion. This is just for backward compatibility with older protocol
-                //
                 await (ResultCompletion?.Invoke(this) ?? Task.CompletedTask);
             }
         }
@@ -470,6 +479,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <returns></returns>
         public async Task UpdateRow(long rowId, DbDataReader dbDataReader)
         {
+            // Make sure the row ID is valid before mucking around with the service buffer file
+            if (rowId < 0 || rowId >= fileOffsets.Count)
+            {
+                throw new ArgumentOutOfRangeException(nameof(rowId));
+            }
+
             // Write the updated row to the end of the file
             long newOffset = await AppendRowToBuffer(dbDataReader);
 
@@ -563,7 +578,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 if (failureHandler != null)
                 {
-                    await failureHandler(saveParams, t.Exception.Message);
+                    await failureHandler(saveParams, t.Exception?.Message);
                 }
             });
 
@@ -700,12 +715,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
         }
 
-        private uint ResultsIntervalMultiplier { get; set; } = 1;
-
-        internal uint ResultTimerInterval => Math.Max(Math.Min(MaxResultsTimerPulseMilliseconds, (uint)RowCount / 500 /* 1 millisec per 500 rows*/), MinResultTimerPulseMilliseconds * ResultsIntervalMultiplier);
-
-        internal ResultSetSummary LastUpdatedSummary { get; set; } = null;
-
         /// <summary>
         /// If the result set represented by this class corresponds to a single XML
         /// column that contains results of "for xml" query, set isXml = true
@@ -714,16 +723,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private void SingleColumnXmlJsonResultSet()
         {
-
             if (Columns?.Length == 1)
             {
-                if (Columns[0].ColumnName.Equals(NameOfForXmlColumn, StringComparison.Ordinal))
+                if (Columns[0].ColumnName == NameOfForXmlColumn)
                 {
                     Columns[0].IsXml = true;
                     isSingleColumnXmlJsonResultSet = true;
                     rowCountOverride = 1;
                 }
-                else if (Columns[0].ColumnName.Equals(NameOfForJsonColumn, StringComparison.Ordinal))
+                else if (Columns[0].ColumnName == NameOfForJsonColumn)
                 {
                     Columns[0].IsJson = true;
                     isSingleColumnXmlJsonResultSet = true;
@@ -739,13 +747,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {
             if (Columns?.Length > 0 && RowCount != 0)
             {
-                Regex regex = new Regex(@"({.*?})");
                 var row = GetRow(0);
                 for (int i = 0; i < Columns.Length; i++)
                 {
-                    if (Columns[i].DataTypeName.Equals("nvarchar"))
+                    if (Columns[i].DataTypeName == "nvarchar")
                     {
-                        if (regex.IsMatch(row[i].DisplayValue))
+                        if (JsonColumnRegex.IsMatch(row[i].DisplayValue))
                         {
                             Columns[i].IsJson = true;
                         }
@@ -759,9 +766,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private SpecialAction ProcessSpecialAction()
         {
-
             // Check if this result set is a showplan
-            if (Columns.Length == 1 && string.Compare(Columns[0].ColumnName, YukonXmlShowPlanColumn, StringComparison.OrdinalIgnoreCase) == 0)
+            if (Columns.Length == 1 && string.Equals(Columns[0].ColumnName, YukonXmlShowPlanColumn, StringComparison.OrdinalIgnoreCase))
             {
                 specialAction.ExpectYukonXMLShowPlan = true;
             }

@@ -50,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             xmlTextWriter = new XmlTextWriter(stream, encoding);
             xmlTextWriter.Formatting = requestParams.Formatted ? Formatting.Indented : Formatting.None;
 
-            //Start the document and the root element
+            // Start the document and the root element
             xmlTextWriter.WriteStartDocument();
             xmlTextWriter.WriteStartElement(RootElementTag);
         }
@@ -65,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             xmlTextWriter.WriteStartElement(ItemElementTag);
 
             // Write the items out as properties
-            for (int i = ColumnStartIndex; i < ColumnEndIndex; i++)
+            for (int i = ColumnStartIndex; i <= ColumnEndIndex; i++)
             {
                 // Write the column name as item tag
                 xmlTextWriter.WriteStartElement(Columns[i].ColumnName);

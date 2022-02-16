@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
     /// created when the writer was created. Since this behavior is different than the standard
     /// file stream cleanup, the extra Dispose method was added.
     /// </remarks>
-    public class SaveAsJsonFileStreamWriter : SaveAsStreamWriter, IDisposable
+    public class SaveAsJsonFileStreamWriter : SaveAsStreamWriter
     {
         #region Member Variables
 
@@ -66,17 +66,27 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 }
                 else
                 {
-                    // Try converting to column type
-                    try
+                    // Determine what value to write out
+                    object valueToWrite;
+                    if (Columns[i].DataType == null)
                     {
-                        var value = Convert.ChangeType(row[i].DisplayValue, Columns[i].DataType);
-                        jsonWriter.WriteValue(value);
+                        // Data type is null, so give up and use the display value
+                        valueToWrite = row[i].DisplayValue;
                     }
-                    // Default column type as string
-                    catch
+                    else
                     {
-                        jsonWriter.WriteValue(row[i].DisplayValue);
+                        // Data type is not null, try to convert it to the desired type, fallback to display value
+                        try
+                        {
+                            valueToWrite = Convert.ChangeType(row[i].DisplayValue, Columns[i].DataType);
+                        }
+                        catch
+                        {
+                            valueToWrite = row[i].DisplayValue;
+                        }
                     }
+
+                    jsonWriter.WriteValue(valueToWrite);
                 }
             }
 

@@ -14,9 +14,10 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
-using Microsoft.SqlTools.Utility;
+using Moq;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
@@ -44,7 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         }
 
         [Test]
-        public async Task ReadToEndNullReader()
+        public void ReadResultToEnd_NullReader()
         {
             // If: I create a new result set with a null db data reader
             // Then: I should get an exception
@@ -123,7 +124,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // and:
             //
-            VerifyReadResultToEnd(resultSet, resultSummaryFromAvailableCallback, resultSummaryFromCompleteCallback, resultSummariesFromUpdatedCallback);
+            VerifyReadResultToEnd(resultSummaryFromAvailableCallback, resultSummaryFromCompleteCallback, resultSummariesFromUpdatedCallback);
         }
 
         /// <summary>
@@ -139,7 +140,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             Parallel.ForEach(Partitioner.Create(0, NumberOfInvocations), (range) =>
             {
                 int start = range.Item1 == 0 ? 1 : range.Item1;
-                Task[] tasks = new Task[range.Item2 - start];
                 for (int i = start; i < range.Item2; i++)
                 {
                     allTasks.Add(ReadToEndSuccess(testDataSet));
@@ -154,8 +154,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         public static readonly IEnumerable<object[]> ReadToEndSuccessDataParallel = Common.TestResultSetsEnumeration.Select(r => new object[] { new TestResultSet[] { r } }).Take(3);
 
         [Test]
-        [TestCaseSource(nameof(CallMethodWithoutReadingData))]
-        public void CallMethodWithoutReading(Action<ResultSet> testMethod)
+        [TestCaseSource(nameof(CallMethod_ResultSetNotRead_Cases))]
+        public void CallMethod_ResultSetNotRead(Action<ResultSet> testMethod)
         {
             // Setup: Create a new result set with valid db data reader
             var fileStreamFactory = MemoryFileSystem.GetServiceBufferFileStreamFactory();
@@ -163,60 +163,77 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // If: I have a result set that has not been read and attempt to call a method on it
             // Then: It should throw an exception
-            Assert.Throws<Exception>(() => testMethod(resultSet));
+            Assert.Throws<InvalidOperationException>(() => testMethod(resultSet));
         }
 
-        public static IEnumerable<object[]> CallMethodWithoutReadingData
+        public static IEnumerable<object[]> CallMethod_ResultSetNotRead_Cases
         {
             get
             {
-                yield return new object[] {new Action<ResultSet>(rs => rs.GetSubset(0, 0).Wait())};
-                yield return new object[] {new Action<ResultSet>(rs => rs.UpdateRow(0, null).Wait())};
-                yield return new object[] {new Action<ResultSet>(rs => rs.AddRow(null).Wait())};
-                yield return new object[] {new Action<ResultSet>(rs => rs.RemoveRow(0))};
-                yield return new object[] {new Action<ResultSet>(rs => rs.GetRow(0))};
-                yield return new object[] {new Action<ResultSet>(rs => rs.GetExecutionPlan().Wait())};
+                yield return new object[] { new Action<ResultSet>(rs => rs.GetSubset(0, 0)) };
+                yield return new object[] { new Action<ResultSet>(rs => rs.RemoveRow(0)) };
+                yield return new object[] { new Action<ResultSet>(rs => rs.GetRow(0)) };
             }
         }
 
-        void VerifyReadResultToEnd(ResultSet resultSet, ResultSetSummary resultSummaryFromAvailableCallback, ResultSetSummary resultSummaryFromCompleteCallback, List<ResultSetSummary> resultSummariesFromUpdatedCallback)
+        [Test]
+        [TestCaseSource(nameof(CallAsyncMethod_ResultSetNotRead_Cases))]
+        public void CallAsyncMethod_ResultSetNotRead(Func<ResultSet, Task> testMethod)
+        {
+            // Setup: Create a new result set with valid db data reader
+            var fileStreamFactory = new Mock<IServiceBufferFileStreamFactory>().Object;
+            var resultSet = new ResultSet(Common.Ordinal, Common.Ordinal, fileStreamFactory);
+
+            // If: I have a result set that has not been read and attempt to call an async method on it
+            // Then: It should throw an exception
+            Assert.CatchAsync<Exception>(() => testMethod(resultSet));
+        }
+
+        public static IEnumerable<object[]> CallAsyncMethod_ResultSetNotRead_Cases
+        {
+            get
+            {
+                yield return new object[] { new Func<ResultSet, Task>(rs => rs.UpdateRow(0, GetReader(Common.ZeroRowTestDataSet, false, string.Empty))) };
+                yield return new object[] { new Func<ResultSet, Task>(rs => rs.AddRow(GetReader(Common.ZeroRowTestDataSet, false, string.Empty))) };
+                yield return new object[] { new Func<ResultSet, Task>(rs => rs.GetExecutionPlan()) };
+            }
+        }
+
+        private void VerifyReadResultToEnd(
+            ResultSetSummary resultSummaryFromAvailableCallback,
+            ResultSetSummary resultSummaryFromCompleteCallback,
+            List<ResultSetSummary> resultSummariesFromUpdatedCallback)
         {
             // ... The callback for result set available, update and completion callbacks should have been fired.
-            //
-            Assert.True(null != resultSummaryFromCompleteCallback, "completeResultSummary is null" + $"\r\n\t\tupdateResultSets: {string.Join("\r\n\t\t\t", resultSummariesFromUpdatedCallback)}");
-            Assert.True(null != resultSummaryFromAvailableCallback, "availableResultSummary is null" + $"\r\n\t\tavailableResultSet: {resultSummaryFromAvailableCallback}");
+            Assert.IsNotNull(resultSummaryFromCompleteCallback, "completeResultSummary is null" + $"\r\n\t\tupdateResultSets: {string.Join("\r\n\t\t\t", resultSummariesFromUpdatedCallback)}");
+            Assert.IsNotNull(resultSummaryFromAvailableCallback, "availableResultSummary is null" + $"\r\n\t\tavailableResultSet: {resultSummaryFromAvailableCallback}");
 
             // ... resultSetAvailable is not marked Complete
-            //
-            Assert.True(false == resultSummaryFromAvailableCallback.Complete, "availableResultSummary.Complete is true" + $"\r\n\t\tavailableResultSet: {resultSummaryFromAvailableCallback}");
+            Assert.False(resultSummaryFromAvailableCallback.Complete, "availableResultSummary.Complete is true" + $"\r\n\t\tavailableResultSet: {resultSummaryFromAvailableCallback}");
 
             // insert availableResult at the top of the resultSummariesFromUpdatedCallback list as the available result set is the first update in that series.
-            //
             resultSummariesFromUpdatedCallback.Insert(0, resultSummaryFromAvailableCallback);
 
-            // ... The no of rows in available result set should be non-zero
-            //
+            // ... The number of rows in available result set should be non-zero
             // Assert.True(0 != resultSummaryFromAvailableCallback.RowCount, "availableResultSet RowCount is 0");
 
             // ... The final updateResultSet must have 'Complete' flag set to true
-            //
-            Assert.True(resultSummariesFromUpdatedCallback.Last().Complete,
+            Assert.True(
+                resultSummariesFromUpdatedCallback.Last().Complete,
                 $"Complete Check failed.\r\n\t\t resultSummariesFromUpdatedCallback:{string.Join("\r\n\t\t\t", resultSummariesFromUpdatedCallback)}");
 
 
-            // ... The no of rows in the final updateResultSet/AvailableResultSet should be equal to that in the Complete Result Set.
-            //
+            // ... The number of rows in the final updateResultSet/AvailableResultSet should be equal to that in the Complete Result Set.
             Assert.True(resultSummaryFromCompleteCallback.RowCount == resultSummariesFromUpdatedCallback.Last().RowCount,
-                 $"The row counts of the complete Result Set and Final update result set do not match"
-                +$"\r\n\t\tcompleteResultSet: {resultSummaryFromCompleteCallback}"
-                +$"\r\n\t\tupdateResultSets: {string.Join("\r\n\t\t\t", resultSummariesFromUpdatedCallback)}"
+                 "The row counts of the complete Result Set and Final update result set do not match"
+                + $"\r\n\t\tcompleteResultSet: {resultSummaryFromCompleteCallback}"
+                + $"\r\n\t\tupdateResultSets: {string.Join("\r\n\t\t\t", resultSummariesFromUpdatedCallback)}"
             );
 
             // ... RowCount should be in increasing order in updateResultSet callbacks
             // ..... and there should be only one resultSummary with Complete flag set to true.
-            //
             int completeFlagCount = 0;
-            Parallel.ForEach(Partitioner.Create(0, resultSummariesFromUpdatedCallback.Count), (range) =>
+            Parallel.ForEach(Partitioner.Create(0, resultSummariesFromUpdatedCallback.Count), range =>
             {
                 int start = range.Item1 == 0 ? 1 : range.Item1;
                 for (int i = start; i < range.Item2; i++)
@@ -231,7 +248,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
                     }
                 }
             });
-            Assert.True(completeFlagCount == 1, "Number of update events with complete flag event set should be 1" + $"\r\n\t\tupdateResultSets: {string.Join("\r\n\t\t\t", resultSummariesFromUpdatedCallback)}");
+            Assert.AreEqual(1, completeFlagCount, "Number of update events with complete flag event set should be 1" + $"\r\n\t\tupdateResultSets: {string.Join("\r\n\t\t\t", resultSummariesFromUpdatedCallback)}");
         }
 
         /// <summary>
@@ -310,7 +327,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // and:
             //
-            VerifyReadResultToEnd(resultSet, resultSummaryFromAvailableCallback, resultSummaryFromCompleteCallback, resultSummariesFromUpdatedCallback);
+            VerifyReadResultToEnd(resultSummaryFromAvailableCallback, resultSummaryFromCompleteCallback, resultSummariesFromUpdatedCallback);
 
             // If:
             // ... I attempt to read back the results
@@ -371,8 +388,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         }
 
         [Test]
-        [TestCaseSource(nameof(RowInvalidParameterData))]
-        public async Task RowInvalidParameter(Action<ResultSet> actionToPerform)
+        [TestCaseSource(nameof(CallRowMethods_InvalidRowParameter_Cases))]
+        public async Task CallRowMethods_InvalidRowParameter(Action<ResultSet> actionToPerform)
         {
             // If: I create a new result set and execute it
             var mockReader = GetReader(Common.StandardTestDataSet, false, Constants.StandardQuery);
@@ -381,28 +398,55 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             await resultSet.ReadResultToEnd(mockReader, CancellationToken.None);
 
             // Then: Attempting to read an invalid row should fail
-            Assert.Throws<Exception>(() => actionToPerform(resultSet));
+            Assert.Catch<ArgumentException>(() => actionToPerform(resultSet));
         }
 
-        public static IEnumerable<object[]> RowInvalidParameterData
+        public static IEnumerable<object[]> CallRowMethods_InvalidRowParameter_Cases
         {
             get
             {
-                foreach (var method in RowInvalidParameterMethods)
+                var rowInvalidParameterMethods = new Action<ResultSet, long>[]
                 {
-                    yield return new object[] {new Action<ResultSet>(rs => method(rs, -1))};
-                    yield return new object[] {new Action<ResultSet>(rs => method(rs, 100))};
+                    (rs, id) => rs.RemoveRow(id),
+                    (rs, id) => rs.GetRow(id)
+                };
+
+                foreach (var method in rowInvalidParameterMethods)
+                {
+                    yield return new object[] { new Action<ResultSet>(rs => method(rs, -1)) };
+                    yield return new object[] { new Action<ResultSet>(rs => method(rs, 100)) };
                 }
             }
         }
 
-        public static IEnumerable<Action<ResultSet, long>> RowInvalidParameterMethods
+        [Test]
+        [TestCaseSource(nameof(CallAsyncRowMethods_InvalidRowParameter_Cases))]
+        public async Task CallAsyncRowMethods_InvalidRowParameter(Func<ResultSet, Task> actionToPerform)
+        {
+            // If: I create a new result set and execute it
+            var mockReader = GetReader(Common.StandardTestDataSet, false, Constants.StandardQuery);
+            var fileStreamFactory = MemoryFileSystem.GetServiceBufferFileStreamFactory();
+            ResultSet resultSet = new ResultSet(Common.Ordinal, Common.Ordinal, fileStreamFactory);
+            await resultSet.ReadResultToEnd(mockReader, CancellationToken.None);
+
+            // Then: Attempting to read an invalid row should fail
+            Assert.CatchAsync<ArgumentException>(() => actionToPerform(resultSet));
+        }
+
+        public static IEnumerable<object[]> CallAsyncRowMethods_InvalidRowParameter_Cases
         {
             get
             {
-                yield return (rs, id) => rs.RemoveRow(id);
-                yield return (rs, id) => rs.GetRow(id);
-                yield return (rs, id) => rs.UpdateRow(id, null).Wait();
+                var rowInvalidParameterMethods = new Func<ResultSet, long, Task>[]
+                {
+                    (rs, id) => rs.UpdateRow(id, null)
+                };
+
+                foreach (var method in rowInvalidParameterMethods)
+                {
+                    yield return new object[] { new Func<ResultSet, Task>(rs => method(rs, -1)) };
+                    yield return new object[] { new Func<ResultSet, Task>(rs => method(rs, 100)) };
+                }
             }
         }
 
@@ -525,8 +569,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             await resultSet.ReadResultToEnd(mockReader, CancellationToken.None);
 
             // ... Create a mock reader that has one row
-            object[] row = Enumerable.Range(0, Common.StandardColumns).Select(i => "QQQ").ToArray();
-            IEnumerable<object[]> rows = new List<object[]> { row };
+            string[] row = Enumerable.Range(0, Common.StandardColumns).Select(i => "QQQ").ToArray();
+            IEnumerable<object[]> rows = new List<string[]> { row };
             TestResultSet[] results = { new TestResultSet(TestResultSet.GetStandardColumns(Common.StandardColumns), rows) };
             var newRowReader = GetReader(results, false, Constants.StandardQuery);
 

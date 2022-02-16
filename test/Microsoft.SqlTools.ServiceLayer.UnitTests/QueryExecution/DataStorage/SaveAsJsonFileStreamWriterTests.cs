@@ -36,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
         }
 
         [Test]
-        public void WriteRowWithoutColumnSelection()
+        public void WriteRow_WithoutColumnSelection()
         {
             // Setup:
             // ... Create a request params that has no selection made
@@ -84,7 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
         }
 
         [Test]
-        public void WriteRowWithColumnSelection()
+        public void WriteRow_WithColumnSelection()
         {
             // Setup:
             // ... Create a request params that selects n-1 columns from the front and back
@@ -141,9 +141,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
         }
 
         [Test]
-        public void WriteRowWithSpecialTypesSuccess()
+        public void WriteRow_WithSpecialTypesSuccess()
         {
-
             // Setup:
             // ... Create a request params that has three different types of value
             // ... Create a set of data to write
@@ -192,6 +191,45 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
                     Assert.AreEqual(data[i].RawObject == null ? null : data[i].DisplayValue, item[columns[i].ColumnName]);
                 }
             }
+        }
+
+        [Test]
+        public void WriteRow_InconvertibleDataType()
+        {
+            // Setup:
+            // ... Create columns that have null data types
+            // ... Create set of data to write
+            // ... Create output storage
+            var requestParams = new SaveResultsAsJsonRequestParams();
+            var columns = new[]
+            {
+                new DbColumnWrapper(new TestDbColumn("nullCol1", colType: null)),
+                new DbColumnWrapper(new TestDbColumn("nullCol2", typeof(SaveAsStreamWriter)))
+            };
+            var data = new[]
+            {
+                new DbCellValue {DisplayValue = "1", RawObject = "foobar"},
+                new DbCellValue {DisplayValue = "2", RawObject = "foobar"},
+            };
+            var output = new byte[8192];
+
+            // If: I write the row
+            using (var jsonWriter = new SaveAsJsonFileStreamWriter(new MemoryStream(output), requestParams, columns))
+            {
+                jsonWriter.WriteRow(data);
+            }
+
+            // Then:
+            // ... Data should deserialize to a dictionary
+            var outputString = Encoding.UTF8.GetString(output).Trim('\0');
+            var outputObject = JsonConvert.DeserializeObject<Dictionary<string, string>[]>(outputString);
+
+            // ... There should be one row in the array
+            // ... Array should have two elements that corresponds to the display value of the data
+            Assert.AreEqual(1, outputObject.Length);
+            Assert.AreEqual(2, outputObject[0].Count);
+            Assert.AreEqual(data[0].DisplayValue, outputObject[0][columns[0].ColumnName]);
+            Assert.AreEqual(data[1].DisplayValue, outputObject[0][columns[1].ColumnName]);
         }
     }
 }
