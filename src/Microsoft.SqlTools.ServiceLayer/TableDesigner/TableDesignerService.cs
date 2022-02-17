@@ -113,10 +113,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     default:
                         break;
                 }
+                var designer = this.GetTableDesigner(requestParams.TableInfo);
+                var errors = TableDesignerValidator.Validate(designer.TableViewModel);
                 await requestContext.SendResult(new ProcessTableDesignerEditResponse()
                 {
                     ViewModel = this.GetTableViewModel(requestParams.TableInfo),
-                    IsValid = true
+                    IsValid = errors.Count == 0,
+                    Errors = errors.ToArray()
                 });
             });
         }
