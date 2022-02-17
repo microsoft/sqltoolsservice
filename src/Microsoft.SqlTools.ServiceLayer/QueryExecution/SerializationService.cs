@@ -8,9 +8,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Composition;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
 
     [Export(typeof(IHostedService))]
-    public class SerializationService : HostedService<SerializationService>, IComposableService
+    public class SerializationService : HostedService<SerializationService>
     {
         private readonly ConcurrentDictionary<string, DataSerializer> inProgressSerializations;
 
@@ -226,28 +226,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             switch (requestParams.SaveFormat.ToLowerInvariant())
             {
                 case "json":
-                    factory = new SaveAsJsonFileStreamFactory
-                    {
-                        SaveRequestParams = CreateJsonRequestParams()
-                    };
+                    factory = new SaveAsJsonFileStreamFactory(null, CreateJsonRequestParams(), GetFileStream);
                     break;
                 case "csv":
-                    factory = new SaveAsCsvFileStreamFactory
-                    {
-                        SaveRequestParams = CreateCsvRequestParams()
-                    };
+                    factory = new SaveAsCsvFileStreamFactory(null, CreateCsvRequestParams(), GetFileStream);
                     break;
                 case "xml":
-                    factory = new SaveAsXmlFileStreamFactory
-                    {
-                        SaveRequestParams = CreateXmlRequestParams()
-                    };
+                    factory = new SaveAsXmlFileStreamFactory(null, CreateXmlRequestParams(), GetFileStream);
                     break;
                 case "excel":
-                    factory = new SaveAsExcelFileStreamFactory
-                    {
-                        SaveRequestParams = CreateExcelRequestParams()
-                    };
+                    factory = new SaveAsExcelFileStreamFactory(null, CreateExcelRequestParams(), GetFileStream);
                     break;
                 default:
                     throw new Exception(SR.SerializationServiceUnsupportedFormat(requestParams.SaveFormat));
@@ -263,6 +251,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 writer = null;
             }
         }
+
+        private FileStream GetFileStream(string fileName, FileMode fileMode, FileAccess fileAccess, FileShare fileShare) =>
+            new FileStream(fileName, fileMode, fileAccess, fileShare);
 
         private SaveResultsAsJsonRequestParams CreateJsonRequestParams()
         {

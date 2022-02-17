@@ -524,11 +524,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             RequestContext<SaveResultRequestResult> requestContext)
         {
             // Use the default CSV file factory if we haven't overridden it
-            ISaveAsFileStreamFactory csvFactory = CsvFileFactory ?? new SaveAsCsvFileStreamFactory
-            {
-                SaveRequestParams = saveParams,
-                QueryExecutionSettings = Settings.QueryExecutionSettings
-            };
+            ISaveAsFileStreamFactory csvFactory = CsvFileFactory
+                                                  ?? new SaveAsCsvFileStreamFactory(
+                                                      Settings.QueryExecutionSettings,
+                                                      saveParams,
+                                                      GetFileStream
+                                                  );
             await SaveResultsHelper(saveParams, requestContext, csvFactory);
         }
 
@@ -540,11 +541,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             RequestContext<SaveResultRequestResult> requestContext)
         {
             // Use the default Excel file factory if we haven't overridden it
-            ISaveAsFileStreamFactory excelFactory = ExcelFileFactory ?? new SaveAsExcelFileStreamFactory
-            {
-                SaveRequestParams = saveParams,
-                QueryExecutionSettings = Settings.QueryExecutionSettings
-            };
+            ISaveAsFileStreamFactory excelFactory = ExcelFileFactory
+                                                    ?? new SaveAsExcelFileStreamFactory(
+                                                        Settings.QueryExecutionSettings,
+                                                        saveParams,
+                                                        GetFileStream
+                                                    );
             await SaveResultsHelper(saveParams, requestContext, excelFactory);
         }
 
@@ -556,11 +558,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             RequestContext<SaveResultRequestResult> requestContext)
         {
             // Use the default JSON file factory if we haven't overridden it
-            ISaveAsFileStreamFactory jsonFactory = JsonFileFactory ?? new SaveAsJsonFileStreamFactory
-            {
-                SaveRequestParams = saveParams,
-                QueryExecutionSettings = Settings.QueryExecutionSettings
-            };
+            ISaveAsFileStreamFactory jsonFactory = JsonFileFactory
+                                                   ?? new SaveAsJsonFileStreamFactory(
+                                                       Settings.QueryExecutionSettings,
+                                                       saveParams,
+                                                       GetFileStream
+                                                   );
             await SaveResultsHelper(saveParams, requestContext, jsonFactory);
         }
 
@@ -572,11 +575,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             RequestContext<SaveResultRequestResult> requestContext)
         {
             // Use the default XML file factory if we haven't overridden it
-            ISaveAsFileStreamFactory xmlFactory = XmlFileFactory ?? new SaveAsXmlFileStreamFactory
-            {
-                SaveRequestParams = saveParams,
-                QueryExecutionSettings = Settings.QueryExecutionSettings
-            };
+            ISaveAsFileStreamFactory xmlFactory = XmlFileFactory
+                                                  ?? new SaveAsXmlFileStreamFactory(
+                                                      Settings.QueryExecutionSettings,
+                                                      saveParams,
+                                                      GetFileStream
+                                                  );
             await SaveResultsHelper(saveParams, requestContext, xmlFactory);
         }
 
@@ -954,8 +958,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             query.Execute();
         }
 
-        private async Task SaveResultsHelper(SaveResultsRequestParams saveParams,
-            RequestContext<SaveResultRequestResult> requestContext, ISaveAsFileStreamFactory fileFactory)
+        private async Task SaveResultsHelper(
+            SaveResultsRequestParams saveParams,
+            RequestContext<SaveResultRequestResult> requestContext,
+            ISaveAsFileStreamFactory fileFactory)
         {
             // retrieve query for OwnerUri
             if (!ActiveQueries.TryGetValue(saveParams.OwnerUri, out var query))
@@ -985,6 +991,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 await errorHandler(saveParams, e.Message);
             }
         }
+
+        private FileStream GetFileStream(string fileName, FileMode fileMode, FileAccess fileAccess, FileShare fileShare) =>
+            new FileStream(fileName, fileMode, fileAccess, fileShare);
 
         // Internal for testing purposes
         internal string GetSqlText(ExecuteRequestParamsBase request)
