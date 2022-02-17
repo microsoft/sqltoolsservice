@@ -195,8 +195,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         /// Add a backup file to restore plan media list
         /// </summary>
         /// <param name="filePaths"></param>
-        public void AddFiles(string filePaths)
+        public void AddDevices(string filePaths, DeviceType deviceType)
         {
+            if (deviceType != DeviceType.File || deviceType != DeviceType.Url)
+            {
+                deviceType = DeviceType.File;
+            }
             backupMediaList = filePaths;
             PlanUpdateRequired = true;
             if (!string.IsNullOrWhiteSpace(filePaths))
@@ -209,7 +213,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                     {
                         this.RestorePlanner.BackupMediaList.Add(new BackupDeviceItem
                         {
-                            DeviceType = DeviceType.File,
+                            DeviceType = deviceType,
                             Name = file
                         });
                     }
@@ -1368,7 +1372,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
 
             if (!string.IsNullOrEmpty(RestoreParams.BackupFilePaths) && RestoreParams.ReadHeaderFromMedia)
             {
-                AddFiles(RestoreParams.BackupFilePaths);
+                AddDevices(RestoreParams.BackupFilePaths, (DeviceType)RestoreParams.DeviceType);
             }
             else
             {
