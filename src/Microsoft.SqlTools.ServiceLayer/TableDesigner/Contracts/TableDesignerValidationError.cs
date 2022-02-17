@@ -16,8 +16,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         public string Message { get; set; }
 
         /// <summary>
-        /// The property associated with the message, could be a string or TableDesignerPropertyIdentifier
+        /// The property path associated with the message
         /// </summary>
-        public object Property { get; set; }
+        public object[] PropertyPath { get; set; }
     }
 }
