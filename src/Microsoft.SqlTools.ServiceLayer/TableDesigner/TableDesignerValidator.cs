@@ -10,18 +10,15 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 {
     public static class TableDesignerValidator
     {
-        private static List<ITableDesignerValidationRule> Rules = new List<ITableDesignerValidationRule>();
-
-        static TableDesignerValidator()
-        {
-            Rules.Add(new IndexMustHaveColumnsRule());
-            Rules.Add(new ForeignKeyMustHaveColumnsRule());
-            Rules.Add(new ColumnCanOnlyAppearOnceInForeignKeyRule());
-            Rules.Add(new ColumnCanOnlyAppearOnceInIndexRule());
-            Rules.Add(new NoDuplicateColumnNameRule());
-            Rules.Add(new NoDuplicateConstraintNameRule());
-            Rules.Add(new NoDuplicateIndexNameRule());
-        }
+        private static List<ITableDesignerValidationRule> Rules = new List<ITableDesignerValidationRule>() {
+            new IndexMustHaveColumnsRule(),
+            new ForeignKeyMustHaveColumnsRule(),
+            new ColumnCanOnlyAppearOnceInForeignKeyRule(),
+            new ColumnCanOnlyAppearOnceInIndexRule(),
+            new NoDuplicateColumnNameRule(),
+            new NoDuplicateConstraintNameRule(),
+            new NoDuplicateIndexNameRule()
+        };
 
         /// <summary>
         /// Validate the table and return the validation errors.
@@ -92,7 +89,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             for (int i = 0; i < table.Indexes.Items.Count; i++)
             {
                 var index = table.Indexes.Items[i];
-                List<string> existingColumns = new List<string>();
+                var existingColumns = new HashSet<string>();
                 for (int j = 0; j < index.Columns.Count; j++)
                 {
                     var columnSpec = index.Columns[j];
@@ -122,42 +119,39 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             for (int i = 0; i < table.ForeignKeys.Items.Count; i++)
             {
                 var foreignKey = table.ForeignKeys.Items[i];
-                if (foreignKey.Columns.Count == 0)
+                var existingColumns = new HashSet<string>();
+                for (int j = 0; j < foreignKey.Columns.Count; j++)
                 {
-                    List<string> existingColumns = new List<string>();
-                    for (int j = 0; j < foreignKey.Columns.Count; j++)
+                    var column = foreignKey.Columns[j];
+                    if (existingColumns.Contains(column))
                     {
-                        var column = foreignKey.Columns[j];
-                        if (existingColumns.Contains(column))
+                        errors.Add(new ValidationError()
                         {
-                            errors.Add(new ValidationError()
-                            {
-                                Message = string.Format("Column with name '{0}' has already been added to the foreign key '{1}'. Row number: {2}.", column, foreignKey.Name, j + 1),
-                                PropertyPath = new object[] { TablePropertyNames.ForeignKeys, i, ForeignKeyPropertyNames.ColumnMapping, j, ForeignKeyColumnMappingPropertyNames.Column }
-                            });
-                        }
-                        else
-                        {
-                            existingColumns.Add(column);
-                        }
+                            Message = string.Format("Column with name '{0}' has already been added to the foreign key '{1}'. Row number: {2}.", column, foreignKey.Name, j + 1),
+                            PropertyPath = new object[] { TablePropertyNames.ForeignKeys, i, ForeignKeyPropertyNames.ColumnMapping, j, ForeignKeyColumnMappingPropertyNames.Column }
+                        });
                     }
-
-                    List<string> existingForeignColumns = new List<string>();
-                    for (int j = 0; j < foreignKey.ForeignColumns.Count; j++)
+                    else
                     {
-                        var foreignColumn = foreignKey.ForeignColumns[j];
-                        if (existingForeignColumns.Contains(foreignColumn))
+                        existingColumns.Add(column);
+                    }
+                }
+
+                var existingForeignColumns = new HashSet<string>();
+                for (int j = 0; j < foreignKey.ForeignColumns.Count; j++)
+                {
+                    var foreignColumn = foreignKey.ForeignColumns[j];
+                    if (existingForeignColumns.Contains(foreignColumn))
+                    {
+                        errors.Add(new ValidationError()
                         {
-                            errors.Add(new ValidationError()
-                            {
-                                Message = string.Format("Foreign column with name '{0}' has already been added to the foreign key '{1}'. Row number: {2}.", foreignColumn, foreignKey.Name, j + 1),
-                                PropertyPath = new object[] { TablePropertyNames.ForeignKeys, i, ForeignKeyPropertyNames.ColumnMapping, j, ForeignKeyColumnMappingPropertyNames.ForeignColumn }
-                            });
-                        }
-                        else
-                        {
-                            existingForeignColumns.Add(foreignColumn);
-                        }
+                            Message = string.Format("Foreign column with name '{0}' has already been added to the foreign key '{1}'. Row number: {2}.", foreignColumn, foreignKey.Name, j + 1),
+                            PropertyPath = new object[] { TablePropertyNames.ForeignKeys, i, ForeignKeyPropertyNames.ColumnMapping, j, ForeignKeyColumnMappingPropertyNames.ForeignColumn }
+                        });
+                    }
+                    else
+                    {
+                        existingForeignColumns.Add(foreignColumn);
                     }
                 }
             }
@@ -170,7 +164,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         public List<ValidationError> Run(TableViewModel table)
         {
             var errors = new List<ValidationError>();
-            var existingNames = new List<string>();
+            var existingNames = new HashSet<string>();
             for (int i = 0; i < table.ForeignKeys.Items.Count; i++)
             {
                 var foreignKey = table.ForeignKeys.Items[i];
@@ -213,18 +207,17 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         public List<ValidationError> Run(TableViewModel table)
         {
             var errors = new List<ValidationError>();
-            var existingNames = new List<string>();
+            var existingNames = new HashSet<string>();
             for (int i = 0; i < table.Columns.Items.Count; i++)
             {
                 var column = table.Columns.Items[i];
                 if (existingNames.Contains(column.Name))
                 {
-                    errors.Add(
-                        new ValidationError()
-                        {
-                            Message = string.Format("The name '{0}' is already used by another column. Row number: {1}.", column.Name, i + 1),
-                            PropertyPath = new object[] { TablePropertyNames.Columns, i, TableColumnPropertyNames.Name }
-                        });
+                    errors.Add(new ValidationError()
+                    {
+                        Message = string.Format("The name '{0}' is already used by another column. Row number: {1}.", column.Name, i + 1),
+                        PropertyPath = new object[] { TablePropertyNames.Columns, i, TableColumnPropertyNames.Name }
+                    });
                 }
                 else
                 {
@@ -240,7 +233,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         public List<ValidationError> Run(TableViewModel table)
         {
             var errors = new List<ValidationError>();
-            var existingNames = new List<string>();
+            var existingNames = new HashSet<string>();
             for (int i = 0; i < table.Indexes.Items.Count; i++)
             {
                 var index = table.Indexes.Items[i];
