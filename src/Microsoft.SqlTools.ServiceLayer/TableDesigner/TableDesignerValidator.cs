@@ -72,7 +72,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 {
                     errors.Add(new ValidationError()
                     {
-                        Message = string.Format("Forgien key '{0}' does not have any column mapping specified.", foreignKey.Name),
+                        Message = string.Format("Foreign key '{0}' does not have any column mapping specified.", foreignKey.Name),
                         PropertyPath = new object[] { TablePropertyNames.ForeignKeys, i }
                     });
                 }
