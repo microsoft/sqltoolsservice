@@ -11,6 +11,10 @@ using Microsoft.SqlTools.ServiceLayer.SqlContext;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 {
+    /// <summary>
+    /// Factory for creating a reader/writer pair that will read from the temporary buffer file
+    /// and output to a XML file.
+    /// </summary>
     public class SaveAsXmlFileStreamFactory : SaveAsFileStreamFactoryBase<SaveResultsAsXmlRequestParams>
     {
         /// <summary>

@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
             // Assert
             Assert.AreEqual(
                 "Server[@Name='SERVER']/Database[@Name='quoted''db']/Table[@Name='quoted''Name' and @Schema = 'quoted''Schema']",
-                urn.ToString,
+                urn.ToString(),
                 "Urn should have escaped Name attributes");
             Assert.AreEqual("Table", urn.Type, "Urn Type");
 

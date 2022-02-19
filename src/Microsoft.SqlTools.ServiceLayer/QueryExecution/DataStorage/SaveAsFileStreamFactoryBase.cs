@@ -1,3 +1,8 @@
+//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,8 +13,15 @@ using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 {
+    /// <summary>
+    /// Base class for SaveAs file stream factories.
+    /// </summary>
+    /// <typeparam name="TSaveParams">Type of the save as request parameters</typeparam>
     public abstract class SaveAsFileStreamFactoryBase<TSaveParams> : ISaveAsFileStreamFactory
     {
+        private readonly Func<string, FileMode, FileAccess, FileShare, Stream> fileStreamFunc;
+        private readonly QueryExecutionSettings queryExecutionSettings;
+
         /// <summary>
         /// Initializes a new instance of <see cref="SaveAsFileStreamFactoryBase{TSaveParams}"/>.
         /// </summary>
@@ -24,19 +36,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             Validate.IsNotNull(nameof(saveRequestParams), saveRequestParams);
             Validate.IsNotNull(nameof(fileStreamFunc), fileStreamFunc);
 
-            FileStreamFunc = fileStreamFunc;
-            QueryExecutionSettings = queryExecutionSettings;
+            this.fileStreamFunc = fileStreamFunc;
+            this.queryExecutionSettings = queryExecutionSettings;
             SaveRequestParams = saveRequestParams;
         }
 
         #region Properties
-
-        protected Func<string, FileMode, FileAccess, FileShare, Stream> FileStreamFunc { get; }
-
-        /// <summary>
-        /// Settings for query execution
-        /// </summary>
-        protected QueryExecutionSettings QueryExecutionSettings { get; }
 
         /// <summary>
         /// Parameters for the save as CSV request
@@ -54,8 +59,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         public IFileStreamReader GetReader(string fileName)
         {
             return new ServiceBufferFileStreamReader(
-                FileStreamFunc(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite),
-                QueryExecutionSettings);
+                fileStreamFunc(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite),
+                queryExecutionSettings);
         }
 
         /// <summary>
@@ -78,7 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
         protected Stream GetOutputStream(string fileName)
         {
-            return FileStreamFunc(fileName, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
+            return fileStreamFunc(fileName, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
         }
     }
 }

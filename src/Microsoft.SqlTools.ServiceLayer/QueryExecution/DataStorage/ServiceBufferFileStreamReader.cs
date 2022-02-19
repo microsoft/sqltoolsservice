@@ -37,7 +37,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
         private readonly QueryExecutionSettings executionSettings;
 
-        private readonly Stream fileStream;
+        // Internal for testing purposes
+        internal readonly Stream fileStream;
 
         private readonly Dictionary<Type, ReadMethod> readMethods;
 
@@ -540,7 +541,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
         /// <summary>
         /// Reads a SqlMoney type from the offset provided
-        /// into a 
+        /// into a
         /// </summary>
         /// <param name="offset">Offset into the file to read the value</param>
         /// <param name="rowId">Internal ID of the row that will be stored in the cell</param>
@@ -588,7 +589,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <summary>
         /// Internal struct used for representing the length of a field from the file
         /// </summary>
-        internal struct LengthResult
+        private struct LengthResult
         {
             /// <summary>
             /// How many bytes the length takes up
