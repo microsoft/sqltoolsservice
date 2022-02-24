@@ -452,6 +452,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
                 else
                 {
+                    if (RefreshNeeded(scriptFile.ClientUri)) {
+                        await connectionService.TryRefreshAuthToken(scriptFile.ClientUri);
+                    }
                     // get the current list of completion items and return to client
                     ConnectionServiceInstance.TryFindConnection(
                         scriptFile.ClientUri,
@@ -1191,7 +1194,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         private bool ShouldSkipIntellisense(string uri)
         {
             return !CurrentWorkspaceSettings.IsSuggestionsEnabled
-                || ShouldSkipNonMssqlFile(uri) || RefreshNeeded(uri);
+                || ShouldSkipNonMssqlFile(uri);
         }
 
         /// <summary>
@@ -1219,24 +1222,27 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         private bool RefreshNeeded(string uri)
         {
             ConnectionInfo connInfo;
-            System.Data.Common.DbConnection connection;
-            connectionService.TryFindConnection(uri, out connInfo);
-            if (connInfo.ConnectionDetails.AuthenticationType != "AzureMFA") 
+            if (connectionService.TryFindConnection(uri, out connInfo))
             {
-                return false;
-            } 
-            else 
-            {
-                if (connInfo.ConnectionDetails.ExpiresOn > DateTime.Now.Ticks) 
+                // If not an azure connection, no need to refresh token
+                if (connInfo.ConnectionDetails.AuthenticationType != "AzureMFA") 
                 {
                     return false;
-                }
-                else
+                } 
+                else 
                 {
-                    //TODO: Handle token expiration here
-                    return true;
+                    // Check if token is expired
+                    if (connInfo.ConnectionDetails.ExpiresOn > DateTimeOffset.Now.ToUnixTimeSeconds())
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        return true;
+                    }
                 }
             }
+            return false;
         }
         
         /// <summary>

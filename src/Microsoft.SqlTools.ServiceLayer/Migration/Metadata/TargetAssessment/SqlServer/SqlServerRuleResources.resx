@@ -261,24 +261,6 @@
   <data name="GeoDataTypeMoreInformationlink" xml:space="preserve">
     <value>https://go.microsoft.com/fwlink/?LinkID=724415</value>
   </data>
-  <data name="ForXmlAutoDerivedTableTitle" xml:space="preserve">
-    <value>FOR XML AUTO queries return derived table references in 90 or later compatibility modes</value>
-  </data>
-  <data name="ForXmlAutoDerivedTableIssueCategory" xml:space="preserve">
-    <value>Warning</value>
-  </data>
-  <data name="ForXmlAutoDerivedTableDescription" xml:space="preserve">
-    <value>When the database compatibility level is set to 90 or later, FOR XML queries that execute in AUTO mode return references to derived table aliases. When the compatibility level is set to 80, FOR XML AUTO queries return references to the base tables that define a derived table. For example, the following query, which includes a derived table, produces different results under compatibility levels 80, 90, or later:SELECT * FROM(SELECT a.id AS a, b.id AS bFROM Test a JOIN Test b ON a.id=b.id) AS DerivedTest FOR XML AUTO;Under compatibility level 80, the query returns the following results. The results reference the base table aliases a and b of the derived table instead of the derived table alias.&amp;lt;a a=&amp;quot;1&amp;quot;&amp;gt;&amp;lt;b b=&amp;quot;1&amp;quot;/&amp;gt;&amp;lt;/a&amp;gt;&amp;lt;a a=&amp;quot;2&amp;quot;&amp;gt;&amp;lt;b b=&amp;quot;2&amp;quot;/&amp;gt;&amp;lt;/a&amp;gt;Under compatibility level 90 or later, the query returns references to the derived table alias DerivedTest instead of to the derived table's base tables.&amp;lt;DerivedTest a=&amp;quot;1&amp;quot; b=&amp;quot;1&amp;quot;/&amp;gt;&amp;lt;DerivedTest a=&amp;quot;2&amp;quot; b=&amp;quot;2&amp;quot;/&amp;gt;</value>
-  </data>
-  <data name="ForXmlAutoDerivedTableRecommendation" xml:space="preserve">
-    <value>Modify your application as required to account for the changes in results of FOR XML AUTO queries that include derived tables and that run under compatibility level 90 or later.</value>
-  </data>
-  <data name="ForXmlAutoDerivedTableMoreInformation" xml:space="preserve">
-    <value />
-  </data>
-  <data name="ForXmlAutoDerivedTableMoreInformationlink" xml:space="preserve">
-    <value />
-  </data>
   <data name="ForBrowseViewTitle" xml:space="preserve">
     <value>FOR BROWSE is not allowed in views in 90 or later compatibility modes</value>
   </data>
@@ -313,6 +295,24 @@
     <value />
   </data>
   <data name="CheckOptionTopViewMoreInformationlink" xml:space="preserve">
+    <value />
+  </data>
+  <data name="ForXmlAutoDerivedTableTitle" xml:space="preserve">
+    <value>FOR XML AUTO queries return derived table references in 90 or later compatibility modes</value>
+  </data>
+  <data name="ForXmlAutoDerivedTableIssueCategory" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="ForXmlAutoDerivedTableDescription" xml:space="preserve">
+    <value>When the database compatibility level is set to 90 or later, FOR XML queries that execute in AUTO mode return references to derived table aliases. When the compatibility level is set to 80, FOR XML AUTO queries return references to the base tables that define a derived table. For example, the following query, which includes a derived table, produces different results under compatibility levels 80, 90, or later:SELECT * FROM(SELECT a.id AS a, b.id AS bFROM Test a JOIN Test b ON a.id=b.id) AS DerivedTest FOR XML AUTO;Under compatibility level 80, the query returns the following results. The results reference the base table aliases a and b of the derived table instead of the derived table alias.&amp;lt;a a=&amp;quot;1&amp;quot;&amp;gt;&amp;lt;b b=&amp;quot;1&amp;quot;/&amp;gt;&amp;lt;/a&amp;gt;&amp;lt;a a=&amp;quot;2&amp;quot;&amp;gt;&amp;lt;b b=&amp;quot;2&amp;quot;/&amp;gt;&amp;lt;/a&amp;gt;Under compatibility level 90 or later, the query returns references to the derived table alias DerivedTest instead of to the derived table's base tables.&amp;lt;DerivedTest a=&amp;quot;1&amp;quot; b=&amp;quot;1&amp;quot;/&amp;gt;&amp;lt;DerivedTest a=&amp;quot;2&amp;quot; b=&amp;quot;2&amp;quot;/&amp;gt;</value>
+  </data>
+  <data name="ForXmlAutoDerivedTableRecommendation" xml:space="preserve">
+    <value>Modify your application as required to account for the changes in results of FOR XML AUTO queries that include derived tables and that run under compatibility level 90 or later.</value>
+  </data>
+  <data name="ForXmlAutoDerivedTableMoreInformation" xml:space="preserve">
+    <value />
+  </data>
+  <data name="ForXmlAutoDerivedTableMoreInformationlink" xml:space="preserve">
     <value />
   </data>
   <data name="DBCCTitle" xml:space="preserve">

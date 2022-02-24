@@ -234,6 +234,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <param name="connectionParams">The params to validate</param>
         /// <returns>A ConnectionCompleteParams object upon validation error, 
         /// null upon validation success</returns>
+
+        internal async Task<bool> TryRefreshAuthToken(string ownerUri)
+        {
+            if (!this.TryFindConnection(ownerUri, out ConnectionInfo connection))
+            {
+                return false;
+            }
+
+            var requestMessage = new RequestSecurityTokenParams
+            {
+                AccountId = connection.ConnectionDetails.GetOptionValue("azureAccount", string.Empty),
+                Authority = connection.ConnectionDetails.GetOptionValue("azureTenantId", string.Empty),
+                Provider = "Azure",
+                Resource = "SQL",
+                Scope = ""
+            };
+            RequestSecurityTokenResponse response = await this.ServiceHost.SendRequest(SecurityTokenRequest.Type, requestMessage, true);
+            connection.UpdateAuthToken(response.Token, response.ExpiresOn);
+            return true;
+        }
         public ConnectionCompleteParams ValidateConnectParams(ConnectParams connectionParams)
         {
             string paramValidationErrorMessage;
@@ -1317,27 +1337,34 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 string connectionString = string.Empty;
                 ConnectionInfo info;
-                if (TryFindConnection(connStringParams.OwnerUri, out info))
+                SqlConnectionStringBuilder connStringBuilder;
+                try
+                {   
+                    // set connection string using connection uri if connection details are undefined
+                    if (connStringParams.ConnectionDetails == null)
+                    {
+                        TryFindConnection(connStringParams.OwnerUri, out info);
+                        connStringBuilder = CreateConnectionStringBuilder(info.ConnectionDetails);
+                    }
+                    // set connection string using connection details
+                    else
+                    {
+                        connStringBuilder = CreateConnectionStringBuilder(connStringParams.ConnectionDetails as ConnectionDetails);
+                    }
+                    if (!connStringParams.IncludePassword)
+                    {
+                        connStringBuilder.Password = ConnectionService.PasswordPlaceholder;
+                    }
+                    // default connection string application name to always be included unless set to false
+                    if (!connStringParams.IncludeApplicationName.HasValue || connStringParams.IncludeApplicationName.Value == true)
+                    {
+                        connStringBuilder.ApplicationName = "sqlops-connection-string";
+                    }
+                    connectionString = connStringBuilder.ConnectionString;
+                }
+                catch (Exception e)
                 {
-                    try
-                    {
-                        SqlConnectionStringBuilder connStringBuilder = CreateConnectionStringBuilder(info.ConnectionDetails);
-
-                        if (!connStringParams.IncludePassword)
-                        {
-                            connStringBuilder.Password = ConnectionService.PasswordPlaceholder;
-                        }
-                        // default connection string application name to always be included unless set to false
-                        if (!connStringParams.IncludeApplicationName.HasValue || connStringParams.IncludeApplicationName.Value == true)
-                        {
-                            connStringBuilder.ApplicationName = "sqlops-connection-string";
-                        }
-                        connectionString = connStringBuilder.ConnectionString;
-                    }
-                    catch (Exception e)
-                    {
-                        await requestContext.SendError(e.ToString());
-                    }
+                    await requestContext.SendError(e.ToString());
                 }
 
                 await requestContext.SendResult(connectionString);

@@ -5661,8 +5661,8 @@
         <note></note>
       </trans-unit>
       <trans-unit id="ForeignKeyIsNotForReplicationDescription">
-        <source>Enables or disables an IDENTITY constraint for data inserted by a replication process.</source>
-        <target state="translated">Aktiviert oder deaktiviert eine IDENTITY-Einschränkung für Daten, die durch einen Replikationsvorgang eingefügt werden.</target>
+        <source>Enables or disables the constraint for data inserted by a replication process.</source>
+        <target state="translated">Aktiviert oder deaktiviert die Einschränkung für Daten, die durch einen Replikationsvorgang eingefügt werden.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="SqlForeignKeyAction_NoAction">
