@@ -16,11 +16,15 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 
         public InputBoxProperties Description { get; set; } = new InputBoxProperties();
 
+        public InputBoxProperties GraphTableType { get; set; } = new InputBoxProperties();
+
         public TableComponentProperties<TableColumnViewModel> Columns { get; set; } = new TableComponentProperties<TableColumnViewModel>();
 
         public TableComponentProperties<ForeignKeyViewModel> ForeignKeys { get; set; } = new TableComponentProperties<ForeignKeyViewModel>();
 
         public TableComponentProperties<CheckConstraintViewModel> CheckConstraints { get; set; } = new TableComponentProperties<CheckConstraintViewModel>();
+
+        public TableComponentProperties<EdgeConstraintViewModel> EdgeConstraints { get; set; } = new TableComponentProperties<EdgeConstraintViewModel>();
 
         public TableComponentProperties<IndexViewModel> Indexes { get; set; } = new TableComponentProperties<IndexViewModel>();
 

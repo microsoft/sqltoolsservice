@@ -202,6 +202,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     case TablePropertyNames.Indexes:
                         table.Indexes.AddNew();
                         break;
+                    case TablePropertyNames.EdgeConstraints:
+                        table.EdgeConstraints.AddNew();
+                        break;
                     default:
                         break;
                 }
@@ -228,6 +231,16 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         {
                             case IndexPropertyNames.Columns:
                                 table.Indexes.Items[indexL1].AddNewColumnSpecification();
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    case TablePropertyNames.EdgeConstraints:
+                        switch (propertyNameL2)
+                        {
+                            case EdgeConstraintPropertyNames.Clauses:
+                                table.EdgeConstraints.Items[indexL1].AddNewClause();
                                 break;
                             default:
                                 break;
@@ -262,6 +275,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     case TablePropertyNames.Indexes:
                         table.Indexes.RemoveAt(objIndex);
                         break;
+                    case TablePropertyNames.EdgeConstraints:
+                        table.EdgeConstraints.RemoveAt(objIndex);
+                        break;
                     default:
                         break;
                 }
@@ -289,6 +305,16 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         {
                             case IndexPropertyNames.Columns:
                                 table.Indexes.Items[indexL1].RemoveColumnSpecification(indexL2);
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    case TablePropertyNames.EdgeConstraints:
+                        switch (propertyNameL2)
+                        {
+                            case EdgeConstraintPropertyNames.Clauses:
+                                table.EdgeConstraints.Items[indexL1].RemoveClause(indexL2);
                                 break;
                             default:
                                 break;
@@ -434,6 +460,23 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                                 break;
                         }
                         break;
+                    case TablePropertyNames.EdgeConstraints:
+                        var constraint = table.EdgeConstraints.Items[indexL1];
+                        switch (propertyNameL2)
+                        {
+                            case EdgeConstraintPropertyNames.Enabled:
+                                constraint.Enabled = GetBooleanValue(newValue);
+                                break;
+                            case EdgeConstraintPropertyNames.Name:
+                                constraint.Name = GetStringValue(newValue);
+                                break;
+                            case EdgeConstraintPropertyNames.OnDeleteAction:
+                                constraint.OnDeleteAction = SqlForeignKeyActionUtil.GetValue(GetStringValue(newValue));
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -489,6 +532,27 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                                 break;
                         }
                         break;
+                    case TablePropertyNames.EdgeConstraints:
+                        var constraint = table.EdgeConstraints.Items[indexL1];
+                        switch (propertyNameL2)
+                        {
+                            case EdgeConstraintPropertyNames.Clauses:
+                                switch (propertyNameL3)
+                                {
+                                    case EdgeConstraintClausePropertyNames.FromTable:
+                                        constraint.UpdateFromTable(indexL2, GetStringValue(newValue));
+                                        break;
+                                    case EdgeConstraintClausePropertyNames.ToTable:
+                                        constraint.UpdateToTable(indexL2, GetStringValue(newValue));
+                                        break;
+                                    default:
+                                        break;
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -518,7 +582,15 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             tableViewModel.Name.Value = table.Name;
             tableViewModel.Schema.Value = table.Schema;
             tableViewModel.Description.Value = table.Description;
-            tableViewModel.Description.Enabled = false; // TODO: https://github.com/microsoft/azuredatastudio/issues/18247
+            if (table.IsEdge)
+            {
+                tableViewModel.GraphTableType.Value = SR.TableDesignerGraphTableTypeEdge;
+            }
+            else if (table.IsNode)
+            {
+                tableViewModel.GraphTableType.Value = SR.TableDesignerGraphTableTypeNode;
+            }
+            tableViewModel.GraphTableType.Enabled = false;
 
             foreach (var column in table.Columns.Items)
             {
@@ -545,6 +617,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 columnViewModel.IdentitySeed.Value = column.IdentitySeed?.ToString();
                 columnViewModel.IdentityIncrement.Enabled = column.CanEditIdentityValues;
                 columnViewModel.IdentityIncrement.Value = column.IdentityIncrement?.ToString();
+                columnViewModel.CanBeDeleted = column.CanBeDeleted;
                 tableViewModel.Columns.Data.Add(columnViewModel);
             }
 
@@ -593,7 +666,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 foreach (var columnSpec in index.Columns)
                 {
                     var columnSpecVM = new IndexedColumnSpecification();
-                    columnSpecVM.Ascending.Checked = columnSpec.isAscending;
+                    columnSpecVM.Ascending.Checked = columnSpec.IsAscending;
                     columnSpecVM.Column.Value = columnSpec.Column;
                     columnSpecVM.Column.Values = tableDesigner.GetColumnsForTable(table.FullName).ToList();
                     indexVM.Columns.Data.Add(columnSpecVM);
@@ -602,6 +675,25 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 indexVM.ColumnsDisplayValue.Enabled = false;
                 tableViewModel.Indexes.Data.Add(indexVM);
             }
+
+            foreach (var constraint in table.EdgeConstraints.Items)
+            {
+                var constraintVM = new EdgeConstraintViewModel();
+                constraintVM.Name.Value = constraint.Name;
+                constraintVM.Enabled.Checked = constraint.Enabled;
+                constraintVM.OnDeleteAction.Value = SqlForeignKeyActionUtil.GetName(constraint.OnDeleteAction);
+                constraintVM.OnDeleteAction.Values = SqlForeignKeyActionUtil.ActionNames;
+                foreach (var clause in constraint.Clauses)
+                {
+                    var clauseVM = new EdgeConstraintClause();
+                    clauseVM.FromTable.Value = clause.FromTable;
+                    clauseVM.FromTable.Values = tableDesigner.AllNodeTables.ToList();
+                    clauseVM.ToTable.Value = clause.ToTable;
+                    clauseVM.ToTable.Values = tableDesigner.AllNodeTables.ToList();
+                    constraintVM.Clauses.Data.Add(clauseVM);
+                }
+                tableViewModel.EdgeConstraints.Data.Add(constraintVM);
+            }
             tableViewModel.Script.Enabled = false;
             tableViewModel.Script.Value = tableDesigner.Script;
             return tableViewModel;
@@ -609,11 +701,20 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
         private TableDesignerView GetDesignerViewInfo(TableInfo tableInfo)
         {
+            var tableDesigner = this.GetTableDesigner(tableInfo);
             var view = new TableDesignerView();
             this.SetColumnsViewInfo(view);
             this.SetForeignKeysViewInfo(view);
             this.SetCheckConstraintsViewInfo(view);
             this.SetIndexesViewInfo(view);
+            if (tableDesigner.IsGraphTableSupported)
+            {
+                SetGraphTableViewInfo(view);
+            }
+            if (tableDesigner.TableViewModel.IsEdge)
+            {
+                this.SetEdgeConstraintsViewInfo(view);
+            }
             return view;
         }
 
@@ -770,12 +871,130 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             view.IndexColumnSpecificationTableOptions.CanRemoveRows = true;
         }
 
+        private void SetGraphTableViewInfo(TableDesignerView view)
+        {
+            view.AdditionalTableProperties.Add(new DesignerDataPropertyInfo()
+            {
+                PropertyName = TablePropertyNames.GraphTableType,
+                ComponentType = DesignerComponentType.Input,
+                Group = SR.TableDesignerGraphTableGroupTitle,
+                ComponentProperties = new CheckBoxProperties()
+                {
+                    Title = SR.TableDesignerGraphTableTypeTitle
+                }
+            });
+        }
+
+        private void SetEdgeConstraintsViewInfo(TableDesignerView view)
+        {
+            var tab = new DesignerTabView()
+            {
+                Title = SR.TableDesignerEdgeConstraintsTabTitle
+            };
+            var constraintsTableProperties = new TableComponentProperties<EdgeConstraintViewModel>()
+            {
+                Title = SR.TableDesignerEdgeConstraintsTabTitle,
+                ObjectTypeDisplayName = SR.TableDesignerEdgeConstraintObjectType
+            };
+            constraintsTableProperties.Columns.AddRange(new string[] { EdgeConstraintPropertyNames.Name });
+            constraintsTableProperties.ItemProperties.AddRange(new DesignerDataPropertyInfo[] {
+                new DesignerDataPropertyInfo()
+                {
+                    PropertyName = EdgeConstraintPropertyNames.Name,
+                    Description = SR.TableDesignerEdgeConstraintNamePropertyDescription,
+                    ComponentType = DesignerComponentType.Input,
+                    ComponentProperties = new InputBoxProperties()
+                    {
+                        Width = 200,
+                        Title = SR.TableDesignerEdgeConstraintNamePropertyTitle
+                    }
+                },
+                new DesignerDataPropertyInfo()
+                {
+                    PropertyName = EdgeConstraintPropertyNames.Enabled,
+                    Description = SR.TableDesignerEdgeConstraintIsEnabledPropertyDescription,
+                    ComponentType = DesignerComponentType.Checkbox,
+                    ComponentProperties = new CheckBoxProperties()
+                    {
+                        Title = SR.TableDesignerEdgeConstraintIsEnabledPropertyTitle
+                    }
+                },
+                new DesignerDataPropertyInfo()
+                {
+                    PropertyName = EdgeConstraintPropertyNames.OnDeleteAction,
+                    Description = SR.TableDesignerEdgeConstraintOnDeleteActionPropertyDescription,
+                    ComponentType = DesignerComponentType.Dropdown,
+                    ComponentProperties = new DropdownProperties()
+                    {
+                        Title = SR.TableDesignerEdgeConstraintOnDeleteActionPropertyTitle
+                    }
+                },
+                new DesignerDataPropertyInfo()
+                {
+                    PropertyName = EdgeConstraintPropertyNames.Clauses,
+                    Description = SR.TableDesignerEdgeConstraintClausesPropertyDescription,
+                    ComponentType = DesignerComponentType.Table,
+                    ComponentProperties = new TableComponentProperties<EdgeConstraintClause>()
+                    {
+                        Title = SR.TableDesignerEdgeConstraintClausesPropertyTitle,
+                        ObjectTypeDisplayName = SR.TableDesignerEdgeConstraintClauseObjectType,
+                        Columns = new List<string> () { EdgeConstraintClausePropertyNames.FromTable, EdgeConstraintClausePropertyNames.ToTable},
+                        ItemProperties = new List<DesignerDataPropertyInfo>()
+                        {
+                            new DesignerDataPropertyInfo()
+                            {
+                                PropertyName = EdgeConstraintClausePropertyNames.FromTable,
+                                ComponentType = DesignerComponentType.Dropdown,
+                                ComponentProperties = new DropdownProperties()
+                                {
+                                    Title = SR.TableDesignerEdgeConstraintClauseFromTablePropertyName,
+                                    Width = 150
+                                }
+                            },
+                            new DesignerDataPropertyInfo()
+                            {
+                                PropertyName = EdgeConstraintClausePropertyNames.ToTable,
+                                ComponentType = DesignerComponentType.Dropdown,
+                                ComponentProperties = new DropdownProperties()
+                                {
+                                    Title = SR.TableDesignerEdgeConstraintClauseToTablePropertyName,
+                                    Width = 150
+                                }
+                            }
+                        }
+                    }
+                }
+             });
+            tab.Components.Add(new DesignerDataPropertyInfo()
+            {
+                PropertyName = TablePropertyNames.EdgeConstraints,
+                ComponentType = DesignerComponentType.Table,
+                ComponentProperties = constraintsTableProperties,
+                ShowInPropertiesView = false
+            });
+            view.AdditionalTabs.Add(tab);
+        }
+
         private Dac.TableDesigner CreateTableDesigner(TableInfo tableInfo)
         {
             var connectinStringbuilder = new SqlConnectionStringBuilder(tableInfo.ConnectionString);
             connectinStringbuilder.InitialCatalog = tableInfo.Database;
             var connectionString = connectinStringbuilder.ToString();
             var tableDesigner = new Dac.TableDesigner(connectionString, tableInfo.AccessToken, tableInfo.Schema, tableInfo.Name, tableInfo.IsNewTable);
+            if ((tableInfo.IsEdgeTable || tableInfo.IsNodeTable) && !tableDesigner.IsGraphTableSupported)
+            {
+                throw new Exception(SR.TableDesignerGraphTableNotSupportedException);
+            }
+
+            if (tableInfo.IsNodeTable)
+            {
+                tableDesigner.TableViewModel.IsNode = true;
+            }
+            else if (tableInfo.IsEdgeTable)
+            {
+                tableDesigner.TableViewModel.IsEdge = true;
+            }
+
             this.idTableMap[tableInfo.Id] = tableDesigner;
             return tableDesigner;
         }

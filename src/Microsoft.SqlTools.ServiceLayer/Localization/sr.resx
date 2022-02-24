@@ -4738,4 +4738,76 @@ The Query Processor estimates that implementing the following index could improv
     <value>Removing a column will also remove it from the indexes and foreign keys. Are you sure you want to continue?</value>
     <comment></comment>
   </data>
+  <data name="TableDesignerGraphTableGroupTitle" xml:space="preserve">
+    <value>Graph Table</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerGraphTableTypeTitle" xml:space="preserve">
+    <value>Type</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerGraphTableTypeEdge" xml:space="preserve">
+    <value>Edge</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerGraphTableTypeNode" xml:space="preserve">
+    <value>Node</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerEdgeConstraintsTabTitle" xml:space="preserve">
+    <value>Edge Constraints</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerEdgeConstraintObjectType" xml:space="preserve">
+    <value>Edge Constraint</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerEdgeConstraintNamePropertyDescription" xml:space="preserve">
+    <value>Name of the constraint.</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerEdgeConstraintNamePropertyTitle" xml:space="preserve">
+    <value>Name</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerEdgeConstraintIsEnabledPropertyDescription" xml:space="preserve">
+    <value>Specifies whether the constraint is enabled.</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerEdgeConstraintIsEnabledPropertyTitle" xml:space="preserve">
+    <value>Is Enabled</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerEdgeConstraintOnDeleteActionPropertyDescription" xml:space="preserve">
+    <value>The behavior when a user tries to delete a row with data that is involved in an edge constraint.</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerEdgeConstraintOnDeleteActionPropertyTitle" xml:space="preserve">
+    <value>On Delete Action</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerEdgeConstraintClausesPropertyDescription" xml:space="preserve">
+    <value>Clauses</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerEdgeConstraintClausesPropertyTitle" xml:space="preserve">
+    <value>Clauses</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerEdgeConstraintClauseObjectType" xml:space="preserve">
+    <value>Clause</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerEdgeConstraintClauseFromTablePropertyName" xml:space="preserve">
+    <value>From Table</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerEdgeConstraintClauseToTablePropertyName" xml:space="preserve">
+    <value>To Table</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerGraphTableNotSupportedException" xml:space="preserve">
+    <value>Graph table is not supported on this database.</value>
+    <comment></comment>
+  </data>
 </root>

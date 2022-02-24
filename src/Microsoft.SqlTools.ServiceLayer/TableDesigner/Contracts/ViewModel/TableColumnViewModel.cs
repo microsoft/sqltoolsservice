@@ -31,5 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         public InputBoxProperties IdentitySeed { get; set; } = new InputBoxProperties();
 
         public InputBoxProperties IdentityIncrement { get; set; } = new InputBoxProperties();
+
+        public bool CanBeDeleted { get; set; } = true;
     }
 }

@@ -19,6 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         public BuiltinTableOptions CheckConstraintTableOptions { get; set; } = new BuiltinTableOptions();
         public BuiltinTableOptions IndexTableOptions { get; set; } = new BuiltinTableOptions();
         public BuiltinTableOptions IndexColumnSpecificationTableOptions { get; set; } = new BuiltinTableOptions();
+        public List<DesignerTabView> AdditionalTabs { get; } = new List<DesignerTabView>();
     }
 
     public class BuiltinTableOptions
@@ -29,6 +30,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         public bool CanRemoveRows { get; set; } = true;
         public List<DesignerDataPropertyInfo> AdditionalProperties { get; set; } = new List<DesignerDataPropertyInfo>();
         public string RemoveRowConfirmationMessage { get; set; }
-        public bool ShowRemoveRowConfirmation { get; set;} = false;
+        public bool ShowRemoveRowConfirmation { get; set; } = false;
+    }
+
+    public class DesignerTabView
+    {
+        public string Title { get; set; }
+        public List<DesignerDataPropertyInfo> Components { get; } = new List<DesignerDataPropertyInfo>();
     }
 }

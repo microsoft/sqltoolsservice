@@ -14,6 +14,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         public const string ForeignKeys = "foreignKeys";
         public const string CheckConstraints = "checkConstraints";
         public const string Indexes = "indexes";
+        public const string EdgeConstraints = "edgeConstraints";
+        public const string GraphTableType = "graphTableType";
     }
 
     public static class TableColumnPropertyNames
@@ -29,6 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         public const string IsIdentity = "isIdentity";
         public const string IdentityIncrement = "identityIncrement";
         public const string IdentitySeed = "identitySeed";
+        public const string CanBeDeleted = "canBeDeleted";
     }
 
     public static class ForeignKeyPropertyNames
@@ -69,5 +72,19 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
     {
         public const string Column = "column";
         public const string Ascending = "ascending";
+    }
+
+    public static class EdgeConstraintPropertyNames
+    {
+        public const string Name = "name";
+        public const string Enabled = "enabled";
+        public const string Clauses = "clauses";
+        public const string OnDeleteAction = "onDeleteAction";
+    }
+
+    public static class EdgeConstraintClausePropertyNames
+    {
+        public const string FromTable = "fromTable";
+        public const string ToTable = "toTable";
     }
 }

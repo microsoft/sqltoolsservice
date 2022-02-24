@@ -8653,6 +8653,150 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string TableDesignerGraphTableGroupTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerGraphTableGroupTitle);
+            }
+        }
+
+        public static string TableDesignerGraphTableTypeTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerGraphTableTypeTitle);
+            }
+        }
+
+        public static string TableDesignerGraphTableTypeEdge
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerGraphTableTypeEdge);
+            }
+        }
+
+        public static string TableDesignerGraphTableTypeNode
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerGraphTableTypeNode);
+            }
+        }
+
+        public static string TableDesignerEdgeConstraintsTabTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerEdgeConstraintsTabTitle);
+            }
+        }
+
+        public static string TableDesignerEdgeConstraintObjectType
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerEdgeConstraintObjectType);
+            }
+        }
+
+        public static string TableDesignerEdgeConstraintNamePropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerEdgeConstraintNamePropertyDescription);
+            }
+        }
+
+        public static string TableDesignerEdgeConstraintNamePropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerEdgeConstraintNamePropertyTitle);
+            }
+        }
+
+        public static string TableDesignerEdgeConstraintIsEnabledPropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerEdgeConstraintIsEnabledPropertyDescription);
+            }
+        }
+
+        public static string TableDesignerEdgeConstraintIsEnabledPropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerEdgeConstraintIsEnabledPropertyTitle);
+            }
+        }
+
+        public static string TableDesignerEdgeConstraintOnDeleteActionPropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerEdgeConstraintOnDeleteActionPropertyDescription);
+            }
+        }
+
+        public static string TableDesignerEdgeConstraintOnDeleteActionPropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerEdgeConstraintOnDeleteActionPropertyTitle);
+            }
+        }
+
+        public static string TableDesignerEdgeConstraintClausesPropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerEdgeConstraintClausesPropertyDescription);
+            }
+        }
+
+        public static string TableDesignerEdgeConstraintClausesPropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerEdgeConstraintClausesPropertyTitle);
+            }
+        }
+
+        public static string TableDesignerEdgeConstraintClauseObjectType
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerEdgeConstraintClauseObjectType);
+            }
+        }
+
+        public static string TableDesignerEdgeConstraintClauseFromTablePropertyName
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerEdgeConstraintClauseFromTablePropertyName);
+            }
+        }
+
+        public static string TableDesignerEdgeConstraintClauseToTablePropertyName
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerEdgeConstraintClauseToTablePropertyName);
+            }
+        }
+
+        public static string TableDesignerGraphTableNotSupportedException
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerGraphTableNotSupportedException);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -12381,6 +12525,60 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string TableDesignerDeleteColumnConfirmationMessage = "TableDesignerDeleteColumnConfirmationMessage";
+
+
+            public const string TableDesignerGraphTableGroupTitle = "TableDesignerGraphTableGroupTitle";
+
+
+            public const string TableDesignerGraphTableTypeTitle = "TableDesignerGraphTableTypeTitle";
+
+
+            public const string TableDesignerGraphTableTypeEdge = "TableDesignerGraphTableTypeEdge";
+
+
+            public const string TableDesignerGraphTableTypeNode = "TableDesignerGraphTableTypeNode";
+
+
+            public const string TableDesignerEdgeConstraintsTabTitle = "TableDesignerEdgeConstraintsTabTitle";
+
+
+            public const string TableDesignerEdgeConstraintObjectType = "TableDesignerEdgeConstraintObjectType";
+
+
+            public const string TableDesignerEdgeConstraintNamePropertyDescription = "TableDesignerEdgeConstraintNamePropertyDescription";
+
+
+            public const string TableDesignerEdgeConstraintNamePropertyTitle = "TableDesignerEdgeConstraintNamePropertyTitle";
+
+
+            public const string TableDesignerEdgeConstraintIsEnabledPropertyDescription = "TableDesignerEdgeConstraintIsEnabledPropertyDescription";
+
+
+            public const string TableDesignerEdgeConstraintIsEnabledPropertyTitle = "TableDesignerEdgeConstraintIsEnabledPropertyTitle";
+
+
+            public const string TableDesignerEdgeConstraintOnDeleteActionPropertyDescription = "TableDesignerEdgeConstraintOnDeleteActionPropertyDescription";
+
+
+            public const string TableDesignerEdgeConstraintOnDeleteActionPropertyTitle = "TableDesignerEdgeConstraintOnDeleteActionPropertyTitle";
+
+
+            public const string TableDesignerEdgeConstraintClausesPropertyDescription = "TableDesignerEdgeConstraintClausesPropertyDescription";
+
+
+            public const string TableDesignerEdgeConstraintClausesPropertyTitle = "TableDesignerEdgeConstraintClausesPropertyTitle";
+
+
+            public const string TableDesignerEdgeConstraintClauseObjectType = "TableDesignerEdgeConstraintClauseObjectType";
+
+
+            public const string TableDesignerEdgeConstraintClauseFromTablePropertyName = "TableDesignerEdgeConstraintClauseFromTablePropertyName";
+
+
+            public const string TableDesignerEdgeConstraintClauseToTablePropertyName = "TableDesignerEdgeConstraintClauseToTablePropertyName";
+
+
+            public const string TableDesignerGraphTableNotSupportedException = "TableDesignerGraphTableNotSupportedException";
 
 
             private Keys()

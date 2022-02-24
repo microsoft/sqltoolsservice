@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         /// <summary>
         /// The column names to be displayed
         /// </summary>
-        public string[] Columns { get; set; }
+        public List<string> Columns { get; set; } = new List<string>();
 
         /// <summary>
         /// The object type display name of the objects in this table
@@ -33,5 +33,25 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         /// The object list.
         /// </summary>
         public List<T> Data { get; set; } = new List<T>();
+
+        /// <summary>
+        /// Whether new rows can be added.
+        /// </summary>
+        public bool CanAddRows { get; set; } = true;
+
+        /// <summary>
+        /// Whether rows can be deleted.
+        /// </summary>
+        public bool CanRemoveRows { get; set; } = true;
+
+        /// <summary>
+        /// Whether a confirmation should be shown when a row is about to be removed.
+        /// </summary>
+        public bool ShowRemoveRowConfirmation { get; set; } = false;
+
+        /// <summary>
+        /// The confirmation message to be displayed when a row is about to be removed.
+        /// </summary>
+        public string RemoveRowConfirmationMessage { get; set; }
     }
 }
