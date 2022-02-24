@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 
         public bool IsValid { get; set; }
 
-        public TableDesignerValidationError[] errors { get; set; }
+        public TableDesignerValidationError[] Errors { get; set; }
     }
 
     /// <summary>

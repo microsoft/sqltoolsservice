@@ -113,10 +113,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     default:
                         break;
                 }
+                var designer = this.GetTableDesigner(requestParams.TableInfo);
+                var errors = TableDesignerValidator.Validate(designer.TableViewModel);
                 await requestContext.SendResult(new ProcessTableDesignerEditResponse()
                 {
                     ViewModel = this.GetTableViewModel(requestParams.TableInfo),
-                    IsValid = true
+                    IsValid = errors.Count == 0,
+                    Errors = errors.ToArray()
                 });
             });
         }
@@ -533,7 +536,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 columnViewModel.DefaultValue.Value = column.DefaultValue;
                 columnViewModel.DefaultValue.Enabled = column.CanEditDefaultValue;
                 columnViewModel.IsPrimaryKey.Checked = column.IsPrimaryKey;
-                columnViewModel.IsPrimaryKey.Enabled = column.CanEditIsPrimaryKey;
+                columnViewModel.IsPrimaryKey.Enabled = true; // To be consistent with SSDT, any column can be a primary key.
                 columnViewModel.Type.Value = column.DataType;
                 columnViewModel.Type.Enabled = column.CanEditDataType;
                 columnViewModel.IsIdentity.Enabled = column.CanEditIsIdentity;
