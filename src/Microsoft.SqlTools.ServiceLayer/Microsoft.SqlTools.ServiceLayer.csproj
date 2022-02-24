@@ -14,6 +14,8 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<PreserveCompilationContext>true</PreserveCompilationContext>
 		<RuntimeIdentifiers>$(ToolsServiceTargetRuntimes)</RuntimeIdentifiers>
+		<PublishTrimmed>true</PublishTrimmed>
+		<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
 	</PropertyGroup>
 
 	<PropertyGroup>
@@ -29,7 +31,7 @@
 		<PackageReference Include="System.Text.Encoding.CodePages" />
 		<PackageReference Include="Microsoft.SqlServer.Assessment" />
 		<PackageReference Include="Microsoft.SqlServer.Migration.Assessment" />
-		<PackageReference Include="Microsoft.SqlServer.Management.SqlParser"/>
+		<PackageReference Include="Microsoft.SqlServer.Management.SqlParser" />
 		<PackageReference Include="System.Text.Encoding.CodePages" />
 		<PackageReference Include="Microsoft.SqlServer.TransactSql.ScriptDom.NRT">
 			<Aliases>ASAScriptDom</Aliases>
