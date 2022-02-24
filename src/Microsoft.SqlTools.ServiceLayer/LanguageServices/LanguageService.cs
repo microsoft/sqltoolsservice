@@ -1227,7 +1227,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             } 
             else 
             {
-                if (connInfo.TryGetConnection(Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType.Default, out connection))
+                if (connInfo.ConnectionDetails.ExpiresOn > DateTime.Now.Ticks) 
                 {
                     return false;
                 }
