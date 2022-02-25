@@ -683,6 +683,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 constraintVM.Enabled.Checked = constraint.Enabled;
                 constraintVM.OnDeleteAction.Value = SqlForeignKeyActionUtil.GetName(constraint.OnDeleteAction);
                 constraintVM.OnDeleteAction.Values = SqlForeignKeyActionUtil.ActionNames;
+                constraintVM.ClausesDisplayValue.Value = constraint.ClausesDisplayValue;
+                constraintVM.ClausesDisplayValue.Enabled = false;
                 foreach (var clause in constraint.Clauses)
                 {
                     var clauseVM = new EdgeConstraintClause();
@@ -707,7 +709,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             this.SetForeignKeysViewInfo(view);
             this.SetCheckConstraintsViewInfo(view);
             this.SetIndexesViewInfo(view);
-            if (tableDesigner.IsGraphTableSupported)
+            if (tableDesigner.TableViewModel.IsEdge || tableDesigner.TableViewModel.IsNode)
             {
                 SetGraphTableViewInfo(view);
             }
@@ -896,7 +898,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 Title = SR.TableDesignerEdgeConstraintsTabTitle,
                 ObjectTypeDisplayName = SR.TableDesignerEdgeConstraintObjectType
             };
-            constraintsTableProperties.Columns.AddRange(new string[] { EdgeConstraintPropertyNames.Name });
+            constraintsTableProperties.Columns.AddRange(new string[] { EdgeConstraintPropertyNames.Name, EdgeConstraintPropertyNames.ClausesDisplayValue });
             constraintsTableProperties.ItemProperties.AddRange(new DesignerDataPropertyInfo[] {
                 new DesignerDataPropertyInfo()
                 {
@@ -907,6 +909,17 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     {
                         Width = 200,
                         Title = SR.TableDesignerEdgeConstraintNamePropertyTitle
+                    }
+                },
+                new DesignerDataPropertyInfo()
+                {
+                    PropertyName = EdgeConstraintPropertyNames.ClausesDisplayValue,
+                    ComponentType = DesignerComponentType.Input,
+                    ShowInPropertiesView = false,
+                    ComponentProperties = new InputBoxProperties()
+                    {
+                        Width = 300,
+                        Title = SR.TableDesignerEdgeConstraintClausesPropertyDescription
                     }
                 },
                 new DesignerDataPropertyInfo()
@@ -980,21 +993,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             var connectinStringbuilder = new SqlConnectionStringBuilder(tableInfo.ConnectionString);
             connectinStringbuilder.InitialCatalog = tableInfo.Database;
             var connectionString = connectinStringbuilder.ToString();
-            var tableDesigner = new Dac.TableDesigner(connectionString, tableInfo.AccessToken, tableInfo.Schema, tableInfo.Name, tableInfo.IsNewTable);
-            if ((tableInfo.IsEdgeTable || tableInfo.IsNodeTable) && !tableDesigner.IsGraphTableSupported)
-            {
-                throw new Exception(SR.TableDesignerGraphTableNotSupportedException);
-            }
-
-            if (tableInfo.IsNodeTable)
-            {
-                tableDesigner.TableViewModel.IsNode = true;
-            }
-            else if (tableInfo.IsEdgeTable)
-            {
-                tableDesigner.TableViewModel.IsEdge = true;
-            }
-
+            var tableDesigner = new Dac.TableDesigner(connectionString, tableInfo.AccessToken, tableInfo.Schema, tableInfo.Name, tableInfo.IsNewTable, tableInfo.IsEdgeTable, tableInfo.IsNodeTable);
             this.idTableMap[tableInfo.Id] = tableDesigner;
             return tableDesigner;
         }

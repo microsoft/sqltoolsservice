@@ -17,7 +17,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             new ColumnCanOnlyAppearOnceInIndexRule(),
             new NoDuplicateColumnNameRule(),
             new NoDuplicateConstraintNameRule(),
-            new NoDuplicateIndexNameRule()
+            new NoDuplicateIndexNameRule(),
+            new EdgeConstraintMustHaveClausesRule()
         };
 
         /// <summary>
@@ -198,6 +199,23 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     existingNames.Add(checkConstraint.Name);
                 }
             }
+
+            for (int i = 0; i < table.EdgeConstraints.Items.Count; i++)
+            {
+                var edgeConstraint = table.EdgeConstraints.Items[i];
+                if (existingNames.Contains(edgeConstraint.Name))
+                {
+                    errors.Add(new ValidationError()
+                    {
+                        Message = string.Format("The name '{0}' is already used by another constraint. Row number: {1}.", edgeConstraint.Name, i + 1),
+                        PropertyPath = new object[] { TablePropertyNames.EdgeConstraints, i, EdgeConstraintPropertyNames.Name }
+                    });
+                }
+                else
+                {
+                    existingNames.Add(edgeConstraint.Name);
+                }
+            }
             return errors;
         }
     }
@@ -253,4 +271,26 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             return errors;
         }
     }
+
+    public class EdgeConstraintMustHaveClausesRule : ITableDesignerValidationRule
+    {
+        public List<ValidationError> Run(TableViewModel table)
+        {
+            var errors = new List<ValidationError>();
+            for (int i = 0; i < table.EdgeConstraints.Items.Count; i++)
+            {
+                var edgeConstraint = table.EdgeConstraints.Items[i];
+                if (edgeConstraint.Clauses.Count == 0)
+                {
+                    errors.Add(new ValidationError()
+                    {
+                        Message = string.Format("Edge constraint '{0}' does not have any column mapping specified.", edgeConstraint.Name),
+                        PropertyPath = new object[] { TablePropertyNames.EdgeConstraints, i }
+                    });
+                }
+            }
+            return errors;
+        }
+    }
+
 }

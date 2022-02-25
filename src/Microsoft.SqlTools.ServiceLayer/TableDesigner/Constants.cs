@@ -80,6 +80,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         public const string Enabled = "enabled";
         public const string Clauses = "clauses";
         public const string OnDeleteAction = "onDeleteAction";
+        public const string ClausesDisplayValue = "clausesDisplayValue";
     }
 
     public static class EdgeConstraintClausePropertyNames

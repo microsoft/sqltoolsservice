@@ -15,6 +15,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         public DropdownProperties OnDeleteAction { get; set; } = new DropdownProperties();
 
         public TableComponentProperties<EdgeConstraintClause> Clauses { get; set; } = new TableComponentProperties<EdgeConstraintClause>();
+
+        public InputBoxProperties ClausesDisplayValue { get; set; } = new InputBoxProperties();
     }
 
     public class EdgeConstraintClause

@@ -8789,14 +8789,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string TableDesignerGraphTableNotSupportedException
-        {
-            get
-            {
-                return Keys.GetString(Keys.TableDesignerGraphTableNotSupportedException);
-            }
-        }
-
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -12576,9 +12568,6 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string TableDesignerEdgeConstraintClauseToTablePropertyName = "TableDesignerEdgeConstraintClauseToTablePropertyName";
-
-
-            public const string TableDesignerGraphTableNotSupportedException = "TableDesignerGraphTableNotSupportedException";
 
 
             private Keys()

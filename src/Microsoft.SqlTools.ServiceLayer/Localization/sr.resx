@@ -4787,11 +4787,11 @@ The Query Processor estimates that implementing the following index could improv
     <comment></comment>
   </data>
   <data name="TableDesignerEdgeConstraintClausesPropertyDescription" xml:space="preserve">
-    <value>Clauses</value>
+    <value>Tables</value>
     <comment></comment>
   </data>
   <data name="TableDesignerEdgeConstraintClausesPropertyTitle" xml:space="preserve">
-    <value>Clauses</value>
+    <value>Tables</value>
     <comment></comment>
   </data>
   <data name="TableDesignerEdgeConstraintClauseObjectType" xml:space="preserve">
@@ -4804,10 +4804,6 @@ The Query Processor estimates that implementing the following index could improv
   </data>
   <data name="TableDesignerEdgeConstraintClauseToTablePropertyName" xml:space="preserve">
     <value>To Table</value>
-    <comment></comment>
-  </data>
-  <data name="TableDesignerGraphTableNotSupportedException" xml:space="preserve">
-    <value>Graph table is not supported on this database.</value>
     <comment></comment>
   </data>
 </root>
