@@ -6,10 +6,6 @@ stages:
   jobs:
   - job: Build
     pool: 'ads-build-1es-hosted-pool'
-        vmImage: 'windows-latest'
-        demands:
-        - Cmd
-        - npm
     steps:
     - template: build.yml
 
@@ -21,7 +17,6 @@ stages:
   - Build
   condition: and(succeeded(), eq(variables['RELEASE'], 'true'))
   pool: 'ads-build-1es-hosted-pool'
-    vmImage: 'Ubuntu-18.04'
   jobs:
   - job: Release
     steps:
