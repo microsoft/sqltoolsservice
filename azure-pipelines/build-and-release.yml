@@ -5,7 +5,7 @@ stages:
 - stage: Build
   jobs:
   - job: Build
-    pool:
+    pool: 'ads-build-1es-hosted-pool'
         vmImage: 'windows-latest'
         demands:
         - Cmd
@@ -20,7 +20,7 @@ stages:
   dependsOn:
   - Build
   condition: and(succeeded(), eq(variables['RELEASE'], 'true'))
-  pool:
+  pool: 'ads-build-1es-hosted-pool'
     vmImage: 'Ubuntu-18.04'
   jobs:
   - job: Release
