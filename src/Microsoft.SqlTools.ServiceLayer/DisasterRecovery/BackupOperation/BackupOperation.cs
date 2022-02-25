@@ -7,6 +7,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
+using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
@@ -14,6 +16,7 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
+using Microsoft.Azure.Storage.Blob;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 {
@@ -133,12 +136,22 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             }
         }
 
-        /// <summary>
-        /// Return backup configuration data
-        /// </summary>
-        /// <param name="databaseName"></param>
-        /// <returns></returns>
-        public BackupConfigInfo CreateBackupConfigInfo(string databaseName)
+        public string CreateSqlSASCredential(string credentialName)
+        {
+            CloudBlobContainer cloudBlobContainer = new CloudBlobContainer(new Uri(credentialName));
+            string backupPolicy = string.Format(CultureInfo.InvariantCulture, "BackupPolicy_", cloudBlobContainer.Name);
+            string secretString = this.backupRestoreUtil.CreateSharedAccessPolicyOnContainer(cloudBlobContainer, backupPolicy, DateTime.Now.AddDays(365));
+            string identity = "Shared Access Signature";
+            this.backupRestoreUtil.CreateSqlSASCredential(credentialName, identity, secretString);
+            return secretString;
+        }
+
+            /// <summary>
+            /// Return backup configuration data
+            /// </summary>
+            /// <param name="databaseName"></param>
+            /// <returns></returns>
+            public BackupConfigInfo CreateBackupConfigInfo(string databaseName)
         {
             BackupConfigInfo configInfo = new BackupConfigInfo();
             configInfo.RecoveryModel = GetRecoveryModel(databaseName);

@@ -12,6 +12,8 @@ using Microsoft.SqlServer.Management.Smo;
 using SMO = Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Management;
+using Microsoft.Azure.Storage.Blob;
+using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 {
@@ -1034,6 +1036,91 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 // we have default instance of default machine
                 return machineName;
             }
+        }
+
+        /// <summary>
+        /// Create sql sas credential with the given credential name
+        /// </summary>
+        /// <param name="sqlServer">sqlServer instance.</param>
+        /// <param name="credentialName">Name of sas credential, here is the same of the full container url.</param>
+        /// <param name="identity">Identity for credential, here is fixed as "Shared Access Signature"</param>
+        /// <param name="secretString">Secret of credential, which is sharedAccessSignatureForContainer </param>
+        /// <returns> The newly created SAS credential</returns>
+        public Credential CreateSqlSASCredential(string credentialName, string identity, string secretString)
+        {
+            Server sqlServer = new Server(this.sqlConnection);
+            // Format of Sql SAS credential: 
+            // CREATE CREDENTIAL [https://<StorageAccountName>.blob.core.windows.net/<ContainerName>] WITH IDENTITY = N'Shared Access Signature', 
+            // SECRET = N'sv=2014-02-14&sr=c&sig=lxb2aXr%2Bi0Aeygg%2B0a4REZ%2BqsUxxxxxxsqUybg0tVzg%3D&st=2015-10-15T08%3A00%3A00Z&se=2015-11-15T08%3A00%3A00Z&sp=rwdl'
+            //
+            CredentialCollection credentials = sqlServer.Credentials;
+
+            Credential azureCredential = new Credential(sqlServer, credentialName);
+
+            // Container can have many SAS credentials coexisting, here we'll always drop existing one once customer choose to create new credential 
+            // since sql customer has no way to know its existency and even harder to retrive its secret string. 
+            azureCredential.DropIfExists();
+            sqlServer.Credentials.Refresh();
+
+            credentials = sqlServer.Credentials;
+
+            if (!credentials.Contains(credentialName))
+            {
+                try
+                {
+                    azureCredential.Create(identity, secretString);
+                }
+                catch (Exception ex)
+                {
+                    throw new FailedOperationException("Create credential failed.", ex);
+                }
+            }
+            return azureCredential;
+        }
+
+        /// <summary>
+        /// Create Shared Access Policy for container 
+        /// Default Accesss permission is Write/List/Read/Delete
+        /// </summary>
+        /// <param name="container"></param>
+        /// <param name="policyName"></param>
+        /// <param name="selectedSaredAccessExpiryTime"></param>
+        public string CreateSharedAccessPolicyOnContainer(CloudBlobContainer container, string policyName, DateTime selectedSharedAccessExpiryTime)
+        {
+            //Create a new stored access policy and define its constraints.
+            SharedAccessBlobPolicy sharedAccessPolicyForContainer = new SharedAccessBlobPolicy()
+            {
+                SharedAccessExpiryTime = selectedSharedAccessExpiryTime,
+                Permissions = SharedAccessBlobPermissions.Write | SharedAccessBlobPermissions.List | SharedAccessBlobPermissions.Read | SharedAccessBlobPermissions.Delete
+            };
+
+            //Get the container's existing permissions.
+            BlobContainerPermissions permissions = container.GetPermissions();
+            if (!permissions.SharedAccessPolicies.ContainsKey(policyName))
+            {
+                //Add the new policy to the container's permissions.
+                permissions.SharedAccessPolicies.Add(policyName, sharedAccessPolicyForContainer);
+            }
+            else
+            {
+                // if already exists, remove then recreate the policy to get expircy/permission right. 
+                SharedAccessBlobPolicy existingSharedAccessPolicyForContainer = new SharedAccessBlobPolicy();
+                permissions.SharedAccessPolicies.TryGetValue(policyName, out existingSharedAccessPolicyForContainer);
+
+                permissions.SharedAccessPolicies.Remove(policyName);
+                container.SetPermissions(permissions);
+                permissions.SharedAccessPolicies.Add(policyName, sharedAccessPolicyForContainer);
+            }
+            container.SetPermissions(permissions);
+            permissions = container.GetPermissions();
+
+            // verify access
+            string sharedAccessSignatureForContainer = container.GetSharedAccessSignature(sharedAccessPolicyForContainer).TrimStart('?');
+            if (string.IsNullOrEmpty(sharedAccessSignatureForContainer))
+            {
+                throw new FailedOperationException("Invalid shared access signature.");
+            }
+            return sharedAccessSignatureForContainer;
         }
     }
 }
