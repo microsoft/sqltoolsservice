@@ -8,7 +8,7 @@ stages:
     pool: 
       name: 'ads-build-1es-hosted-pool'
       demands:
-      ImageOverride -equals ADS-Windows_Image
+      - ImageOverride -equals ADS-Windows_Image
     steps:
     - template: build.yml
 
@@ -22,7 +22,7 @@ stages:
   pool: 
     name: 'ads-build-1es-hosted-pool'
     demands:
-    ImageOverride -equals ADS-Linux_Image
+    - ImageOverride -equals ADS-Linux_Image
   jobs:
   - job: Release
     steps:
