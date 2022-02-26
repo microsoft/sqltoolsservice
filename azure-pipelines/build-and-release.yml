@@ -6,9 +6,9 @@ stages:
   jobs:
   - job: Build
     pool: 
-    name: 'ads-build-1es-hosted-pool'
-    demands:
-    ImageOverride -equals ADS-Windows_Image
+      name: 'ads-build-1es-hosted-pool'
+      demands:
+      ImageOverride -equals ADS-Windows_Image
     steps:
     - template: build.yml
 
