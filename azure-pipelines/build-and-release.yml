@@ -5,7 +5,10 @@ stages:
 - stage: Build
   jobs:
   - job: Build
-    pool: 'ads-build-1es-hosted-pool'
+    pool: 
+    name: 'ads-build-1es-hosted-pool'
+    demands:
+    ImageOverride -equals ADS-Windows_Image
     steps:
     - template: build.yml
 
@@ -16,7 +19,10 @@ stages:
   dependsOn:
   - Build
   condition: and(succeeded(), eq(variables['RELEASE'], 'true'))
-  pool: 'ads-build-1es-hosted-pool'
+  pool: 
+    name: 'ads-build-1es-hosted-pool'
+    demands:
+    ImageOverride -equals ADS-Linux_Image
   jobs:
   - job: Release
     steps:
