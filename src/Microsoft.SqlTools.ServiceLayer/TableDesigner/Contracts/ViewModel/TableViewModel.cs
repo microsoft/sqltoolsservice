@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 
         public InputBoxProperties Description { get; set; } = new InputBoxProperties();
 
-        public InputBoxProperties GraphTableType { get; set; } = new InputBoxProperties();
+        public DropdownProperties GraphTableType { get; set; } = new DropdownProperties();
 
         public TableComponentProperties<TableColumnViewModel> Columns { get; set; } = new TableComponentProperties<TableColumnViewModel>();
 

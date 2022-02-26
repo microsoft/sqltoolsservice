@@ -4746,12 +4746,20 @@ The Query Processor estimates that implementing the following index could improv
     <value>Type</value>
     <comment></comment>
   </data>
+  <data name="TableDesignerGraphTableTypeDescription" xml:space="preserve">
+    <value>Specifies the table type.</value>
+    <comment></comment>
+  </data>
   <data name="TableDesignerGraphTableTypeEdge" xml:space="preserve">
     <value>Edge</value>
     <comment></comment>
   </data>
   <data name="TableDesignerGraphTableTypeNode" xml:space="preserve">
     <value>Node</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerGraphTableTypeNone" xml:space="preserve">
+    <value>None</value>
     <comment></comment>
   </data>
   <data name="TableDesignerEdgeConstraintsTabTitle" xml:space="preserve">
@@ -4787,11 +4795,11 @@ The Query Processor estimates that implementing the following index could improv
     <comment></comment>
   </data>
   <data name="TableDesignerEdgeConstraintClausesPropertyDescription" xml:space="preserve">
-    <value>Tables</value>
+    <value>Edge constraint clauses.</value>
     <comment></comment>
   </data>
   <data name="TableDesignerEdgeConstraintClausesPropertyTitle" xml:space="preserve">
-    <value>Tables</value>
+    <value>Clauses</value>
     <comment></comment>
   </data>
   <data name="TableDesignerEdgeConstraintClauseObjectType" xml:space="preserve">

@@ -25,9 +25,5 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         public string Id { get; set; }
 
         public string AccessToken { get; set; }
-
-        public bool IsEdgeTable { get; set; } = false;
-
-        public bool IsNodeTable { get; set; } = false;
     }
 }

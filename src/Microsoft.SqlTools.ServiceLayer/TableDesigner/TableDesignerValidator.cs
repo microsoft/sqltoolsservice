@@ -18,7 +18,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             new NoDuplicateColumnNameRule(),
             new NoDuplicateConstraintNameRule(),
             new NoDuplicateIndexNameRule(),
-            new EdgeConstraintMustHaveClausesRule()
+            new EdgeConstraintMustHaveClausesRule(),
+            new EdgeConstraintNoRepeatingClausesRule()
         };
 
         /// <summary>
@@ -73,7 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 {
                     errors.Add(new ValidationError()
                     {
-                        Message = string.Format("Foreign key '{0}' does not have any column mapping specified.", foreignKey.Name),
+                        Message = string.Format("Foreign key '{0}' does not have any columns specified.", foreignKey.Name),
                         PropertyPath = new object[] { TablePropertyNames.ForeignKeys, i }
                     });
                 }
@@ -284,7 +285,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 {
                     errors.Add(new ValidationError()
                     {
-                        Message = string.Format("Edge constraint '{0}' does not have any column mapping specified.", edgeConstraint.Name),
+                        Message = string.Format("Edge constraint '{0}' does not have any clauses specified.", edgeConstraint.Name),
                         PropertyPath = new object[] { TablePropertyNames.EdgeConstraints, i }
                     });
                 }
@@ -293,4 +294,34 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         }
     }
 
+    public class EdgeConstraintNoRepeatingClausesRule : ITableDesignerValidationRule
+    {
+        public List<ValidationError> Run(TableViewModel table)
+        {
+            var errors = new List<ValidationError>();
+            for (int i = 0; i < table.EdgeConstraints.Items.Count; i++)
+            {
+                var edgeConstraint = table.EdgeConstraints.Items[i];
+                var existingPairs = new HashSet<string>();
+                for (int j = 0; j < edgeConstraint.Clauses.Count; j++)
+                {
+                    var clause = edgeConstraint.Clauses[j];
+                    var pair = string.Format("{0} - {1}", clause.FromTable, clause.ToTable);
+                    if (existingPairs.Contains(pair))
+                    {
+                        errors.Add(new ValidationError()
+                        {
+                            Message = string.Format("The pair '{0}' is already defined by another clause in the edge constraint. Row number: {1}.", pair, j + 1),
+                            PropertyPath = new object[] { TablePropertyNames.EdgeConstraints, i, EdgeConstraintPropertyNames.Clauses, j, EdgeConstraintClausePropertyNames.FromTable }
+                        });
+                    }
+                    else
+                    {
+                        existingPairs.Add(pair);
+                    }
+                }
+            }
+            return errors;
+        }
+    }
 }

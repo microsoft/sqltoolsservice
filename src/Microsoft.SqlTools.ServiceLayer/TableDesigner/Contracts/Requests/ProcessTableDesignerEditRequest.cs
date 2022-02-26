@@ -19,6 +19,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
     {
         public TableViewModel ViewModel { get; set; }
 
+        public TableDesignerView View { get; set; }
+
         public bool IsValid { get; set; }
 
         public TableDesignerValidationError[] Errors { get; set; }

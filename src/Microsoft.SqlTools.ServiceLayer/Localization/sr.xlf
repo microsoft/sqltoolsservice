@@ -5824,13 +5824,13 @@ The Query Processor estimates that implementing the following index could improv
         <note></note>
       </trans-unit>
       <trans-unit id="TableDesignerEdgeConstraintClausesPropertyDescription">
-        <source>Tables</source>
-        <target state="new">Tables</target>
+        <source>Edge constraint clauses.</source>
+        <target state="new">Edge constraint clauses.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="TableDesignerEdgeConstraintClausesPropertyTitle">
-        <source>Tables</source>
-        <target state="new">Tables</target>
+        <source>Clauses</source>
+        <target state="new">Clauses</target>
         <note></note>
       </trans-unit>
       <trans-unit id="TableDesignerEdgeConstraintClauseObjectType">
@@ -5846,6 +5846,16 @@ The Query Processor estimates that implementing the following index could improv
       <trans-unit id="TableDesignerEdgeConstraintClauseToTablePropertyName">
         <source>To Table</source>
         <target state="new">To Table</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerGraphTableTypeNone">
+        <source>None</source>
+        <target state="new">None</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerGraphTableTypeDescription">
+        <source>Specifies the table type.</source>
+        <target state="new">Specifies the table type.</target>
         <note></note>
       </trans-unit>
     </body>

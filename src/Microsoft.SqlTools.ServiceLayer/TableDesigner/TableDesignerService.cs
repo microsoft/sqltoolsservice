@@ -87,9 +87,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 await requestContext.SendResult(new TableDesignerInfo()
                 {
                     ViewModel = viewModel,
-                    View = view,
-                    ColumnTypes = tableDesigner.DataTypes.ToList(),
-                    Schemas = tableDesigner.Schemas.ToList()
+                    View = view
                 });
             });
         }
@@ -98,6 +96,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         {
             return this.HandleRequest<ProcessTableDesignerEditResponse>(requestContext, async () =>
             {
+                var refreshViewRequired = false;
                 DesignerPathUtils.Validate(requestParams.TableChangeInfo.Path, requestParams.TableChangeInfo.Type);
                 switch (requestParams.TableChangeInfo.Type)
                 {
@@ -108,7 +107,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         this.HandleRemoveItemRequest(requestParams);
                         break;
                     case DesignerEditType.Update:
-                        this.HandleUpdateItemRequest(requestParams);
+                        refreshViewRequired = this.HandleUpdateItemRequest(requestParams);
                         break;
                     default:
                         break;
@@ -119,7 +118,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 {
                     ViewModel = this.GetTableViewModel(requestParams.TableInfo),
                     IsValid = errors.Count == 0,
-                    Errors = errors.ToArray()
+                    Errors = errors.ToArray(),
+                    View = refreshViewRequired ? this.GetDesignerViewInfo(requestParams.TableInfo) : null
                 });
             });
         }
@@ -326,9 +326,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             }
         }
 
-        private void HandleUpdateItemRequest(ProcessTableDesignerEditRequestParams requestParams)
+        private bool HandleUpdateItemRequest(ProcessTableDesignerEditRequestParams requestParams)
         {
-            var table = this.GetTableDesigner(requestParams.TableInfo).TableViewModel;
+            var refreshView = false;
+            var tableDesigner = this.GetTableDesigner(requestParams.TableInfo);
+            var table = tableDesigner.TableViewModel;
             var path = requestParams.TableChangeInfo.Path;
             var newValue = requestParams.TableChangeInfo.Value;
             if (path.Length == 1)
@@ -344,6 +346,26 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         break;
                     case TablePropertyNames.Schema:
                         table.Schema = GetStringValue(newValue);
+                        break;
+                    case TablePropertyNames.GraphTableType:
+                        var wasEdgeTable = table.IsEdge;
+                        table.IsEdge = false;
+                        table.IsNode = false;
+
+                        var newType = GetStringValue(newValue);
+                        if (newType == SR.TableDesignerGraphTableTypeNode)
+                        {
+                            table.IsNode = true;
+                        }
+                        else if (newType == SR.TableDesignerGraphTableTypeEdge)
+                        {
+                            table.IsEdge = true;
+                        }
+                        if (wasEdgeTable)
+                        {
+                            table.EdgeConstraints.Clear();
+                        }
+                        refreshView = (wasEdgeTable || table.IsEdge) && tableDesigner.IsEdgeConstraintSupported;
                         break;
                     default:
                         break;
@@ -557,6 +579,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         break;
                 }
             }
+            return refreshView;
         }
 
         private int GetInt32Value(object value)
@@ -581,16 +604,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             var tableViewModel = new TableViewModel();
             tableViewModel.Name.Value = table.Name;
             tableViewModel.Schema.Value = table.Schema;
+            tableViewModel.Schema.Values = tableDesigner.Schemas.ToList();
             tableViewModel.Description.Value = table.Description;
-            if (table.IsEdge)
-            {
-                tableViewModel.GraphTableType.Value = SR.TableDesignerGraphTableTypeEdge;
-            }
-            else if (table.IsNode)
-            {
-                tableViewModel.GraphTableType.Value = SR.TableDesignerGraphTableTypeNode;
-            }
-            tableViewModel.GraphTableType.Enabled = false;
+            tableViewModel.GraphTableType.Enabled = tableDesigner.IsGraphTableSupported && tableInfo.IsNewTable;
+            tableViewModel.GraphTableType.Values = new List<string>() { SR.TableDesignerGraphTableTypeNone, SR.TableDesignerGraphTableTypeEdge, SR.TableDesignerGraphTableTypeNode };
+            tableViewModel.GraphTableType.Value = (table.IsEdge || table.IsNode) ? (table.IsEdge ? SR.TableDesignerGraphTableTypeEdge : SR.TableDesignerGraphTableTypeNode) : SR.TableDesignerGraphTableTypeNone;
 
             foreach (var column in table.Columns.Items)
             {
@@ -611,6 +629,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 columnViewModel.IsPrimaryKey.Enabled = true; // To be consistent with SSDT, any column can be a primary key.
                 columnViewModel.Type.Value = column.DataType;
                 columnViewModel.Type.Enabled = column.CanEditDataType;
+                columnViewModel.Type.Values = tableDesigner.DataTypes.ToList();
                 columnViewModel.IsIdentity.Enabled = column.CanEditIsIdentity;
                 columnViewModel.IsIdentity.Checked = column.IsIdentity;
                 columnViewModel.IdentitySeed.Enabled = column.CanEditIdentityValues;
@@ -660,6 +679,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             {
                 var indexVM = new IndexViewModel();
                 indexVM.Name.Value = index.Name;
+                indexVM.Name.Enabled = tableInfo.IsNewTable; // renaming an index is not supported, it will cause a new index to be created.
                 indexVM.IsClustered.Checked = index.IsClustered;
                 indexVM.Enabled.Checked = index.Enabled;
                 indexVM.IsUnique.Checked = index.IsUnique;
@@ -682,7 +702,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 constraintVM.Name.Value = constraint.Name;
                 constraintVM.Enabled.Checked = constraint.Enabled;
                 constraintVM.OnDeleteAction.Value = SqlForeignKeyActionUtil.GetName(constraint.OnDeleteAction);
-                constraintVM.OnDeleteAction.Values = SqlForeignKeyActionUtil.ActionNames;
+                constraintVM.OnDeleteAction.Values = SqlForeignKeyActionUtil.EdgeConstraintOnDeleteActionNames;
                 constraintVM.ClausesDisplayValue.Value = constraint.ClausesDisplayValue;
                 constraintVM.ClausesDisplayValue.Enabled = false;
                 foreach (var clause in constraint.Clauses)
@@ -709,11 +729,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             this.SetForeignKeysViewInfo(view);
             this.SetCheckConstraintsViewInfo(view);
             this.SetIndexesViewInfo(view);
-            if (tableDesigner.TableViewModel.IsEdge || tableDesigner.TableViewModel.IsNode)
+            if (tableDesigner.IsGraphTableSupported && (tableInfo.IsNewTable || tableDesigner.TableViewModel.IsEdge || tableDesigner.TableViewModel.IsNode))
             {
                 SetGraphTableViewInfo(view);
             }
-            if (tableDesigner.TableViewModel.IsEdge)
+            if (tableDesigner.TableViewModel.IsEdge && tableDesigner.IsEdgeConstraintSupported)
             {
                 this.SetEdgeConstraintsViewInfo(view);
             }
@@ -878,9 +898,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             view.AdditionalTableProperties.Add(new DesignerDataPropertyInfo()
             {
                 PropertyName = TablePropertyNames.GraphTableType,
-                ComponentType = DesignerComponentType.Input,
+                ComponentType = DesignerComponentType.Dropdown,
+                Description = SR.TableDesignerGraphTableTypeDescription,
                 Group = SR.TableDesignerGraphTableGroupTitle,
-                ComponentProperties = new CheckBoxProperties()
+                ComponentProperties = new DropdownProperties()
                 {
                     Title = SR.TableDesignerGraphTableTypeTitle
                 }
@@ -919,7 +940,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     ComponentProperties = new InputBoxProperties()
                     {
                         Width = 300,
-                        Title = SR.TableDesignerEdgeConstraintClausesPropertyDescription
+                        Title = SR.TableDesignerEdgeConstraintClausesPropertyTitle
                     }
                 },
                 new DesignerDataPropertyInfo()
@@ -993,7 +1014,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             var connectinStringbuilder = new SqlConnectionStringBuilder(tableInfo.ConnectionString);
             connectinStringbuilder.InitialCatalog = tableInfo.Database;
             var connectionString = connectinStringbuilder.ToString();
-            var tableDesigner = new Dac.TableDesigner(connectionString, tableInfo.AccessToken, tableInfo.Schema, tableInfo.Name, tableInfo.IsNewTable, tableInfo.IsEdgeTable, tableInfo.IsNodeTable);
+            var tableDesigner = new Dac.TableDesigner(connectionString, tableInfo.AccessToken, tableInfo.Schema, tableInfo.Name, tableInfo.IsNewTable);
             this.idTableMap[tableInfo.Id] = tableDesigner;
             return tableDesigner;
         }

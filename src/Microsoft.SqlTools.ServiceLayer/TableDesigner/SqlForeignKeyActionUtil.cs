@@ -29,6 +29,14 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             }
         }
 
+        public static List<string> EdgeConstraintOnDeleteActionNames
+        {
+            get
+            {
+                return new List<string> { SR.SqlForeignKeyAction_NoAction, SR.SqlForeignKeyAction_Cascade };
+            }
+        }
+
         public static string GetName(SqlForeignKeyAction action)
         {
             foreach (var key in mapping.Keys)

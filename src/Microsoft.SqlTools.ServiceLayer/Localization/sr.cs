@@ -8669,6 +8669,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string TableDesignerGraphTableTypeDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerGraphTableTypeDescription);
+            }
+        }
+
         public static string TableDesignerGraphTableTypeEdge
         {
             get
@@ -8682,6 +8690,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             get
             {
                 return Keys.GetString(Keys.TableDesignerGraphTableTypeNode);
+            }
+        }
+
+        public static string TableDesignerGraphTableTypeNone
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerGraphTableTypeNone);
             }
         }
 
@@ -12525,10 +12541,16 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string TableDesignerGraphTableTypeTitle = "TableDesignerGraphTableTypeTitle";
 
 
+            public const string TableDesignerGraphTableTypeDescription = "TableDesignerGraphTableTypeDescription";
+
+
             public const string TableDesignerGraphTableTypeEdge = "TableDesignerGraphTableTypeEdge";
 
 
             public const string TableDesignerGraphTableTypeNode = "TableDesignerGraphTableTypeNode";
+
+
+            public const string TableDesignerGraphTableTypeNone = "TableDesignerGraphTableTypeNone";
 
 
             public const string TableDesignerEdgeConstraintsTabTitle = "TableDesignerEdgeConstraintsTabTitle";
