@@ -5,11 +5,10 @@ stages:
 - stage: Build
   jobs:
   - job: Build
-    pool:
-        vmImage: 'windows-latest'
-        demands:
-        - Cmd
-        - npm
+    pool: 
+      name: 'ads-build-1es-hosted-pool'
+      demands:
+      - ImageOverride -equals ADS-Windows_Image
     steps:
     - template: build.yml
 
@@ -20,8 +19,10 @@ stages:
   dependsOn:
   - Build
   condition: and(succeeded(), eq(variables['RELEASE'], 'true'))
-  pool:
-    vmImage: 'Ubuntu-18.04'
+  pool: 
+    name: 'ads-build-1es-hosted-pool'
+    demands:
+    - ImageOverride -equals ADS-Linux_Image
   jobs:
   - job: Release
     steps:
