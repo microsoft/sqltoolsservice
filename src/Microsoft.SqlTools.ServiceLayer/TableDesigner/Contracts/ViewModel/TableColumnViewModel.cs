@@ -32,6 +32,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 
         public InputBoxProperties IdentityIncrement { get; set; } = new InputBoxProperties();
 
+        public DropdownProperties GeneratedAlwaysAs { get; set; } = new DropdownProperties();
+
         public bool CanBeDeleted { get; set; } = true;
     }
 }

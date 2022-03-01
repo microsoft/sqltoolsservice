@@ -4693,8 +4693,8 @@ The Query Processor estimates that implementing the following index could improv
     <value>Set Default</value>
     <comment></comment>
   </data>
-  <data name="UnKnownSqlForeignKeyAction" xml:space="preserve">
-    <value>&apos;{0}&apos; is not a supported SqlForeignKeyAction.</value>
+  <data name="UnknownEnumString" xml:space="preserve">
+    <value>Unknown enum value: {0}.</value>
     <comment>.
  Parameters: 0 - name (string) </comment>
   </data>
@@ -4812,6 +4812,74 @@ The Query Processor estimates that implementing the following index could improv
   </data>
   <data name="TableDesignerEdgeConstraintClauseToTablePropertyName" xml:space="preserve">
     <value>To Table</value>
+    <comment></comment>
+  </data>
+  <data name="SqlTableDurability_SchemaAndData" xml:space="preserve">
+    <value>Schema and Data</value>
+    <comment></comment>
+  </data>
+  <data name="SqlTableDurability_SchemaOnly" xml:space="preserve">
+    <value>Schema Only</value>
+    <comment></comment>
+  </data>
+  <data name="GeneratedAlwaysColumnType_None" xml:space="preserve">
+    <value>None</value>
+    <comment></comment>
+  </data>
+  <data name="GeneratedAlwaysColumnType_RowStart" xml:space="preserve">
+    <value>Row start</value>
+    <comment></comment>
+  </data>
+  <data name="GeneratedAlwaysColumnType_RowEnd" xml:space="preserve">
+    <value>Row End</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerIsSystemVersioningEnabledTitle" xml:space="preserve">
+    <value>System Versioning Enabled</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerIsSystemVersioningEnabledDescription" xml:space="preserve">
+    <value>Specifies whether the table is system versioning enabled.</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerSystemVersioningGroupTitle" xml:space="preserve">
+    <value>System Versioning</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerHistoryTableDescription" xml:space="preserve">
+    <value>History table of the current table.</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerHistoryTableTitle" xml:space="preserve">
+    <value>History Table</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerIsMemoryOptimizedDescription" xml:space="preserve">
+    <value>Specifies whether the table is memory optimized.</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerMemoryOptimizedGroupTitle" xml:space="preserve">
+    <value>Memory Optimized</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerIsMemoryOptimizedTitle" xml:space="preserve">
+    <value>Memory Optimized</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerDurabilityDescription" xml:space="preserve">
+    <value>Specifies the durability setting of the table.</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerDurabilityTitle" xml:space="preserve">
+    <value>Durability</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerColumnGeneratedAlwaysAsDescription" xml:space="preserve">
+    <value>Specifies the start or end of the system versioning table&apos;s period setting.</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerColumnGeneratedAlwaysAsTitle" xml:space="preserve">
+    <value>Generated Always As</value>
     <comment></comment>
   </data>
 </root>

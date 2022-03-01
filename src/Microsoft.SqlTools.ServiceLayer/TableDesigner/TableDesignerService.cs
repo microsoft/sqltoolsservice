@@ -367,6 +367,19 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         }
                         refreshView = (wasEdgeTable || table.IsEdge) && tableDesigner.IsEdgeConstraintSupported;
                         break;
+                    case TablePropertyNames.IsSystemVersioningEnabled:
+                        var enabled = GetBooleanValue(newValue);
+                        if (!enabled)
+                        {
+                            table.SystemVersioningHistoryTable = null;
+                        }
+                        break;
+                    case TablePropertyNames.IsMemoryOptimized:
+                        table.IsMemoryOptimized = GetBooleanValue(newValue);
+                        break;
+                    case TablePropertyNames.Durability:
+                        table.Durability = SqlTableDurabilityUtil.Instance.GetValue(GetStringValue(newValue));
+                        break;
                     default:
                         break;
                 }
@@ -450,10 +463,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                                 foreignKey.Name = GetStringValue(newValue);
                                 break;
                             case ForeignKeyPropertyNames.OnDeleteAction:
-                                foreignKey.OnDeleteAction = SqlForeignKeyActionUtil.GetValue(GetStringValue(newValue));
+                                foreignKey.OnDeleteAction = SqlForeignKeyActionUtil.Instance.GetValue(GetStringValue(newValue));
                                 break;
                             case ForeignKeyPropertyNames.OnUpdateAction:
-                                foreignKey.OnUpdateAction = SqlForeignKeyActionUtil.GetValue(GetStringValue(newValue));
+                                foreignKey.OnUpdateAction = SqlForeignKeyActionUtil.Instance.GetValue(GetStringValue(newValue));
                                 break;
                             case ForeignKeyPropertyNames.ForeignTable:
                                 foreignKey.ForeignTable = GetStringValue(newValue);
@@ -493,7 +506,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                                 constraint.Name = GetStringValue(newValue);
                                 break;
                             case EdgeConstraintPropertyNames.OnDeleteAction:
-                                constraint.OnDeleteAction = SqlForeignKeyActionUtil.GetValue(GetStringValue(newValue));
+                                constraint.OnDeleteAction = SqlForeignKeyActionUtil.Instance.GetValue(GetStringValue(newValue));
                                 break;
                             default:
                                 break;
@@ -609,6 +622,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             tableViewModel.GraphTableType.Enabled = tableDesigner.IsGraphTableSupported && tableInfo.IsNewTable;
             tableViewModel.GraphTableType.Values = new List<string>() { SR.TableDesignerGraphTableTypeNone, SR.TableDesignerGraphTableTypeEdge, SR.TableDesignerGraphTableTypeNode };
             tableViewModel.GraphTableType.Value = (table.IsEdge || table.IsNode) ? (table.IsEdge ? SR.TableDesignerGraphTableTypeEdge : SR.TableDesignerGraphTableTypeNode) : SR.TableDesignerGraphTableTypeNone;
+            tableViewModel.IsMemoryOptimized.Checked = table.IsMemoryOptimized;
+            tableViewModel.Durability.Value = SqlTableDurabilityUtil.Instance.GetName(table.Durability);
+            tableViewModel.Durability.Values = SqlTableDurabilityUtil.Instance.DisplayNames;
+            tableViewModel.IsSystemVersioningEnabled.Checked = table.SystemVersioningHistoryTable != null;
+            tableViewModel.HistoryTable.Value = table.SystemVersioningHistoryTable;
+            tableViewModel.HistoryTable.Values = tableDesigner.AllTables.ToList();
 
             foreach (var column in table.Columns.Items)
             {
@@ -637,6 +656,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 columnViewModel.IdentityIncrement.Enabled = column.CanEditIdentityValues;
                 columnViewModel.IdentityIncrement.Value = column.IdentityIncrement?.ToString();
                 columnViewModel.CanBeDeleted = column.CanBeDeleted;
+                columnViewModel.GeneratedAlwaysAs.Value = SqlGeneratedAlwaysColumnTypeUtil.Instance.GetName(column.GeneratedAlwaysColumnType);
+                columnViewModel.GeneratedAlwaysAs.Values = SqlGeneratedAlwaysColumnTypeUtil.Instance.DisplayNames;
                 tableViewModel.Columns.Data.Add(columnViewModel);
             }
 
@@ -645,10 +666,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 var foreignKeyViewModel = new ForeignKeyViewModel();
                 foreignKeyViewModel.Name.Value = foreignKey.Name;
                 foreignKeyViewModel.Enabled.Checked = foreignKey.Enabled;
-                foreignKeyViewModel.OnDeleteAction.Value = SqlForeignKeyActionUtil.GetName(foreignKey.OnDeleteAction);
-                foreignKeyViewModel.OnDeleteAction.Values = SqlForeignKeyActionUtil.ActionNames;
-                foreignKeyViewModel.OnUpdateAction.Value = SqlForeignKeyActionUtil.GetName(foreignKey.OnUpdateAction);
-                foreignKeyViewModel.OnUpdateAction.Values = SqlForeignKeyActionUtil.ActionNames;
+                foreignKeyViewModel.OnDeleteAction.Value = SqlForeignKeyActionUtil.Instance.GetName(foreignKey.OnDeleteAction);
+                foreignKeyViewModel.OnDeleteAction.Values = SqlForeignKeyActionUtil.Instance.DisplayNames;
+                foreignKeyViewModel.OnUpdateAction.Value = SqlForeignKeyActionUtil.Instance.GetName(foreignKey.OnUpdateAction);
+                foreignKeyViewModel.OnUpdateAction.Values = SqlForeignKeyActionUtil.Instance.DisplayNames;
                 foreignKeyViewModel.ForeignTable.Value = foreignKey.ForeignTable;
                 foreignKeyViewModel.ForeignTable.Values = tableDesigner.AllTables.ToList();
                 foreignKeyViewModel.IsNotForReplication.Checked = foreignKey.IsNotForReplication;
@@ -701,8 +722,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 var constraintVM = new EdgeConstraintViewModel();
                 constraintVM.Name.Value = constraint.Name;
                 constraintVM.Enabled.Checked = constraint.Enabled;
-                constraintVM.OnDeleteAction.Value = SqlForeignKeyActionUtil.GetName(constraint.OnDeleteAction);
-                constraintVM.OnDeleteAction.Values = SqlForeignKeyActionUtil.EdgeConstraintOnDeleteActionNames;
+                constraintVM.OnDeleteAction.Value = SqlForeignKeyActionUtil.Instance.GetName(constraint.OnDeleteAction);
+                constraintVM.OnDeleteAction.Values = SqlForeignKeyActionUtil.Instance.EdgeConstraintOnDeleteActionNames;
                 constraintVM.ClausesDisplayValue.Value = constraint.ClausesDisplayValue;
                 constraintVM.ClausesDisplayValue.Enabled = false;
                 foreach (var clause in constraint.Clauses)
@@ -731,11 +752,19 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             this.SetIndexesViewInfo(view);
             if (tableDesigner.IsGraphTableSupported && (tableInfo.IsNewTable || tableDesigner.TableViewModel.IsEdge || tableDesigner.TableViewModel.IsNode))
             {
-                SetGraphTableViewInfo(view);
+                this.SetGraphTableViewInfo(view);
             }
             if (tableDesigner.TableViewModel.IsEdge && tableDesigner.IsEdgeConstraintSupported)
             {
                 this.SetEdgeConstraintsViewInfo(view);
+            }
+            if (tableDesigner.IsTemporalTableSupported)
+            {
+                this.SetTemporalTableViewInfo(view);
+            }
+            if (tableDesigner.IsMemoryOptimizedTableSupported)
+            {
+                this.SetMemoryOptimizedTableViewInfo(view);
             }
             return view;
         }
@@ -1007,6 +1036,69 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 ShowInPropertiesView = false
             });
             view.AdditionalTabs.Add(tab);
+        }
+
+        private void SetTemporalTableViewInfo(TableDesignerView view)
+        {
+            view.AdditionalTableProperties.Add(new DesignerDataPropertyInfo()
+            {
+                PropertyName = TablePropertyNames.IsSystemVersioningEnabled,
+                ComponentType = DesignerComponentType.Checkbox,
+                Description = SR.TableDesignerIsSystemVersioningEnabledDescription,
+                Group = SR.TableDesignerSystemVersioningGroupTitle,
+                ComponentProperties = new CheckBoxProperties()
+                {
+                    Title = SR.TableDesignerIsSystemVersioningEnabledTitle
+                }
+            });
+            view.AdditionalTableProperties.Add(new DesignerDataPropertyInfo()
+            {
+                PropertyName = TablePropertyNames.HistoryTableName,
+                ComponentType = DesignerComponentType.Dropdown,
+                Description = SR.TableDesignerHistoryTableDescription,
+                Group = SR.TableDesignerSystemVersioningGroupTitle,
+                ComponentProperties = new DropdownProperties()
+                {
+                    Title = SR.TableDesignerHistoryTableTitle
+                }
+            });
+            view.ColumnTableOptions.AdditionalProperties.Add(new DesignerDataPropertyInfo()
+            {
+                PropertyName = TableColumnPropertyNames.GeneratedAlwaysAs,
+                ComponentType = DesignerComponentType.Dropdown,
+                Description = SR.TableDesignerColumnGeneratedAlwaysAsDescription,
+                Group = SR.TableDesignerSystemVersioningGroupTitle,
+                ComponentProperties = new DropdownProperties()
+                {
+                    Title = SR.TableDesignerColumnGeneratedAlwaysAsTitle
+                }
+            });
+        }
+
+        private void SetMemoryOptimizedTableViewInfo(TableDesignerView view)
+        {
+            view.AdditionalTableProperties.Add(new DesignerDataPropertyInfo()
+            {
+                PropertyName = TablePropertyNames.IsMemoryOptimized,
+                ComponentType = DesignerComponentType.Checkbox,
+                Description = SR.TableDesignerIsMemoryOptimizedDescription,
+                Group = SR.TableDesignerMemoryOptimizedGroupTitle,
+                ComponentProperties = new CheckBoxProperties()
+                {
+                    Title = SR.TableDesignerIsMemoryOptimizedTitle
+                }
+            });
+            view.AdditionalTableProperties.Add(new DesignerDataPropertyInfo()
+            {
+                PropertyName = TablePropertyNames.Durability,
+                ComponentType = DesignerComponentType.Dropdown,
+                Description = SR.TableDesignerDurabilityDescription,
+                Group = SR.TableDesignerMemoryOptimizedGroupTitle,
+                ComponentProperties = new DropdownProperties()
+                {
+                    Title = SR.TableDesignerDurabilityTitle
+                }
+            });
         }
 
         private Dac.TableDesigner CreateTableDesigner(TableInfo tableInfo)

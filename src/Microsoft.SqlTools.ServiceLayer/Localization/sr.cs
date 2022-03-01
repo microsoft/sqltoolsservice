@@ -8805,6 +8805,142 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string SqlTableDurability_SchemaAndData
+        {
+            get
+            {
+                return Keys.GetString(Keys.SqlTableDurability_SchemaAndData);
+            }
+        }
+
+        public static string SqlTableDurability_SchemaOnly
+        {
+            get
+            {
+                return Keys.GetString(Keys.SqlTableDurability_SchemaOnly);
+            }
+        }
+
+        public static string GeneratedAlwaysColumnType_None
+        {
+            get
+            {
+                return Keys.GetString(Keys.GeneratedAlwaysColumnType_None);
+            }
+        }
+
+        public static string GeneratedAlwaysColumnType_RowStart
+        {
+            get
+            {
+                return Keys.GetString(Keys.GeneratedAlwaysColumnType_RowStart);
+            }
+        }
+
+        public static string GeneratedAlwaysColumnType_RowEnd
+        {
+            get
+            {
+                return Keys.GetString(Keys.GeneratedAlwaysColumnType_RowEnd);
+            }
+        }
+
+        public static string TableDesignerIsSystemVersioningEnabledTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerIsSystemVersioningEnabledTitle);
+            }
+        }
+
+        public static string TableDesignerIsSystemVersioningEnabledDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerIsSystemVersioningEnabledDescription);
+            }
+        }
+
+        public static string TableDesignerSystemVersioningGroupTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerSystemVersioningGroupTitle);
+            }
+        }
+
+        public static string TableDesignerHistoryTableDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerHistoryTableDescription);
+            }
+        }
+
+        public static string TableDesignerHistoryTableTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerHistoryTableTitle);
+            }
+        }
+
+        public static string TableDesignerIsMemoryOptimizedDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerIsMemoryOptimizedDescription);
+            }
+        }
+
+        public static string TableDesignerMemoryOptimizedGroupTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerMemoryOptimizedGroupTitle);
+            }
+        }
+
+        public static string TableDesignerIsMemoryOptimizedTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerIsMemoryOptimizedTitle);
+            }
+        }
+
+        public static string TableDesignerDurabilityDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerDurabilityDescription);
+            }
+        }
+
+        public static string TableDesignerDurabilityTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerDurabilityTitle);
+            }
+        }
+
+        public static string TableDesignerColumnGeneratedAlwaysAsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerColumnGeneratedAlwaysAsDescription);
+            }
+        }
+
+        public static string TableDesignerColumnGeneratedAlwaysAsTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerColumnGeneratedAlwaysAsTitle);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -9105,9 +9241,9 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.InvalidTableEditPathException, path, editType);
         }
 
-        public static string UnKnownSqlForeignKeyAction(string name)
+        public static string UnknownEnumString(string name)
         {
-            return Keys.GetString(Keys.UnKnownSqlForeignKeyAction, name);
+            return Keys.GetString(Keys.UnknownEnumString, name);
         }
 
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -12502,7 +12638,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string SqlForeignKeyAction_SetDefault = "SqlForeignKeyAction_SetDefault";
 
 
-            public const string UnKnownSqlForeignKeyAction = "UnKnownSqlForeignKeyAction";
+            public const string UnknownEnumString = "UnknownEnumString";
 
 
             public const string CheckConstraintIsEnabledDescription = "CheckConstraintIsEnabledDescription";
@@ -12590,6 +12726,57 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string TableDesignerEdgeConstraintClauseToTablePropertyName = "TableDesignerEdgeConstraintClauseToTablePropertyName";
+
+
+            public const string SqlTableDurability_SchemaAndData = "SqlTableDurability_SchemaAndData";
+
+
+            public const string SqlTableDurability_SchemaOnly = "SqlTableDurability_SchemaOnly";
+
+
+            public const string GeneratedAlwaysColumnType_None = "GeneratedAlwaysColumnType_None";
+
+
+            public const string GeneratedAlwaysColumnType_RowStart = "GeneratedAlwaysColumnType_RowStart";
+
+
+            public const string GeneratedAlwaysColumnType_RowEnd = "GeneratedAlwaysColumnType_RowEnd";
+
+
+            public const string TableDesignerIsSystemVersioningEnabledTitle = "TableDesignerIsSystemVersioningEnabledTitle";
+
+
+            public const string TableDesignerIsSystemVersioningEnabledDescription = "TableDesignerIsSystemVersioningEnabledDescription";
+
+
+            public const string TableDesignerSystemVersioningGroupTitle = "TableDesignerSystemVersioningGroupTitle";
+
+
+            public const string TableDesignerHistoryTableDescription = "TableDesignerHistoryTableDescription";
+
+
+            public const string TableDesignerHistoryTableTitle = "TableDesignerHistoryTableTitle";
+
+
+            public const string TableDesignerIsMemoryOptimizedDescription = "TableDesignerIsMemoryOptimizedDescription";
+
+
+            public const string TableDesignerMemoryOptimizedGroupTitle = "TableDesignerMemoryOptimizedGroupTitle";
+
+
+            public const string TableDesignerIsMemoryOptimizedTitle = "TableDesignerIsMemoryOptimizedTitle";
+
+
+            public const string TableDesignerDurabilityDescription = "TableDesignerDurabilityDescription";
+
+
+            public const string TableDesignerDurabilityTitle = "TableDesignerDurabilityTitle";
+
+
+            public const string TableDesignerColumnGeneratedAlwaysAsDescription = "TableDesignerColumnGeneratedAlwaysAsDescription";
+
+
+            public const string TableDesignerColumnGeneratedAlwaysAsTitle = "TableDesignerColumnGeneratedAlwaysAsTitle";
 
 
             private Keys()

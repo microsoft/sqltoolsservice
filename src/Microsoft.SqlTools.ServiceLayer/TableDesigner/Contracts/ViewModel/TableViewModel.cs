@@ -18,6 +18,14 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 
         public DropdownProperties GraphTableType { get; set; } = new DropdownProperties();
 
+        public CheckBoxProperties IsMemoryOptimized { get; set; } = new CheckBoxProperties();
+
+        public DropdownProperties Durability { get; set; } = new DropdownProperties();
+
+        public CheckBoxProperties IsSystemVersioningEnabled { get; set; } = new CheckBoxProperties();
+
+        public DropdownProperties HistoryTable { get; set; } = new DropdownProperties();
+
         public TableComponentProperties<TableColumnViewModel> Columns { get; set; } = new TableComponentProperties<TableColumnViewModel>();
 
         public TableComponentProperties<ForeignKeyViewModel> ForeignKeys { get; set; } = new TableComponentProperties<ForeignKeyViewModel>();
