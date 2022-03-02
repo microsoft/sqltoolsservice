@@ -8941,6 +8941,54 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string TableDesignerColumnIsHiddenTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerColumnIsHiddenTitle);
+            }
+        }
+
+        public static string TableDesignerColumnIsHiddenDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerColumnIsHiddenDescription);
+            }
+        }
+
+        public static string TableDesignerAutoCreateHistoryTableDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerAutoCreateHistoryTableDescription);
+            }
+        }
+
+        public static string TableDesignerAutoCreateHistoryTableTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerAutoCreateHistoryTableTitle);
+            }
+        }
+
+        public static string TableDesignerNewHistoryTableDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerNewHistoryTableDescription);
+            }
+        }
+
+        public static string TableDesignerNewHistoryTableTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerNewHistoryTableTitle);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -12777,6 +12825,24 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string TableDesignerColumnGeneratedAlwaysAsTitle = "TableDesignerColumnGeneratedAlwaysAsTitle";
+
+
+            public const string TableDesignerColumnIsHiddenTitle = "TableDesignerColumnIsHiddenTitle";
+
+
+            public const string TableDesignerColumnIsHiddenDescription = "TableDesignerColumnIsHiddenDescription";
+
+
+            public const string TableDesignerAutoCreateHistoryTableDescription = "TableDesignerAutoCreateHistoryTableDescription";
+
+
+            public const string TableDesignerAutoCreateHistoryTableTitle = "TableDesignerAutoCreateHistoryTableTitle";
+
+
+            public const string TableDesignerNewHistoryTableDescription = "TableDesignerNewHistoryTableDescription";
+
+
+            public const string TableDesignerNewHistoryTableTitle = "TableDesignerNewHistoryTableTitle";
 
 
             private Keys()

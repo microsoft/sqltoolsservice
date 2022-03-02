@@ -24,7 +24,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 
         public CheckBoxProperties IsSystemVersioningEnabled { get; set; } = new CheckBoxProperties();
 
-        public DropdownProperties HistoryTable { get; set; } = new DropdownProperties();
+        public DropdownProperties ExistingHistoryTable { get; set; } = new DropdownProperties();
+
+        public CheckBoxProperties AutoCreateHistoryTable { get; set; } = new CheckBoxProperties();
+
+        public InputBoxProperties NewHistoryTableName { get; set; } = new InputBoxProperties();
 
         public TableComponentProperties<TableColumnViewModel> Columns { get; set; } = new TableComponentProperties<TableColumnViewModel>();
 

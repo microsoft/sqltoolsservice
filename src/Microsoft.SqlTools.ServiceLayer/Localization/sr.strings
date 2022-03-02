@@ -2293,3 +2293,10 @@ TableDesignerDurabilityDescription = Specifies the durability setting of the tab
 TableDesignerDurabilityTitle = Durability
 TableDesignerColumnGeneratedAlwaysAsDescription = Specifies the start or end of the system versioning table's period setting.
 TableDesignerColumnGeneratedAlwaysAsTitle = Generated Always As
+TableDesignerColumnIsHiddenTitle = Is Hidden
+TableDesignerColumnIsHiddenDescription = Specifies whether the column will be returned by select statement.
+TableDesignerAutoCreateHistoryTableDescription = Specifies whether the engine should automatically create the history table.
+TableDesignerAutoCreateHistoryTableTitle = Auto Create History Table
+TableDesignerNewHistoryTableDescription = Specifies the name of the history name.
+TableDesignerNewHistoryTableTitle = New History Table Name
+

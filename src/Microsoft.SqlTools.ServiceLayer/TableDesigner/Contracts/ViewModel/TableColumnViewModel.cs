@@ -34,6 +34,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 
         public DropdownProperties GeneratedAlwaysAs { get; set; } = new DropdownProperties();
 
+        public CheckBoxProperties IsHidden { get; set; } = new CheckBoxProperties();
+
         public bool CanBeDeleted { get; set; } = true;
     }
 }

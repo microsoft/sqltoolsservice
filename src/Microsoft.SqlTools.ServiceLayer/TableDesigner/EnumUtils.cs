@@ -79,15 +79,15 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         }
     }
 
-    public class SqlGeneratedAlwaysColumnTypeUtil : EnumUtil<GeneratedAlwaysColumnType>
+    public class ColumnGeneratedAlwaysAsTypeUtil : EnumUtil<ColumnGeneratedAlwaysAsType>
     {
-        public static SqlGeneratedAlwaysColumnTypeUtil Instance { get; } = new SqlGeneratedAlwaysColumnTypeUtil();
+        public static ColumnGeneratedAlwaysAsTypeUtil Instance { get; } = new ColumnGeneratedAlwaysAsTypeUtil();
 
-        public SqlGeneratedAlwaysColumnTypeUtil()
+        public ColumnGeneratedAlwaysAsTypeUtil()
         {
-            this.Mapping.Add(SR.GeneratedAlwaysColumnType_None, GeneratedAlwaysColumnType.None);
-            this.Mapping.Add(SR.GeneratedAlwaysColumnType_RowStart, GeneratedAlwaysColumnType.GeneratedAlwaysAsRowStart);
-            this.Mapping.Add(SR.GeneratedAlwaysColumnType_RowEnd, GeneratedAlwaysColumnType.GeneratedAlwaysAsRowEnd);
+            this.Mapping.Add(SR.GeneratedAlwaysColumnType_None, ColumnGeneratedAlwaysAsType.None);
+            this.Mapping.Add(SR.GeneratedAlwaysColumnType_RowStart, ColumnGeneratedAlwaysAsType.GeneratedAlwaysAsRowStart);
+            this.Mapping.Add(SR.GeneratedAlwaysColumnType_RowEnd, ColumnGeneratedAlwaysAsType.GeneratedAlwaysAsRowEnd);
         }
     }
 }

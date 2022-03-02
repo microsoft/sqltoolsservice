@@ -17,7 +17,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         public const string EdgeConstraints = "edgeConstraints";
         public const string GraphTableType = "graphTableType";
         public const string IsSystemVersioningEnabled = "isSystemVersioningEnabled";
-        public const string HistoryTableName = "historyTable";
+        public const string AutoCreateHistoryTable = "autoCreateHistoryTable";
+        public const string NewHistoryTableTable = "newHistoryTableName";
+        public const string ExistingHistoryTableName = "existingHistoryTable";
         public const string IsMemoryOptimized = "isMemoryOptimized";
         public const string Durability = "durability";
     }
@@ -37,6 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         public const string IdentitySeed = "identitySeed";
         public const string CanBeDeleted = "canBeDeleted";
         public const string GeneratedAlwaysAs = "generatedAlwaysAs";
+        public const string IsHidden = "isHidden";
     }
 
     public static class ForeignKeyPropertyNames

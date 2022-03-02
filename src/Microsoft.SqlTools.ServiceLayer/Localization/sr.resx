@@ -4882,4 +4882,28 @@ The Query Processor estimates that implementing the following index could improv
     <value>Generated Always As</value>
     <comment></comment>
   </data>
+  <data name="TableDesignerColumnIsHiddenTitle" xml:space="preserve">
+    <value>Is Hidden</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerColumnIsHiddenDescription" xml:space="preserve">
+    <value>Specifies whether the column will be returned by select statement.</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerAutoCreateHistoryTableDescription" xml:space="preserve">
+    <value>Specifies whether the engine should automatically create the history table.</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerAutoCreateHistoryTableTitle" xml:space="preserve">
+    <value>Auto Create History Table</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerNewHistoryTableDescription" xml:space="preserve">
+    <value>Specifies the name of the history name.</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerNewHistoryTableTitle" xml:space="preserve">
+    <value>New History Table Name</value>
+    <comment></comment>
+  </data>
 </root>
