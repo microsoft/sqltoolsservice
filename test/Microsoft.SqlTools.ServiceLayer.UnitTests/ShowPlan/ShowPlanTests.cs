@@ -29,7 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ShowPlan
         }
 
         [Test]
-        public void CompareDuplicateShowPlanSkeletons()
+        public void CompareShowPlan_DuplicateSkeletons()
         {
             ReadFile(".ShowPlan.TestExecutionPlan.xml");
             ShowPlanGraph[] graphs = ShowPlanGraph.ParseShowPlanXML(queryPlanFileText, ShowPlanType.Unknown);
@@ -44,7 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ShowPlan
         }
 
         [Test]
-        public void CompareDifferentShowPlanSkeletons()
+        public void CompareShowPlan_DifferentSkeletons()
         {
             ReadFile(".ShowPlan.TestExecutionPlan.xml");
             ShowPlanGraph[] graphs = ShowPlanGraph.ParseShowPlanXML(queryPlanFileText, ShowPlanType.Unknown);
