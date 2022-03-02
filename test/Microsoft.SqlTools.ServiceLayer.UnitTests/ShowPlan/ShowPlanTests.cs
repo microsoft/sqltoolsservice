@@ -9,7 +9,8 @@ using System.IO;
 using System.Reflection;
 using NUnit.Framework;
 using Microsoft.SqlTools.ServiceLayer.ShowPlan;
-
+using Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph.Comparison;
+using Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ShowPlan
 {
@@ -25,6 +26,37 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ShowPlan
             Assert.AreEqual(1, showPlanGraphs.Count, "exactly one show plan graph should be returned");
             Assert.NotNull(showPlanGraphs[0], "graph should not be null");
             Assert.NotNull(showPlanGraphs[0].Root, "graph should have a root");
+        }
+
+        [Test]
+        public void CompareDuplicateShowPlanSkeletons()
+        {
+            ReadFile(".ShowPlan.TestExecutionPlan.xml");
+            ShowPlanGraph[] graphs = ShowPlanGraph.ParseShowPlanXML(queryPlanFileText, ShowPlanType.Unknown);
+            var rootNode = graphs[0].Root;
+
+            var skeletonManager = new SkeletonManager();
+            var skeletonNode = skeletonManager.CreateSkeleton(rootNode);
+            var skeletonNode2 = skeletonManager.CreateSkeleton(rootNode);
+            var skeletonCompareResult = skeletonManager.AreSkeletonsEquivalent(skeletonNode, skeletonNode2, ignoreDatabaseName: true);
+
+            Assert.AreEqual(true, skeletonCompareResult);
+        }
+
+        [Test]
+        public void CompareDifferentShowPlanSkeletons()
+        {
+            ReadFile(".ShowPlan.TestExecutionPlan.xml");
+            ShowPlanGraph[] graphs = ShowPlanGraph.ParseShowPlanXML(queryPlanFileText, ShowPlanType.Unknown);
+            var rootNode = graphs[0].Root;
+
+            var skeletonManager = new SkeletonManager();
+            var skeletonNode = skeletonManager.CreateSkeleton(rootNode);
+            var skeletonNode2 = skeletonManager.CreateSkeleton(rootNode);
+            skeletonNode2.Children.RemoveAt(skeletonNode2.Children.Count - 1);
+            var skeletonCompareResult = skeletonManager.AreSkeletonsEquivalent(skeletonNode, skeletonNode2, ignoreDatabaseName: true);
+
+            Assert.AreEqual(false, skeletonCompareResult);
         }
 
         [Test]
