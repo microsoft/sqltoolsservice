@@ -38,13 +38,45 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ShowPlan
             var skeletonManager = new SkeletonManager();
             var skeletonNode = skeletonManager.CreateSkeleton(rootNode);
             var skeletonNode2 = skeletonManager.CreateSkeleton(rootNode);
+
             var skeletonCompareResult = skeletonManager.AreSkeletonsEquivalent(skeletonNode, skeletonNode2, ignoreDatabaseName: true);
 
             Assert.AreEqual(true, skeletonCompareResult);
         }
 
         [Test]
-        public void CompareShowPlan_DifferentSkeletons()
+        public void CompareShowPlan_TwoNullSkeletons()
+        {
+            Node firstRoot = null;
+            Node secondRoot = null;
+
+            var skeletonManager = new SkeletonManager();
+            var firstSkeletonNode = skeletonManager.CreateSkeleton(firstRoot);
+            var secondSkeletonNode = skeletonManager.CreateSkeleton(secondRoot);
+
+            var skeletonCompareResult = skeletonManager.AreSkeletonsEquivalent(firstSkeletonNode, secondSkeletonNode, ignoreDatabaseName: true);
+
+            Assert.AreEqual(true, skeletonCompareResult);
+        }
+
+        [Test]
+        public void CompareShowPlan_ComparingSkeletonAgainstNull()
+        {
+            ReadFile(".ShowPlan.TestExecutionPlan.xml");
+            ShowPlanGraph[] graphs = ShowPlanGraph.ParseShowPlanXML(queryPlanFileText, ShowPlanType.Unknown);
+            var rootNode = graphs[0].Root;
+
+            var skeletonManager = new SkeletonManager();
+            var skeletonNode = skeletonManager.CreateSkeleton(rootNode);
+            SkeletonNode skeletonNode2 = null;
+
+            var skeletonCompareResult = skeletonManager.AreSkeletonsEquivalent(skeletonNode, skeletonNode2, ignoreDatabaseName: true);
+
+            Assert.AreEqual(false, skeletonCompareResult);
+        }
+
+        [Test]
+        public void CompareShowPlan_DifferentChildCount()
         {
             ReadFile(".ShowPlan.TestExecutionPlan.xml");
             ShowPlanGraph[] graphs = ShowPlanGraph.ParseShowPlanXML(queryPlanFileText, ShowPlanType.Unknown);
@@ -54,6 +86,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ShowPlan
             var skeletonNode = skeletonManager.CreateSkeleton(rootNode);
             var skeletonNode2 = skeletonManager.CreateSkeleton(rootNode);
             skeletonNode2.Children.RemoveAt(skeletonNode2.Children.Count - 1);
+
             var skeletonCompareResult = skeletonManager.AreSkeletonsEquivalent(skeletonNode, skeletonNode2, ignoreDatabaseName: true);
 
             Assert.AreEqual(false, skeletonCompareResult);
