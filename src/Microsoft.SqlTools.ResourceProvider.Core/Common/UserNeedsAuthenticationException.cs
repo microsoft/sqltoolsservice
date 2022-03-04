@@ -1,6 +1,7 @@
 ﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
 using System.Runtime.Serialization;
@@ -8,7 +9,7 @@ using System.Runtime.Serialization;
 namespace Microsoft.SqlTools.ResourceProvider.Core
 {
     /// <summary>
-    /// The exception is used if any operation fails becauase user needs to reauthenticate 
+    /// The exception is used if any operation fails becauase user needs to reauthenticate
     /// </summary>
     public class UserNeedsAuthenticationException : ServiceExceptionBase
     {
@@ -29,11 +30,11 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
         }
 
         /// <summary>
-        /// Initializes a new instance of the ServiceFailedException class with a specified error message 
+        /// Initializes a new instance of the ServiceFailedException class with a specified error message
         /// and a reference to the inner exception that is the cause of this exception.
         /// </summary>
         /// <param name="message">The error message that explains the reason for the exception. </param>
-        /// <param name="innerException">The exception that is the cause of the current exception, or a null reference 
+        /// <param name="innerException">The exception that is the cause of the current exception, or a null reference
         /// (Nothing in Visual Basic) if no inner exception is specified</param>
         public UserNeedsAuthenticationException(string message, Exception innerException)
             : base(message, innerException)

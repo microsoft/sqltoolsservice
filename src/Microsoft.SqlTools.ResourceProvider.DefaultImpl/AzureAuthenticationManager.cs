@@ -1,6 +1,7 @@
 ﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
 {
 
     /// <summary>
-    /// Implementation for <see cref="IAzureAuthenticationManager" />. 
+    /// Implementation for <see cref="IAzureAuthenticationManager" />.
     /// Provides functionality to authenticate to Azure and discover associated accounts and subscriptions
     /// </summary>
     [Exportable(
@@ -79,7 +80,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
             OnCurrentAccountChanged();
             return await GetCurrentAccountAsync();
         }
-        
+
         /// <summary>
         /// Public for testing purposes. Creates an Azure account with the correct set of mappings for tenants etc.
         /// </summary>
@@ -185,7 +186,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
         {
             return _selectedSubscriptions ?? await GetSubscriptionsAsync();
         }
-        
+
         /// <summary>
         /// Returns user's subscriptions
         /// </summary>
@@ -219,7 +220,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
         private async Task<IEnumerable<IAzureUserAccountSubscriptionContext>> GetSubscriptionsFromCacheAsync(AzureUserAccount user)
         {
             var result = Enumerable.Empty<IAzureUserAccountSubscriptionContext>();
-            
+
             if (user != null)
             {
                 if (user.UniqueId != "") {
@@ -278,7 +279,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
                 ? subscriptionList
                 : subscriptionList.Where(x => subscriptionIds.Contains(x.Subscription.SubscriptionId)).ToList();
 
-            //If the current account changes during setting selected subscription, none of the ids should be found 
+            //If the current account changes during setting selected subscription, none of the ids should be found
             //so we just reset the selected subscriptions
             if (subscriptionIds != null && subscriptionIds.Any() && newSelectedSubscriptions.Count == 0)
             {

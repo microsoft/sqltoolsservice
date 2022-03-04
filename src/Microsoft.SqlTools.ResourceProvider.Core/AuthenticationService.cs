@@ -30,12 +30,12 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
         public AuthenticationService()
         {
         }
-        
+
         public override void InitializeService(IProtocolEndpoint serviceHost)
         {
             Logger.Write(TraceEventType.Verbose, "AuthenticationService initialized");
         }
-        
+
         public async Task<IUserAccount> SetCurrentAccountAsync(Account account, Dictionary<string, AccountSecurityToken> securityTokenMappings)
         {
             var authManager = ServiceProvider.GetService<IAzureAuthenticationManager>();

@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Extensibility
     /// Provides facility to trace code execution through calls to Trace* methods.
     /// Implementing classes must add a <see cref="ExportableAttribute" />
     /// to the class in order to be found by the extension manager
-    /// </summary>  
+    /// </summary>
     public interface ITrace : IExportable
     {
         /// <summary>
@@ -40,5 +40,5 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Extensibility
         bool TraceException(TraceEventType eventType, int traceId, Exception exception, string message,
             [CallerLineNumber] int lineNumber = 0, [CallerFilePath] string fileName = "",
             [CallerMemberName] string memberName = "");
-    } 
+    }
 }
