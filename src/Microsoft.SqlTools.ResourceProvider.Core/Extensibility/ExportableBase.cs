@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Extensibility
         /// </summary>
         public IExportableMetadata Metadata
         {
-            get; 
+            get;
             set;
         }
 
@@ -36,7 +36,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Extensibility
         /// </summary>
         public IMultiServiceProvider ServiceProvider
         {
-            get; 
+            get;
             private set;
         }
 
@@ -53,7 +53,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Extensibility
         /// <returns>A service of type T or null if not found</returns>
         protected T GetService<T>()
             where T : IExportable
-        {            
+        {
             return GetService<T>(Metadata);
         }
 
@@ -90,7 +90,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Extensibility
         }
 
         /// <summary>
-        /// ServerDefinition created from the metadata 
+        /// ServerDefinition created from the metadata
         /// </summary>
         protected ServerDefinition ServerDefinition
         {

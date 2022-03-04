@@ -1,6 +1,7 @@
 ﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
 using Microsoft.Azure.Management.ResourceManager;
@@ -11,7 +12,7 @@ using Microsoft.SqlTools.ResourceProvider.Core.Authentication;
 namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
 {
     /// <summary>
-    /// VS session used by <see cref="AzureResourceManager" />. 
+    /// VS session used by <see cref="AzureResourceManager" />.
     /// Includes all the clients that the resource management needs to get ther resources
     /// </summary>
     public class AzureResourceManagementSession : IAzureResourceManagementSession
@@ -22,7 +23,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
         /// <param name="sqlManagementClient">Sql Management Client</param>
         /// <param name="resourceManagementClient">Resource Management Client</param>
         /// <param name="subscriptionContext">Subscription Context</param>
-        public AzureResourceManagementSession(SqlManagementClient sqlManagementClient, 
+        public AzureResourceManagementSession(SqlManagementClient sqlManagementClient,
             ResourceManagementClient resourceManagementClient,
             IAzureUserAccountSubscriptionContext subscriptionContext)
         {
@@ -46,7 +47,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
         public bool CloseSession()
         {
             try
-            {            
+            {
                 if (ResourceManagementClient != null)
                 {
                     ResourceManagementClient.Dispose();

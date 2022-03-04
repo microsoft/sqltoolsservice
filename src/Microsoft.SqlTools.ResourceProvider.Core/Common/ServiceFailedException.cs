@@ -32,11 +32,11 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
         }
 
         /// <summary>
-        /// Initializes a new instance of the ServiceFailedException class with a specified error message 
+        /// Initializes a new instance of the ServiceFailedException class with a specified error message
         /// and a reference to the inner exception that is the cause of this exception.
         /// </summary>
         /// <param name="message">The error message that explains the reason for the exception. </param>
-        /// <param name="innerException">The exception that is the cause of the current exception, or a null reference 
+        /// <param name="innerException">The exception that is the cause of the current exception, or a null reference
         /// (Nothing in Visual Basic) if no inner exception is specified</param>
         public ServiceFailedException(string message, Exception innerException)
             : base(message, innerException)
@@ -54,13 +54,13 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
         }
 
         /// <summary>
-        /// Creates a new instance of ServiceFailedException by adding the server definition info to the given message 
+        /// Creates a new instance of ServiceFailedException by adding the server definition info to the given message
         /// </summary>
         internal static ServiceFailedException CreateException(string message, ServerDefinition serverDefinition, Exception innerException)
         {
             return new ServiceFailedException(
-                    string.Format(CultureInfo.CurrentCulture, message, 
-                    serverDefinition != null ? serverDefinition.ServerType : string.Empty, 
+                    string.Format(CultureInfo.CurrentCulture, message,
+                    serverDefinition != null ? serverDefinition.ServerType : string.Empty,
                     serverDefinition != null ? serverDefinition.Category : string.Empty), innerException);
         }
     }

@@ -1,6 +1,7 @@
 ﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -14,12 +15,12 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
     /// Implementing classes must add a <see cref="ExportableAttribute" />
     /// to the class in order to be found by the extension manager,
     /// and to define the type and category supported
-    /// </summary>  
+    /// </summary>
     public interface IServerDiscoveryProvider : IExportable
-    {        
+    {
         /// <summary>
         /// Discovers the server instances
         /// </summary>
-        Task<ServiceResponse<ServerInstanceInfo>> GetServerInstancesAsync();            
+        Task<ServiceResponse<ServerInstanceInfo>> GetServerInstancesAsync();
     }
 }

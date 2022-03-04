@@ -230,7 +230,7 @@ Task("BuildTest")
                         StandardOutputWriter = logWriter,
                         StandardErrorWriter = logWriter
                     })
-                .ExceptionOnError($"Building test {project} failed for {framework}.");
+                .ExceptionOnError($"Building test {project} failed for {framework}. See {logPath} for more details.");
             }
 
         }
