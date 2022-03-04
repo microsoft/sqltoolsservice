@@ -22,8 +22,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph.Comparison
         /// </summary>
         /// <param name="root">Node to construct skeleton of</param>
         /// <returns>SkeletonNode with children representing logical descendants of the input node</returns>
-       public SkeletonNode CreateSkeleton(Node root)
+        public SkeletonNode CreateSkeleton(Node root)
         {
+            if (root == null)
+                return null;
+
             Node rootNode = root;
             var childCount = root.Children.Count;
             if (childCount > 1)
@@ -36,7 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph.Comparison
                 }
                 return skeletonParent;
             }
-            else if (childCount == 1) 
+            else if (childCount == 1)
             {
                 if (!ShouldIgnoreDuringComparison(rootNode))
                 {
@@ -80,7 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph.Comparison
             while (childIterator < root1.Children.Count)
             {
                 var checkMatch = AreSkeletonsEquivalent(root1.Children.ElementAt(childIterator), root2.Children.ElementAt(childIterator), ignoreDatabaseName);
-                if (!checkMatch) 
+                if (!checkMatch)
                 {
                     // at least one pair of children (ie inner.Child1 & outer.Child1) didn't match; stop checking rest
                     return false;
