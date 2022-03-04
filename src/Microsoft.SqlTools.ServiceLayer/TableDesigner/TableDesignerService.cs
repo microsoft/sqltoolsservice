@@ -205,6 +205,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     case TablePropertyNames.EdgeConstraints:
                         table.EdgeConstraints.AddNew();
                         break;
+                    case TablePropertyNames.PrimaryKeyColumns:
+                        if (table.PrimaryKey == null)
+                        {
+                            table.CreatePrimaryKey();
+                        }
+                        table.PrimaryKey.AddNewColumnSpecification();
+                        break;
                     default:
                         break;
                 }
@@ -277,6 +284,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         break;
                     case TablePropertyNames.EdgeConstraints:
                         table.EdgeConstraints.RemoveAt(objIndex);
+                        break;
+                    case TablePropertyNames.PrimaryKeyColumns:
+                        table.PrimaryKey.RemoveColumnSpecification(objIndex);
                         break;
                     default:
                         break;
@@ -368,7 +378,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         var enabled = GetBooleanValue(newValue);
                         if (enabled)
                         {
-                            // TODO block the enable attampt if no date columns pair specified
                             if (tableDesignerData.OriginalHistoryTable != null)
                             {
                                 table.SystemVersioningHistoryTable = tableDesignerData.OriginalHistoryTable;
@@ -409,6 +418,18 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         break;
                     case TablePropertyNames.Durability:
                         table.Durability = SqlTableDurabilityUtil.Instance.GetValue(GetStringValue(newValue));
+                        break;
+                    case TablePropertyNames.PrimaryKeyName:
+                        if (table.PrimaryKey != null)
+                        {
+                            table.PrimaryKey.Name = GetStringValue(newValue);
+                        }
+                        break;
+                    case TablePropertyNames.PrimaryKeyIsClustered:
+                        if (table.PrimaryKey != null)
+                        {
+                            table.PrimaryKey.IsClustered = GetBooleanValue(newValue);
+                        }
                         break;
                     default:
                         break;
@@ -463,6 +484,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                                 break;
                             case TableColumnPropertyNames.IsHidden:
                                 column.IsHidden = GetBooleanValue(newValue);
+                                break;
+                            case TableColumnPropertyNames.DefaultConstraintName:
+                                column.DefaultConstraintName = GetStringValue(newValue);
                                 break;
                             default:
                                 break;
@@ -543,6 +567,19 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                                 break;
                             case EdgeConstraintPropertyNames.OnDeleteAction:
                                 constraint.OnDeleteAction = SqlForeignKeyActionUtil.Instance.GetValue(GetStringValue(newValue));
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    case TablePropertyNames.PrimaryKeyColumns:
+                        switch (propertyNameL2)
+                        {
+                            case IndexColumnSpecificationPropertyNames.Column:
+                                table.PrimaryKey.UpdateColumnName(indexL1, GetStringValue(newValue));
+                                break;
+                            case IndexColumnSpecificationPropertyNames.Ascending:
+                                table.PrimaryKey.UpdateIsAscending(indexL1, GetBooleanValue(newValue));
                                 break;
                             default:
                                 break;
@@ -656,6 +693,22 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             tableViewModel.Schema.Value = table.Schema;
             tableViewModel.Schema.Values = tableDesigner.Schemas.ToList();
             tableViewModel.Description.Value = table.Description;
+            var primaryKey = table.PrimaryKey;
+            tableViewModel.PrimaryKeyName.Enabled = primaryKey != null;
+            tableViewModel.PrimaryKeyIsClustered.Enabled = primaryKey != null;
+            if (primaryKey != null)
+            {
+                tableViewModel.PrimaryKeyName.Value = primaryKey.Name;
+                tableViewModel.PrimaryKeyIsClustered.Checked = primaryKey.IsClustered;
+                foreach (var cs in primaryKey.Columns)
+                {
+                    var columnSpecVM = new IndexedColumnSpecification();
+                    columnSpecVM.Ascending.Checked = cs.IsAscending;
+                    columnSpecVM.Column.Value = cs.Column;
+                    columnSpecVM.Column.Values = tableDesigner.GetColumnsForTable(table.FullName).ToList();
+                    tableViewModel.PrimaryKeyColumns.Data.Add(columnSpecVM);
+                }
+            }
 
             // Graph table related properties
             tableViewModel.GraphTableType.Enabled = table.CanEditGraphTableType;
@@ -717,9 +770,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 columnViewModel.CanBeDeleted = column.CanBeDeleted;
                 columnViewModel.GeneratedAlwaysAs.Value = ColumnGeneratedAlwaysAsTypeUtil.Instance.GetName(column.GeneratedAlwaysAs);
                 columnViewModel.GeneratedAlwaysAs.Values = ColumnGeneratedAlwaysAsTypeUtil.Instance.DisplayNames;
-                columnViewModel.GeneratedAlwaysAs.Enabled = column.CanEditGeneratedAlwaysAs;
+                columnViewModel.GeneratedAlwaysAs.Enabled = tableDesigner.IsTemporalTableSupported;
                 columnViewModel.IsHidden.Checked = column.IsHidden;
                 columnViewModel.IsHidden.Enabled = column.CanEditIsHidden;
+                columnViewModel.DefaultConstraintName.Enabled = column.CanEditDefaultConstraintName;
+                columnViewModel.DefaultConstraintName.Value = column.DefaultConstraintName;
                 tableViewModel.Columns.Data.Add(columnViewModel);
             }
 
@@ -808,6 +863,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         {
             var tableDesignerData = this.GetTableDesigner(tableInfo);
             var view = new TableDesignerView();
+            this.SetPrimaryKeyViewInfo(view);
             this.SetColumnsViewInfo(view);
             this.SetForeignKeysViewInfo(view);
             this.SetCheckConstraintsViewInfo(view);
@@ -817,6 +873,32 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             this.SetTemporalTableViewInfo(view, tableDesignerData);
             this.SetMemoryOptimizedTableViewInfo(view, tableDesignerData.TableDesigner);
             return view;
+        }
+
+        private void SetPrimaryKeyViewInfo(TableDesignerView view)
+        {
+            view.AdditionalPrimaryKeyProperties.Add(new DesignerDataPropertyInfo()
+            {
+                PropertyName = TablePropertyNames.PrimaryKeyIsClustered,
+                ComponentType = DesignerComponentType.Checkbox,
+                Description = SR.IndexIsClusteredPropertyDescription,
+                ComponentProperties = new CheckBoxProperties()
+                {
+                    Title = SR.TableDesignerIndexIsClusteredPropertyTitle
+                }
+            });
+            view.PrimaryKeyColumnSpecificationTableOptions.AdditionalProperties.Add(new DesignerDataPropertyInfo()
+            {
+                PropertyName = IndexColumnSpecificationPropertyNames.Ascending,
+                Description = SR.IndexColumnIsAscendingPropertyDescription,
+                ComponentType = DesignerComponentType.Checkbox,
+                ComponentProperties = new CheckBoxProperties()
+                {
+                    Title = SR.IndexColumnIsAscendingPropertyTitle
+                }
+            });
+            view.PrimaryKeyColumnSpecificationTableOptions.PropertiesToDisplay.Add(IndexColumnSpecificationPropertyNames.Column);
+            view.PrimaryKeyColumnSpecificationTableOptions.PropertiesToDisplay.Add(IndexColumnSpecificationPropertyNames.Ascending);
         }
 
         private void SetColumnsViewInfo(TableDesignerView view)
@@ -853,6 +935,16 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     ComponentProperties = new InputBoxProperties()
                     {
                         Title = SR.TableColumnIdentityIncrementPropertyTitle
+                    }
+                },
+                new DesignerDataPropertyInfo()
+                {
+                    PropertyName = TableColumnPropertyNames.DefaultConstraintName,
+                    Description = SR.TableColumnDefaultConstraintNamePropertyDescription,
+                    ComponentType = DesignerComponentType.Input,
+                    ComponentProperties = new InputBoxProperties()
+                    {
+                        Title = SR.TableColumnDefaultConstraintNamePropertyTitle
                     }
                 }
             });

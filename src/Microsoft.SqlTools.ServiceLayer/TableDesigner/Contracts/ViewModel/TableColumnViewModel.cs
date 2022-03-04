@@ -36,6 +36,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 
         public CheckBoxProperties IsHidden { get; set; } = new CheckBoxProperties();
 
+        public InputBoxProperties DefaultConstraintName { get; set; } = new InputBoxProperties();
+
         public bool CanBeDeleted { get; set; } = true;
     }
 }

@@ -6,6 +6,7 @@
 using System.Collections.Generic;
 using Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
 using ValidationError = Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts.TableDesignerValidationError;
+using System.Linq;
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 {
     public static class TableDesignerValidator
@@ -19,7 +20,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             new NoDuplicateConstraintNameRule(),
             new NoDuplicateIndexNameRule(),
             new EdgeConstraintMustHaveClausesRule(),
-            new EdgeConstraintNoRepeatingClausesRule()
+            new EdgeConstraintNoRepeatingClausesRule(),
+            new MemoryOptimizedTableMustHaveNonClusteredPrimaryKeyRule(),
+            new TemporalTableMustHavePeriodColumns(),
+            new PeriodColumnsRule(),
+            new ColumnsInPrimaryKeyCannotBeNullableRule()
         };
 
         /// <summary>
@@ -319,6 +324,100 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     {
                         existingPairs.Add(pair);
                     }
+                }
+            }
+            return errors;
+        }
+    }
+
+    public class MemoryOptimizedTableMustHaveNonClusteredPrimaryKeyRule : ITableDesignerValidationRule
+    {
+        public List<ValidationError> Run(TableViewModel table)
+        {
+            var errors = new List<ValidationError>();
+            if (table.IsMemoryOptimized && (table.PrimaryKey == null || table.PrimaryKey.IsClustered))
+            {
+                errors.Add(new ValidationError()
+                {
+                    Message = "Memory-optimized table must have non-clustered primary key."
+                });
+            }
+            return errors;
+        }
+    }
+
+    public class TemporalTableMustHavePrimaryKeyRule : ITableDesignerValidationRule
+    {
+        public List<ValidationError> Run(TableViewModel table)
+        {
+            var errors = new List<ValidationError>();
+            if (table.SystemVersioningHistoryTable != null && table.PrimaryKey == null)
+            {
+                errors.Add(new ValidationError()
+                {
+                    Message = "System versioned table must have primary key."
+                });
+            }
+            return errors;
+        }
+    }
+
+    public class TemporalTableMustHavePeriodColumns : ITableDesignerValidationRule
+    {
+        public List<ValidationError> Run(TableViewModel table)
+        {
+            var errors = new List<ValidationError>();
+            if (table.SystemVersioningHistoryTable != null && !table.PeriodColumnsDefined)
+            {
+                errors.Add(new ValidationError()
+                {
+                    Message = "System versioned table must have the period columns defined."
+                });
+            }
+            return errors;
+        }
+    }
+
+    public class PeriodColumnsRule : ITableDesignerValidationRule
+    {
+        public List<ValidationError> Run(TableViewModel table)
+        {
+            var errors = new List<ValidationError>();
+            var rowStart = table.Columns.Items.Where(c => c.GeneratedAlwaysAs == ColumnGeneratedAlwaysAsType.GeneratedAlwaysAsRowStart);
+            var rowEnd = table.Columns.Items.Where(c => c.GeneratedAlwaysAs == ColumnGeneratedAlwaysAsType.GeneratedAlwaysAsRowEnd);
+            if (rowStart.Count() > 1 || rowEnd.Count() > 1)
+            {
+                errors.Add(new ValidationError()
+                {
+                    Message = "Period columns (Generated Always As Row Start/End) can only be defined once."
+                });
+            }
+            else if (rowEnd.Count() != rowStart.Count())
+            {
+                errors.Add(new ValidationError()
+                {
+                    Message = "Period columns (Generated Always As Row Start/End) must be defined as pair. If one is defined, the other must also be defined"
+                });
+            }
+            return errors;
+        }
+    }
+
+    public class ColumnsInPrimaryKeyCannotBeNullableRule : ITableDesignerValidationRule
+    {
+        public List<ValidationError> Run(TableViewModel table)
+        {
+            var errors = new List<ValidationError>();
+            for (int i = 0; i < table.Columns.Items.Count; i++)
+            {
+                var column = table.Columns.Items[0];
+                if (column.IsPrimaryKey && column.IsNullable)
+                {
+                    errors.Add(new ValidationError()
+                    {
+                        Message = "Columns in primary key cannot be nullable.",
+                        PropertyPath = new object[] { TablePropertyNames.Columns, i }
+                    });
                 }
             }
             return errors;

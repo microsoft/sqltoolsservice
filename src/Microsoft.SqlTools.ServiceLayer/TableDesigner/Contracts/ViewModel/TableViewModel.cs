@@ -30,6 +30,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 
         public InputBoxProperties NewHistoryTableName { get; set; } = new InputBoxProperties();
 
+        public InputBoxProperties PrimaryKeyName { get; set; } = new InputBoxProperties();
+
+        public CheckBoxProperties PrimaryKeyIsClustered { get; set; } = new CheckBoxProperties();
+
+        public TableComponentProperties<IndexedColumnSpecification> PrimaryKeyColumns { get; set; } = new TableComponentProperties<IndexedColumnSpecification>();
+
         public TableComponentProperties<TableColumnViewModel> Columns { get; set; } = new TableComponentProperties<TableColumnViewModel>();
 
         public TableComponentProperties<ForeignKeyViewModel> ForeignKeys { get; set; } = new TableComponentProperties<ForeignKeyViewModel>();

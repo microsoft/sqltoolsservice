@@ -2299,4 +2299,5 @@ TableDesignerAutoCreateHistoryTableDescription = Specifies whether the engine sh
 TableDesignerAutoCreateHistoryTableTitle = Auto Create History Table
 TableDesignerNewHistoryTableDescription = Specifies the name of the history name.
 TableDesignerNewHistoryTableTitle = New History Table Name
-
+TableColumnDefaultConstraintNamePropertyDescription = Specifies the default constraint name.
+TableColumnDefaultConstraintNamePropertyTitle = Default Constraint Name

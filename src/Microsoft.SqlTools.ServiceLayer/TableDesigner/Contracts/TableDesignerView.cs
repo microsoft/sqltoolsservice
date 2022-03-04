@@ -19,6 +19,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         public BuiltinTableOptions CheckConstraintTableOptions { get; set; } = new BuiltinTableOptions();
         public BuiltinTableOptions IndexTableOptions { get; set; } = new BuiltinTableOptions();
         public BuiltinTableOptions IndexColumnSpecificationTableOptions { get; set; } = new BuiltinTableOptions();
+        public List<DesignerDataPropertyInfo> AdditionalPrimaryKeyProperties { get; set; } = new List<DesignerDataPropertyInfo>();
+        public BuiltinTableOptions PrimaryKeyColumnSpecificationTableOptions = new BuiltinTableOptions();
         public List<DesignerTabView> AdditionalTabs { get; } = new List<DesignerTabView>();
     }
 

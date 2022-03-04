@@ -5973,6 +5973,16 @@ The Query Processor estimates that implementing the following index could improv
         <target state="new">New History Table Name</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="TableColumnDefaultConstraintNamePropertyDescription">
+        <source>Specifies the default constraint name.</source>
+        <target state="new">Specifies the default constraint name.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnDefaultConstraintNamePropertyTitle">
+        <source>Default Constraint Name</source>
+        <target state="new">Default Constraint Name</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

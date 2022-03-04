@@ -22,6 +22,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         public const string ExistingHistoryTableName = "existingHistoryTable";
         public const string IsMemoryOptimized = "isMemoryOptimized";
         public const string Durability = "durability";
+        public const string PrimaryKeyName = "primaryKeyName";
+        public const string PrimaryKeyIsClustered = "primaryKeyIsClustered";
+        public const string PrimaryKeyColumns = "primaryKeyColumns";
     }
 
     public static class TableColumnPropertyNames
@@ -40,6 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         public const string CanBeDeleted = "canBeDeleted";
         public const string GeneratedAlwaysAs = "generatedAlwaysAs";
         public const string IsHidden = "isHidden";
+        public const string DefaultConstraintName = "defaultConstraintName";
     }
 
     public static class ForeignKeyPropertyNames

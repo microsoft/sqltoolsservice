@@ -4906,4 +4906,12 @@ The Query Processor estimates that implementing the following index could improv
     <value>New History Table Name</value>
     <comment></comment>
   </data>
+  <data name="TableColumnDefaultConstraintNamePropertyDescription" xml:space="preserve">
+    <value>Specifies the default constraint name.</value>
+    <comment></comment>
+  </data>
+  <data name="TableColumnDefaultConstraintNamePropertyTitle" xml:space="preserve">
+    <value>Default Constraint Name</value>
+    <comment></comment>
+  </data>
 </root>

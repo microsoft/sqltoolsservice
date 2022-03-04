@@ -8989,6 +8989,22 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string TableColumnDefaultConstraintNamePropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableColumnDefaultConstraintNamePropertyDescription);
+            }
+        }
+
+        public static string TableColumnDefaultConstraintNamePropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableColumnDefaultConstraintNamePropertyTitle);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -12843,6 +12859,12 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string TableDesignerNewHistoryTableTitle = "TableDesignerNewHistoryTableTitle";
+
+
+            public const string TableColumnDefaultConstraintNamePropertyDescription = "TableColumnDefaultConstraintNamePropertyDescription";
+
+
+            public const string TableColumnDefaultConstraintNamePropertyTitle = "TableColumnDefaultConstraintNamePropertyTitle";
 
 
             private Keys()
