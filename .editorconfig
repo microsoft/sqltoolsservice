@@ -130,6 +130,23 @@ dotnet_diagnostic.IDE0150.severity = none
 dotnet_diagnostic.IDE0020.severity = none
 dotnet_diagnostic.IDE0061.severity = none
 dotnet_diagnostic.IDE0062.severity = none
+dotnet_diagnostic.CA2215.severity = none
+dotnet_diagnostic.CA2229.severity = none
+dotnet_diagnostic.CA1710.severity = none
+dotnet_diagnostic.CA1050.severity = none
+
+# XML doc warnings
+dotnet_diagnostic.CS1591.severity = none
+dotnet_diagnostic.CS1570.severity = none
+dotnet_diagnostic.CS1571.severity = none
+dotnet_diagnostic.CS1572.severity = none
+dotnet_diagnostic.CS1573.severity = none
+dotnet_diagnostic.CS1587.severity = none
+dotnet_diagnostic.CS1574.severity = none
+dotnet_diagnostic.CS0419.severity = none
+dotnet_diagnostic.CS1723.severity = none
+dotnet_diagnostic.CS1711.severity = none
+
 
 #### Core EditorConfig Options ####
 

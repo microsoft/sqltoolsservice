@@ -14,7 +14,6 @@ using NUnit.Framework;
 using System;
 using System.IO;
 using static Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility.LiveConnectionHelper;
-using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
 {

@@ -4,9 +4,6 @@
 //
 
 using Microsoft.SqlServer.Management.Smo.Agent;
-using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Utility;
-using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
 {

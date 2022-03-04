@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensibility.Contracts
 {

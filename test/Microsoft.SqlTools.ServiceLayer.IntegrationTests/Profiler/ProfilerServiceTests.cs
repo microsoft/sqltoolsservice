@@ -4,15 +4,9 @@
 //
 
 using System;
-using System.Collections.Generic;
-using Microsoft.Data.SqlClient;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlServer.Management.XEvent;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Profiler;
 using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;

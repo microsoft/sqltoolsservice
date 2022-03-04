@@ -3,7 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
 using System.Collections.Generic;
 using System.Composition;
 using System.Diagnostics;
@@ -11,11 +10,8 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ResourceProvider.Core;
 using Microsoft.SqlTools.ResourceProvider.Core.Authentication;
 using Microsoft.SqlTools.ResourceProvider.Core.Contracts;
-using Microsoft.SqlTools.ResourceProvider.Core.Extensibility;
-using Microsoft.SqlTools.ResourceProvider.Core.Firewall;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ResourceProvider.Core

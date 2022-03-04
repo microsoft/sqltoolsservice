@@ -5,10 +5,8 @@
 
 using System;
 using Microsoft.Data.SqlClient;
-using System.Globalization;
 using System.IO;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.ServiceLayer.Connection;
