@@ -7,12 +7,11 @@ using System;
 using System.Collections.Generic;
 using System.Composition;
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlTools.ServiceLayer;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 {
-	
+
     internal sealed partial class DatabaseTreeNode : SmoTreeNode
     {
     	public DatabaseTreeNode() : base()
