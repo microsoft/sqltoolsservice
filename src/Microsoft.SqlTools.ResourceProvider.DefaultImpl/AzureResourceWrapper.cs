@@ -1,6 +1,7 @@
 ﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
 using Microsoft.Azure.Management.Sql.Models;
@@ -9,7 +10,7 @@ using Microsoft.SqlTools.ResourceProvider.Core;
 namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
 {
     /// <summary>
-    /// Implementation for <see cref="IAzureResource" /> using VS services. 
+    /// Implementation for <see cref="IAzureResource" /> using VS services.
     /// Provides information about an Azure resource
     /// </summary>
     public class AzureResourceWrapper : IAzureResource
@@ -18,7 +19,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
         private string resourceGroupName;
 
         /// <summary>
-        /// Initializes the resource 
+        /// Initializes the resource
         /// </summary>
         public AzureResourceWrapper(TrackedResource azureResource)
         {
@@ -94,7 +95,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
             if (!string.IsNullOrEmpty(Id))
             {
                 string[] idParts = Id.Split('/');
-                
+
                 // Look for the "resourceGroups" section and return the section after this, hence
                 // always stop before idParts.Length - 1
                 for (int i = 0; i < idParts.Length - 1; i++)
@@ -134,5 +135,5 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
             get;
             set;
         }
-    }   
+    }
 }

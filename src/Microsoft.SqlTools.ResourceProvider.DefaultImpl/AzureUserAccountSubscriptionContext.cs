@@ -1,6 +1,7 @@
 ﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
 using Microsoft.Rest;
@@ -28,7 +29,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
         }
 
         /// <summary>
-        /// Creates a subscription context for connecting with a known access token. This creates a <see cref="TokenCredentials"/> object for use 
+        /// Creates a subscription context for connecting with a known access token. This creates a <see cref="TokenCredentials"/> object for use
         /// in a request
         /// </summary>
         public static AzureUserAccountSubscriptionContext CreateStringTokenContext(AzureSubscriptionIdentifier subscription, string accessToken)
@@ -62,7 +63,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public bool Equals(IAzureUserAccountSubscriptionContext other)
         {

@@ -1,6 +1,7 @@
 ﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
 using System.Collections.Generic;
@@ -43,7 +44,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
         public AzureResourceManager()
         {
             // Duplicate the exportable attribute as at present we do not support filtering using extensiondescriptor.
-            // The attribute is preserved in order to simplify ability to backport into existing tools 
+            // The attribute is preserved in order to simplify ability to backport into existing tools
             Metadata = new ExportableMetadata(
                 ServerTypes.SqlServer,
                 Categories.Azure,
@@ -222,7 +223,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
         }
 
         /// <summary>
-        /// Gets all subscription contexts under a specific user account. Queries all tenants for the account and uses these to log in 
+        /// Gets all subscription contexts under a specific user account. Queries all tenants for the account and uses these to log in
         /// and retrieve subscription information as needed
         /// </summary>
         public async Task<IEnumerable<IAzureUserAccountSubscriptionContext>> GetSubscriptionContextsAsync(IAzureUserAccount userAccount)

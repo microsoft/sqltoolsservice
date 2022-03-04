@@ -1,6 +1,7 @@
 ﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 namespace Microsoft.SqlTools.ResourceProvider.Core.Authentication
 {
@@ -16,7 +17,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Authentication
         {
             get;
         }
-        
+
         /// <summary>
         /// Returns true if user needs reauthentication
         /// </summary>
@@ -24,6 +25,6 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Authentication
         {
             get;
         }
-        
+
     }
 }

@@ -19,13 +19,13 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Extensibility
         /// </summary>
         public abstract ITrace Trace
         {
-            get; 
+            get;
             set;
         }
 
         /// <summary>
         ///  Write a trace event message to the underlying trace source.
-        /// </summary>       
+        /// </summary>
         public bool TraceEvent(TraceEventType eventType, TraceId traceId, string format, params object[] args)
         {
             return TraceEvent(eventType, (int)traceId, format, args);
@@ -33,16 +33,16 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Extensibility
 
         /// <summary>
         ///  Write a trace event message to the underlying trace source.
-        /// </summary>       
+        /// </summary>
         public bool TraceEvent(TraceEventType eventType, int traceId, string format, params object[] args)
         {
             return SafeTrace(eventType, traceId, format, args);
-        }       
+        }
 
         /// <summary>
         /// Write a formatted trace event message to the underlying trace source and issue a Debug.Fail() call
         /// if condition is false.
-        /// </summary>     
+        /// </summary>
         public bool AssertTraceEvent(bool condition, TraceEventType eventType, TraceId traceId, string message)
         {
             return AssertTraceEvent(condition, eventType, (int)traceId, message);
@@ -51,7 +51,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Extensibility
         /// <summary>
         /// Write a formatted trace event message to the underlying trace source and issue a Debug.Fail() call
         /// if condition is false.
-        /// </summary>     
+        /// </summary>
         public bool AssertTraceEvent(bool condition, TraceEventType eventType, int traceId, string message)
         {
             if (!condition)
@@ -129,7 +129,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Extensibility
                 return DebugTraceException(eventType, traceId, exception, message);
             }
             return true;
-        }        
+        }
 
         /// <summary>
         /// Write a trace event with a message and exception details to the underlying trace source and issue a
@@ -195,7 +195,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Extensibility
 
         /// <summary>
         /// Verifies ITrace instance is  not null before tracing
-        /// </summary>        
+        /// </summary>
         private bool SafeTrace(TraceEventType eventType, int traceId, string format, params object[] args)
         {
             if (Trace != null)
@@ -207,7 +207,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Extensibility
 
         /// <summary>
         /// Verifies ITrace instance is  not null before tracing the exception
-        /// </summary>        
+        /// </summary>
         private bool SafeTraceException(TraceEventType eventType, int traceId, Exception exception, string message,
             [CallerLineNumber] int lineNumber = 0, [CallerFilePath] string fileName = "",
             [CallerMemberName] string memberName = "")

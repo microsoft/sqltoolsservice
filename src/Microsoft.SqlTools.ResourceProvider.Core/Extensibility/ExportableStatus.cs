@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Extensibility
         public string ErrorMessage { get; set; }
 
         /// <summary>
-        /// An info link to navigate to 
+        /// An info link to navigate to
         /// </summary>
         public string InfoLink { get; set; }
     }

@@ -1,6 +1,7 @@
 ﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
 using System.Data.Common;
@@ -18,7 +19,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
         /// Returns true if given exception if any of the inner exceptions is UserNeedsAuthenticationException
         /// </summary>
         internal static bool IsUserNeedsReauthenticateException(this Exception ex)
-        {            
+        {
             return ex.IsExceptionType(typeof(UserNeedsAuthenticationException));
         }
 
