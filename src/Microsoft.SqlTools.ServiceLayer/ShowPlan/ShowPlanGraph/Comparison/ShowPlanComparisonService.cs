@@ -150,6 +150,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
             }
         }
 
+        /// <summary>
+        /// Handles request to locate the next node that should not be
+        /// ignored during show plan comparisons.
+        /// </summary>
         internal async Task HandleFindNextNonIgnoreNodeRequest(
             FindNextNonIgnoreNodeParams parameter,
             RequestContext<FindNextNonIgnoreNodeResult> requestContext)
