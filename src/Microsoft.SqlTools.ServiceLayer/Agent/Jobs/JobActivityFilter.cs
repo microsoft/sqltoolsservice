@@ -4,10 +4,7 @@
 //
 
 using System;
-using System.ComponentModel;
 using System.Text;
-using Microsoft.SqlServer.Management.Sdk.Sfc;
-using Microsoft.SqlServer.Management.Smo;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {

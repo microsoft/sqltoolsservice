@@ -5,7 +5,6 @@
 
 using System;
 using System.Linq;
-using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using NUnit.Framework;
 
@@ -18,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
     {
         internal static object fileLock = new object();
 
-        private static readonly string query = 
+        private static readonly string query =
             "SELECT * FROM sys.objects as o1" + Environment.NewLine +
             "SELECT * FROM sys.objects as o2" + Environment.NewLine +
             "SELECT * FROM sys.objects as o3" + Environment.NewLine;
@@ -31,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
             }
 
             string ownerUri = System.IO.Path.GetTempFileName();
-           
+
             // Write the query text to a backing file
             lock (fileLock)
             {
@@ -42,7 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
         }
 
         /// <summary>
-        /// Validate GetLinesInRange with invalid range   
+        /// Validate GetLinesInRange with invalid range
         /// </summary>
         [Test]
         public void GetLinesInRangeWithInvalidRangeTest()
@@ -54,20 +53,20 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
             {
                 scriptFile.GetLinesInRange(
                     new BufferRange(
-                        new BufferPosition(1, 0), 
+                        new BufferPosition(1, 0),
                         new BufferPosition(2, 0)));
             }
             catch (ArgumentOutOfRangeException)
             {
                 exceptionRaised = true;
             }
-            
+
             Assert.True(exceptionRaised, "ArgumentOutOfRangeException raised for invalid index");
 
         }
 
         /// <summary>
-        /// Validate GetLinesInRange       
+        /// Validate GetLinesInRange
         /// </summary>
         [Test]
         public void GetLinesInRangeTest()
@@ -82,7 +81,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
 
             string[] lines = scriptFile.GetLinesInRange(
                     new BufferRange(
-                        new BufferPosition(2, 1), 
+                        new BufferPosition(2, 1),
                         new BufferPosition(2, 7)));
 
             Assert.True(lines.Length == 1, "One line in range");
@@ -115,7 +114,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
                 scriptFile.GetOffsetAtPosition(2, 7));
             Assert.NotNull(range);
         }
-        
+
         [Test]
         public void CanApplySingleLineInsert()
         {
@@ -496,7 +495,7 @@ First line
 
             Assert.AreEqual(expectedLine, newPosition.Line);
             Assert.AreEqual(expectedColumn, newPosition.Column);
-        }        
+        }
 
 
     }

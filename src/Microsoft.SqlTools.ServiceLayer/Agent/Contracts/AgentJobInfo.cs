@@ -3,9 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System.Collections.Generic;
-using Microsoft.SqlTools.ServiceLayer.Agent;
-
 namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
 {
     public enum JobCompletionActionCondition

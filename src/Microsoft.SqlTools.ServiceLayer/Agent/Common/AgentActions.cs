@@ -4,18 +4,13 @@
 //
 
 using System;
-using System.Collections;
 using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Data;
 using System.Threading;
 using System.Xml;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Diagnostics;
-using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Agent;
-using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Management;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent

@@ -7,7 +7,6 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Error = Microsoft.SqlTools.Hosting.Contracts.Error;
-using Newtonsoft.Json.Linq;
 
 namespace Microsoft.SqlTools.Hosting.Protocol
 {

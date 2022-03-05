@@ -4,7 +4,6 @@
 //
 using System.Collections.Generic;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 {

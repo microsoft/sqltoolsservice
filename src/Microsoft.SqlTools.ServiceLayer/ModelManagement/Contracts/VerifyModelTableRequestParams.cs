@@ -4,7 +4,6 @@
 //
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.ModelManagement.Contracts
 {

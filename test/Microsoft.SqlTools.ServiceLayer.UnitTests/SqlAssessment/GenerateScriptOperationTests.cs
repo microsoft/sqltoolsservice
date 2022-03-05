@@ -11,7 +11,6 @@ using Microsoft.SqlServer.Management.Assessment;
 using Microsoft.SqlTools.ServiceLayer.SqlAssessment;
 using Microsoft.SqlTools.ServiceLayer.SqlAssessment.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
-using Moq;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlAssessment
