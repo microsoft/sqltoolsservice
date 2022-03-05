@@ -8,7 +8,6 @@ using System.Resources;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
-using Microsoft.SqlServer.Management.Diagnostics;
 using System.Collections.Generic;
 using Microsoft.SqlTools.ServiceLayer.Management;
 

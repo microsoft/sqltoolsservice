@@ -4,15 +4,7 @@
 //
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Data;
-using System.Globalization;
-
-using SMO = Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
-using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Agent;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent

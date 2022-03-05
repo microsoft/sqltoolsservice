@@ -4,7 +4,6 @@
 //
 
 using System;
-using System.Collections.Generic;
 
 namespace Microsoft.Kusto.ServiceLayer.Scripting.Contracts
 {

@@ -5,13 +5,8 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Data.SqlClient;
-using System.Diagnostics;
-using System.Linq;
 using Microsoft.SqlTools.ResourceProvider.Core;
-using Microsoft.SqlTools.ResourceProvider.Core.Extensibility;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Azure;
-using Moq;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Fakes
 {
