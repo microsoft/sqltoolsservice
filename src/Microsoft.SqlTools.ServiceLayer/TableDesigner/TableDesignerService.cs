@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
     /// </summary>
     public sealed class TableDesignerService : IDisposable
     {
-        private Dictionary<string, TableDesignerData> idTableMap = new Dictionary<string, TableDesignerData>();
+        private Dictionary<string, Dac.TableDesigner> idTableMap = new Dictionary<string, Dac.TableDesigner>();
         private bool disposed = false;
         private static readonly Lazy<TableDesignerService> instance = new Lazy<TableDesignerService>(() => new TableDesignerService());
 
@@ -112,7 +112,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     default:
                         break;
                 }
-                var designer = this.GetTableDesigner(requestParams.TableInfo).TableDesigner;
+                var designer = this.GetTableDesigner(requestParams.TableInfo);
                 var errors = TableDesignerValidator.Validate(designer.TableViewModel);
                 await requestContext.SendResult(new ProcessTableDesignerEditResponse()
                 {
@@ -128,7 +128,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         {
             return this.HandleRequest<PublishTableChangesResponse>(requestContext, async () =>
             {
-                var tableDesigner = this.GetTableDesigner(tableInfo).TableDesigner;
+                var tableDesigner = this.GetTableDesigner(tableInfo);
                 tableDesigner.CommitChanges();
                 string newId = string.Format("{0}|{1}|{2}|{3}|{4}", STSHost.ProviderName, tableInfo.Server, tableInfo.Database, tableDesigner.TableViewModel.Schema, tableDesigner.TableViewModel.Name);
                 string oldId = tableInfo.Id;
@@ -146,7 +146,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 await requestContext.SendResult(new PublishTableChangesResponse()
                 {
                     NewTableInfo = tableInfo,
-                    ViewModel = this.GetTableViewModel(tableInfo)
+                    ViewModel = this.GetTableViewModel(tableInfo),
+                    View = GetDesignerViewInfo(tableInfo)
                 });
             });
         }
@@ -155,7 +156,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         {
             return this.HandleRequest<string>(requestContext, async () =>
             {
-                var table = this.GetTableDesigner(tableInfo).TableDesigner;
+                var table = this.GetTableDesigner(tableInfo);
                 var script = table.GenerateScript();
                 await requestContext.SendResult(script);
             });
@@ -165,7 +166,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         {
             return this.HandleRequest<string>(requestContext, async () =>
             {
-                var table = this.GetTableDesigner(tableInfo).TableDesigner;
+                var table = this.GetTableDesigner(tableInfo);
                 var report = table.GenerateReport();
                 await requestContext.SendResult(report);
             });
@@ -182,7 +183,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
         private void HandleAddItemRequest(ProcessTableDesignerEditRequestParams requestParams)
         {
-            var table = this.GetTableDesigner(requestParams.TableInfo).TableDesigner.TableViewModel;
+            var table = this.GetTableDesigner(requestParams.TableInfo).TableViewModel;
             var path = requestParams.TableChangeInfo.Path;
             // Handle the add item request on top level table properties, e.g. Columns, Indexes.
             if (path.Length == 1)
@@ -261,7 +262,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
         private void HandleRemoveItemRequest(ProcessTableDesignerEditRequestParams requestParams)
         {
-            var table = this.GetTableDesigner(requestParams.TableInfo).TableDesigner.TableViewModel;
+            var table = this.GetTableDesigner(requestParams.TableInfo).TableViewModel;
             var path = requestParams.TableChangeInfo.Path;
             // Handle the add item request on top level table properties, e.g. Columns, Indexes.
             if (path.Length == 2)
@@ -339,8 +340,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         private bool HandleUpdateItemRequest(ProcessTableDesignerEditRequestParams requestParams)
         {
             var refreshView = false;
-            var tableDesignerData = this.GetTableDesigner(requestParams.TableInfo);
-            var tableDesigner = tableDesignerData.TableDesigner;
+            var tableDesigner = this.GetTableDesigner(requestParams.TableInfo);
             var table = tableDesigner.TableViewModel;
             var path = requestParams.TableChangeInfo.Path;
             var newValue = requestParams.TableChangeInfo.Value;
@@ -375,42 +375,18 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         refreshView = (wasEdgeTable || table.IsEdge) && tableDesigner.IsEdgeConstraintSupported;
                         break;
                     case TablePropertyNames.IsSystemVersioningEnabled:
-                        var enabled = GetBooleanValue(newValue);
-                        if (enabled)
-                        {
-                            if (tableDesignerData.OriginalHistoryTable != null)
-                            {
-                                table.SystemVersioningHistoryTable = tableDesignerData.OriginalHistoryTable;
-                            }
-                            else
-                            {
-                                table.SystemVersioningHistoryTable = tableDesignerData.NewHistoryTableName;
-                                tableDesignerData.AutoCreateHistoryTable = true;
-                            }
-                        }
-                        else
-                        {
-                            table.SystemVersioningHistoryTable = null;
-                        }
+                        table.IsSystemVersioningEnabled = GetBooleanValue(newValue);
                         refreshView = true;
                         break;
                     case TablePropertyNames.AutoCreateHistoryTable:
-                        var autoCreate = GetBooleanValue(newValue);
-                        tableDesignerData.AutoCreateHistoryTable = autoCreate;
-                        if (!autoCreate && tableDesigner.TemporalHistoryCandidates.Count > 0)
-                        {
-                            table.SystemVersioningHistoryTable = tableDesigner.TemporalHistoryCandidates[0];
-                        }
+                        table.AutoCreateHistoryTable = GetBooleanValue(newValue);
                         refreshView = true;
                         break;
                     case TablePropertyNames.NewHistoryTableTable:
-                        var newHistoryTableName = GetStringValue(newValue);
-                        tableDesignerData.NewHistoryTableName = newHistoryTableName;
-                        table.SystemVersioningHistoryTable = newHistoryTableName;
+                        table.NewHistoryTableName = GetStringValue(newValue);
                         break;
                     case TablePropertyNames.ExistingHistoryTableName:
-                        var newName = GetStringValue(newValue);
-                        table.SystemVersioningHistoryTable = newName;
+                        table.ExistingHistoryTable = GetStringValue(newValue);
                         break;
                     case TablePropertyNames.IsMemoryOptimized:
                         table.IsMemoryOptimized = GetBooleanValue(newValue);
@@ -685,8 +661,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
         private TableViewModel GetTableViewModel(TableInfo tableInfo)
         {
-            var tableDesignerData = this.GetTableDesigner(tableInfo);
-            var tableDesigner = tableDesignerData.TableDesigner;
+            var tableDesigner = this.GetTableDesigner(tableInfo);
             var table = tableDesigner.TableViewModel;
             var tableViewModel = new TableViewModel();
             tableViewModel.Name.Value = table.Name;
@@ -726,20 +701,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             var isTemporalTable = table.SystemVersioningHistoryTable != null;
             tableViewModel.IsSystemVersioningEnabled.Enabled = table.CanEditIsSystemVersioningEnabled;
             tableViewModel.IsSystemVersioningEnabled.Checked = isTemporalTable;
-            tableViewModel.AutoCreateHistoryTable.Enabled = tableInfo.IsNewTable && isTemporalTable && tableDesigner.TemporalHistoryCandidates.Count > 0;
-            tableViewModel.AutoCreateHistoryTable.Checked = tableDesignerData.AutoCreateHistoryTable;
-            tableViewModel.NewHistoryTableName.Enabled = tableInfo.IsNewTable && isTemporalTable && tableDesignerData.AutoCreateHistoryTable;
-            tableViewModel.NewHistoryTableName.Value = tableDesignerData.NewHistoryTableName;
-            tableViewModel.ExistingHistoryTable.Enabled = tableDesigner.IsTemporalTableSupported && isTemporalTable && (tableDesigner.IsNewTable || !tableDesignerData.AutoCreateHistoryTable);
+            tableViewModel.AutoCreateHistoryTable.Enabled = table.CanEditAutoCreateHistoryTable;
+            tableViewModel.AutoCreateHistoryTable.Checked = table.AutoCreateHistoryTable;
+            tableViewModel.NewHistoryTableName.Enabled = table.CanEditNewHistoryTableName;
+            tableViewModel.NewHistoryTableName.Value = table.NewHistoryTableName;
+            tableViewModel.ExistingHistoryTable.Enabled = table.CanEditExistingHistoryTable;
             tableViewModel.ExistingHistoryTable.Value = table.SystemVersioningHistoryTable;
-            if (tableViewModel.ExistingHistoryTable.Enabled)
-            {
-                tableViewModel.ExistingHistoryTable.Values = tableDesigner.TemporalHistoryCandidates.ToList();
-            }
-            else if (!tableDesigner.IsNewTable && isTemporalTable)
-            {
-                tableViewModel.ExistingHistoryTable.Values = new List<string> { table.SystemVersioningHistoryTable };
-            }
+            tableViewModel.ExistingHistoryTable.Values = table.ExistingHistoryTablePropertyOptionalValues.ToList();
 
             foreach (var column in table.Columns.Items)
             {
@@ -861,17 +829,17 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
         private TableDesignerView GetDesignerViewInfo(TableInfo tableInfo)
         {
-            var tableDesignerData = this.GetTableDesigner(tableInfo);
+            var tableDesigner = this.GetTableDesigner(tableInfo);
             var view = new TableDesignerView();
             this.SetPrimaryKeyViewInfo(view);
             this.SetColumnsViewInfo(view);
             this.SetForeignKeysViewInfo(view);
             this.SetCheckConstraintsViewInfo(view);
             this.SetIndexesViewInfo(view);
-            this.SetGraphTableViewInfo(view, tableDesignerData.TableDesigner);
-            this.SetEdgeConstraintsViewInfo(view, tableDesignerData.TableDesigner);
-            this.SetTemporalTableViewInfo(view, tableDesignerData);
-            this.SetMemoryOptimizedTableViewInfo(view, tableDesignerData.TableDesigner);
+            this.SetGraphTableViewInfo(view, tableDesigner);
+            this.SetEdgeConstraintsViewInfo(view, tableDesigner);
+            this.SetTemporalTableViewInfo(view, tableDesigner);
+            this.SetMemoryOptimizedTableViewInfo(view, tableDesigner);
             return view;
         }
 
@@ -1187,12 +1155,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             view.AdditionalTabs.Add(tab);
         }
 
-        private void SetTemporalTableViewInfo(TableDesignerView view, TableDesignerData designerData)
+        private void SetTemporalTableViewInfo(TableDesignerView view, Dac.TableDesigner tableDesigner)
         {
-            if (!designerData.TableDesigner.IsTemporalTableSupported)
+            if (!tableDesigner.IsTemporalTableSupported)
             {
                 return;
             }
+            var table = tableDesigner.TableViewModel;
             view.AdditionalTableProperties.Add(new DesignerDataPropertyInfo()
             {
                 PropertyName = TablePropertyNames.IsSystemVersioningEnabled,
@@ -1205,7 +1174,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 }
             });
 
-            if (designerData.OriginalHistoryTable == null && designerData.TableDesigner.TableViewModel.SystemVersioningHistoryTable != null)
+            if (table.OriginalHistoryTable == null && table.SystemVersioningHistoryTable != null)
             {
                 view.AdditionalTableProperties.Add(new DesignerDataPropertyInfo()
                 {
@@ -1218,7 +1187,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         Title = SR.TableDesignerAutoCreateHistoryTableTitle
                     }
                 });
-                if (designerData.AutoCreateHistoryTable)
+                if (table.AutoCreateHistoryTable)
                 {
                     view.AdditionalTableProperties.Add(new DesignerDataPropertyInfo()
                     {
@@ -1247,7 +1216,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     });
                 }
             }
-            else if (designerData.TableDesigner.TableViewModel.SystemVersioningHistoryTable != null)
+            else if (table.SystemVersioningHistoryTable != null)
             {
                 view.AdditionalTableProperties.Add(new DesignerDataPropertyInfo()
                 {
@@ -1318,26 +1287,19 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             }
         }
 
-        private TableDesignerData CreateTableDesigner(TableInfo tableInfo)
+        private Dac.TableDesigner CreateTableDesigner(TableInfo tableInfo)
         {
             var connectinStringbuilder = new SqlConnectionStringBuilder(tableInfo.ConnectionString);
             connectinStringbuilder.InitialCatalog = tableInfo.Database;
             var connectionString = connectinStringbuilder.ToString();
             var tableDesigner = new Dac.TableDesigner(connectionString, tableInfo.AccessToken, tableInfo.Schema, tableInfo.Name, tableInfo.IsNewTable);
-            var designerData = new TableDesignerData()
-            {
-                TableDesigner = tableDesigner,
-                AutoCreateHistoryTable = true,
-                NewHistoryTableName = tableDesigner.GetNewHistoryTableName(),
-                OriginalHistoryTable = tableDesigner.TableViewModel.SystemVersioningHistoryTable
-            };
-            this.idTableMap[tableInfo.Id] = designerData;
-            return designerData;
+            this.idTableMap[tableInfo.Id] = tableDesigner;
+            return tableDesigner;
         }
 
-        private TableDesignerData GetTableDesigner(TableInfo tableInfo)
+        private Dac.TableDesigner GetTableDesigner(TableInfo tableInfo)
         {
-            TableDesignerData tableDesigner;
+            Dac.TableDesigner tableDesigner;
             if (this.idTableMap.TryGetValue(tableInfo.Id, out tableDesigner))
             {
                 return tableDesigner;
@@ -1358,14 +1320,5 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 disposed = true;
             }
         }
-    }
-
-    class TableDesignerData
-    {
-        public Dac.TableDesigner TableDesigner { get; set; }
-        public bool AutoCreateHistoryTable { get; set; } = true;
-        public string NewHistoryTableName { get; set; }
-
-        public string OriginalHistoryTable { get; set; }
     }
 }

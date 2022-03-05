@@ -24,7 +24,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             new MemoryOptimizedTableMustHaveNonClusteredPrimaryKeyRule(),
             new TemporalTableMustHavePeriodColumns(),
             new PeriodColumnsRule(),
-            new ColumnsInPrimaryKeyCannotBeNullableRule()
+            new ColumnsInPrimaryKeyCannotBeNullableRule(),
+            new OnlyDurableMemoryOptimizedTableCanBeSystemVersionedRule(),
+            new TemporalTableMustHavePrimaryKeyRule(),
+            new TableMustHaveAtLeastOneColumnRule()
         };
 
         /// <summary>
@@ -339,7 +342,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             {
                 errors.Add(new ValidationError()
                 {
-                    Message = "Memory-optimized table must have non-clustered primary key."
+                    Message = "Memory-optimized table must have non-clustered primary key.",
+                    PropertyPath = new object[] { TablePropertyNames.PrimaryKeyIsClustered }
                 });
             }
             return errors;
@@ -410,7 +414,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             var errors = new List<ValidationError>();
             for (int i = 0; i < table.Columns.Items.Count; i++)
             {
-                var column = table.Columns.Items[0];
+                var column = table.Columns.Items[i];
                 if (column.IsPrimaryKey && column.IsNullable)
                 {
                     errors.Add(new ValidationError()
@@ -419,6 +423,38 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         PropertyPath = new object[] { TablePropertyNames.Columns, i }
                     });
                 }
+            }
+            return errors;
+        }
+    }
+
+    public class OnlyDurableMemoryOptimizedTableCanBeSystemVersionedRule : ITableDesignerValidationRule
+    {
+        public List<ValidationError> Run(TableViewModel table)
+        {
+            var errors = new List<ValidationError>();
+            if (table.Durability == TableDurability.SchemaOnly && table.IsMemoryOptimized && table.IsSystemVersioningEnabled)
+            {
+                errors.Add(new ValidationError()
+                {
+                    Message = "Only durable (DURABILITY = SCHEMA_AND_DATA) memory-optimized tables can be system-versioned."
+                });
+            }
+            return errors;
+        }
+    }
+
+    public class TableMustHaveAtLeastOneColumnRule : ITableDesignerValidationRule
+    {
+        public List<ValidationError> Run(TableViewModel table)
+        {
+            var errors = new List<ValidationError>();
+            if (!table.IsEdge && table.Columns.Items.Count == 0)
+            {
+                errors.Add(new ValidationError()
+                {
+                    Message = "A table must have at least one column defined."
+                });
             }
             return errors;
         }
