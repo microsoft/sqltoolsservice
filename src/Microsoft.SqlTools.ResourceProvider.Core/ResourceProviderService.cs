@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
         public ResourceProviderService()
         {
         }
-        
+
         public override void InitializeService(IProtocolEndpoint serviceHost)
         {
             Logger.Write(TraceEventType.Verbose, "ResourceProvider initialized");
@@ -43,7 +43,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
                 ResourceManager = ServiceProvider.GetService<IAzureResourceManager>()
             };
         }
-        
+
         /// <summary>
         /// Handles a firewall rule creation request. It does this by matching the server name to an Azure Server resource,
         /// then issuing the command to create a new firewall rule for the specified IP address against that instance
@@ -88,7 +88,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
             }
             return result;
         }
-        
+
         public async Task ProcessHandleFirewallRuleRequest(HandleFirewallRuleParams canHandleRuleParams, RequestContext<HandleFirewallRuleResponse> requestContext)
         {
             Func<Task<HandleFirewallRuleResponse>> requestHandler = () =>
@@ -110,7 +110,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
             };
             await HandleRequest(requestHandler, null, requestContext, "HandleCreateFirewallRuleRequest");
         }
-        
+
         private async Task HandleRequest<T>(Func<Task<T>> handler, Func<ExpiredTokenException, T> expiredTokenHandler, RequestContext<T> requestContext, string requestType)
         {
             Logger.Write(TraceEventType.Verbose, requestType);
@@ -140,6 +140,6 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
                 // Send just the error message back for now as stack trace isn't useful
                 await requestContext.SendError(ex.Message);
             }
-        }   
+        }
     }
 }

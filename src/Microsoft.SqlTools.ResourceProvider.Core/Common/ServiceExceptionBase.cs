@@ -35,11 +35,11 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
         /// </summary>
         /// <param name="message">The error message that explains the reason for the exception. </param>
         /// <param name="httpStatusCode">The Http error code. </param>
-        /// <param name="innerException">The exception that is the cause of the current exception, or a null reference 
+        /// <param name="innerException">The exception that is the cause of the current exception, or a null reference
         /// (Nothing in Visual Basic) if no inner exception is specified</param>
         public ServiceExceptionBase(string message, HttpStatusCode httpStatusCode, Exception innerException = null)
             : this(message, (int)httpStatusCode, innerException)
-        {            
+        {
         }
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
         /// </summary>
         /// <param name="message">The error message that explains the reason for the exception. </param>
         /// <param name="httpStatusCode">The Http error code. </param>
-        /// <param name="innerException">The exception that is the cause of the current exception, or a null reference 
+        /// <param name="innerException">The exception that is the cause of the current exception, or a null reference
         /// (Nothing in Visual Basic) if no inner exception is specified</param>
         public ServiceExceptionBase(string message, int httpStatusCode, Exception innerException)
             : base(message, innerException)
@@ -57,11 +57,11 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
         }
 
         /// <summary>
-        /// Initializes a new instance of the AuthenticationFailedException class with a specified error message 
+        /// Initializes a new instance of the AuthenticationFailedException class with a specified error message
         /// and a reference to the inner exception that is the cause of this exception.
         /// </summary>
         /// <param name="message">The error message that explains the reason for the exception. </param>
-        /// <param name="innerException">The exception that is the cause of the current exception, or a null reference 
+        /// <param name="innerException">The exception that is the cause of the current exception, or a null reference
         /// (Nothing in Visual Basic) if no inner exception is specified</param>
         protected ServiceExceptionBase(string message, Exception innerException)
             : base(message, innerException)

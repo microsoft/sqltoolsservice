@@ -7,20 +7,24 @@
 <#@ import namespace="System.Xml" #>
 <#@ import namespace="System.Collections.Generic" #>
 <#@ import namespace="System.IO" #>
+//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
 using System;
 using System.Collections.Generic;
 using System.Composition;
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlTools.ServiceLayer;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 {
-	
+
 <#
 	var directory = Path.GetDirectoryName(Host.TemplateFile);
 	string xmlFile = Path.Combine(directory, "TreeNodeDefinition.xml");
-	
+
 	/////////
 	// TODO - is Generate all the ReverseDependencies needed?
 	/////////
@@ -43,11 +47,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 	// 		{
 	// 			dependentListBuilder.Append(",");
 	// 		}
-	// 
+	//
 	// 		dependentListBuilder.Append(string.Format(CultureInfo.InvariantCulture, " typeof({0})", dependentType));
 	// 	}
 	// 	dependentListBuilder.Append(" }");
-	// 
+	//
 	// 	WriteLine(string.Format(CultureInfo.InvariantCulture, "                {{ typeof({0}), new List<Type> {1} }}", reverseDependencyKey, dependentListBuilder.ToString()));
 	// }
 	// WriteLine("        };");
@@ -92,19 +96,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 		var disableSort = nodeElement.GetAttributeNode("DisableSort");
 
 		string childFactoryBaseClass = "SmoChildFactoryBase";
-		
+
 		// TODO Will we need alternative child factories? If so, add code here to support this
-		
+
 		if (isAlwaysLeaf == null)
 		{
 			WriteLine("    [Export(typeof(ChildFactory))]");
 			WriteLine("    [Shared]");
-			
+
 			WriteLine(string.Format("    internal partial class {0}ChildFactory : {1}", type, childFactoryBaseClass));
-			
+
 			WriteLine("    {");
 			WriteLine(string.Format("        public override IEnumerable<string> ApplicableParents() {{ return new[] {{ \"{0}\" }}; }}", type));
-			
+
 			List<XmlElement> children = GetChildren(xmlFile, type);
 			List<XmlElement> filters = GetNodeFilters(xmlFile, type);
 			List<XmlElement> smoProperties = GetNodeSmoProperties(xmlFile, type);
@@ -118,7 +122,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 					WriteLine("           {");
 
 					WriteLine("                var filters = new List<NodeFilter>();");
-					foreach (var filter in filters) 
+					foreach (var filter in filters)
 					{
 						var propertyName = filter.GetAttribute("Property");
 						var propertyType = filter.GetAttribute("Type");
@@ -128,7 +132,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
 						List<XmlElement> filterValues = GetNodeFilterValues(xmlFile, type, propertyName);
 
-						
+
 						WriteLine("                filters.Add(new NodeFilter");
 						WriteLine("                {");
 						WriteLine(string.Format("                   Property = \"{0}\",", propertyName));
@@ -141,20 +145,20 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 						{
 							WriteLine(string.Format("                   ValidFor = {0},", GetValidForFlags(validFor)));
 						}
-						if (propertyValue != null && (filterValues == null || filterValues.Count == 0)) 
+						if (propertyValue != null && (filterValues == null || filterValues.Count == 0))
 						{
 							WriteLine(string.Format("                   Values = new List<object> {{ {0} }},", propertyValue));
 						}
-						if (filterValues != null && filterValues.Count > 0) 
+						if (filterValues != null && filterValues.Count > 0)
 						{
 							string filterValueType = "object";
-							if (propertyType == "Enum") 
+							if (propertyType == "Enum")
 							{
-									
+
 							}
 							WriteLine(string.Format("                   Values = new List<object>"));
 							WriteLine(string.Format("                   {{"));
-							for(int i = 0; i < filterValues.Count; i++) 
+							for(int i = 0; i < filterValues.Count; i++)
 							{
 								string separator = "";
 								if (i != filterValues.Count - 1)
@@ -163,19 +167,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 								}
 								var filterValue = filterValues[i];
 								WriteLine(string.Format("                      {{ {0} }}{1}", filterValue.InnerText, separator ));
-										
+
 							}
 							WriteLine(string.Format("                   }}"));
 						}
 						WriteLine("                });");
 
-						
+
 					}
-					
+
 					WriteLine("                return filters;");
 					WriteLine("           }");
 					WriteLine("        }");
-					
+
 				}
 
 
@@ -188,34 +192,34 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 					WriteLine("           {");
 
 					WriteLine("                var properties = new List<NodeSmoProperty>();");
-					foreach (var smoPropertiy in smoProperties) 
+					foreach (var smoPropertiy in smoProperties)
 					{
 						var propertyName = smoPropertiy.GetAttribute("Name");
 						var validFor = smoPropertiy.GetAttribute("ValidFor");
 
-						
 
-						
+
+
 						WriteLine("                properties.Add(new NodeSmoProperty");
 						WriteLine("                {");
 						WriteLine(string.Format("                   Name = \"{0}\",", propertyName));
-						
+
 						if (!string.IsNullOrWhiteSpace(validFor))
 						{
 							WriteLine(string.Format("                   ValidFor = {0}", GetValidForFlags(validFor)));
 						}
 						WriteLine("                });");
-						
-						
+
+
 					}
-					
+
 					WriteLine("                return properties;");
 					WriteLine("           }");
 					WriteLine("        }");
-					
+
 				}
 
-			
+
 			if (children.Count > 0)
 			{
 				WriteLine("");
@@ -244,7 +248,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 						WriteLine(string.Format("                NodeType = \"{0}\",", "Folder"));
 						WriteLine(string.Format("                NodeTypeId = NodeTypes.{0},", child.GetAttribute("Name")));
 						WriteLine(string.Format("                IsSystemObject = {0},", child.GetAttribute("IsSystemObject") == "1" ? "true" : "false"));
-						
+
 						if (msShippedOwned != null)
 						{
 							WriteLine("                IsMsShippedOwned = true,");
@@ -285,20 +289,20 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 				WriteLine("        }");
 
 				WriteLine("");
-				
+
 				WriteLine("        public override TreeNode CreateChild(TreeNode parent, object context)");
 				WriteLine("        {");
 				if (string.IsNullOrWhiteSpace(TreeNode))
 				{
 					WriteLine("            var child = new SmoTreeNode();");
 					WriteLine("            child.IsAlwaysLeaf = true;");
-					
-					if (!string.IsNullOrEmpty(nodeType)) 
+
+					if (!string.IsNullOrEmpty(nodeType))
 					{
-						
+
 						WriteLine(string.Format("            child.NodeType = \"{0}\";", nodeType));
 					}
-						
+
 				}
 				else
 				{
@@ -314,7 +318,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 					WriteLine("            child.SortPriority = SmoTreeNode.NextSortPriority;");
 				}
 				WriteLine("            InitializeChild(parent, child, context);");
-				
+
 
 				WriteLine("            return child;");
 				WriteLine("        }");
@@ -332,7 +336,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 				WriteLine("            return null;");
 				WriteLine("        }");
 			}
-			
+
 			WriteLine("    }");
 			WriteLine("");
 		}
@@ -425,7 +429,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 		}
 		return typesList.ToArray();
 	}
-	
+
 	public static Dictionary<string, List<string>> GetReverseDependencies(string xmlFile)
 	{
 		Dictionary<string, List<string>> dependencyMap = new Dictionary<string, List<string>>();
@@ -530,7 +534,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 		}
 		return retElements;
 	}
-	
+
 
 	public static List<XmlElement> GetNodeSmoProperties(string xmlFile, string parentName)
 	{

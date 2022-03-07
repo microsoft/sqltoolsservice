@@ -1,6 +1,7 @@
 ﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
 using Microsoft.SqlTools.ResourceProvider.Core;
@@ -31,7 +32,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
         public bool Equals(IAzureSubscriptionIdentifier other)
         {
             return other != null &&
-                   CommonUtil.SameString(SubscriptionId, other.SubscriptionId) &&                   
+                   CommonUtil.SameString(SubscriptionId, other.SubscriptionId) &&
                    CommonUtil.SameUri(ServiceManagementEndpoint, other.ServiceManagementEndpoint);
         }
 
@@ -58,7 +59,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
             get;
             private set;
         }
-        
+
         /// <summary>
         /// The ID of the tenant this subscription comes from
         /// </summary>

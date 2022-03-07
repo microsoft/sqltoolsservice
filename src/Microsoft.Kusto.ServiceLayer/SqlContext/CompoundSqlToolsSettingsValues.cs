@@ -7,11 +7,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.SqlTools.Utility;
-using Newtonsoft.Json;
 
 namespace Microsoft.Kusto.ServiceLayer.SqlContext
 {
-    
+
     /// <summary>
     /// Handles backwards compatibility of settings by checking for settings in a priority list. If a settings
     /// group such as Intellisense is defined on a serialized setting it's used in the order of mssql, then sql, then

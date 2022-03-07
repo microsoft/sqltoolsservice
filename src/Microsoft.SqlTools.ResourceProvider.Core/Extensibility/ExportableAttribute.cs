@@ -10,7 +10,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Extensibility
 {
     /// <summary>
     /// Attribute defining a service export, and the metadata about that service. Implements IServiceMetadata,
-    /// which should be used on the importer side to ensure type consistency. Services and providers have to add this property 
+    /// which should be used on the importer side to ensure type consistency. Services and providers have to add this property
     /// in order to be found by the extension manager
     /// </summary>
     [MetadataAttribute]
@@ -27,11 +27,11 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Extensibility
         /// <param name="priority">The priority of the exportable. The extension manager will pick the exportable with the highest priority if multiple found</param>
         /// <param name="displayName">The display name of the exportable. This field is optional</param>
         public ExportableAttribute(
-            string serverType, 
+            string serverType,
             string category,
-            Type type, 
-            string id, 
-            int priority = 0, 
+            Type type,
+            string id,
+            int priority = 0,
             string displayName = null) : base(type)
         {
             Category = category;
@@ -40,7 +40,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Extensibility
             DisplayName = displayName;
             Priority = priority;
         }
-        
+
         /// <summary>
         /// The constructor to define an exportable by type, id and priority only. To be used by the exportables that support all server types and categories.
         /// For example: the implementation of <see cref="ITrace" /> can be used for all server types and categories.
@@ -60,8 +60,8 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Extensibility
         /// </summary>
         public string Category
         {
-            get; 
-            private set; 
+            get;
+            private set;
         }
 
         /// <summary>
@@ -69,8 +69,8 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Extensibility
         /// </summary>
         public string ServerType
         {
-            get; 
-            private set; 
+            get;
+            private set;
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Extensibility
         /// </summary>
         public string Id
         {
-            get; 
+            get;
             private set;
         }
 
@@ -96,7 +96,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Extensibility
         /// </summary>
         public string DisplayName
         {
-            get; 
+            get;
             private set;
         }
 
@@ -105,7 +105,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Extensibility
         /// </summary>
         public int Priority
         {
-            get; 
+            get;
             private set;
         }
     }
