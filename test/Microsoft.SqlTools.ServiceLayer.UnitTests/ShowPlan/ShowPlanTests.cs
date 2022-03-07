@@ -29,6 +29,32 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ShowPlan
         }
 
         [Test]
+        public void CompareShowPlan_CreateSkeleton()
+        {
+            ReadFile(".ShowPlan.TestExecutionPlan.xml");
+            var graphs = ShowPlanGraph.ParseShowPlanXML(queryPlanFileText, ShowPlanType.Unknown);
+            var rootNode = graphs[0].Root;
+
+            Assert.NotNull(rootNode, "graph should have a root");
+
+            var skeletonManager = new SkeletonManager();
+            var skeletonNode = skeletonManager.CreateSkeleton(rootNode);
+
+            Assert.NotNull(skeletonNode, "skeletonNode should not be null");
+        }
+
+        [Test]
+        public void CompareShowPlan_CreateSkeletonUsingNull()
+        {
+            Node node = null;
+
+            var skeletonManager = new SkeletonManager();
+            var skeletonNode = skeletonManager.CreateSkeleton(node);
+
+            Assert.IsNull(skeletonNode, "skeletonNode should be null");
+        }
+
+        [Test]
         public void CompareShowPlan_DuplicateSkeletons()
         {
             ReadFile(".ShowPlan.TestExecutionPlan.xml");
@@ -76,7 +102,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ShowPlan
         }
 
         [Test]
-        public void CompareShowPlan_DifferentChildCount()
+        public void CompareShowPlan_DifferentSkeletonChildCount()
         {
             ReadFile(".ShowPlan.TestExecutionPlan.xml");
             ShowPlanGraph[] graphs = ShowPlanGraph.ParseShowPlanXML(queryPlanFileText, ShowPlanType.Unknown);
@@ -90,6 +116,26 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ShowPlan
             var skeletonCompareResult = skeletonManager.AreSkeletonsEquivalent(skeletonNode, skeletonNode2, ignoreDatabaseName: true);
 
             Assert.AreEqual(false, skeletonCompareResult);
+        }
+
+        [Test]
+        public void CompareShowPlan_ColorMatchingSectionsWithEquivalentSkeletons()
+        {
+            ReadFile(".ShowPlan.TestExecutionPlan.xml");
+            ShowPlanGraph[] graphs = ShowPlanGraph.ParseShowPlanXML(queryPlanFileText, ShowPlanType.Unknown);
+            var rootNode = graphs[0].Root;
+
+            var skeletonManager = new SkeletonManager();
+            var skeletonNode = skeletonManager.CreateSkeleton(rootNode);
+            var skeletonNode2 = skeletonManager.CreateSkeleton(rootNode);
+
+            skeletonManager.ColorMatchingSections(skeletonNode, skeletonNode2, ignoreDatabaseName: true);
+
+            Assert.AreEqual(true, skeletonNode.HasMatch);
+            Assert.AreEqual(true, skeletonNode2.HasMatch);
+
+            Assert.AreEqual(1, skeletonNode.MatchingNodes.Count);
+            Assert.AreEqual(1, skeletonNode2.MatchingNodes.Count);
         }
 
         [Test]
