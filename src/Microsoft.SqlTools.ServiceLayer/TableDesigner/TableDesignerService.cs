@@ -162,13 +162,17 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             });
         }
 
-        private Task HandleGeneratePreviewReportRequest(TableInfo tableInfo, RequestContext<string> requestContext)
+        private Task HandleGeneratePreviewReportRequest(TableInfo tableInfo, RequestContext<GeneratePreviewReportResult> requestContext)
         {
-            return this.HandleRequest<string>(requestContext, async () =>
+            return this.HandleRequest<GeneratePreviewReportResult>(requestContext, async () =>
             {
                 var table = this.GetTableDesigner(tableInfo);
                 var report = table.GenerateReport();
-                await requestContext.SendResult(report);
+                var generatePreviewReportResult = new GeneratePreviewReportResult();
+                // TODO - set report type by caohai
+                generatePreviewReportResult.Report = report;
+                generatePreviewReportResult.MimeType = "text/plain";
+                await requestContext.SendResult(generatePreviewReportResult);
             });
         }
 
