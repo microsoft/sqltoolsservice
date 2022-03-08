@@ -176,6 +176,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         {
             return this.HandleRequest<DisposeTableDesignerResponse>(requestContext, async () =>
             {
+                var td = this.GetTableDesigner(tableInfo);
+                td.Dispose();
                 this.idTableMap.Remove(tableInfo.Id);
                 await requestContext.SendResult(new DisposeTableDesignerResponse());
             });
