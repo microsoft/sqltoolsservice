@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         /// <summary>
         /// format (mimetype) of the string (plaintext or mardown)
         /// </summary>
-        public string Format;
+        public string MimeType;
     }
     
     /// <summary>
