@@ -132,8 +132,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ShowPlan
             Assert.IsFalse(skeletonNode.HasMatch);
             Assert.IsFalse(skeletonNode2.HasMatch);
 
-            Assert.AreEqual(0, skeletonNode.MatchingNodes.Count);
-            Assert.AreEqual(0, skeletonNode2.MatchingNodes.Count);
+            Assert.Zero(skeletonNode.MatchingNodes.Count);
+            Assert.Zero(skeletonNode2.MatchingNodes.Count);
 
             skeletonManager.ColorMatchingSections(skeletonNode, skeletonNode2, ignoreDatabaseName: true);
 
@@ -159,7 +159,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ShowPlan
 
             Assert.IsNull(nullSkeletonNode);
             Assert.IsFalse(skeletonNode2.HasMatch);
-            Assert.AreEqual(0, skeletonNode2.MatchingNodes.Count);
+            Assert.Zero(skeletonNode2.MatchingNodes.Count);
         }
 
         [Test]
@@ -189,7 +189,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ShowPlan
             skeletonManager.ColorMatchingSections(skeletonNode, nullSkeletonNode, ignoreDatabaseName: true);
 
             Assert.IsFalse(skeletonNode.HasMatch);
-            Assert.AreEqual(0, skeletonNode.MatchingNodes.Count);
+            Assert.Zero(skeletonNode.MatchingNodes.Count);
             Assert.IsNull(nullSkeletonNode);
         }
 
@@ -208,8 +208,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ShowPlan
             Assert.IsFalse(skeletonNode.Children[0].HasMatch);
             Assert.IsFalse(skeletonNode2.Children[0].HasMatch);
 
-            Assert.AreEqual(0, skeletonNode.Children[0].MatchingNodes.Count);
-            Assert.AreEqual(0, skeletonNode2.Children[0].MatchingNodes.Count);
+            Assert.Zero(skeletonNode.Children[0].MatchingNodes.Count);
+            Assert.Zero(skeletonNode2.Children[0].MatchingNodes.Count);
 
             skeletonManager.ColorMatchingSections(skeletonNode, skeletonNode2, ignoreDatabaseName: true);
 
