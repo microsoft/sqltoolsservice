@@ -14,7 +14,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
     public class GeneratePreviewReportResult 
     {
         /// <summary>
-        /// The report generated in plaintext or markdown
+        /// The report generated for publish preview
         /// </summary>
         public string Report;
 
