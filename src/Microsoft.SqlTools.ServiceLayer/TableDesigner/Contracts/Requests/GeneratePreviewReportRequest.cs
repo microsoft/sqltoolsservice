@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         public string Report;
 
         /// <summary>
-        /// format (mimetype) of the string (plaintext or mardown)
+        /// format (mimetype) of the string
         /// </summary>
         public string MimeType;
     }
