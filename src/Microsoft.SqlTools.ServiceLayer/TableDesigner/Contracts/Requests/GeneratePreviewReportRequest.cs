@@ -10,11 +10,23 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
     /// <summary>
     /// The service request to generate preview report describing the changes.
     /// </summary>
+    public class GeneratePreviewReportResult 
+    {
+        // The script generated in plaintext or markdown
+        public string Script;
+
+        // format of the string (plaintext or mardown)
+        public string Format;
+    }
+    
+    /// <summary>
+    /// The service request to generate preview report describing the changes.
+    /// </summary>
     public class GeneratePreviewReportRequest
     {
         /// <summary>
         /// Request definition
         /// </summary>
-        public static readonly RequestType<TableInfo, string> Type = RequestType<TableInfo, string>.Create("tabledesigner/generatepreviewreport");
+        public static readonly RequestType<TableInfo, GeneratePreviewReportResult> Type = RequestType<TableInfo, GeneratePreviewReportResult>.Create("tabledesigner/generatepreviewreport");
     }
 }
