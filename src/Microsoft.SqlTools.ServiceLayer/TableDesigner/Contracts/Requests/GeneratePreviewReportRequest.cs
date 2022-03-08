@@ -10,12 +10,17 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
     /// <summary>
     /// The service request to generate preview report describing the changes.
     /// </summary>
+
     public class GeneratePreviewReportResult 
     {
-        // The script generated in plaintext or markdown
-        public string Script;
+        /// <summary>
+        /// The script generated in plaintext or markdown
+        /// </summary>
+        public string Report;
 
-        // format of the string (plaintext or mardown)
+        /// <summary>
+        /// format (mimetype) of the string (plaintext or mardown)
+        /// </summary>
         public string Format;
     }
     

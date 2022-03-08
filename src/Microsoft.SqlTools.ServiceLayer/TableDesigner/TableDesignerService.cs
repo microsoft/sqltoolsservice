@@ -169,8 +169,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 var report = table.GenerateReport();
                 var generatePreviewReportResult = new GeneratePreviewReportResult();
                 // TODO - set report type by caohai
-                generatePreviewReportResult.Script = report;
-                generatePreviewReportResult.Format = "plaintext";
+                generatePreviewReportResult.Report = report;
+                generatePreviewReportResult.Format = "text/markdown";
                 await requestContext.SendResult(generatePreviewReportResult);
             });
         }
