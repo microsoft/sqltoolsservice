@@ -253,7 +253,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ShowPlan
         }
 
         [Test]
-        public void CompareShowPlan_FindNExtNonIgnoreNodeWithNullNode()
+        public void CompareShowPlan_FindNextNonIgnoreNodeWithNullNode()
         {
             Node rootNode = null;
 
