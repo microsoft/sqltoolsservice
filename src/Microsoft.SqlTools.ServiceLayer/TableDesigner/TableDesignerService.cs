@@ -170,7 +170,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 var generatePreviewReportResult = new GeneratePreviewReportResult();
                 // TODO - set report type by caohai
                 generatePreviewReportResult.Report = report;
-                generatePreviewReportResult.MimeType = "text/markdown";
+                generatePreviewReportResult.MimeType = "text/plain";
                 await requestContext.SendResult(generatePreviewReportResult);
             });
         }
