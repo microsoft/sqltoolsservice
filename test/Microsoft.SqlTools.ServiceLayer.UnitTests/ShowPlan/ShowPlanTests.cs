@@ -67,7 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ShowPlan
 
             var skeletonCompareResult = skeletonManager.AreSkeletonsEquivalent(skeletonNode, skeletonNode2, ignoreDatabaseName: true);
 
-            Assert.AreEqual(true, skeletonCompareResult);
+            Assert.IsTrue(skeletonCompareResult);
         }
 
         [Test]
@@ -82,7 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ShowPlan
 
             var skeletonCompareResult = skeletonManager.AreSkeletonsEquivalent(firstSkeletonNode, secondSkeletonNode, ignoreDatabaseName: true);
 
-            Assert.AreEqual(true, skeletonCompareResult);
+            Assert.IsTrue(skeletonCompareResult);
         }
 
         [Test]
@@ -98,7 +98,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ShowPlan
 
             var skeletonCompareResult = skeletonManager.AreSkeletonsEquivalent(skeletonNode, skeletonNode2, ignoreDatabaseName: true);
 
-            Assert.AreEqual(false, skeletonCompareResult);
+            Assert.IsFalse(skeletonCompareResult);
         }
 
         [Test]
@@ -115,7 +115,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ShowPlan
 
             var skeletonCompareResult = skeletonManager.AreSkeletonsEquivalent(skeletonNode, skeletonNode2, ignoreDatabaseName: true);
 
-            Assert.AreEqual(false, skeletonCompareResult);
+            Assert.IsFalse(skeletonCompareResult);
         }
 
         [Test]
@@ -129,13 +129,138 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ShowPlan
             var skeletonNode = skeletonManager.CreateSkeleton(rootNode);
             var skeletonNode2 = skeletonManager.CreateSkeleton(rootNode);
 
+            Assert.IsFalse(skeletonNode.HasMatch);
+            Assert.IsFalse(skeletonNode2.HasMatch);
+
+            Assert.AreEqual(0, skeletonNode.MatchingNodes.Count);
+            Assert.AreEqual(0, skeletonNode2.MatchingNodes.Count);
+
             skeletonManager.ColorMatchingSections(skeletonNode, skeletonNode2, ignoreDatabaseName: true);
 
-            Assert.AreEqual(true, skeletonNode.HasMatch);
-            Assert.AreEqual(true, skeletonNode2.HasMatch);
+            Assert.IsTrue(skeletonNode.HasMatch);
+            Assert.IsTrue(skeletonNode2.HasMatch);
 
             Assert.AreEqual(1, skeletonNode.MatchingNodes.Count);
             Assert.AreEqual(1, skeletonNode2.MatchingNodes.Count);
+        }
+
+        [Test]
+        public void CompareShowPlan_ColorMatchingSectionsWithNullAndNonNullSkeleton()
+        {
+            ReadFile(".ShowPlan.TestExecutionPlan.xml");
+            ShowPlanGraph[] graphs = ShowPlanGraph.ParseShowPlanXML(queryPlanFileText, ShowPlanType.Unknown);
+            var rootNode = graphs[0].Root;
+
+            var skeletonManager = new SkeletonManager();
+            SkeletonNode nullSkeletonNode = null;
+            var skeletonNode2 = skeletonManager.CreateSkeleton(rootNode);
+
+            skeletonManager.ColorMatchingSections(nullSkeletonNode, skeletonNode2, ignoreDatabaseName: true);
+
+            Assert.IsNull(nullSkeletonNode);
+            Assert.IsFalse(skeletonNode2.HasMatch);
+            Assert.AreEqual(0, skeletonNode2.MatchingNodes.Count);
+        }
+
+        [Test]
+        public void CompareShowPlan_ColorMatchingSectionsWithTwoNullSKeletons()
+        {
+            var skeletonManager = new SkeletonManager();
+            SkeletonNode skeletonNode = null;
+            SkeletonNode skeletonNode2 = null;
+
+            skeletonManager.ColorMatchingSections(skeletonNode, skeletonNode2, ignoreDatabaseName: true);
+
+            Assert.IsNull(skeletonNode);
+            Assert.IsNull(skeletonNode2);
+        }
+
+        [Test]
+        public void CompareShowPlan_ColorMatchingSectionsWithNonNullAndNullSkeleton()
+        {
+            ReadFile(".ShowPlan.TestExecutionPlan.xml");
+            ShowPlanGraph[] graphs = ShowPlanGraph.ParseShowPlanXML(queryPlanFileText, ShowPlanType.Unknown);
+            var rootNode = graphs[0].Root;
+
+            var skeletonManager = new SkeletonManager();
+            var skeletonNode = skeletonManager.CreateSkeleton(rootNode);
+            SkeletonNode nullSkeletonNode = null;
+            
+            skeletonManager.ColorMatchingSections(skeletonNode, nullSkeletonNode, ignoreDatabaseName: true);
+
+            Assert.IsFalse(skeletonNode.HasMatch);
+            Assert.AreEqual(0, skeletonNode.MatchingNodes.Count);
+            Assert.IsNull(nullSkeletonNode);
+        }
+
+        [Test]
+        public void CompareShowPlan_ColorMatchingSectionsWithDifferentChildCount()
+        {
+            ReadFile(".ShowPlan.TestExecutionPlan.xml");
+            ShowPlanGraph[] graphs = ShowPlanGraph.ParseShowPlanXML(queryPlanFileText, ShowPlanType.Unknown);
+            var rootNode = graphs[0].Root;
+
+            var skeletonManager = new SkeletonManager();
+            var skeletonNode = skeletonManager.CreateSkeleton(rootNode);
+            var skeletonNode2 = skeletonManager.CreateSkeleton(rootNode);
+            skeletonNode2.Children.RemoveAt(skeletonNode2.Children.Count - 1);
+
+            Assert.IsFalse(skeletonNode.Children[0].HasMatch);
+            Assert.IsFalse(skeletonNode2.Children[0].HasMatch);
+
+            Assert.AreEqual(0, skeletonNode.Children[0].MatchingNodes.Count);
+            Assert.AreEqual(0, skeletonNode2.Children[0].MatchingNodes.Count);
+
+            skeletonManager.ColorMatchingSections(skeletonNode, skeletonNode2, ignoreDatabaseName: true);
+
+            Assert.IsTrue(skeletonNode.Children[0].HasMatch);
+            Assert.IsTrue(skeletonNode2.Children[0].HasMatch);
+
+            Assert.AreEqual(1, skeletonNode.Children[0].MatchingNodes.Count);
+            Assert.AreEqual(1, skeletonNode2.Children[0].MatchingNodes.Count);
+        }
+
+        [Test]
+        public void CompareShowPlan_FindNextNonIgnoreNode()
+        {
+            ReadFile(".ShowPlan.TestExecutionPlan.xml");
+            ShowPlanGraph[] graphs = ShowPlanGraph.ParseShowPlanXML(queryPlanFileText, ShowPlanType.Unknown);
+            var rootNode = graphs[0].Root;
+
+            var skeletonManager = new SkeletonManager();
+            var result = skeletonManager.FindNextNonIgnoreNode(rootNode);
+
+            Assert.NotNull(result);
+            Assert.AreEqual("InnerJoin", result.LogicalOpUnlocName);
+        }
+
+        [Test]
+        public void CompareShowPlan_FindNextNonIgnoreNodeWithChildlessRoot()
+        {
+            ReadFile(".ShowPlan.TestExecutionPlan.xml");
+            ShowPlanGraph[] graphs = ShowPlanGraph.ParseShowPlanXML(queryPlanFileText, ShowPlanType.Unknown);
+            var rootNode = graphs[0].Root;
+
+            for (int childIndex = 0; childIndex < rootNode.Children.Count; ++childIndex)
+            {
+                rootNode.Children.RemoveAt(0);
+            }
+
+            var skeletonManager = new SkeletonManager();
+            var result = skeletonManager.FindNextNonIgnoreNode(rootNode);
+
+            Assert.IsNull(result);
+        }
+
+        [Test]
+        public void CompareShowPlan_FindNExtNonIgnoreNodeWithNullNode()
+        {
+            Node rootNode = null;
+
+            var skeletonManager = new SkeletonManager();
+            var result = skeletonManager.FindNextNonIgnoreNode(rootNode);
+
+            Assert.IsNull(result);
         }
 
         [Test]
