@@ -11,7 +11,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
     /// The service request to generate preview report describing the changes.
     /// </summary>
 
+<<<<<<< HEAD
     public class PreviewReportResult 
+=======
+    public class GeneratePreviewReportResult 
+>>>>>>> main
     {
         /// <summary>
         /// The report generated for publish preview
@@ -32,6 +36,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         /// <summary>
         /// Request definition
         /// </summary>
+<<<<<<< HEAD
         public static readonly RequestType<TableInfo, PreviewReportResult> Type = RequestType<TableInfo, PreviewReportResult>.Create("tabledesigner/generatepreviewreport");
+=======
+        public static readonly RequestType<TableInfo, GeneratePreviewReportResult> Type = RequestType<TableInfo, GeneratePreviewReportResult>.Create("tabledesigner/generatepreviewreport");
+>>>>>>> main
     }
 }
