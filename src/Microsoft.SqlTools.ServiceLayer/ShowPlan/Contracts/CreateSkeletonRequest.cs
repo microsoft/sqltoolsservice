@@ -4,8 +4,6 @@
 //
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph;
-using Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph.Comparison;
 
 namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.Contracts
 {
