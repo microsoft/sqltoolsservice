@@ -3,13 +3,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
+using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.ShowPlan.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph;
 using Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph.Comparison;
-using System;
-using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
 {

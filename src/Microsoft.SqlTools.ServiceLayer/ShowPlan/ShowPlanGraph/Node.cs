@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
+using Microsoft.SqlTools.ServiceLayer.ShowPlan.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
 {
@@ -736,5 +737,71 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
             child.parent = this;
         }
 
+        public NodeDTO ConvertToDTO()
+        {
+            var nodeDTO = new NodeDTO();
+            LevelOrderCopy(this, nodeDTO);
+
+            return nodeDTO;
+        }
+
+        private static void LevelOrderCopy(Node node, NodeDTO rootDTO)
+        {
+            if (node == null)
+                return;
+
+            var queue = new Queue<Node>();
+            queue.Enqueue(node);
+
+            var dtoQueue = new Queue<NodeDTO>();
+            dtoQueue.Enqueue(rootDTO);
+
+            while (queue.Count != 0)
+            {
+                var curNode = queue.Dequeue();
+                var curNodeDTO = dtoQueue.Dequeue();
+
+                // Copy over everything to NodeDTO
+                curNodeDTO.Cost = curNode.Cost;
+                curNodeDTO.Description = curNode.Description;
+                curNodeDTO.DisplayCost = curNode.DisplayCost;
+                curNodeDTO.DisplayName = curNode.DisplayName;
+                //curNodeDTO.Edges = curNode.Edges;
+                curNodeDTO.ElapsedTimeInMs = curNode.ElapsedTimeInMs;
+
+                curNodeDTO.Graph = new GraphDTO()
+                {
+                    Root = rootDTO,
+                    Description = new DescriptionDTO(curNode.graph.Description)
+                };
+                
+                curNodeDTO.GroupIndex = curNode.GroupIndex;
+                curNodeDTO.HasWarnings = curNode.HasWarnings;
+                curNodeDTO.ID = curNode.ID;
+                curNodeDTO.IsParallel = curNode.IsParallel;
+                curNodeDTO.LogicalOpUnlocName = curNode.LogicalOpUnlocName;
+                curNodeDTO.Operation = new OperationDTO(curNode.Operation);
+                curNodeDTO.PhysicalOpUnlocName = curNode.PhysicalOpUnlocName;
+                curNodeDTO.Properties = (IDictionary<string, object>)curNode.Properties;
+                curNodeDTO.RelativeCost = curNode.RelativeCost;
+                curNodeDTO.Root = rootDTO;
+                curNodeDTO.SubtreeCost = curNode.SubtreeCost;
+
+                foreach (var child in curNode.Children)
+                {
+                    queue.Enqueue(child);
+
+                    var childDTO = new NodeDTO();
+
+                    EdgeDTO edgeDTO = new EdgeDTO(curNodeDTO, childDTO);
+                    curNodeDTO.Edges.Add(edgeDTO);
+                    childDTO.Edges.Add(edgeDTO);
+
+                    childDTO.Parent = curNodeDTO;
+                    curNodeDTO.Children.Add(childDTO);
+                    dtoQueue.Enqueue(childDTO);
+                }
+            }
+        }
     }
 }

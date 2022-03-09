@@ -3,11 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
+using Microsoft.SqlTools.ServiceLayer.ShowPlan.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph.Comparison
 {
@@ -84,5 +81,41 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph.Comparison
             return this.BaseNode.Graph;
         }
 
+        public SkeletonNodeDTO ConvertToDTO()
+        {
+            var skeletonNodeDTO = new SkeletonNodeDTO();
+            LevelOrderCopy(this, skeletonNodeDTO);
+
+            return skeletonNodeDTO;
+        }
+
+        private static void LevelOrderCopy(SkeletonNode skeletonNode, SkeletonNodeDTO skeletonNodeDTO)
+        {
+            var queue = new Queue<SkeletonNode>();
+            queue.Enqueue(skeletonNode);
+
+            var dtoQueue = new Queue<SkeletonNodeDTO>();
+            dtoQueue.Enqueue(skeletonNodeDTO);
+
+            while (queue.Count != 0)
+            {
+                var curNode = queue.Dequeue();
+                var dtoNode = dtoQueue.Dequeue();
+
+                dtoNode.BaseNode = curNode.BaseNode.ConvertToDTO();
+                dtoNode.GroupIndex = curNode.GroupIndex;
+                dtoNode.HasMatch = curNode.HasMatch;
+                
+                foreach (var child in curNode.Children)
+                {
+                    queue.Enqueue(child);
+
+                    var childDTO = new SkeletonNodeDTO();
+                    childDTO.ParentNode = dtoNode;
+                    dtoNode.Children.Add(childDTO);
+                    dtoQueue.Enqueue(dtoNode);
+                }
+            }
+        }
     }
 }

@@ -42,6 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
 
         public bool IsClusteredMode
         {
+            get { return this.IsClusteredMode; }
             set
             {
                 this.isClusteredMode = value;
