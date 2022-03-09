@@ -5964,8 +5964,8 @@ The Query Processor estimates that implementing the following index could improv
         <note></note>
       </trans-unit>
       <trans-unit id="TableDesignerNewHistoryTableDescription">
-        <source>Specifies the name of the history name.</source>
-        <target state="new">Specifies the name of the history name.</target>
+        <source>Specifies the name of the new history table.</source>
+        <target state="new">Specifies the name of the new history table.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="TableDesignerNewHistoryTableTitle">

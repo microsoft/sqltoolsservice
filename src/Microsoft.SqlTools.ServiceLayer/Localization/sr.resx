@@ -4899,7 +4899,7 @@ The Query Processor estimates that implementing the following index could improv
     <comment></comment>
   </data>
   <data name="TableDesignerNewHistoryTableDescription" xml:space="preserve">
-    <value>Specifies the name of the history name.</value>
+    <value>Specifies the name of the new history table.</value>
     <comment></comment>
   </data>
   <data name="TableDesignerNewHistoryTableTitle" xml:space="preserve">
