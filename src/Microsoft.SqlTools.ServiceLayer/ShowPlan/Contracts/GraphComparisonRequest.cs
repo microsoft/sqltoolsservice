@@ -39,6 +39,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.Contracts
     {
         public static readonly
             RequestType<GetGraphComparisonParams, GetGraphComparisonResult> Type =
-                RequestType<GetGraphComparisonParams, GetGraphComparisonResult>.Create("showplan/compareshowplans");
+                RequestType<GetGraphComparisonParams, GetGraphComparisonResult>.Create("showPlan/compareShowPlans");
     }
 }

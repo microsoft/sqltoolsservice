@@ -44,6 +44,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.Contracts
     {
         public static readonly
             RequestType<ColorMatchingSectionsParams, ColorMatchingSectionsResult> Type =
-                RequestType<ColorMatchingSectionsParams, ColorMatchingSectionsResult>.Create("showplan/colormatchingsections");
+                RequestType<ColorMatchingSectionsParams, ColorMatchingSectionsResult>.Create("showPlan/colorMatchingSections");
     }
 }
