@@ -6,6 +6,7 @@
 using System.Collections.Generic;
 using Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
 using ValidationError = Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts.TableDesignerValidationError;
+using System.Linq;
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 {
     public static class TableDesignerValidator
@@ -17,7 +18,16 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             new ColumnCanOnlyAppearOnceInIndexRule(),
             new NoDuplicateColumnNameRule(),
             new NoDuplicateConstraintNameRule(),
-            new NoDuplicateIndexNameRule()
+            new NoDuplicateIndexNameRule(),
+            new EdgeConstraintMustHaveClausesRule(),
+            new EdgeConstraintNoRepeatingClausesRule(),
+            new MemoryOptimizedTableMustHaveNonClusteredPrimaryKeyRule(),
+            new TemporalTableMustHavePeriodColumns(),
+            new PeriodColumnsRule(),
+            new ColumnsInPrimaryKeyCannotBeNullableRule(),
+            new OnlyDurableMemoryOptimizedTableCanBeSystemVersionedRule(),
+            new TemporalTableMustHavePrimaryKeyRule(),
+            new TableMustHaveAtLeastOneColumnRule()
         };
 
         /// <summary>
@@ -72,7 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 {
                     errors.Add(new ValidationError()
                     {
-                        Message = string.Format("Foreign key '{0}' does not have any column mapping specified.", foreignKey.Name),
+                        Message = string.Format("Foreign key '{0}' does not have any columns specified.", foreignKey.Name),
                         PropertyPath = new object[] { TablePropertyNames.ForeignKeys, i }
                     });
                 }
@@ -198,6 +208,23 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     existingNames.Add(checkConstraint.Name);
                 }
             }
+
+            for (int i = 0; i < table.EdgeConstraints.Items.Count; i++)
+            {
+                var edgeConstraint = table.EdgeConstraints.Items[i];
+                if (existingNames.Contains(edgeConstraint.Name))
+                {
+                    errors.Add(new ValidationError()
+                    {
+                        Message = string.Format("The name '{0}' is already used by another constraint. Row number: {1}.", edgeConstraint.Name, i + 1),
+                        PropertyPath = new object[] { TablePropertyNames.EdgeConstraints, i, EdgeConstraintPropertyNames.Name }
+                    });
+                }
+                else
+                {
+                    existingNames.Add(edgeConstraint.Name);
+                }
+            }
             return errors;
         }
     }
@@ -249,6 +276,185 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 {
                     existingNames.Add(index.Name);
                 }
+            }
+            return errors;
+        }
+    }
+
+    public class EdgeConstraintMustHaveClausesRule : ITableDesignerValidationRule
+    {
+        public List<ValidationError> Run(TableViewModel table)
+        {
+            var errors = new List<ValidationError>();
+            for (int i = 0; i < table.EdgeConstraints.Items.Count; i++)
+            {
+                var edgeConstraint = table.EdgeConstraints.Items[i];
+                if (edgeConstraint.Clauses.Count == 0)
+                {
+                    errors.Add(new ValidationError()
+                    {
+                        Message = string.Format("Edge constraint '{0}' does not have any clauses specified.", edgeConstraint.Name),
+                        PropertyPath = new object[] { TablePropertyNames.EdgeConstraints, i }
+                    });
+                }
+            }
+            return errors;
+        }
+    }
+
+    public class EdgeConstraintNoRepeatingClausesRule : ITableDesignerValidationRule
+    {
+        public List<ValidationError> Run(TableViewModel table)
+        {
+            var errors = new List<ValidationError>();
+            for (int i = 0; i < table.EdgeConstraints.Items.Count; i++)
+            {
+                var edgeConstraint = table.EdgeConstraints.Items[i];
+                var existingPairs = new HashSet<string>();
+                for (int j = 0; j < edgeConstraint.Clauses.Count; j++)
+                {
+                    var clause = edgeConstraint.Clauses[j];
+                    var pair = string.Format("{0} - {1}", clause.FromTable, clause.ToTable);
+                    if (existingPairs.Contains(pair))
+                    {
+                        errors.Add(new ValidationError()
+                        {
+                            Message = string.Format("The pair '{0}' is already defined by another clause in the edge constraint. Row number: {1}.", pair, j + 1),
+                            PropertyPath = new object[] { TablePropertyNames.EdgeConstraints, i, EdgeConstraintPropertyNames.Clauses, j, EdgeConstraintClausePropertyNames.FromTable }
+                        });
+                    }
+                    else
+                    {
+                        existingPairs.Add(pair);
+                    }
+                }
+            }
+            return errors;
+        }
+    }
+
+    public class MemoryOptimizedTableMustHaveNonClusteredPrimaryKeyRule : ITableDesignerValidationRule
+    {
+        public List<ValidationError> Run(TableViewModel table)
+        {
+            var errors = new List<ValidationError>();
+            if (table.IsMemoryOptimized && (table.PrimaryKey == null || table.PrimaryKey.IsClustered))
+            {
+                errors.Add(new ValidationError()
+                {
+                    Message = "Memory-optimized table must have non-clustered primary key.",
+                    PropertyPath = new object[] { TablePropertyNames.PrimaryKeyIsClustered }
+                });
+            }
+            return errors;
+        }
+    }
+
+    public class TemporalTableMustHavePrimaryKeyRule : ITableDesignerValidationRule
+    {
+        public List<ValidationError> Run(TableViewModel table)
+        {
+            var errors = new List<ValidationError>();
+            if (table.SystemVersioningHistoryTable != null && table.PrimaryKey == null)
+            {
+                errors.Add(new ValidationError()
+                {
+                    Message = "System versioned table must have primary key."
+                });
+            }
+            return errors;
+        }
+    }
+
+    public class TemporalTableMustHavePeriodColumns : ITableDesignerValidationRule
+    {
+        public List<ValidationError> Run(TableViewModel table)
+        {
+            var errors = new List<ValidationError>();
+            if (table.SystemVersioningHistoryTable != null && !table.PeriodColumnsDefined)
+            {
+                errors.Add(new ValidationError()
+                {
+                    Message = "System versioned table must have the period columns defined."
+                });
+            }
+            return errors;
+        }
+    }
+
+    public class PeriodColumnsRule : ITableDesignerValidationRule
+    {
+        public List<ValidationError> Run(TableViewModel table)
+        {
+            var errors = new List<ValidationError>();
+            var rowStart = table.Columns.Items.Where(c => c.GeneratedAlwaysAs == ColumnGeneratedAlwaysAsType.GeneratedAlwaysAsRowStart);
+            var rowEnd = table.Columns.Items.Where(c => c.GeneratedAlwaysAs == ColumnGeneratedAlwaysAsType.GeneratedAlwaysAsRowEnd);
+            if (rowStart.Count() > 1 || rowEnd.Count() > 1)
+            {
+                errors.Add(new ValidationError()
+                {
+                    Message = "Period columns (Generated Always As Row Start/End) can only be defined once."
+                });
+            }
+            else if (rowEnd.Count() != rowStart.Count())
+            {
+                errors.Add(new ValidationError()
+                {
+                    Message = "Period columns (Generated Always As Row Start/End) must be defined as pair. If one is defined, the other must also be defined"
+                });
+            }
+            return errors;
+        }
+    }
+
+    public class ColumnsInPrimaryKeyCannotBeNullableRule : ITableDesignerValidationRule
+    {
+        public List<ValidationError> Run(TableViewModel table)
+        {
+            var errors = new List<ValidationError>();
+            for (int i = 0; i < table.Columns.Items.Count; i++)
+            {
+                var column = table.Columns.Items[i];
+                if (column.IsPrimaryKey && column.IsNullable)
+                {
+                    errors.Add(new ValidationError()
+                    {
+                        Message = "Columns in primary key cannot be nullable.",
+                        PropertyPath = new object[] { TablePropertyNames.Columns, i }
+                    });
+                }
+            }
+            return errors;
+        }
+    }
+
+    public class OnlyDurableMemoryOptimizedTableCanBeSystemVersionedRule : ITableDesignerValidationRule
+    {
+        public List<ValidationError> Run(TableViewModel table)
+        {
+            var errors = new List<ValidationError>();
+            if (table.Durability == TableDurability.SchemaOnly && table.IsMemoryOptimized && table.IsSystemVersioningEnabled)
+            {
+                errors.Add(new ValidationError()
+                {
+                    Message = "Only durable (DURABILITY = SCHEMA_AND_DATA) memory-optimized tables can be system-versioned."
+                });
+            }
+            return errors;
+        }
+    }
+
+    public class TableMustHaveAtLeastOneColumnRule : ITableDesignerValidationRule
+    {
+        public List<ValidationError> Run(TableViewModel table)
+        {
+            var errors = new List<ValidationError>();
+            if (!table.IsEdge && table.Columns.Items.Count == 0)
+            {
+                errors.Add(new ValidationError()
+                {
+                    Message = "A table must have at least one column defined."
+                });
             }
             return errors;
         }
