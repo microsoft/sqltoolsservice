@@ -72,7 +72,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
 
                 var result = new CreateSkeletonResult()
                 {
-                    SkeletonNode = skeletonNode
+                    SkeletonNode = skeletonNode.ConvertToDTO()
                 };
 
                 await requestContext.SendResult(result);
@@ -138,8 +138,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
 
                 var result = new ColorMatchingSectionsResult()
                 {
-                    FirstSkeletonNode = firstSkeletonNode,
-                    SecondSkeletonNode = secondSkeletonNode
+                    FirstSkeletonNode = firstSkeletonNode.ConvertToDTO(),
+                    SecondSkeletonNode = secondSkeletonNode.ConvertToDTO()
                 };
 
                 await requestContext.SendResult(result);
@@ -165,7 +165,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
 
                 var result = new FindNextNonIgnoreNodeResult()
                 {
-                    NextNonIgnoreNode = nextNonIgnoreNode
+                    NextNonIgnoreNode = nextNonIgnoreNode.ConvertToDTO()
                 };
 
                 await requestContext.SendResult(result);

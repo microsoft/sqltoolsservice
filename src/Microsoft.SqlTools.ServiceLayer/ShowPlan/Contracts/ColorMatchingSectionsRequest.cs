@@ -32,12 +32,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.Contracts
         /// <summary>
         /// Created Skeleton Node for a show plan
         /// </summary>
-        public SkeletonNode FirstSkeletonNode { get; set; }
+        public SkeletonNodeDTO FirstSkeletonNode { get; set; }
 
         /// <summary>
         /// Created Skeleton Node for a show plan
         /// </summary>
-        public SkeletonNode SecondSkeletonNode { get; set; }
+        public SkeletonNodeDTO SecondSkeletonNode { get; set; }
     }
 
     public class ColorMatchingSectionsRequest

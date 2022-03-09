@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.Contracts
         /// <summary>
         /// Next node that should not be ignored for show plan comparisons.
         /// </summary>
-        public Node NextNonIgnoreNode { get; set; }
+        public NodeDTO NextNonIgnoreNode { get; set; }
     }
 
     public class FindNextNonIgnoreNodeRequest

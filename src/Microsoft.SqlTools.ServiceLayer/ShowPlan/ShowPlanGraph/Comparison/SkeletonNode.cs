@@ -100,20 +100,20 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph.Comparison
             while (queue.Count != 0)
             {
                 var curNode = queue.Dequeue();
-                var dtoNode = dtoQueue.Dequeue();
+                var curNodeDTO = dtoQueue.Dequeue();
 
-                dtoNode.BaseNode = curNode.BaseNode.ConvertToDTO();
-                dtoNode.GroupIndex = curNode.GroupIndex;
-                dtoNode.HasMatch = curNode.HasMatch;
+                curNodeDTO.BaseNode = curNode.BaseNode.ConvertToDTO();
+                curNodeDTO.GroupIndex = curNode.GroupIndex;
+                curNodeDTO.HasMatch = curNode.HasMatch;
                 
                 foreach (var child in curNode.Children)
                 {
                     queue.Enqueue(child);
 
                     var childDTO = new SkeletonNodeDTO();
-                    childDTO.ParentNode = dtoNode;
-                    dtoNode.Children.Add(childDTO);
-                    dtoQueue.Enqueue(dtoNode);
+                    childDTO.ParentNode = curNodeDTO;
+                    curNodeDTO.Children.Add(childDTO);
+                    dtoQueue.Enqueue(curNodeDTO);
                 }
             }
         }

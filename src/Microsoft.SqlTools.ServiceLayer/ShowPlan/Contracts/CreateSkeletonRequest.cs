@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.Contracts
         /// <summary>
         /// Created Skeleton Node for a show plan
         /// </summary>
-        public SkeletonNode SkeletonNode { get; set; }
+        public SkeletonNodeDTO SkeletonNode { get; set; }
     }
 
     public class CreateSkeletonRequest
