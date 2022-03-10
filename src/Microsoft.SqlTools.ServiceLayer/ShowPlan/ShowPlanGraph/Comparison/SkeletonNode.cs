@@ -92,6 +92,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph.Comparison
 
         private static void LevelOrderCopy(SkeletonNode skeletonNode, SkeletonNodeDTO skeletonNodeDTO)
         {
+            if (skeletonNode == null)
+                return;
+
             var queue = new Queue<SkeletonNode>();
             queue.Enqueue(skeletonNode);
 
@@ -106,7 +109,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph.Comparison
                 curNodeDTO.BaseNode = curNode.BaseNode.ConvertToDTO();
                 curNodeDTO.GroupIndex = curNode.GroupIndex;
                 curNodeDTO.HasMatch = curNode.HasMatch;
-                curNodeDTO.MatchingNodes = curNode.MatchingNodes.Select(matchingNode => matchingNode.ConvertToDTO()).ToList();
+                curNodeDTO.MatchingNodes = curNode.MatchingNodes.Select(matchingNode => ConvertToPlainDTO(matchingNode)).ToList();
                 
                 foreach (var child in curNode.Children)
                 {
@@ -118,6 +121,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph.Comparison
                     dtoQueue.Enqueue(childDTO);
                 }
             }
+        }
+
+        private static SkeletonNodeDTO ConvertToPlainDTO(SkeletonNode currentNode)
+        {
+            if (currentNode == null)
+                return null;
+
+            var skeletonNodeDTO = new SkeletonNodeDTO();
+            skeletonNodeDTO.BaseNode = currentNode.BaseNode.ConvertToDTO();
+
+            return skeletonNodeDTO;
         }
     }
 }

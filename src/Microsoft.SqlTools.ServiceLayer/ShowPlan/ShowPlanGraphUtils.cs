@@ -10,6 +10,7 @@ using System.Linq;
 using Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph;
 using Microsoft.SqlTools.Utility;
 using System.Diagnostics;
+using Microsoft.SqlTools.ServiceLayer.ShowPlan.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
 {
@@ -147,6 +148,54 @@ GO
                 Logger.Write(TraceEventType.Error, e.ToString());
                 return String.Empty;
             }
+        }
+
+        public static void CopyMatchingNodesForSKeletonDTO(SkeletonNodeDTO root, SkeletonNodeDTO root2)
+        {
+            var lookupTable = LoadLookupTable(root2);
+
+            var queue = new Queue<SkeletonNodeDTO>();
+            queue.Enqueue(root);
+
+            while (queue.Count != 0)
+            {
+                var curNode = queue.Dequeue();
+
+                for (int nodeIndex = 0; nodeIndex < curNode.MatchingNodes.Count; ++nodeIndex)
+                {
+                    var matchingId = curNode.MatchingNodes[nodeIndex].BaseNode.ID;
+                    var matchingNode = lookupTable[matchingId];
+
+                    curNode.MatchingNodes[nodeIndex] = matchingNode;
+                }
+                
+                foreach (var child in curNode.Children)
+                {
+                    queue.Enqueue(child);
+                }
+            }
+        }
+
+        private static Dictionary<int, SkeletonNodeDTO> LoadLookupTable(SkeletonNodeDTO node)
+        {
+            var skeletonNodeTable = new Dictionary<int, SkeletonNodeDTO>();
+            var queue = new Queue<SkeletonNodeDTO>();
+            queue.Enqueue(node);
+
+            while (queue.Count != 0)
+            {
+                var curNode = queue.Dequeue();
+
+                if (!skeletonNodeTable.ContainsKey(curNode.BaseNode.ID))
+                    skeletonNodeTable[curNode.BaseNode.ID] = curNode;
+                
+                foreach (var child in curNode.Children)
+                {
+                    queue.Enqueue(child);
+                }
+            }
+
+            return skeletonNodeTable;
         }
     }
 }
