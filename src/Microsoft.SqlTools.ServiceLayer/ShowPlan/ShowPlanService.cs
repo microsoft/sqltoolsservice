@@ -10,6 +10,7 @@ using System.Linq;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
+using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
 {
@@ -53,6 +54,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
         public void InitializeService(ServiceHost serviceHost)
         {
             this.ServiceHost = serviceHost;
+            this.ServiceHost.SetRequestHandler(GetExecutionPlanRequest.Type, HandleGetExecutionPlan);
+        }
+
+        private async Task HandleGetExecutionPlan(GetExecutionPlanParams requestParams, RequestContext<GetExecutionPlanResult> requestContext)
+        {
+            try
+            {
+                var plans = ShowPlanGraphUtils.CreateShowPlanGraph(requestParams.GraphFile.GraphFileContent, "");
+                await requestContext.SendResult(new GetExecutionPlanResult
+                {
+                    Graphs = plans
+                });
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e.ToString());
+            }
         }
 
         /// <summary>
