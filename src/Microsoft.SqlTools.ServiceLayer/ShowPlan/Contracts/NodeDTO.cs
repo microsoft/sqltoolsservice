@@ -9,12 +9,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.Contracts
 {
     public class NodeDTO
     {
-        public List<NodeDTO> Children { get; set; }
+        public List<NodeDTO> Children { get; set; } = new List<NodeDTO>();
         public double Cost { get; set; }
         public string Description { get; set; }
         public string DisplayCost { get; set; }
         public string DisplayName { get; set; }
-        public List<EdgeDTO> Edges { get; set; }
+        public List<ExecutionPlanEdges> Edges { get; set; } = new List<ExecutionPlanEdges>();
         public long? ElapsedTimeInMs { get; set; }
         public GraphDTO Graph { get; set; }
         public int GroupIndex { get; set; }
@@ -25,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.Contracts
         public OperationDTO Operation { get; set; }
         public NodeDTO Parent { get; set; }
         public string PhysicalOpUnlocName { get; set; }
-        public IDictionary<string, object> Properties { get; set; }
+        public List<ExecutionPlanGraphPropertyBase> Properties { get; set; }
         public double RelativeCost { get; set; }
         public NodeDTO Root { get; set; }
         public double SubtreeCost { get; set; }

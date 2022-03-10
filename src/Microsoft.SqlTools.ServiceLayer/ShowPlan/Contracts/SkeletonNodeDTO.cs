@@ -10,10 +10,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.Contracts
     public class SkeletonNodeDTO
     {
         public NodeDTO BaseNode { get; set; }
-        public IList<SkeletonNodeDTO> Children { get; set; }
+        public List<SkeletonNodeDTO> Children { get; set; } = new List<SkeletonNodeDTO>();
         public int GroupIndex { get; set; }
         public bool HasMatch { get; set; }
-        public List<SkeletonNodeDTO> MatchingNodes { get; set; }
+        public List<SkeletonNodeDTO> MatchingNodes { get; set; } = new List<SkeletonNodeDTO>();
         public SkeletonNodeDTO ParentNode { get; set; }
         
         public SkeletonNodeDTO()

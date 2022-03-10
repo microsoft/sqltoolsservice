@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using Microsoft.SqlTools.ServiceLayer.ShowPlan.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
@@ -766,7 +767,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
                 curNodeDTO.Description = curNode.Description;
                 curNodeDTO.DisplayCost = curNode.DisplayCost;
                 curNodeDTO.DisplayName = curNode.DisplayName;
-                //curNodeDTO.Edges = curNode.Edges;
+                curNodeDTO.Edges = curNode.Edges.Select(e => ShowPlanGraphUtils.ConvertShowPlanEdgeToExecutionPlanEdge(e)).ToList();
                 curNodeDTO.ElapsedTimeInMs = curNode.ElapsedTimeInMs;
 
                 curNodeDTO.Graph = new GraphDTO()
@@ -782,7 +783,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
                 curNodeDTO.LogicalOpUnlocName = curNode.LogicalOpUnlocName;
                 curNodeDTO.Operation = new OperationDTO(curNode.Operation);
                 curNodeDTO.PhysicalOpUnlocName = curNode.PhysicalOpUnlocName;
-                curNodeDTO.Properties = (IDictionary<string, object>)curNode.Properties;
+                curNodeDTO.Properties = ShowPlanGraphUtils.GetProperties(curNode.Properties);
                 curNodeDTO.RelativeCost = curNode.RelativeCost;
                 curNodeDTO.Root = rootDTO;
                 curNodeDTO.SubtreeCost = curNode.SubtreeCost;
@@ -792,11 +793,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
                     queue.Enqueue(child);
 
                     var childDTO = new NodeDTO();
-
-                    EdgeDTO edgeDTO = new EdgeDTO(curNodeDTO, childDTO);
-                    curNodeDTO.Edges.Add(edgeDTO);
-                    childDTO.Edges.Add(edgeDTO);
-
                     childDTO.Parent = curNodeDTO;
                     curNodeDTO.Children.Add(childDTO);
                     dtoQueue.Enqueue(childDTO);

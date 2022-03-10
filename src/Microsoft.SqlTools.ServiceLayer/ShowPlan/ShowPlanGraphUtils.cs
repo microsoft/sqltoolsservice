@@ -49,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
             };
         }
 
-        private static ExecutionPlanEdges ConvertShowPlanEdgeToExecutionPlanEdge(Edge edge)
+        public static ExecutionPlanEdges ConvertShowPlanEdgeToExecutionPlanEdge(Edge edge)
         {
             return new ExecutionPlanEdges
             {
@@ -59,7 +59,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
             };
         }
 
-        private static List<ExecutionPlanGraphPropertyBase> GetProperties(PropertyDescriptorCollection props)
+        public static List<ExecutionPlanGraphPropertyBase> GetProperties(PropertyDescriptorCollection props)
         {
             List<ExecutionPlanGraphPropertyBase> propsList = new List<ExecutionPlanGraphPropertyBase>();
             foreach (PropertyValue prop in props)

@@ -113,7 +113,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph.Comparison
                     var childDTO = new SkeletonNodeDTO();
                     childDTO.ParentNode = curNodeDTO;
                     curNodeDTO.Children.Add(childDTO);
-                    dtoQueue.Enqueue(curNodeDTO);
+                    dtoQueue.Enqueue(childDTO);
                 }
             }
         }
