@@ -4,6 +4,7 @@
 //
 
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.SqlTools.ServiceLayer.ShowPlan.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph.Comparison
@@ -105,6 +106,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph.Comparison
                 curNodeDTO.BaseNode = curNode.BaseNode.ConvertToDTO();
                 curNodeDTO.GroupIndex = curNode.GroupIndex;
                 curNodeDTO.HasMatch = curNode.HasMatch;
+                curNodeDTO.MatchingNodes = curNode.MatchingNodes.Select(matchingNode => matchingNode.ConvertToDTO()).ToList();
                 
                 foreach (var child in curNode.Children)
                 {

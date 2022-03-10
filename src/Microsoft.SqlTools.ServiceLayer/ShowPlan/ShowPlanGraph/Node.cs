@@ -767,7 +767,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
                 curNodeDTO.Description = curNode.Description;
                 curNodeDTO.DisplayCost = curNode.DisplayCost;
                 curNodeDTO.DisplayName = curNode.DisplayName;
-                curNodeDTO.Edges = curNode.Edges.Select(e => ShowPlanGraphUtils.ConvertShowPlanEdgeToExecutionPlanEdge(e)).ToList();
+                curNodeDTO.Edges = curNode.Edges.Select(edge => ShowPlanGraphUtils.ConvertShowPlanEdgeToExecutionPlanEdge(edge)).ToList();
                 curNodeDTO.ElapsedTimeInMs = curNode.ElapsedTimeInMs;
 
                 curNodeDTO.Graph = new GraphDTO()
