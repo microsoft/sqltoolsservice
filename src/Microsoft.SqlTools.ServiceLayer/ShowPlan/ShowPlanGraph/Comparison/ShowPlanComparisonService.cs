@@ -136,10 +136,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
                 var secondSkeletonNode = manager.CreateSkeleton(secondRootNode);
                 manager.ColorMatchingSections(firstSkeletonNode, secondSkeletonNode, parameter.IgnoreDatabaseName);
 
+                var firstSkeletonNodeDTO = firstSkeletonNode.ConvertToDTO();
+                var secondSkeletonNodeDTO = secondSkeletonNode.ConvertToDTO();
+                ShowPlanGraphUtils.CopyMatchingNodesForSKeletonDTO(firstSkeletonNodeDTO, secondSkeletonNodeDTO);
+                ShowPlanGraphUtils.CopyMatchingNodesForSKeletonDTO(secondSkeletonNodeDTO, firstSkeletonNodeDTO);
+
                 var result = new ColorMatchingSectionsResult()
                 {
-                    FirstSkeletonNode = firstSkeletonNode.ConvertToDTO(),
-                    SecondSkeletonNode = secondSkeletonNode.ConvertToDTO()
+                    FirstSkeletonNode = firstSkeletonNodeDTO,
+                    SecondSkeletonNode = secondSkeletonNodeDTO
                 };
 
                 await requestContext.SendResult(result);
