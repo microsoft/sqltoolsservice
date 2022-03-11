@@ -16,7 +16,7 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
-using Microsoft.Azure.Storage.Blob;
+using Azure.Storage.Blobs;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 {
@@ -136,22 +136,22 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             }
         }
 
-        public string CreateSqlSASCredential(string credentialName)
+        public string CreateSqlSASCredential(string accountName, string accountKey, string credentialName)
         {
-            CloudBlobContainer cloudBlobContainer = new CloudBlobContainer(new Uri(credentialName));
-            string backupPolicy = string.Format(CultureInfo.InvariantCulture, "BackupPolicy_", cloudBlobContainer.Name);
-            string secretString = this.backupRestoreUtil.CreateSharedAccessPolicyOnContainer(cloudBlobContainer, backupPolicy, DateTime.Now.AddDays(365));
+            //string backupPolicy = string.Format(CultureInfo.InvariantCulture, "BackupPolicy_", cloudBlobContainer.Name);
+            Uri secretStringUri = this.backupRestoreUtil.GetServiceSasUriForContainer(credentialName, accountName, accountKey);
+            string secretString = secretStringUri.ToString().Split('?')[1];
             string identity = "Shared Access Signature";
             this.backupRestoreUtil.CreateSqlSASCredential(credentialName, identity, secretString);
             return secretString;
         }
 
-            /// <summary>
-            /// Return backup configuration data
-            /// </summary>
-            /// <param name="databaseName"></param>
-            /// <returns></returns>
-            public BackupConfigInfo CreateBackupConfigInfo(string databaseName)
+        /// <summary>
+        /// Return backup configuration data
+        /// </summary>
+        /// <param name="databaseName"></param>
+        /// <returns></returns>
+        public BackupConfigInfo CreateBackupConfigInfo(string databaseName)
         {
             BackupConfigInfo configInfo = new BackupConfigInfo();
             configInfo.RecoveryModel = GetRecoveryModel(databaseName);

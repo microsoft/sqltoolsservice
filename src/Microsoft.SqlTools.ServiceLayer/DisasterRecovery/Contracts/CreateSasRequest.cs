@@ -8,15 +8,26 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
 {
     /// <summary>
-    /// Backup parameters passed for execution and scripting
+    /// Parameters passed for creating shared access signature
     /// </summary>
     public class CreateSasParams
     {
         /// <summary>
+        /// Sql server URI
+        /// </summary>
+        public string OwnerUri { get; set; }
+        /// <summary>
         /// Blob container URI
         /// </summary>
         public string BlobContainerUri { get; set; }
-
+        /// <summary>
+        /// Blob container key
+        /// </summary>
+        public string BlobContainerKey { get; set; }
+        /// <summary>
+        /// Storage account name
+        /// </summary>
+        public string StorageAccountName { get; set; }
     }
 
     /// <summary>

@@ -447,15 +447,24 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         {
             try
             {
-                var backupOperation = new BackupOperation();
+                ConnectionInfo connInfo;
+                bool supported = IsBackupRestoreOperationSupported(optionsParams.OwnerUri, out connInfo);
                 var response = new CreateSasResponse();
-                string sharedAccessSignature = backupOperation.CreateSqlSASCredential(optionsParams.BlobContainerUri);
-                response.SharedAccessSignature = sharedAccessSignature;
+
+                if (supported && connInfo != null)
+                {
+                    DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
+                    SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Backup");
+                    // Connection gets discounnected when backup is done
+
+                    BackupOperation backupOperation = CreateBackupOperation(helper.DataContainer, sqlConn);
+                    string sharedAccessSignature = backupOperation.CreateSqlSASCredential(optionsParams.StorageAccountName, optionsParams.BlobContainerKey, optionsParams.BlobContainerUri);
+                    response.SharedAccessSignature = sharedAccessSignature;
+                }
                 await requestContext.SendResult(response);
             }
             catch (Exception ex)
             {
-                throw ex;
                 await requestContext.SendError(ex.ToString());
             }
         }

@@ -12,8 +12,10 @@ using Microsoft.SqlServer.Management.Smo;
 using SMO = Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Management;
-using Microsoft.Azure.Storage.Blob;
 using System.Threading.Tasks;
+using Azure.Storage.Blobs;
+using Azure.Storage;
+using Azure.Storage.Sas;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 {
@@ -1059,7 +1061,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 
             // Container can have many SAS credentials coexisting, here we'll always drop existing one once customer choose to create new credential 
             // since sql customer has no way to know its existency and even harder to retrive its secret string. 
-            azureCredential.DropIfExists();
+            if (credentials.Contains(credentialName))
+            {
+                Credential oldCredential = credentials[credentialName];
+                oldCredential.Drop();
+            }
             sqlServer.Credentials.Refresh();
 
             credentials = sqlServer.Credentials;
@@ -1085,42 +1091,38 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         /// <param name="container"></param>
         /// <param name="policyName"></param>
         /// <param name="selectedSaredAccessExpiryTime"></param>
-        public string CreateSharedAccessPolicyOnContainer(CloudBlobContainer container, string policyName, DateTime selectedSharedAccessExpiryTime)
+        public Uri GetServiceSasUriForContainer(string containerUri, string accountName, string accountKey,
+                                          string storedPolicyName = null)
         {
-            //Create a new stored access policy and define its constraints.
-            SharedAccessBlobPolicy sharedAccessPolicyForContainer = new SharedAccessBlobPolicy()
+            // Check whether this BlobContainerClient object has been authorized with Shared Key.
+            var containerClient = new BlobContainerClient(new Uri(containerUri), new StorageSharedKeyCredential(accountName, accountKey));
+            if (containerClient.CanGenerateSasUri)
             {
-                SharedAccessExpiryTime = selectedSharedAccessExpiryTime,
-                Permissions = SharedAccessBlobPermissions.Write | SharedAccessBlobPermissions.List | SharedAccessBlobPermissions.Read | SharedAccessBlobPermissions.Delete
-            };
+                // Create a SAS token that's valid for one hour.
+                BlobSasBuilder sasBuilder = new BlobSasBuilder()
+                {
+                    BlobContainerName = containerClient.Name,
+                    Resource = "c"
+                };
 
-            //Get the container's existing permissions.
-            BlobContainerPermissions permissions = container.GetPermissions();
-            if (!permissions.SharedAccessPolicies.ContainsKey(policyName))
-            {
-                //Add the new policy to the container's permissions.
-                permissions.SharedAccessPolicies.Add(policyName, sharedAccessPolicyForContainer);
+                if (storedPolicyName == null)
+                {
+                    sasBuilder.ExpiresOn = DateTimeOffset.UtcNow.AddHours(1);
+                    sasBuilder.SetPermissions(BlobContainerSasPermissions.Read | BlobContainerSasPermissions.List | BlobContainerSasPermissions.Write | BlobContainerSasPermissions.Delete);
+                }
+                else
+                {
+                    sasBuilder.Identifier = storedPolicyName;
+                }
+                Uri sasUri = containerClient.GenerateSasUri(sasBuilder);
+                //Console.WriteLine("SAS URI for blob container is: {0}", sasUri.ToString().Split('?')[1]);
+
+                return sasUri;
             }
             else
             {
-                // if already exists, remove then recreate the policy to get expircy/permission right. 
-                SharedAccessBlobPolicy existingSharedAccessPolicyForContainer = new SharedAccessBlobPolicy();
-                permissions.SharedAccessPolicies.TryGetValue(policyName, out existingSharedAccessPolicyForContainer);
-
-                permissions.SharedAccessPolicies.Remove(policyName);
-                container.SetPermissions(permissions);
-                permissions.SharedAccessPolicies.Add(policyName, sharedAccessPolicyForContainer);
+                return null;
             }
-            container.SetPermissions(permissions);
-            permissions = container.GetPermissions();
-
-            // verify access
-            string sharedAccessSignatureForContainer = container.GetSharedAccessSignature(sharedAccessPolicyForContainer).TrimStart('?');
-            if (string.IsNullOrEmpty(sharedAccessSignatureForContainer))
-            {
-                throw new FailedOperationException("Invalid shared access signature.");
-            }
-            return sharedAccessSignatureForContainer;
         }
     }
 }

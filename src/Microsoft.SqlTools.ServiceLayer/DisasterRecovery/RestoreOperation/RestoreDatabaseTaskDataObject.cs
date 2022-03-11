@@ -197,7 +197,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         /// <param name="filePaths"></param>
         public void AddDevices(string filePaths, DeviceType deviceType)
         {
-            if (deviceType != DeviceType.File || deviceType != DeviceType.Url)
+            if (deviceType != DeviceType.File && deviceType != DeviceType.Url)
             {
                 deviceType = DeviceType.File;
             }
