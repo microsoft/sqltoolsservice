@@ -60,6 +60,20 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
             };
         }
 
+        public static EdgeDTO ConvertShowPlanEdgeToDTO(Edge edge)
+        {
+            var edgeDTO = new EdgeDTO()
+            {
+                EstimatedDataSize = edge.EstimatedDataSize,
+                EstimatedRowCount = edge.EstimatedRowCount,
+                Properties = GetProperties(edge.Properties),
+                RowCount = edge.RowCount,
+                RowSize = edge.RowSize
+            };
+
+            return edgeDTO;
+        }
+
         public static List<ExecutionPlanGraphPropertyBase> GetProperties(PropertyDescriptorCollection props)
         {
             List<ExecutionPlanGraphPropertyBase> propsList = new List<ExecutionPlanGraphPropertyBase>();

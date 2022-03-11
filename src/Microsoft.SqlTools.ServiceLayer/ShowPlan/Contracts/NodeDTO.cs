@@ -14,7 +14,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.Contracts
         public string Description { get; set; }
         public string DisplayCost { get; set; }
         public string DisplayName { get; set; }
-        public List<ExecutionPlanEdges> Edges { get; set; } = new List<ExecutionPlanEdges>();
+        public List<EdgeDTO> Edges { get; set; } = new List<EdgeDTO>();
         public long? ElapsedTimeInMs { get; set; }
         public GraphDTO Graph { get; set; }
         public int GroupIndex { get; set; }

@@ -762,12 +762,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
                 var curNode = queue.Dequeue();
                 var curNodeDTO = dtoQueue.Dequeue();
 
-                // Copy over everything to NodeDTO
                 curNodeDTO.Cost = curNode.Cost;
                 curNodeDTO.Description = curNode.Description;
                 curNodeDTO.DisplayCost = curNode.DisplayCost;
                 curNodeDTO.DisplayName = curNode.DisplayName;
-                curNodeDTO.Edges = curNode.Edges.Select(edge => ShowPlanGraphUtils.ConvertShowPlanEdgeToExecutionPlanEdge(edge)).ToList();
+                curNodeDTO.Edges = curNode.Edges.Select(edge => ShowPlanGraphUtils.ConvertShowPlanEdgeToDTO(edge)).ToList();
                 curNodeDTO.ElapsedTimeInMs = curNode.ElapsedTimeInMs;
 
                 curNodeDTO.Graph = new GraphDTO()
