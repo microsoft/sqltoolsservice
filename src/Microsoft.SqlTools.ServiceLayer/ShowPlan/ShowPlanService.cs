@@ -165,8 +165,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
         {
             try
             {
+                var graph = ShowPlanGraph.ShowPlanGraph.ParseShowPlanXML(parameter.QueryPlanXmlText, ShowPlanType.Unknown);
+                var root = graph?[0]?.Root;
+                var startingNode = root.FindNodeById(parameter.StartingNodeID);
+
+                if (startingNode == null)
+                    await requestContext.SendError("Could not locate the starting node using the provided node ID.");
+
                 var manager = new SkeletonManager();
-                var nextNonIgnoreNode = manager.FindNextNonIgnoreNode(parameter.Node);
+                var nextNonIgnoreNode = manager.FindNextNonIgnoreNode(startingNode);
 
                 var result = new FindNextNonIgnoreNodeResult()
                 {

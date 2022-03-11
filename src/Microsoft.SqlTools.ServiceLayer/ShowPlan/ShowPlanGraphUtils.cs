@@ -152,7 +152,7 @@ GO
 
         public static void CopyMatchingNodesForSKeletonDTO(SkeletonNodeDTO root, SkeletonNodeDTO root2)
         {
-            var lookupTable = LoadLookupTable(root2);
+            var lookupTable = LoadLookupTableForGraph(root2);
 
             var queue = new Queue<SkeletonNodeDTO>();
             queue.Enqueue(root);
@@ -176,7 +176,7 @@ GO
             }
         }
 
-        private static Dictionary<int, SkeletonNodeDTO> LoadLookupTable(SkeletonNodeDTO node)
+        private static Dictionary<int, SkeletonNodeDTO> LoadLookupTableForGraph(SkeletonNodeDTO node)
         {
             var skeletonNodeTable = new Dictionary<int, SkeletonNodeDTO>();
             var queue = new Queue<SkeletonNodeDTO>();

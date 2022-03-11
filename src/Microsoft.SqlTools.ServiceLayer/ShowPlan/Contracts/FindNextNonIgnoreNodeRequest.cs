@@ -4,16 +4,21 @@
 //
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph;
 
 namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.Contracts
 {
     public class FindNextNonIgnoreNodeParams
     {
         /// <summary>
-        /// Starting node to find the next non ignore node.
+        /// the query plans XML file text to find the next non-ignore node.
         /// </summary>
-        public Node Node { get; set; }
+        public string QueryPlanXmlText { get; set; }
+
+        /// <summary>
+        /// The node ID that indicates where searching will begin for the next
+        /// non-ignore node.
+        /// </summary>
+        public int StartingNodeID { get; set; }
     }
 
     public class FindNextNonIgnoreNodeResult

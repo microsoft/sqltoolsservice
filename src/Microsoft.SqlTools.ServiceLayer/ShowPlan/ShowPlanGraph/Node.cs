@@ -799,5 +799,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph
                 }
             }
         }
+
+        public Node FindNodeById(int targetNodeID)
+        {
+            var queue = new Queue<Node>();
+            queue.Enqueue(this);
+
+            while (queue.Count != 0)
+            {
+                var curNode = queue.Dequeue();
+                if (curNode.ID == targetNodeID)
+                    return curNode;
+
+                foreach (var child in curNode.children)
+                    queue.Enqueue(child);
+            }
+
+            return null;
+        }
     }
 }
