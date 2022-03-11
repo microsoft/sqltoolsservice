@@ -4,7 +4,6 @@
 //
 
 using System.Collections.Generic;
-using Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph;
 
 namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.Contracts
 {

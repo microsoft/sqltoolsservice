@@ -50,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
             };
         }
 
-        public static ExecutionPlanEdges ConvertShowPlanEdgeToExecutionPlanEdge(Edge edge)
+        private static ExecutionPlanEdges ConvertShowPlanEdgeToExecutionPlanEdge(Edge edge)
         {
             return new ExecutionPlanEdges
             {
