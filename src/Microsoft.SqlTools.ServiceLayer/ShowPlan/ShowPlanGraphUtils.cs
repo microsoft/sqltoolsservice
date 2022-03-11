@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
             {
                 Root = ConvertShowPlanTreeToExecutionPlanTree(g.Root),
                 Query = g.Statement,
-                GraphFile = new ExecutionPlanGraphFile
+                GraphFile = new ExecutionPlanGraphInfo
                 {
                     GraphFileContent = xml,
                     GraphFileType = "xml"
