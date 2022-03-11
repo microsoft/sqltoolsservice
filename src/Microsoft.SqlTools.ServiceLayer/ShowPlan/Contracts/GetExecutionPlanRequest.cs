@@ -5,16 +5,15 @@
 
 using System.Collections.Generic;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
 {
     public class GetExecutionPlanParams
     {
-        public ExecutionPlanGraphFile GraphFile { get; set; }
+        public ExecutionPlanGraphInfo GraphInfo { get; set; }
     }
 
-    public class GetExecutionPlanResult : ResultStatus
+    public class GetExecutionPlanResult
     {
         public List<ExecutionPlanGraph> Graphs { get; set; }
     }

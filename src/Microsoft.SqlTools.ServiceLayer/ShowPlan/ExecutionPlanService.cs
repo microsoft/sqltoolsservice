@@ -4,9 +4,9 @@
 //
 
 using System;
+using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
-using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
 {
@@ -57,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
         {
             try
             {
-                var plans = ShowPlanGraphUtils.CreateShowPlanGraph(requestParams.GraphFile.GraphFileContent, "");
+                var plans = ShowPlanGraphUtils.CreateShowPlanGraph(requestParams.GraphInfo.GraphFileContent, "");
                 await requestContext.SendResult(new GetExecutionPlanResult
                 {
                     Graphs = plans
