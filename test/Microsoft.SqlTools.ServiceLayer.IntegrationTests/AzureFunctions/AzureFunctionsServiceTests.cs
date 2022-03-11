@@ -1,12 +1,14 @@
-﻿using Microsoft.SqlTools.Hosting.Protocol;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
 using Microsoft.SqlTools.ServiceLayer.AzureFunctions;
 using Microsoft.SqlTools.ServiceLayer.AzureFunctions.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using Moq;
 using NUnit.Framework;
 using System;
 using System.IO;
-using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
 {

@@ -14,6 +14,17 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         public const string ForeignKeys = "foreignKeys";
         public const string CheckConstraints = "checkConstraints";
         public const string Indexes = "indexes";
+        public const string EdgeConstraints = "edgeConstraints";
+        public const string GraphTableType = "graphTableType";
+        public const string IsSystemVersioningEnabled = "isSystemVersioningEnabled";
+        public const string AutoCreateHistoryTable = "autoCreateHistoryTable";
+        public const string NewHistoryTableTable = "newHistoryTableName";
+        public const string ExistingHistoryTableName = "existingHistoryTable";
+        public const string IsMemoryOptimized = "isMemoryOptimized";
+        public const string Durability = "durability";
+        public const string PrimaryKeyName = "primaryKeyName";
+        public const string PrimaryKeyIsClustered = "primaryKeyIsClustered";
+        public const string PrimaryKeyColumns = "primaryKeyColumns";
     }
 
     public static class TableColumnPropertyNames
@@ -29,6 +40,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         public const string IsIdentity = "isIdentity";
         public const string IdentityIncrement = "identityIncrement";
         public const string IdentitySeed = "identitySeed";
+        public const string CanBeDeleted = "canBeDeleted";
+        public const string GeneratedAlwaysAs = "generatedAlwaysAs";
+        public const string IsHidden = "isHidden";
+        public const string DefaultConstraintName = "defaultConstraintName";
     }
 
     public static class ForeignKeyPropertyNames
@@ -69,5 +84,20 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
     {
         public const string Column = "column";
         public const string Ascending = "ascending";
+    }
+
+    public static class EdgeConstraintPropertyNames
+    {
+        public const string Name = "name";
+        public const string Enabled = "enabled";
+        public const string Clauses = "clauses";
+        public const string OnDeleteAction = "onDeleteAction";
+        public const string ClausesDisplayValue = "clausesDisplayValue";
+    }
+
+    public static class EdgeConstraintClausePropertyNames
+    {
+        public const string FromTable = "fromTable";
+        public const string ToTable = "toTable";
     }
 }

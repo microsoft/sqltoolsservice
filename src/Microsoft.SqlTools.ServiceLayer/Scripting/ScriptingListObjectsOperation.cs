@@ -6,17 +6,9 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.SqlScriptPublish;
-using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
-using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using System.Diagnostics;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting

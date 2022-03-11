@@ -4,7 +4,6 @@
 //
 
 using System;
-using System.Collections;
 using System.Linq;
 using Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts;
 

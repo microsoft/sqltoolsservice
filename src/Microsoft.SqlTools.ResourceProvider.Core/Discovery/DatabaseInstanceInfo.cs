@@ -1,6 +1,7 @@
 ﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
 
@@ -12,7 +13,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
     public class DatabaseInstanceInfo
     {
         /// <summary>
-        /// Default constructor to initialize the instance 
+        /// Default constructor to initialize the instance
         /// </summary>
         /// <param name="serverInstanceInfo"></param>
         public DatabaseInstanceInfo(ServerInstanceInfo serverInstanceInfo)
@@ -34,7 +35,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
         /// </summary>
         public ServerInstanceInfo ServerInstanceInfo
         {
-            get; 
+            get;
             private set;
         }
 

@@ -4,15 +4,12 @@
 //
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.IO;
 using System.Data;
 using System.Text.RegularExpressions;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Diagnostics;
 
 namespace Microsoft.SqlTools.ServiceLayer.Management
 {

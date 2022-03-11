@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections;
-using System.Data;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo.Agent;

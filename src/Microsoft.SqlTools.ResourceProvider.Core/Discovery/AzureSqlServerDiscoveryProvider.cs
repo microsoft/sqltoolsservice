@@ -1,6 +1,7 @@
 ﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
 using System.Collections.Generic;
@@ -12,11 +13,11 @@ using Microsoft.SqlTools.ResourceProvider.Core.Extensibility;
 namespace Microsoft.SqlTools.ResourceProvider.Core
 {
     /// <summary>
-    /// Default implementation for <see cref="IServerDiscoveryProvider"/> for Azure Sql servers. 
-    /// A discovery provider capable of finding Sql Azure servers for a specific Azure user account. 
+    /// Default implementation for <see cref="IServerDiscoveryProvider"/> for Azure Sql servers.
+    /// A discovery provider capable of finding Sql Azure servers for a specific Azure user account.
     /// </summary>
     [Exportable(
-        ServerTypes.SqlServer, 
+        ServerTypes.SqlServer,
         Categories.Azure,
         typeof(IServerDiscoveryProvider),
         "Microsoft.SqlServer.ConnectionServices.Azure.AzureServerDiscoveryProvider")]
@@ -28,7 +29,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
         public AzureSqlServerDiscoveryProvider()
         {
             // Duplicate the exportable attribute as at present we do not support filtering using extensiondescriptor.
-            // The attribute is preserved in order to simplify ability to backport into existing tools 
+            // The attribute is preserved in order to simplify ability to backport into existing tools
             Metadata = new ExportableMetadata(
                 ServerTypes.SqlServer,
                 Categories.Azure,
@@ -120,6 +121,6 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
             {
                 _azureAccountManager = value as IAzureAuthenticationManager;
             }
-        }        
+        }
     }
 }

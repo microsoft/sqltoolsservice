@@ -1,6 +1,7 @@
 ﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 namespace Microsoft.SqlTools.ResourceProvider.Core
 {
@@ -18,12 +19,12 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
         }
 
         public ServerInstanceInfo()
-        {            
+        {
         }
 
         public IServerDefinition ServerDefinition
         {
-            get; private set; 
+            get; private set;
         }
 
         /// <summary>

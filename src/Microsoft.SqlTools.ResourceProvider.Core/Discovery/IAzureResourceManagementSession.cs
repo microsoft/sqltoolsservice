@@ -1,6 +1,7 @@
 ﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
 using Microsoft.SqlTools.ResourceProvider.Core.Authentication;
@@ -11,7 +12,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
     /// A session used by <see cref="IAzureResourceManager" />. Includes all the clients that the resource management needs to get ther resources
     /// </summary>
     public interface IAzureResourceManagementSession : IDisposable
-    {       
+    {
         /// <summary>
         /// Closes the session
         /// </summary>

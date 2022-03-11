@@ -66,7 +66,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Extensibility
         /// <summary>
         /// Trace Id for network browse traces
         /// </summary>
-        NetworkSection = 11, 
+        NetworkSection = 11,
 
         /// <summary>
         /// Trace Id for main dialog traces
