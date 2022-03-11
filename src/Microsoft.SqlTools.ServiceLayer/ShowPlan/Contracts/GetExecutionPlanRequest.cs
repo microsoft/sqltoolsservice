@@ -22,6 +22,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
     {
         public static readonly
         RequestType<GetExecutionPlanParams, GetExecutionPlanResult> Type = 
-         RequestType<GetExecutionPlanParams, GetExecutionPlanResult>.Create("executionplan/getexecutionplan");
+         RequestType<GetExecutionPlanParams, GetExecutionPlanResult>.Create("queryexecutionplan/getexecutionplan");
     }
 }
