@@ -166,6 +166,9 @@ namespace Microsoft.SqlTools.ServiceLayer
             InitializeHostedServices(serviceProvider, serviceHost);
             serviceHost.ServiceProvider = serviceProvider;
 
+            ShowPlan.ExecutionPlanService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(ShowPlan.ExecutionPlanService.Instance);
+
             serviceHost.InitializeRequestHandlers();
         }
 
