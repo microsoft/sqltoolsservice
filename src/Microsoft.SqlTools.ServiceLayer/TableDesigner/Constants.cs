@@ -30,6 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
     public static class TableColumnPropertyNames
     {
         public const string Name = "name";
+        public const string AdvancedType = "advancedType";
         public const string Type = "type";
         public const string DefaultValue = "defaultValue";
         public const string Length = "length";

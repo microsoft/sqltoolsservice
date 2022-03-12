@@ -461,6 +461,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                             case TableColumnPropertyNames.Type:
                                 column.DataType = GetStringValue(newValue);
                                 break;
+                            case TableColumnPropertyNames.AdvancedType:
+                                column.AdvancedDataType = GetStringValue(newValue);
+                                break;
                             case TableColumnPropertyNames.GeneratedAlwaysAs:
                                 column.GeneratedAlwaysAs = ColumnGeneratedAlwaysAsTypeUtil.Instance.GetValue(GetStringValue(newValue));
                                 break;
@@ -735,6 +738,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 columnViewModel.Type.Value = column.DataType;
                 columnViewModel.Type.Enabled = column.CanEditDataType;
                 columnViewModel.Type.Values = tableDesigner.DataTypes.ToList();
+                columnViewModel.AdvancedType.Value = column.AdvancedDataType;
+                columnViewModel.AdvancedType.Enabled = column.CanEditDataType;
+                columnViewModel.AdvancedType.Values = tableDesigner.AdvancedDataTypes.ToList();
                 columnViewModel.IsIdentity.Enabled = column.CanEditIsIdentity;
                 columnViewModel.IsIdentity.Checked = column.IsIdentity;
                 columnViewModel.IdentitySeed.Enabled = column.CanEditIdentityValues;

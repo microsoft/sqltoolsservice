@@ -10,6 +10,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
     /// </summary>
     public class TableColumnViewModel : ObjectViewModelBase
     {
+        public DropdownProperties AdvancedType { get; set; } = new DropdownProperties();
         public DropdownProperties Type { get; set; } = new DropdownProperties();
 
         public InputBoxProperties Length { get; set; } = new InputBoxProperties();
