@@ -176,6 +176,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                         {
                             AddCell((TimeSpan)o);
                         }
+                        // We need to handle SqlDecimal and SqlMoney types here because we can't convert them to .NET types due to different precisons in SQL Server and .NET.
                         else if (o is SqlDecimal || o is SqlMoney)
                         {
                             AddCellBoxedNumber(dbCellValue.DisplayValue);
