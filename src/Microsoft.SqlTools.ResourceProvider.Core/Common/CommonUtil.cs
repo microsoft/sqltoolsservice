@@ -1,6 +1,7 @@
 ﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 
 using System;
@@ -13,7 +14,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
     /// </summary>
     public static class CommonUtil
     {
-        private const int KeyValueNameLength = 1024; // 1024 should be enough for registry key value name. 
+        private const int KeyValueNameLength = 1024; // 1024 should be enough for registry key value name.
 
         //********************************************************************************************
         /// <summary>
@@ -44,7 +45,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
 
         //********************************************************************************************
         /// <summary>
-        /// Throw an exception if a string is null or empty.  
+        /// Throw an exception if a string is null or empty.
         /// </summary>
         /// <param name="stringVar">string to check</param>
         /// <param name="stringVarName">the variable or parameter name to display</param>
@@ -97,6 +98,6 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
 
             return message;
         }
-        
+
     }
 }

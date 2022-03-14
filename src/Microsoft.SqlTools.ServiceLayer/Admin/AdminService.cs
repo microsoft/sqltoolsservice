@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
-using System.Xml;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;

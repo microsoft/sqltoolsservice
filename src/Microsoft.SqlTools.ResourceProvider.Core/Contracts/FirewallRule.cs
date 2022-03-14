@@ -28,7 +28,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Contracts
         /// </summary>
         public Account Account { get; set; }
         /// <summary>
-        /// Per-tenant token mappings. Ideally would be set independently of this call, but for 
+        /// Per-tenant token mappings. Ideally would be set independently of this call, but for
         /// now this allows us to get the tokens necessary to find a server and open a firewall rule
         /// </summary>
         public Dictionary<string,AccountSecurityToken> SecurityTokenMappings { get; set; }
@@ -47,7 +47,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Contracts
         /// End of the IP address range
         /// </summary>
         public string EndIpAddress { get; set; }
-  
+
     }
 
     public class CreateFirewallRuleResponse : TokenReliantResponse
@@ -61,7 +61,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Contracts
     public class CanHandleFirewallRuleRequest
     {
         public static readonly
-            RequestType<HandleFirewallRuleParams, HandleFirewallRuleResponse> Type = 
+            RequestType<HandleFirewallRuleParams, HandleFirewallRuleResponse> Type =
             RequestType<HandleFirewallRuleParams, HandleFirewallRuleResponse>.Create("resource/handleFirewallRule");
     }
 

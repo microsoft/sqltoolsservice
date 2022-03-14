@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Extensibility
         {
             set; get;
         }
-        
+
         /// <summary>
         /// Returns the status of the exportable
         /// </summary>

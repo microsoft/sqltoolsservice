@@ -4,11 +4,9 @@
 //
 
 
-using System;
 using System.Collections.Generic;
 using System.Composition;
 using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using Babel.ParserGenerator;
 using Microsoft.SqlServer.Management.SqlParser.SqlCodeDom;

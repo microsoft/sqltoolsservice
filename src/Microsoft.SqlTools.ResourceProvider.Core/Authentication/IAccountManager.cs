@@ -1,6 +1,7 @@
 ﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
 using System.Threading.Tasks;
@@ -9,11 +10,11 @@ using Microsoft.SqlTools.ResourceProvider.Core.Extensibility;
 namespace Microsoft.SqlTools.ResourceProvider.Core.Authentication
 {
     /// <summary>
-    /// An account manager has the information of currently logged in user and can authenticate the user   
+    /// An account manager has the information of currently logged in user and can authenticate the user
     /// Implementing classes must add a <see cref="ExportableAttribute" />
     /// to the class in order to be found by the extension manager,
     /// and to define the type and category supported
-    /// </summary>  
+    /// </summary>
     public interface IAccountManager : IExportable
     {
         /// <summary>
@@ -46,7 +47,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Authentication
         /// </summary>
         bool HasLoginDialog
         {
-            get; 
+            get;
         }
 
         /// <summary>

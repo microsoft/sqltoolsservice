@@ -1,6 +1,7 @@
 ﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
 using System.Globalization;
@@ -12,7 +13,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Firewall
     /// Includes all the information needed to create a firewall rule
     /// </summary>
     public class FirewallRuleRequest
-    {        
+    {
         /// <summary>
         /// Start IP address
         /// </summary>
@@ -21,7 +22,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Firewall
         /// <summary>
         /// End IP address
         /// </summary>
-        public IPAddress EndIpAddress { get; set; }       
+        public IPAddress EndIpAddress { get; set; }
 
         /// <summary>
         /// Firewall rule name

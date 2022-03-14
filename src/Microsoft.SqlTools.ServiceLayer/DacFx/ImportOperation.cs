@@ -5,11 +5,7 @@
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
-using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.Utility;
-using System;
-using Microsoft.Data.SqlClient;
-using System.Diagnostics;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx
 {

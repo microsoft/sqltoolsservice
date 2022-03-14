@@ -5,7 +5,6 @@
 
 using System.Collections.Generic;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 
 namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Contracts
 {
