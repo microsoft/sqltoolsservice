@@ -164,23 +164,23 @@ GO
             }
         }
 
-        public static void CopyMatchingNodesForSKeletonDTO(SkeletonNodeDTO root, SkeletonNodeDTO root2)
+        public static void CopyMatchingNodesIntoSkeletonDTO(SkeletonNodeDTO destRoot, SkeletonNodeDTO srcRoot)
         {
-            var lookupTable = LoadLookupTableForGraph(root2);
+            var srcGraphLookupTable = CreateSkeletonLookupTableFor(srcRoot);
 
             var queue = new Queue<SkeletonNodeDTO>();
-            queue.Enqueue(root);
+            queue.Enqueue(destRoot);
 
             while (queue.Count != 0)
             {
                 var curNode = queue.Dequeue();
 
-                for (int nodeIndex = 0; nodeIndex < curNode.MatchingNodes.Count; ++nodeIndex)
+                for (int index = 0; index < curNode.MatchingNodes.Count; ++index)
                 {
-                    var matchingId = curNode.MatchingNodes[nodeIndex].BaseNode.ID;
-                    var matchingNode = lookupTable[matchingId];
+                    var matchingId = curNode.MatchingNodes[index].BaseNode.ID;
+                    var matchingNode = srcGraphLookupTable[matchingId];
 
-                    curNode.MatchingNodes[nodeIndex] = matchingNode;
+                    curNode.MatchingNodes[index] = matchingNode;
                 }
                 
                 foreach (var child in curNode.Children)
@@ -190,7 +190,7 @@ GO
             }
         }
 
-        private static Dictionary<int, SkeletonNodeDTO> LoadLookupTableForGraph(SkeletonNodeDTO node)
+        private static Dictionary<int, SkeletonNodeDTO> CreateSkeletonLookupTableFor(SkeletonNodeDTO node)
         {
             var skeletonNodeTable = new Dictionary<int, SkeletonNodeDTO>();
             var queue = new Queue<SkeletonNodeDTO>();

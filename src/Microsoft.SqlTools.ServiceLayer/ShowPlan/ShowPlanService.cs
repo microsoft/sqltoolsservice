@@ -138,8 +138,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
 
                 var firstSkeletonNodeDTO = firstSkeletonNode.ConvertToDTO();
                 var secondSkeletonNodeDTO = secondSkeletonNode.ConvertToDTO();
-                ShowPlanGraphUtils.CopyMatchingNodesForSKeletonDTO(firstSkeletonNodeDTO, secondSkeletonNodeDTO);
-                ShowPlanGraphUtils.CopyMatchingNodesForSKeletonDTO(secondSkeletonNodeDTO, firstSkeletonNodeDTO);
+                ShowPlanGraphUtils.CopyMatchingNodesIntoSkeletonDTO(firstSkeletonNodeDTO, secondSkeletonNodeDTO);
+                ShowPlanGraphUtils.CopyMatchingNodesIntoSkeletonDTO(secondSkeletonNodeDTO, firstSkeletonNodeDTO);
 
                 var result = new ColorMatchingSectionsResult()
                 {

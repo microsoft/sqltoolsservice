@@ -11,14 +11,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph.Comparison
 {
     public class SkeletonNode
     {
-        public Node BaseNode {get; set;}
+        public Node BaseNode { get; set; }
         public List<SkeletonNode> MatchingNodes { get; set; }
         public bool HasMatch { get { return MatchingNodes.Count > 0; } }
         public SkeletonNode ParentNode { get; set; }
         public IList<SkeletonNode> Children { get; set; }
 
-        public int GroupIndex 
-        { 
+        public int GroupIndex
+        {
             get
             {
                 return this.BaseNode.GroupIndex;
@@ -56,7 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph.Comparison
             }
         }
 
-        public void AddMatchingSkeletonNode(SkeletonNode match, bool ignoreDatabaseName, bool matchAllChildren=true)
+        public void AddMatchingSkeletonNode(SkeletonNode match, bool ignoreDatabaseName, bool matchAllChildren = true)
         {
             this.BaseNode[NodeBuilderConstants.SkeletonHasMatch] = true;
             if (matchAllChildren == true)
@@ -109,8 +109,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph.Comparison
                 curNodeDTO.BaseNode = curNode.BaseNode.ConvertToDTO();
                 curNodeDTO.GroupIndex = curNode.GroupIndex;
                 curNodeDTO.HasMatch = curNode.HasMatch;
-                curNodeDTO.MatchingNodes = curNode.MatchingNodes.Select(matchingNode => ConvertToPlainDTO(matchingNode)).ToList();
-                
+                curNodeDTO.MatchingNodes = curNode.MatchingNodes.Select(matchingNode =>
+                                            {
+                                                var skeletonNodeDTO = new SkeletonNodeDTO();
+                                                skeletonNodeDTO.BaseNode = matchingNode.BaseNode.ConvertToDTO();
+
+                                                return skeletonNodeDTO;
+                                            }).ToList();
+
                 foreach (var child in curNode.Children)
                 {
                     queue.Enqueue(child);
@@ -121,17 +127,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.ShowPlanGraph.Comparison
                     dtoQueue.Enqueue(childDTO);
                 }
             }
-        }
-
-        private static SkeletonNodeDTO ConvertToPlainDTO(SkeletonNode currentNode)
-        {
-            if (currentNode == null)
-                return null;
-
-            var skeletonNodeDTO = new SkeletonNodeDTO();
-            skeletonNodeDTO.BaseNode = currentNode.BaseNode.ConvertToDTO();
-
-            return skeletonNodeDTO;
         }
     }
 }
