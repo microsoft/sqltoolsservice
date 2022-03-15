@@ -27,6 +27,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.Contracts
     {
         public static readonly
             RequestType<CreateSkeletonParams, CreateSkeletonResult> Type =
-                RequestType<CreateSkeletonParams, CreateSkeletonResult>.Create("showPlan/createSkeleton");
+                RequestType<CreateSkeletonParams, CreateSkeletonResult>.Create("queryexecutionplan/createskeleton");
     }
 }

@@ -33,6 +33,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan.Contracts
     {
         public static readonly
             RequestType<FindNextNonIgnoreNodeParams, FindNextNonIgnoreNodeResult> Type =
-                RequestType<FindNextNonIgnoreNodeParams, FindNextNonIgnoreNodeResult>.Create("showPlan/findNextNonIgnoreNode");
+                RequestType<FindNextNonIgnoreNodeParams, FindNextNonIgnoreNodeResult>.Create("queryexecutionplan/findnextnonignorenode");
     }
 }
