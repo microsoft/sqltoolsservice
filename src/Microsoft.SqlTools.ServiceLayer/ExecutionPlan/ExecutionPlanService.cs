@@ -60,7 +60,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
         {
             try
             {
-                var plans = ShowPlanGraphUtils.CreateShowPlanGraph(requestParams.GraphInfo.GraphFileContent, "");
+                var plans = ExecutionPlanGraphUtils.CreateShowPlanGraph(requestParams.GraphInfo.GraphFileContent, "");
                 await requestContext.SendResult(new GetExecutionPlanResult
                 {
                     Graphs = plans
@@ -155,8 +155,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
 
                 var firstSkeletonNodeDTO = firstSkeletonNode.ConvertToDTO();
                 var secondSkeletonNodeDTO = secondSkeletonNode.ConvertToDTO();
-                ShowPlanGraphUtils.CopyMatchingNodesIntoSkeletonDTO(firstSkeletonNodeDTO, secondSkeletonNodeDTO);
-                ShowPlanGraphUtils.CopyMatchingNodesIntoSkeletonDTO(secondSkeletonNodeDTO, firstSkeletonNodeDTO);
+                ExecutionPlanGraphUtils.CopyMatchingNodesIntoSkeletonDTO(firstSkeletonNodeDTO, secondSkeletonNodeDTO);
+                ExecutionPlanGraphUtils.CopyMatchingNodesIntoSkeletonDTO(secondSkeletonNodeDTO, firstSkeletonNodeDTO);
 
                 var result = new ColorMatchingSectionsResult()
                 {

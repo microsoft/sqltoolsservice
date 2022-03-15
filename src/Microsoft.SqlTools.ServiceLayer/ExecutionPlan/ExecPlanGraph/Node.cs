@@ -766,7 +766,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph
                 curNodeDTO.Description = curNode.Description;
                 curNodeDTO.DisplayCost = curNode.DisplayCost;
                 curNodeDTO.DisplayName = curNode.DisplayName;
-                curNodeDTO.Edges = curNode.Edges.Select(edge => ShowPlanGraphUtils.ConvertShowPlanEdgeToDTO(edge)).ToList();
+                curNodeDTO.Edges = curNode.Edges.Select(edge => ExecutionPlanGraphUtils.ConvertShowPlanEdgeToDTO(edge)).ToList();
                 curNodeDTO.ElapsedTimeInMs = curNode.ElapsedTimeInMs;
 
                 curNodeDTO.Graph = new GraphDTO()
@@ -782,7 +782,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph
                 curNodeDTO.LogicalOpUnlocName = curNode.LogicalOpUnlocName;
                 curNodeDTO.Operation = new OperationDTO(curNode.Operation);
                 curNodeDTO.PhysicalOpUnlocName = curNode.PhysicalOpUnlocName;
-                curNodeDTO.Properties = ShowPlanGraphUtils.GetProperties(curNode.Properties);
+                curNodeDTO.Properties = ExecutionPlanGraphUtils.GetProperties(curNode.Properties);
                 curNodeDTO.RelativeCost = curNode.RelativeCost;
                 curNodeDTO.Root = rootDTO;
                 curNodeDTO.SubtreeCost = curNode.SubtreeCost;

@@ -15,7 +15,7 @@ using ExecutionPlanGraph = Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contrac
 
 namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
 {
-    public class ShowPlanGraphUtils
+    public class ExecutionPlanGraphUtils
     {
         public static List<ExecutionPlanGraph> CreateShowPlanGraph(string xml, string fileName)
         {
