@@ -29,6 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         private ServerConnection serverConnection;
         private CommonUtilities backupRestoreUtil = null;
         private Backup backup = null;
+        private SharedAccessSignatureCreator sharedAccessSignatureCreator = null;
 
         /// <summary>
         /// Constants
@@ -134,16 +135,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             {
                 this.isLocalPrimaryReplica = this.backupRestoreUtil.IsLocalPrimaryReplica(this.backupInfo.DatabaseName);
             }
-        }
-
-        public string CreateSqlSASCredential(string accountName, string accountKey, string credentialName)
-        {
-            //string backupPolicy = string.Format(CultureInfo.InvariantCulture, "BackupPolicy_", cloudBlobContainer.Name);
-            Uri secretStringUri = this.backupRestoreUtil.GetServiceSasUriForContainer(credentialName, accountName, accountKey);
-            string secretString = secretStringUri.ToString().Split('?')[1];
-            string identity = "Shared Access Signature";
-            this.backupRestoreUtil.CreateSqlSASCredential(credentialName, identity, secretString);
-            return secretString;
         }
 
         /// <summary>

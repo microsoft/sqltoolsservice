@@ -17,6 +17,8 @@ using Microsoft.SqlTools.ServiceLayer.FileBrowser;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.Utility;
+using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlServer.Management.Common;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 {
@@ -453,12 +455,13 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 
                 if (supported && connInfo != null)
                 {
-                    DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
                     SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Backup");
                     // Connection gets discounnected when backup is done
+                    ServerConnection serverConnection = new ServerConnection(sqlConn);
+                    Server sqlServer = new Server(serverConnection);
 
-                    BackupOperation backupOperation = CreateBackupOperation(helper.DataContainer, sqlConn);
-                    string sharedAccessSignature = backupOperation.CreateSqlSASCredential(optionsParams.StorageAccountName, optionsParams.BlobContainerKey, optionsParams.BlobContainerUri);
+                    SharedAccessSignatureCreator sharedAccessSignatureCreator = new SharedAccessSignatureCreator(sqlServer);
+                    string sharedAccessSignature = sharedAccessSignatureCreator.CreateSqlSASCredential(optionsParams.StorageAccountName, optionsParams.BlobContainerKey, optionsParams.BlobContainerUri);
                     response.SharedAccessSignature = sharedAccessSignature;
                 }
                 await requestContext.SendResult(response);
