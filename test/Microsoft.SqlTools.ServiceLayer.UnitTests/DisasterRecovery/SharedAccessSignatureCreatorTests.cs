@@ -15,8 +15,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
     class SharedAccessSignatureCreatorTests
     {
 
-        
-
         [Test]
         public void GetServiceSasUriForContainerReturnsNullWhenCannotGenerateSasUri()
         {
@@ -40,6 +38,5 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
             Uri result = sharedAccessSignatureCreator.GetServiceSasUriForContainer(mockBlobContainerClient.Object);
             Assert.AreEqual(result, sharedAccessSignatureUriMock);
         }
-
     }
 }

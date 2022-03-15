@@ -1034,6 +1034,5 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 return machineName;
             }
         }
-
     }
 }
