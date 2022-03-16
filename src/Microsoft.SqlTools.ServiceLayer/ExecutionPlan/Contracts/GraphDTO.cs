@@ -7,7 +7,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
 {
     public class GraphDTO
     {
+        /// <summary>
+        /// The root node where the execution tree/graph starts.
+        /// </summary>
         public NodeDTO Root { get; set; }
+        /// <summary>
+        /// Description that details the graph.
+        /// </summary>
         public DescriptionDTO Description { get; set; }
     }
 }

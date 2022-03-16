@@ -9,11 +9,27 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
 {
     public class OperationDTO
     {
+        /// <summary>
+        /// Name of the operation.
+        /// </summary>
         public string Name { get; set; }
+        /// <summary>
+        /// Display name for the operation.
+        /// </summary>
         public string DisplayName { get; set; }
+        /// <summary>
+        /// Description for the operation.
+        /// </summary>
         public string Description { get; set; }
+        /// <summary>
+        /// Icon/Image associated with the operation.
+        /// </summary>
         public string Image { get; set; }
 
+        /// <summary>
+        /// Instantiates an operation DTO
+        /// </summary>
+        /// <param name="operation">Operation object that will be used to create the DTO.</param>
         public OperationDTO(Operation operation)
         {
             Name = operation.Name;

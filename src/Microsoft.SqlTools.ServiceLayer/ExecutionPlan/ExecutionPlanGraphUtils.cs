@@ -51,7 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
             };
         }
 
-        private static ExecutionPlanEdges ConvertShowPlanEdgeToExecutionPlanEdge(Edge edge)
+        public static ExecutionPlanEdges ConvertShowPlanEdgeToExecutionPlanEdge(Edge edge)
         {
             return new ExecutionPlanEdges
             {
@@ -59,20 +59,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                 RowSize = edge.RowSize,
                 Properties = GetProperties(edge.Properties)
             };
-        }
-
-        public static EdgeDTO ConvertShowPlanEdgeToDTO(Edge edge)
-        {
-            var edgeDTO = new EdgeDTO()
-            {
-                EstimatedDataSize = edge.EstimatedDataSize,
-                EstimatedRowCount = edge.EstimatedRowCount,
-                Properties = GetProperties(edge.Properties),
-                RowCount = edge.RowCount,
-                RowSize = edge.RowSize
-            };
-
-            return edgeDTO;
         }
 
         public static List<ExecutionPlanGraphPropertyBase> GetProperties(PropertyDescriptorCollection props)
