@@ -10,14 +10,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
     public class ColorMatchingSectionsParams
     {
         /// <summary>
-        /// First query plan's XML file text for comparison.
+        /// First query execution plan for comparison.
         /// </summary>
-        public string FirstQueryPlanXmlText { get; set; }
+        public ExecutionPlanGraphInfo FirstExecutionPlanGraphInfo { get; set; }
 
         /// <summary>
-        /// Second query plan's XML file text for comparison.
+        /// Second query execution plan for comparison.
         /// </summary>
-        public string SecondQueryPlanXmlText { get; set; }
+        public ExecutionPlanGraphInfo SecondExecutionPlanGraphInfo { get; set; }
 
         /// <summary>
         /// Flag to indicate if the database name should be ignored

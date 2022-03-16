@@ -73,21 +73,21 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
         /// Handles requests for color matching similar nodes.
         /// </summary>
         internal async Task HandleColorMatchingRequest(
-            ColorMatchingSectionsParams parameter,
+            ColorMatchingSectionsParams requestParams,
             RequestContext<ColorMatchingSectionsResult> requestContext)
         {
             try
             {
-                var firstGraphSet = ShowPlanGraph.ParseShowPlanXML(parameter.FirstQueryPlanXmlText, ShowPlanType.Unknown);
+                var firstGraphSet = ShowPlanGraph.ParseShowPlanXML(requestParams.FirstExecutionPlanGraphInfo.GraphFileContent, ShowPlanType.Unknown);
                 var firstRootNode = firstGraphSet?[0]?.Root;
 
-                var secondGraphSet = ShowPlanGraph.ParseShowPlanXML(parameter.SecondQueryPlanXmlText, ShowPlanType.Unknown);
+                var secondGraphSet = ShowPlanGraph.ParseShowPlanXML(requestParams.SecondExecutionPlanGraphInfo.GraphFileContent, ShowPlanType.Unknown);
                 var secondRootNode = secondGraphSet?[0]?.Root;
 
                 var manager = new SkeletonManager();
                 var firstSkeletonNode = manager.CreateSkeleton(firstRootNode);
                 var secondSkeletonNode = manager.CreateSkeleton(secondRootNode);
-                manager.ColorMatchingSections(firstSkeletonNode, secondSkeletonNode, parameter.IgnoreDatabaseName);
+                manager.ColorMatchingSections(firstSkeletonNode, secondSkeletonNode, requestParams.IgnoreDatabaseName);
 
                 var firstSkeletonNodeDTO = firstSkeletonNode.ConvertToDTO();
                 var secondSkeletonNodeDTO = secondSkeletonNode.ConvertToDTO();

@@ -45,14 +45,20 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ExecutionPlan
         }
 
         [Test]
-        public void CompareShowPlan_CreateSkeletonUsingNull()
+        public void CompareShowPlan_CreateSkeletonUsingDefaultConfiguredNode()
         {
-            Node node = null;
+            var graph = new ShowPlanGraph()
+            {
+                Root = null,
+                Description = new Description()
+            };
+            var context = new NodeBuilderContext(graph, ShowPlanType.Unknown, null);
+            var node = new Node(default, context);
 
             var skeletonManager = new SkeletonManager();
             var skeletonNode = skeletonManager.CreateSkeleton(node);
 
-            Assert.IsNull(skeletonNode, "skeletonNode should be null");
+            Assert.NotNull(skeletonNode, "skeletonNode should not be null");
         }
 
         [Test]
@@ -72,10 +78,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ExecutionPlan
         }
 
         [Test]
-        public void CompareShowPlan_TwoNullSkeletons()
+        public void CompareShowPlan_TwoDefaultConfiguredSkeletons()
         {
-            Node firstRoot = null;
-            Node secondRoot = null;
+            var graph = new ShowPlanGraph()
+            {
+                Root = null,
+                Description = new Description()
+            };
+            var context = new NodeBuilderContext(graph, ShowPlanType.Unknown, null);
+            var firstRoot = new Node(default, context);
+            var secondRoot = new Node(default, context);
 
             var skeletonManager = new SkeletonManager();
             var firstSkeletonNode = skeletonManager.CreateSkeleton(firstRoot);
@@ -83,7 +95,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ExecutionPlan
 
             var skeletonCompareResult = skeletonManager.AreSkeletonsEquivalent(firstSkeletonNode, secondSkeletonNode, ignoreDatabaseName: true);
 
-            Assert.IsTrue(skeletonCompareResult);
+            Assert.IsTrue(skeletonCompareResult, "The two compared skeleton nodes should be equivalent");
         }
 
         [Test]

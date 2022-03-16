@@ -24,11 +24,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph.Comparison
         /// <returns>SkeletonNode with children representing logical descendants of the input node</returns>
         public SkeletonNode CreateSkeleton(Node root)
         {
-            if (root == null)
-            {
-                return null;
-            }
-
             Node rootNode = root;
             var childCount = root.Children.Count;
             if (childCount > 1)
@@ -68,10 +63,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph.Comparison
         public bool AreSkeletonsEquivalent(SkeletonNode root1, SkeletonNode root2, bool ignoreDatabaseName)
         {
             if (root1 == null && root2 == null)
+            {
                 return true;
+            }
 
             if (root1 == null || root2 == null)
+            {
                 return false;
+            }
 
             if (!root1.BaseNode.IsLogicallyEquivalentTo(root2.BaseNode, ignoreDatabaseName))
             {
