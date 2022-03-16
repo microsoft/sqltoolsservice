@@ -7,6 +7,9 @@ using Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph;
 
 namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
 {
+    /// <summary>
+    /// Describes an operation in the execution plan.
+    /// </summary>
     public class OperationDTO
     {
         /// <summary>

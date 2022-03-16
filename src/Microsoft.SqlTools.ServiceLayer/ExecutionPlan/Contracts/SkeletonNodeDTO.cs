@@ -7,6 +7,9 @@ using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
 {
+    /// <summary>
+    /// A simpler version of a node because of the reduced amount of properties.
+    /// </summary>
     public class SkeletonNodeDTO
     {
         /// <summary>

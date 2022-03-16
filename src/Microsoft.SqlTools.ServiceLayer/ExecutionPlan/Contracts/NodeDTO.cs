@@ -8,7 +8,7 @@ using System.Collections.Generic;
 namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
 {
     /// <summary>
-    /// Represents an operation in the execution plan.
+    /// Represents a node in the execution plan tree.
     /// </summary>
     public class NodeDTO
     {

@@ -5,6 +5,9 @@
 
 namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
 {
+    /// <summary>
+    /// Graph that represents the execution plan tree
+    /// </summary>
     public class GraphDTO
     {
         /// <summary>

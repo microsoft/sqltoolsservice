@@ -9,7 +9,7 @@ using Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph;
 namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
 {
     /// <summary>
-    /// Holds all information about the execution plan's graph.
+    /// Holds all information that describes =the execution plan's graph.
     /// </summary>
     public class DescriptionDTO
     {
