@@ -14,7 +14,7 @@ using Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph.Comparison;
 namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
 {
     /// <summary>
-    /// Main class for Migration Service functionality
+    /// Main class for Execution Plan Service functionality
     /// </summary>
     public sealed class ExecutionPlanService : IDisposable
     {
@@ -23,9 +23,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
         private bool disposed;
 
         /// <summary>
-        /// Construct a new MigrationService instance with default parameters
+        /// Construct a new ExecutionPlanService instance with default parameters
         /// </summary>
-        public ExecutionPlanService()
+        private ExecutionPlanService()
         {
         }
 
@@ -50,10 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
         {
             ServiceHost = serviceHost;
             ServiceHost.SetRequestHandler(GetExecutionPlanRequest.Type, HandleGetExecutionPlan);
-            ServiceHost.SetRequestHandler(CreateSkeletonRequest.Type, HandleCreateSkeletonRequest);
-            ServiceHost.SetRequestHandler(GraphComparisonRequest.Type, HandleGraphComparisonRequest);
             ServiceHost.SetRequestHandler(ColorMatchingSectionsRequest.Type, HandleColorMatchingRequest);
-            ServiceHost.SetRequestHandler(FindNextNonIgnoreNodeRequest.Type, HandleFindNextNonIgnoreNodeRequest);
         }
 
         private async Task HandleGetExecutionPlan(GetExecutionPlanParams requestParams, RequestContext<GetExecutionPlanResult> requestContext)
@@ -73,67 +70,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
         }
 
         /// <summary>
-        /// Handles requests to create skeletons.
-        /// </summary>
-        internal async Task HandleCreateSkeletonRequest(
-            CreateSkeletonParams parameter,
-            RequestContext<CreateSkeletonResult> requestContext)
-        {
-            try
-            {
-                var graph = ExecPlanGraph.ExecutionPlanGraph.ParseShowPlanXML(parameter.QueryPlanXmlText, ShowPlanType.Unknown);
-                var root = graph?[0]?.Root;
-
-                var manager = new SkeletonManager();
-                var skeletonNode = manager.CreateSkeleton(root);
-
-                var result = new CreateSkeletonResult()
-                {
-                    SkeletonNode = skeletonNode.ConvertToDTO()
-                };
-
-                await requestContext.SendResult(result);
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e.ToString());
-            }
-        }
-
-        /// <summary>
-        /// Handles requests to compare graphs
-        /// </summary>
-        internal async Task HandleGraphComparisonRequest(
-            GetGraphComparisonParams parameter,
-            RequestContext<GetGraphComparisonResult> requestContext)
-        {
-            try
-            {
-                var firstGraphSet = ExecPlanGraph.ExecutionPlanGraph.ParseShowPlanXML(parameter.FirstQueryPlanXmlText, ShowPlanType.Unknown);
-                var firstRootNode = firstGraphSet?[0]?.Root;
-
-                var secondGraphSet = ExecPlanGraph.ExecutionPlanGraph.ParseShowPlanXML(parameter.SecondQueryPlanXmlText, ShowPlanType.Unknown);
-                var secondRootNode = secondGraphSet?[0]?.Root;
-
-                var manager = new SkeletonManager();
-                var firstSkeletonNode = manager.CreateSkeleton(firstRootNode);
-                var secondSkeletonNode = manager.CreateSkeleton(secondRootNode);
-                var isEquivalent = manager.AreSkeletonsEquivalent(firstSkeletonNode, secondSkeletonNode, parameter.IgnoreDatabaseName);
-
-                var result = new GetGraphComparisonResult()
-                {
-                    IsEquivalent = isEquivalent
-                };
-
-                await requestContext.SendResult(result);
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e.ToString());
-            }
-        }
-
-        /// <summary>
         /// Handles requests for color matching similar nodes.
         /// </summary>
         internal async Task HandleColorMatchingRequest(
@@ -142,10 +78,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
         {
             try
             {
-                var firstGraphSet = ExecPlanGraph.ExecutionPlanGraph.ParseShowPlanXML(parameter.FirstQueryPlanXmlText, ShowPlanType.Unknown);
+                var firstGraphSet = ShowPlanGraph.ParseShowPlanXML(parameter.FirstQueryPlanXmlText, ShowPlanType.Unknown);
                 var firstRootNode = firstGraphSet?[0]?.Root;
 
-                var secondGraphSet = ExecPlanGraph.ExecutionPlanGraph.ParseShowPlanXML(parameter.SecondQueryPlanXmlText, ShowPlanType.Unknown);
+                var secondGraphSet = ShowPlanGraph.ParseShowPlanXML(parameter.SecondQueryPlanXmlText, ShowPlanType.Unknown);
                 var secondRootNode = secondGraphSet?[0]?.Root;
 
                 var manager = new SkeletonManager();
@@ -162,39 +98,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                 {
                     FirstSkeletonNode = firstSkeletonNodeDTO,
                     SecondSkeletonNode = secondSkeletonNodeDTO
-                };
-
-                await requestContext.SendResult(result);
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e.ToString());
-            }
-        }
-
-        /// <summary>
-        /// Handles request to locate the next node that should not be
-        /// ignored during show plan comparisons.
-        /// </summary>
-        internal async Task HandleFindNextNonIgnoreNodeRequest(
-            FindNextNonIgnoreNodeParams parameter,
-            RequestContext<FindNextNonIgnoreNodeResult> requestContext)
-        {
-            try
-            {
-                var graph = ExecPlanGraph.ExecutionPlanGraph.ParseShowPlanXML(parameter.QueryPlanXmlText, ShowPlanType.Unknown);
-                var root = graph?[0]?.Root;
-                var startingNode = root.FindNodeById(parameter.StartingNodeID);
-
-                if (startingNode == null)
-                    await requestContext.SendError("Could not locate the starting node using the provided node ID.");
-
-                var manager = new SkeletonManager();
-                var nextNonIgnoreNode = manager.FindNextNonIgnoreNode(startingNode);
-
-                var result = new FindNextNonIgnoreNodeResult()
-                {
-                    NextNonIgnoreNode = nextNonIgnoreNode.ConvertToDTO()
                 };
 
                 await requestContext.SendResult(result);

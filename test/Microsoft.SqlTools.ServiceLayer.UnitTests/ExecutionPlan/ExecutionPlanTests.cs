@@ -33,7 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ExecutionPlan
         public void CompareShowPlan_CreateSkeleton()
         {
             ReadFile(".ExecutionPlan.TestExecutionPlan.xml");
-            var graphs = Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph.ExecutionPlanGraph.ParseShowPlanXML(this.queryPlanFileText, ShowPlanType.Unknown);
+            var graphs = ShowPlanGraph.ParseShowPlanXML(this.queryPlanFileText, ShowPlanType.Unknown);
             var rootNode = graphs[0].Root;
 
             Assert.NotNull(rootNode, "graph should have a root");
@@ -59,7 +59,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ExecutionPlan
         public void CompareShowPlan_DuplicateSkeletons()
         {
             ReadFile(".ExecutionPlan.TestExecutionPlan.xml");
-            var graphs = Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph.ExecutionPlanGraph.ParseShowPlanXML(this.queryPlanFileText, ShowPlanType.Unknown);
+            var graphs = ShowPlanGraph.ParseShowPlanXML(this.queryPlanFileText, ShowPlanType.Unknown);
             var rootNode = graphs[0].Root;
 
             var skeletonManager = new SkeletonManager();
@@ -90,7 +90,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ExecutionPlan
         public void CompareShowPlan_ComparingSkeletonAgainstNull()
         {
             ReadFile(".ExecutionPlan.TestExecutionPlan.xml");
-            var graphs = Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph.ExecutionPlanGraph.ParseShowPlanXML(this.queryPlanFileText, ShowPlanType.Unknown);
+            var graphs = ShowPlanGraph.ParseShowPlanXML(this.queryPlanFileText, ShowPlanType.Unknown);
             var rootNode = graphs[0].Root;
 
             var skeletonManager = new SkeletonManager();
@@ -106,7 +106,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ExecutionPlan
         public void CompareShowPlan_DifferentSkeletonChildCount()
         {
             ReadFile(".ExecutionPlan.TestExecutionPlan.xml");
-            var graphs = Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph.ExecutionPlanGraph.ParseShowPlanXML(this.queryPlanFileText, ShowPlanType.Unknown);
+            var graphs = ShowPlanGraph.ParseShowPlanXML(this.queryPlanFileText, ShowPlanType.Unknown);
             var rootNode = graphs[0].Root;
 
             var skeletonManager = new SkeletonManager();
@@ -123,7 +123,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ExecutionPlan
         public void CompareShowPlan_ColorMatchingSectionsWithEquivalentSkeletons()
         {
             ReadFile(".ExecutionPlan.TestExecutionPlan.xml");
-            var graphs = Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph.ExecutionPlanGraph.ParseShowPlanXML(this.queryPlanFileText, ShowPlanType.Unknown);
+            var graphs = ShowPlanGraph.ParseShowPlanXML(this.queryPlanFileText, ShowPlanType.Unknown);
             var rootNode = graphs[0].Root;
 
             var skeletonManager = new SkeletonManager();
@@ -149,7 +149,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ExecutionPlan
         public void CompareShowPlan_ColorMatchingSectionsWithNullAndNonNullSkeleton()
         {
             ReadFile(".ExecutionPlan.TestExecutionPlan.xml");
-            var graphs = Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph.ExecutionPlanGraph.ParseShowPlanXML(this.queryPlanFileText, ShowPlanType.Unknown);
+            var graphs = ShowPlanGraph.ParseShowPlanXML(this.queryPlanFileText, ShowPlanType.Unknown);
             var rootNode = graphs[0].Root;
 
             var skeletonManager = new SkeletonManager();
@@ -180,7 +180,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ExecutionPlan
         public void CompareShowPlan_ColorMatchingSectionsWithNonNullAndNullSkeleton()
         {
             ReadFile(".ExecutionPlan.TestExecutionPlan.xml");
-            var graphs = Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph.ExecutionPlanGraph.ParseShowPlanXML(this.queryPlanFileText, ShowPlanType.Unknown);
+            var graphs = ShowPlanGraph.ParseShowPlanXML(this.queryPlanFileText, ShowPlanType.Unknown);
             var rootNode = graphs[0].Root;
 
             var skeletonManager = new SkeletonManager();
@@ -198,7 +198,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ExecutionPlan
         public void CompareShowPlan_ColorMatchingSectionsWithDifferentChildCount()
         {
             ReadFile(".ExecutionPlan.TestExecutionPlan.xml");
-            var graphs = Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph.ExecutionPlanGraph.ParseShowPlanXML(this.queryPlanFileText, ShowPlanType.Unknown);
+            var graphs = ShowPlanGraph.ParseShowPlanXML(this.queryPlanFileText, ShowPlanType.Unknown);
             var rootNode = graphs[0].Root;
 
             var skeletonManager = new SkeletonManager();
@@ -225,7 +225,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ExecutionPlan
         public void CompareShowPlan_FindNextNonIgnoreNode()
         {
             ReadFile(".ExecutionPlan.TestExecutionPlan.xml");
-            var graphs = Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph.ExecutionPlanGraph.ParseShowPlanXML(this.queryPlanFileText, ShowPlanType.Unknown);
+            var graphs = ShowPlanGraph.ParseShowPlanXML(this.queryPlanFileText, ShowPlanType.Unknown);
             var rootNode = graphs[0].Root;
 
             var skeletonManager = new SkeletonManager();
@@ -239,7 +239,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ExecutionPlan
         public void CompareShowPlan_FindNextNonIgnoreNodeWithChildlessRoot()
         {
             ReadFile(".ExecutionPlan.TestExecutionPlan.xml");
-            var graphs = Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph.ExecutionPlanGraph.ParseShowPlanXML(this.queryPlanFileText, ShowPlanType.Unknown);
+            var graphs = ShowPlanGraph.ParseShowPlanXML(this.queryPlanFileText, ShowPlanType.Unknown);
             var rootNode = graphs[0].Root;
 
             for (int childIndex = 0; childIndex < rootNode.Children.Count; ++childIndex)

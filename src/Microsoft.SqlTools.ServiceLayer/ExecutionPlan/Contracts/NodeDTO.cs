@@ -29,8 +29,5 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         public double RelativeCost { get; set; }
         public NodeDTO Root { get; set; }
         public double SubtreeCost { get; set; }
-
-        public NodeDTO()
-        { }
     }
 }

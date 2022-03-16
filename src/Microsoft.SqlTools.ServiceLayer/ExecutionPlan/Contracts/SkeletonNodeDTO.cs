@@ -15,8 +15,5 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         public bool HasMatch { get; set; }
         public List<SkeletonNodeDTO> MatchingNodes { get; set; } = new List<SkeletonNodeDTO>();
         public SkeletonNodeDTO ParentNode { get; set; }
-        
-        public SkeletonNodeDTO()
-        { }
     }
 }

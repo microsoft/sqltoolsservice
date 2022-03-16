@@ -37,21 +37,21 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph
         /// </summary>
         /// <param name="dataSource">Data Source.</param>
         /// <returns>An array of AnalysisServices Graph objects.</returns>
-        public ExecutionPlanGraph[] Execute(object dataSource)
+        public ShowPlanGraph[] Execute(object dataSource)
         {
             ShowPlanXML plan = dataSource as ShowPlanXML;
             if (plan == null)
             {
                 plan = ReadXmlShowPlan(dataSource);
             }
-            List<ExecutionPlanGraph> graphs = new List<ExecutionPlanGraph>();
+            List<ShowPlanGraph> graphs = new List<ShowPlanGraph>();
 
             int statementIndex = 0;
             foreach (BaseStmtInfoType statement in EnumStatements(plan))
             {
                 // Reset currentNodeId (used through Context) and create new context
                 this.currentNodeId = 0;
-                NodeBuilderContext context = new NodeBuilderContext(new ExecutionPlanGraph(), this.showPlanType, this);
+                NodeBuilderContext context = new NodeBuilderContext(new ShowPlanGraph(), this.showPlanType, this);
                 // Parse the statement block
                 XmlPlanParser.Parse(statement, null, null, context);
                 // Get the statement XML for the graph.
@@ -375,7 +375,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph
                 }
             }
         }
-        private Description ParseDescription(ExecutionPlanGraph graph)
+        private Description ParseDescription(ShowPlanGraph graph)
         {
             XmlDocument stmtXmlDocument = new XmlDocument();
             stmtXmlDocument.LoadXml(graph.XmlDocument);

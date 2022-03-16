@@ -84,20 +84,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph.Comparison
 
         public SkeletonNodeDTO ConvertToDTO()
         {
-            var skeletonNodeDTO = new SkeletonNodeDTO();
-            LevelOrderCopy(this, skeletonNodeDTO);
-
-            return skeletonNodeDTO;
-        }
-
-        private static void LevelOrderCopy(SkeletonNode skeletonNode, SkeletonNodeDTO skeletonNodeDTO)
-        {
-            if (skeletonNode == null)
-                return;
-
             var queue = new Queue<SkeletonNode>();
-            queue.Enqueue(skeletonNode);
+            queue.Enqueue(this);
 
+            var skeletonNodeDTO = new SkeletonNodeDTO();
             var dtoQueue = new Queue<SkeletonNodeDTO>();
             dtoQueue.Enqueue(skeletonNodeDTO);
 
@@ -127,6 +117,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph.Comparison
                     dtoQueue.Enqueue(childDTO);
                 }
             }
+
+            return skeletonNodeDTO;
         }
     }
 }

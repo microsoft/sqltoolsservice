@@ -11,7 +11,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph
     /// <summary>
     /// Extension of graph with some handy included methods specific for ShowPlan use
     /// </summary>
-    public class ExecutionPlanGraph : Graph
+    public class ShowPlanGraph : Graph
     {
         private Dictionary<Node, object> nodeStmtMap = new Dictionary<Node, object>();
 
@@ -84,7 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph
         /// </summary>
         /// <param name="xmlString"></param>
         /// <returns></returns>
-        public static ExecutionPlanGraph[] ParseShowPlanXML(object showPlan, ShowPlanType type = ShowPlanType.Unknown)
+        public static ShowPlanGraph[] ParseShowPlanXML(object showPlan, ShowPlanType type = ShowPlanType.Unknown)
         {
             // Create a builder compatible with the data source
             INodeBuilder nodeBuilder = NodeBuilderFactory.Create(showPlan, type);

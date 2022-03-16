@@ -16,9 +16,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         public bool IsClusteredMode { get; set; }
         public List<MissingIndex> MissingIndices { get; set; }
 
-        public DescriptionDTO()
-        { }
-
         public DescriptionDTO(Description description)
         {
             Title = description.Title;

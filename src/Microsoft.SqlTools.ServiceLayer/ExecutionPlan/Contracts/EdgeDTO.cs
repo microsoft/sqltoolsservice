@@ -16,8 +16,5 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         public double RowSize { get; set; }
         public NodeDTO FromNode { get; set; }
         public NodeDTO ToNode { get; set; }
-
-        public EdgeDTO()
-        { }
     }
 }

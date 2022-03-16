@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
     {
         public static List<ExecutionPlanGraph> CreateShowPlanGraph(string xml, string fileName)
         {
-            ExecPlanGraph.ExecutionPlanGraph[] graphs = ExecPlanGraph.ExecutionPlanGraph.ParseShowPlanXML(xml, ExecPlanGraph.ShowPlanType.Unknown);
+            ShowPlanGraph[] graphs = ShowPlanGraph.ParseShowPlanXML(xml, ShowPlanType.Unknown);
             return graphs.Select(g => new ExecutionPlanGraph
             {
                 Root = ConvertShowPlanTreeToExecutionPlanTree(g.Root),
@@ -112,7 +112,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
             return propsList;
         }
 
-        private static List<ExecutionPlanRecommendation> ParseRecommendations(ExecPlanGraph.ExecutionPlanGraph g, string fileName)
+        private static List<ExecutionPlanRecommendation> ParseRecommendations(ShowPlanGraph g, string fileName)
         {
             return g.Description.MissingIndices.Select(mi => new ExecutionPlanRecommendation
             {

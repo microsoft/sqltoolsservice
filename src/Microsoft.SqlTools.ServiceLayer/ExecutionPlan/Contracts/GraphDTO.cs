@@ -9,8 +9,5 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
     {
         public NodeDTO Root { get; set; }
         public DescriptionDTO Description { get; set; }
-
-        public GraphDTO()
-        { }
     }
 }

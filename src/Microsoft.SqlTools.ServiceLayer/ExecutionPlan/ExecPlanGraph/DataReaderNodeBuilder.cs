@@ -37,7 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph
         /// </summary>
         /// <param name="dataSource">Data Source.</param>
         /// <returns>An array of AnalysisServices Graph objects.</returns>
-        public ExecutionPlanGraph[] Execute(object dataSource)
+        public ShowPlanGraph[] Execute(object dataSource)
 		{
             IDataReader reader = dataSource as IDataReader;
 
@@ -47,7 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph
                 throw new ArgumentException(SR.Keys.UnknownShowPlanSource);
             }
 
-            List<ExecutionPlanGraph> graphs = new List<ExecutionPlanGraph>();
+            List<ShowPlanGraph> graphs = new List<ShowPlanGraph>();
             Dictionary<int, Node> currentGraphNodes = null;
             NodeBuilderContext context = null;
 
@@ -73,7 +73,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph
                     }
 
                     // Create new Context and new Nodes hashtable
-                    context = new NodeBuilderContext(new ExecutionPlanGraph(), ShowPlanType, this);
+                    context = new NodeBuilderContext(new ShowPlanGraph(), ShowPlanType, this);
                     currentGraphNodes = new Dictionary<int, Node>();
                 }
                 else

@@ -7,7 +7,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph
 {
     public class NodeBuilderContext
 	{
-        public NodeBuilderContext(ExecutionPlanGraph graph, ShowPlanType type, object context)
+        public NodeBuilderContext(ShowPlanGraph graph, ShowPlanType type, object context)
         {
             this.graph = graph;
             this.showPlanType = type;
@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph
         /// <summary>
         /// Gets currently processing Graph
         /// </summary>
-        public ExecutionPlanGraph Graph
+        public ShowPlanGraph Graph
         {
             get { return this.graph; }
         }
@@ -38,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph
             get { return this.context; }
         }
 
-        private ExecutionPlanGraph graph;
+        private ShowPlanGraph graph;
         private ShowPlanType showPlanType;
         private object context;
     }

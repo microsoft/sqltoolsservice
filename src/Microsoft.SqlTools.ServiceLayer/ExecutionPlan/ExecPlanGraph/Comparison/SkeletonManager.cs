@@ -25,7 +25,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph.Comparison
         public SkeletonNode CreateSkeleton(Node root)
         {
             if (root == null)
+            {
                 return null;
+            }
 
             Node rootNode = root;
             var childCount = root.Children.Count;

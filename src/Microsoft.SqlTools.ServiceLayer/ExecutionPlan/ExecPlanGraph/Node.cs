@@ -740,20 +740,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph
 
         public NodeDTO ConvertToDTO()
         {
-            var nodeDTO = new NodeDTO();
-            LevelOrderCopy(this, nodeDTO);
-
-            return nodeDTO;
-        }
-
-        private static void LevelOrderCopy(Node node, NodeDTO rootDTO)
-        {
-            if (node == null)
-                return;
-
             var queue = new Queue<Node>();
-            queue.Enqueue(node);
+            queue.Enqueue(this);
 
+            var rootDTO = new NodeDTO();
             var dtoQueue = new Queue<NodeDTO>();
             dtoQueue.Enqueue(rootDTO);
 
@@ -774,7 +764,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph
                     Root = rootDTO,
                     Description = new DescriptionDTO(curNode.graph.Description)
                 };
-                
+
                 curNodeDTO.GroupIndex = curNode.GroupIndex;
                 curNodeDTO.HasWarnings = curNode.HasWarnings;
                 curNodeDTO.ID = curNode.ID;
@@ -797,6 +787,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph
                     dtoQueue.Enqueue(childDTO);
                 }
             }
+
+            return rootDTO;
         }
 
         public Node FindNodeById(int targetNodeID)

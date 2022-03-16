@@ -18,6 +18,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph
         /// </summary>
         /// <param name="dataSource">Data Source.</param>
         /// <returns>An array of AnalysisServices Graph objects.</returns>
-		ExecutionPlanGraph[] Execute(object dataSource);
+		ShowPlanGraph[] Execute(object dataSource);
 	}
 }
