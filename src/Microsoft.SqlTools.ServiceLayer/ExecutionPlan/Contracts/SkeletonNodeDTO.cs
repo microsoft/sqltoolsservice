@@ -15,7 +15,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         /// <summary>
         /// The base node for the skeleton.
         /// </summary>
-        public NodeDTO BaseNode { get; set; }
+        public ExecutionPlanNode BaseNode { get; set; }
         /// <summary>
         /// The children of the skeleton node.
         /// </summary>

@@ -33,10 +33,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
             }).ToList();
         }
 
-        private static ExecutionPlanNode ConvertShowPlanTreeToExecutionPlanTree(Node currentNode)
+        public static ExecutionPlanNode ConvertShowPlanTreeToExecutionPlanTree(Node currentNode)
         {
             return new ExecutionPlanNode
             {
+                ID = currentNode.ID,
                 Type = currentNode.Operation.Image,
                 Cost = currentNode.Cost,
                 SubTreeCost = currentNode.SubtreeCost,

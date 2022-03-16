@@ -8,8 +8,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
-using Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph
 {
@@ -736,77 +734,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph
             child.parentEdge = edge;
             this.children.Add(child);
             child.parent = this;
-        }
-
-        public NodeDTO ConvertToDTO()
-        {
-            var queue = new Queue<Node>();
-            queue.Enqueue(this);
-
-            var rootDTO = new NodeDTO();
-            var dtoQueue = new Queue<NodeDTO>();
-            dtoQueue.Enqueue(rootDTO);
-
-            while (queue.Count != 0)
-            {
-                var curNode = queue.Dequeue();
-                var curNodeDTO = dtoQueue.Dequeue();
-
-                curNodeDTO.Cost = curNode.Cost;
-                curNodeDTO.Description = curNode.Description;
-                curNodeDTO.DisplayCost = curNode.DisplayCost;
-                curNodeDTO.DisplayName = curNode.DisplayName;
-                curNodeDTO.Edges = curNode.Edges.Select(edge => ExecutionPlanGraphUtils.ConvertShowPlanEdgeToExecutionPlanEdge(edge)).ToList();
-                curNodeDTO.ElapsedTimeInMs = curNode.ElapsedTimeInMs;
-
-                curNodeDTO.Graph = new GraphDTO()
-                {
-                    Root = rootDTO,
-                    Description = new DescriptionDTO(curNode.graph.Description)
-                };
-
-                curNodeDTO.GroupIndex = curNode.GroupIndex;
-                curNodeDTO.HasWarnings = curNode.HasWarnings;
-                curNodeDTO.ID = curNode.ID;
-                curNodeDTO.IsParallel = curNode.IsParallel;
-                curNodeDTO.LogicalOpUnlocName = curNode.LogicalOpUnlocName;
-                curNodeDTO.Operation = new OperationDTO(curNode.Operation);
-                curNodeDTO.PhysicalOpUnlocName = curNode.PhysicalOpUnlocName;
-                curNodeDTO.Properties = ExecutionPlanGraphUtils.GetProperties(curNode.Properties);
-                curNodeDTO.RelativeCost = curNode.RelativeCost;
-                curNodeDTO.Root = rootDTO;
-                curNodeDTO.SubtreeCost = curNode.SubtreeCost;
-
-                foreach (var child in curNode.Children)
-                {
-                    queue.Enqueue(child);
-
-                    var childDTO = new NodeDTO();
-                    childDTO.Parent = curNodeDTO;
-                    curNodeDTO.Children.Add(childDTO);
-                    dtoQueue.Enqueue(childDTO);
-                }
-            }
-
-            return rootDTO;
-        }
-
-        public Node FindNodeById(int targetNodeID)
-        {
-            var queue = new Queue<Node>();
-            queue.Enqueue(this);
-
-            while (queue.Count != 0)
-            {
-                var curNode = queue.Dequeue();
-                if (curNode.ID == targetNodeID)
-                    return curNode;
-
-                foreach (var child in curNode.children)
-                    queue.Enqueue(child);
-            }
-
-            return null;
         }
     }
 }

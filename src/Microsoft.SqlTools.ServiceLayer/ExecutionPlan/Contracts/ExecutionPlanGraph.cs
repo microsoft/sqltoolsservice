@@ -33,6 +33,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
     public class ExecutionPlanNode
     {
         /// <summary>
+        /// ID for the node.
+        /// </summary>
+        public int ID { get; set; }
+        /// <summary>
         /// Type of the node. This determines the icon that is displayed for it
         /// </summary>
         public string Type { get; set; }

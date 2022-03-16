@@ -96,13 +96,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph.Comparison
                 var curNode = queue.Dequeue();
                 var curNodeDTO = dtoQueue.Dequeue();
 
-                curNodeDTO.BaseNode = curNode.BaseNode.ConvertToDTO();
+                curNodeDTO.BaseNode = ExecutionPlanGraphUtils.ConvertShowPlanTreeToExecutionPlanTree(curNode.BaseNode);
                 curNodeDTO.GroupIndex = curNode.GroupIndex;
                 curNodeDTO.HasMatch = curNode.HasMatch;
                 curNodeDTO.MatchingNodes = curNode.MatchingNodes.Select(matchingNode =>
                                             {
                                                 var skeletonNodeDTO = new SkeletonNodeDTO();
-                                                skeletonNodeDTO.BaseNode = matchingNode.BaseNode.ConvertToDTO();
+                                                skeletonNodeDTO.BaseNode = ExecutionPlanGraphUtils.ConvertShowPlanTreeToExecutionPlanTree(matchingNode.BaseNode);
 
                                                 return skeletonNodeDTO;
                                             }).ToList();
