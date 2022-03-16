@@ -46,6 +46,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
     {
         public static readonly
             RequestType<CreateSasParams, CreateSasResponse> Type =
-                RequestType<CreateSasParams, CreateSasResponse>.Create("backup/createsas");
+                RequestType<CreateSasParams, CreateSasResponse>.Create("blob/createsas");
     }
 }
