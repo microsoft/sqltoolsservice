@@ -1,4 +1,4 @@
-﻿// 
+﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -24,13 +24,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         protected SaveAsStreamWriter(Stream stream, SaveResultsRequestParams requestParams)
         {
             FileStream = stream;
-            var saveParams = requestParams;
             if (requestParams.IsSaveSelection)
             {
                 // ReSharper disable PossibleInvalidOperationException  IsSaveSelection verifies these values exist
-                ColumnStartIndex = saveParams.ColumnStartIndex.Value;
-                ColumnEndIndex = saveParams.ColumnEndIndex.Value;
-                ColumnCount = saveParams.ColumnEndIndex.Value - saveParams.ColumnStartIndex.Value + 1;
+                ColumnStartIndex = requestParams.ColumnStartIndex.Value;
+                ColumnEndIndex = requestParams.ColumnEndIndex.Value;
+                ColumnCount = requestParams.ColumnEndIndex.Value - requestParams.ColumnStartIndex.Value + 1;
                 // ReSharper restore PossibleInvalidOperationException
             }
         }
@@ -40,17 +39,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <summary>
         /// Index of the first column to write to the output file
         /// </summary>
-        protected int? ColumnStartIndex { get; private set; }
+        protected int ColumnStartIndex { get; private set; }
 
         /// <summary>
         /// Number of columns to write to the output file
         /// </summary>
-        protected int? ColumnCount { get; private set; }
+        protected int ColumnCount { get; private set; }
 
         /// <summary>
         /// Index of the last column to write to the output file
         /// </summary>
-        protected int? ColumnEndIndex { get; private set; }
+        protected int ColumnEndIndex { get; private set; }
 
         /// <summary>
         /// The file stream to use to write the output file
@@ -73,7 +72,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </summary>
         /// <param name="row">The row of data to output</param>
         /// <param name="columns">The list of columns to output</param>
-        public abstract void WriteRow(IList<DbCellValue> row, IList<DbColumnWrapper> columns);
+        public abstract void WriteRow(IList<DbCellValue> row, IReadOnlyList<DbColumnWrapper> columns);
 
         /// <summary>
         /// Not implemented, do not use.

@@ -1,4 +1,4 @@
-﻿// 
+﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -24,10 +24,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
     {
         // Root element name for the output XML
         private const string RootElementTag = "data";
-        
+
         // Item element name which will be used for every row
         private const string ItemElementTag = "row";
-        
+
         #region Member Variables
 
         private readonly XmlTextWriter xmlTextWriter;
@@ -60,19 +60,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// The entire list of columns for the result set. They will be filtered down as per the
         /// request params.
         /// </param>
-        public override void WriteRow(IList<DbCellValue> row, IList<DbColumnWrapper> columns)
+        public override void WriteRow(IList<DbCellValue> row, IReadOnlyList<DbColumnWrapper> columns)
         {
             // Write the header for the object
             xmlTextWriter.WriteStartElement(ItemElementTag);
 
             // Write the items out as properties
-            int columnStart = ColumnStartIndex ?? 0;
-            int columnEnd = ColumnEndIndex + 1 ?? columns.Count;
-            for (int i = columnStart; i < columnEnd; i++)
+            for (int i = ColumnStartIndex; i <= ColumnEndIndex; i++)
             {
                 // Write the column name as item tag
                 xmlTextWriter.WriteStartElement(columns[i].ColumnName);
-                
+
                 if (row[i].RawObject != null)
                 {
                     xmlTextWriter.WriteString(row[i].DisplayValue);
