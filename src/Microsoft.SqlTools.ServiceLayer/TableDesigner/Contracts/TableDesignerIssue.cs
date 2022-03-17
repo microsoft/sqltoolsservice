@@ -16,8 +16,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         Error,
         [EnumMember(Value = "warning")]
         Warning,
-        [EnumMember(Value = "informational")]
-        Informational,
+        [EnumMember(Value = "information")]
+        Information,
     }
 
     /// <summary>
