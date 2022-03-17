@@ -11,7 +11,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
     /// <summary>
     /// Holds all information that describes =the execution plan's graph.
     /// </summary>
-    public class DescriptionDTO
+    public class Description
     {
         /// <summary
         /// The title for a graph
@@ -38,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         /// Instantiates a DescriptionDTO
         /// </summary>
         /// <param name="description">The description object that will be used to create the DTO</param>
-        public DescriptionDTO(Description description)
+        public Description(ExecPlanGraph.Description description)
         {
             Title = description.Title;
             QueryText = description.QueryText;

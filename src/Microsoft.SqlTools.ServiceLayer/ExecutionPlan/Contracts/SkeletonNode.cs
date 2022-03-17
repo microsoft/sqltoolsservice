@@ -10,7 +10,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
     /// <summary>
     /// A simpler version of a node because of the reduced amount of properties.
     /// </summary>
-    public class SkeletonNodeDTO
+    public class SkeletonNode
     {
         /// <summary>
         /// The base node for the skeleton.
@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         /// <summary>
         /// The children of the skeleton node.
         /// </summary>
-        public List<SkeletonNodeDTO> Children { get; set; } = new List<SkeletonNodeDTO>();
+        public List<SkeletonNode> Children { get; set; } = new List<SkeletonNode>();
         /// <summary>
         /// The group index of the skeleton node.
         /// </summary>
@@ -31,10 +31,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         /// <summary>
         /// List of matching nodes for the skeleton node.
         /// </summary>
-        public List<SkeletonNodeDTO> MatchingNodes { get; set; } = new List<SkeletonNodeDTO>();
+        public List<SkeletonNode> MatchingNodes { get; set; } = new List<SkeletonNode>();
         /// <summary>
         /// The parent of the skeleton node.
         /// </summary>
-        public SkeletonNodeDTO ParentNode { get; set; }
+        public SkeletonNode ParentNode { get; set; }
     }
 }

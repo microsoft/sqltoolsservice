@@ -5,7 +5,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph.Comparison
 {
@@ -82,13 +81,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph.Comparison
             return this.BaseNode.Graph;
         }
 
-        public SkeletonNodeDTO ConvertToDTO()
+        public Contracts.SkeletonNode ConvertToDTO()
         {
             var queue = new Queue<SkeletonNode>();
             queue.Enqueue(this);
 
-            var skeletonNodeDTO = new SkeletonNodeDTO();
-            var dtoQueue = new Queue<SkeletonNodeDTO>();
+            var skeletonNodeDTO = new Contracts.SkeletonNode();
+            var dtoQueue = new Queue<Contracts.SkeletonNode>();
             dtoQueue.Enqueue(skeletonNodeDTO);
 
             while (queue.Count != 0)
@@ -101,7 +100,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph.Comparison
                 curNodeDTO.HasMatch = curNode.HasMatch;
                 curNodeDTO.MatchingNodes = curNode.MatchingNodes.Select(matchingNode =>
                                             {
-                                                var skeletonNodeDTO = new SkeletonNodeDTO();
+                                                var skeletonNodeDTO = new Contracts.SkeletonNode();
                                                 skeletonNodeDTO.BaseNode = ExecutionPlanGraphUtils.ConvertShowPlanTreeToExecutionPlanTree(matchingNode.BaseNode);
 
                                                 return skeletonNodeDTO;
@@ -111,7 +110,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph.Comparison
                 {
                     queue.Enqueue(child);
 
-                    var childDTO = new SkeletonNodeDTO();
+                    var childDTO = new Contracts.SkeletonNode();
                     childDTO.ParentNode = curNodeDTO;
                     curNodeDTO.Children.Add(childDTO);
                     dtoQueue.Enqueue(childDTO);

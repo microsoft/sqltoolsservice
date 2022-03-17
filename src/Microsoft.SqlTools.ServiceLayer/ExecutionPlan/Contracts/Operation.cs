@@ -3,14 +3,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph;
-
 namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
 {
     /// <summary>
     /// Describes an operation in the execution plan.
     /// </summary>
-    public class OperationDTO
+    public class Operation
     {
         /// <summary>
         /// Name of the operation.
@@ -33,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         /// Instantiates an operation DTO
         /// </summary>
         /// <param name="operation">Operation object that will be used to create the DTO.</param>
-        public OperationDTO(Operation operation)
+        public Operation(ExecPlanGraph.Operation operation)
         {
             Name = operation.Name;
             DisplayName = operation.DisplayName;

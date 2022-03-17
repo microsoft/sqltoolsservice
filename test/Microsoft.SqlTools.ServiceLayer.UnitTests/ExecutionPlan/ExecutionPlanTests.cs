@@ -50,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ExecutionPlan
             var graph = new ShowPlanGraph()
             {
                 Root = null,
-                Description = new Description()
+                Description = new ServiceLayer.ExecutionPlan.ExecPlanGraph.Description()
             };
             var context = new NodeBuilderContext(graph, ShowPlanType.Unknown, null);
             var node = new Node(default, context);
@@ -83,7 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ExecutionPlan
             var graph = new ShowPlanGraph()
             {
                 Root = null,
-                Description = new Description()
+                Description = new ServiceLayer.ExecutionPlan.ExecPlanGraph.Description()
             };
             var context = new NodeBuilderContext(graph, ShowPlanType.Unknown, null);
             var firstRoot = new Node(default, context);
@@ -107,7 +107,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ExecutionPlan
 
             var skeletonManager = new SkeletonManager();
             var skeletonNode = skeletonManager.CreateSkeleton(rootNode);
-            SkeletonNode skeletonNode2 = null;
+            ServiceLayer.ExecutionPlan.ExecPlanGraph.Comparison.SkeletonNode skeletonNode2 = null;
 
             var skeletonCompareResult = skeletonManager.AreSkeletonsEquivalent(skeletonNode, skeletonNode2, ignoreDatabaseName: true);
 
@@ -165,7 +165,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ExecutionPlan
             var rootNode = graphs[0].Root;
 
             var skeletonManager = new SkeletonManager();
-            SkeletonNode nullSkeletonNode = null;
+            ServiceLayer.ExecutionPlan.ExecPlanGraph.Comparison.SkeletonNode nullSkeletonNode = null;
             var skeletonNode2 = skeletonManager.CreateSkeleton(rootNode);
 
             skeletonManager.ColorMatchingSections(nullSkeletonNode, skeletonNode2, ignoreDatabaseName: true);
@@ -179,8 +179,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ExecutionPlan
         public void CompareShowPlan_ColorMatchingSectionsWithTwoNullSKeletons()
         {
             var skeletonManager = new SkeletonManager();
-            SkeletonNode skeletonNode = null;
-            SkeletonNode skeletonNode2 = null;
+            ServiceLayer.ExecutionPlan.ExecPlanGraph.Comparison.SkeletonNode skeletonNode = null;
+            ServiceLayer.ExecutionPlan.ExecPlanGraph.Comparison.SkeletonNode skeletonNode2 = null;
 
             skeletonManager.ColorMatchingSections(skeletonNode, skeletonNode2, ignoreDatabaseName: true);
 
@@ -197,7 +197,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ExecutionPlan
 
             var skeletonManager = new SkeletonManager();
             var skeletonNode = skeletonManager.CreateSkeleton(rootNode);
-            SkeletonNode nullSkeletonNode = null;
+            ServiceLayer.ExecutionPlan.ExecPlanGraph.Comparison.SkeletonNode nullSkeletonNode = null;
             
             skeletonManager.ColorMatchingSections(skeletonNode, nullSkeletonNode, ignoreDatabaseName: true);
 
