@@ -4914,4 +4914,12 @@ The Query Processor estimates that implementing the following index could improv
     <value>Default Constraint Name</value>
     <comment></comment>
   </data>
+  <data name="AddNewEdgeConstraintLabel" xml:space="preserve">
+    <value>New Edge Constraint</value>
+    <comment></comment>
+  </data>
+  <data name="AddNewClauseLabel" xml:space="preserve">
+    <value>New Clause</value>
+    <comment></comment>
+  </data>
 </root>

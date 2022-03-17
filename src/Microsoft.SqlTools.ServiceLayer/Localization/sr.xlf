@@ -5983,6 +5983,16 @@ The Query Processor estimates that implementing the following index could improv
         <target state="new">Default Constraint Name</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="AddNewEdgeConstraintLabel">
+        <source>New Edge Constraint</source>
+        <target state="new">New Edge Constraint</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="AddNewClauseLabel">
+        <source>New Clause</source>
+        <target state="new">New Clause</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
