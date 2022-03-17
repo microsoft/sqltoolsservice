@@ -27,7 +27,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             new ColumnsInPrimaryKeyCannotBeNullableRule(),
             new OnlyDurableMemoryOptimizedTableCanBeSystemVersionedRule(),
             new TemporalTableMustHavePrimaryKeyRule(),
-            new TableMustHaveAtLeastOneColumnRule()
+            new TableMustHaveAtLeastOneColumnRule(),
+            new MemoryOptimizedTableIdentityColumnRule()
         };
 
         /// <summary>
@@ -455,6 +456,31 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 {
                     Message = "A table must have at least one column defined."
                 });
+            }
+            return errors;
+        }
+    }
+
+    public class MemoryOptimizedTableIdentityColumnRule : ITableDesignerValidationRule
+    {
+        public List<ValidationError> Run(TableViewModel table)
+        {
+            var errors = new List<ValidationError>();
+            if (table.IsMemoryOptimized)
+            {
+                for (int i = 0; i < table.Columns.Items.Count; i++)
+                {
+                    var column = table.Columns.Items[i];
+                    if (column.IsIdentity && (column.IdentitySeed != 1 || column.IdentityIncrement != 1))
+                    {
+                        var propertyName = column.IdentitySeed != 1 ? TableColumnPropertyNames.IdentitySeed : TableColumnPropertyNames.IdentityIncrement;
+                        errors.Add(new ValidationError()
+                        {
+                            Message = "The use of seed and increment values other than 1 is not supported with memory optimized tables.",
+                            PropertyPath = new object[] { TablePropertyNames.Columns, i, propertyName }
+                        });
+                    }
+                }
             }
             return errors;
         }
