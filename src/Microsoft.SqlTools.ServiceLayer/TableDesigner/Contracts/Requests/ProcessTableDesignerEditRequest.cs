@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 
         public bool IsValid { get; set; }
 
-        public TableDesignerValidationError[] Errors { get; set; }
+        public TableDesignerIssue[] Issues { get; set; }
     }
 
     /// <summary>

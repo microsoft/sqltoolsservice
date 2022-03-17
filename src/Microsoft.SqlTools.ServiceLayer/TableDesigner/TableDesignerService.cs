@@ -113,12 +113,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         break;
                 }
                 var designer = this.GetTableDesigner(requestParams.TableInfo);
-                var errors = TableDesignerValidator.Validate(designer.TableViewModel);
+                var issues = TableDesignerValidator.Validate(designer.TableViewModel);
                 await requestContext.SendResult(new ProcessTableDesignerEditResponse()
                 {
                     ViewModel = this.GetTableViewModel(requestParams.TableInfo),
-                    IsValid = errors.Count == 0,
-                    Errors = errors.ToArray(),
+                    IsValid = issues.Where(i => i.Severity == IssueSeverity.Error).Count() == 0,
+                    Issues = issues.ToArray(),
                     View = refreshViewRequired ? this.GetDesignerViewInfo(requestParams.TableInfo) : null
                 });
             });
@@ -897,7 +897,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     ComponentType = DesignerComponentType.Input,
                     ComponentProperties = new InputBoxProperties()
                     {
-                        Title = SR.TableColumnIdentitySeedPropertyTitle
+                        Title = SR.TableColumnIdentitySeedPropertyTitle,
+                        InputType = InputType.Number
                     }
                 },
                 new DesignerDataPropertyInfo()
@@ -908,7 +909,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     ComponentType = DesignerComponentType.Input,
                     ComponentProperties = new InputBoxProperties()
                     {
-                        Title = SR.TableColumnIdentityIncrementPropertyTitle
+                        Title = SR.TableColumnIdentityIncrementPropertyTitle,
+                        InputType = InputType.Number
                     }
                 },
                 new DesignerDataPropertyInfo()
@@ -1069,7 +1071,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             var constraintsTableProperties = new TableComponentProperties<EdgeConstraintViewModel>()
             {
                 Title = SR.TableDesignerEdgeConstraintsTabTitle,
-                ObjectTypeDisplayName = SR.TableDesignerEdgeConstraintObjectType
+                ObjectTypeDisplayName = SR.TableDesignerEdgeConstraintObjectType,
+                LabelForAddNewButton = SR.AddNewEdgeConstraintLabel
             };
             constraintsTableProperties.Columns.AddRange(new string[] { EdgeConstraintPropertyNames.Name, EdgeConstraintPropertyNames.ClausesDisplayValue });
             constraintsTableProperties.ItemProperties.AddRange(new DesignerDataPropertyInfo[] {
@@ -1125,6 +1128,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         Title = SR.TableDesignerEdgeConstraintClausesPropertyTitle,
                         ObjectTypeDisplayName = SR.TableDesignerEdgeConstraintClauseObjectType,
                         Columns = new List<string> () { EdgeConstraintClausePropertyNames.FromTable, EdgeConstraintClausePropertyNames.ToTable},
+                        LabelForAddNewButton = SR.AddNewClauseLabel,
                         ItemProperties = new List<DesignerDataPropertyInfo>()
                         {
                             new DesignerDataPropertyInfo()
