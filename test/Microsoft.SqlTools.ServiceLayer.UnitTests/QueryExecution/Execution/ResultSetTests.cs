@@ -1,4 +1,4 @@
-﻿// 
+﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -160,7 +160,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // Setup: Create a new result set with valid db data reader
             var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
             ResultSet resultSet = new ResultSet(Common.Ordinal, Common.Ordinal, fileStreamFactory);
-            Assert.That(() => testMethod(resultSet), Throws.InstanceOf<Exception>(), "I have a result set that has not been read. I attempt to call a method on it. It should throw an exception");
+            Assert.Catch(() => testMethod(resultSet), "I have a result set that has not been read. I attempt to call a method on it. It should throw an exception");
         }
 
         public static IEnumerable<object[]> CallMethodWithoutReadingData
@@ -201,7 +201,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
                 $"Complete Check failed.\r\n\t\t resultSummariesFromUpdatedCallback:{string.Join("\r\n\t\t\t", resultSummariesFromUpdatedCallback)}");
 
 
-            // ... The no of rows in the final updateResultSet/AvailableResultSet should be equal to that in the Complete Result Set. 
+            // ... The no of rows in the final updateResultSet/AvailableResultSet should be equal to that in the Complete Result Set.
             //
             Assert.True(resultSummaryFromCompleteCallback.RowCount == resultSummariesFromUpdatedCallback.Last().RowCount,
                  $"The row counts of the complete Result Set and Final update result set do not match"
@@ -311,7 +311,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // If:
             // ... I attempt to read back the results
-            // Then: 
+            // Then:
             // ... I should only get one row
             //
             var task = resultSet.GetSubset(0, 10);
@@ -321,7 +321,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         }
 
         [Test, Sequential]
-        public async Task GetSubsetInvalidParameters([Values(-1,20,0)] int startRow, 
+        public async Task GetSubsetInvalidParameters([Values(-1,20,0)] int startRow,
                                                      [Values(0,0,-1)] int rowCount)
         {
             // If:
@@ -339,7 +339,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         }
 
         [Test]
-        public async Task GetSubsetSuccess([Values(0,1)]int startRow, 
+        public async Task GetSubsetSuccess([Values(0,1)]int startRow,
                                            [Values(3,20)] int rowCount)
         {
             // If:
@@ -377,7 +377,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             ResultSet resultSet = new ResultSet(Common.Ordinal, Common.Ordinal, fileStreamFactory);
             await resultSet.ReadResultToEnd(mockReader, CancellationToken.None);
 
-            Assert.That(() => actionToPerform(resultSet), Throws.InstanceOf<Exception>(), "Attempting to read an invalid row should fail");
+            Assert.Catch<Exception>(() => actionToPerform(resultSet), "Attempting to read an invalid row should fail");
         }
 
         public static IEnumerable<object[]> RowInvalidParameterData
@@ -424,7 +424,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         [Test]
         public async Task AddRowNoRows()
         {
-            // Setup: 
+            // Setup:
             // ... Create a standard result set with standard data
             var fileFactory = MemoryFileSystem.GetFileStreamFactory();
             var mockReader = GetReader(Common.StandardTestDataSet, false, Constants.StandardQuery);
@@ -435,7 +435,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             var emptyReader = GetReader(new[] {new TestResultSet(5, 0)}, false, Constants.StandardQuery);
 
             // If: I add a row with a reader that has no rows
-            // Then: 
+            // Then:
             // ... I should get an exception
             Assert.ThrowsAsync<InvalidOperationException>(() => resultSet.AddRow(emptyReader));
 
@@ -455,17 +455,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 
             // ... Create a mock reader that will throw on read
             var throwingReader = GetReader(new[] {new TestResultSet(5, 0)}, true, Constants.StandardQuery);
-            
+
             Assert.ThrowsAsync<TestDbException>(() => resultSet.AddRow(throwingReader), "I add a row with a reader that throws on read. I should get an exception");
 
             // ... The row count should not have changed
-            Assert.AreEqual(Common.StandardRows, resultSet.RowCount); 
+            Assert.AreEqual(Common.StandardRows, resultSet.RowCount);
         }
 
         [Test]
         public async Task AddRowSuccess()
         {
-            // Setup: 
+            // Setup:
             // ... Create a standard result set with standard data
             var fileFactory = MemoryFileSystem.GetFileStreamFactory();
             var mockReader = GetReader(Common.StandardTestDataSet, false, Constants.StandardQuery);
@@ -491,7 +491,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         [Test]
         public async Task UpdateRowNoRows()
         {
-            // Setup: 
+            // Setup:
             // ... Create a standard result set with standard data
             var fileFactory = MemoryFileSystem.GetFileStreamFactory();
             var mockReader = GetReader(Common.StandardTestDataSet, false, Constants.StandardQuery);
@@ -502,7 +502,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             var emptyReader = GetReader(new[] { new TestResultSet(5, 0) }, false, Constants.StandardQuery);
 
             // If: I add a row with a reader that has no rows
-            // Then: 
+            // Then:
             // ... I should get an exception
             Assert.ThrowsAsync<InvalidOperationException>(() => resultSet.UpdateRow(0, emptyReader));
 
@@ -513,7 +513,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         [Test]
         public async Task UpdateRowSuccess()
         {
-            // Setup: 
+            // Setup:
             // ... Create a standard result set with standard data
             var fileFactory = MemoryFileSystem.GetFileStreamFactory();
             var mockReader = GetReader(Common.StandardTestDataSet, false, Constants.StandardQuery);
