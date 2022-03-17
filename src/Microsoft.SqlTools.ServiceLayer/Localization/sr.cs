@@ -9005,6 +9005,22 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string AddNewEdgeConstraintLabel
+        {
+            get
+            {
+                return Keys.GetString(Keys.AddNewEdgeConstraintLabel);
+            }
+        }
+
+        public static string AddNewClauseLabel
+        {
+            get
+            {
+                return Keys.GetString(Keys.AddNewClauseLabel);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -12865,6 +12881,12 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string TableColumnDefaultConstraintNamePropertyTitle = "TableColumnDefaultConstraintNamePropertyTitle";
+
+
+            public const string AddNewEdgeConstraintLabel = "AddNewEdgeConstraintLabel";
+
+
+            public const string AddNewClauseLabel = "AddNewClauseLabel";
 
 
             private Keys()
