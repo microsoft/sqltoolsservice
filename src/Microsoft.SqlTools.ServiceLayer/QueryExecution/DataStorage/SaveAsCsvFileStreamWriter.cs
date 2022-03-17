@@ -40,8 +40,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// request params.
         /// </param>
         public SaveAsCsvFileStreamWriter(Stream stream, SaveResultsAsCsvRequestParams requestParams, IReadOnlyList<DbColumnWrapper> columns)
-            : base(stream, requestParams)
+            : base(stream, requestParams, columns)
         {
+            Validate.IsNotNull(nameof(stream), stream);
             Validate.IsNotNull(nameof(columns), columns);
 
             // Parse the config

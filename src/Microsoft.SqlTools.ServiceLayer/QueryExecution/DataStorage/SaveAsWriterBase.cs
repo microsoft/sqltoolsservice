@@ -21,7 +21,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </summary>
         /// <param name="stream">The stream that will be written to</param>
         /// <param name="requestParams">The SaveAs request parameters</param>
-        protected SaveAsStreamWriter(Stream stream, SaveResultsRequestParams requestParams)
+        /// <param name="columns">
+        /// The entire list of columns for the result set. They will be filtered down as per the
+        /// request params.
+        /// </param>
+        protected SaveAsStreamWriter(Stream stream, SaveResultsRequestParams requestParams, IReadOnlyList<DbColumnWrapper> columns)
         {
             FileStream = stream;
             if (requestParams.IsSaveSelection)
@@ -29,9 +33,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 // ReSharper disable PossibleInvalidOperationException  IsSaveSelection verifies these values exist
                 ColumnStartIndex = requestParams.ColumnStartIndex.Value;
                 ColumnEndIndex = requestParams.ColumnEndIndex.Value;
-                ColumnCount = requestParams.ColumnEndIndex.Value - requestParams.ColumnStartIndex.Value + 1;
                 // ReSharper restore PossibleInvalidOperationException
             }
+            else
+            {
+                // Save request was for the entire result set, use default start/end
+                ColumnStartIndex = 0;
+                ColumnEndIndex = columns.Count - 1;
+            }
+
+            ColumnCount = ColumnEndIndex - ColumnStartIndex + 1;
         }
 
         #region Properties
@@ -39,22 +50,22 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <summary>
         /// Index of the first column to write to the output file
         /// </summary>
-        protected int ColumnStartIndex { get; private set; }
+        protected int ColumnStartIndex { get; }
 
         /// <summary>
         /// Number of columns to write to the output file
         /// </summary>
-        protected int ColumnCount { get; private set; }
+        protected int ColumnCount { get; }
 
         /// <summary>
-        /// Index of the last column to write to the output file
+        /// Index of the last column to write to the output file (inclusive).
         /// </summary>
-        protected int ColumnEndIndex { get; private set; }
+        protected int ColumnEndIndex { get; }
 
         /// <summary>
         /// The file stream to use to write the output file
         /// </summary>
-        protected Stream FileStream { get; private set; }
+        protected Stream FileStream { get; }
 
         #endregion
 

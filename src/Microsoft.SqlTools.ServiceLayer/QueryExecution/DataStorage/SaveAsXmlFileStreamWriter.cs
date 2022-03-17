@@ -39,8 +39,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </summary>
         /// <param name="stream">FileStream to access the JSON file output</param>
         /// <param name="requestParams">XML save as request parameters</param>
-        public SaveAsXmlFileStreamWriter(Stream stream, SaveResultsAsXmlRequestParams requestParams)
-            : base(stream, requestParams)
+        /// <param name="columns">
+        /// The entire list of columns for the result set. They will be filtered down as per the
+        /// request params.
+        /// </param>
+        public SaveAsXmlFileStreamWriter(Stream stream, SaveResultsAsXmlRequestParams requestParams, IReadOnlyList<DbColumnWrapper> columns)
+            : base(stream, requestParams, columns)
         {
             // Setup the internal state
             var encoding = GetEncoding(requestParams);

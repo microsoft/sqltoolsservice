@@ -33,8 +33,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </summary>
         /// <param name="stream">FileStream to access the JSON file output</param>
         /// <param name="requestParams">JSON save as request parameters</param>
-        public SaveAsJsonFileStreamWriter(Stream stream, SaveResultsRequestParams requestParams)
-            : base(stream, requestParams)
+        /// <param name="columns">
+        /// The entire list of columns for the result set. They will be filtered down as per the
+        /// request params.
+        /// </param>
+        public SaveAsJsonFileStreamWriter(Stream stream, SaveResultsRequestParams requestParams, IReadOnlyList<DbColumnWrapper> columns)
+            : base(stream, requestParams, columns)
         {
             // Setup the internal state
             streamWriter = new StreamWriter(stream);

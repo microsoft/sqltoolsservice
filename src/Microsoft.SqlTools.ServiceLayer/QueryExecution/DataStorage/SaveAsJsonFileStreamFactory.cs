@@ -62,7 +62,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         {
             return new SaveAsJsonFileStreamWriter(
                 new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite),
-                SaveRequestParams
+                SaveRequestParams,
+                columns
             );
         }
 

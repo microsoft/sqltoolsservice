@@ -30,8 +30,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </summary>
         /// <param name="stream">FileStream to access the Excel file output</param>
         /// <param name="requestParams">Excel save as request parameters</param>
-        public SaveAsExcelFileStreamWriter(Stream stream, SaveResultsAsExcelRequestParams requestParams)
-            : base(stream, requestParams)
+        /// <param name="columns">
+        /// The entire list of columns for the result set. They will be filtered down as per the
+        /// request params.
+        /// </param>
+        public SaveAsExcelFileStreamWriter(Stream stream, SaveResultsAsExcelRequestParams requestParams, IReadOnlyList<DbColumnWrapper> columns)
+            : base(stream, requestParams, columns)
         {
             saveParams = requestParams;
             helper = new SaveAsExcelFileStreamWriterHelper(stream);
