@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph;
+using Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecutionGraph;
 using Microsoft.SqlTools.Utility;
 using System.Diagnostics;
 using Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts;

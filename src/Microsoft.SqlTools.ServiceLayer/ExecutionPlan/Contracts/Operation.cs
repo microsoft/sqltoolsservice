@@ -31,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         /// Instantiates an operation DTO
         /// </summary>
         /// <param name="operation">Operation object that will be used to create the DTO.</param>
-        public Operation(ExecPlanGraph.Operation operation)
+        public Operation(ExecutionGraph.Operation operation)
         {
             Name = operation.Name;
             DisplayName = operation.DisplayName;

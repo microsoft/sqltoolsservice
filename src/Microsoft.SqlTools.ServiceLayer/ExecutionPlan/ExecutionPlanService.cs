@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts;
-using Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph;
-using Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph.Comparison;
+using Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecutionGraph;
+using Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecutionGraph.Comparison;
 
 namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
 {

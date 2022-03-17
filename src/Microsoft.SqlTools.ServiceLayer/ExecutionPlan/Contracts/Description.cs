@@ -4,7 +4,7 @@
 //
 
 using System.Collections.Generic;
-using Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecPlanGraph;
+using Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecutionGraph;
 
 namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
 {
@@ -38,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         /// Instantiates a DescriptionDTO
         /// </summary>
         /// <param name="description">The description object that will be used to create the DTO</param>
-        public Description(ExecPlanGraph.Description description)
+        public Description(ExecutionGraph.Description description)
         {
             Title = description.Title;
             QueryText = description.QueryText;
