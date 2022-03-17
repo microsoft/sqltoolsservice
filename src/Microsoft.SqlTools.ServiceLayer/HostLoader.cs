@@ -35,6 +35,7 @@ using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.NotebookConvert;
 using Microsoft.SqlTools.ServiceLayer.ModelManagement;
 using Microsoft.SqlTools.ServiceLayer.TableDesigner;
+using Microsoft.SqlTools.ServiceLayer.AzureBlob;
 
 namespace Microsoft.SqlTools.ServiceLayer
 {
@@ -161,6 +162,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
             TableDesignerService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(TableDesignerService.Instance);
+
+            BlobService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(BlobService.Instance);
 
             InitializeHostedServices(serviceProvider, serviceHost);
             serviceHost.ServiceProvider = serviceProvider;

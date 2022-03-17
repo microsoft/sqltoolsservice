@@ -125,9 +125,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             // Create restore config
             serviceHost.SetRequestHandler(RestoreConfigInfoRequest.Type, HandleRestoreConfigInfoRequest);
 
-            // Create shared access secret
-            serviceHost.SetRequestHandler(CreateSasRequest.Type, HandleCreateSasRequest);
-
             // Register file path validation callbacks
             FileBrowserServiceInstance.RegisterValidatePathsCallback(FileValidationServiceConstants.Backup, DisasterRecoveryFileValidator.ValidatePaths);
             FileBrowserServiceInstance.RegisterValidatePathsCallback(FileValidationServiceConstants.Restore, DisasterRecoveryFileValidator.ValidatePaths);
@@ -441,35 +438,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         internal void ScriptBackup(BackupOperation backupOperation)
         {
             backupOperation.Execute(TaskExecutionMode.Script);
-        }
-
-        internal async Task HandleCreateSasRequest(
-           CreateSasParams optionsParams,
-           RequestContext<CreateSasResponse> requestContext)
-        {
-            try
-            {
-                ConnectionInfo connInfo;
-                bool supported = IsBackupRestoreOperationSupported(optionsParams.OwnerUri, out connInfo);
-                var response = new CreateSasResponse();
-
-                if (supported && connInfo != null)
-                {
-                    SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Backup");
-                    // Connection gets discounnected when backup is done
-                    ServerConnection serverConnection = new ServerConnection(sqlConn);
-                    Server sqlServer = new Server(serverConnection);
-
-                    SharedAccessSignatureCreator sharedAccessSignatureCreator = new SharedAccessSignatureCreator(sqlServer);
-                    string sharedAccessSignature = sharedAccessSignatureCreator.CreateSqlSASCredential(optionsParams.StorageAccountName, optionsParams.BlobContainerKey, optionsParams.BlobContainerUri);
-                    response.SharedAccessSignature = sharedAccessSignature;
-                }
-                await requestContext.SendResult(response);
-            }
-            catch (Exception ex)
-            {
-                await requestContext.SendError(ex.ToString());
-            }
         }
     }
 }

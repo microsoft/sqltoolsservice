@@ -77,6 +77,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         private bool? isTailLogBackupWithNoRecoveryPossible = null;
         private string backupMediaList = string.Empty;
         private Server server;
+        private DeviceType[] supportedDeviceTypes = { DeviceType.File, DeviceType.Url };
 
         public RestoreDatabaseTaskDataObject(Server server, String databaseName)
         {
@@ -197,9 +198,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         /// <param name="filePaths"></param>
         public void AddDevices(string filePaths, DeviceType deviceType)
         {
-            if (deviceType != DeviceType.File && deviceType != DeviceType.Url)
+            if (isSupportedDeviceType(deviceType))
             {
-                deviceType = DeviceType.File;
+                throw new UnsupportedDeviceTypeException(deviceType);
             }
             backupMediaList = filePaths;
             PlanUpdateRequired = true;
@@ -225,6 +226,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                     this.RestorePlanner.BackupMediaList.Remove(item);
                 }
             }
+        }
+
+        private bool isSupportedDeviceType(DeviceType deviceType)
+        {
+            return supportedDeviceTypes.Contains(deviceType);
         }
 
         

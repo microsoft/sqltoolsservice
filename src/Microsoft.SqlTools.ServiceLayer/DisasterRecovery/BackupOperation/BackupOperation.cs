@@ -29,7 +29,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         private ServerConnection serverConnection;
         private CommonUtilities backupRestoreUtil = null;
         private Backup backup = null;
-        private SharedAccessSignatureCreator sharedAccessSignatureCreator = null;
 
         /// <summary>
         /// Constants

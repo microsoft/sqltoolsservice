@@ -6,7 +6,7 @@ using Moq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Azure.Storage.Blobs;
-using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
+using Microsoft.SqlTools.ServiceLayer.AzureBlob;
 using Microsoft.SqlServer.Management.Smo;
 using Azure.Storage.Sas;
 
@@ -22,8 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
             mockBlobContainerClient.Setup(x => x.CanGenerateSasUri).Returns(false);
             var mockServer = new Server();
             SharedAccessSignatureCreator sharedAccessSignatureCreator = new SharedAccessSignatureCreator(mockServer);
-            Uri result = sharedAccessSignatureCreator.GetServiceSasUriForContainer(mockBlobContainerClient.Object);
-            Assert.AreEqual(result, null);
+            Assert.Throws<FailedOperationException>(() => sharedAccessSignatureCreator.GetServiceSasUriForContainer(mockBlobContainerClient.Object));
         }
 
         [Test]

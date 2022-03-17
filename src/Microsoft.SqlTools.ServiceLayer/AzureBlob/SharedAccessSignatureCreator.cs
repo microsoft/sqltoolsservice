@@ -9,11 +9,13 @@ using Azure.Storage;
 using Azure.Storage.Sas;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.Data.SqlClient;
+using Microsoft.SqlTools.ServiceLayer.AzureBlob.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
+namespace Microsoft.SqlTools.ServiceLayer.AzureBlob
 {
     class SharedAccessSignatureCreator
     {
+
 
         private Server sqlServer;
 
@@ -56,20 +58,14 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 Credential oldCredential = credentials[credentialName];
                 oldCredential.Drop();
             }
-            sqlServer.Credentials.Refresh();
 
-            credentials = sqlServer.Credentials;
-
-            if (!credentials.Contains(credentialName))
+            try
             {
-                try
-                {
-                    azureCredential.Create(identity, secretString);
-                }
-                catch (Exception ex)
-                {
-                    throw new FailedOperationException("Create credential failed.", ex);
-                }
+                azureCredential.Create(identity, secretString);
+            }
+            catch (Exception ex)
+            {
+                throw new FailedOperationException("Create credential failed.", ex);
             }
             return azureCredential;
         }
@@ -82,7 +78,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         /// <param name="policyName"></param>
         /// <param name="selectedSaredAccessExpiryTime"></param>
         public Uri GetServiceSasUriForContainer(BlobContainerClient containerClient,
-                                          string storedPolicyName = null)
+                                          string storedPolicyName = null,
+                                          DateTimeOffset? expiringDate = null)
         {
             // Check whether this BlobContainerClient object has been authorized with Shared Key.
             if (containerClient.CanGenerateSasUri)
@@ -91,12 +88,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 BlobSasBuilder sasBuilder = new BlobSasBuilder()
                 {
                     BlobContainerName = containerClient.Name,
-                    Resource = "c"
+                    Resource = BlobSasResource.BLOB_CONTAINER
                 };
 
                 if (storedPolicyName == null)
                 {
-                    sasBuilder.ExpiresOn = DateTimeOffset.UtcNow.AddYears(1);
+                    sasBuilder.ExpiresOn = (DateTimeOffset)(expiringDate == null ? DateTimeOffset.UtcNow.AddYears(1) : expiringDate);
                     sasBuilder.SetPermissions(BlobContainerSasPermissions.Read | BlobContainerSasPermissions.List | BlobContainerSasPermissions.Write | BlobContainerSasPermissions.Delete);
                 }
                 else
@@ -109,8 +106,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             }
             else
             {
-                return null;
-            }
+                throw new FailedOperationException("Cannot generate SAS URI for blob container");            }
         }
     }
 }

@@ -5,7 +5,7 @@
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
+namespace Microsoft.SqlTools.ServiceLayer.AzureBlob.Contracts
 {
     /// <summary>
     /// Parameters passed for creating shared access signature
@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
     public class CreateSasParams
     {
         /// <summary>
-        /// Sql server URI
+        /// Connection URI
         /// </summary>
         public string OwnerUri { get; set; }
         /// <summary>
