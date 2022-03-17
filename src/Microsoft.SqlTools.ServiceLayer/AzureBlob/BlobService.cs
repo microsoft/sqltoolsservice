@@ -76,7 +76,7 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureBlob
                     Server sqlServer = new Server(serverConnection);
 
                     SharedAccessSignatureCreator sharedAccessSignatureCreator = new SharedAccessSignatureCreator(sqlServer);
-                    string sharedAccessSignature = sharedAccessSignatureCreator.CreateSqlSASCredential(optionsParams.StorageAccountName, optionsParams.BlobContainerKey, optionsParams.BlobContainerUri);
+                    string sharedAccessSignature = sharedAccessSignatureCreator.CreateSqlSASCredential(optionsParams.StorageAccountName, optionsParams.BlobContainerKey, optionsParams.BlobContainerUri, optionsParams.ExpirationDate);
                     response.SharedAccessSignature = sharedAccessSignature;
                 }
                 await requestContext.SendResult(response);

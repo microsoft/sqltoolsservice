@@ -24,10 +24,15 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureBlob
             this.sqlServer = sqlServer;
         }
 
-        public string CreateSqlSASCredential(string accountName, string accountKey, string containerUri)
+        public string CreateSqlSASCredential(string accountName, string accountKey, string containerUri, string expirationDateString)
         {
+            DateTimeOffset? expirationDate = null;
+            if (!String.IsNullOrEmpty(expirationDateString))
+            {
+                expirationDate = DateTimeOffset.Parse(expirationDateString);
+            }
             var containerClient = new BlobContainerClient(new Uri(containerUri), new StorageSharedKeyCredential(accountName, accountKey));
-            Uri secretStringUri = GetServiceSasUriForContainer(containerClient);
+            Uri secretStringUri = GetServiceSasUriForContainer(containerClient, null, expirationDate);
             string secretString = secretStringUri.ToString().Split('?')[1];
             string identity = "Shared Access Signature";
             WriteSASCredentialToSqlServer(containerUri, identity, secretString);
