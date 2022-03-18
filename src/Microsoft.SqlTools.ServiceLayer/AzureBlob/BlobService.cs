@@ -34,8 +34,6 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureBlob
 
         public void InitializeService(IProtocolEndpoint serviceHost)
         {
-
-            // Create shared access secret
             serviceHost.SetRequestHandler(CreateSasRequest.Type, HandleCreateSasRequest);
         }
 
