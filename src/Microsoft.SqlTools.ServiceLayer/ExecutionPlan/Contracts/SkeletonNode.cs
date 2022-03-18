@@ -8,7 +8,10 @@ using System.Collections.Generic;
 namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
 {
     /// <summary>
-    /// A simpler version of a node because of the reduced amount of properties.
+    /// A SkeletonNode is composed of an execution plan node, but has additional properties
+    /// to keep track of matching skeleton nodes for execution plan nodes present in the
+    /// the graph being compared against. This class also features a group index that can assist
+    /// with coloring similar sections of execution plans in the UI.
     /// </summary>
     public class SkeletonNode
     {
