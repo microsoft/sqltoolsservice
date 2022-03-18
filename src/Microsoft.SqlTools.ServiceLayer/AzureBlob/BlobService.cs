@@ -44,19 +44,27 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureBlob
             try
             {
                 ConnectionInfo connInfo;
-                bool supported = IsBackupRestoreOperationSupported(optionsParams.OwnerUri, out connInfo);
+                ConnectionService.Instance.TryFindConnection(
+                       optionsParams.OwnerUri,
+                       out connInfo);
                 var response = new CreateSasResponse();
 
-                if (supported && connInfo != null)
+                if (connInfo != null && !connInfo.IsCloud)
                 {
-                    SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Backup");
-                    // Connection gets discounnected when backup is done
-                    ServerConnection serverConnection = new ServerConnection(sqlConn);
-                    Server sqlServer = new Server(serverConnection);
+                    using (
+                    SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "AzureBlob"))
+                    {
+                        // Connection gets discounnected when backup is done
+                        ServerConnection serverConnection = new ServerConnection(sqlConn);
+                        Server sqlServer = new Server(serverConnection);
 
-                    SharedAccessSignatureCreator sharedAccessSignatureCreator = new SharedAccessSignatureCreator(sqlServer);
-                    string sharedAccessSignature = sharedAccessSignatureCreator.CreateSqlSASCredential(optionsParams.StorageAccountName, optionsParams.BlobContainerKey, optionsParams.BlobContainerUri, optionsParams.ExpirationDate);
-                    response.SharedAccessSignature = sharedAccessSignature;
+                        SharedAccessSignatureCreator sharedAccessSignatureCreator = new SharedAccessSignatureCreator(sqlServer);
+                        string sharedAccessSignature = sharedAccessSignatureCreator.CreateSqlSASCredential(optionsParams.StorageAccountName, optionsParams.BlobContainerKey, optionsParams.BlobContainerUri, optionsParams.ExpirationDate);
+                        response.SharedAccessSignature = sharedAccessSignature;
+                    }
+                } else
+                {
+                    await requestContext.SendError("Create shared access signature is not supported opeation.");
                 }
                 await requestContext.SendResult(response);
             }
@@ -64,39 +72,6 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureBlob
             {
                 await requestContext.SendError(ex.ToString());
             }
-        }
-
-        private bool IsBackupRestoreOperationSupported(string ownerUri, out ConnectionInfo connectionInfo)
-        {
-            SqlConnection sqlConn = null;
-            try
-            {
-                ConnectionInfo connInfo;
-                ConnectionService.Instance.TryFindConnection(
-                        ownerUri,
-                        out connInfo);
-
-                if (connInfo != null)
-                {
-                    using (sqlConn = ConnectionService.OpenSqlConnection(connInfo, "AzureBlob"))
-                    {
-                        if (sqlConn != null && !connInfo.IsCloud)
-                        {
-                            connectionInfo = connInfo;
-                            return true;
-                        }
-                    }
-                }
-            }
-            catch
-            {
-                if (sqlConn != null && sqlConn.State == System.Data.ConnectionState.Open)
-                {
-                    sqlConn.Close();
-                }
-            }
-            connectionInfo = null;
-            return false;
         }
     }
 }
