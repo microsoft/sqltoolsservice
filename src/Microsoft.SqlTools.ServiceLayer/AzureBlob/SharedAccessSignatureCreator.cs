@@ -7,8 +7,6 @@ using Microsoft.SqlServer.Management.Smo;
 using Azure.Storage.Blobs;
 using Azure.Storage;
 using Azure.Storage.Sas;
-using Microsoft.SqlServer.Management.Common;
-using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.ServiceLayer.AzureBlob.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.AzureBlob
