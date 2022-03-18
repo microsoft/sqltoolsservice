@@ -146,12 +146,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             string output = writer.EncodeCsvField(field);
 
             // Then: It should wrap it in quotes
-            Assert.True(Regex.IsMatch(output, "^\".*\"$"));
+            Assert.True(Regex.IsMatch(output, "^\".*\"$", RegexOptions.Singleline));
         }
 
         [TestCase("Something\rElse")] // Contains carriage return [TODO: Don't support this]
         [TestCase("Something\nElse")] // Contains line feed [TODO: Don't support this]
-        [TestCase("Something[Else")] // Contains default text identifier
+        [TestCase("Something[Else")]  // Contains default text identifier
         [TestCase("Something$Else")]  // Contains field separator
         //[TestCase("Something||Else")] // Contains line break [TODO: Support this]
         public void EncodeCsvField_ContainsNonDefaultControlCharacters_ShouldBeWrapped(string field)
@@ -163,7 +163,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             string output = writer.EncodeCsvField(field);
 
             // Then: It should wrap it in quotes
-            Assert.True(Regex.IsMatch(output, "^\\[.*\\]$"));
+            Assert.True(Regex.IsMatch(output, @"^\[.*\[$", RegexOptions.Singleline));
         }
 
         [TestCase("\tSomething")] // Starts with tab
@@ -184,7 +184,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             string output = writer.EncodeCsvField(field);
 
             // Then: It should wrap it in quotes
-            Assert.True(Regex.IsMatch(output, "^\".*\"$"));
+            Assert.True(Regex.IsMatch(output, "^\".*\"$", RegexOptions.Singleline));
         }
 
         [TestCase("Something")]
@@ -203,14 +203,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
         }
 
         [TestCase(null, "Some\"thing", "\"Some\"\"thing\"")] // Default identifier
-        [TestCase("||", "Some|thing", "|Some||thing|")]      // Default identifier
+        [TestCase("|$", "Some|thing", "|Some||thing|")]      // Custom identifier
         public void EncodeCsvField_ContainsTextIdentifier_DoublesIdentifierAndWraps(
             string configuredIdentifier,
             string input,
             string expectedOutput)
         {
             // Setup: Create CsvFileStreamWriter that specifies the text identifier and field separator
-            var writer = GetWriterForEncodingTests(null, "|foo", null);
+            var writer = GetWriterForEncodingTests(null, configuredIdentifier, null);
 
             // If: I CSV encode a field that has a double quote in it,
             string output = writer.EncodeCsvField(input);

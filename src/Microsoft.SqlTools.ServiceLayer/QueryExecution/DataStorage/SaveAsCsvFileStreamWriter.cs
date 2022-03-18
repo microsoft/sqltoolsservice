@@ -9,7 +9,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
-using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 {
@@ -42,9 +41,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         public SaveAsCsvFileStreamWriter(Stream stream, SaveResultsAsCsvRequestParams requestParams, IReadOnlyList<DbColumnWrapper> columns)
             : base(stream, requestParams, columns)
         {
-            Validate.IsNotNull(nameof(stream), stream);
-            Validate.IsNotNull(nameof(columns), columns);
-
             // Parse the config
             delimiter = ',';
             if (!string.IsNullOrEmpty(requestParams.Delimiter))
