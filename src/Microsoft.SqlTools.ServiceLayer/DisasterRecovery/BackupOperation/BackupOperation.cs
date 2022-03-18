@@ -16,7 +16,6 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
-using Azure.Storage.Blobs;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 {
