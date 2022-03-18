@@ -36,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureBlob.Contracts
     }
 
     /// <summary>
-    /// Response class for backup execution
+    /// Response class for creating shared access signature
     /// </summary>
     public class CreateSasResponse
     {
@@ -45,7 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureBlob.Contracts
     }
 
     /// <summary>
-    /// Request class for backup execution
+    /// Request class for creating shared access signature
     /// </summary>
     public class CreateSasRequest
     {

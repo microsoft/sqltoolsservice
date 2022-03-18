@@ -10,7 +10,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
 {
     class SharedAccessSignatureCreatorTests
     {
-
         [Test]
         public void GetServiceSasUriForContainerReturnsNullWhenCannotGenerateSasUri()
         {
