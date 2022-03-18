@@ -5661,8 +5661,8 @@
         <note></note>
       </trans-unit>
       <trans-unit id="ForeignKeyIsNotForReplicationDescription">
-        <source>Enables or disables an IDENTITY constraint for data inserted by a replication process.</source>
-        <target state="translated">Aktiviert oder deaktiviert eine IDENTITY-Einschränkung für Daten, die durch einen Replikationsvorgang eingefügt werden.</target>
+        <source>Enables or disables the constraint for data inserted by a replication process.</source>
+        <target state="translated">Aktiviert oder deaktiviert die Einschränkung für Daten, die durch einen Replikationsvorgang eingefügt werden.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="SqlForeignKeyAction_NoAction">
@@ -5684,12 +5684,6 @@
         <source>Set Default</source>
         <target state="translated">Standard festlegen</target>
         <note></note>
-      </trans-unit>
-      <trans-unit id="UnKnownSqlForeignKeyAction">
-        <source>'{0}' is not a supported SqlForeignKeyAction.</source>
-        <target state="translated">'{0}' ist keine unterstützte SqlForeignKeyAction.</target>
-        <note>.
- Parameters: 0 - name (string) </note>
       </trans-unit>
       <trans-unit id="CheckConstraintIsEnabledDescription">
         <source>Specifies whether the check constraint is Enabled</source>
@@ -5742,6 +5736,11 @@
         <target state="translated">Spalten</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="TableDesignerDeleteColumnConfirmationMessage">
+        <source>Removing a column will also remove it from the indexes and foreign keys. Are you sure you want to continue?</source>
+        <target state="translated">Wenn Sie eine Spalte entfernen, wird sie auch aus den Indizes und Fremdschlüsseln entfernt. Möchten Sie den Vorgang wirklich fortsetzen?</target>
+        <note></note>
+      </trans-unit>
       <trans-unit id="MissingIndexFormat">
         <source>Missing Index (Impact {0}): {1}</source>
         <target state="translated">Fehlender Index (Auswirkung {0}): {1}</target>
@@ -5757,6 +5756,232 @@ Fehlende Indexdetails von {0}
 Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Indexes die Abfragekosten um {1} % verbessert werden können.
 */</target>
         <note>title of missing index details</note>
+      </trans-unit>
+      <trans-unit id="TableDesignerGraphTableTypeTitle">
+        <source>Type</source>
+        <target state="translated">Typ</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerGraphTableTypeEdge">
+        <source>Edge</source>
+        <target state="translated">Edge</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerGraphTableTypeNode">
+        <source>Node</source>
+        <target state="translated">Knoten</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerGraphTableGroupTitle">
+        <source>Graph Table</source>
+        <target state="translated">Graph-Tabelle</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerEdgeConstraintsTabTitle">
+        <source>Edge Constraints</source>
+        <target state="translated">Edge-Einschränkungen</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerEdgeConstraintObjectType">
+        <source>Edge Constraint</source>
+        <target state="translated">Edge-Einschränkung</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerEdgeConstraintNamePropertyDescription">
+        <source>Name of the constraint.</source>
+        <target state="translated">Name der Einschränkung.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerEdgeConstraintNamePropertyTitle">
+        <source>Name</source>
+        <target state="translated">Name</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerEdgeConstraintIsEnabledPropertyDescription">
+        <source>Specifies whether the constraint is enabled.</source>
+        <target state="translated">Gibt an, ob die Einschränkung aktiviert ist.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerEdgeConstraintIsEnabledPropertyTitle">
+        <source>Is Enabled</source>
+        <target state="translated">Ist aktiviert</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerEdgeConstraintOnDeleteActionPropertyDescription">
+        <source>The behavior when a user tries to delete a row with data that is involved in an edge constraint.</source>
+        <target state="translated">Das Verhalten, wenn ein Benutzer versucht, eine Zeile mit Daten zu löschen, die an einer Edge-Einschränkung beteiligt sind.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerEdgeConstraintOnDeleteActionPropertyTitle">
+        <source>On Delete Action</source>
+        <target state="translated">Bei Löschvorgang</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerEdgeConstraintClausesPropertyDescription">
+        <source>Edge constraint clauses.</source>
+        <target state="translated">Edge-Einschränkungsklauseln.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerEdgeConstraintClausesPropertyTitle">
+        <source>Clauses</source>
+        <target state="translated">Anweisungen</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerEdgeConstraintClauseObjectType">
+        <source>Clause</source>
+        <target state="translated">Klausel</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerEdgeConstraintClauseFromTablePropertyName">
+        <source>From Table</source>
+        <target state="translated">Von Tabelle</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerEdgeConstraintClauseToTablePropertyName">
+        <source>To Table</source>
+        <target state="translated">Zur Tabelle</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerGraphTableTypeNone">
+        <source>None</source>
+        <target state="translated">Keine</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerGraphTableTypeDescription">
+        <source>Specifies the table type.</source>
+        <target state="translated">Gibt den Tabellentyp an.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="UnknownEnumString">
+        <source>Unknown enum value: {0}.</source>
+        <target state="translated">Unbekannter Enumerationswert: {0}.</target>
+        <note>.
+ Parameters: 0 - name (string) </note>
+      </trans-unit>
+      <trans-unit id="SqlTableDurability_SchemaAndData">
+        <source>Schema and Data</source>
+        <target state="translated">Schema und Daten</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SqlTableDurability_SchemaOnly">
+        <source>Schema Only</source>
+        <target state="translated">Nur Schema</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_None">
+        <source>None</source>
+        <target state="translated">Keine</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_RowStart">
+        <source>Row start</source>
+        <target state="translated">Zeilenanfang</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_RowEnd">
+        <source>Row End</source>
+        <target state="translated">Zeilenende</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerIsSystemVersioningEnabledTitle">
+        <source>System Versioning Enabled</source>
+        <target state="translated">Systemversionsverwaltung aktiviert</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerIsSystemVersioningEnabledDescription">
+        <source>Specifies whether the table is system versioning enabled.</source>
+        <target state="translated">Gibt an, ob die Systemversionsverwaltung für die Tabelle aktiviert ist.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerSystemVersioningGroupTitle">
+        <source>System Versioning</source>
+        <target state="translated">Systemversionsverwaltung</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerHistoryTableDescription">
+        <source>History table of the current table.</source>
+        <target state="translated">Verlaufstabelle der aktuellen Tabelle.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerHistoryTableTitle">
+        <source>History Table</source>
+        <target state="translated">Verlaufstabelle</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerIsMemoryOptimizedDescription">
+        <source>Specifies whether the table is memory optimized.</source>
+        <target state="translated">Gibt an, ob die Tabelle arbeitsspeicheroptimiert ist.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerMemoryOptimizedGroupTitle">
+        <source>Memory Optimized</source>
+        <target state="translated">Arbeitsspeicheroptimiert</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerIsMemoryOptimizedTitle">
+        <source>Memory Optimized</source>
+        <target state="translated">Arbeitsspeicheroptimiert</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerDurabilityDescription">
+        <source>Specifies the durability setting of the table.</source>
+        <target state="translated">Gibt die Einstellung für die Dauerhaftigkeit der Tabelle an.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerDurabilityTitle">
+        <source>Durability</source>
+        <target state="translated">Dauerhaftigkeit</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerColumnGeneratedAlwaysAsDescription">
+        <source>Specifies the start or end of the system versioning table's period setting.</source>
+        <target state="translated">Gibt den Anfang oder das Ende der Periodeneinstellung der Systemversionsverwaltungstabelle an.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerColumnGeneratedAlwaysAsTitle">
+        <source>Generated Always As</source>
+        <target state="translated">„Immer als“ generiert</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerColumnIsHiddenTitle">
+        <source>Is Hidden</source>
+        <target state="translated">Ist verborgen</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerColumnIsHiddenDescription">
+        <source>Specifies whether the column will be returned by select statement.</source>
+        <target state="translated">Gibt an, ob die Spalte von der „select“-Anweisung zurückgegeben wird.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerAutoCreateHistoryTableDescription">
+        <source>Specifies whether the engine should automatically create the history table.</source>
+        <target state="translated">Gibt an, ob das Modul die Verlaufstabelle automatisch erstellen soll.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerAutoCreateHistoryTableTitle">
+        <source>Auto Create History Table</source>
+        <target state="translated">Verlaufstabelle automatisch erstellen</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerNewHistoryTableDescription">
+        <source>Specifies the name of the new history table.</source>
+        <target state="translated">Gibt den Namen der neuen Verlaufstabelle an.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerNewHistoryTableTitle">
+        <source>New History Table Name</source>
+        <target state="translated">Neuer Verlaufstabellenname</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnDefaultConstraintNamePropertyDescription">
+        <source>Specifies the default constraint name.</source>
+        <target state="translated">Gibt den Standardeinschränkungsnamen an.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnDefaultConstraintNamePropertyTitle">
+        <source>Default Constraint Name</source>
+        <target state="translated">Standardeinschränkungsname</target>
+        <note></note>
       </trans-unit>
     </body>
   </file>

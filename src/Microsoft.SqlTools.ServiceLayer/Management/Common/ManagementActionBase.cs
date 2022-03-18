@@ -4,19 +4,10 @@
 //
 
 using System;
-using System.Collections;
 using System.Collections.Specialized;
-using System.Data;
-using System.Diagnostics;
-using System.IO;
-using System.Threading;
 using System.Text;
-using System.Xml;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Diagnostics;
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlTools.ServiceLayer.Admin;
-using Microsoft.SqlTools.ServiceLayer.Agent;
 
 namespace Microsoft.SqlTools.ServiceLayer.Management
 {

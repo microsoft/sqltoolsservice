@@ -8,14 +8,12 @@ using System.Collections.Generic;
 using System.Data;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo.Agent;
-using SMO = Microsoft.SqlServer.Management.Smo;
 
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
-     /// <summary>
+    /// <summary>
     /// severity associated with a log entry (ILogEntry)
     //  these should be ordered least severe to most severe where possible.
     /// </summary>

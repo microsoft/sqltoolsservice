@@ -8653,6 +8653,374 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string TableDesignerGraphTableGroupTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerGraphTableGroupTitle);
+            }
+        }
+
+        public static string TableDesignerGraphTableTypeTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerGraphTableTypeTitle);
+            }
+        }
+
+        public static string TableDesignerGraphTableTypeDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerGraphTableTypeDescription);
+            }
+        }
+
+        public static string TableDesignerGraphTableTypeEdge
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerGraphTableTypeEdge);
+            }
+        }
+
+        public static string TableDesignerGraphTableTypeNode
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerGraphTableTypeNode);
+            }
+        }
+
+        public static string TableDesignerGraphTableTypeNone
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerGraphTableTypeNone);
+            }
+        }
+
+        public static string TableDesignerEdgeConstraintsTabTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerEdgeConstraintsTabTitle);
+            }
+        }
+
+        public static string TableDesignerEdgeConstraintObjectType
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerEdgeConstraintObjectType);
+            }
+        }
+
+        public static string TableDesignerEdgeConstraintNamePropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerEdgeConstraintNamePropertyDescription);
+            }
+        }
+
+        public static string TableDesignerEdgeConstraintNamePropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerEdgeConstraintNamePropertyTitle);
+            }
+        }
+
+        public static string TableDesignerEdgeConstraintIsEnabledPropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerEdgeConstraintIsEnabledPropertyDescription);
+            }
+        }
+
+        public static string TableDesignerEdgeConstraintIsEnabledPropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerEdgeConstraintIsEnabledPropertyTitle);
+            }
+        }
+
+        public static string TableDesignerEdgeConstraintOnDeleteActionPropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerEdgeConstraintOnDeleteActionPropertyDescription);
+            }
+        }
+
+        public static string TableDesignerEdgeConstraintOnDeleteActionPropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerEdgeConstraintOnDeleteActionPropertyTitle);
+            }
+        }
+
+        public static string TableDesignerEdgeConstraintClausesPropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerEdgeConstraintClausesPropertyDescription);
+            }
+        }
+
+        public static string TableDesignerEdgeConstraintClausesPropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerEdgeConstraintClausesPropertyTitle);
+            }
+        }
+
+        public static string TableDesignerEdgeConstraintClauseObjectType
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerEdgeConstraintClauseObjectType);
+            }
+        }
+
+        public static string TableDesignerEdgeConstraintClauseFromTablePropertyName
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerEdgeConstraintClauseFromTablePropertyName);
+            }
+        }
+
+        public static string TableDesignerEdgeConstraintClauseToTablePropertyName
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerEdgeConstraintClauseToTablePropertyName);
+            }
+        }
+
+        public static string SqlTableDurability_SchemaAndData
+        {
+            get
+            {
+                return Keys.GetString(Keys.SqlTableDurability_SchemaAndData);
+            }
+        }
+
+        public static string SqlTableDurability_SchemaOnly
+        {
+            get
+            {
+                return Keys.GetString(Keys.SqlTableDurability_SchemaOnly);
+            }
+        }
+
+        public static string GeneratedAlwaysColumnType_None
+        {
+            get
+            {
+                return Keys.GetString(Keys.GeneratedAlwaysColumnType_None);
+            }
+        }
+
+        public static string GeneratedAlwaysColumnType_RowStart
+        {
+            get
+            {
+                return Keys.GetString(Keys.GeneratedAlwaysColumnType_RowStart);
+            }
+        }
+
+        public static string GeneratedAlwaysColumnType_RowEnd
+        {
+            get
+            {
+                return Keys.GetString(Keys.GeneratedAlwaysColumnType_RowEnd);
+            }
+        }
+
+        public static string TableDesignerIsSystemVersioningEnabledTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerIsSystemVersioningEnabledTitle);
+            }
+        }
+
+        public static string TableDesignerIsSystemVersioningEnabledDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerIsSystemVersioningEnabledDescription);
+            }
+        }
+
+        public static string TableDesignerSystemVersioningGroupTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerSystemVersioningGroupTitle);
+            }
+        }
+
+        public static string TableDesignerHistoryTableDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerHistoryTableDescription);
+            }
+        }
+
+        public static string TableDesignerHistoryTableTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerHistoryTableTitle);
+            }
+        }
+
+        public static string TableDesignerIsMemoryOptimizedDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerIsMemoryOptimizedDescription);
+            }
+        }
+
+        public static string TableDesignerMemoryOptimizedGroupTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerMemoryOptimizedGroupTitle);
+            }
+        }
+
+        public static string TableDesignerIsMemoryOptimizedTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerIsMemoryOptimizedTitle);
+            }
+        }
+
+        public static string TableDesignerDurabilityDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerDurabilityDescription);
+            }
+        }
+
+        public static string TableDesignerDurabilityTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerDurabilityTitle);
+            }
+        }
+
+        public static string TableDesignerColumnGeneratedAlwaysAsDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerColumnGeneratedAlwaysAsDescription);
+            }
+        }
+
+        public static string TableDesignerColumnGeneratedAlwaysAsTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerColumnGeneratedAlwaysAsTitle);
+            }
+        }
+
+        public static string TableDesignerColumnIsHiddenTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerColumnIsHiddenTitle);
+            }
+        }
+
+        public static string TableDesignerColumnIsHiddenDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerColumnIsHiddenDescription);
+            }
+        }
+
+        public static string TableDesignerAutoCreateHistoryTableDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerAutoCreateHistoryTableDescription);
+            }
+        }
+
+        public static string TableDesignerAutoCreateHistoryTableTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerAutoCreateHistoryTableTitle);
+            }
+        }
+
+        public static string TableDesignerNewHistoryTableDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerNewHistoryTableDescription);
+            }
+        }
+
+        public static string TableDesignerNewHistoryTableTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerNewHistoryTableTitle);
+            }
+        }
+
+        public static string TableColumnDefaultConstraintNamePropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableColumnDefaultConstraintNamePropertyDescription);
+            }
+        }
+
+        public static string TableColumnDefaultConstraintNamePropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableColumnDefaultConstraintNamePropertyTitle);
+            }
+        }
+
+        public static string AddNewEdgeConstraintLabel
+        {
+            get
+            {
+                return Keys.GetString(Keys.AddNewEdgeConstraintLabel);
+            }
+        }
+
+        public static string AddNewClauseLabel
+        {
+            get
+            {
+                return Keys.GetString(Keys.AddNewClauseLabel);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -8953,9 +9321,9 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.InvalidTableEditPathException, path, editType);
         }
 
-        public static string UnKnownSqlForeignKeyAction(string name)
+        public static string UnknownEnumString(string name)
         {
-            return Keys.GetString(Keys.UnKnownSqlForeignKeyAction, name);
+            return Keys.GetString(Keys.UnknownEnumString, name);
         }
 
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -12350,7 +12718,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string SqlForeignKeyAction_SetDefault = "SqlForeignKeyAction_SetDefault";
 
 
-            public const string UnKnownSqlForeignKeyAction = "UnKnownSqlForeignKeyAction";
+            public const string UnknownEnumString = "UnknownEnumString";
 
 
             public const string CheckConstraintIsEnabledDescription = "CheckConstraintIsEnabledDescription";
@@ -12381,6 +12749,144 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string TableDesignerDeleteColumnConfirmationMessage = "TableDesignerDeleteColumnConfirmationMessage";
+
+
+            public const string TableDesignerGraphTableGroupTitle = "TableDesignerGraphTableGroupTitle";
+
+
+            public const string TableDesignerGraphTableTypeTitle = "TableDesignerGraphTableTypeTitle";
+
+
+            public const string TableDesignerGraphTableTypeDescription = "TableDesignerGraphTableTypeDescription";
+
+
+            public const string TableDesignerGraphTableTypeEdge = "TableDesignerGraphTableTypeEdge";
+
+
+            public const string TableDesignerGraphTableTypeNode = "TableDesignerGraphTableTypeNode";
+
+
+            public const string TableDesignerGraphTableTypeNone = "TableDesignerGraphTableTypeNone";
+
+
+            public const string TableDesignerEdgeConstraintsTabTitle = "TableDesignerEdgeConstraintsTabTitle";
+
+
+            public const string TableDesignerEdgeConstraintObjectType = "TableDesignerEdgeConstraintObjectType";
+
+
+            public const string TableDesignerEdgeConstraintNamePropertyDescription = "TableDesignerEdgeConstraintNamePropertyDescription";
+
+
+            public const string TableDesignerEdgeConstraintNamePropertyTitle = "TableDesignerEdgeConstraintNamePropertyTitle";
+
+
+            public const string TableDesignerEdgeConstraintIsEnabledPropertyDescription = "TableDesignerEdgeConstraintIsEnabledPropertyDescription";
+
+
+            public const string TableDesignerEdgeConstraintIsEnabledPropertyTitle = "TableDesignerEdgeConstraintIsEnabledPropertyTitle";
+
+
+            public const string TableDesignerEdgeConstraintOnDeleteActionPropertyDescription = "TableDesignerEdgeConstraintOnDeleteActionPropertyDescription";
+
+
+            public const string TableDesignerEdgeConstraintOnDeleteActionPropertyTitle = "TableDesignerEdgeConstraintOnDeleteActionPropertyTitle";
+
+
+            public const string TableDesignerEdgeConstraintClausesPropertyDescription = "TableDesignerEdgeConstraintClausesPropertyDescription";
+
+
+            public const string TableDesignerEdgeConstraintClausesPropertyTitle = "TableDesignerEdgeConstraintClausesPropertyTitle";
+
+
+            public const string TableDesignerEdgeConstraintClauseObjectType = "TableDesignerEdgeConstraintClauseObjectType";
+
+
+            public const string TableDesignerEdgeConstraintClauseFromTablePropertyName = "TableDesignerEdgeConstraintClauseFromTablePropertyName";
+
+
+            public const string TableDesignerEdgeConstraintClauseToTablePropertyName = "TableDesignerEdgeConstraintClauseToTablePropertyName";
+
+
+            public const string SqlTableDurability_SchemaAndData = "SqlTableDurability_SchemaAndData";
+
+
+            public const string SqlTableDurability_SchemaOnly = "SqlTableDurability_SchemaOnly";
+
+
+            public const string GeneratedAlwaysColumnType_None = "GeneratedAlwaysColumnType_None";
+
+
+            public const string GeneratedAlwaysColumnType_RowStart = "GeneratedAlwaysColumnType_RowStart";
+
+
+            public const string GeneratedAlwaysColumnType_RowEnd = "GeneratedAlwaysColumnType_RowEnd";
+
+
+            public const string TableDesignerIsSystemVersioningEnabledTitle = "TableDesignerIsSystemVersioningEnabledTitle";
+
+
+            public const string TableDesignerIsSystemVersioningEnabledDescription = "TableDesignerIsSystemVersioningEnabledDescription";
+
+
+            public const string TableDesignerSystemVersioningGroupTitle = "TableDesignerSystemVersioningGroupTitle";
+
+
+            public const string TableDesignerHistoryTableDescription = "TableDesignerHistoryTableDescription";
+
+
+            public const string TableDesignerHistoryTableTitle = "TableDesignerHistoryTableTitle";
+
+
+            public const string TableDesignerIsMemoryOptimizedDescription = "TableDesignerIsMemoryOptimizedDescription";
+
+
+            public const string TableDesignerMemoryOptimizedGroupTitle = "TableDesignerMemoryOptimizedGroupTitle";
+
+
+            public const string TableDesignerIsMemoryOptimizedTitle = "TableDesignerIsMemoryOptimizedTitle";
+
+
+            public const string TableDesignerDurabilityDescription = "TableDesignerDurabilityDescription";
+
+
+            public const string TableDesignerDurabilityTitle = "TableDesignerDurabilityTitle";
+
+
+            public const string TableDesignerColumnGeneratedAlwaysAsDescription = "TableDesignerColumnGeneratedAlwaysAsDescription";
+
+
+            public const string TableDesignerColumnGeneratedAlwaysAsTitle = "TableDesignerColumnGeneratedAlwaysAsTitle";
+
+
+            public const string TableDesignerColumnIsHiddenTitle = "TableDesignerColumnIsHiddenTitle";
+
+
+            public const string TableDesignerColumnIsHiddenDescription = "TableDesignerColumnIsHiddenDescription";
+
+
+            public const string TableDesignerAutoCreateHistoryTableDescription = "TableDesignerAutoCreateHistoryTableDescription";
+
+
+            public const string TableDesignerAutoCreateHistoryTableTitle = "TableDesignerAutoCreateHistoryTableTitle";
+
+
+            public const string TableDesignerNewHistoryTableDescription = "TableDesignerNewHistoryTableDescription";
+
+
+            public const string TableDesignerNewHistoryTableTitle = "TableDesignerNewHistoryTableTitle";
+
+
+            public const string TableColumnDefaultConstraintNamePropertyDescription = "TableColumnDefaultConstraintNamePropertyDescription";
+
+
+            public const string TableColumnDefaultConstraintNamePropertyTitle = "TableColumnDefaultConstraintNamePropertyTitle";
+
+
+            public const string AddNewEdgeConstraintLabel = "AddNewEdgeConstraintLabel";
+
+
+            public const string AddNewClauseLabel = "AddNewClauseLabel";
 
 
             private Keys()

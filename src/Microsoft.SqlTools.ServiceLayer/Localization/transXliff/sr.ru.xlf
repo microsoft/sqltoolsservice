@@ -5661,8 +5661,8 @@
         <note></note>
       </trans-unit>
       <trans-unit id="ForeignKeyIsNotForReplicationDescription">
-        <source>Enables or disables an IDENTITY constraint for data inserted by a replication process.</source>
-        <target state="translated">Включает или отключает ограничение IDENTITY для данных, вставленных в процессе репликации.</target>
+        <source>Enables or disables the constraint for data inserted by a replication process.</source>
+        <target state="translated">Включает или отключает ограничение для данных, вставленных в процессе репликации.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="SqlForeignKeyAction_NoAction">
@@ -5684,12 +5684,6 @@
         <source>Set Default</source>
         <target state="translated">Присвоить значение по умолчанию</target>
         <note></note>
-      </trans-unit>
-      <trans-unit id="UnKnownSqlForeignKeyAction">
-        <source>'{0}' is not a supported SqlForeignKeyAction.</source>
-        <target state="translated">"{0}" не является поддерживаемым SqlForeignKeyAction.</target>
-        <note>.
- Parameters: 0 - name (string) </note>
       </trans-unit>
       <trans-unit id="CheckConstraintIsEnabledDescription">
         <source>Specifies whether the check constraint is Enabled</source>
@@ -5742,6 +5736,11 @@
         <target state="translated">Столбцы</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="TableDesignerDeleteColumnConfirmationMessage">
+        <source>Removing a column will also remove it from the indexes and foreign keys. Are you sure you want to continue?</source>
+        <target state="translated">Удаление столбца также приведет к его удалению из индексов и внешних ключей. Вы действительно хотите продолжить?</target>
+        <note></note>
+      </trans-unit>
       <trans-unit id="MissingIndexFormat">
         <source>Missing Index (Impact {0}): {1}</source>
         <target state="translated">Отсутствует индекс (влияние {0}): {1}</target>
@@ -5757,6 +5756,232 @@ The Query Processor estimates that implementing the following index could improv
 Обработчик запросов считает, что реализация следующего индекса может сократить стоимость запроса на {1}%.
 */</target>
         <note>title of missing index details</note>
+      </trans-unit>
+      <trans-unit id="TableDesignerGraphTableTypeTitle">
+        <source>Type</source>
+        <target state="translated">Тип</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerGraphTableTypeEdge">
+        <source>Edge</source>
+        <target state="translated">Граница</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerGraphTableTypeNode">
+        <source>Node</source>
+        <target state="translated">Узел</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerGraphTableGroupTitle">
+        <source>Graph Table</source>
+        <target state="translated">Графовая таблица</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerEdgeConstraintsTabTitle">
+        <source>Edge Constraints</source>
+        <target state="translated">Ограничения границ</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerEdgeConstraintObjectType">
+        <source>Edge Constraint</source>
+        <target state="translated">Ограничение границ</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerEdgeConstraintNamePropertyDescription">
+        <source>Name of the constraint.</source>
+        <target state="translated">Имя ограничения.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerEdgeConstraintNamePropertyTitle">
+        <source>Name</source>
+        <target state="translated">Имя</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerEdgeConstraintIsEnabledPropertyDescription">
+        <source>Specifies whether the constraint is enabled.</source>
+        <target state="translated">Указывает, включено ли ограничение.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerEdgeConstraintIsEnabledPropertyTitle">
+        <source>Is Enabled</source>
+        <target state="translated">Включено</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerEdgeConstraintOnDeleteActionPropertyDescription">
+        <source>The behavior when a user tries to delete a row with data that is involved in an edge constraint.</source>
+        <target state="translated">Поведение, которое реализуется при попытке пользователя удалить строку с данными, задействованную в ограничении границ.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerEdgeConstraintOnDeleteActionPropertyTitle">
+        <source>On Delete Action</source>
+        <target state="translated">При удалении</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerEdgeConstraintClausesPropertyDescription">
+        <source>Edge constraint clauses.</source>
+        <target state="translated">Предложения ограничения границ.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerEdgeConstraintClausesPropertyTitle">
+        <source>Clauses</source>
+        <target state="translated">Предложения</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerEdgeConstraintClauseObjectType">
+        <source>Clause</source>
+        <target state="translated">Предложение</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerEdgeConstraintClauseFromTablePropertyName">
+        <source>From Table</source>
+        <target state="translated">Из таблицы</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerEdgeConstraintClauseToTablePropertyName">
+        <source>To Table</source>
+        <target state="translated">В таблицу</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerGraphTableTypeNone">
+        <source>None</source>
+        <target state="translated">Нет</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerGraphTableTypeDescription">
+        <source>Specifies the table type.</source>
+        <target state="translated">Указывает тип таблицы.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="UnknownEnumString">
+        <source>Unknown enum value: {0}.</source>
+        <target state="translated">Неизвестное значение перечисления: {0}.</target>
+        <note>.
+ Parameters: 0 - name (string) </note>
+      </trans-unit>
+      <trans-unit id="SqlTableDurability_SchemaAndData">
+        <source>Schema and Data</source>
+        <target state="translated">Схема и данные</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SqlTableDurability_SchemaOnly">
+        <source>Schema Only</source>
+        <target state="translated">Только схема</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_None">
+        <source>None</source>
+        <target state="translated">Нет</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_RowStart">
+        <source>Row start</source>
+        <target state="translated">Начало строки</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_RowEnd">
+        <source>Row End</source>
+        <target state="translated">Конец строки</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerIsSystemVersioningEnabledTitle">
+        <source>System Versioning Enabled</source>
+        <target state="translated">Управление версиями системы включено</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerIsSystemVersioningEnabledDescription">
+        <source>Specifies whether the table is system versioning enabled.</source>
+        <target state="translated">Указывает, включено ли управление версиями системы в таблице.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerSystemVersioningGroupTitle">
+        <source>System Versioning</source>
+        <target state="translated">Управление версиями системы</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerHistoryTableDescription">
+        <source>History table of the current table.</source>
+        <target state="translated">Таблица журнала текущей таблицы.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerHistoryTableTitle">
+        <source>History Table</source>
+        <target state="translated">Таблица журнала</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerIsMemoryOptimizedDescription">
+        <source>Specifies whether the table is memory optimized.</source>
+        <target state="translated">Указывает, оптимизирована ли таблица для операций в памяти.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerMemoryOptimizedGroupTitle">
+        <source>Memory Optimized</source>
+        <target state="translated">Оптимизировано для операций в памяти</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerIsMemoryOptimizedTitle">
+        <source>Memory Optimized</source>
+        <target state="translated">Оптимизировано для операций в памяти</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerDurabilityDescription">
+        <source>Specifies the durability setting of the table.</source>
+        <target state="translated">Задает параметр устойчивости таблицы.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerDurabilityTitle">
+        <source>Durability</source>
+        <target state="translated">Устойчивость</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerColumnGeneratedAlwaysAsDescription">
+        <source>Specifies the start or end of the system versioning table's period setting.</source>
+        <target state="translated">Указывает начало или конец задания периода управления версиями системы таблицы.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerColumnGeneratedAlwaysAsTitle">
+        <source>Generated Always As</source>
+        <target state="translated">Столбец \"Generated Always As\"</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerColumnIsHiddenTitle">
+        <source>Is Hidden</source>
+        <target state="translated">Скрыто</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerColumnIsHiddenDescription">
+        <source>Specifies whether the column will be returned by select statement.</source>
+        <target state="translated">Указывает, будет ли столбец возвращен оператором select.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerAutoCreateHistoryTableDescription">
+        <source>Specifies whether the engine should automatically create the history table.</source>
+        <target state="translated">Указывает, должен ли обработчик автоматически создавать таблицу журнала.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerAutoCreateHistoryTableTitle">
+        <source>Auto Create History Table</source>
+        <target state="translated">Автоматическое создание таблицы журнала</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerNewHistoryTableDescription">
+        <source>Specifies the name of the new history table.</source>
+        <target state="translated">Указывает имя новой таблицы журнала.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerNewHistoryTableTitle">
+        <source>New History Table Name</source>
+        <target state="translated">Новое имя таблицы журнала</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnDefaultConstraintNamePropertyDescription">
+        <source>Specifies the default constraint name.</source>
+        <target state="translated">Задает имя ограничения по умолчанию.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnDefaultConstraintNamePropertyTitle">
+        <source>Default Constraint Name</source>
+        <target state="translated">Имя ограничения по умолчанию</target>
+        <note></note>
       </trans-unit>
     </body>
   </file>

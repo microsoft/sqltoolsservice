@@ -3479,7 +3479,7 @@
     <value>Non per la replica</value>
   </data>
   <data name="ForeignKeyIsNotForReplicationDescription" xml:space="preserve">
-    <value>Abilita o disabilita un vincolo IDENTITY per i dati inseriti da un processo di replica.</value>
+    <value>Abilita o disabilita il vincolo per i dati inseriti da un processo di replica.</value>
   </data>
   <data name="SqlForeignKeyAction_NoAction" xml:space="preserve">
     <value>Nessuna azione</value>
@@ -3492,9 +3492,6 @@
   </data>
   <data name="SqlForeignKeyAction_SetDefault" xml:space="preserve">
     <value>Imposta predefinito</value>
-  </data>
-  <data name="UnKnownSqlForeignKeyAction" xml:space="preserve">
-    <value>'{0}' non è una SqlForeignKeyAction supportata.</value>
   </data>
   <data name="CheckConstraintIsEnabledDescription" xml:space="preserve">
     <value>Specifica se il vincolo CHECK è Abilitato</value>
@@ -3526,6 +3523,9 @@
   <data name="TableDesignerColumnsDisplayValueTitle" xml:space="preserve">
     <value>Colonne</value>
   </data>
+  <data name="TableDesignerDeleteColumnConfirmationMessage" xml:space="preserve">
+    <value>La rimozione di una colonna comporterà la sua rimozione anche dagli indici e dalle chiavi esterne. Continuare?</value>
+  </data>
   <data name="MissingIndexFormat" xml:space="preserve">
     <value>Indice mancante (impatto {0}): {1}</value>
   </data>
@@ -3534,5 +3534,140 @@
 Dettagli indice mancanti in {0}
 Query Processor stima che l'implementazione del seguente indice potrebbe migliorare il costo della query di {1}%.
 */</value>
+  </data>
+  <data name="TableDesignerGraphTableTypeTitle" xml:space="preserve">
+    <value>Tipo</value>
+  </data>
+  <data name="TableDesignerGraphTableTypeEdge" xml:space="preserve">
+    <value>Arco</value>
+  </data>
+  <data name="TableDesignerGraphTableTypeNode" xml:space="preserve">
+    <value>Nodo</value>
+  </data>
+  <data name="TableDesignerGraphTableGroupTitle" xml:space="preserve">
+    <value>Tabella grafo</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintsTabTitle" xml:space="preserve">
+    <value>Vincoli di arco</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintObjectType" xml:space="preserve">
+    <value>Vincolo di arco</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintNamePropertyDescription" xml:space="preserve">
+    <value>Nome del vincolo.</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintNamePropertyTitle" xml:space="preserve">
+    <value>Nome</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintIsEnabledPropertyDescription" xml:space="preserve">
+    <value>Specifica se il vincolo è abilitato.</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintIsEnabledPropertyTitle" xml:space="preserve">
+    <value>È abilitato</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintOnDeleteActionPropertyDescription" xml:space="preserve">
+    <value>Comportamento applicato quando un utente tenta di eliminare una riga contenente dati che interessano una relazione di chiave esterna.</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintOnDeleteActionPropertyTitle" xml:space="preserve">
+    <value>Azione di eliminazione</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintClausesPropertyDescription" xml:space="preserve">
+    <value>Clausole vincolo di arco.</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintClausesPropertyTitle" xml:space="preserve">
+    <value>Clausole</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintClauseObjectType" xml:space="preserve">
+    <value>Clausola</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintClauseFromTablePropertyName" xml:space="preserve">
+    <value>Da tabella</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintClauseToTablePropertyName" xml:space="preserve">
+    <value>A tabella</value>
+  </data>
+  <data name="TableDesignerGraphTableTypeNone" xml:space="preserve">
+    <value>Nessuno</value>
+  </data>
+  <data name="TableDesignerGraphTableTypeDescription" xml:space="preserve">
+    <value>Specifica il tipo di tabella.</value>
+  </data>
+  <data name="UnknownEnumString" xml:space="preserve">
+    <value>Valore di enumerazione sconosciuto: {0}.</value>
+  </data>
+  <data name="SqlTableDurability_SchemaAndData" xml:space="preserve">
+    <value>Schema e dati</value>
+  </data>
+  <data name="SqlTableDurability_SchemaOnly" xml:space="preserve">
+    <value>Solo schema</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_None" xml:space="preserve">
+    <value>Nessuno</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_RowStart" xml:space="preserve">
+    <value>Inizio riga</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_RowEnd" xml:space="preserve">
+    <value>Fine riga</value>
+  </data>
+  <data name="TableDesignerIsSystemVersioningEnabledTitle" xml:space="preserve">
+    <value>Controllo delle versioni di sistema abilitato</value>
+  </data>
+  <data name="TableDesignerIsSystemVersioningEnabledDescription" xml:space="preserve">
+    <value>Specifica se la tabella è abilitata per il controllo delle versioni di sistema.</value>
+  </data>
+  <data name="TableDesignerSystemVersioningGroupTitle" xml:space="preserve">
+    <value>Controllo delle versioni di sistema</value>
+  </data>
+  <data name="TableDesignerHistoryTableDescription" xml:space="preserve">
+    <value>Tabella di cronologia della tabella corrente.</value>
+  </data>
+  <data name="TableDesignerHistoryTableTitle" xml:space="preserve">
+    <value>Tabella cronologia</value>
+  </data>
+  <data name="TableDesignerIsMemoryOptimizedDescription" xml:space="preserve">
+    <value>Indica se la tabella è ottimizzata per la memoria.</value>
+  </data>
+  <data name="TableDesignerMemoryOptimizedGroupTitle" xml:space="preserve">
+    <value>Ottimizzato per la memoria</value>
+  </data>
+  <data name="TableDesignerIsMemoryOptimizedTitle" xml:space="preserve">
+    <value>Ottimizzato per la memoria</value>
+  </data>
+  <data name="TableDesignerDurabilityDescription" xml:space="preserve">
+    <value>Specifica l'impostazione di durabilità della tabella.</value>
+  </data>
+  <data name="TableDesignerDurabilityTitle" xml:space="preserve">
+    <value>Durabilità</value>
+  </data>
+  <data name="TableDesignerColumnGeneratedAlwaysAsDescription" xml:space="preserve">
+    <value>Specifica l'inizio o la fine dell'impostazione del periodo della tabella di controllo delle versioni di sistema.</value>
+  </data>
+  <data name="TableDesignerColumnGeneratedAlwaysAsTitle" xml:space="preserve">
+    <value>Generato sempre come</value>
+  </data>
+  <data name="TableDesignerColumnIsHiddenTitle" xml:space="preserve">
+    <value>È nascosta</value>
+  </data>
+  <data name="TableDesignerColumnIsHiddenDescription" xml:space="preserve">
+    <value>Specifica se la colonna verrà restituita dall'istruzione SELECT.</value>
+  </data>
+  <data name="TableDesignerAutoCreateHistoryTableDescription" xml:space="preserve">
+    <value>Specifica se il motore deve creare automaticamente la tabella di cronologia.</value>
+  </data>
+  <data name="TableDesignerAutoCreateHistoryTableTitle" xml:space="preserve">
+    <value>Creazione automatica tabella di cronologia</value>
+  </data>
+  <data name="TableDesignerNewHistoryTableDescription" xml:space="preserve">
+    <value>Specifica il nome della nuova tabella di cronologia.</value>
+  </data>
+  <data name="TableDesignerNewHistoryTableTitle" xml:space="preserve">
+    <value>Nome nuova tabella di cronologia</value>
+  </data>
+  <data name="TableColumnDefaultConstraintNamePropertyDescription" xml:space="preserve">
+    <value>Specifica il nome del vincolo predefinito.</value>
+  </data>
+  <data name="TableColumnDefaultConstraintNamePropertyTitle" xml:space="preserve">
+    <value>Nome vincolo predefinito</value>
   </data>
 </root>

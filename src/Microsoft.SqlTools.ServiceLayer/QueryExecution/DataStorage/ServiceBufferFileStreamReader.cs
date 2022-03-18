@@ -182,7 +182,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 else
                 {
                     Type type;
-                    if (!sqlDBTypeMap.TryGetValue(column.SqlDbType, out type))
+                    if (column.SqlDbType == SqlDbType.Udt)
+                    {
+                        type = column.DataType;
+                    }
+                    else if (!sqlDBTypeMap.TryGetValue(column.SqlDbType, out type))
                     {
                         type = typeof(SqlString);
                     }

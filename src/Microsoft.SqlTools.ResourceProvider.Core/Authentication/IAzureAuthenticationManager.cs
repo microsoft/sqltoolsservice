@@ -1,6 +1,7 @@
 ﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 namespace Microsoft.SqlTools.ResourceProvider.Core.Authentication
 {
     /// <summary>
-    /// Provides functionality to authenticate to Azure and discover associated accounts and subscriptions 
+    /// Provides functionality to authenticate to Azure and discover associated accounts and subscriptions
     /// </summary>
     public interface IAzureAuthenticationManager : IAccountManager
     {
@@ -38,6 +39,6 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Authentication
         /// <summary>
         /// Stores the selected subscriptions given the ids
         /// </summary>
-        Task<bool> SetSelectedSubscriptionsAsync(IEnumerable<string> subscriptionIds);        
+        Task<bool> SetSelectedSubscriptionsAsync(IEnumerable<string> subscriptionIds);
     }
 }

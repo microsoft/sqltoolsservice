@@ -7,7 +7,6 @@ using System;
 using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;

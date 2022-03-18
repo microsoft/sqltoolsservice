@@ -3,8 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Newtonsoft.Json;
-
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 {
     /// <summary>
@@ -31,5 +29,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         public InputBoxProperties IdentitySeed { get; set; } = new InputBoxProperties();
 
         public InputBoxProperties IdentityIncrement { get; set; } = new InputBoxProperties();
+
+        public DropdownProperties GeneratedAlwaysAs { get; set; } = new DropdownProperties();
+
+        public CheckBoxProperties IsHidden { get; set; } = new CheckBoxProperties();
+
+        public InputBoxProperties DefaultConstraintName { get; set; } = new InputBoxProperties();
+
+        public bool CanBeDeleted { get; set; } = true;
     }
 }

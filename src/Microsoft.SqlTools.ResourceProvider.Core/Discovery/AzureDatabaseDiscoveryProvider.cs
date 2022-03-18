@@ -1,6 +1,7 @@
 ﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
 using System.Collections.Generic;
@@ -16,8 +17,8 @@ using Microsoft.SqlTools.Utility;
 namespace Microsoft.SqlTools.ResourceProvider.Core
 {
     /// <summary>
-    /// Default implementation for <see cref="IDatabaseDiscoveryProvider"/> for Azure Sql databases. 
-    /// A discovery provider capable of finding Sql Azure databases for a specific Azure user account. 
+    /// Default implementation for <see cref="IDatabaseDiscoveryProvider"/> for Azure Sql databases.
+    /// A discovery provider capable of finding Sql Azure databases for a specific Azure user account.
     /// </summary>
 
     [Exportable(
@@ -35,7 +36,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
         public AzureDatabaseDiscoveryProvider()
         {
             // Duplicate the exportable attribute as at present we do not support filtering using extensiondescriptor.
-            // The attribute is preserved in order to simplify ability to backport into existing tools 
+            // The attribute is preserved in order to simplify ability to backport into existing tools
             Metadata = new ExportableMetadata(
                 ServerTypes.SqlServer,
                 Categories.Azure,
@@ -90,9 +91,9 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
         }
 
         /// <summary>
-        /// Returns the databases for given connection info. 
+        /// Returns the databases for given connection info.
         /// The connection info should be used to make the connection for getting databases not the account manager
-        /// </summary> 
+        /// </summary>
         //public async Task<ServiceResponse<DatabaseInstanceInfo>> GetDatabaseInstancesAsync(UIConnectionInfo uiConnectionInfo, CancellationToken cancellationToken)
         //{
         //    ServiceResponse<DatabaseInstanceInfo> result = null;
@@ -109,7 +110,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
 
         /// <summary>
         /// Returns the databases for given server name. Using the account manager to get the databases
-        /// </summary> 
+        /// </summary>
         public async Task<ServiceResponse<DatabaseInstanceInfo>> GetDatabaseInstancesAsync(string serverName, CancellationToken cancellationToken)
         {
             ServiceResponse<DatabaseInstanceInfo> result = null;
@@ -120,7 +121,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
                     //if connection is passed, we need to search all subscriptions not selected ones
                     IEnumerable<IAzureUserAccountSubscriptionContext> subscriptions = await GetSubscriptionsAsync(string.IsNullOrEmpty(serverName));
                     if (!cancellationToken.IsCancellationRequested)
-                    {                       
+                    {
                         result = await AzureUtil.ExecuteGetAzureResourceAsParallel((object)null, subscriptions, serverName, cancellationToken,
                             GetDatabaseForSubscriptionAsync);
                     }
@@ -159,7 +160,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
             get
             {
                 return (_azureAccountManager = _azureAccountManager ?? GetService<IAzureAuthenticationManager>());
-            }          
+            }
         }
 
         /// <summary>
@@ -206,11 +207,11 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
 
         /// <summary>
         /// There was a wired nullReferencedException was running the tasks parallel. It only got fixed when I put the getting from cache insed an async method
-        /// </summary>       
+        /// </summary>
         private Task<ServiceResponse<DatabaseInstanceInfo>> GetFromCacheAsync(string key)
         {
             return Task.Factory.StartNew(() => _cache.Get(key));
-        }   
+        }
 
         /// <summary>
         /// Returns a  list of Azure sql databases for given subscription
@@ -235,7 +236,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
                 else if (shouldFilter)
                 {
                     //we should filter the result because the cached data includes databases for all servers
-                    result = new ServiceResponse<DatabaseInstanceInfo>(result.Data.Where(x => x.ServerInstanceInfo.FullyQualifiedDomainName == serverName), 
+                    result = new ServiceResponse<DatabaseInstanceInfo>(result.Data.Where(x => x.ServerInstanceInfo.FullyQualifiedDomainName == serverName),
                         result.Errors);
                 }
 
@@ -243,7 +244,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
                 if (!shouldFilter && !cancellationToken.IsCancellationRequested)
                 {
                     result = _cache.UpdateCache(key, result);
-                }                
+                }
             }
             catch (Exception ex)
             {
@@ -261,7 +262,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
             CancellationToken cancellationToken, CancellationToken internalCancellationToken)
         {
             ServiceResponse<DatabaseInstanceInfo> result = null;
-            
+
             try
             {
                 if (!cancellationToken.IsCancellationRequested && !internalCancellationToken.IsCancellationRequested)
@@ -295,7 +296,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
             return result ?? new ServiceResponse<DatabaseInstanceInfo>();
         }
 
-        private async Task<ServiceResponse<DatabaseInstanceInfo>> GetDatabasesForSubscriptionServersAsync(IAzureResourceManagementSession session, 
+        private async Task<ServiceResponse<DatabaseInstanceInfo>> GetDatabasesForSubscriptionServersAsync(IAzureResourceManagementSession session,
             IList<IAzureSqlServerResource> filteredServersList, CancellationToken cancellationToken)
         {
             ServiceResponse<DatabaseInstanceInfo> result = null;

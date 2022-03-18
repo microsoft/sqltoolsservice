@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
         /// <summary>
         /// Graph file that used to generate ExecutionPlanGraph
         /// </summary>
-        public ExecutionPlanGraphFile GraphFile { get; set; }
+        public ExecutionPlanGraphInfo GraphFile { get; set; }
         /// <summary>
         /// Index recommendations given by show plan to improve query performance
         /// </summary>
@@ -87,9 +87,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
         /// </summary>
         public int DisplayOrder { get; set; }
         /// <summary>
-        /// Flag to indicate if the property has a longer value so that it will be shown at the bottom of the tooltip
+        /// Flag to show property at the bottom of tooltip. Generally done for for properties with longer value.
         /// </summary>
-        public bool IsLongString { get; set; }
+        public bool PositionAtBottom { get; set; }
+        /// <summary>
+        /// Value to be displayed in UI like tooltips and properties View
+        /// </summary>
+        /// <value></value>
+        public string DisplayValue { get; set; }
     }
 
     public class NestedExecutionPlanGraphProperty : ExecutionPlanGraphPropertyBase
@@ -141,7 +146,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ShowPlan
         public string QueryWithDescription { get; set; }
     }
 
-    public class ExecutionPlanGraphFile 
+    public class ExecutionPlanGraphInfo 
     {
         /// <summary>
         /// File contents

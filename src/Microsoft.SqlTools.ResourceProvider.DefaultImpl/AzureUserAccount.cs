@@ -1,8 +1,8 @@
 ﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
-using System;
 using System.Collections.Generic;
 using Microsoft.SqlTools.ResourceProvider.Core;
 using Microsoft.SqlTools.ResourceProvider.Core.Authentication;
@@ -53,7 +53,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
                    CommonUtil.SameString(other.TenantId, TenantId);
             // TODO probably should check the AllTenants field
         }
-        
+
         /// <summary>
         /// Unique Id
         /// </summary>
@@ -68,7 +68,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
                 this.uniqueId = value;
             }
         }
-        
+
         /// <summary>
         /// Returns true if user needs reauthentication
         /// </summary>
@@ -77,7 +77,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
             get;
             set;
         }
-        
+
         /// <summary>
         /// User display info
         /// </summary>

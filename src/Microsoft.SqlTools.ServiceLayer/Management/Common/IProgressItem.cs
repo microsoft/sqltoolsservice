@@ -3,11 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
-
 namespace Microsoft.SqlTools.ServiceLayer.Management
 {
-#region interfaces
+    #region interfaces
     /// <summary>
     /// Interface that supports the delegation of individual actions in the progress dialog
     /// to individual classes.

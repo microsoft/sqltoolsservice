@@ -1,8 +1,8 @@
 ﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
-using System;
 using Microsoft.SqlTools.ResourceProvider.Core;
 using Models = Microsoft.Azure.Management.Sql.Models;
 
@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
         private readonly Models.Server _azureSqlServerResource;
 
         /// <summary>
-        /// Initializes the resource 
+        /// Initializes the resource
         /// </summary>
         public SqlAzureResource(Models.Server azureResource) : base(azureResource)
         {

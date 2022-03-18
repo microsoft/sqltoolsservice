@@ -1,6 +1,7 @@
 ﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using Microsoft.SqlTools.ResourceProvider.Core.Authentication;
 
@@ -48,7 +49,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
         {
             get
             {
-                return _azureSubscriptionIdentifier != null ? 
+                return _azureSubscriptionIdentifier != null ?
                     _azureSubscriptionIdentifier.SubscriptionId : string.Empty;
             }
         }
