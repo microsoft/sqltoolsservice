@@ -309,7 +309,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// Generates the execution plan from the table returned 
         /// </summary>
         /// <returns>An execution plan object</returns>
-        public Task<ExecutionPlan> GetExecutionPlan()
+        public Task<Contracts.ExecutionPlan> GetExecutionPlan()
         {
             // Process the action just in case it hasn't been yet 
             ProcessSpecialAction();
@@ -342,7 +342,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     }
                 }
                     
-                return new ExecutionPlan
+                return new Contracts.ExecutionPlan
                 {
                     Format = format,
                     Content = content
