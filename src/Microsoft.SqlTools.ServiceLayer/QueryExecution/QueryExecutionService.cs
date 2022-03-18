@@ -908,7 +908,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     var xmlString = r.GetRow(0)[0].DisplayValue;
                     try
                     {
-                        plans = ShowPlanGraphUtils.CreateShowPlanGraph(xmlString, Path.GetFileName(ownerUri));
+                        plans = ExecutionPlanGraphUtils.CreateShowPlanGraph(xmlString, Path.GetFileName(ownerUri));
                     }
                     catch (Exception ex)
                     {
