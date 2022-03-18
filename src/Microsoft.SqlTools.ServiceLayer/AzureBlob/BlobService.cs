@@ -16,26 +16,6 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureBlob
     class BlobService
     {
         private static readonly Lazy<BlobService> instance = new Lazy<BlobService>(() => new BlobService());
-        private static ConnectionService connectionService = null;
-
-        /// <summary>
-        /// Internal for testing purposes only
-        /// </summary>
-        internal static ConnectionService ConnectionServiceInstance
-        {
-            get
-            {
-                if (connectionService == null)
-                {
-                    connectionService = ConnectionService.Instance;
-                }
-                return connectionService;
-            }
-            set
-            {
-                connectionService = value;
-            }
-        }
 
         /// <summary>
         /// Default, parameterless constructor.
@@ -94,7 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureBlob
             try
             {
                 ConnectionInfo connInfo;
-                BlobService.ConnectionServiceInstance.TryFindConnection(
+                ConnectionService.Instance.TryFindConnection(
                         ownerUri,
                         out connInfo);
 
