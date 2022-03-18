@@ -57,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
         {
             try
             {
-                var plans = ExecutionPlanGraphUtils.CreateShowPlanGraph(requestParams.GraphInfo.GraphFileContent, "");
+                var plans = ShowPlanGraphUtils.CreateShowPlanGraph(requestParams.GraphInfo.GraphFileContent, "");
                 await requestContext.SendResult(new GetExecutionPlanResult
                 {
                     Graphs = plans

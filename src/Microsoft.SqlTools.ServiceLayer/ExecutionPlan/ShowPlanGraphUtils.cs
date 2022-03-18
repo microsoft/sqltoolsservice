@@ -13,7 +13,7 @@ using System.Diagnostics;
 
 namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
 {
-    public class ExecutionPlanGraphUtils
+    public class ShowPlanGraphUtils
     {
         public static List<ExecutionPlanGraph> CreateShowPlanGraph(string xml, string fileName)
         {
