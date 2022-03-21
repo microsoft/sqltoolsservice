@@ -8,12 +8,12 @@ using System.Collections.Generic;
 namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
 {
     /// <summary>
-    /// A SkeletonNode is composed of an execution plan node, but has additional properties
-    /// to keep track of matching skeleton nodes for execution plan nodes present in the
+    /// An ExecutionGraphComparisonResult is composed of an execution plan node, but has additional properties
+    /// to keep track of matching ExecutionGraphComparisonResult nodes for execution plan nodes present in the
     /// the graph being compared against. This class also features a group index that can assist
     /// with coloring similar sections of execution plans in the UI.
     /// </summary>
-    public class SkeletonNode
+    public class ExecutionGraphComparisonResult
     {
         /// <summary>
         /// The base node for the skeleton.
@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         /// <summary>
         /// The children of the skeleton node.
         /// </summary>
-        public List<SkeletonNode> Children { get; set; } = new List<SkeletonNode>();
+        public List<ExecutionGraphComparisonResult> Children { get; set; } = new List<ExecutionGraphComparisonResult>();
         /// <summary>
         /// The group index of the skeleton node.
         /// </summary>
@@ -34,10 +34,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         /// <summary>
         /// List of matching nodes for the skeleton node.
         /// </summary>
-        public List<SkeletonNode> MatchingNodes { get; set; } = new List<SkeletonNode>();
+        public List<ExecutionGraphComparisonResult> MatchingNodes { get; set; } = new List<ExecutionGraphComparisonResult>();
         /// <summary>
         /// The parent of the skeleton node.
         /// </summary>
-        public SkeletonNode ParentNode { get; set; }
+        public ExecutionGraphComparisonResult ParentNode { get; set; }
     }
 }

@@ -7,7 +7,7 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
 {
-    public class ColorMatchingSectionsParams
+    public class GraphComparisonParams
     {
         /// <summary>
         /// First query execution plan for comparison.
@@ -26,23 +26,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         public bool IgnoreDatabaseName { get; set; }
     }
 
-    public class ColorMatchingSectionsResult
+    public class GraphComparisonResult
     {
         /// <summary>
         /// Created Skeleton Node for a show plan
         /// </summary>
-        public SkeletonNode FirstSkeletonNode { get; set; }
+        public ExecutionGraphComparisonResult FirstSkeletonNode { get; set; }
 
         /// <summary>
         /// Created Skeleton Node for a show plan
         /// </summary>
-        public SkeletonNode SecondSkeletonNode { get; set; }
+        public ExecutionGraphComparisonResult SecondSkeletonNode { get; set; }
     }
 
-    public class ColorMatchingSectionsRequest
+    public class GraphComparisonRequest
     {
         public static readonly
-            RequestType<ColorMatchingSectionsParams, ColorMatchingSectionsResult> Type =
-                RequestType<ColorMatchingSectionsParams, ColorMatchingSectionsResult>.Create("queryExecutionPlan/colorMatchingSections");
+            RequestType<GraphComparisonParams, GraphComparisonResult> Type =
+                RequestType<GraphComparisonParams, GraphComparisonResult>.Create("executionPlan/compareExecutionPlanGraph");
     }
 }

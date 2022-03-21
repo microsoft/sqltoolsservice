@@ -81,13 +81,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecutionGraph.Compariso
             return this.BaseNode.Graph;
         }
 
-        public Contracts.SkeletonNode ConvertToDTO()
+        public Contracts.ExecutionGraphComparisonResult ConvertToDTO()
         {
             var queue = new Queue<SkeletonNode>();
             queue.Enqueue(this);
 
-            var skeletonNodeDTO = new Contracts.SkeletonNode();
-            var dtoQueue = new Queue<Contracts.SkeletonNode>();
+            var skeletonNodeDTO = new Contracts.ExecutionGraphComparisonResult();
+            var dtoQueue = new Queue<Contracts.ExecutionGraphComparisonResult>();
             dtoQueue.Enqueue(skeletonNodeDTO);
 
             while (queue.Count != 0)
@@ -100,7 +100,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecutionGraph.Compariso
                 curNodeDTO.HasMatch = curNode.HasMatch;
                 curNodeDTO.MatchingNodes = curNode.MatchingNodes.Select(matchingNode =>
                                             {
-                                                var skeletonNodeDTO = new Contracts.SkeletonNode();
+                                                var skeletonNodeDTO = new Contracts.ExecutionGraphComparisonResult();
                                                 skeletonNodeDTO.BaseNode = ExecutionPlanGraphUtils.ConvertShowPlanTreeToExecutionPlanTree(matchingNode.BaseNode);
 
                                                 return skeletonNodeDTO;
@@ -110,7 +110,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecutionGraph.Compariso
                 {
                     queue.Enqueue(child);
 
-                    var childDTO = new Contracts.SkeletonNode();
+                    var childDTO = new Contracts.ExecutionGraphComparisonResult();
                     childDTO.ParentNode = curNodeDTO;
                     curNodeDTO.Children.Add(childDTO);
                     dtoQueue.Enqueue(childDTO);

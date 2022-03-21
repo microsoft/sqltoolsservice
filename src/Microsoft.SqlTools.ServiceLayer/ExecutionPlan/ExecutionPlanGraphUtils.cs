@@ -152,11 +152,11 @@ GO
             }
         }
 
-        public static void CopyMatchingNodesIntoSkeletonDTO(SkeletonNode destRoot, SkeletonNode srcRoot)
+        public static void CopyMatchingNodesIntoSkeletonDTO(ExecutionGraphComparisonResult destRoot, ExecutionGraphComparisonResult srcRoot)
         {
             var srcGraphLookupTable = CreateSkeletonLookupTableFor(srcRoot);
 
-            var queue = new Queue<SkeletonNode>();
+            var queue = new Queue<ExecutionGraphComparisonResult>();
             queue.Enqueue(destRoot);
 
             while (queue.Count != 0)
@@ -178,10 +178,10 @@ GO
             }
         }
 
-        private static Dictionary<int, SkeletonNode> CreateSkeletonLookupTableFor(SkeletonNode node)
+        private static Dictionary<int, ExecutionGraphComparisonResult> CreateSkeletonLookupTableFor(ExecutionGraphComparisonResult node)
         {
-            var skeletonNodeTable = new Dictionary<int, SkeletonNode>();
-            var queue = new Queue<SkeletonNode>();
+            var skeletonNodeTable = new Dictionary<int, ExecutionGraphComparisonResult>();
+            var queue = new Queue<ExecutionGraphComparisonResult>();
             queue.Enqueue(node);
 
             while (queue.Count != 0)
