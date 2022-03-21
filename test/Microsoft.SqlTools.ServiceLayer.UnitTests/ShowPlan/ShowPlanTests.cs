@@ -11,7 +11,7 @@ using NUnit.Framework;
 using Microsoft.SqlTools.ServiceLayer.ExecutionPlan;
 
 
-namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ExecutionPlan
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ShowPlan
 {
     public class ShowPlanXMLTests
     {
@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ExecutionPlan
         [Test]
         public void ParseXMLFileReturnsValidShowPlanGraph()
         {
-            ReadFile(".ShowPlan.TestExecutionPlan.xml");
+            ReadFile(".ShowPlan.TestShowPlan.xml");
             var showPlanGraphs = ShowPlanGraphUtils.CreateShowPlanGraph(queryPlanFileText, "testFile.sql");
             Assert.AreEqual(1, showPlanGraphs.Count, "exactly one show plan graph should be returned");
             Assert.NotNull(showPlanGraphs[0], "graph should not be null");
@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ExecutionPlan
         [Test]
         public void ParsingNestedProperties()
         {
-            ReadFile(".ShowPlan.TestExecutionPlan.xml");
+            ReadFile(".ShowPlan.TestShowPlan.xml");
             string[] commonNestedPropertiesNames = { "MemoryGrantInfo", "OptimizerHardwareDependentProperties" };
             var showPlanGraphs = ShowPlanGraphUtils.CreateShowPlanGraph(queryPlanFileText, "testFile.sql");
             ExecutionPlanNode rootNode = showPlanGraphs[0].Root;
@@ -47,7 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ExecutionPlan
         public void ParseXMLFileWithRecommendations()
         {
             //The first graph in this execution plan has 3 recommendations
-            ReadFile(".ShowPlan.TestExecutionPlanRecommendations.xml");
+            ReadFile(".ShowPlan.TestShowPlanRecommendations.xml");
             string[] commonNestedPropertiesNames = { "MemoryGrantInfo", "OptimizerHardwareDependentProperties" };
             var showPlanGraphs = ShowPlanGraphUtils.CreateShowPlanGraph(queryPlanFileText, "testFile.sql");
             List<ExecutionPlanRecommendation> rootNode = showPlanGraphs[0].Recommendations;
