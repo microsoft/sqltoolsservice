@@ -353,7 +353,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="batchIndex">The index for selecting the batch item</param>
         /// <param name="resultSetIndex">The index for selecting the result set</param>
         /// <returns>The Execution Plan, if the result set has one</returns>
-        public Task<ExecutionPlan> GetExecutionPlan(int batchIndex, int resultSetIndex)
+        public Task<Contracts.ExecutionPlan> GetExecutionPlan(int batchIndex, int resultSetIndex)
         {
             // Sanity check to make sure that the batch is within bounds
             if (batchIndex < 0 || batchIndex >= Batches.Length)
