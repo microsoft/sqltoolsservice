@@ -29,14 +29,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
     public class GraphComparisonResult
     {
         /// <summary>
-        /// Created Skeleton Node for a show plan
+        /// Created ExecutionGraphComparisonResult for the first execution plan
         /// </summary>
-        public ExecutionGraphComparisonResult FirstSkeletonNode { get; set; }
+        public ExecutionGraphComparisonResult FirstComparisonResult { get; set; }
 
         /// <summary>
-        /// Created Skeleton Node for a show plan
+        /// Created ExecutionGraphComparisonResult for the second execution plan
         /// </summary>
-        public ExecutionGraphComparisonResult SecondSkeletonNode { get; set; }
+        public ExecutionGraphComparisonResult SecondComparisonResult { get; set; }
     }
 
     public class GraphComparisonRequest

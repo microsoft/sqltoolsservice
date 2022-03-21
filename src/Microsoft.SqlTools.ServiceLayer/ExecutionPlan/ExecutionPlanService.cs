@@ -89,15 +89,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                 var secondSkeletonNode = manager.CreateSkeleton(secondRootNode);
                 manager.ColorMatchingSections(firstSkeletonNode, secondSkeletonNode, requestParams.IgnoreDatabaseName);
 
-                var firstSkeletonNodeDTO = firstSkeletonNode.ConvertToDTO();
-                var secondSkeletonNodeDTO = secondSkeletonNode.ConvertToDTO();
-                ExecutionPlanGraphUtils.CopyMatchingNodesIntoSkeletonDTO(firstSkeletonNodeDTO, secondSkeletonNodeDTO);
-                ExecutionPlanGraphUtils.CopyMatchingNodesIntoSkeletonDTO(secondSkeletonNodeDTO, firstSkeletonNodeDTO);
+                var firstGraphComparisonResultDTO = firstSkeletonNode.ConvertToDTO();
+                var secondGraphComparisonResultDTO = secondSkeletonNode.ConvertToDTO();
+                ExecutionPlanGraphUtils.CopyMatchingNodesIntoSkeletonDTO(firstGraphComparisonResultDTO, secondGraphComparisonResultDTO);
+                ExecutionPlanGraphUtils.CopyMatchingNodesIntoSkeletonDTO(secondGraphComparisonResultDTO, firstGraphComparisonResultDTO);
 
                 var result = new GraphComparisonResult()
                 {
-                    FirstSkeletonNode = firstSkeletonNodeDTO,
-                    SecondSkeletonNode = secondSkeletonNodeDTO
+                    FirstComparisonResult = firstGraphComparisonResultDTO,
+                    SecondComparisonResult = secondGraphComparisonResultDTO
                 };
 
                 await requestContext.SendResult(result);

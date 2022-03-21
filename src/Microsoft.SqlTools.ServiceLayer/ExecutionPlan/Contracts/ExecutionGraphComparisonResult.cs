@@ -20,23 +20,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         /// </summary>
         public ExecutionPlanNode BaseNode { get; set; }
         /// <summary>
-        /// The children of the skeleton node.
+        /// The children of the ExecutionGraphComparisonResult.
         /// </summary>
         public List<ExecutionGraphComparisonResult> Children { get; set; } = new List<ExecutionGraphComparisonResult>();
         /// <summary>
-        /// The group index of the skeleton node.
+        /// The group index of the ExecutionGraphComparisonResult.
         /// </summary>
         public int GroupIndex { get; set; }
         /// <summary>
-        /// Flag to indicate if the skeleton node has a matching node in the compared skeleton.
+        /// Flag to indicate if the ExecutionGraphComparisonResult has a matching node in the compared execution plan.
         /// </summary>
         public bool HasMatch { get; set; }
         /// <summary>
-        /// List of matching nodes for the skeleton node.
+        /// List of matching nodes for the ExecutionGraphComparisonResult.
         /// </summary>
         public List<ExecutionGraphComparisonResult> MatchingNodes { get; set; } = new List<ExecutionGraphComparisonResult>();
         /// <summary>
-        /// The parent of the skeleton node.
+        /// The parent of the ExecutionGraphComparisonResult.
         /// </summary>
         public ExecutionGraphComparisonResult ParentNode { get; set; }
     }
