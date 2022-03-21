@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ExecutionGraph;
+using Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan;
 using Microsoft.SqlTools.Utility;
 using System.Diagnostics;
 
@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
     {
         public static List<ExecutionPlanGraph> CreateShowPlanGraph(string xml, string fileName)
         {
-            ExecutionGraph.ShowPlanGraph[] graphs = ExecutionGraph.ShowPlanGraph.ParseShowPlanXML(xml, ExecutionGraph.ShowPlanType.Unknown);
+            ShowPlan.ShowPlanGraph[] graphs = ShowPlan.ShowPlanGraph.ParseShowPlanXML(xml, ShowPlan.ShowPlanType.Unknown);
             return graphs.Select(g => new ExecutionPlanGraph
             {
                 Root = ConvertShowPlanTreeToExecutionPlanTree(g.Root),
@@ -96,7 +96,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
             return propsList;
         }
 
-        private static List<ExecutionPlanRecommendation> ParseRecommendations(ExecutionGraph.ShowPlanGraph g, string fileName)
+        private static List<ExecutionPlanRecommendation> ParseRecommendations(ShowPlan.ShowPlanGraph g, string fileName)
         {
             return g.Description.MissingIndices.Select(mi => new ExecutionPlanRecommendation
             {
