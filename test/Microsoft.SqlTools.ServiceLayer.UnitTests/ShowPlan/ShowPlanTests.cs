@@ -4,16 +4,11 @@
 //
 
 using System;
-//
-// Copyright (c) Microsoft. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
-//
-
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using NUnit.Framework;
-using Microsoft.SqlTools.ServiceLayer.ShowPlan;
+using Microsoft.SqlTools.ServiceLayer.ExecutionPlan;
 
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ShowPlan
@@ -25,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ShowPlan
         [Test]
         public void ParseXMLFileReturnsValidShowPlanGraph()
         {
-            ReadFile(".ShowPlan.TestExecutionPlan.xml");
+            ReadFile(".ShowPlan.TestShowPlan.xml");
             var showPlanGraphs = ShowPlanGraphUtils.CreateShowPlanGraph(queryPlanFileText, "testFile.sql");
             Assert.AreEqual(1, showPlanGraphs.Count, "exactly one show plan graph should be returned");
             Assert.NotNull(showPlanGraphs[0], "graph should not be null");
@@ -35,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ShowPlan
         [Test]
         public void ParsingNestedProperties()
         {
-            ReadFile(".ShowPlan.TestExecutionPlan.xml");
+            ReadFile(".ShowPlan.TestShowPlan.xml");
             string[] commonNestedPropertiesNames = { "MemoryGrantInfo", "OptimizerHardwareDependentProperties" };
             var showPlanGraphs = ShowPlanGraphUtils.CreateShowPlanGraph(queryPlanFileText, "testFile.sql");
             ExecutionPlanNode rootNode = showPlanGraphs[0].Root;
@@ -52,7 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ShowPlan
         public void ParseXMLFileWithRecommendations()
         {
             //The first graph in this execution plan has 3 recommendations
-            ReadFile(".ShowPlan.TestExecutionPlanRecommendations.xml");
+            ReadFile(".ShowPlan.TestShowPlanRecommendations.xml");
             string[] commonNestedPropertiesNames = { "MemoryGrantInfo", "OptimizerHardwareDependentProperties" };
             var showPlanGraphs = ShowPlanGraphUtils.CreateShowPlanGraph(queryPlanFileText, "testFile.sql");
             List<ExecutionPlanRecommendation> rootNode = showPlanGraphs[0].Recommendations;
