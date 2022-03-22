@@ -5,6 +5,7 @@
 
 using System.Collections.Generic;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
 {
