@@ -5,7 +5,7 @@
 
 using System.Collections.Generic;
 
-namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
+namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
 {
     /// <summary>
     /// Execution plan graph object that is sent over JSON RPC
@@ -32,6 +32,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
 
     public class ExecutionPlanNode
     {
+        /// <summary>
+        /// ID for the node.
+        /// </summary>
+        public int ID { get; set; }
         /// <summary>
         /// Type of the node. This determines the icon that is displayed for it
         /// </summary>
@@ -146,7 +150,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
         public string QueryWithDescription { get; set; }
     }
 
-    public class ExecutionPlanGraphInfo 
+    public class ExecutionPlanGraphInfo
     {
         /// <summary>
         /// File contents

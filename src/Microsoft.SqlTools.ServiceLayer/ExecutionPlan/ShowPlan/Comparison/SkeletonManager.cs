@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan.Comparison
         /// </summary>
         /// <param name="root">Node to construct skeleton of</param>
         /// <returns>SkeletonNode with children representing logical descendants of the input node</returns>
-       public SkeletonNode CreateSkeleton(Node root)
+        public SkeletonNode CreateSkeleton(Node root)
         {
             Node rootNode = root;
             var childCount = root.Children.Count;
@@ -36,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan.Comparison
                 }
                 return skeletonParent;
             }
-            else if (childCount == 1) 
+            else if (childCount == 1)
             {
                 if (!ShouldIgnoreDuringComparison(rootNode))
                 {
@@ -63,10 +63,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan.Comparison
         public bool AreSkeletonsEquivalent(SkeletonNode root1, SkeletonNode root2, bool ignoreDatabaseName)
         {
             if (root1 == null && root2 == null)
+            {
                 return true;
+            }
 
             if (root1 == null || root2 == null)
+            {
                 return false;
+            }
 
             if (!root1.BaseNode.IsLogicallyEquivalentTo(root2.BaseNode, ignoreDatabaseName))
             {
@@ -80,7 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan.Comparison
             while (childIterator < root1.Children.Count)
             {
                 var checkMatch = AreSkeletonsEquivalent(root1.Children.ElementAt(childIterator), root2.Children.ElementAt(childIterator), ignoreDatabaseName);
-                if (!checkMatch) 
+                if (!checkMatch)
                 {
                     // at least one pair of children (ie inner.Child1 & outer.Child1) didn't match; stop checking rest
                     return false;

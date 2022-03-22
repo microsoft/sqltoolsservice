@@ -10,14 +10,15 @@ using System.Linq;
 using Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan;
 using Microsoft.SqlTools.Utility;
 using System.Diagnostics;
+using Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
 {
-    public class ShowPlanGraphUtils
+    public class ExecutionPlanGraphUtils
     {
         public static List<ExecutionPlanGraph> CreateShowPlanGraph(string xml, string fileName)
         {
-            ShowPlan.ShowPlanGraph[] graphs = ShowPlan.ShowPlanGraph.ParseShowPlanXML(xml, ShowPlan.ShowPlanType.Unknown);
+            ShowPlanGraph[] graphs = ShowPlanGraph.ParseShowPlanXML(xml, ShowPlan.ShowPlanType.Unknown);
             return graphs.Select(g => new ExecutionPlanGraph
             {
                 Root = ConvertShowPlanTreeToExecutionPlanTree(g.Root),
@@ -31,10 +32,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
             }).ToList();
         }
 
-        private static ExecutionPlanNode ConvertShowPlanTreeToExecutionPlanTree(Node currentNode)
+        public static ExecutionPlanNode ConvertShowPlanTreeToExecutionPlanTree(Node currentNode)
         {
             return new ExecutionPlanNode
             {
+                ID = currentNode.ID,
                 Type = currentNode.Operation.Image,
                 Cost = currentNode.Cost,
                 SubTreeCost = currentNode.SubtreeCost,
@@ -49,7 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
             };
         }
 
-        private static ExecutionPlanEdges ConvertShowPlanEdgeToExecutionPlanEdge(Edge edge)
+        public static ExecutionPlanEdges ConvertShowPlanEdgeToExecutionPlanEdge(Edge edge)
         {
             return new ExecutionPlanEdges
             {
@@ -59,7 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
             };
         }
 
-        private static List<ExecutionPlanGraphPropertyBase> GetProperties(PropertyDescriptorCollection props)
+        public static List<ExecutionPlanGraphPropertyBase> GetProperties(PropertyDescriptorCollection props)
         {
             List<ExecutionPlanGraphPropertyBase> propsList = new List<ExecutionPlanGraphPropertyBase>();
             foreach (PropertyValue prop in props)
@@ -96,7 +98,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
             return propsList;
         }
 
-        private static List<ExecutionPlanRecommendation> ParseRecommendations(ShowPlan.ShowPlanGraph g, string fileName)
+        private static List<ExecutionPlanRecommendation> ParseRecommendations(ShowPlanGraph g, string fileName)
         {
             return g.Description.MissingIndices.Select(mi => new ExecutionPlanRecommendation
             {
@@ -147,6 +149,59 @@ GO
                 Logger.Write(TraceEventType.Error, e.ToString());
                 return String.Empty;
             }
+        }
+
+        public static void CopyMatchingNodesIntoSkeletonDTO(ExecutionGraphComparisonResult destRoot, ExecutionGraphComparisonResult srcRoot)
+        {
+            var srcGraphLookupTable = srcRoot.CreateSkeletonLookupTable();
+
+            var queue = new Queue<ExecutionGraphComparisonResult>();
+            queue.Enqueue(destRoot);
+
+            while (queue.Count != 0)
+            {
+                var curNode = queue.Dequeue();
+
+                for (int index = 0; index < curNode.MatchingNodes.Count; ++index)
+                {
+                    var matchingId = curNode.MatchingNodes[index].BaseNode.ID;
+                    var matchingNode = srcGraphLookupTable[matchingId];
+
+                    curNode.MatchingNodes[index] = matchingNode;
+                }
+
+                foreach (var child in curNode.Children)
+                {
+                    queue.Enqueue(child);
+                }
+            }
+        }
+    }
+
+    public static class ExecutionGraphComparisonResultExtensions
+    {
+        public static Dictionary<int, ExecutionGraphComparisonResult> CreateSkeletonLookupTable(this ExecutionGraphComparisonResult node)
+        {
+            var skeletonNodeTable = new Dictionary<int, ExecutionGraphComparisonResult>();
+            var queue = new Queue<ExecutionGraphComparisonResult>();
+            queue.Enqueue(node);
+
+            while (queue.Count != 0)
+            {
+                var curNode = queue.Dequeue();
+
+                if (!skeletonNodeTable.ContainsKey(curNode.BaseNode.ID))
+                {
+                    skeletonNodeTable[curNode.BaseNode.ID] = curNode;
+                }
+
+                foreach (var child in curNode.Children)
+                {
+                    queue.Enqueue(child);
+                }
+            }
+
+            return skeletonNodeTable;
         }
     }
 }

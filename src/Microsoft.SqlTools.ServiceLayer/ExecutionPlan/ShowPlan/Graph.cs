@@ -7,8 +7,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
 {
     public class Graph
     {
-        public Node Root;
+        public Node Root { get; set; }
 
-        public Description Description;
+        public Description Description { get; set; }
     }
 }
