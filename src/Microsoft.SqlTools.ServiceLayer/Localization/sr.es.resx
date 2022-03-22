@@ -3670,4 +3670,10 @@ El procesador de consultas estima que la implementación del siguiente índice p
   <data name="TableColumnDefaultConstraintNamePropertyTitle" xml:space="preserve">
     <value>Nombre de la restricción predeterminada</value>
   </data>
+  <data name="AddNewEdgeConstraintLabel" xml:space="preserve">
+    <value>Nueva restricción perimetral</value>
+  </data>
+  <data name="AddNewClauseLabel" xml:space="preserve">
+    <value>Nueva cláusula</value>
+  </data>
 </root>

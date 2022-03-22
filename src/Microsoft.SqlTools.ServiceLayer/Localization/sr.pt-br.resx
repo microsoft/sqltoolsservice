@@ -3670,4 +3670,10 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
   <data name="TableColumnDefaultConstraintNamePropertyTitle" xml:space="preserve">
     <value>Nome da Restrição Padrão</value>
   </data>
+  <data name="AddNewEdgeConstraintLabel" xml:space="preserve">
+    <value>Nova Restrição de Borda</value>
+  </data>
+  <data name="AddNewClauseLabel" xml:space="preserve">
+    <value>Nova Cláusula</value>
+  </data>
 </root>

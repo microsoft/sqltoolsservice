@@ -3670,4 +3670,10 @@
   <data name="TableColumnDefaultConstraintNamePropertyTitle" xml:space="preserve">
     <value>기본 제약 조건 이름</value>
   </data>
+  <data name="AddNewEdgeConstraintLabel" xml:space="preserve">
+    <value>새 Edge 제약 조건</value>
+  </data>
+  <data name="AddNewClauseLabel" xml:space="preserve">
+    <value>새 절</value>
+  </data>
 </root>

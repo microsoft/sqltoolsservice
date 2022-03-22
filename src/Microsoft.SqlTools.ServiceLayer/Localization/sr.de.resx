@@ -3670,4 +3670,10 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
   <data name="TableColumnDefaultConstraintNamePropertyTitle" xml:space="preserve">
     <value>Standardeinschränkungsname</value>
   </data>
+  <data name="AddNewEdgeConstraintLabel" xml:space="preserve">
+    <value>Neue Edge-Einschränkung...</value>
+  </data>
+  <data name="AddNewClauseLabel" xml:space="preserve">
+    <value>Neue Klausel</value>
+  </data>
 </root>
