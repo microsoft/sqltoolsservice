@@ -4,19 +4,21 @@
 //
 
 using System.Collections.Generic;
+using System.Linq;
+using Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan.Comparison
 {
     public class SkeletonNode
     {
-        public Node BaseNode {get; set;}
+        public Node BaseNode { get; set; }
         public List<SkeletonNode> MatchingNodes { get; set; }
         public bool HasMatch { get { return MatchingNodes.Count > 0; } }
         public SkeletonNode ParentNode { get; set; }
         public IList<SkeletonNode> Children { get; set; }
 
-        public int GroupIndex 
-        { 
+        public int GroupIndex
+        {
             get
             {
                 return this.BaseNode.GroupIndex;
@@ -54,7 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan.Comparison
             }
         }
 
-        public void AddMatchingSkeletonNode(SkeletonNode match, bool ignoreDatabaseName, bool matchAllChildren=true)
+        public void AddMatchingSkeletonNode(SkeletonNode match, bool ignoreDatabaseName, bool matchAllChildren = true)
         {
             this.BaseNode[NodeBuilderConstants.SkeletonHasMatch] = true;
             if (matchAllChildren == true)
@@ -80,5 +82,43 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan.Comparison
             return this.BaseNode.Graph;
         }
 
+        public ExecutionGraphComparisonResult ConvertToDTO()
+        {
+            var queue = new Queue<SkeletonNode>();
+            queue.Enqueue(this);
+
+            var skeletonNodeDTO = new ExecutionGraphComparisonResult();
+            var dtoQueue = new Queue<ExecutionGraphComparisonResult>();
+            dtoQueue.Enqueue(skeletonNodeDTO);
+
+            while (queue.Count != 0)
+            {
+                var curNode = queue.Dequeue();
+                var curNodeDTO = dtoQueue.Dequeue();
+
+                curNodeDTO.BaseNode = ExecutionPlanGraphUtils.ConvertShowPlanTreeToExecutionPlanTree(curNode.BaseNode);
+                curNodeDTO.GroupIndex = curNode.GroupIndex;
+                curNodeDTO.HasMatch = curNode.HasMatch;
+                curNodeDTO.MatchingNodes = curNode.MatchingNodes.Select(matchingNode =>
+                {
+                    var skeletonNodeDTO = new Contracts.ExecutionGraphComparisonResult();
+                    skeletonNodeDTO.BaseNode = ExecutionPlanGraphUtils.ConvertShowPlanTreeToExecutionPlanTree(matchingNode.BaseNode);
+
+                    return skeletonNodeDTO;
+                }).ToList();
+
+                foreach (var child in curNode.Children)
+                {
+                    queue.Enqueue(child);
+
+                    var childDTO = new Contracts.ExecutionGraphComparisonResult();
+                    childDTO.ParentNode = curNodeDTO;
+                    curNodeDTO.Children.Add(childDTO);
+                    dtoQueue.Enqueue(childDTO);
+                }
+            }
+
+            return skeletonNodeDTO;
+        }
     }
 }

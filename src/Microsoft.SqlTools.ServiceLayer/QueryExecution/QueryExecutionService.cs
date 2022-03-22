@@ -21,6 +21,7 @@ using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.Utility;
+using Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 {
@@ -908,7 +909,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     var xmlString = r.GetRow(0)[0].DisplayValue;
                     try
                     {
-                        plans = ShowPlanGraphUtils.CreateShowPlanGraph(xmlString, Path.GetFileName(ownerUri));
+                        plans = ExecutionPlanGraphUtils.CreateShowPlanGraph(xmlString, Path.GetFileName(ownerUri));
                     }
                     catch (Exception ex)
                     {
