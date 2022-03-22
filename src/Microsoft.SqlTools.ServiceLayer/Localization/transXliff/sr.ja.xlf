@@ -5983,6 +5983,16 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">既定の制約名</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="AddNewEdgeConstraintLabel">
+        <source>New Edge Constraint</source>
+        <target state="translated">新しい Edge の制約</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="AddNewClauseLabel">
+        <source>New Clause</source>
+        <target state="translated">新しい句</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

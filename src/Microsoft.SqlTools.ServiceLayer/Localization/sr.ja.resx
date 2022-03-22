@@ -3670,4 +3670,10 @@
   <data name="TableColumnDefaultConstraintNamePropertyTitle" xml:space="preserve">
     <value>既定の制約名</value>
   </data>
+  <data name="AddNewEdgeConstraintLabel" xml:space="preserve">
+    <value>新しい Edge の制約</value>
+  </data>
+  <data name="AddNewClauseLabel" xml:space="preserve">
+    <value>新しい句</value>
+  </data>
 </root>

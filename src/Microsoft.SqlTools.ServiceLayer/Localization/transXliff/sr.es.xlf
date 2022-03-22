@@ -5983,6 +5983,16 @@ El procesador de consultas estima que la implementación del siguiente índice p
         <target state="translated">Nombre de la restricción predeterminada</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="AddNewEdgeConstraintLabel">
+        <source>New Edge Constraint</source>
+        <target state="translated">Nueva restricción perimetral</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="AddNewClauseLabel">
+        <source>New Clause</source>
+        <target state="translated">Nueva cláusula</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

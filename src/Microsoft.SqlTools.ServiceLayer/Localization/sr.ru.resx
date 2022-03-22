@@ -3670,4 +3670,10 @@
   <data name="TableColumnDefaultConstraintNamePropertyTitle" xml:space="preserve">
     <value>Имя ограничения по умолчанию</value>
   </data>
+  <data name="AddNewEdgeConstraintLabel" xml:space="preserve">
+    <value>Создать ограничение границы</value>
+  </data>
+  <data name="AddNewClauseLabel" xml:space="preserve">
+    <value>Создать предложение</value>
+  </data>
 </root>
