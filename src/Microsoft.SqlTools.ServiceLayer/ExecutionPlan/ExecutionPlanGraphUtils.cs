@@ -153,7 +153,7 @@ GO
 
         public static void CopyMatchingNodesIntoSkeletonDTO(ExecutionGraphComparisonResult destRoot, ExecutionGraphComparisonResult srcRoot)
         {
-            var srcGraphLookupTable = CreateSkeletonLookupTableFor(srcRoot);
+            var srcGraphLookupTable = srcRoot.CreateSkeletonLookupTable();
 
             var queue = new Queue<ExecutionGraphComparisonResult>();
             queue.Enqueue(destRoot);
@@ -176,8 +176,11 @@ GO
                 }
             }
         }
+    }
 
-        private static Dictionary<int, ExecutionGraphComparisonResult> CreateSkeletonLookupTableFor(ExecutionGraphComparisonResult node)
+    public static class ExecutionGraphComparisonResultExtensions
+    {
+        public static Dictionary<int, ExecutionGraphComparisonResult> CreateSkeletonLookupTable(this ExecutionGraphComparisonResult node)
         {
             var skeletonNodeTable = new Dictionary<int, ExecutionGraphComparisonResult>();
             var queue = new Queue<ExecutionGraphComparisonResult>();
@@ -188,7 +191,9 @@ GO
                 var curNode = queue.Dequeue();
 
                 if (!skeletonNodeTable.ContainsKey(curNode.BaseNode.ID))
+                {
                     skeletonNodeTable[curNode.BaseNode.ID] = curNode;
+                }
 
                 foreach (var child in curNode.Children)
                 {

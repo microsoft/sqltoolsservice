@@ -7,7 +7,7 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
 {
-    public class GraphComparisonParams
+    public class ExecutionPlanGraphComparisonParams
     {
         /// <summary>
         /// First query execution plan for comparison.
@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         public bool IgnoreDatabaseName { get; set; }
     }
 
-    public class GraphComparisonResult
+    public class ExecutionPlanGraphComparisonResult
     {
         /// <summary>
         /// Created ExecutionGraphComparisonResult for the first execution plan
@@ -39,10 +39,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         public ExecutionGraphComparisonResult SecondComparisonResult { get; set; }
     }
 
-    public class GraphComparisonRequest
+    public class ExecutionPlanGraphComparisonRequest
     {
         public static readonly
-            RequestType<GraphComparisonParams, GraphComparisonResult> Type =
-                RequestType<GraphComparisonParams, GraphComparisonResult>.Create("executionPlan/compareExecutionPlanGraph");
+            RequestType<ExecutionPlanGraphComparisonParams, ExecutionPlanGraphComparisonResult> Type =
+                RequestType<ExecutionPlanGraphComparisonParams, ExecutionPlanGraphComparisonResult>.Create("executionPlan/compareExecutionPlanGraph");
     }
 }

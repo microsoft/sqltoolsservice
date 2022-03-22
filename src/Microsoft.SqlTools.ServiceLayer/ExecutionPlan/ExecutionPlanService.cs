@@ -50,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
         {
             ServiceHost = serviceHost;
             ServiceHost.SetRequestHandler(GetExecutionPlanRequest.Type, HandleGetExecutionPlan);
-            ServiceHost.SetRequestHandler(GraphComparisonRequest.Type, HandleGraphComparisonRequest);
+            ServiceHost.SetRequestHandler(ExecutionPlanGraphComparisonRequest.Type, HandleExecutionPlanGraphComparisonRequest);
         }
 
         private async Task HandleGetExecutionPlan(GetExecutionPlanParams requestParams, RequestContext<GetExecutionPlanResult> requestContext)
@@ -72,9 +72,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
         /// <summary>
         /// Handles requests for color matching similar nodes.
         /// </summary>
-        internal async Task HandleGraphComparisonRequest(
-            GraphComparisonParams requestParams,
-            RequestContext<GraphComparisonResult> requestContext)
+        internal async Task HandleExecutionPlanGraphComparisonRequest(
+            ExecutionPlanGraphComparisonParams requestParams,
+            RequestContext<ExecutionPlanGraphComparisonResult> requestContext)
         {
             try
             {
@@ -94,7 +94,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                 ExecutionPlanGraphUtils.CopyMatchingNodesIntoSkeletonDTO(firstGraphComparisonResultDTO, secondGraphComparisonResultDTO);
                 ExecutionPlanGraphUtils.CopyMatchingNodesIntoSkeletonDTO(secondGraphComparisonResultDTO, firstGraphComparisonResultDTO);
 
-                var result = new GraphComparisonResult()
+                var result = new ExecutionPlanGraphComparisonResult()
                 {
                     FirstComparisonResult = firstGraphComparisonResultDTO,
                     SecondComparisonResult = secondGraphComparisonResultDTO
