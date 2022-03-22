@@ -5983,6 +5983,16 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">기본 제약 조건 이름</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="AddNewEdgeConstraintLabel">
+        <source>New Edge Constraint</source>
+        <target state="translated">새 Edge 제약 조건</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="AddNewClauseLabel">
+        <source>New Clause</source>
+        <target state="translated">새 절</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -5983,6 +5983,16 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
         <target state="translated">Nom de contrainte par défaut</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="AddNewEdgeConstraintLabel">
+        <source>New Edge Constraint</source>
+        <target state="translated">Nouvelle contrainte Edge</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="AddNewClauseLabel">
+        <source>New Clause</source>
+        <target state="translated">Nouvelle clause</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

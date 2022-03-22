@@ -3670,4 +3670,10 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
   <data name="TableColumnDefaultConstraintNamePropertyTitle" xml:space="preserve">
     <value>Nome vincolo predefinito</value>
   </data>
+  <data name="AddNewEdgeConstraintLabel" xml:space="preserve">
+    <value>Nuovo vincolo di arco</value>
+  </data>
+  <data name="AddNewClauseLabel" xml:space="preserve">
+    <value>Nuova clausola</value>
+  </data>
 </root>
