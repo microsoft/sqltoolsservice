@@ -4778,6 +4778,14 @@ The Query Processor estimates that implementing the following index could improv
     <value>Name</value>
     <comment></comment>
   </data>
+  <data name="TableDesignerEdgeConstraintDescriptionPropertyDescription" xml:space="preserve">
+    <value>Description of the constraint.</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerEdgeConstraintDescriptionPropertyTitle" xml:space="preserve">
+    <value>Description</value>
+    <comment></comment>
+  </data>
   <data name="TableDesignerEdgeConstraintIsEnabledPropertyDescription" xml:space="preserve">
     <value>Specifies whether the constraint is enabled.</value>
     <comment></comment>

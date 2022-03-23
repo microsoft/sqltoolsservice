@@ -23,6 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         public const string IsMemoryOptimized = "isMemoryOptimized";
         public const string Durability = "durability";
         public const string PrimaryKeyName = "primaryKeyName";
+        public const string PrimaryKeyDescription = "primaryKeyDescription";
         public const string PrimaryKeyIsClustered = "primaryKeyIsClustered";
         public const string PrimaryKeyColumns = "primaryKeyColumns";
     }
@@ -30,6 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
     public static class TableColumnPropertyNames
     {
         public const string Name = "name";
+        public const string Description = "description";
         public const string AdvancedType = "advancedType";
         public const string Type = "type";
         public const string DefaultValue = "defaultValue";
@@ -50,6 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
     public static class ForeignKeyPropertyNames
     {
         public const string Name = "name";
+        public const string Description = "description";
         public const string Enabled = "enabled";
         public const string OnDeleteAction = "onDeleteAction";
         public const string OnUpdateAction = "onUpdateAction";
@@ -61,6 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
     public static class CheckConstraintPropertyNames
     {
         public const string Name = "name";
+        public const string Description = "description";
         public const string Enabled = "enabled";
         public const string Expression = "expression";
     }
@@ -74,6 +78,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
     public static class IndexPropertyNames
     {
         public const string Name = "name";
+        public const string Description = "description";
+
         public const string Enabled = "enabled";
         public const string IsUnique = "isUnique";
         public const string IsClustered = "isClustered";
@@ -90,6 +96,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
     public static class EdgeConstraintPropertyNames
     {
         public const string Name = "name";
+        public const string Description = "description";
+
         public const string Enabled = "enabled";
         public const string Clauses = "clauses";
         public const string OnDeleteAction = "onDeleteAction";
