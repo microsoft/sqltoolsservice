@@ -13,8 +13,6 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureBlob
 {
     class SharedAccessSignatureCreator
     {
-
-
         private Server sqlServer;
 
         public SharedAccessSignatureCreator(Server sqlServer)
