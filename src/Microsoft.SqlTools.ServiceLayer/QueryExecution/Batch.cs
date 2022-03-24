@@ -646,7 +646,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // State that we've sent any message, and send it
             messagesSent = true;
-            await BatchMessageSent(new ResultMessage(message, isError, Id, true));
+            await BatchMessageSent(new ResultMessage(message, isError, Id, hasRowCount: true));
         }
 
         /// <summary>
