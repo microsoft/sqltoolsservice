@@ -13,7 +13,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 
 namespace Microsoft.SqlTools.ServiceLayer.AzureBlob
 {
-    class BlobService
+    public class BlobService
     {
         private static readonly Lazy<BlobService> instance = new Lazy<BlobService>(() => new BlobService());
 
