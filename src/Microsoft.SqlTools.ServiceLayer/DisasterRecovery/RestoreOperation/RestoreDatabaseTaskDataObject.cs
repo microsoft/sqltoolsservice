@@ -77,7 +77,16 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         private bool? isTailLogBackupWithNoRecoveryPossible = null;
         private string backupMediaList = string.Empty;
         private Server server;
-        private DeviceType[] supportedDeviceTypes = { DeviceType.File, DeviceType.Url };
+        private static DeviceType[] managedInstanceSupportedDeviceTypes = { DeviceType.Url };
+        private static DeviceType[] boxSupportedDeviceTypes = { DeviceType.File, DeviceType.Url };
+        private Dictionary<Edition, DeviceType[]> supportedDeviceTypes = new Dictionary<Edition, DeviceType[]>
+        {
+            { Edition.SqlManagedInstance, managedInstanceSupportedDeviceTypes },
+            { Edition.PersonalOrDesktopEngine, boxSupportedDeviceTypes },
+            { Edition.Standard, boxSupportedDeviceTypes },
+            { Edition.EnterpriseOrDeveloper, boxSupportedDeviceTypes },
+            { Edition.Express, boxSupportedDeviceTypes },
+        };
 
         public RestoreDatabaseTaskDataObject(Server server, String databaseName)
         {
@@ -198,7 +207,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         /// <param name="filePaths"></param>
         public void AddDevices(string filePaths, DeviceType deviceType)
         {
-            if (isSupportedDeviceType(deviceType))
+            if (isSupportedDeviceType(this.Server.EngineEdition, deviceType))
             {
                 throw new UnsupportedDeviceTypeException(deviceType);
             }
@@ -228,9 +237,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             }
         }
 
-        private bool isSupportedDeviceType(DeviceType deviceType)
+        private bool isSupportedDeviceType(Edition engineEdition, DeviceType deviceType)
         {
-            return supportedDeviceTypes.Contains(deviceType);
+            return supportedDeviceTypes.ContainsKey(engineEdition) && supportedDeviceTypes[engineEdition].Contains(deviceType);
         }
 
         
