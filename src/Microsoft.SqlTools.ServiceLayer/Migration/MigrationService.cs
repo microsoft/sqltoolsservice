@@ -504,21 +504,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         {
             return assessmentResults.Select(r =>
             {
+                var check = (Microsoft.SqlServer.Management.Assessment.Checks.Check)r.Check;
                 return new MigrationAssessmentInfo()
                 {
-                    CheckId = r.Check.Id,
-                    Description = r.Check.Description,
-                    DisplayName = r.Check.DisplayName,
-                    HelpLink = r.Check.HelpLink,
-                    Level = r.Check.Level.ToString(),
+                    CheckId = check.Id,
+                    Description = check.Description,
+                    DisplayName = r.Message,
+                    HelpLink = check.HelpLink,
+                    Level = check.Level.ToString(),
                     TargetType = r.TargetType.ToString(),
                     DatabaseName = r.DatabaseName,
                     ServerName = r.ServerName,
-                    Tags = r.Check.Tags.ToArray(),
+                    Tags = check.Tags.ToArray(),
                     RulesetName = Engine.Configuration.DefaultRuleset.Name,
                     RulesetVersion = Engine.Configuration.DefaultRuleset.Version.ToString(),
                     RuleId = r.FeatureId.ToString(),
-                    Message = r.Message,
+                    Message = check.Message,
                     AppliesToMigrationTargetPlatform = r.AppliesToMigrationTargetPlatform.ToString(),
                     IssueCategory = r.IssueCategory.ToString(),
                     ImpactedObjects = ParseImpactedObjects(r.ImpactedObjects),
