@@ -43,6 +43,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
     {
         public static readonly
             RequestType<ExecutionPlanComparisonParams, ExecutionPlanComparisonResult> Type =
-                RequestType<ExecutionPlanComparisonParams, ExecutionPlanComparisonResult>.Create("executionPlan/compareExecutionPlanGraph");
+                RequestType<ExecutionPlanComparisonParams, ExecutionPlanComparisonResult>.Create("queryExecutionPlan/compareExecutionPlanGraph");
     }
 }
