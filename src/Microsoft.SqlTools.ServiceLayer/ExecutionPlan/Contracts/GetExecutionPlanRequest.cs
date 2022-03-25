@@ -23,6 +23,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
     {
         public static readonly
         RequestType<GetExecutionPlanParams, GetExecutionPlanResult> Type = 
-         RequestType<GetExecutionPlanParams, GetExecutionPlanResult>.Create("queryexecutionplan/getexecutionplan");
+         RequestType<GetExecutionPlanParams, GetExecutionPlanResult>.Create("queryExecutionPlan/getExecutionPlan");
     }
 }
