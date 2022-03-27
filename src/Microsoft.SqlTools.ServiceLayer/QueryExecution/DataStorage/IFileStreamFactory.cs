@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
         IFileStreamReader GetReader(string fileName);
 
-        IFileStreamWriter GetWriter(string fileName, IReadOnlyList<DbColumnWrapper> columns);
+        IFileStreamWriter GetWriter(string fileName, IReadOnlyList<DbColumnWrapper> columns = null);
 
         void DisposeFile(string fileName);
 

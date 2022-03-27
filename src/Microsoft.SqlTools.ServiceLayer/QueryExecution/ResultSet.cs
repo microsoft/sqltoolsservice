@@ -792,7 +792,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 throw new InvalidOperationException(SR.QueryServiceResultSetAddNoRows);
             }
 
-            using (IFileStreamWriter writer = fileStreamFactory.GetWriter(outputFileName, null))
+            using (IFileStreamWriter writer = fileStreamFactory.GetWriter(outputFileName))
             {
                 // Write the row to the end of the file
                 long currentFileOffset = totalBytesWritten;
