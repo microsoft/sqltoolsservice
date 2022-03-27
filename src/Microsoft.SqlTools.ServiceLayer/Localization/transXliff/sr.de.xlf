@@ -5983,6 +5983,16 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
         <target state="translated">Standardeinschränkungsname</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="AddNewEdgeConstraintLabel">
+        <source>New Edge Constraint</source>
+        <target state="translated">Neue Edge-Einschränkung...</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="AddNewClauseLabel">
+        <source>New Clause</source>
+        <target state="translated">Neue Klausel</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

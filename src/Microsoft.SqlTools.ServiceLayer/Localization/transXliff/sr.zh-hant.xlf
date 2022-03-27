@@ -5983,6 +5983,16 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">預設條件約束名稱</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="AddNewEdgeConstraintLabel">
+        <source>New Edge Constraint</source>
+        <target state="translated">新增邊緣限制式</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="AddNewClauseLabel">
+        <source>New Clause</source>
+        <target state="translated">新增子句</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

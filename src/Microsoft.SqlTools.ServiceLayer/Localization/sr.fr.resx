@@ -3670,4 +3670,10 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
   <data name="TableColumnDefaultConstraintNamePropertyTitle" xml:space="preserve">
     <value>Nom de contrainte par défaut</value>
   </data>
+  <data name="AddNewEdgeConstraintLabel" xml:space="preserve">
+    <value>Nouvelle contrainte Edge</value>
+  </data>
+  <data name="AddNewClauseLabel" xml:space="preserve">
+    <value>Nouvelle clause</value>
+  </data>
 </root>

@@ -572,7 +572,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         /// <param name="resultSetIndex">The index for selecting the result set</param>
         /// <returns>An execution plan object</returns>
-        public Task<ExecutionPlan> GetExecutionPlan(int resultSetIndex)
+        public Task<Contracts.ExecutionPlan> GetExecutionPlan(int resultSetIndex)
         {
             ResultSet targetResultSet;
             lock (resultSets)

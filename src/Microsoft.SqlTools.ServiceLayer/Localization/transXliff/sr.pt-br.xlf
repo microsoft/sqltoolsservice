@@ -5983,6 +5983,16 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
         <target state="translated">Nome da Restrição Padrão</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="AddNewEdgeConstraintLabel">
+        <source>New Edge Constraint</source>
+        <target state="translated">Nova Restrição de Borda</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="AddNewClauseLabel">
+        <source>New Clause</source>
+        <target state="translated">Nova Cláusula</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

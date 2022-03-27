@@ -5983,6 +5983,16 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
         <target state="translated">Nome vincolo predefinito</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="AddNewEdgeConstraintLabel">
+        <source>New Edge Constraint</source>
+        <target state="translated">Nuovo vincolo di arco</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="AddNewClauseLabel">
+        <source>New Clause</source>
+        <target state="translated">Nuova clausola</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

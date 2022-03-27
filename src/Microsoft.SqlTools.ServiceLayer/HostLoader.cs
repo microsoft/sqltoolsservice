@@ -36,6 +36,7 @@ using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.NotebookConvert;
 using Microsoft.SqlTools.ServiceLayer.ModelManagement;
 using Microsoft.SqlTools.ServiceLayer.TableDesigner;
+using Microsoft.SqlTools.ServiceLayer.ExecutionPlan;
 
 namespace Microsoft.SqlTools.ServiceLayer
 {
@@ -166,8 +167,8 @@ namespace Microsoft.SqlTools.ServiceLayer
             InitializeHostedServices(serviceProvider, serviceHost);
             serviceHost.ServiceProvider = serviceProvider;
 
-            ShowPlan.ExecutionPlanService.Instance.InitializeService(serviceHost);
-            serviceProvider.RegisterSingleService(ShowPlan.ExecutionPlanService.Instance);
+            ExecutionPlanService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(ExecutionPlanService.Instance);
 
             serviceHost.InitializeRequestHandlers();
         }

@@ -3670,4 +3670,10 @@
   <data name="TableColumnDefaultConstraintNamePropertyTitle" xml:space="preserve">
     <value>預設條件約束名稱</value>
   </data>
+  <data name="AddNewEdgeConstraintLabel" xml:space="preserve">
+    <value>新增邊緣限制式</value>
+  </data>
+  <data name="AddNewClauseLabel" xml:space="preserve">
+    <value>新增子句</value>
+  </data>
 </root>
