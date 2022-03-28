@@ -4,10 +4,26 @@
 //
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 {
+    /// <summary>
+    /// The service request to generate preview report describing the changes.
+    /// </summary>
+
+    public class GeneratePreviewReportResult 
+    {
+        /// <summary>
+        /// The report generated for publish preview
+        /// </summary>
+        public string Report;
+
+        /// <summary>
+        /// format (mimetype) of the string
+        /// </summary>
+        public string MimeType;
+    }
+    
     /// <summary>
     /// The service request to generate preview report describing the changes.
     /// </summary>
@@ -16,6 +32,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         /// <summary>
         /// Request definition
         /// </summary>
-        public static readonly RequestType<TableInfo, string> Type = RequestType<TableInfo, string>.Create("tabledesigner/generatepreviewreport");
+        public static readonly RequestType<TableInfo, GeneratePreviewReportResult> Type = RequestType<TableInfo, GeneratePreviewReportResult>.Create("tabledesigner/generatepreviewreport");
     }
 }

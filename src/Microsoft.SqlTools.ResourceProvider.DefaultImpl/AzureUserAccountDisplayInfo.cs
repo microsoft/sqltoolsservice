@@ -1,6 +1,7 @@
 ﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using Microsoft.SqlTools.ResourceProvider.Core.Authentication;
 
@@ -45,8 +46,8 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
         /// </summary>
         public bool Equals(IAzureUserAccountDisplayInfo other)
         {
-            return other != null && 
-                ((other.AccountDisplayName == null && AccountDisplayName == null ) || (other.AccountDisplayName != null && other.AccountDisplayName.Equals(AccountDisplayName))) && 
+            return other != null &&
+                ((other.AccountDisplayName == null && AccountDisplayName == null ) || (other.AccountDisplayName != null && other.AccountDisplayName.Equals(AccountDisplayName))) &&
                 ((other.UserName == null && UserName == null ) || (other.UserName != null && other.UserName.Equals(UserName)));
         }
 

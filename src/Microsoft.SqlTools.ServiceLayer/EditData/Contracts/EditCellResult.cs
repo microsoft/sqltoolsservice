@@ -1,4 +1,9 @@
-﻿namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+namespace Microsoft.SqlTools.ServiceLayer.EditData.Contracts
 {
     /// <summary>
     /// Parameters to return when a cell is updated in isolation

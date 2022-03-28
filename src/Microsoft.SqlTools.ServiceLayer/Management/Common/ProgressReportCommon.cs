@@ -4,16 +4,14 @@
 //
 
 using System;
-using System.Drawing;
 using System.Threading;
-using System.Runtime.InteropServices;
 
 namespace Microsoft.SqlTools.ServiceLayer.Management
 {
-	/// <summary>
-	/// Enumeration for status of individual actions
-	/// </summary>
-	public enum ProgressStatus
+    /// <summary>
+    /// Enumeration for status of individual actions
+    /// </summary>
+    public enum ProgressStatus
 	{
 		Invalid = -1,
 		NotStarted,			// Not started

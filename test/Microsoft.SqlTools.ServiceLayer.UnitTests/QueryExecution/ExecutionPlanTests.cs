@@ -12,7 +12,6 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
-using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
@@ -31,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             // If:
             // ... I have a result set and I ask for a valid execution plan
             ResultSet planResultSet = b.ResultSets.First();
-            ExecutionPlan plan = planResultSet.GetExecutionPlan().Result;
+            ServiceLayer.QueryExecution.Contracts.ExecutionPlan plan = planResultSet.GetExecutionPlan().Result;
             Assert.AreEqual("xml", plan.Format);
             Assert.That(plan.Content, Does.Contain("Execution Plan"), "I should get the execution plan back");
         }
@@ -63,7 +62,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             Batch b = Common.GetExecutedBatchWithExecutionPlan();
 
             // ... And I ask for a valid execution plan 
-            ExecutionPlan plan = b.GetExecutionPlan(0).Result;
+            ServiceLayer.QueryExecution.Contracts.ExecutionPlan plan = b.GetExecutionPlan(0).Result;
 
             Assert.AreEqual("xml", plan.Format);
             Assert.That(plan.Content, Does.Contain("Execution Plan"), "I should get the execution plan back");

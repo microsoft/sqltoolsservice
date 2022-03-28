@@ -1,0 +1,15 @@
+# See https://github.com/dotnet/roslyn-analyzers/blob/main/.editorconfig for an example on different settings and how they're used
+
+# Disable checking for correct header for this project - most of the code is borrowed from other projects
+# which have different style guidelines
+[*.cs]
+
+dotnet_diagnostic.IDE0073.severity = none
+
+[*]
+indent_style = space
+indent_size = 4
+end_of_line = crlf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = false
