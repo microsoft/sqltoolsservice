@@ -52,49 +52,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         {
             try
             {
-                string azureBlobSettingFileContents = GetAzureBlobSettingFileContent();
-                AzureBlobConnectionSetting setting = Newtonsoft.Json.JsonConvert.DeserializeObject<AzureBlobConnectionSetting>(azureBlobSettingFileContents);
+                AzureBlobConnectionSetting settings = new AzureBlobConnectionSetting();
+                settings.AccountKey = Environment.GetEnvironmentVariable(Constants.AzureStorageAccountKey);
+                settings.AccountName = Environment.GetEnvironmentVariable(Constants.AzureStorageAccountName);
+                settings.BlobContainerUri = Environment.GetEnvironmentVariable(Constants.AzureBlobContainerUri); 
                 Console.WriteLine("Azure Blob Connection Settings loaded successfully");
-                return setting;
+                return settings;
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Failed to load the azure blob connection settings. error: " + ex.Message);
                 return new AzureBlobConnectionSetting();
             }
-        }
-
-
-        /// <summary>
-        /// Get the location of azureblobsetting.json.
-        /// </summary>
-        /// <returns>
-        /// Value of environment variable 'AzureBlobSettingsFileName'
-        /// </returns>
-        private static string GetAzureBlobSettingFileContent()
-        {
-            var settingsFileName = Environment.GetEnvironmentVariable(Constants.AzureBlobConectionSettingsEnvironmentVariable);
-
-            if (string.IsNullOrEmpty(settingsFileName))
-            {
-                if (File.Exists(DefaultAzureBlobSettingFileName))
-                {
-                    settingsFileName = DefaultAzureBlobSettingFileName;
-                }
-                else
-                {
-                    Console.WriteLine(DefaultAzureBlobSettingFileName + " Azure blob connection settings are not configured.");
-                }
-            }
-
-            if (!string.IsNullOrEmpty(settingsFileName))
-            {
-                Console.WriteLine("SQL Connection settings are loaded from: " + settingsFileName);
-            }
-
-            string azureBlobSettingsFileContents = string.IsNullOrEmpty(settingsFileName) ? string.Empty : File.ReadAllText(settingsFileName);
-
-            return azureBlobSettingsFileContents;
         }
     }
 }

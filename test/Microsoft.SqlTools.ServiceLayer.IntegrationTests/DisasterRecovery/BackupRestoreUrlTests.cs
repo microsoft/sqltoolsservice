@@ -5,6 +5,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using Azure.Storage;
 using Azure.Storage.Blobs;
 using Microsoft.Data.SqlClient;
@@ -15,10 +19,13 @@ using Microsoft.SqlTools.ServiceLayer.AzureBlob;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
+using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Management;
+using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using NUnit.Framework;
+using static Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility.LiveConnectionHelper;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
 {
@@ -28,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
         /// Create simple backup test
         /// </summary>
         [Test]
-        public void CreateBackupToUrlTest()
+        public async Task BackupDatabaseToUrlAndRestoreFromUrlTest()
         {
             DisasterRecoveryService service = new DisasterRecoveryService();
             string databaseName = "SqlToolsService_TestBackupToUrl_" + new Random().Next(10000000, 99999999);
@@ -54,10 +61,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
 
                     // Backup the database
                     service.PerformBackup(backupOperation);
-                    
-                    VerifyAndCleanAzureBlobBackup(databaseName);
+
+                    testDb.Cleanup();
                 }
             }
+
+            await VerifyRestore(databaseName, true, TaskExecutionModeFlag.Execute, databaseName);
+
+            VerifyAndCleanAzureBlobBackup(databaseName);
         }
 
         private BackupInfo CreateDefaultBackupInfo(string databaseName, BackupType backupType, List<string> backupPathList, Dictionary<string, int> backupPathDevices)
@@ -106,6 +117,137 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             };
 
             return service.CreateBackupOperation(dataContainer, sqlConn, backupParams.BackupInfo);
+        }
+
+        private async Task<RestorePlanResponse> VerifyRestore(
+            string sourceDbName = null,
+            bool canRestore = true,
+            TaskExecutionModeFlag executionMode = TaskExecutionModeFlag.None,
+            string targetDatabase = null,
+            string[] selectedBackupSets = null,
+            Dictionary<string, object> options = null,
+            Func<Database, bool> verifyDatabase = null,
+            bool shouldFail = false)
+        {
+            string backUpFilePath = GetAzureBlobBackupPath(targetDatabase);
+
+            using (SqlTestDb testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, "master"))
+            {
+                TestConnectionResult connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", testDb.ConnectionString);
+
+                RestoreDatabaseHelper service = new RestoreDatabaseHelper();
+
+                // If source database is sepecified verfiy it's part of source db list
+                if (!string.IsNullOrEmpty(sourceDbName))
+                {
+                    RestoreConfigInfoResponse configInfoResponse = service.CreateConfigInfoResponse(new RestoreConfigInfoRequestParams
+                    {
+                        OwnerUri = testDb.ConnectionString
+                    });
+                    IEnumerable<string> dbNames = configInfoResponse.ConfigInfo[RestoreOptionsHelper.SourceDatabaseNamesWithBackupSets] as IEnumerable<string>;
+                    Assert.True(dbNames.Any(x => x == sourceDbName));
+                }
+                var request = new RestoreParams
+                {
+                    BackupFilePaths = backUpFilePath,
+                    TargetDatabaseName = targetDatabase,
+                    OwnerUri = testDb.ConnectionString,
+                    SelectedBackupSets = selectedBackupSets,
+                    SourceDatabaseName = sourceDbName,
+                    DeviceType = (int)DeviceType.Url
+                };
+                request.Options[RestoreOptionsHelper.ReadHeaderFromMedia] = string.IsNullOrEmpty(backUpFilePath);
+
+                if (options != null)
+                {
+                    foreach (var item in options)
+                    {
+                        if (!request.Options.ContainsKey(item.Key))
+                        {
+                            request.Options.Add(item.Key, item.Value);
+                        }
+                    }
+                }
+
+                var restoreDataObject = service.CreateRestoreDatabaseTaskDataObject(request, connectionResult.ConnectionInfo);
+                restoreDataObject.ConnectionInfo = connectionResult.ConnectionInfo;
+                var response = service.CreateRestorePlanResponse(restoreDataObject);
+
+                Assert.NotNull(response);
+                Assert.False(string.IsNullOrWhiteSpace(response.SessionId));
+                Assert.AreEqual(response.CanRestore, canRestore);
+                if (canRestore)
+                {
+                    Assert.True(response.DbFiles.Any());
+                    if (string.IsNullOrEmpty(targetDatabase))
+                    {
+                        targetDatabase = response.DatabaseName;
+                    }
+                    Assert.AreEqual(response.DatabaseName, targetDatabase);
+                    Assert.NotNull(response.PlanDetails);
+                    Assert.True(response.PlanDetails.Any());
+                    Assert.NotNull(response.PlanDetails[RestoreOptionsHelper.BackupTailLog]);
+                    Assert.NotNull(response.PlanDetails[RestoreOptionsHelper.TailLogBackupFile]);
+                    Assert.NotNull(response.PlanDetails[RestoreOptionsHelper.DataFileFolder]);
+                    Assert.NotNull(response.PlanDetails[RestoreOptionsHelper.LogFileFolder]);
+                    Assert.NotNull(response.PlanDetails[RestoreOptionsHelper.StandbyFile]);
+                    Assert.NotNull(response.PlanDetails[RestoreOptionsHelper.StandbyFile]);
+
+                    if (executionMode != TaskExecutionModeFlag.None)
+                    {
+                        try
+                        {
+                            request.SessionId = response.SessionId;
+                            restoreDataObject = service.CreateRestoreDatabaseTaskDataObject(request);
+                            Assert.AreEqual(response.SessionId, restoreDataObject.SessionId);
+                            request.RelocateDbFiles = !restoreDataObject.DbFilesLocationAreValid();
+                            restoreDataObject.Execute((TaskExecutionMode)Enum.Parse(typeof(TaskExecutionMode), executionMode.ToString()));
+
+                            if (executionMode.HasFlag(TaskExecutionModeFlag.Execute))
+                            {
+                                Assert.True(restoreDataObject.Server.Databases.Contains(targetDatabase));
+
+                                if (verifyDatabase != null)
+                                {
+                                    Assert.True(verifyDatabase(restoreDataObject.Server.Databases[targetDatabase]));
+                                }
+
+                                //To verify the backupset that are restored, verifying the database is a better options.
+                                //Some tests still verify the number of backup sets that are executed which in some cases can be less than the selected list
+                                if (verifyDatabase == null && selectedBackupSets != null)
+                                {
+                                    Assert.AreEqual(selectedBackupSets.Count(), restoreDataObject.RestorePlanToExecute.RestoreOperations.Count());
+                                }
+                            }
+                            if (executionMode.HasFlag(TaskExecutionModeFlag.Script))
+                            {
+                                Assert.False(string.IsNullOrEmpty(restoreDataObject.ScriptContent));
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            if (!shouldFail)
+                            {
+                                Assert.False(true, ex.Message);
+                            }
+                        }
+                        finally
+                        {
+                            await DropDatabase(targetDatabase);
+                        }
+                    }
+                }
+
+                return response;
+            }
+        }
+
+        private async Task DropDatabase(string databaseName)
+        {
+            string dropDatabaseQuery = string.Format(CultureInfo.InvariantCulture,
+                       Scripts.DropDatabaseIfExist, databaseName);
+
+            await TestServiceProvider.Instance.RunQueryAsync(TestServerType.OnPrem, "master", dropDatabaseQuery);
         }
     }
 }
