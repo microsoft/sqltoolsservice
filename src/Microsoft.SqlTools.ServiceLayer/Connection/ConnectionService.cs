@@ -939,6 +939,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             return handler.HandleRequest(this.connectionFactory, info);
         }
 
+        /// <summary>
+        /// List all databases on the server specified
+        /// </summary>
+        public ListTablesResponse ListTables(ListTablesParams listTablesParams)
+        {
+            // Verify parameters
+            var owner = listTablesParams.OwnerUri;
+            if (string.IsNullOrEmpty(owner))
+            {
+                throw new ArgumentException(SR.ConnectionServiceListDbErrorNullOwnerUri);
+            }
+
+            // Use the existing connection as a base for the search
+            ConnectionInfo info;
+            if (!TryFindConnection(owner, out info))
+            {
+                throw new Exception(SR.ConnectionServiceListDbErrorNotConnected(owner));
+            }
+            var handler = ListTableRequestHandlerFactory.getHandler(listTablesParams.IncludeDetails.HasTrue(), info.IsSqlDb);
+            return handler.HandleRequest(this.connectionFactory, info);
+        }
+
         public void InitializeService(IProtocolEndpoint serviceHost)
         {
             this.ServiceHost = serviceHost;
@@ -948,6 +970,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             serviceHost.SetRequestHandler(CancelConnectRequest.Type, HandleCancelConnectRequest);
             serviceHost.SetRequestHandler(DisconnectRequest.Type, HandleDisconnectRequest);
             serviceHost.SetRequestHandler(ListDatabasesRequest.Type, HandleListDatabasesRequest);
+            serviceHost.SetRequestHandler(ListTablesRequest.Type, HandleListTablesRequest);
             serviceHost.SetRequestHandler(ChangeDatabaseRequest.Type, HandleChangeDatabaseRequest);
             serviceHost.SetRequestHandler(GetConnectionStringRequest.Type, HandleGetConnectionStringRequest);
             serviceHost.SetRequestHandler(BuildConnectionInfoRequest.Type, HandleBuildConnectionInfoRequest);
@@ -1077,6 +1100,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 try
                 {
                     ListDatabasesResponse result = ListDatabases(listDatabasesParams);
+                    await requestContext.SendResult(result);
+                }
+                catch (Exception ex)
+                {
+                    await requestContext.SendError(ex.ToString());
+                }
+            });
+            return Task.CompletedTask;
+        }
+
+         /// <summary>
+        /// Handle requests to list tables on the current database
+        /// </summary>
+        protected Task HandleListTablesRequest(
+            ListTablesParams listTablesParams,
+            RequestContext<ListTablesResponse> requestContext)
+        {
+            Task.Run(async () =>
+            {
+                Logger.Write(TraceEventType.Verbose, "ListTablesRequest");
+                try
+                {
+                    ListTablesResponse result = ListTables(listTablesParams);
                     await requestContext.SendResult(result);
                 }
                 catch (Exception ex)
