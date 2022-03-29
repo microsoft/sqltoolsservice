@@ -30,7 +30,6 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureBlob.Contracts
         public string StorageAccountName { get; set; }
         /// <summary>
         /// Shared access signature expiration date
-        /// format: YYYY-MM-DD
         /// </summary>
         public string ExpirationDate { get; set; }
     }

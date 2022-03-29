@@ -8,6 +8,7 @@ using Azure.Storage.Blobs;
 using Azure.Storage;
 using Azure.Storage.Sas;
 using Microsoft.SqlTools.ServiceLayer.AzureBlob.Contracts;
+using System.Globalization;
 
 namespace Microsoft.SqlTools.ServiceLayer.AzureBlob
 {
@@ -25,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureBlob
             DateTimeOffset? expirationDate = null;
             if (!String.IsNullOrEmpty(expirationDateString))
             {
-                expirationDate = DateTimeOffset.Parse(expirationDateString);
+                expirationDate = DateTimeOffset.Parse(expirationDateString, CultureInfo.InvariantCulture);
             }
             var containerClient = new BlobContainerClient(new Uri(containerUri), new StorageSharedKeyCredential(accountName, accountKey));
             Uri secretStringUri = GetServiceSasUriForContainer(containerClient, null, expirationDate);
@@ -85,7 +86,7 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureBlob
             // Check whether this BlobContainerClient object has been authorized with Shared Key.
             if (containerClient.CanGenerateSasUri)
             {
-                // Create a SAS token that's valid for one year.
+                // Create a SAS token
                 BlobSasBuilder sasBuilder = new BlobSasBuilder()
                 {
                     BlobContainerName = containerClient.Name,

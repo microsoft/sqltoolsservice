@@ -64,7 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureBlob
                     }
                 } else
                 {
-                    await requestContext.SendError("Create shared access signature is not supported opeation.");
+                    await requestContext.SendError("Create shared access signature is not supported operation.");
                 }
                 await requestContext.SendResult(response);
             }
