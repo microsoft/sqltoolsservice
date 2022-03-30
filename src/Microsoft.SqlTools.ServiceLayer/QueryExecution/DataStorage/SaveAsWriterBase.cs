@@ -23,8 +23,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <param name="stream">The stream that will be written to</param>
         /// <param name="requestParams">The SaveAs request parameters</param>
         /// <param name="columns">
-        /// The entire list of columns for the result set. They will be filtered down as per the
-        /// request params.
+        /// The entire list of columns for the result set. Used to determine which columns to
+        /// output.
         /// </param>
         protected SaveAsStreamWriter(Stream stream, SaveResultsRequestParams requestParams, IReadOnlyList<DbColumnWrapper> columns)
         {

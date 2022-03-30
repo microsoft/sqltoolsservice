@@ -54,8 +54,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </summary>
         /// <param name="fileName">The file to write values to</param>
         /// <param name="columns">
-        /// The entire list of columns for the result set. They will be filtered down as per the
-        /// request params.
+        /// Ignored in order to fulfil the <see cref="IFileStreamFactory"/> contract.
+        /// @TODO: Refactor this out so that save-as writers do not use the same contract as service buffer writers.
         /// </param>
         /// <returns>A <see cref="ServiceBufferFileStreamWriter"/></returns>
         public IFileStreamWriter GetWriter(string fileName, IReadOnlyList<DbColumnWrapper> columns)
