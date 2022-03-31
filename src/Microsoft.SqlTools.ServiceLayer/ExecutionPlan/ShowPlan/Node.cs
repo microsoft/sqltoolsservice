@@ -589,7 +589,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
 
             if (!this.HasPDWCost || cost > 0)
             {
-                string costText = SR.CostFormat((int)Math.Round(cost));
+                string costText = SR.CostFormat(cost.ToString("0.######"));
                 newDisplayNameLines += '\n' + costText;
             }
 
