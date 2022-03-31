@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
-  <file datatype="xml" original="sr.resx" source-language="en" target-language="zh-Hant">
+  <file datatype="xml" original="sr.resx" source-language="en" target-language="zh-hant">
     <body>
       <trans-unit id="AzureServerNotFound">
         <source>The server you specified {0} does not exist in any subscription in {1}. Either you have signed in with an incorrect account or your server was removed from subscription(s) in this account. Please check your account and try again.</source>
