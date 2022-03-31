@@ -31,10 +31,9 @@
 	</ItemGroup>
 	<ItemGroup>
 		<Content Remove=".\ShowPlan\TestExecution.xml" />
-		<EmbeddedResource Include=".\ShowPlan\TestExecutionPlan.xml" />
+		<EmbeddedResource Include="ShowPlan\TestShowPlan.xml" />
 	</ItemGroup>
 	<ItemGroup>
-		<Content Remove=".\ShowPlan\TestExecutionPlanRecommendations.xml" />
-		<EmbeddedResource Include=".\ShowPlan\TestExecutionPlanRecommendations.xml" />
+		<EmbeddedResource Include="ShowPlan\TestShowPlanRecommendations.xml" />
 	</ItemGroup>
 </Project>

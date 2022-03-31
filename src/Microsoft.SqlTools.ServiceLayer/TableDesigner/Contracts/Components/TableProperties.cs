@@ -50,5 +50,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         /// The confirmation message to be displayed when a row is about to be removed.
         /// </summary>
         public string RemoveRowConfirmationMessage { get; set; }
+
+        /// <summary>
+        /// The label for the add new button for this table.
+        /// </summary>
+        public string LabelForAddNewButton { get; set; }
     }
 }

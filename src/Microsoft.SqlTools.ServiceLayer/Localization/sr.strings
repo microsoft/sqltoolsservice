@@ -2303,3 +2303,5 @@ TableDesignerNewHistoryTableDescription = Specifies the name of the new history 
 TableDesignerNewHistoryTableTitle = New History Table Name
 TableColumnDefaultConstraintNamePropertyDescription = Specifies the default constraint name.
 TableColumnDefaultConstraintNamePropertyTitle = Default Constraint Name
+AddNewEdgeConstraintLabel = New Edge Constraint
+AddNewClauseLabel = New Clause

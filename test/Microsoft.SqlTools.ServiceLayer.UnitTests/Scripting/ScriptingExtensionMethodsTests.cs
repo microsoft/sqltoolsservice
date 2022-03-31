@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -8,6 +8,7 @@ using Microsoft.SqlTools.ServiceLayer.Scripting;
 using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 using NUnit.Framework;
 using Assert = NUnit.Framework.Assert;
+
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
 {
 
@@ -21,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
         {
             var scriptingObject = new ScriptingObject() { Name = "quoted'Name", Schema = "quoted'Schema", Type = "Table" };
             var urn = scriptingObject.ToUrn("server", "quoted'db");
-            Assert.That(urn.ToString, Is.EqualTo("Server[@Name='SERVER']/Database[@Name='quoted''db']/Table[@Name='quoted''Name' and @Schema = 'quoted''Schema']"), "Urn should have escaped Name attributes");
+            Assert.AreEqual("Server[@Name='SERVER']/Database[@Name='quoted''db']/Table[@Name='quoted''Name' and @Schema = 'quoted''Schema']", urn.ToString(), "Urn should have escaped Name attributes");
             Assert.That(urn.Type, Is.EqualTo("Table"), "Urn Type");
             // These assertions are more for educational purposes than for testing, since the methods are Urn methods in SFC.
             Assert.That(urn.GetNameForType("Database"), Is.EqualTo("quoted'db"), "GetNameForType('Database')");

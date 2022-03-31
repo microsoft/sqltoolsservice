@@ -138,7 +138,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             s.EditCache[rs.RowCount] = mockEdit;
 
             // If: I create a row in the session
-            // Then: 
+            // Then:
             // ... An exception should be thrown
             Assert.Throws<InvalidOperationException>(() => s.CreateRow());
 
@@ -321,7 +321,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
             EditSession s = new EditSession(emf.Object);
 
-            Assert.That(() => s.Initialize(initParams, c, qr, sh, fh), Throws.InstanceOf<ArgumentException>(), "I initialize it with a missing parameter. It should throw an exception");
+            Assert.Catch<ArgumentException>(() => s.Initialize(initParams, c, qr, sh, fh), "I initialize it with a missing parameter. It should throw an exception");
         }
 
         public static IEnumerable<object[]> InitializeNullParamsData
@@ -551,7 +551,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             s.EditCache[0] = mockEdit;
 
             // If: I delete a row in the session
-            // Then: 
+            // Then:
             // ... An exception should be thrown
             Assert.Throws<InvalidOperationException>(() => s.DeleteRow(0));
 
@@ -680,7 +680,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // If: I update a cell on a row that already has a pending edit
             s.UpdateCell(0, 0, null);
 
-            // Then: 
+            // Then:
             // ... The mock update should still be in the cache
             // ... And it should have had set cell called on it
             Assert.That(s.EditCache.Values, Has.Member(mockEdit.Object));
@@ -943,7 +943,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 // If: I script the edit cache to a local output path
                 string outputPath = s.ScriptEdits(file.FilePath);
 
-                // Then: 
+                // Then:
                 // ... The output path used should be the same as the one we provided
                 Assert.AreEqual(file.FilePath, outputPath);
 
@@ -984,7 +984,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         [Test]
         public async Task CommitNullSuccessHandler()
         {
-            // Setup: 
+            // Setup:
             // ... Create a basic session
             EditSession s = await GetBasicSession();
 
@@ -999,7 +999,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         [Test]
         public async Task CommitNullFailureHandler()
         {
-            // Setup: 
+            // Setup:
             // ... Create a basic session
             EditSession s = await GetBasicSession();
 
@@ -1014,7 +1014,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         [Test]
         public async Task CommitInProgress()
         {
-            // Setup: 
+            // Setup:
             // ... Basic session and db connection
             EditSession s = await GetBasicSession();
             DbConnection conn = new TestSqlConnection(null);
@@ -1046,7 +1046,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // If: I commit these changes (and await completion)
             bool successCalled = false;
             bool failureCalled = false;
-            s.CommitEdits(conn, 
+            s.CommitEdits(conn,
                 () => {
                     successCalled = true;
                     return Task.FromResult(0);

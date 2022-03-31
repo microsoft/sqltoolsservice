@@ -1,4 +1,4 @@
-﻿// 
+﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -50,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
         [Test]
         public async Task SaveResultAsCsvFailure()
         {
-            // Given: 
+            // Given:
             // ... A working query and workspace service
             WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
             ConcurrentDictionary<string, byte[]> storage;
@@ -96,7 +96,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
         [Test]
         public async Task SaveResultsAsCsvSuccess()
         {
-            // Given: 
+            // Given:
             // ... A working query and workspace service
             WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
             ConcurrentDictionary<string, byte[]> storage;
@@ -164,7 +164,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
         [Test]
         public async Task SaveResultAsJsonFailure()
         {
-            // Given: 
+            // Given:
             // ... A working query and workspace service
             WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
             ConcurrentDictionary<string, byte[]> storage;
@@ -208,7 +208,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
         [Test]
         public async Task SaveResultsAsJsonSuccess()
         {
-            // Given: 
+            // Given:
             // ... A working query and workspace service
             WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
             ConcurrentDictionary<string, byte[]> storage;
@@ -246,7 +246,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
         }
 
         #endregion
-        
+
         #region XML tests
 
         [Test]
@@ -275,7 +275,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
         [Test]
         public async Task SaveResultAsXmlFailure()
         {
-            // Given: 
+            // Given:
             // ... A working query and workspace service
             WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
             ConcurrentDictionary<string, byte[]> storage;
@@ -319,7 +319,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
         [Test]
         public async Task SaveResultsAsXmlSuccess()
         {
-            // Given: 
+            // Given:
             // ... A working query and workspace service
             WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
             ConcurrentDictionary<string, byte[]> storage;
@@ -342,7 +342,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
                 Formatted = true
             };
             qes.XmlFileFactory = GetXmlStreamFactory(storage, saveParams);
-            
+
             var efv = new EventFlowValidator<SaveResultRequestResult>()
                 .AddStandardResultValidator()
                 .Complete();
@@ -359,9 +359,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
         }
 
         #endregion
-        
-        #region Excel Tests 
-        
+
+        #region Excel Tests
+
         [Test]
         public async Task SaveResultsExcelNonExistentQuery()
         {
@@ -388,7 +388,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
         [Test]
         public async Task SaveResultAsExcelFailure()
         {
-            // Given: 
+            // Given:
             // ... A working query and workspace service
             WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
             ConcurrentDictionary<string, byte[]> storage;
@@ -432,7 +432,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
         [Test]
         public async Task SaveResultsAsExcelSuccess()
         {
-            // Given: 
+            // Given:
             // ... A working query and workspace service
             WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
             ConcurrentDictionary<string, byte[]> storage;
@@ -468,70 +468,76 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             // ... There should not have been an error
             efv.Validate();
         }
-        
+
         #endregion
 
         #region Private Helpers
 
-        private static IFileStreamFactory GetCsvStreamFactory(IDictionary<string, byte[]> storage, SaveResultsAsCsvRequestParams saveParams)
+        private static IFileStreamFactory GetCsvStreamFactory(
+            IDictionary<string, byte[]> storage,
+            SaveResultsAsCsvRequestParams saveParams)
         {
             Mock<IFileStreamFactory> mock = new Mock<IFileStreamFactory>();
             mock.Setup(fsf => fsf.GetReader(It.IsAny<string>()))
                 .Returns<string>(output => new ServiceBufferFileStreamReader(new MemoryStream(storage[output]), new QueryExecutionSettings()));
-            mock.Setup(fsf => fsf.GetWriter(It.IsAny<string>()))
-                .Returns<string>(output =>
+            mock.Setup(fsf => fsf.GetWriter(It.IsAny<string>(), It.IsAny<IReadOnlyList<DbColumnWrapper>>()))
+                .Returns<string, IReadOnlyList<DbColumnWrapper>>((output, columns) =>
                 {
                     storage.Add(output, new byte[8192]);
-                    return new SaveAsCsvFileStreamWriter(new MemoryStream(storage[output]), saveParams);
+                    return new SaveAsCsvFileStreamWriter(new MemoryStream(storage[output]), saveParams, columns);
                 });
 
             return mock.Object;
         }
 
-        private static IFileStreamFactory GetJsonStreamFactory(IDictionary<string, byte[]> storage, SaveResultsAsJsonRequestParams saveParams)
+        private static IFileStreamFactory GetJsonStreamFactory(
+            IDictionary<string, byte[]> storage,
+            SaveResultsAsJsonRequestParams saveParams)
         {
             Mock<IFileStreamFactory> mock = new Mock<IFileStreamFactory>();
             mock.Setup(fsf => fsf.GetReader(It.IsAny<string>()))
                 .Returns<string>(output => new ServiceBufferFileStreamReader(new MemoryStream(storage[output]), new QueryExecutionSettings()));
-            mock.Setup(fsf => fsf.GetWriter(It.IsAny<string>()))
-                .Returns<string>(output =>
+            mock.Setup(fsf => fsf.GetWriter(It.IsAny<string>(), It.IsAny<IReadOnlyList<DbColumnWrapper>>()))
+                .Returns<string, IReadOnlyList<DbColumnWrapper>>((output, columns) =>
                 {
                     storage.Add(output, new byte[8192]);
-                    return new SaveAsJsonFileStreamWriter(new MemoryStream(storage[output]), saveParams);
+                    return new SaveAsJsonFileStreamWriter(new MemoryStream(storage[output]), saveParams, columns);
                 });
 
             return mock.Object;
         }
 
-        private static IFileStreamFactory GetXmlStreamFactory(IDictionary<string, byte[]> storage,
+        private static IFileStreamFactory GetXmlStreamFactory(
+            IDictionary<string, byte[]> storage,
             SaveResultsAsXmlRequestParams saveParams)
         {
             Mock<IFileStreamFactory> mock = new Mock<IFileStreamFactory>();
             mock.Setup(fsf => fsf.GetReader(It.IsAny<string>()))
                 .Returns<string>(output => new ServiceBufferFileStreamReader(new MemoryStream(storage[output]), new QueryExecutionSettings()));
-            mock.Setup(fsf => fsf.GetWriter(It.IsAny<string>()))
-                .Returns<string>(output =>
+            mock.Setup(fsf => fsf.GetWriter(It.IsAny<string>(), It.IsAny<IReadOnlyList<DbColumnWrapper>>()))
+                .Returns<string, IReadOnlyList<DbColumnWrapper>>((output, columns) =>
                 {
                     storage.Add(output, new byte[8192]);
-                    return new SaveAsXmlFileStreamWriter(new MemoryStream(storage[output]), saveParams);
+                    return new SaveAsXmlFileStreamWriter(new MemoryStream(storage[output]), saveParams, columns);
                 });
 
             return mock.Object;
         }
-        
-        private static IFileStreamFactory GetExcelStreamFactory(IDictionary<string, byte[]> storage,
+
+        private static IFileStreamFactory GetExcelStreamFactory(
+            IDictionary<string, byte[]> storage,
             SaveResultsAsExcelRequestParams saveParams)
         {
             Mock<IFileStreamFactory> mock = new Mock<IFileStreamFactory>();
             mock.Setup(fsf => fsf.GetReader(It.IsAny<string>()))
                 .Returns<string>(output => new ServiceBufferFileStreamReader(new MemoryStream(storage[output]), new QueryExecutionSettings()));
-            mock.Setup(fsf => fsf.GetWriter(It.IsAny<string>()))
-                .Returns<string>(output =>
+            mock.Setup(fsf => fsf.GetWriter(It.IsAny<string>(), It.IsAny<IReadOnlyList<DbColumnWrapper>>()))
+                .Returns<string, IReadOnlyList<DbColumnWrapper>>((output, columns) =>
                 {
                     storage.Add(output, new byte[8192]);
-                    return new SaveAsExcelFileStreamWriter(new MemoryStream(storage[output]), saveParams);
+                    return new SaveAsExcelFileStreamWriter(new MemoryStream(storage[output]), saveParams, columns);
                 });
-            
+
             return mock.Object;
         }
 
