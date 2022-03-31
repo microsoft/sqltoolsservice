@@ -27,6 +27,11 @@ steps:
     inputs:
       useGlobalJson: true
 
+  - task: UseDotNet@2
+    displayName: 'Install dotnet 2.1 for Managed Batch Parser'
+    inputs:
+      version: 2.1
+
   - task: NuGetAuthenticate@0
 
   - task: DotNetCoreCLI@2
