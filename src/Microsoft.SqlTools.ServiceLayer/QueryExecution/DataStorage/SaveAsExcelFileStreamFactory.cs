@@ -1,9 +1,10 @@
-﻿// 
+﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
@@ -48,17 +49,28 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>Stream reader</returns>
         public IFileStreamReader GetReader(string fileName)
         {
-            return new ServiceBufferFileStreamReader(new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), QueryExecutionSettings);
+            return new ServiceBufferFileStreamReader(
+                new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite),
+                QueryExecutionSettings
+            );
         }
 
         /// <summary>
         /// Returns a new Excel writer for writing results to a Excel file, file share is ReadWrite to allow concurrent reads/writes to the file.
         /// </summary>
         /// <param name="fileName">Path to the Excel output file</param>
+        /// <param name="columns">
+        /// The entire list of columns for the result set. They will be filtered down as per the
+        /// request params.
+        /// </param>
         /// <returns>Stream writer</returns>
-        public IFileStreamWriter GetWriter(string fileName)
+        public IFileStreamWriter GetWriter(string fileName, IReadOnlyList<DbColumnWrapper> columns)
         {
-            return new SaveAsExcelFileStreamWriter(new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite), SaveRequestParams);
+            return new SaveAsExcelFileStreamWriter(
+                new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite),
+                SaveRequestParams,
+                columns
+            );
         }
 
         /// <summary>
