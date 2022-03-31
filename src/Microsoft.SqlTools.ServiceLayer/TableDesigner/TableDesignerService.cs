@@ -120,9 +120,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     IsValid = issues.Where(i => i.Severity == IssueSeverity.Error).Count() == 0,
                     Issues = issues.ToArray(),
                     View = refreshViewRequired ? this.GetDesignerViewInfo(requestParams.TableInfo) : null,
-                    IsEdge = GetIsEdge(requestParams.TableInfo),
-                    IsNode = GetIsNode(requestParams.TableInfo),
-                    IsSystemVersioned = GetIsSystemVersioned(requestParams.TableInfo)
+                    PropertyBag = this.GetPropertyBag(requestParams.TableInfo)
                 });
             });
         }
@@ -151,9 +149,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     NewTableInfo = tableInfo,
                     ViewModel = this.GetTableViewModel(tableInfo),
                     View = GetDesignerViewInfo(tableInfo),
-                    IsEdge = GetIsEdge(tableInfo),
-                    IsNode = GetIsNode(tableInfo),
-                    IsSystemVersioned = GetIsSystemVersioned(tableInfo)
+                    PropertyBag = this.GetPropertyBag(tableInfo)
                 });
             });
         }
@@ -1344,6 +1340,15 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             {
                 throw new KeyNotFoundException(SR.TableNotInitializedException(tableInfo.Id));
             }
+        }
+
+        private Dictionary<string, string> GetPropertyBag(TableInfo tableInfo)
+        {
+            Dictionary<string, string> propertyBag = new Dictionary<string, string>();
+            propertyBag["IsEdge"] = GetIsEdge(tableInfo).ToString();
+            propertyBag["IsNode"] = GetIsNode(tableInfo).ToString();
+            propertyBag["IsSystemVersioned"] = GetIsSystemVersioned(tableInfo).ToString();
+            return propertyBag;
         }
 
         /// <summary>

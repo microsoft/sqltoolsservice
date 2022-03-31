@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System.Collections.Generic;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.Utility;
 
@@ -25,11 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 
         public TableDesignerIssue[] Issues { get; set; }
 
-        public bool IsEdge { get; set; }
-
-        public bool IsNode { get; set; }
-
-        public bool IsSystemVersioned { get; set; }
+        public Dictionary<string, string> PropertyBag { get; set; }
     }
 
     /// <summary>
