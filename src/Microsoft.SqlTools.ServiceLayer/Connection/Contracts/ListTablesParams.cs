@@ -16,6 +16,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         public string OwnerUri { get; set; }
 
         /// <summary>
+        /// Database of the tables to list.
+        /// </summary>
+        public string Database { get; set; }
+
+        /// <summary>
         /// whether to include the details of the tables.
         /// </summary>
         public bool? IncludeDetails { get; set; }

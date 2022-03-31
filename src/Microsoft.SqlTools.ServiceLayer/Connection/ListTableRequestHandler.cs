@@ -48,7 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
     /// </summary>
     interface IListTableRequestHandler
     {
-        ListTablesResponse HandleRequest(ISqlConnectionFactory connectionFactory, ConnectionInfo connectionInfo);
+        ListTablesResponse HandleRequest(ISqlConnectionFactory connectionFactory, ConnectionInfo connectionInfo, String database);
     }
 
     /// <summary>
@@ -60,7 +60,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
         public abstract string QueryText { get; }
 
-        public ListTablesResponse HandleRequest(ISqlConnectionFactory connectionFactory, ConnectionInfo connectionInfo)
+        public ListTablesResponse HandleRequest(ISqlConnectionFactory connectionFactory, ConnectionInfo connectionInfo, String database)
         {
             ConnectionDetails connectionDetails = connectionInfo.ConnectionDetails.Clone();
 

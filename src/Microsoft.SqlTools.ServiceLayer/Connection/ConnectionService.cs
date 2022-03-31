@@ -958,7 +958,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 throw new Exception(SR.ConnectionServiceListDbErrorNotConnected(owner));
             }
             var handler = ListTableRequestHandlerFactory.getHandler(listTablesParams.IncludeDetails.HasTrue(), info.IsSqlDb);
-            return handler.HandleRequest(this.connectionFactory, info);
+            return handler.HandleRequest(this.connectionFactory, info, listTablesParams.Database);
         }
 
         public void InitializeService(IProtocolEndpoint serviceHost)
