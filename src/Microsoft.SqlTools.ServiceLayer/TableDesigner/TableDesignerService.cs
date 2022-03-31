@@ -119,7 +119,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     ViewModel = this.GetTableViewModel(requestParams.TableInfo),
                     IsValid = issues.Where(i => i.Severity == IssueSeverity.Error).Count() == 0,
                     Issues = issues.ToArray(),
-                    View = refreshViewRequired ? this.GetDesignerViewInfo(requestParams.TableInfo) : null
+                    View = refreshViewRequired ? this.GetDesignerViewInfo(requestParams.TableInfo) : null,
+                    IsEdge = GetIsEdge(requestParams.TableInfo),
+                    IsNode = GetIsNode(requestParams.TableInfo),
+                    IsSystemVersioned = GetIsSystemVersioned(requestParams.TableInfo)
                 });
             });
         }
@@ -147,7 +150,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 {
                     NewTableInfo = tableInfo,
                     ViewModel = this.GetTableViewModel(tableInfo),
-                    View = GetDesignerViewInfo(tableInfo)
+                    View = GetDesignerViewInfo(tableInfo),
+                    IsEdge = GetIsEdge(tableInfo),
+                    IsNode = GetIsNode(tableInfo),
+                    IsSystemVersioned = GetIsSystemVersioned(tableInfo)
                 });
             });
         }
@@ -662,6 +668,27 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         private bool GetBooleanValue(object value)
         {
             return (bool)value;
+        }
+
+        private bool GetIsNode(TableInfo tableInfo)
+        {
+            var tableDesigner = this.GetTableDesigner(tableInfo);
+            var table = tableDesigner.TableViewModel;
+            return table.IsNode;
+        }
+
+        private bool GetIsEdge(TableInfo tableInfo)
+        {
+            var tableDesigner = this.GetTableDesigner(tableInfo);
+            var table = tableDesigner.TableViewModel;
+            return table.IsEdge;
+        }
+
+        private bool GetIsSystemVersioned(TableInfo tableInfo)
+        {
+            var tableDesigner = this.GetTableDesigner(tableInfo);
+            var table = tableDesigner.TableViewModel;
+            return table.IsSystemVersioningEnabled;
         }
 
         private TableViewModel GetTableViewModel(TableInfo tableInfo)
@@ -1298,9 +1325,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
         private Dac.TableDesigner CreateTableDesigner(TableInfo tableInfo)
         {
-            var connectinStringbuilder = new SqlConnectionStringBuilder(tableInfo.ConnectionString);
-            connectinStringbuilder.InitialCatalog = tableInfo.Database;
-            var connectionString = connectinStringbuilder.ToString();
+            var connectionStringbuilder = new SqlConnectionStringBuilder(tableInfo.ConnectionString);
+            connectionStringbuilder.InitialCatalog = tableInfo.Database;
+            var connectionString = connectionStringbuilder.ToString();
             var tableDesigner = new Dac.TableDesigner(connectionString, tableInfo.AccessToken, tableInfo.Schema, tableInfo.Name, tableInfo.IsNewTable);
             this.idTableMap[tableInfo.Id] = tableDesigner;
             return tableDesigner;

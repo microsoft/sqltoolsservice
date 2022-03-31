@@ -24,6 +24,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         public bool IsValid { get; set; }
 
         public TableDesignerIssue[] Issues { get; set; }
+
+        public bool IsEdge { get; set; }
+
+        public bool IsNode { get; set; }
+
+        public bool IsSystemVersioned { get; set; }
     }
 
     /// <summary>

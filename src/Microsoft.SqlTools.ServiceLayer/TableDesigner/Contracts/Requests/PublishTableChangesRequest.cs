@@ -12,6 +12,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         public TableInfo NewTableInfo;
         public TableViewModel ViewModel;
         public TableDesignerView View;
+        public bool IsEdge;
+        public bool IsNode;
+        public bool IsSystemVersioned;
     }
 
     /// <summary>
