@@ -46,40 +46,40 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                 Properties = GetProperties(currentNode.Properties),
                 Children = currentNode.Children.Select(x => ConvertShowPlanTreeToExecutionPlanTree(x)).ToList(),
                 Edges = currentNode.Edges.Select(x => ConvertShowPlanEdgeToExecutionPlanEdge(x)).ToList(),
-                OverlayIcons = GenerateNodeOverlay(currentNode),
+                Badges = GenerateNodeOverlay(currentNode),
                 Name = currentNode.DisplayName,
                 ElapsedTimeInMs = currentNode.ElapsedTimeInMs
             };
         }
 
-        public static List<ExecutionPlanNodeOverlay> GenerateNodeOverlay(Node currentNode)
+        public static List<Badge> GenerateNodeOverlay(Node currentNode)
         {
-            List<ExecutionPlanNodeOverlay> overlays = new List<ExecutionPlanNodeOverlay>();
+            List<Badge> overlays = new List<Badge>();
 
             if (currentNode.HasWarnings)
             {
                 if (currentNode.HasCriticalWarnings)
                 {
-                    overlays.Add(new ExecutionPlanNodeOverlay
+                    overlays.Add(new Badge
                     {
-                        Type = "criticalWarning",
+                        Type = BadgeIconType.CRITICALWARNING,
                         Tooltip = SR.WarningOverlayTooltip
                     });
                 }
                 else
                 {
-                    overlays.Add(new ExecutionPlanNodeOverlay
+                    overlays.Add(new Badge
                     {
-                        Type = "warning",
+                        Type = BadgeIconType.WARNING,
                         Tooltip = SR.WarningOverlayTooltip
                     });
                 }
             }
             if (currentNode.IsParallel)
             {
-                overlays.Add(new ExecutionPlanNodeOverlay
+                overlays.Add(new Badge
                 {
-                    Type = "parallelism",
+                    Type = BadgeIconType.PARALLELISM,
                     Tooltip = SR.ParallelismOverlayTooltip
                 });
             }
