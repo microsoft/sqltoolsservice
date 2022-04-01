@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         public TableInfo NewTableInfo;
         public TableViewModel ViewModel;
         public TableDesignerView View;
-        public Dictionary<string, string> PropertyBag;
+        public Dictionary<string, string> Metadata;
     }
 
     /// <summary>

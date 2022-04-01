@@ -120,7 +120,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     IsValid = issues.Where(i => i.Severity == IssueSeverity.Error).Count() == 0,
                     Issues = issues.ToArray(),
                     View = refreshViewRequired ? this.GetDesignerViewInfo(requestParams.TableInfo) : null,
-                    PropertyBag = this.GetPropertyBag(requestParams.TableInfo)
+                    Metadata = this.GetMetadata(requestParams.TableInfo)
                 });
             });
         }
@@ -149,7 +149,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     NewTableInfo = tableInfo,
                     ViewModel = this.GetTableViewModel(tableInfo),
                     View = GetDesignerViewInfo(tableInfo),
-                    PropertyBag = this.GetPropertyBag(tableInfo)
+                    Metadata = this.GetMetadata(tableInfo)
                 });
             });
         }
@@ -173,6 +173,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 var generatePreviewReportResult = new GeneratePreviewReportResult();
                 generatePreviewReportResult.Report = report;
                 generatePreviewReportResult.MimeType = "text/markdown";
+                generatePreviewReportResult.Metadata = this.GetMetadata(tableInfo);
                 await requestContext.SendResult(generatePreviewReportResult);
             });
         }
@@ -1342,13 +1343,16 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             }
         }
 
-        private Dictionary<string, string> GetPropertyBag(TableInfo tableInfo)
+        private Dictionary<string, string> GetMetadata(TableInfo tableInfo)
         {
-            Dictionary<string, string> propertyBag = new Dictionary<string, string>();
-            propertyBag["IsEdge"] = GetIsEdge(tableInfo).ToString();
-            propertyBag["IsNode"] = GetIsNode(tableInfo).ToString();
-            propertyBag["IsSystemVersioned"] = GetIsSystemVersioned(tableInfo).ToString();
-            return propertyBag;
+            var tableDesigner = this.GetTableDesigner(tableInfo);
+            var metadata = new Dictionary<string, string>()
+            {
+                { "IsEdge", tableDesigner.IsEdge().ToString() },
+                { "IsNode", tableDesigner.IsNode().ToString() },
+                { "IsSystemVersioned", tableDesigner.IsSystemVersioned().ToString() }
+            };
+            return metadata;
         }
 
         /// <summary>
