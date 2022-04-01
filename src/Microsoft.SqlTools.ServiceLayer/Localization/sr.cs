@@ -8445,6 +8445,22 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string WarningOverlayTooltip
+        {
+            get
+            {
+                return Keys.GetString(Keys.WarningOverlayTooltip);
+            }
+        }
+
+        public static string ParallelismOverlayTooltip
+        {
+            get
+            {
+                return Keys.GetString(Keys.ParallelismOverlayTooltip);
+            }
+        }
+
         public static string TableEditPathNotProvidedException
         {
             get
@@ -12662,6 +12678,12 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string MissingIndexDetailsTitle = "MissingIndexDetailsTitle";
+
+
+            public const string WarningOverlayTooltip = "WarningOverlayTooltip";
+
+
+            public const string ParallelismOverlayTooltip = "ParallelismOverlayTooltip";
 
 
             public const string TableNotInitializedException = "TableNotInitializedException";
