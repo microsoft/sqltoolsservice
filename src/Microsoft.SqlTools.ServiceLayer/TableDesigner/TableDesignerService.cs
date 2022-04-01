@@ -667,27 +667,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             return (bool)value;
         }
 
-        private bool GetIsNode(TableInfo tableInfo)
-        {
-            var tableDesigner = this.GetTableDesigner(tableInfo);
-            var table = tableDesigner.TableViewModel;
-            return table.IsNode;
-        }
-
-        private bool GetIsEdge(TableInfo tableInfo)
-        {
-            var tableDesigner = this.GetTableDesigner(tableInfo);
-            var table = tableDesigner.TableViewModel;
-            return table.IsEdge;
-        }
-
-        private bool GetIsSystemVersioned(TableInfo tableInfo)
-        {
-            var tableDesigner = this.GetTableDesigner(tableInfo);
-            var table = tableDesigner.TableViewModel;
-            return table.IsSystemVersioningEnabled;
-        }
-
         private TableViewModel GetTableViewModel(TableInfo tableInfo)
         {
             var tableDesigner = this.GetTableDesigner(tableInfo);
