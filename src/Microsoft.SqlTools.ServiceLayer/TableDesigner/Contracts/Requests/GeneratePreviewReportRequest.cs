@@ -25,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         public string MimeType;
 
         /// <summary>
-        /// Metadata about the table to be captured
+        /// Metadata about the table
         /// </summary>
         public Dictionary<string, string> Metadata { get; set; }
     }
