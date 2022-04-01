@@ -55,13 +55,25 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
         public static List<ExecutionPlanNodeOverlay> GenerateNodeOverlay(Node currentNode)
         {
             List<ExecutionPlanNodeOverlay> overlays = new List<ExecutionPlanNodeOverlay>();
+
             if (currentNode.HasWarnings)
             {
-                overlays.Add(new ExecutionPlanNodeOverlay
+                if (currentNode.HasCriticalWarnings)
                 {
-                    Type = "warning",
-                    Tooltip = SR.WarningOverlayTooltip
-                });
+                    overlays.Add(new ExecutionPlanNodeOverlay
+                    {
+                        Type = "criticalWarning",
+                        Tooltip = SR.WarningOverlayTooltip
+                    });
+                }
+                else
+                {
+                    overlays.Add(new ExecutionPlanNodeOverlay
+                    {
+                        Type = "warning",
+                        Tooltip = SR.WarningOverlayTooltip
+                    });
+                }
             }
             if (currentNode.IsParallel)
             {

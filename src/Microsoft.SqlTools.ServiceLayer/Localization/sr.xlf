@@ -5994,8 +5994,8 @@ The Query Processor estimates that implementing the following index could improv
         <note></note>
       </trans-unit>
       <trans-unit id="WarningOverlayTooltip">
-        <source>Warnings </source>
-        <target state="new">Warnings </target>
+        <source>Warnings</source>
+        <target state="new">Warnings</target>
         <note>tooltip text for node warning overlay</note>
       </trans-unit>
       <trans-unit id="ParallelismOverlayTooltip">

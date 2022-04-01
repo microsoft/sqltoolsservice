@@ -4620,7 +4620,7 @@ The Query Processor estimates that implementing the following index could improv
  Parameters: 0 - fileName (string), 1 - impact (string) </comment>
   </data>
   <data name="WarningOverlayTooltip" xml:space="preserve">
-    <value>Warnings </value>
+    <value>Warnings</value>
     <comment>tooltip text for node warning overlay</comment>
   </data>
   <data name="ParallelismOverlayTooltip" xml:space="preserve">

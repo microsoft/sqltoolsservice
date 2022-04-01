@@ -2224,7 +2224,7 @@ MissingIndexFormat(string impact, string queryText) = Missing Index (Impact {0})
 ;title of missing index details
 MissingIndexDetailsTitle(string fileName, string impact) = /*\r\nMissing Index Details from {0}\r\nThe Query Processor estimates that implementing the following index could improve the query cost by {1}%.\r\n*/
 ;tooltip text for node warning overlay
-WarningOverlayTooltip = Warnings 
+WarningOverlayTooltip = Warnings
 ;tooltip text for node parallelism overlay
 ParallelismOverlayTooltip = Parallel Execution
 
