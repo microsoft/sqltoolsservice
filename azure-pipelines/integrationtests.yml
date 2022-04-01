@@ -1,5 +1,5 @@
 pool:
-    name: SqlToolsTestAgentPool
+    name: 1ES-DS-SQLES-D4sv4-CorpNet-SqlBld0
     demands: VisualStudio_16.0
 
 steps:
