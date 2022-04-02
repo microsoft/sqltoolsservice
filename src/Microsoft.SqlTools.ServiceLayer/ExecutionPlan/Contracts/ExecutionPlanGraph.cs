@@ -171,7 +171,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         /// <summary>
         /// Type of the node overlay. This determines the icon that is displayed for it
         /// </summary>
-        public BadgeIconType Type { get; set; }
+        public BadgeType Type { get; set; }
 
         /// <summary>
         /// Text to display for the overlay tooltip
@@ -179,7 +179,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         public string Tooltip { get; set; }
     }
 
-    public enum BadgeIconType
+    public enum BadgeType
     {
         WARNING,
         CRITICALWARNING,

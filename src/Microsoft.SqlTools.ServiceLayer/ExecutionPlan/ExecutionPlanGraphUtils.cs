@@ -62,7 +62,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                 {
                     overlays.Add(new Badge
                     {
-                        Type = BadgeIconType.CRITICALWARNING,
+                        Type = BadgeType.CRITICALWARNING,
                         Tooltip = SR.WarningOverlayTooltip
                     });
                 }
@@ -70,7 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                 {
                     overlays.Add(new Badge
                     {
-                        Type = BadgeIconType.WARNING,
+                        Type = BadgeType.WARNING,
                         Tooltip = SR.WarningOverlayTooltip
                     });
                 }
@@ -79,7 +79,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
             {
                 overlays.Add(new Badge
                 {
-                    Type = BadgeIconType.PARALLELISM,
+                    Type = BadgeType.PARALLELISM,
                     Tooltip = SR.ParallelismOverlayTooltip
                 });
             }
