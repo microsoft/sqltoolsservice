@@ -12,9 +12,9 @@ stages:
     steps:
     - template: build.yml
 
-- stage: Integration Test
+- stage: Integration_Test
   jobs:
-  - job: Integration Test
+  - job: Integration_Test
     pool: 
       name: 'ads-build-1es-hosted-pool'
       demands:
