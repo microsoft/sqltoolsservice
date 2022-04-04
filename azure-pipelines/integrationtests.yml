@@ -1,14 +1,10 @@
-pool:
-    name: SqlToolsTestAgentPool
-    demands: VisualStudio_16.0
-
 steps:
   - task: PowerShell@2
     displayName: 'Install Docker SQL Server'
     input:
       targetType: 'filePath'
       filePath: '$(Build.SourcesDirectory)\azure-pipelines\installSqlDocker.ps1'
-      
+
   - task: DownloadSecureFile@1
     displayName: 'Download secure file'
     inputs:
