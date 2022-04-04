@@ -12,6 +12,17 @@ stages:
     steps:
     - template: build.yml
 
+- stage: Integration Test
+  jobs:
+  - job: Integration Test
+    pool: 
+      name: 'ads-build-1es-hosted-pool'
+      demands:
+      - ImageOverride -equals ADS-Windows_Image
+    steps:
+    - template: integrationtests.yml
+
+
 - stage: Release
   variables:
   - name: skipComponentGovernanceDetection
