@@ -1,7 +1,7 @@
 steps:
   - task: PowerShell@2
     displayName: 'Install Docker SQL Server'
-    input:
+    inputs:
       targetType: 'filePath'
       filePath: '$(Build.SourcesDirectory)\azure-pipelines\installSqlDocker.ps1'
 
