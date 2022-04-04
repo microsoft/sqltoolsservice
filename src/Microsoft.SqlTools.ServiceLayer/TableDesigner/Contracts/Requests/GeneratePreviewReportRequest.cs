@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System.Collections.Generic;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
@@ -22,6 +23,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         /// format (mimetype) of the string
         /// </summary>
         public string MimeType;
+
+        /// <summary>
+        /// Metadata about the table
+        /// </summary>
+        public Dictionary<string, string> Metadata { get; set; }
     }
     
     /// <summary>

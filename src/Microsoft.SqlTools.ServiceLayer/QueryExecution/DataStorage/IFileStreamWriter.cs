@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
     public interface IFileStreamWriter : IDisposable
     {
         int WriteRow(StorageDataReader dataReader);
-        void WriteRow(IList<DbCellValue> row, IList<DbColumnWrapper> columns);
+        void WriteRow(IList<DbCellValue> row, IReadOnlyList<DbColumnWrapper> columns);
         void Seek(long offset);
         void FlushBuffer();
     }

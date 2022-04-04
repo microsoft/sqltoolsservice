@@ -72,7 +72,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     inProgressSerializations.AddOrUpdate(serializer.FilePath, serializer, (key, old) => serializer);
                 }
-                
+
                 Logger.Write(TraceEventType.Verbose, "HandleSerializeStartRequest");
                 SerializeDataResult result = serializer.ProcessRequest(serializeParams);
                 await requestContext.SendResult(result);
@@ -153,7 +153,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
     {
         private IFileStreamWriter writer;
         private SerializeDataStartRequestParams requestParams;
-        private IList<DbColumnWrapper> columns;
+        private IReadOnlyList<DbColumnWrapper> columns;
 
         public string FilePath { get; private set; }
 
@@ -164,7 +164,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             this.FilePath = requestParams.FilePath;
         }
 
-        private IList<DbColumnWrapper> MapColumns(ColumnInfo[] columns)
+        private IReadOnlyList<DbColumnWrapper> MapColumns(ColumnInfo[] columns)
         {
             List<DbColumnWrapper> columnWrappers = new List<DbColumnWrapper>();
             foreach (ColumnInfo column in columns)
@@ -258,7 +258,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     default:
                         throw new Exception(SR.SerializationServiceUnsupportedFormat(this.requestParams.SaveFormat));
                 }
-                this.writer = factory.GetWriter(requestParams.FilePath);
+                this.writer = factory.GetWriter(requestParams.FilePath, columns);
             }
         }
         public void CloseStreams()
