@@ -1,12 +1,29 @@
 pool:
-    name: SqlToolsTestAgentPool
-    demands: VisualStudio_16.0
+    name: ads-build-1es-hosted-pool
+    demands: 
+    - ImageOverride -equals ADS-Linux_Image
 
 steps:
+
+  - task: DockerInstaller@0
+    displayName: Docker Installer
+    inputs:
+      secureFile: 'testsettings.json'
+      dockerVersion: 17.09.0-ce
+      releaseType: stable
+
+  - script: docker pull mcr.microsoft.com/mssql/server:2019-latest
+    displayName: Pull MSSQL Docker Image  
+
+  - script: 'docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=$(serverPassword)" -e "MSSQL_PID=Express"
+    -p 1433:1433 --name sql1 -h sql1
+    -d mcr.microsoft.com/mssql/server:2019-latest'
+    displayName: Start Server in Docker Container
+
   - task: DownloadSecureFile@1
     displayName: 'Download secure file'
     inputs:
-      secureFile: 'testsettings.json'
+      secureFile: 'testsettings-test.json'
 
   - task: VisualStudioTestPlatformInstaller@1
     displayName: 'Visual Studio Test Platform Installer'
@@ -30,7 +47,7 @@ steps:
     displayName: 'Copy testsettings file to bin'
     inputs:
       SourceFolder: '$(Agent.TempDirectory)'
-      Contents: '**\testsettings.json'
+      Contents: '**\testsettings-test.json'
       TargetFolder: '$(Build.SourcesDirectory)\test\Microsoft.SqlTools.ServiceLayer.IntegrationTests\bin\Debug\net6.0'
 
   - task: DotNetCoreCLI@2
