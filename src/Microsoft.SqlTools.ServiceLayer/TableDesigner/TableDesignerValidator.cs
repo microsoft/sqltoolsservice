@@ -176,6 +176,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         public List<TableDesignerIssue> Run(TableViewModel table)
         {
             var errors = new List<TableDesignerIssue>();
+            errors = this.NoDuplicateConstraintNameInTableRule(table, errors);
+            errors = this.NoDuplicateConstraintNameInSchemaRule(table, errors);
+            return errors;
+        }
+
+        private List<TableDesignerIssue> NoDuplicateConstraintNameInTableRule(TableViewModel table, List<TableDesignerIssue> errors)
+        {
             var existingNames = new HashSet<string>();
             for (int i = 0; i < table.ForeignKeys.Items.Count; i++)
             {
@@ -225,6 +232,51 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 else
                 {
                     existingNames.Add(edgeConstraint.Name);
+                }
+            }
+            return errors;
+        }
+
+        private List<TableDesignerIssue> NoDuplicateConstraintNameInSchemaRule(TableViewModel table, List<TableDesignerIssue> errors)
+        {
+            Dictionary<string, HashSet<string>> allConstraints = table.AllConstraintsNames;
+            HashSet<string> currentSchemaConstraints = allConstraints[table.Schema];
+            for (int i = 0; i < table.ForeignKeys.Items.Count; i++)
+            {
+                var foreignKey = table.ForeignKeys.Items[i];
+                if (currentSchemaConstraints.Contains(foreignKey.Name))
+                {
+                    errors.Add(new TableDesignerIssue()
+                    {
+                        Description = string.Format("The name '{0}' is already used by another constraint. Row number: {1}.", foreignKey.Name, i + 1),
+                        PropertyPath = new object[] { TablePropertyNames.ForeignKeys, i, ForeignKeyPropertyNames.Name }
+                    });
+                }
+            }
+
+            for (int i = 0; i < table.CheckConstraints.Items.Count; i++)
+            {
+                var checkConstraint = table.CheckConstraints.Items[i];
+                if (currentSchemaConstraints.Contains(checkConstraint.Name))
+                {
+                    errors.Add(new TableDesignerIssue()
+                    {
+                        Description = string.Format("The name '{0}' is already used by another constraint. Row number: {1}.", checkConstraint.Name, i + 1),
+                        PropertyPath = new object[] { TablePropertyNames.CheckConstraints, i, CheckConstraintPropertyNames.Name }
+                    });
+                }
+            }
+
+            for (int i = 0; i < table.EdgeConstraints.Items.Count; i++)
+            {
+                var edgeConstraint = table.EdgeConstraints.Items[i];
+                if (currentSchemaConstraints.Contains(edgeConstraint.Name))
+                {
+                    errors.Add(new TableDesignerIssue()
+                    {
+                        Description = string.Format("The name '{0}' is already used by another constraint. Row number: {1}.", edgeConstraint.Name, i + 1),
+                        PropertyPath = new object[] { TablePropertyNames.EdgeConstraints, i, EdgeConstraintPropertyNames.Name }
+                    });
                 }
             }
             return errors;
