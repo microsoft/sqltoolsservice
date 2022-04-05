@@ -31,8 +31,7 @@ steps:
       useGlobalJson: true
   
   - script: |
-    set -e
-    ./createDir.sh
+      set -e ./createDir.sh
     displayName: Creating necessary Dirs
     timeoutInMinutes: 7
 
