@@ -57,4 +57,3 @@ steps:
       projects: '**/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj'
       arguments: '--no-build'
       testRunTitle: 'SqlToolsService Integration Tests'
-    enabled: false
