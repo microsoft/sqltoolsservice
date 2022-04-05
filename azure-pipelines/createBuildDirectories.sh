@@ -6,11 +6,10 @@
 
 
 # All the dotnet projects in the STS folder
-projectArray=(
+net6projectArray=(
     "./src/Microsoft.InsightsGenerator"
     "./src/Microsoft.Kusto.ServiceLayer"
     "./src/Microsoft.SqlTools.Credentials"
-    "./src/Microsoft.SqlTools.ManagedBatchParser"
     "./src/Microsoft.SqlTools.Hosting"
     "./src/Microsoft.SqlTools.ResourceProvider"
     "./src/Microsoft.SqlTools.ResourceProvider.Core"
@@ -29,7 +28,12 @@ projectArray=(
     "./test/Microsoft.SqlTools.Test.CompletionExtension"
 )
 
-framework="/bin/Debug/net6.0/"
+netStandard2ProjectArray=(
+    "./src/Microsoft.SqlTools.ManagedBatchParser"
+)
+
+framework6="/bin/Debug/net6.0/"
+framework2="/bin/Debug/netstandard2.1/"
 
 requiredLocDirectories=(
     "cs"
@@ -73,7 +77,18 @@ do
    for k in "${requiredLocDirectories[@]}"
     do
         : 
-        echo Creating $i$k
-        mkdir -p $i$k
+        echo Creating $i$framework6$k
+        mkdir -p $i$framework6$k
+    done
+done
+
+for i in "${projectArray[@]}"
+do
+   : 
+   for k in "${netStandard2ProjectArray[@]}"
+    do
+        : 
+        echo Creating $i$framework6$k
+        mkdir -p $i$framework2$k
     done
 done

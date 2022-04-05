@@ -7,7 +7,6 @@
 		<IsPackable>false</IsPackable>
 		<ApplicationIcon />
 		<StartupObject />
-		<SatelliteResourceLanguages>en-US</SatelliteResourceLanguages>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="System.Text.Encoding.CodePages" />
