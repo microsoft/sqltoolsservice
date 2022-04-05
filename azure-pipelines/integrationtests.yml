@@ -32,7 +32,7 @@ steps:
   
   - script: |
       set -e ./createDir.sh
-    displayName: Creating necessary Dirs
+    displayName: Creating necessary bin loc directories
     timeoutInMinutes: 7
 
   - task: NuGetAuthenticate@0

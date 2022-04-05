@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+pwd
+
 projectArray=(
     "./src/Microsoft.InsightsGenerator"
     "./src/Microsoft.Kusto.ServiceLayer"
@@ -65,6 +67,7 @@ do
    for k in "${requireDir[@]}"
     do
         : 
+        echo Creating $i$k
         mkdir -p $i$k
     done
 done
