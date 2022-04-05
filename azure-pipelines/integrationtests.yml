@@ -25,11 +25,6 @@ steps:
     inputs:
       secureFile: 'testsettings-test.json'
 
-  - task: VisualStudioTestPlatformInstaller@1
-    displayName: 'Visual Studio Test Platform Installer'
-    inputs:
-      versionSelector: latestStable
-
   - task: UseDotNet@2
     displayName: 'Use .NET Core sdk '
     inputs:
