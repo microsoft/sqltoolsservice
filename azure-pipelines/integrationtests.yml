@@ -32,7 +32,7 @@ steps:
 
   - task: ShellScript@2
     inputs:
-      scriptPath: ./createDir.sh
+      scriptPath: ./azure-pipelines/createBuildDirectories.sh
       cwd: ./
 
   - task: NuGetAuthenticate@0

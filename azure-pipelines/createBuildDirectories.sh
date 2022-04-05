@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 
-pwd
+# This script creates the necessary directories that are required 
+# for the the linux dotnet builds to work
+# The script has to be run by from the root of the repository
 
+
+# All the dotnet projects in the STS folder
 projectArray=(
     "./src/Microsoft.InsightsGenerator"
     "./src/Microsoft.Kusto.ServiceLayer"
@@ -25,46 +29,48 @@ projectArray=(
     "./test/Microsoft.SqlTools.Test.CompletionExtension"
 )
 
-requireDir=(
-    "/bin/Debug/net6.0/cs"
-    "/bin/Debug/net6.0/cs-CZ"
-    "/bin/Debug/net6.0/de"
-    "/bin/Debug/net6.0/de-DE"
-    "/bin/Debug/net6.0/es"
-    "/bin/Debug/net6.0/es-ES"
-    "/bin/Debug/net6.0/fr"
-    "/bin/Debug/net6.0/fr-FR"
-    "/bin/Debug/net6.0/hu-HU"
-    "/bin/Debug/net6.0/it"
-    "/bin/Debug/net6.0/it-IT"
-    "/bin/Debug/net6.0/ja"
-    "/bin/Debug/net6.0/ja-JP"
-    "/bin/Debug/net6.0/ko"
-    "/bin/Debug/net6.0/ko-KR"
-    "/bin/Debug/net6.0/nl-NL"
-    "/bin/Debug/net6.0/pl"
-    "/bin/Debug/net6.0/pl-PL"
-    "/bin/Debug/net6.0/pt-br"
-    "/bin/Debug/net6.0/pt-BR"
-    "/bin/Debug/net6.0/pt-PT"
-    "/bin/Debug/net6.0/ru"
-    "/bin/Debug/net6.0/ru-RU"
-    "/bin/Debug/net6.0/sv-SE"
-    "/bin/Debug/net6.0/tr"
-    "/bin/Debug/net6.0/tr-TR"
-    "/bin/Debug/net6.0/zh-Hans"
-    "/bin/Debug/net6.0/zh-HANS"
-    "/bin/Debug/net6.0/zh-Hant"
-    "/bin/Debug/net6.0/zh-HANT"
-    "/bin/Debug/net6.0/zh-hant"
-    "/bin/Debug/net6.0/zh-hans"
+framework="/bin/Debug/net6.0/"
+
+requiredLocDirectories=(
+    "cs"
+    "cs-CZ"
+    "de"
+    "de-DE"
+    "es"
+    "es-ES"
+    "fr"
+    "fr-FR"
+    "hu-HU"
+    "it"
+    "it-IT"
+    "ja"
+    "ja-JP"
+    "ko"
+    "ko-KR"
+    "nl-NL"
+    "pl"
+    "pl-PL"
+    "pt-br"
+    "pt-BR"
+    "pt-PT"
+    "ru"
+    "ru-RU"
+    "sv-SE"
+    "tr"
+    "tr-TR"
+    "zh-Hans"
+    "zh-HANS"
+    "zh-Hant"
+    "zh-HANT"
+    "zh-hant"
+    "zh-hans"
 
 )
 
 for i in "${projectArray[@]}"
 do
    : 
-   for k in "${requireDir[@]}"
+   for k in "${requiredLocDirectories[@]}"
     do
         : 
         echo Creating $i$k
