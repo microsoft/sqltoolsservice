@@ -15,7 +15,7 @@ steps:
   - script: docker pull mcr.microsoft.com/mssql/server:2019-latest
     displayName: Pull MSSQL Docker Image  
 
-  - script: 'docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=testServer123@a" -e "MSSQL_PID=Express"
+  - script: 'docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=$(serverPassword)" -e "MSSQL_PID=Express"
     -p 1433:1433 --name sql1 -h sql1
     -d mcr.microsoft.com/mssql/server:2019-latest'
     displayName: Start Server in Docker Container
