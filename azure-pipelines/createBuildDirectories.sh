@@ -4,6 +4,7 @@
 # for the the linux dotnet builds to work
 # The script has to be run by from the root of the repository
 
+# Please update the framework vars when updating target framework for the projects
 
 # All the dotnet projects in the STS folder
 net6projectArray=(
