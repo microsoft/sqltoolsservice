@@ -58,16 +58,3 @@ steps:
       arguments: '--no-build'
       testRunTitle: 'SqlToolsService Integration Tests'
     enabled: false
-
-  - task: VSTest@2
-    displayName: 'Run integration tests with code coverage'
-    inputs:
-      testAssemblyVer2: '**/bin/Debug/**/Microsoft.SqlTools.ServiceLayer.IntegrationTests.dll'
-      vsTestVersion: toolsInstaller
-      runSettingsFile: 'azure-pipelines/testrun.runsettings'
-      codeCoverageEnabled: true
-      testRunTitle: 'SqlToolsService Integration Tests'
-      rerunFailedTests: true
-      rerunFailedThreshold: 15
-      rerunMaxAttempts: 1
-    continueOnError: true
