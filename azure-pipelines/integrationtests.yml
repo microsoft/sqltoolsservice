@@ -29,11 +29,11 @@ steps:
     displayName: 'Use .NET Core sdk '
     inputs:
       useGlobalJson: true
-  
-  - script: |
-      set -e ./createDir.sh
-    displayName: Creating necessary bin loc directories
-    timeoutInMinutes: 7
+
+  - task: ShellScript@2
+    inputs:
+      scriptPath: ./createDir.sh
+      cwd: ./
 
   - task: NuGetAuthenticate@0
 

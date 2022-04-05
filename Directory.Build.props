@@ -4,7 +4,7 @@
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
   </PropertyGroup>
   <PropertyGroup>
-    <ManagedBatchParserTargetFramework>netstandard2.1</ManagedBatchParserTargetFramework>
+    <ManagedBatchParserTargetFramework>net6.0</ManagedBatchParserTargetFramework>
     <CredentialsTargetFramework>net6.0</CredentialsTargetFramework>
     <ServiceLayerTargetFramework>net6.0</ServiceLayerTargetFramework>
     <ResourceProviderTargetFramework>net6.0</ResourceProviderTargetFramework>
