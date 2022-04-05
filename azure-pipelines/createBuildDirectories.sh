@@ -71,24 +71,24 @@ requiredLocDirectories=(
 
 )
 
-for i in "${projectArray[@]}"
+for i in "${net6projectArray[@]}"
 do
    : 
    for k in "${requiredLocDirectories[@]}"
     do
         : 
-        echo Creating $i$framework6$k
-        mkdir -p $i$framework6$k
+        output=`mkdir -v -p $i$framework6$k`
+        echo $output
     done
 done
 
-for i in "${projectArray[@]}"
+for i in "${netStandard2ProjectArray[@]}"
 do
    : 
-   for k in "${netStandard2ProjectArray[@]}"
+   for k in "${requiredLocDirectories[@]}"
     do
         : 
-        echo Creating $i$framework6$k
-        mkdir -p $i$framework2$k
+        output=`mkdir -v -p $i$framework2$k`
+        echo $output
     done
 done
