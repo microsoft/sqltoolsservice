@@ -93,4 +93,4 @@ do
     done
 done
 
-echo `tree -d`
+echo `tree -d -L 1`
