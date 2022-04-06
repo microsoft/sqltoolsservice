@@ -15,7 +15,7 @@ steps:
   - script: docker pull mcr.microsoft.com/mssql/server:2019-latest
     displayName: Pull MSSQL Docker Image  
 
-  - script: 'docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=$(serverPassword)" -e "MSSQL_PID=Express"
+  - script: 'docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=temp3456243@a" -e "MSSQL_PID=Express"
     -p 1433:1433 --name sql1 -h sql1
     -d mcr.microsoft.com/mssql/server:2019-latest'
     displayName: Start Server in Docker Container
@@ -48,7 +48,7 @@ steps:
       projects: '**/Microsoft.SqlTools.ServiceLayer.TestEnvConfig.csproj'
       arguments: './test/Microsoft.SqlTools.ServiceLayer.TestEnvConfig/SQLConnectionInstancesTemplate.xml'
       testRunTitle: 'Setting tests'
-
+      
   - task: DotNetCoreCLI@2
     displayName: 'dotnet build'
     inputs:
