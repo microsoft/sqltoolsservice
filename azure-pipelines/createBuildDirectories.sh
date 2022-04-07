@@ -8,7 +8,6 @@
 # All the dotnet projects in the STS folder
 
 echo `pwd`
-echo 'ls -l'
 
 net6projectArray=(
     "./src/Microsoft.InsightsGenerator"

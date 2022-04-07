@@ -30,7 +30,7 @@ steps:
     displayName: Creating expected directories by dotnet build
     inputs:
       scriptPath: ./azure-pipelines/createBuildDirectories.sh
-      cwd: ./
+      cwd: ../
 
   - task: NuGetAuthenticate@0
 
