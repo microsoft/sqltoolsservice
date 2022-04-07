@@ -26,11 +26,10 @@ steps:
     inputs:
       useGlobalJson: true
 
-  - task: ShellScript@2
+  - task: Bash@3
     displayName: Creating expected directories by dotnet build
     inputs:
-      scriptPath: ./azure-pipelines/createBuildDirectories.sh
-      cwd: $(Build.SourcesDirectory)
+      filePath: ./azure-pipelines/createBuildDirectories.sh
 
   - task: NuGetAuthenticate@0
 
