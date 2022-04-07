@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 
 # This script creates the necessary directories that are required 
-# for the the linux dotnet builds to work
-# The script need to run from the repo root
+# for the the linux dotnet builds to work. Currently, there is an 
+# issue in the linux dotnet core where it does not consider 
+# the letter casing of the localization directories it creates. It 
+# is not an issues in the window version because the dirs are case 
+# insensitive.
 
-# Please update the framework vars when updating target framework for the projects
+# The script need to run from the repo root
 
 net6projectArray=(
     "./src/Microsoft.InsightsGenerator"
@@ -32,6 +35,7 @@ netStandard2ProjectArray=(
     "./src/Microsoft.SqlTools.ManagedBatchParser"
 )
 
+# Please update the framework vars when updating target framework for the projects
 framework6="/bin/Debug/net6.0/"
 framework2="/bin/Debug/netstandard2.1/"
 
