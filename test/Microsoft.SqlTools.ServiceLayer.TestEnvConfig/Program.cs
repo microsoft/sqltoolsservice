@@ -94,7 +94,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestEnvConfig
 
         private static void SaveSettings(string settingFile)
         {
-            Console.WriteLine(Environment.GetEnvironmentVariable("defaultSql2016_password") == null);
+            Console.WriteLine(Environment.GetEnvironmentVariable("defaultSql2016_password"));
             var xdoc = XDocument.Load(settingFile);
             var settings =
                 from setting in xdoc.Descendants("Instance")
