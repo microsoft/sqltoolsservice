@@ -6,6 +6,10 @@
 
 # Please update the framework vars when updating target framework for the projects
 # All the dotnet projects in the STS folder
+
+echo `pwd`
+echo 'ls -l'
+
 net6projectArray=(
     "./src/Microsoft.InsightsGenerator"
     "./src/Microsoft.Kusto.ServiceLayer"
