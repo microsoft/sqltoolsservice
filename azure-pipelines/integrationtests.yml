@@ -6,7 +6,7 @@ pool:
 steps:
 
   - task: DockerInstaller@0
-    displayName: Docker Installer
+    displayName: Installing Docker
     inputs:
       secureFile: 'testsettings.json'
       dockerVersion: 17.09.0-ce
@@ -19,33 +19,33 @@ steps:
     -e "MSSQL_AGENT_ENABLED=True"
     -p 1433:1433 --name sql1 -h sql1
     -d mcr.microsoft.com/mssql/server:2019-latest'
-    displayName: Start Server in Docker Container
+    displayName: Starting Server in Docker Container
 
   - task: UseDotNet@2
-    displayName: 'Use .NET Core sdk '
+    displayName: Use .NET Core SDK
     inputs:
       useGlobalJson: true
 
   - task: Bash@3
-    displayName: Creating expected directories by dotnet build
+    displayName: Creating Loc Directories Expected By Dotnet Build
     inputs:
       filePath: ./azure-pipelines/createBuildDirectories.sh
 
   - task: NuGetAuthenticate@0
 
   - task: DotNetCoreCLI@2
-    displayName: 'Building test environment'
+    displayName: Building Test Environment
     inputs:
       projects: '**/Microsoft.SqlTools.ServiceLayer.TestEnvConfig.csproj'
 
   - task: DownloadSecureFile@1
-    displayName: 'Download Test Environment Configuration'
+    displayName: Download Test Environment Configuration
     name: testEnvironmentPath
     inputs:
       secureFile: 'SQLConnectionInstances.xml'
 
   - task: DotNetCoreCLI@2
-    displayName: 'Setting up test environment'
+    displayName: Setting Up Test Environment
     inputs:
       command: run
       projects: '**/Microsoft.SqlTools.ServiceLayer.TestEnvConfig.csproj'
@@ -53,13 +53,13 @@ steps:
       testRunTitle: 'Setting tests'
 
   - task: DotNetCoreCLI@2
-    displayName: 'dotnet build'
+    displayName: Building Integration Tests
     inputs:
       projects: '**/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj'
       arguments: '/p:CodeCoverageBuild=true'
 
   - task: DotNetCoreCLI@2
-    displayName: 'Run integration tests'
+    displayName: Running Integration Tests
     inputs:
       command: test
       projects: '**/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj'
