@@ -46,31 +46,31 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureBlob
         /// <returns> The newly created SAS credential</returns>
         public Credential WriteSASCredentialToSqlServer(string credentialName, string identity, string secretString)
         {
-            // Format of Sql SAS credential: 
-            // CREATE CREDENTIAL [https://<StorageAccountName>.blob.core.windows.net/<ContainerName>] WITH IDENTITY = N'Shared Access Signature', 
-            // SECRET = N'sv=2014-02-14&sr=c&sig=lxb2aXr%2Bi0Aeygg%2B0a4REZ%2BqsUxxxxxxsqUybg0tVzg%3D&st=2015-10-15T08%3A00%3A00Z&se=2015-11-15T08%3A00%3A00Z&sp=rwdl'
-            //
-            CredentialCollection credentials = sqlServer.Credentials;
-
-            Credential azureCredential = new Credential(sqlServer, credentialName);
-
-            // Container can have many SAS credentials coexisting, here we'll always drop existing one once customer choose to create new credential 
-            // since sql customer has no way to know its existency and even harder to retrive its secret string. 
-            if (credentials.Contains(credentialName))
-            {
-                Credential oldCredential = credentials[credentialName];
-                oldCredential.Drop();
-            }
-
             try
             {
-                azureCredential.Create(identity, secretString);
-            }
+                // Format of Sql SAS credential: 
+                // CREATE CREDENTIAL [https://<StorageAccountName>.blob.core.windows.net/<ContainerName>] WITH IDENTITY = N'Shared Access Signature', 
+                // SECRET = N'sv=2014-02-14&sr=c&sig=lxb2aXr%2Bi0Aeygg%2B0a4REZ%2BqsUxxxxxxsqUybg0tVzg%3D&st=2015-10-15T08%3A00%3A00Z&se=2015-11-15T08%3A00%3A00Z&sp=rwdl'
+                //
+                CredentialCollection credentials = sqlServer.Credentials;
+
+                Credential azureCredential = new Credential(sqlServer, credentialName);
+
+                // Container can have many SAS credentials coexisting, here we'll always drop existing one once customer choose to create new credential 
+                // since sql customer has no way to know its existency and even harder to retrive its secret string. 
+                if (credentials.Contains(credentialName))
+                {
+                    Credential oldCredential = credentials[credentialName];
+                    oldCredential.Drop();
+                }
+
+                    azureCredential.Create(identity, secretString);
+                    return azureCredential;
+                }
             catch (Exception ex)
             {
-                throw new FailedOperationException("Create credential failed.", ex);
+                throw new FailedOperationException(SR.WriteSASCredentialToSqlServerFailed, ex);
             }
-            return azureCredential;
         }
 
         /// <summary>
@@ -109,7 +109,8 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureBlob
             }
             else
             {
-                throw new FailedOperationException("Cannot generate SAS URI for blob container");            }
+                throw new FailedOperationException(SR.CreateSasForBlobContainerFailed);
+            }
         }
     }
 }

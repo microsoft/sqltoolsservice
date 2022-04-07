@@ -11,8 +11,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 {
     public class TestAzureBlobConnectionService
     {
-        private static string DefaultAzureBlobSettingFileName = Path.Combine(FileUtils.UserRootFolder, "azureBlobConnectionSettings.json");
-        private static TestAzureBlobConnectionService instance = new TestAzureBlobConnectionService();
+        private static Lazy<TestAzureBlobConnectionService> instance = new Lazy<TestAzureBlobConnectionService>(() => new TestAzureBlobConnectionService());
         private AzureBlobConnectionSetting settings;
 
         private TestAzureBlobConnectionService()
@@ -20,11 +19,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             LoadInstanceSettings();
         }
 
-        public static TestAzureBlobConnectionService Intance
+        public static TestAzureBlobConnectionService Instance
         {
             get
             {
-                return instance;
+                return instance.Value;
             }
         }
 
@@ -61,8 +60,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Failed to load the azure blob connection settings. error: " + ex.Message);
-                return new AzureBlobConnectionSetting();
+                throw new Exception("Failed to load the azure blob connection settings.", ex);
             }
         }
     }

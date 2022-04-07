@@ -2549,6 +2549,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string UnsupportedDeviceType
+        {
+            get
+            {
+                return Keys.GetString(Keys.UnsupportedDeviceType);
+            }
+        }
+
         public static string ScriptTaskName
         {
             get
@@ -2586,6 +2594,38 @@ namespace Microsoft.SqlTools.ServiceLayer
             get
             {
                 return Keys.GetString(Keys.SessionNotFound);
+            }
+        }
+
+        public static string SqlServerConnectionFailed
+        {
+            get
+            {
+                return Keys.GetString(Keys.SqlServerConnectionFailed);
+            }
+        }
+
+        public static string NotSupportedNonCloudCreateSas
+        {
+            get
+            {
+                return Keys.GetString(Keys.NotSupportedNonCloudCreateSas);
+            }
+        }
+
+        public static string CreateSasForBlobContainerFailed
+        {
+            get
+            {
+                return Keys.GetString(Keys.CreateSasForBlobContainerFailed);
+            }
+        }
+
+        public static string WriteSASCredentialToSqlServerFailed
+        {
+            get
+            {
+                return Keys.GetString(Keys.WriteSASCredentialToSqlServerFailed);
             }
         }
 
@@ -10004,6 +10044,9 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string NoBackupsetsToRestore = "NoBackupsetsToRestore";
 
 
+            public const string UnsupportedDeviceType = "UnsupportedDeviceType";
+
+
             public const string ScriptTaskName = "ScriptTaskName";
 
 
@@ -10032,6 +10075,18 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string SessionAlreadyExists = "SessionAlreadyExists";
+
+
+            public const string SqlServerConnectionFailed = "SqlServerConnectionFailed";
+
+
+            public const string NotSupportedNonCloudCreateSas = "NotSupportedNonCloudCreateSas";
+
+
+            public const string CreateSasForBlobContainerFailed = "CreateSasForBlobContainerFailed";
+
+
+            public const string WriteSASCredentialToSqlServerFailed = "WriteSASCredentialToSqlServerFailed";
 
 
             public const string CategoryLocal = "CategoryLocal";

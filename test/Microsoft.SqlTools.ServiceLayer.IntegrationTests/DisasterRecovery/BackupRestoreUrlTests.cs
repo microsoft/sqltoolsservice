@@ -49,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                     ServerConnection serverConn = new ServerConnection(sqlConn);
                     Server server = new Server(serverConn);
                     SharedAccessSignatureCreator sasCreator = new SharedAccessSignatureCreator(server);
-                    AzureBlobConnectionSetting azureBlobConnection = TestAzureBlobConnectionService.Intance.Settings;
+                    AzureBlobConnectionSetting azureBlobConnection = TestAzureBlobConnectionService.Instance.Settings;
                     sasCreator.CreateSqlSASCredential(azureBlobConnection.AccountName, azureBlobConnection.AccountKey, azureBlobConnection.BlobContainerUri, "");
                     string backupPath = GetAzureBlobBackupPath(databaseName);
 
@@ -88,13 +88,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
 
         private string GetAzureBlobBackupPath(string databaseName)
         {
-            AzureBlobConnectionSetting azureBlobConnection = TestAzureBlobConnectionService.Intance.Settings;
+            AzureBlobConnectionSetting azureBlobConnection = TestAzureBlobConnectionService.Instance.Settings;
             return azureBlobConnection.BlobContainerUri + "/" + databaseName + ".bak";
         }
 
         private void VerifyAndCleanAzureBlobBackup(string databaseName)
         {
-            AzureBlobConnectionSetting azureBlobConnection = TestAzureBlobConnectionService.Intance.Settings;
+            AzureBlobConnectionSetting azureBlobConnection = TestAzureBlobConnectionService.Instance.Settings;
             string blobUri = GetAzureBlobBackupPath(databaseName);
             string accountKey = azureBlobConnection.AccountKey;
             string accountName = azureBlobConnection.AccountName;

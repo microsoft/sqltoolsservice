@@ -77,9 +77,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         private bool? isTailLogBackupWithNoRecoveryPossible = null;
         private string backupMediaList = string.Empty;
         private Server server;
-        private static DeviceType[] managedInstanceSupportedDeviceTypes = { DeviceType.Url };
-        private static DeviceType[] boxSupportedDeviceTypes = { DeviceType.File, DeviceType.Url };
-        private Dictionary<Edition, DeviceType[]> supportedDeviceTypes = new Dictionary<Edition, DeviceType[]>
+        private static readonly DeviceType[] managedInstanceSupportedDeviceTypes = { DeviceType.Url };
+        private static readonly DeviceType[] boxSupportedDeviceTypes = { DeviceType.File, DeviceType.Url };
+        private static readonly Dictionary<Edition, DeviceType[]> supportedDeviceTypes = new Dictionary<Edition, DeviceType[]>
         {
             { Edition.SqlManagedInstance, managedInstanceSupportedDeviceTypes },
             { Edition.PersonalOrDesktopEngine, boxSupportedDeviceTypes },
@@ -205,12 +205,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         /// Add a backup file to restore plan media list
         /// </summary>
         /// <param name="filePaths"></param>
+        /// <param name="deviceType"></deviceType>
         public void AddDevices(string filePaths, DeviceType deviceType)
         {
-            if (isSupportedDeviceType(this.Server.EngineEdition, deviceType))
-            {
-                throw new UnsupportedDeviceTypeException(deviceType);
-            }
+            ThrowIfUnsupportedDeviceType(this.Server.EngineEdition, deviceType);
             backupMediaList = filePaths;
             PlanUpdateRequired = true;
             if (!string.IsNullOrWhiteSpace(filePaths))
@@ -237,7 +235,15 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             }
         }
 
-        private bool isSupportedDeviceType(Edition engineEdition, DeviceType deviceType)
+        private void ThrowIfUnsupportedDeviceType(Edition engineEdition, DeviceType deviceType)
+        {
+            if (IsSupportedDeviceType(this.Server.EngineEdition, deviceType))
+            {
+                throw new UnsupportedDeviceTypeException(deviceType);
+            }
+        }
+
+        private bool IsSupportedDeviceType(Edition engineEdition, DeviceType deviceType)
         {
             return supportedDeviceTypes.ContainsKey(engineEdition) && supportedDeviceTypes[engineEdition].Contains(deviceType);
         }

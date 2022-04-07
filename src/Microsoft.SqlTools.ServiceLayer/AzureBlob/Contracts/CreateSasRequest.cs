@@ -50,6 +50,6 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureBlob.Contracts
     {
         public static readonly
             RequestType<CreateSasParams, CreateSasResponse> Type =
-                RequestType<CreateSasParams, CreateSasResponse>.Create("blob/createsas");
+                RequestType<CreateSasParams, CreateSasResponse>.Create("blob/createSas");
     }
 }

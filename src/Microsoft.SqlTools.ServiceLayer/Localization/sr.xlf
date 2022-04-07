@@ -5763,6 +5763,31 @@ The Query Processor estimates that implementing the following index could improv
 */</target>
         <note>title of missing index details</note>
       </trans-unit>
+      <trans-unit id="SqlServerConnectionFailed">
+        <source>Failed to connect to the Sql Server.</source>
+        <target state="new">Failed to connect to the Sql Server.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="NotSupportedNonCloudCreateSas">
+        <source>Create shared access signature is only supported for cloud servers.</source>
+        <target state="new">Create shared access signature is only supported for cloud servers.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="CreateSasForBlobContainerFailed">
+        <source>Cannot generate SAS URI for blob container.</source>
+        <target state="new">Cannot generate SAS URI for blob container.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="WriteSASCredentialToSqlServerFailed">
+        <source>Failed storing shared access signature token on the Sql Servers.</source>
+        <target state="new">Failed storing shared access signature token on the Sql Servers.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="UnsupportedDeviceType">
+        <source>Unsupported device type</source>
+        <target state="new">Unsupported device type</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

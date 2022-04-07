@@ -50,28 +50,31 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureBlob
                        out connInfo);
                 var response = new CreateSasResponse();
 
-                if (connInfo != null && !connInfo.IsCloud)
+                if (connInfo == null)
                 {
-                    using (
-                    SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "AzureBlob"))
-                    {
-                        // Connection gets discounnected when backup is done
-                        ServerConnection serverConnection = new ServerConnection(sqlConn);
-                        Server sqlServer = new Server(serverConnection);
-
-                        SharedAccessSignatureCreator sharedAccessSignatureCreator = new SharedAccessSignatureCreator(sqlServer);
-                        string sharedAccessSignature = sharedAccessSignatureCreator.CreateSqlSASCredential(optionsParams.StorageAccountName, optionsParams.BlobContainerKey, optionsParams.BlobContainerUri, optionsParams.ExpirationDate);
-                        response.SharedAccessSignature = sharedAccessSignature;
-                    }
-                } else
-                {
-                    await requestContext.SendError("Create shared access signature is not supported operation.");
+                    await requestContext.SendError(SR.SqlServerConnectionFailed);
+                    return;
                 }
-                await requestContext.SendResult(response);
+                if (!connInfo.IsCloud)
+                {
+                    await requestContext.SendError(SR.NotSupportedNonCloudCreateSas);
+                    return;
+                }
+                using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "AzureBlob"))
+                {
+                    // Connection gets disconnected when backup is done
+                    ServerConnection serverConnection = new ServerConnection(sqlConn);
+                    Server sqlServer = new Server(serverConnection);
+                    
+                    SharedAccessSignatureCreator sharedAccessSignatureCreator = new SharedAccessSignatureCreator(sqlServer);
+                    string sharedAccessSignature = sharedAccessSignatureCreator.CreateSqlSASCredential(optionsParams.StorageAccountName, optionsParams.BlobContainerKey, optionsParams.BlobContainerUri, optionsParams.ExpirationDate);
+                    response.SharedAccessSignature = sharedAccessSignature;
+                    await requestContext.SendResult(response);
+                }
             }
             catch (Exception ex)
             {
-                await requestContext.SendError(ex.ToString());
+                await requestContext.SendError(ex);
             }
         }
     }

@@ -742,6 +742,7 @@ RestoreBackupSetUserName = User Name
 RestoreBackupSetExpiration = Expiration
 TheLastBackupTaken = The last backup taken ({0})
 NoBackupsetsToRestore = No backupset selected to be restored
+UnsupportedDeviceType = Unsupported device type
 
 ############################################################################
 # Generate Script
@@ -762,6 +763,12 @@ StopSessionFailed(String error) = Failed to stop session: {0}
 SessionNotFound = Cannot find requested XEvent session
 SessionAlreadyExists(String sessionName) = An XEvent session named {0} already exists
 
+############################################################################
+# Azure Blob Service
+SqlServerConnectionFailed = Failed to connect to the Sql Server.
+NotSupportedNonCloudCreateSas = Create shared access signature is only supported for cloud servers.
+CreateSasForBlobContainerFailed = Cannot generate SAS URI for blob container.
+WriteSASCredentialToSqlServerFailed = Failed storing shared access signature token on the Sql Servers.
 
 ;job categories
 CategoryLocal = [Uncategorized (Local)]

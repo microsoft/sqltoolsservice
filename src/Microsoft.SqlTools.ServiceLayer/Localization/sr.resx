@@ -1532,6 +1532,10 @@
     <value>No backupset selected to be restored</value>
     <comment></comment>
   </data>
+  <data name="UnsupportedDeviceType" xml:space="preserve">
+    <value>Unsupported device type</value>
+    <comment></comment>
+  </data>
   <data name="ScriptTaskName" xml:space="preserve">
     <value>scripting</value>
     <comment></comment>
@@ -1576,6 +1580,22 @@
     <value>An XEvent session named {0} already exists</value>
     <comment>.
  Parameters: 0 - sessionName (String) </comment>
+  </data>
+  <data name="SqlServerConnectionFailed" xml:space="preserve">
+    <value>Failed to connect to the Sql Server.</value>
+    <comment></comment>
+  </data>
+  <data name="NotSupportedNonCloudCreateSas" xml:space="preserve">
+    <value>Create shared access signature is only supported for cloud servers.</value>
+    <comment></comment>
+  </data>
+  <data name="CreateSasForBlobContainerFailed" xml:space="preserve">
+    <value>Cannot generate SAS URI for blob container.</value>
+    <comment></comment>
+  </data>
+  <data name="WriteSASCredentialToSqlServerFailed" xml:space="preserve">
+    <value>Failed storing shared access signature token on the Sql Servers.</value>
+    <comment></comment>
   </data>
   <data name="CategoryLocal" xml:space="preserve">
     <value>[Uncategorized (Local)]</value>
