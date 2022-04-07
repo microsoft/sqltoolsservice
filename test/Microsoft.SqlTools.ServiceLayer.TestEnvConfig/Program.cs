@@ -96,7 +96,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TestEnvConfig
         {
             
             var xdoc = XDocument.Load(settingFile);
-            Console.WriteLine(Environment.GetEnvironmentVariable(setting.Element("VersionKey").Value + "_password"));
             var settings =
                 from setting in xdoc.Descendants("Instance")
                 select new InstanceInfo(setting.Attribute("VersionKey").Value) // VersionKey is required
@@ -108,7 +107,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestEnvConfig
                     RemoteSharePath = (string)setting.Element("RemoteShare"), // RemoteShare is optional
                     AuthenticationType = string.IsNullOrEmpty((string)setting.Element("UserId")) ? AuthenticationType.Integrated : AuthenticationType.SqlLogin
                 };
-
+            Console.WriteLine(settings.ToString());
             TestConfigPersistenceHelper.Write(settings);
             
         }
