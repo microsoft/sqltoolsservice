@@ -6,7 +6,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Runtime;
 using System.Xml.Linq;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 
