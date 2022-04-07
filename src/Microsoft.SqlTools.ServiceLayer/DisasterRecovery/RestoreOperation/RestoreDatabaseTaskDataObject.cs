@@ -78,14 +78,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         private string backupMediaList = string.Empty;
         private Server server;
         private static readonly DeviceType[] managedInstanceSupportedDeviceTypes = { DeviceType.Url };
-        private static readonly DeviceType[] boxSupportedDeviceTypes = { DeviceType.File, DeviceType.Url };
-        private static readonly Dictionary<Edition, DeviceType[]> supportedDeviceTypes = new Dictionary<Edition, DeviceType[]>
+        private static readonly DeviceType[] defaultSupportedDeviceTypes = { DeviceType.File, DeviceType.Url };
+        private static readonly Dictionary<Edition, DeviceType[]> specialEngineEditionSupportedDeviceTypes = new Dictionary<Edition, DeviceType[]>
         {
             { Edition.SqlManagedInstance, managedInstanceSupportedDeviceTypes },
-            { Edition.PersonalOrDesktopEngine, boxSupportedDeviceTypes },
-            { Edition.Standard, boxSupportedDeviceTypes },
-            { Edition.EnterpriseOrDeveloper, boxSupportedDeviceTypes },
-            { Edition.Express, boxSupportedDeviceTypes },
         };
 
         public RestoreDatabaseTaskDataObject(Server server, String databaseName)
@@ -245,7 +241,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
 
         private bool IsSupportedDeviceType(Edition engineEdition, DeviceType deviceType)
         {
-            return supportedDeviceTypes.ContainsKey(engineEdition) && supportedDeviceTypes[engineEdition].Contains(deviceType);
+            return (defaultSupportedDeviceTypes.Contains(deviceType) && !specialEngineEditionSupportedDeviceTypes.ContainsKey(engineEdition))
+                || (specialEngineEditionSupportedDeviceTypes.ContainsKey(engineEdition) && specialEngineEditionSupportedDeviceTypes[engineEdition].Contains(deviceType));
         }
 
         
