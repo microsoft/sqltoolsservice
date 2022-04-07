@@ -6,6 +6,7 @@
 # the letter casing of the localization directories it creates. It 
 # is not an issues in the window version because the dirs are case 
 # insensitive.
+# The issue that tracks this bug is https://github.com/dotnet/msbuild/issues/5768
 
 # The script need to run from the repo root
 
