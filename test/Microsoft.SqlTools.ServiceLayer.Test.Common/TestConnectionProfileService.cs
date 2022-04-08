@@ -31,6 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         public const string DefaultSqlPdwInstanceKey = "defaultSqlPdw";
         public const string DefaultSqlAzureV12InstanceKey = "defaultSqlAzureV12";
         public const string DefaultSql2016InstanceKey = "defaultSql2016";
+        public const string DefaultSql2019InstanceKey = "defaultSql2019";
         public const string DefaultSqlvNextInstanceKey = "defaultSqlvNext";
 
         private TestConnectionProfileService()
@@ -71,6 +72,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             get { return GetInstance(DefaultSql2016InstanceKey); }
         }
 
+        public static  InstanceInfo DefaultSql2019
+        {
+            get { return GetInstance(DefaultSql2019InstanceKey); }
+        }
+
         public static InstanceInfo DefaultSqlvNext
         {
             get { return GetInstance(DefaultSqlvNextInstanceKey); }
@@ -87,7 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             return instanceInfo;
         }
 
-        public ConnectParams GetConnectionParameters(string key = DefaultSql2016InstanceKey, string databaseName = null)
+        public ConnectParams GetConnectionParameters(string key = DefaultSql2019InstanceKey, string databaseName = null)
         {
             InstanceInfo instanceInfo = GetInstance(key);
             if (instanceInfo != null)
@@ -170,7 +176,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 
         private static string ConvertServerTypeToVersionKey(TestServerType serverType)
         {
-            return serverType == TestServerType.OnPrem ? DefaultSql2016InstanceKey : DefaultSqlAzureV12InstanceKey;
+            return serverType == TestServerType.OnPrem ? DefaultSql2019InstanceKey : DefaultSqlAzureV12InstanceKey;
         }
 
         /// <summary>

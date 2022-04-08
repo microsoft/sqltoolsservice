@@ -5,9 +5,9 @@
 
 using System;
 using System.IO;
-using System.Linq;
 using System.Xml.Linq;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
+using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.TestEnvConfig
 {
@@ -94,22 +94,25 @@ namespace Microsoft.SqlTools.ServiceLayer.TestEnvConfig
 
         private static void SaveSettings(string settingFile)
         {
-            
             var xdoc = XDocument.Load(settingFile);
-            var settings =
-                from setting in xdoc.Descendants("Instance")
-                select new InstanceInfo(setting.Attribute("VersionKey").Value) // VersionKey is required
+            List<InstanceInfo> settings = new List<InstanceInfo>();
+            
+            foreach (var setting in xdoc.Descendants("Instance"))
+            {
+                var passwordEnvVariableValue = Environment.GetEnvironmentVariable((setting.Attribute("VersionKey").Value + "_password"));
+
+                settings.Add(new InstanceInfo(setting.Attribute("VersionKey").Value)
                 {
                     ServerName = setting.Element("DataSource").Value, // DataSource is required
                     ConnectTimeoutAsString = (string)setting.Element("ConnectTimeout"), //ConnectTimeout is optional
                     User = (string)setting.Element("UserId"), // UserID is optional
-                    Password = (string)setting.Element("Password"),
+                    Password = string.IsNullOrEmpty(passwordEnvVariableValue) ? (string)setting.Element("Password") : passwordEnvVariableValue,
                     RemoteSharePath = (string)setting.Element("RemoteShare"), // RemoteShare is optional
                     AuthenticationType = string.IsNullOrEmpty((string)setting.Element("UserId")) ? AuthenticationType.Integrated : AuthenticationType.SqlLogin
-                };
+                });
+            }
 
             TestConfigPersistenceHelper.Write(settings);
-            
         }
     }
 }
