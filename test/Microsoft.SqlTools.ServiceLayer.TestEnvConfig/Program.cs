@@ -94,6 +94,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TestEnvConfig
 
         private static void SaveSettings(string settingFile)
         {
+            Console.WriteLine(Environment.GetEnvironmentVariable("defaultSql2016_password"));
+            Console.WriteLine(Environment.GetEnvironmentVariable("defaultSql2016_password".ToUpper()));
+            Console.WriteLine(Environment.GetEnvironmentVariable("defaultSql2016_password".ToLower()));
             var xdoc = XDocument.Load(settingFile);
             var settings =
                 from setting in xdoc.Descendants("Instance")
@@ -102,11 +105,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TestEnvConfig
                     ServerName = setting.Element("DataSource").Value, // DataSource is required
                     ConnectTimeoutAsString = (string)setting.Element("ConnectTimeout"), //ConnectTimeout is optional
                     User = (string)setting.Element("UserId"), // UserID is optional
-                    Password = Environment.GetEnvironmentVariable(setting.Element("VersionKey").Value + "_password") != null ? Environment.GetEnvironmentVariable(setting.Element("VersionKey").Value + "_password") : (string)setting.Element("Password"),
+                    Password = Environment.GetEnvironmentVariable((setting.Element("VersionKey").Value + "_password").ToUpper()) != null ? Environment.GetEnvironmentVariable((setting.Element("VersionKey").Value + "_password").ToUpper()) : (string)setting.Element("Password"),
                     RemoteSharePath = (string)setting.Element("RemoteShare"), // RemoteShare is optional
                     AuthenticationType = string.IsNullOrEmpty((string)setting.Element("UserId")) ? AuthenticationType.Integrated : AuthenticationType.SqlLogin
                 };
-                
+
             TestConfigPersistenceHelper.Write(settings);
 
         }
