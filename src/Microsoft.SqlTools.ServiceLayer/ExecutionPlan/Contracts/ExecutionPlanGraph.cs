@@ -181,8 +181,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
 
     public enum BadgeType
     {
-        WARNING,
-        CRITICALWARNING,
-        PARALLELISM
+        WARNING = 0,
+        CRITICALWARNING = 1,
+        PARALLELISM = 2
     }
 }
