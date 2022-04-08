@@ -73,7 +73,6 @@ requiredLocDirectories=(
     "zh-HANT"
     "zh-hant"
     "zh-hans"
-
 )
 
 for i in "${net6projectArray[@]}"

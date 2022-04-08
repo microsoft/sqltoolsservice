@@ -104,8 +104,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TestEnvConfig
                 {
                     ServerName = setting.Element("DataSource").Value, // DataSource is required
                     ConnectTimeoutAsString = (string)setting.Element("ConnectTimeout"), //ConnectTimeout is optional
-                     User = (string)setting.Element("UserId"), // UserID is optional
-                    Password = passwordEnvVariableValue != "" ? passwordEnvVariableValue : (string)setting.Element("Password"), 
+                    User = (string)setting.Element("UserId"), // UserID is optional
+                    Password = string.IsNullOrEmpty(passwordEnvVariableValue) ? (string)setting.Element("Password") : passwordEnvVariableValue,
                     RemoteSharePath = (string)setting.Element("RemoteShare"), // RemoteShare is optional
                     AuthenticationType = string.IsNullOrEmpty((string)setting.Element("UserId")) ? AuthenticationType.Integrated : AuthenticationType.SqlLogin
                 });
