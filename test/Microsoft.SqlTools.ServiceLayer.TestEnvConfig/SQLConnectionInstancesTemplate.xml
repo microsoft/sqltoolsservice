@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Instances>
 	 <Instance VersionKey="defaultSql2016">
-		<DataSource>localhost</DataSource>
-		<UserId>sa</UserId>
-		<Password></Password>
+		<DataSource>[server name]</DataSource>
+		<UserId>[user name for SQL authentication]</UserId>
+		<Password>[password for SQL authentication]</Password>
 	 </Instance>
 	 <Instance VersionKey="defaultSqlAzureV12">
 		<DataSource>[server name]</DataSource>

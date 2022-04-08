@@ -98,21 +98,17 @@ namespace Microsoft.SqlTools.ServiceLayer.TestEnvConfig
             List<InstanceInfo> settings = new List<InstanceInfo>();
             foreach (var setting in xdoc.Descendants("Instance"))
             {
-                 var passwordEnvVariableValue = Environment.GetEnvironmentVariable((setting.Attribute("VersionKey").Value + "_password"));
+                var passwordEnvVariableValue = Environment.GetEnvironmentVariable((setting.Attribute("VersionKey").Value + "_password"));
 
-                 settings.Add(new InstanceInfo(setting.Attribute("VersionKey").Value) {
-                     ServerName = setting.Element("DataSource").Value,
-                     ConnectTimeoutAsString = (string)setting.Element("ConnectTimeout"),
-                     Password = passwordEnvVariableValue != "" ? passwordEnvVariableValue : (string)setting.Element("Password"),
-                     RemoteSharePath = (string)setting.Element("RemoteShare"),
-                     AuthenticationType = string.IsNullOrEmpty((string)setting.Element("UserId")) ? AuthenticationType.Integrated : AuthenticationType.SqlLogin
-                 });
-
-                  Console.WriteLine(setting.Element("DataSource").Value);
-                   Console.WriteLine((string)setting.Element("ConnectTimeout"));
-                    Console.WriteLine((string)setting.Element("RemoteShare"));
-                     Console.WriteLine(passwordEnvVariableValue != "" ? passwordEnvVariableValue : (string)setting.Element("Password"));
-                 Console.WriteLine(string.IsNullOrEmpty((string)setting.Element("UserId")) ? AuthenticationType.Integrated : AuthenticationType.SqlLogin);
+                settings.Add(new InstanceInfo(setting.Attribute("VersionKey").Value)
+                {
+                    ServerName = setting.Element("DataSource").Value, // DataSource is required
+                    ConnectTimeoutAsString = (string)setting.Element("ConnectTimeout"), //ConnectTimeout is optional
+                     User = (string)setting.Element("UserId"), // UserID is optional
+                    Password = passwordEnvVariableValue != "" ? passwordEnvVariableValue : (string)setting.Element("Password"), 
+                    RemoteSharePath = (string)setting.Element("RemoteShare"), // RemoteShare is optional
+                    AuthenticationType = string.IsNullOrEmpty((string)setting.Element("UserId")) ? AuthenticationType.Integrated : AuthenticationType.SqlLogin
+                });
             }
 
             TestConfigPersistenceHelper.Write(settings);
