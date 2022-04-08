@@ -5,6 +5,7 @@
 
 using System.Collections.Generic;
 using Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
+using Dac = Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
 using TableDesignerIssue = Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts.TableDesignerIssue;
 using System.Linq;
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
@@ -35,12 +36,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         /// <summary>
         /// Validate the table and return the validation errors.
         /// </summary>
-        public static List<TableDesignerIssue> Validate(TableViewModel table)
+        public static List<TableDesignerIssue> Validate(Dac.TableDesigner designer)
         {
             var errors = new List<TableDesignerIssue>();
             foreach (var rule in Rules)
             {
-                errors.AddRange(rule.Run(table));
+                errors.AddRange(rule.Run(designer));
             }
             return errors;
         }
@@ -48,13 +49,14 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
     public interface ITableDesignerValidationRule
     {
-        List<TableDesignerIssue> Run(TableViewModel table);
+        List<TableDesignerIssue> Run(Dac.TableDesigner designer);
     }
 
     public class IndexMustHaveColumnsRule : ITableDesignerValidationRule
     {
-        public List<TableDesignerIssue> Run(TableViewModel table)
+        public List<TableDesignerIssue> Run(Dac.TableDesigner designer)
         {
+            var table = designer.TableViewModel;
             var errors = new List<TableDesignerIssue>();
             for (int i = 0; i < table.Indexes.Items.Count; i++)
             {
@@ -74,8 +76,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
     public class ForeignKeyMustHaveColumnsRule : ITableDesignerValidationRule
     {
-        public List<TableDesignerIssue> Run(TableViewModel table)
+        public List<TableDesignerIssue> Run(Dac.TableDesigner designer)
         {
+            var table = designer.TableViewModel;
             var errors = new List<TableDesignerIssue>();
             for (int i = 0; i < table.ForeignKeys.Items.Count; i++)
             {
@@ -95,8 +98,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
     public class ColumnCanOnlyAppearOnceInIndexRule : ITableDesignerValidationRule
     {
-        public List<TableDesignerIssue> Run(TableViewModel table)
+        public List<TableDesignerIssue> Run(Dac.TableDesigner designer)
         {
+            var table = designer.TableViewModel;
             var errors = new List<TableDesignerIssue>();
             for (int i = 0; i < table.Indexes.Items.Count; i++)
             {
@@ -125,8 +129,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
     public class ColumnCanOnlyAppearOnceInForeignKeyRule : ITableDesignerValidationRule
     {
-        public List<TableDesignerIssue> Run(TableViewModel table)
+        public List<TableDesignerIssue> Run(Dac.TableDesigner designer)
         {
+            var table = designer.TableViewModel;
             var errors = new List<TableDesignerIssue>();
             for (int i = 0; i < table.ForeignKeys.Items.Count; i++)
             {
@@ -173,110 +178,71 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
     public class NoDuplicateConstraintNameRule : ITableDesignerValidationRule
     {
-        public List<TableDesignerIssue> Run(TableViewModel table)
+        public List<TableDesignerIssue> Run(Dac.TableDesigner designer)
         {
             var errors = new List<TableDesignerIssue>();
-            errors = this.NoDuplicateConstraintNameInTableRule(table, errors);
-            errors = this.NoDuplicateConstraintNameInSchemaRule(table, errors);
-            return errors;
-        }
-
-        private List<TableDesignerIssue> NoDuplicateConstraintNameInTableRule(TableViewModel table, List<TableDesignerIssue> errors)
-        {
+            var table = designer.TableViewModel;
             var existingNames = new HashSet<string>();
+            Dictionary<string, int> currentSchemaConstraints = designer.AllConstraintsNamesCounts;
             for (int i = 0; i < table.ForeignKeys.Items.Count; i++)
             {
                 var foreignKey = table.ForeignKeys.Items[i];
-                if (existingNames.Contains(foreignKey.Name))
+                if (currentSchemaConstraints.ContainsKey(foreignKey.Name) && currentSchemaConstraints[foreignKey.Name] > 1)
                 {
-                    errors.Add(new TableDesignerIssue()
+                    if (existingNames.Contains(foreignKey.Name))
                     {
-                        Description = string.Format("The name '{0}' is already used by another constraint. Row number: {1}.", foreignKey.Name, i + 1),
-                        PropertyPath = new object[] { TablePropertyNames.ForeignKeys, i, ForeignKeyPropertyNames.Name }
-                    });
-                }
-                else
-                {
-                    existingNames.Add(foreignKey.Name);
+                        errors.Add(new TableDesignerIssue()
+                        {
+                            Description = string.Format("The name '{0}' is already used by another constraint. Row number: {1}.", foreignKey.Name, i + 1),
+                            PropertyPath = new object[] { TablePropertyNames.ForeignKeys, i, ForeignKeyPropertyNames.Name }
+                        });
+                    }
+                    else 
+                    {
+                        existingNames.Add(foreignKey.Name);
+                    }
+
                 }
             }
 
             for (int i = 0; i < table.CheckConstraints.Items.Count; i++)
             {
                 var checkConstraint = table.CheckConstraints.Items[i];
-                if (existingNames.Contains(checkConstraint.Name))
+                if (currentSchemaConstraints.ContainsKey(checkConstraint.Name) && currentSchemaConstraints[checkConstraint.Name] > 1)
                 {
-                    errors.Add(new TableDesignerIssue()
+                    if (existingNames.Contains(checkConstraint.Name))
                     {
-                        Description = string.Format("The name '{0}' is already used by another constraint. Row number: {1}.", checkConstraint.Name, i + 1),
-                        PropertyPath = new object[] { TablePropertyNames.CheckConstraints, i, CheckConstraintPropertyNames.Name }
-                    });
-                }
-                else
-                {
-                    existingNames.Add(checkConstraint.Name);
+                        errors.Add(new TableDesignerIssue()
+                        {
+                            Description = string.Format("The name '{0}' is already used by another constraint. Row number: {1}.", checkConstraint.Name, i + 1),
+                            PropertyPath = new object[] { TablePropertyNames.CheckConstraints, i, CheckConstraintPropertyNames.Name }
+                        });
+                    }
+                    else 
+                    {
+                        existingNames.Add(checkConstraint.Name);
+                    }
                 }
             }
 
             for (int i = 0; i < table.EdgeConstraints.Items.Count; i++)
             {
                 var edgeConstraint = table.EdgeConstraints.Items[i];
-                if (existingNames.Contains(edgeConstraint.Name))
+                if (currentSchemaConstraints.ContainsKey(edgeConstraint.Name) && currentSchemaConstraints[edgeConstraint.Name] > 1)
                 {
-                    errors.Add(new TableDesignerIssue()
+                    if (existingNames.Contains(edgeConstraint.Name))
                     {
-                        Description = string.Format("The name '{0}' is already used by another constraint. Row number: {1}.", edgeConstraint.Name, i + 1),
-                        PropertyPath = new object[] { TablePropertyNames.EdgeConstraints, i, EdgeConstraintPropertyNames.Name }
-                    });
-                }
-                else
-                {
-                    existingNames.Add(edgeConstraint.Name);
-                }
-            }
-            return errors;
-        }
+                        errors.Add(new TableDesignerIssue()
+                        {
+                            Description = string.Format("The name '{0}' is already used by another constraint. Row number: {1}.", edgeConstraint.Name, i + 1),
+                            PropertyPath = new object[] { TablePropertyNames.EdgeConstraints, i, EdgeConstraintPropertyNames.Name }
+                        });
+                    }
+                    else 
+                    {
+                        existingNames.Add(edgeConstraint.Name);
+                    }
 
-        private List<TableDesignerIssue> NoDuplicateConstraintNameInSchemaRule(TableViewModel table, List<TableDesignerIssue> errors)
-        {
-            Dictionary<string, HashSet<string>> allConstraints = table.AllConstraintsNames;
-            HashSet<string> currentSchemaConstraints = allConstraints[table.Schema];
-            for (int i = 0; i < table.ForeignKeys.Items.Count; i++)
-            {
-                var foreignKey = table.ForeignKeys.Items[i];
-                if (currentSchemaConstraints.Contains(foreignKey.Name))
-                {
-                    errors.Add(new TableDesignerIssue()
-                    {
-                        Description = string.Format("The name '{0}' is already used by another constraint. Row number: {1}.", foreignKey.Name, i + 1),
-                        PropertyPath = new object[] { TablePropertyNames.ForeignKeys, i, ForeignKeyPropertyNames.Name }
-                    });
-                }
-            }
-
-            for (int i = 0; i < table.CheckConstraints.Items.Count; i++)
-            {
-                var checkConstraint = table.CheckConstraints.Items[i];
-                if (currentSchemaConstraints.Contains(checkConstraint.Name))
-                {
-                    errors.Add(new TableDesignerIssue()
-                    {
-                        Description = string.Format("The name '{0}' is already used by another constraint. Row number: {1}.", checkConstraint.Name, i + 1),
-                        PropertyPath = new object[] { TablePropertyNames.CheckConstraints, i, CheckConstraintPropertyNames.Name }
-                    });
-                }
-            }
-
-            for (int i = 0; i < table.EdgeConstraints.Items.Count; i++)
-            {
-                var edgeConstraint = table.EdgeConstraints.Items[i];
-                if (currentSchemaConstraints.Contains(edgeConstraint.Name))
-                {
-                    errors.Add(new TableDesignerIssue()
-                    {
-                        Description = string.Format("The name '{0}' is already used by another constraint. Row number: {1}.", edgeConstraint.Name, i + 1),
-                        PropertyPath = new object[] { TablePropertyNames.EdgeConstraints, i, EdgeConstraintPropertyNames.Name }
-                    });
                 }
             }
             return errors;
@@ -285,8 +251,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
     public class NoDuplicateColumnNameRule : ITableDesignerValidationRule
     {
-        public List<TableDesignerIssue> Run(TableViewModel table)
+        public List<TableDesignerIssue> Run(Dac.TableDesigner designer)
         {
+            var table = designer.TableViewModel;
             var errors = new List<TableDesignerIssue>();
             var existingNames = new HashSet<string>();
             for (int i = 0; i < table.Columns.Items.Count; i++)
@@ -311,8 +278,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
     public class NoDuplicateIndexNameRule : ITableDesignerValidationRule
     {
-        public List<TableDesignerIssue> Run(TableViewModel table)
+        public List<TableDesignerIssue> Run(Dac.TableDesigner designer)
         {
+            var table = designer.TableViewModel;
             var errors = new List<TableDesignerIssue>();
             var existingNames = new HashSet<string>();
             for (int i = 0; i < table.Indexes.Items.Count; i++)
@@ -337,8 +305,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
     public class EdgeConstraintMustHaveClausesRule : ITableDesignerValidationRule
     {
-        public List<TableDesignerIssue> Run(TableViewModel table)
+        public List<TableDesignerIssue> Run(Dac.TableDesigner designer)
         {
+            var table = designer.TableViewModel;
             var errors = new List<TableDesignerIssue>();
             for (int i = 0; i < table.EdgeConstraints.Items.Count; i++)
             {
@@ -358,8 +327,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
     public class EdgeConstraintNoRepeatingClausesRule : ITableDesignerValidationRule
     {
-        public List<TableDesignerIssue> Run(TableViewModel table)
+        public List<TableDesignerIssue> Run(Dac.TableDesigner designer)
         {
+            var table = designer.TableViewModel;
             var errors = new List<TableDesignerIssue>();
             for (int i = 0; i < table.EdgeConstraints.Items.Count; i++)
             {
@@ -389,8 +359,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
     public class MemoryOptimizedTableMustHaveNonClusteredPrimaryKeyRule : ITableDesignerValidationRule
     {
-        public List<TableDesignerIssue> Run(TableViewModel table)
+        public List<TableDesignerIssue> Run(Dac.TableDesigner designer)
         {
+            var table = designer.TableViewModel;
             var errors = new List<TableDesignerIssue>();
             if (table.IsMemoryOptimized && (table.PrimaryKey == null || table.PrimaryKey.IsClustered))
             {
@@ -406,8 +377,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
     public class TemporalTableMustHavePrimaryKeyRule : ITableDesignerValidationRule
     {
-        public List<TableDesignerIssue> Run(TableViewModel table)
+        public List<TableDesignerIssue> Run(Dac.TableDesigner designer)
         {
+            var table = designer.TableViewModel;
             var errors = new List<TableDesignerIssue>();
             if (table.SystemVersioningHistoryTable != null && table.PrimaryKey == null)
             {
@@ -422,8 +394,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
     public class TemporalTableMustHavePeriodColumns : ITableDesignerValidationRule
     {
-        public List<TableDesignerIssue> Run(TableViewModel table)
+        public List<TableDesignerIssue> Run(Dac.TableDesigner designer)
         {
+            var table = designer.TableViewModel;
             var errors = new List<TableDesignerIssue>();
             if (table.SystemVersioningHistoryTable != null && !table.PeriodColumnsDefined)
             {
@@ -438,8 +411,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
     public class PeriodColumnsRule : ITableDesignerValidationRule
     {
-        public List<TableDesignerIssue> Run(TableViewModel table)
+        public List<TableDesignerIssue> Run(Dac.TableDesigner designer)
         {
+            var table = designer.TableViewModel;
             var errors = new List<TableDesignerIssue>();
             var rowStart = table.Columns.Items.Where(c => c.GeneratedAlwaysAs == ColumnGeneratedAlwaysAsType.GeneratedAlwaysAsRowStart);
             var rowEnd = table.Columns.Items.Where(c => c.GeneratedAlwaysAs == ColumnGeneratedAlwaysAsType.GeneratedAlwaysAsRowEnd);
@@ -463,8 +437,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
     public class ColumnsInPrimaryKeyCannotBeNullableRule : ITableDesignerValidationRule
     {
-        public List<TableDesignerIssue> Run(TableViewModel table)
+        public List<TableDesignerIssue> Run(Dac.TableDesigner designer)
         {
+            var table = designer.TableViewModel;
             var errors = new List<TableDesignerIssue>();
             for (int i = 0; i < table.Columns.Items.Count; i++)
             {
@@ -484,8 +459,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
     public class OnlyDurableMemoryOptimizedTableCanBeSystemVersionedRule : ITableDesignerValidationRule
     {
-        public List<TableDesignerIssue> Run(TableViewModel table)
+        public List<TableDesignerIssue> Run(Dac.TableDesigner designer)
         {
+            var table = designer.TableViewModel;
             var errors = new List<TableDesignerIssue>();
             if (table.Durability == TableDurability.SchemaOnly && table.IsMemoryOptimized && table.IsSystemVersioningEnabled)
             {
@@ -500,8 +476,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
     public class TableMustHaveAtLeastOneColumnRule : ITableDesignerValidationRule
     {
-        public List<TableDesignerIssue> Run(TableViewModel table)
+        public List<TableDesignerIssue> Run(Dac.TableDesigner designer)
         {
+            var table = designer.TableViewModel;
             var errors = new List<TableDesignerIssue>();
             if (!table.IsEdge && table.Columns.Items.Count == 0)
             {
@@ -516,8 +493,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
     public class MemoryOptimizedTableIdentityColumnRule : ITableDesignerValidationRule
     {
-        public List<TableDesignerIssue> Run(TableViewModel table)
+        public List<TableDesignerIssue> Run(Dac.TableDesigner designer)
         {
+            var table = designer.TableViewModel;
             var errors = new List<TableDesignerIssue>();
             if (table.IsMemoryOptimized)
             {
@@ -541,8 +519,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
     public class TableShouldAvoidHavingMultipleEdgeConstraintsRule : ITableDesignerValidationRule
     {
-        public List<TableDesignerIssue> Run(TableViewModel table)
+        public List<TableDesignerIssue> Run(Dac.TableDesigner designer)
         {
+            var table = designer.TableViewModel;
             var errors = new List<TableDesignerIssue>();
             if (table.EdgeConstraints.Items.Count > 1)
             {

@@ -113,7 +113,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         break;
                 }
                 var designer = this.GetTableDesigner(requestParams.TableInfo);
-                var issues = TableDesignerValidator.Validate(designer.TableViewModel);
+                var issues = TableDesignerValidator.Validate(designer);
                 await requestContext.SendResult(new ProcessTableDesignerEditResponse()
                 {
                     ViewModel = this.GetTableViewModel(requestParams.TableInfo),
