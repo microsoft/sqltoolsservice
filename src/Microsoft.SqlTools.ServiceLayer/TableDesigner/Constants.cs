@@ -79,7 +79,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
     {
         public const string Name = "name";
         public const string Description = "description";
-
         public const string Enabled = "enabled";
         public const string IsUnique = "isUnique";
         public const string IsClustered = "isClustered";
@@ -96,7 +95,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
     public static class EdgeConstraintPropertyNames
     {
         public const string Name = "name";
-
         public const string Enabled = "enabled";
         public const string Clauses = "clauses";
         public const string OnDeleteAction = "onDeleteAction";
