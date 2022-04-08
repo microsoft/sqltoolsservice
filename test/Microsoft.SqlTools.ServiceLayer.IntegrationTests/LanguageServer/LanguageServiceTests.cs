@@ -406,11 +406,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         //simple select star with single column in the table
         [TestCase("select * from wildcard_test_table", 0, 8, "CREATE TABLE wildcard_test_table(col1 int)", "[col1]")]
         //simple select star with multiple columns in the table
-        [TestCase("select * from wildcard_test_table", 0, 8, "CREATE TABLE wildcard_test_table(col1 int, col2 int, \"col3\" int)", "[col1],\r\n[col2],\r\n[col3]")]
+        [TestCase("select * from wildcard_test_table", 0, 8, "CREATE TABLE wildcard_test_table(col1 int, col2 int, \"col3\" int)", @"[col1],
+[col2],
+[col3]")]
         //select star query with special characters in the table
         [TestCase("select * from wildcard_test_table", 0, 8, "CREATE TABLE wildcard_test_table(\"col[$$$#]\" int)", "[col[$$$#]]]")]
         //select star query for multiple tables
-        [TestCase("select * from wildcard_test_table1 CROSS JOIN wildcard_test_table2", 0, 8, "CREATE TABLE wildcard_test_table1(table1col1 int); CREATE TABLE wildcard_test_table2(table2col1 int)", "[wildcard_test_table1].[table1col1],\r\n[wildcard_test_table2].[table2col1]")]
+        [TestCase("select * from wildcard_test_table1 CROSS JOIN wildcard_test_table2", 0, 8, "CREATE TABLE wildcard_test_table1(table1col1 int); CREATE TABLE wildcard_test_table2(table2col1 int)", @"[wildcard_test_table1].[table1col1],
+[wildcard_test_table2].[table2col1]")]
         //select star query with object identifier in associated with * eg: a.*
         [TestCase("select *, a.* from wildcard_test_table1 as a CROSS JOIN wildcard_test_table2", 0, 13, "CREATE TABLE wildcard_test_table1(table1col1 int); CREATE TABLE wildcard_test_table2(table2col1 int)", "[a].[table1col1]")]
         //select star query with nested from statement
@@ -453,7 +456,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                 var starExpansionCompletionItem = await langService.GetCompletionItems(
                     textDocumentPosition, connectionInfoResult.ScriptFile, connectionInfoResult.ConnectionInfo);
 
-                Assert.AreEqual(expectedStarExpansionInsertText.Replace("\r\n", Environment.NewLine), starExpansionCompletionItem[0].InsertText, "Star expansion not found");
+                Assert.AreEqual(expectedStarExpansionInsertText, starExpansionCompletionItem[0].InsertText, "Star expansion not found");
             }
             finally
             {
