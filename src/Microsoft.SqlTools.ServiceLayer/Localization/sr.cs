@@ -8733,22 +8733,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string TableDesignerEdgeConstraintDescriptionPropertyDescription
-        {
-            get
-            {
-                return Keys.GetString(Keys.TableDesignerEdgeConstraintDescriptionPropertyDescription);
-            }
-        }
-
-        public static string TableDesignerEdgeConstraintDescriptionPropertyTitle
-        {
-            get
-            {
-                return Keys.GetString(Keys.TableDesignerEdgeConstraintDescriptionPropertyTitle);
-            }
-        }
-
         public static string TableDesignerEdgeConstraintIsEnabledPropertyDescription
         {
             get
@@ -12795,12 +12779,6 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string TableDesignerEdgeConstraintNamePropertyTitle = "TableDesignerEdgeConstraintNamePropertyTitle";
-
-
-            public const string TableDesignerEdgeConstraintDescriptionPropertyDescription = "TableDesignerEdgeConstraintDescriptionPropertyDescription";
-
-
-            public const string TableDesignerEdgeConstraintDescriptionPropertyTitle = "TableDesignerEdgeConstraintDescriptionPropertyTitle";
 
 
             public const string TableDesignerEdgeConstraintIsEnabledPropertyDescription = "TableDesignerEdgeConstraintIsEnabledPropertyDescription";

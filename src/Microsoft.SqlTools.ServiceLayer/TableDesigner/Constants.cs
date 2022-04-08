@@ -96,7 +96,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
     public static class EdgeConstraintPropertyNames
     {
         public const string Name = "name";
-        public const string Description = "description";
 
         public const string Enabled = "enabled";
         public const string Clauses = "clauses";

@@ -570,9 +570,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                             case EdgeConstraintPropertyNames.Name:
                                 constraint.Name = GetStringValue(newValue);
                                 break;
-                            case EdgeConstraintPropertyNames.Description:
-                                constraint.Description = GetStringValue(newValue);
-                                break;
                             case EdgeConstraintPropertyNames.OnDeleteAction:
                                 constraint.OnDeleteAction = SqlForeignKeyActionUtil.Instance.GetValue(GetStringValue(newValue));
                                 break;
@@ -1126,16 +1123,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     {
                         Width = 200,
                         Title = SR.TableDesignerEdgeConstraintNamePropertyTitle
-                    }
-                },
-                new DesignerDataPropertyInfo()
-                {
-                    PropertyName = EdgeConstraintPropertyNames.Description,
-                    Description = SR.TableDesignerEdgeConstraintDescriptionPropertyDescription,
-                    ComponentType = DesignerComponentType.Input,
-                    ComponentProperties = new InputBoxProperties()
-                    {
-                        Title = SR.TableDesignerEdgeConstraintDescriptionPropertyTitle
                     }
                 },
                 new DesignerDataPropertyInfo()

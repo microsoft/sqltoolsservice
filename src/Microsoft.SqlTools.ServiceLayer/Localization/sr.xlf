@@ -5993,16 +5993,6 @@ The Query Processor estimates that implementing the following index could improv
         <target state="new">New Clause</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="TableDesignerEdgeConstraintDescriptionPropertyDescription">
-        <source>Description of the constraint.</source>
-        <target state="new">Description of the constraint.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="TableDesignerEdgeConstraintDescriptionPropertyTitle">
-        <source>Description</source>
-        <target state="new">Description</target>
-        <note></note>
-      </trans-unit>
     </body>
   </file>
 </xliff>
