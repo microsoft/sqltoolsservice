@@ -119,7 +119,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     ViewModel = this.GetTableViewModel(requestParams.TableInfo),
                     IsValid = issues.Where(i => i.Severity == IssueSeverity.Error).Count() == 0,
                     Issues = issues.ToArray(),
-                    View = refreshViewRequired ? this.GetDesignerViewInfo(requestParams.TableInfo) : null
+                    View = refreshViewRequired ? this.GetDesignerViewInfo(requestParams.TableInfo) : null,
+                    Metadata = this.GetMetadata(requestParams.TableInfo)
                 });
             });
         }
@@ -147,7 +148,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 {
                     NewTableInfo = tableInfo,
                     ViewModel = this.GetTableViewModel(tableInfo),
-                    View = GetDesignerViewInfo(tableInfo)
+                    View = GetDesignerViewInfo(tableInfo),
+                    Metadata = this.GetMetadata(tableInfo)
                 });
             });
         }
@@ -171,6 +173,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 var generatePreviewReportResult = new GeneratePreviewReportResult();
                 generatePreviewReportResult.Report = report;
                 generatePreviewReportResult.MimeType = "text/markdown";
+                generatePreviewReportResult.Metadata = this.GetMetadata(tableInfo);
                 await requestContext.SendResult(generatePreviewReportResult);
             });
         }
@@ -1347,9 +1350,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
         private Dac.TableDesigner CreateTableDesigner(TableInfo tableInfo)
         {
-            var connectinStringbuilder = new SqlConnectionStringBuilder(tableInfo.ConnectionString);
-            connectinStringbuilder.InitialCatalog = tableInfo.Database;
-            var connectionString = connectinStringbuilder.ToString();
+            var connectionStringbuilder = new SqlConnectionStringBuilder(tableInfo.ConnectionString);
+            connectionStringbuilder.InitialCatalog = tableInfo.Database;
+            var connectionString = connectionStringbuilder.ToString();
             var tableDesigner = new Dac.TableDesigner(connectionString, tableInfo.AccessToken, tableInfo.Schema, tableInfo.Name, tableInfo.IsNewTable);
             this.idTableMap[tableInfo.Id] = tableDesigner;
             return tableDesigner;
@@ -1366,6 +1369,18 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             {
                 throw new KeyNotFoundException(SR.TableNotInitializedException(tableInfo.Id));
             }
+        }
+
+        private Dictionary<string, string> GetMetadata(TableInfo tableInfo)
+        {
+            var tableDesigner = this.GetTableDesigner(tableInfo);
+            var metadata = new Dictionary<string, string>()
+            {
+                { "IsEdge", tableDesigner.IsEdge().ToString() },
+                { "IsNode", tableDesigner.IsNode().ToString() },
+                { "IsSystemVersioned", tableDesigner.IsSystemVersioned().ToString() }
+            };
+            return metadata;
         }
 
         /// <summary>
