@@ -2597,19 +2597,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string SqlServerConnectionFailed
+        public static string NotSupportedCloudCreateSas
         {
             get
             {
-                return Keys.GetString(Keys.SqlServerConnectionFailed);
-            }
-        }
-
-        public static string NotSupportedNonCloudCreateSas
-        {
-            get
-            {
-                return Keys.GetString(Keys.NotSupportedNonCloudCreateSas);
+                return Keys.GetString(Keys.NotSupportedCloudCreateSas);
             }
         }
 
@@ -10077,10 +10069,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string SessionAlreadyExists = "SessionAlreadyExists";
 
 
-            public const string SqlServerConnectionFailed = "SqlServerConnectionFailed";
-
-
-            public const string NotSupportedNonCloudCreateSas = "NotSupportedNonCloudCreateSas";
+            public const string NotSupportedCloudCreateSas = "NotSupportedCloudCreateSas";
 
 
             public const string CreateSasForBlobContainerFailed = "CreateSasForBlobContainerFailed";

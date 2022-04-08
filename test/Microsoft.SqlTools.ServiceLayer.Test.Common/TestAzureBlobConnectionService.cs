@@ -43,7 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             }
             catch (Exception ex)
             {
-                Assert.True(false, "Fail to load the SQL connection instances. error: " + ex.Message);
+                throw new Exception("Fail to load the SQL connection instances.", ex);
             }
         }
 

@@ -1533,7 +1533,7 @@
     <comment></comment>
   </data>
   <data name="UnsupportedDeviceType" xml:space="preserve">
-    <value>Unsupported device type</value>
+    <value>Unsupported device type {0} for engine edition {1}.</value>
     <comment></comment>
   </data>
   <data name="ScriptTaskName" xml:space="preserve">
@@ -1581,12 +1581,8 @@
     <comment>.
  Parameters: 0 - sessionName (String) </comment>
   </data>
-  <data name="SqlServerConnectionFailed" xml:space="preserve">
-    <value>Failed to connect to the Sql Server.</value>
-    <comment></comment>
-  </data>
-  <data name="NotSupportedNonCloudCreateSas" xml:space="preserve">
-    <value>Create shared access signature is only supported for cloud servers.</value>
+  <data name="NotSupportedCloudCreateSas" xml:space="preserve">
+    <value>Create shared access signature is not supported for cloud instancess.</value>
     <comment></comment>
   </data>
   <data name="CreateSasForBlobContainerFailed" xml:space="preserve">
@@ -1594,7 +1590,7 @@
     <comment></comment>
   </data>
   <data name="WriteSASCredentialToSqlServerFailed" xml:space="preserve">
-    <value>Failed storing shared access signature token on the Sql Servers.</value>
+    <value>Failed storing shared access signature token on the SQL Servers.</value>
     <comment></comment>
   </data>
   <data name="CategoryLocal" xml:space="preserve">

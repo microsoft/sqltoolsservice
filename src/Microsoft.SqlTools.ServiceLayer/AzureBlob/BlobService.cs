@@ -52,12 +52,12 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureBlob
 
                 if (connInfo == null)
                 {
-                    await requestContext.SendError(SR.SqlServerConnectionFailed);
+                    await requestContext.SendError(SR.ConnectionServiceListDbErrorNotConnected(optionsParams.OwnerUri));
                     return;
                 }
-                if (!connInfo.IsCloud)
+                if (connInfo.IsCloud)
                 {
-                    await requestContext.SendError(SR.NotSupportedNonCloudCreateSas);
+                    await requestContext.SendError(SR.NotSupportedCloudCreateSas);
                     return;
                 }
                 using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "AzureBlob"))
