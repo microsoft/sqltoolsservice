@@ -12,8 +12,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
     {
         public DropdownProperties Schema { get; set; } = new DropdownProperties();
 
-        public InputBoxProperties Description { get; set; } = new InputBoxProperties();
-
         public DropdownProperties GraphTableType { get; set; } = new DropdownProperties();
 
         public CheckBoxProperties IsMemoryOptimized { get; set; } = new CheckBoxProperties();
@@ -29,6 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         public InputBoxProperties NewHistoryTableName { get; set; } = new InputBoxProperties();
 
         public InputBoxProperties PrimaryKeyName { get; set; } = new InputBoxProperties();
+        public InputBoxProperties PrimaryKeyDescription { get; set; } = new InputBoxProperties();
 
         public CheckBoxProperties PrimaryKeyIsClustered { get; set; } = new CheckBoxProperties();
 
