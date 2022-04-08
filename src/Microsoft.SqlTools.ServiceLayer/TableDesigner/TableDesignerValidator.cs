@@ -3,7 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
 using System.Collections.Generic;
 using Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
 using Dac = Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
