@@ -109,6 +109,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TestEnvConfig
                     RemoteSharePath = (string)setting.Element("RemoteShare"), // RemoteShare is optional
                     AuthenticationType = string.IsNullOrEmpty((string)setting.Element("UserId")) ? AuthenticationType.Integrated : AuthenticationType.SqlLogin
                 });
+
+                Console.WriteLine(setting.Element("DataSource").Value);
+                Console.WriteLine((string)setting.Element("UserId"));
+                Console.WriteLine(string.IsNullOrEmpty(passwordEnvVariableValue) ? (string)setting.Element("Password") : passwordEnvVariableValue);
             }
 
             TestConfigPersistenceHelper.Write(settings);
