@@ -4619,6 +4619,14 @@ The Query Processor estimates that implementing the following index could improv
     <comment>title of missing index details.
  Parameters: 0 - fileName (string), 1 - impact (string) </comment>
   </data>
+  <data name="WarningOverlayTooltip" xml:space="preserve">
+    <value>Warnings</value>
+    <comment>tooltip text for node warning overlay</comment>
+  </data>
+  <data name="ParallelismOverlayTooltip" xml:space="preserve">
+    <value>Parallel Execution</value>
+    <comment>tooltip text for node parallelism overlay</comment>
+  </data>
   <data name="TableNotInitializedException" xml:space="preserve">
     <value>Initialization is not properly done for table with id &apos;{0}&apos;</value>
     <comment>.
