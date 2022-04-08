@@ -55,7 +55,7 @@ steps:
       arguments: $(testEnvironmentPath.secureFilePath)
       testRunTitle: 'Setting tests'
     env:
-      defaultSql2016_password: '$(defaultSql2019_password)'
+      defaultSql2019_password: '$(defaultSql2019_password)'
 
   - task: DotNetCoreCLI@2
     displayName: Building Integration Tests
