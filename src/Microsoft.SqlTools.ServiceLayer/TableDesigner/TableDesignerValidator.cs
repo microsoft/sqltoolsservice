@@ -34,18 +34,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             new TableShouldAvoidHavingMultipleEdgeConstraintsRule()
         };
 
-
-        /// <summary>
-        /// The exception that is thrown when validation fails.
-        /// </summary>
-        public sealed class DesignerValidationException : Exception
-        {
-            internal DesignerValidationException(string message): base(message)
-            {
-            }
-        }
-
-
         /// <summary>
         /// Validate the table and return the validation errors.
         /// </summary>
