@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
 
 # This script creates the necessary directories that are required 
-# for the the linux dotnet builds to work. Currently, there is an 
-# issue in the linux dotnet core where it does not consider 
-# the letter casing of the localization directories it creates. It 
-# is not an issues in the window version because the dirs are case 
-# insensitive.
-# The issue that tracks this bug is https://github.com/dotnet/msbuild/issues/5768
+# for the the linux dotnet builds to work. This issue is caused due to a mismatch
+# in the casing for the localization directories between all the projects and the 
+# nuget packages they are using. This not an issue in the windows because the dirs 
+# are case insensitive. 
+
+
+# To fix the issue, we need to make sure all the projects 
+# and their referenced nuget packages follow the same letter casing for the 
+# locailzation directories.
 
 # The script need to run from the repo root
 
