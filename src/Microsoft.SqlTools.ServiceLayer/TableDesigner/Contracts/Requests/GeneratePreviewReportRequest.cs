@@ -31,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 
         /// <summary>
         /// The table schema validation error
-        ///
+        /// </summary>
         public string SchemaValidationError { get; set; }
     }
     
