@@ -99,14 +99,15 @@ namespace Microsoft.SqlTools.ServiceLayer.TestEnvConfig
             foreach (var setting in xdoc.Descendants("Instance"))
             {
                  var passwordEnvVariableValue = Environment.GetEnvironmentVariable((setting.Attribute("VersionKey").Value + "_password"));
-                 
+
                  settings.Add(new InstanceInfo(setting.Attribute("VersionKey").Value) {
                      ServerName = setting.Element("DataSource").Value,
                      ConnectTimeoutAsString = (string)setting.Element("ConnectTimeout"),
-                     Password = passwordEnvVariableValue != null ? passwordEnvVariableValue : (string)setting.Element("Password"),
+                     Password = passwordEnvVariableValue != "" ? passwordEnvVariableValue : (string)setting.Element("Password"),
                      RemoteSharePath = (string)setting.Element("RemoteShare"),
                      AuthenticationType = string.IsNullOrEmpty((string)setting.Element("UserId")) ? AuthenticationType.Integrated : AuthenticationType.SqlLogin
                  });
+                 Console.WriteLine(passwordEnvVariableValue != "" ? passwordEnvVariableValue : (string)setting.Element("Password"));
             }
 
             TestConfigPersistenceHelper.Write(settings);
