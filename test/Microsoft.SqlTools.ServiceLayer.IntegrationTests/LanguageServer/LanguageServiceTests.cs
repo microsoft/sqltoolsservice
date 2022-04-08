@@ -453,7 +453,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                 var starExpansionCompletionItem = await langService.GetCompletionItems(
                     textDocumentPosition, connectionInfoResult.ScriptFile, connectionInfoResult.ConnectionInfo);
 
-                Assert.AreEqual(expectedStarExpansionInsertText, starExpansionCompletionItem[0].InsertText, "Star expansion not found");
+                Assert.AreEqual(expectedStarExpansionInsertText.Replace("\r\n", Environment.NewLine).Replace("\n", Environment.NewLine), starExpansionCompletionItem[0].InsertText, "Star expansion not found");
             }
             finally
             {
