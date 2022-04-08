@@ -54,6 +54,8 @@ steps:
       projects: '**/Microsoft.SqlTools.ServiceLayer.TestEnvConfig.csproj'
       arguments: $(testEnvironmentPath.secureFilePath)
       testRunTitle: 'Setting tests'
+    env:
+      defaultSql2016_password: '$(defaultSql2016_password)'
 
   - task: DotNetCoreCLI@2
     displayName: Building Integration Tests
