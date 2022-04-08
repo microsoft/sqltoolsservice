@@ -27,6 +27,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         public TableDesignerIssue[] Issues { get; set; }
 
         public Dictionary<string, string> Metadata { get; set; }
+
+        public string InputValidationError { get; set; }
     }
 
     /// <summary>

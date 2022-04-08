@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.Collections.Generic;
 using Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
 using Dac = Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
@@ -32,6 +33,18 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             new MemoryOptimizedTableIdentityColumnRule(),
             new TableShouldAvoidHavingMultipleEdgeConstraintsRule()
         };
+
+
+        /// <summary>
+        /// The exception that is thrown when validation fails.
+        /// </summary>
+        public sealed class DesignerValidationException : Exception
+        {
+            internal DesignerValidationException(string message): base(message)
+            {
+            }
+        }
+
 
         /// <summary>
         /// Validate the table and return the validation errors.

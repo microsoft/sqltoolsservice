@@ -28,6 +28,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         /// Metadata about the table
         /// </summary>
         public Dictionary<string, string> Metadata { get; set; }
+
+        /// <summary>
+        /// The table schema validation error
+        ///
+        public string SchemaValidationError { get; set; }
     }
     
     /// <summary>
