@@ -98,6 +98,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             return this.HandleRequest<ProcessTableDesignerEditResponse>(requestContext, async () =>
             {
                 var refreshViewRequired = false;
+                string inputValidationError = null;
                 DesignerPathUtils.Validate(requestParams.TableChangeInfo.Path, requestParams.TableChangeInfo.Type);
                 try
                 {
@@ -115,28 +116,22 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         default:
                             break;
                     }
-                    await SendProcessTableEditResponse(requestParams.TableInfo, requestContext, refreshViewRequired);
                 }
                 catch (DesignerValidationException e)
                 {
-                    await SendProcessTableEditResponse(requestParams.TableInfo, requestContext, refreshViewRequired, e.Message);
+                    inputValidationError = e.Message;
                 }
-            });
-        }
-
-        private async Task SendProcessTableEditResponse(TableInfo tableInfo, RequestContext<ProcessTableDesignerEditResponse> requestContext, 
-            bool refreshViewRequired, string inputValidationError = null)
-        {
-            var designer = this.GetTableDesigner(tableInfo);
-            var issues = TableDesignerValidator.Validate(designer);
-            await requestContext.SendResult(new ProcessTableDesignerEditResponse()
-            {
-                ViewModel = this.GetTableViewModel(tableInfo),
-                IsValid = issues.Where(i => i.Severity == IssueSeverity.Error).Count() == 0,
-                Issues = issues.ToArray(),
-                View = refreshViewRequired ? this.GetDesignerViewInfo(tableInfo) : null,
-                Metadata = this.GetMetadata(tableInfo),
-                InputValidationError = inputValidationError
+                var designer = this.GetTableDesigner(requestParams.TableInfo);
+                var issues = TableDesignerValidator.Validate(designer);
+                await requestContext.SendResult(new ProcessTableDesignerEditResponse()
+                {
+                    ViewModel = this.GetTableViewModel(requestParams.TableInfo),
+                    IsValid = issues.Where(i => i.Severity == IssueSeverity.Error).Count() == 0,
+                    Issues = issues.ToArray(),
+                    View = refreshViewRequired ? this.GetDesignerViewInfo(requestParams.TableInfo) : null,
+                    Metadata = this.GetMetadata(requestParams.TableInfo),
+                    InputValidationError = inputValidationError
+                });
             });
         }
 
@@ -183,28 +178,22 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         {
             return this.HandleRequest<GeneratePreviewReportResult>(requestContext, async () =>
             {
+                var generatePreviewReportResult = new GeneratePreviewReportResult();
                 try
                 {
-                    await SendGeneratePreviewReportResult(tableInfo, requestContext);
+                    var table = this.GetTableDesigner(tableInfo);
+                    var report = table.GenerateReport();
+                    generatePreviewReportResult.Report = report;
+                    generatePreviewReportResult.MimeType = "text/markdown";
+                    generatePreviewReportResult.Metadata = this.GetMetadata(tableInfo);
+                    await requestContext.SendResult(generatePreviewReportResult);
                 }
                 catch (DesignerValidationException e)
                 {
-                    await SendGeneratePreviewReportResult(tableInfo, requestContext, e.Message);
+                    generatePreviewReportResult.SchemaValidationError = e.Message;
+                    await requestContext.SendResult(generatePreviewReportResult);
                 }
             });
-        }
-
-        private async Task SendGeneratePreviewReportResult(TableInfo tableInfo, RequestContext<GeneratePreviewReportResult> requestContext,
-            string schemaValidationError = null)
-        {
-            var table = this.GetTableDesigner(tableInfo);
-            var report = table.GenerateReport();
-            var generatePreviewReportResult = new GeneratePreviewReportResult();
-            generatePreviewReportResult.Report = report;
-            generatePreviewReportResult.MimeType = "text/markdown";
-            generatePreviewReportResult.Metadata = this.GetMetadata(tableInfo);
-            generatePreviewReportResult.SchemaValidationError = schemaValidationError;
-            await requestContext.SendResult(generatePreviewReportResult);
         }
 
         private Task HandleDisposeTableDesignerRequest(TableInfo tableInfo, RequestContext<DisposeTableDesignerResponse> requestContext)
