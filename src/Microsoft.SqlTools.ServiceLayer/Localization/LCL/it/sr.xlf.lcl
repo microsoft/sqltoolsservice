@@ -5431,6 +5431,12 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";ParallelismOverlayTooltip" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Parallel Execution]]></Val>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";ParameterCompiledValue" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Parameter Compiled Value]]></Val>
@@ -10548,6 +10554,15 @@
           <Val><![CDATA[Query wait warning.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Avviso di attesa query.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";WarningOverlayTooltip" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Warnings]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Avvisi]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
