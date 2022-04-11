@@ -4,7 +4,6 @@
 //
 
 using System;
-using System.Globalization;
 using Microsoft.SqlServer.Management.Smo;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
