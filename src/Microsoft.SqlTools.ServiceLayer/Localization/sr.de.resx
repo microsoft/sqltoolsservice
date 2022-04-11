@@ -3493,9 +3493,6 @@
   <data name="SqlForeignKeyAction_SetDefault" xml:space="preserve">
     <value>Standard festlegen</value>
   </data>
-  <data name="UnKnownSqlForeignKeyAction" xml:space="preserve">
-    <value>'{0}' ist keine unterstützte SqlForeignKeyAction.</value>
-  </data>
   <data name="CheckConstraintIsEnabledDescription" xml:space="preserve">
     <value>Gibt an, ob die CHECK-Einschränkung aktiviert ist.</value>
   </data>
@@ -3537,5 +3534,146 @@
 Fehlende Indexdetails von {0}
 Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Indexes die Abfragekosten um {1} % verbessert werden können.
 */</value>
+  </data>
+  <data name="TableDesignerGraphTableTypeTitle" xml:space="preserve">
+    <value>Typ</value>
+  </data>
+  <data name="TableDesignerGraphTableTypeEdge" xml:space="preserve">
+    <value>Edge</value>
+  </data>
+  <data name="TableDesignerGraphTableTypeNode" xml:space="preserve">
+    <value>Knoten</value>
+  </data>
+  <data name="TableDesignerGraphTableGroupTitle" xml:space="preserve">
+    <value>Graph-Tabelle</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintsTabTitle" xml:space="preserve">
+    <value>Edge-Einschränkungen</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintObjectType" xml:space="preserve">
+    <value>Edge-Einschränkung</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintNamePropertyDescription" xml:space="preserve">
+    <value>Name der Einschränkung.</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintNamePropertyTitle" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintIsEnabledPropertyDescription" xml:space="preserve">
+    <value>Gibt an, ob die Einschränkung aktiviert ist.</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintIsEnabledPropertyTitle" xml:space="preserve">
+    <value>Ist aktiviert</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintOnDeleteActionPropertyDescription" xml:space="preserve">
+    <value>Das Verhalten, wenn ein Benutzer versucht, eine Zeile mit Daten zu löschen, die an einer Edge-Einschränkung beteiligt sind.</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintOnDeleteActionPropertyTitle" xml:space="preserve">
+    <value>Bei Löschvorgang</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintClausesPropertyDescription" xml:space="preserve">
+    <value>Edge-Einschränkungsklauseln.</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintClausesPropertyTitle" xml:space="preserve">
+    <value>Anweisungen</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintClauseObjectType" xml:space="preserve">
+    <value>Klausel</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintClauseFromTablePropertyName" xml:space="preserve">
+    <value>Von Tabelle</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintClauseToTablePropertyName" xml:space="preserve">
+    <value>Zur Tabelle</value>
+  </data>
+  <data name="TableDesignerGraphTableTypeNone" xml:space="preserve">
+    <value>Keine</value>
+  </data>
+  <data name="TableDesignerGraphTableTypeDescription" xml:space="preserve">
+    <value>Gibt den Tabellentyp an.</value>
+  </data>
+  <data name="UnknownEnumString" xml:space="preserve">
+    <value>Unbekannter Enumerationswert: {0}.</value>
+  </data>
+  <data name="SqlTableDurability_SchemaAndData" xml:space="preserve">
+    <value>Schema und Daten</value>
+  </data>
+  <data name="SqlTableDurability_SchemaOnly" xml:space="preserve">
+    <value>Nur Schema</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_None" xml:space="preserve">
+    <value>Keine</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_RowStart" xml:space="preserve">
+    <value>Zeilenanfang</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_RowEnd" xml:space="preserve">
+    <value>Zeilenende</value>
+  </data>
+  <data name="TableDesignerIsSystemVersioningEnabledTitle" xml:space="preserve">
+    <value>Systemversionsverwaltung aktiviert</value>
+  </data>
+  <data name="TableDesignerIsSystemVersioningEnabledDescription" xml:space="preserve">
+    <value>Gibt an, ob die Systemversionsverwaltung für die Tabelle aktiviert ist.</value>
+  </data>
+  <data name="TableDesignerSystemVersioningGroupTitle" xml:space="preserve">
+    <value>Systemversionsverwaltung</value>
+  </data>
+  <data name="TableDesignerHistoryTableDescription" xml:space="preserve">
+    <value>Verlaufstabelle der aktuellen Tabelle.</value>
+  </data>
+  <data name="TableDesignerHistoryTableTitle" xml:space="preserve">
+    <value>Verlaufstabelle</value>
+  </data>
+  <data name="TableDesignerIsMemoryOptimizedDescription" xml:space="preserve">
+    <value>Gibt an, ob die Tabelle arbeitsspeicheroptimiert ist.</value>
+  </data>
+  <data name="TableDesignerMemoryOptimizedGroupTitle" xml:space="preserve">
+    <value>Arbeitsspeicheroptimiert</value>
+  </data>
+  <data name="TableDesignerIsMemoryOptimizedTitle" xml:space="preserve">
+    <value>Arbeitsspeicheroptimiert</value>
+  </data>
+  <data name="TableDesignerDurabilityDescription" xml:space="preserve">
+    <value>Gibt die Einstellung für die Dauerhaftigkeit der Tabelle an.</value>
+  </data>
+  <data name="TableDesignerDurabilityTitle" xml:space="preserve">
+    <value>Dauerhaftigkeit</value>
+  </data>
+  <data name="TableDesignerColumnGeneratedAlwaysAsDescription" xml:space="preserve">
+    <value>Gibt den Anfang oder das Ende der Periodeneinstellung der Systemversionsverwaltungstabelle an.</value>
+  </data>
+  <data name="TableDesignerColumnGeneratedAlwaysAsTitle" xml:space="preserve">
+    <value>„Immer als“ generiert</value>
+  </data>
+  <data name="TableDesignerColumnIsHiddenTitle" xml:space="preserve">
+    <value>Ist verborgen</value>
+  </data>
+  <data name="TableDesignerColumnIsHiddenDescription" xml:space="preserve">
+    <value>Gibt an, ob die Spalte von der „select“-Anweisung zurückgegeben wird.</value>
+  </data>
+  <data name="TableDesignerAutoCreateHistoryTableDescription" xml:space="preserve">
+    <value>Gibt an, ob das Modul die Verlaufstabelle automatisch erstellen soll.</value>
+  </data>
+  <data name="TableDesignerAutoCreateHistoryTableTitle" xml:space="preserve">
+    <value>Verlaufstabelle automatisch erstellen</value>
+  </data>
+  <data name="TableDesignerNewHistoryTableDescription" xml:space="preserve">
+    <value>Gibt den Namen der neuen Verlaufstabelle an.</value>
+  </data>
+  <data name="TableDesignerNewHistoryTableTitle" xml:space="preserve">
+    <value>Neuer Verlaufstabellenname</value>
+  </data>
+  <data name="TableColumnDefaultConstraintNamePropertyDescription" xml:space="preserve">
+    <value>Gibt den Standardeinschränkungsnamen an.</value>
+  </data>
+  <data name="TableColumnDefaultConstraintNamePropertyTitle" xml:space="preserve">
+    <value>Standardeinschränkungsname</value>
+  </data>
+  <data name="AddNewEdgeConstraintLabel" xml:space="preserve">
+    <value>Neue Edge-Einschränkung...</value>
+  </data>
+  <data name="AddNewClauseLabel" xml:space="preserve">
+    <value>Neue Klausel</value>
   </data>
 </root>

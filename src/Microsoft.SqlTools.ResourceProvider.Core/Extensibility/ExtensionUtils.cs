@@ -11,7 +11,7 @@ using Microsoft.SqlTools.Extensibility;
 namespace Microsoft.SqlTools.ResourceProvider.Core.Extensibility
 {
     /// <summary>
-    /// Extension methods for exportable and service 
+    /// Extension methods for exportable and service
     /// </summary>
     public static class ExtensionUtils
     {
@@ -48,14 +48,14 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Extensibility
             {
                 return null;
             }
-            //Get all the possible matches 
+            //Get all the possible matches
             IEnumerable<T> allMatched = serverDefinition != null ?
                 exportables.Where(x => Match(x.Metadata, serverDefinition)).ToList() : exportables;
             IList<T> list = allMatched.ToList();
 
             //If specific server type requested and the list has any item with that server type remove the others.
             //for instance is there's server for all server types and one specifically for sql and give metadata is asking for sql then
-            //we should return the sql one even if the other service has higher priority 
+            //we should return the sql one even if the other service has higher priority
 
             IList<T> withSameServerType = list.Where(x => serverDefinition.HasSameServerName(x.Metadata)).ToList();
             if (withSameServerType.Any())
@@ -101,7 +101,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Extensibility
             }
             return false;
         }
-        
+
         internal static string GetServerDefinitionKey(this IServerDefinition serverDefinition)
         {
             string key = string.Empty;
@@ -126,7 +126,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Extensibility
             }
             return false;
         }
-        
+
         internal static bool EmptyOrEqual(this string value1, string value2)
         {
             if (string.IsNullOrEmpty(value1) && string.IsNullOrEmpty(value2))
@@ -143,12 +143,12 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Extensibility
 
         /// <summary>
         /// Returns true if the metadata matches the given server definition
-        /// </summary>       
+        /// </summary>
         public static bool Match(this IServerDefinition first, IServerDefinition other)
         {
             if (first == null)
             {
-                // TODO should we handle this differently? 
+                // TODO should we handle this differently?
                 return false;
             }
             if (other == null)
@@ -158,10 +158,10 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Extensibility
             return MatchMetaData(first.ServerType, other.ServerType)
                 && MatchMetaData(first.Category, other.Category);
         }
-        
+
         /// <summary>
         /// Returns true if the metadata value matches the given value
-        /// </summary>   
+        /// </summary>
         private static bool MatchMetaData(string metaData, string requestedMetaData)
         {
             if (string.IsNullOrEmpty(metaData) || string.IsNullOrEmpty(requestedMetaData))

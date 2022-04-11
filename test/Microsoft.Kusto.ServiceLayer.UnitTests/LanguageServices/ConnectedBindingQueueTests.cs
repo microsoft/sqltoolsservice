@@ -1,11 +1,14 @@
+//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
 using System;
 using System.Collections.Generic;
 using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
-using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Moq;
 using NUnit.Framework;
 

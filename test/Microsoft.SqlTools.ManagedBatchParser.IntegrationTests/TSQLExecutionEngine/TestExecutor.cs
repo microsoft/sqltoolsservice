@@ -9,7 +9,6 @@ using Microsoft.Data.SqlClient;
 using System.Threading;
 using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 using Microsoft.SqlTools.Utility;
-using System.Runtime.CompilerServices;
 
 namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEngine
 {

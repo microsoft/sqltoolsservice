@@ -1,9 +1,9 @@
-﻿// 
+﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -243,7 +243,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
                         SqlDbType = SqlDbType.NVarChar;
                         break;
                     default:
-                        SqlDbType = DataTypeName.EndsWith(".sys.hierarchyid") ? SqlDbType.NVarChar : SqlDbType.Udt;
+                        SqlDbType = DataTypeName.EndsWith(".sys.hierarchyid") ? SqlDbType.Binary : SqlDbType.Udt;
                         break;
                 }
             }

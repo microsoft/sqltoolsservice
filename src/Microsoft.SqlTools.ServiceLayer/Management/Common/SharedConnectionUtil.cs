@@ -7,7 +7,6 @@ using System;
 //using Microsoft.SqlServer.Management.AzureCredential;
 using Microsoft.SqlServer.Management.Common;
 //using Microsoft.SqlServer.Management.Smo.RegSvrEnum;
-using SFC = Microsoft.SqlServer.Management.Sdk.Sfc;
 //using Microsoft.SqlServer.StorageClient;
 //using Microsoft.SqlServer.Management.SqlMgmt;
 

@@ -6,7 +6,6 @@
 using System;
 using System.Threading;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 {

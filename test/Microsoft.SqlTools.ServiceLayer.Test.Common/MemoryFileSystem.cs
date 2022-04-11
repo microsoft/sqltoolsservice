@@ -1,6 +1,13 @@
-﻿using System;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Moq;
@@ -27,8 +34,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                 });
             mock.Setup(fsf => fsf.GetReader(It.IsAny<string>()))
                 .Returns<string>(output => new ServiceBufferFileStreamReader(new MemoryStream(storage[output]), new QueryExecutionSettings()));
-            mock.Setup(fsf => fsf.GetWriter(It.IsAny<string>()))
-                .Returns<string>(output => new ServiceBufferFileStreamWriter(new MemoryStream(storage[output]), new QueryExecutionSettings()));
+            mock.Setup(fsf => fsf.GetWriter(It.IsAny<string>(), It.IsAny<IReadOnlyList<DbColumnWrapper>>()))
+                .Returns<string, IReadOnlyList<DbColumnWrapper>>((output, _) => new ServiceBufferFileStreamWriter(new MemoryStream(storage[output]), new QueryExecutionSettings()));
 
             return mock.Object;
         }

@@ -4,22 +4,15 @@
 //
 
 using System;
-using System.Collections;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Resources;
 using System.Data;
 using System.IO;
-using System.Text;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Smo = Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
-using Microsoft.SqlServer.Management.Diagnostics;
-using System.Globalization;
-using Microsoft.Data.SqlClient;
 using System.Collections.Generic;
-using AzureEdition = Microsoft.SqlTools.ServiceLayer.Admin.AzureSqlDbHelper.AzureEdition;
 using Microsoft.SqlTools.ServiceLayer.Management;
 
 namespace Microsoft.SqlTools.ServiceLayer.Admin

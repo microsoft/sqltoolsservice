@@ -7,10 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
-using System.Linq;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
-using Microsoft.Data.SqlClient;
 
 namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
 {

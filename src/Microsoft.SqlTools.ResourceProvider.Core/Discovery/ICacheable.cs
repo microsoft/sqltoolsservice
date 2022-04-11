@@ -1,6 +1,7 @@
 ﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,10 +9,10 @@ using System.Threading.Tasks;
 namespace Microsoft.SqlTools.ResourceProvider.Core
 {
     /// <summary>
-    /// Defines a class as cachable    
-    /// </summary> 
+    /// Defines a class as cachable
+    /// </summary>
     public interface ICacheable<T>
-    {       
+    {
         /// <summary>
         /// Clears the cache for current user
         /// </summary>

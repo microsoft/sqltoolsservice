@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System.Collections.Generic;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
@@ -11,6 +12,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
     {
         public TableInfo NewTableInfo;
         public TableViewModel ViewModel;
+        public TableDesignerView View;
+        public Dictionary<string, string> Metadata;
     }
 
     /// <summary>

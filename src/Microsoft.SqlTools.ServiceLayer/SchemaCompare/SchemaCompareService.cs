@@ -51,7 +51,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             serviceHost.SetRequestHandler(SchemaCompareRequest.Type, this.HandleSchemaCompareRequest);
             serviceHost.SetRequestHandler(SchemaCompareCancellationRequest.Type, this.HandleSchemaCompareCancelRequest);
             serviceHost.SetRequestHandler(SchemaCompareGenerateScriptRequest.Type, this.HandleSchemaCompareGenerateScriptRequest);
-            serviceHost.SetRequestHandler(SchemaComparePublishChangesRequest.Type, this.HandleSchemaComparePublishChangesRequest);
             serviceHost.SetRequestHandler(SchemaComparePublishDatabaseChangesRequest.Type, this.HandleSchemaComparePublishDatabaseChangesRequest);
             serviceHost.SetRequestHandler(SchemaComparePublishProjectChangesRequest.Type, this.HandleSchemaComparePublishProjectChangesRequest);
             serviceHost.SetRequestHandler(SchemaCompareIncludeExcludeNodeRequest.Type, this.HandleSchemaCompareIncludeExcludeNodeRequest);
@@ -188,40 +187,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             catch (Exception e)
             {
                 Logger.Write(TraceEventType.Error, "Failed to generate schema compare script. Error: " + e);
-                await requestContext.SendResult(new ResultStatus()
-                {
-                    Success = false,
-                    ErrorMessage = operation == null ? e.Message : operation.ErrorMessage,
-                });
-            }
-        }
-
-        /// <summary>
-        /// Handles request for schema compare publish changes script
-        /// </summary>
-        /// <returns></returns>
-        public async Task HandleSchemaComparePublishChangesRequest(SchemaComparePublishDatabaseChangesParams parameters, RequestContext<ResultStatus> requestContext)
-        {
-            SchemaComparePublishDatabaseChangesOperation operation = null;
-            try
-            {
-                SchemaComparisonResult compareResult = schemaCompareResults.Value[parameters.OperationId];
-                operation = new SchemaComparePublishDatabaseChangesOperation(parameters, compareResult);
-                TaskMetadata metadata = new TaskMetadata();
-                metadata.TaskOperation = operation;
-                metadata.ServerName = parameters.TargetServerName;
-                metadata.DatabaseName = parameters.TargetDatabaseName;
-                metadata.Name = SR.PublishChangesTaskName;
-                SqlTask sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
-                await requestContext.SendResult(new ResultStatus()
-                {
-                    Success = true,
-                    ErrorMessage = operation.ErrorMessage
-                });
-            }
-            catch (Exception e)
-            {
-                Logger.Write(TraceEventType.Error, "Failed to publish schema compare changes. Error: " + e);
                 await requestContext.SendResult(new ResultStatus()
                 {
                     Success = false,

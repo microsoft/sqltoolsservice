@@ -10,6 +10,7 @@ using System.Linq;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
+using Microsoft.Data.Tools.Sql.DesignServices;
 using Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts;
 using Dac = Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
 using STSHost = Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost;
@@ -87,9 +88,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 await requestContext.SendResult(new TableDesignerInfo()
                 {
                     ViewModel = viewModel,
-                    View = view,
-                    ColumnTypes = tableDesigner.DataTypes.ToList(),
-                    Schemas = tableDesigner.Schemas.ToList()
+                    View = view
                 });
             });
         }
@@ -98,25 +97,40 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         {
             return this.HandleRequest<ProcessTableDesignerEditResponse>(requestContext, async () =>
             {
+                var refreshViewRequired = false;
+                string inputValidationError = null;
                 DesignerPathUtils.Validate(requestParams.TableChangeInfo.Path, requestParams.TableChangeInfo.Type);
-                switch (requestParams.TableChangeInfo.Type)
+                try
                 {
-                    case DesignerEditType.Add:
-                        this.HandleAddItemRequest(requestParams);
-                        break;
-                    case DesignerEditType.Remove:
-                        this.HandleRemoveItemRequest(requestParams);
-                        break;
-                    case DesignerEditType.Update:
-                        this.HandleUpdateItemRequest(requestParams);
-                        break;
-                    default:
-                        break;
+                    switch (requestParams.TableChangeInfo.Type)
+                    {
+                        case DesignerEditType.Add:
+                            this.HandleAddItemRequest(requestParams);
+                            break;
+                        case DesignerEditType.Remove:
+                            this.HandleRemoveItemRequest(requestParams);
+                            break;
+                        case DesignerEditType.Update:
+                            refreshViewRequired = this.HandleUpdateItemRequest(requestParams);
+                            break;
+                        default:
+                            break;
+                    }
                 }
+                catch (DesignerValidationException e)
+                {
+                    inputValidationError = e.Message;
+                }
+                var designer = this.GetTableDesigner(requestParams.TableInfo);
+                var issues = TableDesignerValidator.Validate(designer);
                 await requestContext.SendResult(new ProcessTableDesignerEditResponse()
                 {
                     ViewModel = this.GetTableViewModel(requestParams.TableInfo),
-                    IsValid = true
+                    IsValid = issues.Where(i => i.Severity == IssueSeverity.Error).Count() == 0,
+                    Issues = issues.ToArray(),
+                    View = refreshViewRequired ? this.GetDesignerViewInfo(requestParams.TableInfo) : null,
+                    Metadata = this.GetMetadata(requestParams.TableInfo),
+                    InputValidationError = inputValidationError
                 });
             });
         }
@@ -143,7 +157,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 await requestContext.SendResult(new PublishTableChangesResponse()
                 {
                     NewTableInfo = tableInfo,
-                    ViewModel = this.GetTableViewModel(tableInfo)
+                    ViewModel = this.GetTableViewModel(tableInfo),
+                    View = GetDesignerViewInfo(tableInfo),
+                    Metadata = this.GetMetadata(tableInfo)
                 });
             });
         }
@@ -158,13 +174,25 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             });
         }
 
-        private Task HandleGeneratePreviewReportRequest(TableInfo tableInfo, RequestContext<string> requestContext)
+        private Task HandleGeneratePreviewReportRequest(TableInfo tableInfo, RequestContext<GeneratePreviewReportResult> requestContext)
         {
-            return this.HandleRequest<string>(requestContext, async () =>
+            return this.HandleRequest<GeneratePreviewReportResult>(requestContext, async () =>
             {
-                var table = this.GetTableDesigner(tableInfo);
-                var report = table.GenerateReport();
-                await requestContext.SendResult(report);
+                var generatePreviewReportResult = new GeneratePreviewReportResult();
+                try
+                {
+                    var table = this.GetTableDesigner(tableInfo);
+                    var report = table.GenerateReport();
+                    generatePreviewReportResult.Report = report;
+                    generatePreviewReportResult.MimeType = "text/markdown";
+                    generatePreviewReportResult.Metadata = this.GetMetadata(tableInfo);
+                    await requestContext.SendResult(generatePreviewReportResult);
+                }
+                catch (DesignerValidationException e)
+                {
+                    generatePreviewReportResult.SchemaValidationError = e.Message;
+                    await requestContext.SendResult(generatePreviewReportResult);
+                }
             });
         }
 
@@ -172,6 +200,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         {
             return this.HandleRequest<DisposeTableDesignerResponse>(requestContext, async () =>
             {
+                var td = this.GetTableDesigner(tableInfo);
+                td.Dispose();
                 this.idTableMap.Remove(tableInfo.Id);
                 await requestContext.SendResult(new DisposeTableDesignerResponse());
             });
@@ -199,6 +229,16 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     case TablePropertyNames.Indexes:
                         table.Indexes.AddNew();
                         break;
+                    case TablePropertyNames.EdgeConstraints:
+                        table.EdgeConstraints.AddNew();
+                        break;
+                    case TablePropertyNames.PrimaryKeyColumns:
+                        if (table.PrimaryKey == null)
+                        {
+                            table.CreatePrimaryKey();
+                        }
+                        table.PrimaryKey.AddNewColumnSpecification();
+                        break;
                     default:
                         break;
                 }
@@ -225,6 +265,16 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         {
                             case IndexPropertyNames.Columns:
                                 table.Indexes.Items[indexL1].AddNewColumnSpecification();
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    case TablePropertyNames.EdgeConstraints:
+                        switch (propertyNameL2)
+                        {
+                            case EdgeConstraintPropertyNames.Clauses:
+                                table.EdgeConstraints.Items[indexL1].AddNewClause();
                                 break;
                             default:
                                 break;
@@ -259,6 +309,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     case TablePropertyNames.Indexes:
                         table.Indexes.RemoveAt(objIndex);
                         break;
+                    case TablePropertyNames.EdgeConstraints:
+                        table.EdgeConstraints.RemoveAt(objIndex);
+                        break;
+                    case TablePropertyNames.PrimaryKeyColumns:
+                        table.PrimaryKey.RemoveColumnSpecification(objIndex);
+                        break;
                     default:
                         break;
                 }
@@ -291,15 +347,27 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                                 break;
                         }
                         break;
+                    case TablePropertyNames.EdgeConstraints:
+                        switch (propertyNameL2)
+                        {
+                            case EdgeConstraintPropertyNames.Clauses:
+                                table.EdgeConstraints.Items[indexL1].RemoveClause(indexL2);
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
                     default:
                         break;
                 }
             }
         }
 
-        private void HandleUpdateItemRequest(ProcessTableDesignerEditRequestParams requestParams)
+        private bool HandleUpdateItemRequest(ProcessTableDesignerEditRequestParams requestParams)
         {
-            var table = this.GetTableDesigner(requestParams.TableInfo).TableViewModel;
+            var refreshView = false;
+            var tableDesigner = this.GetTableDesigner(requestParams.TableInfo);
+            var table = tableDesigner.TableViewModel;
             var path = requestParams.TableChangeInfo.Path;
             var newValue = requestParams.TableChangeInfo.Value;
             if (path.Length == 1)
@@ -315,6 +383,61 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         break;
                     case TablePropertyNames.Schema:
                         table.Schema = GetStringValue(newValue);
+                        break;
+                    case TablePropertyNames.GraphTableType:
+                        var wasEdgeTable = table.IsEdge;
+                        table.IsEdge = false;
+                        table.IsNode = false;
+
+                        var newType = GetStringValue(newValue);
+                        if (newType == SR.TableDesignerGraphTableTypeNode)
+                        {
+                            table.IsNode = true;
+                        }
+                        else if (newType == SR.TableDesignerGraphTableTypeEdge)
+                        {
+                            table.IsEdge = true;
+                        }
+                        refreshView = (wasEdgeTable || table.IsEdge) && tableDesigner.IsEdgeConstraintSupported;
+                        break;
+                    case TablePropertyNames.IsSystemVersioningEnabled:
+                        table.IsSystemVersioningEnabled = GetBooleanValue(newValue);
+                        refreshView = true;
+                        break;
+                    case TablePropertyNames.AutoCreateHistoryTable:
+                        table.AutoCreateHistoryTable = GetBooleanValue(newValue);
+                        refreshView = true;
+                        break;
+                    case TablePropertyNames.NewHistoryTableTable:
+                        table.NewHistoryTableName = GetStringValue(newValue);
+                        break;
+                    case TablePropertyNames.ExistingHistoryTableName:
+                        table.ExistingHistoryTable = GetStringValue(newValue);
+                        break;
+                    case TablePropertyNames.IsMemoryOptimized:
+                        table.IsMemoryOptimized = GetBooleanValue(newValue);
+                        refreshView = true;
+                        break;
+                    case TablePropertyNames.Durability:
+                        table.Durability = SqlTableDurabilityUtil.Instance.GetValue(GetStringValue(newValue));
+                        break;
+                    case TablePropertyNames.PrimaryKeyName:
+                        if (table.PrimaryKey != null)
+                        {
+                            table.PrimaryKey.Name = GetStringValue(newValue);
+                        }
+                        break;
+                    case TablePropertyNames.PrimaryKeyDescription:
+                        if (table.PrimaryKey != null)
+                        {
+                            table.PrimaryKey.Description = GetStringValue(newValue);
+                        }
+                        break;
+                    case TablePropertyNames.PrimaryKeyIsClustered:
+                        if (table.PrimaryKey != null)
+                        {
+                            table.PrimaryKey.IsClustered = GetBooleanValue(newValue);
+                        }
                         break;
                     default:
                         break;
@@ -364,6 +487,21 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                             case TableColumnPropertyNames.Type:
                                 column.DataType = GetStringValue(newValue);
                                 break;
+                            case TableColumnPropertyNames.AdvancedType:
+                                column.AdvancedDataType = GetStringValue(newValue);
+                                break;
+                            case TableColumnPropertyNames.Description:
+                                column.Description = GetStringValue(newValue);
+                                break;
+                            case TableColumnPropertyNames.GeneratedAlwaysAs:
+                                column.GeneratedAlwaysAs = ColumnGeneratedAlwaysAsTypeUtil.Instance.GetValue(GetStringValue(newValue));
+                                break;
+                            case TableColumnPropertyNames.IsHidden:
+                                column.IsHidden = GetBooleanValue(newValue);
+                                break;
+                            case TableColumnPropertyNames.DefaultConstraintName:
+                                column.DefaultConstraintName = GetStringValue(newValue);
+                                break;
                             default:
                                 break;
                         }
@@ -374,6 +512,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         {
                             case CheckConstraintPropertyNames.Name:
                                 checkConstraint.Name = GetStringValue(newValue);
+                                break;
+                            case CheckConstraintPropertyNames.Description:
+                                checkConstraint.Description = GetStringValue(newValue);
                                 break;
                             case CheckConstraintPropertyNames.Enabled:
                                 checkConstraint.Enabled = GetBooleanValue(newValue);
@@ -398,11 +539,14 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                             case ForeignKeyPropertyNames.Name:
                                 foreignKey.Name = GetStringValue(newValue);
                                 break;
+                            case ForeignKeyPropertyNames.Description:
+                                foreignKey.Description = GetStringValue(newValue);
+                                break;
                             case ForeignKeyPropertyNames.OnDeleteAction:
-                                foreignKey.OnDeleteAction = SqlForeignKeyActionUtil.GetValue(GetStringValue(newValue));
+                                foreignKey.OnDeleteAction = SqlForeignKeyActionUtil.Instance.GetValue(GetStringValue(newValue));
                                 break;
                             case ForeignKeyPropertyNames.OnUpdateAction:
-                                foreignKey.OnUpdateAction = SqlForeignKeyActionUtil.GetValue(GetStringValue(newValue));
+                                foreignKey.OnUpdateAction = SqlForeignKeyActionUtil.Instance.GetValue(GetStringValue(newValue));
                                 break;
                             case ForeignKeyPropertyNames.ForeignTable:
                                 foreignKey.ForeignTable = GetStringValue(newValue);
@@ -426,6 +570,39 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                                 break;
                             case IndexPropertyNames.Name:
                                 sqlIndex.Name = GetStringValue(newValue);
+                                break;
+                            case IndexPropertyNames.Description:
+                                sqlIndex.Description = GetStringValue(newValue);
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    case TablePropertyNames.EdgeConstraints:
+                        var constraint = table.EdgeConstraints.Items[indexL1];
+                        switch (propertyNameL2)
+                        {
+                            case EdgeConstraintPropertyNames.Enabled:
+                                constraint.Enabled = GetBooleanValue(newValue);
+                                break;
+                            case EdgeConstraintPropertyNames.Name:
+                                constraint.Name = GetStringValue(newValue);
+                                break;
+                            case EdgeConstraintPropertyNames.OnDeleteAction:
+                                constraint.OnDeleteAction = SqlForeignKeyActionUtil.Instance.GetValue(GetStringValue(newValue));
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    case TablePropertyNames.PrimaryKeyColumns:
+                        switch (propertyNameL2)
+                        {
+                            case IndexColumnSpecificationPropertyNames.Column:
+                                table.PrimaryKey.UpdateColumnName(indexL1, GetStringValue(newValue));
+                                break;
+                            case IndexColumnSpecificationPropertyNames.Ascending:
+                                table.PrimaryKey.UpdateIsAscending(indexL1, GetBooleanValue(newValue));
                                 break;
                             default:
                                 break;
@@ -486,10 +663,32 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                                 break;
                         }
                         break;
+                    case TablePropertyNames.EdgeConstraints:
+                        var constraint = table.EdgeConstraints.Items[indexL1];
+                        switch (propertyNameL2)
+                        {
+                            case EdgeConstraintPropertyNames.Clauses:
+                                switch (propertyNameL3)
+                                {
+                                    case EdgeConstraintClausePropertyNames.FromTable:
+                                        constraint.UpdateFromTable(indexL2, GetStringValue(newValue));
+                                        break;
+                                    case EdgeConstraintClausePropertyNames.ToTable:
+                                        constraint.UpdateToTable(indexL2, GetStringValue(newValue));
+                                        break;
+                                    default:
+                                        break;
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
                     default:
                         break;
                 }
             }
+            return refreshView;
         }
 
         private int GetInt32Value(object value)
@@ -514,14 +713,58 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             var tableViewModel = new TableViewModel();
             tableViewModel.Name.Value = table.Name;
             tableViewModel.Schema.Value = table.Schema;
+            tableViewModel.Schema.Values = tableDesigner.Schemas.ToList();
             tableViewModel.Description.Value = table.Description;
-            tableViewModel.Description.Enabled = false; // TODO: https://github.com/microsoft/azuredatastudio/issues/18247
+            var primaryKey = table.PrimaryKey;
+            tableViewModel.PrimaryKeyName.Enabled = primaryKey != null;
+            tableViewModel.PrimaryKeyIsClustered.Enabled = primaryKey != null;
+            if (primaryKey != null)
+            {
+                tableViewModel.PrimaryKeyName.Value = primaryKey.Name;
+                tableViewModel.PrimaryKeyDescription.Value = primaryKey.Description;
+                tableViewModel.PrimaryKeyDescription.Enabled = primaryKey.CanEditDescription;
+                tableViewModel.PrimaryKeyIsClustered.Checked = primaryKey.IsClustered;
+                foreach (var cs in primaryKey.Columns)
+                {
+                    var columnSpecVM = new IndexedColumnSpecification();
+                    columnSpecVM.Ascending.Checked = cs.IsAscending;
+                    columnSpecVM.Column.Value = cs.Column;
+                    columnSpecVM.Column.Values = tableDesigner.GetColumnsForTable(table.FullName).ToList();
+                    tableViewModel.PrimaryKeyColumns.Data.Add(columnSpecVM);
+                }
+            }
+
+            // Graph table related properties
+            tableViewModel.GraphTableType.Enabled = table.CanEditGraphTableType;
+            tableViewModel.GraphTableType.Values = new List<string>() { SR.TableDesignerGraphTableTypeNone, SR.TableDesignerGraphTableTypeEdge, SR.TableDesignerGraphTableTypeNode };
+            tableViewModel.GraphTableType.Value = (table.IsEdge || table.IsNode) ? (table.IsEdge ? SR.TableDesignerGraphTableTypeEdge : SR.TableDesignerGraphTableTypeNode) : SR.TableDesignerGraphTableTypeNone;
+
+            // Memory-optimized related properties
+            tableViewModel.IsMemoryOptimized.Checked = table.IsMemoryOptimized;
+            tableViewModel.IsMemoryOptimized.Enabled = table.CanEditIsMemoryOptimized;
+            tableViewModel.Durability.Enabled = table.CanEditDurability;
+            tableViewModel.Durability.Value = SqlTableDurabilityUtil.Instance.GetName(table.Durability);
+            tableViewModel.Durability.Values = SqlTableDurabilityUtil.Instance.DisplayNames;
+
+            // Temporal related properties
+            var isTemporalTable = table.SystemVersioningHistoryTable != null;
+            tableViewModel.IsSystemVersioningEnabled.Enabled = table.CanEditIsSystemVersioningEnabled;
+            tableViewModel.IsSystemVersioningEnabled.Checked = isTemporalTable;
+            tableViewModel.AutoCreateHistoryTable.Enabled = table.CanEditAutoCreateHistoryTable;
+            tableViewModel.AutoCreateHistoryTable.Checked = table.AutoCreateHistoryTable;
+            tableViewModel.NewHistoryTableName.Enabled = table.CanEditNewHistoryTableName;
+            tableViewModel.NewHistoryTableName.Value = table.NewHistoryTableName;
+            tableViewModel.ExistingHistoryTable.Enabled = table.CanEditExistingHistoryTable;
+            tableViewModel.ExistingHistoryTable.Value = table.SystemVersioningHistoryTable;
+            tableViewModel.ExistingHistoryTable.Values = table.ExistingHistoryTablePropertyOptionalValues.ToList();
 
             foreach (var column in table.Columns.Items)
             {
                 var columnViewModel = new TableColumnViewModel();
                 columnViewModel.Name.Value = column.Name;
                 columnViewModel.Name.Enabled = column.CanEditName;
+                columnViewModel.Description.Value = column.Description;
+                columnViewModel.Description.Enabled = column.CanEditDescription;
                 columnViewModel.Length.Value = column.Length;
                 columnViewModel.Length.Enabled = column.CanEditLength;
                 columnViewModel.Scale.Value = column.Scale?.ToString();
@@ -533,15 +776,27 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 columnViewModel.DefaultValue.Value = column.DefaultValue;
                 columnViewModel.DefaultValue.Enabled = column.CanEditDefaultValue;
                 columnViewModel.IsPrimaryKey.Checked = column.IsPrimaryKey;
-                columnViewModel.IsPrimaryKey.Enabled = column.CanEditIsPrimaryKey;
+                columnViewModel.IsPrimaryKey.Enabled = true; // To be consistent with SSDT, any column can be a primary key.
                 columnViewModel.Type.Value = column.DataType;
                 columnViewModel.Type.Enabled = column.CanEditDataType;
+                columnViewModel.Type.Values = tableDesigner.DataTypes.ToList();
+                columnViewModel.AdvancedType.Value = column.AdvancedDataType;
+                columnViewModel.AdvancedType.Enabled = column.CanEditDataType;
+                columnViewModel.AdvancedType.Values = column.AdvancedDataTypes.ToList();
                 columnViewModel.IsIdentity.Enabled = column.CanEditIsIdentity;
                 columnViewModel.IsIdentity.Checked = column.IsIdentity;
                 columnViewModel.IdentitySeed.Enabled = column.CanEditIdentityValues;
                 columnViewModel.IdentitySeed.Value = column.IdentitySeed?.ToString();
                 columnViewModel.IdentityIncrement.Enabled = column.CanEditIdentityValues;
                 columnViewModel.IdentityIncrement.Value = column.IdentityIncrement?.ToString();
+                columnViewModel.CanBeDeleted = column.CanBeDeleted;
+                columnViewModel.GeneratedAlwaysAs.Value = ColumnGeneratedAlwaysAsTypeUtil.Instance.GetName(column.GeneratedAlwaysAs);
+                columnViewModel.GeneratedAlwaysAs.Values = ColumnGeneratedAlwaysAsTypeUtil.Instance.DisplayNames;
+                columnViewModel.GeneratedAlwaysAs.Enabled = tableDesigner.IsTemporalTableSupported;
+                columnViewModel.IsHidden.Checked = column.IsHidden;
+                columnViewModel.IsHidden.Enabled = column.CanEditIsHidden;
+                columnViewModel.DefaultConstraintName.Enabled = column.CanEditDefaultConstraintName;
+                columnViewModel.DefaultConstraintName.Value = column.DefaultConstraintName;
                 tableViewModel.Columns.Data.Add(columnViewModel);
             }
 
@@ -549,11 +804,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             {
                 var foreignKeyViewModel = new ForeignKeyViewModel();
                 foreignKeyViewModel.Name.Value = foreignKey.Name;
+                foreignKeyViewModel.Description.Value = foreignKey.Description;
+                foreignKeyViewModel.Description.Enabled = foreignKey.CanEditDescription;
                 foreignKeyViewModel.Enabled.Checked = foreignKey.Enabled;
-                foreignKeyViewModel.OnDeleteAction.Value = SqlForeignKeyActionUtil.GetName(foreignKey.OnDeleteAction);
-                foreignKeyViewModel.OnDeleteAction.Values = SqlForeignKeyActionUtil.ActionNames;
-                foreignKeyViewModel.OnUpdateAction.Value = SqlForeignKeyActionUtil.GetName(foreignKey.OnUpdateAction);
-                foreignKeyViewModel.OnUpdateAction.Values = SqlForeignKeyActionUtil.ActionNames;
+                foreignKeyViewModel.OnDeleteAction.Value = SqlForeignKeyActionUtil.Instance.GetName(foreignKey.OnDeleteAction);
+                foreignKeyViewModel.OnDeleteAction.Values = SqlForeignKeyActionUtil.Instance.DisplayNames;
+                foreignKeyViewModel.OnUpdateAction.Value = SqlForeignKeyActionUtil.Instance.GetName(foreignKey.OnUpdateAction);
+                foreignKeyViewModel.OnUpdateAction.Values = SqlForeignKeyActionUtil.Instance.DisplayNames;
                 foreignKeyViewModel.ForeignTable.Value = foreignKey.ForeignTable;
                 foreignKeyViewModel.ForeignTable.Values = tableDesigner.AllTables.ToList();
                 foreignKeyViewModel.IsNotForReplication.Checked = foreignKey.IsNotForReplication;
@@ -575,6 +832,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             {
                 var constraint = new CheckConstraintViewModel();
                 constraint.Name.Value = checkConstraint.Name;
+                constraint.Description.Value = checkConstraint.Description;
+                constraint.Description.Enabled = checkConstraint.CanEditDescription;
                 constraint.Expression.Value = checkConstraint.Expression;
                 constraint.Enabled.Checked = checkConstraint.Enabled;
                 tableViewModel.CheckConstraints.Data.Add(constraint);
@@ -584,13 +843,16 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             {
                 var indexVM = new IndexViewModel();
                 indexVM.Name.Value = index.Name;
+                indexVM.Name.Enabled = tableInfo.IsNewTable; // renaming an index is not supported, it will cause a new index to be created.
+                indexVM.Description.Value = index.Description;
+                indexVM.Description.Enabled = index.CanEditDescription;
                 indexVM.IsClustered.Checked = index.IsClustered;
                 indexVM.Enabled.Checked = index.Enabled;
                 indexVM.IsUnique.Checked = index.IsUnique;
                 foreach (var columnSpec in index.Columns)
                 {
                     var columnSpecVM = new IndexedColumnSpecification();
-                    columnSpecVM.Ascending.Checked = columnSpec.isAscending;
+                    columnSpecVM.Ascending.Checked = columnSpec.IsAscending;
                     columnSpecVM.Column.Value = columnSpec.Column;
                     columnSpecVM.Column.Values = tableDesigner.GetColumnsForTable(table.FullName).ToList();
                     indexVM.Columns.Data.Add(columnSpecVM);
@@ -599,6 +861,29 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 indexVM.ColumnsDisplayValue.Enabled = false;
                 tableViewModel.Indexes.Data.Add(indexVM);
             }
+
+            foreach (var constraint in table.EdgeConstraints.Items)
+            {
+                var constraintVM = new EdgeConstraintViewModel();
+                constraintVM.Name.Value = constraint.Name;
+                constraintVM.Description.Value = constraint.Description;
+                constraintVM.Description.Enabled = constraint.CanEditDescription;
+                constraintVM.Enabled.Checked = constraint.Enabled;
+                constraintVM.OnDeleteAction.Value = SqlForeignKeyActionUtil.Instance.GetName(constraint.OnDeleteAction);
+                constraintVM.OnDeleteAction.Values = SqlForeignKeyActionUtil.Instance.EdgeConstraintOnDeleteActionNames;
+                constraintVM.ClausesDisplayValue.Value = constraint.ClausesDisplayValue;
+                constraintVM.ClausesDisplayValue.Enabled = false;
+                foreach (var clause in constraint.Clauses)
+                {
+                    var clauseVM = new EdgeConstraintClause();
+                    clauseVM.FromTable.Value = clause.FromTable;
+                    clauseVM.FromTable.Values = tableDesigner.AllNodeTables.ToList();
+                    clauseVM.ToTable.Value = clause.ToTable;
+                    clauseVM.ToTable.Values = tableDesigner.AllNodeTables.ToList();
+                    constraintVM.Clauses.Data.Add(clauseVM);
+                }
+                tableViewModel.EdgeConstraints.Data.Add(constraintVM);
+            }
             tableViewModel.Script.Enabled = false;
             tableViewModel.Script.Value = tableDesigner.Script;
             return tableViewModel;
@@ -606,12 +891,44 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
         private TableDesignerView GetDesignerViewInfo(TableInfo tableInfo)
         {
+            var tableDesigner = this.GetTableDesigner(tableInfo);
             var view = new TableDesignerView();
+            this.SetPrimaryKeyViewInfo(view);
             this.SetColumnsViewInfo(view);
             this.SetForeignKeysViewInfo(view);
             this.SetCheckConstraintsViewInfo(view);
             this.SetIndexesViewInfo(view);
+            this.SetGraphTableViewInfo(view, tableDesigner);
+            this.SetEdgeConstraintsViewInfo(view, tableDesigner);
+            this.SetTemporalTableViewInfo(view, tableDesigner);
+            this.SetMemoryOptimizedTableViewInfo(view, tableDesigner);
             return view;
+        }
+
+        private void SetPrimaryKeyViewInfo(TableDesignerView view)
+        {
+            view.AdditionalPrimaryKeyProperties.Add(new DesignerDataPropertyInfo()
+            {
+                PropertyName = TablePropertyNames.PrimaryKeyIsClustered,
+                ComponentType = DesignerComponentType.Checkbox,
+                Description = SR.IndexIsClusteredPropertyDescription,
+                ComponentProperties = new CheckBoxProperties()
+                {
+                    Title = SR.TableDesignerIndexIsClusteredPropertyTitle
+                }
+            });
+            view.PrimaryKeyColumnSpecificationTableOptions.AdditionalProperties.Add(new DesignerDataPropertyInfo()
+            {
+                PropertyName = IndexColumnSpecificationPropertyNames.Ascending,
+                Description = SR.IndexColumnIsAscendingPropertyDescription,
+                ComponentType = DesignerComponentType.Checkbox,
+                ComponentProperties = new CheckBoxProperties()
+                {
+                    Title = SR.IndexColumnIsAscendingPropertyTitle
+                }
+            });
+            view.PrimaryKeyColumnSpecificationTableOptions.PropertiesToDisplay.Add(IndexColumnSpecificationPropertyNames.Column);
+            view.PrimaryKeyColumnSpecificationTableOptions.PropertiesToDisplay.Add(IndexColumnSpecificationPropertyNames.Ascending);
         }
 
         private void SetColumnsViewInfo(TableDesignerView view)
@@ -636,7 +953,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     ComponentType = DesignerComponentType.Input,
                     ComponentProperties = new InputBoxProperties()
                     {
-                        Title = SR.TableColumnIdentitySeedPropertyTitle
+                        Title = SR.TableColumnIdentitySeedPropertyTitle,
+                        InputType = InputType.Number
                     }
                 },
                 new DesignerDataPropertyInfo()
@@ -647,7 +965,18 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     ComponentType = DesignerComponentType.Input,
                     ComponentProperties = new InputBoxProperties()
                     {
-                        Title = SR.TableColumnIdentityIncrementPropertyTitle
+                        Title = SR.TableColumnIdentityIncrementPropertyTitle,
+                        InputType = InputType.Number
+                    }
+                },
+                new DesignerDataPropertyInfo()
+                {
+                    PropertyName = TableColumnPropertyNames.DefaultConstraintName,
+                    Description = SR.TableColumnDefaultConstraintNamePropertyDescription,
+                    ComponentType = DesignerComponentType.Input,
+                    ComponentProperties = new InputBoxProperties()
+                    {
+                        Title = SR.TableColumnDefaultConstraintNamePropertyTitle
                     }
                 }
             });
@@ -767,11 +1096,268 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             view.IndexColumnSpecificationTableOptions.CanRemoveRows = true;
         }
 
+        private void SetGraphTableViewInfo(TableDesignerView view, Dac.TableDesigner tableDesigner)
+        {
+            if (tableDesigner.IsGraphTableSupported && (tableDesigner.IsNewTable || tableDesigner.TableViewModel.IsEdge || tableDesigner.TableViewModel.IsNode))
+            {
+                view.AdditionalTableProperties.Add(new DesignerDataPropertyInfo()
+                {
+                    PropertyName = TablePropertyNames.GraphTableType,
+                    ComponentType = DesignerComponentType.Dropdown,
+                    Description = SR.TableDesignerGraphTableTypeDescription,
+                    Group = SR.TableDesignerGraphTableGroupTitle,
+                    ComponentProperties = new DropdownProperties()
+                    {
+                        Title = SR.TableDesignerGraphTableTypeTitle
+                    }
+                });
+            }
+        }
+
+        private void SetEdgeConstraintsViewInfo(TableDesignerView view, Dac.TableDesigner tableDesigner)
+        {
+            if (!(tableDesigner.TableViewModel.IsEdge && tableDesigner.IsEdgeConstraintSupported))
+            {
+                return;
+            }
+            var tab = new DesignerTabView()
+            {
+                Title = SR.TableDesignerEdgeConstraintsTabTitle
+            };
+            var constraintsTableProperties = new TableComponentProperties<EdgeConstraintViewModel>()
+            {
+                Title = SR.TableDesignerEdgeConstraintsTabTitle,
+                ObjectTypeDisplayName = SR.TableDesignerEdgeConstraintObjectType,
+                LabelForAddNewButton = SR.AddNewEdgeConstraintLabel
+            };
+            constraintsTableProperties.Columns.AddRange(new string[] { EdgeConstraintPropertyNames.Name, EdgeConstraintPropertyNames.ClausesDisplayValue });
+            constraintsTableProperties.ItemProperties.AddRange(new DesignerDataPropertyInfo[] {
+                new DesignerDataPropertyInfo()
+                {
+                    PropertyName = EdgeConstraintPropertyNames.Name,
+                    Description = SR.TableDesignerEdgeConstraintNamePropertyDescription,
+                    ComponentType = DesignerComponentType.Input,
+                    ComponentProperties = new InputBoxProperties()
+                    {
+                        Width = 200,
+                        Title = SR.TableDesignerEdgeConstraintNamePropertyTitle
+                    }
+                },
+                new DesignerDataPropertyInfo()
+                {
+                    PropertyName = EdgeConstraintPropertyNames.ClausesDisplayValue,
+                    ComponentType = DesignerComponentType.Input,
+                    ShowInPropertiesView = false,
+                    ComponentProperties = new InputBoxProperties()
+                    {
+                        Width = 300,
+                        Title = SR.TableDesignerEdgeConstraintClausesPropertyTitle
+                    }
+                },
+                new DesignerDataPropertyInfo()
+                {
+                    PropertyName = EdgeConstraintPropertyNames.Enabled,
+                    Description = SR.TableDesignerEdgeConstraintIsEnabledPropertyDescription,
+                    ComponentType = DesignerComponentType.Checkbox,
+                    ComponentProperties = new CheckBoxProperties()
+                    {
+                        Title = SR.TableDesignerEdgeConstraintIsEnabledPropertyTitle
+                    }
+                },
+                new DesignerDataPropertyInfo()
+                {
+                    PropertyName = EdgeConstraintPropertyNames.OnDeleteAction,
+                    Description = SR.TableDesignerEdgeConstraintOnDeleteActionPropertyDescription,
+                    ComponentType = DesignerComponentType.Dropdown,
+                    ComponentProperties = new DropdownProperties()
+                    {
+                        Title = SR.TableDesignerEdgeConstraintOnDeleteActionPropertyTitle
+                    }
+                },
+                new DesignerDataPropertyInfo()
+                {
+                    PropertyName = EdgeConstraintPropertyNames.Clauses,
+                    Description = SR.TableDesignerEdgeConstraintClausesPropertyDescription,
+                    ComponentType = DesignerComponentType.Table,
+                    ComponentProperties = new TableComponentProperties<EdgeConstraintClause>()
+                    {
+                        Title = SR.TableDesignerEdgeConstraintClausesPropertyTitle,
+                        ObjectTypeDisplayName = SR.TableDesignerEdgeConstraintClauseObjectType,
+                        Columns = new List<string> () { EdgeConstraintClausePropertyNames.FromTable, EdgeConstraintClausePropertyNames.ToTable},
+                        LabelForAddNewButton = SR.AddNewClauseLabel,
+                        ItemProperties = new List<DesignerDataPropertyInfo>()
+                        {
+                            new DesignerDataPropertyInfo()
+                            {
+                                PropertyName = EdgeConstraintClausePropertyNames.FromTable,
+                                ComponentType = DesignerComponentType.Dropdown,
+                                ComponentProperties = new DropdownProperties()
+                                {
+                                    Title = SR.TableDesignerEdgeConstraintClauseFromTablePropertyName,
+                                    Width = 150
+                                }
+                            },
+                            new DesignerDataPropertyInfo()
+                            {
+                                PropertyName = EdgeConstraintClausePropertyNames.ToTable,
+                                ComponentType = DesignerComponentType.Dropdown,
+                                ComponentProperties = new DropdownProperties()
+                                {
+                                    Title = SR.TableDesignerEdgeConstraintClauseToTablePropertyName,
+                                    Width = 150
+                                }
+                            }
+                        }
+                    }
+                }
+             });
+            tab.Components.Add(new DesignerDataPropertyInfo()
+            {
+                PropertyName = TablePropertyNames.EdgeConstraints,
+                ComponentType = DesignerComponentType.Table,
+                ComponentProperties = constraintsTableProperties,
+                ShowInPropertiesView = false
+            });
+            view.AdditionalTabs.Add(tab);
+        }
+
+        private void SetTemporalTableViewInfo(TableDesignerView view, Dac.TableDesigner tableDesigner)
+        {
+            if (!tableDesigner.IsTemporalTableSupported)
+            {
+                return;
+            }
+            var table = tableDesigner.TableViewModel;
+            view.AdditionalTableProperties.Add(new DesignerDataPropertyInfo()
+            {
+                PropertyName = TablePropertyNames.IsSystemVersioningEnabled,
+                ComponentType = DesignerComponentType.Checkbox,
+                Description = SR.TableDesignerIsSystemVersioningEnabledDescription,
+                Group = SR.TableDesignerSystemVersioningGroupTitle,
+                ComponentProperties = new CheckBoxProperties()
+                {
+                    Title = SR.TableDesignerIsSystemVersioningEnabledTitle
+                }
+            });
+
+            if (table.OriginalHistoryTable == null && table.SystemVersioningHistoryTable != null)
+            {
+                view.AdditionalTableProperties.Add(new DesignerDataPropertyInfo()
+                {
+                    PropertyName = TablePropertyNames.AutoCreateHistoryTable,
+                    ComponentType = DesignerComponentType.Checkbox,
+                    Description = SR.TableDesignerAutoCreateHistoryTableDescription,
+                    Group = SR.TableDesignerSystemVersioningGroupTitle,
+                    ComponentProperties = new CheckBoxProperties()
+                    {
+                        Title = SR.TableDesignerAutoCreateHistoryTableTitle
+                    }
+                });
+                if (table.AutoCreateHistoryTable)
+                {
+                    view.AdditionalTableProperties.Add(new DesignerDataPropertyInfo()
+                    {
+                        PropertyName = TablePropertyNames.NewHistoryTableTable,
+                        ComponentType = DesignerComponentType.Input,
+                        Description = SR.TableDesignerNewHistoryTableDescription,
+                        Group = SR.TableDesignerSystemVersioningGroupTitle,
+                        ComponentProperties = new InputBoxProperties()
+                        {
+                            Title = SR.TableDesignerNewHistoryTableTitle
+                        }
+                    });
+                }
+                else
+                {
+                    view.AdditionalTableProperties.Add(new DesignerDataPropertyInfo()
+                    {
+                        PropertyName = TablePropertyNames.ExistingHistoryTableName,
+                        ComponentType = DesignerComponentType.Dropdown,
+                        Description = SR.TableDesignerHistoryTableDescription,
+                        Group = SR.TableDesignerSystemVersioningGroupTitle,
+                        ComponentProperties = new DropdownProperties()
+                        {
+                            Title = SR.TableDesignerHistoryTableTitle
+                        }
+                    });
+                }
+            }
+            else if (table.SystemVersioningHistoryTable != null)
+            {
+                view.AdditionalTableProperties.Add(new DesignerDataPropertyInfo()
+                {
+                    PropertyName = TablePropertyNames.ExistingHistoryTableName,
+                    ComponentType = DesignerComponentType.Dropdown,
+                    Description = SR.TableDesignerHistoryTableDescription,
+                    Group = SR.TableDesignerSystemVersioningGroupTitle,
+                    ComponentProperties = new DropdownProperties()
+                    {
+                        Title = SR.TableDesignerHistoryTableTitle
+                    }
+                });
+            }
+            view.ColumnTableOptions.AdditionalProperties.Add(new DesignerDataPropertyInfo()
+            {
+                PropertyName = TableColumnPropertyNames.GeneratedAlwaysAs,
+                ComponentType = DesignerComponentType.Dropdown,
+                Description = SR.TableDesignerColumnGeneratedAlwaysAsDescription,
+                Group = SR.TableDesignerSystemVersioningGroupTitle,
+                ComponentProperties = new DropdownProperties()
+                {
+                    Title = SR.TableDesignerColumnGeneratedAlwaysAsTitle
+                }
+            });
+            view.ColumnTableOptions.AdditionalProperties.Add(new DesignerDataPropertyInfo()
+            {
+                PropertyName = TableColumnPropertyNames.IsHidden,
+                ComponentType = DesignerComponentType.Checkbox,
+                Description = SR.TableDesignerColumnIsHiddenDescription,
+                Group = SR.TableDesignerSystemVersioningGroupTitle,
+                ComponentProperties = new CheckBoxProperties()
+                {
+                    Title = SR.TableDesignerColumnIsHiddenTitle
+                }
+            });
+        }
+
+        private void SetMemoryOptimizedTableViewInfo(TableDesignerView view, Dac.TableDesigner tableDesigner)
+        {
+            if (!tableDesigner.IsMemoryOptimizedTableSupported)
+            {
+                return;
+            }
+            view.AdditionalTableProperties.Add(new DesignerDataPropertyInfo()
+            {
+                PropertyName = TablePropertyNames.IsMemoryOptimized,
+                ComponentType = DesignerComponentType.Checkbox,
+                Description = SR.TableDesignerIsMemoryOptimizedDescription,
+                Group = SR.TableDesignerMemoryOptimizedGroupTitle,
+                ComponentProperties = new CheckBoxProperties()
+                {
+                    Title = SR.TableDesignerIsMemoryOptimizedTitle
+                }
+            });
+            if (tableDesigner.TableViewModel.IsMemoryOptimized)
+            {
+                view.AdditionalTableProperties.Add(new DesignerDataPropertyInfo()
+                {
+                    PropertyName = TablePropertyNames.Durability,
+                    ComponentType = DesignerComponentType.Dropdown,
+                    Description = SR.TableDesignerDurabilityDescription,
+                    Group = SR.TableDesignerMemoryOptimizedGroupTitle,
+                    ComponentProperties = new DropdownProperties()
+                    {
+                        Title = SR.TableDesignerDurabilityTitle
+                    }
+                });
+            }
+        }
+
         private Dac.TableDesigner CreateTableDesigner(TableInfo tableInfo)
         {
-            var connectinStringbuilder = new SqlConnectionStringBuilder(tableInfo.ConnectionString);
-            connectinStringbuilder.InitialCatalog = tableInfo.Database;
-            var connectionString = connectinStringbuilder.ToString();
+            var connectionStringbuilder = new SqlConnectionStringBuilder(tableInfo.ConnectionString);
+            connectionStringbuilder.InitialCatalog = tableInfo.Database;
+            var connectionString = connectionStringbuilder.ToString();
             var tableDesigner = new Dac.TableDesigner(connectionString, tableInfo.AccessToken, tableInfo.Schema, tableInfo.Name, tableInfo.IsNewTable);
             this.idTableMap[tableInfo.Id] = tableDesigner;
             return tableDesigner;
@@ -788,6 +1374,18 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             {
                 throw new KeyNotFoundException(SR.TableNotInitializedException(tableInfo.Id));
             }
+        }
+
+        private Dictionary<string, string> GetMetadata(TableInfo tableInfo)
+        {
+            var tableDesigner = this.GetTableDesigner(tableInfo);
+            var metadata = new Dictionary<string, string>()
+            {
+                { "IsEdge", tableDesigner.IsEdge().ToString() },
+                { "IsNode", tableDesigner.IsNode().ToString() },
+                { "IsSystemVersioned", tableDesigner.IsSystemVersioned().ToString() }
+            };
+            return metadata;
         }
 
         /// <summary>
