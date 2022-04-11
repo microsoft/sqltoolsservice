@@ -30,7 +30,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             new TemporalTableMustHavePrimaryKeyRule(),
             new TableMustHaveAtLeastOneColumnRule(),
             new MemoryOptimizedTableIdentityColumnRule(),
-            new TableShouldAvoidHavingMultipleEdgeConstraintsRule()
+            new TableShouldAvoidHavingMultipleEdgeConstraintsRule(),
+            new ColumnCannotBeListedMoreThanOnceInPrimaryKeyRule()
         };
 
         /// <summary>
@@ -519,6 +520,36 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     Description = "The table has more than one edge constraint on it. This is only useful as a temporary state when modifying existing edge constraints, and should not be used in other cases. Please refer to https://docs.microsoft.com/sql/relational-databases/tables/graph-edge-constraints for more details.",
                     Severity = Contracts.IssueSeverity.Warning
                 });
+            }
+            return errors;
+        }
+    }
+
+    public class ColumnCannotBeListedMoreThanOnceInPrimaryKeyRule : ITableDesignerValidationRule
+    {
+        public List<TableDesignerIssue> Run(Dac.TableDesigner designer)
+        {
+            var table = designer.TableViewModel;
+            var errors = new List<TableDesignerIssue>();
+            if (table.PrimaryKey != null)
+            {
+                var existingNames = new HashSet<string>();
+                for (int i = 0; i < table.PrimaryKey.Columns.Count; i++)
+                {
+                    var columnSpec = table.PrimaryKey.Columns[i];
+                    if (existingNames.Contains(columnSpec.Column))
+                    {
+                        errors.Add(new TableDesignerIssue()
+                        {
+                            Description = string.Format("Cannot use duplicate column names in primary key, column name: {0}", columnSpec.Column),
+                            PropertyPath = new object[] { TablePropertyNames.PrimaryKeyColumns, i, IndexColumnSpecificationPropertyNames.Column }
+                        });
+                    }
+                    else
+                    {
+                        existingNames.Add(columnSpec.Column);
+                    }
+                }
             }
             return errors;
         }
