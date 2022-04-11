@@ -1534,7 +1534,8 @@
   </data>
   <data name="UnsupportedDeviceType" xml:space="preserve">
     <value>Unsupported device type {0} for engine edition {1}.</value>
-    <comment></comment>
+    <comment>.
+ Parameters: 0 - deviceType (String), 1 - engineEdition (String) </comment>
   </data>
   <data name="ScriptTaskName" xml:space="preserve">
     <value>scripting</value>

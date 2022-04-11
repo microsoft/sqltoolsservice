@@ -11,7 +11,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
 {
     public class UnsupportedDeviceTypeException: Exception
     {
-        public UnsupportedDeviceTypeException(Edition engineEdition, DeviceType deviceType) : base(string.Format(CultureInfo.InvariantCulture, SR.UnsupportedDeviceType, deviceType.ToString(), engineEdition.ToString()))
+        public UnsupportedDeviceTypeException(Edition engineEdition, DeviceType deviceType) : base(SR.UnsupportedDeviceType(deviceType.ToString(), engineEdition.ToString()))
         {
         }
     }

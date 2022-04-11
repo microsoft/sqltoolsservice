@@ -742,7 +742,7 @@ RestoreBackupSetUserName = User Name
 RestoreBackupSetExpiration = Expiration
 TheLastBackupTaken = The last backup taken ({0})
 NoBackupsetsToRestore = No backupset selected to be restored
-UnsupportedDeviceType = Unsupported device type {0} for engine edition {1}.
+UnsupportedDeviceType(String deviceType, String engineEdition) = Unsupported device type {0} for engine edition {1}.
 
 ############################################################################
 # Generate Script

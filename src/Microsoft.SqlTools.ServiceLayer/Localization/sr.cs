@@ -2549,14 +2549,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string UnsupportedDeviceType
-        {
-            get
-            {
-                return Keys.GetString(Keys.UnsupportedDeviceType);
-            }
-        }
-
         public static string ScriptTaskName
         {
             get
@@ -8838,6 +8830,11 @@ namespace Microsoft.SqlTools.ServiceLayer
         public static string EditDataIncorrectTable(string tableName)
         {
             return Keys.GetString(Keys.EditDataIncorrectTable, tableName);
+        }
+
+        public static string UnsupportedDeviceType(String deviceType, String engineEdition)
+        {
+            return Keys.GetString(Keys.UnsupportedDeviceType, deviceType, engineEdition);
         }
 
         public static string CreateSessionFailed(String error)
