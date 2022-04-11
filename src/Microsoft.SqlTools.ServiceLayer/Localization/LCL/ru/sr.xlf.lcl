@@ -5434,6 +5434,9 @@
       <Item ItemId=";ParallelismOverlayTooltip" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Parallel Execution]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Параллельное выполнение]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
