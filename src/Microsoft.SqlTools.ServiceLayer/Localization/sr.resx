@@ -1583,7 +1583,7 @@
  Parameters: 0 - sessionName (String) </comment>
   </data>
   <data name="NotSupportedCloudCreateSas" xml:space="preserve">
-    <value>Create shared access signature is not supported for cloud instancess.</value>
+    <value>Create shared access signature is not supported for cloud instances.</value>
     <comment></comment>
   </data>
   <data name="CreateSasForBlobContainerFailed" xml:space="preserve">

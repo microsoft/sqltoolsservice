@@ -5773,8 +5773,8 @@ The Query Processor estimates that implementing the following index could improv
         <note></note>
       </trans-unit>
       <trans-unit id="NotSupportedCloudCreateSas">
-        <source>Create shared access signature is not supported for cloud instancess.</source>
-        <target state="new">Create shared access signature is not supported for cloud instancess.</target>
+        <source>Create shared access signature is not supported for cloud instances.</source>
+        <target state="new">Create shared access signature is not supported for cloud instances.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="TableDesignerGraphTableTypeTitle">

@@ -765,7 +765,7 @@ SessionAlreadyExists(String sessionName) = An XEvent session named {0} already e
 
 ############################################################################
 # Azure Blob Service
-NotSupportedCloudCreateSas = Create shared access signature is not supported for cloud instancess.
+NotSupportedCloudCreateSas = Create shared access signature is not supported for cloud instances.
 CreateSasForBlobContainerFailed = Cannot generate SAS URI for blob container.
 WriteSASCredentialToSqlServerFailed = Failed storing shared access signature token on the SQL Servers.
 
