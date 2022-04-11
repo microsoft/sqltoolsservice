@@ -718,11 +718,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             var primaryKey = table.PrimaryKey;
             tableViewModel.PrimaryKeyName.Enabled = primaryKey != null;
             tableViewModel.PrimaryKeyIsClustered.Enabled = primaryKey != null;
+            tableViewModel.PrimaryKeyDescription.Enabled = primaryKey != null && primaryKey.CanEditDescription;
             if (primaryKey != null)
             {
                 tableViewModel.PrimaryKeyName.Value = primaryKey.Name;
                 tableViewModel.PrimaryKeyDescription.Value = primaryKey.Description;
-                tableViewModel.PrimaryKeyDescription.Enabled = primaryKey.CanEditDescription;
                 tableViewModel.PrimaryKeyIsClustered.Checked = primaryKey.IsClustered;
                 foreach (var cs in primaryKey.Columns)
                 {
