@@ -792,7 +792,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 columnViewModel.CanBeDeleted = column.CanBeDeleted;
                 columnViewModel.GeneratedAlwaysAs.Value = ColumnGeneratedAlwaysAsTypeUtil.Instance.GetName(column.GeneratedAlwaysAs);
                 columnViewModel.GeneratedAlwaysAs.Values = ColumnGeneratedAlwaysAsTypeUtil.Instance.DisplayNames;
-                columnViewModel.GeneratedAlwaysAs.Enabled = tableDesigner.IsTemporalTableSupported;
+                columnViewModel.GeneratedAlwaysAs.Enabled = column.CanEditGeneratedAlwaysAs;
                 columnViewModel.IsHidden.Checked = column.IsHidden;
                 columnViewModel.IsHidden.Enabled = column.CanEditIsHidden;
                 columnViewModel.DefaultConstraintName.Enabled = column.CanEditDefaultConstraintName;
