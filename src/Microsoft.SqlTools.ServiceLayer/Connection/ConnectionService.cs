@@ -249,9 +249,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 Resource = "SQL",
                 Scope = ""
             };
-            RequestSecurityTokenResponse response = await this.ServiceHost.SendRequest(SecurityTokenRequest.Type, requestMessage, true);
-            connection.UpdateAuthToken(response.Token, response.ExpiresOn);
+            try {
+                var response = await this.GetToken(requestMessage);
+            }
+            catch (Exception e){
+                Console.WriteLine(e);
+            }
+            
+            // connection.UpdateAuthToken(response.Token, response.ExpiresOn);
             return true;
+        }
+
+        private Task<RequestSecurityTokenResponse> GetToken(RequestSecurityTokenParams requestMessage) 
+        {
+            return this.ServiceHost.SendRequest(SecurityTokenRequest.Type, requestMessage, true);
         }
         public ConnectionCompleteParams ValidateConnectParams(ConnectParams connectionParams)
         {
