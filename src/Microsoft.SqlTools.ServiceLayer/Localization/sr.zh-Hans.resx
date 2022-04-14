@@ -3676,4 +3676,10 @@
   <data name="AddNewClauseLabel" xml:space="preserve">
     <value>新建子句</value>
   </data>
+  <data name="WarningOverlayTooltip" xml:space="preserve">
+    <value>警告</value>
+  </data>
+  <data name="ParallelismOverlayTooltip" xml:space="preserve">
+    <value>并行执行</value>
+  </data>
 </root>

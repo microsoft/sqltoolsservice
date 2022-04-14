@@ -3676,4 +3676,10 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
   <data name="AddNewClauseLabel" xml:space="preserve">
     <value>Neue Klausel</value>
   </data>
+  <data name="WarningOverlayTooltip" xml:space="preserve">
+    <value>Warnungen</value>
+  </data>
+  <data name="ParallelismOverlayTooltip" xml:space="preserve">
+    <value>Parallele Ausführung</value>
+  </data>
 </root>

@@ -3676,4 +3676,10 @@ El procesador de consultas estima que la implementación del siguiente índice p
   <data name="AddNewClauseLabel" xml:space="preserve">
     <value>Nueva cláusula</value>
   </data>
+  <data name="WarningOverlayTooltip" xml:space="preserve">
+    <value>Advertencias</value>
+  </data>
+  <data name="ParallelismOverlayTooltip" xml:space="preserve">
+    <value>Ejecución en paralelo</value>
+  </data>
 </root>

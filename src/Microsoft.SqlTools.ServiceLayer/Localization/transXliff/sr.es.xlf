@@ -5993,6 +5993,16 @@ El procesador de consultas estima que la implementación del siguiente índice p
         <target state="translated">Nueva cláusula</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="WarningOverlayTooltip">
+        <source>Warnings</source>
+        <target state="translated">Advertencias</target>
+        <note>tooltip text for node warning overlay</note>
+      </trans-unit>
+      <trans-unit id="ParallelismOverlayTooltip">
+        <source>Parallel Execution</source>
+        <target state="translated">Ejecución en paralelo</target>
+        <note>tooltip text for node parallelism overlay</note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
