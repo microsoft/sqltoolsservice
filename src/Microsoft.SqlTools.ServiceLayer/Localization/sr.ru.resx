@@ -3676,4 +3676,10 @@
   <data name="AddNewClauseLabel" xml:space="preserve">
     <value>Создать предложение</value>
   </data>
+  <data name="WarningOverlayTooltip" xml:space="preserve">
+    <value>Предупреждения</value>
+  </data>
+  <data name="ParallelismOverlayTooltip" xml:space="preserve">
+    <value>Параллельное выполнение</value>
+  </data>
 </root>

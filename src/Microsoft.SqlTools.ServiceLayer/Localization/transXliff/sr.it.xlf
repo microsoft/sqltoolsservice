@@ -5993,6 +5993,16 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
         <target state="translated">Nuova clausola</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="WarningOverlayTooltip">
+        <source>Warnings</source>
+        <target state="translated">Avvisi</target>
+        <note>tooltip text for node warning overlay</note>
+      </trans-unit>
+      <trans-unit id="ParallelismOverlayTooltip">
+        <source>Parallel Execution</source>
+        <target state="translated">Esecuzione parallela</target>
+        <note>tooltip text for node parallelism overlay</note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

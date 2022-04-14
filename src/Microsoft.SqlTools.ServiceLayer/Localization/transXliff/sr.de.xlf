@@ -5993,6 +5993,16 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
         <target state="translated">Neue Klausel</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="WarningOverlayTooltip">
+        <source>Warnings</source>
+        <target state="translated">Warnungen</target>
+        <note>tooltip text for node warning overlay</note>
+      </trans-unit>
+      <trans-unit id="ParallelismOverlayTooltip">
+        <source>Parallel Execution</source>
+        <target state="translated">Parallele Ausführung</target>
+        <note>tooltip text for node parallelism overlay</note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

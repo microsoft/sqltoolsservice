@@ -3676,4 +3676,10 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
   <data name="AddNewClauseLabel" xml:space="preserve">
     <value>Nuova clausola</value>
   </data>
+  <data name="WarningOverlayTooltip" xml:space="preserve">
+    <value>Avvisi</value>
+  </data>
+  <data name="ParallelismOverlayTooltip" xml:space="preserve">
+    <value>Esecuzione parallela</value>
+  </data>
 </root>
