@@ -5993,6 +5993,16 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
         <target state="translated">Nova Cláusula</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="WarningOverlayTooltip">
+        <source>Warnings</source>
+        <target state="translated">Avisos</target>
+        <note>tooltip text for node warning overlay</note>
+      </trans-unit>
+      <trans-unit id="ParallelismOverlayTooltip">
+        <source>Parallel Execution</source>
+        <target state="translated">Execução Paralela</target>
+        <note>tooltip text for node parallelism overlay</note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

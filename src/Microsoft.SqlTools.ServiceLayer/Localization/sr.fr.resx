@@ -3676,4 +3676,10 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
   <data name="AddNewClauseLabel" xml:space="preserve">
     <value>Nouvelle clause</value>
   </data>
+  <data name="WarningOverlayTooltip" xml:space="preserve">
+    <value>Avertissements</value>
+  </data>
+  <data name="ParallelismOverlayTooltip" xml:space="preserve">
+    <value>Exécution parallèle</value>
+  </data>
 </root>

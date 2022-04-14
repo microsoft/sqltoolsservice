@@ -3676,4 +3676,10 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
   <data name="AddNewClauseLabel" xml:space="preserve">
     <value>Nova Cláusula</value>
   </data>
+  <data name="WarningOverlayTooltip" xml:space="preserve">
+    <value>Avisos</value>
+  </data>
+  <data name="ParallelismOverlayTooltip" xml:space="preserve">
+    <value>Execução Paralela</value>
+  </data>
 </root>

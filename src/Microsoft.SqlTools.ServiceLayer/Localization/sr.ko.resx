@@ -3676,4 +3676,10 @@
   <data name="AddNewClauseLabel" xml:space="preserve">
     <value>새 절</value>
   </data>
+  <data name="WarningOverlayTooltip" xml:space="preserve">
+    <value>경고</value>
+  </data>
+  <data name="ParallelismOverlayTooltip" xml:space="preserve">
+    <value>병렬 실행</value>
+  </data>
 </root>

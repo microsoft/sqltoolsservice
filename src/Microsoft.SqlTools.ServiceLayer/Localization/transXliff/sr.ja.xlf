@@ -5993,6 +5993,16 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">新しい句</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="WarningOverlayTooltip">
+        <source>Warnings</source>
+        <target state="translated">警告</target>
+        <note>tooltip text for node warning overlay</note>
+      </trans-unit>
+      <trans-unit id="ParallelismOverlayTooltip">
+        <source>Parallel Execution</source>
+        <target state="translated">並列実行</target>
+        <note>tooltip text for node parallelism overlay</note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
