@@ -4835,7 +4835,7 @@ The Query Processor estimates that implementing the following index could improv
     <comment></comment>
   </data>
   <data name="GeneratedAlwaysColumnType_RowStart" xml:space="preserve">
-    <value>Row start</value>
+    <value>Row Start</value>
     <comment></comment>
   </data>
   <data name="GeneratedAlwaysColumnType_RowEnd" xml:space="preserve">

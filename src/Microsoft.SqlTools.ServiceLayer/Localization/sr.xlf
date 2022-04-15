@@ -5874,8 +5874,8 @@ The Query Processor estimates that implementing the following index could improv
         <note></note>
       </trans-unit>
       <trans-unit id="GeneratedAlwaysColumnType_RowStart">
-        <source>Row start</source>
-        <target state="new">Row start</target>
+        <source>Row Start</source>
+        <target state="new">Row Start</target>
         <note></note>
       </trans-unit>
       <trans-unit id="GeneratedAlwaysColumnType_RowEnd">
