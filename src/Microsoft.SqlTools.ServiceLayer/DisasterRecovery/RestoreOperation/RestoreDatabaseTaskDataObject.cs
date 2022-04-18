@@ -233,7 +233,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
 
         private void ThrowIfUnsupportedDeviceType(Edition engineEdition, DeviceType deviceType)
         {
-            if (IsSupportedDeviceType(engineEdition, deviceType))
+            if (!IsSupportedDeviceType(engineEdition, deviceType))
             {
                 throw new UnsupportedDeviceTypeException(engineEdition, deviceType);
             }
