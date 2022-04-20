@@ -241,16 +241,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 return false;
             }
 
-            var requestMessage = new RequestSecurityTokenParams
+            var requestMessage = new RefreshTokenNotificationParams
             {
                 AccountId = connection.ConnectionDetails.GetOptionValue("azureAccount", string.Empty),
                 Authority = connection.ConnectionDetails.GetOptionValue("azureTenantId", string.Empty),
                 Provider = "Azure",
-                Resource = "SQL",
-                Scope = ""
+                Resource = "SQL"
             };
             try {
-                var response = await this.GetToken(requestMessage);
+                await this.ServiceHost.SendEvent(RefreshTokenNotification.Type, requestMessage);
             }
             catch (Exception e){
                 Console.WriteLine(e);
@@ -260,10 +259,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             return true;
         }
 
-        private Task<RequestSecurityTokenResponse> GetToken(RequestSecurityTokenParams requestMessage) 
-        {
-            return this.ServiceHost.SendRequest(SecurityTokenRequest.Type, requestMessage, true);
-        }
         public ConnectionCompleteParams ValidateConnectParams(ConnectParams connectionParams)
         {
             string paramValidationErrorMessage;
