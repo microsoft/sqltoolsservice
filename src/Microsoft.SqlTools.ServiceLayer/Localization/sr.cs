@@ -2589,6 +2589,30 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string NotSupportedCloudCreateSas
+        {
+            get
+            {
+                return Keys.GetString(Keys.NotSupportedCloudCreateSas);
+            }
+        }
+
+        public static string CreateSasForBlobContainerFailed
+        {
+            get
+            {
+                return Keys.GetString(Keys.CreateSasForBlobContainerFailed);
+            }
+        }
+
+        public static string WriteSASCredentialToSqlServerFailed
+        {
+            get
+            {
+                return Keys.GetString(Keys.WriteSASCredentialToSqlServerFailed);
+            }
+        }
+
         public static string CategoryLocal
         {
             get
@@ -9192,6 +9216,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.EditDataIncorrectTable, tableName);
         }
 
+        public static string UnsupportedDeviceType(String deviceType, String engineEdition)
+        {
+            return Keys.GetString(Keys.UnsupportedDeviceType, deviceType, engineEdition);
+        }
+
         public static string CreateSessionFailed(String error)
         {
             return Keys.GetString(Keys.CreateSessionFailed, error);
@@ -10388,6 +10417,9 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string NoBackupsetsToRestore = "NoBackupsetsToRestore";
 
 
+            public const string UnsupportedDeviceType = "UnsupportedDeviceType";
+
+
             public const string ScriptTaskName = "ScriptTaskName";
 
 
@@ -10416,6 +10448,15 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string SessionAlreadyExists = "SessionAlreadyExists";
+
+
+            public const string NotSupportedCloudCreateSas = "NotSupportedCloudCreateSas";
+
+
+            public const string CreateSasForBlobContainerFailed = "CreateSasForBlobContainerFailed";
+
+
+            public const string WriteSASCredentialToSqlServerFailed = "WriteSASCredentialToSqlServerFailed";
 
 
             public const string CategoryLocal = "CategoryLocal";

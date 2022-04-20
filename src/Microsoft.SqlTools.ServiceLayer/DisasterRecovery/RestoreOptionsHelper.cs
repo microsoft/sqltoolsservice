@@ -62,6 +62,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         //The key name to use to set the backup file paths in the request
         internal const string BackupFilePaths = "backupFilePaths";
 
+        //The key name to use to set the device type
+        internal const string DeviceType = "deviceType";
+
         //The key name to use to set the target database name in the request
         internal const string TargetDatabaseName = "targetDatabaseName";
 

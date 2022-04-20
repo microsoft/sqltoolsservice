@@ -9,6 +9,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
     {
         public const string SqlConectionSettingsEnvironmentVariable = "SettingsFileName";
 
+        public const string AzureStorageAccountKey = "AzureStorageAccountKey";
+
+        public const string AzureStorageAccountName = "AzureStorageAccountName";
+
+        public const string AzureBlobContainerUri = "AzureBlobContainerUri";
+
         /// <summary>
         /// Environment variable used to get the TSDATA source directory root.
         /// K2 is under it.
