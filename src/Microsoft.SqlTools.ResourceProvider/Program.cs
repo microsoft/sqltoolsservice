@@ -38,7 +38,6 @@ namespace Microsoft.SqlTools.ResourceProvider
                     logFilePath = Logger.GenerateLogFilePath("SqlToolsResourceProviderService");
                 }
 
-                // turn on Verbose logging during early development
                 // we need to switch to Information when preparing for public preview
                 Logger.Initialize(tracingLevel: commandOptions.TracingLevel, logFilePath: logFilePath, traceSource: "resourceprovider", commandOptions.AutoFlushLog);
                 Logger.Write(TraceEventType.Information, "Starting SqlTools Resource Provider");
