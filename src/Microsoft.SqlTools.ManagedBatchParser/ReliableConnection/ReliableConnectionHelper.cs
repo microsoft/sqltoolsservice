@@ -14,6 +14,7 @@ using System.Security;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
+using System.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 {
