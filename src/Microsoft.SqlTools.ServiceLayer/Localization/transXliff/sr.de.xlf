@@ -5757,6 +5757,26 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
 */</target>
         <note>title of missing index details</note>
       </trans-unit>
+      <trans-unit id="CreateSasForBlobContainerFailed">
+        <source>Cannot generate SAS URI for blob container.</source>
+        <target state="translated">SAS-URI für Blob-Container kann nicht generiert werden.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="WriteSASCredentialToSqlServerFailed">
+        <source>Failed storing shared access signature token on the SQL Servers.</source>
+        <target state="translated">Fehler beim Speichern des Shared Access Signature-Tokens auf den SQL Servern.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="UnsupportedDeviceType">
+        <source>Unsupported device type {0} for engine edition {1}.</source>
+        <target state="translated">Nicht unterstützter Gerätetyp {0} für die Engine-Edition {1}.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="NotSupportedCloudCreateSas">
+        <source>Create shared access signature is not supported for cloud instances.</source>
+        <target state="translated">Shared Access Signature erstellen wird für Cloud-Instanzen nicht unterstützt.</target>
+        <note></note>
+      </trans-unit>
       <trans-unit id="TableDesignerGraphTableTypeTitle">
         <source>Type</source>
         <target state="translated">Typ</target>
@@ -5874,7 +5894,7 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
         <note></note>
       </trans-unit>
       <trans-unit id="GeneratedAlwaysColumnType_RowStart">
-        <source>Row start</source>
+        <source>Row Start</source>
         <target state="translated">Zeilenanfang</target>
         <note></note>
       </trans-unit>

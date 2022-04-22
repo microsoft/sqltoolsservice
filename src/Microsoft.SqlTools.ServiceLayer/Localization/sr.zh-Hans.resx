@@ -3535,6 +3535,18 @@
 查询处理器估计采用以下索引可以将查询开销减少 {1}%。
 */</value>
   </data>
+  <data name="CreateSasForBlobContainerFailed" xml:space="preserve">
+    <value>无法为 Blob 容器生成 SAS URI。</value>
+  </data>
+  <data name="WriteSASCredentialToSqlServerFailed" xml:space="preserve">
+    <value>在 SQL 服务器上存储共享访问签名令牌失败。</value>
+  </data>
+  <data name="UnsupportedDeviceType" xml:space="preserve">
+    <value>引擎版本 {1} 不支持的设备类型 {0}。</value>
+  </data>
+  <data name="NotSupportedCloudCreateSas" xml:space="preserve">
+    <value>云实例不支持创建共享访问签名。</value>
+  </data>
   <data name="TableDesignerGraphTableTypeTitle" xml:space="preserve">
     <value>类型</value>
   </data>

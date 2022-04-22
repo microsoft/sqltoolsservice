@@ -3535,6 +3535,18 @@
 쿼리 프로세서에서는 다음 인덱스를 구현하는 경우 쿼리 비용이 {1}%만큼 향상될 수 있다고 평가합니다.
 */</value>
   </data>
+  <data name="CreateSasForBlobContainerFailed" xml:space="preserve">
+    <value>Blob 컨테이너에 대한 SAS URI를 생성할 수 없습니다.</value>
+  </data>
+  <data name="WriteSASCredentialToSqlServerFailed" xml:space="preserve">
+    <value>SQL Server에 공유 액세스 서명 토큰을 저장하지 못했습니다.</value>
+  </data>
+  <data name="UnsupportedDeviceType" xml:space="preserve">
+    <value>엔진 버전 {1}에 대해 지원되지 않는 디바이스 유형 {0}입니다.</value>
+  </data>
+  <data name="NotSupportedCloudCreateSas" xml:space="preserve">
+    <value>공유 액세스 서명 만들기는 클라우드 인스턴스에 대해 지원되지 않습니다.</value>
+  </data>
   <data name="TableDesignerGraphTableTypeTitle" xml:space="preserve">
     <value>형식</value>
   </data>
