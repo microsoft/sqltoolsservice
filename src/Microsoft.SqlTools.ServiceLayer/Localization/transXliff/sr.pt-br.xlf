@@ -5757,6 +5757,26 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
 */</target>
         <note>title of missing index details</note>
       </trans-unit>
+      <trans-unit id="CreateSasForBlobContainerFailed">
+        <source>Cannot generate SAS URI for blob container.</source>
+        <target state="translated">Não é possível gerar o URI DO SAS para o contêiner do blob.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="WriteSASCredentialToSqlServerFailed">
+        <source>Failed storing shared access signature token on the SQL Servers.</source>
+        <target state="translated">Falha ao armazenar o token da assinatura de acesso compartilhado nos Servidores SQL.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="UnsupportedDeviceType">
+        <source>Unsupported device type {0} for engine edition {1}.</source>
+        <target state="translated">Tipo de dispositivo {0} não suportado para a edição do mecanismo {1}.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="NotSupportedCloudCreateSas">
+        <source>Create shared access signature is not supported for cloud instances.</source>
+        <target state="translated">A criação da assinatura de acesso compartilhado não é suportada em instâncias de nuvem.</target>
+        <note></note>
+      </trans-unit>
       <trans-unit id="TableDesignerGraphTableTypeTitle">
         <source>Type</source>
         <target state="translated">Tipo</target>
@@ -5874,8 +5894,8 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
         <note></note>
       </trans-unit>
       <trans-unit id="GeneratedAlwaysColumnType_RowStart">
-        <source>Row start</source>
-        <target state="translated">Início da linha</target>
+        <source>Row Start</source>
+        <target state="translated">Início da Linha</target>
         <note></note>
       </trans-unit>
       <trans-unit id="GeneratedAlwaysColumnType_RowEnd">

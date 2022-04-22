@@ -5757,6 +5757,26 @@ The Query Processor estimates that implementing the following index could improv
 */</target>
         <note>title of missing index details</note>
       </trans-unit>
+      <trans-unit id="CreateSasForBlobContainerFailed">
+        <source>Cannot generate SAS URI for blob container.</source>
+        <target state="translated">BLOB コンテナーの SAS URI を生成できません。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="WriteSASCredentialToSqlServerFailed">
+        <source>Failed storing shared access signature token on the SQL Servers.</source>
+        <target state="translated">SQL Server に共有アクセス署名トークンを格納できませんでした。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="UnsupportedDeviceType">
+        <source>Unsupported device type {0} for engine edition {1}.</source>
+        <target state="translated">エンジン エディション {1} ではサポートされていないデバイスの種類 {0}。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="NotSupportedCloudCreateSas">
+        <source>Create shared access signature is not supported for cloud instances.</source>
+        <target state="translated">共有アクセス署名の作成は、クラウド インスタンスではサポートされていません。</target>
+        <note></note>
+      </trans-unit>
       <trans-unit id="TableDesignerGraphTableTypeTitle">
         <source>Type</source>
         <target state="translated">種類</target>
@@ -5874,7 +5894,7 @@ The Query Processor estimates that implementing the following index could improv
         <note></note>
       </trans-unit>
       <trans-unit id="GeneratedAlwaysColumnType_RowStart">
-        <source>Row start</source>
+        <source>Row Start</source>
         <target state="translated">行の開始</target>
         <note></note>
       </trans-unit>
