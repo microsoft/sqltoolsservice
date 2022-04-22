@@ -3003,10 +3003,13 @@
       </Item>
       <Item ItemId=";GeneratedAlwaysColumnType_RowStart" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Row start]]></Val>
+          <Val><![CDATA[Row Start]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[列開始]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Row start]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
