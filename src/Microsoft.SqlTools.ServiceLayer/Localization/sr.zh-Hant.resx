@@ -3535,6 +3535,18 @@
 查詢處理器預估若實作下列索引則可改善 {1}% 的查詢成本。
 */</value>
   </data>
+  <data name="CreateSasForBlobContainerFailed" xml:space="preserve">
+    <value>Cannot generate SAS URI for blob container.</value>
+  </data>
+  <data name="WriteSASCredentialToSqlServerFailed" xml:space="preserve">
+    <value>Failed storing shared access signature token on the SQL Servers.</value>
+  </data>
+  <data name="UnsupportedDeviceType" xml:space="preserve">
+    <value>Unsupported device type {0} for engine edition {1}.</value>
+  </data>
+  <data name="NotSupportedCloudCreateSas" xml:space="preserve">
+    <value>Create shared access signature is not supported for cloud instances.</value>
+  </data>
   <data name="TableDesignerGraphTableTypeTitle" xml:space="preserve">
     <value>類型</value>
   </data>
