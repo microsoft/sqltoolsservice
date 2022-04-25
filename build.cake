@@ -111,6 +111,7 @@ Task("PopulateRuntimes")
             {
                 "default", // To allow testing the published artifact
                 "win-x64",
+                "win-x86",
                 "ubuntu.14.04-x64",
                 "ubuntu.16.04-x64",
                 "centos.7-x64",
@@ -229,7 +230,7 @@ Task("BuildTest")
                         StandardOutputWriter = logWriter,
                         StandardErrorWriter = logWriter
                     })
-                .ExceptionOnError($"Building test {project} failed for {framework}.");
+                .ExceptionOnError($"Building test {project} failed for {framework}. See {logPath} for more details.");
             }
 
         }
@@ -279,6 +280,7 @@ Task("DotnetPackPublished")
 Task("TestAll")
     .IsDependentOn("Test")
     .IsDependentOn("TestCore")
+    .WithCriteria(c => HasArgument("runTests"))
     .Does(() =>{});
 
 /// <summary>
@@ -287,6 +289,7 @@ Task("TestAll")
 Task("TestCore")
     .IsDependentOn("Setup")
     .IsDependentOn("Restore")
+    .WithCriteria(c => HasArgument("runTests"))
     .Does(() =>
 {
     var testProjects = buildPlan.TestProjects
@@ -311,6 +314,7 @@ Task("Test")
 	.IsDependentOn("SRGen")
     .IsDependentOn("CodeGen")
     .IsDependentOn("BuildTest")
+    .WithCriteria(c => HasArgument("runTests"))
     .Does(() =>
 {
     foreach (var pair in buildPlan.TestProjects)

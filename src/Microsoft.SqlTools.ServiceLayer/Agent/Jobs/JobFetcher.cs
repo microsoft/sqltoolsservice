@@ -4,7 +4,6 @@
 //
 
 using System;
-using System.Text;
 using System.Data;
 using System.Globalization;
 using System.Collections.Generic;
@@ -12,8 +11,6 @@ using System.Collections.Generic;
 using SMO = Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
-using Microsoft.SqlServer.Management.Smo.Agent;
-using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {

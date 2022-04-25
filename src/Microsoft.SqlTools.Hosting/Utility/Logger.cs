@@ -110,6 +110,9 @@ namespace Microsoft.SqlTools.Utility
         /// <param name="traceSource">
         /// Optional. Specifies the tracesource name.
         /// </param>
+        /// <param name="autoFlush">
+        /// Optional. Specifies whether the log is flushed after every message
+        /// </param>
         public static void Initialize(
             SourceLevels tracingLevel = defaultTracingLevel,
             string logFilePath = null,
@@ -140,13 +143,17 @@ namespace Microsoft.SqlTools.Utility
         /// <param name="traceSource">
         /// Optional. Specifies the tracesource name.
         /// </param>
-        public static void Initialize(string tracingLevel, string logFilePath = null, string traceSource = defaultTraceSource)
+        /// <param name="autoFlush">
+        /// Optional. Specifies whether the log is flushed after every message
+        /// </param>
+        public static void Initialize(string tracingLevel, string logFilePath = null, string traceSource = defaultTraceSource, bool autoFlush = false)
         {
             Initialize(Enum.TryParse<SourceLevels>(tracingLevel, out SourceLevels sourceTracingLevel)
                     ? sourceTracingLevel
                     : defaultTracingLevel
                 , logFilePath
-                , traceSource);
+                , traceSource
+                , autoFlush);
         }
 
         /// <summary>

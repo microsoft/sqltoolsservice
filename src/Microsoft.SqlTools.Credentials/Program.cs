@@ -4,7 +4,6 @@
 
 using System;
 using System.Diagnostics;
-using System.IO;
 using Microsoft.SqlTools.Credentials.Utility;
 using Microsoft.SqlTools.Hosting.Utility;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
@@ -39,9 +38,7 @@ namespace Microsoft.SqlTools.Credentials
                     logFilePath = Logger.GenerateLogFilePath("credentials");
                 }
 
-                Logger.AutoFlush = commandOptions.AutoFlushLog;
-
-                Logger.Initialize(tracingLevel: commandOptions.TracingLevel, logFilePath: logFilePath, traceSource: "credentials");
+                Logger.Initialize(tracingLevel: commandOptions.TracingLevel, logFilePath: logFilePath, traceSource: "credentials", commandOptions.AutoFlushLog);
 
                 // set up the host details and profile paths 
                 var hostDetails = new HostDetails(

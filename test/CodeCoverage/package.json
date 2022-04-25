@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "SQL Tools Service Layer",
   "main": "gulpfile.js",
-  "dependencies": {
+  "devDependencies": {
     "del": "^2.2.1",
     "gulp": "^4.0.2",
     "gulp-cli": "^2.3.0",
@@ -11,7 +11,6 @@
     "request": "^2.73.0",
     "through2": "^2.0.3"
   },
-  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "https://github.com/Microsoft/sqltoolsservice.git"

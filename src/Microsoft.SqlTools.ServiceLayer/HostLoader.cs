@@ -1,6 +1,7 @@
 ﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
 using System.Threading.Tasks;
@@ -35,6 +36,8 @@ using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.NotebookConvert;
 using Microsoft.SqlTools.ServiceLayer.ModelManagement;
 using Microsoft.SqlTools.ServiceLayer.TableDesigner;
+using Microsoft.SqlTools.ServiceLayer.AzureBlob;
+using Microsoft.SqlTools.ServiceLayer.ExecutionPlan;
 
 namespace Microsoft.SqlTools.ServiceLayer
 {
@@ -162,8 +165,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             TableDesignerService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(TableDesignerService.Instance);
 
+            BlobService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(BlobService.Instance);
+
             InitializeHostedServices(serviceProvider, serviceHost);
             serviceHost.ServiceProvider = serviceProvider;
+
+            ExecutionPlanService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(ExecutionPlanService.Instance);
 
             serviceHost.InitializeRequestHandlers();
         }

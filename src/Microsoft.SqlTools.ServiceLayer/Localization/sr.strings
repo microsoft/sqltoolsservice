@@ -742,6 +742,7 @@ RestoreBackupSetUserName = User Name
 RestoreBackupSetExpiration = Expiration
 TheLastBackupTaken = The last backup taken ({0})
 NoBackupsetsToRestore = No backupset selected to be restored
+UnsupportedDeviceType(String deviceType, String engineEdition) = Unsupported device type {0} for engine edition {1}.
 
 ############################################################################
 # Generate Script
@@ -762,6 +763,11 @@ StopSessionFailed(String error) = Failed to stop session: {0}
 SessionNotFound = Cannot find requested XEvent session
 SessionAlreadyExists(String sessionName) = An XEvent session named {0} already exists
 
+############################################################################
+# Azure Blob Service
+NotSupportedCloudCreateSas = Create shared access signature is not supported for cloud instances.
+CreateSasForBlobContainerFailed = Cannot generate SAS URI for blob container.
+WriteSASCredentialToSqlServerFailed = Failed storing shared access signature token on the SQL Servers.
 
 ;job categories
 CategoryLocal = [Uncategorized (Local)]
@@ -2219,6 +2225,14 @@ SizeInTeraBytesFormat = {0} TB
 OperatorDisplayCost(double cost, int percentage) = {0:0.#######} ({1}%)
 #Would like to display actual rows and estimated rows in two lines: <number_actual_rows> of\n <number_estimated_rows> (xx%)
 ActualOfEstimated(string actual, string estimated, decimal percent) = {0} of\n{1} ({2}%)
+;"Missing Index (Impact {0}): {1}" format string for showplan
+MissingIndexFormat(string impact, string queryText) = Missing Index (Impact {0}): {1}
+;title of missing index details
+MissingIndexDetailsTitle(string fileName, string impact) = /*\r\nMissing Index Details from {0}\r\nThe Query Processor estimates that implementing the following index could improve the query cost by {1}%.\r\n*/
+;tooltip text for node warning overlay
+WarningOverlayTooltip = Warnings
+;tooltip text for node parallelism overlay
+ParallelismOverlayTooltip = Parallel Execution
 
 ############################################################################
 # Table Designer
@@ -2236,10 +2250,65 @@ TableColumnIdentitySeedPropertyDescription = Displays the initial row value for 
 TableDesignerIsEnabledPropertyTitle = Is Enabled
 ForeignKeyIsEnabledDescription = Specifies whether the foreign key is Enabled
 ForeignKeyIsNotForReplicationTitle = Not For Replication
-ForeignKeyIsNotForReplicationDescription = Enables or disables an IDENTITY constraint for data inserted by a replication process.
+ForeignKeyIsNotForReplicationDescription = Enables or disables the constraint for data inserted by a replication process.
 SqlForeignKeyAction_NoAction = No Action
 SqlForeignKeyAction_Cascade = Cascade
 SqlForeignKeyAction_SetNull = Set Null
 SqlForeignKeyAction_SetDefault = Set Default
-UnKnownSqlForeignKeyAction(string name) = '{0}' is not a supported SqlForeignKeyAction.
+UnknownEnumString(string name) = Unknown enum value: {0}.
 CheckConstraintIsEnabledDescription = Specifies whether the check constraint is Enabled
+IndexIsEnabledPropertyDescription = Specifies whether the index is enabled
+IndexIsClusteredPropertyDescription = Whether the index is clustered, only one clustered index is allowed in a table.
+TableDesignerIndexIsClusteredPropertyTitle = Is Clustered
+IndexIsUniquePropertyDescription = Whether the data entered into this index must be unique.
+TableDesignerIsUniquePropertyTitle = Is Unique
+IndexColumnIsAscendingPropertyDescription = Specifies the sort order of the column.
+IndexColumnIsAscendingPropertyTitle = Is Ascending
+TableDesignerColumnsDisplayValueTitle = Columns
+TableDesignerDeleteColumnConfirmationMessage = Removing a column will also remove it from the indexes and foreign keys. Are you sure you want to continue?
+TableDesignerGraphTableGroupTitle = Graph Table
+TableDesignerGraphTableTypeTitle = Type
+TableDesignerGraphTableTypeDescription = Specifies the table type.
+TableDesignerGraphTableTypeEdge = Edge
+TableDesignerGraphTableTypeNode = Node
+TableDesignerGraphTableTypeNone = None
+TableDesignerEdgeConstraintsTabTitle = Edge Constraints
+TableDesignerEdgeConstraintObjectType = Edge Constraint
+TableDesignerEdgeConstraintNamePropertyDescription = Name of the constraint.
+TableDesignerEdgeConstraintNamePropertyTitle = Name
+TableDesignerEdgeConstraintIsEnabledPropertyDescription = Specifies whether the constraint is enabled.
+TableDesignerEdgeConstraintIsEnabledPropertyTitle = Is Enabled
+TableDesignerEdgeConstraintOnDeleteActionPropertyDescription = The behavior when a user tries to delete a row with data that is involved in an edge constraint.
+TableDesignerEdgeConstraintOnDeleteActionPropertyTitle = On Delete Action
+TableDesignerEdgeConstraintClausesPropertyDescription = Edge constraint clauses.
+TableDesignerEdgeConstraintClausesPropertyTitle = Clauses
+TableDesignerEdgeConstraintClauseObjectType = Clause
+TableDesignerEdgeConstraintClauseFromTablePropertyName = From Table
+TableDesignerEdgeConstraintClauseToTablePropertyName = To Table
+SqlTableDurability_SchemaAndData = Schema and Data
+SqlTableDurability_SchemaOnly = Schema Only
+GeneratedAlwaysColumnType_None = None
+GeneratedAlwaysColumnType_RowStart = Row Start
+GeneratedAlwaysColumnType_RowEnd = Row End
+TableDesignerIsSystemVersioningEnabledTitle = System Versioning Enabled
+TableDesignerIsSystemVersioningEnabledDescription = Specifies whether the table is system versioning enabled.
+TableDesignerSystemVersioningGroupTitle = System Versioning
+TableDesignerHistoryTableDescription = History table of the current table.
+TableDesignerHistoryTableTitle = History Table
+TableDesignerIsMemoryOptimizedDescription = Specifies whether the table is memory optimized.
+TableDesignerMemoryOptimizedGroupTitle = Memory Optimized
+TableDesignerIsMemoryOptimizedTitle = Memory Optimized
+TableDesignerDurabilityDescription = Specifies the durability setting of the table.
+TableDesignerDurabilityTitle = Durability
+TableDesignerColumnGeneratedAlwaysAsDescription = Specifies the start or end of the system versioning table's period setting.
+TableDesignerColumnGeneratedAlwaysAsTitle = Generated Always As
+TableDesignerColumnIsHiddenTitle = Is Hidden
+TableDesignerColumnIsHiddenDescription = Specifies whether the column will be returned by select statement.
+TableDesignerAutoCreateHistoryTableDescription = Specifies whether the engine should automatically create the history table.
+TableDesignerAutoCreateHistoryTableTitle = Auto Create History Table
+TableDesignerNewHistoryTableDescription = Specifies the name of the new history table.
+TableDesignerNewHistoryTableTitle = New History Table Name
+TableColumnDefaultConstraintNamePropertyDescription = Specifies the default constraint name.
+TableColumnDefaultConstraintNamePropertyTitle = Default Constraint Name
+AddNewEdgeConstraintLabel = New Edge Constraint
+AddNewClauseLabel = New Clause

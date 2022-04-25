@@ -1,6 +1,8 @@
 ﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
 using System;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.Kusto.ServiceLayer.Utility;
@@ -38,9 +40,7 @@ namespace Microsoft.Kusto.ServiceLayer
                     logFilePath = Logger.GenerateLogFilePath("kustoservice");
                 }
 
-                Logger.AutoFlush = commandOptions.AutoFlushLog;
-
-                Logger.Initialize(tracingLevel: commandOptions.TracingLevel, logFilePath: logFilePath, traceSource: "kustoservice");
+                Logger.Initialize(tracingLevel: commandOptions.TracingLevel, logFilePath: logFilePath, traceSource: "kustoservice", commandOptions.AutoFlushLog);
 
                 // set up the host details and profile paths 
                 var hostDetails = new HostDetails(version: new Version(1, 0));

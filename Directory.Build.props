@@ -5,8 +5,13 @@
   </PropertyGroup>
   <PropertyGroup>
     <ManagedBatchParserTargetFramework>netstandard2.1</ManagedBatchParserTargetFramework>
-    <CredentialsTargetFramework>net5.0</CredentialsTargetFramework>
-    <ServiceLayerTargetFramework>net5.0</ServiceLayerTargetFramework>
-    <ResourceProviderTargetFramework>net5.0</ResourceProviderTargetFramework>
+    <CredentialsTargetFramework>net6.0</CredentialsTargetFramework>
+    <ServiceLayerTargetFramework>net6.0</ServiceLayerTargetFramework>
+    <ResourceProviderTargetFramework>net6.0</ResourceProviderTargetFramework>
+    <ToolsServiceTargetRuntimes>win-x64;win-x86;ubuntu.14.04-x64;ubuntu.16.04-x64;centos.7-x64;rhel.7.2-x64;debian.8-x64;fedora.23-x64;opensuse.13.2-x64;osx.10.11-x64;osx-x64;linux-x64</ToolsServiceTargetRuntimes>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <!-- This is required for IDE0005 to fail the build https://github.com/dotnet/roslyn/issues/41640 -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 </Project>

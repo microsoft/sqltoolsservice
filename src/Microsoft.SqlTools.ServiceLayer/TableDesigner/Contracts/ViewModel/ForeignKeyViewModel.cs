@@ -3,8 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Newtonsoft.Json;
-
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 {
     /// <summary>
@@ -18,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 
         public DropdownProperties OnUpdateAction { get; set; } = new DropdownProperties();
 
-        public DropdownProperties PrimaryKeyTable { get; set; } = new DropdownProperties();
+        public DropdownProperties ForeignTable { get; set; } = new DropdownProperties();
 
         public CheckBoxProperties IsNotForReplication { get; set; } = new CheckBoxProperties();
 
@@ -27,8 +25,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 
     public class ForeignKeyColumnMapping
     {
-        public DropdownProperties PrimaryKeyColumn { get; set; } = new DropdownProperties();
+        public DropdownProperties Column { get; set; } = new DropdownProperties();
 
-        public DropdownProperties ForeignKeyColumn { get; set; } = new DropdownProperties();
+        public DropdownProperties ForeignColumn { get; set; } = new DropdownProperties();
     }
 }

@@ -4,10 +4,7 @@
 //
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo.Agent;
 using SMO = Microsoft.SqlServer.Management.Smo;
 

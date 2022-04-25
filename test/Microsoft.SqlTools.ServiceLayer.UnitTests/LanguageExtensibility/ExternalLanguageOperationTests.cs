@@ -1,4 +1,9 @@
-﻿using Microsoft.SqlTools.ServiceLayer.LanguageExtensibility;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+using Microsoft.SqlTools.ServiceLayer.LanguageExtensibility;
 using Microsoft.SqlTools.ServiceLayer.LanguageExtensibility.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Moq;

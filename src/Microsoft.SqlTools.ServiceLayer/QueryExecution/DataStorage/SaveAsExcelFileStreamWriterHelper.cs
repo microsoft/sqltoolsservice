@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.IO;
 using System.IO.Compression;
 using System.Xml;
@@ -174,9 +175,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                         if (o is TimeSpan) //TimeSpan doesn't have TypeCode
                         {
                             AddCell((TimeSpan)o);
-                            break;
                         }
-                        AddCell(dbCellValue.DisplayValue);
+                        // We need to handle SqlDecimal and SqlMoney types here because we can't convert them to .NET types due to different precisons in SQL Server and .NET.
+                        else if (o is SqlDecimal || o is SqlMoney)
+                        {
+                            AddCellBoxedNumber(dbCellValue.DisplayValue);
+                        }
+                        else
+                        {
+                            AddCell(dbCellValue.DisplayValue);
+                        }
                         break;
                 }
             }

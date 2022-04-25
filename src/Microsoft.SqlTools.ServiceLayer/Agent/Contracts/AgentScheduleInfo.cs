@@ -4,8 +4,6 @@
 //
 
 using System;
-using System.Collections.Generic;
-using Microsoft.SqlTools.ServiceLayer.Agent;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent.Contracts
 {

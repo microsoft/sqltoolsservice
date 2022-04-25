@@ -3,7 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
@@ -189,6 +188,24 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
         public async Task XmlTest()
         {
             await ExecuteAndVerifyResult("SELECT CAST('<ABC>1234</ABC>' AS XML)", "<ABC>1234</ABC>");
+        }
+
+        [Test]
+        public async Task GeometryTypeTest()
+        {
+            await ExecuteAndVerifyResult("SELECT geometry::STGeomFromText('POINT (-96.70 40.84)',4326) [Geo]", "0xE6100000010CCDCCCCCCCC2C58C0EC51B81E856B4440");
+        }
+
+        [Test]
+        public async Task SysnameTypeTest()
+        {
+            await ExecuteAndVerifyResult("SELECT CAST('testsysname' AS SYSNAME)", "testsysname");
+        }
+
+        [Test]
+        public async Task HierarchyIdTypeTest()
+        {
+            await ExecuteAndVerifyResult("SELECT CAST(0x58 as hierarchyid)", "0x58");
         }
 
         private async Task ExecuteAndVerifyResult(string queryText, string expectedValue)

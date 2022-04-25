@@ -1,6 +1,7 @@
 ﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
 using System.Collections.Generic;
@@ -27,14 +28,14 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
         /// Creates new instance given errors
         /// </summary>
         public ServiceResponse(IEnumerable<Exception> errors) : this(Enumerable.Empty<T>(), errors)
-        {           
+        {
         }
 
         /// <summary>
         /// Creates new instance given data
         /// </summary>
         public ServiceResponse(IEnumerable<T> data) : this(data, Enumerable.Empty<Exception>())
-        {           
+        {
         }
 
         /// <summary>
@@ -83,7 +84,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
                 }
                 return message;
             }
-        }      
+        }
 
         /// <summary>
         /// Returns true if a response already found. it's used when we need to filter the responses

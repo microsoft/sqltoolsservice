@@ -1,10 +1,10 @@
 //
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
 using System.Diagnostics;
-using System.IO;
 using Microsoft.SqlTools.Hosting.Utility;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.Utility;
@@ -38,9 +38,8 @@ namespace Microsoft.SqlTools.ResourceProvider
                     logFilePath = Logger.GenerateLogFilePath("SqlToolsResourceProviderService");
                 }
 
-                // turn on Verbose logging during early development
                 // we need to switch to Information when preparing for public preview
-                Logger.Initialize(tracingLevel: commandOptions.TracingLevel, logFilePath: logFilePath, traceSource: "resourceprovider");
+                Logger.Initialize(tracingLevel: commandOptions.TracingLevel, logFilePath: logFilePath, traceSource: "resourceprovider", commandOptions.AutoFlushLog);
                 Logger.Write(TraceEventType.Information, "Starting SqlTools Resource Provider");
 
                 // set up the host details and profile paths 

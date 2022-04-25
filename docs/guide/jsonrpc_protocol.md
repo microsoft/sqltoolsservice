@@ -532,10 +532,19 @@ Get a connection string for the provided connection.
         /// </summary>
         public string OwnerUri { get; set; }
 
+        /// Connection info of the connection
+        /// </summary>
+        public ConnectionDetails ConnectionDetails { get; set; }
         /// <summary>
-        /// Indicates whether the password should be return in the connection string
+
+        /// Indicates whether the password should be return in the connection string. Default is false.
         /// </summary>
         public bool IncludePassword { get; set; }
+
+        /// <summary>
+        /// Indicates whether the application name should be return in the connection string. Default is true.
+        /// </summary>
+        public bool? IncludeApplicationName { get; set;}
     }
 ```
 #### Response

@@ -48,6 +48,8 @@ The build script itself is `build.cake`, written in Cake's C#-like DSL using the
   
   `-archive`: Enable the generation of publishable archives after a build.
 
+  `-runTests`: Enable running of tests in the cake file. By default, the tests are skipped. 
+
 ## Targets
 
 **Default**: Alias for Local.

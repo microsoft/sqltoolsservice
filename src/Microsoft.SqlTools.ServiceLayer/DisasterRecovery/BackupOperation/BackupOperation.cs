@@ -211,12 +211,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 {
                     string destName = Convert.ToString(this.backupInfo.BackupPathList[i], System.Globalization.CultureInfo.InvariantCulture);
                     int deviceType = (int)(this.backupInfo.BackupPathDevices[destName]);
+                    int backupDeviceType =
+                        GetDeviceType(Convert.ToString(destName,
+                            System.Globalization.CultureInfo.InvariantCulture));
                     switch (deviceType)
                     {
                         case (int)DeviceType.LogicalDevice:
-                            int backupDeviceType =
-                                GetDeviceType(Convert.ToString(destName,
-                                    System.Globalization.CultureInfo.InvariantCulture));
 
                             if (this.backupDeviceType == BackupDeviceType.Disk && backupDeviceType == constDeviceTypeFile)
                             {
@@ -227,6 +227,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                             if (this.backupDeviceType == BackupDeviceType.Disk)
                             {
                                 this.backup.Devices.AddDevice(destName, DeviceType.File);
+                            }
+                            break;
+                        case (int)DeviceType.Url:
+                            if (this.backupDeviceType == BackupDeviceType.Url)
+                            {
+                                this.backup.Devices.AddDevice(destName, DeviceType.Url);
                             }
                             break;
                     }

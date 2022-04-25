@@ -6,7 +6,6 @@
 using System;
 using System.Threading;
 using Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes;
-using Microsoft.Kusto.ServiceLayer.Utility;
 
 namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
 {
