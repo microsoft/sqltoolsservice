@@ -212,12 +212,14 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             var table = this.GetTableDesigner(requestParams.TableInfo).TableViewModel;
             var path = requestParams.TableChangeInfo.Path;
             // Handle the add item request on top level table properties, e.g. Columns, Indexes.
-            if (path.Length == 1)
+            if (path.Length == 2)
             {
                 var propertyName = path[0] as string;
+                var index = path[1] as string;
                 switch (propertyName)
                 {
                     case TablePropertyNames.Columns:
+                        // TODO change the api call to include index
                         table.Columns.AddNew();
                         break;
                     case TablePropertyNames.CheckConstraints:
@@ -689,6 +691,27 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 }
             }
             return refreshView;
+        }
+
+        private void HandleMoveItemRequest(ProcessTableDesignerEditRequestParams requestParams)
+        {
+            var table = this.GetTableDesigner(requestParams.TableInfo).TableViewModel;
+            var path = requestParams.TableChangeInfo.Path;
+            // Handle the move item request on top level table properties, e.g. Columns, Indexes.
+            if (path.Length == 3)
+            {
+                var propertyName = path[0] as string;
+                var fromIndex = path[1] as string;
+                var toIndex = path[2] as string;
+                switch (propertyName)
+                {
+                    case TablePropertyNames.Columns:
+                        // TODO add the actual api call
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
 
         private int GetInt32Value(object value)
