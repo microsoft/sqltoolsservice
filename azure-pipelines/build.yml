@@ -46,7 +46,7 @@ steps:
 - task: DotNetCoreCLI@2
     displayName: 'Building Test Environment'
     inputs:
-      projects: 'test/Microsoft.SqlTools.ServiceLayer.TestEnvConfig.csproj'
+      projects: test/Microsoft.SqlTools.ServiceLayer.TestEnvConfig.csproj
 
 
 - task: DownloadSecureFile@1
