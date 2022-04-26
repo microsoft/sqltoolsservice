@@ -267,6 +267,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             serviceHost.SetRequestHandler(CompletionExtLoadRequest.Type, HandleCompletionExtLoadRequest);
             serviceHost.SetEventHandler(RebuildIntelliSenseNotification.Type, HandleRebuildIntelliSenseNotification);
             serviceHost.SetEventHandler(LanguageFlavorChangeNotification.Type, HandleDidChangeLanguageFlavorNotification);
+            serviceHost.SetEventHandler(RefreshToken.Type, HandleRefreshTokenNotification);
 
             // Register a no-op shutdown task for validation of the shutdown logic
             serviceHost.RegisterShutdownTask(async (shutdownParams, shutdownRequestContext) =>
@@ -907,6 +908,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 Logger.Write(TraceEventType.Error, "Unknown error " + ex.ToString());
                 // TODO: need mechanism return errors from event handlers
             }
+        }
+
+        internal async Task HandleRefreshTokenNotification(
+            RefreshTokenParams refreshTokenParams,
+            EventContext eventContext
+        )
+        {
+            await Task.Run(() =>
+            {
+                connectionService.UpdateAuthToken(refreshTokenParams);
+
+            });
         }
 
         #endregion

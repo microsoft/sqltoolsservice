@@ -246,7 +246,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 AccountId = connection.ConnectionDetails.GetOptionValue("azureAccount", string.Empty),
                 Authority = connection.ConnectionDetails.GetOptionValue("azureTenantId", string.Empty),
                 Provider = "Azure",
-                Resource = "SQL"
+                Resource = "SQL",
+                Uri = ownerUri
             };
             try {
                 await this.ServiceHost.SendEvent(RefreshTokenNotification.Type, requestMessage);
@@ -255,7 +256,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 Console.WriteLine(e);
             }
             
-            // connection.UpdateAuthToken(response.Token, response.ExpiresOn);
+            return true;
+        }
+
+        internal bool UpdateAuthToken(RefreshTokenParams refreshToken)
+        {
+            if (!this.TryFindConnection(refreshToken.Uri, out ConnectionInfo connection))
+            {
+                return false;
+            }
+
+            connection.UpdateAuthToken(refreshToken.Token, refreshToken.ExpiresOn);
             return true;
         }
 

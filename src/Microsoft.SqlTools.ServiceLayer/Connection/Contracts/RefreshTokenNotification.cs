@@ -29,6 +29,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// </summary>
         public string AccountId { get; set; }
 
+        /// <summary>
+        /// Gets or sets the account ID
+        /// </summary>
+        public string Uri { get; set; }
+
     }
 
     /// <summary>
@@ -39,5 +44,35 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         public static readonly
             EventType<RefreshTokenNotificationParams> Type =
             EventType<RefreshTokenNotificationParams>.Create("account/refreshTokenNotification");
+    }
+
+    class RefreshTokenParams
+    {
+        /// <summary>
+        /// Gets or sets the key that uniquely identifies a particular linked account.
+        /// </summary>
+        public string AccountKey { get; set; }
+
+        /// <summary>
+        /// Gets or sets the access token.
+        /// </summary>
+        public string Token { get; set; }
+
+        /// <summmary>
+        /// Gets or sets the token expiration
+        /// </summary>
+        public int ExpiresOn { get; set; }
+
+        /// <summmary>
+        /// Connection URI
+        /// </summary>
+        public string Uri { get; set; }
+    }
+
+    class RefreshToken
+    {
+        public static readonly
+        EventType<RefreshTokenParams> Type =
+            EventType<RefreshTokenParams>.Create("account/refreshToken");
     }
 }
