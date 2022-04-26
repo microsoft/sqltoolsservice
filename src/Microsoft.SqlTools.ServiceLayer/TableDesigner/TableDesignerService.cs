@@ -716,15 +716,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         break;
                 }
             }
-            else if (path.Length == 4)
-            {
-                var propertyNameL1 = path[0] as string;
-                var indexL1 = Convert.ToInt32(path[1]);
-                var propertyNameL2 = path[2] as string;
-                var indexL2 = Convert.ToInt32(path[3]);
-                var toIndex = GetInt32Value(requestParams.TableChangeInfo.Value);
-                // TODO
-            }
         }
 
         private int GetInt32Value(object value)

@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         /// Note: 'index{x}' in the description below are numbers represent the index of the object in the list.
 		/// 1. 'Add' scenario
 		///     a. ['propertyName1',index1]. Example: add a column to the columns property: ['columns',0].
-		///     b. ['propertyName1',index1,'propertyName2','index2']. Example: add a column mapping to the first foreign key: ['foreignKeys',0,'mappings',0].
+		///     b. ['propertyName1',index1,'propertyName2',index2]. Example: add a column mapping to the first foreign key: ['foreignKeys',0,'mappings',0].
 		/// 2. 'Update' scenario
 		///     a. ['propertyName1']. Example: update the name of the table: ['name'].
 		///     b. ['propertyName1',index1,'propertyName2']. Example: update the name of a column: ['columns',0,'name'].
