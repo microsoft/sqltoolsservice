@@ -702,11 +702,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             var table = this.GetTableDesigner(requestParams.TableInfo).TableViewModel;
             var path = requestParams.TableChangeInfo.Path;
             // Handle the move item request on top level table properties, e.g. Columns, Indexes.
-            if (path.Length == 3)
+            if (path.Length == 2)
             {
                 var propertyName = path[0] as string;
-                var from = Convert.ToInt32(path[1]);
-                var to = Convert.ToInt32(path[2]);
+                var fromIndex = Convert.ToInt32(path[1]);
+                var toIndex = GetInt32Value(requestParams.TableChangeInfo.Value);
                 switch (propertyName)
                 {
                     case TablePropertyNames.Columns:
@@ -715,6 +715,15 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     default:
                         break;
                 }
+            }
+            else if (path.Length == 4)
+            {
+                var propertyNameL1 = path[0] as string;
+                var indexL1 = Convert.ToInt32(path[1]);
+                var propertyNameL2 = path[2] as string;
+                var indexL2 = Convert.ToInt32(path[3]);
+                var toIndex = GetInt32Value(requestParams.TableChangeInfo.Value);
+                // TODO
             }
         }
 

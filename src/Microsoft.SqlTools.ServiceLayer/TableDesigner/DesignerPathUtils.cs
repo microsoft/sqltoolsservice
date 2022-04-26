@@ -23,10 +23,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 		///     b. ['propertyName1',index1,'propertyName2']. Example: update the name of a column: ['columns',0,'name'].
 		///     c. ['propertyName1',index1,'propertyName2',index2,'propertyName3']. Example: update the source column of an entry in a foreign key's column mapping table: ['foreignKeys',0,'mappings',0,'source'].
 		/// 3. 'Remove' scenario
-        ///     a. ['propertyName1',index1]. Example: remove a column from the columns property: ['columns',0'].
+		///     a. ['propertyName1',index1]. Example: remove a column from the columns property: ['columns',0'].
 		///     b. ['propertyName1',index1,'propertyName2',index2]. Example: remove a column mapping from a foreign key's column mapping table: ['foreignKeys',0,'mappings',0].
 		/// 4. 'Move' scenario
-        ///     a. ['propertyName1',from,to]. Example: move the second column to the third place: ['columns',1,2].
+		///     a. ['propertyName1',index1]. Example: Move a column in the columns property: ['columns',0'].
+		///     b. ['propertyName1',index1,'propertyName2',index2]. Example: Move a column mapping within a foreign key's column mapping table: ['foreignKeys',0,'mappings',0].
         ///<summary>
         public static void Validate(object[] path, DesignerEditType editType)
         {
@@ -50,7 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 validLengthList = new int[] { 2, 4 };
             } else
             {
-                validLengthList = new int[] { 3 };
+                validLengthList = new int[] { 2, 4 };
             }
 
             bool isValid = validLengthList.ToList<int>().Contains(path.Length);
