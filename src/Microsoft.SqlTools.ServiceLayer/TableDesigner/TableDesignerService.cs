@@ -113,6 +113,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         case DesignerEditType.Update:
                             refreshViewRequired = this.HandleUpdateItemRequest(requestParams);
                             break;
+                        case DesignerEditType.Move:
+                            this.HandleMoveItemRequest(requestParams);
+                            break;
                         default:
                             break;
                     }
