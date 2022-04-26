@@ -44,40 +44,40 @@ steps:
     arguments: '--configuration $(buildConfiguration) --collect "Code coverage"'
 
 - task: DotNetCoreCLI@2
-    displayName: Building Test Environment
+    displayName: 'Building Test Environment'
     inputs:
       projects: '**/Microsoft.SqlTools.ServiceLayer.TestEnvConfig.csproj'
 
 
-- task: DownloadSecureFile@1
-    displayName: Download Test Environment Configuration
-    name: testEnvironmentPath
-    inputs:
-      secureFile: 'SQLConnectionInstances.xml'
+# - task: DownloadSecureFile@1
+#     displayName: Download Test Environment Configuration
+#     name: testEnvironmentPath
+#     inputs:
+#       secureFile: 'SQLConnectionInstances.xml'
 
-- task: DotNetCoreCLI@2
-    displayName: Setting Up Test Environment
-    inputs:
-      command: run
-      projects: '**/Microsoft.SqlTools.ServiceLayer.TestEnvConfig.csproj'
-      arguments: $(testEnvironmentPath.secureFilePath)
-      testRunTitle: 'Setting tests'
-    env:
-      defaultSql2019_password: '$(defaultSql2019_password)'
+# - task: DotNetCoreCLI@2
+#     displayName: Setting Up Test Environment
+#     inputs:
+#       command: run
+#       projects: '**/Microsoft.SqlTools.ServiceLayer.TestEnvConfig.csproj'
+#       arguments: $(testEnvironmentPath.secureFilePath)
+#       testRunTitle: 'Setting tests'
+#     env:
+#       defaultSql2019_password: '$(defaultSql2019_password)'
 
-- task: DotNetCoreCLI@2
-    displayName: Building Integration Tests
-    inputs:
-      projects: '**/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj'
-      arguments: '/p:CodeCoverageBuild=true'
+# - task: DotNetCoreCLI@2
+#     displayName: Building Integration Tests
+#     inputs:
+#       projects: '**/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj'
+#       arguments: '/p:CodeCoverageBuild=true'
 
-- task: DotNetCoreCLI@2
-    displayName: Running Integration Tests
-    inputs:
-      command: test
-      projects: '**/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj'
-      arguments: '--no-build'
-      testRunTitle: 'SqlToolsService Integration Tests'
+# - task: DotNetCoreCLI@2
+#     displayName: Running Integration Tests
+#     inputs:
+#       command: test
+#       projects: '**/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj'
+#       arguments: '--no-build'
+#       testRunTitle: 'SqlToolsService Integration Tests'
 
 - task: Npm@1
   displayName: 'npm install -g gulp-cli'
