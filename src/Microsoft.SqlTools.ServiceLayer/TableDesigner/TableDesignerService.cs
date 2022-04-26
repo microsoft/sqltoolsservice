@@ -218,7 +218,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             if (path.Length == 2)
             {
                 var propertyName = path[0] as string;
-                var index = path[1] as string;
+                var index = Convert.ToInt32(path[1]);
                 switch (propertyName)
                 {
                     case TablePropertyNames.Columns:
@@ -248,11 +248,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         break;
                 }
             }
-            else if (path.Length == 3)
+            else if (path.Length == 4)
             {
                 var propertyNameL1 = path[0] as string;
                 var indexL1 = Convert.ToInt32(path[1]);
                 var propertyNameL2 = path[2] as string;
+                var indexL2 = Convert.ToInt32(path[3]);
                 switch (propertyNameL1)
                 {
                     case TablePropertyNames.ForeignKeys:
@@ -704,8 +705,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             if (path.Length == 3)
             {
                 var propertyName = path[0] as string;
-                var fromIndex = path[1] as string;
-                var toIndex = path[2] as string;
+                var from = Convert.ToInt32(path[1]);
+                var to = Convert.ToInt32(path[2]);
                 switch (propertyName)
                 {
                     case TablePropertyNames.Columns:
