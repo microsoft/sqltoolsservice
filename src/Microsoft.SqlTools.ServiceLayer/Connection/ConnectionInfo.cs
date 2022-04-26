@@ -176,6 +176,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
         /// <summary>
         /// Updates the Auth Token and Expires On fields
+        /// </summary>
         public void UpdateAuthToken(string token, int expiresOn)
         {
             ConnectionDetails.AzureAccountToken = token;

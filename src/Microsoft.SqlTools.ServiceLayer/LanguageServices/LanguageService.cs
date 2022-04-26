@@ -1247,6 +1247,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     // Check if token is expired
                     if (connInfo.ConnectionDetails.ExpiresOn > DateTimeOffset.Now.ToUnixTimeSeconds())
                     {
+                        // disable intellisense
                         return false;
                     }
                     else
