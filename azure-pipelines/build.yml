@@ -44,9 +44,9 @@ steps:
     arguments: '--configuration $(buildConfiguration) --collect "Code coverage"'
 
 - task: DotNetCoreCLI@2
-  displayName: 'Building Test Environment'
+  displayName: Building Test Environment
   inputs:
-    projects: test/Microsoft.SqlTools.ServiceLayer.TestEnvConfig.csproj
+    projects: '**/Microsoft.SqlTools.ServiceLayer.TestEnvConfig.csproj'
 
 - task: DownloadSecureFile@1
   displayName: Download Test Environment Configuration
@@ -58,23 +58,23 @@ steps:
   displayName: Setting Up Test Environment
   inputs:
     command: run
-    projects: 'test/Microsoft.SqlTools.ServiceLayer.TestEnvConfig.csproj'
+    projects: '**/Microsoft.SqlTools.ServiceLayer.TestEnvConfig.csproj'
     arguments: $(testEnvironmentPath.secureFilePath)
     testRunTitle: 'Setting tests'
   env:
-    defaultSql2019_password: '$(defaultSql2019_password)'
+      defaultSql2019_password: '$(defaultSql2019_password)'
 
 - task: DotNetCoreCLI@2
   displayName: Building Integration Tests
   inputs:
-    projects: 'test/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj'
+    projects: '**/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj'
     arguments: '/p:CodeCoverageBuild=true'
 
 - task: DotNetCoreCLI@2
   displayName: Running Integration Tests
   inputs:
     command: test
-    projects: 'test/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj'
+    projects: '**/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj'
     arguments: '--no-build'
     testRunTitle: 'SqlToolsService Integration Tests'
 
