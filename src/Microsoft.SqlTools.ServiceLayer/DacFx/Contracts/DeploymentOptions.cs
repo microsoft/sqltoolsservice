@@ -15,6 +15,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 {
     /// <summary>
     /// Class to define deployment option default value and the description
+    /// Value: Default and selected value of the deployment options
+    /// Description: Description of the deployment options
+    /// DisplayName: To Diaply the options in ADS extensions UI in SchemaCompare/SQL-DB-Project/Dacpac extensions
     /// </summary>
     public class DeploymentOptionProperty<T>
     {
@@ -27,8 +30,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 
         public T Value { get; set; }
         public string Description { get; set; } = string.Empty;
-
-        // To Diaply the options in ADS extensions UI in SchemaCompare/SQL-DB-Project/Dacpac extensions
         public string DisplayName { get; set; }
     }
 
@@ -207,7 +208,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 
         public DeploymentOptionProperty<string> AdditionalDeploymentContributorPaths { get; set; }
 
-        public DeploymentOptionProperty<ObjectType[]> DoNotDropObjectTypes { get; set; } = new DeploymentOptionProperty<ObjectType[]>(null);
+        public DeploymentOptionProperty<ObjectType[]> DoNotDropObjectTypes { get; set; } = new DeploymentOptionProperty<ObjectType[]>();
 
         public DeploymentOptionProperty<ObjectType[]> ExcludeObjectTypes { get; set; } = new DeploymentOptionProperty<ObjectType[]>
         (
