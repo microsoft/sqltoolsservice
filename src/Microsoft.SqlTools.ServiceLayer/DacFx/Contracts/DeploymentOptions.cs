@@ -208,7 +208,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 
         public DeploymentOptionProperty<string> AdditionalDeploymentContributorPaths { get; set; }
 
-        public DeploymentOptionProperty<ObjectType[]> DoNotDropObjectTypes { get; set; } = new DeploymentOptionProperty<ObjectType[]>();
+        public DeploymentOptionProperty<ObjectType[]> DoNotDropObjectTypes { get; set; }
 
         public DeploymentOptionProperty<ObjectType[]> ExcludeObjectTypes { get; set; } = new DeploymentOptionProperty<ObjectType[]>
         (
