@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// Class to define deployment option default value and the description
     /// Value: Default and selected value of the deployment options
     /// Description: Description of the deployment options
-    /// DisplayName: To Diaply the options in ADS extensions UI in SchemaCompare/SQL-DB-Project/Dacpac extensions
+    /// DisplayName: To display the options in ADS extensions UI in SchemaCompare/SQL-DB-Project/Dacpac extensions
     /// </summary>
     public class DeploymentOptionProperty<T>
     {
@@ -138,10 +138,13 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 
         public DeploymentOptionProperty<bool> CommentOutSetVarDeclarations { get; set; }
 
+        // Command timeout to 120 seconds when executing queries against SQL Server.
         public DeploymentOptionProperty<int> CommandTimeout { get; set; } = new DeploymentOptionProperty<int>(120);
 
+        // LongRunningCommandTimeout 0 seconds to wait indefinitely.
         public DeploymentOptionProperty<int> LongRunningCommandTimeout { get; set; } = new DeploymentOptionProperty<int>(0);
 
+        // Wait 60 seconds to lock database when executing queries against SQL Server.
         public DeploymentOptionProperty<int> DatabaseLockTimeout { get; set; } = new DeploymentOptionProperty<int>(60);
 
         public DeploymentOptionProperty<bool> BlockWhenDriftDetected { get; set; }
@@ -317,8 +320,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
             _displayNameMapDict[nameof(d.DropConstraintsNotInSource)] = "Drop Constraints Not In Source";
             _displayNameMapDict[nameof(d.DropDmlTriggersNotInSource)] = "Drop Dml Triggers Not In Source";
             _displayNameMapDict[nameof(d.DropExtendedPropertiesNotInSource)] = "Drop Extended Properties Not In Source";
-            _displayNameMapDict[nameof(d.DropIndexesNotInSource)] = "Drop Indexes NotInSource";
-            _displayNameMapDict[nameof(d.DropObjectsNotInSource)] = "Drop Objects NotInSource";
+            _displayNameMapDict[nameof(d.DropIndexesNotInSource)] = "Drop Indexes Not In Source";
+            _displayNameMapDict[nameof(d.DropObjectsNotInSource)] = "Drop Objects Not In Source";
             _displayNameMapDict[nameof(d.DropPermissionsNotInSource)] = "Drop Permissions Not In Source";
             _displayNameMapDict[nameof(d.DropRoleMembersNotInSource)] = "Drop Role Members Not In Source";
             _displayNameMapDict[nameof(d.DropStatisticsNotInSource)] = "Drop Statistics Not In Source";
@@ -342,7 +345,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
             _displayNameMapDict[nameof(d.IgnoreExtendedProperties)] = "Ignore Extended Properties";
             _displayNameMapDict[nameof(d.IgnoreFileAndLogFilePath)] = "Ignore File And Log File Path";
             _displayNameMapDict[nameof(d.IgnoreFileSize)] = "Ignore File Size";
-            _displayNameMapDict[nameof(d.IgnoreFilegroupPlacement)] = "Ignore File group Placement";
+            _displayNameMapDict[nameof(d.IgnoreFilegroupPlacement)] = "Ignore File Group Placement";
             _displayNameMapDict[nameof(d.IgnoreFillFactor)] = "Ignore Fill Factor";
             _displayNameMapDict[nameof(d.IgnoreFullTextCatalogFilePath)] = "Ignore Full Text Catalog File Path";
             _displayNameMapDict[nameof(d.IgnoreIdentitySeed)] = "Ignore Identity Seed";
@@ -371,7 +374,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
             _displayNameMapDict[nameof(d.IncludeTransactionalScripts)] = "Include Transactional Scripts";
             _displayNameMapDict[nameof(d.IsAlwaysEncryptedParameterizationEnabled)] = "Is Always Encrypted Parameterization Enabled";
             _displayNameMapDict[nameof(d.LongRunningCommandTimeout)] = "Long Running Command Timeout";
-            _displayNameMapDict[nameof(d.NoAlterStatementsToChangeClrTypes)] = "No Alter Statements To Change ClrTypes";
+            _displayNameMapDict[nameof(d.NoAlterStatementsToChangeClrTypes)] = "No Alter Statements To Change Clr Types";
             _displayNameMapDict[nameof(d.PopulateFilesOnFileGroups)] = "Populate Files On File Groups";
             _displayNameMapDict[nameof(d.PreserveIdentityLastValues)] = "Preserve Identity Last Values";
             _displayNameMapDict[nameof(d.RebuildIndexesOfflineForDataPhase)] = "Rebuild Indexes Offline For Data Phase";
@@ -381,7 +384,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
             _displayNameMapDict[nameof(d.ScriptDatabaseCollation)] = "Script Database Collation";
             _displayNameMapDict[nameof(d.ScriptDatabaseCompatibility)] = "Script Database Compatibility";
             _displayNameMapDict[nameof(d.ScriptDatabaseOptions)] = "Script Database Options";
-            _displayNameMapDict[nameof(d.ScriptDeployStateChecks)] = "Script DeployS tate Checks";
+            _displayNameMapDict[nameof(d.ScriptDeployStateChecks)] = "Script Deploy State Checks";
             _displayNameMapDict[nameof(d.ScriptFileSize)] = "Script File Size";
             _displayNameMapDict[nameof(d.ScriptNewConstraintValidation)] = "Script New Constraint Validation";
             _displayNameMapDict[nameof(d.ScriptRefreshModule)] = "Script Refresh Module";
