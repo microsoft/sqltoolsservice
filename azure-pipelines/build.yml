@@ -43,11 +43,6 @@ steps:
     testRunTitle: Kusto.ServiceLayer.UnitTests
     arguments: '--configuration $(buildConfiguration) --collect "Code coverage"'
 
-- task: DotNetCoreCLI@2
-  displayName: Building Test Environment
-  inputs:
-    projects: '**/Microsoft.SqlTools.ServiceLayer.TestEnvConfig.csproj'
-
 - task: DownloadSecureFile@1
   displayName: Download Test Environment Configuration
   name: testEnvironmentPath
@@ -63,12 +58,6 @@ steps:
     testRunTitle: 'Setting tests'
   env:
       defaultSql2019_password: '$(defaultSql2019_password)'
-
-- task: DotNetCoreCLI@2
-  displayName: Building Integration Tests
-  inputs:
-    projects: '**/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj'
-    arguments: '/p:CodeCoverageBuild=true'
 
 - task: DotNetCoreCLI@2
   displayName: Running Integration Tests
