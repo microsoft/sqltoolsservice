@@ -706,7 +706,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             {
                 var propertyName = path[0] as string;
                 var fromIndex = Convert.ToInt32(path[1]);
-                var toIndex = GetInt32Value(requestParams.TableChangeInfo.Value);
+                var toIndex = Convert.ToInt32(requestParams.TableChangeInfo.Value);
                 switch (propertyName)
                 {
                     case TablePropertyNames.Columns:
