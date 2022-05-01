@@ -20,21 +20,74 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage
 
         #region Member Variables
 
-        private readonly SaveResultsAsCsvRequestParams saveParams;
-        private bool headerWritten;
+        private readonly char delimiter;
+        private readonly Encoding encoding;
+        private readonly string lineSeparator;
+        private readonly char textIdentifier;
+        private readonly string textIdentifierString;
 
         #endregion
 
         /// <summary>
-        /// Constructor, stores the CSV specific request params locally, chains into the base 
+        /// Constructor, stores the CSV specific request params locally, chains into the base
         /// constructor
         /// </summary>
         /// <param name="stream">FileStream to access the CSV file output</param>
         /// <param name="requestParams">CSV save as request parameters</param>
-        public SaveAsCsvFileStreamWriter(Stream stream, SaveResultsAsCsvRequestParams requestParams)
-            : base(stream, requestParams)
+        /// <param name="columns">
+        /// The entire list of columns for the result set. They will be filtered down as per the
+        /// request params.
+        /// </param>
+        public SaveAsCsvFileStreamWriter(Stream stream, SaveResultsAsCsvRequestParams requestParams, IReadOnlyList<DbColumnWrapper> columns)
+            : base(stream, requestParams, columns)
         {
-            saveParams = requestParams;
+            // Parse the config
+            delimiter = ',';
+            if (!string.IsNullOrEmpty(requestParams.Delimiter))
+            {
+                delimiter = requestParams.Delimiter[0];
+            }
+
+            lineSeparator = Environment.NewLine;
+            if (!string.IsNullOrEmpty(requestParams.LineSeperator))
+            {
+                lineSeparator = requestParams.LineSeperator;
+            }
+
+            textIdentifier = '"';
+            if (!string.IsNullOrEmpty(requestParams.TextIdentifier))
+            {
+                textIdentifier = requestParams.TextIdentifier[0];
+            }
+            textIdentifierString = textIdentifier.ToString();
+
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            try
+            {
+                encoding = int.TryParse(requestParams.Encoding, out int codePage)
+                    ? Encoding.GetEncoding(codePage)
+                    : Encoding.GetEncoding(requestParams.Encoding);
+            }
+            catch
+            {
+                // Fallback encoding when specified codepage is invalid
+                encoding = Encoding.GetEncoding("utf-8");
+            }
+
+            // Output the header if the user requested it
+            if (requestParams.IncludeHeaders)
+            {
+                // Build the string
+                var selectedColumns = columns.Skip(ColumnStartIndex)
+                    .Take(ColumnCount)
+                    .Select(c => EncodeCsvField(c.ColumnName) ?? string.Empty);
+
+                string headerLine = string.Join(delimiter, selectedColumns);
+
+                // Encode it and write it out
+                byte[] headerBytes = encoding.GetBytes(headerLine + lineSeparator);
+                FileStream.Write(headerBytes, 0, headerBytes.Length);
+            }
         }
 
         /// <summary>
@@ -42,76 +95,17 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage
         /// it, the headers for the column will be emitted as well.
         /// </summary>
         /// <param name="row">The data of the row to output to the file</param>
-        /// <param name="columns">
-        /// The entire list of columns for the result set. They will be filtered down as per the
-        /// request params.
-        /// </param>
-        public override void WriteRow(IList<DbCellValue> row, IList<DbColumnWrapper> columns)
+        /// <param name="columns">The columns for the row to output</param>
+        public override void WriteRow(IList<DbCellValue> row, IReadOnlyList<DbColumnWrapper> columns)
         {
-            char delimiter = ',';
-            if(!string.IsNullOrEmpty(saveParams.Delimiter))
-            {
-                // first char in string
-                delimiter = saveParams.Delimiter[0];
-            }
-
-            string lineSeperator = Environment.NewLine;
-            if(!string.IsNullOrEmpty(saveParams.LineSeperator))
-            {
-                lineSeperator = saveParams.LineSeperator;
-            }
-
-            char textIdentifier = '"';
-            if(!string.IsNullOrEmpty(saveParams.TextIdentifier))
-            {
-                // first char in string
-                textIdentifier = saveParams.TextIdentifier[0];
-            }
-
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            int codepage;
-            Encoding encoding;
-            try
-            {
-                if(int.TryParse(saveParams.Encoding, out codepage))
-                {
-                    encoding = Encoding.GetEncoding(codepage);
-                }
-                else
-                {
-                    encoding = Encoding.GetEncoding(saveParams.Encoding);
-                }
-            }
-            catch
-            {    
-                // Fallback encoding when specified codepage is invalid
-                encoding = Encoding.GetEncoding("utf-8");
-            }
-
-            // Write out the header if we haven't already and the user chose to have it
-            if (saveParams.IncludeHeaders && !headerWritten)
-            {
-                // Build the string
-                var selectedColumns = columns.Skip(ColumnStartIndex ?? 0).Take(ColumnCount ?? columns.Count)
-                    .Select(c => EncodeCsvField(c.ColumnName, delimiter, textIdentifier) ?? string.Empty);
-                
-                string headerLine = string.Join(delimiter, selectedColumns);
-
-                // Encode it and write it out
-                byte[] headerBytes = encoding.GetBytes(headerLine + lineSeperator);
-                FileStream.Write(headerBytes, 0, headerBytes.Length);
-
-                headerWritten = true;
-            }
-
             // Build the string for the row
-            var selectedCells = row.Skip(ColumnStartIndex ?? 0)
-                .Take(ColumnCount ?? columns.Count)
-                .Select(c => EncodeCsvField(c.DisplayValue, delimiter, textIdentifier));
+            var selectedCells = row.Skip(ColumnStartIndex)
+                .Take(ColumnCount)
+                .Select(c => EncodeCsvField(c.DisplayValue));
             string rowLine = string.Join(delimiter, selectedCells);
 
             // Encode it and write it out
-            byte[] rowBytes = encoding.GetBytes(rowLine + lineSeperator);
+            byte[] rowBytes = encoding.GetBytes(rowLine + lineSeparator);
             FileStream.Write(rowBytes, 0, rowBytes.Length);
         }
 
@@ -124,7 +118,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage
         /// <list type="bullet">
         /// <item><description>The field begins or ends with a space</description></item>
         /// <item><description>The field begins or ends with a tab</description></item>
-        /// <item><description>The field contains the ListSeparator string</description></item>
+        /// <item><description>The field contains the delimiter string</description></item>
         /// <item><description>The field contains the '\n' character</description></item>
         /// <item><description>The field contains the '\r' character</description></item>
         /// <item><description>The field contains the '"' character</description></item>
@@ -132,27 +126,24 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage
         /// </summary>
         /// <param name="field">The field to encode</param>
         /// <returns>The CSV encoded version of the original field</returns>
-        internal static string EncodeCsvField(string field, char delimiter, char textIdentifier)
+        internal string EncodeCsvField(string field)
         {
-            string strTextIdentifier = textIdentifier.ToString();
-
             // Special case for nulls
             if (field == null)
             {
                 return "NULL";
             }
 
+            // Replace all quotes in the original field with double quotes
+            string ret = field.Replace(textIdentifierString, textIdentifierString + textIdentifierString);
+
             // Whether this field has special characters which require it to be embedded in quotes
             bool embedInQuotes = field.IndexOfAny(new[] { delimiter, '\r', '\n', textIdentifier }) >= 0 // Contains special characters
                                  || field.StartsWith(" ") || field.EndsWith(" ")          // Start/Ends with space
                                  || field.StartsWith("\t") || field.EndsWith("\t");       // Starts/Ends with tab
-
-            //Replace all quotes in the original field with double quotes
-            string ret = field.Replace(strTextIdentifier, strTextIdentifier + strTextIdentifier);
-
             if (embedInQuotes)
             {
-                ret = strTextIdentifier + $"{ret}" + strTextIdentifier;
+                ret = $"{textIdentifier}{ret}{textIdentifier}";
             }
 
             return ret;

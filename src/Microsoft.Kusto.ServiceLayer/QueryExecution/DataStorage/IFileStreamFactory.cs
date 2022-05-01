@@ -3,6 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System.Collections.Generic;
+using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts;
+
 namespace Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage
 {
     /// <summary>
@@ -14,7 +17,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage
 
         IFileStreamReader GetReader(string fileName);
 
-        IFileStreamWriter GetWriter(string fileName);
+        IFileStreamWriter GetWriter(string fileName, IReadOnlyList<DbColumnWrapper> columns = null);
 
         void DisposeFile(string fileName);
 

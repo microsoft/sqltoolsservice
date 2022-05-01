@@ -282,12 +282,12 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
         }
 
         /// <summary>
-        /// Generates the execution plan from the table returned 
+        /// Generates the execution plan from the table returned
         /// </summary>
         /// <returns>An execution plan object</returns>
         public Task<ExecutionPlan> GetExecutionPlan()
         {
-            // Process the action just in case it hasn't been yet 
+            // Process the action just in case it hasn't been yet
             ProcessSpecialAction();
 
             // Sanity check to make sure that results read has started
@@ -295,7 +295,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
             {
                 throw new InvalidOperationException(SR.QueryServiceResultSetNotRead);
             }
-            // Check that we this result set contains a showplan 
+            // Check that we this result set contains a showplan
             if (!specialAction.ExpectYukonXMLShowPlan)
             {
                 throw new Exception(SR.QueryServiceExecutionPlanNotFound);
@@ -303,7 +303,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
 
 
             return Task.Factory.StartNew(() =>
-            { 
+            {
                 string content;
                 string format = null;
 
@@ -312,12 +312,12 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                     // Determine the format and get the first col/row of XML
                     content = fileStreamReader.ReadRow(0, 0, Columns)[0].DisplayValue;
 
-                    if (specialAction.ExpectYukonXMLShowPlan) 
+                    if (specialAction.ExpectYukonXMLShowPlan)
                     {
                         format = "xml";
                     }
                 }
-                    
+
                 return new ExecutionPlan
                 {
                     Format = format,
@@ -347,7 +347,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
 
                 // Open a writer for the file
                 //
-                var fileWriter = fileStreamFactory.GetWriter(outputFileName);
+                var fileWriter = fileStreamFactory.GetWriter(outputFileName, null);
                 using (fileWriter)
                 {
                     Columns = dataReader.Columns;
@@ -422,7 +422,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
         }
 
         /// <summary>
-        /// Updates the values in a row with the 
+        /// Updates the values in a row with the
         /// </summary>
         /// <param name="rowId"></param>
         /// <param name="dbDataReader"></param>
@@ -494,7 +494,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                     }
 
                     using (var fileReader = fileFactory.GetReader(outputFileName))
-                    using (var fileWriter = fileFactory.GetWriter(saveParams.FilePath))
+                    using (var fileWriter = fileFactory.GetWriter(saveParams.FilePath, Columns))
                     {
                         // Iterate over the rows that are in the selected row set
                         for (long i = rowStartIndex; i < rowEndIndex; ++i)
@@ -517,13 +517,13 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                     }
                 }
             });
-            
+
             // Add exception handling to the save task
             Task taskWithHandling = saveAsTask.ContinueWithOnFaulted(async t =>
             {
                 if (failureHandler != null)
                 {
-                    await failureHandler(saveParams, t.Exception.Message);
+                    await failureHandler(saveParams, t.Exception?.Message);
                 }
             });
 
@@ -657,7 +657,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                 }
             }
             finally
-            { 
+            {
                 // Release the sendResultsSemphore so the next invocation gets unblocked
                 //
                 sendResultsSemphore.Release();
@@ -695,10 +695,10 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
         /// <summary>
         /// Determine the special action, if any, for this result set
         /// </summary>
-        private SpecialAction ProcessSpecialAction() 
-        {           
+        private SpecialAction ProcessSpecialAction()
+        {
 
-            // Check if this result set is a showplan 
+            // Check if this result set is a showplan
             if (Columns.Length == 1 && string.Compare(Columns[0].ColumnName, YukonXmlShowPlanColumn, StringComparison.OrdinalIgnoreCase) == 0)
             {
                 specialAction.ExpectYukonXMLShowPlan = true;
@@ -720,7 +720,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
             {
                 throw new InvalidOperationException(SR.QueryServiceResultSetNotRead);
             }
-            // NOTE: We are no longer checking to see if the data reader has rows before reading 
+            // NOTE: We are no longer checking to see if the data reader has rows before reading
             // b/c of a quirk in SqlClient. In some scenarios, a SqlException isn't thrown until we
             // read. In order to get appropriate errors back to the user, we'll read first.
             // Returning false from .ReadAsync means there aren't any rows.
@@ -731,7 +731,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
             {
                 throw new InvalidOperationException(SR.QueryServiceResultSetAddNoRows);
             }
-            
+
             using (IFileStreamWriter writer = fileStreamFactory.GetWriter(outputFileName))
             {
                 // Write the row to the end of the file

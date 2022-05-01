@@ -3,7 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System.Collections.Generic;
 using System.IO;
+using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.Kusto.ServiceLayer.SqlContext;
 using Microsoft.Kusto.ServiceLayer.Utility;
 
@@ -40,7 +42,10 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage
         /// <returns>A <see cref="ServiceBufferFileStreamReader"/></returns>
         public IFileStreamReader GetReader(string fileName)
         {
-            return new ServiceBufferFileStreamReader(new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), ExecutionSettings);
+            return new ServiceBufferFileStreamReader(
+                new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite),
+                ExecutionSettings
+            );
         }
 
         /// <summary>
@@ -48,10 +53,17 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage
         /// SSMS formatted buffer file, file share is ReadWrite to allow concurrent reads/writes to the file.
         /// </summary>
         /// <param name="fileName">The file to write values to</param>
+        /// <param name="columns">
+        /// Ignored in order to fulfil the <see cref="IFileStreamFactory"/> contract.
+        /// @TODO: Refactor this out so that save-as writers do not use the same contract as service buffer writers.
+        /// </param>
         /// <returns>A <see cref="ServiceBufferFileStreamWriter"/></returns>
-        public IFileStreamWriter GetWriter(string fileName)
+        public IFileStreamWriter GetWriter(string fileName, IReadOnlyList<DbColumnWrapper> columns)
         {
-            return new ServiceBufferFileStreamWriter(new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite), ExecutionSettings);
+            return new ServiceBufferFileStreamWriter(
+                new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite),
+                ExecutionSettings
+            );
         }
 
         /// <summary>

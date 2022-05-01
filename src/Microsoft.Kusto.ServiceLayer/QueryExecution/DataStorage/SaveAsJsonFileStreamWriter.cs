@@ -33,8 +33,12 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage
         /// </summary>
         /// <param name="stream">FileStream to access the JSON file output</param>
         /// <param name="requestParams">JSON save as request parameters</param>
-        public SaveAsJsonFileStreamWriter(Stream stream, SaveResultsRequestParams requestParams)
-            : base(stream, requestParams)
+        /// <param name="columns">
+        /// The entire list of columns for the result set. They will be filtered down as per the
+        /// request params.
+        /// </param>
+        public SaveAsJsonFileStreamWriter(Stream stream, SaveResultsRequestParams requestParams, IReadOnlyList<DbColumnWrapper> columns)
+            : base(stream, requestParams, columns)
         {
             // Setup the internal state
             streamWriter = new StreamWriter(stream);
@@ -53,15 +57,13 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage
         /// The entire list of columns for the result set. They will be filtered down as per the
         /// request params.
         /// </param>
-        public override void WriteRow(IList<DbCellValue> row, IList<DbColumnWrapper> columns)
+        public override void WriteRow(IList<DbCellValue> row, IReadOnlyList<DbColumnWrapper> columns)
         {
             // Write the header for the object
             jsonWriter.WriteStartObject();
 
             // Write the items out as properties
-            int columnStart = ColumnStartIndex ?? 0;
-            int columnEnd = (ColumnEndIndex != null) ? ColumnEndIndex.Value + 1 : columns.Count;
-            for (int i = columnStart; i < columnEnd; i++)
+            for (int i = ColumnStartIndex; i <= ColumnEndIndex; i++)
             {
                 jsonWriter.WritePropertyName(columns[i].ColumnName);
                 if (row[i].RawObject == null)

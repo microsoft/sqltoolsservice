@@ -25,13 +25,17 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage
         #endregion
 
         /// <summary>
-        /// Constructor, stores the Excel specific request params locally, chains into the base 
+        /// Constructor, stores the Excel specific request params locally, chains into the base
         /// constructor
         /// </summary>
         /// <param name="stream">FileStream to access the Excel file output</param>
         /// <param name="requestParams">Excel save as request parameters</param>
-        public SaveAsExcelFileStreamWriter(Stream stream, SaveResultsAsExcelRequestParams requestParams)
-            : base(stream, requestParams)
+        /// <param name="columns">
+        /// The entire list of columns for the result set. They will be filtered down as per the
+        /// request params.
+        /// </param>
+        public SaveAsExcelFileStreamWriter(Stream stream, SaveResultsAsExcelRequestParams requestParams, IReadOnlyList<DbColumnWrapper> columns)
+            : base(stream, requestParams, columns)
         {
             saveParams = requestParams;
             helper = new SaveAsExcelFileStreamWriterHelper(stream);
@@ -47,16 +51,13 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage
         /// The entire list of columns for the result set. They will be filtered down as per the
         /// request params.
         /// </param>
-        public override void WriteRow(IList<DbCellValue> row, IList<DbColumnWrapper> columns)
+        public override void WriteRow(IList<DbCellValue> row, IReadOnlyList<DbColumnWrapper> columns)
         {
-            int columnStart = ColumnStartIndex ?? 0;
-            int columnEnd = (ColumnEndIndex != null) ? ColumnEndIndex.Value + 1 : columns.Count;
-
             // Write out the header if we haven't already and the user chose to have it
             if (saveParams.IncludeHeaders && !headerWritten)
             {
                 sheet.AddRow();
-                for (int i = columnStart; i < columnEnd; i++)
+                for (int i = ColumnStartIndex; i <= ColumnEndIndex; i++)
                 {
                     sheet.AddCell(columns[i].ColumnName);
                 }
@@ -64,7 +65,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage
             }
 
             sheet.AddRow();
-            for (int i = columnStart; i < columnEnd; i++)
+            for (int i = ColumnStartIndex; i <= ColumnEndIndex; i++)
             {
                 sheet.AddCell(row[i]);
             }
