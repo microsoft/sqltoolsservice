@@ -57,6 +57,12 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         protected MessageWriter MessageWriter { get; private set; }
 
 
+        /// <summary>
+        /// Whether the message should be handled without blocking the main thread.
+        /// </summary>
+        public bool ParallelMessageProcessing { get; set; }
+
+
         #endregion
 
         #region Constructors
@@ -305,22 +311,37 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
             if (handlerToAwait != null)
             {
-                try
+                if (this.ParallelMessageProcessing)
                 {
-                    await handlerToAwait;
-                }
-                catch (TaskCanceledException)
-                {
-                    // Some tasks may be cancelled due to legitimate
-                    // timeouts so don't let those exceptions go higher.
-                }
-                catch (Exception e)
-                {
-                    if (!(e is AggregateException && ((AggregateException)e).InnerExceptions[0] is TaskCanceledException))
+                    var task = Task.Run(async () =>
                     {
-                        // Log the error but don't rethrow it to prevent any errors in the handler from crashing the service
-                        Logger.Write(TraceEventType.Error, string.Format("An unexpected error occured in the request handler: {0}", e.ToString()));
-                    }
+                        await RunTask(handlerToAwait);
+                    });
+                }
+                else
+                {
+                    await RunTask(handlerToAwait);
+                }
+            }
+        }
+
+        private async Task RunTask(Task task)
+        {
+            try
+            {
+                await task;
+            }
+            catch (TaskCanceledException)
+            {
+                // Some tasks may be cancelled due to legitimate
+                // timeouts so don't let those exceptions go higher.
+            }
+            catch (Exception e)
+            {
+                if (!(e is AggregateException && ((AggregateException)e).InnerExceptions[0] is TaskCanceledException))
+                {
+                    // Log the error but don't rethrow it to prevent any errors in the handler from crashing the service
+                    Logger.Write(TraceEventType.Error, string.Format("An unexpected error occured in the request handler: {0}", e.ToString()));
                 }
             }
         }

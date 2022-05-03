@@ -45,6 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer
 
                 SqlToolsContext sqlToolsContext = new SqlToolsContext(hostDetails);
                 ServiceHost serviceHost = HostLoader.CreateAndStartServiceHost(sqlToolsContext);
+                serviceHost.MessageDispatcher.ParallelMessageProcessing = commandOptions.ParallelMessageProcessing;
 
                 // If this service was started by another process, then it should shutdown when that parent process does.
                 if (commandOptions.ParentProcessId != null)
@@ -58,9 +59,9 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
             catch (Exception ex)
             {
-                try 
+                try
                 {
-                    Logger.WriteWithCallstack(TraceEventType.Critical, $"An unhandled exception occurred: {ex}");                    
+                    Logger.WriteWithCallstack(TraceEventType.Critical, $"An unhandled exception occurred: {ex}");
                 }
                 catch (Exception loggerEx)
                 {
