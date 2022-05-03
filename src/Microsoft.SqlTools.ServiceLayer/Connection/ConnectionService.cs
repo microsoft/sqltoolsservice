@@ -228,11 +228,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public virtual bool TryFindConnection(string ownerUri, out ConnectionInfo connectionInfo) => this.OwnerToConnectionMap.TryGetValue(ownerUri, out connectionInfo);
 
         /// <summary>
-        /// Validates the given ConnectParams object. 
+        /// Refreshes the auth token of a given connection 
         /// </summary>
-        /// <param name="connectionParams">The params to validate</param>
-        /// <returns>A ConnectionCompleteParams object upon validation error, 
-        /// null upon validation success</returns>
+        /// <param name="ownerUri">The URI of the connection</param>
+        /// <returns>true upon successful refresh of the auth token,
+        /// false if the uri cannot be found</returns>
 
         internal async Task<bool> TryRefreshAuthToken(string ownerUri)
         {
@@ -259,6 +259,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             return true;
         }
 
+        /// <summary>
+        /// Validates the given ConnectParams object. 
+        /// </summary>
+        /// <param name="connectionParams">The params to validate</param>
+        /// <returns>A ConnectionCompleteParams object upon validation error, 
+        /// null upon validation success</returns>
         internal bool UpdateAuthToken(RefreshTokenParams refreshToken)
         {
             if (!this.TryFindConnection(refreshToken.Uri, out ConnectionInfo connection))
