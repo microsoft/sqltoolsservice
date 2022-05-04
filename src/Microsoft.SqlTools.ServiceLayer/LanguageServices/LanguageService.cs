@@ -453,8 +453,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
                 else
                 {
-                    if (RefreshNeeded(scriptFile.ClientUri)) {
-                        await connectionService.TryRefreshAuthToken(scriptFile.ClientUri);
+                    if (await connectionService.TryRefreshAuthToken(scriptFile.ClientUri))
+                    {
                         await requestContext.SendResult(null);
                     }
                     // get the current list of completion items and return to client
@@ -1076,7 +1076,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     }
                 }
 
-                connectionService.IsConnected.Add(info.OwnerUri, true);
                 PrepopulateCommonMetadata(info, scriptInfo, this.BindingQueue);
 
                 // Send a notification to signal that autocomplete is ready
@@ -1225,39 +1224,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             return prevSqlText.Length != currentSqlText.Length
                 || !string.Equals(prevSqlText, currentSqlText);
-        }
-
-        /// <summary>
-        /// Checks whether a token refresh is needed for azure connections
-        /// </summary>
-        /// <param name="uri"></param>
-        private bool RefreshNeeded(string uri)
-        {
-            ConnectionInfo connInfo;
-            if (connectionService.TryFindConnection(uri, out connInfo))
-            {
-                // If not an azure connection, no need to refresh token
-                if (connInfo.ConnectionDetails.AuthenticationType != "AzureMFA") 
-                {
-                    return false;
-                } 
-                else 
-                {
-                    // Check if token is expired
-                    var maxTolerance = 2 * 60; // two minutes
-                    if (connInfo.ConnectionDetails.ExpiresOn - DateTimeOffset.Now.ToUnixTimeSeconds() < maxTolerance)
-                    {   
-                        connectionService.IsConnected.Remove(uri);
-                        // disable intellisense
-                        return false;
-                    }
-                    else
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
         }
         
         /// <summary>

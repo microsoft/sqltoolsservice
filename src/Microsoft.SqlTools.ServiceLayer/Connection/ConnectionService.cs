@@ -69,8 +69,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// </summary>
         internal Dictionary<string, ConnectionInfo> OwnerToConnectionMap { get; } = new Dictionary<string, ConnectionInfo>();
 
-        public Dictionary<string, Boolean> IsConnected = new Dictionary<string, bool>();
-
         /// <summary>
         /// Database Lock manager instance
         /// </summary>
@@ -238,6 +236,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
         internal async Task<bool> TryRefreshAuthToken(string ownerUri)
         {
+            ConnectionInfo connInfo;
+            if (this.TryFindConnection(ownerUri, out connInfo))
+            {
+                // If not an azure connection, no need to refresh token
+                if (connInfo.ConnectionDetails.AuthenticationType != "AzureMFA") 
+                {
+                    return false;
+                } 
+                else 
+                {
+                    // Check if token is expired
+                    var maxTolerance = 2 * 60; // two minutes
+                    if (connInfo.ConnectionDetails.ExpiresOn - DateTimeOffset.Now.ToUnixTimeSeconds() < maxTolerance)
+                    {   
+                        // disable intellisense
+                    } 
+                    else 
+                    {
+                        return false;
+                    }
+                }
+            }
             if (!this.TryFindConnection(ownerUri, out ConnectionInfo connection))
             {
                 return false;
