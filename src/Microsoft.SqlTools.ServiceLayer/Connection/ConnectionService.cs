@@ -252,8 +252,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             try {
                 await this.ServiceHost.SendEvent(RefreshTokenNotification.Type, requestMessage);
             }
-            catch (Exception e){
-                Console.WriteLine(e);
+            catch (Exception ex){
+                Logger.Write(TraceEventType.Error, "Failed to refresh auth token " + ex.Message);
+                return false;
             }
             
             return true;

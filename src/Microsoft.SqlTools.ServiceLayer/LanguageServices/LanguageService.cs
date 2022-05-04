@@ -455,6 +455,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     if (RefreshNeeded(scriptFile.ClientUri)) {
                         await connectionService.TryRefreshAuthToken(scriptFile.ClientUri);
+                        await requestContext.SendResult(null);
                     }
                     // get the current list of completion items and return to client
                     ConnectionServiceInstance.TryFindConnection(
@@ -910,16 +911,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
-        internal async Task HandleRefreshTokenNotification(
+        internal Task HandleRefreshTokenNotification(
             RefreshTokenParams refreshTokenParams,
             EventContext eventContext
         )
         {
-            await Task.Run(() =>
-            {
-                connectionService.UpdateAuthToken(refreshTokenParams);
-
-            });
+            connectionService.UpdateAuthToken(refreshTokenParams);
+            return Task.CompletedTask;
         }
 
         #endregion
@@ -1246,7 +1244,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     // Check if token is expired
                     if (connInfo.ConnectionDetails.ExpiresOn > DateTimeOffset.Now.ToUnixTimeSeconds())
-                    {
+                    {   
                         // disable intellisense
                         return false;
                     }
