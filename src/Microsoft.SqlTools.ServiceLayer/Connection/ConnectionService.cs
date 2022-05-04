@@ -69,6 +69,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// </summary>
         internal Dictionary<string, ConnectionInfo> OwnerToConnectionMap { get; } = new Dictionary<string, ConnectionInfo>();
 
+        public Dictionary<string, Boolean> IsConnected = new Dictionary<string, bool>();
+
         /// <summary>
         /// Database Lock manager instance
         /// </summary>

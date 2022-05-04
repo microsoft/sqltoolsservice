@@ -1076,6 +1076,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     }
                 }
 
+                connectionService.IsConnected.Add(info.OwnerUri, true);
                 PrepopulateCommonMetadata(info, scriptInfo, this.BindingQueue);
 
                 // Send a notification to signal that autocomplete is ready
@@ -1243,8 +1244,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 else 
                 {
                     // Check if token is expired
-                    if (connInfo.ConnectionDetails.ExpiresOn > DateTimeOffset.Now.ToUnixTimeSeconds())
+                    var maxTolerance = 2 * 60; // two minutes
+                    if (connInfo.ConnectionDetails.ExpiresOn - DateTimeOffset.Now.ToUnixTimeSeconds() < maxTolerance)
                     {   
+                        connectionService.IsConnected.Remove(uri);
                         // disable intellisense
                         return false;
                     }
