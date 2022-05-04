@@ -51,6 +51,18 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
             }
         }
 
+        internal int DeviceType 
+        {
+            get
+            {
+                return GetOptionValue<int>(RestoreOptionsHelper.DeviceType);
+            }
+            set
+            {
+                SetOptionValue(RestoreOptionsHelper.DeviceType, value);
+            }
+        }
+
         /// <summary>
         /// Target Database name to restore to
         /// </summary>

@@ -3535,6 +3535,18 @@ Détails de l'index absent de {0}
 Le processeur de requêtes estime que l'implémentation de l'index suivant peut améliorer le coût de requête de {1}%.
 */</value>
   </data>
+  <data name="CreateSasForBlobContainerFailed" xml:space="preserve">
+    <value>Impossible de générer l'URI SAS pour le conteneur blob</value>
+  </data>
+  <data name="WriteSASCredentialToSqlServerFailed" xml:space="preserve">
+    <value>Échec du stockage du jeton de signature d'accès partagé sur les serveurs SQL</value>
+  </data>
+  <data name="UnsupportedDeviceType" xml:space="preserve">
+    <value>Type de périphérique non supporté {0}pour l'édition du moteur{1}</value>
+  </data>
+  <data name="NotSupportedCloudCreateSas" xml:space="preserve">
+    <value>La création d'une signature d'accès partagée n'est pas prise en charge pour les instances du nuage.</value>
+  </data>
   <data name="TableDesignerGraphTableTypeTitle" xml:space="preserve">
     <value>Type</value>
   </data>
@@ -3675,5 +3687,11 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
   </data>
   <data name="AddNewClauseLabel" xml:space="preserve">
     <value>Nouvelle clause</value>
+  </data>
+  <data name="WarningOverlayTooltip" xml:space="preserve">
+    <value>Avertissements</value>
+  </data>
+  <data name="ParallelismOverlayTooltip" xml:space="preserve">
+    <value>Exécution parallèle</value>
   </data>
 </root>

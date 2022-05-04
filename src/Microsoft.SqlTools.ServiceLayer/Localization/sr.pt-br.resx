@@ -3535,6 +3535,18 @@ Detalhes de Índice Ausentes de {0}
 O Processador de Consultas estima que a implementação do índice a seguir pode melhorar o custo da consulta em {1}%.
 */</value>
   </data>
+  <data name="CreateSasForBlobContainerFailed" xml:space="preserve">
+    <value>Não é possível gerar o URI DO SAS para o contêiner do blob.</value>
+  </data>
+  <data name="WriteSASCredentialToSqlServerFailed" xml:space="preserve">
+    <value>Falha ao armazenar o token da assinatura de acesso compartilhado nos Servidores SQL.</value>
+  </data>
+  <data name="UnsupportedDeviceType" xml:space="preserve">
+    <value>Tipo de dispositivo {0} não suportado para a edição do mecanismo {1}.</value>
+  </data>
+  <data name="NotSupportedCloudCreateSas" xml:space="preserve">
+    <value>A criação da assinatura de acesso compartilhado não é suportada em instâncias de nuvem.</value>
+  </data>
   <data name="TableDesignerGraphTableTypeTitle" xml:space="preserve">
     <value>Tipo</value>
   </data>
@@ -3605,7 +3617,7 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
     <value>Nenhum</value>
   </data>
   <data name="GeneratedAlwaysColumnType_RowStart" xml:space="preserve">
-    <value>Início da linha</value>
+    <value>Início da Linha</value>
   </data>
   <data name="GeneratedAlwaysColumnType_RowEnd" xml:space="preserve">
     <value>Fim da Linha</value>
@@ -3675,5 +3687,11 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
   </data>
   <data name="AddNewClauseLabel" xml:space="preserve">
     <value>Nova Cláusula</value>
+  </data>
+  <data name="WarningOverlayTooltip" xml:space="preserve">
+    <value>Avisos</value>
+  </data>
+  <data name="ParallelismOverlayTooltip" xml:space="preserve">
+    <value>Execução Paralela</value>
   </data>
 </root>

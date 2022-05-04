@@ -5757,6 +5757,26 @@ The Query Processor estimates that implementing the following index could improv
 */</target>
         <note>title of missing index details</note>
       </trans-unit>
+      <trans-unit id="CreateSasForBlobContainerFailed">
+        <source>Cannot generate SAS URI for blob container.</source>
+        <target state="new">Cannot generate SAS URI for blob container.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="WriteSASCredentialToSqlServerFailed">
+        <source>Failed storing shared access signature token on the SQL Servers.</source>
+        <target state="new">Failed storing shared access signature token on the SQL Servers.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="UnsupportedDeviceType">
+        <source>Unsupported device type {0} for engine edition {1}.</source>
+        <target state="new">Unsupported device type {0} for engine edition {1}.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="NotSupportedCloudCreateSas">
+        <source>Create shared access signature is not supported for cloud instances.</source>
+        <target state="new">Create shared access signature is not supported for cloud instances.</target>
+        <note></note>
+      </trans-unit>
       <trans-unit id="TableDesignerGraphTableTypeTitle">
         <source>Type</source>
         <target state="new">Type</target>
@@ -5874,8 +5894,8 @@ The Query Processor estimates that implementing the following index could improv
         <note></note>
       </trans-unit>
       <trans-unit id="GeneratedAlwaysColumnType_RowStart">
-        <source>Row start</source>
-        <target state="new">Row start</target>
+        <source>Row Start</source>
+        <target state="new">Row Start</target>
         <note></note>
       </trans-unit>
       <trans-unit id="GeneratedAlwaysColumnType_RowEnd">
@@ -5992,6 +6012,16 @@ The Query Processor estimates that implementing the following index could improv
         <source>New Clause</source>
         <target state="new">New Clause</target>
         <note></note>
+      </trans-unit>
+      <trans-unit id="WarningOverlayTooltip">
+        <source>Warnings</source>
+        <target state="new">Warnings</target>
+        <note>tooltip text for node warning overlay</note>
+      </trans-unit>
+      <trans-unit id="ParallelismOverlayTooltip">
+        <source>Parallel Execution</source>
+        <target state="new">Parallel Execution</target>
+        <note>tooltip text for node parallelism overlay</note>
       </trans-unit>
     </body>
   </file>

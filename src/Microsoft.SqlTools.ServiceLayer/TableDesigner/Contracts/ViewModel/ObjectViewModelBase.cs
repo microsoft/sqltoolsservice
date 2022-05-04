@@ -11,5 +11,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
     public abstract class ObjectViewModelBase
     {
         public InputBoxProperties Name { get; set; } = new InputBoxProperties();
+        public InputBoxProperties Description { get; set; } = new InputBoxProperties();
     }
 }

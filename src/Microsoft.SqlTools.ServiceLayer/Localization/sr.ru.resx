@@ -3535,6 +3535,18 @@
 Обработчик запросов считает, что реализация следующего индекса может сократить стоимость запроса на {1}%.
 */</value>
   </data>
+  <data name="CreateSasForBlobContainerFailed" xml:space="preserve">
+    <value>Не удается создать SAS URI для контейнера больших двоичных объектов.</value>
+  </data>
+  <data name="WriteSASCredentialToSqlServerFailed" xml:space="preserve">
+    <value>Не удалось сохранить маркер подписи общего доступа на серверах SQL.</value>
+  </data>
+  <data name="UnsupportedDeviceType" xml:space="preserve">
+    <value>Неподдерживаемый тип устройства {0} для выпуска ядра {1}.</value>
+  </data>
+  <data name="NotSupportedCloudCreateSas" xml:space="preserve">
+    <value>Создание подписи общего доступа для облачных экземпляров не поддерживается.</value>
+  </data>
   <data name="TableDesignerGraphTableTypeTitle" xml:space="preserve">
     <value>Тип</value>
   </data>
@@ -3675,5 +3687,11 @@
   </data>
   <data name="AddNewClauseLabel" xml:space="preserve">
     <value>Создать предложение</value>
+  </data>
+  <data name="WarningOverlayTooltip" xml:space="preserve">
+    <value>Предупреждения</value>
+  </data>
+  <data name="ParallelismOverlayTooltip" xml:space="preserve">
+    <value>Параллельное выполнение</value>
   </data>
 </root>

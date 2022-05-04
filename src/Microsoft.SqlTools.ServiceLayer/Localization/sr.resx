@@ -1532,6 +1532,11 @@
     <value>No backupset selected to be restored</value>
     <comment></comment>
   </data>
+  <data name="UnsupportedDeviceType" xml:space="preserve">
+    <value>Unsupported device type {0} for engine edition {1}.</value>
+    <comment>.
+ Parameters: 0 - deviceType (String), 1 - engineEdition (String) </comment>
+  </data>
   <data name="ScriptTaskName" xml:space="preserve">
     <value>scripting</value>
     <comment></comment>
@@ -1576,6 +1581,18 @@
     <value>An XEvent session named {0} already exists</value>
     <comment>.
  Parameters: 0 - sessionName (String) </comment>
+  </data>
+  <data name="NotSupportedCloudCreateSas" xml:space="preserve">
+    <value>Create shared access signature is not supported for cloud instances.</value>
+    <comment></comment>
+  </data>
+  <data name="CreateSasForBlobContainerFailed" xml:space="preserve">
+    <value>Cannot generate SAS URI for blob container.</value>
+    <comment></comment>
+  </data>
+  <data name="WriteSASCredentialToSqlServerFailed" xml:space="preserve">
+    <value>Failed storing shared access signature token on the SQL Servers.</value>
+    <comment></comment>
   </data>
   <data name="CategoryLocal" xml:space="preserve">
     <value>[Uncategorized (Local)]</value>
@@ -4619,6 +4636,14 @@ The Query Processor estimates that implementing the following index could improv
     <comment>title of missing index details.
  Parameters: 0 - fileName (string), 1 - impact (string) </comment>
   </data>
+  <data name="WarningOverlayTooltip" xml:space="preserve">
+    <value>Warnings</value>
+    <comment>tooltip text for node warning overlay</comment>
+  </data>
+  <data name="ParallelismOverlayTooltip" xml:space="preserve">
+    <value>Parallel Execution</value>
+    <comment>tooltip text for node parallelism overlay</comment>
+  </data>
   <data name="TableNotInitializedException" xml:space="preserve">
     <value>Initialization is not properly done for table with id &apos;{0}&apos;</value>
     <comment>.
@@ -4827,7 +4852,7 @@ The Query Processor estimates that implementing the following index could improv
     <comment></comment>
   </data>
   <data name="GeneratedAlwaysColumnType_RowStart" xml:space="preserve">
-    <value>Row start</value>
+    <value>Row Start</value>
     <comment></comment>
   </data>
   <data name="GeneratedAlwaysColumnType_RowEnd" xml:space="preserve">

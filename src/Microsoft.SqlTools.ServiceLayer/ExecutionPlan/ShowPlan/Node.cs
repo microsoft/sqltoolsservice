@@ -161,7 +161,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         /// <summary>
         /// Gets the value that indicates whether the Node has critical warnings.
         /// </summary>
-        private bool HasCriticalWarnings
+        public bool HasCriticalWarnings
         {
             get
             {

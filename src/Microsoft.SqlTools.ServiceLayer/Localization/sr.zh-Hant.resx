@@ -3535,6 +3535,18 @@
 查詢處理器預估若實作下列索引則可改善 {1}% 的查詢成本。
 */</value>
   </data>
+  <data name="CreateSasForBlobContainerFailed" xml:space="preserve">
+    <value>無法為 Blob 容器產生 SAS URI。</value>
+  </data>
+  <data name="WriteSASCredentialToSqlServerFailed" xml:space="preserve">
+    <value>在 SQL Server 上儲存共用存取簽章權杖失敗。</value>
+  </data>
+  <data name="UnsupportedDeviceType" xml:space="preserve">
+    <value>引擎版本 {1} 不支援的裝置類型 {0}。</value>
+  </data>
+  <data name="NotSupportedCloudCreateSas" xml:space="preserve">
+    <value>雲端執行個體不支援建立共用存取簽章。</value>
+  </data>
   <data name="TableDesignerGraphTableTypeTitle" xml:space="preserve">
     <value>類型</value>
   </data>
@@ -3675,5 +3687,11 @@
   </data>
   <data name="AddNewClauseLabel" xml:space="preserve">
     <value>新增子句</value>
+  </data>
+  <data name="WarningOverlayTooltip" xml:space="preserve">
+    <value>警告</value>
+  </data>
+  <data name="ParallelismOverlayTooltip" xml:space="preserve">
+    <value>並行執行</value>
   </data>
 </root>

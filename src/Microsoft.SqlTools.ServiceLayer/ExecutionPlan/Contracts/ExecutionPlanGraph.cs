@@ -74,6 +74,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         public string[] Subtext { get; set; }
         public List<ExecutionPlanNode> Children { get; set; }
         public List<ExecutionPlanEdges> Edges { get; set; }
+        /// <summary>
+        /// Add badge icon to nodes like warnings and parallelism
+        /// </summary>
+        public List<Badge> Badges { get; set; }
     }
 
     public class ExecutionPlanGraphPropertyBase
@@ -160,5 +164,25 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         /// File type for execution plan. This will be the file type of the editor when the user opens the graph file
         /// </summary>
         public string GraphFileType { get; set; }
+    }
+
+    public class Badge
+    {
+        /// <summary>
+        /// Type of the node overlay. This determines the icon that is displayed for it
+        /// </summary>
+        public BadgeType Type { get; set; }
+
+        /// <summary>
+        /// Text to display for the overlay tooltip
+        /// </summary>
+        public string Tooltip { get; set; }
+    }
+
+    public enum BadgeType
+    {
+        WARNING = 0,
+        CRITICALWARNING = 1,
+        PARALLELISM = 2
     }
 }
