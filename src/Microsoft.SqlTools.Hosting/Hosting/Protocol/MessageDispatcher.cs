@@ -313,6 +313,8 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             {
                 if (this.ParallelMessageProcessing)
                 {
+                    // Run the task in a separate thread so that the main
+                    // thread is not blocked.
                     _ = Task.Run(() =>
                     {
                         _ = RunTask(handlerToAwait);
