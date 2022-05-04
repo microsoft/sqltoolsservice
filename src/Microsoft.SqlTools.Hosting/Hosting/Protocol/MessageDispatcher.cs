@@ -313,9 +313,9 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             {
                 if (this.ParallelMessageProcessing)
                 {
-                    var task = Task.Run(async () =>
+                    _ = Task.Run(() =>
                     {
-                        await RunTask(handlerToAwait);
+                        _ = RunTask(handlerToAwait);
                     });
                 }
                 else
