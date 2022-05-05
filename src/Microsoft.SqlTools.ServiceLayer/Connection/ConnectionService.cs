@@ -232,7 +232,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// </summary>
         /// <param name="ownerUri">The URI of the connection</param>
         /// <returns>true upon successful refresh of the auth token,
-        /// false if the uri cannot be found</returns>
+        /// false if the uri cannot be found, refresh is not needed, or
+        /// if refresh fails </returns>
 
         internal async Task<bool> TryRefreshAuthToken(string ownerUri)
         {
@@ -251,6 +252,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     if (connInfo.ConnectionDetails.ExpiresOn - DateTimeOffset.Now.ToUnixTimeSeconds() < maxTolerance)
                     {   
                         // disable intellisense
+                        var requestMessage = new RefreshTokenParams
+                        {
+                            AccountId = connInfo.ConnectionDetails.GetOptionValue("azureAccount", string.Empty),
+                            Authority = connInfo.ConnectionDetails.GetOptionValue("azureTenantId", string.Empty),
+                            Provider = "Azure",
+                            Resource = "SQL",
+                            Uri = ownerUri
+                        };
+                        try {
+                            await this.ServiceHost.SendEvent(RefreshTokenNotification.Type, requestMessage);
+                        }
+                        catch (Exception ex){
+                            Logger.Write(TraceEventType.Error, "Failed to refresh auth token " + ex.Message);
+                            return false;
+                        }
+                        return true;
                     } 
                     else 
                     {
@@ -258,37 +275,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     }
                 }
             }
-            if (!this.TryFindConnection(ownerUri, out ConnectionInfo connection))
+            else
             {
                 return false;
             }
 
-            var requestMessage = new RefreshTokenNotificationParams
-            {
-                AccountId = connection.ConnectionDetails.GetOptionValue("azureAccount", string.Empty),
-                Authority = connection.ConnectionDetails.GetOptionValue("azureTenantId", string.Empty),
-                Provider = "Azure",
-                Resource = "SQL",
-                Uri = ownerUri
-            };
-            try {
-                await this.ServiceHost.SendEvent(RefreshTokenNotification.Type, requestMessage);
-            }
-            catch (Exception ex){
-                Logger.Write(TraceEventType.Error, "Failed to refresh auth token " + ex.Message);
-                return false;
-            }
             
-            return true;
         }
 
         /// <summary>
-        /// Validates the given ConnectParams object. 
+        /// Updates the azure auth token
         /// </summary>
-        /// <param name="connectionParams">The params to validate</param>
-        /// <returns>A ConnectionCompleteParams object upon validation error, 
-        /// null upon validation success</returns>
-        internal bool UpdateAuthToken(RefreshTokenParams refreshToken)
+        /// <param name="refreshToken">The token to update</param>
+        /// <returns>true upon successful update, false if it failed to find 
+        /// the connection</returns>
+        internal bool UpdateAuthToken(TokenRefreshedParams refreshToken)
         {
             if (!this.TryFindConnection(refreshToken.Uri, out ConnectionInfo connection))
             {

@@ -7,7 +7,7 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
 {
-    class RefreshTokenNotificationParams 
+    class RefreshTokenParams 
     {
         /// <summary>
         /// Gets or sets the address of the authority to issue token.
@@ -42,11 +42,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
     class RefreshTokenNotification
     {
         public static readonly
-            EventType<RefreshTokenNotificationParams> Type =
-            EventType<RefreshTokenNotificationParams>.Create("account/refreshTokenNotification");
+            EventType<RefreshTokenParams> Type =
+            EventType<RefreshTokenParams>.Create("account/refreshToken");
     }
 
-    class RefreshTokenParams
+    class TokenRefreshedParams
     {
         /// <summary>
         /// Gets or sets the key that uniquely identifies a particular linked account.
@@ -72,7 +72,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
     class RefreshToken
     {
         public static readonly
-        EventType<RefreshTokenParams> Type =
-            EventType<RefreshTokenParams>.Create("account/refreshToken");
+        EventType<TokenRefreshedParams> Type =
+            EventType<TokenRefreshedParams>.Create("account/tokenRefreshed");
     }
 }

@@ -912,7 +912,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         internal Task HandleRefreshTokenNotification(
-            RefreshTokenParams refreshTokenParams,
+            TokenRefreshedParams refreshTokenParams,
             EventContext eventContext
         )
         {
