@@ -15,9 +15,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 {
     /// <summary>
     /// Class to define deployment option default value and the description
-    /// Value: Default and selected value of the deployment options
-    /// Description: Description of the deployment options
-    /// DisplayName: To display the options in ADS extensions UI in SchemaCompare/SQL-DB-Project/Dacpac extensions
     /// </summary>
     public class DeploymentOptionProperty<T>
     {
@@ -28,8 +25,13 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
             this.DisplayName = displayName;
         }
 
+        // Default and selected value of the deployment options
         public T Value { get; set; }
+
+        // Description of the deployment options
         public string Description { get; set; } = string.Empty;
+
+        // To display the options in ADS extensions UI in SchemaCompare/SQL-DB-Project/Dacpac extensions
         public string DisplayName { get; set; }
     }
 
@@ -37,6 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// Class to define deployment options.
     /// Keeping the order and defaults same as DacFx
     /// The default values here should also match the default values in ADS UX
+    /// NOTE: When new deployment options are added in DacFx, they need to be added here too
     /// </summary>
     public class DeploymentOptions
     {
@@ -520,6 +523,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
             result.ExcludeObjectTypes.Value = result.ExcludeObjectTypes.Value.Where(x => x != ObjectType.DatabaseScopedCredentials).ToArray(); // re-include database-scoped credentials
 
             return result;
-        }        
+        }
     }
 }
