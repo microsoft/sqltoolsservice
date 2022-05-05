@@ -222,8 +222,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 switch (propertyName)
                 {
                     case TablePropertyNames.Columns:
-                        // TODO change the api call to include index
-                        table.Columns.AddNew();
+                        table.Columns.AddNew(index);
                         break;
                     case TablePropertyNames.CheckConstraints:
                         table.CheckConstraints.AddNew();
@@ -710,7 +709,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 switch (propertyName)
                 {
                     case TablePropertyNames.Columns:
-                        // TODO add the actual api call
                         table.Columns.Move(fromIndex, toIndex);
                         break;
                     default:
@@ -1011,6 +1009,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             view.ColumnTableOptions.CanAddRows = true;
             view.ColumnTableOptions.CanRemoveRows = true;
             view.ColumnTableOptions.CanMoveRows = true;
+            view.ColumnTableOptions.CanInsertRows = false;
             view.ColumnTableOptions.RemoveRowConfirmationMessage = SR.TableDesignerDeleteColumnConfirmationMessage;
             view.ColumnTableOptions.ShowRemoveRowConfirmation = true;
         }
@@ -1042,6 +1041,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             view.ForeignKeyTableOptions.CanAddRows = true;
             view.ForeignKeyTableOptions.CanRemoveRows = true;
             view.ForeignKeyTableOptions.CanMoveRows = false;
+            view.ForeignKeyTableOptions.CanInsertRows = false;
         }
 
         private void SetCheckConstraintsViewInfo(TableDesignerView view)
@@ -1060,6 +1060,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             view.CheckConstraintTableOptions.CanAddRows = true;
             view.CheckConstraintTableOptions.CanRemoveRows = true;
             view.CheckConstraintTableOptions.CanMoveRows = false;
+            view.CheckConstraintTableOptions.CanInsertRows = false;
         }
 
         private void SetIndexesViewInfo(TableDesignerView view)
@@ -1111,6 +1112,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             view.IndexTableOptions.CanAddRows = true;
             view.IndexTableOptions.CanRemoveRows = true;
             view.IndexTableOptions.CanMoveRows = false;
+            view.IndexTableOptions.CanInsertRows = false;
 
             view.IndexColumnSpecificationTableOptions.AdditionalProperties.Add(
                 new DesignerDataPropertyInfo()
@@ -1127,6 +1129,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             view.IndexColumnSpecificationTableOptions.CanAddRows = true;
             view.IndexColumnSpecificationTableOptions.CanRemoveRows = true;
             view.IndexColumnSpecificationTableOptions.CanMoveRows = false;
+            view.IndexColumnSpecificationTableOptions.CanInsertRows = false;
         }
 
         private void SetGraphTableViewInfo(TableDesignerView view, Dac.TableDesigner tableDesigner)

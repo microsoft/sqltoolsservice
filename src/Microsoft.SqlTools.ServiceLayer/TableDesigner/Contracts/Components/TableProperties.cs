@@ -44,7 +44,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         /// <summary>
         /// Whether rows can be moved.
         /// </summary>
-        public bool CanMoveRows { get; set; } = true;
+        public bool CanMoveRows { get; set; } = false;
+
+        /// <summary>
+        /// Whether rows can be inserted.
+        /// </summary>
+        public bool CanInsertRows { get; set; } = false;
 
         /// <summary>
         /// Whether a confirmation should be shown when a row is about to be removed.
