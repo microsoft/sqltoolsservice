@@ -251,7 +251,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     var maxTolerance = 2 * 60; // two minutes
                     if (connInfo.ConnectionDetails.ExpiresOn - DateTimeOffset.Now.ToUnixTimeSeconds() < maxTolerance)
                     {   
-                        // disable intellisense
                         var requestMessage = new RefreshTokenParams
                         {
                             AccountId = connInfo.ConnectionDetails.GetOptionValue("azureAccount", string.Empty),
