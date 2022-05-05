@@ -137,7 +137,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
         /// Internal storage of active query settings
         /// </summary>
         private readonly Lazy<ConcurrentDictionary<string, QueryExecutionSettings>> queryExecutionSettings =
-            new Lazy<ConcurrentDictionary<string, QueryExecutionSettings>>(() => new ConcurrentDictionary<string, QueryExecutionSettings>());            
+            new Lazy<ConcurrentDictionary<string, QueryExecutionSettings>>(() => new ConcurrentDictionary<string, QueryExecutionSettings>());
 
         /// <summary>
         /// Settings that will be used to execute queries. Internal for unit testing
@@ -165,7 +165,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
         public void InitializeService(ServiceHost serviceHost, IConnectionManager connectionManager)
         {
             _connectionManager = connectionManager;
-            
+
             // Register handlers for requests
             serviceHost.SetRequestHandler(ExecuteDocumentSelectionRequest.Type, HandleExecuteRequest);
             serviceHost.SetRequestHandler(ExecuteDocumentStatementRequest.Type, HandleExecuteRequest);
@@ -222,12 +222,12 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                 WorkTask = Task.Run(async () =>
                 {
                     await InterServiceExecuteQuery(
-                        executeParams, 
-                        null, 
-                        requestContext, 
-                        queryCreateSuccessAction, 
-                        queryCreateFailureAction, 
-                        null, 
+                        executeParams,
+                        null,
+                        requestContext,
+                        queryCreateSuccessAction,
+                        queryCreateFailureAction,
+                        null,
                         null,
                         isQueryEditor(executeParams.OwnerUri));
                 });
@@ -377,7 +377,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
             }
         }
 
-        
+
         /// <summary>
         /// Handles a request to set query execution options
         /// </summary>
@@ -386,7 +386,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
         {
             try
             {
-                string uri = queryExecutionOptionsParams.OwnerUri; 
+                string uri = queryExecutionOptionsParams.OwnerUri;
                 if (ActiveQueryExecutionSettings.ContainsKey(uri))
                 {
                     QueryExecutionSettings settings;
@@ -401,7 +401,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
             {
                 // This was unexpected, so send back as error
                 await requestContext.SendError(e.Message);
-            }        
+            }
         }
 
         /// <summary>
@@ -675,7 +675,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
         /// <param name="scriptFile"></param>
         /// <param name="eventContext"></param>
         /// <returns></returns>
-        public async Task HandleDidCloseTextDocumentNotification(
+        public Task HandleDidCloseTextDocumentNotification(
             string uri,
             ScriptFile scriptFile,
             EventContext eventContext)
@@ -685,32 +685,31 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                 // remove any query execution settings when an editor is closed
                 if (this.ActiveQueryExecutionSettings.ContainsKey(uri))
                 {
-                    QueryExecutionSettings settings;
-                    this.ActiveQueryExecutionSettings.TryRemove(uri, out settings);
-                }                
+                    this.ActiveQueryExecutionSettings.TryRemove(uri, out _);
+                }
             }
             catch (Exception ex)
             {
                 Logger.Write(TraceEventType.Error, "Unknown error " + ex.ToString());
             }
-            await Task.FromResult(true);
-        }        
+            return Task.FromResult(true);
+        }
 
         #endregion
 
         #region Private Helpers
 
         private Query CreateQuery(
-            ExecuteRequestParamsBase executeParams, 
-            ConnectionInfo connInfo, 
+            ExecuteRequestParamsBase executeParams,
+            ConnectionInfo connInfo,
             bool applyExecutionSettings)
         {
             // Attempt to get the connection for the editor
             ConnectionInfo connectionInfo;
-            if (connInfo != null) 
+            if (connInfo != null)
             {
                 connectionInfo = connInfo;
-            } 
+            }
             else if (!_connectionManager.TryGetValue(executeParams.OwnerUri, out connectionInfo))
             {
                 throw new ArgumentOutOfRangeException(nameof(executeParams.OwnerUri), SR.QueryServiceQueryInvalidOwnerUri);
@@ -727,13 +726,13 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                 oldQuery.Dispose();
                 ActiveQueries.TryRemove(executeParams.OwnerUri, out oldQuery);
             }
-            
+
             // check if there are active query execution settings for the editor, otherwise, use the global settings
-            QueryExecutionSettings settings;            
+            QueryExecutionSettings settings;
             if (this.ActiveQueryExecutionSettings.TryGetValue(executeParams.OwnerUri, out settings))
-            {                
+            {
                 // special-case handling for query plan options to maintain compat with query execution API parameters
-                // the logic is that if either the query execute API parameters or the active query setttings 
+                // the logic is that if either the query execute API parameters or the active query setttings
                 // request a plan then enable the query option
                 ExecutionPlanOptions executionPlanOptions = executeParams.ExecutionPlanOptions;
                 if (settings.IncludeActualExecutionPlanXml)
@@ -747,17 +746,17 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                 settings.ExecutionPlanOptions = executionPlanOptions;
             }
             else
-            {     
+            {
                 settings = Settings.QueryExecutionSettings;
                 settings.ExecutionPlanOptions = executeParams.ExecutionPlanOptions;
             }
 
             // If we can't add the query now, it's assumed the query is in progress
             Query newQuery = new Query(
-                GetSqlText(executeParams), 
-                connectionInfo, 
-                settings, 
-                BufferFileFactory, 
+                GetSqlText(executeParams),
+                connectionInfo,
+                settings,
+                BufferFileFactory,
                 executeParams.GetFullColumnSchema,
                 applyExecutionSettings);
             if (!ActiveQueries.TryAdd(executeParams.OwnerUri, newQuery))

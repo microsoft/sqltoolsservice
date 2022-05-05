@@ -53,8 +53,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         private DatabaseLocksManager lockedDatabaseManager;
 
         /// <summary>
-        /// A map containing all CancellationTokenSource objects that are associated with a given URI/ConnectionType pair. 
-        /// Entries in this map correspond to DbConnection instances that are in the process of connecting. 
+        /// A map containing all CancellationTokenSource objects that are associated with a given URI/ConnectionType pair.
+        /// Entries in this map correspond to DbConnection instances that are in the process of connecting.
         /// </summary>
         private readonly ConcurrentDictionary<CancelTokenKey, CancellationTokenSource> cancelTupleToCancellationTokenSourceMap =
                     new ConcurrentDictionary<CancelTokenKey, CancellationTokenSource>();
@@ -228,10 +228,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public virtual bool TryFindConnection(string ownerUri, out ConnectionInfo connectionInfo) => this.OwnerToConnectionMap.TryGetValue(ownerUri, out connectionInfo);
 
         /// <summary>
-        /// Validates the given ConnectParams object. 
+        /// Validates the given ConnectParams object.
         /// </summary>
         /// <param name="connectionParams">The params to validate</param>
-        /// <returns>A ConnectionCompleteParams object upon validation error, 
+        /// <returns>A ConnectionCompleteParams object upon validation error,
         /// null upon validation success</returns>
         public ConnectionCompleteParams ValidateConnectParams(ConnectParams connectionParams)
         {
@@ -271,7 +271,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             TrySetConnectionType(connectionParams);
 
             connectionParams.Connection.ApplicationName = GetApplicationNameWithFeature(connectionParams.Connection.ApplicationName, connectionParams.Purpose);
-            // If there is no ConnectionInfo in the map, create a new ConnectionInfo, 
+            // If there is no ConnectionInfo in the map, create a new ConnectionInfo,
             // but wait until later when we are connected to add it to the map.
             ConnectionInfo connectionInfo;
             bool connectionChanged = false;
@@ -309,7 +309,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
             // Return information about the connected SQL Server instance
             ConnectionCompleteParams completeParams = GetConnectionCompleteParams(connectionParams.Type, connectionInfo);
-            // Invoke callback notifications          
+            // Invoke callback notifications
             InvokeOnConnectionActivities(connectionInfo, connectionParams);
 
             TryCloseConnectionTemporaryConnection(connectionParams, connectionInfo);
@@ -407,7 +407,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         }
 
         /// <summary>
-        /// Creates a ConnectionCompleteParams as a response to a successful connection. 
+        /// Creates a ConnectionCompleteParams as a response to a successful connection.
         /// Also sets the DatabaseName and IsAzure properties of ConnectionInfo.
         /// </summary>
         /// <returns>A ConnectionCompleteParams in response to the successful connection</returns>
@@ -422,7 +422,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
                 // Update with the actual database name in connectionInfo and result
                 // Doing this here as we know the connection is open - expect to do this only on connecting
-                // Do not update the DB name if it is a DB Pool database name (e.g. "db@pool")           
+                // Do not update the DB name if it is a DB Pool database name (e.g. "db@pool")
                 if (!ConnectionService.IsDbPool(connectionInfo.ConnectionDetails.DatabaseName))
                 {
                     connectionInfo.ConnectionDetails.DatabaseName = connection.Database;
@@ -601,8 +601,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         }
 
         /// <summary>
-        /// Gets the existing connection with the given URI and connection type string. If none exists, 
-        /// creates a new connection. This cannot be used to create a default connection or to create a 
+        /// Gets the existing connection with the given URI and connection type string. If none exists,
+        /// creates a new connection. This cannot be used to create a default connection or to create a
         /// connection if a default connection does not exist.
         /// </summary>
         /// <param name="ownerUri">URI identifying the resource mapped to this connection</param>
@@ -659,7 +659,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             bool alwaysPersistSecurity, ConnectionInfo connectionInfo)
         {
             // If the DbConnection does not exist and is not the default connection, create one.
-            // We can't create the default (initial) connection here because we won't have a ConnectionDetails 
+            // We can't create the default (initial) connection here because we won't have a ConnectionDetails
             // if Connect() has not yet been called.
             bool? originalPersistSecurityInfo = connectionInfo.ConnectionDetails.PersistSecurityInfo;
             if (alwaysPersistSecurity)
@@ -846,14 +846,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// If connectionType is not null, cancel the connection with the given connectionType
         /// If connectionType is null, cancel all pending connections associated with ownerUri.
         /// </summary>
-        /// <returns>true if a single pending connection associated with the non-null connectionType was 
+        /// <returns>true if a single pending connection associated with the non-null connectionType was
         /// found and cancelled, false otherwise</returns>
         private bool CancelConnections(string ownerUri, string connectionType)
         {
             // Cancel the connection of the given type
             if (connectionType != null)
             {
-                // If we are trying to disconnect a specific connection and it was just cancelled, 
+                // If we are trying to disconnect a specific connection and it was just cancelled,
                 // this will return true
                 return CancelConnect(new CancelConnectParams() { OwnerUri = ownerUri, Type = connectionType });
             }
@@ -873,7 +873,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         }
 
         /// <summary>
-        /// Closes DbConnections associated with the given ConnectionInfo. 
+        /// Closes DbConnections associated with the given ConnectionInfo.
         /// If connectionType is not null, closes the DbConnection with the type given by connectionType.
         /// If connectionType is null, closes all DbConnections.
         /// </summary>
@@ -953,10 +953,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             serviceHost.SetRequestHandler(BuildConnectionInfoRequest.Type, HandleBuildConnectionInfoRequest);
         }
 
-        /// <summary> 
-        /// Add a new method to be called when the onconnection request is submitted 
-        /// </summary> 
-        /// <param name="activity"></param> 
+        /// <summary>
+        /// Add a new method to be called when the onconnection request is submitted
+        /// </summary>
+        /// <param name="activity"></param>
         public void RegisterOnConnectionTask(OnConnectionHandler activity)
         {
             onConnectionActivities.Add(activity);
@@ -1000,7 +1000,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 try
                 {
-                    // result is null if the ConnectParams was successfully validated 
+                    // result is null if the ConnectParams was successfully validated
                     ConnectionCompleteParams result = ValidateConnectParams(connectParams);
                     if (result != null)
                     {
@@ -1312,42 +1312,39 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             GetConnectionStringParams connStringParams,
             RequestContext<string> requestContext)
         {
-            await Task.Run(async () =>
+            string connectionString = string.Empty;
+            ConnectionInfo info;
+            SqlConnectionStringBuilder connStringBuilder;
+            try
             {
-                string connectionString = string.Empty;
-                ConnectionInfo info;
-                SqlConnectionStringBuilder connStringBuilder;
-                try
-                {   
-                    // set connection string using connection uri if connection details are undefined
-                    if (connStringParams.ConnectionDetails == null)
-                    {
-                        TryFindConnection(connStringParams.OwnerUri, out info);
-                        connStringBuilder = CreateConnectionStringBuilder(info.ConnectionDetails);
-                    }
-                    // set connection string using connection details
-                    else
-                    {
-                        connStringBuilder = CreateConnectionStringBuilder(connStringParams.ConnectionDetails as ConnectionDetails);
-                    }
-                    if (!connStringParams.IncludePassword)
-                    {
-                        connStringBuilder.Password = ConnectionService.PasswordPlaceholder;
-                    }
-                    // default connection string application name to always be included unless set to false
-                    if (!connStringParams.IncludeApplicationName.HasValue || connStringParams.IncludeApplicationName.Value == true)
-                    {
-                        connStringBuilder.ApplicationName = "sqlops-connection-string";
-                    }
-                    connectionString = connStringBuilder.ConnectionString;
-                }
-                catch (Exception e)
+                // set connection string using connection uri if connection details are undefined
+                if (connStringParams.ConnectionDetails == null)
                 {
-                    await requestContext.SendError(e.ToString());
+                    TryFindConnection(connStringParams.OwnerUri, out info);
+                    connStringBuilder = CreateConnectionStringBuilder(info.ConnectionDetails);
                 }
+                // set connection string using connection details
+                else
+                {
+                    connStringBuilder = CreateConnectionStringBuilder(connStringParams.ConnectionDetails as ConnectionDetails);
+                }
+                if (!connStringParams.IncludePassword)
+                {
+                    connStringBuilder.Password = ConnectionService.PasswordPlaceholder;
+                }
+                // default connection string application name to always be included unless set to false
+                if (!connStringParams.IncludeApplicationName.HasValue || connStringParams.IncludeApplicationName.Value == true)
+                {
+                    connStringBuilder.ApplicationName = "sqlops-connection-string";
+                }
+                connectionString = connStringBuilder.ConnectionString;
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e.ToString());
+            }
 
-                await requestContext.SendResult(connectionString);
-            });
+            await requestContext.SendResult(connectionString);
         }
 
         /// <summary>
@@ -1357,19 +1354,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             string connectionString,
             RequestContext<ConnectionDetails> requestContext)
         {
-            await Task.Run(async () =>
+            try
             {
-                try
-                {
-                    await requestContext.SendResult(ParseConnectionString(connectionString));
-                }
-                catch (Exception)
-                {
-                    // If theres an error in the parse, it means we just can't parse, so we return undefined
-                    // rather than an error.
-                    await requestContext.SendResult(null);
-                }
-            });
+                await requestContext.SendResult(ParseConnectionString(connectionString));
+            }
+            catch (Exception)
+            {
+                // If theres an error in the parse, it means we just can't parse, so we return undefined
+                // rather than an error.
+                await requestContext.SendResult(null);
+            }
         }
 
         public ConnectionDetails ParseConnectionString(string connectionString)

@@ -23,7 +23,7 @@ using Range = Microsoft.Kusto.ServiceLayer.Workspace.Contracts.Range;
 
 namespace Microsoft.Kusto.ServiceLayer.Formatter
 {
-    
+
     public class FormatterService : HostedService<FormatterService>, IComposableService
     {
         private FormatterSettings settings;
@@ -106,9 +106,9 @@ namespace Microsoft.Kusto.ServiceLayer.Formatter
             };
         }
 
-        private async Task<TextEdit[]> FormatRangeAndReturnEdits(DocumentRangeFormattingParams docFormatParams)
+        private Task<TextEdit[]> FormatRangeAndReturnEdits(DocumentRangeFormattingParams docFormatParams)
         {
-            return await Task.Factory.StartNew(() =>
+            return Task.Run(() =>
             {
                 if (ShouldSkipFormatting(docFormatParams))
                 {
@@ -119,7 +119,7 @@ namespace Microsoft.Kusto.ServiceLayer.Formatter
                 ScriptFile scriptFile = GetFile(docFormatParams);
                 if (scriptFile == null)
                 {
-                    return new TextEdit[0];
+                    return Array.Empty<TextEdit>();
                 }
                 TextEdit textEdit = new TextEdit { Range = range };
                 string text = scriptFile.GetTextInRange(range.ToBufferRange());
@@ -138,9 +138,9 @@ namespace Microsoft.Kusto.ServiceLayer.Formatter
             return (LanguageService != null && LanguageService.ShouldSkipNonMssqlFile(docFormatParams.TextDocument.Uri));
         }
 
-        private async Task<TextEdit[]> FormatAndReturnEdits(DocumentFormattingParams docFormatParams)
-        {            
-            return await Task.Factory.StartNew(() =>
+        private Task<TextEdit[]> FormatAndReturnEdits(DocumentFormattingParams docFormatParams)
+        {
+            return Task.Run(() =>
             {
                 if (ShouldSkipFormatting(docFormatParams))
                 {
@@ -151,7 +151,7 @@ namespace Microsoft.Kusto.ServiceLayer.Formatter
                 if (scriptFile == null
                     || scriptFile.FileLines.Count == 0)
                 {
-                    return new TextEdit[0];
+                    return Array.Empty<TextEdit>();
                 }
                 TextEdit textEdit = PrepareEdit(scriptFile);
                 string text = scriptFile.Contents;
@@ -200,12 +200,12 @@ namespace Microsoft.Kusto.ServiceLayer.Formatter
                 if (settings.PlaceSelectStatementReferencesOnNewLine.HasValue) { options.PlaceEachReferenceOnNewLineInQueryStatements = settings.PlaceSelectStatementReferencesOnNewLine.Value; }
 
                 if (settings.UseBracketForIdentifiers.HasValue) { options.EncloseIdentifiersInSquareBrackets = settings.UseBracketForIdentifiers.Value; }
-                
+
                 options.DatatypeCasing = settings.DatatypeCasing;
                 options.KeywordCasing = settings.KeywordCasing;
             }
         }
-        
+
         private ScriptFile GetFile(DocumentFormattingParams docFormatParams)
         {
             return WorkspaceService.Workspace.GetFile(docFormatParams.TextDocument.Uri);

@@ -33,7 +33,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private ICslQueryProvider _kustoQueryProvider;
-        
+
         public string ClusterName { get; private set; }
         public string DatabaseName { get; private set; }
 
@@ -53,7 +53,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
             {
                 return;
             }
-            
+
             var dataReader = ExecuteQuery(".show databases | top 1 by DatabaseName | project DatabaseName", new CancellationToken());
             var databaseName = dataReader.ToEnumerable().Select(row => row["DatabaseName"]).FirstOrDefault();
             DatabaseName = databaseName?.ToString() ?? "";
@@ -65,10 +65,10 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
             {
                 return false;
             }
-            
+
             _kustoQueryProvider.Dispose();
             _kustoAdminProvider.Dispose();
-            
+
             var connectionDetails = new DataSourceConnectionDetails
             {
                 ServerName = ClusterName,
@@ -76,7 +76,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
                 UserToken = accountToken,
                 AuthenticationType = "AzureMFA"
             };
-            
+
             Initialize(connectionDetails);
             return true;
         }
@@ -86,12 +86,12 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
             var stringBuilder = string.IsNullOrWhiteSpace(connectionDetails.ConnectionString)
                 ? new KustoConnectionStringBuilder(connectionDetails.ServerName, connectionDetails.DatabaseName)
                 : new KustoConnectionStringBuilder(connectionDetails.ConnectionString);
-            
+
             ClusterName = stringBuilder.DataSource;
             var databaseName = KustoQueryUtils.ParseDatabaseName(stringBuilder.InitialCatalog);
             DatabaseName = databaseName;
             stringBuilder.InitialCatalog = databaseName;
-            
+
             ValidationUtils.IsNotNull(ClusterName, nameof(ClusterName));
 
             switch (connectionDetails.AuthenticationType)
@@ -216,13 +216,17 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
         /// <param name="cancellationToken"></param>
         /// <param name="databaseName"></param>
         /// <returns>The results.</returns>
-        public async Task<IEnumerable<T>> ExecuteQueryAsync<T>(string query, CancellationToken cancellationToken,
+        public Task<IEnumerable<T>> ExecuteQueryAsync<T>(string query, CancellationToken cancellationToken,
             string databaseName = null)
         {
-            var resultReader = ExecuteQuery(query, cancellationToken, databaseName);
-            var results = KustoDataReaderParser.ParseV1(resultReader, null);
-            var tableReader = results[WellKnownDataSet.PrimaryResult].Single().TableData.CreateDataReader();
-            return await Task.FromResult(new ObjectReader<T>(tableReader));
+            return Task.Run(() =>
+            {
+                var resultReader = ExecuteQuery(query, cancellationToken, databaseName);
+                var results = KustoDataReaderParser.ParseV1(resultReader, null);
+                var tableReader = results[WellKnownDataSet.PrimaryResult].Single().TableData.CreateDataReader();
+
+                return (IEnumerable<T>)new ObjectReader<T>(tableReader);
+            });
         }
 
         private void CancelQuery(string clientRequestId)

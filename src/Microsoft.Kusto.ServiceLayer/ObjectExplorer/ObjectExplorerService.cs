@@ -81,7 +81,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
             _serviceProvider = provider;
             _connectionService = provider.GetService<ConnectionService>();
             _connectionManager = provider.GetService<IConnectionManager>();
-            
+
             try
             {
                 _connectionService.RegisterConnectedQueue(connectionName, _connectedBindingQueue);
@@ -110,7 +110,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
             serviceHost.SetRequestHandler(RefreshRequest.Type, HandleRefreshRequest);
             serviceHost.SetRequestHandler(CloseSessionRequest.Type, HandleCloseSessionRequest);
             serviceHost.SetRequestHandler(FindNodesRequest.Type, HandleFindNodesRequest);
-            
+
             WorkspaceService<SqlToolsSettings> workspaceService = _serviceProvider.GetService<WorkspaceService<SqlToolsSettings>>();
             if (workspaceService != null)
             {
@@ -142,7 +142,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
                 {
                     Validate.IsNotNull(nameof(connectionDetails), connectionDetails);
                     Validate.IsNotNull(nameof(context), context);
-                    return await Task.Factory.StartNew(() =>
+                    return await Task.Run(() =>
                     {
                         string uri = GenerateUri(connectionDetails);
 
@@ -345,13 +345,11 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
 
         }
 
-        internal async Task<ExpandResponse> ExpandNode(ObjectExplorerSession session, string nodePath, bool forceRefresh = false)
+        internal Task<ExpandResponse> ExpandNode(ObjectExplorerSession session, string nodePath, bool forceRefresh = false)
         {
-            return await Task.Factory.StartNew(() =>
-            {
-                return QueueExpandNodeRequest(session, nodePath, forceRefresh);
-            });
+            return Task.Run(() => this.QueueExpandNodeRequest(session, nodePath, forceRefresh));
         }
+
         internal ExpandResponse QueueExpandNodeRequest(ObjectExplorerSession session, string nodePath, bool forceRefresh = false)
         {
             NodeInfo[] nodes = null;
@@ -465,7 +463,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
                 await SendSessionFailedNotification(uri, ex.Message);
                 return null;
             }
-        }        
+        }
 
         private async Task<ConnectionCompleteParams> Connect(ConnectParams connectParams, string uri)
         {
@@ -484,7 +482,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
                     await SendSessionFailedNotification(uri, result.ErrorMessage);
                     return null;
                 }
-               
+
             }
             catch (Exception ex)
             {
@@ -523,7 +521,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
             Task task = ExpandNodeAsync(session, expandParams,  cancellationTokenSource.Token, forceRefresh);
             await Task.Run(async () =>
             {
-                ObjectExplorerTaskResult result =  await RunTaskWithTimeout(task, 
+                ObjectExplorerTaskResult result =  await RunTaskWithTimeout(task,
                     _settings?.ExpandTimeout ?? ObjectExplorerSettings.DefaultExpandTimeout);
 
                 if (result != null && !result.IsCompleted)
@@ -628,7 +626,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
             {
                 _connectedBindingQueue.OnUnhandledException -= OnUnhandledException;
                 _connectedBindingQueue.Dispose();
-            }            
+            }
         }
 
         private async void OnUnhandledException(string queueKey, Exception ex)

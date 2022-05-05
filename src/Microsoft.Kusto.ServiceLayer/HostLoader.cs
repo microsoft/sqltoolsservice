@@ -98,7 +98,7 @@ namespace Microsoft.Kusto.ServiceLayer
 
             MetadataService.Instance.InitializeService(serviceHost, connectionManager);
             serviceProvider.RegisterSingleService(MetadataService.Instance);
-            
+
             InitializeHostedServices(serviceProvider, serviceHost);
             serviceHost.ServiceProvider = serviceProvider;
 
@@ -129,10 +129,10 @@ namespace Microsoft.Kusto.ServiceLayer
                 IDisposable disposable = service as IDisposable;
                 if (serviceHost != null && disposable != null)
                 {
-                    serviceHost.RegisterShutdownTask(async (shutdownParams, shutdownRequestContext) =>
+                    serviceHost.RegisterShutdownTask((_, _) =>
                     {
                         disposable.Dispose();
-                        await Task.FromResult(0);
+                        return Task.FromResult(0);
                     });
                 }
             }
