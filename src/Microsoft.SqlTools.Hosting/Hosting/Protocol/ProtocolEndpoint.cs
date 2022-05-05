@@ -44,7 +44,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         /// handlers for requests, responses, and events that are
         /// transmitted through the channel.
         /// </summary>
-        protected MessageDispatcher MessageDispatcher { get; set; }
+        internal MessageDispatcher MessageDispatcher { get; set; }
 
         /// <summary>
         /// Initializes an instance of the protocol server using the
