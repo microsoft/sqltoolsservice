@@ -14,6 +14,7 @@ using System.Security;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
+using System.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 {
@@ -795,9 +796,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             {
                 SqlConnection sqlConnection = GetAsSqlConnection(connection);
                 var server = new Server(new ServerConnection(sqlConnection));
-                server.SetDefaultInitFields(server.GetType(), new String[] { nameof(server.Processors), nameof(server.PhysicalMemory) });
-                sysInfo.CpuCount = server.Processors;
-                sysInfo.PhysicalMemoryInMB = server.PhysicalMemory;
+                var defaultFields = new List<string>();
+                var isProcessorsSupported = server.IsSupportedProperty(nameof(server.Processors));
+                if (isProcessorsSupported)
+                {
+                    defaultFields.Add(nameof(server.Processors));
+                }
+                var isPhysicalMemorySupported = server.IsSupportedProperty(nameof(server.PhysicalMemory));
+                if (isPhysicalMemorySupported)
+                {
+                    defaultFields.Add(nameof(server.PhysicalMemory));
+                }
+                if (defaultFields.Any())
+                {
+                    server.SetDefaultInitFields(server.GetType(), defaultFields.ToArray());
+                }
+
+                sysInfo.CpuCount = isProcessorsSupported ? server.Processors as int? : null;
+                sysInfo.PhysicalMemoryInMB = isPhysicalMemorySupported ? server.PhysicalMemory as int? : null;
             }
             catch (Exception ex)
             {
