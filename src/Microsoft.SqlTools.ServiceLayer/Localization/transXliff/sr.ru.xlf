@@ -5757,6 +5757,26 @@ The Query Processor estimates that implementing the following index could improv
 */</target>
         <note>title of missing index details</note>
       </trans-unit>
+      <trans-unit id="CreateSasForBlobContainerFailed">
+        <source>Cannot generate SAS URI for blob container.</source>
+        <target state="translated">Не удается создать SAS URI для контейнера больших двоичных объектов.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="WriteSASCredentialToSqlServerFailed">
+        <source>Failed storing shared access signature token on the SQL Servers.</source>
+        <target state="translated">Не удалось сохранить маркер подписи общего доступа на серверах SQL.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="UnsupportedDeviceType">
+        <source>Unsupported device type {0} for engine edition {1}.</source>
+        <target state="translated">Неподдерживаемый тип устройства {0} для выпуска ядра {1}.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="NotSupportedCloudCreateSas">
+        <source>Create shared access signature is not supported for cloud instances.</source>
+        <target state="translated">Создание подписи общего доступа для облачных экземпляров не поддерживается.</target>
+        <note></note>
+      </trans-unit>
       <trans-unit id="TableDesignerGraphTableTypeTitle">
         <source>Type</source>
         <target state="translated">Тип</target>
@@ -5874,7 +5894,7 @@ The Query Processor estimates that implementing the following index could improv
         <note></note>
       </trans-unit>
       <trans-unit id="GeneratedAlwaysColumnType_RowStart">
-        <source>Row start</source>
+        <source>Row Start</source>
         <target state="translated">Начало строки</target>
         <note></note>
       </trans-unit>
@@ -5992,6 +6012,16 @@ The Query Processor estimates that implementing the following index could improv
         <source>New Clause</source>
         <target state="translated">Создать предложение</target>
         <note></note>
+      </trans-unit>
+      <trans-unit id="WarningOverlayTooltip">
+        <source>Warnings</source>
+        <target state="translated">Предупреждения</target>
+        <note>tooltip text for node warning overlay</note>
+      </trans-unit>
+      <trans-unit id="ParallelismOverlayTooltip">
+        <source>Parallel Execution</source>
+        <target state="translated">Параллельное выполнение</target>
+        <note>tooltip text for node parallelism overlay</note>
       </trans-unit>
     </body>
   </file>

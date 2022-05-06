@@ -5757,6 +5757,26 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
 */</target>
         <note>title of missing index details</note>
       </trans-unit>
+      <trans-unit id="CreateSasForBlobContainerFailed">
+        <source>Cannot generate SAS URI for blob container.</source>
+        <target state="translated">Non è possibile generare un URI di firma di accesso condiviso per il contenitore BLOB.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="WriteSASCredentialToSqlServerFailed">
+        <source>Failed storing shared access signature token on the SQL Servers.</source>
+        <target state="translated">Non è stato possibile archiviare il token di firma di accesso condiviso sui server SQL.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="UnsupportedDeviceType">
+        <source>Unsupported device type {0} for engine edition {1}.</source>
+        <target state="translated">Tipo di dispositivo non supportato {0} per l'edizione del motore {1}.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="NotSupportedCloudCreateSas">
+        <source>Create shared access signature is not supported for cloud instances.</source>
+        <target state="translated">La creazione della firma di accesso condiviso non è supportata per le istanze cloud.</target>
+        <note></note>
+      </trans-unit>
       <trans-unit id="TableDesignerGraphTableTypeTitle">
         <source>Type</source>
         <target state="translated">Tipo</target>
@@ -5874,7 +5894,7 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
         <note></note>
       </trans-unit>
       <trans-unit id="GeneratedAlwaysColumnType_RowStart">
-        <source>Row start</source>
+        <source>Row Start</source>
         <target state="translated">Inizio riga</target>
         <note></note>
       </trans-unit>
@@ -5992,6 +6012,16 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
         <source>New Clause</source>
         <target state="translated">Nuova clausola</target>
         <note></note>
+      </trans-unit>
+      <trans-unit id="WarningOverlayTooltip">
+        <source>Warnings</source>
+        <target state="translated">Avvisi</target>
+        <note>tooltip text for node warning overlay</note>
+      </trans-unit>
+      <trans-unit id="ParallelismOverlayTooltip">
+        <source>Parallel Execution</source>
+        <target state="translated">Esecuzione parallela</target>
+        <note>tooltip text for node parallelism overlay</note>
       </trans-unit>
     </body>
   </file>

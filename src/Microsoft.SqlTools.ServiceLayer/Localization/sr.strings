@@ -742,6 +742,7 @@ RestoreBackupSetUserName = User Name
 RestoreBackupSetExpiration = Expiration
 TheLastBackupTaken = The last backup taken ({0})
 NoBackupsetsToRestore = No backupset selected to be restored
+UnsupportedDeviceType(String deviceType, String engineEdition) = Unsupported device type {0} for engine edition {1}.
 
 ############################################################################
 # Generate Script
@@ -762,6 +763,11 @@ StopSessionFailed(String error) = Failed to stop session: {0}
 SessionNotFound = Cannot find requested XEvent session
 SessionAlreadyExists(String sessionName) = An XEvent session named {0} already exists
 
+############################################################################
+# Azure Blob Service
+NotSupportedCloudCreateSas = Create shared access signature is not supported for cloud instances.
+CreateSasForBlobContainerFailed = Cannot generate SAS URI for blob container.
+WriteSASCredentialToSqlServerFailed = Failed storing shared access signature token on the SQL Servers.
 
 ;job categories
 CategoryLocal = [Uncategorized (Local)]
@@ -2223,7 +2229,10 @@ ActualOfEstimated(string actual, string estimated, decimal percent) = {0} of\n{1
 MissingIndexFormat(string impact, string queryText) = Missing Index (Impact {0}): {1}
 ;title of missing index details
 MissingIndexDetailsTitle(string fileName, string impact) = /*\r\nMissing Index Details from {0}\r\nThe Query Processor estimates that implementing the following index could improve the query cost by {1}%.\r\n*/
-
+;tooltip text for node warning overlay
+WarningOverlayTooltip = Warnings
+;tooltip text for node parallelism overlay
+ParallelismOverlayTooltip = Parallel Execution
 
 ############################################################################
 # Table Designer
@@ -2279,7 +2288,7 @@ TableDesignerEdgeConstraintClauseToTablePropertyName = To Table
 SqlTableDurability_SchemaAndData = Schema and Data
 SqlTableDurability_SchemaOnly = Schema Only
 GeneratedAlwaysColumnType_None = None
-GeneratedAlwaysColumnType_RowStart = Row start
+GeneratedAlwaysColumnType_RowStart = Row Start
 GeneratedAlwaysColumnType_RowEnd = Row End
 TableDesignerIsSystemVersioningEnabledTitle = System Versioning Enabled
 TableDesignerIsSystemVersioningEnabledDescription = Specifies whether the table is system versioning enabled.

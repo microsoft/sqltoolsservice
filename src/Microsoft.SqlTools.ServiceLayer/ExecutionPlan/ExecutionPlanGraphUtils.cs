@@ -46,9 +46,44 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                 Properties = GetProperties(currentNode.Properties),
                 Children = currentNode.Children.Select(x => ConvertShowPlanTreeToExecutionPlanTree(x)).ToList(),
                 Edges = currentNode.Edges.Select(x => ConvertShowPlanEdgeToExecutionPlanEdge(x)).ToList(),
+                Badges = GenerateNodeOverlay(currentNode),
                 Name = currentNode.DisplayName,
                 ElapsedTimeInMs = currentNode.ElapsedTimeInMs
             };
+        }
+
+        public static List<Badge> GenerateNodeOverlay(Node currentNode)
+        {
+            List<Badge> overlays = new List<Badge>();
+
+            if (currentNode.HasWarnings)
+            {
+                if (currentNode.HasCriticalWarnings)
+                {
+                    overlays.Add(new Badge
+                    {
+                        Type = BadgeType.CRITICALWARNING,
+                        Tooltip = SR.WarningOverlayTooltip
+                    });
+                }
+                else
+                {
+                    overlays.Add(new Badge
+                    {
+                        Type = BadgeType.WARNING,
+                        Tooltip = SR.WarningOverlayTooltip
+                    });
+                }
+            }
+            if (currentNode.IsParallel)
+            {
+                overlays.Add(new Badge
+                {
+                    Type = BadgeType.PARALLELISM,
+                    Tooltip = SR.ParallelismOverlayTooltip
+                });
+            }
+            return overlays;
         }
 
         public static ExecutionPlanEdges ConvertShowPlanEdgeToExecutionPlanEdge(Edge edge)

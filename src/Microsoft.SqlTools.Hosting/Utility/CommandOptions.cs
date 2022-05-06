@@ -63,6 +63,9 @@ namespace Microsoft.SqlTools.Hosting.Utility
                             case "-service-name":
                                 ServiceName = args[++i];
                                 break;
+                            case "-parallel-message-processing":
+                                ParallelMessageProcessing = true;
+                                break;
                             default:
                                 ErrorMessage += string.Format("Unknown argument \"{0}\"" + Environment.NewLine, argName);
                                 break;
@@ -131,6 +134,12 @@ namespace Microsoft.SqlTools.Hosting.Utility
 
         public bool AutoFlushLog { get; private set; } = false;
 
+        /// <summary>
+        /// A temporary flag to decide whether the message handling should block the main thread.
+        /// Eventually we will fix the issues and make this the default behavior.
+        /// </summary>
+        public bool ParallelMessageProcessing { get; private set; } = false;
+
         public virtual void SetLocale(string locale)
         {
             try
@@ -155,7 +164,7 @@ namespace Microsoft.SqlTools.Hosting.Utility
             // Creating cultureInfo from our given locale
             CultureInfo language = new CultureInfo(locale);
             Locale = locale;
-            
+
             // Allow the system set Number Format and Date Format to be preserved when changing the locale.
             NumberFormatInfo NumberFormat = CultureInfo.CurrentCulture.NumberFormat;
             DateTimeFormatInfo DateTimeFormat = CultureInfo.CurrentCulture.DateTimeFormat;

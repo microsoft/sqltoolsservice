@@ -10,6 +10,7 @@ using System.Linq;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
+using Microsoft.Data.Tools.Sql.DesignServices;
 using Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts;
 using Dac = Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
 using STSHost = Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost;
@@ -97,29 +98,39 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             return this.HandleRequest<ProcessTableDesignerEditResponse>(requestContext, async () =>
             {
                 var refreshViewRequired = false;
+                string inputValidationError = null;
                 DesignerPathUtils.Validate(requestParams.TableChangeInfo.Path, requestParams.TableChangeInfo.Type);
-                switch (requestParams.TableChangeInfo.Type)
+                try
                 {
-                    case DesignerEditType.Add:
-                        this.HandleAddItemRequest(requestParams);
-                        break;
-                    case DesignerEditType.Remove:
-                        this.HandleRemoveItemRequest(requestParams);
-                        break;
-                    case DesignerEditType.Update:
-                        refreshViewRequired = this.HandleUpdateItemRequest(requestParams);
-                        break;
-                    default:
-                        break;
+                    switch (requestParams.TableChangeInfo.Type)
+                    {
+                        case DesignerEditType.Add:
+                            this.HandleAddItemRequest(requestParams);
+                            break;
+                        case DesignerEditType.Remove:
+                            this.HandleRemoveItemRequest(requestParams);
+                            break;
+                        case DesignerEditType.Update:
+                            refreshViewRequired = this.HandleUpdateItemRequest(requestParams);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                catch (DesignerValidationException e)
+                {
+                    inputValidationError = e.Message;
                 }
                 var designer = this.GetTableDesigner(requestParams.TableInfo);
-                var issues = TableDesignerValidator.Validate(designer.TableViewModel);
+                var issues = TableDesignerValidator.Validate(designer);
                 await requestContext.SendResult(new ProcessTableDesignerEditResponse()
                 {
                     ViewModel = this.GetTableViewModel(requestParams.TableInfo),
                     IsValid = issues.Where(i => i.Severity == IssueSeverity.Error).Count() == 0,
                     Issues = issues.ToArray(),
-                    View = refreshViewRequired ? this.GetDesignerViewInfo(requestParams.TableInfo) : null
+                    View = refreshViewRequired ? this.GetDesignerViewInfo(requestParams.TableInfo) : null,
+                    Metadata = this.GetMetadata(requestParams.TableInfo),
+                    InputValidationError = inputValidationError
                 });
             });
         }
@@ -147,7 +158,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 {
                     NewTableInfo = tableInfo,
                     ViewModel = this.GetTableViewModel(tableInfo),
-                    View = GetDesignerViewInfo(tableInfo)
+                    View = GetDesignerViewInfo(tableInfo),
+                    Metadata = this.GetMetadata(tableInfo)
                 });
             });
         }
@@ -166,12 +178,21 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         {
             return this.HandleRequest<GeneratePreviewReportResult>(requestContext, async () =>
             {
-                var table = this.GetTableDesigner(tableInfo);
-                var report = table.GenerateReport();
                 var generatePreviewReportResult = new GeneratePreviewReportResult();
-                generatePreviewReportResult.Report = report;
-                generatePreviewReportResult.MimeType = "text/markdown";
-                await requestContext.SendResult(generatePreviewReportResult);
+                try
+                {
+                    var table = this.GetTableDesigner(tableInfo);
+                    var report = table.GenerateReport();
+                    generatePreviewReportResult.Report = report;
+                    generatePreviewReportResult.MimeType = "text/markdown";
+                    generatePreviewReportResult.Metadata = this.GetMetadata(tableInfo);
+                    await requestContext.SendResult(generatePreviewReportResult);
+                }
+                catch (DesignerValidationException e)
+                {
+                    generatePreviewReportResult.SchemaValidationError = e.Message;
+                    await requestContext.SendResult(generatePreviewReportResult);
+                }
             });
         }
 
@@ -406,6 +427,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                             table.PrimaryKey.Name = GetStringValue(newValue);
                         }
                         break;
+                    case TablePropertyNames.PrimaryKeyDescription:
+                        if (table.PrimaryKey != null)
+                        {
+                            table.PrimaryKey.Description = GetStringValue(newValue);
+                        }
+                        break;
                     case TablePropertyNames.PrimaryKeyIsClustered:
                         if (table.PrimaryKey != null)
                         {
@@ -460,6 +487,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                             case TableColumnPropertyNames.Type:
                                 column.DataType = GetStringValue(newValue);
                                 break;
+                            case TableColumnPropertyNames.AdvancedType:
+                                column.AdvancedDataType = GetStringValue(newValue);
+                                break;
+                            case TableColumnPropertyNames.Description:
+                                column.Description = GetStringValue(newValue);
+                                break;
                             case TableColumnPropertyNames.GeneratedAlwaysAs:
                                 column.GeneratedAlwaysAs = ColumnGeneratedAlwaysAsTypeUtil.Instance.GetValue(GetStringValue(newValue));
                                 break;
@@ -479,6 +512,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         {
                             case CheckConstraintPropertyNames.Name:
                                 checkConstraint.Name = GetStringValue(newValue);
+                                break;
+                            case CheckConstraintPropertyNames.Description:
+                                checkConstraint.Description = GetStringValue(newValue);
                                 break;
                             case CheckConstraintPropertyNames.Enabled:
                                 checkConstraint.Enabled = GetBooleanValue(newValue);
@@ -502,6 +538,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                                 break;
                             case ForeignKeyPropertyNames.Name:
                                 foreignKey.Name = GetStringValue(newValue);
+                                break;
+                            case ForeignKeyPropertyNames.Description:
+                                foreignKey.Description = GetStringValue(newValue);
                                 break;
                             case ForeignKeyPropertyNames.OnDeleteAction:
                                 foreignKey.OnDeleteAction = SqlForeignKeyActionUtil.Instance.GetValue(GetStringValue(newValue));
@@ -531,6 +570,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                                 break;
                             case IndexPropertyNames.Name:
                                 sqlIndex.Name = GetStringValue(newValue);
+                                break;
+                            case IndexPropertyNames.Description:
+                                sqlIndex.Description = GetStringValue(newValue);
                                 break;
                             default:
                                 break;
@@ -676,9 +718,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             var primaryKey = table.PrimaryKey;
             tableViewModel.PrimaryKeyName.Enabled = primaryKey != null;
             tableViewModel.PrimaryKeyIsClustered.Enabled = primaryKey != null;
+            tableViewModel.PrimaryKeyDescription.Enabled = primaryKey != null && primaryKey.CanEditDescription;
             if (primaryKey != null)
             {
                 tableViewModel.PrimaryKeyName.Value = primaryKey.Name;
+                tableViewModel.PrimaryKeyDescription.Value = primaryKey.Description;
                 tableViewModel.PrimaryKeyIsClustered.Checked = primaryKey.IsClustered;
                 foreach (var cs in primaryKey.Columns)
                 {
@@ -719,6 +763,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 var columnViewModel = new TableColumnViewModel();
                 columnViewModel.Name.Value = column.Name;
                 columnViewModel.Name.Enabled = column.CanEditName;
+                columnViewModel.Description.Value = column.Description;
+                columnViewModel.Description.Enabled = column.CanEditDescription;
                 columnViewModel.Length.Value = column.Length;
                 columnViewModel.Length.Enabled = column.CanEditLength;
                 columnViewModel.Scale.Value = column.Scale?.ToString();
@@ -734,6 +780,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 columnViewModel.Type.Value = column.DataType;
                 columnViewModel.Type.Enabled = column.CanEditDataType;
                 columnViewModel.Type.Values = tableDesigner.DataTypes.ToList();
+                columnViewModel.AdvancedType.Value = column.AdvancedDataType;
+                columnViewModel.AdvancedType.Enabled = column.CanEditDataType;
+                columnViewModel.AdvancedType.Values = column.AdvancedDataTypes.ToList();
                 columnViewModel.IsIdentity.Enabled = column.CanEditIsIdentity;
                 columnViewModel.IsIdentity.Checked = column.IsIdentity;
                 columnViewModel.IdentitySeed.Enabled = column.CanEditIdentityValues;
@@ -743,7 +792,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 columnViewModel.CanBeDeleted = column.CanBeDeleted;
                 columnViewModel.GeneratedAlwaysAs.Value = ColumnGeneratedAlwaysAsTypeUtil.Instance.GetName(column.GeneratedAlwaysAs);
                 columnViewModel.GeneratedAlwaysAs.Values = ColumnGeneratedAlwaysAsTypeUtil.Instance.DisplayNames;
-                columnViewModel.GeneratedAlwaysAs.Enabled = tableDesigner.IsTemporalTableSupported;
+                columnViewModel.GeneratedAlwaysAs.Enabled = column.CanEditGeneratedAlwaysAs;
                 columnViewModel.IsHidden.Checked = column.IsHidden;
                 columnViewModel.IsHidden.Enabled = column.CanEditIsHidden;
                 columnViewModel.DefaultConstraintName.Enabled = column.CanEditDefaultConstraintName;
@@ -755,6 +804,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             {
                 var foreignKeyViewModel = new ForeignKeyViewModel();
                 foreignKeyViewModel.Name.Value = foreignKey.Name;
+                foreignKeyViewModel.Description.Value = foreignKey.Description;
+                foreignKeyViewModel.Description.Enabled = foreignKey.CanEditDescription;
                 foreignKeyViewModel.Enabled.Checked = foreignKey.Enabled;
                 foreignKeyViewModel.OnDeleteAction.Value = SqlForeignKeyActionUtil.Instance.GetName(foreignKey.OnDeleteAction);
                 foreignKeyViewModel.OnDeleteAction.Values = SqlForeignKeyActionUtil.Instance.DisplayNames;
@@ -781,6 +832,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             {
                 var constraint = new CheckConstraintViewModel();
                 constraint.Name.Value = checkConstraint.Name;
+                constraint.Description.Value = checkConstraint.Description;
+                constraint.Description.Enabled = checkConstraint.CanEditDescription;
                 constraint.Expression.Value = checkConstraint.Expression;
                 constraint.Enabled.Checked = checkConstraint.Enabled;
                 tableViewModel.CheckConstraints.Data.Add(constraint);
@@ -791,6 +844,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 var indexVM = new IndexViewModel();
                 indexVM.Name.Value = index.Name;
                 indexVM.Name.Enabled = tableInfo.IsNewTable; // renaming an index is not supported, it will cause a new index to be created.
+                indexVM.Description.Value = index.Description;
+                indexVM.Description.Enabled = index.CanEditDescription;
                 indexVM.IsClustered.Checked = index.IsClustered;
                 indexVM.Enabled.Checked = index.Enabled;
                 indexVM.IsUnique.Checked = index.IsUnique;
@@ -811,6 +866,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             {
                 var constraintVM = new EdgeConstraintViewModel();
                 constraintVM.Name.Value = constraint.Name;
+                constraintVM.Description.Value = constraint.Description;
+                constraintVM.Description.Enabled = constraint.CanEditDescription;
                 constraintVM.Enabled.Checked = constraint.Enabled;
                 constraintVM.OnDeleteAction.Value = SqlForeignKeyActionUtil.Instance.GetName(constraint.OnDeleteAction);
                 constraintVM.OnDeleteAction.Values = SqlForeignKeyActionUtil.Instance.EdgeConstraintOnDeleteActionNames;
@@ -1298,9 +1355,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
         private Dac.TableDesigner CreateTableDesigner(TableInfo tableInfo)
         {
-            var connectinStringbuilder = new SqlConnectionStringBuilder(tableInfo.ConnectionString);
-            connectinStringbuilder.InitialCatalog = tableInfo.Database;
-            var connectionString = connectinStringbuilder.ToString();
+            var connectionStringbuilder = new SqlConnectionStringBuilder(tableInfo.ConnectionString);
+            connectionStringbuilder.InitialCatalog = tableInfo.Database;
+            var connectionString = connectionStringbuilder.ToString();
             var tableDesigner = new Dac.TableDesigner(connectionString, tableInfo.AccessToken, tableInfo.Schema, tableInfo.Name, tableInfo.IsNewTable);
             this.idTableMap[tableInfo.Id] = tableDesigner;
             return tableDesigner;
@@ -1317,6 +1374,18 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             {
                 throw new KeyNotFoundException(SR.TableNotInitializedException(tableInfo.Id));
             }
+        }
+
+        private Dictionary<string, string> GetMetadata(TableInfo tableInfo)
+        {
+            var tableDesigner = this.GetTableDesigner(tableInfo);
+            var metadata = new Dictionary<string, string>()
+            {
+                { "IsEdge", tableDesigner.IsEdge().ToString() },
+                { "IsNode", tableDesigner.IsNode().ToString() },
+                { "IsSystemVersioned", tableDesigner.IsSystemVersioned().ToString() }
+            };
+            return metadata;
         }
 
         /// <summary>

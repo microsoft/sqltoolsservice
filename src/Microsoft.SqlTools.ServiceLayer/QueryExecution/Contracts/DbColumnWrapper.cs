@@ -243,7 +243,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
                         SqlDbType = SqlDbType.NVarChar;
                         break;
                     default:
-                        SqlDbType = DataTypeName.EndsWith(".sys.hierarchyid") ? SqlDbType.NVarChar : SqlDbType.Udt;
+                        SqlDbType = DataTypeName.EndsWith(".sys.hierarchyid") ? SqlDbType.Binary : SqlDbType.Udt;
                         break;
                 }
             }

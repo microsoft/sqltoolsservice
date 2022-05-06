@@ -13,6 +13,12 @@
     ],
     "Microsoft.Kusto.ServiceLayer.UnitTests": [
       "net6.0"
+    ],
+    "Microsoft.SqlTools.ServiceLayer.TestEnvConfig": [
+      "net6.0"
+    ],
+    "Microsoft.SqlTools.ServiceLayer.IntegrationTests": [
+      "net6.0"
     ]
   },
   "Frameworks": [

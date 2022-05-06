@@ -3535,6 +3535,18 @@
 クエリ プロセッサの予測では、以下のインデックスの実装によりクエリ コストが {1}% 向上します。
 */</value>
   </data>
+  <data name="CreateSasForBlobContainerFailed" xml:space="preserve">
+    <value>BLOB コンテナーの SAS URI を生成できません。</value>
+  </data>
+  <data name="WriteSASCredentialToSqlServerFailed" xml:space="preserve">
+    <value>SQL Server に共有アクセス署名トークンを格納できませんでした。</value>
+  </data>
+  <data name="UnsupportedDeviceType" xml:space="preserve">
+    <value>エンジン エディション {1} ではサポートされていないデバイスの種類 {0}。</value>
+  </data>
+  <data name="NotSupportedCloudCreateSas" xml:space="preserve">
+    <value>共有アクセス署名の作成は、クラウド インスタンスではサポートされていません。</value>
+  </data>
   <data name="TableDesignerGraphTableTypeTitle" xml:space="preserve">
     <value>種類</value>
   </data>
@@ -3675,5 +3687,11 @@
   </data>
   <data name="AddNewClauseLabel" xml:space="preserve">
     <value>新しい句</value>
+  </data>
+  <data name="WarningOverlayTooltip" xml:space="preserve">
+    <value>警告</value>
+  </data>
+  <data name="ParallelismOverlayTooltip" xml:space="preserve">
+    <value>並列実行</value>
   </data>
 </root>

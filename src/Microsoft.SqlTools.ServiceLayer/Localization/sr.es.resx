@@ -3535,6 +3535,18 @@ Faltan detalles del índice de {0}
 El procesador de consultas estima que la implementación del siguiente índice podría mejorar el costo de la consulta en un {1}%.
 */</value>
   </data>
+  <data name="CreateSasForBlobContainerFailed" xml:space="preserve">
+    <value>No se puede generar el URI de SAS para el contenedor de blobs.</value>
+  </data>
+  <data name="WriteSASCredentialToSqlServerFailed" xml:space="preserve">
+    <value>No se pudo almacenar el token de firma de acceso compartido en los servidores de SQL Server.</value>
+  </data>
+  <data name="UnsupportedDeviceType" xml:space="preserve">
+    <value>Tipo de dispositivo no compatible {0} para la edición del motor {1}.</value>
+  </data>
+  <data name="NotSupportedCloudCreateSas" xml:space="preserve">
+    <value>No se admite la creación de una firma de acceso compartido para las instancias en la nube.</value>
+  </data>
   <data name="TableDesignerGraphTableTypeTitle" xml:space="preserve">
     <value>Tipo</value>
   </data>
@@ -3675,5 +3687,11 @@ El procesador de consultas estima que la implementación del siguiente índice p
   </data>
   <data name="AddNewClauseLabel" xml:space="preserve">
     <value>Nueva cláusula</value>
+  </data>
+  <data name="WarningOverlayTooltip" xml:space="preserve">
+    <value>Advertencias</value>
+  </data>
+  <data name="ParallelismOverlayTooltip" xml:space="preserve">
+    <value>Ejecución en paralelo</value>
   </data>
 </root>
