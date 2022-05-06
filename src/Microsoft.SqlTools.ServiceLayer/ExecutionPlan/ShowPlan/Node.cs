@@ -363,7 +363,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
             get { return this.root; }
         }
 
-        public Graph Graph
+        public ShowPlanGraph Graph
         {
             get => this.graph;
             set
@@ -580,7 +580,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         /// Gets lines of text displayed under the icon.
         /// </summary>
         /// <returns>Array of strings.</returns>
-        public string[] GetDisplayLinesOfText()
+        
+        /// <summary>
+        /// Gets lines of text displayed under the icon.
+        /// </summary>
+        /// <param name="roundCostForSmallGraph">Converts decimal costs in case of graph with less than 20 nodes.</param>
+        /// <returns>Array of strings.</returns>
+        public string[] GetDisplayLinesOfText(bool roundCostForSmallGraph = false)
         {
             string newDisplayNameLines = this.DisplayName;
 
@@ -589,7 +595,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
 
             if (!this.HasPDWCost || cost > 0)
             {
-                string costText = SR.CostFormat(cost.ToString("0.######"));
+                if(roundCostForSmallGraph && this.graph != null && this.graph.NodeStmtMap.Count < 20){
+                    cost = Math.Round(cost);
+                }
+                string costText = SR.CostFormat(cost.ToString("0.##"));
                 newDisplayNameLines += '\n' + costText;
             }
 
@@ -713,7 +722,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         private readonly string objectProperty = NodeBuilderConstants.Object;
         private readonly string predicateProperty = NodeBuilderConstants.LogicalOp;
         private Node parent;
-        private Graph graph;
+        private ShowPlanGraph graph;
         private Edge parentEdge;
         private List<Edge> childrenEdges;
         private string nodeType;
