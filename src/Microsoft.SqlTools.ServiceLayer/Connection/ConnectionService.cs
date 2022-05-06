@@ -231,7 +231,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// Refreshes the auth token of a given connection 
         /// </summary>
         /// <param name="ownerUri">The URI of the connection</param>
-        /// <returns>true upon successful refresh of the auth token,
+        /// <returns>true if a refresh is needed,
         /// false if the uri cannot be found, refresh is not needed, or
         /// if refresh fails </returns>
 
@@ -247,7 +247,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 } 
                 else 
                 {
-                    // Check if token is expired
+                    // Check if token is expired or about to expire
                     var maxTolerance = 2 * 60; // two minutes
                     if (connInfo.ConnectionDetails.ExpiresOn - DateTimeOffset.Now.ToUnixTimeSeconds() < maxTolerance)
                     {   
@@ -263,7 +263,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                             await this.ServiceHost.SendEvent(RefreshTokenNotification.Type, requestMessage);
                         }
                         catch (Exception ex){
-                            Logger.Write(TraceEventType.Error, "Failed to refresh auth token " + ex.Message);
+                            Logger.Write(TraceEventType.Error, "Failed to send RefreshTokenNotification " + ex.Message);
                             return false;
                         }
                         return true;
@@ -283,7 +283,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         }
 
         /// <summary>
-        /// Updates the azure auth token
+        /// Requests an update of the azure auth token
         /// </summary>
         /// <param name="refreshToken">The token to update</param>
         /// <returns>true upon successful update, false if it failed to find 
