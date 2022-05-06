@@ -10,9 +10,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
     class RefreshTokenParams 
     {
         /// <summary>
-        /// Gets or sets the address of the authority to issue token.
+        /// Tenant for the token
         /// </summary>
-        public string Authority { get; set; }
+        public string Tenant { get; set; }
 
         /// <summary>
         /// Gets or sets the provider that indicates the type of linked account to query.
@@ -69,7 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         public string Uri { get; set; }
     }
 
-    class RefreshToken
+    class TokenRefreshedNotification
     {
         public static readonly
         EventType<TokenRefreshedParams> Type =

@@ -254,11 +254,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         var requestMessage = new RefreshTokenParams
                         {
                             AccountId = connInfo.ConnectionDetails.GetOptionValue("azureAccount", string.Empty),
-                            Authority = connInfo.ConnectionDetails.GetOptionValue("azureTenantId", string.Empty),
+                            Tenant = connInfo.ConnectionDetails.GetOptionValue("azureTenantId", string.Empty),
                             Provider = "Azure",
                             Resource = "SQL",
                             Uri = ownerUri
                         };
+                        if (requestMessage.Tenant == null) {
+                            Logger.Write(TraceEventType.Error, "Failed to fetch tenant");
+                            return false;
+                        }
                         try {
                             await this.ServiceHost.SendEvent(RefreshTokenNotification.Type, requestMessage);
                         }
