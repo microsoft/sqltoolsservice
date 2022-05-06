@@ -1009,7 +1009,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             view.ColumnTableOptions.CanAddRows = true;
             view.ColumnTableOptions.CanRemoveRows = true;
             view.ColumnTableOptions.CanMoveRows = true;
-            view.ColumnTableOptions.CanInsertRows = false;
+            view.ColumnTableOptions.CanInsertRows = true;
             view.ColumnTableOptions.RemoveRowConfirmationMessage = SR.TableDesignerDeleteColumnConfirmationMessage;
             view.ColumnTableOptions.ShowRemoveRowConfirmation = true;
         }
