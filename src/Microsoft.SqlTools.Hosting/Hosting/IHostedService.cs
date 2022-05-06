@@ -4,7 +4,6 @@
 //
 
 using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting.Protocol;
@@ -70,7 +69,7 @@ namespace Microsoft.SqlTools.Hosting
 
         protected async Task<THandler> HandleRequestAsync<THandler>(Func<Task<THandler>> handler, RequestContext<THandler> requestContext, string requestType)
         {
-            Logger.Write(TraceEventType.Verbose, $"Handling request type {requestType}");
+            Logger.Verbose($"Handling request type {requestType}");
 
             try
             {
