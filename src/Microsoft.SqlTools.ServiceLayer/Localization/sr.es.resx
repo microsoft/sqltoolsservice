@@ -3535,6 +3535,18 @@ Faltan detalles del índice de {0}
 El procesador de consultas estima que la implementación del siguiente índice podría mejorar el costo de la consulta en un {1}%.
 */</value>
   </data>
+  <data name="CreateSasForBlobContainerFailed" xml:space="preserve">
+    <value>No se puede generar el URI de SAS para el contenedor de blobs.</value>
+  </data>
+  <data name="WriteSASCredentialToSqlServerFailed" xml:space="preserve">
+    <value>No se pudo almacenar el token de firma de acceso compartido en los servidores de SQL Server.</value>
+  </data>
+  <data name="UnsupportedDeviceType" xml:space="preserve">
+    <value>Tipo de dispositivo no compatible {0} para la edición del motor {1}.</value>
+  </data>
+  <data name="NotSupportedCloudCreateSas" xml:space="preserve">
+    <value>No se admite la creación de una firma de acceso compartido para las instancias en la nube.</value>
+  </data>
   <data name="TableDesignerGraphTableTypeTitle" xml:space="preserve">
     <value>Tipo</value>
   </data>

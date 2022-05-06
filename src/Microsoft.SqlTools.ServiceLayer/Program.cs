@@ -38,15 +38,14 @@ namespace Microsoft.SqlTools.ServiceLayer
                     logFilePath = Logger.GenerateLogFilePath("sqltools");
                 }
 
-                Logger.AutoFlush = commandOptions.AutoFlushLog;
-
-                Logger.Initialize(tracingLevel: commandOptions.TracingLevel, logFilePath: logFilePath, traceSource: "sqltools");
+                Logger.Initialize(tracingLevel: commandOptions.TracingLevel, logFilePath: logFilePath, traceSource: "sqltools", commandOptions.AutoFlushLog);
 
                 // set up the host details and profile paths 
                 var hostDetails = new HostDetails(version: new Version(1, 0));
 
                 SqlToolsContext sqlToolsContext = new SqlToolsContext(hostDetails);
                 ServiceHost serviceHost = HostLoader.CreateAndStartServiceHost(sqlToolsContext);
+                serviceHost.MessageDispatcher.ParallelMessageProcessing = commandOptions.ParallelMessageProcessing;
 
                 // If this service was started by another process, then it should shutdown when that parent process does.
                 if (commandOptions.ParentProcessId != null)
@@ -60,9 +59,9 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
             catch (Exception ex)
             {
-                try 
+                try
                 {
-                    Logger.WriteWithCallstack(TraceEventType.Critical, $"An unhandled exception occurred: {ex}");                    
+                    Logger.WriteWithCallstack(TraceEventType.Critical, $"An unhandled exception occurred: {ex}");
                 }
                 catch (Exception loggerEx)
                 {

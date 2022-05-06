@@ -1603,6 +1603,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";CreateSasForBlobContainerFailed" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Cannot generate SAS URI for blob container.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[無法為 Blob 容器產生 SAS URI。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";CreateSessionFailed" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Failed to create session: {0}]]></Val>
@@ -3003,10 +3012,13 @@
       </Item>
       <Item ItemId=";GeneratedAlwaysColumnType_RowStart" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Row start]]></Val>
+          <Val><![CDATA[Row Start]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[列開始]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Row start]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4959,6 +4971,15 @@
           <Val><![CDATA[Non-Unique]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[非唯一]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";NotSupportedCloudCreateSas" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Create shared access signature is not supported for cloud instances.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[雲端執行個體不支援建立共用存取簽章。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -10462,6 +10483,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";UnsupportedDeviceType" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unsupported device type {0} for engine edition {1}.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[引擎版本 {1} 不支援的裝置類型 {0}。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";Update" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Update]]></Val>
@@ -10683,6 +10713,15 @@
           <Val><![CDATA[Position is outside of file line range]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[位置超出檔案行範圍]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";WriteSASCredentialToSqlServerFailed" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Failed storing shared access signature token on the SQL Servers.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[在 SQL Server 上儲存共用存取簽章權杖失敗。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

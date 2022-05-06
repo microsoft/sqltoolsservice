@@ -3535,6 +3535,18 @@ Fehlende Indexdetails von {0}
 Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Indexes die Abfragekosten um {1} % verbessert werden können.
 */</value>
   </data>
+  <data name="CreateSasForBlobContainerFailed" xml:space="preserve">
+    <value>SAS-URI für Blob-Container kann nicht generiert werden.</value>
+  </data>
+  <data name="WriteSASCredentialToSqlServerFailed" xml:space="preserve">
+    <value>Fehler beim Speichern des Shared Access Signature-Tokens auf den SQL Servern.</value>
+  </data>
+  <data name="UnsupportedDeviceType" xml:space="preserve">
+    <value>Nicht unterstützter Gerätetyp {0} für die Engine-Edition {1}.</value>
+  </data>
+  <data name="NotSupportedCloudCreateSas" xml:space="preserve">
+    <value>Shared Access Signature erstellen wird für Cloud-Instanzen nicht unterstützt.</value>
+  </data>
   <data name="TableDesignerGraphTableTypeTitle" xml:space="preserve">
     <value>Typ</value>
   </data>
