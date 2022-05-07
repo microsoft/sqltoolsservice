@@ -431,6 +431,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
         private void VerifyMetadata(NodeInfo node)
         {
             // These are node types for which the label doesn't include a schema
+            // (usually because the objects themselves aren't schema-bound)
             var schemalessLabelNodeTypes = new List<string> () { 
                 "Column", 
                 "Key", 
