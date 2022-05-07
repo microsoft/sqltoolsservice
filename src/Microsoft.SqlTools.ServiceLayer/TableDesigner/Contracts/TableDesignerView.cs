@@ -31,6 +31,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         public List<string> PropertiesToDisplay { get; set; } = new List<string>();
         public bool CanAddRows { get; set; } = true;
         public bool CanRemoveRows { get; set; } = true;
+        public bool CanMoveRows { get; set; } = false;
+        public bool CanInsertRows { get; set; } = false;
         public List<DesignerDataPropertyInfo> AdditionalProperties { get; set; } = new List<DesignerDataPropertyInfo>();
         public string RemoveRowConfirmationMessage { get; set; }
         public bool ShowRemoveRowConfirmation { get; set; } = false;

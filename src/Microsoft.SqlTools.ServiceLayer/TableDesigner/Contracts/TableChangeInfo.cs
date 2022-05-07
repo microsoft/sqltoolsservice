@@ -18,6 +18,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         Remove,
         [EnumMember(Value = "Update")]
         Update,
+        [EnumMember(Value = "Move")]
+        Move,
     }
 
     /// <summary>

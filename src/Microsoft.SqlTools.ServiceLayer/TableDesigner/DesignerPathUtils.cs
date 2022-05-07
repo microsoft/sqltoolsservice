@@ -14,17 +14,20 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         ///<summary>
         /// validate the path in the table designer change information.
         /// Below are the 3 scenarios and their expected path.
-        /// Note: 'index-{x}' in the description below are numbers represent the index of the object in the list.
+        /// Note: 'index{x}' in the description below are numbers represent the index of the object in the list.
 		/// 1. 'Add' scenario
-		///     a. ['propertyName1']. Example: add a column to the columns property: ['columns'].
-		///     b. ['propertyName1',index-1,'propertyName2']. Example: add a column mapping to the first foreign key: ['foreignKeys',0,'mappings'].
+		///     a. ['propertyName1',index1]. Example: add a column to the columns property: ['columns',0].
+		///     b. ['propertyName1',index1,'propertyName2',index2]. Example: add a column mapping to the first foreign key: ['foreignKeys',0,'mappings',0].
 		/// 2. 'Update' scenario
 		///     a. ['propertyName1']. Example: update the name of the table: ['name'].
-		///     b. ['propertyName1',index-1,'propertyName2']. Example: update the name of a column: ['columns',0,'name'].
-		///     c. ['propertyName1',index-1,'propertyName2',index-2,'propertyName3']. Example: update the source column of an entry in a foreign key's column mapping table: ['foreignKeys',0,'mappings',0,'source'].
+		///     b. ['propertyName1',index1,'propertyName2']. Example: update the name of a column: ['columns',0,'name'].
+		///     c. ['propertyName1',index1,'propertyName2',index2,'propertyName3']. Example: update the source column of an entry in a foreign key's column mapping table: ['foreignKeys',0,'mappings',0,'source'].
 		/// 3. 'Remove' scenario
-        ///     a. ['propertyName1',index-1]. Example: remove a column from the columns property: ['columns',0'].
-		///     b. ['propertyName1',index-1,'propertyName2',index-2]. Example: remove a column mapping from a foreign key's column mapping table: ['foreignKeys',0,'mappings',0].
+		///     a. ['propertyName1',index1]. Example: remove a column from the columns property: ['columns',0'].
+		///     b. ['propertyName1',index1,'propertyName2',index2]. Example: remove a column mapping from a foreign key's column mapping table: ['foreignKeys',0,'mappings',0].
+		/// 4. 'Move' scenario
+		///     a. ['propertyName1',index1]. Example: Move a column in the columns property: ['columns',0'].
+		///     b. ['propertyName1',index1,'propertyName2',index2]. Example: Move a column mapping within a foreign key's column mapping table: ['foreignKeys',0,'mappings',0].
         ///<summary>
         public static void Validate(object[] path, DesignerEditType editType)
         {
@@ -37,13 +40,16 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             int[] validLengthList;
             if (editType == DesignerEditType.Add)
             {
-                validLengthList = new int[] { 1, 3 };
+                validLengthList = new int[] { 2, 4 };
             }
             else if (editType == DesignerEditType.Update)
             {
                 validLengthList = new int[] { 1, 3, 5 };
             }
-            else
+            else if (editType == DesignerEditType.Remove)
+            {
+                validLengthList = new int[] { 2, 4 };
+            } else
             {
                 validLengthList = new int[] { 2, 4 };
             }
