@@ -911,12 +911,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
-        internal Task HandleRefreshTokenNotification(
-            TokenRefreshedParams refreshTokenParams,
+        internal Task HandleTokenRefreshedNotification(
+            TokenRefreshedParams tokenRefreshedParams,
             EventContext eventContext
         )
         {
-            connectionService.UpdateAuthToken(refreshTokenParams);
+            connectionService.UpdateAuthToken(tokenRefreshedParams);
             return Task.CompletedTask;
         }
 
