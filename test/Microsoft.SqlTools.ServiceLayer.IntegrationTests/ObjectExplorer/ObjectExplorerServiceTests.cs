@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -427,21 +428,34 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             return null;
         }
 
-
         private void VerifyMetadata(NodeInfo node)
         {
+            // These are node types for which the label doesn't include a schema
+            // (usually because the objects themselves aren't schema-bound)
+            var schemalessLabelNodeTypes = new List<string> () { 
+                "Column", 
+                "Key", 
+                "Constraint", 
+                "Index", 
+                "Statistic",
+                "Trigger",
+                "StoredProcedureParameter",
+                "TableValuedFunctionParameter",
+                "ScalarValuedFunctionParameter",
+                "UserDefinedTableTypeColumn"
+            };
             if (node.NodeType != "Folder")
             {
-                Assert.NotNull(node.NodeType);
+                Assert.That(node.NodeType, Is.Not.Empty.Or.Null, "NodeType should not be empty or null");
                 if (node.Metadata != null && !string.IsNullOrEmpty(node.Metadata.MetadataTypeName))
                 {
-                    if (!string.IsNullOrEmpty(node.Metadata.Schema))
+                    if (!string.IsNullOrEmpty(node.Metadata.Schema) && !schemalessLabelNodeTypes.Any(t => t == node.NodeType))
                     {
-                        Assert.True(node.Label.Contains($"{node.Metadata.Schema}.{node.Metadata.Name}"));
+                        Assert.That(node.Label, Does.Contain($"{node.Metadata.Schema}.{node.Metadata.Name}"), "Node label does not contain expected text");
                     }
                     else
                     {
-                        Assert.NotNull(node.Label);
+                        Assert.That(node.Label, Does.Contain(node.Metadata.Name), "Node label does not contain expected text");
                     }
                 }
             }
