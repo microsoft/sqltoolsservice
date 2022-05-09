@@ -7,12 +7,17 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
 {
+
+    public enum TokenState {
+        Expired,
+        Updating
+    }
     class RefreshTokenParams 
     {
         /// <summary>
-        /// Tenant for the token
+        /// ID of the tenant
         /// </summary>
-        public string Tenant { get; set; }
+        public string TenantId { get; set; }
 
         /// <summary>
         /// Gets or sets the provider that indicates the type of linked account to query.
@@ -20,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         public string Provider { get; set; }
 
         /// <summary>
-        /// Gets or sets the identifier of the target resource that is the recipient of the requested token.
+        /// Gets or sets the identifier of the target resource of the requested token.
         /// </summary>
         public string Resource { get; set; }
 
@@ -59,7 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         public string Token { get; set; }
 
         /// <summmary>
-        /// Gets or sets the token expiration
+        /// Gets or sets the token expiration, a Unix epoch 
         /// </summary>
         public int ExpiresOn { get; set; }
 

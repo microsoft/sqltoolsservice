@@ -455,7 +455,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     if (await connectionService.TryRefreshAuthToken(scriptFile.ClientUri))
                     {
+                        // if the auth token needs to be refreshed, we will disable intellisense until it has been refreshed.
                         await requestContext.SendResult(null);
+                        connectionService.IsConnected[scriptFile.ClientUri] = TokenState.Updating;
                     }
                     // get the current list of completion items and return to client
                     ConnectionServiceInstance.TryFindConnection(
@@ -1075,7 +1077,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         Monitor.Exit(scriptInfo.BuildingMetadataLock);
                     }
                 }
-
                 PrepopulateCommonMetadata(info, scriptInfo, this.BindingQueue);
 
                 // Send a notification to signal that autocomplete is ready
