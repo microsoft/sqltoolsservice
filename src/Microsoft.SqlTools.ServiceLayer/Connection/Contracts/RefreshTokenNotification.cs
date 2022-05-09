@@ -7,11 +7,6 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
 {
-
-    public enum TokenState {
-        Expired,
-        Updating
-    }
     class RefreshTokenParams 
     {
         /// <summary>
@@ -53,11 +48,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
 
     class TokenRefreshedParams
     {
-        /// <summary>
-        /// Gets or sets the key that uniquely identifies a particular linked account.
-        /// </summary>
-        public string AccountKey { get; set; }
-
         /// <summary>
         /// Gets or sets the access token.
         /// </summary>

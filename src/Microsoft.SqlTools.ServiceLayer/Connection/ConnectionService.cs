@@ -60,7 +60,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         private readonly ConcurrentDictionary<CancelTokenKey, CancellationTokenSource> cancelTupleToCancellationTokenSourceMap =
                     new ConcurrentDictionary<CancelTokenKey, CancellationTokenSource>();
 
-        public Dictionary<string, TokenState> IsConnected = new Dictionary<string, TokenState>();
+        public ConcurrentDictionary<string, Boolean> TokenUpdateUris = new ConcurrentDictionary<string, Boolean>();
         private readonly object cancellationTokenSourceLock = new object();
 
         private ConcurrentDictionary<string, IConnectedBindingQueue> connectedQueues = new ConcurrentDictionary<string, IConnectedBindingQueue>();
@@ -253,10 +253,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     if (connInfo.ConnectionDetails.ExpiresOn - DateTimeOffset.Now.ToUnixTimeSeconds() < maxTolerance)
                     {
                         // Check if the token is updating already, in which case there is no need to request a new one
-                        if (this.IsConnected[ownerUri] == TokenState.Updating) {
+                        if (this.TokenUpdateUris.ContainsKey(ownerUri)) {
                             return false;
                         }
-                        this.IsConnected.Add(ownerUri, TokenState.Expired);
                         var requestMessage = new RefreshTokenParams
                         {
                             AccountId = connInfo.ConnectionDetails.GetOptionValue("azureAccount", string.Empty),
@@ -313,7 +312,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 Logger.Write(TraceEventType.Error, "Failed to find connection when refreshing token");
             }
-            this.IsConnected.Remove(tokenRefreshedParams.Uri);
+            this.TokenUpdateUris.Remove(tokenRefreshedParams.Uri, out var result);
             connection.UpdateAuthToken(tokenRefreshedParams.Token, tokenRefreshedParams.ExpiresOn);
         }
 

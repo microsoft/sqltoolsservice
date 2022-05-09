@@ -457,7 +457,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         // if the auth token needs to be refreshed, we will disable intellisense until it has been refreshed.
                         await requestContext.SendResult(null);
-                        connectionService.IsConnected[scriptFile.ClientUri] = TokenState.Updating;
+                        connectionService.TokenUpdateUris.TryAdd(scriptFile.ClientUri, true);
                     }
                     // get the current list of completion items and return to client
                     ConnectionServiceInstance.TryFindConnection(
