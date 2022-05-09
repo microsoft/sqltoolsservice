@@ -10,6 +10,7 @@ using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
 {
@@ -23,6 +24,16 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
         private static DelimitedIdentifier FunctionPostfix = new DelimitedIdentifier { Start = "", End = "()" };
         private static DelimitedIdentifier[] DelimitedIdentifiers =
             new DelimitedIdentifier[] { BracketedIdentifiers, new DelimitedIdentifier { Start = "\"", End = "\"" } };
+        private static readonly IList<string> AnsiScalarFunctions = new List<string>()
+        {
+            "CURRENT_DATE",
+            "CURRENT_TIME",
+            "CURRENT_TIMESTAMP",
+            "CURRENT_USER",
+            "SESSION_USER",
+            "SYSTEM_USER",
+            "USER"
+        };
 
         /// <summary>
         /// Create new instance given the SQL parser declaration
@@ -75,7 +86,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
                     case DeclarationType.ScalarValuedFunction:
                     case DeclarationType.TableValuedFunction:
                         // Add ()'s for all functions except global variable system functions (which all start with @@)
-                        if (!DeclarationTitle.StartsWith("@@"))
+                        // and ANSI scalar functions (which don't include the parentheses to match the spec)
+                        if (!DeclarationTitle.StartsWith("@@") && !AnsiScalarFunctions.Contains(DeclarationTitle.ToUpperInvariant()))
                         {
                             InsertText = WithDelimitedIdentifier(FunctionPostfix, DeclarationTitle);
                         }
