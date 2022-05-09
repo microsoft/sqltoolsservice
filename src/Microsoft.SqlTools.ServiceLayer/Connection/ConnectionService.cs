@@ -259,8 +259,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                             Resource = "SQL",
                             Uri = ownerUri
                         };
-                        if (requestMessage.Tenant == null) {
+                        if (requestMessage.Tenant == null || requestMessage.Tenant == String.Empty) {
                             Logger.Write(TraceEventType.Error, "Failed to fetch tenant");
+                            return false;
+                        }
+                        if (requestMessage.AccountId == null || requestMessage.AccountId == String.Empty) {
+                            Logger.Write(TraceEventType.Error, "Failed to fetch accountId");
                             return false;
                         }
                         try {
