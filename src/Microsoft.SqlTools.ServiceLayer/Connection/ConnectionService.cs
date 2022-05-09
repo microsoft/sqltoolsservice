@@ -276,6 +276,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         }
                         try
                         {
+                            this.TokenUpdateUris.TryAdd(ownerUri, true);
                             await this.ServiceHost.SendEvent(RefreshTokenNotification.Type, requestMessage);
                         }
                         catch (Exception ex)
@@ -296,8 +297,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 Logger.Write(TraceEventType.Error, "Failed to find connection when refreshing token");
                 return false;
             }
-
-
         }
 
         /// <summary>
