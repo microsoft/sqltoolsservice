@@ -1646,7 +1646,7 @@ ActualExecModeDesc = Actual Execution Mode
 EstimatedExecMode = Estimated Execution Mode
 EstimatedExecModeDesc = Estimated Execution Mode
 ;"Cost: {0} percent" String to format
-CostFormat(int x) = Cost: {0} %
+CostFormat(string x) = Cost: {0} %
 ; Remote Data Access
 RemoteDataAccess = Remote Data Access
 RemoteDataAccessDescription = Whether the operator uses remote procedure call (RPC) to access remote data.
