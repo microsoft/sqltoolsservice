@@ -9306,7 +9306,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.MoreThanOneAzureFunctionWithName, functionName, fileName);
         }
 
-        public static string CostFormat(int x)
+        public static string CostFormat(string x)
         {
             return Keys.GetString(Keys.CostFormat, x);
         }

@@ -33,7 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
         }
 
         public static ExecutionPlanNode ConvertShowPlanTreeToExecutionPlanTree(Node currentNode)
-        {
+        {   
             return new ExecutionPlanNode
             {
                 ID = currentNode.ID,
@@ -41,7 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                 Cost = currentNode.Cost,
                 SubTreeCost = currentNode.SubtreeCost,
                 Description = currentNode.Description,
-                Subtext = currentNode.GetDisplayLinesOfText(),
+                Subtext = currentNode.GetDisplayLinesOfText(true),
                 RelativeCost = currentNode.RelativeCost,
                 Properties = GetProperties(currentNode.Properties),
                 Children = currentNode.Children.Select(x => ConvertShowPlanTreeToExecutionPlanTree(x)).ToList(),
