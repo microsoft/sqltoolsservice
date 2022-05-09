@@ -234,8 +234,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// </summary>
         /// <param name="ownerUri">The URI of the connection</param>
         /// <returns>true if a refresh is needed,
-        /// false if the uri cannot be found, refresh is not needed, or
-        /// if refresh fails </returns>
+        /// false if the uri cannot be found, refresh is not needed,
+        /// refresh token has already been requested, or if refresh fails </returns>
 
         internal async Task<bool> TryRefreshAuthToken(string ownerUri)
         {
