@@ -267,7 +267,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             serviceHost.SetRequestHandler(CompletionExtLoadRequest.Type, HandleCompletionExtLoadRequest);
             serviceHost.SetEventHandler(RebuildIntelliSenseNotification.Type, HandleRebuildIntelliSenseNotification);
             serviceHost.SetEventHandler(LanguageFlavorChangeNotification.Type, HandleDidChangeLanguageFlavorNotification);
-            serviceHost.SetEventHandler(RefreshToken.Type, HandleRefreshTokenNotification);
+            serviceHost.SetEventHandler(TokenRefreshedNotification.Type, HandleTokenRefreshedNotification);
 
             // Register a no-op shutdown task for validation of the shutdown logic
             serviceHost.RegisterShutdownTask(async (shutdownParams, shutdownRequestContext) =>
