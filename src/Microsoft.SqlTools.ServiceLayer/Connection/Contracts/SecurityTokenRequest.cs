@@ -28,12 +28,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// Gets or sets the scope of the authentication request.
         /// </summary>
         public string Scope { get; set; }
-
-        /// <summary>
-        /// Gets or sets the account ID
-        /// </summary>
-        public string AccountId { get; set; }
-
     }
 
     class RequestSecurityTokenResponse

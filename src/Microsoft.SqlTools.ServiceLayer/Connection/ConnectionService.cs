@@ -252,10 +252,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     // Check if token is expired or about to expire
                     if (connInfo.ConnectionDetails.ExpiresOn - DateTimeOffset.Now.ToUnixTimeSeconds() < maxTolerance)
                     {
-                        // Check if the token is updating already, in which case there is no need to request a new one
-                        if (this.TokenUpdateUris.ContainsKey(ownerUri)) {
-                            return false;
-                        }
+
                         var requestMessage = new RefreshTokenParams
                         {
                             AccountId = connInfo.ConnectionDetails.GetOptionValue("azureAccount", string.Empty),
@@ -266,15 +263,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         };
                         if (String.IsNullOrEmpty(requestMessage.TenantId))
                         {
-                            Logger.Write(TraceEventType.Error, "No tenant in connection details when refreshing token for connection {ownerUri}");
+                            Logger.Error("No tenant in connection details when refreshing token for connection {ownerUri}");
                             return false;
                         }
                         if (String.IsNullOrEmpty(requestMessage.AccountId))
                         {
-                            Logger.Write(TraceEventType.Error, "No accountId in connection details when refreshing token for connection {ownerUri}");
+                            Logger.Error("No accountId in connection details when refreshing token for connection {ownerUri}");
                             return false;
                         }
-                        this.TokenUpdateUris.TryAdd(ownerUri, true);
+                        // Check if the token is updating already, in which case there is no need to request a new one
+                        if (!this.TokenUpdateUris.TryAdd(ownerUri, true))
+                        {
+                            return false;
+                        }
                         await this.ServiceHost.SendEvent(RefreshTokenNotification.Type, requestMessage);
                         return true;
                     }
@@ -286,7 +287,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
             else
             {
-                Logger.Write(TraceEventType.Error, "Failed to find connection when refreshing token");
+                Logger.Error("Failed to find connection when refreshing token");
                 return false;
             }
         }
@@ -301,7 +302,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         {
             if (!this.TryFindConnection(tokenRefreshedParams.Uri, out ConnectionInfo connection))
             {
-                Logger.Write(TraceEventType.Error, "Failed to find connection when refreshing token");
+                Logger.Error($"Failed to find connection when updating refreshed token for URI {tokenRefreshedParams.Uri}");
             }
             this.TokenUpdateUris.Remove(tokenRefreshedParams.Uri, out var result);
             connection.UpdateAuthToken(tokenRefreshedParams.Token, tokenRefreshedParams.ExpiresOn);

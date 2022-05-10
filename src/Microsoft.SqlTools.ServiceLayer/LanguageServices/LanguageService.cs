@@ -453,16 +453,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
                 else
                 {
-                    if (await connectionService.TryRefreshAuthToken(scriptFile.ClientUri))
+                    ConnectionInfo connInfo = null;
+                    if (!await connectionService.TryRefreshAuthToken(scriptFile.ClientUri))
                     {
                         // if the auth token needs to be refreshed, we will disable intellisense until it has been refreshed.
-                        await requestContext.SendResult(null);
-                    }
-                    // get the current list of completion items and return to client
-                    ConnectionServiceInstance.TryFindConnection(
+                        // get the current list of completion items and return to client
+                        ConnectionServiceInstance.TryFindConnection(
                         scriptFile.ClientUri,
-                        out ConnectionInfo connInfo);
-
+                        out connInfo);                       
+                    }
                     var completionItems = await GetCompletionItems(
                         textDocumentPosition, scriptFile, connInfo);
 
