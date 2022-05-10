@@ -33,7 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
         }
 
         public static ExecutionPlanNode ConvertShowPlanTreeToExecutionPlanTree(Node currentNode)
-        {   
+        {
             return new ExecutionPlanNode
             {
                 ID = currentNode.ID,
@@ -101,6 +101,34 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
             List<ExecutionPlanGraphPropertyBase> propsList = new List<ExecutionPlanGraphPropertyBase>();
             foreach (PropertyValue prop in props)
             {
+                ExecutionPlanGraphPropertyType propType;
+                switch (prop.Value)
+                {
+                    case bool boolValue:
+                        propType = ExecutionPlanGraphPropertyType.BOOLEAN;
+                        break;
+                    case string stringValue:
+                        if (int.TryParse(stringValue, out int temp))
+                        {
+                            propType = ExecutionPlanGraphPropertyType.NUMBER;
+                        }
+                        else
+                        {
+                            propType = ExecutionPlanGraphPropertyType.STRING;
+                        }
+                        break;
+                    case int intValue:
+                    case float floatValue:
+                    case double doubleValue:
+                        propType = ExecutionPlanGraphPropertyType.NUMBER;
+                        break;
+                    case ExpandableObjectWrapper nestedProp:
+                        propType = ExecutionPlanGraphPropertyType.NESTED;
+                        break;
+                    default:
+                        propType = ExecutionPlanGraphPropertyType.STRING;
+                        break;
+                }
                 var complexProperty = prop.Value as ExpandableObjectWrapper;
                 if (complexProperty == null)
                 {
@@ -112,7 +140,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                         ShowInTooltip = prop.ShowInTooltip,
                         DisplayOrder = prop.DisplayOrder,
                         PositionAtBottom = prop.IsLongString,
-                        DisplayValue = GetPropertyDisplayValue(prop)
+                        DisplayValue = GetPropertyDisplayValue(prop),
+                        Type = propType
                     });
                 }
                 else
@@ -125,10 +154,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                         ShowInTooltip = prop.ShowInTooltip,
                         DisplayOrder = prop.DisplayOrder,
                         PositionAtBottom = prop.IsLongString,
-                        DisplayValue = GetPropertyDisplayValue(prop)
+                        DisplayValue = GetPropertyDisplayValue(prop),
+                        Type = propType
                     });
                 }
-
             }
             return propsList;
         }

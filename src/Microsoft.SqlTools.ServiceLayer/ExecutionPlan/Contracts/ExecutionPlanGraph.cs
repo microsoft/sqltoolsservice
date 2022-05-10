@@ -106,7 +106,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         /// <summary>
         /// Property type
         /// </summary>
-        public ExecutionPlanGraphPropertyType PropertyType { get; set; }
+        public ExecutionPlanGraphPropertyType Type { get; set; }
     }
 
     public class NestedExecutionPlanGraphProperty : ExecutionPlanGraphPropertyBase
@@ -194,6 +194,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
     {
         STRING = 0,
         NUMBER = 1,
-        BOOLEAN = 1
+        BOOLEAN = 2,
+        NESTED = 3
     }
 }
