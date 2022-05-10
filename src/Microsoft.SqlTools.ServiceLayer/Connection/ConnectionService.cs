@@ -60,6 +60,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         private readonly ConcurrentDictionary<CancelTokenKey, CancellationTokenSource> cancelTupleToCancellationTokenSourceMap =
                     new ConcurrentDictionary<CancelTokenKey, CancellationTokenSource>();
 
+        /// <summary>
+        /// A map containing the uris of editors whose azure tokens are being refreshed, these editors should have intellisense
+        /// disabled until the new refresh token is returned, upon which they will be removed from the map
+        /// </summary>
         private readonly ConcurrentDictionary<string, Boolean> TokenUpdateUris = new ConcurrentDictionary<string, Boolean>();
         private readonly object cancellationTokenSourceLock = new object();
 
