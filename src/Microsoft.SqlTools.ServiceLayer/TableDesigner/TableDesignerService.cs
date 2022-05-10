@@ -113,6 +113,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         case DesignerEditType.Update:
                             refreshViewRequired = this.HandleUpdateItemRequest(requestParams);
                             break;
+                        case DesignerEditType.Move:
+                            this.HandleMoveItemRequest(requestParams);
+                            break;
                         default:
                             break;
                     }
@@ -212,13 +215,14 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             var table = this.GetTableDesigner(requestParams.TableInfo).TableViewModel;
             var path = requestParams.TableChangeInfo.Path;
             // Handle the add item request on top level table properties, e.g. Columns, Indexes.
-            if (path.Length == 1)
+            if (path.Length == 2)
             {
                 var propertyName = path[0] as string;
+                var index = Convert.ToInt32(path[1]);
                 switch (propertyName)
                 {
                     case TablePropertyNames.Columns:
-                        table.Columns.AddNew();
+                        table.Columns.AddNew(index);
                         break;
                     case TablePropertyNames.CheckConstraints:
                         table.CheckConstraints.AddNew();
@@ -243,11 +247,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         break;
                 }
             }
-            else if (path.Length == 3)
+            else if (path.Length == 4)
             {
                 var propertyNameL1 = path[0] as string;
                 var indexL1 = Convert.ToInt32(path[1]);
                 var propertyNameL2 = path[2] as string;
+                var indexL2 = Convert.ToInt32(path[3]);
                 switch (propertyNameL1)
                 {
                     case TablePropertyNames.ForeignKeys:
@@ -691,6 +696,27 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             return refreshView;
         }
 
+        private void HandleMoveItemRequest(ProcessTableDesignerEditRequestParams requestParams)
+        {
+            var table = this.GetTableDesigner(requestParams.TableInfo).TableViewModel;
+            var path = requestParams.TableChangeInfo.Path;
+            // Handle the move item request on top level table properties, e.g. Columns, Indexes.
+            if (path.Length == 2)
+            {
+                var propertyName = path[0] as string;
+                var fromIndex = Convert.ToInt32(path[1]);
+                var toIndex = Convert.ToInt32(requestParams.TableChangeInfo.Value);
+                switch (propertyName)
+                {
+                    case TablePropertyNames.Columns:
+                        table.Columns.Move(fromIndex, toIndex);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
         private int GetInt32Value(object value)
         {
             return Int32.Parse(value as string);
@@ -982,6 +1008,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             });
             view.ColumnTableOptions.CanAddRows = true;
             view.ColumnTableOptions.CanRemoveRows = true;
+            view.ColumnTableOptions.CanMoveRows = true;
+            view.ColumnTableOptions.CanInsertRows = true;
             view.ColumnTableOptions.RemoveRowConfirmationMessage = SR.TableDesignerDeleteColumnConfirmationMessage;
             view.ColumnTableOptions.ShowRemoveRowConfirmation = true;
         }
@@ -1012,6 +1040,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             });
             view.ForeignKeyTableOptions.CanAddRows = true;
             view.ForeignKeyTableOptions.CanRemoveRows = true;
+            view.ForeignKeyTableOptions.CanMoveRows = false;
+            view.ForeignKeyTableOptions.CanInsertRows = false;
         }
 
         private void SetCheckConstraintsViewInfo(TableDesignerView view)
@@ -1029,6 +1059,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 });
             view.CheckConstraintTableOptions.CanAddRows = true;
             view.CheckConstraintTableOptions.CanRemoveRows = true;
+            view.CheckConstraintTableOptions.CanMoveRows = false;
+            view.CheckConstraintTableOptions.CanInsertRows = false;
         }
 
         private void SetIndexesViewInfo(TableDesignerView view)
@@ -1079,6 +1111,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             view.IndexTableOptions.PropertiesToDisplay = new List<string>() { IndexPropertyNames.Name, IndexPropertyNames.ColumnsDisplayValue, IndexPropertyNames.IsClustered, IndexPropertyNames.IsUnique };
             view.IndexTableOptions.CanAddRows = true;
             view.IndexTableOptions.CanRemoveRows = true;
+            view.IndexTableOptions.CanMoveRows = false;
+            view.IndexTableOptions.CanInsertRows = false;
 
             view.IndexColumnSpecificationTableOptions.AdditionalProperties.Add(
                 new DesignerDataPropertyInfo()
@@ -1094,6 +1128,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             view.IndexColumnSpecificationTableOptions.PropertiesToDisplay.AddRange(new string[] { IndexColumnSpecificationPropertyNames.Column, IndexColumnSpecificationPropertyNames.Ascending });
             view.IndexColumnSpecificationTableOptions.CanAddRows = true;
             view.IndexColumnSpecificationTableOptions.CanRemoveRows = true;
+            view.IndexColumnSpecificationTableOptions.CanMoveRows = false;
+            view.IndexColumnSpecificationTableOptions.CanInsertRows = false;
         }
 
         private void SetGraphTableViewInfo(TableDesignerView view, Dac.TableDesigner tableDesigner)

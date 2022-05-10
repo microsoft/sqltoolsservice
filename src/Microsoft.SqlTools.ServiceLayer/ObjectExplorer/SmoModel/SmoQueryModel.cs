@@ -13,6 +13,7 @@ using System.Composition;
 using System.Linq;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Broker;
+using Microsoft.SqlTools.Utility;
 using Index = Microsoft.SqlServer.Management.Smo.Index;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
@@ -27,6 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query Database");
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
@@ -34,7 +36,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<Database>(retValue).Where(c => PassesFinalFilters(parentServer, c));
+                    var ret = new SmoCollectionWrapper<Database>(retValue).Where(c => PassesFinalFilters(parentServer, c));
+                    Logger.Verbose("End query Database");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -50,6 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query LinkedServer");
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
@@ -57,7 +62,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<LinkedServer>(retValue).Where(c => PassesFinalFilters(parentServer, c));
+                    var ret = new SmoCollectionWrapper<LinkedServer>(retValue).Where(c => PassesFinalFilters(parentServer, c));
+                    Logger.Verbose("End query LinkedServer");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -73,6 +80,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query Login");
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
@@ -80,7 +88,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<Login>(retValue).Where(c => PassesFinalFilters(parentServer, c));
+                    var ret = new SmoCollectionWrapper<Login>(retValue).Where(c => PassesFinalFilters(parentServer, c));
+                    Logger.Verbose("End query Login");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -96,6 +106,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query ServerRole");
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
@@ -103,7 +114,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<ServerRole>(retValue).Where(c => PassesFinalFilters(parentServer, c));
+                    var ret = new SmoCollectionWrapper<ServerRole>(retValue).Where(c => PassesFinalFilters(parentServer, c));
+                    Logger.Verbose("End query ServerRole");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -119,6 +132,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query Credential");
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
@@ -126,7 +140,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<Credential>(retValue).Where(c => PassesFinalFilters(parentServer, c));
+                    var ret = new SmoCollectionWrapper<Credential>(retValue).Where(c => PassesFinalFilters(parentServer, c));
+                    Logger.Verbose("End query Credential");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -142,6 +158,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query CryptographicProvider");
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
@@ -149,7 +166,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<CryptographicProvider>(retValue).Where(c => PassesFinalFilters(parentServer, c));
+                    var ret = new SmoCollectionWrapper<CryptographicProvider>(retValue).Where(c => PassesFinalFilters(parentServer, c));
+                    Logger.Verbose("End query CryptographicProvider");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -165,6 +184,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query Audit");
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
@@ -172,7 +192,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<Audit>(retValue).Where(c => PassesFinalFilters(parentServer, c));
+                    var ret = new SmoCollectionWrapper<Audit>(retValue).Where(c => PassesFinalFilters(parentServer, c));
+                    Logger.Verbose("End query Audit");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -188,6 +210,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query ServerAuditSpecification");
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
@@ -195,7 +218,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<ServerAuditSpecification>(retValue).Where(c => PassesFinalFilters(parentServer, c));
+                    var ret = new SmoCollectionWrapper<ServerAuditSpecification>(retValue).Where(c => PassesFinalFilters(parentServer, c));
+                    Logger.Verbose("End query ServerAuditSpecification");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -211,6 +236,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query Endpoint");
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
@@ -218,7 +244,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<Endpoint>(retValue).Where(c => PassesFinalFilters(parentServer, c));
+                    var ret = new SmoCollectionWrapper<Endpoint>(retValue).Where(c => PassesFinalFilters(parentServer, c));
+                    Logger.Verbose("End query Endpoint");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -234,6 +262,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query LinkedServer");
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
@@ -241,7 +270,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<LinkedServer>(retValue).Where(c => PassesFinalFilters(parentServer, c));
+                    var ret = new SmoCollectionWrapper<LinkedServer>(retValue).Where(c => PassesFinalFilters(parentServer, c));
+                    Logger.Verbose("End query LinkedServer");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -260,6 +291,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query ServerDdlTrigger");
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
@@ -267,7 +299,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<ServerDdlTrigger>(retValue).Where(c => PassesFinalFilters(parentServer, c));
+                    var ret = new SmoCollectionWrapper<ServerDdlTrigger>(retValue).Where(c => PassesFinalFilters(parentServer, c));
+                    Logger.Verbose("End query ServerDdlTrigger");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -283,6 +317,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query UserDefinedMessage");
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
@@ -290,7 +325,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<UserDefinedMessage>(retValue).Where(c => PassesFinalFilters(parentServer, c));
+                    var ret = new SmoCollectionWrapper<UserDefinedMessage>(retValue).Where(c => PassesFinalFilters(parentServer, c));
+                    Logger.Verbose("End query UserDefinedMessage");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -306,6 +343,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query Table");
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
@@ -313,7 +351,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<Table>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<Table>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    Logger.Verbose("End query Table");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -329,6 +369,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query Table");
             Table parentTable = context.Parent as Table;
             if (parentTable != null)
             {
@@ -336,7 +377,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<Table>(retValue).Where(c => PassesFinalFilters(parentTable, c));
+                    var ret = new SmoCollectionWrapper<Table>(retValue).Where(c => PassesFinalFilters(parentTable, c));
+                    Logger.Verbose("End query Table");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -352,6 +395,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query View");
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
@@ -359,7 +403,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<View>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<View>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    Logger.Verbose("End query View");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -378,6 +424,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query Synonym");
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
@@ -385,7 +432,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<Synonym>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<Synonym>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    Logger.Verbose("End query Synonym");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -401,6 +450,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query Column");
             TableViewTableTypeBase parentTableViewTableTypeBase = context.Parent as TableViewTableTypeBase;
             if (parentTableViewTableTypeBase != null)
             {
@@ -408,7 +458,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<Column>(retValue).Where(c => PassesFinalFilters(parentTableViewTableTypeBase, c));
+                    var ret = new SmoCollectionWrapper<Column>(retValue).Where(c => PassesFinalFilters(parentTableViewTableTypeBase, c));
+                    Logger.Verbose("End query Column");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -424,6 +476,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query Index");
             TableViewTableTypeBase parentTableViewTableTypeBase = context.Parent as TableViewTableTypeBase;
             if (parentTableViewTableTypeBase != null)
             {
@@ -431,7 +484,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<Index>(retValue).Where(c => PassesFinalFilters(parentTableViewTableTypeBase, c));
+                    var ret = new SmoCollectionWrapper<Index>(retValue).Where(c => PassesFinalFilters(parentTableViewTableTypeBase, c));
+                    Logger.Verbose("End query Index");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -447,6 +502,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query Check");
             Table parentTable = context.Parent as Table;
             if (parentTable != null)
             {
@@ -454,7 +510,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<Check>(retValue).Where(c => PassesFinalFilters(parentTable, c));
+                    var ret = new SmoCollectionWrapper<Check>(retValue).Where(c => PassesFinalFilters(parentTable, c));
+                    Logger.Verbose("End query Check");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -470,6 +528,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query ForeignKey");
             Table parentTable = context.Parent as Table;
             if (parentTable != null)
             {
@@ -477,7 +536,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<ForeignKey>(retValue).Where(c => PassesFinalFilters(parentTable, c));
+                    var ret = new SmoCollectionWrapper<ForeignKey>(retValue).Where(c => PassesFinalFilters(parentTable, c));
+                    Logger.Verbose("End query ForeignKey");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -493,6 +554,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query DefaultConstraint");
             Table parentTable = context.Parent as Table;
             if (parentTable != null)
             {
@@ -509,7 +571,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                             subFieldResult.Add(subField);
                         }
                     }
-                    return subFieldResult.Where(c => PassesFinalFilters(parentTable, c));
+                    var ret = subFieldResult.Where(c => PassesFinalFilters(parentTable, c));
+                    Logger.Verbose("End query DefaultConstraint");
+                    return ret;
                 }
             }
             UserDefinedTableType parentUserDefinedTableType = context.Parent as UserDefinedTableType;
@@ -528,7 +592,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                             subFieldResult.Add(subField);
                         }
                     }
-                    return subFieldResult.Where(c => PassesFinalFilters(parentUserDefinedTableType, c));
+                    var ret = subFieldResult.Where(c => PassesFinalFilters(parentUserDefinedTableType, c));
+                    Logger.Verbose("End query DefaultConstraint");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -547,6 +613,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query Trigger");
             Table parentTable = context.Parent as Table;
             if (parentTable != null)
             {
@@ -554,7 +621,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<Trigger>(retValue).Where(c => PassesFinalFilters(parentTable, c));
+                    var ret = new SmoCollectionWrapper<Trigger>(retValue).Where(c => PassesFinalFilters(parentTable, c));
+                    Logger.Verbose("End query Trigger");
+                    return ret;
                 }
             }
             View parentView = context.Parent as View;
@@ -564,7 +633,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<Trigger>(retValue).Where(c => PassesFinalFilters(parentView, c));
+                    var ret = new SmoCollectionWrapper<Trigger>(retValue).Where(c => PassesFinalFilters(parentView, c));
+                    Logger.Verbose("End query Trigger");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -583,6 +654,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query FullTextIndex");
             Table parentTable = context.Parent as Table;
             if (parentTable != null)
             {
@@ -609,6 +681,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query Statistic");
             TableViewBase parentTableViewBase = context.Parent as TableViewBase;
             if (parentTableViewBase != null)
             {
@@ -616,7 +689,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<Statistic>(retValue).Where(c => PassesFinalFilters(parentTableViewBase, c));
+                    var ret = new SmoCollectionWrapper<Statistic>(retValue).Where(c => PassesFinalFilters(parentTableViewBase, c));
+                    Logger.Verbose("End query Statistic");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -635,6 +710,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query DatabaseDdlTrigger");
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
@@ -642,7 +718,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<DatabaseDdlTrigger>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<DatabaseDdlTrigger>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    Logger.Verbose("End query DatabaseDdlTrigger");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -658,6 +736,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query SqlAssembly");
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
@@ -665,7 +744,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<SqlAssembly>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<SqlAssembly>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    Logger.Verbose("End query SqlAssembly");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -681,6 +762,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query Sequence");
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
@@ -688,7 +770,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<Sequence>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<Sequence>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    Logger.Verbose("End query Sequence");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -707,6 +791,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query UserDefinedDataType");
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
@@ -714,7 +799,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<UserDefinedDataType>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<UserDefinedDataType>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    Logger.Verbose("End query UserDefinedDataType");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -730,6 +817,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query UserDefinedTableType");
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
@@ -737,7 +825,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<UserDefinedTableType>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<UserDefinedTableType>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    Logger.Verbose("End query UserDefinedTableType");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -753,6 +843,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query XmlSchemaCollection");
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
@@ -760,7 +851,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<XmlSchemaCollection>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<XmlSchemaCollection>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    Logger.Verbose("End query XmlSchemaCollection");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -776,6 +869,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query UserDefinedType");
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
@@ -783,7 +877,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<UserDefinedType>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<UserDefinedType>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    Logger.Verbose("End query UserDefinedType");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -799,6 +895,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query UserDefinedFunction");
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
@@ -806,7 +903,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<UserDefinedFunction>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<UserDefinedFunction>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    Logger.Verbose("End query UserDefinedFunction");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -822,6 +921,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query UserDefinedAggregate");
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
@@ -829,7 +929,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<UserDefinedAggregate>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<UserDefinedAggregate>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    Logger.Verbose("End query UserDefinedAggregate");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -845,6 +947,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query FileGroup");
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
@@ -852,7 +955,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<FileGroup>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<FileGroup>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    Logger.Verbose("End query FileGroup");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -868,6 +973,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query DataFile");
             FileGroup parentFileGroup = context.Parent as FileGroup;
             if (parentFileGroup != null)
             {
@@ -875,7 +981,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<DataFile>(retValue).Where(c => PassesFinalFilters(parentFileGroup, c));
+                    var ret = new SmoCollectionWrapper<DataFile>(retValue).Where(c => PassesFinalFilters(parentFileGroup, c));
+                    Logger.Verbose("End query DataFile");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -891,6 +999,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query FullTextCatalog");
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
@@ -898,7 +1007,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<FullTextCatalog>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<FullTextCatalog>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    Logger.Verbose("End query FullTextCatalog");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -914,6 +1025,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query FullTextStopList");
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
@@ -921,7 +1033,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<FullTextStopList>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<FullTextStopList>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    Logger.Verbose("End query FullTextStopList");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -937,6 +1051,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query PartitionFunction");
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
@@ -944,7 +1059,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<PartitionFunction>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<PartitionFunction>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    Logger.Verbose("End query PartitionFunction");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -960,6 +1077,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query PartitionScheme");
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
@@ -967,7 +1085,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<PartitionScheme>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<PartitionScheme>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    Logger.Verbose("End query PartitionScheme");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -983,6 +1103,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query SearchPropertyList");
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
@@ -990,7 +1111,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<SearchPropertyList>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<SearchPropertyList>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    Logger.Verbose("End query SearchPropertyList");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1006,6 +1129,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query User");
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
@@ -1013,7 +1137,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<User>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<User>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    Logger.Verbose("End query User");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1029,6 +1155,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query Schema");
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
@@ -1036,7 +1163,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<Schema>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<Schema>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    Logger.Verbose("End query Schema");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1052,6 +1181,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query AsymmetricKey");
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
@@ -1059,7 +1189,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<AsymmetricKey>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<AsymmetricKey>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    Logger.Verbose("End query AsymmetricKey");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1075,6 +1207,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query Certificate");
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
@@ -1082,7 +1215,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<Certificate>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<Certificate>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    Logger.Verbose("End query Certificate");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1098,6 +1233,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query SymmetricKey");
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
@@ -1105,7 +1241,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<SymmetricKey>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<SymmetricKey>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    Logger.Verbose("End query SymmetricKey");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1121,6 +1259,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query DatabaseEncryptionKey");
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
@@ -1147,6 +1286,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query MasterKey");
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
@@ -1173,6 +1313,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query DatabaseAuditSpecification");
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
@@ -1180,7 +1321,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<DatabaseAuditSpecification>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<DatabaseAuditSpecification>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    Logger.Verbose("End query DatabaseAuditSpecification");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1196,6 +1339,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query SecurityPolicy");
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
@@ -1203,7 +1347,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<SecurityPolicy>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<SecurityPolicy>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    Logger.Verbose("End query SecurityPolicy");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1219,6 +1365,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query DatabaseScopedCredential");
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
@@ -1226,7 +1373,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<DatabaseScopedCredential>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<DatabaseScopedCredential>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    Logger.Verbose("End query DatabaseScopedCredential");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1242,6 +1391,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query DatabaseRole");
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
@@ -1249,7 +1399,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<DatabaseRole>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<DatabaseRole>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    Logger.Verbose("End query DatabaseRole");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1265,6 +1417,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query ApplicationRole");
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
@@ -1272,7 +1425,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<ApplicationRole>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<ApplicationRole>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    Logger.Verbose("End query ApplicationRole");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1288,6 +1443,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query ColumnMasterKey");
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
@@ -1295,7 +1451,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<ColumnMasterKey>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<ColumnMasterKey>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    Logger.Verbose("End query ColumnMasterKey");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1311,6 +1469,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query ColumnEncryptionKey");
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
@@ -1318,7 +1477,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<ColumnEncryptionKey>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<ColumnEncryptionKey>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    Logger.Verbose("End query ColumnEncryptionKey");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1334,6 +1495,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query ServiceBroker");
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
@@ -1360,6 +1522,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query BrokerService");
             ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
             if (parentServiceBroker != null)
             {
@@ -1367,7 +1530,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<BrokerService>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
+                    var ret = new SmoCollectionWrapper<BrokerService>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
+                    Logger.Verbose("End query BrokerService");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1383,6 +1548,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query ServiceContract");
             ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
             if (parentServiceBroker != null)
             {
@@ -1390,7 +1556,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<ServiceContract>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
+                    var ret = new SmoCollectionWrapper<ServiceContract>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
+                    Logger.Verbose("End query ServiceContract");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1406,6 +1574,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query ServiceQueue");
             ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
             if (parentServiceBroker != null)
             {
@@ -1413,7 +1582,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<ServiceQueue>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
+                    var ret = new SmoCollectionWrapper<ServiceQueue>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
+                    Logger.Verbose("End query ServiceQueue");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1429,6 +1600,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query RemoteServiceBinding");
             ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
             if (parentServiceBroker != null)
             {
@@ -1436,7 +1608,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<RemoteServiceBinding>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
+                    var ret = new SmoCollectionWrapper<RemoteServiceBinding>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
+                    Logger.Verbose("End query RemoteServiceBinding");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1452,6 +1626,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query BrokerPriority");
             ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
             if (parentServiceBroker != null)
             {
@@ -1459,7 +1634,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<BrokerPriority>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
+                    var ret = new SmoCollectionWrapper<BrokerPriority>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
+                    Logger.Verbose("End query BrokerPriority");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1475,6 +1652,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query MessageType");
             ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
             if (parentServiceBroker != null)
             {
@@ -1482,7 +1660,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<MessageType>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
+                    var ret = new SmoCollectionWrapper<MessageType>(retValue).Where(c => PassesFinalFilters(parentServiceBroker, c));
+                    Logger.Verbose("End query MessageType");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1498,6 +1678,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query ExternalDataSource");
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
@@ -1505,7 +1686,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<ExternalDataSource>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<ExternalDataSource>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    Logger.Verbose("End query ExternalDataSource");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1521,6 +1704,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query ExternalFileFormat");
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
@@ -1528,7 +1712,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<ExternalFileFormat>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<ExternalFileFormat>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    Logger.Verbose("End query ExternalFileFormat");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1544,6 +1730,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query StoredProcedure");
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
@@ -1551,7 +1738,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<StoredProcedure>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<StoredProcedure>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    Logger.Verbose("End query StoredProcedure");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1567,6 +1756,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query ExtendedStoredProcedure");
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
@@ -1574,7 +1764,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<ExtendedStoredProcedure>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<ExtendedStoredProcedure>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    Logger.Verbose("End query ExtendedStoredProcedure");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1590,6 +1782,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query Parameter");
             StoredProcedure parentStoredProcedure = context.Parent as StoredProcedure;
             if (parentStoredProcedure != null)
             {
@@ -1597,7 +1790,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<Parameter>(retValue).Where(c => PassesFinalFilters(parentStoredProcedure, c));
+                    var ret = new SmoCollectionWrapper<Parameter>(retValue).Where(c => PassesFinalFilters(parentStoredProcedure, c));
+                    Logger.Verbose("End query Parameter");
+                    return ret;
                 }
             }
             UserDefinedAggregate parentUserDefinedAggregate = context.Parent as UserDefinedAggregate;
@@ -1607,7 +1802,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<Parameter>(retValue).Where(c => PassesFinalFilters(parentUserDefinedAggregate, c));
+                    var ret = new SmoCollectionWrapper<Parameter>(retValue).Where(c => PassesFinalFilters(parentUserDefinedAggregate, c));
+                    Logger.Verbose("End query Parameter");
+                    return ret;
                 }
             }
             UserDefinedFunction parentUserDefinedFunction = context.Parent as UserDefinedFunction;
@@ -1617,7 +1814,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<Parameter>(retValue).Where(c => PassesFinalFilters(parentUserDefinedFunction, c));
+                    var ret = new SmoCollectionWrapper<Parameter>(retValue).Where(c => PassesFinalFilters(parentUserDefinedFunction, c));
+                    Logger.Verbose("End query Parameter");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1633,6 +1832,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query PartitionFunctionParameter");
             PartitionFunction parentPartitionFunction = context.Parent as PartitionFunction;
             if (parentPartitionFunction != null)
             {
@@ -1640,7 +1840,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<PartitionFunctionParameter>(retValue).Where(c => PassesFinalFilters(parentPartitionFunction, c));
+                    var ret = new SmoCollectionWrapper<PartitionFunctionParameter>(retValue).Where(c => PassesFinalFilters(parentPartitionFunction, c));
+                    Logger.Verbose("End query PartitionFunctionParameter");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();
@@ -1656,6 +1858,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)
         {
+            Logger.Verbose("Begin query SystemDataType");
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
@@ -1663,7 +1866,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 if (retValue != null)
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
-                    return new SmoCollectionWrapper<SystemDataType>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    var ret = new SmoCollectionWrapper<SystemDataType>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    Logger.Verbose("End query SystemDataType");
+                    return ret;
                 }
             }
             return Enumerable.Empty<SqlSmoObject>();

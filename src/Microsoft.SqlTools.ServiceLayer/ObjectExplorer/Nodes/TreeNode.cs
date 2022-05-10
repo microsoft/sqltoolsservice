@@ -343,7 +343,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                         cancellationToken.ThrowIfCancellationRequested();
                         try
                         {
+                            Logger.Verbose($"Begin populate children for {this.GetNodePath()} using {factory.GetType()} factory");
                             IEnumerable<TreeNode> items = factory.Expand(this, refresh, name, includeSystemObjects, cancellationToken);
+                            Logger.Verbose($"End populate children for {this.GetNodePath()} using {factory.GetType()} factory");
                             if (items != null)
                             {
                                 foreach (TreeNode item in items)
