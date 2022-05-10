@@ -60,7 +60,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         private readonly ConcurrentDictionary<CancelTokenKey, CancellationTokenSource> cancelTupleToCancellationTokenSourceMap =
                     new ConcurrentDictionary<CancelTokenKey, CancellationTokenSource>();
 
-        public ConcurrentDictionary<string, Boolean> TokenUpdateUris = new ConcurrentDictionary<string, Boolean>();
+        private readonly ConcurrentDictionary<string, Boolean> TokenUpdateUris = new ConcurrentDictionary<string, Boolean>();
         private readonly object cancellationTokenSourceLock = new object();
 
         private ConcurrentDictionary<string, IConnectedBindingQueue> connectedQueues = new ConcurrentDictionary<string, IConnectedBindingQueue>();
@@ -264,26 +264,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                             Resource = "SQL",
                             Uri = ownerUri
                         };
-                        if (requestMessage.TenantId == null || requestMessage.TenantId == String.Empty)
+                        if (String.IsNullOrEmpty(requestMessage.TenantId))
                         {
                             Logger.Write(TraceEventType.Error, "No tenant in connection details when refreshing token for connection {ownerUri}");
                             return false;
                         }
-                        if (requestMessage.AccountId == null || requestMessage.AccountId == String.Empty)
+                        if (String.IsNullOrEmpty(requestMessage.AccountId))
                         {
                             Logger.Write(TraceEventType.Error, "No accountId in connection details when refreshing token for connection {ownerUri}");
                             return false;
                         }
-                        try
-                        {
-                            this.TokenUpdateUris.TryAdd(ownerUri, true);
-                            await this.ServiceHost.SendEvent(RefreshTokenNotification.Type, requestMessage);
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.Write(TraceEventType.Error, "Failed to send RefreshTokenNotification " + ex.Message);
-                            return false;
-                        }
+                        this.TokenUpdateUris.TryAdd(ownerUri, true);
+                        await this.ServiceHost.SendEvent(RefreshTokenNotification.Type, requestMessage);
                         return true;
                     }
                     else

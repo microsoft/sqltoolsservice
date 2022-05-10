@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         public string AccountId { get; set; }
 
         /// <summary>
-        /// Gets or sets the account ID
+        /// Gets or sets the URI
         /// </summary>
         public string Uri { get; set; }
 
@@ -49,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
     class TokenRefreshedParams
     {
         /// <summary>
-        /// Gets or sets the access token.
+        /// Gets or sets the refresh token.
         /// </summary>
         public string Token { get; set; }
 
