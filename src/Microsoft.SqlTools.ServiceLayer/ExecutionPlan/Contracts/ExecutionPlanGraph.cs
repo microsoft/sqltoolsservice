@@ -103,6 +103,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         /// </summary>
         /// <value></value>
         public string DisplayValue { get; set; }
+        /// <summary>
+        /// Property type
+        /// </summary>
+        public ExecutionPlanGraphPropertyType PropertyType { get; set; }
     }
 
     public class NestedExecutionPlanGraphProperty : ExecutionPlanGraphPropertyBase
@@ -184,5 +188,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         WARNING = 0,
         CRITICALWARNING = 1,
         PARALLELISM = 2
+    }
+
+    public enum ExecutionPlanGraphPropertyType 
+    {
+        STRING = 0,
+        NUMBER = 1,
+        BOOLEAN = 1
     }
 }

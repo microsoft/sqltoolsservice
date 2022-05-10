@@ -283,5 +283,28 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         private bool longString = false;
     }
 
+    public sealed class BetterValueAttribute: Attribute 
+    {
+        public enum BetterType {
+            NEUTRAL,
+            TRUE,
+            FALSE,
+            LOWER,
+            HIGHER
+        }
+
+        public BetterValueAttribute()
+        {
+            this.value = BetterType.NEUTRAL;
+        }
+
+        public BetterValueAttribute(BetterType better)
+        {
+            this.value = better;
+        }
+        
+        private BetterType value = BetterType.NEUTRAL;
+    }
+
     #endregion
 }
