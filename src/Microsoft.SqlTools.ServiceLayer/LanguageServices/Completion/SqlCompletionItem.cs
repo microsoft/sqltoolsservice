@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
         private static DelimitedIdentifier FunctionPostfix = new DelimitedIdentifier { Start = "", End = "()" };
         private static DelimitedIdentifier[] DelimitedIdentifiers =
             new DelimitedIdentifier[] { BracketedIdentifiers, new DelimitedIdentifier { Start = "\"", End = "\"" } };
-        private static readonly IList<string> AnsiScalarFunctions = new List<string>()
+        public static readonly IList<string> AnsiScalarFunctions = new List<string>()
         {
             "CURRENT_DATE",
             "CURRENT_TIME",

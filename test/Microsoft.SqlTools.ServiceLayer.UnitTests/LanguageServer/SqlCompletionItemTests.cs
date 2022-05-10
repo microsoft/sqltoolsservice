@@ -248,6 +248,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         {
             foreach (string word in AutoCompleteHelper.DefaultCompletionText)
             {
+                if (SqlCompletionItem.AnsiScalarFunctions.Contains(word.ToUpperInvariant()))
+                {
+                    // Skip ANSI scalar functions, those don't have parentheses
+                    continue;
+                }
                 string declarationTitle = word;
                 string tokenText = "";
                 SqlCompletionItem item = new SqlCompletionItem(declarationTitle, declarationType, tokenText);
