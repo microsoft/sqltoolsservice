@@ -6,6 +6,7 @@
 using Microsoft.SqlTools.ServiceLayer.AzureFunctions;
 using Microsoft.SqlTools.ServiceLayer.AzureFunctions.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.ServiceLayer.Test.Common.Extensions;
 using NUnit.Framework;
 using System;
 using System.IO;
@@ -39,12 +40,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
             AddSqlBindingOperation operation = new AddSqlBindingOperation(parameters);
             ResultStatus result = operation.AddBinding();
 
-            Assert.True(result.Success);
-            Assert.IsNull(result.ErrorMessage);
+            Assert.That(result.Success, Is.True, "Operation should be successful");
+            Assert.That(result.ErrorMessage, Is.Null, "There should be no errors");
 
             string expectedFileText = File.ReadAllText(Path.Join(testAzureFunctionsFolder, "AzureFunctionsInputBinding.cs"));
             string actualFileText = File.ReadAllText(testFile);
-            Assert.AreEqual(expectedFileText, actualFileText);
+            Assert.That(expectedFileText.NormalizeLineEndings(), Is.EqualTo(actualFileText.NormalizeLineEndings()));
         }
 
         /// <summary>
@@ -70,12 +71,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
             AddSqlBindingOperation operation = new AddSqlBindingOperation(parameters);
             ResultStatus result = operation.AddBinding();
 
-            Assert.True(result.Success);
-            Assert.IsNull(result.ErrorMessage);
+            Assert.That(result.Success, Is.True, "Operation should be successful");
+            Assert.That(result.ErrorMessage, Is.Null, "There should be no errors");
 
             string expectedFileText = File.ReadAllText(Path.Join(testAzureFunctionsFolder, "AzureFunctionsOutputBinding.cs"));
             string actualFileText = File.ReadAllText(testFile);
-            Assert.AreEqual(expectedFileText, actualFileText);
+            Assert.That(expectedFileText.NormalizeLineEndings(), Is.EqualTo(actualFileText.NormalizeLineEndings()));
         }
 
         /// <summary>
