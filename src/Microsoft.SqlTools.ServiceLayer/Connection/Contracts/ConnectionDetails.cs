@@ -560,7 +560,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         {
             get
             {
-                return GetOptionValue<int>("expiresOn");
+                return GetOptionValue<int?>("expiresOn");
             }
             set
             {

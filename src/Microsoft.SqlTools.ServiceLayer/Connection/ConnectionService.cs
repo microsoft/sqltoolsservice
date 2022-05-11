@@ -33,7 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public const string AdminConnectionPrefix = "ADMIN:";
         internal const string PasswordPlaceholder = "******";
         private const string SqlAzureEdition = "SQL Azure";
-        public const int maxTolerance = 2 * 60; // two minutes
+        public const int MaxTolerance = 2 * 60; // two minutes - standard tolerance across ADS for AAD tokens
 
         /// <summary>
         /// Singleton service instance
@@ -252,7 +252,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 else
                 {
                     // Check if token is expired or about to expire
-                    if (connInfo.ConnectionDetails.ExpiresOn - DateTimeOffset.Now.ToUnixTimeSeconds() < maxTolerance)
+                    if (connInfo.ConnectionDetails.ExpiresOn - DateTimeOffset.Now.ToUnixTimeSeconds() < MaxTolerance)
                     {
 
                         var requestMessage = new RefreshTokenParams

@@ -459,8 +459,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     if (!await connectionService.TryRequestRefreshAuthToken(scriptFile.ClientUri))
                     {
                         ConnectionServiceInstance.TryFindConnection(
-                        scriptFile.ClientUri,
-                        out connInfo);                       
+                            scriptFile.ClientUri,
+                            out connInfo);
                     }
                     var completionItems = await GetCompletionItems(
                         textDocumentPosition, scriptFile, connInfo);
@@ -1224,7 +1224,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             return prevSqlText.Length != currentSqlText.Length
                 || !string.Equals(prevSqlText, currentSqlText);
         }
-        
+
         /// <summary>
         /// Resolves the details and documentation for a completion item
         /// </summary>
