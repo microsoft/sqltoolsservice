@@ -556,7 +556,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
             }
         }
 
-        public int ExpiresOn
+        public int? ExpiresOn
         {
             get
             {
