@@ -6039,8 +6039,8 @@ The Query Processor estimates that implementing the following index could improv
         <note></note>
       </trans-unit>
       <trans-unit id="TableColumnIsComputedPersistedTitle">
-        <source>Is Computed Persisted</source>
-        <target state="new">Is Computed Persisted</target>
+        <source>Is Persisted</source>
+        <target state="new">Is Persisted</target>
         <note></note>
       </trans-unit>
       <trans-unit id="TableColumnIsComputedPersistedDescription">
@@ -6049,8 +6049,8 @@ The Query Processor estimates that implementing the following index could improv
         <note></note>
       </trans-unit>
       <trans-unit id="TableColumnIsComputedPersistedNullableTitle">
-        <source>Is Computed Persisted Nullable</source>
-        <target state="new">Is Computed Persisted Nullable</target>
+        <source>Is Persisted Nullable</source>
+        <target state="new">Is Persisted Nullable</target>
         <note></note>
       </trans-unit>
       <trans-unit id="TableColumnIsComputedPersistedNullableDescription">

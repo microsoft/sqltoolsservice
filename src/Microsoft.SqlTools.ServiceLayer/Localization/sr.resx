@@ -4960,7 +4960,7 @@ The Query Processor estimates that implementing the following index could improv
     <comment></comment>
   </data>
   <data name="TableColumnIsComputedPersistedTitle" xml:space="preserve">
-    <value>Is Computed Persisted</value>
+    <value>Is Persisted</value>
     <comment></comment>
   </data>
   <data name="TableColumnIsComputedPersistedDescription" xml:space="preserve">
@@ -4968,7 +4968,7 @@ The Query Processor estimates that implementing the following index could improv
     <comment></comment>
   </data>
   <data name="TableColumnIsComputedPersistedNullableTitle" xml:space="preserve">
-    <value>Is Computed Persisted Nullable</value>
+    <value>Is Persisted Nullable</value>
     <comment></comment>
   </data>
   <data name="TableColumnIsComputedPersistedNullableDescription" xml:space="preserve">
