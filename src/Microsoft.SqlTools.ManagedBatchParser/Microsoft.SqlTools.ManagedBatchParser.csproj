@@ -12,7 +12,6 @@
 		<PackageReference Include="Microsoft.Data.SqlClient" />
 		<PackageReference Include="Microsoft.SqlServer.DACFx" />
 		<PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" />
-		<PackageReference Include="Microsoft.SqlServer.Management.SmoMetadataProvider" />
 	</ItemGroup>
 	<ItemGroup>
 		<EmbeddedResource Include="Localization\*.resx" />
