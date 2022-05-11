@@ -454,10 +454,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 else
                 {
                     ConnectionInfo connInfo = null;
-                    if (!await connectionService.TryRefreshAuthToken(scriptFile.ClientUri))
+                    // Check if we need to refresh the auth token, and if we do then don't pass in the 
+                    // connection so that we only show the default options until the refreshed token is returned
+                    if (!await connectionService.TryRequestRefreshAuthToken(scriptFile.ClientUri))
                     {
-                        // if the auth token needs to be refreshed, we will disable intellisense until it has been refreshed.
-                        // get the current list of completion items and return to client
                         ConnectionServiceInstance.TryFindConnection(
                         scriptFile.ClientUri,
                         out connInfo);                       

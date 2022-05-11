@@ -41,11 +41,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// Gets or sets the access token.
         /// </summary>
         public string Token { get; set; }
-
-        /// <summmary>
-        /// Gets or sets the token expiration
-        /// </summary>
-        public int ExpiresOn { get; set; }
     }
 
     /// <summary>

@@ -237,11 +237,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// Refreshes the auth token of a given connection, if needed
         /// </summary>
         /// <param name="ownerUri">The URI of the connection</param>
-        /// <returns>true if a refresh is needed,
-        /// false if the uri cannot be found, refresh is not needed,
-        /// refresh token has already been requested, or if refresh fails </returns>
+        /// <returns> True if a refreshed was needed and requested, false otherwise </returns>
 
-        internal async Task<bool> TryRefreshAuthToken(string ownerUri)
+        internal async Task<bool> TryRequestRefreshAuthToken(string ownerUri)
         {
             ConnectionInfo connInfo;
             if (this.TryFindConnection(ownerUri, out connInfo))
@@ -278,7 +276,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         // Check if the token is updating already, in which case there is no need to request a new one
                         if (!this.TokenUpdateUris.TryAdd(ownerUri, true))
                         {
-                            return false;
+                            return true;
                         }
                         await this.ServiceHost.SendEvent(RefreshTokenNotification.Type, requestMessage);
                         return true;
@@ -307,6 +305,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             if (!this.TryFindConnection(tokenRefreshedParams.Uri, out ConnectionInfo connection))
             {
                 Logger.Error($"Failed to find connection when updating refreshed token for URI {tokenRefreshedParams.Uri}");
+                return;
             }
             this.TokenUpdateUris.Remove(tokenRefreshedParams.Uri, out var result);
             connection.UpdateAuthToken(tokenRefreshedParams.Token, tokenRefreshedParams.ExpiresOn);
