@@ -510,6 +510,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                             case TableColumnPropertyNames.IsComputed:
                                 column.IsComputed = GetBooleanValue(newValue);
                                 break;
+                            case TableColumnPropertyNames.ComputedFormula:
+                                column.ComputedFormula = GetStringValue(newValue);
+                                break;
                             case TableColumnPropertyNames.IsComputedPersisted:
                                 column.IsComputedPersisted = GetBooleanValue(newValue);
                                 break;
@@ -827,6 +830,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 columnViewModel.CanBeDeleted = column.CanBeDeleted;
                 columnViewModel.IsComputed.Enabled = column.CanEditIsComputed;
                 columnViewModel.IsComputed.Checked = column.IsComputed;
+                columnViewModel.ComputedFormula.Enabled = column.CanEditComputedFormula;
+                columnViewModel.ComputedFormula.Value = column.ComputedFormula;
                 columnViewModel.IsComputedPersisted.Enabled = column.CanEditIsComputedPersisted;
                 columnViewModel.IsComputedPersisted.Checked = column.IsComputedPersisted == true;
                 columnViewModel.IsComputedPersistedNullable.Enabled = column.CanEditIsComputedPersistedNullable;
@@ -1029,6 +1034,17 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     ComponentProperties = new CheckBoxProperties()
                     {
                         Title = SR.TableColumnIsComputedTitle
+                    }
+                },
+                new DesignerDataPropertyInfo()
+                {
+                    PropertyName = TableColumnPropertyNames.ComputedFormula,
+                    Description = SR.TableColumnComputedFormulaDescription,
+                    Group = SR.TableColumnComputedGroupTitle,
+                    ComponentType = DesignerComponentType.Input,
+                    ComponentProperties = new InputBoxProperties()
+                    {
+                        Title = SR.TableColumnComputedFormulaTitle
                     }
                 },
                 new DesignerDataPropertyInfo()

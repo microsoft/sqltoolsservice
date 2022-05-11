@@ -9085,6 +9085,22 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string TableColumnComputedFormulaTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableColumnComputedFormulaTitle);
+            }
+        }
+
+        public static string TableColumnComputedFormulaDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableColumnComputedFormulaDescription);
+            }
+        }
+
         public static string TableColumnIsComputedPersistedTitle
         {
             get
@@ -13015,6 +13031,12 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string TableColumnIsComputedDescription = "TableColumnIsComputedDescription";
+
+
+            public const string TableColumnComputedFormulaTitle = "TableColumnComputedFormulaTitle";
+
+
+            public const string TableColumnComputedFormulaDescription = "TableColumnComputedFormulaDescription";
 
 
             public const string TableColumnIsComputedPersistedTitle = "TableColumnIsComputedPersistedTitle";

@@ -6024,8 +6024,8 @@ The Query Processor estimates that implementing the following index could improv
         <note>tooltip text for node parallelism overlay</note>
       </trans-unit>
       <trans-unit id="TableColumnComputedGroupTitle">
-        <source>Computed Specification</source>
-        <target state="new">Computed Specification</target>
+        <source>Computed Column Specifications</source>
+        <target state="new">Computed Column Specifications</target>
         <note></note>
       </trans-unit>
       <trans-unit id="TableColumnIsComputedTitle">
@@ -6034,8 +6034,8 @@ The Query Processor estimates that implementing the following index could improv
         <note></note>
       </trans-unit>
       <trans-unit id="TableColumnIsComputedDescription">
-        <source>Specifies if the column is a computed column</source>
-        <target state="new">Specifies if the column is a computed column</target>
+        <source>Specifies whether the column is a computed column</source>
+        <target state="new">Specifies whether the column is a computed column</target>
         <note></note>
       </trans-unit>
       <trans-unit id="TableColumnIsComputedPersistedTitle">
@@ -6044,8 +6044,8 @@ The Query Processor estimates that implementing the following index could improv
         <note></note>
       </trans-unit>
       <trans-unit id="TableColumnIsComputedPersistedDescription">
-        <source>Specifies if the computed column is persisted</source>
-        <target state="new">Specifies if the computed column is persisted</target>
+        <source>Whether the computed column is saved with the data source</source>
+        <target state="new">Whether the computed column is saved with the data source</target>
         <note></note>
       </trans-unit>
       <trans-unit id="TableColumnIsComputedPersistedNullableTitle">
@@ -6054,8 +6054,18 @@ The Query Processor estimates that implementing the following index could improv
         <note></note>
       </trans-unit>
       <trans-unit id="TableColumnIsComputedPersistedNullableDescription">
-        <source>Specifies if the persisted computed column is nullable</source>
-        <target state="new">Specifies if the persisted computed column is nullable</target>
+        <source>Whether the computed column can have a NULL value (NOT NULL can only be specified if the column is persisted)</source>
+        <target state="new">Whether the computed column can have a NULL value (NOT NULL can only be specified if the column is persisted)</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnComputedFormulaDescription">
+        <source>Formula that the column uses if it is a computed column</source>
+        <target state="new">Formula that the column uses if it is a computed column</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnComputedFormulaTitle">
+        <source>Formula</source>
+        <target state="new">Formula</target>
         <note></note>
       </trans-unit>
     </body>
