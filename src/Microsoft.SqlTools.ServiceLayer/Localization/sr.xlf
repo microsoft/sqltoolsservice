@@ -4132,7 +4132,7 @@
         <source>Cost: {0} %</source>
         <target state="new">Cost: {0} %</target>
         <note>"Cost: {0} percent" String to format.
- Parameters: 0 - x (int) </note>
+ Parameters: 0 - x (string) </note>
       </trans-unit>
       <trans-unit id="RemoteDataAccess">
         <source>Remote Data Access</source>
