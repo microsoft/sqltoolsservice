@@ -43,6 +43,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         public const string IsIdentity = "isIdentity";
         public const string IdentityIncrement = "identityIncrement";
         public const string IdentitySeed = "identitySeed";
+        public const string IsComputed = "isComputed";
+        public const string IsComputedPersisted = "isComputedPersisted";
+        public const string IsComputedPersistedNullable = "isComputedPersistedNullable";
         public const string CanBeDeleted = "canBeDeleted";
         public const string GeneratedAlwaysAs = "generatedAlwaysAs";
         public const string IsHidden = "isHidden";

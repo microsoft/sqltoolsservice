@@ -4947,4 +4947,32 @@ The Query Processor estimates that implementing the following index could improv
     <value>New Clause</value>
     <comment></comment>
   </data>
+  <data name="TableColumnComputedGroupTitle" xml:space="preserve">
+    <value>Computed Specification</value>
+    <comment></comment>
+  </data>
+  <data name="TableColumnIsComputedTitle" xml:space="preserve">
+    <value>Is Computed</value>
+    <comment></comment>
+  </data>
+  <data name="TableColumnIsComputedDescription" xml:space="preserve">
+    <value>Specifies if the column is a computed column</value>
+    <comment></comment>
+  </data>
+  <data name="TableColumnIsComputedPersistedTitle" xml:space="preserve">
+    <value>Is Computed Persisted</value>
+    <comment></comment>
+  </data>
+  <data name="TableColumnIsComputedPersistedDescription" xml:space="preserve">
+    <value>Specifies if the computed column is persisted</value>
+    <comment></comment>
+  </data>
+  <data name="TableColumnIsComputedPersistedNullableTitle" xml:space="preserve">
+    <value>Is Computed Persisted Nullable</value>
+    <comment></comment>
+  </data>
+  <data name="TableColumnIsComputedPersistedNullableDescription" xml:space="preserve">
+    <value>Specifies if the persisted computed column is nullable</value>
+    <comment></comment>
+  </data>
 </root>
