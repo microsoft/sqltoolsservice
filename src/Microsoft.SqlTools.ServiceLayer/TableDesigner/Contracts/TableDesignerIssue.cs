@@ -39,5 +39,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         /// The severity of the message. Default value is Error.
         /// </summary>
         public IssueSeverity Severity { get; set; } = IssueSeverity.Error;
+
+        /// <summary>
+        /// Any link to docs associated with error for more information
+        /// </summary>
+        public string MoreInfoLink { get; set; }
     }
 }
