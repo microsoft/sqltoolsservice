@@ -885,6 +885,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 return false;
             }
 
+            if (info.ConnectionDetails.AuthenticationType == "AzureMFA")
+            {
+                this.TokenUpdateUris.Remove(disconnectParams.OwnerUri, out bool result);
+            }
+
             // Call Close() on the connections we want to disconnect
             // If no connections were located, return false
             if (!CloseConnections(info, disconnectParams.Type))
