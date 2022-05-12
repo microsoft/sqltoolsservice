@@ -64,7 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// A map containing the uris of editors whose azure tokens are being refreshed, these editors should have intellisense
         /// disabled until the new refresh token is returned, upon which they will be removed from the map
         /// </summary>
-        private readonly ConcurrentDictionary<string, Boolean> TokenUpdateUris = new ConcurrentDictionary<string, Boolean>();
+        private readonly ConcurrentDictionary<string, Boolean> tokenUpdateUris = new ConcurrentDictionary<string, Boolean>();
         private readonly object cancellationTokenSourceLock = new object();
 
         private ConcurrentDictionary<string, IConnectedBindingQueue> connectedQueues = new ConcurrentDictionary<string, IConnectedBindingQueue>();
@@ -274,7 +274,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                             return false;
                         }
                         // Check if the token is updating already, in which case there is no need to request a new one
-                        if (!this.TokenUpdateUris.TryAdd(ownerUri, true))
+                        if (!this.tokenUpdateUris.TryAdd(ownerUri, true))
                         {
                             return true;
                         }
@@ -307,7 +307,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 Logger.Error($"Failed to find connection when updating refreshed token for URI {tokenRefreshedParams.Uri}");
                 return;
             }
-            this.TokenUpdateUris.Remove(tokenRefreshedParams.Uri, out var result);
+            this.tokenUpdateUris.Remove(tokenRefreshedParams.Uri, out var result);
             connection.UpdateAuthToken(tokenRefreshedParams.Token, tokenRefreshedParams.ExpiresOn);
         }
 
@@ -885,9 +885,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 return false;
             }
 
+            // This clears the uri of the connection from the tokenUpdateUris map, which is used to track
+            // open editors that have requested a refreshed AAD token.
             if (info.ConnectionDetails.AuthenticationType == "AzureMFA")
             {
-                this.TokenUpdateUris.Remove(disconnectParams.OwnerUri, out bool result);
+                this.tokenUpdateUris.Remove(disconnectParams.OwnerUri, out bool result);
             }
 
             // Call Close() on the connections we want to disconnect
