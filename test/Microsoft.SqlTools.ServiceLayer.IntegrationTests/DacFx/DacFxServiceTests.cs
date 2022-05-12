@@ -586,8 +586,8 @@ FROM MissingEdgeHubInputStream'";
                     UpgradeExisting = true,
                     DeploymentOptions = new DeploymentOptions()
                     {
-                        DropObjectsNotInSource = new DeploymentOptionProperty<bool>(false),
-                        ExcludeObjectTypes = new DeploymentOptionProperty<ObjectType[]>(new[] { ObjectType.Views })
+                        DropObjectsNotInSource = false,
+                        ExcludeObjectTypes = new[] { ObjectType.Views }
                     }
                 };
 
@@ -664,8 +664,8 @@ FROM MissingEdgeHubInputStream'";
                     DatabaseName = targetDb.DatabaseName,
                     DeploymentOptions = new DeploymentOptions()
                     {
-                        DropObjectsNotInSource = new DeploymentOptionProperty<bool>(false),
-                        ExcludeObjectTypes = new DeploymentOptionProperty<ObjectType[]>(new[] { ObjectType.Views })
+                        DropObjectsNotInSource = false,
+                        ExcludeObjectTypes = new[] { ObjectType.Views }
                     }
                 };
 
@@ -682,8 +682,8 @@ FROM MissingEdgeHubInputStream'";
                     DatabaseName = targetDb.DatabaseName,
                     DeploymentOptions = new DeploymentOptions()
                     {
-                        DropObjectsNotInSource = new DeploymentOptionProperty<bool>(true),
-                        ExcludeObjectTypes = new DeploymentOptionProperty<ObjectType[]>( new[] { ObjectType.Views })
+                        DropObjectsNotInSource = true,
+                        ExcludeObjectTypes = new[] { ObjectType.Views }
                     }
                 };
 
@@ -727,10 +727,9 @@ FROM MissingEdgeHubInputStream'";
             DeploymentOptions expectedResults = DeploymentOptions.GetDefaultPublishOptions();
 
             expectedResults.ExcludeObjectTypes = null;
-            expectedResults.IncludeCompositeObjects = new DeploymentOptionProperty<bool>(true);
-            expectedResults.BlockOnPossibleDataLoss = new DeploymentOptionProperty<bool>(true);
-            expectedResults.AllowIncompatiblePlatform = new DeploymentOptionProperty<bool>(true);
-            expectedResults.DisableIndexesForDataPhase = new DeploymentOptionProperty<bool>(false);
+            expectedResults.IncludeCompositeObjects = true;
+            expectedResults.BlockOnPossibleDataLoss = true;
+            expectedResults.AllowIncompatiblePlatform = true;
 
             var dacfxRequestContext = new Mock<RequestContext<DacFxOptionsResult>>();
             dacfxRequestContext.Setup((RequestContext<DacFxOptionsResult> x) => x.SendResult(It.Is<DacFxOptionsResult>((result) => ValidateOptions(expectedResults, result.DeploymentOptions) == true))).Returns(Task.FromResult(new object()));
@@ -755,7 +754,6 @@ FROM MissingEdgeHubInputStream'";
         {
             DeploymentOptions expectedResults = DeploymentOptions.GetDefaultPublishOptions();
             expectedResults.ExcludeObjectTypes = null;
-            expectedResults.DisableIndexesForDataPhase = new DeploymentOptionProperty<bool>(false);
 
             var dacfxRequestContext = new Mock<RequestContext<DacFxOptionsResult>>();
             dacfxRequestContext.Setup((RequestContext<DacFxOptionsResult> x) => x.SendResult(It.Is<DacFxOptionsResult>((result) => ValidateOptions(expectedResults, result.DeploymentOptions) == true))).Returns(Task.FromResult(new object()));
@@ -845,9 +843,7 @@ Streaming query statement contains a reference to missing output stream 'Missing
             foreach (var v in deploymentOptionsProperties)
             {
                 var defaultP = v.GetValue(expected);
-                var defaultPValue = defaultP != null ? defaultP.GetType().GetProperty("Value").GetValue(defaultP): defaultP;
                 var actualP = v.GetValue(actual);
-                var actualPValue = actualP.GetType().GetProperty("Value").GetValue(actualP);
 
                 if (v.Name == "ExcludeObjectTypes")
                 {
@@ -855,17 +851,7 @@ Streaming query statement contains a reference to missing output stream 'Missing
                 }
                 else
                 {
-                    // Verifying expected and actual deployment options properties are equal
-                    Assert.True((defaultP == null && actualP == null) 
-                     || (defaultP == null && String.IsNullOrEmpty(actualP as string))
-                     || defaultP.Equals(actualP)
-                    , $"Actual Property from Service is not equal to default property for {v.Name}, Actual property: {actualP} and Default property: {defaultP}");
-
-                    // Verifying expected and actual deployment options property values are equal
-                    Assert.True((defaultPValue == null && actualPValue == null)
-                     || (defaultPValue == null && String.IsNullOrEmpty(actualPValue as string))
-                     || (defaultPValue).Equals(actualPValue)
-                    , $"Actual Property from Service is not equal to default property for {v.Name}, Actual value: {actualPValue} and Default value: {defaultPValue}");
+                    Assert.True((defaultP == null && actualP == null) || (defaultP == null && (actualP as string) == string.Empty) || defaultP.Equals(actualP), $"Actual Property from Service is not equal to default property for {v.Name}, Actual value: {actualP} and Default value: {defaultP}");
                 }
             }
 
