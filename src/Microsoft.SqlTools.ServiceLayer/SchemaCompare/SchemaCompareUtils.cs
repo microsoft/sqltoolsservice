@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlServer.Dac.Compare;
@@ -25,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
     {
         internal static DacDeployOptions CreateSchemaCompareOptions(DeploymentOptions deploymentOptions)
         {
-            PropertyInfo[] deploymentOptionsProperties = deploymentOptions.GetType().GetProperties();
+            System.Reflection.PropertyInfo[] deploymentOptionsProperties = deploymentOptions.GetType().GetProperties();
 
             DacDeployOptions dacOptions = new DacDeployOptions();
             foreach (var deployOptionsProp in deploymentOptionsProperties)
@@ -33,18 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 var prop = dacOptions.GetType().GetProperty(deployOptionsProp.Name);
                 if (prop != null)
                 {
-                    var val = deployOptionsProp.GetValue(deploymentOptions);
-                    var selectedVal = val.GetType().GetProperty("Value").GetValue(val);
-
-                    // JSON.NET by default reads Number type as Int64, deserializing an object type to dacOptions of Int32 type required to convert into Int32 from Int64.
-                    // If not converted setting value(Int64) to dacOption(Int32) will throw {"Object of type 'System.Int64' cannot be converted to type 'System.Int32'."}.
-                    // As these integer type options are non-editable and are not availbale in ADS to update, integer overflow exception will not be happening here.
-                    if (selectedVal != null && selectedVal.GetType() == typeof(System.Int64))
-                    {
-                        selectedVal = Convert.ToInt32(selectedVal);
-                    }
-
-                    prop.SetValue(dacOptions, selectedVal);
+                    prop.SetValue(dacOptions, deployOptionsProp.GetValue(deploymentOptions));
                 }
             }
             return dacOptions;
