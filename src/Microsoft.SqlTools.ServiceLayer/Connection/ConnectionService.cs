@@ -61,10 +61,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     new ConcurrentDictionary<CancelTokenKey, CancellationTokenSource>();
 
         /// <summary>
-        /// A map containing the uris of editors whose azure tokens are being refreshed, these editors should have intellisense
+        /// A map containing the uris of connections with expired tokens, these editors should have intellisense
         /// disabled until the new refresh token is returned, upon which they will be removed from the map
         /// </summary>
-        private readonly ConcurrentDictionary<string, Boolean> tokenUpdateUris = new ConcurrentDictionary<string, Boolean>();
+        public readonly ConcurrentDictionary<string, Boolean> tokenUpdateUris = new ConcurrentDictionary<string, Boolean>();
         private readonly object cancellationTokenSourceLock = new object();
 
         private ConcurrentDictionary<string, IConnectedBindingQueue> connectedQueues = new ConcurrentDictionary<string, IConnectedBindingQueue>();
@@ -263,17 +263,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                             Resource = "SQL",
                             Uri = ownerUri
                         };
-                        if (String.IsNullOrEmpty(requestMessage.TenantId))
+                        if (string.IsNullOrEmpty(requestMessage.TenantId))
                         {
                             Logger.Error("No tenant in connection details when refreshing token for connection {ownerUri}");
                             return false;
                         }
-                        if (String.IsNullOrEmpty(requestMessage.AccountId))
+                        if (string.IsNullOrEmpty(requestMessage.AccountId))
                         {
                             Logger.Error("No accountId in connection details when refreshing token for connection {ownerUri}");
                             return false;
                         }
-                        // Check if the token is updating already, in which case there is no need to request a new one
+                        // Check if the token is updating already, in which case there is no need to request a new one, 
+                        // but still return true so that autocompletion is disabled until the token is refreshed
                         if (!this.tokenUpdateUris.TryAdd(ownerUri, true))
                         {
                             return true;

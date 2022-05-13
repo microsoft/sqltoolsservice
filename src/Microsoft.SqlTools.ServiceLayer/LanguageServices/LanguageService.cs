@@ -724,6 +724,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             try
             {
+                // This clears the uri of the connection from the tokenUpdateUris map, which is used to track
+                // open editors that have requested a refreshed AAD token.
+                connectionService.tokenUpdateUris.Remove(uri, out var result);
                 // if not in the preview window and diagnostics are enabled then clear diagnostics
                 if (!IsPreviewWindow(scriptFile)
                     && CurrentWorkspaceSettings.IsDiagnosticsEnabled)
