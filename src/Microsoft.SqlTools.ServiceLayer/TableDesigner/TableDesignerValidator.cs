@@ -392,7 +392,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             {
                 errors.Add(new TableDesignerIssue()
                 {
-                    Description = "System versioned table must have the period columns defined."
+                    Description = "System versioned table must have the period columns defined.",
+                    MoreInfoLink = "https://docs.microsoft.com/sql/relational-databases/tables/creating-a-system-versioned-temporal-table"
                 });
             }
             return errors;
