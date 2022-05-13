@@ -30,11 +30,14 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         public InputBoxProperties IdentitySeed { get; set; } = new InputBoxProperties();
 
         public InputBoxProperties IdentityIncrement { get; set; } = new InputBoxProperties();
-        public CheckBoxProperties IsComputed { get; set; } = new CheckBoxProperties();
-        public InputBoxProperties ComputedFormula { get; set; } = new InputBoxProperties();
-        public CheckBoxProperties IsComputedPersisted { get; set; } = new CheckBoxProperties();
-        public CheckBoxProperties IsComputedPersistedNullable { get; set; } = new CheckBoxProperties();
 
+        public CheckBoxProperties IsComputed { get; set; } = new CheckBoxProperties();
+
+        public InputBoxProperties ComputedFormula { get; set; } = new InputBoxProperties();
+
+        public CheckBoxProperties IsComputedPersisted { get; set; } = new CheckBoxProperties();
+
+        public CheckBoxProperties IsComputedPersistedNullable { get; set; } = new CheckBoxProperties();
 
         public DropdownProperties GeneratedAlwaysAs { get; set; } = new DropdownProperties();
 
