@@ -267,6 +267,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             serviceHost.SetRequestHandler(CompletionExtLoadRequest.Type, HandleCompletionExtLoadRequest);
             serviceHost.SetEventHandler(RebuildIntelliSenseNotification.Type, HandleRebuildIntelliSenseNotification);
             serviceHost.SetEventHandler(LanguageFlavorChangeNotification.Type, HandleDidChangeLanguageFlavorNotification);
+            serviceHost.SetEventHandler(TokenRefreshedNotification.Type, HandleTokenRefreshedNotification);
 
             // Register a no-op shutdown task for validation of the shutdown logic
             serviceHost.RegisterShutdownTask(async (shutdownParams, shutdownRequestContext) =>
@@ -452,11 +453,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
                 else
                 {
-                    // get the current list of completion items and return to client
-                    ConnectionServiceInstance.TryFindConnection(
-                        scriptFile.ClientUri,
-                        out ConnectionInfo connInfo);
-
+                    ConnectionInfo connInfo = null;
+                    // Check if we need to refresh the auth token, and if we do then don't pass in the 
+                    // connection so that we only show the default options until the refreshed token is returned
+                    if (!await connectionService.TryRequestRefreshAuthToken(scriptFile.ClientUri))
+                    {
+                        ConnectionServiceInstance.TryFindConnection(
+                            scriptFile.ClientUri,
+                            out connInfo);
+                    }
                     var completionItems = await GetCompletionItems(
                         textDocumentPosition, scriptFile, connInfo);
 
@@ -719,6 +724,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             try
             {
+                // This clears the uri of the connection from the tokenUpdateUris map, which is used to track
+                // open editors that have requested a refreshed AAD token.
+                connectionService.TokenUpdateUris.Remove(uri, out var result);
                 // if not in the preview window and diagnostics are enabled then clear diagnostics
                 if (!IsPreviewWindow(scriptFile)
                     && CurrentWorkspaceSettings.IsDiagnosticsEnabled)
@@ -906,6 +914,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
+        internal Task HandleTokenRefreshedNotification(
+            TokenRefreshedParams tokenRefreshedParams,
+            EventContext eventContext
+        )
+        {
+            connectionService.UpdateAuthToken(tokenRefreshedParams);
+            return Task.CompletedTask;
+        }
+
         #endregion
 
 
@@ -1061,7 +1078,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         Monitor.Exit(scriptInfo.BuildingMetadataLock);
                     }
                 }
-
                 PrepopulateCommonMetadata(info, scriptInfo, this.BindingQueue);
 
                 // Send a notification to signal that autocomplete is ready

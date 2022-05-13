@@ -543,7 +543,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
                 SetOptionValue("databaseDisplayName", value);
             }
         }
-
+        
         public string AzureAccountToken
         {
             get
@@ -553,6 +553,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
             set
             {
                 SetOptionValue("azureAccountToken", value);
+            }
+        }
+
+        public int? ExpiresOn
+        {
+            get
+            {
+                return GetOptionValue<int?>("expiresOn");
+            }
+            set
+            {
+                SetOptionValue("expiresOn", value);
             }
         }
 
