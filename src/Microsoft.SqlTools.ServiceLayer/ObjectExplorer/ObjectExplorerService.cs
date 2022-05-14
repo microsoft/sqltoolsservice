@@ -399,17 +399,20 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             // since we don't need to add any nodes under this section of the tree.
             if (node == null)
             {
+                Logger.Verbose($"No node returned from FindNodeByPath for {nodePath}");
                 response = new ExpandResponse { Nodes = new NodeInfo[] { }, ErrorMessage = string.Empty, SessionId = session.Uri, NodePath = nodePath };
                 response.Nodes = new NodeInfo[0];
                 return response;
             }
             else
             {
+                Logger.Verbose($"Got node from FindNodeByPath for {nodePath}");
                 response = new ExpandResponse { Nodes = new NodeInfo[] { }, ErrorMessage = node.ErrorMessage, SessionId = session.Uri, NodePath = nodePath };
             }
-
+            Logger.Verbose($"Before enter BuildingMetadataLock for {nodePath}");
             if (node != null && Monitor.TryEnter(node.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
             {
+                Logger.Verbose($"After enter BuildingMetadataLock for {nodePath}");
                 try
                 {
                     int timeout = (int)TimeSpan.FromSeconds(settings?.ExpandTimeout ?? ObjectExplorerSettings.DefaultExpandTimeout).TotalMilliseconds;
@@ -421,10 +424,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                            {
                                if (forceRefresh)
                                {
+                                   Logger.Verbose($"Forcing refresh for {nodePath}");
                                    nodes = node.Refresh(cancelToken).Select(x => x.ToNodeInfo()).ToArray();
                                }
                                else
                                {
+                                   Logger.Verbose($"Expanding {nodePath}");
                                    nodes = node.Expand(cancelToken).Select(x => x.ToNodeInfo()).ToArray();
                                }
                                response.Nodes = nodes;
@@ -444,8 +449,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                                }
                                return response;
                            });
-
+                    Logger.Verbose($"Queuing binding operation for {nodePath}");
                     queueItem.ItemProcessed.WaitOne();
+                    Logger.Verbose($"Done with binding operation for {nodePath}");
                     if (queueItem.GetResultAsT<ExpandResponse>() != null)
                     {
                         response = queueItem.GetResultAsT<ExpandResponse>();

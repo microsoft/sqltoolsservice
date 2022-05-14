@@ -10,7 +10,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Data.SqlClient" />
-        <PackageReference Include="Microsoft.SqlServer.DACFx" />
+		<PackageReference Include="Microsoft.SqlServer.DACFx" />
 		<PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" />
 	</ItemGroup>
 	<ItemGroup>

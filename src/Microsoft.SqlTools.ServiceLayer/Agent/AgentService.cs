@@ -1114,7 +1114,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                         CreateJobData(ownerUri, schedule.JobName, out dataContainer, out jobData);
                     }
 
-                    const string UrnFormatStr = "Server[@Name='{0}']/JobServer[@Name='{0}']/Job[@Name='{1}']/Schedule[@Name='{2}']";
+                    const string UrnFormatStr = "Server/JobServer[@Name='{0}']/Job[@Name='{1}']/Schedule[@Name='{2}']";
                     string serverName = dataContainer.Server.Name.ToUpper();
                     string scheduleUrn = string.Format(UrnFormatStr, serverName, jobData.Job.Name, schedule.Name);
 
@@ -1165,7 +1165,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             const string XmlParamsElementName = "params";
             const string XmlJobElementName = "job";
             const string XmlUrnElementName = "urn";
-            const string UrnFormatStr = "Server[@Name='{0}']/JobServer[@Name='{0}']/Job[@Name='{1}']";
+            const string UrnFormatStr = "Server/JobServer[@Name='{0}']/Job[@Name='{1}']";
 
             // Write out XML.
             StringWriter textWriter = new StringWriter();

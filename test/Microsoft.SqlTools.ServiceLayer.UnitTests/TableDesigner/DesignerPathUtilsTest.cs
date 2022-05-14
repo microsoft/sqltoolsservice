@@ -16,11 +16,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TableDesigner
         public void ParseDesignerPathTest()
         {
             DesignerEditType editType = DesignerEditType.Add;
-            this.RunTest(new object[] { "property1" }, editType, true);
-            this.RunTest(new object[] { "property1", 1, "property2" }, editType, true);
+            this.RunTest(new object[] { "property1" }, editType, false);
+            this.RunTest(new object[] { "property1", 1, "property2" }, editType, false);
             this.RunTest(new object[] { "property1", "xx", "property2" }, editType, false);
-            this.RunTest(new object[] { "property1", 1 }, editType, false);
-            this.RunTest(new object[] { "property1", 1, "property2", 1 }, editType, false);
+            this.RunTest(new object[] { "property1", 1 }, editType, true);
+            this.RunTest(new object[] { "property1", 1, "property2", 1 }, editType, true);
             this.RunTest(new object[] { "property1", 1, "property2", 1, "property3" }, editType, false);
             this.RunTest(new object[] { }, editType, false);
             this.RunTest(null, editType, false);

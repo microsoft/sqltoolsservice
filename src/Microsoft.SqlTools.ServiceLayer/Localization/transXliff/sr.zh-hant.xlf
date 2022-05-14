@@ -5759,22 +5759,22 @@ The Query Processor estimates that implementing the following index could improv
       </trans-unit>
       <trans-unit id="CreateSasForBlobContainerFailed">
         <source>Cannot generate SAS URI for blob container.</source>
-        <target state="new">Cannot generate SAS URI for blob container.</target>
+        <target state="translated">無法為 Blob 容器產生 SAS URI。</target>
         <note></note>
       </trans-unit>
       <trans-unit id="WriteSASCredentialToSqlServerFailed">
         <source>Failed storing shared access signature token on the SQL Servers.</source>
-        <target state="new">Failed storing shared access signature token on the SQL Servers.</target>
+        <target state="translated">在 SQL Server 上儲存共用存取簽章權杖失敗。</target>
         <note></note>
       </trans-unit>
       <trans-unit id="UnsupportedDeviceType">
         <source>Unsupported device type {0} for engine edition {1}.</source>
-        <target state="new">Unsupported device type {0} for engine edition {1}.</target>
+        <target state="translated">引擎版本 {1} 不支援的裝置類型 {0}。</target>
         <note></note>
       </trans-unit>
       <trans-unit id="NotSupportedCloudCreateSas">
         <source>Create shared access signature is not supported for cloud instances.</source>
-        <target state="new">Create shared access signature is not supported for cloud instances.</target>
+        <target state="translated">雲端執行個體不支援建立共用存取簽章。</target>
         <note></note>
       </trans-unit>
       <trans-unit id="TableDesignerGraphTableTypeTitle">

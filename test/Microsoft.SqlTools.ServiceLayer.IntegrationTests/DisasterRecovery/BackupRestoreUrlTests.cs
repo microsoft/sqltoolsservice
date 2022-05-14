@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Azure.Storage;
@@ -154,7 +153,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                     OwnerUri = testDb.ConnectionString,
                     SelectedBackupSets = selectedBackupSets,
                     SourceDatabaseName = sourceDbName,
-                    DeviceType = (int)DeviceType.Url
+                    DeviceType = DeviceType.Url
                 };
                 request.Options[RestoreOptionsHelper.ReadHeaderFromMedia] = string.IsNullOrEmpty(backUpFilePath);
 

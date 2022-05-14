@@ -3536,16 +3536,16 @@
 */</value>
   </data>
   <data name="CreateSasForBlobContainerFailed" xml:space="preserve">
-    <value>Cannot generate SAS URI for blob container.</value>
+    <value>無法為 Blob 容器產生 SAS URI。</value>
   </data>
   <data name="WriteSASCredentialToSqlServerFailed" xml:space="preserve">
-    <value>Failed storing shared access signature token on the SQL Servers.</value>
+    <value>在 SQL Server 上儲存共用存取簽章權杖失敗。</value>
   </data>
   <data name="UnsupportedDeviceType" xml:space="preserve">
-    <value>Unsupported device type {0} for engine edition {1}.</value>
+    <value>引擎版本 {1} 不支援的裝置類型 {0}。</value>
   </data>
   <data name="NotSupportedCloudCreateSas" xml:space="preserve">
-    <value>Create shared access signature is not supported for cloud instances.</value>
+    <value>雲端執行個體不支援建立共用存取簽章。</value>
   </data>
   <data name="TableDesignerGraphTableTypeTitle" xml:space="preserve">
     <value>類型</value>
