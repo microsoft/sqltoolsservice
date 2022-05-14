@@ -43,8 +43,8 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         private DatabaseLocksManager lockedDatabaseManager;
 
         /// <summary>
-        /// A map containing all CancellationTokenSource objects that are associated with a given URI/ConnectionType pair.
-        /// Entries in this map correspond to ReliableDataSourceClient instances that are in the process of connecting.
+        /// A map containing all CancellationTokenSource objects that are associated with a given URI/ConnectionType pair. 
+        /// Entries in this map correspond to ReliableDataSourceClient instances that are in the process of connecting. 
         /// </summary>
         private readonly ConcurrentDictionary<CancelTokenKey, CancellationTokenSource> cancelTupleToCancellationTokenSourceMap =
                     new ConcurrentDictionary<CancelTokenKey, CancellationTokenSource>();
@@ -120,10 +120,10 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         private IConnectionManager _connectionManager;
 
         /// <summary>
-        /// Validates the given ConnectParams object.
+        /// Validates the given ConnectParams object. 
         /// </summary>
         /// <param name="connectionParams">The params to validate</param>
-        /// <returns>A ConnectionCompleteParams object upon validation error,
+        /// <returns>A ConnectionCompleteParams object upon validation error, 
         /// null upon validation success</returns>
         private ConnectionCompleteParams ValidateConnectParams(ConnectParams connectionParams)
         {
@@ -162,7 +162,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             TrySetConnectionType(connectionParams);
 
             connectionParams.Connection.ApplicationName = GetApplicationNameWithFeature(connectionParams.Connection.ApplicationName, connectionParams.Purpose);
-            // If there is no ConnectionInfo in the map, create a new ConnectionInfo,
+            // If there is no ConnectionInfo in the map, create a new ConnectionInfo, 
             // but wait until later when we are connected to add it to the map.
             bool connectionChanged = false;
             if (!_connectionManager.TryGetValue(connectionParams.OwnerUri, out ConnectionInfo connectionInfo))
@@ -199,7 +199,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
             // Return information about the connected SQL Server instance
             ConnectionCompleteParams completeParams = GetConnectionCompleteParams(connectionParams.Type, connectionInfo);
-            // Invoke callback notifications
+            // Invoke callback notifications          
             InvokeOnConnectionActivities(connectionInfo, connectionParams);
 
             TryCloseConnectionTemporaryConnection(connectionParams, connectionInfo);
@@ -314,7 +314,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         }
 
         /// <summary>
-        /// Creates a ConnectionCompleteParams as a response to a successful connection.
+        /// Creates a ConnectionCompleteParams as a response to a successful connection. 
         /// Also sets the DatabaseName and IsAzure properties of ConnectionInfo.
         /// </summary>
         /// <returns>A ConnectionCompleteParams in response to the successful connection</returns>
@@ -334,7 +334,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                 {
                     // If the connection was set up with a connection string, use the connection string to get the details
                     var connectionStringBuilder = DataSourceFactory.CreateConnectionStringBuilder(DataSourceType.Kusto, connection.ConnectionString);
-
+                    
                     response.ConnectionSummary = new ConnectionSummary
                     {
                         ServerName = connectionStringBuilder.DataSource,
@@ -457,8 +457,8 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         }
 
         /// <summary>
-        /// Gets the existing connection with the given URI and connection type string. If none exists,
-        /// creates a new connection. This cannot be used to create a default connection or to create a
+        /// Gets the existing connection with the given URI and connection type string. If none exists, 
+        /// creates a new connection. This cannot be used to create a default connection or to create a 
         /// connection if a default connection does not exist.
         /// </summary>
         /// <param name="ownerUri">URI identifying the resource mapped to this connection</param>
@@ -491,7 +491,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             {
                 throw new InvalidOperationException(SR.ConnectionServiceDbErrorDefaultNotConnected(ownerUri));
             }
-
+            
             // Try to get the ReliableDataSourceClient and create if it doesn't already exist
             if (!connectionInfo.TryGetConnection(connectionType, out connection) && ConnectionType.Default != connectionType)
             {
@@ -505,7 +505,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             bool alwaysPersistSecurity, ConnectionInfo connectionInfo)
         {
             // If the ReliableDataSourceClient does not exist and is not the default connection, create one.
-            // We can't create the default (initial) connection here because we won't have a ConnectionDetails
+            // We can't create the default (initial) connection here because we won't have a ConnectionDetails 
             // if Connect() has not yet been called.
             bool? originalPersistSecurityInfo = connectionInfo.ConnectionDetails.PersistSecurityInfo;
             if (alwaysPersistSecurity)
@@ -630,14 +630,14 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// If connectionType is not null, cancel the connection with the given connectionType
         /// If connectionType is null, cancel all pending connections associated with ownerUri.
         /// </summary>
-        /// <returns>true if a single pending connection associated with the non-null connectionType was
+        /// <returns>true if a single pending connection associated with the non-null connectionType was 
         /// found and cancelled, false otherwise</returns>
         private bool CancelConnections(string ownerUri, string connectionType)
         {
             // Cancel the connection of the given type
             if (connectionType != null)
             {
-                // If we are trying to disconnect a specific connection and it was just cancelled,
+                // If we are trying to disconnect a specific connection and it was just cancelled, 
                 // this will return true
                 return CancelConnect(new CancelConnectParams() { OwnerUri = ownerUri, Type = connectionType });
             }
@@ -657,7 +657,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         }
 
         /// <summary>
-        /// Closes DbConnections associated with the given ConnectionInfo.
+        /// Closes DbConnections associated with the given ConnectionInfo. 
         /// If connectionType is not null, closes the ReliableDataSourceClient with the type given by connectionType.
         /// If connectionType is null, closes all DbConnections.
         /// </summary>
@@ -724,7 +724,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             return dataSource.GetDatabases(info.ConnectionDetails.ServerName, listDatabasesParams.IncludeDetails.HasTrue());
         }
 
-        public void InitializeService(IProtocolEndpoint serviceHost, IDataSourceConnectionFactory dataSourceConnectionFactory,
+        public void InitializeService(IProtocolEndpoint serviceHost, IDataSourceConnectionFactory dataSourceConnectionFactory, 
             IConnectedBindingQueue connectedBindingQueue, IConnectionManager connectionManager)
         {
             _serviceHost = serviceHost;
@@ -743,10 +743,10 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             serviceHost.SetRequestHandler(BuildConnectionInfoRequest.Type, HandleBuildConnectionInfoRequest);
         }
 
-        /// <summary>
-        /// Add a new method to be called when the onconnection request is submitted
-        /// </summary>
-        /// <param name="activity"></param>
+        /// <summary> 
+        /// Add a new method to be called when the onconnection request is submitted 
+        /// </summary> 
+        /// <param name="activity"></param> 
         public void RegisterOnConnectionTask(OnConnectionHandler activity)
         {
             onConnectionActivities.Add(activity);
@@ -772,7 +772,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
             try
             {
-                await RunConnectRequestHandlerTask(connectParams);
+                await Task.Run(async () => await RunConnectRequestHandlerTask(connectParams));
                 await requestContext.SendResult(true);
             }
             catch
@@ -863,28 +863,31 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             GetConnectionStringParams connStringParams,
             RequestContext<string> requestContext)
         {
-            string connectionString = string.Empty;
-            ConnectionInfo info;
-            if (_connectionManager.TryGetValue(connStringParams.OwnerUri, out info))
+            await Task.Run(async () =>
             {
-                try
+                string connectionString = string.Empty;
+                ConnectionInfo info;
+                if (_connectionManager.TryGetValue(connStringParams.OwnerUri, out info))
                 {
-                    if (!connStringParams.IncludePassword)
+                    try
                     {
-                        info.ConnectionDetails.Password = ConnectionService.PasswordPlaceholder;
+                        if (!connStringParams.IncludePassword)
+                        {
+                            info.ConnectionDetails.Password = ConnectionService.PasswordPlaceholder;
+                        }
+
+                        info.ConnectionDetails.ApplicationName = "ads-connection-string";
+                        connectionString = DataSourceFactory.CreateConnectionStringBuilder(DataSourceType.Kusto,
+                            info.ConnectionDetails.ServerName, info.ConnectionDetails.DatabaseName).ToString();
                     }
-
-                    info.ConnectionDetails.ApplicationName = "ads-connection-string";
-                    connectionString = DataSourceFactory.CreateConnectionStringBuilder(DataSourceType.Kusto,
-                        info.ConnectionDetails.ServerName, info.ConnectionDetails.DatabaseName).ToString();
+                    catch (Exception e)
+                    {
+                        await requestContext.SendError(e.ToString());
+                    }
                 }
-                catch (Exception e)
-                {
-                    await requestContext.SendError(e.ToString());
-                }
-            }
 
-            await requestContext.SendResult(connectionString);
+                await requestContext.SendResult(connectionString);
+            });
         }
 
         /// <summary>
@@ -894,16 +897,19 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             string connectionString,
             RequestContext<ConnectionDetails> requestContext)
         {
-            try
+            await Task.Run(async () =>
             {
-                await requestContext.SendResult(ParseConnectionString(connectionString));
-            }
-            catch (Exception)
-            {
-                // If theres an error in the parse, it means we just can't parse, so we return undefined
-                // rather than an error.
-                await requestContext.SendResult(null);
-            }
+                try
+                {
+                    await requestContext.SendResult(ParseConnectionString(connectionString));
+                }
+                catch (Exception)
+                {
+                    // If theres an error in the parse, it means we just can't parse, so we return undefined
+                    // rather than an error.
+                    await requestContext.SendResult(null);
+                }
+            });
         }
 
         public ConnectionDetails ParseConnectionString(string connectionString)
@@ -924,7 +930,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// </summary>
         private async Task HandleChangeDatabaseRequest(ChangeDatabaseParams changeDatabaseParams, RequestContext<bool> requestContext)
         {
-            bool result = await Task.Run(() => ChangeConnectionDatabaseContext(changeDatabaseParams.OwnerUri, changeDatabaseParams.NewDatabase, true));
+            bool result = await Task.Run(() => result = ChangeConnectionDatabaseContext(changeDatabaseParams.OwnerUri, changeDatabaseParams.NewDatabase, true));
             await requestContext.SendResult(result);
         }
 
@@ -939,7 +945,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             {
                 return false;
             }
-
+            
             try
             {
                 info.ConnectionDetails.DatabaseName = newDatabaseName;

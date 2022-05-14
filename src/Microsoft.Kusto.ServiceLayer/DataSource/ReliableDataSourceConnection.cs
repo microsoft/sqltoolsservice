@@ -14,9 +14,9 @@
 //
 // =======================================================================================
 // Copyright © 2012 Microsoft Corporation. All rights reserved.
-//
-// THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER
-// EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF
+// 
+// THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER 
+// EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF 
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. YOU BEAR THE RISK OF USING IT.
 // =======================================================================================
 
@@ -63,7 +63,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             _dataSourceFactory = dataSourceFactory;
             _ownerUri = ownerUri;
             _dataSource = dataSourceFactory.Create(connectionDetails, ownerUri);
-
+            
             _connectionRetryPolicy = connectionRetryPolicy ?? RetryPolicyFactory.CreateNoRetryPolicy();
             _commandRetryPolicy = commandRetryPolicy ?? RetryPolicyFactory.CreateNoRetryPolicy();
 
@@ -73,12 +73,12 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
         private void RetryCommandCallback(RetryState retryState)
         {
-            RetryPolicyUtils.RaiseSchemaAmbientRetryMessage(retryState, SqlSchemaModelErrorCodes.ServiceActions.CommandRetry, _azureSessionId);
+            RetryPolicyUtils.RaiseSchemaAmbientRetryMessage(retryState, SqlSchemaModelErrorCodes.ServiceActions.CommandRetry, _azureSessionId); 
         }
 
         private void RetryConnectionCallback(RetryState retryState)
         {
-            RetryPolicyUtils.RaiseSchemaAmbientRetryMessage(retryState, SqlSchemaModelErrorCodes.ServiceActions.ConnectionRetry, _azureSessionId);
+            RetryPolicyUtils.RaiseSchemaAmbientRetryMessage(retryState, SqlSchemaModelErrorCodes.ServiceActions.ConnectionRetry, _azureSessionId); 
         }
 
         /// <summary>
@@ -117,52 +117,52 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// Gets or sets the connection string for opening a connection to the SQL Azure database.
         /// </summary>
         public string ConnectionString { get; set; }
-
-        /// <summary>
-        /// Gets the policy which decides whether to retry a connection request, based on how many
-        /// times the request has been made and the reason for the last failure.
+        
+        /// <summary>	
+        /// Gets the policy which decides whether to retry a connection request, based on how many	
+        /// times the request has been made and the reason for the last failure. 	
         /// </summary>
         // ReSharper disable once UnusedMember.Global
         public RetryPolicy ConnectionRetryPolicy
-        {
-            get { return _connectionRetryPolicy; }
-        }
+        {	
+            get { return _connectionRetryPolicy; }	
+        }	
 
-        /// <summary>
-        /// Gets the policy which decides whether to retry a command, based on how many
-        /// times the request has been made and the reason for the last failure.
+        /// <summary>	
+        /// Gets the policy which decides whether to retry a command, based on how many	
+        /// times the request has been made and the reason for the last failure. 	
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public RetryPolicy CommandRetryPolicy
-        {
-            get { return _commandRetryPolicy; }
-            set
-            {
-                Validate.IsNotNull(nameof(value), value);
+        public RetryPolicy CommandRetryPolicy	
+        {	
+            get { return _commandRetryPolicy; }	
+            set	
+            {	
+                Validate.IsNotNull(nameof(value), value);	
 
-                if (_commandRetryPolicy != null)
-                {
-                    _commandRetryPolicy.RetryOccurred -= RetryCommandCallback;
-                }
+                if (_commandRetryPolicy != null)	
+                {	
+                    _commandRetryPolicy.RetryOccurred -= RetryCommandCallback;	
+                }	
 
-                _commandRetryPolicy = value;
-                _commandRetryPolicy.RetryOccurred += RetryCommandCallback;
-            }
-        }
+                _commandRetryPolicy = value;	
+                _commandRetryPolicy.RetryOccurred += RetryCommandCallback;	
+            }	
+        }	
 
-        /// <summary>
-        /// Gets the server name from the underlying connection.
-        /// </summary>
+        /// <summary>	
+        /// Gets the server name from the underlying connection.	
+        /// </summary>	
         // ReSharper disable once UnusedMember.Global
-        public string ClusterName
-        {
-            get { return _dataSource.ClusterName; }
+        public string ClusterName	
+        {	
+            get { return _dataSource.ClusterName; }	
         }
 
         /// <summary>
         /// If the underlying SqlConnection absolutely has to be accessed, for instance
         /// to pass to external APIs that require this type of connection, then this
-        /// can be used.
+        /// can be used.  
         /// </summary>
         /// <returns><see cref="SqlConnection"/></returns>
         public IDataSource GetUnderlyingConnection()
@@ -211,7 +211,10 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             // Check if retry policy was specified, if not, disable retries by executing the Open method using RetryPolicy.NoRetry.
             try
             {
-                return Task.Run(Open);
+                return _connectionRetryPolicy.ExecuteAction(async () =>
+                {
+                    await Task.Run(() => Open());
+                });
             }
             catch (Exception e)
             {
@@ -226,15 +229,15 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         {
             _dataSource?.Dispose();
         }
-
-        /// <summary>
-        /// Gets the time to wait while trying to establish a connection before terminating
-        /// the attempt and generating an error.
-        /// </summary>
+        
+        /// <summary>	
+        /// Gets the time to wait while trying to establish a connection before terminating	
+        /// the attempt and generating an error.	
+        /// </summary>	
         // ReSharper disable once UnusedMember.Global
         public int ConnectionTimeout
-        {
-            get { return 30; }
+        {	
+            get { return 30; }	
         }
 
         /// <summary>

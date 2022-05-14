@@ -221,12 +221,12 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
             serviceHost.SetEventHandler(RebuildIntelliSenseNotification.Type, HandleRebuildIntelliSenseNotification);
 
             // Register a no-op shutdown task for validation of the shutdown logic
-            serviceHost.RegisterShutdownTask((shutdownParams, shutdownRequestContext) =>
+            serviceHost.RegisterShutdownTask(async (shutdownParams, shutdownRequestContext) =>
             {
                 Logger.Write(TraceEventType.Verbose, "Shutting down language service");
                 DeletePeekDefinitionScripts();
                 this.Dispose();
-                return Task.FromResult(0);
+                await Task.FromResult(0);
             });
 
             ServiceHostInstance = serviceHost;
@@ -245,7 +245,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 
             // Register a callback for when a connection is closed
             ConnectionServiceInstance.RegisterOnDisconnectTask(RemoveAutoCompleteCacheUriReference);
-
+            
         }
 
         #endregion
@@ -260,29 +260,32 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// <returns></returns>
         internal async Task HandleSyntaxParseRequest(SyntaxParseParams param, RequestContext<SyntaxParseResult> requestContext)
         {
-            try
+            await Task.Run(async () =>
             {
-                ParseResult result = Parser.Parse(param.Query);
-                SyntaxParseResult syntaxResult = new SyntaxParseResult();
-                if (result != null && result.Errors.Count() == 0)
+                try
                 {
-                    syntaxResult.Parseable = true;
-                } else
-                {
-                    syntaxResult.Parseable = false;
-                    string[] errorMessages = new string[result.Errors.Count()];
-                    for (int i = 0; i < result.Errors.Count(); i++)
+                    ParseResult result = Parser.Parse(param.Query);
+                    SyntaxParseResult syntaxResult = new SyntaxParseResult();
+                    if (result != null && result.Errors.Count() == 0)
                     {
-                        errorMessages[i] = result.Errors.ElementAt(i).Message;
+                        syntaxResult.Parseable = true;
+                    } else
+                    {
+                        syntaxResult.Parseable = false;
+                        string[] errorMessages = new string[result.Errors.Count()];
+                        for (int i = 0; i < result.Errors.Count(); i++)
+                        {
+                            errorMessages[i] = result.Errors.ElementAt(i).Message;
+                        }
+                        syntaxResult.Errors = errorMessages;
                     }
-                    syntaxResult.Errors = errorMessages;
+                    await requestContext.SendResult(syntaxResult);
                 }
-                await requestContext.SendResult(syntaxResult);
-            }
-            catch (Exception ex)
-            {
-                await requestContext.SendError(ex.ToString());
-            }
+                catch (Exception ex)
+                {
+                    await requestContext.SendError(ex.ToString());
+                }
+            });
         }
 
         /// <summary>
@@ -491,6 +494,8 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                         new ScriptFile[] { scriptFile },
                         eventContext);
                 }
+
+                await Task.FromResult(true);
             }
             catch (Exception ex)
             {
@@ -515,6 +520,8 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                         changedFiles.ToArray(),
                         eventContext);
                 }
+
+                await Task.FromResult(true);
             }
             catch (Exception ex)
             {
@@ -654,13 +661,13 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// it is the last URI connected to a particular connection,
         /// then remove the cache.
         /// </summary>
-        public Task RemoveAutoCompleteCacheUriReference(IConnectionSummary summary, string ownerUri)
+        public async Task RemoveAutoCompleteCacheUriReference(IConnectionSummary summary, string ownerUri)
         {
             RemoveScriptParseInfo(ownerUri);
 
             // currently this method is disabled, but we need to reimplement now that the
             // implementation of the 'cache' has changed.
-            return Task.FromResult(0);
+            await Task.FromResult(0);
         }
 
         /// <summary>
@@ -752,7 +759,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                 ReliableDataSourceConnection connection;
                 connInfo.TryGetConnection("Default", out connection);
                 IDataSource dataSource = connection.GetUnderlyingConnection();
-
+                
                 return dataSource.GetDefinition(scriptFile.Contents, textDocumentPosition.Position.Character, 1, 1);
             }
 
@@ -791,7 +798,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                             {
                                 // get the current quick info text
                                 ScriptDocumentInfo scriptDocumentInfo = new ScriptDocumentInfo(textDocumentPosition, scriptFile, scriptParseInfo);
-
+                                
                                 ReliableDataSourceConnection connection;
                                 connInfo.TryGetConnection("Default", out connection);
                                 IDataSource dataSource = connection.GetUnderlyingConnection();
