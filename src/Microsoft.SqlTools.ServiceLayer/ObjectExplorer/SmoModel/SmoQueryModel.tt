@@ -22,6 +22,7 @@ using System.Composition;
 using System.Linq;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Broker;
+using Microsoft.SqlTools.Utility;
 using Index = Microsoft.SqlServer.Management.Smo.Index;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
@@ -67,7 +68,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 		WriteLine("public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)");
 		WriteLine("{");
 		PushIndent(indent);
-
+		WriteLine(string.Format("Logger.Verbose(\"Begin query {0}\");", nodeType));
 		// TODO Allow override of the navigation path
 		foreach(var parentType in parents)
 		{
@@ -94,7 +95,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 				WriteLine(string.Format("retValue.ClearAndInitialize(filter, extraProperties);"));
 				if (string.IsNullOrEmpty(subField) )
 				{
-					WriteLine(string.Format("return new SmoCollectionWrapper<{0}>(retValue).Where(c => PassesFinalFilters({1}, c));", nodeType, parentVar));
+					WriteLine(string.Format("var ret = new SmoCollectionWrapper<{0}>(retValue).Where(c => PassesFinalFilters({1}, c));", nodeType, parentVar));
+					WriteLine(string.Format("Logger.Verbose(\"End query {0}\");", nodeType));
+					WriteLine("return ret;");
 				}
 				else
 				{
@@ -111,7 +114,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 					WriteLine("}");
 					PopIndent();
 					WriteLine("}");
-					WriteLine(string.Format("return subFieldResult.Where(c => PassesFinalFilters({1}, c));", nodeType, parentVar));
+					WriteLine(string.Format("var ret = subFieldResult.Where(c => PassesFinalFilters({1}, c));", nodeType, parentVar));
+					WriteLine(string.Format("Logger.Verbose(\"End query {0}\");", nodeType));
+					WriteLine("return ret;");
 				}
 			}
 			else
