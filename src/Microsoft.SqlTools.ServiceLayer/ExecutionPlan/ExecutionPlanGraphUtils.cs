@@ -197,12 +197,10 @@ GO
             {
                 var curNode = queue.Dequeue();
 
-                for (int index = 0; index < curNode.MatchingNodes.Count; ++index)
+                for (int index = 0; index < curNode.MatchingNodesId.Count; ++index)
                 {
-                    var matchingId = curNode.MatchingNodes[index].BaseNode.ID;
-                    var matchingNode = srcGraphLookupTable[matchingId];
-
-                    curNode.MatchingNodes[index] = matchingNode;
+                    var matchingId = curNode.MatchingNodesId[index];
+                    curNode.MatchingNodesId[index] = matchingId;
                 }
 
                 foreach (var child in curNode.Children)
