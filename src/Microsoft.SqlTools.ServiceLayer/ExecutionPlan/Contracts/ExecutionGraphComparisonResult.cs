@@ -34,7 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         /// <summary>
         /// List of matching nodes for the ExecutionGraphComparisonResult.
         /// </summary>
-        public List<ExecutionGraphComparisonResult> MatchingNodes { get; set; } = new List<ExecutionGraphComparisonResult>();
+        public List<int> MatchingNodesId { get; set; } = new List<int>();
         /// <summary>
         /// The parent of the ExecutionGraphComparisonResult.
         /// </summary>

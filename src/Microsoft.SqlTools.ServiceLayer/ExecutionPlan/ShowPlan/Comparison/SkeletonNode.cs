@@ -99,12 +99,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan.Comparison
                 curNodeDTO.BaseNode = ExecutionPlanGraphUtils.ConvertShowPlanTreeToExecutionPlanTree(curNode.BaseNode);
                 curNodeDTO.GroupIndex = curNode.GroupIndex;
                 curNodeDTO.HasMatch = curNode.HasMatch;
-                curNodeDTO.MatchingNodes = curNode.MatchingNodes.Select(matchingNode =>
+                curNodeDTO.MatchingNodesId = curNode.MatchingNodes.Select(matchingNode =>
                 {
-                    var skeletonNodeDTO = new Contracts.ExecutionGraphComparisonResult();
-                    skeletonNodeDTO.BaseNode = ExecutionPlanGraphUtils.ConvertShowPlanTreeToExecutionPlanTree(matchingNode.BaseNode);
-
-                    return skeletonNodeDTO;
+                    return matchingNode.BaseNode.ID;
                 }).ToList();
 
                 foreach (var child in curNode.Children)
@@ -112,7 +109,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan.Comparison
                     queue.Enqueue(child);
 
                     var childDTO = new Contracts.ExecutionGraphComparisonResult();
-                    childDTO.ParentNode = curNodeDTO;
                     curNodeDTO.Children.Add(childDTO);
                     dtoQueue.Enqueue(childDTO);
                 }
