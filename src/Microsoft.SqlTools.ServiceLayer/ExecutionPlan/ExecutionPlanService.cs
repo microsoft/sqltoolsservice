@@ -78,10 +78,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
         {
             try
             {
-                var firstGraphSet = ShowPlanGraph.ParseShowPlanXML(requestParams.FirstExecutionPlanGraphInfo.GraphFileContent, ShowPlanType.Unknown);
+                var nodeBuilder = new XmlPlanNodeBuilder(ShowPlanType.Unknown);
+                var firstPlanXml = nodeBuilder.GetSingleStatementXml(requestParams.FirstExecutionPlanGraphInfo.GraphFileContent, requestParams.FirstExecutionPlanGraphInfo.PlanIndexInFile);
+                var firstGraphSet = ShowPlanGraph.ParseShowPlanXML(firstPlanXml, ShowPlanType.Unknown);
                 var firstRootNode = firstGraphSet?[0]?.Root;
 
-                var secondGraphSet = ShowPlanGraph.ParseShowPlanXML(requestParams.SecondExecutionPlanGraphInfo.GraphFileContent, ShowPlanType.Unknown);
+                var secondPlanXml = nodeBuilder.GetSingleStatementXml(requestParams.SecondExecutionPlanGraphInfo.GraphFileContent, requestParams.SecondExecutionPlanGraphInfo.PlanIndexInFile);
+                var secondGraphSet = ShowPlanGraph.ParseShowPlanXML(secondPlanXml, ShowPlanType.Unknown);
                 var secondRootNode = secondGraphSet?[0]?.Root;
 
                 var manager = new SkeletonManager();
