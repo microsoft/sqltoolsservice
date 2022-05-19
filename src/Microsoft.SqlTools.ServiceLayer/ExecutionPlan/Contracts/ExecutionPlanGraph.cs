@@ -164,6 +164,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         /// File type for execution plan. This will be the file type of the editor when the user opens the graph file
         /// </summary>
         public string GraphFileType { get; set; }
+        /// <summary>
+        /// Index of the execution plan in the file content
+        /// </summary>
+        public int PlanIndexInFile { get; set; }
     }
 
     public class Badge
