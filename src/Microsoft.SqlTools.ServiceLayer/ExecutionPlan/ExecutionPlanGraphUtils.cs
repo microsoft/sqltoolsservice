@@ -19,14 +19,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
         public static List<ExecutionPlanGraph> CreateShowPlanGraph(string xml, string fileName)
         {
             ShowPlanGraph[] graphs = ShowPlanGraph.ParseShowPlanXML(xml, ShowPlan.ShowPlanType.Unknown);
-            return graphs.Select(g => new ExecutionPlanGraph
+            return graphs.Select((g, index) => new ExecutionPlanGraph
             {
                 Root = ConvertShowPlanTreeToExecutionPlanTree(g.Root),
                 Query = g.Statement,
                 GraphFile = new ExecutionPlanGraphInfo
                 {
                     GraphFileContent = xml,
-                    GraphFileType = "xml"
+                    GraphFileType = "xml",
+                    PlanIndexInFile = index
                 },
                 Recommendations = ParseRecommendations(g, fileName)
             }).ToList();
