@@ -567,7 +567,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             {
                 errors.Add(new TableDesignerIssue()
                 {
-                    Description = string.Format("Memory-optimized is either not supported or not enabled in this database."),
+                    Description = string.Format("Memory-optimized table is not supported for this database."),
                     PropertyPath = new object[] { TablePropertyNames.IsMemoryOptimized }
                 });
             }
