@@ -519,8 +519,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             {
                 errors.Add(new TableDesignerIssue()
                 {
-                    Description = "The table has more than one edge constraint on it. This is only useful as a temporary state when modifying existing edge constraints, and should not be used in other cases. Please refer to https://docs.microsoft.com/sql/relational-databases/tables/graph-edge-constraints for more details.",
-                    Severity = Contracts.IssueSeverity.Warning
+                    Description = "The table has more than one edge constraint on it. This is only useful as a temporary state when modifying existing edge constraints, and should not be used in other cases.",
+                    Severity = Contracts.IssueSeverity.Warning,
+                    MoreInfoLink = "https://docs.microsoft.com/sql/relational-databases/tables/graph-edge-constraints"
                 });
             }
             return errors;
@@ -568,7 +569,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 errors.Add(new TableDesignerIssue()
                 {
                     Description = string.Format("Memory-optimized table is not supported for this database."),
-                    PropertyPath = new object[] { TablePropertyNames.IsMemoryOptimized }
+                    PropertyPath = new object[] { TablePropertyNames.IsMemoryOptimized },
+                    MoreInfoLink = designer.IsAzure
+                        ? "https://docs.microsoft.com/en-us/azure/azure-sql/in-memory-oltp-overview"
+                        : "https://docs.microsoft.com/en-us/sql/relational-databases/in-memory-oltp/overview-and-usage-scenarios"
                 });
             }
             return errors;
