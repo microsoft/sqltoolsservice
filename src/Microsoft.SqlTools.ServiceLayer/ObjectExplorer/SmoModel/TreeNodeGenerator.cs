@@ -809,6 +809,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                    Name = "IsExternal",
                    ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.AzureV12|ValidForFlag.SqlOnDemand
                 });
+                properties.Add(new NodeSmoProperty
+                {
+                    Name = "IsNode",
+                    ValidFor = ValidForFlag.Sql2017|ValidForFlag.AzureV12
+                });
+                properties.Add(new NodeSmoProperty
+                {
+                    Name = "IsEdge",
+                    ValidFor = ValidForFlag.Sql2017|ValidForFlag.AzureV12
+                });
                 return properties;
            }
         }

@@ -43,16 +43,27 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             try
             {
                 Table table = smoObject as Table;
-                if (table != null && IsPropertySupported("TemporalType", smoContext, table, CachedSmoProperties) && table.TemporalType != TableTemporalType.None)
+                if (table != null) 
                 {
-                    return "Temporal";
+                    if (IsPropertySupported("TemporalType", smoContext, table, CachedSmoProperties) && table.TemporalType != TableTemporalType.None)
+                    {
+                        return "Temporal";
+                    }
+                    else if (IsPropertySupported("IsEdge", smoContext, table, CachedSmoProperties) && table.IsEdge)
+                    {
+                        return "GraphEdge";
+                    }
+                    else if (IsPropertySupported("IsNode", smoContext, table, CachedSmoProperties) && table.IsNode)
+                    {
+                        return "GraphNode";
+                    }
                 }
-                // TODO carbon issue 3125 enable "External" subtype once icon is ready. Otherwise will get missing icon here.
-                // else if (table != null && IsPropertySupported("IsExternal", smoContext, table, CachedSmoProperties) && table.IsExternal)
-                // {
-                //     return "External";
-                // }
-               // return string.Empty;
+            // TODO carbon issue 3125 enable "External" subtype once icon is ready. Otherwise will get missing icon here.
+            // else if (table != null && IsPropertySupported("IsExternal", smoContext, table, CachedSmoProperties) && table.IsExternal)
+            // {
+            //     return "External";
+            // }
+            // return string.Empty;
 
             }
             catch
