@@ -1358,10 +1358,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
         private void SetMemoryOptimizedTableViewInfo(TableDesignerView view, Dac.TableDesigner tableDesigner)
         {
-            if (!tableDesigner.IsMemoryOptimizedTableSupported && !tableDesigner.TableViewModel.IsMemoryOptimized)
-            {
-                return;
-            }
             view.AdditionalTableProperties.Add(new DesignerDataPropertyInfo()
             {
                 PropertyName = TablePropertyNames.IsMemoryOptimized,
