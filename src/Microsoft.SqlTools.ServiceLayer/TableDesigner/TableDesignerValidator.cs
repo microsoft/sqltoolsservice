@@ -22,6 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             new NoDuplicateIndexNameRule(),
             new EdgeConstraintMustHaveClausesRule(),
             new EdgeConstraintNoRepeatingClausesRule(),
+            new MemoryOptimizedCannotBeEnabledWhenNotSupportedRule(),
             new MemoryOptimizedTableMustHaveNonClusteredPrimaryKeyRule(),
             new TemporalTableMustHavePeriodColumns(),
             new PeriodColumnsRule(),
@@ -551,6 +552,24 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         existingNames.Add(columnSpec.Column);
                     }
                 }
+            }
+            return errors;
+        }
+    }
+
+    public class MemoryOptimizedCannotBeEnabledWhenNotSupportedRule : ITableDesignerValidationRule
+    {
+        public List<TableDesignerIssue> Run(Dac.TableDesigner designer)
+        {
+            var table = designer.TableViewModel;
+            var errors = new List<TableDesignerIssue>();
+            if (!designer.IsMemoryOptimizedTableSupported && designer.TableViewModel.IsMemoryOptimized)
+            {
+                errors.Add(new TableDesignerIssue()
+                {
+                    Description = string.Format("Memory-optimized is either not supported or not enabled in this database."),
+                    PropertyPath = new object[] { TablePropertyNames.IsMemoryOptimized }
+                });
             }
             return errors;
         }

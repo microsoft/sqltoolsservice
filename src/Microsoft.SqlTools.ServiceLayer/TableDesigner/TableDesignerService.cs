@@ -767,7 +767,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
             // Memory-optimized related properties
             tableViewModel.IsMemoryOptimized.Checked = table.IsMemoryOptimized;
-            tableViewModel.IsMemoryOptimized.Enabled = table.CanEditIsMemoryOptimized;
+            tableViewModel.IsMemoryOptimized.Enabled = table.CanEditIsMemoryOptimized || (table.IsMemoryOptimized && !tableDesigner.IsMemoryOptimizedTableSupported);
             tableViewModel.Durability.Enabled = table.CanEditDurability;
             tableViewModel.Durability.Value = SqlTableDurabilityUtil.Instance.GetName(table.Durability);
             tableViewModel.Durability.Values = SqlTableDurabilityUtil.Instance.DisplayNames;
@@ -1358,7 +1358,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
         private void SetMemoryOptimizedTableViewInfo(TableDesignerView view, Dac.TableDesigner tableDesigner)
         {
-            if (!tableDesigner.IsMemoryOptimizedTableSupported)
+            if (!tableDesigner.IsMemoryOptimizedTableSupported && !tableDesigner.TableViewModel.IsMemoryOptimized)
             {
                 return;
             }
