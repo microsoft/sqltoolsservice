@@ -153,7 +153,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                     OwnerUri = testDb.ConnectionString,
                     SelectedBackupSets = selectedBackupSets,
                     SourceDatabaseName = sourceDbName,
-                    DeviceType = (int)DeviceType.Url
+                    DeviceType = DeviceType.Url
                 };
                 request.Options[RestoreOptionsHelper.ReadHeaderFromMedia] = string.IsNullOrEmpty(backUpFilePath);
 

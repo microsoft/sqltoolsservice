@@ -50,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
 
         private async Task VerifyBackupFileCreated()
         {
-            if(fullBackupFilePath == null)
+            if (fullBackupFilePath == null)
             {
                 fullBackupFilePath = await CreateBackupFile();
             }
@@ -58,7 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
 
         private async Task<string[]> GetBackupFilesToRecoverDatabaseCreated()
         {
-            if(backupFilesToRecoverDatabase == null)
+            if (backupFilesToRecoverDatabase == null)
             {
                 backupFilesToRecoverDatabase = await CreateBackupSetsToRecoverDatabase();
             }
@@ -124,7 +124,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                     Dictionary<string, object> options = new Dictionary<string, object>();
                     options.Add(RestoreOptionsHelper.ReplaceDatabase, true);
                     await VerifyRestore(null, databaseNameToRestoreFrom, true, TaskExecutionModeFlag.Execute, testDb.DatabaseName, null, options, null, restoreShouldFail);
-                   
+
                 }
                 finally
                 {
@@ -159,7 +159,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                     Dictionary<string, object> options = new Dictionary<string, object>();
                     options.Add(RestoreOptionsHelper.ReplaceDatabase, true);
                     await VerifyRestore(null, databaseNameToRestoreFrom, true, TaskExecutionModeFlag.Execute, testDb.DatabaseName, null, options, null, restoreShouldFail);
-                    
+
                 }
                 finally
                 {
@@ -208,7 +208,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                         Type = ConnectionType.Default
                     });
                     testDb.Cleanup();
-                    
+
                 }
             }
         }
@@ -283,7 +283,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             {
                 if (testDb != null)
                 {
-                   testDb.Cleanup();
+                    testDb.Cleanup();
                 }
             }
         }
@@ -353,7 +353,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             var response = await VerifyRestore(backupFileNames, null, canRestore, TaskExecutionModeFlag.None, "RestoredFromTwoBackupFile");
             Assert.True(response.BackupSetsToRestore.Count() == 2);
             var fileInfo = response.BackupSetsToRestore.FirstOrDefault(x => x.GetPropertyValueAsString(BackupSetInfo.BackupTypePropertyName) != RestoreConstants.TypeFull);
-            if(fileInfo != null)
+            if (fileInfo != null)
             {
                 var selectedBackupSets = new string[] { fileInfo.Id };
                 await VerifyRestore(backupFileNames, null, true, TaskExecutionModeFlag.None, "RestoredFromTwoBackupFile", selectedBackupSets);
@@ -565,11 +565,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
         }
 
         private async Task<RestorePlanResponse> VerifyRestore(
-            string[] backupFileNames = null, 
+            string[] backupFileNames = null,
             string sourceDbName = null,
             bool canRestore = true,
-            TaskExecutionModeFlag executionMode = TaskExecutionModeFlag.None, 
-            string targetDatabase = null, 
+            TaskExecutionModeFlag executionMode = TaskExecutionModeFlag.None,
+            string targetDatabase = null,
             string[] selectedBackupSets = null,
             Dictionary<string, object> options = null,
             Func<Database, bool> verifyDatabase = null,
@@ -589,14 +589,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                 RestoreDatabaseHelper service = new RestoreDatabaseHelper();
 
                 // If source database is sepecified verfiy it's part of source db list
-                if(!string.IsNullOrEmpty(sourceDbName))
+                if (!string.IsNullOrEmpty(sourceDbName))
                 {
                     RestoreConfigInfoResponse configInfoResponse = service.CreateConfigInfoResponse(new RestoreConfigInfoRequestParams
                     {
                         OwnerUri = queryTempFile.FilePath
                     });
                     IEnumerable<string> dbNames = configInfoResponse.ConfigInfo[RestoreOptionsHelper.SourceDatabaseNamesWithBackupSets] as IEnumerable<string>;
-                    Assert.True(dbNames.Any(x => x == sourceDbName));
+                    Assert.That(dbNames, Contains.Item(sourceDbName), "SourceDatabaseNamesWithBackupSets should contain source DB name");
                 }
                 var request = new RestoreParams
                 {
@@ -623,62 +623,62 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                 restoreDataObject.ConnectionInfo = connectionResult.ConnectionInfo;
                 var response = service.CreateRestorePlanResponse(restoreDataObject);
 
-                Assert.NotNull(response);
-                Assert.False(string.IsNullOrWhiteSpace(response.SessionId));
-                Assert.AreEqual(response.CanRestore, canRestore);
+                Assert.That(response, Is.Not.Null, nameof(response));
+                Assert.That(response.ErrorMessage, Is.Null, nameof(response.ErrorMessage));
+                Assert.That(response.SessionId, Is.Not.Null.Or.Empty, nameof(response.SessionId));
+                Assert.That(response.CanRestore, Is.EqualTo(canRestore), nameof(response.CanRestore));
                 if (canRestore)
                 {
-                    Assert.True(response.DbFiles.Any());
+                    Assert.That(response.DbFiles, Is.Not.Empty, nameof(response.DbFiles));
                     if (string.IsNullOrEmpty(targetDatabase))
                     {
                         targetDatabase = response.DatabaseName;
                     }
-                    Assert.AreEqual(response.DatabaseName, targetDatabase);
-                    Assert.NotNull(response.PlanDetails);
-                    Assert.True(response.PlanDetails.Any());
-                    Assert.NotNull(response.PlanDetails[RestoreOptionsHelper.BackupTailLog]);
-                    Assert.NotNull(response.PlanDetails[RestoreOptionsHelper.TailLogBackupFile]);
-                    Assert.NotNull(response.PlanDetails[RestoreOptionsHelper.DataFileFolder]);
-                    Assert.NotNull(response.PlanDetails[RestoreOptionsHelper.LogFileFolder]);
-                    Assert.NotNull(response.PlanDetails[RestoreOptionsHelper.StandbyFile]);
-                    Assert.NotNull(response.PlanDetails[RestoreOptionsHelper.StandbyFile]);
-                   
-                    if(executionMode != TaskExecutionModeFlag.None)
+                    Assert.That(response.DatabaseName, Is.EqualTo(targetDatabase), nameof(response.DatabaseName));
+                    Assert.That(response.PlanDetails, Is.Not.Null.Or.Empty, nameof(response.PlanDetails));
+                    Assert.That(response.PlanDetails[RestoreOptionsHelper.BackupTailLog], Is.Not.Null, RestoreOptionsHelper.BackupTailLog);
+                    Assert.That(response.PlanDetails[RestoreOptionsHelper.TailLogBackupFile], Is.Not.Null, RestoreOptionsHelper.TailLogBackupFile);
+                    Assert.That(response.PlanDetails[RestoreOptionsHelper.DataFileFolder], Is.Not.Null, RestoreOptionsHelper.DataFileFolder);
+                    Assert.That(response.PlanDetails[RestoreOptionsHelper.LogFileFolder], Is.Not.Null, RestoreOptionsHelper.LogFileFolder);
+                    Assert.That(response.PlanDetails[RestoreOptionsHelper.StandbyFile], Is.Not.Null, RestoreOptionsHelper.StandbyFile);
+
+
+                    if (executionMode != TaskExecutionModeFlag.None)
                     {
                         try
                         {
                             request.SessionId = response.SessionId;
                             restoreDataObject = service.CreateRestoreDatabaseTaskDataObject(request);
-                            Assert.AreEqual(response.SessionId, restoreDataObject.SessionId);
+                            Assert.That(response.SessionId, Is.EqualTo(restoreDataObject.SessionId), $"Response {nameof(response.SessionId)} not equal to RestoreObject {nameof(restoreDataObject.SessionId)}");
                             request.RelocateDbFiles = !restoreDataObject.DbFilesLocationAreValid();
                             restoreDataObject.Execute((TaskExecutionMode)Enum.Parse(typeof(TaskExecutionMode), executionMode.ToString()));
 
                             if (executionMode.HasFlag(TaskExecutionModeFlag.Execute))
                             {
-                                Assert.True(restoreDataObject.Server.Databases.Contains(targetDatabase));
+                                Assert.That(restoreDataObject.Server.Databases, Has.One.With.Property("Name").EqualTo(targetDatabase), $"{nameof(restoreDataObject)} {nameof(restoreDataObject.Server.Databases)} does not contain targetDatabase");
 
                                 if (verifyDatabase != null)
                                 {
-                                    Assert.True(verifyDatabase(restoreDataObject.Server.Databases[targetDatabase]));
+                                    Assert.That(verifyDatabase(restoreDataObject.Server.Databases[targetDatabase]), Is.True, "verifyDatabase callback failed");
                                 }
 
                                 //To verify the backupset that are restored, verifying the database is a better options.
                                 //Some tests still verify the number of backup sets that are executed which in some cases can be less than the selected list
                                 if (verifyDatabase == null && selectedBackupSets != null)
                                 {
-                                    Assert.AreEqual(selectedBackupSets.Count(), restoreDataObject.RestorePlanToExecute.RestoreOperations.Count());
+                                    Assert.That(restoreDataObject.RestorePlanToExecute.RestoreOperations.Count(), Is.EqualTo(selectedBackupSets.Count()), $"{nameof(restoreDataObject.RestorePlanToExecute.RestoreOperations)} contains different number of objects than {nameof(selectedBackupSets)}");
                                 }
                             }
-                            if(executionMode.HasFlag(TaskExecutionModeFlag.Script))
+                            if (executionMode.HasFlag(TaskExecutionModeFlag.Script))
                             {
-                                Assert.False(string.IsNullOrEmpty(restoreDataObject.ScriptContent));
+                                Assert.That(restoreDataObject.ScriptContent, Is.Not.Null.Or.Empty, nameof(restoreDataObject.ScriptContent));
                             }
                         }
-                        catch(Exception ex)
+                        catch (Exception ex)
                         {
                             if (!shouldFail)
                             {
-                                Assert.False(true, ex.Message);
+                                Assert.Fail(ex.Message, "Unexpected exception");
                             }
                         }
                         finally

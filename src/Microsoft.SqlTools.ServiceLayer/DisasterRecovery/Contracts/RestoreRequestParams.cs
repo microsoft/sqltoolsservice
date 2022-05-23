@@ -4,6 +4,7 @@
 //
 
 using System.Collections.Generic;
+using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
@@ -51,11 +52,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
             }
         }
 
-        internal int DeviceType 
+        internal DeviceType DeviceType 
         {
             get
             {
-                return GetOptionValue<int>(RestoreOptionsHelper.DeviceType);
+                return GetOptionValue<DeviceType>(RestoreOptionsHelper.DeviceType, DeviceType.File);
             }
             set
             {
