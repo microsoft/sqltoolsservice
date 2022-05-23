@@ -135,11 +135,17 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
                 Assert.True(dacProp != null, $"DacDeploy property not present for {deployOptionsProp.Name}");
 
                 var deployOptionsValue = deployOptionsProp.GetValue(deploymentOptions);
-                var dacValue = dacProp.GetValue(dacDeployOptions);
+                var changedDacValue = deployOptionsValue != null ? deployOptionsValue.GetType().GetProperty("Value").GetValue(deployOptionsValue) : deployOptionsValue;
+                var dafaultDacValue = dacProp.GetValue(dacDeployOptions);
 
                 if (deployOptionsProp.Name != "ExcludeObjectTypes") // do not compare for ExcludeObjectTypes because it will be different
                 {
-                    Assert.True((deployOptionsValue == null && dacValue == null) || deployOptionsValue.Equals(dacValue), $"DacFx DacDeploy property not equal to Tools Service DeploymentOptions for { deployOptionsProp.Name}, SchemaCompareOptions value: {deployOptionsValue} and DacDeployOptions value: {dacValue} ");
+                    Assert.True((deployOptionsValue == null && dafaultDacValue == null) 
+                        || deployOptionsValue.Equals(dafaultDacValue)
+                        || changedDacValue == null && (dafaultDacValue as string) == string.Empty
+                        || changedDacValue == null && dafaultDacValue == null 
+                        || (changedDacValue).Equals(dafaultDacValue)
+                        , $"DacFx DacDeploy property not equal to Tools Service DeploymentOptions for { deployOptionsProp.Name}, SchemaCompareOptions value: {changedDacValue} and DacDeployOptions value: {dafaultDacValue} ");
                 }
             }
         }
@@ -153,14 +159,27 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
             foreach (var v in deploymentOptionsProperties)
             {
                 var defaultP = v.GetValue(defaultOpt);
+                var defaultPValue = defaultP != null ? defaultP.GetType().GetProperty("Value").GetValue(defaultP) : defaultP;
                 var actualP = v.GetValue(actualOpt);
+                var actualPValue = actualP.GetType().GetProperty("Value").GetValue(actualP);
+
                 if (v.Name == "ExcludeObjectTypes")
                 {
-                    Assert.True((defaultP as ObjectType[]).Length == (actualP as ObjectType[]).Length, $"Number of excluded objects is different; expected: {(defaultP as ObjectType[]).Length} actual: {(actualP as ObjectType[]).Length}");
+                    Assert.True((defaultPValue as ObjectType[]).Length == (actualPValue as ObjectType[]).Length, $"Number of excluded objects is different; expected: {(defaultPValue as ObjectType[]).Length} actual: {(actualPValue as ObjectType[]).Length}");
                 }
                 else
                 {
-                    Assert.True((defaultP == null && actualP == null) || defaultP.Equals(actualP), $"Actual Property from Service is not equal to default property for { v.Name}, Actual value: {actualP} and Default value: {defaultP}");
+                    // Verifying expected and actual deployment options properties are equal
+                    Assert.True((defaultP == null && actualP == null) 
+                     || (defaultP == null && String.IsNullOrEmpty(actualP as string))
+                     || defaultP.Equals(actualP)
+                    , $"Actual Property from Service is not equal to default property for {v.Name}, Actual property: {actualP} and Default property: {defaultP}");
+
+                    // Verifying expected and actual deployment options property values are equal
+                    Assert.True((defaultPValue == null && actualPValue == null)
+                     || (defaultPValue == null && String.IsNullOrEmpty(actualPValue as string))
+                     || (defaultPValue).Equals(actualPValue)
+                    , $"Actual Property from Service is not equal to default property for {v.Name}, Actual value: {actualPValue} and Default value: {defaultPValue}");
                 }
             }
             return true;
