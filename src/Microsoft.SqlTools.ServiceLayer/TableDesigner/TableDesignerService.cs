@@ -507,6 +507,18 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                             case TableColumnPropertyNames.DefaultConstraintName:
                                 column.DefaultConstraintName = GetStringValue(newValue);
                                 break;
+                            case TableColumnPropertyNames.IsComputed:
+                                column.IsComputed = GetBooleanValue(newValue);
+                                break;
+                            case TableColumnPropertyNames.ComputedFormula:
+                                column.ComputedFormula = GetStringValue(newValue);
+                                break;
+                            case TableColumnPropertyNames.IsComputedPersisted:
+                                column.IsComputedPersisted = GetBooleanValue(newValue);
+                                break;
+                            case TableColumnPropertyNames.IsComputedPersistedNullable:
+                                column.IsComputedPersistedNullable = GetBooleanValue(newValue);
+                                break;
                             default:
                                 break;
                         }
@@ -816,6 +828,14 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 columnViewModel.IdentityIncrement.Enabled = column.CanEditIdentityValues;
                 columnViewModel.IdentityIncrement.Value = column.IdentityIncrement?.ToString();
                 columnViewModel.CanBeDeleted = column.CanBeDeleted;
+                columnViewModel.IsComputed.Enabled = column.CanEditIsComputed;
+                columnViewModel.IsComputed.Checked = column.IsComputed;
+                columnViewModel.ComputedFormula.Enabled = column.CanEditComputedFormula;
+                columnViewModel.ComputedFormula.Value = column.ComputedFormula;
+                columnViewModel.IsComputedPersisted.Enabled = column.CanEditIsComputedPersisted;
+                columnViewModel.IsComputedPersisted.Checked = column.IsComputedPersisted == true;
+                columnViewModel.IsComputedPersistedNullable.Enabled = column.CanEditIsComputedPersistedNullable;
+                columnViewModel.IsComputedPersistedNullable.Checked = column.IsComputedPersistedNullable == true;
                 columnViewModel.GeneratedAlwaysAs.Value = ColumnGeneratedAlwaysAsTypeUtil.Instance.GetName(column.GeneratedAlwaysAs);
                 columnViewModel.GeneratedAlwaysAs.Values = ColumnGeneratedAlwaysAsTypeUtil.Instance.DisplayNames;
                 columnViewModel.GeneratedAlwaysAs.Enabled = column.CanEditGeneratedAlwaysAs;
@@ -1003,6 +1023,50 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     ComponentProperties = new InputBoxProperties()
                     {
                         Title = SR.TableColumnDefaultConstraintNamePropertyTitle
+                    }
+                },
+                new DesignerDataPropertyInfo()
+                {
+                    PropertyName = TableColumnPropertyNames.IsComputed,
+                    Description = SR.TableColumnIsComputedDescription,
+                    Group = SR.TableColumnComputedGroupTitle,
+                    ComponentType = DesignerComponentType.Checkbox,
+                    ComponentProperties = new CheckBoxProperties()
+                    {
+                        Title = SR.TableColumnIsComputedTitle
+                    }
+                },
+                new DesignerDataPropertyInfo()
+                {
+                    PropertyName = TableColumnPropertyNames.ComputedFormula,
+                    Description = SR.TableColumnComputedFormulaDescription,
+                    Group = SR.TableColumnComputedGroupTitle,
+                    ComponentType = DesignerComponentType.Input,
+                    ComponentProperties = new InputBoxProperties()
+                    {
+                        Title = SR.TableColumnComputedFormulaTitle
+                    }
+                },
+                new DesignerDataPropertyInfo()
+                {
+                    PropertyName = TableColumnPropertyNames.IsComputedPersisted,
+                    Description = SR.TableColumnIsComputedPersistedDescription,
+                    Group = SR.TableColumnComputedGroupTitle,
+                    ComponentType = DesignerComponentType.Checkbox,
+                    ComponentProperties = new CheckBoxProperties()
+                    {
+                        Title = SR.TableColumnIsComputedPersistedTitle
+                    }
+                },
+                new DesignerDataPropertyInfo()
+                {
+                    PropertyName = TableColumnPropertyNames.IsComputedPersistedNullable,
+                    Description = SR.TableColumnIsComputedPersistedNullableDescription,
+                    Group = SR.TableColumnComputedGroupTitle,
+                    ComponentType = DesignerComponentType.Checkbox,
+                    ComponentProperties = new CheckBoxProperties()
+                    {
+                        Title = SR.TableColumnIsComputedPersistedNullableTitle
                     }
                 }
             });

@@ -9061,6 +9061,78 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string TableColumnComputedGroupTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableColumnComputedGroupTitle);
+            }
+        }
+
+        public static string TableColumnIsComputedTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableColumnIsComputedTitle);
+            }
+        }
+
+        public static string TableColumnIsComputedDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableColumnIsComputedDescription);
+            }
+        }
+
+        public static string TableColumnComputedFormulaTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableColumnComputedFormulaTitle);
+            }
+        }
+
+        public static string TableColumnComputedFormulaDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableColumnComputedFormulaDescription);
+            }
+        }
+
+        public static string TableColumnIsComputedPersistedTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableColumnIsComputedPersistedTitle);
+            }
+        }
+
+        public static string TableColumnIsComputedPersistedDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableColumnIsComputedPersistedDescription);
+            }
+        }
+
+        public static string TableColumnIsComputedPersistedNullableTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableColumnIsComputedPersistedNullableTitle);
+            }
+        }
+
+        public static string TableColumnIsComputedPersistedNullableDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableColumnIsComputedPersistedNullableDescription);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -12950,6 +13022,33 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string AddNewClauseLabel = "AddNewClauseLabel";
+
+
+            public const string TableColumnComputedGroupTitle = "TableColumnComputedGroupTitle";
+
+
+            public const string TableColumnIsComputedTitle = "TableColumnIsComputedTitle";
+
+
+            public const string TableColumnIsComputedDescription = "TableColumnIsComputedDescription";
+
+
+            public const string TableColumnComputedFormulaTitle = "TableColumnComputedFormulaTitle";
+
+
+            public const string TableColumnComputedFormulaDescription = "TableColumnComputedFormulaDescription";
+
+
+            public const string TableColumnIsComputedPersistedTitle = "TableColumnIsComputedPersistedTitle";
+
+
+            public const string TableColumnIsComputedPersistedDescription = "TableColumnIsComputedPersistedDescription";
+
+
+            public const string TableColumnIsComputedPersistedNullableTitle = "TableColumnIsComputedPersistedNullableTitle";
+
+
+            public const string TableColumnIsComputedPersistedNullableDescription = "TableColumnIsComputedPersistedNullableDescription";
 
 
             private Keys()
