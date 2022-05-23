@@ -29,7 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         public T Value { get; set; }
 
         // Description of the deployment options
-        public string Description { get; set; } = string.Empty;
+        public string Description { get; set; }
 
         // To display the options in ADS extensions UI in SchemaCompare/SQL-DB-Project/Dacpac extensions
         public string DisplayName { get; set; }
