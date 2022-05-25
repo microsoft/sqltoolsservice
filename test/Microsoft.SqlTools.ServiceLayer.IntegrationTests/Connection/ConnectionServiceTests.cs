@@ -184,13 +184,18 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
 
             requestContext.Setup(x => x.SendResult(It.Is<string>((connectionString) => connectionString.Contains(resultConnectionDetails.ToString()))))
                             .Returns(Task.FromResult(new object()));
-            var requestParams = new GetConnectionStringParams()
+            var requestParams = new GetConnectionStringParams();
+            requestParams.OwnerUri = null;
+            requestParams.ConnectionDetails = new ConnectionDetails() 
             {
-                OwnerUri = null,
-                ConnectionDetails = {ServerName = "testServer", DatabaseName = "testDatabase", UserName = "sa", Password = "password", ApplicationName = "TestApp"},
-                IncludePassword = true,
-                IncludeApplicationName = true
+                ServerName = "testServer", 
+                DatabaseName = "testDatabase", 
+                UserName = "sa", 
+                Password = "[placeholder]", 
+                ApplicationName = "TestApp"
             };
+            requestParams.IncludePassword = true;
+            requestParams.IncludeApplicationName = true;            
 
             await service.HandleGetConnectionStringRequest(requestParams, requestContext.Object);
             requestContext.VerifyAll();
