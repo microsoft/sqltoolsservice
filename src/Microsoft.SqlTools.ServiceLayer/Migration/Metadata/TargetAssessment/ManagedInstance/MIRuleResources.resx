@@ -175,7 +175,7 @@
     <value>xp_cmdshell is not supported in Azure SQL Managed Instance.</value>
   </data>
   <data name="XpCmdshellIssueCategory" xml:space="preserve">
-    <value>Issue</value>
+    <value>Warning</value>
   </data>
   <data name="XpCmdshellDescription" xml:space="preserve">
     <value>Xp_cmdshell which spawns a Windows command shell and passes in a string for execution is not supported in Azure SQL Managed Instance.</value>
@@ -332,24 +332,6 @@
   </data>
   <data name="MIHeterogeneousMSDTCTransactSQLMoreInformationlink" xml:space="preserve">
     <value>https://docs.microsoft.com/en-us/azure/azure-sql/database/elastic-transactions-overview#transactions-across-multiple-servers-for-azure-sql-managed-instance</value>
-  </data>
-  <data name="ClrStrictSecurityTitle" xml:space="preserve">
-    <value>CLR assemblies marked as SAFE or EXTERNAL_ACCESS are considered UNSAFE</value>
-  </data>
-  <data name="ClrStrictSecurityIssueCategory" xml:space="preserve">
-    <value>Warning</value>
-  </data>
-  <data name="ClrStrictSecurityDescription" xml:space="preserve">
-    <value>CLR Strict Security mode is enforced in Azure SQL Managed Instance. This mode is enabled by default and introduces breaking changes for databases containing user defined CLR assemblies marked either SAFE or EXTERNAL_ACCESS.</value>
-  </data>
-  <data name="ClrStrictSecurityRecommendation" xml:space="preserve">
-    <value>CLR uses Code Access Security (CAS) in the .NET Framework, which is no longer supported as a security boundary. Beginning with SQL Server 2017 (14.x) Database Engine, an sp_configure option called clr strict security is introduced to enhance the security of CLR assemblies. clr strict security is enabled by default and treats SAFE and EXTERNAL_ACCESS CLR assemblies as if they were marked UNSAFE. When clr strict security is disabled, a CLR assembly created with PERMISSION_SET = SAFE may be able to access external system resources, call unmanaged code, and acquire sysadmin privileges. After enabling strict security, any assemblies that are not signed will fail to load. Also, if a database has SAFE or EXTERNAL_ACCESS assemblies, RESTORE or ATTACH DATABASE statements can complete, but the assemblies may fail to load. To load the assemblies, you must either alter or drop and recreate each assembly so that it is signed with a certificate or asymmetric key that has a corresponding login with the UNSAFE ASSEMBLY permission on the server.</value>
-  </data>
-  <data name="ClrStrictSecurityMoreInformation" xml:space="preserve">
-    <value>CLR strict security</value>
-  </data>
-  <data name="ClrStrictSecurityMoreInformationlink" xml:space="preserve">
-    <value>https://docs.microsoft.com/en-us/sql/database-engine/configure-windows/clr-strict-security?view=sql-server-ver15</value>
   </data>
   <data name="ComputeClauseTitle" xml:space="preserve">
     <value>COMPUTE clause is discontinued and has been removed.</value>
@@ -694,16 +676,16 @@
     <value>https://docs.microsoft.com/en-us/azure/azure-sql/managed-instance/transact-sql-tsql-differences-sql-server#sql-server-agent</value>
   </data>
   <data name="WindowsAuthenticationTitle" xml:space="preserve">
-    <value>Database users mapped with Windows authentication (integrated security) are not supported in Azure SQL Managed Instance</value>
+    <value>Database users mapped with Windows authentication (integrated security) should be remapped to equivalent Azure AD identities.</value>
   </data>
   <data name="WindowsAuthenticationIssueCategory" xml:space="preserve">
     <value>Warning</value>
   </data>
   <data name="WindowsAuthenticationDescription" xml:space="preserve">
-    <value>Azure SQL Managed Instance supports two types of authentication 1) SQL Authentication, which uses a username and password 2) Azure Active Directory Authentication, which uses identities managed by Azure Active Directory and is supported for managed and integrated domains. Database users mapped with Windows authentication (integrated security) is not supported in Azure SQL Managed Instance.</value>
+    <value>Azure SQL Managed Instance supports three types of authentication 1) SQL Authentication, which uses a username and password 2) Azure Active Directory Authentication and 3) Windows Authentication, which both use identities managed by Azure Active Directory and is supported for managed and integrated domains. Windows logins and users not in Azure Active Directory are not supported in Azure SQL Managed Instance.</value>
   </data>
   <data name="WindowsAuthenticationRecommendation" xml:space="preserve">
-    <value>Federate the local Active Directory with Azure Active Directory. The Windows identity can then be replaced with the equivalent Azure Active Directory identities. Alternatively, migrate to SQL Server on Azure Virtual Machine.</value>
+    <value>Synchronize the local Active Directory with Azure Active Directory. The Windows identity can then be replaced with the equivalent Azure Active Directory identities. Alternatively, migrate to SQL Server on Azure Virtual Machine.</value>
   </data>
   <data name="WindowsAuthenticationMoreInformation" xml:space="preserve">
     <value>An overview of Azure SQL Database and SQL Managed Instance security capabilities</value>
