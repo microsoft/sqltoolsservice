@@ -4132,7 +4132,7 @@
         <source>Cost: {0} %</source>
         <target state="translated">Custo: {0} %</target>
         <note>"Cost: {0} percent" String to format.
- Parameters: 0 - x (int) </note>
+ Parameters: 0 - x (string) </note>
       </trans-unit>
       <trans-unit id="RemoteDataAccess">
         <source>Remote Data Access</source>
@@ -6022,6 +6022,51 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
         <source>Parallel Execution</source>
         <target state="translated">Execução Paralela</target>
         <note>tooltip text for node parallelism overlay</note>
+      </trans-unit>
+      <trans-unit id="TableColumnComputedGroupTitle">
+        <source>Computed Column Specifications</source>
+        <target state="translated">Especificações da Coluna Computadas</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnIsComputedTitle">
+        <source>Is Computed</source>
+        <target state="translated">Computado</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnIsComputedDescription">
+        <source>Specifies whether the column is a computed column</source>
+        <target state="translated">Especifica se a coluna é uma coluna computada</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnIsComputedPersistedTitle">
+        <source>Is Persisted</source>
+        <target state="translated">É Persistido</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnIsComputedPersistedDescription">
+        <source>Whether the computed column is saved with the data source</source>
+        <target state="translated">Se a coluna computada é salva com a fonte de dados</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnIsComputedPersistedNullableTitle">
+        <source>Is Persisted Nullable</source>
+        <target state="translated">É Nulas Persistente</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnIsComputedPersistedNullableDescription">
+        <source>Whether the computed column can have a NULL value (NOT NULL can only be specified if the column is persisted)</source>
+        <target state="translated">Se a coluna computada pode ter um valor NULL (NOT NULO só pode ser especificado se a coluna persistir)</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnComputedFormulaDescription">
+        <source>Formula that the column uses if it is a computed column</source>
+        <target state="translated">Fórmula que a coluna usa se for uma coluna computada</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnComputedFormulaTitle">
+        <source>Formula</source>
+        <target state="translated">Fórmula</target>
+        <note></note>
       </trans-unit>
     </body>
   </file>

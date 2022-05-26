@@ -3694,4 +3694,31 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
   <data name="ParallelismOverlayTooltip" xml:space="preserve">
     <value>Esecuzione parallela</value>
   </data>
+  <data name="TableColumnComputedGroupTitle" xml:space="preserve">
+    <value>Specifiche colonne calcolate</value>
+  </data>
+  <data name="TableColumnIsComputedTitle" xml:space="preserve">
+    <value>Calcolata</value>
+  </data>
+  <data name="TableColumnIsComputedDescription" xml:space="preserve">
+    <value>Specifica se la colonna è una colonna calcolata</value>
+  </data>
+  <data name="TableColumnIsComputedPersistedTitle" xml:space="preserve">
+    <value>Persistente</value>
+  </data>
+  <data name="TableColumnIsComputedPersistedDescription" xml:space="preserve">
+    <value>Indica se la colonna calcolata viene salvata con l'origine dati</value>
+  </data>
+  <data name="TableColumnIsComputedPersistedNullableTitle" xml:space="preserve">
+    <value>Persistente con ammissione di valori Null</value>
+  </data>
+  <data name="TableColumnIsComputedPersistedNullableDescription" xml:space="preserve">
+    <value>Indica se la colonna calcolata può avere un valore NULL (è possibile specificare NOT NULL solo se la colonna è persistente).</value>
+  </data>
+  <data name="TableColumnComputedFormulaDescription" xml:space="preserve">
+    <value>Formula utilizzata da una colonna calcolata</value>
+  </data>
+  <data name="TableColumnComputedFormulaTitle" xml:space="preserve">
+    <value>Formula</value>
+  </data>
 </root>
