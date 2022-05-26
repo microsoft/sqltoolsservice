@@ -3694,4 +3694,31 @@
   <data name="ParallelismOverlayTooltip" xml:space="preserve">
     <value>並行執行</value>
   </data>
+  <data name="TableColumnComputedGroupTitle" xml:space="preserve">
+    <value>計算資料行規格</value>
+  </data>
+  <data name="TableColumnIsComputedTitle" xml:space="preserve">
+    <value>是計算的</value>
+  </data>
+  <data name="TableColumnIsComputedDescription" xml:space="preserve">
+    <value>Specifies whether the column is a computed column</value>
+  </data>
+  <data name="TableColumnIsComputedPersistedTitle" xml:space="preserve">
+    <value>Is Persisted</value>
+  </data>
+  <data name="TableColumnIsComputedPersistedDescription" xml:space="preserve">
+    <value>Whether the computed column is saved with the data source</value>
+  </data>
+  <data name="TableColumnIsComputedPersistedNullableTitle" xml:space="preserve">
+    <value>為永續性且可為 Null</value>
+  </data>
+  <data name="TableColumnIsComputedPersistedNullableDescription" xml:space="preserve">
+    <value>Whether the computed column can have a NULL value (NOT NULL can only be specified if the column is persisted)</value>
+  </data>
+  <data name="TableColumnComputedFormulaDescription" xml:space="preserve">
+    <value>Formula that the column uses if it is a computed column</value>
+  </data>
+  <data name="TableColumnComputedFormulaTitle" xml:space="preserve">
+    <value>公式</value>
+  </data>
 </root>

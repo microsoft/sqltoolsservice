@@ -3694,4 +3694,31 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
   <data name="ParallelismOverlayTooltip" xml:space="preserve">
     <value>Parallele Ausführung</value>
   </data>
+  <data name="TableColumnComputedGroupTitle" xml:space="preserve">
+    <value>Spezifikationen für berechnete Spalten</value>
+  </data>
+  <data name="TableColumnIsComputedTitle" xml:space="preserve">
+    <value>Ist berechnet</value>
+  </data>
+  <data name="TableColumnIsComputedDescription" xml:space="preserve">
+    <value>Gibt an, ob die Spalte eine berechnete Spalte ist.</value>
+  </data>
+  <data name="TableColumnIsComputedPersistedTitle" xml:space="preserve">
+    <value>Ist beständig</value>
+  </data>
+  <data name="TableColumnIsComputedPersistedDescription" xml:space="preserve">
+    <value>Gibt an, ob die berechnete Spalte mit der Datenquelle gespeichert wird.</value>
+  </data>
+  <data name="TableColumnIsComputedPersistedNullableTitle" xml:space="preserve">
+    <value>Nullwerte zulassend wenn beständig</value>
+  </data>
+  <data name="TableColumnIsComputedPersistedNullableDescription" xml:space="preserve">
+    <value>Gibt an, ob die berechnete Spalte einen NULL-Wert aufweisen darf (NOT NULL kann nur angegeben werden, wenn die Spalte beständig ist).</value>
+  </data>
+  <data name="TableColumnComputedFormulaDescription" xml:space="preserve">
+    <value>Die Formel, die von der Spalte verwendet wird, wenn die Spalte eine berechnete Spalte ist.</value>
+  </data>
+  <data name="TableColumnComputedFormulaTitle" xml:space="preserve">
+    <value>Formel</value>
+  </data>
 </root>
