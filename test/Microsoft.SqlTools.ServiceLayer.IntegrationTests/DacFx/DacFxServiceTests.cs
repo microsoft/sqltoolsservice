@@ -731,6 +731,7 @@ FROM MissingEdgeHubInputStream'";
             expectedResults.BlockOnPossibleDataLoss = new DeploymentOptionProperty<bool>(true);
             expectedResults.AllowIncompatiblePlatform = new DeploymentOptionProperty<bool>(true);
             expectedResults.DisableIndexesForDataPhase = new DeploymentOptionProperty<bool>(false);
+            expectedResults.IgnoreTableOptions = new DeploymentOptionProperty<bool>(false);
 
             var dacfxRequestContext = new Mock<RequestContext<DacFxOptionsResult>>();
             dacfxRequestContext.Setup((RequestContext<DacFxOptionsResult> x) => x.SendResult(It.Is<DacFxOptionsResult>((result) => ValidateOptions(expectedResults, result.DeploymentOptions) == true))).Returns(Task.FromResult(new object()));
@@ -756,6 +757,7 @@ FROM MissingEdgeHubInputStream'";
             DeploymentOptions expectedResults = DeploymentOptions.GetDefaultPublishOptions();
             expectedResults.ExcludeObjectTypes = null;
             expectedResults.DisableIndexesForDataPhase = new DeploymentOptionProperty<bool>(false);
+            expectedResults.IgnoreTableOptions = new DeploymentOptionProperty<bool>(false);
 
             var dacfxRequestContext = new Mock<RequestContext<DacFxOptionsResult>>();
             dacfxRequestContext.Setup((RequestContext<DacFxOptionsResult> x) => x.SendResult(It.Is<DacFxOptionsResult>((result) => ValidateOptions(expectedResults, result.DeploymentOptions) == true))).Returns(Task.FromResult(new object()));
@@ -779,6 +781,7 @@ FROM MissingEdgeHubInputStream'";
         public async Task ValidateGetDefaultPublishOptionsCallFromService()
         {
             DeploymentOptions expectedResults = DeploymentOptions.GetDefaultPublishOptions();
+            expectedResults.IgnoreTableOptions = new DeploymentOptionProperty<bool>(false);
 
             var dacfxRequestContext = new Mock<RequestContext<DacFxOptionsResult>>();
             dacfxRequestContext.Setup((RequestContext<DacFxOptionsResult> x) => x.SendResult(It.Is<DacFxOptionsResult>((result) => ValidateOptions(expectedResults, result.DeploymentOptions) == true))).Returns(Task.FromResult(new object()));
@@ -855,10 +858,11 @@ Streaming query statement contains a reference to missing output stream 'Missing
                 }
                 else
                 {
-                    // Verifying expected and actual deployment options properties are equal
+                    //Verifying expected and actual deployment options properties are equal
                     Assert.True((defaultP == null && actualP == null) 
                      || (defaultP == null && String.IsNullOrEmpty(actualP as string))
-                     || defaultP.Equals(actualP)
+                     // check the type of the properties, the descriptions will not match when overriding defaults
+                     || defaultP.GetType().Equals(actualP.GetType()) 
                     , $"Actual Property from Service is not equal to default property for {v.Name}, Actual property: {actualP} and Default property: {defaultP}");
 
                     // Verifying expected and actual deployment options property values are equal
