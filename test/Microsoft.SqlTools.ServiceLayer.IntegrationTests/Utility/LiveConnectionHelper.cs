@@ -54,9 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility
                 databaseName = "master";
             }
             var connectionService = GetLiveTestConnectionService();
-            var connectionResult =
-                connectionService
-                .Connect(new ConnectParams
+            var connectionResult = connectionService.Connect(new ConnectParams
                 {
                     OwnerUri = ownerUri,
                     Connection = connectParams.Connection
@@ -66,6 +64,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility
 
             ConnectionInfo connInfo = null;
             connectionService.TryFindConnection(ownerUri, out connInfo);
+
+            if (connInfo == null)
+            {
+                Console.WriteLine("Could not FIND CONNECTION = {0}", ownerUri);
+            }
+
             return new TestConnectionResult() { ConnectionInfo = connInfo, ScriptFile = scriptFile };
         }
 

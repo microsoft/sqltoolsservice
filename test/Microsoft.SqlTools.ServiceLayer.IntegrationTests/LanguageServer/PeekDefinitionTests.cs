@@ -713,7 +713,7 @@ GO";
             //cursor on master
             TextDocumentPosition masterDocument = CreateTextDocPositionWithCursor(17, OwnerUri);
             
-            LiveConnectionHelper.TestConnectionResult connectionResult = LiveConnectionHelper.InitLiveConnectionInfo(null);
+            LiveConnectionHelper.TestConnectionResult connectionResult = LiveConnectionHelper.InitLiveConnectionInfo();
             ScriptFile scriptFile = connectionResult.ScriptFile;
             ConnectionInfo connInfo = connectionResult.ConnectionInfo;
             connInfo.RemoveAllConnections();
