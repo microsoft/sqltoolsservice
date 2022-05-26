@@ -274,6 +274,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 
         private Dictionary<string, string> _displayNameMapDict;
 
+        public Dictionary<string, DeploymentOptionProperty<bool>> optionsMapTable;
+
         #endregion
 
         /// <summary>
@@ -402,6 +404,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         public DeploymentOptions()
         {
             DacDeployOptions options = new DacDeployOptions();
+            optionsMapTable = new Dictionary<string, DeploymentOptionProperty<bool>>();
 
             // Setting Display names for all dacDeploy options
             SetDisplayNameForOption();
@@ -509,6 +512,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
                 : typeof(DeploymentOptionProperty<>).MakeGenericType(prop.PropertyType);
             object setProp = Activator.CreateInstance(type, val, attribute.Description,_displayNameMapDict[deployOptionsProp.Name]);
             deployOptionsProp.SetValue(this, setProp);
+            if (setProp.GetType() == typeof(DeploymentOptionProperty<bool>))
+            {
+                this.optionsMapTable[_displayNameMapDict[deployOptionsProp.Name]] = (DeploymentOptionProperty<bool>)setProp;
+            }
         }
 
         public static DeploymentOptions GetDefaultSchemaCompareOptions()
