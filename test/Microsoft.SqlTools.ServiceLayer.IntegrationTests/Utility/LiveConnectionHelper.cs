@@ -49,6 +49,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility
                 scriptFile = TestServiceProvider.Instance.WorkspaceService.Workspace.GetFile(ownerUri);
                 ownerUri = scriptFile.ClientUri;
             }
+            if (string.IsNullOrEmpty(databaseName)) 
+            {
+                databaseName = "master";
+            }
             var connectionService = GetLiveTestConnectionService();
             var connectionResult =
                 connectionService
@@ -65,7 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility
             return new TestConnectionResult() { ConnectionInfo = connInfo, ScriptFile = scriptFile };
         }
 
-        public static async Task<TestConnectionResult> InitLiveConnectionInfoAsync(string databaseName = "master", string ownerUri = null, 
+        public static async Task<TestConnectionResult> InitLiveConnectionInfoAsync(string databaseName = null, string ownerUri = null, 
             string connectionType = ServiceLayer.Connection.ConnectionType.Default, TestServerType serverType = TestServerType.OnPrem)
         {
             ScriptFile scriptFile = null;

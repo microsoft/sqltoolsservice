@@ -224,6 +224,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             Hosting.ServiceHost.SendEventIgnoreExceptions = true;
             var result = LiveConnectionHelper.InitLiveConnectionInfo();
 
+            System.Console.WriteLine("result={0}", result.ConnectionInfo.ToString());
+
             // And we place the cursor after a function that should prompt for signature help
             string queryWithFunction = "EXEC sys.fn_isrolemember ";
             result.ScriptFile.Contents = queryWithFunction;
