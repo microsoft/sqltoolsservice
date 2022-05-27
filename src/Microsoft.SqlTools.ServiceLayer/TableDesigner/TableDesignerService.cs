@@ -85,10 +85,14 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 var tableDesigner = this.CreateTableDesigner(tableInfo);
                 var viewModel = this.GetTableViewModel(tableInfo);
                 var view = this.GetDesignerViewInfo(tableInfo);
+                this.UpdateTableTitleInfo(tableInfo);
+                var issues = TableDesignerValidator.Validate(tableDesigner);
                 await requestContext.SendResult(new TableDesignerInfo()
                 {
                     ViewModel = viewModel,
-                    View = view
+                    View = view,
+                    TableInfo = tableInfo,
+                    Issues = issues.ToArray()
                 });
             });
         }
@@ -160,6 +164,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 // Recreate the table designer after the changes are published to make sure the table information is up to date.
                 // Todo: improve the dacfx table designer feature, so that we don't have to recreate it.
                 this.CreateTableDesigner(tableInfo);
+                this.UpdateTableTitleInfo(tableInfo);
                 await requestContext.SendResult(new PublishTableChangesResponse()
                 {
                     NewTableInfo = tableInfo,
@@ -1482,6 +1487,14 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             {
                 throw new KeyNotFoundException(SR.TableNotInitializedException(tableInfo.Id));
             }
+        }
+
+        private void UpdateTableTitleInfo(TableInfo tableInfo)
+        {
+            var td = GetTableDesigner(tableInfo);
+            tableInfo.Title = td.TableViewModel.FullName;
+            var tableParent = tableInfo.Server == null ? tableInfo.ProjectFilePath : string.Format("{0} - {1}", tableInfo.Server, tableInfo.Database);
+            tableInfo.Tooltip = string.Format("{0} - {1}", tableParent, tableInfo.Title);
         }
 
         private Dictionary<string, string> GetMetadata(TableInfo tableInfo)
