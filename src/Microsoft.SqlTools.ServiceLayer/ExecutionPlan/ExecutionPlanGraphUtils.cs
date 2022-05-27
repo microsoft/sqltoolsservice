@@ -105,7 +105,32 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                 var complexProperty = prop.Value as ExpandableObjectWrapper;
                 if (complexProperty == null)
                 {
+                    if(!prop.IsBrowsable)
+                    {
+                        continue;
+                    }
                     var propertyValue = prop.DisplayValue;
+                    var propertyDataType = PropertyValueDataType.STRING;
+                    switch (prop.Value)
+                    {
+                        case string stringValue:
+                            propertyDataType = PropertyValueDataType.STRING;
+                            break;
+                        case int integerValue:
+                        case long longIntegerValue:
+                        case uint unsignedIntegerValue:
+                        case ulong unsignedLongValue:
+                        case float floatValue:
+                        case double doubleValue:
+                            propertyDataType = PropertyValueDataType.NUMBER;
+                            break;
+                        case bool booleanValue:
+                            propertyDataType = PropertyValueDataType.BOOLEAN;
+                            break;
+                        default:
+                            propertyDataType = PropertyValueDataType.STRING;
+                            break;
+                    }
                     propsList.Add(new ExecutionPlanGraphProperty()
                     {
                         Name = prop.DisplayName,
@@ -113,7 +138,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                         ShowInTooltip = prop.ShowInTooltip,
                         DisplayOrder = prop.DisplayOrder,
                         PositionAtBottom = prop.IsLongString,
-                        DisplayValue = GetPropertyDisplayValue(prop)
+                        DisplayValue = GetPropertyDisplayValue(prop),
+                        BetterValue = prop.BetterValue,
+                        DataType = propertyDataType
                     });
                 }
                 else
@@ -126,7 +153,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                         ShowInTooltip = prop.ShowInTooltip,
                         DisplayOrder = prop.DisplayOrder,
                         PositionAtBottom = prop.IsLongString,
-                        DisplayValue = GetPropertyDisplayValue(prop)
+                        DisplayValue = GetPropertyDisplayValue(prop),
+                        BetterValue = prop.BetterValue,
+                        DataType = PropertyValueDataType.NESTED
                     });
                 }
 

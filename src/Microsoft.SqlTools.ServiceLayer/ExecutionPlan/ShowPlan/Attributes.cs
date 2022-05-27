@@ -283,5 +283,32 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         private bool longString = false;
     }
 
+    public sealed class BetterValueAttribute: Attribute
+    {
+        public BetterValueAttribute()
+        {
+            this.value = BetterValue.None;
+        }
+
+        public BetterValueAttribute(BetterValue value){
+            this.value = value;
+        }
+
+        public BetterValue Value
+        {
+            get { return this.value; }
+        }
+
+        private BetterValue value;
+    }
+
+    public enum BetterValue
+    {
+        LowerNumber = 0,
+        HigherNumber = 1,
+        True = 2,
+        False = 3,
+        None = 4
+    }
     #endregion
 }

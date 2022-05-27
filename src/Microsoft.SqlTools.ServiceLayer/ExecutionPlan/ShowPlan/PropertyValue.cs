@@ -66,6 +66,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
             }
         }
 
+        public BetterValue BetterValue
+        {
+            get
+            {
+                InitializeDisplayAttributesIfNecessary();
+                return this.betterValue;
+            }
+        }
+
         public void SetDisplayNameAndDescription(string newDisplayName, string newDescription)
         {
             this.displayName = newDisplayName;
@@ -202,6 +211,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
             {
                 this.showInTooltip = false;
             }
+
+            BetterValueAttribute betterValueAttribute = 
+            Attributes[typeof(BetterValueAttribute)] as BetterValueAttribute;
+            if (betterValueAttribute != null)
+            {
+                this.betterValue = BetterValue.None;
+            }
         }
 
         #region Private members
@@ -216,6 +232,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         private bool isLongString;
         private bool initialized;
         private bool showInTooltip;
+        private BetterValue betterValue;
 
         #endregion
 
