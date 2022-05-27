@@ -33,8 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution.DataSt
         [Test]
         public void GetBytesWithMaxCapacityTest()
         {
-            var storageReader = GetTestStorageDataReader(
-                "SELECT '99999'");
+            var storageReader = GetTestStorageDataReader("SELECT '99999'");
             DbDataReader reader = storageReader.DbDataReader;
 
             reader.Read();
