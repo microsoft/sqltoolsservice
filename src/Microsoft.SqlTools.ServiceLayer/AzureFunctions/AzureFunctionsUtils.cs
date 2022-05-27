@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Collections.Generic;
@@ -12,8 +13,10 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
 {
     internal static class AzureFunctionsUtils
     {
-        public const string functionAttributeText = "FunctionName";
-        public const string net5FunctionAttributeText = "Function";
+        private const string FUNCTION_NAME_ATTRIBUTE_NAME = "FunctionName";
+        private const string NET5_FUNCTION_ATTRIBUTE_NAME = "Function";
+        private const string HTTP_TRIGGER_ATTRIBUTE_NAME = "HttpTrigger";
+        private const string ROUTE_ARGUMENT_NAME = "Route";
 
         /// <summary>
         /// Gets all the methods in the syntax tree with an Azure Function attribute
@@ -31,9 +34,61 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
             }
 
             // get all the method declarations with the FunctionName attribute
-            IEnumerable<MethodDeclarationSyntax> methodsWithFunctionAttributes = methodDeclarations.Where(md => md.AttributeLists.Where(a => a.Attributes.Where(attr => attr.Name.ToString().Equals(functionAttributeText)).Any()).Any());
+            IEnumerable<MethodDeclarationSyntax> methodsWithFunctionAttributes = methodDeclarations.Where(md => md.AttributeLists.Where(a => a.Attributes.Where(attr => attr.Name.ToString().Equals(FUNCTION_NAME_ATTRIBUTE_NAME)).Any()).Any());
 
             return methodsWithFunctionAttributes;
+        }
+
+        /// <summary>
+        /// Gets the route from an HttpTrigger attribute if specified
+        /// </summary>
+        /// <param name="m">The method</param>
+        /// <returns>The name of the route, or null if no route is specified (or there isn't an HttpTrigger binding)</returns>
+        public static string? GetHttpRoute(this MethodDeclarationSyntax m)
+        {
+            return m
+                .ParameterList
+                .Parameters // Get all the parameters for the method
+                .SelectMany(p =>
+                    p.AttributeLists // Get a list of all attributes on any of the parameters
+                    .SelectMany(al => al.Attributes)
+                ).Where(a => a.Name.ToString().Equals(HTTP_TRIGGER_ATTRIBUTE_NAME) // Find any HttpTrigger attributes
+                ).FirstOrDefault() // Get the first one available - there should only ever be 0 or 1
+                ?.ArgumentList // Get all the arguments for the attribute
+                ?.Arguments
+                .Where(a => a.ChildNodes().OfType<NameEqualsSyntax>().Where(nes => nes.Name.ToString().Equals(ROUTE_ARGUMENT_NAME)).Any()) // Find the Route argument - it should always be a named argument
+                .FirstOrDefault()
+                ?.ChildNodes()
+                .OfType<ExpressionSyntax>() // Find the child identifier node with our value
+                .Where(le => le.Kind() != SyntaxKind.NullLiteralExpression)
+                .FirstOrDefault()
+                ?.ToString()
+                .TrimStart('$')
+                .Trim('\"'); // Trim off the quotes from the string value
+        }
+
+        /// <summary>
+        /// Gets the function name from the FunctionName attribute on a method
+        /// </summary>
+        /// <param name="m">The method</param>
+        /// <returns>The function name, or an empty string if the name attribute doesn't exist</returns>
+        public static string GetFunctionName(this MethodDeclarationSyntax m)
+        {
+            return m
+                .AttributeLists // Get all the attribute lists on the method
+                .Select(a =>
+                    a.Attributes.Where(
+                        attr => attr.Name.ToString().Equals(AzureFunctionsUtils.FUNCTION_NAME_ATTRIBUTE_NAME) // Find any FunctionName attributes
+                    ).FirstOrDefault() // Get the first one available - there should only ever be 0 or 1
+                ).Where(a => // Filter out any that didn't have a FunctionName attribute
+                    a != null
+                ).FirstOrDefault() // Get the first one available - there should only ever be 0 or 1
+                ?.ArgumentList // Get all the arguments for the attribute
+                ?.Arguments
+                .FirstOrDefault() // The first argument is the function name
+                ?.ToString()
+                .TrimStart('$')
+                .Trim('\"') ?? ""; // Trim off the quotes from the string value
         }
 
         /// <summary>
@@ -43,7 +98,7 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
         public static bool HasNet5StyleAzureFunctions(IEnumerable<MethodDeclarationSyntax> methodDeclarations)
         {
             // get all the method declarations with the Function attribute
-            return methodDeclarations.Any(md => md.AttributeLists.Any(al => al.Attributes.Any(attr => attr.Name.ToString().Equals(net5FunctionAttributeText))));
+            return methodDeclarations.Any(md => md.AttributeLists.Any(al => al.Attributes.Any(attr => attr.Name.ToString().Equals(NET5_FUNCTION_ATTRIBUTE_NAME))));
         }
     }
 }
