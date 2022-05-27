@@ -6035,7 +6035,7 @@ The Query Processor estimates that implementing the following index could improv
       </trans-unit>
       <trans-unit id="TableColumnIsComputedDescription">
         <source>Specifies whether the column is a computed column</source>
-        <target state="new">Specifies whether the column is a computed column</target>
+        <target state="translated">列が計算列であるかどうかを指定します</target>
         <note></note>
       </trans-unit>
       <trans-unit id="TableColumnIsComputedPersistedTitle">
@@ -6045,7 +6045,7 @@ The Query Processor estimates that implementing the following index could improv
       </trans-unit>
       <trans-unit id="TableColumnIsComputedPersistedDescription">
         <source>Whether the computed column is saved with the data source</source>
-        <target state="new">Whether the computed column is saved with the data source</target>
+        <target state="translated">計算列をデータ ソースと共に保存するかどうか</target>
         <note></note>
       </trans-unit>
       <trans-unit id="TableColumnIsComputedPersistedNullableTitle">
@@ -6055,12 +6055,12 @@ The Query Processor estimates that implementing the following index could improv
       </trans-unit>
       <trans-unit id="TableColumnIsComputedPersistedNullableDescription">
         <source>Whether the computed column can have a NULL value (NOT NULL can only be specified if the column is persisted)</source>
-        <target state="new">Whether the computed column can have a NULL value (NOT NULL can only be specified if the column is persisted)</target>
+        <target state="translated">計算列が NULL 値を持つことができるかどうか (NOT NULL は、列が保持される場合にのみ指定できます)</target>
         <note></note>
       </trans-unit>
       <trans-unit id="TableColumnComputedFormulaDescription">
         <source>Formula that the column uses if it is a computed column</source>
-        <target state="new">Formula that the column uses if it is a computed column</target>
+        <target state="translated">列が計算列である場合に使用される式</target>
         <note></note>
       </trans-unit>
       <trans-unit id="TableColumnComputedFormulaTitle">
