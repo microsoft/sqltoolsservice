@@ -60,11 +60,11 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
                 .FirstOrDefault()
                 ?.ChildNodes()
                 .OfType<ExpressionSyntax>() // Find the child identifier node with our value
-                .Where(le => le.Kind() != SyntaxKind.NullLiteralExpression)
+                .Where(le => le.Kind() != SyntaxKind.NullLiteralExpression) // Skip the null expressions so they aren't ToString()'d into "null"
                 .FirstOrDefault()
                 ?.ToString()
-                .TrimStart('$')
-                .Trim('\"'); // Trim off the quotes from the string value
+                .TrimStart('$') // Remove $ from interpolated string, since this will always be outside the quotes we can just trim
+                .Trim('\"'); // Trim off the quotes from the string value - additional quotes at the beginning and end aren't valid syntax so it's fine to trim
         }
 
         /// <summary>
@@ -87,8 +87,8 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
                 ?.Arguments
                 .FirstOrDefault() // The first argument is the function name
                 ?.ToString()
-                .TrimStart('$')
-                .Trim('\"') ?? ""; // Trim off the quotes from the string value
+                .TrimStart('$') // Remove $ from interpolated string, since this will always be outside the quotes we can just trim
+                .Trim('\"') ?? ""; // Trim off the quotes from the string value - additional quotes at the beginning and end aren't valid syntax so it's fine to trim
         }
 
         /// <summary>
