@@ -592,7 +592,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         public bool SecurityPolicyApplied { get { return false; } }
 
         public bool NoExpandHint { get { return false; } }
-        
+
         public double TableCardinality { get { return 0; } }
 
         #endregion
