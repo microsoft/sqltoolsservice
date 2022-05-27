@@ -74,6 +74,9 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
         /// <returns>The function name, or an empty string if the name attribute doesn't exist</returns>
         public static string GetFunctionName(this MethodDeclarationSyntax m)
         {
+            // Note that we return an empty string as the default because a null name isn't valid - every function
+            // should have a name. So we should never actually hit that scenario, but just to be safe we return the
+            // empty string as the default in case we hit some unexpected edge case. 
             return m
                 .AttributeLists // Get all the attribute lists on the method
                 .Select(a =>
