@@ -68,9 +68,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility
             }
             ConnectParams connectParams = TestServiceProvider.Instance.ConnectionProfileService.GetConnectionParameters(serverType, databaseName);
 
+            // try to connect up to 3 times, sleeping in between retries
             const int RetryCount = 3;
-            const int RetryDelayMs = 30000;
-
+            const int RetryDelayMs = 15000;
             for (int attempt = 0; attempt < RetryCount; ++attempt)
             {
                 var connectionService = GetLiveTestConnectionService();
@@ -89,13 +89,18 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility
                 ConnectionInfo connInfo;
                 connectionService.TryFindConnection(ownerUri, out connInfo);
 
+                // if the connection wasn't successful then cleanup and try again (up to max retry count)
                 if (connInfo == null)
                 {
                     connectionService.Disconnect(new DisconnectParams()
                     {
                         OwnerUri = ownerUri
                     });
-                    Thread.Sleep(RetryDelayMs);            
+                    // don't sleep on the final iterations since we won't try again
+                    if (attempt < RetryCount - 1)
+                    {
+                        Thread.Sleep(RetryDelayMs);
+                    }
                 }
                 else
                 {
