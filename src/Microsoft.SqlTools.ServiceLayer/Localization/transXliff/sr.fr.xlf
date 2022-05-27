@@ -6035,7 +6035,7 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
       </trans-unit>
       <trans-unit id="TableColumnIsComputedDescription">
         <source>Specifies whether the column is a computed column</source>
-        <target state="new">Specifies whether the column is a computed column</target>
+        <target state="translated">Indique si la colonne est une colonne calculée</target>
         <note></note>
       </trans-unit>
       <trans-unit id="TableColumnIsComputedPersistedTitle">
@@ -6045,7 +6045,7 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
       </trans-unit>
       <trans-unit id="TableColumnIsComputedPersistedDescription">
         <source>Whether the computed column is saved with the data source</source>
-        <target state="new">Whether the computed column is saved with the data source</target>
+        <target state="translated">Indique si la colonne calculée est enregistrée avec la source de données.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="TableColumnIsComputedPersistedNullableTitle">
@@ -6055,12 +6055,12 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
       </trans-unit>
       <trans-unit id="TableColumnIsComputedPersistedNullableDescription">
         <source>Whether the computed column can have a NULL value (NOT NULL can only be specified if the column is persisted)</source>
-        <target state="new">Whether the computed column can have a NULL value (NOT NULL can only be specified if the column is persisted)</target>
+        <target state="translated">Si la colonne calculée peut avoir une valeur NULL (NOT NULL ne peut être spécifié que si la colonne est persistante)</target>
         <note></note>
       </trans-unit>
       <trans-unit id="TableColumnComputedFormulaDescription">
         <source>Formula that the column uses if it is a computed column</source>
-        <target state="new">Formula that the column uses if it is a computed column</target>
+        <target state="translated">Formule que la colonne utilise s’il s’agit d’une colonne calculée.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="TableColumnComputedFormulaTitle">
