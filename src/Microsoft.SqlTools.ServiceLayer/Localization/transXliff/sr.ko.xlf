@@ -6035,32 +6035,32 @@ The Query Processor estimates that implementing the following index could improv
       </trans-unit>
       <trans-unit id="TableColumnIsComputedDescription">
         <source>Specifies whether the column is a computed column</source>
-        <target state="new">Specifies whether the column is a computed column</target>
+        <target state="translated">열이 계산 열인지 여부를 지정합니다.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="TableColumnIsComputedPersistedTitle">
         <source>Is Persisted</source>
-        <target state="translated">지속형</target>
+        <target state="translated">지속형 여부</target>
         <note></note>
       </trans-unit>
       <trans-unit id="TableColumnIsComputedPersistedDescription">
         <source>Whether the computed column is saved with the data source</source>
-        <target state="new">Whether the computed column is saved with the data source</target>
+        <target state="translated">계산 열이 데이터 원본과 함께 저장되는지 여부</target>
         <note></note>
       </trans-unit>
       <trans-unit id="TableColumnIsComputedPersistedNullableTitle">
         <source>Is Persisted Nullable</source>
-        <target state="translated">지속 Null 허용 여부</target>
+        <target state="translated">지속형 Null 허용 여부</target>
         <note></note>
       </trans-unit>
       <trans-unit id="TableColumnIsComputedPersistedNullableDescription">
         <source>Whether the computed column can have a NULL value (NOT NULL can only be specified if the column is persisted)</source>
-        <target state="new">Whether the computed column can have a NULL value (NOT NULL can only be specified if the column is persisted)</target>
+        <target state="translated">계산 열에 NULL 값을 사용할 수 있는지 여부를 지정합니다(지속형 열인 경우에만 NOT NULL을 지정할 수 있습니다).</target>
         <note></note>
       </trans-unit>
       <trans-unit id="TableColumnComputedFormulaDescription">
         <source>Formula that the column uses if it is a computed column</source>
-        <target state="new">Formula that the column uses if it is a computed column</target>
+        <target state="translated">열이 계산 열인 경우 열에서 사용하는 수식입니다.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="TableColumnComputedFormulaTitle">
