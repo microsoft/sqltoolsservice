@@ -216,6 +216,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
             Attributes[typeof(BetterValueAttribute)] as BetterValueAttribute;
             if (betterValueAttribute != null)
             {
+                this.betterValue = betterValueAttribute.Value;
+            } else
+            {
                 this.betterValue = BetterValue.None;
             }
         }
