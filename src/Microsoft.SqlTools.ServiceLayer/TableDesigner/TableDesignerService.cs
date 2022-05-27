@@ -817,7 +817,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 columnViewModel.IsPrimaryKey.Enabled = true; // To be consistent with SSDT, any column can be a primary key.
                 columnViewModel.Type.Value = column.DataType;
                 columnViewModel.Type.Enabled = column.CanEditDataType;
-                columnViewModel.Type.Values = tableDesigner.DataTypes.ToList();
+                columnViewModel.Type.Values = column.DataTypes.ToList();
                 columnViewModel.AdvancedType.Value = column.AdvancedDataType;
                 columnViewModel.AdvancedType.Enabled = column.CanEditDataType;
                 columnViewModel.AdvancedType.Values = column.AdvancedDataTypes.ToList();
