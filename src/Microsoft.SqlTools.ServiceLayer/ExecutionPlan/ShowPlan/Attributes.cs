@@ -283,14 +283,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         private bool longString = false;
     }
 
-    public sealed class BetterValueAttribute: Attribute
+    public sealed class BetterValueAttribute : Attribute
     {
         public BetterValueAttribute()
         {
             this.value = BetterValue.None;
         }
 
-        public BetterValueAttribute(BetterValue value){
+        public BetterValueAttribute(BetterValue value)
+        {
             this.value = value;
         }
 
