@@ -76,5 +76,14 @@ namespace Company.Namespace
         {
             throw new NotImplementedException();
         }
+
+        /// <summary>
+        /// Tests binding with an empty route specified
+        /// </summary>
+        [FunctionName("EmptyRoute")]
+        public IActionResult EmptyRoute([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "")] HttpRequest req, [Sql("select * from [dbo].[table1]", CommandType = System.Data.CommandType.Text, ConnectionStringSetting = "SqlConnectionString")] IEnumerable<Object> result)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

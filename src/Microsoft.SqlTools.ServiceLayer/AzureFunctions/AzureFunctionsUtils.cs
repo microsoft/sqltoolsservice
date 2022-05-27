@@ -93,7 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
 
         /// <summary>
         /// Checks if any of the method declarations have .NET 5 style Azure Function attributes
-        /// .NET 5 AFs use the Function attribute, while .NET 3.1 AFs use FunctionName attritube
+        /// .NET 5 AFs use the Function attribute, while .NET 3.1 AFs use FunctionName attribute
         /// </summary>
         public static bool HasNet5StyleAzureFunctions(IEnumerable<MethodDeclarationSyntax> methodDeclarations)
         {

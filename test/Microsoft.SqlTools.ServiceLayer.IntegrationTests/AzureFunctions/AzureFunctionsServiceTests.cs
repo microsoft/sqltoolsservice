@@ -243,7 +243,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
             GetAzureFunctionsOperation operation = new GetAzureFunctionsOperation(parameters);
             GetAzureFunctionsResult result = operation.GetAzureFunctions();
 
-            Assert.That(result.AzureFunctions.Length, Is.EqualTo(7));
+            Assert.That(result.AzureFunctions.Length, Is.EqualTo(8));
             Assert.That(result.AzureFunctions[0].Route, Is.EqualTo("withRoute"));
             Assert.That(result.AzureFunctions[1].Route, Is.EqualTo("{interpolated}String"));
             Assert.That(result.AzureFunctions[2].Route, Is.EqualTo("$withDollarSigns$"));
@@ -251,6 +251,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
             Assert.That(result.AzureFunctions[4].Route, Is.EqualTo("withRouteExtraSpaces"));
             Assert.That(result.AzureFunctions[5].Route, Is.Null, "Route specified as null should be null");
             Assert.That(result.AzureFunctions[6].Route, Is.Null, "No route specified should be null");
+            Assert.That(result.AzureFunctions[7].Route, Is.EqualTo(""));
         }
     }
 }
