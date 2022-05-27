@@ -22,6 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             new NoDuplicateIndexNameRule(),
             new EdgeConstraintMustHaveClausesRule(),
             new EdgeConstraintNoRepeatingClausesRule(),
+            new MemoryOptimizedCannotBeEnabledWhenNotSupportedRule(),
             new MemoryOptimizedTableMustHaveNonClusteredPrimaryKeyRule(),
             new TemporalTableMustHavePeriodColumns(),
             new PeriodColumnsRule(),
@@ -518,8 +519,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             {
                 errors.Add(new TableDesignerIssue()
                 {
-                    Description = "The table has more than one edge constraint on it. This is only useful as a temporary state when modifying existing edge constraints, and should not be used in other cases. Please refer to https://docs.microsoft.com/sql/relational-databases/tables/graph-edge-constraints for more details.",
-                    Severity = Contracts.IssueSeverity.Warning
+                    Description = "The table has more than one edge constraint on it. This is only useful as a temporary state when modifying existing edge constraints, and should not be used in other cases.",
+                    Severity = Contracts.IssueSeverity.Warning,
+                    MoreInfoLink = "https://docs.microsoft.com/sql/relational-databases/tables/graph-edge-constraints"
                 });
             }
             return errors;
@@ -551,6 +553,27 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         existingNames.Add(columnSpec.Column);
                     }
                 }
+            }
+            return errors;
+        }
+    }
+
+    public class MemoryOptimizedCannotBeEnabledWhenNotSupportedRule : ITableDesignerValidationRule
+    {
+        public List<TableDesignerIssue> Run(Dac.TableDesigner designer)
+        {
+            var table = designer.TableViewModel;
+            var errors = new List<TableDesignerIssue>();
+            if (!designer.IsMemoryOptimizedTableSupported && designer.TableViewModel.IsMemoryOptimized)
+            {
+                errors.Add(new TableDesignerIssue()
+                {
+                    Description = string.Format("Memory-optimized table is not supported for this database."),
+                    PropertyPath = new object[] { TablePropertyNames.IsMemoryOptimized },
+                    MoreInfoLink = designer.IsAzure
+                        ? "https://docs.microsoft.com/en-us/azure/azure-sql/in-memory-oltp-overview"
+                        : "https://docs.microsoft.com/en-us/sql/relational-databases/in-memory-oltp/overview-and-usage-scenarios"
+                });
             }
             return errors;
         }

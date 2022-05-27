@@ -4132,7 +4132,7 @@
         <source>Cost: {0} %</source>
         <target state="translated">Стоимость: {0} %</target>
         <note>"Cost: {0} percent" String to format.
- Parameters: 0 - x (int) </note>
+ Parameters: 0 - x (string) </note>
       </trans-unit>
       <trans-unit id="RemoteDataAccess">
         <source>Remote Data Access</source>
@@ -6022,6 +6022,51 @@ The Query Processor estimates that implementing the following index could improv
         <source>Parallel Execution</source>
         <target state="translated">Параллельное выполнение</target>
         <note>tooltip text for node parallelism overlay</note>
+      </trans-unit>
+      <trans-unit id="TableColumnComputedGroupTitle">
+        <source>Computed Column Specifications</source>
+        <target state="translated">Спецификации вычисляемого столбца</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnIsComputedTitle">
+        <source>Is Computed</source>
+        <target state="translated">Вычисляемый</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnIsComputedDescription">
+        <source>Specifies whether the column is a computed column</source>
+        <target state="translated">Указывает, является ли столбец вычисляемым</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnIsComputedPersistedTitle">
+        <source>Is Persisted</source>
+        <target state="translated">Сохраняемый</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnIsComputedPersistedDescription">
+        <source>Whether the computed column is saved with the data source</source>
+        <target state="translated">Сохраняется ли вычисляемый столбец с источником данных</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnIsComputedPersistedNullableTitle">
+        <source>Is Persisted Nullable</source>
+        <target state="translated">Сохраняемый, допускается значение NULL</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnIsComputedPersistedNullableDescription">
+        <source>Whether the computed column can have a NULL value (NOT NULL can only be specified if the column is persisted)</source>
+        <target state="translated">Допускается ли значение NULL у вычисляемого столбца (значение NOT NULL можно указать лишь в том случае, если этот столбец является сохраняемым)</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnComputedFormulaDescription">
+        <source>Formula that the column uses if it is a computed column</source>
+        <target state="translated">Формула, используемая столбцом, если он является вычисляемым.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnComputedFormulaTitle">
+        <source>Formula</source>
+        <target state="translated">Формула</target>
+        <note></note>
       </trans-unit>
     </body>
   </file>

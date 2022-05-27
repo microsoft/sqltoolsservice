@@ -1355,8 +1355,8 @@ WITH VALUES
                 DeploymentOptions options = new DeploymentOptions();
 
                 // ensure that files are excluded seperate from filegroups
-                Assert.True(options.ExcludeObjectTypes.Contains(SqlServer.Dac.ObjectType.Files));
-                Assert.False(options.ExcludeObjectTypes.Contains(SqlServer.Dac.ObjectType.Filegroups));
+                Assert.True(options.ExcludeObjectTypes.Value.Contains(SqlServer.Dac.ObjectType.Files));
+                Assert.False(options.ExcludeObjectTypes.Value.Contains(SqlServer.Dac.ObjectType.Filegroups));
 
                 var schemaCompareParams = new SchemaCompareParams
                 {
@@ -1826,12 +1826,13 @@ WITH VALUES
                 DeploymentOptions = new DeploymentOptions()
                 {
                     // change some random ones explicitly
-                    AllowDropBlockingAssemblies = true,
-                    DropConstraintsNotInSource = true,
-                    IgnoreAnsiNulls = true,
-                    NoAlterStatementsToChangeClrTypes = false,
-                    PopulateFilesOnFileGroups = false,
-                    VerifyDeployment = false,
+                    AllowDropBlockingAssemblies = new DeploymentOptionProperty<bool>(true),
+                    DropConstraintsNotInSource = new DeploymentOptionProperty<bool>(true),
+                    IgnoreAnsiNulls = new DeploymentOptionProperty<bool>(true),
+                    NoAlterStatementsToChangeClrTypes = new DeploymentOptionProperty<bool>(false),
+                    PopulateFilesOnFileGroups = new DeploymentOptionProperty<bool>(false),
+                    VerifyDeployment = new DeploymentOptionProperty<bool>(false),
+                    DisableIndexesForDataPhase = new DeploymentOptionProperty<bool>(false)
                 },
                 ScmpFilePath = filePath,
                 ExcludedSourceObjects = schemaCompareObjectIds,
