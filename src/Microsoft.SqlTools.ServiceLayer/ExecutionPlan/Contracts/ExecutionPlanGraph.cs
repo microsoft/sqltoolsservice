@@ -194,16 +194,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
 
     public enum BadgeType
     {
-        WARNING = 0,
-        CRITICALWARNING = 1,
-        PARALLELISM = 2
+        Warning = 0,
+        CriticalWarning = 1,
+        Parallelism = 2
     }
 
     public enum PropertyValueDataType
     {
-        NUMBER = 0,
-        STRING = 1,
-        BOOLEAN = 2,
-        NESTED = 3
+        Number = 0,
+        String = 1,
+        Boolean = 2,
+        Nested = 3
     }
 }
