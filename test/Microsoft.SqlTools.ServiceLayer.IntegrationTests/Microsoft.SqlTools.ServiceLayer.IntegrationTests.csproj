@@ -39,12 +39,8 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Compile Remove="AzureFunctions\AzureFunctionTestFiles\AzureFunctionsInputBinding.cs" />
-    <Compile Remove="AzureFunctions\AzureFunctionTestFiles\AzureFunctionsMultipleSameFunction.cs" />
-    <Compile Remove="AzureFunctions\AzureFunctionTestFiles\AzureFunctionsNoBindings.cs" />
-    <Compile Remove="AzureFunctions\AzureFunctionTestFiles\AzureFunctionsOutputBinding.cs" />
-    <Compile Remove="AzureFunctions\AzureFunctionTestFiles\AzureFunctionsNet5.cs" />
-    <Compile Remove="AzureFunctions\AzureFunctionTestFiles\AzureFunctionsOutputBindingAsync.cs" />
+    <Compile Remove="AzureFunctions\AzureFunctionTestFiles\*" />
+    <None Include="AzureFunctions\AzureFunctionTestFiles\*" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="DacFx\Dacpacs\" />
