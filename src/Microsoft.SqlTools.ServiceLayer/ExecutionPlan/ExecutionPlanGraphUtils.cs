@@ -155,7 +155,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                         PositionAtBottom = prop.IsLongString,
                         DisplayValue = GetPropertyDisplayValue(prop),
                         BetterValue = prop.BetterValue,
-                        DataType = PropertyValueDataType.NESTED
+                        DataType = PropertyValueDataType.Nested
                     });
                 }
 
