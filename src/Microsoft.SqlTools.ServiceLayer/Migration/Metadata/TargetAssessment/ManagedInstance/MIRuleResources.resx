@@ -517,7 +517,7 @@
     <value>Azure SQL Managed Instance supports a maximum of 100 databases per instance.</value>
   </data>
   <data name="NumDbExceeds100IssueCategory" xml:space="preserve">
-    <value>Warning</value>
+    <value>Issue</value>
   </data>
   <data name="NumDbExceeds100Description" xml:space="preserve">
     <value>Maximum number of databases supported in Azure SQL Managed Instance is 100, unless the instance storage size limit has been reached.</value>
