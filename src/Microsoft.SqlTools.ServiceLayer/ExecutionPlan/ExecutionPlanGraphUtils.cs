@@ -63,7 +63,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                 {
                     overlays.Add(new Badge
                     {
-                        Type = BadgeType.CRITICALWARNING,
+                        Type = BadgeType.CriticalWarning,
                         Tooltip = SR.WarningOverlayTooltip
                     });
                 }
@@ -71,7 +71,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                 {
                     overlays.Add(new Badge
                     {
-                        Type = BadgeType.WARNING,
+                        Type = BadgeType.Warning,
                         Tooltip = SR.WarningOverlayTooltip
                     });
                 }
@@ -80,7 +80,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
             {
                 overlays.Add(new Badge
                 {
-                    Type = BadgeType.PARALLELISM,
+                    Type = BadgeType.Parallelism,
                     Tooltip = SR.ParallelismOverlayTooltip
                 });
             }
@@ -110,11 +110,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                         continue;
                     }
                     var propertyValue = prop.DisplayValue;
-                    var propertyDataType = PropertyValueDataType.STRING;
+                    var propertyDataType = PropertyValueDataType.String;
                     switch (prop.Value)
                     {
                         case string stringValue:
-                            propertyDataType = PropertyValueDataType.STRING;
+                            propertyDataType = PropertyValueDataType.String;
                             break;
                         case int integerValue:
                         case long longIntegerValue:
@@ -122,13 +122,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                         case ulong unsignedLongValue:
                         case float floatValue:
                         case double doubleValue:
-                            propertyDataType = PropertyValueDataType.NUMBER;
+                            propertyDataType = PropertyValueDataType.Number;
                             break;
                         case bool booleanValue:
-                            propertyDataType = PropertyValueDataType.BOOLEAN;
+                            propertyDataType = PropertyValueDataType.Boolean;
                             break;
                         default:
-                            propertyDataType = PropertyValueDataType.STRING;
+                            propertyDataType = PropertyValueDataType.String;
                             break;
                     }
                     propsList.Add(new ExecutionPlanGraphProperty()
