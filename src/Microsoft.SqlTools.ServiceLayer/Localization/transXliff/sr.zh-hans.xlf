@@ -4132,7 +4132,7 @@
         <source>Cost: {0} %</source>
         <target state="translated">成本: {0} %</target>
         <note>"Cost: {0} percent" String to format.
- Parameters: 0 - x (int) </note>
+ Parameters: 0 - x (string) </note>
       </trans-unit>
       <trans-unit id="RemoteDataAccess">
         <source>Remote Data Access</source>
@@ -6022,6 +6022,51 @@ The Query Processor estimates that implementing the following index could improv
         <source>Parallel Execution</source>
         <target state="translated">并行执行</target>
         <note>tooltip text for node parallelism overlay</note>
+      </trans-unit>
+      <trans-unit id="TableColumnComputedGroupTitle">
+        <source>Computed Column Specifications</source>
+        <target state="translated">计算列规范</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnIsComputedTitle">
+        <source>Is Computed</source>
+        <target state="translated">计算</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnIsComputedDescription">
+        <source>Specifies whether the column is a computed column</source>
+        <target state="translated">指定列是否为计算列</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnIsComputedPersistedTitle">
+        <source>Is Persisted</source>
+        <target state="translated">是持久的</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnIsComputedPersistedDescription">
+        <source>Whether the computed column is saved with the data source</source>
+        <target state="translated">计算列是否与数据源一起保存</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnIsComputedPersistedNullableTitle">
+        <source>Is Persisted Nullable</source>
+        <target state="translated">是持久可以为 Null 的</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnIsComputedPersistedNullableDescription">
+        <source>Whether the computed column can have a NULL value (NOT NULL can only be specified if the column is persisted)</source>
+        <target state="translated">计算列是否可以具有 NULL 值(仅当列为持久列时才能指定 NOT NULL)。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnComputedFormulaDescription">
+        <source>Formula that the column uses if it is a computed column</source>
+        <target state="translated">列使用的公式(如果是计算列)</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableColumnComputedFormulaTitle">
+        <source>Formula</source>
+        <target state="translated">公式</target>
+        <note></note>
       </trans-unit>
     </body>
   </file>

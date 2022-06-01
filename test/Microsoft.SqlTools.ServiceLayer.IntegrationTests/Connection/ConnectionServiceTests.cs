@@ -174,23 +174,29 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         /// Using connection details to build connection string
         /// </summary>
         [Test]
-        public async Task GetCurrentConnectionStringTestwithConnectionDetails()
+        public async Task GetCurrentConnectionStringTestWithConnectionDetails()
         {
             // If we make a connection to a live database 
             ConnectionService service = ConnectionService.Instance;
-            var result = LiveConnectionHelper.InitLiveConnectionInfo();
-            var resultConnectionDetails = result.ConnectionInfo.ConnectionDetails;
-            var requestContext = new Mock<SqlTools.Hosting.Protocol.RequestContext<string>>();
-
-            requestContext.Setup(x => x.SendResult(It.Is<string>((connectionString) => connectionString.Contains(resultConnectionDetails.ToString()))))
-                            .Returns(Task.FromResult(new object()));
-            var requestParams = new GetConnectionStringParams()
+            var requestParams = new GetConnectionStringParams();
+            requestParams.OwnerUri = null;
+            requestParams.ConnectionDetails = new ConnectionDetails() 
             {
-                OwnerUri = null,
-                ConnectionDetails = {ServerName = "testServer", DatabaseName = "testDatabase", UserName = "sa", Password = "password", ApplicationName = "TestApp"},
-                IncludePassword = true,
-                IncludeApplicationName = true
+                ServerName = "testServer", 
+                DatabaseName = "testDatabase", 
+                UserName = "sa", 
+                Password = "[placeholder]", 
+                ApplicationName = "sqlops-connection-string"
             };
+            requestParams.IncludePassword = true;
+            requestParams.IncludeApplicationName = true; 
+            
+            // get the expected connection string from the connection details being passed to ConnectionService
+            string expectedConnectionString = ConnectionService.CreateConnectionStringBuilder(requestParams.ConnectionDetails).ToString();
+
+            var requestContext = new Mock<SqlTools.Hosting.Protocol.RequestContext<string>>();
+            requestContext.Setup(x => x.SendResult(It.Is<string>((connectionString) => connectionString.Contains(expectedConnectionString))))
+                            .Returns(Task.FromResult(new object()));                      
 
             await service.HandleGetConnectionStringRequest(requestParams, requestContext.Object);
             requestContext.VerifyAll();

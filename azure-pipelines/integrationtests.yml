@@ -1,6 +1,6 @@
 pool:
     name: ads-build-1es-hosted-pool
-    demands: 
+    demands:
     - ImageOverride -equals ADS-Linux_Image
 
 steps:
@@ -8,20 +8,16 @@ steps:
   - task: DockerInstaller@0
     displayName: Installing Docker
     inputs:
-      secureFile: 'testsettings.json'
       dockerVersion: 17.09.0-ce
       releaseType: stable
 
   - script: docker pull mcr.microsoft.com/mssql/server:2019-latest
-    displayName: Pull MSSQL Docker Image  
+    displayName: Pull MSSQL Docker Image
 
   - bash: echo "##vso[task.setvariable variable=defaultSql2019_password;issecret=true]Test-$(Build.BuildNumber)-$(Get-Date -format yyyyMMdd-Hmmss)"
     displayName: Generate password for test server
 
-  - script: 'docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=$(defaultSql2019_password)"
-    -e "MSSQL_AGENT_ENABLED=True"
-    -p 1433:1433 --name sql1 -h sql1
-    -d mcr.microsoft.com/mssql/server:2019-latest'
+  - script: 'docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=$(defaultSql2019_password)" -e "MSSQL_AGENT_ENABLED=True" -p 1433:1433 --name sql1 -h sql1 -d mcr.microsoft.com/mssql/server:2019-latest'
     displayName: Starting Server in Docker Container
 
   - task: UseDotNet@2
@@ -34,7 +30,7 @@ steps:
     inputs:
       filePath: ./azure-pipelines/createBuildDirectories.sh
 
-  - task: NuGetAuthenticate@0
+  - task: NuGetAuthenticate@1
 
   - task: DotNetCoreCLI@2
     displayName: Building Test Environment
@@ -57,6 +53,13 @@ steps:
     env:
       defaultSql2019_password: '$(defaultSql2019_password)'
 
+  - task: AzureKeyVault@1
+    displayName: 'Azure Key Vault: SqlToolsSecretStore'
+    inputs:
+      azureSubscription: 'ClientToolsInfra_670062 (88d5392f-a34f-4769-b405-f597fc533613)'
+      KeyVaultName: SqlToolsSecretStore
+      SecretsFilter: 'sqltools-backup-url-tests-blobcontaineruri,sqltools-backup-url-tests-storageaccountname,sqltools-backup-url-tests-storageaccountkey'
+
   - task: DotNetCoreCLI@2
     displayName: Building Integration Tests
     inputs:
@@ -70,3 +73,7 @@ steps:
       projects: '**/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj'
       arguments: '--no-build'
       testRunTitle: 'SqlToolsService Integration Tests'
+    env:
+      AzureStorageAccountKey: '$(sqltools-backup-url-tests-storageaccountkey)'
+      AzureStorageAccountName: '$(sqltools-backup-url-tests-storageaccountname)'
+      AzureBlobContainerUri: '$(sqltools-backup-url-tests-blobcontaineruri)'

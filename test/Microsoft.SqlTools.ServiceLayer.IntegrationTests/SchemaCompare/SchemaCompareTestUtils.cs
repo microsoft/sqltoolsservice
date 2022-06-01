@@ -170,14 +170,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
                 else
                 {
                     // Verifying expected and actual deployment options properties are equal
-                    Assert.True((defaultP == null && actualP == null) 
-                     || (defaultP == null && String.IsNullOrEmpty(actualP as string))
-                     || defaultP.Equals(actualP)
-                    , $"Actual Property from Service is not equal to default property for {v.Name}, Actual property: {actualP} and Default property: {defaultP}");
-
-                    // Verifying expected and actual deployment options property values are equal
-                    Assert.True((defaultPValue == null && actualPValue == null)
-                     || (defaultPValue == null && String.IsNullOrEmpty(actualPValue as string))
+                    Assert.True((defaultPValue == null && String.IsNullOrEmpty(actualPValue as string))
                      || (defaultPValue).Equals(actualPValue)
                     , $"Actual Property from Service is not equal to default property for {v.Name}, Actual value: {actualPValue} and Default value: {defaultPValue}");
                 }

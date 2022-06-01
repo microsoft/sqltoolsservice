@@ -3694,4 +3694,31 @@
   <data name="ParallelismOverlayTooltip" xml:space="preserve">
     <value>Параллельное выполнение</value>
   </data>
+  <data name="TableColumnComputedGroupTitle" xml:space="preserve">
+    <value>Спецификации вычисляемого столбца</value>
+  </data>
+  <data name="TableColumnIsComputedTitle" xml:space="preserve">
+    <value>Вычисляемый</value>
+  </data>
+  <data name="TableColumnIsComputedDescription" xml:space="preserve">
+    <value>Указывает, является ли столбец вычисляемым</value>
+  </data>
+  <data name="TableColumnIsComputedPersistedTitle" xml:space="preserve">
+    <value>Сохраняемый</value>
+  </data>
+  <data name="TableColumnIsComputedPersistedDescription" xml:space="preserve">
+    <value>Сохраняется ли вычисляемый столбец с источником данных</value>
+  </data>
+  <data name="TableColumnIsComputedPersistedNullableTitle" xml:space="preserve">
+    <value>Сохраняемый, допускается значение NULL</value>
+  </data>
+  <data name="TableColumnIsComputedPersistedNullableDescription" xml:space="preserve">
+    <value>Допускается ли значение NULL у вычисляемого столбца (значение NOT NULL можно указать лишь в том случае, если этот столбец является сохраняемым)</value>
+  </data>
+  <data name="TableColumnComputedFormulaDescription" xml:space="preserve">
+    <value>Формула, используемая столбцом, если он является вычисляемым.</value>
+  </data>
+  <data name="TableColumnComputedFormulaTitle" xml:space="preserve">
+    <value>Формула</value>
+  </data>
 </root>

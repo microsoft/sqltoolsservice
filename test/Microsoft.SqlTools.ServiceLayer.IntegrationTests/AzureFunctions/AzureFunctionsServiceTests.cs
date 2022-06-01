@@ -102,12 +102,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
             AddSqlBindingOperation operation = new AddSqlBindingOperation(parameters);
             ResultStatus result = operation.AddBinding();
 
-            Assert.True(result.Success);
-            Assert.IsNull(result.ErrorMessage);
+            Assert.That(result.Success, Is.True);
+            Assert.That(result.ErrorMessage, Is.Null);
 
             string expectedFileText = File.ReadAllText(Path.Join(testAzureFunctionsFolder, "AzureFunctionsOutputBindingAsync.cs"));
             string actualFileText = File.ReadAllText(testFile);
-            Assert.AreEqual(expectedFileText, actualFileText);
+            Assert.That(actualFileText, Is.EqualTo(expectedFileText));
         }
 
         /// <summary>
@@ -133,9 +133,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
             AddSqlBindingOperation operation = new AddSqlBindingOperation(parameters);
             ResultStatus result = operation.AddBinding();
 
-            Assert.False(result.Success);
-            Assert.NotNull(result.ErrorMessage);
-            Assert.True(result.ErrorMessage.Equals(SR.CouldntFindAzureFunction("noExistingFunction", testFile)));
+            Assert.That(result.Success, Is.False);
+            Assert.That(result.ErrorMessage, Is.Not.Null);
+            Assert.That(result.ErrorMessage, Is.EqualTo(SR.CouldntFindAzureFunction("noExistingFunction", testFile)));
         }
 
         /// <summary>
@@ -161,33 +161,30 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
             AddSqlBindingOperation operation = new AddSqlBindingOperation(parameters);
             ResultStatus result = operation.AddBinding();
 
-            Assert.False(result.Success);
-            Assert.NotNull(result.ErrorMessage);
-            Assert.True(result.ErrorMessage.Equals(SR.MoreThanOneAzureFunctionWithName("GetArtists_get", testFile)));
+            Assert.That(result.Success, Is.False);
+            Assert.That(result.ErrorMessage, Is.Not.Null);
+            Assert.That(result.ErrorMessage, Is.EqualTo(SR.MoreThanOneAzureFunctionWithName("GetArtists_get", testFile)));
         }
 
         /// <summary>
         /// Verify getting the names of Azure functions in a file
         /// </summary>
         [Test]
-        public void GetAzureFunctions()
+        public void GetAzureFunctionNames()
         {
-            string testFile = Path.Join(testAzureFunctionsFolder, "AzureFunctionsNoBindings.cs");
+            string testFile = Path.Join(testAzureFunctionsFolder, "AzureFunctionsName.cs");
 
             GetAzureFunctionsParams parameters = new GetAzureFunctionsParams
             {
-                filePath = testFile
+                FilePath = testFile
             };
 
             GetAzureFunctionsOperation operation = new GetAzureFunctionsOperation(parameters);
             GetAzureFunctionsResult result = operation.GetAzureFunctions();
 
-            Assert.True(result.Success);
-            Assert.Null(result.ErrorMessage);
-            Assert.AreEqual(3, result.azureFunctions.Length);
-            Assert.AreEqual(result.azureFunctions[0], "GetArtists_get");
-            Assert.AreEqual(result.azureFunctions[1], "NewArtist_post");
-            Assert.AreEqual(result.azureFunctions[2], "NewArtists_post");
+            Assert.That(result.AzureFunctions.Length, Is.EqualTo(2));
+            Assert.That(result.AzureFunctions[0].Name, Is.EqualTo("WithName"));
+            Assert.That(result.AzureFunctions[1].Name, Is.EqualTo("{interpolated}String"));
         }
 
         /// <summary>
@@ -202,15 +199,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
             fstream.Close();
             GetAzureFunctionsParams parameters = new GetAzureFunctionsParams
             {
-                filePath = testFile
+                FilePath = testFile
             };
 
             GetAzureFunctionsOperation operation = new GetAzureFunctionsOperation(parameters);
             GetAzureFunctionsResult result = operation.GetAzureFunctions();
 
-            Assert.True(result.Success);
-            Assert.Null(result.ErrorMessage);
-            Assert.AreEqual(0, result.azureFunctions.Length);
+            Assert.That(result.AzureFunctions.Length, Is.EqualTo(0));
         }
 
         /// <summary>
@@ -223,13 +218,40 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
 
             GetAzureFunctionsParams parameters = new GetAzureFunctionsParams
             {
-                filePath = testFile
+                FilePath = testFile
             };
 
             GetAzureFunctionsOperation operation = new GetAzureFunctionsOperation(parameters);
 
             Exception ex = Assert.Throws<Exception>(() => { operation.GetAzureFunctions(); });
-            Assert.AreEqual(SR.SqlBindingsNet5NotSupported, ex.Message);
+            Assert.That(ex.Message, Is.EqualTo(SR.SqlBindingsNet5NotSupported));
+        }
+
+        /// <summary>
+        /// Verify getting the routes of Azure Functions in a file
+        /// </summary>
+        [Test]
+        public void GetAzureFunctionsRoute()
+        {
+            string testFile = Path.Join(testAzureFunctionsFolder, "AzureFunctionsRoute.cs");
+
+            GetAzureFunctionsParams parameters = new GetAzureFunctionsParams
+            {
+                FilePath = testFile
+            };
+
+            GetAzureFunctionsOperation operation = new GetAzureFunctionsOperation(parameters);
+            GetAzureFunctionsResult result = operation.GetAzureFunctions();
+
+            Assert.That(result.AzureFunctions.Length, Is.EqualTo(8));
+            Assert.That(result.AzureFunctions[0].Route, Is.EqualTo("withRoute"));
+            Assert.That(result.AzureFunctions[1].Route, Is.EqualTo("{interpolated}String"));
+            Assert.That(result.AzureFunctions[2].Route, Is.EqualTo("$withDollarSigns$"));
+            Assert.That(result.AzureFunctions[3].Route, Is.EqualTo("withRouteNoSpaces"));
+            Assert.That(result.AzureFunctions[4].Route, Is.EqualTo("withRouteExtraSpaces"));
+            Assert.That(result.AzureFunctions[5].Route, Is.Null, "Route specified as null should be null");
+            Assert.That(result.AzureFunctions[6].Route, Is.Null, "No route specified should be null");
+            Assert.That(result.AzureFunctions[7].Route, Is.EqualTo(""));
         }
     }
 }
