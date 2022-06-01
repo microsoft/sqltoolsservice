@@ -473,11 +473,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         {
             var table = designer.TableViewModel;
             var errors = new List<TableDesignerIssue>();
-            if (!table.IsEdge && table.Columns.Items.Count == 0)
+            if (!table.IsEdge && table.Columns.Items.Where(c => !c.IsComputed).Count() == 0)
             {
                 errors.Add(new TableDesignerIssue()
                 {
-                    Description = "A table must have at least one column defined."
+                    Description = "A table must have at least one non-computed column defined."
                 });
             }
             return errors;
