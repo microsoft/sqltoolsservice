@@ -32,7 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Migration
                 {
                     OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
                     // To test assessment workflow update below database from local sql instance
-                    Databases = new string[] { "AdventureWorks2016" }
+                    //Databases = new string[] { "AdventureWorks2016" }
                 };
 
                 var requestContext = new Mock<RequestContext<MigrationAssessmentResult>>();
