@@ -674,17 +674,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                     string jsonFile = File.ReadAllText(Path.Combine(assemblyPath, RecommendationConstants.DataFolder, RecommendationConstants.SqlVmCapability));
                     List<AzureSqlIaaSCapability> vmCapabilities = JsonConvert.DeserializeObject<List<AzureSqlIaaSCapability>>(jsonFile);
 
-                    if (includePreviewSkus)
+                    // Eb series capabilities stored separately 
+                    string computePreviewFilePath = Path.Combine(assemblyPath, RecommendationConstants.DataFolder, RecommendationConstants.SqlVmPreviewCapability);
+                    if (File.Exists(computePreviewFilePath))
                     {
-                        // Eb series (in preview) capabilities stored separately 
-                        string computePreviewFilePath = Path.Combine(assemblyPath, RecommendationConstants.DataFolder, RecommendationConstants.SqlVmPreviewCapability);
-                        if (File.Exists(computePreviewFilePath))
-                        {
-                            jsonFile = File.ReadAllText(computePreviewFilePath);
-                            List<AzureSqlIaaSCapability> vmPreviewCapabilities = JsonConvert.DeserializeObject<List<AzureSqlIaaSCapability>>(jsonFile);
+                        jsonFile = File.ReadAllText(computePreviewFilePath);
+                        List<AzureSqlIaaSCapability> vmPreviewCapabilities = JsonConvert.DeserializeObject<List<AzureSqlIaaSCapability>>(jsonFile);
 
-                            vmCapabilities.AddRange(vmPreviewCapabilities);
-                        }
+                        vmCapabilities.AddRange(vmPreviewCapabilities);
                     }
 
                     foreach (VirtualMachineFamily family in AzureVirtualMachineFamilyGroup.FamilyGroups[VirtualMachineFamilyType.GeneralPurpose]
