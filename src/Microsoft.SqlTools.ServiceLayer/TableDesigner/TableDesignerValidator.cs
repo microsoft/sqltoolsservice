@@ -32,7 +32,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             new TableMustHaveAtLeastOneColumnRule(),
             new MemoryOptimizedTableIdentityColumnRule(),
             new TableShouldAvoidHavingMultipleEdgeConstraintsRule(),
-            new ColumnCannotBeListedMoreThanOnceInPrimaryKeyRule()
+            new ColumnCannotBeListedMoreThanOnceInPrimaryKeyRule(),
+            new MutipleCreateTableStatementsInScriptRule()
         };
 
         /// <summary>
@@ -573,6 +574,22 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     MoreInfoLink = designer.IsAzure
                         ? "https://docs.microsoft.com/en-us/azure/azure-sql/in-memory-oltp-overview"
                         : "https://docs.microsoft.com/en-us/sql/relational-databases/in-memory-oltp/overview-and-usage-scenarios"
+                });
+            }
+            return errors;
+        }
+    }
+
+    public class MutipleCreateTableStatementsInScriptRule : ITableDesignerValidationRule
+    {
+        public List<TableDesignerIssue> Run(Dac.TableDesigner designer)
+        {
+            var errors = new List<TableDesignerIssue>();
+            if(designer.ScriptContainsMultipleTableDefinition)
+            {
+                errors.Add(new TableDesignerIssue(){
+                    Description = "There are multiple table definitions in the script, only the first table can be edited in the designer.",
+                    Severity = Contracts.IssueSeverity.Information
                 });
             }
             return errors;

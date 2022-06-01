@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System.Collections.Generic;
+
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 {
     /// <summary>
@@ -10,6 +12,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
     /// </summary>
     public class TableInfo
     {
+        public string Title { get; set; }
+
+        public string Tooltip { get; set; }
+
         public string Server { get; set; }
 
         public string Database { get; set; }
@@ -25,5 +31,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         public string Id { get; set; }
 
         public string AccessToken { get; set; }
+
+        public string TableScriptPath { get; set; }
+
+        public string ProjectFilePath { get; set; }
+
+        public List<string> AllScripts { get; set; }
+
+        public string TargetVersion { get; set; }
     }
 }

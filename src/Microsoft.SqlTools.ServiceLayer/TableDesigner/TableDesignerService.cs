@@ -85,10 +85,14 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 var tableDesigner = this.CreateTableDesigner(tableInfo);
                 var viewModel = this.GetTableViewModel(tableInfo);
                 var view = this.GetDesignerViewInfo(tableInfo);
+                this.UpdateTableTitleInfo(tableInfo);
+                var issues = TableDesignerValidator.Validate(tableDesigner);
                 await requestContext.SendResult(new TableDesignerInfo()
                 {
                     ViewModel = viewModel,
-                    View = view
+                    View = view,
+                    TableInfo = tableInfo,
+                    Issues = issues.ToArray()
                 });
             });
         }
@@ -144,19 +148,23 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             {
                 var tableDesigner = this.GetTableDesigner(tableInfo);
                 tableDesigner.CommitChanges();
-                string newId = string.Format("{0}|{1}|{2}|{3}|{4}", STSHost.ProviderName, tableInfo.Server, tableInfo.Database, tableDesigner.TableViewModel.Schema, tableDesigner.TableViewModel.Name);
                 string oldId = tableInfo.Id;
-                this.idTableMap.Remove(oldId);
-                if (newId != oldId)
+                if (tableInfo.ProjectFilePath == null)
                 {
-                    tableInfo.Name = tableDesigner.TableViewModel.Name;
-                    tableInfo.Schema = tableDesigner.TableViewModel.Schema;
-                    tableInfo.IsNewTable = false;
-                    tableInfo.Id = newId;
+                    string newId = string.Format("{0}|{1}|{2}|{3}|{4}", STSHost.ProviderName, tableInfo.Server, tableInfo.Database, tableDesigner.TableViewModel.Schema, tableDesigner.TableViewModel.Name);
+                    if (newId != oldId)
+                    {
+                        tableInfo.Name = tableDesigner.TableViewModel.Name;
+                        tableInfo.Schema = tableDesigner.TableViewModel.Schema;
+                        tableInfo.IsNewTable = false;
+                        tableInfo.Id = newId;
+                    }
                 }
+                this.idTableMap.Remove(oldId);
                 // Recreate the table designer after the changes are published to make sure the table information is up to date.
                 // Todo: improve the dacfx table designer feature, so that we don't have to recreate it.
                 this.CreateTableDesigner(tableInfo);
+                this.UpdateTableTitleInfo(tableInfo);
                 await requestContext.SendResult(new PublishTableChangesResponse()
                 {
                     NewTableInfo = tableInfo,
@@ -948,6 +956,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             this.SetEdgeConstraintsViewInfo(view, tableDesigner);
             this.SetTemporalTableViewInfo(view, tableDesigner);
             this.SetMemoryOptimizedTableViewInfo(view, tableDesigner);
+            view.UseAdvancedSaveMode = tableInfo.ProjectFilePath == null;
             return view;
         }
 
@@ -1451,10 +1460,18 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
         private Dac.TableDesigner CreateTableDesigner(TableInfo tableInfo)
         {
-            var connectionStringbuilder = new SqlConnectionStringBuilder(tableInfo.ConnectionString);
-            connectionStringbuilder.InitialCatalog = tableInfo.Database;
-            var connectionString = connectionStringbuilder.ToString();
-            var tableDesigner = new Dac.TableDesigner(connectionString, tableInfo.AccessToken, tableInfo.Schema, tableInfo.Name, tableInfo.IsNewTable);
+            Dac.TableDesigner tableDesigner;
+            if (tableInfo.TableScriptPath == null)
+            {
+                var connectionStringbuilder = new SqlConnectionStringBuilder(tableInfo.ConnectionString);
+                connectionStringbuilder.InitialCatalog = tableInfo.Database;
+                var connectionString = connectionStringbuilder.ToString();
+                tableDesigner = new Dac.TableDesigner(connectionString, tableInfo.AccessToken, tableInfo.Schema, tableInfo.Name, tableInfo.IsNewTable);
+            }
+            else
+            {
+                tableDesigner = new Dac.TableDesigner(tableInfo.ProjectFilePath, tableInfo.TableScriptPath, tableInfo.AllScripts, tableInfo.TargetVersion);
+            }
             this.idTableMap[tableInfo.Id] = tableDesigner;
             return tableDesigner;
         }
@@ -1470,6 +1487,14 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             {
                 throw new KeyNotFoundException(SR.TableNotInitializedException(tableInfo.Id));
             }
+        }
+
+        private void UpdateTableTitleInfo(TableInfo tableInfo)
+        {
+            var td = GetTableDesigner(tableInfo);
+            tableInfo.Title = td.TableViewModel.FullName;
+            var tableParent = tableInfo.Server == null ? tableInfo.ProjectFilePath : string.Format("{0} - {1}", tableInfo.Server, tableInfo.Database);
+            tableInfo.Tooltip = string.Format("{0} - {1}", tableParent, tableInfo.Title);
         }
 
         private Dictionary<string, string> GetMetadata(TableInfo tableInfo)
