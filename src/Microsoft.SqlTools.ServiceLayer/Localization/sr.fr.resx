@@ -3701,22 +3701,22 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
     <value>Est calculé</value>
   </data>
   <data name="TableColumnIsComputedDescription" xml:space="preserve">
-    <value>Specifies whether the column is a computed column</value>
+    <value>Indique si la colonne est une colonne calculée</value>
   </data>
   <data name="TableColumnIsComputedPersistedTitle" xml:space="preserve">
     <value>Est persistant</value>
   </data>
   <data name="TableColumnIsComputedPersistedDescription" xml:space="preserve">
-    <value>Whether the computed column is saved with the data source</value>
+    <value>Indique si la colonne calculée est enregistrée avec la source de données.</value>
   </data>
   <data name="TableColumnIsComputedPersistedNullableTitle" xml:space="preserve">
     <value>Est de type Nullable persistant</value>
   </data>
   <data name="TableColumnIsComputedPersistedNullableDescription" xml:space="preserve">
-    <value>Whether the computed column can have a NULL value (NOT NULL can only be specified if the column is persisted)</value>
+    <value>Si la colonne calculée peut avoir une valeur NULL (NOT NULL ne peut être spécifié que si la colonne est persistante)</value>
   </data>
   <data name="TableColumnComputedFormulaDescription" xml:space="preserve">
-    <value>Formula that the column uses if it is a computed column</value>
+    <value>Formule que la colonne utilise s’il s’agit d’une colonne calculée.</value>
   </data>
   <data name="TableColumnComputedFormulaTitle" xml:space="preserve">
     <value>Formule</value>
