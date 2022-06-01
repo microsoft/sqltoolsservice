@@ -757,6 +757,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             var tableDesigner = this.GetTableDesigner(tableInfo);
             var table = tableDesigner.TableViewModel;
             var tableViewModel = new TableViewModel();
+            // Disable table renaming for sql project scenario until this issue is fixed: https://github.com/microsoft/azuredatastudio/issues/19557
+            var enableTableRenaming = tableInfo.ProjectFilePath == null;
+            tableViewModel.Name.Enabled = enableTableRenaming;
+            tableViewModel.Schema.Enabled = enableTableRenaming;
+
             tableViewModel.Name.Value = table.Name;
             tableViewModel.Schema.Value = table.Schema;
             tableViewModel.Schema.Values = tableDesigner.Schemas.ToList();
