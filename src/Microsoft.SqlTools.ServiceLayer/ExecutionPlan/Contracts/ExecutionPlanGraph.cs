@@ -4,6 +4,7 @@
 //
 
 using System.Collections.Generic;
+using Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan;
 
 namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
 {
@@ -103,6 +104,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         /// </summary>
         /// <value></value>
         public string DisplayValue { get; set; }
+        /// <summary>
+        /// Indicates what kind of value is better amongst 2 values of the same property
+        /// </summary>
+        public BetterValue BetterValue { get; set; }
+        /// <summary>
+        /// Indicates the data type of the property
+        /// </summary>
+        public PropertyValueDataType DataType { get; set; }
     }
 
     public class NestedExecutionPlanGraphProperty : ExecutionPlanGraphPropertyBase
@@ -185,8 +194,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
 
     public enum BadgeType
     {
-        WARNING = 0,
-        CRITICALWARNING = 1,
-        PARALLELISM = 2
+        Warning = 0,
+        CriticalWarning = 1,
+        Parallelism = 2
+    }
+
+    public enum PropertyValueDataType
+    {
+        Number = 0,
+        String = 1,
+        Boolean = 2,
+        Nested = 3
     }
 }
