@@ -30,7 +30,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Migration
 
                 var requestParams = new MigrationAssessmentsParams()
                 {
-                    OwnerUri = connectionResult.ConnectionInfo.OwnerUri
+                    OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
+                    // To test assessment workflow update below database from local sql instance
+                    Databases = new string[] { "AdventureWorks2016" }
                 };
 
                 var requestContext = new Mock<RequestContext<MigrationAssessmentResult>>();
@@ -42,7 +44,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Migration
         }
 
         [Test]
-        [Ignore("Disable failing test")]
         public async Task TestHandleMigrationGetSkuRecommendationsRequest()
         {
             GetSkuRecommendationsResult result = null;
@@ -73,6 +74,21 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Migration
             Assert.AreEqual(result.InstanceRequirements.InstanceId, "TEST");
             Assert.AreEqual(result.InstanceRequirements.DatabaseLevelRequirements.Count, 2);
             Assert.AreEqual(result.InstanceRequirements.DatabaseLevelRequirements.Sum(db => db.FileLevelRequirements.Count), 4);
+
+            var saveSkuRecommendationsParams = new SaveSkuRecommendationsParams
+            {
+                SqlMiRecommendationResults = result.SqlMiRecommendationResults,
+                SqlVmRecommendationResults = result.SqlVmRecommendationResults,
+                InstanceRequirements = result.InstanceRequirements
+            };
+
+            SaveSkuRecommendationsResult saveSkuRecommendationsResult = null;
+            var saveSkuRecommendationsRequestContext = RequestContextMocks.Create<SaveSkuRecommendationsResult>(r => saveSkuRecommendationsResult = r).AddErrorHandling(null);
+            await service.HandleSaveSkuRecommendationsRequest(saveSkuRecommendationsParams, saveSkuRecommendationsRequestContext.Object);
+            Assert.IsNotNull(saveSkuRecommendationsResult, "Save SKU Recommendation results is null");
+            Assert.IsNotNull(saveSkuRecommendationsResult.SkuRecommendationFiles, "SKU Recommendation file names is null");
+            Assert.IsTrue(saveSkuRecommendationsResult.SkuRecommendationFiles.Length > 0, " Invalid number of sku recommendation files");
+            Assert.IsTrue(saveSkuRecommendationsResult.SkuRecommendationFiles[0].StartsWith("SkuRecommendation"));
         }
 
         [Test]

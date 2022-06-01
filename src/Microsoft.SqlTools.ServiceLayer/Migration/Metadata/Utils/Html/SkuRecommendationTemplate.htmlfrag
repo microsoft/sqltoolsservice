@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+        <title>Azure SQL SKU Recommendation Report</title>
+
+        <style>
+        {BootstrapMinCss}
+        </style>
+
+        <style>
+        {BootstrapThemeMinCss}
+        </style>
+
+        <style>
+        {AppCss}
+        </style>
+    </head>
+
+    <body>
+        <!-- Fixed navbar -->
+        <div ng-app="SkuRecommendationApp" ng-controller="SkuRecommendationController">
+            <div class="container theme-showcase" role="main">
+                <div class="jumbotron" style="padding-top:5px;padding-bottom:5px;padding-left:5px">
+                    <h2>Azure SQL SKU Recommendation Report</h2>
+                </div>
+            </div>
+            
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>The following is a summary of Azure SQL SKU recommendations generated for your SQL instance(s). To perform a pre-migration readiness assessment or to start your migration journey, utilize <a href="https://docs.microsoft.com/en-us/azure/dms/migration-using-azure-data-studio">Azure Data Studio</a> or <a href="https://docs.microsoft.com/en-us/azure/migrate/how-to-create-azure-sql-assessment">Azure Migrate</a>.</p>
+                        <br/>
+                        <p>For recommendations targeting Azure SQL Database and Azure SQL Managed Instance, the recommended amount of compute and storage to provision will be calculated using the vCore-based purchasing model. For recommendations targeting SQL Server on Azure VM, the optimal compute SKU and corresponding storage configuration (including caching) according to Microsoft's <a href="https://docs.microsoft.com/en-us/azure/azure-sql/virtual-machines/windows/performance-guidelines-best-practices-checklist">best practices</a> will be shown.</p>
+                        <br/>
+                        <p>To see more detail, view the full report at <a href="{JsonReportPath}" target="_blank"><i>{JsonReportPath}</i></a> or the logs at <a href="{LogDirectory}" target="_blank"><i>{LogDirectory}</i></a>. This report was generated at UTC {TimeCreated}.</p>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-12">
+                        <br/>
+                    </div>
+                </div>
+                
+                <fieldset class="form-group">
+                    <legend>SKU Recommendations <h6><i>(Click to expand)</i></h6></legend>
+
+                    <div class="panel-group" id="accordion">
+                        <div class="panel panel-default" ng-repeat="instance in recommendations track by $index">
+                        <div class="panel-heading" role="tab" id="heading_{{$index}}">                          
+                            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_{{$index}}" aria-controls="collapse_{{$index}}">
+                                {{instance.ServerName}}
+                            </a>
+                        </div>
+                    
+                        <div id="collapse_{{$index}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_{{$index}}">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <td class="col-md-2 text-center">
+                                            <b>Database Name</b>
+                                        </td>
+                                        <td class="col-md-2 text-center">
+                                            <b>Platform / Service Tier</b>
+                                        </td>
+                                        <td class="col-md-2 text-center">
+                                            <b>Compute Sizing</b>
+                                        </td>
+                                        <td class="col-md-2 text-center">
+                                            <b>Storage Sizing</b>
+                                        </td>
+                                        <td class="col-md-2 text-center">
+                                            <b>Justifications</b>
+                                        </td>
+                                        <td class="col-md-2 text-center">
+                                            <b>Requirements</b>
+                                        </td>
+                                    </tr>
+                                </thead>
+                                
+                                <tbody>
+                                    <tr ng-repeat="recommendation in instance.Recommendations">
+                                        <td class="col-md-2 text-center" style="vertical-align:middle">
+                                            <p ng-bind-html="formatDatabaseName(recommendation.DatabaseName) | convertHtml"></p>
+                                        </td>
+
+                                        <td class="col-md-2 text-center" style="vertical-align:middle">
+                                            <p ng-bind-html="formatPlatformServiceTier(recommendation.RecommendedSku) | convertHtml"></p>
+                                        </td>
+            
+                                        <td class="col-md-2 text-center" style="vertical-align:middle">
+                                            <p ng-bind-html="formatComputeSizing(recommendation.RecommendedSku) | convertHtml"></p>
+                                        </td>
+            
+                                        <td ng-class="getStorageSizingClass(recommendation.RecommendedSku)" style="vertical-align:middle">
+                                            <p ng-bind-html="formatStorageSizing(recommendation.RecommendedSku) | convertHtml"></p>
+                                        </td>
+                                        
+                                        <td class="col-md-2 text-center" style="vertical-align:middle">
+                                            <button type="button" class="btn btn-primary btn-block" ng-click="openJustifications(recommendation)">View</button>
+                                        </td>
+            
+                                        <td class="col-md-2 text-center" style="vertical-align:middle">
+                                            <button type="button" class="btn btn-primary btn-block" ng-click="openRequirements(instance.Requirements, recommendation)">View</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        </div>
+                    </div>
+                </fieldset>      
+            </div>
+        </div>
+
+        <div class="modal fade" id="modal" role="dialog">
+            <div class="modal-dialog">
+            
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title"></h4>
+                    </div>
+                    <div class="modal-body">
+                        <p></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+        {JQueryMinJs}
+        </script>
+
+        <script>
+        {BootstrapMinJs}
+        </script>
+
+        <script>
+        {AngularMinJs}
+        </script>
+
+        <script>
+        {AngularSanitizeMinJs}
+        </script>
+
+        <script>
+        {AppJs}
+        </script>
+    </body>
+</html>

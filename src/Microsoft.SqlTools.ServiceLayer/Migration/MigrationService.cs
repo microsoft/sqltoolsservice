@@ -32,6 +32,8 @@ using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts.Exceptions;
 using Newtonsoft.Json;
 using System.Reflection;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts.Models.Environment;
+using Microsoft.SqlServer.Migration.SkuRecommendation.Models;
+using Microsoft.SqlServer.Migration.SkuRecommendation.Utils;
 
 namespace Microsoft.SqlTools.ServiceLayer.Migration
 {
@@ -98,10 +100,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         /// <summary>
         /// Controller for collecting performance data for SKU recommendation
         /// </summary>
-        internal SqlDataQueryController DataCollectionController 
-        { 
-            get; 
-            set; 
+        internal SqlDataQueryController DataCollectionController
+        {
+            get;
+            set;
         }
 
         /// <summary>
@@ -115,6 +117,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             this.ServiceHost.SetRequestHandler(StopPerfDataCollectionRequest.Type, HandleStopPerfDataCollectionRequest);
             this.ServiceHost.SetRequestHandler(RefreshPerfDataCollectionRequest.Type, HandleRefreshPerfDataCollectionRequest);
             this.ServiceHost.SetRequestHandler(GetSkuRecommendationsRequest.Type, HandleGetSkuRecommendationsRequest);
+            this.ServiceHost.SetRequestHandler(SaveSkuRecommendationsResultRequest.Type, HandleSaveSkuRecommendationsRequest);
         }
 
         /// <summary>
@@ -196,11 +199,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 var connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
 
                 this.DataCollectionController = new SqlDataQueryController(
-                    connectionString, 
-                    parameters.DataFolder, 
+                    connectionString,
+                    parameters.DataFolder,
                     parameters.PerfQueryIntervalInSec,
-                    parameters.NumberOfIterations, 
-                    parameters.StaticQueryIntervalInSec, 
+                    parameters.NumberOfIterations,
+                    parameters.StaticQueryIntervalInSec,
                     null);
 
                 this.DataCollectionController.Start();
@@ -251,8 +254,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 List<string> messages = !(this.DataCollectionController is null) ? this.DataCollectionController.FetchLatestMessages(parameters.LastRefreshedTime) : new List<string>();
                 List<string> errors = !(this.DataCollectionController is null) ? this.DataCollectionController.FetchLatestErrors(parameters.LastRefreshedTime) : new List<string>();
 
-                RefreshPerfDataCollectionResult result = new RefreshPerfDataCollectionResult() 
-                { 
+                RefreshPerfDataCollectionResult result = new RefreshPerfDataCollectionResult()
+                {
                     RefreshTime = DateTime.UtcNow,
                     IsCollecting = isCollecting,
                     Messages = messages,
@@ -296,10 +299,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 List<SkuRecommendationResult> sqlDbResults = new List<SkuRecommendationResult>();
                 if (parameters.TargetPlatforms.Contains("AzureSqlDatabase"))
                 {
-                    var prefs = new AzurePreferences() 
-                    { 
-                        EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlDatabase", parameters.IncludePreviewSkus), 
-                        ScalingFactor = parameters.ScalingFactor / 100.0 
+                    var prefs = new AzurePreferences()
+                    {
+                        EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlDatabase", parameters.IncludePreviewSkus),
+                        ScalingFactor = parameters.ScalingFactor / 100.0
                     };
                     sqlDbResults = provider.GetSkuRecommendation(prefs, req);
 
@@ -402,6 +405,50 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             }
         }
 
+        internal async Task HandleSaveSkuRecommendationsRequest(
+            SaveSkuRecommendationsParams parameters,
+            RequestContext<SaveSkuRecommendationsResult> requestContext)
+        {
+            const string SkuRecommendationJsonFileExt = ".json";
+            const string SkuRecommendationHtmlFileExt = ".html";
+            string timeStamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+
+            string[] skuRecommendationFileNames = new string[6];
+
+            try
+            {
+                // Save results
+                SkuRecommendationReport reportMI = new SkuRecommendationReport(
+                    new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { [parameters.InstanceRequirements] = parameters.SqlMiRecommendationResults },
+                    AzureSqlTargetPlatform.AzureSqlManagedInstance.ToString());
+                string recommendationMIFileName = String.Format("SkuRecommendation{0}-{1}.json", AzureSqlTargetPlatform.AzureSqlManagedInstance.ToString(), timeStamp);
+                ExportRecommendationResultsAction.ExportRecommendationResults(reportMI, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, false, recommendationMIFileName);
+                skuRecommendationFileNames[0] = recommendationMIFileName + SkuRecommendationJsonFileExt;
+                skuRecommendationFileNames[1] = recommendationMIFileName + SkuRecommendationHtmlFileExt;
+
+                SkuRecommendationReport reportVM = new SkuRecommendationReport(
+                    new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { [parameters.InstanceRequirements] = parameters.SqlVmRecommendationResults },
+                    AzureSqlTargetPlatform.AzureSqlManagedInstance.ToString());
+                string recommendationVMFileName = String.Format("SkuRecommendation{0}-{1}.json", AzureSqlTargetPlatform.AzureSqlVirtualMachine.ToString(), timeStamp);
+                ExportRecommendationResultsAction.ExportRecommendationResults(reportVM, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, false, recommendationVMFileName);
+                skuRecommendationFileNames[0] = recommendationVMFileName + SkuRecommendationJsonFileExt;
+                skuRecommendationFileNames[1] = recommendationVMFileName + SkuRecommendationHtmlFileExt;
+
+                // TODO: save SQL DB recommendations
+
+                SaveSkuRecommendationsResult result = new SaveSkuRecommendationsResult
+                {
+                    SkuRecommendationFiles = skuRecommendationFileNames
+                };
+
+                await requestContext.SendResult(result);
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e.ToString());
+            }
+        }
+
         internal class AssessmentRequest : IAssessmentRequest
         {
             private readonly Check[] checks = null;
@@ -435,7 +482,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath = Path.GetDirectoryName(Logger.LogFileFullPath);
             DmaEngine engine = new DmaEngine(connectionStrings);
             ISqlMigrationAssessmentModel contextualizedAssessmentResult = await engine.GetTargetAssessmentResultsListWithCheck(System.Threading.CancellationToken.None);
-            engine.SaveAssessmentResultsToJson(contextualizedAssessmentResult, false);
+            var assessmentFileName = String.Format("SqlAssessmentReport-{0}.json", DateTime.UtcNow.ToString("yyyyMMddHHmmss"));
+            engine.SaveAssessmentResultsToJson(contextualizedAssessmentResult, false, Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, assessmentFileName));
             var server = (contextualizedAssessmentResult.Servers.Count > 0) ? ParseServerAssessmentInfo(contextualizedAssessmentResult.Servers[0], engine) : null;
             return new MigrationAssessmentResult()
             {
@@ -443,7 +491,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 Errors = ParseAssessmentError(contextualizedAssessmentResult.Errors),
                 StartTime = contextualizedAssessmentResult.StartedOn.ToString(),
                 EndedTime = contextualizedAssessmentResult.EndedOn.ToString(),
-                RawAssessmentResult = contextualizedAssessmentResult
+                RawAssessmentResult = contextualizedAssessmentResult,
+                AssessmentFile = assessmentFileName
             };
         }
 
@@ -625,16 +674,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                     string jsonFile = File.ReadAllText(Path.Combine(assemblyPath, RecommendationConstants.DataFolder, RecommendationConstants.SqlVmCapability));
                     List<AzureSqlIaaSCapability> vmCapabilities = JsonConvert.DeserializeObject<List<AzureSqlIaaSCapability>>(jsonFile);
 
-                    // Eb series capabilities stored separately 
-                    string computePreviewFilePath = Path.Combine(assemblyPath, RecommendationConstants.DataFolder, RecommendationConstants.SqlVmPreviewCapability);
-                    if (File.Exists(computePreviewFilePath))
+                    if (includePreviewSkus)
                     {
-                        jsonFile = File.ReadAllText(computePreviewFilePath);
-                        List<AzureSqlIaaSCapability> vmPreviewCapabilities = JsonConvert.DeserializeObject<List<AzureSqlIaaSCapability>>(jsonFile);
+                        // Eb series (in preview) capabilities stored separately 
+                        string computePreviewFilePath = Path.Combine(assemblyPath, RecommendationConstants.DataFolder, RecommendationConstants.SqlVmPreviewCapability);
+                        if (File.Exists(computePreviewFilePath))
+                        {
+                            jsonFile = File.ReadAllText(computePreviewFilePath);
+                            List<AzureSqlIaaSCapability> vmPreviewCapabilities = JsonConvert.DeserializeObject<List<AzureSqlIaaSCapability>>(jsonFile);
 
-                        vmCapabilities.AddRange(vmPreviewCapabilities);
+                            vmCapabilities.AddRange(vmPreviewCapabilities);
+                        }
                     }
-                    
 
                     foreach (VirtualMachineFamily family in AzureVirtualMachineFamilyGroup.FamilyGroups[VirtualMachineFamilyType.GeneralPurpose]
                         .Concat(AzureVirtualMachineFamilyGroup.FamilyGroups[VirtualMachineFamilyType.MemoryOptimized]))
