@@ -2,7 +2,6 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
-using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 {
@@ -15,8 +14,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 
         public TableViewModel ViewModel { get; set; }
 
-        public List<string> ColumnTypes { get; set; }
+        public TableInfo TableInfo { get; set; }
 
-        public List<string> Schemas { get; set; }
+        public TableDesignerIssue[] Issues { get; set; }
     }
 }
