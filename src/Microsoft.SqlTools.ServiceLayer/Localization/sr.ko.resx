@@ -3701,22 +3701,22 @@
     <value>계산 여부</value>
   </data>
   <data name="TableColumnIsComputedDescription" xml:space="preserve">
-    <value>Specifies whether the column is a computed column</value>
+    <value>열이 계산 열인지 여부를 지정합니다.</value>
   </data>
   <data name="TableColumnIsComputedPersistedTitle" xml:space="preserve">
-    <value>지속형</value>
+    <value>지속형 여부</value>
   </data>
   <data name="TableColumnIsComputedPersistedDescription" xml:space="preserve">
-    <value>Whether the computed column is saved with the data source</value>
+    <value>계산 열이 데이터 원본과 함께 저장되는지 여부</value>
   </data>
   <data name="TableColumnIsComputedPersistedNullableTitle" xml:space="preserve">
-    <value>지속 Null 허용 여부</value>
+    <value>지속형 Null 허용 여부</value>
   </data>
   <data name="TableColumnIsComputedPersistedNullableDescription" xml:space="preserve">
-    <value>Whether the computed column can have a NULL value (NOT NULL can only be specified if the column is persisted)</value>
+    <value>계산 열에 NULL 값을 사용할 수 있는지 여부를 지정합니다(지속형 열인 경우에만 NOT NULL을 지정할 수 있습니다).</value>
   </data>
   <data name="TableColumnComputedFormulaDescription" xml:space="preserve">
-    <value>Formula that the column uses if it is a computed column</value>
+    <value>열이 계산 열인 경우 열에서 사용하는 수식입니다.</value>
   </data>
   <data name="TableColumnComputedFormulaTitle" xml:space="preserve">
     <value>수식</value>
