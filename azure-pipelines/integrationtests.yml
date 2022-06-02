@@ -65,13 +65,14 @@ steps:
     displayName: Building Integration Tests
     inputs:
       projects: '**/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj'
+      arguments: '/p:CodeCoverageBuild=true'
 
   - task: DotNetCoreCLI@2
     displayName: Running Integration Tests
     inputs:
       command: test
       projects: '**/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj'
-      arguments: '--no-build --blame'
+      arguments: '--no-build'
       testRunTitle: 'SqlToolsService Integration Tests'
     env:
       AzureStorageAccountKey: '$(sqltools-backup-url-tests-storageaccountkey)'
