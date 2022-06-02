@@ -5,6 +5,7 @@
 
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.SqlTools.ServiceLayer.AzureFunctions.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,12 +40,12 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
             return methodsWithFunctionAttributes;
         }
 
-        /// <summary>
-        /// Gets the route from an HttpTrigger attribute if specified
-        /// </summary>
-        /// <param name="m">The method</param>
-        /// <returns>The name of the route, or null if no route is specified (or there isn't an HttpTrigger binding)</returns>
-        public static string? GetHttpRoute(this MethodDeclarationSyntax m)
+        public static HttpTriggerBinding? GetHttpTriggerBinding(this MethodDeclarationSyntax m)
+        {
+            var httpTriggerAttribute = m.GetHttpTriggerAttribute();
+            return httpTriggerAttribute == null ? null : new HttpTriggerBinding(httpTriggerAttribute.GetHttpRoute(), httpTriggerAttribute.GetHttpOperations());
+        }
+        public static AttributeSyntax? GetHttpTriggerAttribute(this MethodDeclarationSyntax m)
         {
             return m
                 .ParameterList
@@ -53,8 +54,18 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
                     p.AttributeLists // Get a list of all attributes on any of the parameters
                     .SelectMany(al => al.Attributes)
                 ).Where(a => a.Name.ToString().Equals(HTTP_TRIGGER_ATTRIBUTE_NAME) // Find any HttpTrigger attributes
-                ).FirstOrDefault() // Get the first one available - there should only ever be 0 or 1
-                ?.ArgumentList // Get all the arguments for the attribute
+                ).FirstOrDefault(); // Get the first one available - there should only ever be 0 or 1
+        }
+
+        /// <summary>
+        /// Gets the route from the HttpTrigger attribute
+        /// https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-http-webhook-trigger?tabs=in-process%2Cfunctionsv2&pivots=programming-language-csharp#attributes
+        /// </summary>
+        /// <param name="m">The attribute</param>
+        /// <returns>The name of the route, or null if no route is specified (or there isn't an HttpTrigger binding)</returns>
+        public static string? GetHttpRoute(this AttributeSyntax a)
+        {
+            return a.ArgumentList
                 ?.Arguments
                 .Where(a => a.ChildNodes().OfType<NameEqualsSyntax>().Where(nes => nes.Name.ToString().Equals(ROUTE_ARGUMENT_NAME)).Any()) // Find the Route argument - it should always be a named argument
                 .FirstOrDefault()
@@ -63,8 +74,22 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
                 .Where(le => le.Kind() != SyntaxKind.NullLiteralExpression) // Skip the null expressions so they aren't ToString()'d into "null"
                 .FirstOrDefault()
                 ?.ToString()
-                .TrimStart('$') // Remove $ from interpolated string, since this will always be outside the quotes we can just trim
-                .Trim('\"'); // Trim off the quotes from the string value - additional quotes at the beginning and end aren't valid syntax so it's fine to trim
+                .TrimStringQuotes();
+        }
+
+        /// <summary>
+        /// Get the operations (methods) on an HttpTrigger attribute. These are string params arguments to the attribute
+        /// https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-http-webhook-trigger?tabs=in-process%2Cfunctionsv2&pivots=programming-language-csharp#attributes
+        /// </summary>
+        /// <param name="a">The attribute</param>
+        /// <returns>The operations (methods) specified</returns>
+        public static string[]? GetHttpOperations(this AttributeSyntax a)
+        {
+            return a.ArgumentList
+                ?.Arguments
+                .Where(a => a.Expression.Kind() == SyntaxKind.StringLiteralExpression && a.NameEquals == null) // Operations are string literals who don't have a name (Route is always a named param)
+                .Select(a => a.ToString().TrimStringQuotes().ToUpper()) // upper case for consistent naming
+                .ToArray();
         }
 
         /// <summary>
@@ -90,8 +115,19 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
                 ?.Arguments
                 .FirstOrDefault() // The first argument is the function name
                 ?.ToString()
+                .TrimStringQuotes() ?? "";
+        }
+
+        /// <summary>
+        /// Removes the quotes (and $ for interpolated strings) around a string literal
+        /// </summary>
+        /// <param name="s">The string</param>
+        /// <returns>The string without quotes</returns>
+        public static string TrimStringQuotes(this string s)
+        {
+            return s
                 .TrimStart('$') // Remove $ from interpolated string, since this will always be outside the quotes we can just trim
-                .Trim('\"') ?? ""; // Trim off the quotes from the string value - additional quotes at the beginning and end aren't valid syntax so it's fine to trim
+                .Trim('\"'); // Trim off the quotes from the string value - additional quotes at the beginning and end aren't valid syntax so it's fine to trim
         }
 
         /// <summary>

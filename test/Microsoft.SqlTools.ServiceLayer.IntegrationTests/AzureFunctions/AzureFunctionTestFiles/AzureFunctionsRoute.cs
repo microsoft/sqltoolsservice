@@ -85,5 +85,14 @@ namespace Company.Namespace
         {
             throw new NotImplementedException();
         }
+
+        /// <summary>
+        /// Tests binding without an HttpBinding
+        /// </summary>
+        [FunctionName("NoHttpBinding")]
+        public IActionResult WithRoute([Sql("select * from [dbo].[table1]", CommandType = System.Data.CommandType.Text, ConnectionStringSetting = "SqlConnectionString")] IEnumerable<Object> result)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
