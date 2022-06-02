@@ -69,7 +69,7 @@ steps:
   - task: DotNetCoreCLI@2
     displayName: Running Integration Tests
     inputs:
-      command: test
+      command: test --blame
       projects: '**/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj'
       arguments: '--no-build'
       testRunTitle: 'SqlToolsService Integration Tests'
