@@ -274,15 +274,15 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 
         private Dictionary<string, string> _displayNameMapDict;
 
-        public Dictionary<string, DeploymentOptionProperty<bool>> optionsMapTable;
+        public Dictionary<string, DeploymentOptionProperty<bool>> optionsMapTable { get; set; }
 
-        #endregion
+    #endregion
 
-        /// <summary>
-        /// Mapping the DisplayName to the dac deploy option
-        /// Adding new properties here would give easy handling of new option to all extensions
-        /// </summary>
-        private void SetDisplayNameForOption()
+    /// <summary>
+    /// Mapping the DisplayName to the dac deploy option
+    /// Adding new properties here would give easy handling of new option to all extensions
+    /// </summary>
+    private void SetDisplayNameForOption()
         {
             #region Display Name and Dac Options Mapping
             DacDeployOptions d = new DacDeployOptions();
