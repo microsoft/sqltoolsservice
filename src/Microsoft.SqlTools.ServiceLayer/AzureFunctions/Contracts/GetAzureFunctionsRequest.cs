@@ -24,7 +24,9 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions.Contracts
         /// </summary>
         public string Name { get; }
 
-
+        /// <summary>
+        /// The HttpTrigger binding if one is specified
+        /// </summary>
         public HttpTriggerBinding? HttpTriggerBinding { get; }
 
         public AzureFunction(string name, HttpTriggerBinding? httpTriggerBinding)
