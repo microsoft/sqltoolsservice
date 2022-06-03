@@ -21,11 +21,11 @@
 		<PackageReference Update="Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider" Version="1.1.1" />
 		<PackageReference Update="Microsoft.Data.SqlClient" Version="3.1.0"/>
 		<PackageReference Update="Microsoft.SqlServer.SqlManagementObjects" Version="161.46367.54" />
-		<PackageReference Update="Microsoft.SqlServer.DACFx" Version="160.6164.0-preview" GeneratePathProperty="true" />
+		<PackageReference Update="Microsoft.SqlServer.DACFx" Version="160.6174.0-preview" GeneratePathProperty="true" />
 		<PackageReference Update="Microsoft.Azure.Kusto.Data" Version="9.0.4" />
 		<PackageReference Update="Microsoft.Azure.Kusto.Language" Version="9.0.4"/>
 		<PackageReference Update="Microsoft.SqlServer.Assessment"  Version="[1.0.305]" />
-		<PackageReference Update="Microsoft.SqlServer.Migration.Assessment"  Version="1.0.20220211.24" />
+		<PackageReference Update="Microsoft.SqlServer.Migration.Assessment"  Version="1.0.20220527.33" />
 		<PackageReference Update="Microsoft.SqlServer.Management.SqlParser" Version="160.22504.0" />
 		<PackageReference Update="Microsoft.Azure.OperationalInsights" Version="1.0.0" />
 		<PackageReference Update="Microsoft.CodeAnalysis.CSharp" Version="3.10.0" />

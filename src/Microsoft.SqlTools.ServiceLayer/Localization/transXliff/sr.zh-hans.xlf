@@ -6035,7 +6035,7 @@ The Query Processor estimates that implementing the following index could improv
       </trans-unit>
       <trans-unit id="TableColumnIsComputedDescription">
         <source>Specifies whether the column is a computed column</source>
-        <target state="new">Specifies whether the column is a computed column</target>
+        <target state="translated">指定列是否为计算列</target>
         <note></note>
       </trans-unit>
       <trans-unit id="TableColumnIsComputedPersistedTitle">
@@ -6045,7 +6045,7 @@ The Query Processor estimates that implementing the following index could improv
       </trans-unit>
       <trans-unit id="TableColumnIsComputedPersistedDescription">
         <source>Whether the computed column is saved with the data source</source>
-        <target state="new">Whether the computed column is saved with the data source</target>
+        <target state="translated">计算列是否与数据源一起保存</target>
         <note></note>
       </trans-unit>
       <trans-unit id="TableColumnIsComputedPersistedNullableTitle">
@@ -6055,12 +6055,12 @@ The Query Processor estimates that implementing the following index could improv
       </trans-unit>
       <trans-unit id="TableColumnIsComputedPersistedNullableDescription">
         <source>Whether the computed column can have a NULL value (NOT NULL can only be specified if the column is persisted)</source>
-        <target state="new">Whether the computed column can have a NULL value (NOT NULL can only be specified if the column is persisted)</target>
+        <target state="translated">计算列是否可以具有 NULL 值(仅当列为持久列时才能指定 NOT NULL)。</target>
         <note></note>
       </trans-unit>
       <trans-unit id="TableColumnComputedFormulaDescription">
         <source>Formula that the column uses if it is a computed column</source>
-        <target state="new">Formula that the column uses if it is a computed column</target>
+        <target state="translated">列使用的公式(如果是计算列)</target>
         <note></note>
       </trans-unit>
       <trans-unit id="TableColumnComputedFormulaTitle">
