@@ -15,31 +15,31 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
 {
     public class SqlCmdExecutionTest
     {
-//         [Test]
-//         public void TestConnectSqlCmdCommand()
-//         {
-//             var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
-//             var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo("master");
-//             ConnectionInfo connInfo = liveConnection.ConnectionInfo;
-//             string serverName = liveConnection.ConnectionInfo.ConnectionDetails.ServerName;
-//             string sqlCmdQuerySuccess = $@"
-// :Connect {serverName}
-// select * from sys.databases where name = 'master'
-// GO";
+        [Ignore("Causes failure in integration tests on ADO")]
+        public void TestConnectSqlCmdCommand()
+        {
+            var fileStreamFactory = MemoryFileSystem.GetFileStreamFactory();
+            var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo("master");
+            ConnectionInfo connInfo = liveConnection.ConnectionInfo;
+            string serverName = liveConnection.ConnectionInfo.ConnectionDetails.ServerName;
+            string sqlCmdQuerySuccess = $@"
+:Connect {serverName}
+select * from sys.databases where name = 'master'
+GO";
 
-//             Query query = ExecuteTests.CreateAndExecuteQuery(sqlCmdQuerySuccess, connInfo, fileStreamFactory, IsSqlCmd: true);
-//             Assert.True(query.Batches.Length == 1, $"Expected: 1 parsed batch, actual : {query.Batches.Length}");
-//             Assert.True(query.Batches[0].HasExecuted && !query.Batches[0].HasError && query.Batches[0].ResultSets.Count == 1, "Query should be executed and have one result set");
+            Query query = ExecuteTests.CreateAndExecuteQuery(sqlCmdQuerySuccess, connInfo, fileStreamFactory, IsSqlCmd: true);
+            Assert.True(query.Batches.Length == 1, $"Expected: 1 parsed batch, actual : {query.Batches.Length}");
+            Assert.True(query.Batches[0].HasExecuted && !query.Batches[0].HasError && query.Batches[0].ResultSets.Count == 1, "Query should be executed and have one result set");
 
-//             string sqlCmdQueryFilaure = $@"
-// :Connect SomeWrongName
-// select * from sys.databases where name = 'master'
-// GO";
+            string sqlCmdQueryFilaure = $@"
+:Connect SomeWrongName
+select * from sys.databases where name = 'master'
+GO";
 
-//             query = ExecuteTests.CreateAndExecuteQuery(sqlCmdQueryFilaure, connInfo, fileStreamFactory, IsSqlCmd: true);
-//             Assert.True(query.Batches.Length == 1, $"Expected: 1 parsed batch, actual : {query.Batches.Length}");
-//             Assert.True(query.Batches[0].HasError, "Query should have error");
-//         }
+            query = ExecuteTests.CreateAndExecuteQuery(sqlCmdQueryFilaure, connInfo, fileStreamFactory, IsSqlCmd: true);
+            Assert.True(query.Batches.Length == 1, $"Expected: 1 parsed batch, actual : {query.Batches.Length}");
+            Assert.True(query.Batches[0].HasError, "Query should have error");
+        }
 
         [Test]
         public void TestOnErrorSqlCmdCommand()
