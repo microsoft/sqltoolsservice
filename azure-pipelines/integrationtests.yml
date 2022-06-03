@@ -24,7 +24,6 @@ steps:
     displayName: Use .NET Core SDK
     inputs:
       useGlobalJson: true
-      version: 6.0
 
   - task: Bash@3
     displayName: Creating Loc Directories Expected By Dotnet Build
