@@ -46,10 +46,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         [ShowInToolTip, DisplayOrder(4), DisplayNameDescription(SR.Keys.NumberOfRows, SR.Keys.NumberOfRowsDescription)]
         public double ActualRows { get { return 0; } }
 
-        [ShowInToolTip, DisplayOrder(4), DisplayNameDescription(SR.Keys.ActualRowsRead, SR.Keys.ActualRowsReadDescription)]
+        [ShowInToolTip, DisplayOrder(4), DisplayNameDescription(SR.Keys.ActualRowsRead, SR.Keys.ActualRowsReadDescription), BetterValue(BetterValue.LowerNumber)]
         public double ActualRowsRead { get { return 0; } }
 
-        [ShowInToolTip, DisplayOrder(5), DisplayNameDescription(SR.Keys.NumberOfBatches, SR.Keys.NumberOfBatchesDescription)]
+        [ShowInToolTip, DisplayOrder(5), DisplayNameDescription(SR.Keys.NumberOfBatches, SR.Keys.NumberOfBatchesDescription), BetterValue(BetterValue.HigherNumber)]
         public double ActualBatches { get { return 0; } }
 
         [ShowInToolTip(LongString = true), DisplayOrder(6), DisplayNameDescription(SR.Keys.Statement, SR.Keys.StatementDesc)]
@@ -594,6 +594,48 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         public bool NoExpandHint { get { return false; } }
 
         public double TableCardinality { get { return 0; } }
+
+        [BetterValue(BetterValue.HigherNumber)]
+        public int EstimatedAvailableMemoryGrant { get { return 0; } }
+
+        [BetterValue(BetterValue.LowerNumber)]
+        public double SerialRequiredMemory { get { return 0; } }
+
+        [BetterValue(BetterValue.LowerNumber)]
+        public double SerialDesiredMemory { get { return 0; } }
+
+        [BetterValue(BetterValue.LowerNumber)]
+        public double RequiredMemory { get { return 0; } }
+
+        [BetterValue(BetterValue.LowerNumber)]
+        public double DesiredMemory { get { return 0; } }
+
+        [BetterValue(BetterValue.LowerNumber)]
+        public double RequestedMemory { get { return 0; } }
+
+        [BetterValue(BetterValue.LowerNumber)]
+        public double GrantWaitTime { get { return 0; } }
+
+        [BetterValue(BetterValue.LowerNumber)]
+        public double GrantedMemory { get { return 0; } }
+
+        [BetterValue(BetterValue.LowerNumber)]
+        public double MaxUsedMemory { get { return 0; } }
+
+        [BetterValue(BetterValue.LowerNumber)]
+        public double MaxQueryMemory { get { return 0; } }
+
+        [BetterValue(BetterValue.LowerNumber)]
+        public double WaitTimeMs { get { return 0; } }
+
+        [BetterValue(BetterValue.LowerNumber)]
+        public double WaitCount { get { return 0; } }
+
+        [BetterValue(BetterValue.LowerNumber)]
+        public double CpuTime { get { return 0; } }
+
+        [BetterValue(BetterValue.LowerNumber)]
+        public double ElapsedTime { get { return 0; } }
 
         #endregion
 
