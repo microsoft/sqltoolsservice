@@ -40,11 +40,23 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
             return methodsWithFunctionAttributes;
         }
 
+        /// <summary>
+        /// Gets the info for a HttpTriggerBinding for the specified method (if such a binding exists)
+        /// </summary>
+        /// <param name="m">The method</param>
+        /// <returns>The HttpTriggerBinding, or null if none exists</returns>
         public static HttpTriggerBinding? GetHttpTriggerBinding(this MethodDeclarationSyntax m)
         {
             var httpTriggerAttribute = m.GetHttpTriggerAttribute();
             return httpTriggerAttribute == null ? null : new HttpTriggerBinding(httpTriggerAttribute.GetHttpRoute(), httpTriggerAttribute.GetHttpOperations());
         }
+
+        /// <summary>
+        /// Gets the HttpTrigger attribute on the parameters for this method if one exists
+        /// https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-http-webhook-trigger
+        /// </summary>
+        /// <param name="m">The method</param>
+        /// <returns>The attribute if such a binding exists</returns>
         public static AttributeSyntax? GetHttpTriggerAttribute(this MethodDeclarationSyntax m)
         {
             return m
