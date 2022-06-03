@@ -331,9 +331,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 if (supported && connInfo != null)
                 {
                     DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
+                    // Open a new connection to use for the backup, which will be closed when the backup task is completed
+                    // (or an error occurs)
                     SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Backup");
-                    // Connection gets discounnected when backup is done
-
                     try
                     {
                         BackupOperation backupOperation = CreateBackupOperation(helper.DataContainer, sqlConn, backupParams.BackupInfo);
