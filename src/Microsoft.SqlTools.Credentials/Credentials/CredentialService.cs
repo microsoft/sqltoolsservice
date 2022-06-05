@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.Credentials
     {
         internal static string DefaultSecretsFolder = ".sqlsecrets";
         internal const string DefaultSecretsFile = "sqlsecrets.json";
-        
+
 
         /// <summary>
         /// Singleton service instance
@@ -49,11 +49,11 @@ namespace Microsoft.SqlTools.Credentials
         /// Default constructor is private since it's a singleton class
         /// </summary>
         private CredentialService()
-            : this(null, new StoreConfig() 
+            : this(null, new StoreConfig()
                 { CredentialFolder = DefaultSecretsFolder, CredentialFile = DefaultSecretsFile, IsRelativeToUserHomeDir = true})
         {
         }
-        
+
         /// <summary>
         /// Internal for testing purposes only
         /// </summary>
@@ -102,12 +102,9 @@ namespace Microsoft.SqlTools.Credentials
         }
 
 
-        public async Task<Credential> ReadCredentialAsync(Credential credential)
+        public Task<Credential> ReadCredentialAsync(Credential credential)
         {
-            return await Task.Factory.StartNew(() =>
-            {
-                return ReadCredential(credential);
-            });
+            return Task.Run(() => ReadCredential(credential));
         }
 
         public Credential ReadCredential(Credential credential)
@@ -132,12 +129,9 @@ namespace Microsoft.SqlTools.Credentials
             await HandleRequest(doSave, requestContext, "HandleSaveCredentialRequest");
         }
 
-        public async Task<bool> SaveCredentialAsync(Credential credential)
+        public Task<bool> SaveCredentialAsync(Credential credential)
         {
-            return await Task.Factory.StartNew(() =>
-            {
-                return SaveCredential(credential);
-            });
+            return Task.Run(() => SaveCredential(credential));
         }
 
         public bool SaveCredential(Credential credential)
@@ -155,9 +149,9 @@ namespace Microsoft.SqlTools.Credentials
             await HandleRequest(doDelete, requestContext, "HandleDeleteCredentialRequest");
         }
 
-        private async Task<bool> DeletePasswordAsync(Credential credential)
+        private Task<bool> DeletePasswordAsync(Credential credential)
         {
-            return await Task.Factory.StartNew(() =>
+            return Task.Run(() =>
             {
                 Credential.ValidateForLookup(credential);
                 return credStore.DeletePassword(credential.CredentialId);

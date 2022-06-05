@@ -12,7 +12,7 @@ namespace Microsoft.InsightsGenerator
     public class Workflow
     {
 
-        public async Task<string> ProcessInputData(DataArray rulesData,
+        public Task<string> ProcessInputData(DataArray rulesData,
             CancellationToken cancellationToken = new CancellationToken())
         {
             // added cancellationToken just in case for future
@@ -21,9 +21,7 @@ namespace Microsoft.InsightsGenerator
             //Get the signature result
             SignatureGenerator siggen = new SignatureGenerator(rulesData);
 
-            string insights = null;
-
-            await Task.Run(() =>
+            return Task.Run(() =>
             {
                 try
                 {
@@ -31,6 +29,8 @@ namespace Microsoft.InsightsGenerator
                     transformer.Transform(rulesData);
                     SignatureGeneratorResult result = siggen.Learn();
                         // call the rules engine processor
+
+                    string insights = null;
                     if (result?.Insights == null)
                     {
                         // Console.WriteLine("Failure in generating insights, Input not recognized!");
@@ -42,6 +42,7 @@ namespace Microsoft.InsightsGenerator
                         //    $"Good News! Insights generator has provided you the chart text: \n{insights}\n");
                     }
 
+                    return insights;
                 }
                 catch (Exception)
                 {
@@ -50,8 +51,6 @@ namespace Microsoft.InsightsGenerator
                 }
 
             }, cancellationToken);
-
-            return insights;
         }
     }
 }
