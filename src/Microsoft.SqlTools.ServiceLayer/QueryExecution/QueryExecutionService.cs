@@ -707,7 +707,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="scriptFile"></param>
         /// <param name="eventContext"></param>
         /// <returns></returns>
-        public async Task HandleDidCloseTextDocumentNotification(
+        public Task HandleDidCloseTextDocumentNotification(
             string uri,
             ScriptFile scriptFile,
             EventContext eventContext)
@@ -725,7 +725,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 Logger.Write(TraceEventType.Error, "Unknown error " + ex.ToString());
             }
-            await Task.FromResult(true);
+
+            return Task.CompletedTask;
         }
 
         #endregion
@@ -765,7 +766,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             if (this.ActiveQueryExecutionSettings.TryGetValue(executeParams.OwnerUri, out settings))
             {
                 // special-case handling for query plan options to maintain compat with query execution API parameters
-                // the logic is that if either the query execute API parameters or the active query setttings 
+                // the logic is that if either the query execute API parameters or the active query setttings
                 // request a plan then enable the query option
                 ExecutionPlanOptions executionPlanOptions = executeParams.ExecutionPlanOptions;
                 if (settings.IncludeActualExecutionPlanXml)
@@ -900,7 +901,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Setup the ResultSet updated callback
             ResultSet.ResultSetAsyncEventHandler resultUpdatedCallback = async r =>
             {
-                
+
                 //Generating and sending an execution plan graphs if it is requested.
                 List<ExecutionPlanGraph> plans = null;
                 string planErrors = "";

@@ -270,12 +270,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             serviceHost.SetEventHandler(TokenRefreshedNotification.Type, HandleTokenRefreshedNotification);
 
             // Register a no-op shutdown task for validation of the shutdown logic
-            serviceHost.RegisterShutdownTask(async (shutdownParams, shutdownRequestContext) =>
+            serviceHost.RegisterShutdownTask((shutdownParams, shutdownRequestContext) =>
             {
                 Logger.Write(TraceEventType.Verbose, "Shutting down language service");
                 DeletePeekDefinitionScripts();
                 this.Dispose();
-                await Task.FromResult(0);
+                return Task.FromResult(0);
             });
 
             ServiceHostInstance = serviceHost;
@@ -399,33 +399,30 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <returns></returns>
         internal async Task HandleSyntaxParseRequest(SyntaxParseParams param, RequestContext<SyntaxParseResult> requestContext)
         {
-            await Task.Run(async () =>
+            try
             {
-                try
+                ParseResult result = Parser.Parse(param.Query);
+                SyntaxParseResult syntaxResult = new SyntaxParseResult();
+                if (result != null && !result.Errors.Any())
                 {
-                    ParseResult result = Parser.Parse(param.Query);
-                    SyntaxParseResult syntaxResult = new SyntaxParseResult();
-                    if (result != null && result.Errors.Count() == 0)
-                    {
-                        syntaxResult.Parseable = true;
-                    }
-                    else
-                    {
-                        syntaxResult.Parseable = false;
-                        string[] errorMessages = new string[result.Errors.Count()];
-                        for (int i = 0; i < result.Errors.Count(); i++)
-                        {
-                            errorMessages[i] = result.Errors.ElementAt(i).Message;
-                        }
-                        syntaxResult.Errors = errorMessages;
-                    }
-                    await requestContext.SendResult(syntaxResult);
+                    syntaxResult.Parseable = true;
                 }
-                catch (Exception ex)
+                else
                 {
-                    await requestContext.SendError(ex.ToString());
+                    syntaxResult.Parseable = false;
+                    string[] errorMessages = new string[result.Errors.Count()];
+                    for (int i = 0; i < result.Errors.Count(); i++)
+                    {
+                        errorMessages[i] = result.Errors.ElementAt(i).Message;
+                    }
+                    syntaxResult.Errors = errorMessages;
                 }
-            });
+                await requestContext.SendResult(syntaxResult);
+            }
+            catch (Exception ex)
+            {
+                await requestContext.SendError(ex.ToString());
+            }
         }
 
         /// <summary>
@@ -674,8 +671,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         new ScriptFile[] { scriptFile },
                         eventContext);
                 }
-
-                await Task.FromResult(true);
             }
             catch (Exception ex)
             {
@@ -700,8 +695,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         changedFiles.ToArray(),
                         eventContext);
                 }
-
-                await Task.FromResult(true);
             }
             catch (Exception ex)
             {
@@ -902,7 +895,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     bool value;
                     this.nonMssqlUriMap.TryRemove(changeParams.Uri, out value);
-                    // should rebuild intellisense when re-considering as sql 
+                    // should rebuild intellisense when re-considering as sql
                     RebuildIntelliSenseParams param = new RebuildIntelliSenseParams { OwnerUri = changeParams.Uri };
                     await HandleRebuildIntelliSenseNotification(param, eventContext);
                 }
@@ -933,13 +926,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// it is the last URI connected to a particular connection,
         /// then remove the cache.
         /// </summary>
-        public async Task RemoveAutoCompleteCacheUriReference(IConnectionSummary summary, string ownerUri)
+        public Task RemoveAutoCompleteCacheUriReference(IConnectionSummary summary, string ownerUri)
         {
             RemoveScriptParseInfo(ownerUri);
 
             // currently this method is disabled, but we need to reimplement now that the
             // implementation of the 'cache' has changed.
-            await Task.FromResult(0);
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -1049,9 +1042,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Update the autocomplete metadata provider when the user connects to a database
         /// </summary>
         /// <param name="info"></param>
-        public async Task UpdateLanguageServiceOnConnection(ConnectionInfo info)
+        public Task UpdateLanguageServiceOnConnection(ConnectionInfo info)
         {
-            await Task.Run(() =>
+            return Task.Run(() =>
             {
                 if (ConnectionService.IsDedicatedAdminConnection(info.ConnectionDetails))
                 {
@@ -1674,10 +1667,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // cache the current script parse info object to resolve completions later
             this.currentCompletionParseInfo = scriptParseInfo;
             resultCompletionItems = result.CompletionItems;
- 
+
             /*
              Expanding star expressions in query only when the script is connected to a database
-             as the parser requires a connection to determine column names 
+             as the parser requires a connection to determine column names
             */
             if (connInfo != null)
             {

@@ -88,7 +88,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         /// Handle request to create a credential
         /// </summary>
         internal async Task HandleCreateCredentialRequest(CreateCredentialParams parameters, RequestContext<CredentialResult> requestContext)
-        {               
+        {
             var result = await ConfigureCredential(parameters.OwnerUri,
                 parameters.Credential,
                 ConfigAction.Create,
@@ -106,7 +106,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         /// Handle request to update a credential
         /// </summary>
         internal async Task HandleUpdateCredentialRequest(UpdateCredentialParams parameters, RequestContext<CredentialResult> requestContext)
-        {             
+        {
             var result = await ConfigureCredential(parameters.OwnerUri,
                 parameters.Credential,
                 ConfigAction.Update,
@@ -137,48 +137,43 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             });
         }
 
-        
+
         /// <summary>
         /// Handle request to get all credentials
         /// </summary>
         internal async Task HandleGetCredentialsRequest(GetCredentialsParams parameters, RequestContext<GetCredentialsResult> requestContext)
         {
-            await Task.Run(async () =>
+            var result = new GetCredentialsResult();
+            try
             {
-                var result = new GetCredentialsResult();
-                try
-                {
-                    ConnectionInfo connInfo;
-                    ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
-                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-                    
-                    var credentials = dataContainer.Server.Credentials;
-                    int credentialsCount = credentials.Count;
-                    CredentialInfo[] credentialsInfos = new CredentialInfo[credentialsCount];
-                    for (int i = 0; i < credentialsCount; ++i)
-                    {
-                        credentialsInfos[i] = new CredentialInfo();
-                        credentialsInfos[i].Name = credentials[i].Name;
-                        credentialsInfos[i].Identity = credentials[i].Identity;
-                        credentialsInfos[i].Id = credentials[i].ID;
-                        credentialsInfos[i].DateLastModified = credentials[i].DateLastModified;
-                        credentialsInfos[i].CreateDate = credentials[i].CreateDate;
-                        credentialsInfos[i].ProviderName = credentials[i].ProviderName;
-                    }
-                    result.Credentials = credentialsInfos;
-                    result.Success = true;  
-                }
-                catch (Exception ex)
-                {
-                    result.Success = false;
-                    result.ErrorMessage = ex.ToString();
-                }
+                ConnectionInfo connInfo;
+                ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
+                CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
 
-                await requestContext.SendResult(result);
-            });
+                var credentials = dataContainer.Server.Credentials;
+                int credentialsCount = credentials.Count;
+                CredentialInfo[] credentialsInfos = new CredentialInfo[credentialsCount];
+                for (int i = 0; i < credentialsCount; ++i)
+                {
+                    credentialsInfos[i] = new CredentialInfo();
+                    credentialsInfos[i].Name = credentials[i].Name;
+                    credentialsInfos[i].Identity = credentials[i].Identity;
+                    credentialsInfos[i].Id = credentials[i].ID;
+                    credentialsInfos[i].DateLastModified = credentials[i].DateLastModified;
+                    credentialsInfos[i].CreateDate = credentials[i].CreateDate;
+                    credentialsInfos[i].ProviderName = credentials[i].ProviderName;
+                }
+                result.Credentials = credentialsInfos;
+                result.Success = true;
+            }
+            catch (Exception ex)
+            {
+                result.Success = false;
+                result.ErrorMessage = ex.ToString();
+            }
+
+            await requestContext.SendResult(result);
         }
-
-
 
         /// <summary>
         /// Disposes the service
@@ -186,20 +181,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         public void Dispose()
         {
             if (!disposed)
-            {                
+            {
                 disposed = true;
             }
         }
 
 #region "Helpers"
 
-        internal async Task<Tuple<bool, string>> ConfigureCredential(
+        internal Task<Tuple<bool, string>> ConfigureCredential(
             string ownerUri,
             CredentialInfo credential,
             ConfigAction configAction,
             RunType runType)
         {
-            return await Task<Tuple<bool, string>>.Run(() =>
+            return Task<Tuple<bool, string>>.Run(() =>
             {
                 try
                 {
@@ -211,7 +206,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     {
                         var executionHandler = new ExecutonHandler(actions);
                         executionHandler.RunNow(runType, this);
-                    }        
+                    }
 
                     return new Tuple<bool, string>(true, string.Empty);
                 }
