@@ -3694,4 +3694,31 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
   <data name="ParallelismOverlayTooltip" xml:space="preserve">
     <value>Execução Paralela</value>
   </data>
+  <data name="TableColumnComputedGroupTitle" xml:space="preserve">
+    <value>Especificações da Coluna Computadas</value>
+  </data>
+  <data name="TableColumnIsComputedTitle" xml:space="preserve">
+    <value>Computado</value>
+  </data>
+  <data name="TableColumnIsComputedDescription" xml:space="preserve">
+    <value>Especifica se a coluna é uma coluna computada</value>
+  </data>
+  <data name="TableColumnIsComputedPersistedTitle" xml:space="preserve">
+    <value>É Persistido</value>
+  </data>
+  <data name="TableColumnIsComputedPersistedDescription" xml:space="preserve">
+    <value>Se a coluna computada é salva com a fonte de dados</value>
+  </data>
+  <data name="TableColumnIsComputedPersistedNullableTitle" xml:space="preserve">
+    <value>É Nulas Persistente</value>
+  </data>
+  <data name="TableColumnIsComputedPersistedNullableDescription" xml:space="preserve">
+    <value>Se a coluna computada pode ter um valor NULL (NOT NULO só pode ser especificado se a coluna persistir)</value>
+  </data>
+  <data name="TableColumnComputedFormulaDescription" xml:space="preserve">
+    <value>Fórmula que a coluna usa se for uma coluna computada</value>
+  </data>
+  <data name="TableColumnComputedFormulaTitle" xml:space="preserve">
+    <value>Fórmula</value>
+  </data>
 </root>

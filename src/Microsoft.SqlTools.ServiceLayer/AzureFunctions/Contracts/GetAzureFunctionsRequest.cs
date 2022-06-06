@@ -3,7 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions.Contracts
 {
@@ -15,15 +14,58 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions.Contracts
         /// <summary>
         /// Gets or sets the filePath
         /// </summary>
-        public string filePath { get; set; }
+        public string FilePath { get; set; }
+    }
+
+    public class AzureFunction
+    {
+        /// <summary>
+        /// The name of the function
+        /// </summary>
+        public string Name { get; }
+
+        /// <summary>
+        /// The HttpTrigger binding if one is specified
+        /// </summary>
+        public HttpTriggerBinding? HttpTriggerBinding { get; }
+
+        public AzureFunction(string name, HttpTriggerBinding? httpTriggerBinding)
+        {
+            this.Name = name;
+            this.HttpTriggerBinding = httpTriggerBinding;
+        }
+    }
+
+    public class HttpTriggerBinding
+    {
+        /// <summary>
+        /// The route specified
+        /// </summary>
+        public string? Route { get; }
+
+        /// <summary>
+        /// The operations (methods) specified
+        /// </summary>
+        public string[]? Operations { get; }
+
+        public HttpTriggerBinding(string? route, string[]? operations)
+        {
+            this.Route = route;
+            this.Operations = operations;
+        }
     }
 
     /// <summary>
     /// Parameters returned from a get Azure functions request
     /// </summary>
-    public class GetAzureFunctionsResult : ResultStatus
+    public class GetAzureFunctionsResult
     {
-        public string[] azureFunctions { get; set; }
+        public AzureFunction[] AzureFunctions { get; set; }
+
+        public GetAzureFunctionsResult(AzureFunction[] azureFunctions)
+        {
+            this.AzureFunctions = azureFunctions;
+        }
     }
 
     /// <summary>

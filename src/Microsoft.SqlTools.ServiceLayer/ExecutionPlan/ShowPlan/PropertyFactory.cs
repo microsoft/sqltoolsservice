@@ -46,10 +46,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         [ShowInToolTip, DisplayOrder(4), DisplayNameDescription(SR.Keys.NumberOfRows, SR.Keys.NumberOfRowsDescription)]
         public double ActualRows { get { return 0; } }
 
-        [ShowInToolTip, DisplayOrder(4), DisplayNameDescription(SR.Keys.ActualRowsRead, SR.Keys.ActualRowsReadDescription)]
+        [ShowInToolTip, DisplayOrder(4), DisplayNameDescription(SR.Keys.ActualRowsRead, SR.Keys.ActualRowsReadDescription), BetterValue(BetterValue.LowerNumber)]
         public double ActualRowsRead { get { return 0; } }
 
-        [ShowInToolTip, DisplayOrder(5), DisplayNameDescription(SR.Keys.NumberOfBatches, SR.Keys.NumberOfBatchesDescription)]
+        [ShowInToolTip, DisplayOrder(5), DisplayNameDescription(SR.Keys.NumberOfBatches, SR.Keys.NumberOfBatchesDescription), BetterValue(BetterValue.HigherNumber)]
         public double ActualBatches { get { return 0; } }
 
         [ShowInToolTip(LongString = true), DisplayOrder(6), DisplayNameDescription(SR.Keys.Statement, SR.Keys.StatementDesc)]
@@ -62,45 +62,44 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         [TypeConverter(typeof(DataSizeTypeConverter))]
         public int AvgRowSize { get { return 0; } }
 
-        [ShowInToolTip, DisplayOrder(7), DisplayNameDescription(SR.Keys.CachedPlanSize, SR.Keys.CachedPlanSizeDescription)]
+        [ShowInToolTip, DisplayOrder(7), DisplayNameDescription(SR.Keys.CachedPlanSize, SR.Keys.CachedPlanSizeDescription), BetterValue(BetterValue.LowerNumber)]
         [TypeConverter(typeof(KBSizeTypeConverter))]
         public int CachedPlanSize { get { return 0; } }
 
-        [ShowInToolTip, DisplayOrder(7), DisplayNameDescription(SR.Keys.UsePlan)]
+        [ShowInToolTip, DisplayOrder(7), DisplayNameDescription(SR.Keys.UsePlan), BetterValue(BetterValue.True)]
         public bool UsePlan { get { return false; } }
 
         [ShowInToolTip, DisplayOrder(7), DisplayNameDescription(SR.Keys.ContainsInlineScalarTsqlUdfs)]
 
         public bool ContainsInlineScalarTsqlUdfs { get { return false; } }
 
-        [ShowInToolTip, DisplayOrder(8), DisplayNameDescription(SR.Keys.EstimatedIoCost, SR.Keys.EstimatedIoCostDescription)]
+        [ShowInToolTip, DisplayOrder(8), DisplayNameDescription(SR.Keys.EstimatedIoCost, SR.Keys.EstimatedIoCostDescription), BetterValue(BetterValue.LowerNumber)]
         [TypeConverter(typeof(FloatTypeConverter))]
         public double EstimateIO { get { return 0; } }
 
-        [ShowInToolTip, DisplayOrder(8), DisplayNameDescription(SR.Keys.DegreeOfParallelism, SR.Keys.DegreeOfParallelismDescription)]
+        [ShowInToolTip, DisplayOrder(8), DisplayNameDescription(SR.Keys.DegreeOfParallelism, SR.Keys.DegreeOfParallelismDescription), BetterValue(BetterValue.HigherNumber)]
         public int DegreeOfParallelism { get { return 0; } }
 
-        [ShowInToolTip, DisplayOrder(8), DisplayNameDescription(SR.Keys.EffectiveDegreeOfParallelism, SR.Keys.EffectiveDegreeOfParallelismDescription)]
+        [ShowInToolTip, DisplayOrder(8), DisplayNameDescription(SR.Keys.EffectiveDegreeOfParallelism, SR.Keys.EffectiveDegreeOfParallelismDescription), BetterValue(BetterValue.HigherNumber)]
         public int EffectiveDegreeOfParallelism { get { return 0; } }
 
-        [ShowInToolTip, DisplayOrder(9), DisplayNameDescription(SR.Keys.EstimatedCpuCost, SR.Keys.EstimatedCpuCostDescription)]
+        [ShowInToolTip, DisplayOrder(9), DisplayNameDescription(SR.Keys.EstimatedCpuCost, SR.Keys.EstimatedCpuCostDescription), BetterValue(BetterValue.LowerNumber)]
         [TypeConverter(typeof(FloatTypeConverter))]
         public double EstimateCPU { get { return 0; } }
 
-        [ShowInToolTip, DisplayOrder(9), DisplayNameDescription(SR.Keys.MemoryGrant, SR.Keys.MemoryGrantDescription)]
+        [ShowInToolTip, DisplayOrder(9), DisplayNameDescription(SR.Keys.MemoryGrant, SR.Keys.MemoryGrantDescription), BetterValue(BetterValue.HigherNumber)]
         [TypeConverter(typeof(KBSizeTypeConverter))]
         public ulong MemoryGrant { get { return 0; } }
 
         [DisplayOrder(10), DisplayNameDescription(SR.Keys.ParameterList, SR.Keys.ParameterListDescription)]
         public object ParameterList { get { return null; } }
 
-        [ShowInToolTip, DisplayOrder(10), DisplayNameDescription(SR.Keys.NumberOfExecutions, SR.Keys.NumberOfExecutionsDescription)]
+        [ShowInToolTip, DisplayOrder(10), DisplayNameDescription(SR.Keys.NumberOfExecutions, SR.Keys.NumberOfExecutionsDescription), BetterValue(BetterValue.LowerNumber)]
         [TypeConverter(typeof(FloatTypeConverter))]
         public double ActualExecutions { get { return 0; } }
 
-        [ShowInToolTip, DisplayOrder(10), DisplayNameDescription(SR.Keys.EstimatedNumberOfExecutions, SR.Keys.EstimatedNumberOfExecutionsDescription)]
+        [ShowInToolTip, DisplayOrder(10), DisplayNameDescription(SR.Keys.EstimatedNumberOfExecutions, SR.Keys.EstimatedNumberOfExecutionsDescription), BetterValue(BetterValue.LowerNumber)]
         [TypeConverter(typeof(FloatTypeConverter))]
-
         public double EstimateExecutions { get { return 0; } }
 
         [ShowInToolTip(LongString = true), DisplayOrder(12), DisplayNameDescription(SR.Keys.ObjectShort, SR.Keys.ObjectDescription)]
@@ -112,83 +111,83 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         [DisplayOrder(12), DisplayNameDescription(SR.Keys.OperationArgumentShort, SR.Keys.OperationArgumentDescription)]
         public string Argument { get { return null; } }
 
-        [ShowInToolTip, DisplayOrder(111), DisplayNameDescription(SR.Keys.ActualRebinds, SR.Keys.ActualRebindsDescription)]
+        [ShowInToolTip, DisplayOrder(111), DisplayNameDescription(SR.Keys.ActualRebinds, SR.Keys.ActualRebindsDescription), BetterValue(BetterValue.LowerNumber)]
         public object ActualRebinds { get { return null; } }
 
-        [ShowInToolTip, DisplayOrder(112), DisplayNameDescription(SR.Keys.ActualRewinds, SR.Keys.ActualRewindsDescription)]
+        [ShowInToolTip, DisplayOrder(112), DisplayNameDescription(SR.Keys.ActualRewinds, SR.Keys.ActualRewindsDescription), BetterValue(BetterValue.HigherNumber)]
 
         public object ActualRewinds { get { return null; } }
 
         [ShowInToolTip, DisplayOrder(221), DisplayNameDescription(SR.Keys.ActualLocallyAggregatedRows, SR.Keys.ActualLocallyAggregatedRowsDescription)]
         public object ActualLocallyAggregatedRows { get { return null; } }
 
-        [ShowInToolTip, DisplayOrder(221), DisplayNameDescription(SR.Keys.ActualElapsedms, SR.Keys.ActualElapsedmsDescription)]
+        [ShowInToolTip, DisplayOrder(221), DisplayNameDescription(SR.Keys.ActualElapsedms, SR.Keys.ActualElapsedmsDescription), BetterValue(BetterValue.LowerNumber)]
         public object ActualElapsedms { get { return null; } }
 
-        [ShowInToolTip, DisplayOrder(221), DisplayNameDescription(SR.Keys.ActualCPUms, SR.Keys.ActualCPUmsDescription)]
+        [ShowInToolTip, DisplayOrder(221), DisplayNameDescription(SR.Keys.ActualCPUms, SR.Keys.ActualCPUmsDescription), BetterValue(BetterValue.LowerNumber)]
         public object ActualCPUms { get { return null; } }
 
-        [ShowInToolTip, DisplayOrder(221), DisplayNameDescription(SR.Keys.ActualScans, SR.Keys.ActualScansDescription)]
+        [ShowInToolTip, DisplayOrder(221), DisplayNameDescription(SR.Keys.ActualScans, SR.Keys.ActualScansDescription), BetterValue(BetterValue.LowerNumber)]
         public object ActualScans { get { return null; } }
 
-        [ShowInToolTip, DisplayOrder(221), DisplayNameDescription(SR.Keys.ActualLogicalReads, SR.Keys.ActualLogicalReadsDescription)]
+        [ShowInToolTip, DisplayOrder(221), DisplayNameDescription(SR.Keys.ActualLogicalReads, SR.Keys.ActualLogicalReadsDescription), BetterValue(BetterValue.LowerNumber)]
         public object ActualLogicalReads { get { return null; } }
 
-        [ShowInToolTip, DisplayOrder(221), DisplayNameDescription(SR.Keys.ActualPhysicalReads, SR.Keys.ActualPhysicalReadsDescription)]
+        [ShowInToolTip, DisplayOrder(221), DisplayNameDescription(SR.Keys.ActualPhysicalReads, SR.Keys.ActualPhysicalReadsDescription), BetterValue(BetterValue.LowerNumber)]
         public object ActualPhysicalReads { get { return null; } }
 
-        [ShowInToolTip, DisplayOrder(221), DisplayNameDescription(SR.Keys.ActualPageServerReads, SR.Keys.ActualPageServerReadsDescription)]
+        [ShowInToolTip, DisplayOrder(221), DisplayNameDescription(SR.Keys.ActualPageServerReads, SR.Keys.ActualPageServerReadsDescription), BetterValue(BetterValue.LowerNumber)]
         public object ActualPageServerReads { get { return null; } }
 
-        [ShowInToolTip, DisplayOrder(221), DisplayNameDescription(SR.Keys.ActualReadAheads, SR.Keys.ActualReadAheadsDescription)]
+        [ShowInToolTip, DisplayOrder(221), DisplayNameDescription(SR.Keys.ActualReadAheads, SR.Keys.ActualReadAheadsDescription), BetterValue(BetterValue.HigherNumber)]
         public object ActualReadAheads { get { return null; } }
 
-        [ShowInToolTip, DisplayOrder(221), DisplayNameDescription(SR.Keys.ActualPageServerReadAheads, SR.Keys.ActualPageServerReadAheadsDescription)]
+        [ShowInToolTip, DisplayOrder(221), DisplayNameDescription(SR.Keys.ActualPageServerReadAheads, SR.Keys.ActualPageServerReadAheadsDescription), BetterValue(BetterValue.HigherNumber)]
         public object ActualPageServerReadAheads { get { return null; } }
 
-        [ShowInToolTip, DisplayOrder(221), DisplayNameDescription(SR.Keys.ActualLobLogicalReads, SR.Keys.ActualLobLogicalReadsDescription)]
+        [ShowInToolTip, DisplayOrder(221), DisplayNameDescription(SR.Keys.ActualLobLogicalReads, SR.Keys.ActualLobLogicalReadsDescription), BetterValue(BetterValue.LowerNumber)]
         public object ActualLobLogicalReads { get { return null; } }
 
-        [ShowInToolTip, DisplayOrder(221), DisplayNameDescription(SR.Keys.ActualLobPhysicalReads, SR.Keys.ActualLobPhysicalReadsDescription)]
+        [ShowInToolTip, DisplayOrder(221), DisplayNameDescription(SR.Keys.ActualLobPhysicalReads, SR.Keys.ActualLobPhysicalReadsDescription), BetterValue(BetterValue.LowerNumber)]
         public object ActualLobPhysicalReads { get { return null; } }
 
-        [ShowInToolTip, DisplayOrder(221), DisplayNameDescription(SR.Keys.ActualLobPageServerReads, SR.Keys.ActualLobPageServerReadsDescription)]
+        [ShowInToolTip, DisplayOrder(221), DisplayNameDescription(SR.Keys.ActualLobPageServerReads, SR.Keys.ActualLobPageServerReadsDescription), BetterValue(BetterValue.LowerNumber)]
         public object ActualLobPageServerReads { get { return null; } }
 
-        [ShowInToolTip, DisplayOrder(221), DisplayNameDescription(SR.Keys.ActualLobReadAheads, SR.Keys.ActualLobReadAheadsDescription)]
+        [ShowInToolTip, DisplayOrder(221), DisplayNameDescription(SR.Keys.ActualLobReadAheads, SR.Keys.ActualLobReadAheadsDescription), BetterValue(BetterValue.LowerNumber)]
         public object ActualLobReadAheads { get { return null; } }
 
-        [ShowInToolTip, DisplayOrder(221), DisplayNameDescription(SR.Keys.ActualLobPageServerReadAheads, SR.Keys.ActualLobPageServerReadAheadsDescription)]
+        [ShowInToolTip, DisplayOrder(221), DisplayNameDescription(SR.Keys.ActualLobPageServerReadAheads, SR.Keys.ActualLobPageServerReadAheadsDescription), BetterValue(BetterValue.HigherNumber)]
         public object ActualLobPageServerReadAheads { get { return null; } }
 
-        [ShowInToolTip, DisplayOrder(221), DisplayNameDescription(SR.Keys.ActualIOStatistics, SR.Keys.ActualIOStatisticsDescription)]
+        [ShowInToolTip, DisplayOrder(221), DisplayNameDescription(SR.Keys.ActualIOStatistics, SR.Keys.ActualIOStatisticsDescription), BetterValue(BetterValue.LowerNumber)]
         public object ActualIOStatistics { get { return null; } }
 
-        [ShowInToolTip, DisplayOrder(221), DisplayNameDescription(SR.Keys.ActualTimeStatistics, SR.Keys.ActualTimeStatisticsDescription)]
+        [ShowInToolTip, DisplayOrder(221), DisplayNameDescription(SR.Keys.ActualTimeStatistics, SR.Keys.ActualTimeStatisticsDescription), BetterValue(BetterValue.LowerNumber)]
         public object ActualTimeStatistics { get { return null; } }
 
-        [DisplayOrder(221), DisplayNameDescription(SR.Keys.ActualMemoryGrantStats, SR.Keys.ActualMemoryGrantStats)]
+        [DisplayOrder(221), DisplayNameDescription(SR.Keys.ActualMemoryGrantStats, SR.Keys.ActualMemoryGrantStats), BetterValue(BetterValue.HigherNumber)]
         public object ActualMemoryGrantStats { get { return null; } }
 
         [ShowInToolTip, DisplayOrder(221), DisplayNameDescription(SR.Keys.HpcRowCount, SR.Keys.HpcRowCountDescription)]
         public object HpcRowCount { get { return null; } }
 
-        [ShowInToolTip, DisplayOrder(221), DisplayNameDescription(SR.Keys.HpcKernelElapsedUs, SR.Keys.HpcKernelElapsedUsDescription)]
+        [ShowInToolTip, DisplayOrder(221), DisplayNameDescription(SR.Keys.HpcKernelElapsedUs, SR.Keys.HpcKernelElapsedUsDescription), BetterValue(BetterValue.LowerNumber)]
         public object HpcKernelElapsedUs { get { return null; } }
 
-        [ShowInToolTip, DisplayOrder(221), DisplayNameDescription(SR.Keys.HpcHostToDeviceBytes, SR.Keys.HpcHostToDeviceBytesDescription)]
+        [ShowInToolTip, DisplayOrder(221), DisplayNameDescription(SR.Keys.HpcHostToDeviceBytes, SR.Keys.HpcHostToDeviceBytesDescription), BetterValue(BetterValue.LowerNumber)]
         public object HpcHostToDeviceBytes { get { return null; } }
 
-        [ShowInToolTip, DisplayOrder(221), DisplayNameDescription(SR.Keys.HpcDeviceToHostBytes, SR.Keys.HpcDeviceToHostBytesDescription)]
+        [ShowInToolTip, DisplayOrder(221), DisplayNameDescription(SR.Keys.HpcDeviceToHostBytes, SR.Keys.HpcDeviceToHostBytesDescription), BetterValue(BetterValue.LowerNumber)]
         public object HpcDeviceToHostBytes { get { return null; } }
 
-        [DisplayOrder(221), DisplayNameDescription(SR.Keys.InputMemoryGrant, SR.Keys.InputMemoryGrant)]
+        [DisplayOrder(221), DisplayNameDescription(SR.Keys.InputMemoryGrant, SR.Keys.InputMemoryGrant), BetterValue(BetterValue.LowerNumber)]
         public object InputMemoryGrant { get { return null; } }
 
-        [DisplayOrder(221), DisplayNameDescription(SR.Keys.OutputMemoryGrant, SR.Keys.OutputMemoryGrant)]
+        [DisplayOrder(221), DisplayNameDescription(SR.Keys.OutputMemoryGrant, SR.Keys.OutputMemoryGrant), BetterValue(BetterValue.LowerNumber)]
         public object OutputMemoryGrant { get { return null; } }
 
-        [DisplayOrder(221), DisplayNameDescription(SR.Keys.UsedMemoryGrant, SR.Keys.UsedMemoryGrant)]
+        [DisplayOrder(221), DisplayNameDescription(SR.Keys.UsedMemoryGrant, SR.Keys.UsedMemoryGrant), BetterValue(BetterValue.LowerNumber)]
         public object UsedMemoryGrant { get { return null; } }
 
         [ShowInToolTip, DisplayOrder(2), DisplayNameDescription(SR.Keys.IsGraphDBTransitiveClosure, SR.Keys.IsGraphDBTransitiveClosureDescription)]
@@ -218,23 +217,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         [TypeConverter(typeof(FloatTypeConverter))]
         public double StatementEstRows { get { return 0; } }
 
-        [ShowInToolTip, DisplayOrder(100), DisplayNameDescription(SR.Keys.EstimatedNumberOfRowsForAllExecutions, SR.Keys.EstimatedNumberOfRowsForAllExecutionsDescription)]
+        [ShowInToolTip, DisplayOrder(100), DisplayNameDescription(SR.Keys.EstimatedNumberOfRowsForAllExecutions, SR.Keys.EstimatedNumberOfRowsForAllExecutionsDescription), BetterValue(BetterValue.LowerNumber)]
         [TypeConverter(typeof(FloatTypeConverter))]
         public double EstimateRowsAllExecs { get { return 0; } }
 
-        [ShowInToolTip, DisplayOrder(100), DisplayNameDescription(SR.Keys.EstimatedNumberOfRowsForAllExecutions, SR.Keys.EstimatedNumberOfRowsForAllExecutionsDescription)]
+        [ShowInToolTip, DisplayOrder(100), DisplayNameDescription(SR.Keys.EstimatedNumberOfRowsForAllExecutions, SR.Keys.EstimatedNumberOfRowsForAllExecutionsDescription), BetterValue(BetterValue.LowerNumber)]
         [TypeConverter(typeof(FloatTypeConverter))]
         public double StatementEstRowsAllExecs { get { return 0; } }
 
-        [ShowInToolTip, DisplayOrder(100), DisplayNameDescription(SR.Keys.EstimatedRowsRead, SR.Keys.EstimatedRowsReadDescription)]
+        [ShowInToolTip, DisplayOrder(100), DisplayNameDescription(SR.Keys.EstimatedRowsRead, SR.Keys.EstimatedRowsReadDescription), BetterValue(BetterValue.LowerNumber)]
         [TypeConverter(typeof(FloatTypeConverter))]
         public double EstimatedRowsRead { get { return 0; } }
 
-        [DisplayOrder(101), DisplayNameDescription(SR.Keys.EstimatedRebinds, SR.Keys.EstimatedRebindsDescription)]
+        [DisplayOrder(101), DisplayNameDescription(SR.Keys.EstimatedRebinds, SR.Keys.EstimatedRebindsDescription), BetterValue(BetterValue.LowerNumber)]
         [TypeConverter(typeof(FloatTypeConverter))]
         public double EstimateRebinds { get { return 0; } }
 
-        [DisplayOrder(102), DisplayNameDescription(SR.Keys.EstimatedRewinds, SR.Keys.EstimatedRewindsDescription)]
+        [DisplayOrder(102), DisplayNameDescription(SR.Keys.EstimatedRewinds, SR.Keys.EstimatedRewindsDescription), BetterValue(BetterValue.HigherNumber)]
         [TypeConverter(typeof(FloatTypeConverter))]
         public double EstimateRewinds { get { return 0; } }
 
@@ -247,7 +246,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         [ShowInToolTip(LongString = true), DisplayOrder(202), DisplayNameDescription(SR.Keys.Warnings, SR.Keys.WarningsDescription)]
         public object Warnings { get { return null; } }
 
-        [DisplayOrder(203), DisplayNameDescription(SR.Keys.Parallel, SR.Keys.ParallelDescription)]
+        [DisplayOrder(203), DisplayNameDescription(SR.Keys.Parallel, SR.Keys.ParallelDescription), BetterValue(BetterValue.True)]
         public bool Parallel { get { return false; } }
 
         [DisplayOrder(204), DisplayNameDescription(SR.Keys.SetOptions, SR.Keys.SetOptionsDescription)]
@@ -259,7 +258,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         [DisplayOrder(206), DisplayNameDescription(SR.Keys.StatementOptmEarlyAbortReason)]
         public string StatementOptmEarlyAbortReason { get { return null; } }
 
-        [DisplayOrder(211), DisplayNameDescription(SR.Keys.MemoryFractions, SR.Keys.MemoryFractionsDescription)]
+        [DisplayOrder(211), DisplayNameDescription(SR.Keys.MemoryFractions, SR.Keys.MemoryFractionsDescription), BetterValue(BetterValue.LowerNumber)]
         public object MemoryFractions { get { return null; } }
 
         [DisplayOrder(211), DisplayNameDescription(SR.Keys.MemoryFractionsInput, SR.Keys.MemoryFractionsInputDescription)]
@@ -370,10 +369,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         [ShowInToolTip, DisplayOrder(150), DisplayNameDescription(SR.Keys.Partitioned, SR.Keys.PartitionedDescription)]
         public object Partitioned { get { return null; } }
 
-        [DisplayOrder(156), DisplayNameDescription(SR.Keys.PartitionsAccessed)]
+        [DisplayOrder(156), DisplayNameDescription(SR.Keys.PartitionsAccessed), BetterValue(BetterValue.LowerNumber)]
         public object PartitionsAccessed { get { return null; } }
 
-        [ShowInToolTip, DisplayOrder(152), DisplayNameDescription(SR.Keys.PartitionCount)]
+        [ShowInToolTip, DisplayOrder(152), DisplayNameDescription(SR.Keys.PartitionCount), BetterValue(BetterValue.LowerNumber)]
         public object PartitionCount { get { return null; } }
 
         [ShowInToolTip(LongString = true), DisplayOrder(203), DisplayNameDescription(SR.Keys.TieColumns, SR.Keys.TieColumnsDescription)]
@@ -442,7 +441,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         [ShowInToolTip, DisplayOrder(203), DisplayNameDescription(SR.Keys.RowCount)]
         public bool RowCount { get { return false; } }
 
-        [DisplayOrder(6), DisplayNameDescription(SR.Keys.Optimized)]
+        [DisplayOrder(6), DisplayNameDescription(SR.Keys.Optimized), BetterValue(BetterValue.True)]
         public bool Optimized { get { return false; } }
 
         [DisplayOrder(6), DisplayNameDescription(SR.Keys.WithPrefetch)]
@@ -570,17 +569,73 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
 
         [DisplayOrder(201), DisplayNameDescription(SR.Keys.FragmentIdColumn)]
         public object FragmentIdColumn { get { return null; } }
+
         public string CardinalityEstimationModelVersion { get { return null; } }
+
+        [BetterValue(BetterValue.LowerNumber)]
         public string CompileCPU { get { return null; } }
+
+        [BetterValue(BetterValue.LowerNumber)]
         public string CompileMemory { get { return null; } }
+
+        [BetterValue(BetterValue.LowerNumber)]
         public string CompileTime { get { return null; } }
+
         public string NonParallelPlanReason { get { return null; } }
+
         public string QueryHash { get { return null; } }
+
         public string QueryPlanHash { get { return null; } }
+
         public bool RetrievedFromCache { get { return false; } }
+
         public bool SecurityPolicyApplied { get { return false; } }
+
         public bool NoExpandHint { get { return false; } }
+
         public double TableCardinality { get { return 0; } }
+
+        [BetterValue(BetterValue.HigherNumber)]
+        public int EstimatedAvailableMemoryGrant { get { return 0; } }
+
+        [BetterValue(BetterValue.LowerNumber)]
+        public double SerialRequiredMemory { get { return 0; } }
+
+        [BetterValue(BetterValue.LowerNumber)]
+        public double SerialDesiredMemory { get { return 0; } }
+
+        [BetterValue(BetterValue.LowerNumber)]
+        public double RequiredMemory { get { return 0; } }
+
+        [BetterValue(BetterValue.LowerNumber)]
+        public double DesiredMemory { get { return 0; } }
+
+        [BetterValue(BetterValue.LowerNumber)]
+        public double RequestedMemory { get { return 0; } }
+
+        [BetterValue(BetterValue.LowerNumber)]
+        public double GrantWaitTime { get { return 0; } }
+
+        [BetterValue(BetterValue.LowerNumber)]
+        public double GrantedMemory { get { return 0; } }
+
+        [BetterValue(BetterValue.LowerNumber)]
+        public double MaxUsedMemory { get { return 0; } }
+
+        [BetterValue(BetterValue.LowerNumber)]
+        public double MaxQueryMemory { get { return 0; } }
+
+        [BetterValue(BetterValue.LowerNumber)]
+        public double WaitTimeMs { get { return 0; } }
+
+        [BetterValue(BetterValue.LowerNumber)]
+        public double WaitCount { get { return 0; } }
+
+        [BetterValue(BetterValue.LowerNumber)]
+        public double CpuTime { get { return 0; } }
+
+        [BetterValue(BetterValue.LowerNumber)]
+        public double ElapsedTime { get { return 0; } }
 
         #endregion
 

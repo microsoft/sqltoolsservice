@@ -18,7 +18,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         /// </summary>
         /// <param name="sqlTask">Sql Task</param>
         /// <returns>Task Result</returns>
-        public static async Task<TaskResult> ExecuteTaskAsync(SqlTask sqlTask)
+        public static Task<TaskResult> ExecuteTaskAsync(SqlTask sqlTask)
         {
             sqlTask.AddMessage(SR.TaskInProgress, SqlTaskStatus.InProgress, true);
             ITaskOperation taskOperation = sqlTask.TaskMetadata.TaskOperation as ITaskOperation;
@@ -27,8 +27,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
             if (taskOperation != null)
             {
                 taskOperation.SqlTask = sqlTask;
-                
-                return await Task.Factory.StartNew(() =>
+
+                return Task.Run(() =>
                 {
                     TaskResult result = new TaskResult();
                     try
@@ -66,21 +66,21 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
                 taskResult.TaskStatus = SqlTaskStatus.Failed;
             }
 
-            return taskResult;
+            return Task.FromResult(taskResult);
         }
 
         /// <summary>
         /// Async method to cancel the operations
         /// </summary>
-        public static async Task<TaskResult> CancelTaskAsync(SqlTask sqlTask)
+        public static Task<TaskResult> CancelTaskAsync(SqlTask sqlTask)
         {
             ITaskOperation taskOperation = sqlTask.TaskMetadata.TaskOperation as ITaskOperation;
             TaskResult taskResult = null;
 
             if (taskOperation != null)
             {
-              
-                return await Task.Factory.StartNew(() =>
+
+                return Task.Run(() =>
                 {
                     try
                     {
@@ -107,7 +107,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
                 taskResult.TaskStatus = SqlTaskStatus.Failed;
             }
 
-            return taskResult;
+            return Task.FromResult(taskResult);
         }
     }
 }

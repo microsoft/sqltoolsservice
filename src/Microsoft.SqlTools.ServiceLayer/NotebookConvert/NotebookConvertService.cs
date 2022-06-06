@@ -58,7 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.NotebookConvert
         }
 
         /// <summary>
-        /// Initializes the service by doing tasks such as setting up request handlers. 
+        /// Initializes the service by doing tasks such as setting up request handlers.
         /// </summary>
         /// <param name="serviceHost"></param>
         public void InitializeService(ServiceHost serviceHost)
@@ -75,49 +75,42 @@ namespace Microsoft.SqlTools.ServiceLayer.NotebookConvert
 
         internal async Task HandleConvertNotebookToSqlRequest(ConvertNotebookToSqlParams parameters, RequestContext<ConvertNotebookToSqlResult> requestContext)
         {
-            await Task.Run(async () =>
+            try
             {
-                try
-                {
-                    var notebookDoc = JsonConvert.DeserializeObject<NotebookDocument>(parameters.Content);
+                var notebookDoc = JsonConvert.DeserializeObject<NotebookDocument>(parameters.Content);
 
-                    var result = new ConvertNotebookToSqlResult
-                    {
-                        Content = ConvertNotebookDocToSql(notebookDoc)
-                    };
-                    await requestContext.SendResult(result);
-                }
-                catch (Exception e)
+                var result = new ConvertNotebookToSqlResult
                 {
-                    await requestContext.SendError(e);
-                }
-            });
+                    Content = ConvertNotebookDocToSql(notebookDoc)
+                };
+                await requestContext.SendResult(result);
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e);
+            }
         }
 
         internal async Task HandleConvertSqlToNotebookRequest(ConvertSqlToNotebookParams parameters, RequestContext<ConvertSqlToNotebookResult> requestContext)
         {
-            await Task.Run(async () =>
+            try
             {
-
-                try
+                // This URI doesn't come in escaped - so if it's a file path with reserved characters (such as %)
+                // then we'll fail to find it since GetFile expects the URI to be a fully-escaped URI as that's
+                // what the document events are sent in as.
+                var escapedClientUri = Uri.EscapeUriString(parameters.ClientUri);
+                var file = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(escapedClientUri);
+                // Temporary notebook that we just fill in with the sql until the parsing logic is added
+                var result = new ConvertSqlToNotebookResult
                 {
-                    // This URI doesn't come in escaped - so if it's a file path with reserved characters (such as %)
-                    // then we'll fail to find it since GetFile expects the URI to be a fully-escaped URI as that's
-                    // what the document events are sent in as.
-                    var escapedClientUri = Uri.EscapeUriString(parameters.ClientUri);
-                    var file = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(escapedClientUri);
-                    // Temporary notebook that we just fill in with the sql until the parsing logic is added
-                    var result = new ConvertSqlToNotebookResult
-                    {
-                        Content = JsonConvert.SerializeObject(ConvertSqlToNotebook(file.Contents))
-                    };
-                    await requestContext.SendResult(result);
-                }
-                catch (Exception e)
-                {
-                    await requestContext.SendError(e);
-                }
-            });
+                    Content = JsonConvert.SerializeObject(ConvertSqlToNotebook(file.Contents))
+                };
+                await requestContext.SendResult(result);
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e);
+            }
         }
 
         #endregion // Convert Handlers
@@ -155,11 +148,11 @@ namespace Microsoft.SqlTools.ServiceLayer.NotebookConvert
             var tokens = parseResult.ScriptTokenStream;
 
             /**
-             * Split the text into separate chunks - blocks of Mutliline comments and blocks 
+             * Split the text into separate chunks - blocks of Mutliline comments and blocks
              * of everything else (batches). We then create a markdown cell for each multiline comment and a code
              * cell for the other blocks.
-             * We only take multiline comments which aren't part of a batch - since otherwise they would 
-             * break up the T-SQL in separate code cells and since we currently don't share state between 
+             * We only take multiline comments which aren't part of a batch - since otherwise they would
+             * break up the T-SQL in separate code cells and since we currently don't share state between
              * cells that could break the script
              */
             var multilineComments = tokens
@@ -252,7 +245,7 @@ namespace Microsoft.SqlTools.ServiceLayer.NotebookConvert
 
         /// <summary>
         /// Converts a Notebook document into a single string that can be inserted into a SQL
-        /// query. 
+        /// query.
         /// </summary>
         private static string ConvertNotebookDocToSql(NotebookDocument doc)
         {

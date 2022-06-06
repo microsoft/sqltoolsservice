@@ -3694,4 +3694,31 @@
   <data name="ParallelismOverlayTooltip" xml:space="preserve">
     <value>並列実行</value>
   </data>
+  <data name="TableColumnComputedGroupTitle" xml:space="preserve">
+    <value>計算列の指定</value>
+  </data>
+  <data name="TableColumnIsComputedTitle" xml:space="preserve">
+    <value>計算値</value>
+  </data>
+  <data name="TableColumnIsComputedDescription" xml:space="preserve">
+    <value>列が計算列であるかどうかを指定します</value>
+  </data>
+  <data name="TableColumnIsComputedPersistedTitle" xml:space="preserve">
+    <value>永続化されている</value>
+  </data>
+  <data name="TableColumnIsComputedPersistedDescription" xml:space="preserve">
+    <value>計算列をデータ ソースと共に保存するかどうか</value>
+  </data>
+  <data name="TableColumnIsComputedPersistedNullableTitle" xml:space="preserve">
+    <value>永続化されていて NULL 値が許容される</value>
+  </data>
+  <data name="TableColumnIsComputedPersistedNullableDescription" xml:space="preserve">
+    <value>計算列が NULL 値を持つことができるかどうか (NOT NULL は、列が保持される場合にのみ指定できます)</value>
+  </data>
+  <data name="TableColumnComputedFormulaDescription" xml:space="preserve">
+    <value>列が計算列である場合に使用される式</value>
+  </data>
+  <data name="TableColumnComputedFormulaTitle" xml:space="preserve">
+    <value>数式</value>
+  </data>
 </root>

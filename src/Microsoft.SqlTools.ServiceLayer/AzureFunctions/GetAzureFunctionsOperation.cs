@@ -37,7 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
         {
             try
             {
-                string text = File.ReadAllText(Parameters.filePath);
+                string text = File.ReadAllText(Parameters.FilePath);
 
                 SyntaxTree tree = CSharpSyntaxTree.ParseText(text);
                 CompilationUnitSyntax root = tree.GetCompilationUnitRoot();
@@ -45,20 +45,12 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
                 // get all the method declarations with the FunctionName attribute
                 IEnumerable<MethodDeclarationSyntax> methodsWithFunctionAttributes = AzureFunctionsUtils.GetMethodsWithFunctionAttributes(root);
 
-                // Get FunctionName attributes
-                IEnumerable<AttributeSyntax> functionNameAttributes = methodsWithFunctionAttributes.Select(md => md.AttributeLists.Select(a => a.Attributes.Where(attr => attr.Name.ToString().Equals(AzureFunctionsUtils.functionAttributeText)).First()).First());
+                var azureFunctions = methodsWithFunctionAttributes.Select(m => new AzureFunction(
+                    m.GetFunctionName(),
+                    m.GetHttpTriggerBinding()))
+                .ToArray();
 
-                // Get the function names in the FunctionName attributes
-                IEnumerable<AttributeArgumentSyntax> nameArgs = functionNameAttributes.Select(a => a.ArgumentList.Arguments.First());
-
-                // Remove quotes from around the names
-                string[] aFNames = nameArgs.Select(ab => ab.ToString().Trim('\"')).ToArray();
-
-                return new GetAzureFunctionsResult()
-                {
-                    Success = true,
-                    azureFunctions = aFNames
-                };
+                return new GetAzureFunctionsResult(azureFunctions);
             }
             catch (Exception ex)
             {
