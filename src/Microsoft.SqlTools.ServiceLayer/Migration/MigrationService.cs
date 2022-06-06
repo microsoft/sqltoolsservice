@@ -117,6 +117,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             this.ServiceHost.SetRequestHandler(StopPerfDataCollectionRequest.Type, HandleStopPerfDataCollectionRequest);
             this.ServiceHost.SetRequestHandler(RefreshPerfDataCollectionRequest.Type, HandleRefreshPerfDataCollectionRequest);
             this.ServiceHost.SetRequestHandler(GetSkuRecommendationsRequest.Type, HandleGetSkuRecommendationsRequest);
+            this.ServiceHost.SetRequestHandler(SaveAssessmentResultRequest.Type, HandleSaveAssessmentRequest);
             this.ServiceHost.SetRequestHandler(SaveSkuRecommendationsResultRequest.Type, HandleSaveSkuRecommendationsRequest);
         }
 
@@ -405,15 +406,40 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             }
         }
 
+        internal async Task HandleSaveAssessmentRequest(
+            SaveAssessmentResultParams parameters,
+            RequestContext<SaveAssessmentResult> requestContext)
+        {
+            try
+            {
+                DmaEngine engine = new DmaEngine();
+                var assessmentReportFileName = String.Format("SqlAssessmentReport-{0}.json", DateTime.UtcNow.ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture));
+                engine.SaveAssessmentResultsToJson(parameters.AssessmentResult, false, Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, assessmentReportFileName));
+
+                SaveAssessmentResult result = new SaveAssessmentResult
+                {
+                    AssessmentReportFileName = assessmentReportFileName
+                };
+
+                await requestContext.SendResult(result);
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e.ToString());
+            }
+
+        }
+
         internal async Task HandleSaveSkuRecommendationsRequest(
             SaveSkuRecommendationsParams parameters,
             RequestContext<SaveSkuRecommendationsResult> requestContext)
         {
-            const string SkuRecommendationJsonFileExt = ".json";
-            const string SkuRecommendationHtmlFileExt = ".html";
-            string timeStamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+            const string skuRecommendationJsonFileExt = ".json";
+            const string skuRecommendationHtmlFileExt = ".html";
+            const string skuRecommendationFileName = "SkuRecommendation{0}-{1}";
+            string timeStamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture);
 
-            string[] skuRecommendationFileNames = new string[6];
+            List<string> skuRecommendationsReportFileNames = new List<string>();
 
             try
             {
@@ -421,24 +447,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 SkuRecommendationReport reportMI = new SkuRecommendationReport(
                     new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { [parameters.InstanceRequirements] = parameters.SqlMiRecommendationResults },
                     AzureSqlTargetPlatform.AzureSqlManagedInstance.ToString());
-                string recommendationMIFileName = String.Format("SkuRecommendation{0}-{1}.json", AzureSqlTargetPlatform.AzureSqlManagedInstance.ToString(), timeStamp);
+                string recommendationMIFileName = String.Format(skuRecommendationFileName, AzureSqlTargetPlatform.AzureSqlManagedInstance.ToString(), timeStamp);
                 ExportRecommendationResultsAction.ExportRecommendationResults(reportMI, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, false, recommendationMIFileName);
-                skuRecommendationFileNames[0] = recommendationMIFileName + SkuRecommendationJsonFileExt;
-                skuRecommendationFileNames[1] = recommendationMIFileName + SkuRecommendationHtmlFileExt;
+                skuRecommendationsReportFileNames.Add(recommendationMIFileName + skuRecommendationJsonFileExt);
+                skuRecommendationsReportFileNames.Add(recommendationMIFileName + skuRecommendationHtmlFileExt);
 
                 SkuRecommendationReport reportVM = new SkuRecommendationReport(
                     new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { [parameters.InstanceRequirements] = parameters.SqlVmRecommendationResults },
                     AzureSqlTargetPlatform.AzureSqlManagedInstance.ToString());
-                string recommendationVMFileName = String.Format("SkuRecommendation{0}-{1}.json", AzureSqlTargetPlatform.AzureSqlVirtualMachine.ToString(), timeStamp);
+                string recommendationVMFileName = String.Format(skuRecommendationFileName, AzureSqlTargetPlatform.AzureSqlVirtualMachine.ToString(), timeStamp);
                 ExportRecommendationResultsAction.ExportRecommendationResults(reportVM, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, false, recommendationVMFileName);
-                skuRecommendationFileNames[0] = recommendationVMFileName + SkuRecommendationJsonFileExt;
-                skuRecommendationFileNames[1] = recommendationVMFileName + SkuRecommendationHtmlFileExt;
+                skuRecommendationsReportFileNames.Add(recommendationVMFileName + skuRecommendationJsonFileExt);
+                skuRecommendationsReportFileNames.Add(recommendationVMFileName + skuRecommendationHtmlFileExt);
 
                 // TODO: save SQL DB recommendations
 
                 SaveSkuRecommendationsResult result = new SaveSkuRecommendationsResult
                 {
-                    SkuRecommendationFiles = skuRecommendationFileNames
+                    SkuRecommendationsReportFileNames = skuRecommendationsReportFileNames
                 };
 
                 await requestContext.SendResult(result);
@@ -482,8 +508,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath = Path.GetDirectoryName(Logger.LogFileFullPath);
             DmaEngine engine = new DmaEngine(connectionStrings);
             ISqlMigrationAssessmentModel contextualizedAssessmentResult = await engine.GetTargetAssessmentResultsListWithCheck(System.Threading.CancellationToken.None);
-            var assessmentFileName = String.Format("SqlAssessmentReport-{0}.json", DateTime.UtcNow.ToString("yyyyMMddHHmmss"));
-            engine.SaveAssessmentResultsToJson(contextualizedAssessmentResult, false, Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, assessmentFileName));
             var server = (contextualizedAssessmentResult.Servers.Count > 0) ? ParseServerAssessmentInfo(contextualizedAssessmentResult.Servers[0], engine) : null;
             return new MigrationAssessmentResult()
             {
@@ -491,8 +515,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 Errors = ParseAssessmentError(contextualizedAssessmentResult.Errors),
                 StartTime = contextualizedAssessmentResult.StartedOn.ToString(),
                 EndedTime = contextualizedAssessmentResult.EndedOn.ToString(),
-                RawAssessmentResult = contextualizedAssessmentResult,
-                AssessmentFile = assessmentFileName
+                RawAssessmentResult = contextualizedAssessmentResult
             };
         }
 

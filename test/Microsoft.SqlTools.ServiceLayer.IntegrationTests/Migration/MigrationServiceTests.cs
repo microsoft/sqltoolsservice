@@ -30,9 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Migration
 
                 var requestParams = new MigrationAssessmentsParams()
                 {
-                    OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
-                    // To test assessment workflow update below database from local sql instance
-                    //Databases = new string[] { "AdventureWorks2016" }
+                    OwnerUri = connectionResult.ConnectionInfo.OwnerUri
                 };
 
                 var requestContext = new Mock<RequestContext<MigrationAssessmentResult>>();
@@ -40,6 +38,39 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Migration
                 MigrationService service = new MigrationService();
                 await service.HandleMigrationAssessmentsRequest(requestParams, requestContext.Object);
                 requestContext.VerifyAll();
+            }
+        }
+
+        [Test]
+        [Ignore("Test assessment with actual database name")]
+        public async Task TestHandleSaveAssessmentRequest()
+        {
+            MigrationAssessmentResult assessmentResult = null;
+            SaveAssessmentResult saveAssessmentResult = null;
+
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            {
+                var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
+
+                var requestParams = new MigrationAssessmentsParams()
+                {
+                    OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
+                    // To test assessment workflow update below database from local sql instance
+                    Databases = new string[] { "AdventureWorks2016" }
+                };
+
+                var requestContext = RequestContextMocks.Create<MigrationAssessmentResult>(r => assessmentResult = r).AddErrorHandling(null);
+
+                MigrationService service = new MigrationService();
+                await service.HandleMigrationAssessmentsRequest(requestParams, requestContext.Object);
+
+                var saveAssessmentParams = new SaveAssessmentResultParams
+                {
+                    AssessmentResult = assessmentResult.RawAssessmentResult
+                };
+
+                var saveAssessmentRequestContext = RequestContextMocks.Create<SaveAssessmentResult>(r => saveAssessmentResult = r).AddErrorHandling(null);
+                await service.HandleSaveAssessmentRequest(saveAssessmentParams, saveAssessmentRequestContext.Object);
             }
         }
 
@@ -86,9 +117,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Migration
             var saveSkuRecommendationsRequestContext = RequestContextMocks.Create<SaveSkuRecommendationsResult>(r => saveSkuRecommendationsResult = r).AddErrorHandling(null);
             await service.HandleSaveSkuRecommendationsRequest(saveSkuRecommendationsParams, saveSkuRecommendationsRequestContext.Object);
             Assert.IsNotNull(saveSkuRecommendationsResult, "Save SKU Recommendation results is null");
-            Assert.IsNotNull(saveSkuRecommendationsResult.SkuRecommendationFiles, "SKU Recommendation file names is null");
-            Assert.IsTrue(saveSkuRecommendationsResult.SkuRecommendationFiles.Length > 0, " Invalid number of sku recommendation files");
-            Assert.IsTrue(saveSkuRecommendationsResult.SkuRecommendationFiles[0].StartsWith("SkuRecommendation"));
+            Assert.IsNotNull(saveSkuRecommendationsResult.SkuRecommendationsReportFileNames, "SKU Recommendation file names is null");
+            Assert.IsTrue(saveSkuRecommendationsResult.SkuRecommendationsReportFileNames.Count > 0, " Invalid number of sku recommendation files");
+            Assert.IsTrue(saveSkuRecommendationsResult.SkuRecommendationsReportFileNames.FirstOrDefault()?.StartsWith("SkuRecommendation"));
         }
 
         [Test]

@@ -8,7 +8,7 @@ using Microsoft.SqlServer.Migration.Assessment.Common.Contracts.Models;
 
 namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
 {
-    public class MigrationAssessmentsParams 
+    public class MigrationAssessmentsParams
     {
         public string OwnerUri { get; set; }
         public string[] Databases { get; set; }
@@ -36,10 +36,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
         /// Contains the raw assessment response 
         /// </summary>
         public ISqlMigrationAssessmentModel RawAssessmentResult { get; set; }
-        /// <summary>
-        /// Full file name where assessment result is saved
-        /// </summary>
-        public string AssessmentFile { get; set; }
     }
 
     /// <summary>
