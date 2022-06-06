@@ -228,7 +228,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
         }
 
         /// <summary>
-        /// Verify getting the routes of Azure Functions in a file
+        /// Verify getting the routes of a HttpTriggerBinding on Azure Functions in a file
         /// </summary>
         [Test]
         public void GetAzureFunctionsRoute()
@@ -243,15 +243,40 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
             GetAzureFunctionsOperation operation = new GetAzureFunctionsOperation(parameters);
             GetAzureFunctionsResult result = operation.GetAzureFunctions();
 
-            Assert.That(result.AzureFunctions.Length, Is.EqualTo(8));
-            Assert.That(result.AzureFunctions[0].Route, Is.EqualTo("withRoute"));
-            Assert.That(result.AzureFunctions[1].Route, Is.EqualTo("{interpolated}String"));
-            Assert.That(result.AzureFunctions[2].Route, Is.EqualTo("$withDollarSigns$"));
-            Assert.That(result.AzureFunctions[3].Route, Is.EqualTo("withRouteNoSpaces"));
-            Assert.That(result.AzureFunctions[4].Route, Is.EqualTo("withRouteExtraSpaces"));
-            Assert.That(result.AzureFunctions[5].Route, Is.Null, "Route specified as null should be null");
-            Assert.That(result.AzureFunctions[6].Route, Is.Null, "No route specified should be null");
-            Assert.That(result.AzureFunctions[7].Route, Is.EqualTo(""));
+            Assert.That(result.AzureFunctions.Length, Is.EqualTo(9));
+            Assert.That(result.AzureFunctions[0].HttpTriggerBinding!.Route, Is.EqualTo("withRoute"));
+            Assert.That(result.AzureFunctions[1].HttpTriggerBinding!.Route, Is.EqualTo("{interpolated}String"));
+            Assert.That(result.AzureFunctions[2].HttpTriggerBinding!.Route, Is.EqualTo("$withDollarSigns$"));
+            Assert.That(result.AzureFunctions[3].HttpTriggerBinding!.Route, Is.EqualTo("withRouteNoSpaces"));
+            Assert.That(result.AzureFunctions[4].HttpTriggerBinding!.Route, Is.EqualTo("withRouteExtraSpaces"));
+            Assert.That(result.AzureFunctions[5].HttpTriggerBinding!.Route, Is.Null, "Route specified as null should be null");
+            Assert.That(result.AzureFunctions[6].HttpTriggerBinding!.Route, Is.Null, "No route specified should be null");
+            Assert.That(result.AzureFunctions[7].HttpTriggerBinding!.Route, Is.EqualTo(""));
+            Assert.That(result.AzureFunctions[8].HttpTriggerBinding, Is.Null, "Should not be an HttpTriggerBinding");
+        }
+
+        /// <summary>
+        /// Verify getting the operations of a HttpTriggerBinding on Azure Functions in a file
+        /// </summary>
+        [Test]
+        public void GetAzureFunctionsOperations()
+        {
+            string testFile = Path.Join(testAzureFunctionsFolder, "AzureFunctionsOperations.cs");
+
+            GetAzureFunctionsParams parameters = new GetAzureFunctionsParams
+            {
+                FilePath = testFile
+            };
+
+            GetAzureFunctionsOperation operation = new GetAzureFunctionsOperation(parameters);
+            GetAzureFunctionsResult result = operation.GetAzureFunctions();
+
+            Assert.That(result.AzureFunctions.Length, Is.EqualTo(5));
+            Assert.That(result.AzureFunctions[0].HttpTriggerBinding!.Operations, Is.EqualTo(new string[] { "GET" }));
+            Assert.That(result.AzureFunctions[1].HttpTriggerBinding!.Operations, Is.EqualTo(new string[] { "GET", "POST" }));
+            Assert.That(result.AzureFunctions[2].HttpTriggerBinding!.Operations, Is.EqualTo(Array.Empty<string>()));
+            Assert.That(result.AzureFunctions[3].HttpTriggerBinding!.Operations, Is.EqualTo(Array.Empty<string>()));
+            Assert.That(result.AzureFunctions[4].HttpTriggerBinding, Is.Null, "Should not be an HttpTriggerBinding");
         }
     }
 }
