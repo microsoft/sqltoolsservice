@@ -25,7 +25,7 @@ steps:
   displayName: 'Run Automated Release Script'
   inputs:
     filePath: '$(System.DefaultWorkingDirectory)/CrossPlatBuildScripts/AutomatedReleases/sqltoolsserviceRelease.ps1'
-    arguments: '-workspace $(Build.SourcesDirectory) -minTag 4.0.0.0 -target $(Build.SourceBranch) -isPrerelease $false -artifactsBuildId $(Build.BuildId)'
+    arguments: '-workspace $(Build.SourcesDirectory) -minTag 4.1.0.0 -target $(Build.SourceBranch) -isPrerelease $false -artifactsBuildId $(Build.BuildId)'
     workingDirectory: '$(Build.SourcesDirectory)'
   env:
     GITHUB_DISTRO_MIXIN_PASSWORD: $(github-distro-mixin-password)
