@@ -33,15 +33,28 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             // Get the optionsMapTable property which has hte updated option values
             foreach (var deployOptionsProp in deploymentOptionsProperties)
             {
+                var prop = dacOptions.GetType().GetProperty(deployOptionsProp.Name);
+                if (prop != null)
+                {
+                    var val = deployOptionsProp.GetValue(deploymentOptions);
+                    var selectedVal = val.GetType().GetProperty("Value").GetValue(val);
+                    if (selectedVal != null && deployOptionsProp.Name == "ExcludeObjectTypes")
+                    {
+                        prop.SetValue(dacOptions, selectedVal);
+                    }
+                }
+
+                // Exclude the direct properties values and considering the optionsMapTable values
                 if (deployOptionsProp.Name == "optionsMapTable")
                 {
                     optionsMapTable = deployOptionsProp.GetValue(deploymentOptions) as Dictionary<string, DeploymentOptionProperty<bool>>;
                 }
             }
 
+            // Iterating through the updated boolean options coming from the optionsMapTable and assigning them to DacDeployOptions
             foreach (var deployOptionsProp in optionsMapTable)
             {
-                var prop = dacOptions.GetType().GetProperty(deployOptionsProp.Key.Replace(" ", ""));
+                var prop = dacOptions.GetType().GetProperty(deployOptionsProp.Value.propertyName);
                 if (prop != null)
                 {
                     var selectedVal = deployOptionsProp.Value.Value;
@@ -49,11 +62,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 }
             }
             return dacOptions;
-        }
-
-        internal static string GetPropertyNameFromDisplayName(string displayName)
-        {
-            return displayName.Replace(" ", "");
         }
 
         internal static DiffEntry CreateDiffEntry(SchemaDifference difference, DiffEntry parent)

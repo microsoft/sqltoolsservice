@@ -18,11 +18,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// </summary>
     public class DeploymentOptionProperty<T>
     {
-        public DeploymentOptionProperty(T value, string description = "", string displayName = "")
+        public DeploymentOptionProperty(T value, string description = "", string propertyName = "")
         {
             this.Value = value;
             this.Description = description;
-            this.DisplayName = displayName;
+            this.propertyName = propertyName;
         }
 
         // Default and selected value of the deployment options
@@ -31,8 +31,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         // Description of the deployment options
         public string Description { get; set; }
 
-        // To display the options in ADS extensions UI in SchemaCompare/SQL-DB-Project/Dacpac extensions
-        public string DisplayName { get; set; }
+        // To original name of the property of the options
+        public string propertyName { get; set; }
     }
 
     /// <summary>
@@ -272,6 +272,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 
         public DeploymentOptionProperty<bool> RebuildIndexesOfflineForDataPhase { get; set; }
 
+        public DeploymentOptionProperty<bool> IgnoreSensitivityClassifications { get; set; }
+
         private Dictionary<string, string> _displayNameMapDict;
 
         public Dictionary<string, DeploymentOptionProperty<bool>> optionsMapTable { get; set; }
@@ -358,9 +360,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
             _displayNameMapDict[nameof(d.IgnoreIndexOptions)] = "Ignore Index Options";
             _displayNameMapDict[nameof(d.IgnoreIndexPadding)] = "Ignore Index Padding";
             _displayNameMapDict[nameof(d.IgnoreKeywordCasing)] = "Ignore Keyword Casing";
-            _displayNameMapDict[nameof(d.IgnoreLockHintsOnIndexes)] = "IgnoreLock Hints On Indexes";
-            _displayNameMapDict[nameof(d.IgnoreLoginSids)] = "IgnoreLogin Sids";
-            _displayNameMapDict[nameof(d.IgnoreNotForReplication)] = "IgnoreNotForReplication";
+            _displayNameMapDict[nameof(d.IgnoreLockHintsOnIndexes)] = "Ignore Lock Hints On Indexes";
+            _displayNameMapDict[nameof(d.IgnoreLoginSids)] = "Ignore Login Sids";
+            _displayNameMapDict[nameof(d.IgnoreNotForReplication)] = "Ignore Not For Replication";
             _displayNameMapDict[nameof(d.IgnoreObjectPlacementOnPartitionScheme)] = "Ignore Object Placement On Partition Scheme";
             _displayNameMapDict[nameof(d.IgnorePartitionSchemes)] = "Ignore Partition Schemes";
             _displayNameMapDict[nameof(d.IgnorePermissions)] = "Ignore Permissions";
@@ -398,6 +400,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
             _displayNameMapDict[nameof(d.UnmodifiableObjectWarnings)] = "Unmodifiable Object Warnings";
             _displayNameMapDict[nameof(d.VerifyCollationCompatibility)] = "Verify Collation Compatibility";
             _displayNameMapDict[nameof(d.VerifyDeployment)] = "Verify Deployment";
+            _displayNameMapDict[nameof(d.IgnoreSensitivityClassifications)] = "Ignore Sensitivity Classifications";
             #endregion
         }
 
@@ -510,7 +513,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
             var attribute = prop.GetCustomAttributes<DescriptionAttribute>(true).FirstOrDefault();
             Type type = val != null ? typeof(DeploymentOptionProperty<>).MakeGenericType(val.GetType()) 
                 : typeof(DeploymentOptionProperty<>).MakeGenericType(prop.PropertyType);
-            object setProp = Activator.CreateInstance(type, val, attribute.Description,_displayNameMapDict[deployOptionsProp.Name]);
+            object setProp = Activator.CreateInstance(type, val, attribute.Description, deployOptionsProp.Name);
             deployOptionsProp.SetValue(this, setProp);
             if (setProp.GetType() == typeof(DeploymentOptionProperty<bool>))
             {
