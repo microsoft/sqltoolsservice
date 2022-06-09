@@ -1,6 +1,6 @@
 <Project>
   <Sdk Name="Microsoft.Build.CentralPackageVersions" Version="2.0.52" />
-	<PropertyGroup Condition="'$(Configuration)' == 'Debug' and ('$(BuildingInsideVisualStudio)' != ''">
+	<PropertyGroup Condition="'$(Configuration)' == 'Debug' and ('$(BuildingInsideVisualStudio)' != '')">
 		<DebugType>full</DebugType>
 		<DebugSymbols>true</DebugSymbols>
 	</PropertyGroup>
