@@ -31,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         // Description of the deployment options
         public string Description { get; set; }
 
-        // To original name of the property of the options
+        // To original name of the current property
         public string propertyName { get; set; }
     }
 
@@ -515,6 +515,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
                 : typeof(DeploymentOptionProperty<>).MakeGenericType(prop.PropertyType);
             object setProp = Activator.CreateInstance(type, val, attribute.Description, deployOptionsProp.Name);
             deployOptionsProp.SetValue(this, setProp);
+
+            // All boolean options must go into optionsMapTable
             if (setProp.GetType() == typeof(DeploymentOptionProperty<bool>))
             {
                 this.optionsMapTable[_displayNameMapDict[deployOptionsProp.Name]] = (DeploymentOptionProperty<bool>)setProp;

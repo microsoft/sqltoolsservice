@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             DacDeployOptions dacOptions = new DacDeployOptions();
             var optionsMapTable = new Dictionary<string, DeploymentOptionProperty<bool>>();
 
-            // Get the optionsMapTable property which has hte updated option values
+            // Get the optionsMapTable property which has the updated option values
             foreach (var deployOptionsProp in deploymentOptionsProperties)
             {
                 var prop = dacOptions.GetType().GetProperty(deployOptionsProp.Name);
@@ -38,6 +38,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 {
                     var val = deployOptionsProp.GetValue(deploymentOptions);
                     var selectedVal = val.GetType().GetProperty("Value").GetValue(val);
+
+                    // Set the excludeObjectTypes values to the DacDeployOptions
                     if (selectedVal != null && deployOptionsProp.Name == "ExcludeObjectTypes")
                     {
                         prop.SetValue(dacOptions, selectedVal);
