@@ -22,8 +22,7 @@
 ## Run Tests
 
 The SQL Tools Service has several different types of tests such as unit tests, "connected" tests, 
-integration tests, perf tests and stress tests. Additionally, there is also test configuration 
-scripts to collect code coverage results.
+integration tests, perf tests and stress tests. 
 
 ### Running Unit Tests
 

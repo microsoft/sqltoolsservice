@@ -17,7 +17,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitignore = .gitignore
 		.mention-bot = .mention-bot
 		.travis.yml = .travis.yml
-		appveyor.yml = appveyor.yml
 		BUILD.md = BUILD.md
 		Directory.Build.props = Directory.Build.props
 		global.json = global.json

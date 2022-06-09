@@ -83,8 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AdminServices
         /// <summmary>
         /// Get database info test
         /// </summary>
-        /// Test is failing in code coverage runs. Reenable when stable.
-        /// [Test]
+        [Test]
         public async Task GetDatabaseInfoTest()
         {
             var results = GetLiveAutoCompleteTestObjects();

@@ -30,8 +30,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Driver
     {
         public const string ServiceHostEnvironmentVariable = "SQLTOOLSSERVICE_EXE";
 
-        public bool IsCoverageRun { get; set; }
-
         private Process[] serviceProcesses;
 
         private DateTime startTime;
@@ -77,19 +75,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Driver
             await this.protocolClient.Start();
             await Task.Delay(1000); // Wait for the service host to start
 
-            // If this is a code coverage run, we need access to the service layer separate from open cover
-            if (IsCoverageRun)
-            {
-                CancellationTokenSource cancelSource = new CancellationTokenSource();
-                Task getServiceProcess = GetServiceProcess(cancelSource.Token);
-                Task timeoutTask = Task.Delay(TimeSpan.FromSeconds(15), cancelSource.Token);
-                if (await Task.WhenAny(getServiceProcess, timeoutTask) == timeoutTask)
-                {
-                    cancelSource.Cancel();
-                    throw new Exception("Failed to capture service process");
-                }
-            }
-
             Console.WriteLine("Successfully launched service");
 
             // Setup events to queue for testing
@@ -107,19 +92,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Driver
         /// </summary>
         public async Task Stop()
         {
-            if (IsCoverageRun)
-            {
-                // Kill all the processes in the list
-                foreach (Process p in serviceProcesses.Where(p => !p.HasExited))
-                {
-                    p.Kill();
-                }
-                ServiceProcess?.WaitForExit();
-            }
-            else
-            {
-                await this.protocolClient.Stop();
-            }
+            await this.protocolClient.Stop();
         }
 
         private async Task GetServiceProcess(CancellationToken token)
