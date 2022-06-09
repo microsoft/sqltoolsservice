@@ -50,13 +50,6 @@ steps:
     verbose: false
     customCommand: 'install -g gulp-cli'
 
-- task: BatchScript@1
-  displayName: 'Run script test/CodeCoverage/runintegration.bat'
-  inputs:
-    filename: test/CodeCoverage/runintegration.bat
-    workingFolder: test/CodeCoverage
-  enabled: false
-
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
   displayName: 'ESRP CodeSigning - sha256 only'
   inputs:

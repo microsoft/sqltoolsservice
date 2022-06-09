@@ -28,13 +28,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Driver
     /// </summary>
     public class ServiceTestDriver : TestDriverBase
     {
-
-        public const string ServiceCodeCoverageEnvironmentVariable = "SERVICECODECOVERAGE";
-
-        public const string CodeCoverageToolEnvironmentVariable = "CODECOVERAGETOOL";
-
-        public const string CodeCoverageOutputEnvironmentVariable = "CODECOVERAGEOUTPUT";
-
         public const string ServiceHostEnvironmentVariable = "SQLTOOLSSERVICE_EXE";
 
         public bool IsCoverageRun { get; set; }
@@ -65,33 +58,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Driver
             {
                 throw new FileNotFoundException($"Failed to find Microsoft.SqlTools.ServiceLayer.exe at provided location '{serviceHostExecutable}'. " +
                                                 "Please set SQLTOOLSSERVICE_EXE environment variable to location of exe");
-            }
-
-            //setup the service host for code coverage if the envvar is enabled
-            if (Environment.GetEnvironmentVariable(ServiceCodeCoverageEnvironmentVariable) == "True")
-            {
-                string coverageToolPath = Environment.GetEnvironmentVariable(CodeCoverageToolEnvironmentVariable);
-                if (!string.IsNullOrWhiteSpace(coverageToolPath))
-                {
-                    string serviceHostDirectory = Path.GetDirectoryName(serviceHostExecutable);
-                    if (string.IsNullOrWhiteSpace(serviceHostDirectory))
-                    {
-                        serviceHostDirectory = ".";
-                    }
-
-                    string coverageOutput = Environment.GetEnvironmentVariable(CodeCoverageOutputEnvironmentVariable);
-                    if (string.IsNullOrWhiteSpace(coverageOutput))
-                    {
-                        coverageOutput = "coverage.xml";
-                    }
-
-                    serviceHostArguments = $"-mergeoutput -target:{serviceHostExecutable} -targetargs:{serviceHostArguments} " +
-                                           $"-register:user -oldstyle -filter:\"+[Microsoft.SqlTools.*]* -[xunit*]*\" -output:{coverageOutput} " +
-                                           $"-searchdirs:{serviceHostDirectory};";
-                    serviceHostExecutable = coverageToolPath;
-
-                    this.IsCoverageRun = true;
-                }
             }
 
             this.clientChannel = new StdioClientChannel(serviceHostExecutable, serviceHostArguments);

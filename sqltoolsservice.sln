@@ -46,16 +46,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{F9978D78
 		build.sh = build.sh
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CodeCoverage", "CodeCoverage", "{87D9C7D9-18F4-4AB9-B20D-66C02B6075E2}"
-	ProjectSection(SolutionItems) = preProject
-		test\CodeCoverage\codecoverage.bat = test\CodeCoverage\codecoverage.bat
-		test\CodeCoverage\gulpfile.js = test\CodeCoverage\gulpfile.js
-		test\CodeCoverage\package.json = test\CodeCoverage\package.json
-		test\CodeCoverage\packages.config = test\CodeCoverage\packages.config
-		test\CodeCoverage\ReplaceText.vbs = test\CodeCoverage\ReplaceText.vbs
-		test\CodeCoverage\runintegration.bat = test\CodeCoverage\runintegration.bat
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.Credentials", "src\Microsoft.SqlTools.Credentials\Microsoft.SqlTools.Credentials.csproj", "{0F761F76-E0F3-472E-B539-1815CE2BC696}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.Hosting", "src\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj", "{AAE1F8D1-F7AB-4ABE-A55B-D423393AB352}"
