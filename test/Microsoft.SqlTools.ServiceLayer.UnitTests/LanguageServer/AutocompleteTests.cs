@@ -56,15 +56,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             var signatureRequestContext = new Mock<RequestContext<SignatureHelp>>();
             SignatureHelp result = null;
             signatureRequestContext.Setup(rc => rc.SendResult(It.IsAny<SignatureHelp>()))
-            .Returns<SignatureHelp>((signature) => {
+            .Returns<SignatureHelp>((signature) =>
+            {
                 result = signature;
                 return Task.FromResult(0);
             });
-            signatureRequestContext.Setup(rc => rc.SendError(It.IsAny<string>(), It.IsAny<int>())).Returns(Task.FromResult(0));
+            signatureRequestContext.Setup(rc => rc.SendError(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>())).Returns(Task.FromResult(0));
 
 
             langService.CurrentWorkspaceSettings.SqlTools.IntelliSense.EnableIntellisense = true;
-            await langService.HandleDidChangeLanguageFlavorNotification(new LanguageFlavorChangeParams {
+            await langService.HandleDidChangeLanguageFlavorNotification(new LanguageFlavorChangeParams
+            {
                 Uri = textDocument.TextDocument.Uri,
                 Language = LanguageService.SQL_LANG.ToLower(),
                 Flavor = "NotMSSQL"
@@ -73,8 +75,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             // verify that the response was sent with a null response value
             signatureRequestContext.Verify(m => m.SendResult(It.IsAny<SignatureHelp>()), Times.Once());
             Assert.Null(result);
-            signatureRequestContext.Verify(m => m.SendError(It.IsAny<string>(), It.IsAny<int>()), Times.Never());
-        }               
+            signatureRequestContext.Verify(m => m.SendError(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>()), Times.Never());
+        }
 
         [Test]
         public void AddOrUpdateScriptParseInfoNullUri()
@@ -94,7 +96,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             var definitionRequestContext = new Mock<RequestContext<Location[]>>();
             Location[] result = null;
             definitionRequestContext.Setup(rc => rc.SendResult(It.IsAny<Location[]>()))
-            .Returns<Location[]>((resultDetails) => {
+            .Returns<Location[]>((resultDetails) =>
+            {
                 result = resultDetails;
                 return Task.FromResult(0);
             });
@@ -102,7 +105,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             await langService.HandleDefinitionRequest(textDocument, definitionRequestContext.Object);
             // Should get an empty array when passed
             Assert.NotNull(result);
-            Assert.True(result.Length == 0, $"Unexpected values passed to SendResult : [{ string.Join(",", (object[])result)}]");
+            Assert.True(result.Length == 0, $"Unexpected values passed to SendResult : [{string.Join(",", (object[])result)}]");
         }
 
         [Test]
@@ -126,7 +129,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             // setup the mock for SendResult to capture the items
             CompletionItem[] completionItems = null;
             requestContext.Setup(x => x.SendResult(It.IsAny<CompletionItem[]>()))
-                .Returns<CompletionItem[]>((resultDetails) => {
+                .Returns<CompletionItem[]>((resultDetails) =>
+                {
                     completionItems = resultDetails;
                     return Task.FromResult(0);
                 });
@@ -154,7 +158,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                     EndColumnNumber = 1,
                     EndOffset = 0
                 }
-            }; 
+            };
             var diagnostic = DiagnosticsHelper.GetDiagnosticFromMarker(scriptFileMarker);
             Assert.AreEqual(diagnostic.Message, scriptFileMarker.Message);
         }
@@ -211,13 +215,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                 Contents = sqlText
             };
 
-        
+
             ParseResult parseResult = langService.ParseAndBind(scriptFile, null);
             ScriptParseInfo scriptParseInfo = langService.GetScriptParseInfo(scriptFile.ClientUri, true);
 
             return new ScriptDocumentInfo(textDocumentPosition, scriptFile, scriptParseInfo);
         }
-        
+
         [Test]
         //complete select query with the cursor at * should return a sqlselectstarexpression object.
         [TestCase("select * from sys.all_objects", 0, 8, "SelectStarExpression is not returned on complete select query with star")]
@@ -250,7 +254,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         [Test]
         public void TryGetSqlSelectStarStatementNullFileTest()
         {
-             Assert.Null(AutoCompleteHelper.TryGetSelectStarStatement(null, null), "null is not returned on null file");
+            Assert.Null(AutoCompleteHelper.TryGetSelectStarStatement(null, null), "null is not returned on null file");
         }
 
         [Test]

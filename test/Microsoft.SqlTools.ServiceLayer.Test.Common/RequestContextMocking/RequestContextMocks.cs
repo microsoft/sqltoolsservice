@@ -51,7 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking
             Action<string, int> errorCallback)
         {
             // Setup the mock for SendError
-            var sendErrorFlow = mock.Setup(rc => rc.SendError(It.IsAny<string>(), It.IsAny<int>()))
+            var sendErrorFlow = mock.Setup(rc => rc.SendError(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>()))
                 .Returns(Task.FromResult(0));
             if (errorCallback != null)
             {
