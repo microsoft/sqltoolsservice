@@ -37,14 +37,6 @@ msbuild.log
 msbuild.err
 msbuild.wrn
 
-# code coverage artifacts
-coverage.xml
-node_modules
-reports
-opencovertests.xml
-outputCobertura.xml
-sqltools.xml
-
 # Cross building rootfs
 cross/rootfs/
 

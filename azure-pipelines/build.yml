@@ -33,7 +33,7 @@ steps:
     command: test
     projects: test/Microsoft.SqlTools.ServiceLayer.UnitTests
     testRunTitle: SqlTools.ServiceLayer.UnitTests
-    arguments: '--configuration $(buildConfiguration) --collect "Code coverage"'
+    arguments: '--configuration $(buildConfiguration)'
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test test/Microsoft.Kusto.ServiceLayer.UnitTests'
@@ -41,7 +41,7 @@ steps:
     command: test
     projects: test/Microsoft.Kusto.ServiceLayer.UnitTests
     testRunTitle: Kusto.ServiceLayer.UnitTests
-    arguments: '--configuration $(buildConfiguration) --collect "Code coverage"'
+    arguments: '--configuration $(buildConfiguration)'
 
 - task: Npm@1
   displayName: 'npm install -g gulp-cli'
@@ -49,13 +49,6 @@ steps:
     command: custom
     verbose: false
     customCommand: 'install -g gulp-cli'
-
-- task: BatchScript@1
-  displayName: 'Run script test/CodeCoverage/runintegration.bat'
-  inputs:
-    filename: test/CodeCoverage/runintegration.bat
-    workingFolder: test/CodeCoverage
-  enabled: false
 
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
   displayName: 'ESRP CodeSigning - sha256 only'
