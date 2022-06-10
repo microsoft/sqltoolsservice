@@ -11,6 +11,7 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using System;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AdminServices
 {
@@ -39,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AdminServices
         /// <summary>
         /// Validate creating a database with valid input
         /// </summary>
-        // [Test]
+        [Test]
         public async Task CreateDatabaseWithValidInputTest()
         {
             var result = GetLiveAutoCompleteTestObjects();
@@ -63,7 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AdminServices
         /// <summary>
         /// Get a default database info object
         /// </summary>
-        // [Test]
+        [Test]
         public async Task GetDefaultDatebaseInfoTest()
         {
             var result = GetLiveAutoCompleteTestObjects();
@@ -83,8 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AdminServices
         /// <summmary>
         /// Get database info test
         /// </summary>
-        /// Test is failing in code coverage runs. Reenable when stable.
-        /// [Test]
+        [Test]
         public async Task GetDatabaseInfoTest()
         {
             var results = GetLiveAutoCompleteTestObjects();
