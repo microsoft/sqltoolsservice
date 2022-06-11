@@ -61,21 +61,21 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests
         protected void VerifyResult<T, TResult>(Mock<RequestContext<T>> contextMock, Action<TResult> verify, TResult actual)
         {
             contextMock.Verify(c => c.SendResult(It.IsAny<T>()), Times.Once);
-            contextMock.Verify(c => c.SendError(It.IsAny<string>(), It.IsAny<int>()), Times.Never);
+            contextMock.Verify(c => c.SendError(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>()), Times.Never);
             verify(actual);
         }
 
         protected void VerifyResult<T>(Mock<RequestContext<T>> contextMock, Action<T> verify, T actual)
         {
             contextMock.Verify(c => c.SendResult(It.IsAny<T>()), Times.Once);
-            contextMock.Verify(c => c.SendError(It.IsAny<string>(), It.IsAny<int>()), Times.Never);
+            contextMock.Verify(c => c.SendError(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>()), Times.Never);
             verify(actual);
         }
 
         protected void VerifyErrorSent<T>(Mock<RequestContext<T>> contextMock)
         {
             contextMock.Verify(c => c.SendResult(It.IsAny<T>()), Times.Never);
-            contextMock.Verify(c => c.SendError(It.IsAny<string>(), It.IsAny<int>()), Times.Once);
+            contextMock.Verify(c => c.SendError(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>()), Times.Once);
         }
     }
 }

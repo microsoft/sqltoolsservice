@@ -21,9 +21,14 @@ namespace Microsoft.SqlTools.Hosting.Contracts
         /// </summary>
         public string Message { get; set; }
 
+        /// <summary>
+        /// Additional data.
+        /// </summary>
+        public string Data { get; set; }
+
         public override string ToString()
         {
-            return $"Error(Code={Code},Message='{Message}')";
+            return $"Error(Code={Code},Message='{Message}',Data='{Data}')";
         }
     }
 }
