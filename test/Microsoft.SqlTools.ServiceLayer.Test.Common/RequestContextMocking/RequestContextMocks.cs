@@ -48,14 +48,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking
 
         public static Mock<RequestContext<TResponse>> AddErrorHandling<TResponse>(
             this Mock<RequestContext<TResponse>> mock,
-            Action<string, int> errorCallback)
+            Action<string, int, string> errorCallback)
         {
             // Setup the mock for SendError
             var sendErrorFlow = mock.Setup(rc => rc.SendError(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>()))
                 .Returns(Task.FromResult(0));
             if (errorCallback != null)
             {
-                sendErrorFlow.Callback<string, int>(errorCallback);
+                sendErrorFlow.Callback<string, int, string>(errorCallback);
             }
 
             return mock;

@@ -39,7 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
         {
             object errorResponse = null;
             var contextMock = RequestContextMocks.Create<ListTasksResponse>(null)
-                                                 .AddErrorHandling((errorMessage, errorCode) => errorResponse = errorMessage);
+                                                 .AddErrorHandling((errorMessage, errorCode, data) => errorResponse = errorMessage);
 
             await service.HandleListTasksRequest(null, contextMock.Object);
             VerifyErrorSent(contextMock);
