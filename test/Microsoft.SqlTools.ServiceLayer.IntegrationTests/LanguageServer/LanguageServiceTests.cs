@@ -136,7 +136,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             var requestContext = new Mock<SqlTools.Hosting.Protocol.RequestContext<bool>>();
             requestContext.Setup(x => x.SendResult(It.IsAny<bool>()))
                 .Returns(Task.FromResult(true));
-            requestContext.Setup(x => x.SendError(It.IsAny<string>(), 0))
+            requestContext.Setup(x => x.SendError(It.IsAny<string>(), 0, It.IsAny<string>()))
                 .Returns(Task.FromResult(true));
 
             //Create completion extension parameters
@@ -151,13 +151,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             await autoCompleteService.HandleCompletionExtLoadRequest(extensionParams, requestContext.Object);
 
             requestContext.Verify(x => x.SendResult(It.IsAny<bool>()), Times.Once);
-            requestContext.Verify(x => x.SendError(It.IsAny<string>(), 0), Times.Never);
+            requestContext.Verify(x => x.SendError(It.IsAny<string>(), 0, It.IsAny<string>()), Times.Never);
 
             //Try to load the same completion extension second time, expect an error sent
             await autoCompleteService.HandleCompletionExtLoadRequest(extensionParams, requestContext.Object);
 
             requestContext.Verify(x => x.SendResult(It.IsAny<bool>()), Times.Once);
-            requestContext.Verify(x => x.SendError(It.IsAny<string>(), 0), Times.Once);
+            requestContext.Verify(x => x.SendError(It.IsAny<string>(), 0, It.IsAny<string>()), Times.Once);
 
             //Try to load the completion extension with new modified timestamp, expect a success
             var assemblyCopyPath = CopyFileWithNewModifiedTime(extensionParams.AssemblyPath);
@@ -173,7 +173,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                 await autoCompleteService.HandleCompletionExtLoadRequest(extensionParams, requestContext.Object);
 
                 requestContext.Verify(x => x.SendResult(It.IsAny<bool>()), Times.Exactly(2));
-                requestContext.Verify(x => x.SendError(It.IsAny<string>(), 0), Times.Once);
+                requestContext.Verify(x => x.SendError(It.IsAny<string>(), 0, It.IsAny<string>()), Times.Once);
 
                 ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
                 autoCompleteService.ParseAndBind(result.ScriptFile, result.ConnectionInfo);
@@ -354,7 +354,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                 // Create a workspace and add file to it so that its found for intellense building
                 var workspace = new ServiceLayer.Workspace.Workspace();
                 var workspaceService = new WorkspaceService<SqlToolsSettings> { Workspace = workspace };
-                var langService = new LanguageService() { WorkspaceServiceInstance = workspaceService }; 
+                var langService = new LanguageService() { WorkspaceServiceInstance = workspaceService };
                 langService.CurrentWorkspace.GetFile(scriptFile.ClientUri);
                 langService.CurrentWorkspaceSettings.SqlTools.IntelliSense.EnableIntellisense = true;
 
@@ -448,7 +448,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                 // Now create tables that should show up in the completion list
                 testDb.RunQuery(createTableQueries);
 
-                                // And refresh the cache
+                // And refresh the cache
                 await langService.HandleRebuildIntelliSenseNotification(
                     new RebuildIntelliSenseParams() { OwnerUri = connectionInfoResult.ScriptFile.ClientUri },
                     new TestEventContext());
@@ -462,7 +462,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             finally
             {
                 testDb.Cleanup();
-            }   
+            }
         }
     }
 }
