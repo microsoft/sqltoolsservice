@@ -47,9 +47,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 }
 
                 // Exclude the direct properties values and considering the optionsMapTable values
-                if (deployOptionsProp.Name == "optionsMapTable")
+                if (deployOptionsProp.Name == "OptionsMapTable")
                 {
-                    optionsMapTable = deployOptionsProp.GetValue(deploymentOptions) as Dictionary<string, DeploymentOptionProperty<bool>>;
+                    optionsMapTable = deploymentOptions.OptionsMapTable as Dictionary<string, DeploymentOptionProperty<bool>>;
                 }
             }
 

@@ -131,21 +131,22 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
 
             foreach (var deployOptionsProp in deploymentOptionsProperties)
             {
-                var dacProp = dacDeployOptions.GetType().GetProperty(deployOptionsProp.Name);
-                Assert.True(dacProp != null, $"DacDeploy property not present for {deployOptionsProp.Name}");
-
-                var deployOptionsValue = deployOptionsProp.GetValue(deploymentOptions);
-                var changedDacValue = deployOptionsValue != null ? deployOptionsValue.GetType().GetProperty("Value").GetValue(deployOptionsValue) : deployOptionsValue;
-                var dafaultDacValue = dacProp.GetValue(dacDeployOptions);
-
-                if (deployOptionsProp.Name != "ExcludeObjectTypes") // do not compare for ExcludeObjectTypes because it will be different
+                if (deployOptionsProp.Name != "optionsMapTable")
                 {
-                    Assert.True((deployOptionsValue == null && dafaultDacValue == null) 
-                        || deployOptionsValue.Equals(dafaultDacValue)
-                        || changedDacValue == null && (dafaultDacValue as string) == string.Empty
-                        || changedDacValue == null && dafaultDacValue == null 
-                        || (changedDacValue).Equals(dafaultDacValue)
-                        , $"DacFx DacDeploy property not equal to Tools Service DeploymentOptions for { deployOptionsProp.Name}, SchemaCompareOptions value: {changedDacValue} and DacDeployOptions value: {dafaultDacValue} ");
+                    var dacProp = dacDeployOptions.GetType().GetProperty(deployOptionsProp.Name);
+                    Assert.True(dacProp != null, $"DacDeploy property not present for {deployOptionsProp.Name}");
+
+                    var defaultP = deployOptionsProp.GetValue(deploymentOptions);
+                    var defaultPValue = defaultP != null ? defaultP.GetType().GetProperty("Value").GetValue(defaultP) : defaultP;
+                    var actualPValue = dacProp.GetValue(dacDeployOptions);
+
+                    if (deployOptionsProp.Name != "ExcludeObjectTypes") // do not compare for ExcludeObjectTypes because it will be different
+                    {
+                        // Verifying expected and actual deployment options properties are equal
+                        Assert.True((defaultPValue == null && String.IsNullOrEmpty(actualPValue as string))
+                         || (defaultPValue).Equals(actualPValue)
+                        , $"DacFx DacDeploy property not equal to Tools Service DeploymentOptions for {deployOptionsProp.Name}, Actual value: {actualPValue} and Default value: {defaultPValue}");
+                    }
                 }
             }
         }
