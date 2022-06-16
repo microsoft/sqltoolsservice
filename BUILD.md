@@ -1,4 +1,4 @@
-# Build
+# Build test
 
 To build the vscode-mssql Service Layer, the most straight-forward way is open the source project 
 (./src/Microsoft.SqlTools.ServiceLayer/ folder), restore the project's NuGet dependencies (which
