@@ -4983,4 +4983,107 @@ The Query Processor estimates that implementing the following index could improv
     <value>Whether the computed column can have a NULL value (NOT NULL can only be specified if the column is persisted)</value>
     <comment></comment>
   </data>
+  <data name="IndexMustHaveColumnsRuleDescription" xml:space="preserve">
+    <value>Index &apos;{0}&apos; does not have any columns associated with it.</value>
+    <comment>.
+ Parameters: 0 - indexName (string) </comment>
+  </data>
+  <data name="ForeignKeyMustHaveColumnsRuleDescription" xml:space="preserve">
+    <value>Foreign key &apos;{0}&apos; does not have any columns specified.</value>
+    <comment>.
+ Parameters: 0 - foreignKeyName (string) </comment>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInIndexRuleDescription" xml:space="preserve">
+    <value>Column with name &apos;{0}&apos; has already been added to the index &apos;{1}&apos;. Row number: {2}.</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </comment>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInForeignKeyRuleDescription" xml:space="preserve">
+    <value>Column with name &apos;{0}&apos; has already been added to the foreign key &apos;{1}&apos;. Row number: {2}.</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - foreignKeyName (string), 2 - rowNumber (int) </comment>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInForeignKeyRuleForeignColumnDescription" xml:space="preserve">
+    <value>Foreign column with name &apos;{0}&apos; has already been added to the foreign key &apos;{1}&apos;. Row number: {2}.</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - foreignKeyName (string), 2 - rowNumber (int) </comment>
+  </data>
+  <data name="NoDuplicateConstraintNameRuleDescription" xml:space="preserve">
+    <value>The name &apos;{0}&apos; is already used by another constraint. Row number: {1}.</value>
+    <comment>.
+ Parameters: 0 - constraintName (string), 1 - rowNumber (int) </comment>
+  </data>
+  <data name="NoDuplicateColumnNameRuleDescription" xml:space="preserve">
+    <value>The name &apos;{0}&apos; is already used by another column. Row number: {1}.</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - rowNumber (int) </comment>
+  </data>
+  <data name="NoDuplicateIndexNameRuleDescription" xml:space="preserve">
+    <value>The name &apos;{0}&apos; is already used by another index. Row number: {1}.</value>
+    <comment>.
+ Parameters: 0 - indexName (string), 1 - rowNumber (int) </comment>
+  </data>
+  <data name="EdgeConstraintMustHaveClausesRuleDescription" xml:space="preserve">
+    <value>Edge constraint &apos;{0}&apos; does not have any clauses specified.</value>
+    <comment>.
+ Parameters: 0 - name (string) </comment>
+  </data>
+  <data name="EdgeConstraintNoRepeatingClausesRuleDescription" xml:space="preserve">
+    <value>The pair &apos;{0}&apos; is already defined by another clause in the edge constraint. Row number: {1}.</value>
+    <comment>.
+ Parameters: 0 - pair (string), 1 - rowNumber (int) </comment>
+  </data>
+  <data name="MemoryOptimizedTableMustHaveNonClusteredPrimaryKeyRuleDescription" xml:space="preserve">
+    <value>Memory-optimized table must have non-clustered primary key.</value>
+    <comment></comment>
+  </data>
+  <data name="TemporalTableMustHavePrimaryKeyRuleDescription" xml:space="preserve">
+    <value>System versioned table must have primary key.</value>
+    <comment></comment>
+  </data>
+  <data name="TemporalTableMustHavePeriodColumnsRuleDescription" xml:space="preserve">
+    <value>System versioned table must have the period columns defined.</value>
+    <comment></comment>
+  </data>
+  <data name="PeriodColumnsRuleMoreThanOneIssueDescription" xml:space="preserve">
+    <value>Period columns (Generated Always As Row Start/End) can only be defined once.</value>
+    <comment></comment>
+  </data>
+  <data name="PeriodColumnsRuleNotMatchIssueDescription" xml:space="preserve">
+    <value>Period columns (Generated Always As Row Start/End) must be defined as pair. If one is defined, the other must also be defined.</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnsInPrimaryKeyCannotBeNullableRuleDescription" xml:space="preserve">
+    <value>Columns in primary key cannot be nullable.</value>
+    <comment></comment>
+  </data>
+  <data name="OnlyDurableMemoryOptimizedTableCanBeSystemVersionedRuleDescription" xml:space="preserve">
+    <value>Only durable (DURABILITY = SCHEMA_AND_DATA) memory-optimized tables can be system-versioned.</value>
+    <comment></comment>
+  </data>
+  <data name="TableMustHaveAtLeastOneColumnRuleDescription" xml:space="preserve">
+    <value>A table must have at least one non-computed column defined.</value>
+    <comment></comment>
+  </data>
+  <data name="MemoryOptimizedTableIdentityColumnRuleDescription" xml:space="preserve">
+    <value>The use of seed and increment values other than 1 is not supported with memory optimized tables.</value>
+    <comment></comment>
+  </data>
+  <data name="TableShouldAvoidHavingMultipleEdgeConstraintsRuleDescription" xml:space="preserve">
+    <value>The table has more than one edge constraint on it. This is only useful as a temporary state when modifying existing edge constraints, and should not be used in other cases.</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnCannotBeListedMoreThanOnceInPrimaryKeyRuleDescription" xml:space="preserve">
+    <value>Cannot use duplicate column names in primary key, column name: {0}</value>
+    <comment>.
+ Parameters: 0 - columnName (string) </comment>
+  </data>
+  <data name="MemoryOptimizedCannotBeEnabledWhenNotSupportedRuleDescription" xml:space="preserve">
+    <value>Memory-optimized table is not supported for this database.</value>
+    <comment></comment>
+  </data>
+  <data name="MutipleCreateTableStatementsInScriptRuleDescription" xml:space="preserve">
+    <value>There are multiple table definitions in the script, only the first table can be edited in the designer.</value>
+    <comment></comment>
+  </data>
 </root>
