@@ -23,6 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer
         /// </summary>
         internal static void Main(string[] args)
         {
+            SqlClientListener? sqlClientListener = null;
             try
             {
                 // read command-line arguments
@@ -43,7 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer
                 // detailed logging it provides isn't needed
                 if (Logger.TracingLevel.HasFlag(SourceLevels.Verbose))
                 {
-                    new SqlClientListener();
+                    sqlClientListener = new SqlClientListener();
                 }
 
                 // set up the host details and profile paths 
@@ -79,6 +80,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             finally
             {
                 Logger.Close();
+                sqlClientListener?.Dispose();
             }
         }
 
