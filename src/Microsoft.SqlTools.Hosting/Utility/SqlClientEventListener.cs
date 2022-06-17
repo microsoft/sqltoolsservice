@@ -26,8 +26,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             }
         }
 
-        // This callback runs whenever an event is written by SqlClientEventSource.
-        // Event data is accessed through the EventWrittenEventArgs parameter.
+        /// <summary>
+        /// This callback runs whenever an event is written by SqlClientEventSource.
+        /// Event data is accessed through the EventWrittenEventArgs parameter.
+        /// </summary>
+        /// <param name="eventData">The data for the event</param>
         protected override void OnEventWritten(EventWrittenEventArgs eventData)
         {
             if (eventData.Payload == null)
