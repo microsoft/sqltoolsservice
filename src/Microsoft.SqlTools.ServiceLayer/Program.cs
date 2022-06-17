@@ -39,6 +39,11 @@ namespace Microsoft.SqlTools.ServiceLayer
                 }
 
                 Logger.Initialize(tracingLevel: commandOptions.TracingLevel, logFilePath: logFilePath, traceSource: "sqltools", commandOptions.AutoFlushLog);
+                // Only enable SQL Client logging when verbose or higher
+                if (Logger.TracingLevel.HasFlag(SourceLevels.Verbose))
+                {
+                    new SqlClientListener();
+                }
 
                 // set up the host details and profile paths 
                 var hostDetails = new HostDetails(version: new Version(1, 0));
