@@ -23,6 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer
         /// </summary>
         internal static void Main(string[] args)
         {
+            SqlClientListener? sqlClientListener = null;
             try
             {
                 // read command-line arguments
@@ -39,6 +40,12 @@ namespace Microsoft.SqlTools.ServiceLayer
                 }
 
                 Logger.Initialize(tracingLevel: commandOptions.TracingLevel, logFilePath: logFilePath, traceSource: "sqltools", commandOptions.AutoFlushLog);
+                // Only enable SQL Client logging when verbose or higher to avoid extra overhead when the
+                // detailed logging it provides isn't needed
+                if (Logger.TracingLevel.HasFlag(SourceLevels.Verbose))
+                {
+                    sqlClientListener = new SqlClientListener();
+                }
 
                 // set up the host details and profile paths 
                 var hostDetails = new HostDetails(version: new Version(1, 0));
@@ -73,6 +80,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             finally
             {
                 Logger.Close();
+                sqlClientListener?.Dispose();
             }
         }
 
