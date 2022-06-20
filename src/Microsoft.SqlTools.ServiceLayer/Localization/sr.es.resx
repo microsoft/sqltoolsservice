@@ -3721,4 +3721,73 @@ El procesador de consultas estima que la implementación del siguiente índice p
   <data name="TableColumnComputedFormulaTitle" xml:space="preserve">
     <value>Fórmula</value>
   </data>
+  <data name="IndexMustHaveColumnsRuleDescription" xml:space="preserve">
+    <value>El índice “{0}” no tiene ninguna columna asociada.</value>
+  </data>
+  <data name="ForeignKeyMustHaveColumnsRuleDescription" xml:space="preserve">
+    <value>La clave externa “{0}” no tiene ninguna columna especificada.</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInIndexRuleDescription" xml:space="preserve">
+    <value>La columna con el nombre “{0}” ya se ha agregado al índice “{1}”. Número de fila: {2}.</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInForeignKeyRuleDescription" xml:space="preserve">
+    <value>La columna con el nombre “{0}” ya se ha agregado a la clave externa “{1}”. Número de fila: {2}.</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInForeignKeyRuleForeignColumnDescription" xml:space="preserve">
+    <value>La columna externa con el nombre “{0}” ya se ha agregado a la clave externa “{1}”. Número de fila: {2}.</value>
+  </data>
+  <data name="NoDuplicateConstraintNameRuleDescription" xml:space="preserve">
+    <value>Otra restricción ya está usando el nombre “{0}”. Número de fila: {1}.</value>
+  </data>
+  <data name="NoDuplicateColumnNameRuleDescription" xml:space="preserve">
+    <value>Otra columna ya está usando el nombre “{0}”. Número de fila: {1}.</value>
+  </data>
+  <data name="NoDuplicateIndexNameRuleDescription" xml:space="preserve">
+    <value>Otro índice ya está usando el nombre “{0}”. Número de fila: {1}.</value>
+  </data>
+  <data name="EdgeConstraintMustHaveClausesRuleDescription" xml:space="preserve">
+    <value>La restricción perimetral “{0}” no tiene ninguna cláusula especificada.</value>
+  </data>
+  <data name="EdgeConstraintNoRepeatingClausesRuleDescription" xml:space="preserve">
+    <value>El par”'{0}” ya está definido por otra cláusula de la restricción perimetral. Número de fila: {1}.</value>
+  </data>
+  <data name="MemoryOptimizedTableMustHaveNonClusteredPrimaryKeyRuleDescription" xml:space="preserve">
+    <value>La tabla optimizada para memoria debe tener una clave principal no agrupado.</value>
+  </data>
+  <data name="TemporalTableMustHavePrimaryKeyRuleDescription" xml:space="preserve">
+    <value>La tabla con versiones del sistema debe tener la clave principal.</value>
+  </data>
+  <data name="TemporalTableMustHavePeriodColumnsRuleDescription" xml:space="preserve">
+    <value>La tabla con versiones del sistema debe tener definidas las columnas de período.</value>
+  </data>
+  <data name="PeriodColumnsRuleMoreThanOneIssueDescription" xml:space="preserve">
+    <value>Las columnas de período (generadas siempre como inicio y finalización de la fila) solo se pueden definir una vez.</value>
+  </data>
+  <data name="PeriodColumnsRuleNotMatchIssueDescription" xml:space="preserve">
+    <value>Las columnas de período (generadas siempre como inicio y finalización de la fila) deben definirse como pares. Si se define una, también se debe definir la otra.</value>
+  </data>
+  <data name="ColumnsInPrimaryKeyCannotBeNullableRuleDescription" xml:space="preserve">
+    <value>Las columnas de la clave principal no pueden admitir un valor NULL.</value>
+  </data>
+  <data name="OnlyDurableMemoryOptimizedTableCanBeSystemVersionedRuleDescription" xml:space="preserve">
+    <value>Solo las tablas optimizadas para memoria duraderas (DURABILITY = SCHEMA_AND_DATA) pueden tener versiones del sistema.</value>
+  </data>
+  <data name="TableMustHaveAtLeastOneColumnRuleDescription" xml:space="preserve">
+    <value>Una tabla debe tener al menos una columna no calculada definida.</value>
+  </data>
+  <data name="MemoryOptimizedTableIdentityColumnRuleDescription" xml:space="preserve">
+    <value>El uso de valores de inicialización e incremento distintos de 1 no es compatible con las tablas optimizadas para memoria.</value>
+  </data>
+  <data name="TableShouldAvoidHavingMultipleEdgeConstraintsRuleDescription" xml:space="preserve">
+    <value>La tabla tiene más de una restricción perimetral. Esto solo es útil como estado temporal cuando se modifican las restricciones perimetrales existentes y no se debe usar en otros casos.</value>
+  </data>
+  <data name="ColumnCannotBeListedMoreThanOnceInPrimaryKeyRuleDescription" xml:space="preserve">
+    <value>No se pueden usar nombres de columna duplicados en la clave principal, nombre de columna: {0}</value>
+  </data>
+  <data name="MemoryOptimizedCannotBeEnabledWhenNotSupportedRuleDescription" xml:space="preserve">
+    <value>No se admite la tabla optimizada para memoria para esta base de datos.</value>
+  </data>
+  <data name="MutipleCreateTableStatementsInScriptRuleDescription" xml:space="preserve">
+    <value>Hay varias definiciones de tabla en el script. Solo se puede editar la primera tabla en el diseñador.</value>
+  </data>
 </root>
