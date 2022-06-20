@@ -41,8 +41,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             {
                 if (payload != null)
                 {
-                    Logger.Verbose($"eventTID:{eventData.OSThreadId} {payload.ToString()}");
+                    Logger.Verbose(payload.ToString());
                 }
+
             }
 
         }
