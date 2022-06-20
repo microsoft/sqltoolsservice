@@ -1,6 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>netstandard2.1</TargetFramework>
 		<Nullable>disable</Nullable>
 		<PackageId>Microsoft.SqlTools.ResourceProvider.Core</PackageId>
 		<AssemblyName>Microsoft.SqlTools.ResourceProvider.Core</AssemblyName>
